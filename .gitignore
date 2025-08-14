@@ -1,0 +1,62 @@
+#### Backend ####
+
+.env
+
+Backend/HELP.md
+Backend/.gradle
+Backend/target/
+!Backend/*.mvn/wrapper/maven-wrapper.jar
+!Backend/*/src/main/*/target/
+!Backend/*/src/test/*/target/
+
+### STS ###
+Backend/.apt_generated
+Backend/.classpath
+Backend/.factorypath
+Backend/.project
+Backend/.settings
+Backend/.springBeans
+Backend/.sts4-cache
+
+### IntelliJ IDEA ###
+Backend/.idea
+Backend/*.iws
+Backend/*.iml
+Backend/*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+Backend/build/
+Backend/!**/src/main/**/build/
+Backend/!**/src/test/**/build/
+
+### VS Code ###
+Backend/.vscode/
+
+#### Frontend ####
+# dependencies
+Frontend/node_modules
+Frontend/.pnp
+Frontend/.pnp.js
+
+# testing
+Frontend/coverage
+
+# production
+Frontend/build
+
+# misc
+Frontend/.DS_Store
+Frontend/.env.local
+Frontend/.env.development.local
+Frontend/.env.test.local
+Frontend/.env.production.local
+Frontend/.vscode/
+
+Frontend/npm-debug.log*
+Frontend/yarn-debug.log*
+Frontend/yarn-error.log*
