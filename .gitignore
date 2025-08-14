@@ -1,62 +1,67 @@
-#### Backend ####
 
+# --- General ---
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- OS ---
+.idea/
+.vscode/
+.history/
 .env
+.env.*
 
-Backend/HELP.md
-Backend/.gradle
-Backend/target/
-!Backend/*.mvn/wrapper/maven-wrapper.jar
-!Backend/*/src/main/*/target/
-!Backend/*/src/test/*/target/
+# --- Java/Spring Boot Backend ---
+backend/target/
+backend/.gradle/
+backend/.classpath
+backend/.project
+backend/.settings/
+backend/.apt_generated/
+backend/.factorypath
+backend/.springBeans
+backend/.sts4-cache
+backend/build/
+backend/HELP.md
+backend/.mvn/wrapper/maven-wrapper.jar
+!backend/src/**/target/
+!backend/src/**/build/
 
-### STS ###
-Backend/.apt_generated
-Backend/.classpath
-Backend/.factorypath
-Backend/.project
-Backend/.settings
-Backend/.springBeans
-Backend/.sts4-cache
+# IDE files
+backend/.idea/
+backend/*.iml
+backend/*.ipr
+backend/*.iws
 
-### IntelliJ IDEA ###
-Backend/.idea
-Backend/*.iws
-Backend/*.iml
-Backend/*.ipr
+# NetBeans
+backend/nbproject/private/
+backend/nbbuild/
+backend/dist/
+backend/nbdist/
+backend/.nb-gradle/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-Backend/build/
-Backend/!**/src/main/**/build/
-Backend/!**/src/test/**/build/
+# --- Node/Next.js Frontend ---
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.pnp/
+frontend/.pnp.js
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/coverage/
+frontend/build/
+frontend/.DS_Store
+frontend/.vscode/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/package-lock.json
+frontend/yarn.lock
 
-### VS Code ###
-Backend/.vscode/
-
-#### Frontend ####
-# dependencies
-Frontend/node_modules
-Frontend/.pnp
-Frontend/.pnp.js
-
-# testing
-Frontend/coverage
-
-# production
-Frontend/build
-
-# misc
-Frontend/.DS_Store
-Frontend/.env.local
-Frontend/.env.development.local
-Frontend/.env.test.local
-Frontend/.env.production.local
-Frontend/.vscode/
-
-Frontend/npm-debug.log*
-Frontend/yarn-debug.log*
-Frontend/yarn-error.log*
+# --- Misc ---
+*.bak
+*.orig
