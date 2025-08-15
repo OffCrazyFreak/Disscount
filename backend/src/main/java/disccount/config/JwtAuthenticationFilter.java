@@ -1,6 +1,6 @@
 package disccount.config;
 
-import disccount.service.JwtService;
+import disccount.auth.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
