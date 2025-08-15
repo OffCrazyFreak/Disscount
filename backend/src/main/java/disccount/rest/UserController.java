@@ -22,20 +22,15 @@ public class UserController {
 
     private final UserService userService;
 
-    @Operation(summary = "Get user by ID")
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable UUID id) {
-        // Only allow users to get their own profile
+    @Operation(summary = "Get current authenticated user")
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> getCurrentUser() {
         UUID authenticatedUserId = SecurityUtils.getCurrentUserId();
         if (authenticatedUserId == null) {
             return ResponseEntity.status(401).build();
         }
-        
-        if (!authenticatedUserId.equals(id)) {
-            return ResponseEntity.status(403).build();
-        }
-        
-        return userService.findById(id)
+
+        return userService.findById(authenticatedUserId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -47,25 +42,18 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @Operation(summary = "Patch user profile (username, stayLoggedInDays, notifications)")
-    @PatchMapping("/{id}")
-    public ResponseEntity<UserDto> updateProfile(
-            @PathVariable UUID id,
+    @Operation(summary = "Patch current user's profile (username, stayLoggedInDays, notifications)")
+    @PatchMapping("/me")
+    public ResponseEntity<UserDto> updateCurrentUser(
             @RequestBody UpdateUserRequest request) {
 
-        // Get the authenticated user ID from Spring Security context
         UUID authenticatedUserId = SecurityUtils.getCurrentUserId();
         if (authenticatedUserId == null) {
             return ResponseEntity.status(401).build();
         }
 
-        // Ensure the authenticated user can only update their own profile
-        if (!authenticatedUserId.equals(id)) {
-            return ResponseEntity.status(403).build();
-        }
-
         UserDto updatedUser = userService.updateProfile(
-                id,
+                authenticatedUserId,
                 request.getUsername(),
                 request.getStayLoggedInDays(),
                 request.getNotificationsPush(),
@@ -75,20 +63,15 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
-    @Operation(summary = "Soft delete user")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable UUID id) {
-        // Only allow users to delete their own account
+    @Operation(summary = "Soft delete current user")
+    @DeleteMapping("/me")
+    public ResponseEntity<Map<String, String>> deleteCurrentUser() {
         UUID authenticatedUserId = SecurityUtils.getCurrentUserId();
         if (authenticatedUserId == null) {
             return ResponseEntity.status(401).build();
         }
-        
-        if (!authenticatedUserId.equals(id)) {
-            return ResponseEntity.status(403).build();
-        }
-        
-        userService.softDeleteUser(id);
+
+        userService.softDeleteUser(authenticatedUserId);
         return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
     }
 
