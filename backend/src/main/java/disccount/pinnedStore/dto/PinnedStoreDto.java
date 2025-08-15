@@ -3,7 +3,6 @@ package disccount.pinnedStore.dto;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -14,5 +13,4 @@ public class PinnedStoreDto {
     private UUID userId;
     private String storeApiId;
     private String storeName;
-    private LocalDateTime createdAt;
 }

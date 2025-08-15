@@ -3,7 +3,6 @@ package disccount.pinnedPlace.dto;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -14,5 +13,4 @@ public class PinnedPlaceDto {
     private UUID userId;
     private String placeApiId;
     private String placeName;
-    private LocalDateTime createdAt;
 }

@@ -12,6 +12,6 @@ import java.util.UUID;
 @Repository
 public interface PinnedStoreRepository extends JpaRepository<PinnedStore, UUID> {
 
-    @Query("SELECT ps FROM PinnedStore ps WHERE ps.user.id = :userId AND ps.deletedAt IS NULL ORDER BY ps.createdAt ASC")
+    @Query("SELECT ps FROM PinnedStore ps WHERE ps.user.id = :userId")
     List<PinnedStore> findByUserId(@Param("userId") UUID userId);
 }

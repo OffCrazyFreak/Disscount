@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -28,10 +27,9 @@ public class PinnedPlaceService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BadRequestException("User not found"));
 
-        // First, soft delete all existing pinned places for this user
-        List<PinnedPlace> existingPlaces = pinnedPlaceRepository.findByUserIdAndDeletedAtIsNullOrderByCreatedAt(userId);
-        existingPlaces.forEach(place -> place.setDeletedAt(LocalDateTime.now()));
-        pinnedPlaceRepository.saveAll(existingPlaces);
+        // First, delete all existing pinned places for this user
+        List<PinnedPlace> existingPlaces = pinnedPlaceRepository.findByUserId(userId);
+        pinnedPlaceRepository.deleteAll(existingPlaces);
 
         // Then create new pinned places
         List<PinnedPlace> newPinnedPlaces = request.getPlaces().stream()
@@ -50,7 +48,7 @@ public class PinnedPlaceService {
 
     @Transactional(readOnly = true)
     public List<PinnedPlaceDto> getUserPinnedPlaces(UUID userId) {
-        return pinnedPlaceRepository.findByUserIdAndDeletedAtIsNullOrderByCreatedAt(userId)
+        return pinnedPlaceRepository.findByUserId(userId)
                 .stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
@@ -62,7 +60,6 @@ public class PinnedPlaceService {
                 .userId(pinnedPlace.getUser().getId())
                 .placeApiId(pinnedPlace.getPlaceApiId())
                 .placeName(pinnedPlace.getPlaceName())
-                .createdAt(pinnedPlace.getCreatedAt())
                 .build();
     }
 }

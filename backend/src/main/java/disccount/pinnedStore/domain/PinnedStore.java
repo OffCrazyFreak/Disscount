@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import disccount.appUser.domain.User;
@@ -34,15 +33,4 @@ public class PinnedStore {
     @NotBlank(message = "Store name is required")
     @Column(name = "store_name", nullable = false)
     private String storeName;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
 }

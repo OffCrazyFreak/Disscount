@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -28,10 +27,9 @@ public class PinnedStoreService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BadRequestException("User not found"));
 
-        // First, soft delete all existing pinned stores for this user
+        // First, delete all existing pinned stores for this user
         List<PinnedStore> existingStores = pinnedStoreRepository.findByUserId(userId);
-        existingStores.forEach(store -> store.setDeletedAt(LocalDateTime.now()));
-        pinnedStoreRepository.saveAll(existingStores);
+        pinnedStoreRepository.deleteAll(existingStores);
 
         // Then create new pinned stores
         List<PinnedStore> newPinnedStores = request.getStores().stream()
@@ -62,7 +60,6 @@ public class PinnedStoreService {
                 .userId(pinnedStore.getUser().getId())
                 .storeApiId(pinnedStore.getStoreApiId())
                 .storeName(pinnedStore.getStoreName())
-                .createdAt(pinnedStore.getCreatedAt())
                 .build();
     }
 }

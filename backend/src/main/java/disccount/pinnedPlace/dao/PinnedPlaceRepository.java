@@ -12,6 +12,6 @@ import java.util.UUID;
 @Repository
 public interface PinnedPlaceRepository extends JpaRepository<PinnedPlace, UUID> {
 
-    @Query("SELECT pp FROM PinnedPlace pp WHERE pp.user.id = :userId AND pp.deletedAt IS NULL ORDER BY pp.createdAt ASC")
-    List<PinnedPlace> findByUserIdAndDeletedAtIsNullOrderByCreatedAt(@Param("userId") UUID userId);
+    @Query("SELECT pp FROM PinnedPlace pp WHERE pp.user.id = :userId")
+    List<PinnedPlace> findByUserId(@Param("userId") UUID userId);
 }
