@@ -2,6 +2,7 @@ package disccount.rest;
 
 import disccount.dto.auth.*;
 import disccount.service.AuthService;
+import disccount.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -50,9 +51,11 @@ public class AuthController {
 
     @Operation(summary = "Logout from all sessions")
     @PostMapping("/logout-all")
-    public ResponseEntity<Map<String, String>> logoutAll(@RequestParam UUID userId) {
-        authService.logoutAll(userId);
-        return ResponseEntity.ok(Map.of("message", "Logged out from all sessions successfully"));
+    public ResponseEntity<Map<String, String>> logoutAll() { 
+        UUID authenticatedUserId = SecurityUtils.getCurrentUserId(); 
+        if (authenticatedUserId == null) 
+            return ResponseEntity.status(401).build();
+        authService.logoutAll(authenticatedUserId);
+        return ResponseEntity.ok(Map.of("message","Logged out from all sessions successfully"));
     }
-
 }

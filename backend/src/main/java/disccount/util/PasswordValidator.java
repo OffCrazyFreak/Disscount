@@ -44,7 +44,8 @@ public final class PasswordValidator {
         if (!password.chars().anyMatch(Character::isDigit)) {
             failures.add("must contain a digit");
         }
-        if (!password.matches(".*[!@#$%^&*()_+\\-=[\\]{};':\\\\\\\",.<>/?].*")) {
+        // Character class must escape [, ], -, and backslash correctly.
+        if (!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\,.<>/?].*")) {
             failures.add("must contain a special character (e.g. !@#$%)");
         }
 

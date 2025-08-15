@@ -137,7 +137,16 @@ public class AuthService {
 
     public void logout(String refreshToken) {
         String tokenHash = hashToken(refreshToken);
-    refreshTokenRepository.deleteByTokenHash(tokenHash);
+        // Ensure the token exists and is active before deleting.
+        boolean exists = refreshTokenRepository
+            .findActiveByTokenHash(tokenHash, LocalDateTime.now())
+            .isPresent();
+
+        if (!exists) {
+            throw new UnauthorizedException("Invalid refresh token");
+        }
+
+        refreshTokenRepository.deleteByTokenHash(tokenHash);
     }
 
     public void logoutAll(UUID userId) {

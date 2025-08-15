@@ -44,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         jwt = authHeader.substring(7);
         try {
             userId = jwtService.getUserIdFromToken(jwt);
-            
+
             if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 // Create a UserDetails object with the userId as the username
                 UserDetails userDetails = User.builder()
@@ -61,10 +61,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    // Token present but invalid/expired - respond 401
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    return;
                 }
             }
         } catch (Exception e) {
-            // Invalid token, continue without authentication
+            // Token parsing/validation error - respond 401
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
 
         filterChain.doFilter(request, response);
