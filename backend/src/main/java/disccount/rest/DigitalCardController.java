@@ -36,7 +36,7 @@ public class DigitalCardController {
     }
 
     @Operation(summary = "Get all digital cards for current user")
-    @GetMapping
+    @GetMapping("/me")
     public ResponseEntity<List<DigitalCardDto>> getUserCards() {
         UUID userId = SecurityUtils.getCurrentUserId();
         if (userId == null) {
