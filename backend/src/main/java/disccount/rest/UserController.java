@@ -26,13 +26,9 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserDto> getCurrentUser() {
         UUID authenticatedUserId = SecurityUtils.getCurrentUserId();
-        if (authenticatedUserId == null) {
-            return ResponseEntity.status(401).build();
-        }
-
         return userService.findById(authenticatedUserId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
     }
 
     @Operation(summary = "Get all users")
@@ -46,11 +42,7 @@ public class UserController {
     @PatchMapping("/me")
     public ResponseEntity<UserDto> updateCurrentUser(
             @RequestBody UpdateUserRequest request) {
-
         UUID authenticatedUserId = SecurityUtils.getCurrentUserId();
-        if (authenticatedUserId == null) {
-            return ResponseEntity.status(401).build();
-        }
 
         UserDto updatedUser = userService.updateProfile(
                 authenticatedUserId,
@@ -67,11 +59,9 @@ public class UserController {
     @DeleteMapping("/me")
     public ResponseEntity<Map<String, String>> deleteCurrentUser() {
         UUID authenticatedUserId = SecurityUtils.getCurrentUserId();
-        if (authenticatedUserId == null) {
-            return ResponseEntity.status(401).build();
-        }
 
         userService.softDeleteUser(authenticatedUserId);
+        
         return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
     }
 

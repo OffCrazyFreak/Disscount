@@ -53,8 +53,6 @@ public class AuthController {
     @PostMapping("/logout-all")
     public ResponseEntity<Map<String, String>> logoutAll() { 
         UUID authenticatedUserId = SecurityUtils.getCurrentUserId(); 
-        if (authenticatedUserId == null) 
-            return ResponseEntity.status(401).build();
         authService.logoutAll(authenticatedUserId);
         return ResponseEntity.ok(Map.of("message","Logged out from all sessions successfully"));
     }

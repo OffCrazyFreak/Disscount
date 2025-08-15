@@ -9,18 +9,20 @@ public class SecurityUtils {
 
     /**
      * Get the currently authenticated user's ID from the Spring Security context
-     * @return UUID of the authenticated user, or null if not authenticated
+     * This method assumes authentication has already been verified by the security filter
+     * @return UUID of the authenticated user
+     * @throws IllegalStateException if no authenticated user is found (should not happen for protected endpoints)
      */
     public static UUID getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication.getName() == null) {
-            return null;
+            throw new IllegalStateException("No authenticated user found - this should not happen for protected endpoints");
         }
         
         try {
             return UUID.fromString(authentication.getName());
         } catch (IllegalArgumentException e) {
-            return null;
+            throw new IllegalStateException("Invalid user ID format in authentication context");
         }
     }
 
