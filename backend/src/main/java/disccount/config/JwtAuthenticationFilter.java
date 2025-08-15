@@ -24,6 +24,7 @@ import java.util.UUID;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final PublicEndpointConfig publicEndpointConfig;
 
     @Override
     protected void doFilterInternal(
@@ -36,12 +37,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final UUID userId;
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // Skip JWT processing for public endpoints
+        if (publicEndpointConfig.isPublic(request)) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            // Token is missing or invalid
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            // filterChain.doFilter(request, response);
+            return;
+        }
+        
         jwt = authHeader.substring(7);
+        
         try {
             userId = jwtService.getUserIdFromToken(jwt);
 
@@ -76,3 +86,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
+

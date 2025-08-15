@@ -139,7 +139,7 @@ public class AuthService {
         String tokenHash = hashToken(refreshToken);
         // Ensure the token exists and is active before deleting.
         boolean exists = refreshTokenRepository
-            .findActiveByTokenHash(tokenHash, LocalDateTime.now())
+            .findByTokenHash(tokenHash)
             .isPresent();
 
         if (!exists) {
@@ -153,7 +153,7 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedException("User not found"));
         
-    refreshTokenRepository.deleteAllByUser(user);
+        refreshTokenRepository.deleteAllByUser(user);
     }
 
     private void saveRefreshToken(User user, String refreshToken) {
