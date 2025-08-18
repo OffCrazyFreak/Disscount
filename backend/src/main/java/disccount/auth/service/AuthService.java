@@ -80,7 +80,6 @@ public class AuthService {
 
         return AuthResponse.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .user(convertToUserDto(user))
                 .build();
     }
@@ -96,10 +95,10 @@ public class AuthService {
             throw new UnauthorizedException("Invalid credentials");
         }
 
-    // Clean up expired tokens for this user before issuing a new token
-    refreshTokenRepository.deleteExpiredTokensByUser(user, LocalDateTime.now());
+        // Clean up expired tokens for this user before issuing a new token
+        refreshTokenRepository.deleteExpiredTokensByUser(user, LocalDateTime.now());
 
-    // Generate tokens
+        // Generate tokens
         String accessToken = jwtService.generateAccessToken(user.getUsername(), user.getId());
         String refreshToken = jwtService.generateRefreshToken(user.getUsername(), user.getId());
 
@@ -112,14 +111,13 @@ public class AuthService {
 
         return AuthResponse.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .user(convertToUserDto(user))
                 .build();
     }
 
-    public AuthResponse refreshToken(RefreshTokenRequest request) {
-        String tokenHash = hashToken(request.getRefreshToken());
-        
+    public AuthResponse refreshToken(String token) {
+        String tokenHash = hashToken(token);
+
         RefreshToken refreshTokenEntity = refreshTokenRepository
                 .findActiveByTokenHash(tokenHash, LocalDateTime.now())
                 .orElseThrow(() -> new UnauthorizedException("Invalid refresh token"));
@@ -131,7 +129,6 @@ public class AuthService {
 
         return AuthResponse.builder()
                 .accessToken(newAccessToken)
-                .refreshToken(request.getRefreshToken()) // Keep the same refresh token
                 .user(convertToUserDto(user))
                 .build();
     }

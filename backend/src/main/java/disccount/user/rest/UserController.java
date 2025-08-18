@@ -31,6 +31,7 @@ public class UserController {
             .orElse(ResponseEntity.notFound().build());
     }
 
+    // TODO: remove (temporary for testing)
     @Operation(summary = "Get all users")
     @GetMapping
     public ResponseEntity<List<UserDto>> getAllUsers() {
