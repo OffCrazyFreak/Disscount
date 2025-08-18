@@ -1,1688 +1,1751 @@
 {
-  "openapi": "3.0.1",
-  "info": {
-    "title": "Disscount API",
-    "version": "1.0"
-  },
-  "servers": [
-    {
-      "url": "http://localhost:8080",
-      "description": "Generated server url"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ],
-  "tags": [
-    {
-      "name": "Digital Cards",
-      "description": "Digital card management endpoints"
-    },
-    {
-      "name": "Shopping List Items",
-      "description": "Shopping list item management endpoints"
-    },
-    {
-      "name": "Authentication",
-      "description": "Authentication and user management endpoints"
-    },
-    {
-      "name": "Shopping Lists",
-      "description": "Shopping list management endpoints"
-    },
-    {
-      "name": "Pinned Places",
-      "description": "User pinned places management endpoints"
-    },
-    {
-      "name": "Pinned Stores",
-      "description": "User pinned stores management endpoints"
-    },
-    {
-      "name": "User Management",
-      "description": "User management endpoints"
-    },
-    {
-      "name": "Notifications",
-      "description": "User notification management endpoints"
-    },
-    {
-      "name": "Watchlist",
-      "description": "User watchlist management endpoints"
-    }
-  ],
-  "paths": {
-    "/api/shopping-lists/{listId}/items/{itemId}": {
-      "put": {
-        "tags": ["Shopping List Items"],
-        "summary": "Update shopping list item",
-        "operationId": "updateShoppingListItem",
-        "parameters": [
-          {
-            "name": "listId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "itemId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShoppingListItemRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShoppingListItemDto"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": ["Shopping List Items"],
-        "summary": "Delete shopping list item",
-        "operationId": "deleteShoppingListItem",
-        "parameters": [
-          {
-            "name": "listId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "itemId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
+   "openapi":"3.0.1",
+   "info":{
+      "title":"Disscount API",
+      "version":"1.0"
+   },
+   "servers":[
+      {
+         "url":"http://localhost:8080",
+         "description":"Generated server url"
       }
-    },
-    "/api/shopping-lists/{id}": {
-      "get": {
-        "tags": ["Shopping Lists"],
-        "summary": "Get shopping list by ID",
-        "operationId": "getShoppingListById",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShoppingListDto"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": ["Shopping Lists"],
-        "summary": "Update shopping list",
-        "operationId": "updateShoppingList",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShoppingListRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShoppingListDto"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": ["Shopping Lists"],
-        "summary": "Delete shopping list",
-        "operationId": "deleteShoppingList",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
+   ],
+   "security":[
+      {
+         "bearerAuth":[
+            
+         ]
       }
-    },
-    "/api/digital-cards/{id}": {
-      "get": {
-        "tags": ["Digital Cards"],
-        "summary": "Get digital card by ID",
-        "operationId": "getCardById",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/DigitalCardDto"
-                }
-              }
-            }
-          }
-        }
+   ],
+   "tags":[
+      {
+         "name":"Digital Cards",
+         "description":"Digital card management endpoints"
       },
-      "put": {
-        "tags": ["Digital Cards"],
-        "summary": "Update digital card",
-        "operationId": "updateCard",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DigitalCardRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/DigitalCardDto"
-                }
-              }
-            }
-          }
-        }
+      {
+         "name":"Shopping List Items",
+         "description":"Shopping list item management endpoints"
       },
-      "delete": {
-        "tags": ["Digital Cards"],
-        "summary": "Delete digital card (soft delete)",
-        "operationId": "deleteCard",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
+      {
+         "name":"Authentication",
+         "description":"Authentication and user management endpoints"
+      },
+      {
+         "name":"Shopping Lists",
+         "description":"Shopping list management endpoints"
+      },
+      {
+         "name":"Pinned Places",
+         "description":"User pinned places management endpoints"
+      },
+      {
+         "name":"Pinned Stores",
+         "description":"User pinned stores management endpoints"
+      },
+      {
+         "name":"User Management",
+         "description":"User management endpoints"
+      },
+      {
+         "name":"Notifications",
+         "description":"User notification management endpoints"
+      },
+      {
+         "name":"Watchlist",
+         "description":"User watchlist management endpoints"
+      }
+   ],
+   "paths":{
+      "/api/shopping-lists/{listId}/items/{itemId}":{
+         "put":{
+            "tags":[
+               "Shopping List Items"
+            ],
+            "summary":"Update shopping list item",
+            "operationId":"updateShoppingListItem",
+            "parameters":[
+               {
+                  "name":"itemId",
+                  "in":"path",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
                   }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/watchlist": {
-      "post": {
-        "tags": ["Watchlist"],
-        "summary": "Add product to watchlist",
-        "operationId": "addToWatchlist",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/WatchlistItemRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/WatchlistItemDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/shopping-lists": {
-      "post": {
-        "tags": ["Shopping Lists"],
-        "summary": "Create a new shopping list",
-        "operationId": "createShoppingList",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShoppingListRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShoppingListDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/shopping-lists/{listId}/items": {
-      "post": {
-        "tags": ["Shopping List Items"],
-        "summary": "Add item to shopping list",
-        "operationId": "addItemToShoppingList",
-        "parameters": [
-          {
-            "name": "listId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShoppingListItemRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShoppingListItemDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/pinned-stores/bulk": {
-      "post": {
-        "tags": ["Pinned Stores"],
-        "summary": "Update user's pinned stores (bulk operation)",
-        "operationId": "updatePinnedStores",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BulkPinnedStoreRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PinnedStoreDto"
+               }
+            ],
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "$ref":"#/components/schemas/ShoppingListItemRequest"
+                     }
                   }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/pinned-places/bulk": {
-      "post": {
-        "tags": ["Pinned Places"],
-        "summary": "Update user's pinned places (bulk operation)",
-        "operationId": "updatePinnedPlaces",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BulkPinnedPlaceRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PinnedPlaceDto"
+               },
+               "required":true
+            },
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "$ref":"#/components/schemas/ShoppingListItemDto"
+                        }
+                     }
                   }
-                }
-              }
+               }
             }
-          }
-        }
-      }
-    },
-    "/api/notifications": {
-      "post": {
-        "tags": ["Notifications"],
-        "summary": "Create a new notification",
-        "operationId": "createNotification",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NotificationRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/NotificationDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/digital-cards": {
-      "post": {
-        "tags": ["Digital Cards"],
-        "summary": "Create a new digital card",
-        "operationId": "createCard",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DigitalCardRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/DigitalCardDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/auth/register": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Register a new user",
-        "operationId": "register",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/auth/refresh": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Refresh access token using refresh token",
-        "operationId": "refreshToken",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RefreshTokenRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/auth/logout": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Logout from current session",
-        "operationId": "logout",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RefreshTokenRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
+         },
+         "delete":{
+            "tags":[
+               "Shopping List Items"
+            ],
+            "summary":"Delete shopping list item",
+            "operationId":"deleteShoppingListItem",
+            "parameters":[
+               {
+                  "name":"itemId",
+                  "in":"path",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
                   }
-                }
-              }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "description":"OK"
+               }
             }
-          }
-        }
-      }
-    },
-    "/api/auth/logout-all": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Logout from all sessions",
-        "operationId": "logoutAll",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
+         }
+      },
+      "/api/shopping-lists/{id}":{
+         "get":{
+            "tags":[
+               "Shopping Lists"
+            ],
+            "summary":"Get shopping list by ID",
+            "operationId":"getShoppingListById",
+            "parameters":[
+               {
+                  "name":"id",
+                  "in":"path",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
                   }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/auth/login": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Login with email/username and password",
-        "operationId": "login",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LoginRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/users/me": {
-      "get": {
-        "tags": ["User Management"],
-        "summary": "Get current authenticated user",
-        "operationId": "getCurrentUser",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserDto"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": ["User Management"],
-        "summary": "Soft delete current user",
-        "operationId": "deleteCurrentUser",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
+               }
+            ],
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "$ref":"#/components/schemas/ShoppingListDto"
+                        }
+                     }
                   }
-                }
-              }
+               }
             }
-          }
-        }
-      },
-      "patch": {
-        "tags": ["User Management"],
-        "summary": "Patch current user's profile (username, stayLoggedInDays, notifications)",
-        "operationId": "updateCurrentUser",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UserRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/notifications/{id}/read": {
-      "patch": {
-        "tags": ["Notifications"],
-        "summary": "Mark notification as read",
-        "operationId": "markAsRead",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/notifications/me/read-all": {
-      "patch": {
-        "tags": ["Notifications"],
-        "summary": "Mark all user's notifications as read",
-        "operationId": "markAllAsRead",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/watchlist/product/{productApiId}": {
-      "get": {
-        "tags": ["Watchlist"],
-        "summary": "Fetch product from watchlist by product API ID",
-        "operationId": "getWatchlistItemByProductApiId",
-        "parameters": [
-          {
-            "name": "productApiId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/WatchlistItemDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/watchlist/me": {
-      "get": {
-        "tags": ["Watchlist"],
-        "summary": "Get current user's watchlist",
-        "operationId": "getCurrentUserWatchlist",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/WatchlistItemDto"
+         },
+         "put":{
+            "tags":[
+               "Shopping Lists"
+            ],
+            "summary":"Update shopping list",
+            "operationId":"updateShoppingList",
+            "parameters":[
+               {
+                  "name":"id",
+                  "in":"path",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
                   }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/users": {
-      "get": {
-        "tags": ["User Management"],
-        "summary": "Get all users",
-        "operationId": "getAllUsers",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserDto"
+               }
+            ],
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "$ref":"#/components/schemas/ShoppingListRequest"
+                     }
                   }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/users/exists/username/{username}": {
-      "get": {
-        "tags": ["User Management"],
-        "summary": "Check if username exists",
-        "operationId": "checkUsernameExists",
-        "parameters": [
-          {
-            "name": "username",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "boolean"
+               },
+               "required":true
+            },
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "$ref":"#/components/schemas/ShoppingListDto"
+                        }
+                     }
                   }
-                }
-              }
+               }
             }
-          }
-        }
-      }
-    },
-    "/api/users/exists/email/{email}": {
-      "get": {
-        "tags": ["User Management"],
-        "summary": "Check if email exists",
-        "operationId": "checkEmailExists",
-        "parameters": [
-          {
-            "name": "email",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "boolean"
+         },
+         "delete":{
+            "tags":[
+               "Shopping Lists"
+            ],
+            "summary":"Delete shopping list",
+            "operationId":"deleteShoppingList",
+            "parameters":[
+               {
+                  "name":"id",
+                  "in":"path",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
                   }
-                }
-              }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "description":"OK"
+               }
             }
-          }
-        }
-      }
-    },
-    "/api/shopping-lists/me": {
-      "get": {
-        "tags": ["Shopping Lists"],
-        "summary": "Get current user's shopping lists",
-        "operationId": "getCurrentUserShoppingLists",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ShoppingListDto"
+         }
+      },
+      "/api/digital-cards/{id}":{
+         "get":{
+            "tags":[
+               "Digital Cards"
+            ],
+            "summary":"Get digital card by ID",
+            "operationId":"getCardById",
+            "parameters":[
+               {
+                  "name":"id",
+                  "in":"path",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
                   }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/shopping-lists/items": {
-      "get": {
-        "tags": ["Shopping Lists"],
-        "summary": "Get all items from user's active shopping lists",
-        "operationId": "getAllUserShoppingListItems",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ShoppingListItemDto"
+               }
+            ],
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "$ref":"#/components/schemas/DigitalCardDto"
+                        }
+                     }
                   }
-                }
-              }
+               }
             }
-          }
-        }
-      }
-    },
-    "/api/pinned-stores/me": {
-      "get": {
-        "tags": ["Pinned Stores"],
-        "summary": "Get current user's pinned stores",
-        "operationId": "getCurrentUserPinnedStores",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PinnedStoreDto"
+         },
+         "put":{
+            "tags":[
+               "Digital Cards"
+            ],
+            "summary":"Update digital card",
+            "operationId":"updateCard",
+            "parameters":[
+               {
+                  "name":"id",
+                  "in":"path",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
                   }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/pinned-places/me": {
-      "get": {
-        "tags": ["Pinned Places"],
-        "summary": "Get current user's pinned places",
-        "operationId": "getCurrentUserPinnedPlaces",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PinnedPlaceDto"
+               }
+            ],
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "$ref":"#/components/schemas/DigitalCardRequest"
+                     }
                   }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/notifications/me": {
-      "get": {
-        "tags": ["Notifications"],
-        "summary": "Get current user's notifications with pagination",
-        "operationId": "getCurrentUserNotifications",
-        "parameters": [
-          {
-            "name": "pageable",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/Pageable"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/PageNotificationDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/digital-cards/me": {
-      "get": {
-        "tags": ["Digital Cards"],
-        "summary": "Get all digital cards for current user",
-        "operationId": "getUserCards",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/DigitalCardDto"
+               },
+               "required":true
+            },
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "$ref":"#/components/schemas/DigitalCardDto"
+                        }
+                     }
                   }
-                }
-              }
+               }
             }
-          }
-        }
+         },
+         "delete":{
+            "tags":[
+               "Digital Cards"
+            ],
+            "summary":"Delete digital card (soft delete)",
+            "operationId":"deleteCard",
+            "parameters":[
+               {
+                  "name":"id",
+                  "in":"path",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "type":"object",
+                           "additionalProperties":{
+                              "type":"string"
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/watchlist":{
+         "post":{
+            "tags":[
+               "Watchlist"
+            ],
+            "summary":"Add product to watchlist",
+            "operationId":"addToWatchlist",
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "$ref":"#/components/schemas/WatchlistItemRequest"
+                     }
+                  }
+               },
+               "required":true
+            },
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "$ref":"#/components/schemas/WatchlistItemDto"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/shopping-lists":{
+         "post":{
+            "tags":[
+               "Shopping Lists"
+            ],
+            "summary":"Create a new shopping list",
+            "operationId":"createShoppingList",
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "$ref":"#/components/schemas/ShoppingListRequest"
+                     }
+                  }
+               },
+               "required":true
+            },
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "$ref":"#/components/schemas/ShoppingListDto"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/shopping-lists/{listId}/items":{
+         "post":{
+            "tags":[
+               "Shopping List Items"
+            ],
+            "summary":"Add item to shopping list",
+            "operationId":"addItemToShoppingList",
+            "parameters":[
+               {
+                  "name":"listId",
+                  "in":"path",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               }
+            ],
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "$ref":"#/components/schemas/ShoppingListItemRequest"
+                     }
+                  }
+               },
+               "required":true
+            },
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "$ref":"#/components/schemas/ShoppingListItemDto"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/pinned-stores/bulk":{
+         "post":{
+            "tags":[
+               "Pinned Stores"
+            ],
+            "summary":"Update user's pinned stores (bulk operation)",
+            "operationId":"updatePinnedStores",
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "$ref":"#/components/schemas/BulkPinnedStoreRequest"
+                     }
+                  }
+               },
+               "required":true
+            },
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "type":"array",
+                           "items":{
+                              "$ref":"#/components/schemas/PinnedStoreDto"
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/pinned-places/bulk":{
+         "post":{
+            "tags":[
+               "Pinned Places"
+            ],
+            "summary":"Update user's pinned places (bulk operation)",
+            "operationId":"updatePinnedPlaces",
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "$ref":"#/components/schemas/BulkPinnedPlaceRequest"
+                     }
+                  }
+               },
+               "required":true
+            },
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "type":"array",
+                           "items":{
+                              "$ref":"#/components/schemas/PinnedPlaceDto"
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/notifications":{
+         "post":{
+            "tags":[
+               "Notifications"
+            ],
+            "summary":"Create a new notification",
+            "operationId":"createNotification",
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "$ref":"#/components/schemas/NotificationRequest"
+                     }
+                  }
+               },
+               "required":true
+            },
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "$ref":"#/components/schemas/NotificationDto"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/digital-cards":{
+         "post":{
+            "tags":[
+               "Digital Cards"
+            ],
+            "summary":"Create a new digital card",
+            "operationId":"createCard",
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "$ref":"#/components/schemas/DigitalCardRequest"
+                     }
+                  }
+               },
+               "required":true
+            },
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "$ref":"#/components/schemas/DigitalCardDto"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/auth/register":{
+         "post":{
+            "tags":[
+               "Authentication"
+            ],
+            "summary":"Register a new user",
+            "operationId":"register",
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "$ref":"#/components/schemas/RegisterRequest"
+                     }
+                  }
+               },
+               "required":true
+            },
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "$ref":"#/components/schemas/AuthResponse"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/auth/refresh":{
+         "post":{
+            "tags":[
+               "Authentication"
+            ],
+            "summary":"Refresh access token using refresh token",
+            "operationId":"refreshToken",
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "$ref":"#/components/schemas/AuthResponse"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/auth/logout":{
+         "post":{
+            "tags":[
+               "Authentication"
+            ],
+            "summary":"Logout from current session",
+            "operationId":"logout",
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "type":"object",
+                           "additionalProperties":{
+                              "type":"string"
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/auth/logout-all":{
+         "post":{
+            "tags":[
+               "Authentication"
+            ],
+            "summary":"Logout from all sessions",
+            "operationId":"logoutAll",
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "type":"object",
+                           "additionalProperties":{
+                              "type":"string"
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/auth/login":{
+         "post":{
+            "tags":[
+               "Authentication"
+            ],
+            "summary":"Login with email/username and password",
+            "operationId":"login",
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "$ref":"#/components/schemas/LoginRequest"
+                     }
+                  }
+               },
+               "required":true
+            },
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "$ref":"#/components/schemas/AuthResponse"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/users/me":{
+         "get":{
+            "tags":[
+               "User Management"
+            ],
+            "summary":"Get current authenticated user",
+            "operationId":"getCurrentUser",
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "$ref":"#/components/schemas/UserDto"
+                        }
+                     }
+                  }
+               }
+            }
+         },
+         "delete":{
+            "tags":[
+               "User Management"
+            ],
+            "summary":"Soft delete current user",
+            "operationId":"deleteCurrentUser",
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "type":"object",
+                           "additionalProperties":{
+                              "type":"string"
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         },
+         "patch":{
+            "tags":[
+               "User Management"
+            ],
+            "summary":"Patch current user's profile (username, stayLoggedInDays, notifications)",
+            "operationId":"updateCurrentUser",
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "$ref":"#/components/schemas/UserRequest"
+                     }
+                  }
+               },
+               "required":true
+            },
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "$ref":"#/components/schemas/UserDto"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/notifications/{id}/read":{
+         "patch":{
+            "tags":[
+               "Notifications"
+            ],
+            "summary":"Mark notification as read",
+            "operationId":"markAsRead",
+            "parameters":[
+               {
+                  "name":"id",
+                  "in":"path",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "description":"OK"
+               }
+            }
+         }
+      },
+      "/api/notifications/me/read-all":{
+         "patch":{
+            "tags":[
+               "Notifications"
+            ],
+            "summary":"Mark all user's notifications as read",
+            "operationId":"markAllAsRead",
+            "responses":{
+               "200":{
+                  "description":"OK"
+               }
+            }
+         }
+      },
+      "/api/watchlist/product/{productApiId}":{
+         "get":{
+            "tags":[
+               "Watchlist"
+            ],
+            "summary":"Fetch product from watchlist by product API ID",
+            "operationId":"getWatchlistItemByProductApiId",
+            "parameters":[
+               {
+                  "name":"productApiId",
+                  "in":"path",
+                  "required":true,
+                  "schema":{
+                     "type":"string"
+                  }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "$ref":"#/components/schemas/WatchlistItemDto"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/watchlist/me":{
+         "get":{
+            "tags":[
+               "Watchlist"
+            ],
+            "summary":"Get current user's watchlist",
+            "operationId":"getCurrentUserWatchlist",
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "type":"array",
+                           "items":{
+                              "$ref":"#/components/schemas/WatchlistItemDto"
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/users":{
+         "get":{
+            "tags":[
+               "User Management"
+            ],
+            "summary":"Get all users",
+            "operationId":"getAllUsers",
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "type":"array",
+                           "items":{
+                              "$ref":"#/components/schemas/UserDto"
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/users/exists/username/{username}":{
+         "get":{
+            "tags":[
+               "User Management"
+            ],
+            "summary":"Check if username exists",
+            "operationId":"checkUsernameExists",
+            "parameters":[
+               {
+                  "name":"username",
+                  "in":"path",
+                  "required":true,
+                  "schema":{
+                     "type":"string"
+                  }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "type":"object",
+                           "additionalProperties":{
+                              "type":"boolean"
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/users/exists/email/{email}":{
+         "get":{
+            "tags":[
+               "User Management"
+            ],
+            "summary":"Check if email exists",
+            "operationId":"checkEmailExists",
+            "parameters":[
+               {
+                  "name":"email",
+                  "in":"path",
+                  "required":true,
+                  "schema":{
+                     "type":"string"
+                  }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "type":"object",
+                           "additionalProperties":{
+                              "type":"boolean"
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/shopping-lists/me":{
+         "get":{
+            "tags":[
+               "Shopping Lists"
+            ],
+            "summary":"Get current user's shopping lists",
+            "operationId":"getCurrentUserShoppingLists",
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "type":"array",
+                           "items":{
+                              "$ref":"#/components/schemas/ShoppingListDto"
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/shopping-lists/items":{
+         "get":{
+            "tags":[
+               "Shopping Lists"
+            ],
+            "summary":"Get all items from user's active shopping lists",
+            "operationId":"getAllUserShoppingListItems",
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "type":"array",
+                           "items":{
+                              "$ref":"#/components/schemas/ShoppingListItemDto"
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/pinned-stores/me":{
+         "get":{
+            "tags":[
+               "Pinned Stores"
+            ],
+            "summary":"Get current user's pinned stores",
+            "operationId":"getCurrentUserPinnedStores",
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "type":"array",
+                           "items":{
+                              "$ref":"#/components/schemas/PinnedStoreDto"
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/pinned-places/me":{
+         "get":{
+            "tags":[
+               "Pinned Places"
+            ],
+            "summary":"Get current user's pinned places",
+            "operationId":"getCurrentUserPinnedPlaces",
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "type":"array",
+                           "items":{
+                              "$ref":"#/components/schemas/PinnedPlaceDto"
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/notifications/me":{
+         "get":{
+            "tags":[
+               "Notifications"
+            ],
+            "summary":"Get current user's notifications with pagination",
+            "operationId":"getCurrentUserNotifications",
+            "parameters":[
+               {
+                  "name":"pageable",
+                  "in":"query",
+                  "required":true,
+                  "schema":{
+                     "$ref":"#/components/schemas/Pageable"
+                  }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "$ref":"#/components/schemas/PageNotificationDto"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/digital-cards/me":{
+         "get":{
+            "tags":[
+               "Digital Cards"
+            ],
+            "summary":"Get all digital cards for current user",
+            "operationId":"getUserCards",
+            "responses":{
+               "200":{
+                  "description":"OK",
+                  "content":{
+                     "*/*":{
+                        "schema":{
+                           "type":"array",
+                           "items":{
+                              "$ref":"#/components/schemas/DigitalCardDto"
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/api/watchlist/{id}":{
+         "delete":{
+            "tags":[
+               "Watchlist"
+            ],
+            "summary":"Remove product from watchlist",
+            "operationId":"removeFromWatchlist",
+            "parameters":[
+               {
+                  "name":"id",
+                  "in":"path",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "description":"OK"
+               }
+            }
+         }
+      },
+      "/api/notifications/{id}":{
+         "delete":{
+            "tags":[
+               "Notifications"
+            ],
+            "summary":"Delete notification",
+            "operationId":"deleteNotification",
+            "parameters":[
+               {
+                  "name":"id",
+                  "in":"path",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "description":"OK"
+               }
+            }
+         }
       }
-    },
-    "/api/watchlist/{id}": {
-      "delete": {
-        "tags": ["Watchlist"],
-        "summary": "Remove product from watchlist",
-        "operationId": "removeFromWatchlist",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
+   },
+   "components":{
+      "schemas":{
+         "ShoppingListItemRequest":{
+            "required":[
+               "productApiId",
+               "productName"
+            ],
+            "type":"object",
+            "properties":{
+               "productApiId":{
+                  "type":"string"
+               },
+               "productName":{
+                  "type":"string"
+               },
+               "amount":{
+                  "type":"integer",
+                  "format":"int32"
+               },
+               "isChecked":{
+                  "type":"boolean"
+               }
             }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
+         },
+         "ShoppingListItemDto":{
+            "type":"object",
+            "properties":{
+               "id":{
+                  "type":"string",
+                  "format":"uuid"
+               },
+               "shoppingListId":{
+                  "type":"string",
+                  "format":"uuid"
+               },
+               "productApiId":{
+                  "type":"string"
+               },
+               "productName":{
+                  "type":"string"
+               },
+               "amount":{
+                  "type":"integer",
+                  "format":"int32"
+               },
+               "isChecked":{
+                  "type":"boolean"
+               },
+               "createdAt":{
+                  "type":"string",
+                  "format":"date-time"
+               }
+            }
+         },
+         "ShoppingListRequest":{
+            "required":[
+               "title"
+            ],
+            "type":"object",
+            "properties":{
+               "title":{
+                  "type":"string"
+               },
+               "isPublic":{
+                  "type":"boolean"
+               },
+               "aiPrompt":{
+                  "type":"string"
+               }
+            }
+         },
+         "ShoppingListDto":{
+            "type":"object",
+            "properties":{
+               "id":{
+                  "type":"string",
+                  "format":"uuid"
+               },
+               "ownerId":{
+                  "type":"string",
+                  "format":"uuid"
+               },
+               "title":{
+                  "type":"string"
+               },
+               "isPublic":{
+                  "type":"boolean"
+               },
+               "aiPrompt":{
+                  "type":"string"
+               },
+               "aiAnswer":{
+                  "type":"string"
+               },
+               "updatedAt":{
+                  "type":"string",
+                  "format":"date-time"
+               },
+               "createdAt":{
+                  "type":"string",
+                  "format":"date-time"
+               },
+               "items":{
+                  "type":"array",
+                  "items":{
+                     "$ref":"#/components/schemas/ShoppingListItemDto"
+                  }
+               }
+            }
+         },
+         "DigitalCardRequest":{
+            "required":[
+               "codeType",
+               "title",
+               "type",
+               "value"
+            ],
+            "type":"object",
+            "properties":{
+               "title":{
+                  "type":"string"
+               },
+               "value":{
+                  "type":"string"
+               },
+               "type":{
+                  "type":"string"
+               },
+               "codeType":{
+                  "type":"string"
+               },
+               "color":{
+                  "type":"string"
+               },
+               "note":{
+                  "type":"string"
+               }
+            }
+         },
+         "DigitalCardDto":{
+            "type":"object",
+            "properties":{
+               "id":{
+                  "type":"string",
+                  "format":"uuid"
+               },
+               "title":{
+                  "type":"string"
+               },
+               "value":{
+                  "type":"string"
+               },
+               "type":{
+                  "type":"string"
+               },
+               "codeType":{
+                  "type":"string"
+               },
+               "color":{
+                  "type":"string"
+               },
+               "note":{
+                  "type":"string"
+               },
+               "createdAt":{
+                  "type":"string",
+                  "format":"date-time"
+               }
+            }
+         },
+         "WatchlistItemRequest":{
+            "required":[
+               "productApiId",
+               "productName"
+            ],
+            "type":"object",
+            "properties":{
+               "productApiId":{
+                  "type":"string"
+               },
+               "productName":{
+                  "type":"string"
+               }
+            }
+         },
+         "WatchlistItemDto":{
+            "type":"object",
+            "properties":{
+               "id":{
+                  "type":"string",
+                  "format":"uuid"
+               },
+               "userId":{
+                  "type":"string",
+                  "format":"uuid"
+               },
+               "productApiId":{
+                  "type":"string"
+               },
+               "productName":{
+                  "type":"string"
+               },
+               "lastNotifiedAt":{
+                  "type":"string",
+                  "format":"date-time"
+               },
+               "createdAt":{
+                  "type":"string",
+                  "format":"date-time"
+               }
+            }
+         },
+         "BulkPinnedStoreRequest":{
+            "required":[
+               "stores"
+            ],
+            "type":"object",
+            "properties":{
+               "stores":{
+                  "type":"array",
+                  "items":{
+                     "$ref":"#/components/schemas/PinnedStoreRequest"
+                  }
+               }
+            }
+         },
+         "PinnedStoreRequest":{
+            "required":[
+               "storeApiId",
+               "storeName"
+            ],
+            "type":"object",
+            "properties":{
+               "storeApiId":{
+                  "type":"string"
+               },
+               "storeName":{
+                  "type":"string"
+               }
+            }
+         },
+         "PinnedStoreDto":{
+            "type":"object",
+            "properties":{
+               "id":{
+                  "type":"string",
+                  "format":"uuid"
+               },
+               "userId":{
+                  "type":"string",
+                  "format":"uuid"
+               },
+               "storeApiId":{
+                  "type":"string"
+               },
+               "storeName":{
+                  "type":"string"
+               }
+            }
+         },
+         "BulkPinnedPlaceRequest":{
+            "required":[
+               "places"
+            ],
+            "type":"object",
+            "properties":{
+               "places":{
+                  "type":"array",
+                  "items":{
+                     "$ref":"#/components/schemas/PinnedPlaceRequest"
+                  }
+               }
+            }
+         },
+         "PinnedPlaceRequest":{
+            "required":[
+               "placeApiId",
+               "placeName"
+            ],
+            "type":"object",
+            "properties":{
+               "placeApiId":{
+                  "type":"string"
+               },
+               "placeName":{
+                  "type":"string"
+               }
+            }
+         },
+         "PinnedPlaceDto":{
+            "type":"object",
+            "properties":{
+               "id":{
+                  "type":"string",
+                  "format":"uuid"
+               },
+               "userId":{
+                  "type":"string",
+                  "format":"uuid"
+               },
+               "placeApiId":{
+                  "type":"string"
+               },
+               "placeName":{
+                  "type":"string"
+               }
+            }
+         },
+         "NotificationRequest":{
+            "required":[
+               "message"
+            ],
+            "type":"object",
+            "properties":{
+               "message":{
+                  "type":"string"
+               },
+               "relatedProductApiId":{
+                  "type":"string"
+               },
+               "relatedStoreApiId":{
+                  "type":"string"
+               }
+            }
+         },
+         "NotificationDto":{
+            "type":"object",
+            "properties":{
+               "id":{
+                  "type":"string",
+                  "format":"uuid"
+               },
+               "userId":{
+                  "type":"string",
+                  "format":"uuid"
+               },
+               "message":{
+                  "type":"string"
+               },
+               "isRead":{
+                  "type":"boolean"
+               },
+               "relatedProductApiId":{
+                  "type":"string"
+               },
+               "relatedStoreApiId":{
+                  "type":"string"
+               },
+               "createdAt":{
+                  "type":"string",
+                  "format":"date-time"
+               }
+            }
+         },
+         "RegisterRequest":{
+            "required":[
+               "email",
+               "password",
+               "username"
+            ],
+            "type":"object",
+            "properties":{
+               "username":{
+                  "maxLength":50,
+                  "minLength":3,
+                  "type":"string"
+               },
+               "email":{
+                  "type":"string"
+               },
+               "password":{
+                  "maxLength":100,
+                  "minLength":12,
+                  "type":"string"
+               },
+               "stayLoggedInDays":{
+                  "type":"integer",
+                  "format":"int32"
+               },
+               "notificationsPush":{
+                  "type":"boolean"
+               },
+               "notificationsEmail":{
+                  "type":"boolean"
+               }
+            }
+         },
+         "AuthResponse":{
+            "type":"object",
+            "properties":{
+               "accessToken":{
+                  "type":"string"
+               },
+               "tokenType":{
+                  "type":"string"
+               },
+               "user":{
+                  "$ref":"#/components/schemas/UserDto"
+               }
+            }
+         },
+         "UserDto":{
+            "type":"object",
+            "properties":{
+               "id":{
+                  "type":"string",
+                  "format":"uuid"
+               },
+               "username":{
+                  "type":"string"
+               },
+               "email":{
+                  "type":"string"
+               },
+               "lastLoginAt":{
+                  "type":"string",
+                  "format":"date-time"
+               },
+               "stayLoggedInDays":{
+                  "type":"integer",
+                  "format":"int32"
+               },
+               "notificationsPush":{
+                  "type":"boolean"
+               },
+               "notificationsEmail":{
+                  "type":"boolean"
+               },
+               "subscriptionTier":{
+                  "type":"string",
+                  "enum":[
+                     "FREE",
+                     "PRO"
+                  ]
+               },
+               "subscriptionStartDate":{
+                  "type":"string",
+                  "format":"date"
+               },
+               "numberOfAiPrompts":{
+                  "type":"integer",
+                  "format":"int32"
+               },
+               "lastAiPromptAt":{
+                  "type":"string",
+                  "format":"date-time"
+               },
+               "createdAt":{
+                  "type":"string",
+                  "format":"date-time"
+               }
+            }
+         },
+         "LoginRequest":{
+            "required":[
+               "password",
+               "usernameOrEmail"
+            ],
+            "type":"object",
+            "properties":{
+               "usernameOrEmail":{
+                  "type":"string"
+               },
+               "password":{
+                  "type":"string"
+               }
+            }
+         },
+         "UserRequest":{
+            "type":"object",
+            "properties":{
+               "username":{
+                  "type":"string"
+               },
+               "stayLoggedInDays":{
+                  "type":"integer",
+                  "format":"int32"
+               },
+               "notificationsPush":{
+                  "type":"boolean"
+               },
+               "notificationsEmail":{
+                  "type":"boolean"
+               }
+            }
+         },
+         "Pageable":{
+            "type":"object",
+            "properties":{
+               "page":{
+                  "minimum":0,
+                  "type":"integer",
+                  "format":"int32"
+               },
+               "size":{
+                  "minimum":1,
+                  "type":"integer",
+                  "format":"int32"
+               },
+               "sort":{
+                  "type":"array",
+                  "items":{
+                     "type":"string"
+                  }
+               }
+            }
+         },
+         "PageNotificationDto":{
+            "type":"object",
+            "properties":{
+               "totalPages":{
+                  "type":"integer",
+                  "format":"int32"
+               },
+               "totalElements":{
+                  "type":"integer",
+                  "format":"int64"
+               },
+               "first":{
+                  "type":"boolean"
+               },
+               "last":{
+                  "type":"boolean"
+               },
+               "size":{
+                  "type":"integer",
+                  "format":"int32"
+               },
+               "content":{
+                  "type":"array",
+                  "items":{
+                     "$ref":"#/components/schemas/NotificationDto"
+                  }
+               },
+               "number":{
+                  "type":"integer",
+                  "format":"int32"
+               },
+               "sort":{
+                  "$ref":"#/components/schemas/SortObject"
+               },
+               "numberOfElements":{
+                  "type":"integer",
+                  "format":"int32"
+               },
+               "pageable":{
+                  "$ref":"#/components/schemas/PageableObject"
+               },
+               "empty":{
+                  "type":"boolean"
+               }
+            }
+         },
+         "PageableObject":{
+            "type":"object",
+            "properties":{
+               "offset":{
+                  "type":"integer",
+                  "format":"int64"
+               },
+               "sort":{
+                  "$ref":"#/components/schemas/SortObject"
+               },
+               "pageSize":{
+                  "type":"integer",
+                  "format":"int32"
+               },
+               "pageNumber":{
+                  "type":"integer",
+                  "format":"int32"
+               },
+               "paged":{
+                  "type":"boolean"
+               },
+               "unpaged":{
+                  "type":"boolean"
+               }
+            }
+         },
+         "SortObject":{
+            "type":"object",
+            "properties":{
+               "empty":{
+                  "type":"boolean"
+               },
+               "sorted":{
+                  "type":"boolean"
+               },
+               "unsorted":{
+                  "type":"boolean"
+               }
+            }
+         }
+      },
+      "securitySchemes":{
+         "bearerAuth":{
+            "type":"http",
+            "scheme":"bearer",
+            "bearerFormat":"JWT"
+         }
       }
-    },
-    "/api/notifications/{id}": {
-      "delete": {
-        "tags": ["Notifications"],
-        "summary": "Delete notification",
-        "operationId": "deleteNotification",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "ShoppingListItemRequest": {
-        "required": ["productApiId", "productName"],
-        "type": "object",
-        "properties": {
-          "productApiId": {
-            "type": "string"
-          },
-          "productName": {
-            "type": "string"
-          },
-          "amount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "isChecked": {
-            "type": "boolean"
-          }
-        }
-      },
-      "ShoppingListItemDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "shoppingListId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "productApiId": {
-            "type": "string"
-          },
-          "productName": {
-            "type": "string"
-          },
-          "amount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "isChecked": {
-            "type": "boolean"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "ShoppingListRequest": {
-        "required": ["title"],
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string"
-          },
-          "isPublic": {
-            "type": "boolean"
-          },
-          "aiPrompt": {
-            "type": "string"
-          }
-        }
-      },
-      "ShoppingListDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "ownerId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "title": {
-            "type": "string"
-          },
-          "isPublic": {
-            "type": "boolean"
-          },
-          "aiPrompt": {
-            "type": "string"
-          },
-          "aiAnswer": {
-            "type": "string"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ShoppingListItemDto"
-            }
-          }
-        }
-      },
-      "DigitalCardRequest": {
-        "required": ["codeType", "title", "type", "value"],
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string"
-          },
-          "value": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          },
-          "codeType": {
-            "type": "string"
-          },
-          "color": {
-            "type": "string"
-          },
-          "note": {
-            "type": "string"
-          }
-        }
-      },
-      "DigitalCardDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "title": {
-            "type": "string"
-          },
-          "value": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          },
-          "codeType": {
-            "type": "string"
-          },
-          "color": {
-            "type": "string"
-          },
-          "note": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "WatchlistItemRequest": {
-        "required": ["productApiId", "productName"],
-        "type": "object",
-        "properties": {
-          "productApiId": {
-            "type": "string"
-          },
-          "productName": {
-            "type": "string"
-          }
-        }
-      },
-      "WatchlistItemDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "userId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "productApiId": {
-            "type": "string"
-          },
-          "productName": {
-            "type": "string"
-          },
-          "lastNotifiedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "BulkPinnedStoreRequest": {
-        "required": ["stores"],
-        "type": "object",
-        "properties": {
-          "stores": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PinnedStoreRequest"
-            }
-          }
-        }
-      },
-      "PinnedStoreRequest": {
-        "required": ["storeApiId", "storeName"],
-        "type": "object",
-        "properties": {
-          "storeApiId": {
-            "type": "string"
-          },
-          "storeName": {
-            "type": "string"
-          }
-        }
-      },
-      "PinnedStoreDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "userId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "storeApiId": {
-            "type": "string"
-          },
-          "storeName": {
-            "type": "string"
-          }
-        }
-      },
-      "BulkPinnedPlaceRequest": {
-        "required": ["places"],
-        "type": "object",
-        "properties": {
-          "places": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PinnedPlaceRequest"
-            }
-          }
-        }
-      },
-      "PinnedPlaceRequest": {
-        "required": ["placeApiId", "placeName"],
-        "type": "object",
-        "properties": {
-          "placeApiId": {
-            "type": "string"
-          },
-          "placeName": {
-            "type": "string"
-          }
-        }
-      },
-      "PinnedPlaceDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "userId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "placeApiId": {
-            "type": "string"
-          },
-          "placeName": {
-            "type": "string"
-          }
-        }
-      },
-      "NotificationRequest": {
-        "required": ["message"],
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
-          },
-          "relatedProductApiId": {
-            "type": "string"
-          },
-          "relatedStoreApiId": {
-            "type": "string"
-          }
-        }
-      },
-      "NotificationDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "userId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "message": {
-            "type": "string"
-          },
-          "isRead": {
-            "type": "boolean"
-          },
-          "relatedProductApiId": {
-            "type": "string"
-          },
-          "relatedStoreApiId": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "RegisterRequest": {
-        "required": ["email", "password", "username"],
-        "type": "object",
-        "properties": {
-          "username": {
-            "maxLength": 50,
-            "minLength": 3,
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "maxLength": 100,
-            "minLength": 12,
-            "type": "string"
-          },
-          "stayLoggedInDays": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "notificationsPush": {
-            "type": "boolean"
-          },
-          "notificationsEmail": {
-            "type": "boolean"
-          }
-        }
-      },
-      "AuthResponse": {
-        "type": "object",
-        "properties": {
-          "accessToken": {
-            "type": "string"
-          },
-          "refreshToken": {
-            "type": "string"
-          },
-          "tokenType": {
-            "type": "string"
-          },
-          "user": {
-            "$ref": "#/components/schemas/UserDto"
-          }
-        }
-      },
-      "UserDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "username": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "lastLoginAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "stayLoggedInDays": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "notificationsPush": {
-            "type": "boolean"
-          },
-          "notificationsEmail": {
-            "type": "boolean"
-          },
-          "subscriptionTier": {
-            "type": "string",
-            "enum": ["FREE", "PRO"]
-          },
-          "subscriptionStartDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "numberOfAiPrompts": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "lastAiPromptAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "RefreshTokenRequest": {
-        "required": ["refreshToken"],
-        "type": "object",
-        "properties": {
-          "refreshToken": {
-            "type": "string"
-          }
-        }
-      },
-      "LoginRequest": {
-        "required": ["password", "usernameOrEmail"],
-        "type": "object",
-        "properties": {
-          "usernameOrEmail": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
-        }
-      },
-      "UserRequest": {
-        "type": "object",
-        "properties": {
-          "username": {
-            "type": "string"
-          },
-          "stayLoggedInDays": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "notificationsPush": {
-            "type": "boolean"
-          },
-          "notificationsEmail": {
-            "type": "boolean"
-          }
-        }
-      },
-      "Pageable": {
-        "type": "object",
-        "properties": {
-          "page": {
-            "minimum": 0,
-            "type": "integer",
-            "format": "int32"
-          },
-          "size": {
-            "minimum": 1,
-            "type": "integer",
-            "format": "int32"
-          },
-          "sort": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "PageNotificationDto": {
-        "type": "object",
-        "properties": {
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalElements": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "size": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "content": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/NotificationDto"
-            }
-          },
-          "number": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "sort": {
-            "$ref": "#/components/schemas/SortObject"
-          },
-          "numberOfElements": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageable": {
-            "$ref": "#/components/schemas/PageableObject"
-          },
-          "first": {
-            "type": "boolean"
-          },
-          "last": {
-            "type": "boolean"
-          },
-          "empty": {
-            "type": "boolean"
-          }
-        }
-      },
-      "PageableObject": {
-        "type": "object",
-        "properties": {
-          "offset": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "sort": {
-            "$ref": "#/components/schemas/SortObject"
-          },
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "unpaged": {
-            "type": "boolean"
-          },
-          "paged": {
-            "type": "boolean"
-          }
-        }
-      },
-      "SortObject": {
-        "type": "object",
-        "properties": {
-          "empty": {
-            "type": "boolean"
-          },
-          "sorted": {
-            "type": "boolean"
-          },
-          "unsorted": {
-            "type": "boolean"
-          }
-        }
-      }
-    },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
-      }
-    }
-  }
+   }
 }
