@@ -105,7 +105,7 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <div className="md:hidden">
+        <div className="sm:hidden">
           <SidebarMenu>
             <SidebarGroup>
               <SidebarGroupContent>

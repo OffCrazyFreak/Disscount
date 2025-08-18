@@ -30,7 +30,7 @@ export const Header = () => {
           </div>
 
           {/* Center: shopping lists & digital cards */}
-          <div className="flex items-center space-x-8">
+          <div className="flex items-center space-x-8 hidden sm:flex">
             <Link
               href="/shopping-lists"
               className="flex items-center space-x-2 text-sm text-gray-700 hover:text-gray-900"
