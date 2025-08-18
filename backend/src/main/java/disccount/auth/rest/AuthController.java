@@ -33,7 +33,7 @@ public class AuthController {
         // Build Set-Cookie header value to include SameSite=None (Servlet Cookie has no direct setter for SameSite)
         StringBuilder sb = new StringBuilder();
         sb.append(REFRESH_COOKIE_NAME).append("=").append(token == null ? "" : token).append(";");
-        sb.append(" Max-Age=").append(jwtService.getRefreshTokenExpiration() / 1000).append(";");
+        sb.append(" Max-Age=").append(token == null ? 0 : jwtService.getRefreshTokenExpiration() / 1000).append(";");
         sb.append(" Path=").append(COOKIE_PATH).append(";");
         sb.append(" HttpOnly;");
         sb.append(" Secure;");
@@ -124,9 +124,30 @@ public class AuthController {
 
     @Operation(summary = "Logout from all sessions")
     @PostMapping("/logout-all")
-    public ResponseEntity<Map<String, String>> logoutAll() { 
+    public ResponseEntity<Map<String, String>> logoutAll(HttpServletRequest servletRequest,
+                                                         HttpServletResponse servletResponse) {
+        // Read cookie
+        String refreshToken = null;
+        if (servletRequest.getCookies() != null) {
+            for (Cookie c : servletRequest.getCookies()) {
+                if (REFRESH_COOKIE_NAME.equals(c.getName())) {
+                    refreshToken = c.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (refreshToken == null || refreshToken.isBlank()) {
+            return ResponseEntity.status(401).body(Map.of("message", "No refresh token"));
+        }
+
         UUID authenticatedUserId = SecurityUtils.getCurrentUserId(); 
         authService.logoutAll(authenticatedUserId);
+
+        // Clear cookie
+        String clearCookie = createRefreshCookieHeader(null);
+        servletResponse.addHeader("Set-Cookie", clearCookie);
+        
         return ResponseEntity.ok(Map.of("message","Logged out from all sessions successfully"));
     }
 }
