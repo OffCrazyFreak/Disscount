@@ -1,4 +1,4 @@
-package disccount.appUser.domain.enums;
+package disccount.user.domain.enums;
 
 public enum SubscriptionTier {
     FREE,

@@ -2,7 +2,8 @@ package disccount.shoppingListItem.dao;
 
 import disccount.shoppingList.domain.ShoppingList;
 import disccount.shoppingListItem.domain.ShoppingListItem;
-import disccount.appUser.domain.User;
+import disccount.user.domain.User;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

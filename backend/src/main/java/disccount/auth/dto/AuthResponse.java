@@ -1,6 +1,6 @@
 package disccount.auth.dto;
 
-import disccount.appUser.dto.UserDto;
+import disccount.user.dto.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

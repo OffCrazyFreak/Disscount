@@ -10,7 +10,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import disccount.appUser.domain.User;
+import disccount.user.domain.User;
 
 @Entity
 @Table(name = "refresh_token")

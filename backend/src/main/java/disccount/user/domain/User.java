@@ -1,4 +1,4 @@
-package disccount.appUser.domain;
+package disccount.user.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import disccount.appUser.domain.enums.SubscriptionTier;
+import disccount.user.domain.enums.SubscriptionTier;
 
 @Entity
 @Table(name = "app_user", uniqueConstraints = {

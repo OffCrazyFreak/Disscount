@@ -1,9 +1,9 @@
 package disccount.watchlistItem.service;
 
-import disccount.appUser.dao.UserRepository;
-import disccount.appUser.domain.User;
 import disccount.exceptions.BadRequestException;
 import disccount.exceptions.ConflictException;
+import disccount.user.dao.UserRepository;
+import disccount.user.domain.User;
 import disccount.watchlistItem.dao.WatchlistItemRepository;
 import disccount.watchlistItem.domain.WatchlistItem;
 import disccount.watchlistItem.dto.WatchlistItemDto;

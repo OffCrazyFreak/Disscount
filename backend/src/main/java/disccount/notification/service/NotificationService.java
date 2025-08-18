@@ -1,12 +1,12 @@
 package disccount.notification.service;
 
-import disccount.appUser.dao.UserRepository;
-import disccount.appUser.domain.User;
 import disccount.exceptions.BadRequestException;
 import disccount.notification.dao.NotificationRepository;
 import disccount.notification.domain.Notification;
 import disccount.notification.dto.NotificationDto;
 import disccount.notification.dto.NotificationRequest;
+import disccount.user.dao.UserRepository;
+import disccount.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

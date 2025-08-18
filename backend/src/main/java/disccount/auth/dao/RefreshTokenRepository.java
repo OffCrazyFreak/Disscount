@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import disccount.auth.domain.RefreshToken;
-import disccount.appUser.domain.User;
+import disccount.user.domain.User;
 
 import java.time.LocalDateTime;
 import java.util.List;

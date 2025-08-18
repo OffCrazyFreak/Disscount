@@ -1,10 +1,10 @@
-package disccount.appUser.service;
+package disccount.user.service;
 
-import disccount.appUser.dao.UserRepository;
-import disccount.appUser.domain.User;
-import disccount.appUser.dto.UserDto;
 import disccount.exceptions.BadRequestException;
 import disccount.exceptions.ConflictException;
+import disccount.user.dao.UserRepository;
+import disccount.user.domain.User;
+import disccount.user.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

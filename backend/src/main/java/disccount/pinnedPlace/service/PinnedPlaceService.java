@@ -1,11 +1,11 @@
 package disccount.pinnedPlace.service;
 
-import disccount.appUser.dao.UserRepository;
-import disccount.appUser.domain.User;
 import disccount.exceptions.BadRequestException;
 import disccount.pinnedPlace.dao.PinnedPlaceRepository;
 import disccount.pinnedPlace.domain.PinnedPlace;
 import disccount.pinnedPlace.dto.PinnedPlaceDto;
+import disccount.user.dao.UserRepository;
+import disccount.user.domain.User;
 import disccount.pinnedPlace.dto.BulkPinnedPlaceRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

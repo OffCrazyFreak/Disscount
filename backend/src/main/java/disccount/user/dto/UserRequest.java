@@ -1,4 +1,4 @@
-package disccount.appUser.dto;
+package disccount.user.dto;
 
 import lombok.Data;
 

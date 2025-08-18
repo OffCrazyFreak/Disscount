@@ -1,13 +1,13 @@
 package disccount.digitalCard.service;
 
 import disccount.digitalCard.dao.DigitalCardRepository;
-import disccount.appUser.dao.UserRepository;
 import disccount.digitalCard.domain.DigitalCard;
-import disccount.appUser.domain.User;
 import disccount.digitalCard.dto.DigitalCardDto;
 import disccount.digitalCard.dto.DigitalCardRequest;
 import disccount.exceptions.BadRequestException;
 import disccount.exceptions.UnauthorizedException;
+import disccount.user.dao.UserRepository;
+import disccount.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

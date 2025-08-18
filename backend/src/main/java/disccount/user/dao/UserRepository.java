@@ -1,9 +1,9 @@
-package disccount.appUser.dao;
+package disccount.user.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import disccount.appUser.domain.User;
+import disccount.user.domain.User;
 
 import java.util.Optional;
 import java.util.UUID;

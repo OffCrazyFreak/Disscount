@@ -1,6 +1,5 @@
-package disccount.appUser.dto;
+package disccount.user.dto;
 
-import disccount.appUser.domain.enums.SubscriptionTier;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +8,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import disccount.user.domain.enums.SubscriptionTier;
 
 @Data
 @NoArgsConstructor

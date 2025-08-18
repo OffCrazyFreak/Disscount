@@ -1,8 +1,8 @@
-package disccount.appUser.rest;
+package disccount.user.rest;
 
-import disccount.appUser.dto.UserRequest;
-import disccount.appUser.dto.UserDto;
-import disccount.appUser.service.UserService;
+import disccount.user.dto.UserDto;
+import disccount.user.dto.UserRequest;
+import disccount.user.service.UserService;
 import disccount.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -1,7 +1,7 @@
 package disccount.digitalCard.dao;
 
-import disccount.appUser.domain.User;
 import disccount.digitalCard.domain.DigitalCard;
+import disccount.user.domain.User;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

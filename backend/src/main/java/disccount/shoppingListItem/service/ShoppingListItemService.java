@@ -2,12 +2,12 @@ package disccount.shoppingListItem.service;
 
 import disccount.shoppingListItem.dao.ShoppingListItemRepository;
 import disccount.shoppingList.dao.ShoppingListRepository;
-import disccount.appUser.dao.UserRepository;
 import disccount.shoppingList.domain.ShoppingList;
 import disccount.shoppingListItem.domain.ShoppingListItem;
-import disccount.appUser.domain.User;
 import disccount.shoppingListItem.dto.ShoppingListItemDto;
 import disccount.shoppingListItem.dto.ShoppingListItemRequest;
+import disccount.user.dao.UserRepository;
+import disccount.user.domain.User;
 import disccount.exceptions.BadRequestException;
 import disccount.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;

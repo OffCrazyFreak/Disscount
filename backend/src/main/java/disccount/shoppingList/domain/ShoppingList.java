@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import disccount.appUser.domain.User;
 import disccount.shoppingListItem.domain.ShoppingListItem;
+import disccount.user.domain.User;
 
 @Entity
 @Table(name = "shopping_list")

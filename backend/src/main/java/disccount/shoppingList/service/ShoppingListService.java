@@ -1,11 +1,11 @@
 package disccount.shoppingList.service;
 
 import disccount.shoppingList.dao.ShoppingListRepository;
-import disccount.appUser.dao.UserRepository;
 import disccount.shoppingList.domain.ShoppingList;
-import disccount.appUser.domain.User;
 import disccount.shoppingList.dto.ShoppingListDto;
 import disccount.shoppingListItem.dto.ShoppingListItemDto;
+import disccount.user.dao.UserRepository;
+import disccount.user.domain.User;
 import disccount.shoppingList.dto.ShoppingListRequest;
 import disccount.exceptions.BadRequestException;
 import disccount.exceptions.UnauthorizedException;

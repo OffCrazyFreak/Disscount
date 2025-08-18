@@ -1,14 +1,14 @@
 package disccount.auth.service;
 
 import disccount.auth.dao.RefreshTokenRepository;
-import disccount.appUser.dao.UserRepository;
 import disccount.auth.domain.RefreshToken;
-import disccount.appUser.domain.User;
-import disccount.appUser.domain.enums.SubscriptionTier;
 import disccount.auth.dto.*;
-import disccount.appUser.dto.UserDto;
 import disccount.exceptions.BadRequestException;
 import disccount.exceptions.UnauthorizedException;
+import disccount.user.dao.UserRepository;
+import disccount.user.domain.User;
+import disccount.user.domain.enums.SubscriptionTier;
+import disccount.user.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
