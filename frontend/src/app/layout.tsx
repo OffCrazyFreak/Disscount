@@ -36,13 +36,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-50`}
       >
         <ReactQueryProvider>
-          <SidebarProvider defaultOpen={false}>
+          <SidebarProvider
+            defaultOpen={false}
+            className="min-h-screen flex flex-col w-full"
+          >
             {/* pattern background */}
             <div className="absolute inset-0 z-[-15] bg-[url('/+_pattern.png')] bg-repeat opacity-100" />
-
             {/* radial fade overlay to white */}
             <div className="absolute inset-0 -z-10 [background:radial-gradient(125%_125%_at_50%_100%,transparent_0%,#ffffff_90%)]" />
-
             {/* linear gradient from center to left and right */}
             <div className="absolute inset-0 -z-10 size-full [background:linear-gradient(90deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.0)_30%,rgba(255,255,255,0.0)_70%,rgba(255,255,255,0.9)_100%)]" />
 
@@ -50,7 +51,9 @@ export default function RootLayout({
 
             <AppSidebar />
 
-            <main className="max-w-5xl mx-auto p-4">{children}</main>
+            <main className="max-w-5xl mx-auto p-4 mt-24 w-full">
+              {children}
+            </main>
 
             <Footer />
           </SidebarProvider>

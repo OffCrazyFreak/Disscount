@@ -230,18 +230,4 @@
 
 html {
   scroll-behavior: smooth;
-
-  height: 100%;
-}
-
-body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-
-  position: relative;
-}
-
-footer {
-  margin-top: auto;
 }
