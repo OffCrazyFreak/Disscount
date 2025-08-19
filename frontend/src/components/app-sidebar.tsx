@@ -88,7 +88,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar variant="floating" className="mt-16 h-max">
+    <Sidebar variant="floating" className="mt-24 h-max">
       <SidebarHeader>
         <SidebarGroup>
           <SidebarGroupContent>

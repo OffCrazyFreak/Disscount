@@ -1,75 +1,88 @@
 "use client";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import {
-  List,
-  CreditCard,
-  Search,
-  Percent,
-  Grid,
-  MapPin,
-  BarChart,
-  LogIn,
-  ListChecks,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { BgAnimateButton } from "@/components/ui/bg-animate-button";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { CreditCard, ListChecks, LogIn } from "lucide-react";
+import { JSX, useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import { SidebarTrigger } from "./ui/sidebar";
+import BgAnimateButton from "./ui/bg-animate-button";
 
-export const Header = () => {
+export default function Header(): JSX.Element {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          {/* Left: sidebar trigger + app name */}
-          <div className="flex items-center space-x-3">
-            <SidebarTrigger />
-            <Link href="/" className="flex items-center space-x-2">
-              <span className="font-bold text-lg">Disscount</span>
-            </Link>
-          </div>
+    <header className="">
+      <nav className="fixed z-20 inset-4">
+        <div
+          className={cn(
+            "mx-auto max-w-6xl transition-all duration-300 px-6",
+            isScrolled &&
+              "bg-background/50 max-w-5xl rounded-2xl border backdrop-blur-sm px-4"
+          )}
+        >
+          <div className="flex items-center justify-between gap-4 flex-wrap py-2 sm:py-4">
+            <div className="flex items-center justify-between sm:w-auto">
+              <div className="flex items-center space-x-2">
+                <SidebarTrigger />
+                <Link href="/" className="flex items-center space-x-2">
+                  <span className="font-bold text-lg text-primary">
+                    Disscount
+                  </span>
+                </Link>
+              </div>
+            </div>
 
-          {/* Center: shopping lists & digital cards */}
-          <div className="flex items-center space-x-8 hidden sm:flex">
-            <Link
-              href="/shopping-lists"
-              className="flex items-center space-x-2 text-sm text-gray-700 hover:text-gray-900"
-            >
-              <ListChecks className="size-4 text-gray-500" />
-              <span>Shopping liste</span>
-            </Link>
+            <ul className="hidden sm:flex gap-8 text-sm ">
+              <li>
+                <Link
+                  href="/shopping-lists"
+                  className="flex items-center space-x-2 text-muted-foreground hover:text-accent-foreground block duration-150 group hover:scale-110"
+                >
+                  <ListChecks className="size-4 group-hover:text-primary transition-colors" />
+                  <span className="group-hover:text-primary transition-colors">
+                    Shopping liste
+                  </span>
+                </Link>
+              </li>
 
-            <Link
-              href="/cards"
-              className="flex items-center space-x-2 text-sm text-gray-700 hover:text-gray-900"
-            >
-              <CreditCard className="size-4 text-gray-500" />
-              <span>Digitalne kartice</span>
-            </Link>
-          </div>
+              <li>
+                <Link
+                  href="/cards"
+                  className="flex items-center space-x-2 text-muted-foreground hover:text-accent-foreground block duration-150 group hover:scale-110"
+                >
+                  <CreditCard className="size-4 group-hover:text-primary transition-all" />
+                  <span className="group-hover:text-primary transition-all">
+                    Digitalne kartice
+                  </span>
+                </Link>
+              </li>
+            </ul>
 
-          {/* Right: login button */}
-          <div>
             <BgAnimateButton
               gradient={"forest"}
               rounded={"full"}
               animation="spin-slow"
-              className="cursor-pointer"
+              shadow="base"
+              className="cursor-pointer min-w-fit"
               onClick={() => {
                 console.log("Login button clicked");
                 //TODO: open login modal from better-auth
               }}
             >
-              <div className="flex items-center space-x-2">
-                <LogIn className="size-6" />
-                <span>Prijava</span>
+              <div className="flex items-center space-x-2 px-2 py-1">
+                <LogIn className="w-5.5" />
+                <span className="">Prijava</span>
               </div>
             </BgAnimateButton>
           </div>
         </div>
-      </div>
+      </nav>
     </header>
   );
-};
-
-export default Header;
+}

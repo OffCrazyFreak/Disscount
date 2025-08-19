@@ -7,6 +7,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,15 +33,26 @@ export default function RootLayout({
   return (
     <html lang="hr">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-50`}
       >
         <ReactQueryProvider>
-          <SidebarProvider>
+          <SidebarProvider defaultOpen={false}>
+            {/* pattern background */}
+            <div className="absolute inset-0 z-[-15] bg-[url('/+_pattern.png')] bg-repeat opacity-100" />
+
+            {/* radial fade overlay to white */}
+            <div className="absolute inset-0 -z-10 [background:radial-gradient(125%_125%_at_50%_100%,transparent_0%,#ffffff_90%)]" />
+
+            {/* linear gradient from center to left and right */}
+            <div className="absolute inset-0 -z-10 size-full [background:linear-gradient(90deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.0)_30%,rgba(255,255,255,0.0)_70%,rgba(255,255,255,0.9)_100%)]" />
+
             <Header />
 
             <AppSidebar />
 
-            <main>{children}</main>
+            <main className="max-w-5xl mx-auto p-4">{children}</main>
+
+            <Footer />
           </SidebarProvider>
         </ReactQueryProvider>
       </body>

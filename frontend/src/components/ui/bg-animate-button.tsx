@@ -70,7 +70,7 @@ const innerSpanVariants = cva(
 );
 
 const buttonVariants = cva(
-  "relative px-6 py-2    transition-all duration-150 ease-in-out disabled:pointer-events-none disabled:opacity-50 text-sm  overflow-hidden",
+  "relative px-6 py-2 transition-all duration-150 ease-in-out disabled:pointer-events-none disabled:opacity-50 text-sm ",
   {
     variants: {
       size: {
