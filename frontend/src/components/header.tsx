@@ -18,7 +18,7 @@ export default function Header(): JSX.Element {
   }, []);
   return (
     <header className="">
-      <nav className="fixed z-20 inset-4">
+      <nav className="fixed z-20 inset-x-4 my-4">
         <div
           className={cn(
             "mx-auto max-w-6xl transition-all duration-300 px-6",
