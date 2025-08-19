@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="hr">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-50`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-50 relative`}
       >
         <ReactQueryProvider>
           <SidebarProvider

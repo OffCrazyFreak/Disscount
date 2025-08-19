@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import SearchProductsForm from "./search-products-form";
+import ProductSearchBar from "@/components/products/product-search-bar";
 import { Button } from "@/components/ui/button";
 import { ScanBarcode } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 export default function HeroActions(): React.JSX.Element {
   return (
     <Card className="bg-white max-w-xl mx-auto rounded-2xl shadow-xl p-8 mb-8">
-      <SearchProductsForm />
+      <ProductSearchBar showSubmitButton />
 
       <h2 className="text-xl font-bold uppercase">ili</h2>
 

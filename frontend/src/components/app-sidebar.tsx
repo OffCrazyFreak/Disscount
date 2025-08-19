@@ -30,11 +30,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Input } from "@/components/ui/input";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import ProductSearchBar from "./products/product-search-bar";
 
 type MenuSubItem = {
   id: string;
@@ -77,29 +75,12 @@ export function AppSidebar() {
   const [categories, setCategories] = useState<MenuSubItem[]>(mockCategories);
   const [places, setPlaces] = useState<MenuSubItem[]>(mockPlaces);
 
-  const router = useRouter();
-  const { register, handleSubmit } = useForm<{ searchQuery: string }>();
-
-  const onSubmit = (data: { searchQuery: string }) => {
-    const q = data.searchQuery?.trim();
-    if (q) {
-      router.push(`/products?q=${encodeURIComponent(q)}`);
-    }
-  };
-
   return (
     <Sidebar variant="floating" className="mt-24 h-max">
       <SidebarHeader>
         <SidebarGroup>
           <SidebarGroupContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="">
-              <Input
-                type="text"
-                placeholder="Pretraži proizvode..."
-                {...register("searchQuery")}
-                className="p-6 transition-colors"
-              />
-            </form>
+            <ProductSearchBar />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarHeader>

@@ -1,214 +1,167 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { Search, Filter, ArrowUpDown, MapPin } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Search, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
-import { productApi, type Product } from "@/lib/api-client";
+import ProductCard from "@/components/products/product-card";
+import ProductSearchBar from "@/components/products/product-search-bar";
+import { normalizeForSearch } from "@/lib/utils";
+
+// import { useProductSearch } from "@/hooks/use-products";
+// import { useAddToShoppingList } from "@/hooks/use-shopping-list";
+
+// Example product data - will be replaced with API data later
+const exampleProducts = [
+  {
+    id: 1,
+    name: "Afrodita Sun Care  mlijekoš ZF30 200ml OS",
+    category: "Piće",
+    brand: "Vindija",
+    quantity: "1L",
+    averagePrice: 1.35,
+    image: "/placeholder-product.jpg",
+  },
+  {
+    id: 2,
+    name: "Kruh integral",
+    category: "Pekarski proizvodi",
+    brand: "Klara",
+    quantity: "500g",
+    averagePrice: 0.85,
+    image: "/placeholder-product.jpg",
+  },
+  {
+    id: 3,
+    name: "Jogurt prirodni",
+    category: "Mliječni proizvodi",
+    brand: "Dukat",
+    quantity: "180g",
+    averagePrice: 0.65,
+    image: "/placeholder-product.jpg",
+  },
+  {
+    id: 4,
+    name: "Štap za šetnju",
+    category: "Sport",
+    brand: "Decathlon",
+    quantity: "1kom",
+    averagePrice: 15.99,
+    image: "/placeholder-product.jpg",
+  },
+  {
+    id: 5,
+    name: "Stap za pecanje",
+    category: "Šport",
+    brand: "Shimano",
+    quantity: "1kom",
+    averagePrice: 89.99,
+    image: "/placeholder-product.jpg",
+  },
+];
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
-  const query = searchParams.get("q") || "";
-  const [sortBy, setSortBy] = useState<"price" | "name" | "store">("price");
-  const [filterStore, setFilterStore] = useState<string>("");
+  const initialQuery = searchParams.get("q") || "";
+  const router = useRouter();
 
-  const {
-    data: searchResponse,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["products", query],
-    queryFn: () => productApi.searchProducts(query),
-    enabled: !!query,
-  });
-
-  const products = searchResponse?.products || [];
-
-  const sortedAndFilteredProducts = products
-    .filter((product) => !filterStore || product.store === filterStore)
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "price":
-          return a.price - b.price;
-        case "name":
-          return a.name.localeCompare(b.name);
-        case "store":
-          return a.store.localeCompare(b.store);
-        default:
-          return 0;
-      }
-    });
-
-  const uniqueStores = [...new Set(products.map((p) => p.store))];
-
-  if (!query) {
-    return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-4">
-          Nema pretrage
-        </h1>
-        <p className="text-gray-600">Molimo unesite pojam za pretraživanje.</p>
-      </div>
-    );
+  function handleSearch(q: string) {
+    if (!q) {
+      router.push(`/products`);
+    }
   }
 
+  // TODO: Uncomment when ready to use real API
+  // const { data: searchResult, isLoading, error } = useProductSearch(initialQuery);
+  // const products = searchResult?.products || [];
+  // const addToListMutation = useAddToShoppingList();
+
+  const handleAddToList = (productId: string | number) => {
+    // TODO: Replace with real mutation when ready
+    // addToListMutation.mutate({
+    //   productId: productId.toString(),
+    //   quantity: 1
+    // });
+
+    // Placeholder for now
+    console.log(`Added product ${productId} to shopping list`);
+  };
+
+  // TODO: Replace with React Query hook when ready to use real API
+  // const { data: searchResult, isLoading, error } = useProductSearch(initialQuery);
+  // const products = searchResult?.products || [];
+
+  // Filter products based on normalized search query (handles Croatian & German letters)
+  const qNorm = normalizeForSearch(initialQuery || "");
+  const filteredProducts = exampleProducts.filter((product) => {
+    if (!initialQuery) return true; // no query -> show all (handled by UI states)
+
+    // Search against both original and normalized text
+    const query = initialQuery.toLowerCase();
+    const name = product.name || "";
+    const brand = product.brand || "";
+    const category = product.category || "";
+
+    // Check original text (case-insensitive)
+    const originalMatches =
+      name.toLowerCase().includes(query) ||
+      brand.toLowerCase().includes(query) ||
+      category.toLowerCase().includes(query);
+
+    // Check normalized text (diacritic-insensitive)
+    const nameNorm = normalizeForSearch(name);
+    const brandNorm = normalizeForSearch(brand);
+    const categoryNorm = normalizeForSearch(category);
+
+    const normalizedMatches =
+      nameNorm.includes(qNorm) ||
+      brandNorm.includes(qNorm) ||
+      categoryNorm.includes(qNorm);
+
+    return originalMatches || normalizedMatches;
+  });
+
   return (
-    <div className="px-4 py-8">
-      {/* Search Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-          Rezultati pretrage za "{query}"
-        </h1>
-        <p className="text-gray-600">
-          {isLoading
-            ? "Pretraživanje..."
-            : `Pronađeno ${sortedAndFilteredProducts.length} proizvoda`}
-        </p>
+    <div className="">
+      <div className="my-4">
+        {/* Search Bar */}
+        <ProductSearchBar onSearch={handleSearch} showSubmitButton />
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Filters Sidebar */}
-        <div className="lg:w-64 space-y-4">
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-              <Filter className="size-4 mr-2" />
-              Filtri
+      {/* Products List */}
+      <div className="space-y-4">
+        {initialQuery && filteredProducts.length === 0 ? (
+          <div className="text-center py-12">
+            <Search className="size-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Nema rezultata
             </h3>
-
-            {/* Store Filter */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Trgovina
-              </label>
-              <select
-                value={filterStore}
-                onChange={(e) => setFilterStore(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
-              >
-                <option value="">Sve trgovine</option>
-                {uniqueStores.map((store) => (
-                  <option key={store} value={store}>
-                    {store}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Sort By */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <ArrowUpDown className="size-4 inline mr-1" />
-                Sortiraj po
-              </label>
-              <select
-                value={sortBy}
-                onChange={(e) =>
-                  setSortBy(e.target.value as "price" | "name" | "store")
-                }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
-              >
-                <option value="price">Cijeni (najniža prvo)</option>
-                <option value="name">Nazivu</option>
-                <option value="store">Trgovini</option>
-              </select>
-            </div>
+            <p className="text-gray-600">
+              Probajte s drugim pojmom za pretraživanje
+            </p>
           </div>
-        </div>
-
-        {/* Products Grid */}
-        <div className="flex-1">
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-white rounded-lg shadow-sm p-4 animate-pulse"
-                >
-                  <div className="h-32 bg-gray-200 rounded mb-4"></div>
-                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-                </div>
-              ))}
-            </div>
-          ) : error ? (
-            <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-              <p className="text-red-600">Greška pri dohvaćanju proizvoda</p>
-            </div>
-          ) : sortedAndFilteredProducts.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-              <Search className="size-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Nema rezultata
-              </h3>
-              <p className="text-gray-600">
-                Probajte s drugim pojmom za pretraživanje
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {sortedAndFilteredProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4"
-                >
-                  {/* Product Image Placeholder */}
-                  <div className="h-32 bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
-                    <span className="text-gray-400 text-sm">
-                      Slika proizvoda
-                    </span>
-                  </div>
-
-                  {/* Product Info */}
-                  <h3 className="font-semibold text-gray-900 mb-2">
-                    {product.name}
-                  </h3>
-
-                  {/* Category */}
-                  {product.category && (
-                    <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mb-2">
-                      {product.category}
-                    </span>
-                  )}
-
-                  {/* Price */}
-                  <div className="mb-3">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-2xl font-bold text-blue-600">
-                        {product.price.toFixed(2)} €
-                      </span>
-                      {product.discount && product.originalPrice && (
-                        <>
-                          <span className="text-sm text-gray-500 line-through">
-                            {product.originalPrice.toFixed(2)} €
-                          </span>
-                          <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">
-                            -{product.discount}%
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Store Info */}
-                  <div className="space-y-2">
-                    <div className="font-medium text-gray-900">
-                      {product.store}
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <MapPin className="size-4 mr-1" />
-                      {product.location}
-                    </div>
-                  </div>
-
-                  {/* Action Button */}
-                  <Button className="w-full mt-4" variant="outline">
-                    Dodaj u listu
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        ) : initialQuery ? (
+          <>
+            <h2 className="text-lg my-8">
+              Rezultati pretrage za "{initialQuery}" ({filteredProducts.length})
+            </h2>
+            {filteredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAddToList={handleAddToList}
+              />
+            ))}
+          </>
+        ) : (
+          <div className="text-center py-12">
+            <Search className="size-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Počnite pretraživanje
+            </h3>
+            <p className="text-gray-600">
+              Unesite naziv proizvoda koji tražite
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -27,7 +27,7 @@ export default function HeroSection(): React.JSX.Element {
   const tagLine: string = getTagLine();
 
   return (
-    <section className="min-h-dvh relative grid items-center">
+    <section className="min-h-dvh -mt-24 relative grid items-center">
       <AnimatedGroup
         variants={{
           container: {
