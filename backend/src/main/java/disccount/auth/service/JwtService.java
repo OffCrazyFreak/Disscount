@@ -31,7 +31,7 @@ public class JwtService {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    public String extractUsername(String token) {
+    public String extractSubject(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -52,38 +52,36 @@ public class JwtService {
                 .getBody();
     }
 
-    private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    public String generateAccessToken(String username, UUID userId) {
+    /**
+     * Generate access token with userId as subject (supports users without username)
+     */
+    public String generateAccessToken(String email, UUID userId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId.toString());
         claims.put("type", "access");
-        return createToken(claims, username, accessTokenExpiration);
+        return createToken(claims, email, accessTokenExpiration);
     }
 
-    public String generateRefreshToken(String username, UUID userId) {
+    /**
+     * Generate refresh token with userId as subject (supports users without username)
+     */
+    public String generateRefreshToken(String email, UUID userId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId.toString());
         claims.put("type", "refresh");
-        return createToken(claims, username, refreshTokenExpiration);
+        return createToken(claims, email, refreshTokenExpiration);
     }
 
-    private String createToken(Map<String, Object> claims, String subject, long expiration) {
+    private String createToken(Map<String, Object> claims, String email, long expiration) {
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(subject)
+                .setSubject(email)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-    }
 
     public Boolean validateToken(String token) {
         try {

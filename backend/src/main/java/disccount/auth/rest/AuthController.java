@@ -47,7 +47,7 @@ public class AuthController {
                                                  HttpServletResponse servletResponse) {
         AuthResponse response = authService.register(request);
 
-        String refreshToken = jwtService.generateRefreshToken(response.getUser().getUsername(), response.getUser().getId());
+        String refreshToken = jwtService.generateRefreshToken(response.getUser().getEmail(), response.getUser().getId());
         String setCookie = createRefreshCookieHeader(refreshToken);
         servletResponse.addHeader("Set-Cookie", setCookie);
 
@@ -60,7 +60,7 @@ public class AuthController {
                                               HttpServletResponse servletResponse) {
         AuthResponse response = authService.login(request);
 
-        String refreshToken = jwtService.generateRefreshToken(response.getUser().getUsername(), response.getUser().getId());
+        String refreshToken = jwtService.generateRefreshToken(response.getUser().getEmail(), response.getUser().getId());
         String setCookie = createRefreshCookieHeader(refreshToken);
         servletResponse.addHeader("Set-Cookie", setCookie);
 

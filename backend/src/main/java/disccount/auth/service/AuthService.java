@@ -65,7 +65,7 @@ public class AuthService {
         user = userRepository.save(user);
 
         // Generate tokens (use userId as JWT subject so username may be null)
-        String subject = user.getId().toString();
+        String subject = user.getEmail();
         String accessToken = jwtService.generateAccessToken(subject, user.getId());
         String refreshToken = jwtService.generateRefreshToken(subject, user.getId());
 
@@ -97,7 +97,7 @@ public class AuthService {
         refreshTokenRepository.deleteExpiredTokensByUser(user, LocalDateTime.now());
 
     // Generate tokens (use userId as subject to support users without username)
-    String subject = user.getId().toString();
+    String subject = user.getEmail();
     String accessToken = jwtService.generateAccessToken(subject, user.getId());
     String refreshToken = jwtService.generateRefreshToken(subject, user.getId());
 
@@ -124,7 +124,7 @@ public class AuthService {
         User user = refreshTokenEntity.getUser();
 
     // Generate new access token (use userId as subject)
-    String newAccessToken = jwtService.generateAccessToken(user.getId().toString(), user.getId());
+    String newAccessToken = jwtService.generateAccessToken(user.getEmail(), user.getId());
 
         return AuthResponse.builder()
                 .accessToken(newAccessToken)
