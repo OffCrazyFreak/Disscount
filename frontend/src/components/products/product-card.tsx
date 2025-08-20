@@ -36,7 +36,7 @@ export default function ProductCard({
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center justify-between gap-4">
           {/* Product Image */}
-          <div className="w-16 h-16 bg-gray-100 rounded-lg grid place-items-center">
+          <div className="w-16 h-16 bg-gray-100 rounded-lg  hidden sm:grid place-items-center">
             <span className="text-gray-400 text-xs">IMG</span>
           </div>
 
@@ -80,9 +80,9 @@ export default function ProductCard({
 
         {/* Price and Actions */}
         <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center flex-col sm:flex-row gap-0 sm:gap-2">
             <div className="">{product.quantity}</div>
-            <div className="">~</div>
+            <div className="hidden sm:block">~</div>
             <div className="font-bold text-lg">
               €{(product.averagePrice ?? 0).toFixed(2)}
             </div>

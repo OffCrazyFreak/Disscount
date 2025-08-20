@@ -120,9 +120,8 @@ export default function ProductsPage() {
   });
 
   return (
-    <div className="">
+    <div className="max-w-3xl mx-auto">
       <div className="my-4">
-        {/* Search Bar */}
         <ProductSearchBar onSearch={handleSearch} showSubmitButton />
       </div>
 

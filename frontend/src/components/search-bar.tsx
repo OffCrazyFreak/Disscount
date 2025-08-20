@@ -16,7 +16,6 @@ export interface SearchBarProps {
   clearable?: boolean;
   showSubmitButton?: boolean;
   submitLabel?: string;
-  className?: string;
 }
 
 export default function SearchBar({
@@ -28,7 +27,6 @@ export default function SearchBar({
   clearable = true,
   showSubmitButton = false,
   submitLabel = "Search",
-  className,
 }: SearchBarProps) {
   const { register, handleSubmit, watch, reset, setValue } = useForm<{
     query: string;
@@ -53,10 +51,10 @@ export default function SearchBar({
   }
 
   return (
-    <div className={className}>
+    <div className="">
       <form
         onSubmit={handleSubmit(submit)}
-        className="relative max-w-2xl mx-auto"
+        className="relative max-w-3xl mx-auto"
       >
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 size-5" />
@@ -64,7 +62,7 @@ export default function SearchBar({
             {...register("query")}
             type="text"
             placeholder={placeholder}
-            className="pl-10 pr-14 py-6 text-lg"
+            className="pl-10 pr-14 py-6 text-lg bg-white"
             autoComplete="off"
           />
 
