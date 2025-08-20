@@ -5,7 +5,7 @@ import ProductSearchBar from "@/components/products/product-search-bar";
 import { Button } from "@/components/ui/button";
 import { ScanBarcode } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Separator } from "../ui/separator";
+import { Separator } from "@/components/ui/separator";
 
 export default function HeroActions(): React.JSX.Element {
   return (

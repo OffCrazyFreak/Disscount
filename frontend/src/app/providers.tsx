@@ -1,11 +1,11 @@
 "use client";
 
 import { type ReactNode } from "react";
-import { AuthUIProviderWrapper } from "./providers/auth-ui-provider";
-import { ReactQueryProviderWrapper } from "./providers/react-query-provider";
-import { SidebarProvider } from "./providers/sidebar-provider";
-import { ToasterProvider } from "./providers/toaster-provider";
-import { UserContextProvider } from "./providers/user-provider";
+import { AuthUIProviderWrapper } from "@/app/providers/auth-ui-provider";
+import { ReactQueryProviderWrapper } from "@/app/providers/react-query-provider";
+import { SidebarProvider } from "@/app/providers/sidebar-provider";
+import { ToasterProvider } from "@/app/providers/toaster-provider";
+import { UserContextProvider } from "@/app/providers/user-provider";
 
 export function Providers({ children }: { children: ReactNode }) {
   return (

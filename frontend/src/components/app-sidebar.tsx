@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/collapsible";
 
 import { useState } from "react";
-import ProductSearchBar from "./products/product-search-bar";
+import ProductSearchBar from "@/components/products/product-search-bar";
 
 type MenuSubItem = {
   id: string;

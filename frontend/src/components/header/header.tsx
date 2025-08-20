@@ -3,11 +3,11 @@ import Link from "next/link";
 import { CreditCard, ListChecks, LogIn } from "lucide-react";
 import { JSX, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { SidebarTrigger } from "../ui/sidebar";
-import BgAnimateButton from "../ui/bg-animate-button";
-import { AuthModal } from "../forms/auth-modal";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import BgAnimateButton from "@/components/ui/bg-animate-button";
+import { AuthModal } from "@/components/forms/auth-modal";
 import { useUser } from "@/lib/user-context";
-import UserMenu from "./user-menu";
+import UserMenu from "@/components/header/user-menu";
 
 export default function Header(): JSX.Element {
   const [isScrolled, setIsScrolled] = useState(false);
