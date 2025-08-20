@@ -13,7 +13,7 @@ export const userDetailsSchema = z.object({
 
 export const userPreferencesSchema = z.object({
   pinnedStores: z.array(z.string()),
-  pinnedLocations: z.array(z.string()),
+  pinnedPlaces: z.array(z.string()),
 });
 
 export type UserDetailsForm = z.infer<typeof userDetailsSchema>;

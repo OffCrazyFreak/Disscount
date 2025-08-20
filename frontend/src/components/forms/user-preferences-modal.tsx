@@ -51,7 +51,7 @@ export default function UserPreferencesModal({
     resolver: zodResolver(userPreferencesSchema),
     defaultValues: {
       pinnedStores: [],
-      pinnedLocations: [],
+      pinnedPlaces: [],
     },
   });
 
@@ -89,7 +89,7 @@ export default function UserPreferencesModal({
 
       form.reset({
         pinnedStores: storeNames,
-        pinnedLocations: placeNames,
+        pinnedPlaces: placeNames,
       });
       return;
     }
@@ -106,7 +106,7 @@ export default function UserPreferencesModal({
       );
 
       // reset form values with fetched store NAMES and place NAMES
-      form.reset({ pinnedStores: storeNames, pinnedLocations: placeNames });
+      form.reset({ pinnedStores: storeNames, pinnedPlaces: placeNames });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, currentStores, currentPlaces, user]);
@@ -138,7 +138,7 @@ export default function UserPreferencesModal({
         updatePlacesMutation.mutateAsync(
           {
             // data.pinnedLocations now contains place NAMES; map them to API shape
-            places: data.pinnedLocations.map((placeName) => ({
+            places: data.pinnedPlaces.map((placeName) => ({
               placeApiId:
                 mockLocations.find((l) => l.name === placeName)?.id ||
                 placeName,
@@ -163,7 +163,6 @@ export default function UserPreferencesModal({
       updatePinnedPlaces(placesResponse);
 
       toast.success("Preference uspješno spremljene!");
-      onOpenChange(false);
     } catch (error) {
       toast.error("Greška pri spremanju preferenca");
     }
@@ -216,14 +215,14 @@ export default function UserPreferencesModal({
                       <div
                         key={store.id}
                         className={cn(
-                          "relative shadow-sm outline-2 rounded-lg cursor-pointer transition-all overflow-hidden",
+                          "relative shadow-sm border-2 rounded-lg cursor-pointer transition-all overflow-hidden",
                           isSelected
-                            ? "outline-primary bg-green-100"
-                            : "outline-gray-200 hover:outline-gray-400"
+                            ? "border-primary bg-green-100"
+                            : "border-gray-200 hover:border-gray-400"
                         )}
                         onClick={() => toggleStore(store.name)}
                       >
-                        <div className="size-24 sm:size-28 grid place-items-center relative transition-all">
+                        <div className="size-20 sm:size-26 grid place-items-center relative transition-all">
                           {store.image && (
                             <Image
                               src={store.image}
@@ -255,7 +254,7 @@ export default function UserPreferencesModal({
 
               <FormField
                 control={form.control}
-                name="pinnedLocations"
+                name="pinnedPlaces"
                 render={({ field }) => (
                   <FormItem className="gap-0">
                     <FormLabel
