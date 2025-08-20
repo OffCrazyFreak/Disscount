@@ -1,21 +1,18 @@
 "use client";
 import Link from "next/link";
-import { CreditCard, ListChecks, LogIn, LogOut, User } from "lucide-react";
+import { CreditCard, ListChecks, LogIn } from "lucide-react";
 import { JSX, useEffect, useState } from "react";
 import { cn } from "@/lib/searchUtils";
 import { SidebarTrigger } from "../ui/sidebar";
 import BgAnimateButton from "../ui/bg-animate-button";
 import { AuthModal } from "../auth-modal";
-import { useAuth } from "@/lib/old/auth-context";
-import { Button } from "../ui/button";
-import { UserAvatar, UserButton } from "@daveyplate/better-auth-ui";
-import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
+import { useUser } from "@/lib/user-context";
 import UserMenu from "./user-menu";
 
 export default function Header(): JSX.Element {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const { user, logout, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useUser();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,9 +22,6 @@ export default function Header(): JSX.Element {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleLogout = async () => {
-    await logout();
-  };
   return (
     <header className="">
       <nav className="fixed z-20 inset-x-4 my-4">

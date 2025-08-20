@@ -9,7 +9,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/lib/old/auth-context";
 import {
   Settings,
   LogOut,
@@ -21,18 +20,13 @@ import {
 import { UserAvatar } from "@daveyplate/better-auth-ui";
 import UserPreferencesModal from "@/components/forms/user-preferences-modal";
 import AccountDetailsModal from "@/components/forms/account-details-modal";
+import { useUser } from "@/lib/user-context";
 
 export default function UserMenu() {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout } = useUser();
   const [isAccountDetailsOpen, setIsAccountDetailsOpen] = useState(false);
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
-
-  const handleLogout = async () => {
-    await logout();
-    // optionally redirect to home
-    router.push("/");
-  };
 
   return (
     <>
@@ -40,7 +34,11 @@ export default function UserMenu() {
         <DropdownMenuTrigger asChild>
           <UserAvatar
             className="font-bold text-sm cursor-pointer"
-            user={user}
+            user={{
+              name: user?.username || "",
+              email: user?.email || "",
+              image: null, // API doesn't provide image yet
+            }}
             aria-label="User menu"
             size={"xl"}
           />
@@ -48,13 +46,15 @@ export default function UserMenu() {
         <DropdownMenuContent align="end" className="w-max">
           {/* User name and email */}
           <DropdownMenuLabel className="flex items-center justify-between gap-3">
-            {user?.image && (
-              <UserAvatar
-                className="font-bold text-sm"
-                user={user}
-                size={"lg"}
-              />
-            )}
+            <UserAvatar
+              className="font-bold text-sm"
+              user={{
+                name: user?.username || "",
+                email: user?.email || "",
+                image: null, // API doesn't provide image yet
+              }}
+              size={"lg"}
+            />
             <div className="space-y-1">
               <div className="font-bold">{user?.username}</div>
               <div className="text-xs text-gray-400">{user?.email}</div>
@@ -84,7 +84,7 @@ export default function UserMenu() {
           </DropdownMenuItem>
 
           <DropdownMenuItem
-            onSelect={handleLogout}
+            onSelect={logout}
             className="cursor-pointer flex items-center gap-4"
           >
             <LogOut />

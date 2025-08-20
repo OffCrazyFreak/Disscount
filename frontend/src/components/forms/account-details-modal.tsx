@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 import {
   CloudUpload,
   Loader2,
@@ -42,9 +41,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { userDetailsSchema, UserDetailsForm } from "@/lib/user-schemas";
-import { useAuth } from "@/lib/old/auth-context";
-import { userApi, UserRequest } from "@/lib/old/api-client";
-import { authService } from "@/lib/old/auth-api";
+import { authService, userService } from "@/lib/api";
+import { useUser } from "@/lib/user-context";
 
 interface AccountDetailsModalProps {
   isOpen: boolean;
@@ -56,66 +54,34 @@ export default function AccountDetailsModal({
   onOpenChange,
 }: AccountDetailsModalProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showLogoutAllConfirm, setShowLogoutAllConfirm] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, isLoading: isUserLoading, setUser, logout } = useUser();
+
+  // Update mutations
+  const updateUserMutation = userService.useUpdateCurrentUser();
+  const deleteUserMutation = userService.useDeleteCurrentUser();
+  const logoutAllMutation = authService.useLogoutAll();
 
   const form = useForm<UserDetailsForm>({
     resolver: zodResolver(userDetailsSchema),
     defaultValues: {
-      username: user?.username || "",
-      stayLoggedInDays: user?.stayLoggedInDays || 30,
-      notificationsPush: user?.notificationsPush ?? true,
-      notificationsEmail: user?.notificationsEmail ?? true,
+      username: "",
+      stayLoggedInDays: 30,
+      notificationsPush: true,
+      notificationsEmail: true,
     },
   });
 
-  const updateUserDetailsMutation = useMutation({
-    mutationFn: async (data: UserDetailsForm) => {
-      const userRequest: UserRequest = {
-        username: data.username,
-        stayLoggedInDays: data.stayLoggedInDays,
-        notificationsPush: data.notificationsPush,
-        notificationsEmail: data.notificationsEmail,
-      };
-      return await userApi.updateUserProfile(userRequest);
-    },
-    onSuccess: () => {
-      toast.success("Detalji računa uspješno spremljeni!");
-      onOpenChange(false);
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Greška pri spremanju detalja");
-    },
-  });
-
-  const deleteUserMutation = useMutation({
-    mutationFn: async () => {
-      return await userApi.deleteCurrentUser();
-    },
-    onSuccess: () => {
-      toast.success("Račun je uspješno obrisan!");
-      logout();
-      onOpenChange(false);
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Greška pri brisanju računa");
-    },
-  });
-
-  const logoutAllMutation = useMutation({
-    mutationFn: async () => {
-      return await authService.logoutAll();
-    },
-    onSuccess: () => {
-      toast.success("Odjavljen si sa svih uređaja!");
-      logout();
-      onOpenChange(false);
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Greška pri odjavi sa svih uređaja");
-    },
-  });
+  // Update form when user data changes
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        username: user.username || "",
+        stayLoggedInDays: user.stayLoggedInDays || 30,
+        notificationsPush: user.notificationsPush ?? true,
+        notificationsEmail: user.notificationsEmail ?? true,
+      });
+    }
+  }, [user, form]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -131,7 +97,25 @@ export default function AccountDetailsModal({
   };
 
   const onSubmit = (data: UserDetailsForm) => {
-    updateUserDetailsMutation.mutate(data);
+    updateUserMutation.mutate(
+      {
+        username: data.username,
+        stayLoggedInDays: data.stayLoggedInDays,
+        notificationsPush: data.notificationsPush,
+        notificationsEmail: data.notificationsEmail,
+      },
+      {
+        onSuccess: (updatedUser) => {
+          toast.success("Detalji računa uspješno spremljeni!");
+          // Update user data directly from response
+          setUser(updatedUser);
+          onOpenChange(false);
+        },
+        onError: (error) => {
+          toast.error(error.message || "Greška pri spremanju detalja");
+        },
+      }
+    );
   };
 
   const handleCancel = () => {
@@ -144,20 +128,39 @@ export default function AccountDetailsModal({
         "Jeste li sigurni da želite obrisati svoj račun? Ova akcija se ne može poništiti."
       )
     ) {
-      deleteUserMutation.mutate();
+      deleteUserMutation.mutate(undefined, {
+        onSuccess: () => {
+          toast.success("Račun je uspješno obrisan!");
+          logout();
+          onOpenChange(false);
+        },
+        onError: (error) => {
+          toast.error(error.message || "Greška pri brisanju računa");
+        },
+      });
     }
   };
 
   const handleLogoutAll = () => {
     if (confirm("Jeste li sigurni da se želite odjaviti sa svih uređaja?")) {
-      logoutAllMutation.mutate();
+      logoutAllMutation.mutate(undefined, {
+        onSuccess: () => {
+          toast.success("Odjavljen si sa svih uređaja!");
+          logout();
+          onOpenChange(false);
+        },
+        onError: (error) => {
+          toast.error(error.message || "Greška pri odjavi sa svih uređaja");
+        },
+      });
     }
   };
 
   const isLoading =
-    updateUserDetailsMutation.isPending ||
+    updateUserMutation.isPending ||
     deleteUserMutation.isPending ||
-    logoutAllMutation.isPending;
+    logoutAllMutation.isPending ||
+    isUserLoading;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -362,7 +365,7 @@ export default function AccountDetailsModal({
               </Button>
 
               <Button type="submit" size={"lg"} disabled={isLoading}>
-                {updateUserDetailsMutation.isPending ? (
+                {updateUserMutation.isPending ? (
                   <Loader2 size={16} className="animate-spin" />
                 ) : (
                   "Spremi podatke"

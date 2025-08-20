@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
@@ -11,9 +10,10 @@ import { AxiosError } from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/lib/old/auth-context";
 import { loginSchema, LoginForm as LoginFormType } from "@/lib/auth-schemas";
 import { cn } from "@/lib/searchUtils";
+import { authService } from "@/lib/api";
+import { useUser } from "@/lib/user-context";
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -21,7 +21,8 @@ interface LoginFormProps {
 
 export function LoginForm({ onSuccess }: LoginFormProps) {
   const [loginRootError, setLoginRootError] = useState<string | null>(null);
-  const { login } = useAuth();
+  const loginMutation = authService.useLogin();
+  const { setUser } = useUser();
 
   const form = useForm<LoginFormType>({
     resolver: zodResolver(loginSchema),
@@ -31,31 +32,34 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
     },
   });
 
-  const loginMutation = useMutation({
-    mutationFn: async (data: LoginFormType) => {
-      await login(data.usernameOrEmail, data.password);
-    },
-    onSuccess: () => {
-      toast.success("Prijava uspješna!");
-      form.reset();
-      setLoginRootError(null);
-      onSuccess?.();
-    },
-    onError: (error: unknown) => {
-      // If backend responds with 401 show a root-level form error in Croatian
-      const axiosErr = error as AxiosError | undefined;
-      if (axiosErr?.response?.status === 401) {
-        setLoginRootError("Neispravno korisničko ime ili email i lozinka");
-      } else {
-        toast.error(axiosErr?.message || "Greška pri prijavi");
-      }
-    },
-  });
-
   const onSubmit = (data: LoginFormType) => {
     // clear previous root error and start login
     setLoginRootError(null);
-    loginMutation.mutate(data);
+    loginMutation.mutate(
+      {
+        usernameOrEmail: data.usernameOrEmail,
+        password: data.password,
+      },
+      {
+        onSuccess: (response) => {
+          toast.success("Prijava uspješna!");
+          form.reset();
+          setLoginRootError(null);
+          // Set user directly from login response
+          setUser(response.user);
+          onSuccess?.();
+        },
+        onError: (error: unknown) => {
+          // If backend responds with 401 show a root-level form error in Croatian
+          const axiosErr = error as AxiosError | undefined;
+          if (axiosErr?.response?.status === 401) {
+            setLoginRootError("Neispravno korisničko ime ili email i lozinka");
+          } else {
+            toast.error(axiosErr?.message || "Greška pri prijavi");
+          }
+        },
+      }
+    );
   };
 
   return (

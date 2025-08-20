@@ -2,23 +2,24 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/lib/old/auth-context";
 import { signUpSchema, SignUpForm as SignUpFormType } from "@/lib/auth-schemas";
 import { cn } from "@/lib/searchUtils";
+import { authService } from "@/lib/api";
+import { useUser } from "@/lib/user-context";
 
 interface SignUpFormProps {
   onSuccess?: () => void;
 }
 
 export function SignUpForm({ onSuccess }: SignUpFormProps) {
-  const { register } = useAuth();
+  const registerMutation = authService.useRegister();
+  const { setUser } = useUser();
 
   const form = useForm<SignUpFormType>({
     resolver: zodResolver(signUpSchema),
@@ -29,22 +30,29 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
     },
   });
 
-  const signUpMutation = useMutation({
-    mutationFn: async (data: SignUpFormType) => {
-      await register(data.email, data.password);
-    },
-    onSuccess: () => {
-      toast.success("Uspješno ste se registrirali!");
-      form.reset();
-      onSuccess?.();
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Greška pri registraciji");
-    },
-  });
-
   const onSubmit = (data: SignUpFormType) => {
-    signUpMutation.mutate(data);
+    registerMutation.mutate(
+      {
+        email: data.email,
+        password: data.password,
+        // Optional fields could be added here if needed
+        username: undefined, // Use email as username by default
+        notificationsEmail: true, // Default to enabled
+        notificationsPush: true, // Default to enabled
+      },
+      {
+        onSuccess: (response) => {
+          toast.success("Uspješno ste se registrirali!");
+          form.reset();
+          // Set user directly from register response
+          setUser(response.user);
+          onSuccess?.();
+        },
+        onError: (error: Error) => {
+          toast.error(error.message || "Greška pri registraciji");
+        },
+      }
+    );
   };
 
   return (
@@ -103,9 +111,9 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
         type="submit"
         size={"lg"}
         className="w-full"
-        disabled={signUpMutation.isPending}
+        disabled={registerMutation.isPending}
       >
-        {signUpMutation.isPending ? (
+        {registerMutation.isPending ? (
           <Loader2 size={16} className="animate-spin" />
         ) : (
           "Registriraj se"

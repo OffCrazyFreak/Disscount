@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -36,7 +35,8 @@ import Image from "next/image";
 import { userPreferencesSchema, UserPreferencesForm } from "@/lib/user-schemas";
 import { mockStores, mockLocations } from "@/lib/old/mock-data";
 import { cn } from "@/lib/searchUtils";
-import { preferencesApi } from "@/lib/old/api-client";
+import { preferencesService } from "@/lib/api";
+import { useUser } from "@/lib/user-context";
 
 interface UserPreferencesModalProps {
   isOpen: boolean;
@@ -55,74 +55,134 @@ export default function UserPreferencesModal({
     },
   });
 
+  const { user, updatePinnedStores, updatePinnedPlaces } = useUser();
+
   // Fetch current preferences when modal is open
   const {
     data: currentStores,
     isLoading: isStoresLoading,
     isError: isStoresError,
-  } = useQuery({
-    queryKey: ["preferences", "pinnedStores"],
-    queryFn: preferencesApi.getCurrentUserPinnedStores,
-    enabled: isOpen,
-  });
+  } = preferencesService.useGetPinnedStores();
 
   const {
     data: currentPlaces,
     isLoading: isPlacesLoading,
     isError: isPlacesError,
-  } = useQuery({
-    queryKey: ["preferences", "pinnedPlaces"],
-    queryFn: preferencesApi.getCurrentUserPinnedPlaces,
-    enabled: isOpen,
-  });
+  } = preferencesService.useGetPinnedPlaces();
 
-  // When data arrives, reset the form with existing preferences
+  // Update mutations
+  const updateStoresMutation = preferencesService.useUpdatePinnedStores();
+  const updatePlacesMutation = preferencesService.useUpdatePinnedPlaces();
+
+  // When data arrives, reset the form with existing preferences (use store NAMES)
   useEffect(() => {
     if (!isOpen) return;
+
+    // First try to use preferences from user context if available
+    if (user?.pinnedStores || user?.pinnedPlaces) {
+      const storeNames = (user.pinnedStores || []).map(
+        (s) => s.storeName || s.storeApiId || s.id
+      );
+      const placeNames = (user.pinnedPlaces || []).map(
+        (p) => p.placeName || p.placeApiId
+      );
+
+      form.reset({
+        pinnedStores: storeNames,
+        pinnedLocations: placeNames,
+      });
+      return;
+    }
+
+    // Fall back to fetched data if context doesn't have the preferences
     if (currentStores || currentPlaces) {
-      const storeIds = (currentStores || []).map((s) => s.storeApiId || s.id);
-      const placeIds = (currentPlaces || []).map((p) => p.placeApiId || p.id);
-      // reset form values with fetched IDs
-      form.reset({ pinnedStores: storeIds, pinnedLocations: placeIds });
+      // Prefer the friendly store name when available, fall back to API id
+      const storeNames = (currentStores || []).map(
+        (s) => s.storeName || s.storeApiId || s.id
+      );
+      // use place names for UI selection
+      const placeNames = (currentPlaces || []).map(
+        (p) => p.placeName || p.placeApiId
+      );
+
+      // reset form values with fetched store NAMES and place NAMES
+      form.reset({ pinnedStores: storeNames, pinnedLocations: placeNames });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, currentStores, currentPlaces]);
+  }, [isOpen, currentStores, currentPlaces, user]);
 
-  const preferencesMutation = useMutation({
-    mutationFn: async (data: UserPreferencesForm) => {
+  const onSubmit = async (data: UserPreferencesForm) => {
+    try {
       // Make both API calls in parallel
-      const [storesResult, placesResult] = await Promise.all([
-        preferencesApi.updatePinnedStores(data.pinnedStores),
-        preferencesApi.updatePinnedPlaces(data.pinnedLocations),
+      const [storesResponse, placesResponse] = await Promise.all([
+        updateStoresMutation.mutateAsync(
+          {
+            // data.pinnedStores now contains store NAMES; map them to API shape
+            stores: data.pinnedStores.map((storeName) => ({
+              storeApiId:
+                mockStores.find((s) => s.name === storeName)?.id || storeName,
+              storeName,
+            })),
+          },
+          {
+            onSuccess: () => {
+              // Success handled after both calls complete
+            },
+            onError: (error) => {
+              toast.error(
+                error.message || "Greška pri spremanju preferenca trgovina"
+              );
+            },
+          }
+        ),
+        updatePlacesMutation.mutateAsync(
+          {
+            // data.pinnedLocations now contains place NAMES; map them to API shape
+            places: data.pinnedLocations.map((placeName) => ({
+              placeApiId:
+                mockLocations.find((l) => l.name === placeName)?.id ||
+                placeName,
+              placeName,
+            })),
+          },
+          {
+            onSuccess: () => {
+              // Success handled after both calls complete
+            },
+            onError: (error) => {
+              toast.error(
+                error.message || "Greška pri spremanju preferenca lokacija"
+              );
+            },
+          }
+        ),
       ]);
-      return { stores: storesResult, places: placesResult };
-    },
-    onSuccess: () => {
+
+      // Update the user context with the responses
+      updatePinnedStores(storesResponse);
+      updatePinnedPlaces(placesResponse);
+
       toast.success("Preference uspješno spremljene!");
       onOpenChange(false);
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Greška pri spremanju preferencija");
-    },
-  });
-
-  const onSubmit = (data: UserPreferencesForm) => {
-    preferencesMutation.mutate(data);
+    } catch (error) {
+      toast.error("Greška pri spremanju preferenca");
+    }
   };
 
   const handleCancel = () => {
     onOpenChange(false);
   };
 
-  const toggleStore = (storeId: string) => {
+  const toggleStore = (storeName: string) => {
     const current = form.getValues("pinnedStores");
-    const updated = current.includes(storeId)
-      ? current.filter((id) => id !== storeId)
-      : [...current, storeId];
+    const updated = current.includes(storeName)
+      ? current.filter((name) => name !== storeName)
+      : [...current, storeName];
     form.setValue("pinnedStores", updated);
   };
 
-  const isLoading = preferencesMutation.isPending;
+  const isLoading =
+    updateStoresMutation.isPending || updatePlacesMutation.isPending;
   const isPrefLoading = isStoresLoading || isPlacesLoading;
 
   return (
@@ -148,9 +208,10 @@ export default function UserPreferencesModal({
 
                 <div className="flex flex-wrap items-center justify-center gap-4">
                   {mockStores.map((store) => {
+                    // Use store.name as the form value
                     const isSelected = form
                       .watch("pinnedStores")
-                      .includes(store.id);
+                      .includes(store.name);
                     return (
                       <div
                         key={store.id}
@@ -160,7 +221,7 @@ export default function UserPreferencesModal({
                             ? "outline-primary bg-green-100"
                             : "outline-gray-200 hover:outline-gray-400"
                         )}
-                        onClick={() => toggleStore(store.id)}
+                        onClick={() => toggleStore(store.name)}
                       >
                         <div className="size-24 sm:size-28 grid place-items-center relative transition-all">
                           {store.image && (
@@ -168,6 +229,7 @@ export default function UserPreferencesModal({
                               src={store.image}
                               alt={store.name}
                               fill
+                              sizes="6rem"
                               className={cn(
                                 "absolute inset-0 opacity-40",
                                 isSelected && "opacity-100"
@@ -222,7 +284,7 @@ export default function UserPreferencesModal({
                           {mockLocations.map((location) => (
                             <MultiSelectItem
                               key={location.id}
-                              value={location.id}
+                              value={location.name}
                             >
                               {location.name}
                             </MultiSelectItem>
@@ -239,28 +301,30 @@ export default function UserPreferencesModal({
 
             <div className="flex justify-between pt-4">
               <Button
+                size="lg"
                 type="button"
-                size={"lg"}
                 variant="outline"
                 onClick={handleCancel}
-                disabled={isLoading}
               >
                 Odustani
               </Button>
-
-              <Button type="submit" size={"lg"} disabled={isLoading}>
-                {preferencesMutation.isPending ? (
+              <Button
+                size="lg"
+                type="submit"
+                disabled={isLoading || isPrefLoading}
+              >
+                {isLoading ? (
                   <Loader2 size={16} className="animate-spin" />
                 ) : (
-                  "Spremi preference"
+                  "Spremi"
                 )}
               </Button>
             </div>
           </form>
         </Form>
 
-        <DialogFooter className="text-xs text-gray-500 text-center my-2">
-          Ove preference možeš kasnije izmijeniti u postavkama računa.
+        <DialogFooter className="text-xs text-gray-500 text-center my-2 block">
+          Ove preference možeš uvijek izmijeniti u postavkama računa.
         </DialogFooter>
       </DialogContent>
     </Dialog>
