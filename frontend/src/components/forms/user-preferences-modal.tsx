@@ -33,7 +33,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import Image from "next/image";
 import { userPreferencesSchema, UserPreferencesForm } from "@/lib/user-schemas";
-import { mockStores, mockLocations } from "@/lib/old/mock-data";
+import { mockStores, mockLocations } from "@/lib/mock/mock-preferences";
 import { cn } from "@/lib/searchUtils";
 import { preferencesService } from "@/lib/api";
 import { useUser } from "@/lib/user-context";
