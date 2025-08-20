@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ListPlus, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { normalizeForSearch } from "@/lib/searchUtils";
+import { normalizeForSearch } from "@/lib/utils";
 
 export interface ProductItem {
   id: number | string;

@@ -57,7 +57,7 @@ export function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-8 py-4">
           {authMode === "login" ? (
             <LoginForm onSuccess={handleLoginSuccess} />
           ) : (
@@ -68,7 +68,7 @@ export function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
             <Separator />
 
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="bg-background px-2 text-xs text-muted-foreground">
+              <span className="bg-background px-4 text-muted-foreground">
                 ili
               </span>
             </div>

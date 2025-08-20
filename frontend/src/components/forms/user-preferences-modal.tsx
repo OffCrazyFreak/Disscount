@@ -34,7 +34,7 @@ import { Form } from "@/components/ui/form";
 import Image from "next/image";
 import { userPreferencesSchema, UserPreferencesForm } from "@/lib/user-schemas";
 import { mockStores, mockLocations } from "@/lib/mock/mock-preferences";
-import { cn } from "@/lib/searchUtils";
+import { cn } from "@/lib/utils";
 import { preferencesService } from "@/lib/api";
 import { useUser } from "@/lib/user-context";
 

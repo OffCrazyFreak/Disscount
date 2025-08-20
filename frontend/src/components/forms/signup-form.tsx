@@ -8,8 +8,17 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Form,
+} from "@/components/ui/form";
+import { PasswordInput } from "@/components/ui/password-input";
 import { signUpSchema, SignUpForm as SignUpFormType } from "@/lib/auth-schemas";
-import { cn } from "@/lib/searchUtils";
+import { cn } from "@/lib/utils";
 import { authService } from "@/lib/api";
 import { useUser } from "@/lib/user-context";
 
@@ -56,69 +65,77 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
-      <div className="grid gap-2">
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          placeholder="korisnik@example.com"
-          {...form.register("email")}
-          className={cn(form.formState.errors.email && "border-red-500")}
-        />
-        {form.formState.errors.email && (
-          <p className="text-sm text-red-500">
-            {form.formState.errors.email.message}
-          </p>
-        )}
-      </div>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+        <div className="grid gap-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="korisnik@example.com"
+            {...form.register("email")}
+            className={cn(form.formState.errors.email && "border-red-500")}
+          />
+          {form.formState.errors.email && (
+            <p className="text-sm text-red-500">
+              {form.formState.errors.email.message}
+            </p>
+          )}
+        </div>
 
-      <div className="grid gap-2">
-        <Label htmlFor="signup-password">Lozinka</Label>
-        <Input
-          id="signup-password"
-          type="password"
-          placeholder="********"
-          {...form.register("password")}
-          className={cn(form.formState.errors.password && "border-red-500")}
-        />
-        {form.formState.errors.password && (
-          <p className="text-sm text-red-500">
-            {form.formState.errors.password.message}
-          </p>
-        )}
-      </div>
-
-      <div className="grid gap-2">
-        <Label htmlFor="confirmPassword">Potvrdi lozinku</Label>
-        <Input
-          id="confirmPassword"
-          type="password"
-          placeholder="********"
-          {...form.register("confirmPassword")}
-          className={cn(
-            form.formState.errors.confirmPassword && "border-red-500"
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Lozinka</FormLabel>
+              <FormControl>
+                <PasswordInput
+                  {...field}
+                  placeholder="********"
+                  className={cn(
+                    form.formState.errors.password && "border-red-500"
+                  )}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
         />
-        {form.formState.errors.confirmPassword && (
-          <p className="text-sm text-red-500">
-            {form.formState.errors.confirmPassword.message}
-          </p>
-        )}
-      </div>
 
-      <Button
-        type="submit"
-        size={"lg"}
-        className="w-full"
-        disabled={registerMutation.isPending}
-      >
-        {registerMutation.isPending ? (
-          <Loader2 size={16} className="animate-spin" />
-        ) : (
-          "Registriraj se"
-        )}
-      </Button>
-    </form>
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Potvrdi lozinku</FormLabel>
+              <FormControl>
+                <PasswordInput
+                  {...field}
+                  placeholder="********"
+                  className={cn(
+                    form.formState.errors.confirmPassword && "border-red-500"
+                  )}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button
+          type="submit"
+          size={"lg"}
+          className="w-full"
+          disabled={registerMutation.isPending}
+        >
+          {registerMutation.isPending ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            "Registriraj se"
+          )}
+        </Button>
+      </form>
+    </Form>
   );
 }

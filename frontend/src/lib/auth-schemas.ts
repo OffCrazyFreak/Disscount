@@ -3,7 +3,7 @@ import { z } from "zod";
 export const loginSchema = z.object({
   usernameOrEmail: z
     .string()
-    .min(2)
+    .min(2, { message: "Korisničko ime ili email mora imati najmanje 2 znaka" })
     .refine(
       (value) =>
         value.includes("@")

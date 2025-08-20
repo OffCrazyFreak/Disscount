@@ -72,11 +72,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     logoutMutation.mutate(undefined, {
       onSuccess: () => {
         setUser(null);
-        // Optional: redirect to login page
-        router.push("/");
       },
     });
-  }, [logoutMutation, router]);
+  }, [logoutMutation]);
 
   // Update pinned stores in user context
   const updatePinnedStores = useCallback((stores: PinnedStoreDto[]) => {

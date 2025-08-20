@@ -146,7 +146,7 @@ export default function AccountDetailsModal({
       logoutAllMutation.mutate(undefined, {
         onSuccess: () => {
           toast.success("Odjavljen si sa svih uređaja!");
-          logout();
+          setUser(null);
           onOpenChange(false);
         },
         onError: (error) => {

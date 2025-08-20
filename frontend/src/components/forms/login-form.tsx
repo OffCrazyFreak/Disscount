@@ -11,9 +11,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginSchema, LoginForm as LoginFormType } from "@/lib/auth-schemas";
-import { cn } from "@/lib/searchUtils";
+import { cn } from "@/lib/utils";
 import { authService } from "@/lib/api";
 import { useUser } from "@/lib/user-context";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { PasswordInput } from "@/components/ui/password-input";
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -69,54 +78,62 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           {loginRootError}
         </div>
       )}
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
-        <div className="grid gap-2">
-          <Label htmlFor="usernameOrEmail">Korisničko ime ili email</Label>
-          <Input
-            id="usernameOrEmail"
-            type="text"
-            placeholder="korisnik@example.com"
-            {...form.register("usernameOrEmail")}
-            className={cn(
-              form.formState.errors.usernameOrEmail && "border-red-500"
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="usernameOrEmail">Korisničko ime ili email</Label>
+            <Input
+              id="usernameOrEmail"
+              type="text"
+              placeholder="korisnik@example.com"
+              {...form.register("usernameOrEmail")}
+              className={cn(
+                form.formState.errors.usernameOrEmail && "border-red-500"
+              )}
+            />
+            {form.formState.errors.usernameOrEmail && (
+              <p className="text-sm text-red-500">
+                {form.formState.errors.usernameOrEmail.message}
+              </p>
             )}
-          />
-          {form.formState.errors.usernameOrEmail && (
-            <p className="text-sm text-red-500">
-              {form.formState.errors.usernameOrEmail.message}
-            </p>
-          )}
-        </div>
+          </div>
 
-        <div className="grid gap-2">
-          <Label htmlFor="password">Lozinka</Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="************"
-            {...form.register("password")}
-            className={cn(form.formState.errors.password && "border-red-500")}
-          />
-          {form.formState.errors.password && (
-            <p className="text-sm text-red-500">
-              {form.formState.errors.password.message}
-            </p>
-          )}
-        </div>
+          <div className="grid gap-2">
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      {...field}
+                      placeholder="************"
+                      className={cn(
+                        form.formState.errors.password && "border-red-500"
+                      )}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
-        <Button
-          type="submit"
-          size={"lg"}
-          className="w-full"
-          disabled={loginMutation.isPending}
-        >
-          {loginMutation.isPending ? (
-            <Loader2 size={16} className="animate-spin" />
-          ) : (
-            "Prijavi se"
-          )}
-        </Button>
-      </form>
+          <Button
+            type="submit"
+            size={"lg"}
+            className="w-full"
+            disabled={loginMutation.isPending}
+          >
+            {loginMutation.isPending ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              "Prijavi se"
+            )}
+          </Button>
+        </form>
+      </Form>
     </>
   );
 }

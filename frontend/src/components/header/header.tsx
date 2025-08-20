@@ -2,10 +2,10 @@
 import Link from "next/link";
 import { CreditCard, ListChecks, LogIn } from "lucide-react";
 import { JSX, useEffect, useState } from "react";
-import { cn } from "@/lib/searchUtils";
+import { cn } from "@/lib/utils";
 import { SidebarTrigger } from "../ui/sidebar";
 import BgAnimateButton from "../ui/bg-animate-button";
-import { AuthModal } from "../auth-modal";
+import { AuthModal } from "../forms/auth-modal";
 import { useUser } from "@/lib/user-context";
 import UserMenu from "./user-menu";
 
