@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Search, ScanBarcode } from "lucide-react";
+import { Search, ScanBarcode, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { normalizeForSearch } from "@/lib/utils";
@@ -73,10 +73,10 @@ export default function SearchBar({
                 variant="ghost"
                 size="sm"
                 onClick={handleClear}
-                className="p-2 text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600"
                 aria-label="Clear search"
               >
-                ×
+                <X />
               </Button>
             )}
 

@@ -1,13 +1,21 @@
 "use client";
 import Link from "next/link";
-import { CreditCard, ListChecks, LogIn } from "lucide-react";
+import { CreditCard, ListChecks, LogIn, LogOut, User } from "lucide-react";
 import { JSX, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { SidebarTrigger } from "./ui/sidebar";
 import BgAnimateButton from "./ui/bg-animate-button";
+import { AuthModal } from "./auth-modal";
+import { useAuth } from "@/lib/auth-context";
+import { Button } from "./ui/button";
+import { UserAvatar, UserButton } from "@daveyplate/better-auth-ui";
+import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
+import UserMenu from "./user-menu";
 
 export default function Header(): JSX.Element {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const { user, logout, isAuthenticated } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +24,10 @@ export default function Header(): JSX.Element {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleLogout = async () => {
+    await logout();
+  };
   return (
     <header className="">
       <nav className="fixed z-20 inset-x-4 my-4">
@@ -64,25 +76,30 @@ export default function Header(): JSX.Element {
               </li>
             </ul>
 
-            <BgAnimateButton
-              gradient={"forest"}
-              rounded={"full"}
-              animation="spin-slow"
-              shadow="base"
-              className="cursor-pointer min-w-fit"
-              onClick={() => {
-                console.log("Login button clicked");
-                //TODO: open login modal from better-auth
-              }}
-            >
-              <div className="flex items-center space-x-2 px-2 py-1">
-                <LogIn className="w-5.5" />
-                <span className="">Prijava</span>
-              </div>
-            </BgAnimateButton>
+            {isAuthenticated ? (
+              <UserMenu />
+            ) : (
+              <BgAnimateButton
+                gradient={"forest"}
+                rounded={"full"}
+                animation="spin-slow"
+                shadow="base"
+                className="cursor-pointer min-w-fit"
+                onClick={() => {
+                  setIsAuthModalOpen(true);
+                }}
+              >
+                <div className="flex items-center space-x-2 px-2 py-1">
+                  <LogIn className="w-5.5" />
+                  <span className="">Prijava</span>
+                </div>
+              </BgAnimateButton>
+            )}
           </div>
         </div>
       </nav>
+
+      <AuthModal isOpen={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
     </header>
   );
 }

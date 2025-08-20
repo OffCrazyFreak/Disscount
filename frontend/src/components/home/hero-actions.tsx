@@ -5,13 +5,21 @@ import ProductSearchBar from "@/components/products/product-search-bar";
 import { Button } from "@/components/ui/button";
 import { ScanBarcode } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Separator } from "../ui/separator";
 
 export default function HeroActions(): React.JSX.Element {
   return (
-    <Card className="bg-white max-w-xl mx-auto rounded-2xl shadow-xl p-8 mb-8">
-      <ProductSearchBar showSubmitButton />
+    <Card className="bg-background max-w-xl mx-auto rounded-2xl shadow-xl p-8 space-y-4">
+      <ProductSearchBar showSubmitButton showBarcode={false} />
 
-      <h2 className="text-xl font-bold uppercase">ili</h2>
+      <div className="relative">
+        <Separator />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <h2 className="bg-background text-lg px-2 text-muted-foreground">
+            ili
+          </h2>
+        </div>
+      </div>
 
       <div className="">
         <Button
