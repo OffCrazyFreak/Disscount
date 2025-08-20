@@ -30,6 +30,17 @@ public class PinnedStoreService {
         // First, delete all existing pinned stores for this user
         List<PinnedStore> existingStores = pinnedStoreRepository.findByUserId(userId);
         pinnedStoreRepository.deleteAll(existingStores);
+        pinnedStoreRepository.flush(); // Force the delete operation to complete before insert
+
+        // Check for duplicate store IDs in the request
+        long uniqueStoreIds = request.getStores().stream()
+                .map(storeRequest -> storeRequest.getStoreApiId())
+                .distinct()
+                .count();
+
+        if (uniqueStoreIds < request.getStores().size()) {
+            throw new BadRequestException("Duplicate store IDs found in request");
+        }
 
         // Then create new pinned stores
         List<PinnedStore> newPinnedStores = request.getStores().stream()

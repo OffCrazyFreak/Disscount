@@ -23,7 +23,7 @@ public class PinnedStoreController {
     private final PinnedStoreService pinnedStoreService;
 
     @Operation(summary = "Update user's pinned stores (bulk operation)")
-    @PostMapping("/bulk")
+    @PutMapping("/bulk")
     public ResponseEntity<List<PinnedStoreDto>> updatePinnedStores(@Valid @RequestBody BulkPinnedStoreRequest request) {
         UUID userId = SecurityUtils.getCurrentUserId();
         List<PinnedStoreDto> pinned = pinnedStoreService.updatePinnedStores(userId, request);

@@ -53,7 +53,7 @@ public class JwtService {
     }
 
     /**
-     * Generate access token with userId as subject (supports users without username)
+     * Generate access token with userId as subject
      */
     public String generateAccessToken(String email, UUID userId) {
         Map<String, Object> claims = new HashMap<>();
@@ -63,7 +63,7 @@ public class JwtService {
     }
 
     /**
-     * Generate refresh token with userId as subject (supports users without username)
+     * Generate refresh token with userId as subject
      */
     public String generateRefreshToken(String email, UUID userId) {
         Map<String, Object> claims = new HashMap<>();

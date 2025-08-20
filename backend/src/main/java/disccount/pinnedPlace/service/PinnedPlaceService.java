@@ -30,6 +30,17 @@ public class PinnedPlaceService {
         // First, delete all existing pinned places for this user
         List<PinnedPlace> existingPlaces = pinnedPlaceRepository.findByUserId(userId);
         pinnedPlaceRepository.deleteAll(existingPlaces);
+        pinnedPlaceRepository.flush(); // Force the delete operation to complete before insert
+
+        // Check for duplicate place IDs in the request
+        long uniquePlaceIds = request.getPlaces().stream()
+                .map(placeRequest -> placeRequest.getPlaceApiId())
+                .distinct()
+                .count();
+        
+        if (uniquePlaceIds < request.getPlaces().size()) {
+            throw new BadRequestException("Duplicate place IDs found in request");
+        }
 
         // Then create new pinned places
         List<PinnedPlace> newPinnedPlaces = request.getPlaces().stream()
