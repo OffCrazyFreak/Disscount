@@ -46,9 +46,6 @@ public class AuthService {
             throw new BadRequestException("Email already exists");
         }
         
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new BadRequestException("Username already exists");
-        }
 
     // Validate password strength
     disccount.util.PasswordValidator.validateOrThrow(request.getPassword());
@@ -67,9 +64,10 @@ public class AuthService {
 
         user = userRepository.save(user);
 
-        // Generate tokens
-        String accessToken = jwtService.generateAccessToken(user.getUsername(), user.getId());
-        String refreshToken = jwtService.generateRefreshToken(user.getUsername(), user.getId());
+        // Generate tokens (use userId as JWT subject so username may be null)
+        String subject = user.getId().toString();
+        String accessToken = jwtService.generateAccessToken(subject, user.getId());
+        String refreshToken = jwtService.generateRefreshToken(subject, user.getId());
 
         // Save refresh token
         saveRefreshToken(user, refreshToken);
@@ -98,9 +96,10 @@ public class AuthService {
         // Clean up expired tokens for this user before issuing a new token
         refreshTokenRepository.deleteExpiredTokensByUser(user, LocalDateTime.now());
 
-        // Generate tokens
-        String accessToken = jwtService.generateAccessToken(user.getUsername(), user.getId());
-        String refreshToken = jwtService.generateRefreshToken(user.getUsername(), user.getId());
+    // Generate tokens (use userId as subject to support users without username)
+    String subject = user.getId().toString();
+    String accessToken = jwtService.generateAccessToken(subject, user.getId());
+    String refreshToken = jwtService.generateRefreshToken(subject, user.getId());
 
         // Save refresh token
         saveRefreshToken(user, refreshToken);
@@ -124,8 +123,8 @@ public class AuthService {
 
         User user = refreshTokenEntity.getUser();
 
-        // Generate new access token
-        String newAccessToken = jwtService.generateAccessToken(user.getUsername(), user.getId());
+    // Generate new access token (use userId as subject)
+    String newAccessToken = jwtService.generateAccessToken(user.getId().toString(), user.getId());
 
         return AuthResponse.builder()
                 .accessToken(newAccessToken)

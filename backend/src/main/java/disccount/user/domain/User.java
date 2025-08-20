@@ -31,8 +31,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @NotBlank(message = "Username is required")
-    @Column(nullable = false, unique = true)
+    // Username is optional at registration; users may set it later via profile update
+    @Column(nullable = true, unique = true)
     private String username;
 
     @NotBlank(message = "Email is required")
