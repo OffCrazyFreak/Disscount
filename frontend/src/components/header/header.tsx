@@ -8,6 +8,7 @@ import BgAnimateButton from "@/components/ui/bg-animate-button";
 import { AuthModal } from "@/components/forms/auth-modal";
 import { useUser } from "@/lib/user-context";
 import UserMenu from "@/components/header/user-menu";
+import NotificationsDropdown from "@/components/header/notifications-dropdown";
 
 export default function Header(): JSX.Element {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -71,7 +72,10 @@ export default function Header(): JSX.Element {
             </ul>
 
             {isAuthenticated ? (
-              <UserMenu />
+              <div className="flex items-center gap-4">
+                <NotificationsDropdown />
+                <UserMenu />
+              </div>
             ) : (
               <BgAnimateButton
                 gradient={"forest"}
