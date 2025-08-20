@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -52,12 +53,12 @@ export function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md bg-background">
         <DialogHeader>
-          <DialogTitle className="text-xl">
+          <DialogTitle className="text-xl mb-2">
             {authMode === "login" ? "Prijava" : "Registracija"}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-8 py-4">
+        <div className="grid gap-8">
           {authMode === "login" ? (
             <LoginForm onSuccess={handleLoginSuccess} />
           ) : (
@@ -83,35 +84,33 @@ export function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
             <GoogleIcon />
             Nastavi sa Google računom
           </Button>
-
-          <div className="flex justify-center pt-4">
-            <p className="text-center text-xs text-muted-foreground">
-              {authMode === "login" ? (
-                <>
-                  Još nemaš račun?{" "}
-                  <button
-                    type="button"
-                    onClick={switchToSignUp}
-                    className="cursor-pointer underline text-primary hover:text-primary/80"
-                  >
-                    Registriraj se
-                  </button>
-                </>
-              ) : (
-                <>
-                  Već imaš račun?{" "}
-                  <button
-                    type="button"
-                    onClick={switchToLogin}
-                    className="cursor-pointer underline text-primary hover:text-primary/80"
-                  >
-                    Prijavi se
-                  </button>
-                </>
-              )}
-            </p>
-          </div>
         </div>
+
+        <DialogFooter className="text-xs text-gray-500 text-center my-2 block">
+          {authMode === "login" ? (
+            <>
+              Još nemaš račun?{" "}
+              <button
+                type="button"
+                onClick={switchToSignUp}
+                className="cursor-pointer underline text-primary hover:text-primary/80"
+              >
+                Registriraj se
+              </button>
+            </>
+          ) : (
+            <>
+              Već imaš račun?{" "}
+              <button
+                type="button"
+                onClick={switchToLogin}
+                className="cursor-pointer underline text-primary hover:text-primary/80"
+              >
+                Prijavi se
+              </button>
+            </>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
