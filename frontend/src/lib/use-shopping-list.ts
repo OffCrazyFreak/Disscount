@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/lib/api-client";
+import { apiClient } from "@/lib/api-client";
 
 // Types for shopping list
 export interface ShoppingListItem {
@@ -16,7 +16,7 @@ const shoppingListApi = {
     productId: string,
     quantity = 1
   ): Promise<ShoppingListItem> => {
-    const response = await api.post("/api/shopping-list/items", {
+    const response = await apiClient.post("/api/shopping-list/items", {
       productId,
       quantity,
     });
@@ -24,16 +24,19 @@ const shoppingListApi = {
   },
 
   removeItem: async (itemId: string): Promise<void> => {
-    await api.delete(`/api/shopping-list/items/${itemId}`);
+    await apiClient.delete(`/api/shopping-list/items/${itemId}`);
   },
 
   updateQuantity: async (
     itemId: string,
     quantity: number
   ): Promise<ShoppingListItem> => {
-    const response = await api.patch(`/api/shopping-list/items/${itemId}`, {
-      quantity,
-    });
+    const response = await apiClient.patch(
+      `/api/shopping-list/items/${itemId}`,
+      {
+        quantity,
+      }
+    );
     return response.data;
   },
 };

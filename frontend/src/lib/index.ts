@@ -1,9 +1,9 @@
-// Re-export unified API structure
+// Unified API exports
 export { default as apiClient } from "./api-base";
 export * from "./api-types";
+
+// Specific API modules
 export { productsApi, cijeneDevApi } from "./products-api";
 export { userApi } from "./user-api";
 export { preferencesApi } from "./preferences-api";
-
-// Legacy exports for backward compatibility
-export { productsApi as productApi } from "./products-api";
+export { authService } from "./auth-api";

@@ -1,27 +1,22 @@
 "use client";
 
-import { AuthUIProvider } from "@daveyplate/better-auth-ui";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import type { ReactNode } from "react";
-
-import { authClient } from "@/lib/auth-client";
+import { type ReactNode } from "react";
+import { AuthUIProviderWrapper } from "./providers/auth-ui-provider";
+import { AuthProvider } from "./providers/auth-provider";
+import { ReactQueryProviderWrapper } from "./providers/react-query-provider";
+import { SidebarProvider } from "./providers/sidebar-provider";
+import { ToasterProvider } from "./providers/toaster-provider";
 
 export function Providers({ children }: { children: ReactNode }) {
-  const router = useRouter();
-
   return (
-    <AuthUIProvider
-      authClient={authClient}
-      navigate={router.push}
-      replace={router.replace}
-      onSessionChange={() => {
-        // Clear router cache (protected routes)
-        router.refresh();
-      }}
-      Link={Link}
-    >
-      {children}
-    </AuthUIProvider>
+    <AuthUIProviderWrapper>
+      <ReactQueryProviderWrapper>
+        <AuthProvider>
+          <SidebarProvider>
+            <ToasterProvider>{children}</ToasterProvider>
+          </SidebarProvider>
+        </AuthProvider>
+      </ReactQueryProviderWrapper>
+    </AuthUIProviderWrapper>
   );
 }

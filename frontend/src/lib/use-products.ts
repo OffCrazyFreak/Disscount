@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { productApi, type ProductSearchResponse } from "@/lib/api-client";
+import { productsApi, type ProductSearchResponse } from "@/lib/api-client";
 
 // Product search hook with React Query
 export function useProductSearch(query: string, enabled = true) {
   return useQuery({
     queryKey: ["products", "search", query],
-    queryFn: () => productApi.searchProducts(query),
+    queryFn: () => productsApi.searchProducts(query),
     enabled: enabled && !!query?.trim(),
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 2,
@@ -16,7 +16,7 @@ export function useProductSearch(query: string, enabled = true) {
 export function useProductByBarcode(barcode: string, enabled = true) {
   return useQuery({
     queryKey: ["products", "barcode", barcode],
-    queryFn: () => productApi.searchByBarcode(barcode),
+    queryFn: () => productsApi.searchByBarcode(barcode),
     enabled: enabled && !!barcode?.trim(),
     staleTime: 10 * 60 * 1000, // 10 minutes
     retry: 1,

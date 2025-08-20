@@ -140,7 +140,8 @@ export default function ProductsPage() {
         ) : initialQuery ? (
           <>
             <h2 className="text-lg my-8">
-              Rezultati pretrage za "{initialQuery}" ({filteredProducts.length})
+              Rezultati pretrage za &quot;{initialQuery}&quot; (
+              {filteredProducts.length})
             </h2>
             {filteredProducts.map((product) => (
               <ProductCard

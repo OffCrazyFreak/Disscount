@@ -1,14 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import ReactQueryProvider from "../lib/ReactQueryProvider";
-import { AuthProvider } from "../lib/auth-context";
-import { Toaster } from "sonner";
 
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-
-import Header from "@/components/header";
+import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import { Providers } from "./providers";
 
@@ -39,33 +34,24 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-50 relative`}
       >
         <Providers>
-          <ReactQueryProvider>
-            <AuthProvider>
-              <SidebarProvider
-                defaultOpen={false}
-                className="min-h-screen flex flex-col w-full"
-              >
-                <Toaster richColors position="top-center" />
+          <div className="min-h-screen flex flex-col w-full">
+            {/* pattern background */}
+            <div className="absolute inset-0 z-[-15] bg-[url('/+_pattern.png')] bg-repeat opacity-100" />
+            {/* radial fade overlay to white */}
+            <div className="absolute inset-0 -z-10 [background:radial-gradient(125%_125%_at_50%_100%,transparent_0%,#ffffff_90%)]" />
+            {/* linear gradient from center to left and right */}
+            <div className="absolute inset-0 -z-10 size-full [background:linear-gradient(90deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.0)_30%,rgba(255,255,255,0.0)_70%,rgba(255,255,255,0.9)_100%)]" />
 
-                {/* pattern background */}
-                <div className="absolute inset-0 z-[-15] bg-[url('/+_pattern.png')] bg-repeat opacity-100" />
-                {/* radial fade overlay to white */}
-                <div className="absolute inset-0 -z-10 [background:radial-gradient(125%_125%_at_50%_100%,transparent_0%,#ffffff_90%)]" />
-                {/* linear gradient from center to left and right */}
-                <div className="absolute inset-0 -z-10 size-full [background:linear-gradient(90deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.0)_30%,rgba(255,255,255,0.0)_70%,rgba(255,255,255,0.9)_100%)]" />
+            <Header />
 
-                <Header />
+            <AppSidebar />
 
-                <AppSidebar />
+            <main className="max-w-5xl mx-auto p-4 mt-24 w-full">
+              {children}
+            </main>
 
-                <main className="max-w-5xl mx-auto p-4 mt-24 w-full">
-                  {children}
-                </main>
-
-                <Footer />
-              </SidebarProvider>
-            </AuthProvider>
-          </ReactQueryProvider>
+            <Footer />
+          </div>
         </Providers>
       </body>
     </html>

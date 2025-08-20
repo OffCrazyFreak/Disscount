@@ -5,22 +5,23 @@ import { authService, AuthResponse } from "./auth-api";
 
 interface User {
   id: string;
-  username: string;
-  image?: string;
+  username?: string;
   email: string;
-  createdAt: string;
-  updatedAt: string;
+  image?: string;
+  stayLoggedInDays?: number;
+  notificationsPush?: boolean;
+  notificationsEmail?: boolean;
+  subscriptionTier?: "FREE" | "PRO";
+  lastLoginAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (usernameOrEmail: string, password: string) => Promise<void>;
-  register: (
-    username: string,
-    email: string,
-    password: string
-  ) => Promise<void>;
+  register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
 }
@@ -88,15 +89,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const register = async (
-    username: string,
-    email: string,
-    password: string
-  ) => {
+  const register = async (email: string, password: string) => {
     try {
       setIsLoading(true);
       const response: AuthResponse = await authService.register({
-        username,
         email,
         password,
       });
