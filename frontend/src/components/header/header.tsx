@@ -2,11 +2,11 @@
 import Link from "next/link";
 import { CreditCard, ListChecks, LogIn, LogOut, User } from "lucide-react";
 import { JSX, useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/searchUtils";
 import { SidebarTrigger } from "../ui/sidebar";
 import BgAnimateButton from "../ui/bg-animate-button";
 import { AuthModal } from "../auth-modal";
-import { useAuth } from "@/lib/auth-context";
+import { useAuth } from "@/lib/old/auth-context";
 import { Button } from "../ui/button";
 import { UserAvatar, UserButton } from "@daveyplate/better-auth-ui";
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";

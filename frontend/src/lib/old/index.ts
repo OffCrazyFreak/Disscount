@@ -1,6 +1,6 @@
 // Unified API exports
-export { default as apiClient } from "./api-base";
-export * from "./api-types";
+export { default as apiClient } from "@/lib/old/api-base";
+export * from "@/lib/old/api-types";
 
 // Specific API modules
 export { productsApi, cijeneDevApi } from "./products-api";

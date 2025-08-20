@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
-import apiClient from "./api-base";
+import apiClient from "@/lib/old/api-base";
 
 export interface LoginRequest {
   usernameOrEmail: string;

@@ -11,9 +11,9 @@ import { AxiosError } from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/lib/auth-context";
+import { useAuth } from "@/lib/old/auth-context";
 import { loginSchema, LoginForm as LoginFormType } from "@/lib/auth-schemas";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/searchUtils";
 
 interface LoginFormProps {
   onSuccess?: () => void;

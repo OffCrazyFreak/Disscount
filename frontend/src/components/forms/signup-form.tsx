@@ -9,9 +9,9 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/lib/auth-context";
+import { useAuth } from "@/lib/old/auth-context";
 import { signUpSchema, SignUpForm as SignUpFormType } from "@/lib/auth-schemas";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/searchUtils";
 
 interface SignUpFormProps {
   onSuccess?: () => void;

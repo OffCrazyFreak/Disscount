@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { productsApi, type ProductSearchResponse } from "@/lib/api-client";
+import { productsApi, type ProductSearchResponse } from "@/lib/old/api-client";
 
 // Product search hook with React Query
 export function useProductSearch(query: string, enabled = true) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { AuthProvider as AuthContextProvider } from "@/lib/auth-context";
+import { AuthProvider as AuthContextProvider } from "@/lib/old/auth-context";
 import type { ReactNode } from "react";
 
 export function AuthProvider({ children }: { children: ReactNode }) {

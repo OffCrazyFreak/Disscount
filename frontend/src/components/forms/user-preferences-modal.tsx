@@ -34,9 +34,9 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import Image from "next/image";
 import { userPreferencesSchema, UserPreferencesForm } from "@/lib/user-schemas";
-import { mockStores, mockLocations } from "@/lib/mock-data";
-import { cn } from "@/lib/utils";
-import { preferencesApi } from "@/lib/api-client";
+import { mockStores, mockLocations } from "@/lib/old/mock-data";
+import { cn } from "@/lib/searchUtils";
+import { preferencesApi } from "@/lib/old/api-client";
 
 interface UserPreferencesModalProps {
   isOpen: boolean;

@@ -4,7 +4,7 @@ import { Search, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/products/product-card";
 import ProductSearchBar from "@/components/products/product-search-bar";
-import { normalizeForSearch } from "@/lib/utils";
+import { normalizeForSearch } from "@/lib/searchUtils";
 
 // import { useProductSearch } from "@/hooks/use-products";
 // import { useAddToShoppingList } from "@/hooks/use-shopping-list";

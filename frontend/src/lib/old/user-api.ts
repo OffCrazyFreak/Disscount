@@ -1,5 +1,5 @@
-import apiClient from "./api-base";
-import { UserDto, UserRequest } from "./api-types";
+import apiClient from "@/lib/old/api-base";
+import { UserDto, UserRequest } from "@/lib/old/api-types";
 
 export const userApi = {
   // Get current user

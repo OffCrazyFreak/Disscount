@@ -1,10 +1,10 @@
-import apiClient from "./api-base";
+import apiClient from "@/lib/old/api-base";
 import {
   PinnedStoreDto,
   PinnedPlaceDto,
   BulkPinnedStoreRequest,
   BulkPinnedPlaceRequest,
-} from "./api-types";
+} from "@/lib/old/api-types";
 
 export const preferencesApi = {
   // Get current user's pinned stores

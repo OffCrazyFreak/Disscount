@@ -42,9 +42,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { userDetailsSchema, UserDetailsForm } from "@/lib/user-schemas";
-import { useAuth } from "@/lib/auth-context";
-import { userApi, UserRequest } from "@/lib/api-client";
-import { authService } from "@/lib/auth-api";
+import { useAuth } from "@/lib/old/auth-context";
+import { userApi, UserRequest } from "@/lib/old/api-client";
+import { authService } from "@/lib/old/auth-api";
 
 interface AccountDetailsModalProps {
   isOpen: boolean;

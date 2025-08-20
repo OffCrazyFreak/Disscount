@@ -1,9 +1,0 @@
-// Re-export unified API structure
-export { default as apiClient } from "./api-base";
-export * from "./api-types";
-export { productsApi, cijeneDevApi } from "./products-api";
-export { userApi } from "./user-api";
-export { preferencesApi } from "./preferences-api";
-
-// Legacy exports for backward compatibility
-export { productsApi as productApi } from "./products-api";

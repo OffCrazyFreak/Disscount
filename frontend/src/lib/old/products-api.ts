@@ -1,5 +1,5 @@
-import apiClient from "./api-base";
-import { Product, ProductSearchResponse } from "./api-types";
+import apiClient from "@/lib/old/api-base";
+import { Product, ProductSearchResponse } from "@/lib/old/api-types";
 
 // Mock data for development (remove when real API is ready)
 const mockProducts: Product[] = [
