@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import SearchBar from "@/components/search-bar";
+import SearchBar from "@/components/custom/search-bar";
 
 interface ProductSearchBarProps {
   onSearch?: (query: string) => void;
@@ -14,7 +14,7 @@ export default function ProductSearchBar({
   onSearch,
   showBarcode = true,
   showSubmitButton = false,
-  submitLabel = "Pretraži proizvode",
+  submitLabel = "Pretraži shopping liste",
 }: ProductSearchBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();

@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { TextEffect } from "@/components/ui/text-effect";
 import { AnimatedGroup } from "@/components/ui/animated-group";
-import HeroActions from "@/components/home/hero-actions";
+import HeroActions from "@/components/custom/home/hero-actions";
 
 const tagLines: string[] = [
   "Usporedi trgovine i cijene!",

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Search, ScanBarcode, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,24 @@ export default function SearchBar({
     setValue("query", defaultValue);
   }, [defaultValue, setValue]);
 
+  // Clear filtering when input is empty after trimming.
+  // Use a ref to avoid repeatedly calling onSearch("") on every render when
+  // the field stays empty (prevents rerender loops in parents that update
+  // state in onSearch).
+  const clearedRef = useRef(false);
+  useEffect(() => {
+    const trimmedQuery = queryValue?.trim() ?? "";
+    if (trimmedQuery.length === 0) {
+      if (!clearedRef.current) {
+        onSearch?.("");
+        clearedRef.current = true;
+      }
+    } else {
+      // reset guard when there's a non-empty value
+      clearedRef.current = false;
+    }
+  }, [queryValue, onSearch]);
+
   function submit(data: { query: string }) {
     const q = data.query?.trim() ?? "";
     onSearch?.(q);
@@ -62,7 +80,7 @@ export default function SearchBar({
             {...register("query")}
             type="text"
             placeholder={placeholder}
-            className="pl-10 pr-14 py-6 text-lg bg-white"
+            className="pl-10 pr-14 py-6 text-gray-500 focus:text-gray-700 bg-white"
             autoComplete="off"
           />
 

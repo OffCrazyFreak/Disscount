@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { AnimatedGroup } from "@/components/ui/animated-group";
-import HeroSection from "@/components/home/hero-section";
-import FeaturesSection from "@/components/home/features-section";
-import StoresSection from "@/components/home/stores-section";
-import PricingSection from "@/components/home/pricing-section";
-import StatsSection from "@/components/home/stats-section";
+import HeroSection from "@/components/custom/home/hero-section";
+import FeaturesSection from "@/components/custom/home/features-section";
+import StoresSection from "@/components/custom/home/stores-section";
+import PricingSection from "@/components/custom/home/pricing-section";
+import StatsSection from "@/components/custom/home/stats-section";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
-import ShoppingListModal from "@/components/forms/shopping-list-modal";
+import ShoppingListModal from "@/components/custom/forms/shopping-list-modal";
 import { useUser } from "@/lib/user-context";
 
 export default function Home() {

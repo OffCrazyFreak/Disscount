@@ -5,10 +5,10 @@ import { JSX, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import BgAnimateButton from "@/components/ui/bg-animate-button";
-import { AuthModal } from "@/components/forms/auth-modal";
+import { AuthModal } from "@/components/custom/forms/auth-modal";
 import { useUser } from "@/lib/user-context";
-import UserMenu from "@/components/header/user-menu";
-import NotificationsDropdown from "@/components/header/notifications-dropdown";
+import UserMenu from "@/components/custom/header/user-menu";
+import NotificationsDropdown from "@/components/custom/header/notifications-dropdown";
 
 export default function Header(): JSX.Element {
   const [isScrolled, setIsScrolled] = useState(false);

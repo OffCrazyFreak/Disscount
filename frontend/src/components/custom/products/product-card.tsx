@@ -3,12 +3,11 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ListPlus, LucideClipboardEdit, Plus } from "lucide-react";
+import { ListPlus, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { normalizeForSearch } from "@/lib/utils";
-import { ShoppingListDto } from "@/lib/api/types";
 
-export interface ShoppingListItem {
+export interface ProductItem {
   id: number | string;
   name: string;
   category: string;
@@ -18,43 +17,74 @@ export interface ShoppingListItem {
   image?: string;
 }
 
-interface ShoppingListCardProps {
-  shoppingList: ShoppingListItem;
+interface ProductCardProps {
+  product: ProductItem;
+  onAddToList?: (id: number | string) => void;
 }
 
-export default function ShoppingListCard2({
-  shoppingList,
-}: ShoppingListCardProps) {
+export default function ProductCard({
+  product,
+  onAddToList,
+}: ProductCardProps) {
   const router = useRouter();
 
   return (
     <Card
       className="px-6 py-4 hover:shadow-md hover:scale-101 transition-shadow transition-transform cursor-pointer"
-      onClick={() => router.push(`/shoppingLists/${shoppingList.id}`)}
+      onClick={() => router.push(`/products/${product.id}`)}
     >
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center justify-between gap-4">
-          {/* ShoppingList Info */}
+          {/* Product Image */}
+          <div className="size-20 bg-gray-100 rounded-lg hidden sm:grid place-items-center">
+            <span className="text-gray-400">IMG</span>
+          </div>
+
+          {/* Product Info */}
           <div className="">
+            <div
+              className="text-sm text-gray-500"
+              onClick={(ev: React.MouseEvent) => {
+                ev.stopPropagation();
+
+                router.push(
+                  `/products?filterBy=category:${encodeURIComponent(
+                    product.category
+                  )}`
+                );
+              }}
+            >
+              {product.category}
+            </div>
+
             <h3
-              className="font-semibold text-lg"
+              className="font-bold"
               onClick={(ev: React.MouseEvent) => {
                 // Prevent the card click handler from firing
                 ev.stopPropagation();
               }}
             >
-              {shoppingList.title}
+              {product.name}
             </h3>
+            <div
+              className="text-sm"
+              onClick={(ev: React.MouseEvent) => {
+                // Prevent the card click handler from firing
+                ev.stopPropagation();
+              }}
+            >
+              {product.brand}
+            </div>
           </div>
         </div>
 
         {/* Price and Actions */}
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center justify-center flex-col sm:flex-row gap-0 sm:gap-2">
-            {/* <div className="">{shoppingList.createdAt}</div> */}
+            <div className="">{product.quantity}</div>
             <div className="hidden sm:block">~</div>
             <div className="font-bold text-lg">
-              €{(shoppingList?.averagePrice ?? 0).toFixed(2)}
+              €{(product.averagePrice ?? 0).toFixed(2)}
             </div>
           </div>
           <Button
@@ -63,10 +93,10 @@ export default function ShoppingListCard2({
             onClick={(ev: React.MouseEvent) => {
               ev.stopPropagation();
 
-              // Handle edit action
+              onAddToList?.(product.id);
             }}
           >
-            <LucideClipboardEdit className="size-6" />
+            <ListPlus className="size-6" />
           </Button>
         </div>
       </div>

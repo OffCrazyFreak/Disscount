@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Copy, Check } from "lucide-react";
@@ -29,22 +29,27 @@ import {
   shoppingListSchema,
   type ShoppingListFormType,
 } from "@/lib/schemas/shopping-list-schemas";
+import { ShoppingListDto } from "@/lib/api/types";
 
 interface ShoppingListModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  shoppingList?: ShoppingListDto | null;
 }
 
 export default function ShoppingListModal({
   isOpen,
   onOpenChange,
   onSuccess,
+  shoppingList,
 }: ShoppingListModalProps) {
   const [createdListId, setCreatedListId] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const createShoppingListMutation =
     shoppingListService.useCreateShoppingList();
+  const updateShoppingListMutation =
+    shoppingListService.useUpdateShoppingList();
 
   const form = useForm<ShoppingListFormType>({
     resolver: zodResolver(shoppingListSchema),
@@ -55,30 +60,71 @@ export default function ShoppingListModal({
     },
   });
 
+  // When shoppingList prop changes, populate the form for editing
+  useEffect(() => {
+    if (shoppingList) {
+      form.reset({
+        title: shoppingList.title ?? "",
+        isPublic: shoppingList.isPublic ?? false,
+        aiPrompt: undefined,
+      });
+    } else {
+      form.reset({ title: "", isPublic: false, aiPrompt: undefined });
+    }
+    setCreatedListId(null);
+    setIsCopied(false);
+  }, [shoppingList]);
+
   const watchIsPublic = form.watch("isPublic");
 
+  const isSubmitting = shoppingList
+    ? updateShoppingListMutation.isPending
+    : createShoppingListMutation.isPending;
+
   const onSubmit = (data: ShoppingListFormType) => {
-    createShoppingListMutation.mutate(
-      {
-        title: data.title,
-        isPublic: data.isPublic,
-      },
-      {
-        onSuccess: (response: any) => {
-          toast.success("Shopping lista je uspješno kreirana!");
-          setCreatedListId(response.id);
-          // Don't reset or close the form if it's public, so user can copy the link
-          if (!data.isPublic) {
-            form.reset();
+    if (shoppingList) {
+      updateShoppingListMutation.mutate(
+        {
+          id: shoppingList.id,
+          data: { title: data.title, isPublic: data.isPublic },
+        },
+        {
+          onSuccess: (response: any) => {
+            toast.success("Shopping lista je uspješno ažurirana!");
             onOpenChange(false);
-          }
-          onSuccess?.();
+            form.reset();
+            onSuccess?.();
+          },
+          onError: (error: Error) => {
+            toast.error(
+              error.message || "Greška pri ažuriranju shopping liste"
+            );
+          },
+        }
+      );
+    } else {
+      createShoppingListMutation.mutate(
+        {
+          title: data.title,
+          isPublic: data.isPublic,
         },
-        onError: (error: Error) => {
-          toast.error(error.message || "Greška pri kreiranju shopping liste");
-        },
-      }
-    );
+        {
+          onSuccess: (response: any) => {
+            toast.success("Shopping lista je uspješno kreirana!");
+            setCreatedListId(response.id);
+            // Don't reset or close the form if it's public, so user can copy the link
+            if (!data.isPublic) {
+              form.reset();
+              onOpenChange(false);
+            }
+            onSuccess?.();
+          },
+          onError: (error: Error) => {
+            toast.error(error.message || "Greška pri kreiranju shopping liste");
+          },
+        }
+      );
+    }
   };
 
   const copyToClipboard = async () => {
@@ -124,7 +170,7 @@ export default function ShoppingListModal({
               )}
             />
 
-            {createdListId && (
+            {shoppingList && (
               <div>
                 <FormField
                   control={form.control}
@@ -187,18 +233,16 @@ export default function ShoppingListModal({
                 type="button"
                 variant="outline"
                 onClick={handleCancel}
-                disabled={createShoppingListMutation.isPending}
+                disabled={isSubmitting}
               >
                 {createdListId ? "Zatvori" : "Odustani"}
               </Button>
               {!createdListId && (
-                <Button
-                  size="lg"
-                  type="submit"
-                  disabled={createShoppingListMutation.isPending}
-                >
-                  {createShoppingListMutation.isPending ? (
+                <Button size="lg" type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? (
                     <Loader2 size={16} className="animate-spin" />
+                  ) : shoppingList ? (
+                    "Spremi"
                   ) : (
                     "Izradi"
                   )}

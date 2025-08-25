@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import SearchBar from "@/components/search-bar";
+import SearchBar from "@/components/custom/search-bar";
 
 interface ProductSearchBarProps {
   onSearch?: (query: string) => void;

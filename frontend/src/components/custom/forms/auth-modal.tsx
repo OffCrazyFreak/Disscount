@@ -12,8 +12,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { LoginForm } from "@/components/forms/login-form";
-import { SignUpForm } from "@/components/forms/signup-form";
+import { LoginForm } from "@/components/custom/forms/login-form";
+import { SignUpForm } from "@/components/custom/forms/signup-form";
 import { GoogleIcon } from "@daveyplate/better-auth-ui";
 
 interface AuthModalProps {
