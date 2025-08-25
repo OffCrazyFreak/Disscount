@@ -1,0 +1,208 @@
+import { useMutation, useQuery } from "@tanstack/react-query";
+import apiClient from "../api-base";
+import {
+  ShoppingListRequest,
+  ShoppingListDto,
+  ShoppingListItemRequest,
+  ShoppingListItemDto,
+} from "../types";
+
+/**
+ * Create a new shopping list
+ */
+export const createShoppingList = async (
+  data: ShoppingListRequest
+): Promise<ShoppingListDto> => {
+  const response = await apiClient.post<ShoppingListDto>(
+    "/api/shopping-lists",
+    data
+  );
+  return response.data;
+};
+
+/**
+ * Get current user's shopping lists
+ */
+export const getCurrentUserShoppingLists = async (): Promise<
+  ShoppingListDto[]
+> => {
+  const response = await apiClient.get<ShoppingListDto[]>(
+    "/api/shopping-lists/me"
+  );
+  return response.data;
+};
+
+/**
+ * Get shopping list by ID
+ */
+export const getShoppingListById = async (
+  id: string
+): Promise<ShoppingListDto> => {
+  const response = await apiClient.get<ShoppingListDto>(
+    `/api/shopping-lists/${id}`
+  );
+  return response.data;
+};
+
+/**
+ * Update shopping list
+ */
+export const updateShoppingList = async (
+  id: string,
+  data: ShoppingListRequest
+): Promise<ShoppingListDto> => {
+  const response = await apiClient.put<ShoppingListDto>(
+    `/api/shopping-lists/${id}`,
+    data
+  );
+  return response.data;
+};
+
+/**
+ * Delete shopping list
+ */
+export const deleteShoppingList = async (id: string): Promise<void> => {
+  await apiClient.delete(`/api/shopping-lists/${id}`);
+};
+
+/**
+ * Add item to shopping list
+ */
+export const addItemToShoppingList = async (
+  listId: string,
+  data: ShoppingListItemRequest
+): Promise<ShoppingListItemDto> => {
+  const response = await apiClient.post<ShoppingListItemDto>(
+    `/api/shopping-lists/${listId}/items`,
+    data
+  );
+  return response.data;
+};
+
+/**
+ * Update shopping list item
+ */
+export const updateShoppingListItem = async (
+  itemId: string,
+  data: ShoppingListItemRequest
+): Promise<ShoppingListItemDto> => {
+  const response = await apiClient.put<ShoppingListItemDto>(
+    `/api/shopping-lists/items/${itemId}`,
+    data
+  );
+  return response.data;
+};
+
+/**
+ * Delete shopping list item
+ */
+export const deleteShoppingListItem = async (itemId: string): Promise<void> => {
+  await apiClient.delete(`/api/shopping-lists/items/${itemId}`);
+};
+
+/**
+ * Get all items from user's active shopping lists
+ */
+export const getAllUserShoppingListItems = async (): Promise<
+  ShoppingListItemDto[]
+> => {
+  const response = await apiClient.get<ShoppingListItemDto[]>(
+    "/api/shopping-lists/items"
+  );
+  return response.data;
+};
+
+// React Query hooks
+export const useCreateShoppingList = () => {
+  return useMutation<ShoppingListDto, Error, ShoppingListRequest>({
+    mutationFn: createShoppingList,
+  });
+};
+
+export const useGetCurrentUserShoppingLists = () => {
+  return useQuery<ShoppingListDto[], Error>({
+    queryKey: ["shoppingLists", "me"],
+    queryFn: getCurrentUserShoppingLists,
+  });
+};
+
+export const useGetShoppingListById = (id: string) => {
+  return useQuery<ShoppingListDto, Error>({
+    queryKey: ["shoppingLists", id],
+    queryFn: () => getShoppingListById(id),
+    enabled: !!id,
+  });
+};
+
+export const useUpdateShoppingList = () => {
+  return useMutation<
+    ShoppingListDto,
+    Error,
+    { id: string; data: ShoppingListRequest }
+  >({
+    mutationFn: ({ id, data }) => updateShoppingList(id, data),
+  });
+};
+
+export const useDeleteShoppingList = () => {
+  return useMutation<void, Error, string>({
+    mutationFn: deleteShoppingList,
+  });
+};
+
+export const useAddItemToShoppingList = () => {
+  return useMutation<
+    ShoppingListItemDto,
+    Error,
+    { listId: string; data: ShoppingListItemRequest }
+  >({
+    mutationFn: ({ listId, data }) => addItemToShoppingList(listId, data),
+  });
+};
+
+export const useUpdateShoppingListItem = () => {
+  return useMutation<
+    ShoppingListItemDto,
+    Error,
+    { itemId: string; data: ShoppingListItemRequest }
+  >({
+    mutationFn: ({ itemId, data }) => updateShoppingListItem(itemId, data),
+  });
+};
+
+export const useDeleteShoppingListItem = () => {
+  return useMutation<void, Error, string>({
+    mutationFn: deleteShoppingListItem,
+  });
+};
+
+export const useGetAllUserShoppingListItems = () => {
+  return useQuery<ShoppingListItemDto[], Error>({
+    queryKey: ["shoppingListItems", "me"],
+    queryFn: getAllUserShoppingListItems,
+  });
+};
+
+const shoppingListService = {
+  createShoppingList,
+  getCurrentUserShoppingLists,
+  getShoppingListById,
+  updateShoppingList,
+  deleteShoppingList,
+  addItemToShoppingList,
+  updateShoppingListItem,
+  deleteShoppingListItem,
+  getAllUserShoppingListItems,
+  // React Query hooks
+  useCreateShoppingList,
+  useGetCurrentUserShoppingLists,
+  useGetShoppingListById,
+  useUpdateShoppingList,
+  useDeleteShoppingList,
+  useAddItemToShoppingList,
+  useUpdateShoppingListItem,
+  useDeleteShoppingListItem,
+  useGetAllUserShoppingListItems,
+};
+
+export default shoppingListService;

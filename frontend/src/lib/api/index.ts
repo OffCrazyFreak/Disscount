@@ -15,6 +15,7 @@ import authService from "./auth";
 import userService from "./users";
 import preferencesService from "./preferences";
 import productsService from "./products";
+import shoppingListService from "./shopping-lists";
 
 export {
   apiClient,
@@ -22,4 +23,5 @@ export {
   userService,
   preferencesService,
   productsService,
+  shoppingListService,
 };

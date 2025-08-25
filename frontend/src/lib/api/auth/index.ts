@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import apiClient from "../api-base";
 import { AuthResponse, LoginRequest, RegisterRequest } from "../types";
+import { setAccessToken, removeAccessToken } from "../local-storage";
 
 const AUTH_BASE_PATH = "/api/auth";
 
@@ -15,7 +16,7 @@ export const login = async (data: LoginRequest): Promise<AuthResponse> => {
 
   // Store the access token in localStorage
   if (response.data.accessToken) {
-    localStorage.setItem("accessToken", response.data.accessToken);
+    setAccessToken(response.data.accessToken);
   }
 
   return response.data;
@@ -34,7 +35,7 @@ export const register = async (
 
   // Store the access token in localStorage
   if (response.data.accessToken) {
-    localStorage.setItem("accessToken", response.data.accessToken);
+    setAccessToken(response.data.accessToken);
   }
 
   return response.data;
@@ -54,7 +55,7 @@ export const refreshToken = async (): Promise<AuthResponse> => {
 
   // Store the new access token
   if (response.data.accessToken) {
-    localStorage.setItem("accessToken", response.data.accessToken);
+    setAccessToken(response.data.accessToken);
   }
 
   return response.data;
@@ -72,8 +73,8 @@ export const logout = async (): Promise<void> => {
     }
   );
 
-  // Remove the access token from localStorage
-  localStorage.removeItem("accessToken");
+  // Remove the access token from storage
+  removeAccessToken();
 };
 
 /**
@@ -88,8 +89,8 @@ export const logoutAll = async (): Promise<void> => {
     }
   );
 
-  // Remove the access token from localStorage
-  localStorage.removeItem("accessToken");
+  // Remove the access token from storage
+  removeAccessToken();
 };
 
 // React Query hooks
@@ -123,18 +124,12 @@ export const useRefreshToken = () => {
   });
 };
 
-// Utility function to check if user is authenticated
-export const isAuthenticated = (): boolean => {
-  return typeof window !== "undefined" && !!localStorage.getItem("accessToken");
-};
-
 const authService = {
   login,
   register,
   refreshToken,
   logout,
   logoutAll,
-  isAuthenticated,
   // React Query hooks
   useLogin,
   useRegister,

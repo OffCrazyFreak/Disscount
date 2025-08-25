@@ -84,3 +84,38 @@ export interface PinnedPlaceDto {
 export interface BulkPinnedPlaceRequest {
   places: PinnedPlaceRequest[];
 }
+
+export interface ShoppingListRequest {
+  title: string;
+  isPublic?: boolean;
+  aiPrompt?: string;
+}
+
+export interface ShoppingListItemRequest {
+  productApiId: string;
+  productName: string;
+  amount?: number;
+  isChecked?: boolean;
+}
+
+export interface ShoppingListItemDto {
+  id: string;
+  shoppingListId: string;
+  productApiId: string;
+  productName: string;
+  amount: number;
+  isChecked: boolean;
+  createdAt: string;
+}
+
+export interface ShoppingListDto {
+  id: string;
+  ownerId: string;
+  title: string;
+  isPublic: boolean;
+  aiPrompt?: string;
+  aiAnswer?: string;
+  updatedAt: string;
+  createdAt: string;
+  items: ShoppingListItemDto[];
+}
