@@ -75,5 +75,5 @@ export const signUpSchema = z
     path: ["confirmPassword"],
   });
 
-export type LoginForm = z.infer<typeof loginSchema>;
-export type SignUpForm = z.infer<typeof signUpSchema>;
+export type LoginFormType = z.infer<typeof loginSchema>;
+export type SignUpFormType = z.infer<typeof signUpSchema>;

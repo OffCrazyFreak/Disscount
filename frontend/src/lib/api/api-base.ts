@@ -4,6 +4,11 @@ import axios, {
   AxiosRequestConfig,
   InternalAxiosRequestConfig,
 } from "axios";
+import {
+  getAccessToken,
+  setAccessToken,
+  removeAccessToken,
+} from "./local-storage";
 
 // Prefer a relative path in the browser so Next.js rewrites (defined in next.config.ts)
 // can proxy requests to the backend during development and avoid CORS issues.
@@ -37,8 +42,7 @@ const BASE_DELAY_MS = 500; // 0.5s
 
 // Add request interceptor to include auth token
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+  const token = typeof window !== "undefined" ? getAccessToken() : null;
 
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -75,7 +79,7 @@ apiClient.interceptors.response.use(
 
         if (response.data && response.data.accessToken) {
           // Store the new access token
-          localStorage.setItem("accessToken", response.data.accessToken);
+          setAccessToken(response.data.accessToken);
 
           // Create a new request with the same config but new headers
           const newRequestConfig = { ...originalRequest };
@@ -92,7 +96,7 @@ apiClient.interceptors.response.use(
         }
       } catch (refreshError) {
         // If refresh fails, clear token and reject
-        localStorage.removeItem("accessToken");
+        removeAccessToken();
 
         // You might want to redirect to login page or dispatch logout action here
         return Promise.reject(refreshError);

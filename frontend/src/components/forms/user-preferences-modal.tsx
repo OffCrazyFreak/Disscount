@@ -32,7 +32,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import Image from "next/image";
-import { userPreferencesSchema, UserPreferencesForm } from "@/lib/user-schemas";
+import {
+  userPreferencesSchema,
+  UserPreferencesFormType,
+} from "@/lib/schemas/user-schemas";
 import { mockStores, mockLocations } from "@/lib/mock/mock-preferences";
 import { cn } from "@/lib/utils";
 import { preferencesService } from "@/lib/api";
@@ -47,7 +50,7 @@ export default function UserPreferencesModal({
   isOpen,
   onOpenChange,
 }: UserPreferencesModalProps) {
-  const form = useForm<UserPreferencesForm>({
+  const form = useForm<UserPreferencesFormType>({
     resolver: zodResolver(userPreferencesSchema),
     defaultValues: {
       pinnedStores: [],
@@ -111,7 +114,7 @@ export default function UserPreferencesModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, currentStores, currentPlaces, user]);
 
-  const onSubmit = async (data: UserPreferencesForm) => {
+  const onSubmit = async (data: UserPreferencesFormType) => {
     try {
       // Make both API calls in parallel
       const [storesResponse, placesResponse] = await Promise.all([

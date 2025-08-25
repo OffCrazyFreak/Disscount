@@ -8,6 +8,7 @@ import React, {
   useCallback,
 } from "react";
 import { authService, userService, preferencesService } from "@/lib/api";
+import { getAccessToken } from "@/lib/api/local-storage";
 import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
 import { useRouter } from "next/navigation";
 
@@ -100,16 +101,38 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   // Check for stored token and fetch user data on mount
   useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
+    const initializeAuth = async () => {
+      const accessToken = getAccessToken();
 
-    // If no token, mark as not loading and return
-    if (!accessToken) {
+      // If we have a token, fetch user data directly
+      if (accessToken) {
+        await refreshUser();
+        return;
+      }
+
+      // If no access token, try to refresh using the refresh token cookie
+      // This ensures that users with valid refresh tokens don't appear as
+      // unauthenticated during the initial app load
+      try {
+        const response = await authService.refreshToken();
+
+        // If refresh is successful, the token is automatically stored in the app storage
+        // by the refreshToken function, so we can now fetch user data
+        if (response.accessToken) {
+          await refreshUser();
+          return;
+        }
+      } catch (error) {
+        // Refresh failed, which means no valid refresh token exists
+        // This is expected for users who haven't logged in or whose refresh tokens have expired
+        console.log("No valid refresh token found, user needs to log in");
+      }
+
+      // No valid tokens available, user is not authenticated
       setIsLoading(false);
-      return;
-    }
+    };
 
-    // Fetch user data if token exists
-    refreshUser();
+    initializeAuth();
   }, [refreshUser]);
 
   // The context value that will be provided

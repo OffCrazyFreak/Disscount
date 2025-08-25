@@ -40,7 +40,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { userDetailsSchema, UserDetailsForm } from "@/lib/user-schemas";
+import {
+  userDetailsSchema,
+  UserDetailsFormType,
+} from "@/lib/schemas/user-schemas";
 import { authService, userService } from "@/lib/api";
 import { useUser } from "@/lib/user-context";
 
@@ -61,7 +64,7 @@ export default function AccountDetailsModal({
   const deleteUserMutation = userService.useDeleteCurrentUser();
   const logoutAllMutation = authService.useLogoutAll();
 
-  const form = useForm<UserDetailsForm>({
+  const form = useForm<UserDetailsFormType>({
     resolver: zodResolver(userDetailsSchema),
     defaultValues: {
       username: "",
@@ -96,7 +99,7 @@ export default function AccountDetailsModal({
     form.setValue("avatar", null);
   };
 
-  const onSubmit = (data: UserDetailsForm) => {
+  const onSubmit = (data: UserDetailsFormType) => {
     updateUserMutation.mutate(
       {
         username: data.username,

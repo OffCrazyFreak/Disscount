@@ -16,5 +16,5 @@ export const userPreferencesSchema = z.object({
   pinnedPlaces: z.array(z.string()),
 });
 
-export type UserDetailsForm = z.infer<typeof userDetailsSchema>;
-export type UserPreferencesForm = z.infer<typeof userPreferencesSchema>;
+export type UserDetailsFormType = z.infer<typeof userDetailsSchema>;
+export type UserPreferencesFormType = z.infer<typeof userPreferencesSchema>;

@@ -17,7 +17,7 @@ import {
   Form,
 } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/password-input";
-import { signUpSchema, SignUpForm as SignUpFormType } from "@/lib/auth-schemas";
+import { signUpSchema, SignUpFormType } from "@/lib/schemas/auth-schemas";
 import { cn } from "@/lib/utils";
 import { authService } from "@/lib/api";
 import { useUser } from "@/lib/user-context";

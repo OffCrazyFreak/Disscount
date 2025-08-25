@@ -10,7 +10,7 @@ import { AxiosError } from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { loginSchema, LoginForm as LoginFormType } from "@/lib/auth-schemas";
+import { loginSchema, LoginFormType } from "@/lib/schemas/auth-schemas";
 import { cn } from "@/lib/utils";
 import { authService } from "@/lib/api";
 import { useUser } from "@/lib/user-context";
