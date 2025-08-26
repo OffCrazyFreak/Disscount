@@ -7,7 +7,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button-icon";
 import { Badge } from "@/components/ui/badge";
 
 // Mock notification data
@@ -51,6 +51,7 @@ export default function NotificationsDropdown() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="size-6" />
+
           {unreadCount > 0 && (
             <Badge
               variant="destructive"

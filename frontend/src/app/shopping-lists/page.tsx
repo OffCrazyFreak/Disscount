@@ -9,8 +9,9 @@ import {
   PlusIcon,
   ClipboardEdit,
   ChevronRightIcon,
+  Frown,
 } from "lucide-react";
-import { Button } from "@/components/ui/button2";
+import { Button } from "@/components/ui/button";
 import ShoppingListCard from "@/components/custom/shopping-lists/shopping-list-card";
 import ShoppingListsSearchBar from "@/components/custom/shopping-lists/shopping-list-search-bar";
 import ShoppingListModal from "@/components/custom/forms/shopping-list-modal";
@@ -79,17 +80,12 @@ export default function ShoppingListsPage() {
       />
 
       <div className="max-w-3xl mx-auto">
-        <div className="my-4 flex gap-4 items-center">
-          <div className="flex-1">
-            <ShoppingListsSearchBar
-              onSearch={handleSearch}
-              showSubmitButton
-              showBarcode={false}
-            />
-          </div>
-        </div>
+        <ShoppingListsSearchBar
+          onSearch={handleSearch}
+          showSubmitButton
+          showBarcode={false}
+        />
 
-        {/* Loading State */}
         {isLoading && (
           <div className="text-center py-12">
             <Loader2 className="size-12 text-gray-400 mx-auto mb-4 animate-spin" />
@@ -97,48 +93,44 @@ export default function ShoppingListsPage() {
           </div>
         )}
 
-        {/* ShoppingLists List */}
         {!isLoading && (
-          <div className="space-y-4">
-            {initialQuery && filteredShoppingLists.length === 0 ? (
-              <NoResults
-                icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
-              />
-            ) : initialQuery ? (
-              <>
-                <h2 className="text-lg my-8">
-                  Rezultati pretrage za &quot;{initialQuery}&quot; (
-                  {filteredShoppingLists.length})
-                </h2>
+          <div className="my-6 space-y-4">
+            <h2 className="my-6">
+              {initialQuery.length > 0
+                ? `Rezultati pretrage za "${initialQuery}" (${filteredShoppingLists.length})`
+                : `Moje shopping liste (${filteredShoppingLists.length})`}
+            </h2>
 
-                <ShoppingListsGroup
-                  shoppingLists={filteredShoppingLists}
-                  onEdit={handleEdit}
-                />
-              </>
-            ) : shoppingLists.length === 0 ? (
+            {filteredShoppingLists.length > 0 ? (
+              <ShoppingListsGroup
+                shoppingLists={filteredShoppingLists}
+                onEdit={handleEdit}
+              />
+            ) : initialQuery.length > 0 ? (
+              <NoResults
+                icon={<Search className="size-20 text-gray-400 mx-auto mb-4" />}
+              />
+            ) : (
               <div className="text-center py-12">
-                <Plus className="size-12 text-gray-400 mx-auto mb-4" />
+                <Frown className="size-20 text-gray-400 mx-auto mb-4" />
+
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   Nema shopping lista
                 </h3>
+
                 <p className="text-gray-600 mb-6">
                   Stvorite svoju prvu shopping listu i počnite organizirati
                   kupovinu
                 </p>
-                <Button size={"lg"} onClick={() => setIsModalOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Stvori prvu listu
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                <h2>Moje shopping liste ({shoppingLists.length})</h2>
 
-                <ShoppingListsGroup
-                  shoppingLists={filteredShoppingLists}
-                  onEdit={handleEdit}
-                />
+                <Button
+                  effect={"shineHover"}
+                  icon={Plus}
+                  iconPlacement="left"
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  Izradi novu shopping listu
+                </Button>
               </div>
             )}
           </div>

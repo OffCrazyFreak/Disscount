@@ -2,7 +2,7 @@
 
 import React from "react";
 import ProductSearchBar from "@/components/custom/products/product-search-bar";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button-icon";
 import { ScanBarcode } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";

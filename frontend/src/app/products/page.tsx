@@ -1,7 +1,6 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/custom/products/product-card";
 import ProductSearchBar from "@/components/custom/products/product-search-bar";
 import { filterByFields } from "@/lib/utils";

@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
-import { Button } from "@/components/ui/button2";
+import { Button } from "@/components/ui/button-icon";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 

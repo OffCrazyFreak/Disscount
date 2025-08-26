@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { Loader2, ArrowLeft, Calendar, Globe, Lock } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button-icon";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { shoppingListService } from "@/lib/api";

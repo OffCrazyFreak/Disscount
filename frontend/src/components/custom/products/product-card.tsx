@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button-icon";
 import { ListPlus, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { normalizeForSearch } from "@/lib/utils";

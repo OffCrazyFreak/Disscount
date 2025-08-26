@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ShoppingListDto } from "@/lib/api/types";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button-icon";
 import {
   Tooltip,
   TooltipContent,

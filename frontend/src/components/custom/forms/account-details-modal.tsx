@@ -10,6 +10,9 @@ import {
   X,
   Trash2,
   LogOut,
+  Save,
+  SaveIcon,
+  ArrowRight,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -315,43 +318,25 @@ export default function AccountDetailsModal({
                 Sigurnosne opcije
               </h3>
 
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-4">
                 <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
                   onClick={handleLogoutAll}
-                  disabled={isLoading}
-                  className="justify-start"
+                  variant="outline"
+                  icon={LogOut}
+                  iconPlacement="left"
+                  loading={logoutAllMutation.isPending}
                 >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  {logoutAllMutation.isPending ? (
-                    <>
-                      <Loader2 size={16} className="animate-spin mr-2" />
-                      Odjavljujem...
-                    </>
-                  ) : (
-                    "Odjavi se sa svih uređaja"
-                  )}
+                  Odjavi se sa svih uređaja
                 </Button>
 
                 <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
                   onClick={handleDeleteUser}
-                  disabled={isLoading}
-                  className="justify-start"
+                  variant="destructive"
+                  icon={Trash2}
+                  iconPlacement="left"
+                  loading={deleteUserMutation.isPending}
                 >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  {deleteUserMutation.isPending ? (
-                    <>
-                      <Loader2 size={16} className="animate-spin mr-2" />
-                      Brišem račun...
-                    </>
-                  ) : (
-                    "Obriši račun"
-                  )}
+                  Obriši račun
                 </Button>
               </div>
             </div>
@@ -359,20 +344,24 @@ export default function AccountDetailsModal({
             <div className="flex justify-between">
               <Button
                 type="button"
-                size={"lg"}
                 variant="outline"
+                effect={"ringHover"}
                 onClick={handleCancel}
                 disabled={isLoading}
               >
                 Odustani
               </Button>
 
-              <Button type="submit" size={"lg"} disabled={isLoading}>
-                {updateUserMutation.isPending ? (
-                  <Loader2 size={16} className="animate-spin" />
-                ) : (
-                  "Spremi podatke"
-                )}
+              <Button
+                type="submit"
+                variant="default"
+                effect="expandIcon"
+                icon={Save}
+                iconPlacement="right"
+                disabled={isLoading}
+                loading={updateUserMutation.isPending}
+              >
+                Spremi
               </Button>
             </div>
 
