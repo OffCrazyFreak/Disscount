@@ -9,12 +9,14 @@ type Props = {
   shoppingLists: Array<ShoppingListDto>;
   className?: string;
   onEdit?: (shoppingList: ShoppingListDto) => void;
+  viewMode?: "list" | "grid";
 };
 
 export default function ShoppingListsGroup({
   shoppingLists,
   className,
   onEdit,
+  viewMode = "list",
 }: Props) {
   if (!shoppingLists || shoppingLists.length === 0) return null;
 
@@ -46,7 +48,12 @@ export default function ShoppingListsGroup({
           },
         },
       }}
-      className={className ?? "space-y-4"}
+      className={
+        className ??
+        (viewMode === "grid"
+          ? "grid grid-cols-1 sm:grid-cols-2 gap-4"
+          : "space-y-4")
+      }
     >
       {shoppingLists
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
@@ -55,6 +62,7 @@ export default function ShoppingListsGroup({
             key={shoppingList.id}
             shoppingList={shoppingList}
             onEdit={onEdit}
+            viewMode={viewMode}
           />
         ))}
     </AnimatedGroup>

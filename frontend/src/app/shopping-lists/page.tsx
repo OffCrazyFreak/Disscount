@@ -22,6 +22,7 @@ import { AnimatedGroup } from "@/components/ui/animated-group";
 import ShoppingListsGroup from "@/components/custom/shopping-lists/shopping-lists-group";
 import { FloatingActionButton } from "@/components/custom/floating-action-button";
 import NoResults from "@/components/custom/no-results";
+import ViewSwitcher from "@/components/custom/view-switcher";
 
 export default function ShoppingListsPage() {
   const searchParams = useSearchParams();
@@ -30,6 +31,7 @@ export default function ShoppingListsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedShoppingList, setSelectedShoppingList] =
     useState<ShoppingListDto | null>(null);
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
   const {
     data: shoppingLists = [],
@@ -95,16 +97,21 @@ export default function ShoppingListsPage() {
 
         {!isLoading && (
           <div className="my-6 space-y-4">
-            <h2 className="my-6">
-              {initialQuery.length > 0
-                ? `Rezultati pretrage za "${initialQuery}" (${filteredShoppingLists.length})`
-                : `Moje shopping liste (${filteredShoppingLists.length})`}
-            </h2>
+            <div className="flex items-center justify-between my-6">
+              <h2 className="">
+                {initialQuery.length > 0
+                  ? `Rezultati pretrage za "${initialQuery}" (${filteredShoppingLists.length})`
+                  : `Moje shopping liste (${filteredShoppingLists.length})`}
+              </h2>
+
+              <ViewSwitcher value={viewMode} onChange={setViewMode} />
+            </div>
 
             {filteredShoppingLists.length > 0 ? (
               <ShoppingListsGroup
                 shoppingLists={filteredShoppingLists}
                 onEdit={handleEdit}
+                viewMode={viewMode}
               />
             ) : initialQuery.length > 0 ? (
               <NoResults

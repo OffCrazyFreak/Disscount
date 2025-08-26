@@ -81,6 +81,13 @@ export default function SearchBar({
             type="text"
             placeholder={placeholder}
             className="pl-10 pr-14 py-6 text-gray-500 focus:text-gray-700 bg-white"
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                // Trigger react-hook-form submit
+                void handleSubmit(submit)();
+              }
+            }}
             autoComplete="off"
           />
 

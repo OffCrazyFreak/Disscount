@@ -24,11 +24,13 @@ import { formatDate } from "@/lib/utils";
 interface ShoppingListCardProps {
   shoppingList: ShoppingListDto;
   onEdit?: (shoppingList: ShoppingListDto) => void;
+  viewMode?: "list" | "grid" | "compact";
 }
 
 export default function ShoppingListCard({
   shoppingList,
   onEdit,
+  viewMode = "list",
 }: ShoppingListCardProps) {
   const router = useRouter();
 
@@ -36,12 +38,24 @@ export default function ShoppingListCard({
   const checkedCount =
     shoppingList.items?.filter((item) => item.isChecked)?.length || 0;
 
+  const baseClasses =
+    "hover:shadow-md hover:scale-[1.01] transition-all duration-200 cursor-pointer";
+
+  const variants: Record<string, string> = {
+    list: "px-6 py-4",
+    grid: "p-4",
+  };
+
   return (
     <Card
-      className="px-6 py-4 hover:shadow-md hover:scale-[1.01] transition-all duration-200 cursor-pointer"
+      className={`${variants[viewMode]} ${baseClasses}`}
       onClick={() => router.push(`/shopping-lists/${shoppingList.id}`)}
     >
-      <div className="flex items-center justify-between gap-4">
+      <div
+        className={`flex items-center justify-between gap-4 ${
+          viewMode === "grid" ? "flex-col items-start" : ""
+        }`}
+      >
         <div className="flex items-center gap-4 flex-1">
           {/* Shopping List Icon */}
           <div className="hidden sm:flex size-16 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
