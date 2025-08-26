@@ -70,7 +70,7 @@ export default function Header(): JSX.Element {
 
               <li>
                 <Link
-                  href="/cards"
+                  href="/digital-cards"
                   className="flex items-center space-x-2 text-muted-foreground hover:text-accent-foreground block duration-150 group hover:scale-110"
                 >
                   <CreditCard className="size-4 group-hover:text-primary transition-all" />

@@ -101,7 +101,7 @@ export function AppSidebar() {
 
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <a href={"/cards"}>
+                    <a href={"/digital-cards"}>
                       <CreditCard />
                       <span>Digitalne kartice</span>
                     </a>

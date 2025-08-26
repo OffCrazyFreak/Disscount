@@ -3,7 +3,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import ProductCard from "@/components/custom/products/product-card";
 import ProductSearchBar from "@/components/custom/products/product-search-bar";
-import SharedListLayout from "@/components/custom/shared-list-layout";
+import SearchItemsLayout from "@/components/layouts/search-items-layout";
 import { filterByFields } from "@/lib/utils";
 import { useViewMode } from "@/hooks/use-view-mode";
 import NoResults from "@/components/custom/no-results";
@@ -33,7 +33,7 @@ export default function ProductsPage() {
   const [viewMode, setViewMode] = useViewMode("/products", "grid");
 
   return (
-    <SharedListLayout
+    <SearchItemsLayout
       title={
         initialQuery.length > 0
           ? `Rezultati pretrage za "${initialQuery}" (${filteredProducts.length})`
@@ -44,7 +44,9 @@ export default function ProductsPage() {
       setViewMode={setViewMode}
     >
       {initialQuery && filteredProducts.length === 0 ? (
-        <NoResults icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />} />
+        <NoResults
+          icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
+        />
       ) : initialQuery ? (
         <>
           {filteredProducts.map((product) => (
@@ -61,10 +63,11 @@ export default function ProductsPage() {
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
             Počnite pretraživanje
           </h3>
-          <p className="text-gray-600 mb-6">Unesite naziv proizvoda koji tražite</p>
+          <p className="text-gray-600 mb-6">
+            Unesite naziv proizvoda koji tražite
+          </p>
         </div>
       )}
-    </SharedListLayout>
+    </SearchItemsLayout>
   );
 }
-                        

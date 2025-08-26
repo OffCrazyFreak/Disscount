@@ -16,6 +16,7 @@ import userService from "./users";
 import preferencesService from "./preferences";
 import productsService from "./products";
 import shoppingListService from "./shopping-lists";
+import digitalCardService from "./digital-cards";
 
 export {
   apiClient,
@@ -24,4 +25,5 @@ export {
   preferencesService,
   productsService,
   shoppingListService,
+  digitalCardService,
 };

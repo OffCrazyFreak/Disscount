@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { ViewMode } from "@/typings/view-mode";
 import ViewSwitcher from "@/components/custom/view-switcher";
@@ -13,7 +11,7 @@ type Props = {
   className?: string;
 };
 
-export default function SharedListLayout({
+export default function SearchItemsLayout({
   title,
   search,
   viewMode,

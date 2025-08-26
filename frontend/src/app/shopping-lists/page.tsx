@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import ShoppingListCard from "@/components/custom/shopping-lists/shopping-list-card";
 import ShoppingListsSearchBar from "@/components/custom/shopping-lists/shopping-list-search-bar";
-import SharedListLayout from "@/components/custom/shared-list-layout";
+import SearchItemsLayout from "@/components/layouts/search-items-layout";
 import ShoppingListModal from "@/components/custom/forms/shopping-list-modal";
 import { ShoppingListDto } from "@/lib/api/types";
 import { ViewMode } from "@/typings/view-mode";
@@ -84,7 +84,7 @@ export default function ShoppingListsPage() {
         label="Izradi shopping listu"
       />
 
-      <SharedListLayout
+      <SearchItemsLayout
         title={
           initialQuery.length > 0
             ? `Rezultati pretrage za "${initialQuery}" (${filteredShoppingLists.length})`
@@ -144,7 +144,7 @@ export default function ShoppingListsPage() {
             )}
           </>
         )}
-      </SharedListLayout>
+      </SearchItemsLayout>
     </>
   );
 }
