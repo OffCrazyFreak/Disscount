@@ -3,16 +3,15 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button-icon";
-import { ListPlus, Plus } from "lucide-react";
+import { ListPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { normalizeForSearch } from "@/lib/utils";
 
 export interface ProductItem {
-  id: number | string;
+  id: string | number;
   name: string;
-  category: string;
   brand: string;
-  quantity?: string;
+  category: string;
+  quantity: string;
   averagePrice?: number;
   image?: string;
 }
@@ -29,10 +28,7 @@ export default function ProductCard({
   const router = useRouter();
 
   return (
-    <Card
-      className="px-6 py-4 hover:shadow-md hover:scale-101 transition-shadow transition-transform cursor-pointer"
-      onClick={() => router.push(`/products/${product.id}`)}
-    >
+    <Card className="px-6 py-4 hover:shadow-md hover:scale-101 transition-shadow transition-transform">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center justify-between gap-4">
           {/* Product Image */}
@@ -81,22 +77,28 @@ export default function ProductCard({
         {/* Price and Actions */}
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center justify-center flex-col sm:flex-row gap-0 sm:gap-2">
-            <div className="">{product.quantity}</div>
-            <div className="hidden sm:block">~</div>
+            {product.quantity && (
+              <>
+                <div className="">{product.quantity}</div>
+                <div className="hidden sm:block">~</div>
+              </>
+            )}
             <div className="font-bold text-lg">
-              €{(product.averagePrice ?? 0).toFixed(2)}
+              {product.averagePrice !== undefined
+                ? `${product.averagePrice.toFixed(2)}€`
+                : "N/A"}
             </div>
           </div>
           <Button
             variant="default"
-            className="p-2"
+            className="p-2 size-12"
             onClick={(ev: React.MouseEvent) => {
               ev.stopPropagation();
 
               onAddToList?.(product.id);
             }}
           >
-            <ListPlus className="size-6" />
+            <ListPlus className="size-7" />
           </Button>
         </div>
       </div>

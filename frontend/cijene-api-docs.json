@@ -1,0 +1,1140 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Cijene API",
+    "description": "Service for product pricing data by Croatian grocery chains",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/v0/list": {
+      "get": {
+        "tags": ["ZIP archives"],
+        "summary": "List available ZIP archives",
+        "description": "List all available archive files with their metadata.\n\nResponse format:\n```json\n{\n    \"archives\": [\n        {\n            \"date\": \"YYYY-MM-DD\",\n            \"url\": \"https://api.cijene.dev/v0/archive/YYYY-MM-DD.zip\",\n            \"size\": 123456,\n            \"updated\": \"YYYY-MM-DDTHH:MM:SS+00:00\"\n        },\n        ...\n    ]\n}\n```",
+        "operationId": "list_archives_v0_list_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "items": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "type": "object",
+                  "title": "Response List Archives V0 List Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/chains/": {
+      "get": {
+        "tags": ["Products, Chains and Stores"],
+        "summary": "List retail chains",
+        "description": "List all available chains.",
+        "operationId": "list_chains_v1_chains__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListChainsResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/{chain_code}/stores/": {
+      "get": {
+        "tags": ["Products, Chains and Stores"],
+        "summary": "List retail chain stores",
+        "description": "List all stores (locations) for a particular chain.\n\nFuture plan: Allow filtering by store type and location.",
+        "operationId": "list_stores_v1__chain_code__stores__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "chain_code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Chain Code"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListStoresResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/stores/": {
+      "get": {
+        "tags": ["Products, Chains and Stores"],
+        "summary": "Search stores",
+        "description": "Search for stores by chain codes, city, address, and/or geolocation.\n\nFor geolocation search, both lat and lon must be provided together.\nNote that the geolocation search will only return stores that have\nthe geo information available in the database.",
+        "operationId": "search_stores_v1_stores__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "chains",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated list of chain codes to include, or all",
+              "title": "Chains"
+            },
+            "description": "Comma-separated list of chain codes to include, or all"
+          },
+          {
+            "name": "city",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "City name for case-insensitive substring match",
+              "title": "City"
+            },
+            "description": "City name for case-insensitive substring match"
+          },
+          {
+            "name": "address",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Address for case-insensitive substring match",
+              "title": "Address"
+            },
+            "description": "Address for case-insensitive substring match"
+          },
+          {
+            "name": "lat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Latitude coordinate for geolocation search",
+              "title": "Lat"
+            },
+            "description": "Latitude coordinate for geolocation search"
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Longitude coordinate for geolocation search",
+              "title": "Lon"
+            },
+            "description": "Longitude coordinate for geolocation search"
+          },
+          {
+            "name": "d",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Distance in kilometers for geolocation search (default: 10.0)",
+              "default": 10,
+              "title": "D"
+            },
+            "description": "Distance in kilometers for geolocation search (default: 10.0)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListStoresResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/products/{ean}/": {
+      "get": {
+        "tags": ["Products, Chains and Stores"],
+        "summary": "Get product data/prices by barcode",
+        "description": "Get product information including chain products and prices by their\nbarcode. For products that don't have official EAN codes and use\nchain-specific codes, use the \"chain:\u003Cproduct_code\u003E\" format.\n\nThe price information is for the last known date earlier than or\nequal to the specified date. If no date is provided, current date is used.",
+        "operationId": "get_product_v1_products__ean___get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "ean",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Ean"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "Date in YYYY-MM-DD format, defaults to today",
+              "title": "Date"
+            },
+            "description": "Date in YYYY-MM-DD format, defaults to today"
+          },
+          {
+            "name": "chains",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated list of chain codes to include",
+              "title": "Chains"
+            },
+            "description": "Comma-separated list of chain codes to include"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/prices/": {
+      "get": {
+        "tags": ["Products, Chains and Stores"],
+        "summary": "Get product prices by store with filtering",
+        "description": "Get product prices by store with store filtering capabilities.\n\nReturns prices for products in stores matching the filter criteria.\nFor geolocation search, both lat and lon must be provided together.\nThe EANs parameter is required and must contain at least one EAN code.",
+        "operationId": "get_prices_v1_prices__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "eans",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated list of EAN barcodes (required)",
+              "title": "Eans"
+            },
+            "description": "Comma-separated list of EAN barcodes (required)"
+          },
+          {
+            "name": "chains",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated list of chain codes to include",
+              "title": "Chains"
+            },
+            "description": "Comma-separated list of chain codes to include"
+          },
+          {
+            "name": "city",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "City name for case-insensitive substring match",
+              "title": "City"
+            },
+            "description": "City name for case-insensitive substring match"
+          },
+          {
+            "name": "address",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Address for case-insensitive substring match",
+              "title": "Address"
+            },
+            "description": "Address for case-insensitive substring match"
+          },
+          {
+            "name": "lat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Latitude coordinate for geolocation search",
+              "title": "Lat"
+            },
+            "description": "Latitude coordinate for geolocation search"
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Longitude coordinate for geolocation search",
+              "title": "Lon"
+            },
+            "description": "Longitude coordinate for geolocation search"
+          },
+          {
+            "name": "d",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Distance in kilometers for geolocation search (default: 10.0)",
+              "default": 10,
+              "title": "D"
+            },
+            "description": "Distance in kilometers for geolocation search (default: 10.0)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorePricesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/products/": {
+      "get": {
+        "tags": ["Products, Chains and Stores"],
+        "summary": "Search for products by name",
+        "description": "Search for products by name.\n\nReturns a list of products that match the search query.",
+        "operationId": "search_products_v1_products__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Search query for product names",
+              "title": "Q"
+            },
+            "description": "Search query for product names"
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "Date in YYYY-MM-DD format, defaults to today",
+              "title": "Date"
+            },
+            "description": "Date in YYYY-MM-DD format, defaults to today"
+          },
+          {
+            "name": "chains",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated list of chain codes to include",
+              "title": "Chains"
+            },
+            "description": "Comma-separated list of chain codes to include"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductSearchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/chain-stats/": {
+      "get": {
+        "tags": ["Products, Chains and Stores"],
+        "summary": "Return stats of currently loaded data per chain.",
+        "description": "Return stats of currently loaded data per chain.",
+        "operationId": "chain_stats_v1_chain_stats__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChainStatsResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["Service status"],
+        "summary": "Health Check",
+        "description": "Health check endpoint.",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ChainProductResponse": {
+        "properties": {
+          "chain": {
+            "type": "string",
+            "title": "Chain",
+            "description": "Chain code."
+          },
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "Product code within the chain."
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Product name within the chain."
+          },
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand",
+            "description": "Product brand within the chain."
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category",
+            "description": "Product category within the chain."
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit",
+            "description": "Product unit within the chain."
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity",
+            "description": "Product quantity within the chain."
+          },
+          "min_price": {
+            "type": "string",
+            "title": "Min Price",
+            "description": "Minimum price across chain stores."
+          },
+          "max_price": {
+            "type": "string",
+            "title": "Max Price",
+            "description": "Maximum price across chain stores."
+          },
+          "avg_price": {
+            "type": "string",
+            "title": "Avg Price",
+            "description": "Average price across chain stores."
+          },
+          "price_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Price Date",
+            "description": "Date on which this price was published"
+          }
+        },
+        "type": "object",
+        "required": [
+          "chain",
+          "code",
+          "name",
+          "brand",
+          "category",
+          "unit",
+          "quantity",
+          "min_price",
+          "max_price",
+          "avg_price",
+          "price_date"
+        ],
+        "title": "ChainProductResponse",
+        "description": "Chain product with price information response schema."
+      },
+      "ChainStats": {
+        "properties": {
+          "chain_code": {
+            "type": "string",
+            "title": "Chain Code"
+          },
+          "price_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Price Date"
+          },
+          "price_count": {
+            "type": "integer",
+            "title": "Price Count"
+          },
+          "store_count": {
+            "type": "integer",
+            "title": "Store Count"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "chain_code",
+          "price_date",
+          "price_count",
+          "store_count",
+          "created_at"
+        ],
+        "title": "ChainStats"
+      },
+      "ChainStatsResponse": {
+        "properties": {
+          "chain_stats": {
+            "items": {
+              "$ref": "#/components/schemas/ChainStats"
+            },
+            "type": "array",
+            "title": "Chain Stats",
+            "description": "List chain stats."
+          }
+        },
+        "type": "object",
+        "required": ["chain_stats"],
+        "title": "ChainStatsResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ListChainsResponse": {
+        "properties": {
+          "chains": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Chains",
+            "description": "List of retail chain codes."
+          }
+        },
+        "type": "object",
+        "required": ["chains"],
+        "title": "ListChainsResponse",
+        "description": "List chains response schema."
+      },
+      "ListStoresResponse": {
+        "properties": {
+          "stores": {
+            "items": {
+              "$ref": "#/components/schemas/StoreResponse"
+            },
+            "type": "array",
+            "title": "Stores",
+            "description": "List stores for the specified chain."
+          }
+        },
+        "type": "object",
+        "required": ["stores"],
+        "title": "ListStoresResponse",
+        "description": "List stores response schema."
+      },
+      "ProductResponse": {
+        "properties": {
+          "ean": {
+            "type": "string",
+            "title": "Ean",
+            "description": "EAN barcode of the product."
+          },
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand",
+            "description": "Brand of the product."
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Name of the product."
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity",
+            "description": "Quantity of the product."
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit",
+            "description": "Unit of the product."
+          },
+          "chains": {
+            "items": {
+              "$ref": "#/components/schemas/ChainProductResponse"
+            },
+            "type": "array",
+            "title": "Chains",
+            "description": "List of chain-specific product information."
+          }
+        },
+        "type": "object",
+        "required": ["ean", "brand", "name", "quantity", "unit", "chains"],
+        "title": "ProductResponse",
+        "description": "Basic product information response schema."
+      },
+      "ProductSearchResponse": {
+        "properties": {
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/ProductResponse"
+            },
+            "type": "array",
+            "title": "Products",
+            "description": "List of products matching the search query."
+          }
+        },
+        "type": "object",
+        "required": ["products"],
+        "title": "ProductSearchResponse"
+      },
+      "Store": {
+        "properties": {
+          "chain_id": {
+            "type": "integer",
+            "title": "Chain Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "zipcode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zipcode"
+          },
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lat"
+          },
+          "lon": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lon"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          }
+        },
+        "type": "object",
+        "required": ["chain_id", "code"],
+        "title": "Store"
+      },
+      "StorePrice": {
+        "properties": {
+          "chain": {
+            "type": "string",
+            "title": "Chain"
+          },
+          "ean": {
+            "type": "string",
+            "title": "Ean"
+          },
+          "price_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Price Date"
+          },
+          "regular_price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Regular Price"
+          },
+          "special_price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Special Price"
+          },
+          "unit_price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Price"
+          },
+          "best_price_30": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Best Price 30"
+          },
+          "anchor_price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anchor Price"
+          },
+          "store": {
+            "$ref": "#/components/schemas/Store"
+          }
+        },
+        "type": "object",
+        "required": [
+          "chain",
+          "ean",
+          "price_date",
+          "regular_price",
+          "special_price",
+          "unit_price",
+          "best_price_30",
+          "anchor_price",
+          "store"
+        ],
+        "title": "StorePrice"
+      },
+      "StorePricesResponse": {
+        "properties": {
+          "store_prices": {
+            "items": {
+              "$ref": "#/components/schemas/StorePrice"
+            },
+            "type": "array",
+            "title": "Store Prices",
+            "description": "For a given product return latest price data per store."
+          }
+        },
+        "type": "object",
+        "required": ["store_prices"],
+        "title": "StorePricesResponse"
+      },
+      "StoreResponse": {
+        "properties": {
+          "chain_code": {
+            "type": "string",
+            "title": "Chain Code",
+            "description": "Code of the retail chain."
+          },
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "Unique code of the store."
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type",
+            "description": "Type of the store (e.g., supermarket, hypermarket)."
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address",
+            "description": "Physical address of the store."
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City",
+            "description": "City where the store is located."
+          },
+          "zipcode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zipcode",
+            "description": "Postal code of the store location."
+          },
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lat",
+            "description": "Latitude coordinate of the store."
+          },
+          "lon": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lon",
+            "description": "Longitude coordinate of the store."
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone",
+            "description": "Phone number of the store."
+          }
+        },
+        "type": "object",
+        "required": [
+          "chain_code",
+          "code",
+          "type",
+          "address",
+          "city",
+          "zipcode",
+          "lat",
+          "lon",
+          "phone"
+        ],
+        "title": "StoreResponse",
+        "description": "Store response schema."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}
