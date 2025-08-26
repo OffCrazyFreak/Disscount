@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import ShoppingListCard from "@/components/custom/shopping-lists/shopping-list-card";
 import ShoppingListsSearchBar from "@/components/custom/shopping-lists/shopping-list-search-bar";
+import SharedListLayout from "@/components/custom/shared-list-layout";
 import ShoppingListModal from "@/components/custom/forms/shopping-list-modal";
 import { ShoppingListDto } from "@/lib/api/types";
 import { ViewMode } from "@/typings/view-mode";
@@ -83,13 +84,22 @@ export default function ShoppingListsPage() {
         label="Izradi shopping listu"
       />
 
-      <div className="max-w-3xl mx-auto">
-        <ShoppingListsSearchBar
-          onSearch={handleSearch}
-          showSubmitButton
-          showBarcode={false}
-        />
-
+      <SharedListLayout
+        title={
+          initialQuery.length > 0
+            ? `Rezultati pretrage za "${initialQuery}" (${filteredShoppingLists.length})`
+            : `Moje shopping liste (${filteredShoppingLists.length})`
+        }
+        search={
+          <ShoppingListsSearchBar
+            onSearch={handleSearch}
+            showSubmitButton
+            showBarcode={false}
+          />
+        }
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+      >
         {isLoading && (
           <div className="text-center py-12">
             <Loader2 className="size-12 text-gray-400 mx-auto mb-4 animate-spin" />
@@ -98,17 +108,7 @@ export default function ShoppingListsPage() {
         )}
 
         {!isLoading && (
-          <div className="my-6 space-y-4">
-            <div className="flex items-center justify-between gap-4 my-6">
-              <h2 className="">
-                {initialQuery.length > 0
-                  ? `Rezultati pretrage za "${initialQuery}" (${filteredShoppingLists.length})`
-                  : `Moje shopping liste (${filteredShoppingLists.length})`}
-              </h2>
-
-              <ViewSwitcher value={viewMode} onChange={setViewMode} />
-            </div>
-
+          <>
             {filteredShoppingLists.length > 0 ? (
               <ShoppingListsGroup
                 shoppingLists={filteredShoppingLists}
@@ -142,9 +142,9 @@ export default function ShoppingListsPage() {
                 </Button>
               </div>
             )}
-          </div>
+          </>
         )}
-      </div>
+      </SharedListLayout>
     </>
   );
 }
