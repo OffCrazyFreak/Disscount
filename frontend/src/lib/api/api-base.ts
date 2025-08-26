@@ -37,8 +37,8 @@ function sleep(ms: number) {
 }
 
 // Constants for retry policy
-const MAX_RETRIES = 5;
-const BASE_DELAY_MS = 500; // 0.5s
+const MAX_RETRIES = 3;
+const BASE_DELAY_MS = 200; // 0.2s
 
 // Add request interceptor to include auth token
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {

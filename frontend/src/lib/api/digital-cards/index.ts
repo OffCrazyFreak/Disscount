@@ -1,6 +1,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import apiClient from "../api-base";
-import { DigitalCardRequest, DigitalCardDto } from "../types";
+import {
+  DigitalCardRequest,
+  DigitalCardDto,
+  digitalCardRequestSchema,
+  digitalCardDtoSchema,
+} from "../types";
 
 /**
  * Create a new digital card
@@ -8,11 +13,14 @@ import { DigitalCardRequest, DigitalCardDto } from "../types";
 export const createDigitalCard = async (
   data: DigitalCardRequest
 ): Promise<DigitalCardDto> => {
+  const validatedData = digitalCardRequestSchema.parse(data);
+
   const response = await apiClient.post<DigitalCardDto>(
     "/api/digital-cards",
-    data
+    validatedData
   );
-  return response.data;
+
+  return digitalCardDtoSchema.parse(response.data);
 };
 
 /**
@@ -22,7 +30,8 @@ export const getUserDigitalCards = async (): Promise<DigitalCardDto[]> => {
   const response = await apiClient.get<DigitalCardDto[]>(
     "/api/digital-cards/me"
   );
-  return response.data;
+
+  return response.data.map((item) => digitalCardDtoSchema.parse(item));
 };
 
 /**
@@ -34,7 +43,8 @@ export const getDigitalCardById = async (
   const response = await apiClient.get<DigitalCardDto>(
     `/api/digital-cards/${id}`
   );
-  return response.data;
+
+  return digitalCardDtoSchema.parse(response.data);
 };
 
 /**
@@ -44,11 +54,14 @@ export const updateDigitalCard = async (
   id: string,
   data: DigitalCardRequest
 ): Promise<DigitalCardDto> => {
+  const validatedData = digitalCardRequestSchema.parse(data);
+
   const response = await apiClient.put<DigitalCardDto>(
     `/api/digital-cards/${id}`,
-    data
+    validatedData
   );
-  return response.data;
+
+  return digitalCardDtoSchema.parse(response.data);
 };
 
 /**
@@ -60,7 +73,8 @@ export const deleteDigitalCard = async (
   const response = await apiClient.delete<DigitalCardDto>(
     `/api/digital-cards/${id}`
   );
-  return response.data;
+
+  return digitalCardDtoSchema.parse(response.data);
 };
 
 // React Query hooks

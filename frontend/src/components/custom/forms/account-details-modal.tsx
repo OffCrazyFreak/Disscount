@@ -15,6 +15,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 import {
   Dialog,
@@ -43,10 +44,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  userDetailsSchema,
-  UserDetailsFormType,
-} from "@/lib/schemas/user-schemas";
+import { userRequestSchema, UserRequest } from "@/lib/api/schemas/auth-user";
 import { authService, userService } from "@/lib/api";
 import { useUser } from "@/lib/user-context";
 
@@ -61,14 +59,15 @@ export default function AccountDetailsModal({
 }: AccountDetailsModalProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { user, isLoading: isUserLoading, setUser, logout } = useUser();
+  const queryClient = useQueryClient();
 
   // Update mutations
   const updateUserMutation = userService.useUpdateCurrentUser();
   const deleteUserMutation = userService.useDeleteCurrentUser();
   const logoutAllMutation = authService.useLogoutAll();
 
-  const form = useForm<UserDetailsFormType>({
-    resolver: zodResolver(userDetailsSchema),
+  const form = useForm<UserRequest>({
+    resolver: zodResolver(userRequestSchema),
     defaultValues: {
       username: "",
       stayLoggedInDays: 30,
@@ -93,16 +92,16 @@ export default function AccountDetailsModal({
     const file = event.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      form.setValue("avatar", file);
+      // form.setValue("avatar", file);
     }
   };
 
   const removeFile = () => {
     setSelectedFile(null);
-    form.setValue("avatar", null);
+    // form.setValue("avatar", null);
   };
 
-  const onSubmit = (data: UserDetailsFormType) => {
+  const onSubmit = (data: UserRequest) => {
     updateUserMutation.mutate(
       {
         username: data.username,
@@ -153,6 +152,8 @@ export default function AccountDetailsModal({
         onSuccess: () => {
           toast.success("Odjavljen si sa svih uređaja!");
           setUser(null);
+          // Clear all React Query caches
+          queryClient.clear();
           onOpenChange(false);
         },
         onError: (error) => {

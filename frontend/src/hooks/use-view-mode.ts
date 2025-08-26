@@ -12,14 +12,14 @@ import {
 export function useViewMode(path: string, defaultMode: ViewMode = "grid") {
   const storageKey = path;
 
-  const [mode, setModeInternal] = useState<ViewMode>(() => {
-    if (typeof window === "undefined") return defaultMode;
+  const [mode, setModeInternal] = useState<ViewMode>(defaultMode);
+
+  useEffect(() => {
     try {
-      return getViewMode(path, defaultMode);
-    } catch {
-      return defaultMode;
-    }
-  });
+      const stored = getViewMode(path, defaultMode);
+      if (stored && stored !== mode) setModeInternal(stored);
+    } catch {}
+  }, []);
 
   // Persist to app storage when mode changes
   useEffect(() => {

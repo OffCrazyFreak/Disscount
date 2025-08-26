@@ -7,10 +7,23 @@ import React, {
   useState,
   useCallback,
 } from "react";
-import { authService, userService, preferencesService } from "@/lib/api";
+import {
+  authService,
+  userService,
+  preferencesService,
+  shoppingListService,
+  digitalCardService,
+} from "@/lib/api";
 import { getAccessToken } from "@/lib/api/local-storage";
-import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
+import {
+  UserDto,
+  PinnedStoreDto,
+  PinnedPlaceDto,
+  ShoppingListDto,
+  DigitalCardDto,
+} from "@/lib/api/types";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Define the shape of our context
 interface UserContextType {
@@ -22,6 +35,11 @@ interface UserContextType {
   logout: () => void;
   updatePinnedStores: (stores: PinnedStoreDto[]) => void;
   updatePinnedPlaces: (places: PinnedPlaceDto[]) => void;
+  shoppingLists: ShoppingListDto[];
+  digitalCards: DigitalCardDto[];
+  updateShoppingLists: (lists: ShoppingListDto[]) => void;
+  updateDigitalCards: (cards: DigitalCardDto[]) => void;
+  handleUserLogin: (user: UserDto) => Promise<void>;
 }
 
 // Create the context with a default value
@@ -30,7 +48,9 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserDto | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const router = useRouter();
+  const [shoppingLists, setShoppingLists] = useState<ShoppingListDto[]>([]);
+  const [digitalCards, setDigitalCards] = useState<DigitalCardDto[]>([]);
+  const queryClient = useQueryClient();
 
   // Get the logout mutation
   const logoutMutation = authService.useLogout();
@@ -42,7 +62,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       const userData = await userService.getCurrentUser();
 
       // If the user data doesn't include preferences, fetch them
-      if (userData && (!userData.pinnedStores || !userData.pinnedPlaces)) {
+      if (
+        userData &&
+        (!(userData as any).pinnedStores || !(userData as any).pinnedPlaces)
+      ) {
         try {
           // Fetch preferences in parallel
           const [stores, places] = await Promise.all([
@@ -51,14 +74,31 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           ]);
 
           // Update the user data with preferences
-          userData.pinnedStores = stores;
-          userData.pinnedPlaces = places;
+          (userData as any).pinnedStores = stores;
+          (userData as any).pinnedPlaces = places;
         } catch (prefError) {
           console.error("Failed to fetch preferences:", prefError);
         }
       }
 
       setUser(userData);
+      // Fetch user's shopping lists and digital cards in parallel
+      try {
+        const [lists, cards] = await Promise.all([
+          shoppingListService.getCurrentUserShoppingLists(),
+          digitalCardService.getUserDigitalCards(),
+        ]);
+        setShoppingLists(lists || []);
+        setDigitalCards(cards || []);
+      } catch (listCardErr) {
+        console.error(
+          "Failed to fetch shopping lists or digital cards:",
+          listCardErr
+        );
+        // keep empty arrays if fetching fails
+        setShoppingLists([]);
+        setDigitalCards([]);
+      }
       return userData;
     } catch (error) {
       console.error("Failed to fetch user:", error);
@@ -73,9 +113,43 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     logoutMutation.mutate(undefined, {
       onSuccess: () => {
         setUser(null);
+        // Clear cached lists/cards on logout
+        setShoppingLists([]);
+        setDigitalCards([]);
+        // Invalidate all React Query caches related to user data
+        queryClient.clear();
       },
     });
-  }, [logoutMutation]);
+  }, [logoutMutation, queryClient]);
+
+  // Handle user login - fetch shopping lists and digital cards after login
+  const handleUserLogin = useCallback(
+    async (userData: UserDto) => {
+      setUser(userData);
+
+      // Fetch user's shopping lists and digital cards in parallel
+      try {
+        const [lists, cards] = await Promise.all([
+          shoppingListService.getCurrentUserShoppingLists(),
+          digitalCardService.getUserDigitalCards(),
+        ]);
+        setShoppingLists(lists || []);
+        setDigitalCards(cards || []);
+        // Invalidate existing cache to ensure fresh data
+        queryClient.invalidateQueries({ queryKey: ["shoppingLists"] });
+        queryClient.invalidateQueries({ queryKey: ["digitalCards"] });
+      } catch (listCardErr) {
+        console.error(
+          "Failed to fetch shopping lists or digital cards after login:",
+          listCardErr
+        );
+        // keep empty arrays if fetching fails
+        setShoppingLists([]);
+        setDigitalCards([]);
+      }
+    },
+    [queryClient]
+  );
 
   // Update pinned stores in user context
   const updatePinnedStores = useCallback((stores: PinnedStoreDto[]) => {
@@ -97,6 +171,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         pinnedPlaces: places,
       };
     });
+  }, []);
+
+  const updateShoppingLists = useCallback((lists: ShoppingListDto[]) => {
+    setShoppingLists(lists);
+  }, []);
+
+  const updateDigitalCards = useCallback((cards: DigitalCardDto[]) => {
+    setDigitalCards(cards);
   }, []);
 
   // Check for stored token and fetch user data on mount
@@ -145,6 +227,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     logout: handleLogout,
     updatePinnedStores,
     updatePinnedPlaces,
+    shoppingLists,
+    digitalCards,
+    updateShoppingLists,
+    updateDigitalCards,
+    handleUserLogin,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

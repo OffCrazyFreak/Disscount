@@ -1,21 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { AppSidebar } from "@/components/custom/app-sidebar";
 import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/footer";
 import { Providers } from "@/app/providers";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Disscount - Najbolje cijene u Hrvatskoj",
@@ -30,9 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="hr">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-50 relative`}
-      >
+      <body className="antialiased bg-zinc-50 relative">
         <Providers>
           <div className="min-h-screen flex flex-col w-full">
             {/* pattern background */}

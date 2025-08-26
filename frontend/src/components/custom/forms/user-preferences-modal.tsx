@@ -35,7 +35,11 @@ import Image from "next/image";
 import {
   userPreferencesSchema,
   UserPreferencesFormType,
-} from "@/lib/schemas/user-schemas";
+} from "@/lib/api/schemas/preferences";
+import {
+  PinnedStoreDto,
+  PinnedPlaceDto,
+} from "@/lib/api/schemas/preferences";
 import { mockStores, mockLocations } from "@/lib/mock/mock-preferences";
 import { cn } from "@/lib/utils";
 import { preferencesService } from "@/lib/api";
@@ -82,11 +86,13 @@ export default function UserPreferencesModal({
     if (!isOpen) return;
 
     // First try to use preferences from user context if available
-    if (user?.pinnedStores || user?.pinnedPlaces) {
-      const storeNames = (user.pinnedStores || []).map(
+    const userPrefs = user as any;
+
+    if (userPrefs?.pinnedStores || userPrefs?.pinnedPlaces) {
+      const storeNames = ((userPrefs.pinnedStores as PinnedStoreDto[]) || []).map(
         (s) => s.storeName || s.storeApiId || s.id
       );
-      const placeNames = (user.pinnedPlaces || []).map(
+      const placeNames = ((userPrefs.pinnedPlaces as PinnedPlaceDto[]) || []).map(
         (p) => p.placeName || p.placeApiId
       );
 
@@ -100,11 +106,11 @@ export default function UserPreferencesModal({
     // Fall back to fetched data if context doesn't have the preferences
     if (currentStores || currentPlaces) {
       // Prefer the friendly store name when available, fall back to API id
-      const storeNames = (currentStores || []).map(
+      const storeNames = ((currentStores as PinnedStoreDto[]) || []).map(
         (s) => s.storeName || s.storeApiId || s.id
       );
       // use place names for UI selection
-      const placeNames = (currentPlaces || []).map(
+      const placeNames = ((currentPlaces as PinnedPlaceDto[]) || []).map(
         (p) => p.placeName || p.placeApiId
       );
 

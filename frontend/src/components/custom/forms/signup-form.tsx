@@ -17,7 +17,10 @@ import {
   Form,
 } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/password-input";
-import { signUpSchema, SignUpFormType } from "@/lib/schemas/auth-schemas";
+import {
+  registerRequestSchema,
+  RegisterRequest,
+} from "@/lib/api/schemas/auth-user";
 import { cn } from "@/lib/utils";
 import { authService } from "@/lib/api";
 import { useUser } from "@/lib/user-context";
@@ -28,10 +31,10 @@ interface SignUpFormProps {
 
 export function SignUpForm({ onSuccess }: SignUpFormProps) {
   const registerMutation = authService.useRegister();
-  const { setUser } = useUser();
+  const { handleUserLogin } = useUser();
 
-  const form = useForm<SignUpFormType>({
-    resolver: zodResolver(signUpSchema),
+  const form = useForm<RegisterRequest>({
+    resolver: zodResolver(registerRequestSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -39,22 +42,19 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
     },
   });
 
-  const onSubmit = (data: SignUpFormType) => {
+  const onSubmit = (data: RegisterRequest) => {
     registerMutation.mutate(
       {
         email: data.email,
         password: data.password,
-        // Optional fields could be added here if needed
-        username: undefined, // Use email as username by default
-        notificationsEmail: true, // Default to enabled
-        notificationsPush: true, // Default to enabled
+        confirmPassword: data.confirmPassword,
       },
       {
-        onSuccess: (response) => {
+        onSuccess: async (response) => {
           toast.success("Uspješno ste se registrirali!");
           form.reset();
-          // Set user directly from register response
-          setUser(response.user);
+          // Use handleUserLogin to set user and fetch shopping lists/digital cards
+          await handleUserLogin(response.user);
           onSuccess?.();
         },
         onError: (error: Error) => {

@@ -18,11 +18,11 @@ import DigitalCardsGroup from "@/components/custom/digital-cards/digital-cards-g
 import NoResults from "@/components/custom/no-results";
 import { FloatingActionButton } from "@/components/custom/floating-action-button";
 import { DigitalCardDto } from "@/lib/api/types";
-import { ViewMode } from "@/typings/view-mode";
 import { useViewMode } from "@/hooks/use-view-mode";
 import { filterByFields } from "@/lib/utils";
 import { digitalCardService } from "@/lib/api";
 import { toast } from "sonner";
+import { useUser } from "@/lib/user-context";
 
 export default function DigitalCardsPage() {
   const searchParams = useSearchParams();
@@ -33,12 +33,17 @@ export default function DigitalCardsPage() {
     useState<DigitalCardDto | null>(null);
   const [viewMode, setViewMode] = useViewMode("/digital-cards", "grid");
 
+  // Use user context for authentication and digital cards data
+  const { isAuthenticated, digitalCards: contextDigitalCards, isLoading: userLoading } = useUser();
+
+  // React Query hook (disabled when not authenticated)
   const {
-    data: digitalCards = [],
-    isLoading,
-    error,
     refetch,
   } = digitalCardService.useGetUserDigitalCards();
+
+  // Use context data if authenticated and available, otherwise show empty array
+  const digitalCards = isAuthenticated ? contextDigitalCards : [];
+  const isLoading = userLoading;
 
   const deleteCardMutation = digitalCardService.useDeleteDigitalCard();
 
@@ -60,7 +65,11 @@ export default function DigitalCardsPage() {
   };
 
   const handleDelete = async (digitalCard: DigitalCardDto) => {
-    if (confirm(`Jeste li sigurni da želite obrisati karticu "${digitalCard.title}"?`)) {
+    if (
+      confirm(
+        `Jeste li sigurni da želite obrisati karticu "${digitalCard.title}"?`
+      )
+    ) {
       try {
         await deleteCardMutation.mutateAsync(digitalCard.id);
         toast.success("Digitalna kartica je uspješno obrisana.");

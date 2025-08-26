@@ -26,9 +26,9 @@ import {
 } from "@/components/ui/form";
 import { shoppingListService } from "@/lib/api";
 import {
-  shoppingListSchema,
-  type ShoppingListFormType,
-} from "@/lib/schemas/shopping-list-schemas";
+  shoppingListRequestSchema,
+  type ShoppingListRequest,
+} from "@/lib/api/schemas/shopping-list";
 import { ShoppingListDto } from "@/lib/api/types";
 
 interface ShoppingListModalProps {
@@ -51,8 +51,8 @@ export default function ShoppingListModal({
   const updateShoppingListMutation =
     shoppingListService.useUpdateShoppingList();
 
-  const form = useForm<ShoppingListFormType>({
-    resolver: zodResolver(shoppingListSchema),
+  const form = useForm<ShoppingListRequest>({
+    resolver: zodResolver(shoppingListRequestSchema),
     defaultValues: {
       title: "",
       isPublic: false,
@@ -81,7 +81,7 @@ export default function ShoppingListModal({
     ? updateShoppingListMutation.isPending
     : createShoppingListMutation.isPending;
 
-  const onSubmit = (data: ShoppingListFormType) => {
+  const onSubmit = (data: ShoppingListRequest) => {
     if (shoppingList) {
       updateShoppingListMutation.mutate(
         {

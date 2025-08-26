@@ -31,7 +31,7 @@ export function FloatingActionButton({
     <div className={`fixed ${positionClasses[position]} z-50`}>
       <Tooltip>
         <TooltipTrigger>
-          <button
+          <div
             onClick={onClick}
             className={cn(
               "grid place-items-center cursor-pointer size-16 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg",
@@ -40,7 +40,7 @@ export function FloatingActionButton({
           >
             {icon}
             <span className="sr-only">{label}</span>
-          </button>
+          </div>
         </TooltipTrigger>
         <TooltipContent side="left">{label}</TooltipContent>
       </Tooltip>

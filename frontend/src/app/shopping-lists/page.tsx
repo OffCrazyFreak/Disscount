@@ -17,7 +17,6 @@ import ShoppingListsSearchBar from "@/components/custom/shopping-lists/shopping-
 import SearchItemsLayout from "@/components/layouts/search-items-layout";
 import ShoppingListModal from "@/components/custom/forms/shopping-list-modal";
 import { ShoppingListDto } from "@/lib/api/types";
-import { ViewMode } from "@/typings/view-mode";
 import { useViewMode } from "@/hooks/use-view-mode";
 import { filterByFields } from "@/lib/utils";
 import { shoppingListService } from "@/lib/api";
@@ -26,6 +25,7 @@ import ShoppingListsGroup from "@/components/custom/shopping-lists/shopping-list
 import { FloatingActionButton } from "@/components/custom/floating-action-button";
 import NoResults from "@/components/custom/no-results";
 import ViewSwitcher from "@/components/custom/view-switcher";
+import { useUser } from "@/lib/user-context";
 
 export default function ShoppingListsPage() {
   const searchParams = useSearchParams();
@@ -36,12 +36,19 @@ export default function ShoppingListsPage() {
     useState<ShoppingListDto | null>(null);
   const [viewMode, setViewMode] = useViewMode("/shopping-lists", "grid");
 
+  // Use user context for authentication and shopping lists data
   const {
-    data: shoppingLists = [],
-    isLoading,
-    error,
-    refetch,
-  } = shoppingListService.useGetCurrentUserShoppingLists();
+    isAuthenticated,
+    shoppingLists: contextShoppingLists,
+    isLoading: userLoading,
+  } = useUser();
+
+  // React Query hook (disabled when not authenticated)
+  const { refetch } = shoppingListService.useGetCurrentUserShoppingLists();
+
+  // Use context data if authenticated and available, otherwise show empty array
+  const shoppingLists = isAuthenticated ? contextShoppingLists : [];
+  const isLoading = userLoading;
 
   function handleSearch(q: string) {
     if (!q) {

@@ -10,7 +10,7 @@ import { AxiosError } from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { loginSchema, LoginFormType } from "@/lib/schemas/auth-schemas";
+import { loginRequestSchema, LoginRequest } from "@/lib/api/schemas/auth-user";
 import { cn } from "@/lib/utils";
 import { authService } from "@/lib/api";
 import { useUser } from "@/lib/user-context";
@@ -31,17 +31,17 @@ interface LoginFormProps {
 export function LoginForm({ onSuccess }: LoginFormProps) {
   const [loginRootError, setLoginRootError] = useState<string | null>(null);
   const loginMutation = authService.useLogin();
-  const { setUser } = useUser();
+  const { handleUserLogin } = useUser();
 
-  const form = useForm<LoginFormType>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<LoginRequest>({
+    resolver: zodResolver(loginRequestSchema),
     defaultValues: {
       usernameOrEmail: "",
       password: "",
     },
   });
 
-  const onSubmit = (data: LoginFormType) => {
+  const onSubmit = (data: LoginRequest) => {
     // clear previous root error and start login
     setLoginRootError(null);
     loginMutation.mutate(
@@ -50,12 +50,12 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         password: data.password,
       },
       {
-        onSuccess: (response) => {
+        onSuccess: async (response) => {
           toast.success("Prijava uspješna!");
           form.reset();
           setLoginRootError(null);
-          // Set user directly from login response
-          setUser(response.user);
+          // Use handleUserLogin to set user and fetch shopping lists/digital cards
+          await handleUserLogin(response.user);
           onSuccess?.();
         },
         onError: (error: unknown) => {
