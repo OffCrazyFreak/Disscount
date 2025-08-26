@@ -61,11 +61,20 @@ export default function HeroSection(): React.JSX.Element {
 
       <div className="text-center space-y-24">
         <div className="space-y-6">
+          {/* App logo */}
+          <Image
+            src="/disscount-logo.png"
+            alt="Disscount logo"
+            width={512}
+            height={512}
+            className="mx-auto w-32 sm:w-48"
+          />
+
           <TextEffect
             preset="fade-in-blur"
             speedSegment={0.3}
             as="h1"
-            className="text-6xl text-primary font-bold"
+            className="text-4xl sm:text-6xl text-primary font-bold"
           >
             Disscount
           </TextEffect>
@@ -76,7 +85,7 @@ export default function HeroSection(): React.JSX.Element {
             speedSegment={0.3}
             delay={0.5}
             as="p"
-            className="uppercase max-w-md mx-auto text-balance text-lg"
+            className="uppercase max-w-md mx-auto text-balance text-md sm:text-lg"
           >
             {tagLine}
           </TextEffect>

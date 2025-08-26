@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { CreditCard, ListChecks, LogIn } from "lucide-react";
 import { JSX, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -37,7 +38,16 @@ export default function Header(): JSX.Element {
             <div className="flex items-center justify-between sm:w-auto">
               <div className="flex items-center space-x-2">
                 <SidebarTrigger />
+
                 <Link href="/" className="flex items-center space-x-2">
+                  {/* App logo */}
+                  <Image
+                    src="/disscount-logo.png"
+                    alt="Disscount logo"
+                    width={128}
+                    height={128}
+                    className="size-10"
+                  />
                   <span className="font-bold text-lg text-primary">
                     Disscount
                   </span>
