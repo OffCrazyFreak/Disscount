@@ -16,6 +16,8 @@ import ShoppingListCard from "@/components/custom/shopping-lists/shopping-list-c
 import ShoppingListsSearchBar from "@/components/custom/shopping-lists/shopping-list-search-bar";
 import ShoppingListModal from "@/components/custom/forms/shopping-list-modal";
 import { ShoppingListDto } from "@/lib/api/types";
+import { ViewMode } from "@/typings/view-mode";
+import { useViewMode } from "@/hooks/use-view-mode";
 import { filterByFields } from "@/lib/utils";
 import { shoppingListService } from "@/lib/api";
 import { AnimatedGroup } from "@/components/ui/animated-group";
@@ -31,7 +33,7 @@ export default function ShoppingListsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedShoppingList, setSelectedShoppingList] =
     useState<ShoppingListDto | null>(null);
-  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [viewMode, setViewMode] = useViewMode("/shopping-lists", "grid");
 
   const {
     data: shoppingLists = [],
@@ -97,7 +99,7 @@ export default function ShoppingListsPage() {
 
         {!isLoading && (
           <div className="my-6 space-y-4">
-            <div className="flex items-center justify-between my-6">
+            <div className="flex items-center justify-between gap-4 my-6">
               <h2 className="">
                 {initialQuery.length > 0
                   ? `Rezultati pretrage za "${initialQuery}" (${filteredShoppingLists.length})`

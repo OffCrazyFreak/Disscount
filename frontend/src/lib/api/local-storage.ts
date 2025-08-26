@@ -45,7 +45,8 @@ export function setAccessToken(token: string | null | undefined) {
 export function removeAccessToken() {
   if (typeof window === "undefined") return;
   const current = getAppStorage();
-  if (!current || !Object.prototype.hasOwnProperty.call(current, "accessToken")) return;
+  if (!current || !Object.prototype.hasOwnProperty.call(current, "accessToken"))
+    return;
   const { accessToken, ...rest } = current;
   try {
     // If there are other keys keep them, otherwise remove the whole key
@@ -66,3 +67,33 @@ export default {
   setAccessToken,
   removeAccessToken,
 };
+
+type ViewMode = "list" | "grid";
+
+/**
+ * Get stored view mode for a specific path.
+ * Falls back to provided default ("grid") if missing.
+ */
+export function getViewMode(path: string, defaultMode: ViewMode = "grid") {
+  if (typeof window === "undefined") return defaultMode;
+  try {
+    const data = getAppStorage();
+    return (data.viewModes?.[path] as ViewMode) ?? defaultMode;
+  } catch {
+    return defaultMode;
+  }
+}
+
+/**
+ * Set view mode for a specific path inside the app storage object.
+ */
+export function setViewMode(path: string, mode: ViewMode) {
+  if (typeof window === "undefined") return;
+  try {
+    const current = getAppStorage();
+    const viewModes = { ...(current.viewModes || {}), [path]: mode };
+    setAppStorage({ viewModes });
+  } catch (e) {
+    console.error("Failed to set view mode", e);
+  }
+}

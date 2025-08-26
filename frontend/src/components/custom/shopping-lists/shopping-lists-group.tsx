@@ -4,12 +4,13 @@ import React from "react";
 import { AnimatedGroup } from "@/components/ui/animated-group";
 import ShoppingListCard from "@/components/custom/shopping-lists/shopping-list-card";
 import { ShoppingListDto } from "@/lib/api/types";
+import { ViewMode } from "@/typings/view-mode";
 
 type Props = {
   shoppingLists: Array<ShoppingListDto>;
   className?: string;
   onEdit?: (shoppingList: ShoppingListDto) => void;
-  viewMode?: "list" | "grid";
+  viewMode?: ViewMode;
 };
 
 export default function ShoppingListsGroup({

@@ -4,6 +4,8 @@ import { Search, Plus } from "lucide-react";
 import ProductCard from "@/components/custom/products/product-card";
 import ProductSearchBar from "@/components/custom/products/product-search-bar";
 import { filterByFields } from "@/lib/utils";
+import { useViewMode } from "@/hooks/use-view-mode";
+import ViewSwitcher from "@/components/custom/view-switcher";
 import NoResults from "@/components/custom/no-results";
 import { mockProducts } from "@/lib/mock/mock-products";
 
@@ -35,6 +37,8 @@ export default function ProductsPage() {
     "category",
   ]);
 
+  const [viewMode, setViewMode] = useViewMode("/products", "grid");
+
   return (
     <div className="max-w-3xl mx-auto">
       <div className="my-4">
@@ -42,17 +46,21 @@ export default function ProductsPage() {
       </div>
 
       {/* Products List */}
-      <div className="space-y-4">
+      <div className="my-6 space-y-4">
         {initialQuery && filteredProducts.length === 0 ? (
           <NoResults
             icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
           />
         ) : initialQuery ? (
           <>
-            <h2 className="text-lg my-8">
-              Rezultati pretrage za &quot;{initialQuery}&quot; (
-              {filteredProducts.length})
-            </h2>
+            <div className="flex items-center justify-between gap-4 my-6">
+              <h2 className="text-lg my-8">
+                Rezultati pretrage za &quot;{initialQuery}&quot; (
+                {filteredProducts.length})
+              </h2>
+
+              <ViewSwitcher value={viewMode} onChange={setViewMode} />
+            </div>
             {filteredProducts.map((product) => (
               <ProductCard
                 key={product.id}

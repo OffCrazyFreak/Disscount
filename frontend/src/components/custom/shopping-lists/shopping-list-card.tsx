@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ShoppingListDto } from "@/lib/api/types";
+import { ViewMode } from "@/typings/view-mode";
 import { Button } from "@/components/ui/button-icon";
 import {
   Tooltip,
@@ -24,7 +25,7 @@ import { formatDate } from "@/lib/utils";
 interface ShoppingListCardProps {
   shoppingList: ShoppingListDto;
   onEdit?: (shoppingList: ShoppingListDto) => void;
-  viewMode?: "list" | "grid" | "compact";
+  viewMode?: ViewMode;
 }
 
 export default function ShoppingListCard({
@@ -58,9 +59,11 @@ export default function ShoppingListCard({
       >
         <div className="flex items-center gap-4 flex-1">
           {/* Shopping List Icon */}
-          <div className="hidden sm:flex size-16 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
-            <ListChecks className="size-8 text-primary" />
-          </div>
+          {viewMode === "list" && (
+            <div className="hidden sm:flex size-16 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
+              <ListChecks className="size-8 text-primary" />
+            </div>
+          )}
 
           {/* Shopping List Info */}
           <div className="flex items-left justify-between flex-col">
