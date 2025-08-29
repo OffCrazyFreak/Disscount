@@ -1,15 +1,12 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Loader2 } from "lucide-react";
-import ProductCard, {
-  ProductItem,
-} from "@/app/products/components/product-card";
+import ProductCard from "@/app/products/components/product-card";
 import ProductSearchBar from "@/app/products/components/product-search-bar";
 import SearchItemsLayout from "@/components/layouts/search-items-layout";
 import { useViewMode } from "@/hooks/use-view-mode";
 import NoResults from "@/components/custom/no-results";
-import externalProductService from "@/app/products/api";
-import { AnimatedGroup } from "@/components/ui/animated-group";
+import { useProductSearch } from "@/app/products/api/hooks";
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
@@ -19,6 +16,8 @@ export default function ProductsPage() {
   function handleSearch(q: string) {
     if (!q) {
       router.push(`/products`);
+    } else {
+      router.push(`/products?q=${encodeURIComponent(q)}`);
     }
   }
 
@@ -26,23 +25,16 @@ export default function ProductsPage() {
     console.log(`Added product ${productId} to shopping list`);
   };
 
-  // Use external products search API only when there's a query
+  const [viewMode, setViewMode] = useViewMode("/products", "grid");
+
+  // Use the simplified search hook for Cijene API
   const {
-    data: searchResults,
+    data: productsList,
     isLoading,
     error,
-  } = externalProductService.useSearchExternalProducts(
-    !!initialQuery ? { q: initialQuery } : { q: "" }
-  );
-
-  // Transform external products to match ProductItem interface
-  const productsList: ProductItem[] = searchResults
-    ? searchResults.map((product) =>
-        externalProductService.transformExternalProduct(product)
-      )
-    : [];
-
-  const [viewMode, setViewMode] = useViewMode("/products", "grid");
+  } = useProductSearch({
+    q: initialQuery,
+  });
 
   return (
     <SearchItemsLayout
@@ -84,7 +76,7 @@ export default function ProductsPage() {
         >
           {productsList.map((product) => (
             <ProductCard
-              key={product.id}
+              key={product.ean}
               product={product}
               onAddToList={handleAddToList}
             />

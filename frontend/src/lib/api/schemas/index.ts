@@ -5,7 +5,6 @@ export * from "./shopping-list";
 export * from "./preferences";
 export * from "./notifications";
 export * from "./watchlist";
-export * from "./external-product";
 
 // Utility schemas
 import { z } from "zod";

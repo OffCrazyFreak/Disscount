@@ -1,150 +1,320 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import axios, { AxiosInstance } from "axios";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import cijeneApiClient, {
+  cijeneApiV0Client,
+  cijeneApiHealthClient,
+} from "./client";
 import {
-  ExternalProduct,
-  SearchExternalProductsParams,
-  GetExternalProductParams,
-  SearchExternalProductsResponse,
-} from "../../../lib/api/schemas";
+  ListChainsResponse,
+  ListStoresResponse,
+  ProductResponse,
+  ProductSearchResponse,
+  StorePricesResponse,
+  ChainStatsResponse,
+  ListArchivesResponse,
+  HealthCheckResponse,
+  GetProductParams,
+  SearchProductsParams,
+  SearchStoresParams,
+  GetPricesParams,
+  listChainsResponseSchema,
+  listStoresResponseSchema,
+  productResponseSchema,
+  productSearchResponseSchema,
+  storePricesResponseSchema,
+  chainStatsResponseSchema,
+  listArchivesResponseSchema,
+  healthCheckResponseSchema,
+  getProductParamsSchema,
+  searchProductsParamsSchema,
+  searchStoresParamsSchema,
+  getPricesParamsSchema,
+} from "./schemas";
 
-// Import ProductItem interface
-interface ProductItem {
-  id: string | number;
-  name: string;
-  brand: string;
-  category: string;
-  quantity: string;
-  averagePrice?: number;
-  image?: string;
-}
-
-// External API base URL
-const EXTERNAL_API_BASE_URL = process.env.NEXT_PUBLIC_CIJENE_API_URL + "/v1";
-
-// Create axios instance for external API
-const cijeneApiClient: AxiosInstance = axios.create({
-  baseURL: EXTERNAL_API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Add request interceptor to include external API key if available
-cijeneApiClient.interceptors.request.use((config) => {
-  const externalApiKey = process.env.NEXT_PUBLIC_CIJENE_API_TOKEN;
-  if (externalApiKey && config.headers) {
-    config.headers.Authorization = `Bearer ${externalApiKey}`;
-  }
-
-  return config;
-});
+// API Functions
 
 /**
- * Transform external product data to match ProductItem interface
+ * List available ZIP archives
  */
-export const transformExternalProduct = (
-  externalProduct: ExternalProduct
-): ProductItem => {
-  // Calculate average price from all chains
-  const prices = externalProduct.chains
-    .map((chain) => parseFloat(chain.avg_price))
-    .filter((price) => !isNaN(price) && price > 0);
-
-  const averagePrice =
-    prices.length > 0
-      ? prices.reduce((sum, price) => sum + price, 0) / prices.length
-      : undefined;
-
-  // Format quantity nicely and trim trailing zeros
-  const formatQuantity = (quantity: string | null): string => {
-    if (!quantity) return "";
-
-    // Trim trailing zeros and decimal point if needed
-    return quantity.replace(/\.?0+$/, "").replace(/\.$/, "");
-  };
-
-  const quantity =
-    externalProduct.quantity && externalProduct.unit
-      ? `${formatQuantity(externalProduct.quantity)} ${externalProduct.unit}`
-      : formatQuantity(externalProduct.quantity);
-
-  return {
-    id: externalProduct.ean,
-    name: externalProduct.name,
-    brand: externalProduct.brand || "Nepoznato",
-    category: externalProduct.chains[0]?.category || "",
-    quantity,
-    averagePrice,
-    image: undefined, // External API doesn't provide images
-  };
+export const listArchives = async (): Promise<ListArchivesResponse> => {
+  const response = await cijeneApiV0Client.get("/list");
+  return listArchivesResponseSchema.parse(response.data);
 };
 
 /**
- * Get product details by EAN barcode
+ * List all retail chains
  */
-export const getExternalProductByEan = async (
-  params: GetExternalProductParams
-): Promise<ExternalProduct> => {
-  const { ean, date, chains } = params;
-
-  const queryParams = new URLSearchParams();
-  if (date) queryParams.append("date", date);
-  if (chains) queryParams.append("chains", chains);
-
-  const queryString = queryParams.toString();
-  const url = `/products/${ean}/${queryString ? `?${queryString}` : ""}`;
-
-  const response = await cijeneApiClient.get<ExternalProduct>(url);
-  return response.data;
+export const listChains = async (): Promise<ListChainsResponse> => {
+  const response = await cijeneApiClient.get("/chains/");
+  return listChainsResponseSchema.parse(response.data);
 };
 
 /**
- * Search products by name
+ * List stores for a specific chain
  */
-export const searchExternalProducts = async (
-  params: SearchExternalProductsParams
-): Promise<ExternalProduct[]> => {
-  const { q, date, chains } = params;
+export const listStoresByChain = async (
+  chainCode: string
+): Promise<ListStoresResponse> => {
+  const response = await cijeneApiClient.get(`/${chainCode}/stores/`);
+  return listStoresResponseSchema.parse(response.data);
+};
+
+/**
+ * Search stores with filters
+ */
+export const searchStores = async (
+  params: SearchStoresParams
+): Promise<ListStoresResponse> => {
+  const validatedParams = searchStoresParamsSchema.parse(params);
 
   const queryParams = new URLSearchParams();
-  queryParams.append("q", q);
-  if (date) queryParams.append("date", date);
-  if (chains) queryParams.append("chains", chains);
+  Object.entries(validatedParams).forEach(([key, value]) => {
+    if (value !== undefined) {
+      queryParams.append(key, value.toString());
+    }
+  });
 
-  const response = await cijeneApiClient.get<SearchExternalProductsResponse>(
-    `/products/?${queryParams.toString()}`
+  const response = await cijeneApiClient.get(
+    `/stores?${queryParams.toString()}`
   );
-  return response.data.products;
+  return listStoresResponseSchema.parse(response.data);
 };
 
-// React Query hooks
-export const useGetExternalProductByEan = (
-  params: GetExternalProductParams
-) => {
-  return useQuery<ExternalProduct, Error>({
-    queryKey: ["externalProducts", "ean", params],
-    queryFn: () => getExternalProductByEan(params),
+/**
+ * List all stores from all chains
+ */
+export const listAllStores = async (): Promise<ListStoresResponse> => {
+  const response = await cijeneApiClient.get(`/stores`);
+  return listStoresResponseSchema.parse(response.data);
+};
+
+/**
+ * Get product data/prices by barcode (EAN)
+ */
+export const getProductByEan = async (
+  params: GetProductParams
+): Promise<ProductResponse> => {
+  const validatedParams = getProductParamsSchema.parse(params);
+
+  const queryParams = new URLSearchParams();
+  if (validatedParams.date) queryParams.append("date", validatedParams.date);
+  if (validatedParams.chains)
+    queryParams.append("chains", validatedParams.chains);
+
+  const response = await cijeneApiClient.get(
+    `/products/${validatedParams.ean}?${queryParams.toString()}`
+  );
+  return productResponseSchema.parse(response.data);
+};
+
+/**
+ * Search for products by name
+ */
+export const searchProducts = async (
+  params: SearchProductsParams
+): Promise<ProductSearchResponse> => {
+  const validatedParams = searchProductsParamsSchema.parse(params);
+
+  const queryParams = new URLSearchParams();
+  queryParams.append("q", validatedParams.q);
+  if (validatedParams.date) queryParams.append("date", validatedParams.date);
+  if (validatedParams.chains)
+    queryParams.append("chains", validatedParams.chains);
+
+  const response = await cijeneApiClient.get(
+    `/products?${queryParams.toString()}`
+  );
+  return productSearchResponseSchema.parse(response.data);
+};
+
+/**
+ * Get product prices by store with filtering
+ */
+export const getPrices = async (
+  params: GetPricesParams
+): Promise<StorePricesResponse> => {
+  const validatedParams = getPricesParamsSchema.parse(params);
+
+  const queryParams = new URLSearchParams();
+  Object.entries(validatedParams).forEach(([key, value]) => {
+    if (value !== undefined) {
+      queryParams.append(key, value.toString());
+    }
+  });
+
+  const response = await cijeneApiClient.get(
+    `/prices?${queryParams.toString()}`
+  );
+  return storePricesResponseSchema.parse(response.data);
+};
+
+/**
+ * Get chain statistics
+ */
+export const getChainStats = async (): Promise<ChainStatsResponse> => {
+  const response = await cijeneApiClient.get("/chain-stats/");
+  return chainStatsResponseSchema.parse(response.data);
+};
+
+/**
+ * Health check
+ */
+export const healthCheck = async (): Promise<HealthCheckResponse> => {
+  const response = await cijeneApiHealthClient.get("/health");
+  return healthCheckResponseSchema.parse(response.data);
+};
+
+// React Query Hooks
+
+/**
+ * Hook to list archives
+ */
+export const useListArchives = () => {
+  return useQuery<ListArchivesResponse, Error>({
+    queryKey: ["cijene", "archives"],
+    queryFn: listArchives,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+/**
+ * Hook to list chains
+ */
+export const useListChains = () => {
+  return useQuery<ListChainsResponse, Error>({
+    queryKey: ["cijene", "chains"],
+    queryFn: listChains,
+    staleTime: 60 * 60 * 1000, // 1 hour - chains don't change often
+  });
+};
+
+/**
+ * Hook to list stores by chain
+ */
+export const useListStoresByChain = (chainCode: string) => {
+  return useQuery<ListStoresResponse, Error>({
+    queryKey: ["cijene", "stores", "chain", chainCode],
+    queryFn: () => listStoresByChain(chainCode),
+    enabled: !!chainCode,
+    staleTime: 30 * 60 * 1000, // 30 minutes
+  });
+};
+
+/**
+ * Hook to search stores
+ */
+export const useSearchStores = (params: SearchStoresParams) => {
+  return useQuery<ListStoresResponse, Error>({
+    queryKey: ["cijene", "stores", "search", params],
+    queryFn: () => searchStores(params),
+    enabled: !!(
+      params.chains ||
+      params.city ||
+      params.address ||
+      (params.lat && params.lon)
+    ),
+    staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+/**
+ * Hook to list all stores from all chains
+ */
+export const useListAllStores = () => {
+  return useQuery<ListStoresResponse, Error>({
+    queryKey: ["cijene", "stores", "all"],
+    queryFn: () => listAllStores(),
+    staleTime: 30 * 60 * 1000, // 30 minutes
+  });
+};
+
+/**
+ * Hook to get product by EAN
+ */
+export const useGetProductByEan = (params: GetProductParams) => {
+  return useQuery<ProductResponse, Error>({
+    queryKey: ["cijene", "product", "ean", params],
+    queryFn: () => getProductByEan(params),
     enabled: !!params.ean,
+    staleTime: 6 * 60 * 60 * 1000, // 6 hours
   });
 };
 
-export const useSearchExternalProducts = (
-  params: SearchExternalProductsParams
-) => {
-  return useQuery<ExternalProduct[], Error>({
-    queryKey: ["externalProducts", "search", params],
-    queryFn: () => searchExternalProducts(params),
-    enabled: !!params.q && params.q.length > 2,
+/**
+ * Hook to search products
+ */
+export const useSearchProducts = (params: SearchProductsParams) => {
+  return useQuery<ProductSearchResponse, Error>({
+    queryKey: ["cijene", "products", "search", params],
+    queryFn: () => searchProducts(params),
+    enabled: !!params.q && params.q.length >= 2,
+    staleTime: 6 * 60 * 60 * 1000, // 6 hours
   });
 };
 
-const externalProductService = {
-  getExternalProductByEan,
-  searchExternalProducts,
-  transformExternalProduct,
+/**
+ * Hook to get prices
+ */
+export const useGetPrices = (params: GetPricesParams) => {
+  return useQuery<StorePricesResponse, Error>({
+    queryKey: ["cijene", "prices", params],
+    queryFn: () => getPrices(params),
+    enabled: !!params.eans,
+    staleTime: 6 * 60 * 60 * 1000, // 6 hours
+  });
+};
+
+/**
+ * Hook to get chain stats
+ */
+export const useGetChainStats = () => {
+  return useQuery<ChainStatsResponse, Error>({
+    queryKey: ["cijene", "chain-stats"],
+    queryFn: getChainStats,
+    staleTime: 6 * 60 * 60 * 1000, // 6 hours
+  });
+};
+
+/**
+ * Hook to check health
+ */
+export const useHealthCheck = () => {
+  return useQuery<HealthCheckResponse, Error>({
+    queryKey: ["cijene", "health"],
+    queryFn: healthCheck,
+    staleTime: 30 * 1000, // 30 seconds
+    retry: 1, // Only retry once for health checks
+  });
+};
+
+// Service object with all functions and hooks
+const cijeneService = {
+  // API functions
+  listArchives,
+
+  listChains,
+  listStoresByChain,
+  searchStores,
+  listAllStores,
+  getProductByEan,
+  searchProducts,
+  getPrices,
+  getChainStats,
+
+  healthCheck,
+
   // React Query hooks
-  useGetExternalProductByEan,
-  useSearchExternalProducts,
+  useListArchives,
+
+  useListChains,
+  useListStoresByChain,
+  useSearchStores,
+  useListAllStores,
+  useGetProductByEan,
+  useSearchProducts,
+  useGetPrices,
+  useGetChainStats,
+
+  useHealthCheck,
 };
 
-export default externalProductService;
+export default cijeneService;

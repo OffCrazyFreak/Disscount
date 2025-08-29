@@ -1,7 +1,7 @@
 "use client";
 
 import { DigitalCardDto } from "@/lib/api/types";
-import { ViewMode } from "@/typings/view-mode";
+import { ViewMode } from "@/lib/typings/view-mode";
 import { AnimatedGroup } from "@/components/ui/animated-group";
 import DigitalCardCard from "./digital-card-card";
 

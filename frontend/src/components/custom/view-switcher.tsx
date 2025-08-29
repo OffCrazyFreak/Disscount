@@ -5,7 +5,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ViewMode } from "@/typings/view-mode";
+import { ViewMode } from "@/lib/typings/view-mode";
 
 interface ViewSwitcherProps {
   value?: ViewMode;

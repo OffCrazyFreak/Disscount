@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { Search, ScanBarcode, X } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
 import { Input } from "@/components/ui/input";
-import { normalizeForSearch } from "@/lib/utils";
+import { normalizeForSearch } from "@/lib/utils/strings";
 
 export interface SearchBarProps {
   defaultValue?: string;

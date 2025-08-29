@@ -46,7 +46,7 @@ import {
 } from "@/components/ui/form";
 import { userRequestSchema, UserRequest } from "@/lib/api/schemas/auth-user";
 import { authService, userService } from "@/lib/api";
-import { useUser } from "@/lib/user-context";
+import { useUser } from "@/lib/context/user-context";
 
 interface AccountDetailsModalProps {
   isOpen: boolean;

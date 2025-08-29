@@ -1,5 +1,5 @@
 import React from "react";
-import { ViewMode } from "@/typings/view-mode";
+import { ViewMode } from "@/lib/typings/view-mode";
 import ViewSwitcher from "@/components/custom/view-switcher";
 
 type Props = {

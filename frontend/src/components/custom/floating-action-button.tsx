@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 import { Button } from "@/components/ui/button-icon";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/strings";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface FloatingActionButtonProps {

@@ -36,14 +36,11 @@ import {
   userPreferencesSchema,
   UserPreferencesFormType,
 } from "@/lib/api/schemas/preferences";
-import {
-  PinnedStoreDto,
-  PinnedPlaceDto,
-} from "@/lib/api/schemas/preferences";
+import { PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/schemas/preferences";
 import { mockStores, mockLocations } from "@/lib/mock/mock-preferences";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/strings";
 import { preferencesService } from "@/lib/api";
-import { useUser } from "@/lib/user-context";
+import { useUser } from "@/lib/context/user-context";
 
 interface UserPreferencesModalProps {
   isOpen: boolean;
@@ -89,12 +86,12 @@ export default function UserPreferencesModal({
     const userPrefs = user as any;
 
     if (userPrefs?.pinnedStores || userPrefs?.pinnedPlaces) {
-      const storeNames = ((userPrefs.pinnedStores as PinnedStoreDto[]) || []).map(
-        (s) => s.storeName || s.storeApiId || s.id
-      );
-      const placeNames = ((userPrefs.pinnedPlaces as PinnedPlaceDto[]) || []).map(
-        (p) => p.placeName || p.placeApiId
-      );
+      const storeNames = (
+        (userPrefs.pinnedStores as PinnedStoreDto[]) || []
+      ).map((s) => s.storeName || s.storeApiId || s.id);
+      const placeNames = (
+        (userPrefs.pinnedPlaces as PinnedPlaceDto[]) || []
+      ).map((p) => p.placeName || p.placeApiId);
 
       form.reset({
         pinnedStores: storeNames,

@@ -8,7 +8,10 @@ import {
   Percent,
   ListChecks,
   ChartNoAxesCombined,
+  Store,
 } from "lucide-react";
+
+import Link from "next/link";
 
 import {
   Sidebar,
@@ -30,53 +33,25 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-
+import cijeneService from "@/app/products/api";
+import { ChainStats } from "@/app/products/api/schemas";
+import { useAllLocations } from "@/app/products/api/hooks";
+import { toPascalCase } from "@/lib/utils/strings";
 import { useState } from "react";
 import ProductSearchBar from "@/app/products/components/product-search-bar";
-
-type MenuSubItem = {
-  id: string;
-  title: string;
-  url: string;
-};
-
-const mockCategories: MenuSubItem[] = [
-  {
-    id: "0",
-    title: "Elektronika",
-    url: "/products?filterBy=category&subcategory=electronics",
-  },
-  {
-    id: "1",
-    title: "Odjeća",
-    url: "/products?filterBy=category&subcategory=clothing",
-  },
-  {
-    id: "2",
-    title: "Hrana",
-    url: "/products?filterBy=category&subcategory=food",
-  },
-];
-
-const mockPlaces: MenuSubItem[] = [
-  {
-    id: "0",
-    title: "Delnice",
-    url: "/products?filterBy=place&subcategory=delnice",
-  },
-  {
-    id: "1",
-    title: "Zagreb",
-    url: "/products?filterBy=place&subcategory=zagreb",
-  },
-];
+import { storeNamesMap } from "@/lib/utils/mappings";
+import { locationNamesMap } from "@/lib/utils/mappings";
 
 export function AppSidebar() {
-  const [categories, setCategories] = useState<MenuSubItem[]>(mockCategories);
-  const [places, setPlaces] = useState<MenuSubItem[]>(mockPlaces);
+  const [categories, setCategories] = useState<any[]>([]);
+
+  const { data: chainStats, isLoading: chainStatsLoading } =
+    cijeneService.useGetChainStats();
+
+  const { data: locations, isLoading: locationsLoading } = useAllLocations();
 
   return (
-    <Sidebar variant="floating" className="mt-24 h-max">
+    <Sidebar variant="floating" className="mt-24 max-h-[calc(100vh-16rem)]">
       <SidebarHeader>
         <SidebarGroup>
           <SidebarGroupContent>
@@ -164,6 +139,46 @@ export function AppSidebar() {
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton asChild>
                       <div className="cursor-pointer group">
+                        <Store />
+                        <span>Trgovine</span>
+
+                        <ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                        <span className="sr-only">Toggle</span>
+                      </div>
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {chainStats?.chain_stats
+                        .sort((a, b) =>
+                          a.chain_code.localeCompare(b.chain_code)
+                        )
+                        .map((chain: ChainStats) => (
+                          <SidebarMenuSubItem
+                            className="hover:bg-gray-200 rounded-md px-2 hover:text-gray-900"
+                            key={chain.chain_code}
+                          >
+                            <Link
+                              className="flex justify-between items-center"
+                              href={`/product?filterBy=chain&value=${chain.chain_code}`}
+                            >
+                              <span>{storeNamesMap[chain.chain_code]}</span>
+
+                              <span className="">{`(${chain.store_count})`}</span>
+                            </Link>
+                          </SidebarMenuSubItem>
+                        ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </Collapsible>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
+                <Collapsible defaultOpen={false} className="group/collapsible">
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton asChild>
+                      <div className="cursor-pointer group">
                         <MapPin />
                         <span>Naselja</span>
 
@@ -175,13 +190,23 @@ export function AppSidebar() {
 
                   <CollapsibleContent>
                     <SidebarMenuSub>
-                      {places.map((place) => (
-                        <SidebarMenuSubItem key={place.id}>
-                          <a href={place.url}>
-                            <span>{place.title}</span>
-                          </a>
-                        </SidebarMenuSubItem>
-                      ))}
+                      {locations
+                        .sort((a, b) => a.cityName.localeCompare(b.cityName))
+                        .map((location) => (
+                          <SidebarMenuSubItem
+                            className="hover:bg-gray-200 rounded-md px-2 hover:text-gray-900"
+                            key={location.cityName}
+                          >
+                            <Link
+                              className="flex justify-between items-center"
+                              href={`/product?filterBy=location&value=${location.cityName}`}
+                            >
+                              <span>{location.cityName}</span>
+
+                              <span className="">{`(${location.storeCount})`}</span>
+                            </Link>
+                          </SidebarMenuSubItem>
+                        ))}
                     </SidebarMenuSub>
                   </CollapsibleContent>
                 </Collapsible>
