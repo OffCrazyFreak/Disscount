@@ -75,33 +75,7 @@ export default function ProductsPage() {
           icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
         />
       ) : initialQuery ? (
-        <AnimatedGroup
-          variants={{
-            container: {
-              visible: {
-                transition: {
-                  staggerChildren: 0.05,
-                },
-              },
-            },
-            item: {
-              hidden: {
-                opacity: 0,
-                filter: "blur(12px)",
-                y: 12,
-              },
-              visible: {
-                opacity: 1,
-                filter: "blur(0px)",
-                y: 0,
-                transition: {
-                  type: "spring" as const,
-                  bounce: 0.3,
-                  duration: 1.5,
-                },
-              },
-            },
-          }}
+        <div
           className={
             viewMode === "grid"
               ? "grid grid-cols-1 sm:grid-cols-2 gap-4"
@@ -115,7 +89,7 @@ export default function ProductsPage() {
               onAddToList={handleAddToList}
             />
           ))}
-        </AnimatedGroup>
+        </div>
       ) : (
         <div className="text-center py-12">
           <Search className="size-12 text-gray-400 mx-auto mb-4" />
