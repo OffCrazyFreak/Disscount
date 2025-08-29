@@ -4,7 +4,7 @@ import "./globals.css";
 import { AppSidebar } from "@/components/custom/app-sidebar";
 import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/footer";
-import { Providers } from "@/app/providers";
+import { Providers } from "@/app/components/providers";
 
 export const metadata: Metadata = {
   title: "Disscount - Najbolje cijene u Hrvatskoj",

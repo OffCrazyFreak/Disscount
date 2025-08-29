@@ -18,8 +18,8 @@ import {
   Settings2,
 } from "lucide-react";
 import { UserAvatar } from "@daveyplate/better-auth-ui";
-import UserPreferencesModal from "@/components/custom/forms/user-preferences-modal";
-import AccountDetailsModal from "@/components/custom/forms/account-details-modal";
+import UserPreferencesModal from "@/components/custom/header/forms/user-preferences-modal";
+import AccountDetailsModal from "@/components/custom/header/forms/account-details-modal";
 import { useUser } from "@/lib/user-context";
 
 export default function UserMenu() {

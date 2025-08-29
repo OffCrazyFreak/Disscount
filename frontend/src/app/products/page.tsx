@@ -3,12 +3,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Loader2 } from "lucide-react";
 import ProductCard, {
   ProductItem,
-} from "@/components/custom/products/product-card";
-import ProductSearchBar from "@/components/custom/products/product-search-bar";
+} from "@/app/products/components/product-card";
+import ProductSearchBar from "@/app/products/components/product-search-bar";
 import SearchItemsLayout from "@/components/layouts/search-items-layout";
 import { useViewMode } from "@/hooks/use-view-mode";
 import NoResults from "@/components/custom/no-results";
-import { externalProductService } from "@/lib/api";
+import externalProductService from "@/app/products/api";
 import { AnimatedGroup } from "@/components/ui/animated-group";
 
 export default function ProductsPage() {

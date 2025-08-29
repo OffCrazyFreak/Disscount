@@ -12,16 +12,16 @@ import {
   Frown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ShoppingListCard from "@/components/custom/shopping-lists/shopping-list-card";
-import ShoppingListsSearchBar from "@/components/custom/shopping-lists/shopping-list-search-bar";
+import ShoppingListCard from "@/app/shopping-lists/components/shopping-list-card";
+import ShoppingListsSearchBar from "@/app/shopping-lists/components/shopping-list-search-bar";
 import SearchItemsLayout from "@/components/layouts/search-items-layout";
-import ShoppingListModal from "@/components/custom/forms/shopping-list-modal";
+import ShoppingListModal from "@/app/shopping-lists/components/forms/shopping-list-modal";
 import { ShoppingListDto } from "@/lib/api/types";
 import { useViewMode } from "@/hooks/use-view-mode";
 import { filterByFields } from "@/lib/utils";
 import { shoppingListService } from "@/lib/api";
 import { AnimatedGroup } from "@/components/ui/animated-group";
-import ShoppingListsGroup from "@/components/custom/shopping-lists/shopping-lists-group";
+import ShoppingListsGroup from "@/app/shopping-lists/components/shopping-lists-group";
 import { FloatingActionButton } from "@/components/custom/floating-action-button";
 import NoResults from "@/components/custom/no-results";
 import ViewSwitcher from "@/components/custom/view-switcher";

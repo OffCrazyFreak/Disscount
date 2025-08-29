@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import ProductSearchBar from "@/components/custom/products/product-search-bar";
+import ProductSearchBar from "@/app/products/components/product-search-bar";
 import { Button } from "@/components/ui/button-icon";
 import { ScanBarcode } from "lucide-react";
 import { Card } from "@/components/ui/card";

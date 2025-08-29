@@ -11,10 +11,10 @@ import {
   Frown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import DigitalCardSearchBar from "@/components/custom/digital-cards/digital-card-search-bar";
+import DigitalCardSearchBar from "@/app/digital-cards/components/digital-card-search-bar";
 import SearchItemsLayout from "@/components/layouts/search-items-layout";
-import DigitalCardModal from "@/components/custom/forms/digital-card-modal";
-import DigitalCardsGroup from "@/components/custom/digital-cards/digital-cards-group";
+import DigitalCardModal from "@/app/digital-cards/components/forms/digital-card-modal";
+import DigitalCardsGroup from "@/app/digital-cards/components/digital-cards-group";
 import NoResults from "@/components/custom/no-results";
 import { FloatingActionButton } from "@/components/custom/floating-action-button";
 import { DigitalCardDto } from "@/lib/api/types";
@@ -34,12 +34,14 @@ export default function DigitalCardsPage() {
   const [viewMode, setViewMode] = useViewMode("/digital-cards", "grid");
 
   // Use user context for authentication and digital cards data
-  const { isAuthenticated, digitalCards: contextDigitalCards, isLoading: userLoading } = useUser();
+  const {
+    isAuthenticated,
+    digitalCards: contextDigitalCards,
+    isLoading: userLoading,
+  } = useUser();
 
   // React Query hook (disabled when not authenticated)
-  const {
-    refetch,
-  } = digitalCardService.useGetUserDigitalCards();
+  const { refetch } = digitalCardService.useGetUserDigitalCards();
 
   // Use context data if authenticated and available, otherwise show empty array
   const digitalCards = isAuthenticated ? contextDigitalCards : [];

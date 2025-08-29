@@ -5,7 +5,7 @@ import {
   SearchExternalProductsParams,
   GetExternalProductParams,
   SearchExternalProductsResponse,
-} from "../schemas";
+} from "../../../lib/api/schemas";
 
 // Import ProductItem interface
 interface ProductItem {
@@ -22,7 +22,7 @@ interface ProductItem {
 const EXTERNAL_API_BASE_URL = process.env.NEXT_PUBLIC_CIJENE_API_URL + "/v1";
 
 // Create axios instance for external API
-const externalApiClient: AxiosInstance = axios.create({
+const cijeneApiClient: AxiosInstance = axios.create({
   baseURL: EXTERNAL_API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
@@ -30,7 +30,7 @@ const externalApiClient: AxiosInstance = axios.create({
 });
 
 // Add request interceptor to include external API key if available
-externalApiClient.interceptors.request.use((config) => {
+cijeneApiClient.interceptors.request.use((config) => {
   const externalApiKey = process.env.NEXT_PUBLIC_CIJENE_API_TOKEN;
   if (externalApiKey && config.headers) {
     config.headers.Authorization = `Bearer ${externalApiKey}`;
@@ -57,7 +57,7 @@ export const transformExternalProduct = (
 
   // Format quantity nicely and trim trailing zeros
   const formatQuantity = (quantity: string | null): string => {
-    if (!quantity) return null;
+    if (!quantity) return "";
 
     // Trim trailing zeros and decimal point if needed
     return quantity.replace(/\.?0+$/, "").replace(/\.$/, "");
@@ -72,7 +72,7 @@ export const transformExternalProduct = (
     id: externalProduct.ean,
     name: externalProduct.name,
     brand: externalProduct.brand || "Nepoznato",
-    category: externalProduct.chains[0]?.category,
+    category: externalProduct.chains[0]?.category || "",
     quantity,
     averagePrice,
     image: undefined, // External API doesn't provide images
@@ -94,7 +94,7 @@ export const getExternalProductByEan = async (
   const queryString = queryParams.toString();
   const url = `/products/${ean}/${queryString ? `?${queryString}` : ""}`;
 
-  const response = await externalApiClient.get<ExternalProduct>(url);
+  const response = await cijeneApiClient.get<ExternalProduct>(url);
   return response.data;
 };
 
@@ -111,7 +111,7 @@ export const searchExternalProducts = async (
   if (date) queryParams.append("date", date);
   if (chains) queryParams.append("chains", chains);
 
-  const response = await externalApiClient.get<SearchExternalProductsResponse>(
+  const response = await cijeneApiClient.get<SearchExternalProductsResponse>(
     `/products/?${queryParams.toString()}`
   );
   return response.data.products;
