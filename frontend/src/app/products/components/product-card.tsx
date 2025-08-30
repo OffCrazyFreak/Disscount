@@ -40,8 +40,32 @@ export default function ProductCard({
   const minPrice = getMinPrice(product);
   const averagePrice = getAveragePrice(product);
 
-  // Get category from first chain
-  const category = product.chains[0]?.category;
+  // Get category that appears most often in product.chains
+  const category = React.useMemo(() => {
+    if (!product.chains || product.chains.length === 0) return null;
+
+    const categoryCount: Record<string, number> = {};
+
+    // Count frequency of each category
+    product.chains.forEach((chain) => {
+      if (chain.category) {
+        categoryCount[chain.category] = (categoryCount[chain.category] || 0) + 1;
+      }
+    });
+
+    // Find category with highest count
+    let mostFrequentCategory = null;
+    let maxCount = 0;
+
+    for (const [cat, count] of Object.entries(categoryCount)) {
+      if (count > maxCount) {
+        maxCount = count;
+        mostFrequentCategory = cat;
+      }
+    }
+
+    return mostFrequentCategory;
+  }, [product.chains]);
 
   return (
     <Card className="px-6 py-4 hover:shadow-md hover:scale-101 transition-shadow transition-transform">
