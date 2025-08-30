@@ -62,7 +62,7 @@ export default function DigitalCardCard({
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => onDelete?.(digitalCard)}
-              className="text-red-600"
+              className="text-red-700"
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Obriši

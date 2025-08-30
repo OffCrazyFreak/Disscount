@@ -87,6 +87,26 @@ export const userDtoSchema = userRequestSchema.extend({
   numberOfAiPrompts: z.number(),
   lastAiPromptAt: z.string().optional(),
   createdAt: z.string(),
+  pinnedStores: z
+    .array(
+      z.object({
+        id: z.string(),
+        userId: z.string(),
+        storeApiId: z.string(),
+        storeName: z.string(),
+      })
+    )
+    .optional(),
+  pinnedPlaces: z
+    .array(
+      z.object({
+        id: z.string(),
+        userId: z.string(),
+        placeApiId: z.string(),
+        placeName: z.string(),
+      })
+    )
+    .optional(),
 });
 
 // Type exports

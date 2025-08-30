@@ -25,6 +25,8 @@ import {
   StorePrice,
 } from "@/app/products/api/schemas";
 import { getMinPrice, getMaxPrice } from "@/app/products/api/utils";
+import { formatDate } from "@/utils/strings";
+import { useUser } from "@/context/user-context";
 
 interface StoreChainCardProps {
   chain: ChainProductResponse;
@@ -35,6 +37,12 @@ interface StoreChainCardProps {
 export const StoreChainCard = memo(
   ({ chain, storePrices, product }: StoreChainCardProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
+    const { user } = useUser();
+
+    // Check if this store chain is preferred by the user
+    const isPreferred =
+      user?.pinnedStores?.some((store) => store.storeApiId === chain.chain) ||
+      false;
 
     // Check if data is from today
     const today = new Date().toISOString().split("T")[0];
@@ -61,7 +69,10 @@ export const StoreChainCard = memo(
                     alt={storeNamesMap[chain.chain] || chain.chain}
                     width="256"
                     height="256"
-                    className="object-contain w-full h-full"
+                    className={cn(
+                      "object-contain w-full h-full",
+                      !isPreferred && "opacity-40"
+                    )}
                   />
                 </div>
 
@@ -77,8 +88,8 @@ export const StoreChainCard = memo(
                           variant="secondary"
                           className="bg-amber-100 text-amber-800 border-amber-200"
                         >
-                          <AlertTriangle className="size-3 mr-1" />
-                          Stari podaci
+                          <AlertTriangle className="size-4 mr-1" />
+                          Podaci od {formatDate(chain.price_date)}
                         </Badge>
                       )}
                     </div>
@@ -142,7 +153,25 @@ export const StoreChainCard = memo(
                     <TableBody>
                       {storePrices
                         .sort((a, b) => {
-                          // Sort by city first, then by address
+                          // Get user's preferred place IDs
+                          const preferredPlaceIds =
+                            user?.pinnedPlaces?.map(
+                              (place) => place.placeApiId
+                            ) || [];
+
+                          // Check if locations are preferred
+                          const aIsPreferred = preferredPlaceIds.includes(
+                            a.store.city || ""
+                          );
+                          const bIsPreferred = preferredPlaceIds.includes(
+                            b.store.city || ""
+                          );
+
+                          // Preferred locations come first
+                          if (aIsPreferred && !bIsPreferred) return -1;
+                          if (!aIsPreferred && bIsPreferred) return 1;
+
+                          // If both are preferred or both are not, sort by city first, then by address
                           const cityCompare = (
                             a.store.city || ""
                           ).localeCompare(b.store.city || "");
@@ -159,12 +188,31 @@ export const StoreChainCard = memo(
                             ? parseFloat(price.regular_price)
                             : null;
 
+                          // Check if this location is preferred
+                          const isLocationPreferred =
+                            user?.pinnedPlaces?.some(
+                              (place) =>
+                                place.placeApiId === (price.store.city || "")
+                            ) || false;
+
                           return (
                             <TableRow key={`${price.store.code}-${index}`}>
-                              <TableCell className="text-gray-700">
+                              <TableCell
+                                className={cn(
+                                  isLocationPreferred
+                                    ? "text-gray-700"
+                                    : "text-gray-500"
+                                )}
+                              >
                                 {price.store.city || "Nepoznato"}
                               </TableCell>
-                              <TableCell className="text-gray-700">
+                              <TableCell
+                                className={cn(
+                                  isLocationPreferred
+                                    ? "text-gray-700"
+                                    : "text-gray-500"
+                                )}
+                              >
                                 {price.store.address || "Nepoznato"}
                               </TableCell>
                               <TableCell className="text-gray-700 font-medium">
@@ -174,8 +222,10 @@ export const StoreChainCard = memo(
                                       displayPrice === productMinPrice
                                         ? "text-green-600"
                                         : displayPrice === productMaxPrice
-                                        ? "text-red-600"
-                                        : "text-gray-700"
+                                        ? "text-red-700"
+                                        : isLocationPreferred
+                                        ? "text-gray-700"
+                                        : "text-gray-500"
                                     )}
                                   >
                                     {displayPrice.toFixed(2)}€

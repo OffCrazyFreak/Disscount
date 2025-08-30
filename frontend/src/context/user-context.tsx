@@ -64,10 +64,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       const userData = await userService.getCurrentUser();
 
       // If the user data doesn't include preferences, fetch them
-      if (
-        userData &&
-        (!(userData as any).pinnedStores || !(userData as any).pinnedPlaces)
-      ) {
+      if (userData && (!userData.pinnedStores || !userData.pinnedPlaces)) {
         try {
           // Fetch preferences in parallel
           const [stores, places] = await Promise.all([
@@ -76,8 +73,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           ]);
 
           // Update the user data with preferences
-          (userData as any).pinnedStores = stores;
-          (userData as any).pinnedPlaces = places;
+          userData.pinnedStores = stores;
+          userData.pinnedPlaces = places;
         } catch (prefError) {
           console.error("Failed to fetch preferences:", prefError);
         }

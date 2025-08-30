@@ -33,7 +33,7 @@ export default function ShoppingListDetailPage() {
     return (
       <div className="max-w-3xl mx-auto">
         <div className="text-center py-12">
-          <div className="text-red-500 mb-4">
+          <div className="text-red-700 mb-4">
             <h3 className="text-lg font-semibold mb-2">Greška</h3>
             <p>Shopping lista nije pronađena ili se dogodila greška.</p>
           </div>

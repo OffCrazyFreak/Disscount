@@ -48,7 +48,7 @@ export default function ProductsPage() {
         </div>
       ) : error ? (
         <div className="text-center py-12">
-          <Search className="size-12 text-red-400 mx-auto mb-4" />
+          <Search className="size-12 text-red-700 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
             Greška pri pretraživanju
           </h3>

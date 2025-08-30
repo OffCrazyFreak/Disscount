@@ -74,7 +74,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   return (
     <>
       {loginRootError && (
-        <div className="rounded-md bg-red-50 border border-red-200 p-3 text-red-800 text-sm">
+        <div className="rounded-md bg-red-50 border border-red-700 p-3 text-red-700 text-sm">
           {loginRootError}
         </div>
       )}
@@ -88,11 +88,11 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
               placeholder="korisnik@example.com"
               {...form.register("usernameOrEmail")}
               className={cn(
-                form.formState.errors.usernameOrEmail && "border-red-500"
+                form.formState.errors.usernameOrEmail && "border-red-700"
               )}
             />
             {form.formState.errors.usernameOrEmail && (
-              <p className="text-sm text-red-500">
+              <p className="text-sm text-red-700">
                 {form.formState.errors.usernameOrEmail.message}
               </p>
             )}
@@ -110,7 +110,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
                       {...field}
                       placeholder="************"
                       className={cn(
-                        form.formState.errors.password && "border-red-500"
+                        form.formState.errors.password && "border-red-700"
                       )}
                     />
                   </FormControl>

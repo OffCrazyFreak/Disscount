@@ -75,7 +75,7 @@ export default function StatisticsPage() {
       ) : health ? (
         <div className="text-green-600">✅ Cijene API je dostupan</div>
       ) : (
-        <div className="text-red-600">❌ Cijene API nije dostupan</div>
+        <div className="text-red-700">❌ Cijene API nije dostupan</div>
       )}
 
       {/* Chain Stats */}

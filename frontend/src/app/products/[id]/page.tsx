@@ -7,6 +7,7 @@ import cijeneService from "@/app/products/api";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
 import { StoreChainCard } from "@/app/products/[id]/components/store-chain-card";
 import { ProductResponse } from "@/app/products/api/schemas";
+import { useUser } from "@/context/user-context";
 
 interface ProductDetailsPageProps {
   product?: ProductResponse;
@@ -17,6 +18,7 @@ export default function ProductDetailsPage({
 }: ProductDetailsPageProps) {
   const params = useParams();
   const ean = params.id as string;
+  const { user } = useUser();
 
   // Fetch product data if not provided as prop
   const {
@@ -110,14 +112,33 @@ export default function ProductDetailsPage({
           </div>
         ) : (
           <div className="space-y-4">
-            {product.chains.map((chain, index) => (
-              <StoreChainCard
-                key={chain.chain}
-                chain={chain}
-                storePrices={pricesByChain[chain.chain] || []}
-                product={product}
-              />
-            ))}
+            {product.chains
+              .sort((a, b) => {
+                // Get user's pinned store IDs
+                const pinnedStoreIds =
+                  user?.pinnedStores?.map((store) => store.storeApiId) || [];
+
+                // Check if chains are pinned
+                const aIsPinned = pinnedStoreIds.includes(a.chain);
+                const bIsPinned = pinnedStoreIds.includes(b.chain);
+
+                // Pinned chains come first
+                if (aIsPinned && !bIsPinned) return -1;
+                if (!aIsPinned && bIsPinned) return 1;
+
+                // If both are pinned or both are not pinned, alphabetical order
+                return a.chain.localeCompare(b.chain);
+              })
+              .map((chain, index) => {
+                return (
+                  <StoreChainCard
+                    key={chain.chain}
+                    chain={chain}
+                    storePrices={pricesByChain[chain.chain] || []}
+                    product={product}
+                  />
+                );
+              })}
           </div>
         )}
       </div>
