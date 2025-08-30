@@ -60,3 +60,17 @@ export function formatDate(dateString?: string | null) {
 export function toPascalCase(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+/**
+ * Trim trailing zeros from decimal quantities: "1.000" -> "1", "1.200" -> "1.2"
+ */
+export function formatQuantity(q?: string | null) {
+  if (!q) return q;
+  // Only trim trailing zeros when a decimal point exists (avoid changing integers like "100")
+  if (q.includes(".")) {
+    let trimmed = q.replace(/0+$/g, "");
+    if (trimmed.endsWith(".")) trimmed = trimmed.slice(0, -1);
+    return trimmed;
+  }
+  return q;
+}

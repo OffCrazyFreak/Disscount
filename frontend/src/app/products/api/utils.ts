@@ -1,31 +1,10 @@
 import { ProductResponse } from "./schemas";
 
 /**
- * Get price range for a product from Cijene API
- */
-export const getPriceRange = (product: ProductResponse): string | undefined => {
-  if (product.chains.length === 0) return undefined;
-
-  const minPrice = Math.min(
-    ...product.chains.map((c) => parseFloat(c.min_price))
-  );
-  const maxPrice = Math.max(
-    ...product.chains.map((c) => parseFloat(c.max_price))
-  );
-
-  if (minPrice === maxPrice) {
-    return `${minPrice.toFixed(2)} €`;
-  }
-  return `${minPrice.toFixed(2)} € - ${maxPrice.toFixed(2)} €`;
-};
-
-/**
  * Get minimum price for a product from Cijene API
  */
-export const getMinPrice = (product: ProductResponse): number | undefined => {
-  return product.chains.length > 0
-    ? Math.min(...product.chains.map((c) => parseFloat(c.min_price)))
-    : undefined;
+export const getMinPrice = (product: ProductResponse): number => {
+  return Math.min(...product.chains.map((c) => parseFloat(c.min_price)));
 };
 
 /**
@@ -33,10 +12,8 @@ export const getMinPrice = (product: ProductResponse): number | undefined => {
  * @param product
  * @returns
  */
-export const getMaxPrice = (product: ProductResponse): number | undefined => {
-  return product.chains.length > 0
-    ? Math.max(...product.chains.map((c) => parseFloat(c.max_price)))
-    : undefined;
+export const getMaxPrice = (product: ProductResponse): number => {
+  return Math.max(...product.chains.map((c) => parseFloat(c.max_price))) || 0;
 };
 
 /**
