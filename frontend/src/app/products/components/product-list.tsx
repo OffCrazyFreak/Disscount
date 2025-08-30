@@ -62,11 +62,7 @@ export const ProductList = memo(function ProductList({
                 }}
               >
                 {rowProducts.map((product) => (
-                  <ProductCard
-                    key={product.ean}
-                    product={product}
-                    onAddToList={onAddToList}
-                  />
+                  <ProductCard key={product.ean} product={product} />
                 ))}
               </div>
             );
@@ -90,7 +86,7 @@ export const ProductList = memo(function ProductList({
                 }}
                 className="space-y-2"
               >
-                <ProductCard product={product} onAddToList={onAddToList} />
+                <ProductCard product={product} />
               </div>
             );
           })}

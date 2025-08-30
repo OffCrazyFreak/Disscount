@@ -24,11 +24,6 @@ export default function ProductsPage() {
     }
   }
 
-  const handleAddToList = useCallback((productId: string | number) => {
-    // keep handler stable to avoid passing a new function to many ProductCard instances
-    console.log(`Added product ${productId} to shopping list`);
-  }, []);
-
   const [viewMode, setViewMode] = useViewMode("/products", "grid");
 
   const virtualizationBatchSize: number = 50;
@@ -77,11 +72,7 @@ export default function ProductsPage() {
             More to load: {hasMore ? "yes" : "no"}
           </div> */}
 
-          <ProductList
-            products={visibleProducts}
-            viewMode={viewMode}
-            onAddToList={handleAddToList}
-          />
+          <ProductList products={visibleProducts} viewMode={viewMode} />
           {hasMore && (
             <div className="py-6 text-center">
               <Button variant="outline" size={"lg"} onClick={() => loadMore()}>
