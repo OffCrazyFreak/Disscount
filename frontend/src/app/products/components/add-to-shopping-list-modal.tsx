@@ -57,6 +57,7 @@ import {
   AddToListFormData,
   addToListFormSchema,
 } from "@/app/products/typings/add-to-list";
+import ProductInfoDisplay from "@/app/products/components/product-info-display";
 
 interface AddToShoppingListModalProps {
   isOpen: boolean;
@@ -220,13 +221,8 @@ export default function AddToShoppingListModal({
           </DialogTitle>
         </DialogHeader>
 
-        {/* TODO: table with Product Info (ean, prices) */}
-        <div className="p-2 bg-gray-200 rounded-lg">
-          <h4 className="text-sm text-gray-900">{product.name}</h4>
-          {product.brand && (
-            <p className="text-sm text-gray-600">{product.brand}</p>
-          )}
-        </div>
+        {/* Product Information Display */}
+        <ProductInfoDisplay product={product} />
 
         {/* Warning for duplicate EAN */}
         {hasDuplicateEan && selectedListId !== "new" && duplicateItem && (
@@ -239,11 +235,13 @@ export default function AddToShoppingListModal({
                   Proizvod već u shopping listi
                 </h4>
                 <p className="text-xs text-amber-900 text-justify">
-                  Ovaj proizvod je već dodan u shopping listu "
-                  {selectedList?.title}". Dodavanjem ovog proizvoda će se samo
-                  povećati njegova količina u shopping listi{" "}
-                  {duplicateItem.amount > 1 && ` (${duplicateItem.amount} kom)`}
-                  .
+                  Ovaj proizvod je već dodan u odabranu shopping listu.
+                  Dodavanjem ovog proizvoda će se samo povećati njegova količina
+                  u shopping listi
+                  {` ${
+                    duplicateItem.amount > 1 &&
+                    ` (${duplicateItem.amount} kom).`
+                  }`}
                 </p>
               </div>
             </div>

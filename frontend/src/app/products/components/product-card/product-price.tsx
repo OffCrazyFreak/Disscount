@@ -29,9 +29,9 @@ export const ProductPrice = memo(({ product }: ProductPriceProps) => {
       {minPrice !== undefined ? (
         <div className="font-bold text-md text-center">
           <div className="text-sm sm:text-md flex items-center gap-1 ">
-            <span className="text-green-600">{minPrice.toFixed(2)}€</span>
+            <span className="text-green-700">{minPrice.toFixed(2)}€</span>
             <span className="text-gray-700"> - </span>
-            <span className="text-red-600">{maxPrice.toFixed(2)}€</span>
+            <span className="text-red-700">{maxPrice.toFixed(2)}€</span>
           </div>
 
           {/* <div className="text-green-600">{minPrice.toFixed(2)}€</div>
