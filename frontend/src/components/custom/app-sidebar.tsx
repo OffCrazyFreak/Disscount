@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useMemo, useState } from "react";
 import {
   ChevronDown,
   List,
@@ -36,19 +37,28 @@ import {
 import cijeneService from "@/app/products/api";
 import { ChainStats } from "@/app/products/api/schemas";
 import { useAllLocations } from "@/app/products/api/hooks";
-import { toPascalCase } from "@/utils/strings";
-import { useState } from "react";
-import ProductSearchBar from "@/app/products/components/product-search-bar";
+import { ProductSearchBar } from "@/app/products/components/product-search-bar";
 import { storeNamesMap } from "@/utils/mappings";
-import { locationNamesMap } from "@/utils/mappings";
 
-export function AppSidebar() {
+export const AppSidebar = memo(function AppSidebar() {
   const [categories, setCategories] = useState<any[]>(["First", "Second"]);
 
   const { data: chainStats, isLoading: chainStatsLoading } =
     cijeneService.useGetChainStats();
 
   const { data: locations, isLoading: locationsLoading } = useAllLocations();
+
+  const sortedChainStats = useMemo(() => {
+    return (
+      chainStats?.chain_stats?.sort((a, b) =>
+        a.chain_code.localeCompare(b.chain_code)
+      ) || []
+    );
+  }, [chainStats]);
+
+  const sortedLocations = useMemo(() => {
+    return locations?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+  }, [locations]);
 
   return (
     <Sidebar variant="floating" className="mt-24 h-fit">
@@ -123,9 +133,9 @@ export function AppSidebar() {
                   <CollapsibleContent>
                     <SidebarMenuSub className="max-h-128 overflow-y-auto">
                       {categories.map((category) => (
-                        <SidebarMenuSubItem key={category.id}>
-                          <a href={category.url}>
-                            <span>{category.title}</span>
+                        <SidebarMenuSubItem key={category.id || category}>
+                          <a href={category.url || "#"}>
+                            <span>{category.title || category}</span>
                           </a>
                         </SidebarMenuSubItem>
                       ))}
@@ -150,25 +160,21 @@ export function AppSidebar() {
 
                   <CollapsibleContent>
                     <SidebarMenuSub className="max-h-160 overflow-y-auto">
-                      {chainStats?.chain_stats
-                        .sort((a, b) =>
-                          a.chain_code.localeCompare(b.chain_code)
-                        )
-                        .map((chain: ChainStats) => (
-                          <SidebarMenuSubItem
-                            className="hover:bg-gray-200 rounded-md px-2 hover:text-gray-900"
-                            key={chain.chain_code}
+                      {sortedChainStats.map((chain: ChainStats) => (
+                        <SidebarMenuSubItem
+                          className="hover:bg-gray-200 rounded-md px-2 hover:text-gray-900"
+                          key={chain.chain_code}
+                        >
+                          <Link
+                            className="flex justify-between items-center"
+                            href={`/product?filterBy=chain&value=${chain.chain_code}`}
                           >
-                            <Link
-                              className="flex justify-between items-center"
-                              href={`/product?filterBy=chain&value=${chain.chain_code}`}
-                            >
-                              <span>{storeNamesMap[chain.chain_code]}</span>
+                            <span>{storeNamesMap[chain.chain_code]}</span>
 
-                              <span className="">{`(${chain.store_count})`}</span>
-                            </Link>
-                          </SidebarMenuSubItem>
-                        ))}
+                            <span className="">{`(${chain.store_count})`}</span>
+                          </Link>
+                        </SidebarMenuSubItem>
+                      ))}
                     </SidebarMenuSub>
                   </CollapsibleContent>
                 </Collapsible>
@@ -190,23 +196,21 @@ export function AppSidebar() {
 
                   <CollapsibleContent>
                     <SidebarMenuSub className="max-h-160 overflow-y-auto">
-                      {locations
-                        .sort((a, b) => a.name.localeCompare(b.name))
-                        .map((location) => (
-                          <SidebarMenuSubItem
-                            className="hover:bg-gray-200 rounded-md px-2 hover:text-gray-900"
-                            key={location.name}
+                      {sortedLocations.map((location) => (
+                        <SidebarMenuSubItem
+                          className="hover:bg-gray-200 rounded-md px-2 hover:text-gray-900"
+                          key={location.name}
+                        >
+                          <Link
+                            className="flex justify-between items-center"
+                            href={`/product?filterBy=location&value=${location.name}`}
                           >
-                            <Link
-                              className="flex justify-between items-center"
-                              href={`/product?filterBy=location&value=${location.name}`}
-                            >
-                              <span>{location.name}</span>
+                            <span>{location.name}</span>
 
-                              <span className="">{`(${location.storeCount})`}</span>
-                            </Link>
-                          </SidebarMenuSubItem>
-                        ))}
+                            <span className="">{`(${location.storeCount})`}</span>
+                          </Link>
+                        </SidebarMenuSubItem>
+                      ))}
                     </SidebarMenuSub>
                   </CollapsibleContent>
                 </Collapsible>
@@ -230,4 +234,4 @@ export function AppSidebar() {
       </SidebarFooter> */}
     </Sidebar>
   );
-}
+});

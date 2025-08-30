@@ -1,13 +1,14 @@
 "use client";
 
+import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Loader2 } from "lucide-react";
-import ProductSearchBar from "@/app/products/components/product-search-bar";
+import { ProductSearchBar } from "@/app/products/components/product-search-bar";
 import SearchItemsLayout from "@/components/layouts/search-items-layout";
 import { useViewMode } from "@/hooks/use-view-mode";
 import NoResults from "@/components/custom/no-results";
 import useInfiniteProducts from "@/app/products/hooks/useInfiniteProducts";
-import ProductList from "@/app/products/components/product-list";
+import { ProductList } from "@/app/products/components/product-list";
 import { Button } from "@/components/ui/button-icon";
 
 export default function ProductsPage() {
@@ -23,9 +24,10 @@ export default function ProductsPage() {
     }
   }
 
-  const handleAddToList = (productId: string | number) => {
+  const handleAddToList = useCallback((productId: string | number) => {
+    // keep handler stable to avoid passing a new function to many ProductCard instances
     console.log(`Added product ${productId} to shopping list`);
-  };
+  }, []);
 
   const [viewMode, setViewMode] = useViewMode("/products", "grid");
 

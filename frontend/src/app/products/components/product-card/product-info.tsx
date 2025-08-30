@@ -1,25 +1,30 @@
-import React from "react";
+import { memo, MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 
 interface ProductInfoProps {
   name: string | null;
   brand?: string | null;
   category: string | null;
-  className?: string;
 }
 
-export function ProductInfo({ name, brand, category, className = "" }: ProductInfoProps) {
+export const ProductInfo = memo(function ProductInfo({
+  name,
+  brand,
+  category,
+}: ProductInfoProps) {
   const router = useRouter();
 
   return (
-    <div className={className}>
+    <div className="flex-1">
       {category && (
         <div
-          className="text-sm text-gray-500 cursor-pointer hover:text-gray-700"
-          onClick={(ev: React.MouseEvent) => {
+          className="text-xs sm:text-sm text-gray-500 cursor-pointer hover:text-gray-700"
+          onClick={(ev: MouseEvent) => {
             ev.stopPropagation();
             router.push(
-              `/products?filterBy=category:${encodeURIComponent(category || "")}`
+              `/products?filterBy=category:${encodeURIComponent(
+                category || ""
+              )}`
             );
           }}
         >
@@ -28,8 +33,8 @@ export function ProductInfo({ name, brand, category, className = "" }: ProductIn
       )}
 
       <h3
-        className="font-bold"
-        onClick={(ev: React.MouseEvent) => {
+        className="font-bold text-sm sm:text-md"
+        onClick={(ev: MouseEvent) => {
           // Prevent the card click handler from firing
           ev.stopPropagation();
         }}
@@ -39,8 +44,8 @@ export function ProductInfo({ name, brand, category, className = "" }: ProductIn
 
       {brand && (
         <div
-          className="text-sm"
-          onClick={(ev: React.MouseEvent) => {
+          className="text-xs sm:text-sm"
+          onClick={(ev: MouseEvent) => {
             // Prevent the card click handler from firing
             ev.stopPropagation();
           }}
@@ -50,4 +55,4 @@ export function ProductInfo({ name, brand, category, className = "" }: ProductIn
       )}
     </div>
   );
-}
+});

@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import { memo } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { ProductResponse } from "@/app/products/api/schemas";
-import ProductCard from "@/app/products/components/product-card";
+import { ProductCard } from "@/app/products/components/product-card";
 
 interface ProductListProps {
   products: ProductResponse[];
@@ -11,7 +11,7 @@ interface ProductListProps {
   onAddToList?: (id: string | number) => void;
 }
 
-export default function ProductList({
+export const ProductList = memo(function ProductList({
   products,
   viewMode,
   onAddToList,
@@ -88,6 +88,7 @@ export default function ProductList({
                   width: "100%",
                   minHeight: virtualRow.size,
                 }}
+                className="space-y-2"
               >
                 <ProductCard product={product} onAddToList={onAddToList} />
               </div>
@@ -97,4 +98,4 @@ export default function ProductList({
       )}
     </div>
   );
-}
+});

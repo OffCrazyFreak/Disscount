@@ -49,7 +49,7 @@ export default function StatisticsPage() {
   }, [allStores]);
 
   return (
-    <div className="container space-y-6">
+    <div className="space-y-6">
       <div className="text-center mb-8">
         <div className="flex items-center justify-center space-x-4">
           {/* App logo */}

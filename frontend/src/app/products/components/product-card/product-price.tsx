@@ -1,4 +1,4 @@
-import React from "react";
+import { memo } from "react";
 import { Separator } from "@/components/ui/separator";
 import { formatQuantity } from "@/utils/strings";
 import {
@@ -12,29 +12,26 @@ interface ProductPriceProps {
   product: ProductResponse;
 }
 
-export function ProductPrice({ product }: ProductPriceProps) {
+export const ProductPrice = memo(({ product }: ProductPriceProps) => {
   const minPrice = getMinPrice(product);
   const maxPrice = getMaxPrice(product);
   const averagePrice = getAveragePrice(product);
 
   return (
-    <div
-      className={`flex items-center justify-center flex-col sm:flex-row gap-2 sm:gap-4`}
-    >
+    <div className="text-sm sm:text-md flex items-center justify-center flex-col sm:flex-row gap-2">
       {product.quantity && product.unit && (
-        <div className="">
+        <div className="flex gap-2">
           {formatQuantity(product.quantity) + "" + product.unit}
+          <span className="text-gray-700 hidden sm:inline">~</span>
         </div>
       )}
 
-      <span className="text-gray-700 hidden sm:inline">~</span>
-
-      {minPrice !== undefined && averagePrice !== undefined ? (
+      {minPrice !== undefined ? (
         <div className="font-bold text-md text-center">
-          <div className="text-green-600 flex flex-wrap items-center justify-end gap-1">
-            <span>{minPrice.toFixed(2)}€</span>
-            <span className=""> - </span>
-            <span>{maxPrice.toFixed(2)}€</span>
+          <div className="text-sm sm:text-md flex items-center gap-1 ">
+            <span className="text-green-600">{minPrice.toFixed(2)}€</span>
+            <span className="text-gray-700"> - </span>
+            <span className="text-red-600">{maxPrice.toFixed(2)}€</span>
           </div>
 
           {/* <div className="text-green-600">{minPrice.toFixed(2)}€</div>
@@ -48,4 +45,4 @@ export function ProductPrice({ product }: ProductPriceProps) {
       )}
     </div>
   );
-}
+});

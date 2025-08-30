@@ -27,8 +27,8 @@ export default function NotFound() {
 
           <CardDescription className="space-y-2">
             <div>
-              Čini se da stranica <span className="italic">"{pathname}"</span>{" "}
-              ne postoji.
+              Čini se da stranica{" "}
+              <span className="italic">&quot;{pathname}&quot;</span> ne postoji.
             </div>
 
             <div className="text-gray-600">

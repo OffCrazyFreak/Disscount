@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import { memo, useMemo, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button-icon";
 import { ListPlus } from "lucide-react";
@@ -13,70 +13,73 @@ interface ProductCardProps {
   onAddToList?: (id: number | string) => void;
 }
 
-export default function ProductCard({
-  product,
-  onAddToList,
-}: ProductCardProps) {
-  // Get category that appears most often in product.chains
-  const category = React.useMemo(() => {
-    if (!product.chains || product.chains.length === 0) return null;
+export const ProductCard = memo<ProductCardProps>(
+  ({ product, onAddToList }) => {
+    // Get category that appears most often in product.chains
+    const category = useMemo(() => {
+      if (!product.chains || product.chains.length === 0) return null;
 
-    const categoryCount: Record<string, number> = {};
+      const categoryCount: Record<string, number> = {};
 
-    // Count frequency of each category
-    product.chains.forEach((chain) => {
-      if (chain.category) {
-        categoryCount[chain.category] =
-          (categoryCount[chain.category] || 0) + 1;
+      // Count frequency of each category
+      product.chains.forEach((chain) => {
+        if (chain.category) {
+          categoryCount[chain.category] =
+            (categoryCount[chain.category] || 0) + 1;
+        }
+      });
+
+      // Find category with highest count
+      let mostFrequentCategory = null;
+      let maxCount = 0;
+
+      for (const [cat, count] of Object.entries(categoryCount)) {
+        if (count > maxCount) {
+          maxCount = count;
+          mostFrequentCategory = cat;
+        }
       }
-    });
 
-    // Find category with highest count
-    let mostFrequentCategory = null;
-    let maxCount = 0;
+      return mostFrequentCategory;
+    }, [product.chains]);
 
-    for (const [cat, count] of Object.entries(categoryCount)) {
-      if (count > maxCount) {
-        maxCount = count;
-        mostFrequentCategory = cat;
-      }
-    }
+    const handleAddToList = useCallback(
+      (ev: React.MouseEvent) => {
+        ev.stopPropagation();
+        onAddToList?.(product.ean);
+      },
+      [onAddToList, product.ean]
+    );
 
-    return mostFrequentCategory;
-  }, [product.chains]);
-
-  return (
-    <Card className="px-4 sm:px-6 py-2 sm:py-4 hover:shadow-md hover:scale-101 transition-shadow transition-transform">
-      <div className="flex items-center justify-between gap-4">
+    return (
+      <Card className="px-4 sm:px-6 py-2 sm:py-4 hover:shadow-md hover:scale-101 transition-shadow transition-transform">
         <div className="flex items-center justify-between gap-4">
-          {/* Product Image */}
-          <div className="size-20 bg-gray-100 rounded-lg hidden sm:grid place-items-center">
-            <span className="text-gray-400">IMG</span>
+          <div className="flex items-center justify-between gap-4">
+            {/* Product Image */}
+            <div className="size-20 bg-gray-100 rounded-lg hidden sm:grid place-items-center">
+              <span className="text-gray-400">IMG</span>
+            </div>
+
+            <ProductInfo
+              name={product.name}
+              brand={product.brand}
+              category={category}
+            />
           </div>
 
-          <ProductInfo
-            name={product.name}
-            brand={product.brand}
-            category={category}
-          />
+          <div className="flex items-center justify-between gap-4">
+            <ProductPrice product={product} />
+
+            <Button
+              variant="default"
+              className="p-2 size-12"
+              onClick={handleAddToList}
+            >
+              <ListPlus className="size-7" />
+            </Button>
+          </div>
         </div>
-
-        <div className="flex items-center justify-between gap-4">
-          <ProductPrice product={product} />
-
-          <Button
-            variant="default"
-            className="p-2 size-12"
-            onClick={(ev: React.MouseEvent) => {
-              ev.stopPropagation();
-
-              onAddToList?.(product.ean);
-            }}
-          >
-            <ListPlus className="size-7" />
-          </Button>
-        </div>
-      </div>
-    </Card>
-  );
-}
+      </Card>
+    );
+  }
+);
