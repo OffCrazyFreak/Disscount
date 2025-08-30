@@ -42,6 +42,10 @@ import { cn } from "@/lib/utils/strings";
 import { preferencesService } from "@/lib/api";
 import { useUser } from "@/lib/context/user-context";
 import { useAllLocations } from "@/app/products/api/hooks";
+import cijeneService from "@/app/products/api";
+import { ChainStats } from "@/app/products/api/schemas";
+import { storeNamesMap } from "@/lib/utils/mappings";
+import { UserDto } from "@/lib/api/schemas";
 
 interface UserPreferencesModalProps {
   isOpen: boolean;
@@ -52,6 +56,8 @@ export default function UserPreferencesModal({
   isOpen,
   onOpenChange,
 }: UserPreferencesModalProps) {
+  const { user, updatePinnedStores, updatePinnedPlaces } = useUser();
+
   const form = useForm<UserPreferencesFormType>({
     resolver: zodResolver(userPreferencesSchema),
     defaultValues: {
@@ -60,9 +66,10 @@ export default function UserPreferencesModal({
     },
   });
 
-  const { data: locations, isLoading: locationsLoading } = useAllLocations();
+  const { data: chainStats, isLoading: chainStatsLoading } =
+    cijeneService.useGetChainStats();
 
-  const { user, updatePinnedStores, updatePinnedPlaces } = useUser();
+  const { data: locations, isLoading: locationsLoading } = useAllLocations();
 
   // Fetch current preferences when modal is open
   const {
@@ -126,11 +133,10 @@ export default function UserPreferencesModal({
       const [storesResponse, placesResponse] = await Promise.all([
         updateStoresMutation.mutateAsync(
           {
-            // data.pinnedStores now contains store NAMES; map them to API shape
-            stores: data.pinnedStores.map((storeName) => ({
-              storeApiId:
-                mockStores.find((s) => s.name === storeName)?.id || storeName,
-              storeName,
+            // data.pinnedStores now contains chain_codes; map them to API shape
+            stores: data.pinnedStores.map((storeCode) => ({
+              storeApiId: storeCode,
+              storeName: storeCode,
             })),
           },
           {
@@ -144,6 +150,7 @@ export default function UserPreferencesModal({
             },
           }
         ),
+
         updatePlacesMutation.mutateAsync(
           {
             // data.pinnedLocations now contains place NAMES; map them to API shape
@@ -193,7 +200,10 @@ export default function UserPreferencesModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-background sm:max-w-md overflow-y-auto">
+      <DialogContent
+        aria-describedby="user-preferences-modal"
+        className="bg-background sm:max-w-md overflow-y-auto"
+      >
         <DialogHeader>
           <DialogTitle className="text-xl">Preference</DialogTitle>
         </DialogHeader>
@@ -213,49 +223,53 @@ export default function UserPreferencesModal({
                 </p>
 
                 <div className="flex flex-wrap items-center justify-center gap-4">
-                  {mockStores.map((store) => {
-                    // Use store.name as the form value
-                    const isSelected = form
-                      .watch("pinnedStores")
-                      .includes(store.name);
-                    return (
-                      <div
-                        key={store.id}
-                        className={cn(
-                          "relative shadow-sm border-2 rounded-lg cursor-pointer transition-all overflow-hidden",
-                          isSelected
-                            ? "border-primary bg-green-100"
-                            : "border-gray-200 hover:border-gray-400"
-                        )}
-                        onClick={() => toggleStore(store.name)}
-                      >
-                        <div className="size-20 sm:size-26 grid place-items-center relative transition-all">
-                          {store.image && (
+                  {chainStats?.chain_stats
+                    .sort((a, b) => a.chain_code.localeCompare(b.chain_code))
+                    .map((chain: ChainStats) => {
+                      const isSelected = form
+                        .watch("pinnedStores")
+                        .includes(chain.chain_code);
+                      return (
+                        <div
+                          key={chain.chain_code}
+                          className={cn(
+                            "relative shadow-sm border-2 rounded-lg cursor-pointer transition-all overflow-hidden",
+                            isSelected
+                              ? "border-primary bg-green-100"
+                              : "border-gray-200 hover:border-gray-400"
+                          )}
+                          onClick={() => toggleStore(chain.chain_code)}
+                        >
+                          <div className="size-16 sm:size-22 grid place-items-center relative transition-all">
                             <Image
-                              src={store.image}
-                              alt={store.name}
+                              src={`/store-chains/${chain.chain_code}.png`}
+                              alt={storeNamesMap[chain.chain_code]}
                               fill
-                              sizes="6rem"
+                              quality={1}
+                              sizes="256px"
+                              // placeholder="blur"
+                              // blurDataURL=""
+                              priority={true}
                               className={cn(
                                 "absolute inset-0 opacity-40",
                                 isSelected && "opacity-100"
                               )}
                             />
-                          )}
-                          {(!isSelected || !store.image) && (
-                            <span className="text-md font-bold text-center z-10">
-                              {store.name}
-                            </span>
+
+                            {/* {!isSelected && (
+                              <span className="hidden sm:text-xs font-bold text-center z-10 p-1 break-all">
+                                {storeNamesMap[chain.chain_code]}
+                              </span>
+                            )} */}
+                          </div>
+                          {isSelected && (
+                            <div className="absolute top-2 right-2 w-5 h-5 bg-secondary rounded-full flex items-center justify-center">
+                              <span className="text-white text-xs">✓</span>
+                            </div>
                           )}
                         </div>
-                        {isSelected && (
-                          <div className="absolute top-2 right-2 w-5 h-5 bg-secondary rounded-full flex items-center justify-center">
-                            <span className="text-white text-xs">✓</span>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
                 </div>
               </FormItem>
 
