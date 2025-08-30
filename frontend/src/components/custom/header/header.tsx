@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { CreditCard, ListChecks, LogIn } from "lucide-react";
 import { JSX, useEffect, useState } from "react";
-import { cn } from "@/lib/utils/strings";
+import { cn } from "@/lib/utils/generic";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import BgAnimateButton from "@/components/ui/bg-animate-button";
 import { AuthModal } from "@/components/custom/header/forms/auth-modal";

@@ -33,12 +33,6 @@ export function normalizeForSearch(s: string) {
       .toLowerCase();
   }
 }
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
 
 /**
  * Format an ISO date string (or any parsable date) to DD.MM.YYYY.

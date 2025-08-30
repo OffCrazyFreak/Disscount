@@ -37,8 +37,7 @@ import {
   UserPreferencesFormType,
 } from "@/lib/api/schemas/preferences";
 import { PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/schemas/preferences";
-import { mockStores } from "@/lib/mock/mock-preferences";
-import { cn } from "@/lib/utils/strings";
+import { cn } from "@/lib/utils/generic";
 import { preferencesService } from "@/lib/api";
 import { useUser } from "@/lib/context/user-context";
 import { useAllLocations } from "@/app/products/api/hooks";
@@ -245,13 +244,10 @@ export default function UserPreferencesModal({
                               src={`/store-chains/${chain.chain_code}.png`}
                               alt={storeNamesMap[chain.chain_code]}
                               fill
-                              quality={1}
                               sizes="256px"
-                              // placeholder="blur"
-                              // blurDataURL=""
                               priority={true}
                               className={cn(
-                                "absolute inset-0 opacity-40",
+                                "opacity-40 object-contain",
                                 isSelected && "opacity-100"
                               )}
                             />

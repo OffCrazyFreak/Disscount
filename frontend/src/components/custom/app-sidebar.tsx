@@ -43,7 +43,7 @@ import { storeNamesMap } from "@/lib/utils/mappings";
 import { locationNamesMap } from "@/lib/utils/mappings";
 
 export function AppSidebar() {
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>(["First", "Second"]);
 
   const { data: chainStats, isLoading: chainStatsLoading } =
     cijeneService.useGetChainStats();

@@ -21,7 +21,7 @@ import {
   registerRequestSchema,
   RegisterRequest,
 } from "@/lib/api/schemas/auth-user";
-import { cn } from "@/lib/utils/strings";
+import { cn } from "@/lib/utils/generic";
 import { authService } from "@/lib/api";
 import { useUser } from "@/lib/context/user-context";
 
