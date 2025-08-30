@@ -3,7 +3,7 @@
  */
 
 export interface StoreLocation {
-  cityName: string;
+  name: string;
   storeCount: number;
   chains: string[];
 }

@@ -51,7 +51,7 @@ export function AppSidebar() {
   const { data: locations, isLoading: locationsLoading } = useAllLocations();
 
   return (
-    <Sidebar variant="floating" className="mt-24 max-h-[calc(100vh-16rem)]">
+    <Sidebar variant="floating" className="mt-24 h-fit">
       <SidebarHeader>
         <SidebarGroup>
           <SidebarGroupContent>
@@ -121,7 +121,7 @@ export function AppSidebar() {
                   </CollapsibleTrigger>
 
                   <CollapsibleContent>
-                    <SidebarMenuSub>
+                    <SidebarMenuSub className="max-h-128 overflow-y-auto">
                       {categories.map((category) => (
                         <SidebarMenuSubItem key={category.id}>
                           <a href={category.url}>
@@ -149,7 +149,7 @@ export function AppSidebar() {
                   </CollapsibleTrigger>
 
                   <CollapsibleContent>
-                    <SidebarMenuSub>
+                    <SidebarMenuSub className="max-h-160 overflow-y-auto">
                       {chainStats?.chain_stats
                         .sort((a, b) =>
                           a.chain_code.localeCompare(b.chain_code)
@@ -180,7 +180,7 @@ export function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <div className="cursor-pointer group">
                         <MapPin />
-                        <span>Naselja</span>
+                        <span>Lokacije</span>
 
                         <ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
                         <span className="sr-only">Toggle</span>
@@ -189,19 +189,19 @@ export function AppSidebar() {
                   </CollapsibleTrigger>
 
                   <CollapsibleContent>
-                    <SidebarMenuSub>
+                    <SidebarMenuSub className="max-h-160 overflow-y-auto">
                       {locations
-                        .sort((a, b) => a.cityName.localeCompare(b.cityName))
+                        .sort((a, b) => a.name.localeCompare(b.name))
                         .map((location) => (
                           <SidebarMenuSubItem
                             className="hover:bg-gray-200 rounded-md px-2 hover:text-gray-900"
-                            key={location.cityName}
+                            key={location.name}
                           >
                             <Link
                               className="flex justify-between items-center"
-                              href={`/product?filterBy=location&value=${location.cityName}`}
+                              href={`/product?filterBy=location&value=${location.name}`}
                             >
-                              <span>{location.cityName}</span>
+                              <span>{location.name}</span>
 
                               <span className="">{`(${location.storeCount})`}</span>
                             </Link>

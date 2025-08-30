@@ -7,6 +7,7 @@ import {
 } from "./schemas";
 import { useMemo } from "react";
 import { locationNamesMap } from "@/lib/utils/mappings";
+import { StoreLocation } from "@/lib/typings/store-location";
 
 interface ProductSearchParams {
   q: string;
@@ -175,13 +176,7 @@ export const useAllLocations = () => {
   } = cijeneService.useListAllStores();
 
   // Process and combine all store data
-  const locations = useMemo<
-    Array<{
-      cityName: string;
-      storeCount: number;
-      chains: string[];
-    }>
-  >(() => {
+  const locations = useMemo<Array<StoreLocation>>(() => {
     if (
       chainsLoading ||
       storesLoading ||
@@ -206,25 +201,25 @@ export const useAllLocations = () => {
       const city = store.city.trim();
       if (!city) return;
 
-      // Use locationNamesMap to get standardized city name, fallback to original
-      const standardizedCity = locationNamesMap[city] || city;
+      // Use locationNamesMap to get standardized location name, fallback to original
+      const standardizedLocationName = locationNamesMap[city] || city;
 
-      if (!cityMap.has(standardizedCity)) {
-        cityMap.set(standardizedCity, {
+      if (!cityMap.has(standardizedLocationName)) {
+        cityMap.set(standardizedLocationName, {
           storeCount: 0,
           chains: new Set(),
         });
       }
 
-      const cityData = cityMap.get(standardizedCity)!;
+      const cityData = cityMap.get(standardizedLocationName)!;
       cityData.storeCount++;
       cityData.chains.add(store.chain_code);
     });
 
     // Convert to array and sort
     return Array.from(cityMap.entries())
-      .map(([standardizedCity, data]) => ({
-        cityName: standardizedCity,
+      .map(([standardizedLocationName, data]) => ({
+        name: standardizedLocationName,
         storeCount: data.storeCount,
         chains: Array.from(data.chains).sort(),
       }))
