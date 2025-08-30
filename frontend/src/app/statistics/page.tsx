@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Search, Store, Package, TrendingUp } from "lucide-react";
 import cijeneService from "@/app/products/api";
+import { storeNamesMap } from "@/lib/utils/mappings";
 
-export default function CijeneApiDemo() {
+export default function StatisticsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [eanQuery, setEanQuery] = useState("");
   const [chainCode, setChainCode] = useState("");
@@ -137,17 +138,27 @@ export default function CijeneApiDemo() {
             </div>
           ) : chainStats ? (
             <div className="space-y-2">
-              {chainStats.chain_stats.map((stat) => (
-                <div
-                  key={stat.chain_code}
-                  className="flex justify-between items-center p-2 bg-gray-50 rounded"
-                >
-                  <span className="font-medium">{stat.chain_code}</span>
-                  <div className="text-sm text-gray-600">
-                    {stat.price_count} cijene, {stat.store_count} trgovine
+              {chainStats.chain_stats
+                .sort((a, b) => a.chain_code.localeCompare(b.chain_code))
+                .map((stat) => (
+                  <div
+                    key={stat.chain_code}
+                    className="flex justify-between items-center p-2 bg-gray-50 rounded"
+                  >
+                    <span className="font-medium">
+                      {storeNamesMap[stat.chain_code]}
+                    </span>
+                    <div className="text-sm text-gray-600">
+                      {stat.store_count}{" "}
+                      {parseInt(stat.store_count.toString().slice(-1)) > 1 &&
+                      parseInt(stat.store_count.toString().slice(-1)) < 5 &&
+                      stat.store_count > 21
+                        ? "trgovine"
+                        : "trgovina"}{" "}
+                      | {stat.price_count} cijena
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           ) : (
             <div className="text-gray-500">Nema podataka</div>
