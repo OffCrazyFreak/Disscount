@@ -36,11 +36,11 @@ import {
 import cijeneService from "@/app/products/api";
 import { ChainStats } from "@/app/products/api/schemas";
 import { useAllLocations } from "@/app/products/api/hooks";
-import { toPascalCase } from "@/lib/utils/strings";
+import { toPascalCase } from "@/utils/strings";
 import { useState } from "react";
 import ProductSearchBar from "@/app/products/components/product-search-bar";
-import { storeNamesMap } from "@/lib/utils/mappings";
-import { locationNamesMap } from "@/lib/utils/mappings";
+import { storeNamesMap } from "@/utils/mappings";
+import { locationNamesMap } from "@/utils/mappings";
 
 export function AppSidebar() {
   const [categories, setCategories] = useState<any[]>(["First", "Second"]);

@@ -11,9 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginRequestSchema, LoginRequest } from "@/lib/api/schemas/auth-user";
-import { cn } from "@/lib/utils/generic";
+import { cn } from "@/utils/generic";
 import { authService } from "@/lib/api";
-import { useUser } from "@/lib/context/user-context";
+import { useUser } from "@/context/user-context";
 import {
   Form,
   FormControl,

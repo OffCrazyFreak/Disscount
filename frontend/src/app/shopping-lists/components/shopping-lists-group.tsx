@@ -4,7 +4,7 @@ import React from "react";
 import { AnimatedGroup } from "@/components/ui/animated-group";
 import ShoppingListCard from "@/app/shopping-lists/components/shopping-list-card";
 import { ShoppingListDto } from "@/lib/api/types";
-import { ViewMode } from "@/lib/typings/view-mode";
+import { ViewMode } from "@/typings/view-mode";
 
 type Props = {
   shoppingLists: Array<ShoppingListDto>;

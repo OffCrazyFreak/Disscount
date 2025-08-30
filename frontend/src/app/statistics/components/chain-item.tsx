@@ -15,8 +15,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { storeNamesMap } from "@/lib/utils/mappings";
-import { cn } from "@/lib/utils/generic";
+import { storeNamesMap } from "@/utils/mappings";
+import { cn } from "@/utils/generic";
 
 interface ChainItemProps {
   stat: any;

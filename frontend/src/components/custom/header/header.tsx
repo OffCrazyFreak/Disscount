@@ -3,11 +3,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { CreditCard, ListChecks, LogIn } from "lucide-react";
 import { JSX, useEffect, useState } from "react";
-import { cn } from "@/lib/utils/generic";
+import { cn } from "@/utils/generic";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import BgAnimateButton from "@/components/ui/bg-animate-button";
 import { AuthModal } from "@/components/custom/header/forms/auth-modal";
-import { useUser } from "@/lib/context/user-context";
+import { useUser } from "@/context/user-context";
 import UserMenu from "@/components/custom/header/user-menu";
 import NotificationsDropdown from "@/components/custom/header/notifications-dropdown";
 

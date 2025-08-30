@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ViewMode } from "@/lib/typings/view-mode";
+import { ViewMode } from "@/typings/view-mode";
 import {
   getViewMode,
   setViewMode as setViewModeInStorage,

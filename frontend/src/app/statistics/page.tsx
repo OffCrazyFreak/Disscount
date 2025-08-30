@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, TrendingUp } from "lucide-react";
 import cijeneService from "@/app/products/api";
 import Image from "next/image";
-import { cn } from "@/lib/utils/generic";
+import { cn } from "@/utils/generic";
 import { ChainItem } from "./components/chain-item";
 
 export default function StatisticsPage() {

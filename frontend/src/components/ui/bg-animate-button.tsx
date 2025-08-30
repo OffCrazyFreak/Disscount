@@ -2,7 +2,7 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
 
-import { cn } from "@/lib/utils/generic";
+import { cn } from "@/utils/generic";
 
 const outerDivVariants = cva("relative inline-block overflow-hidden ", {
   variants: {

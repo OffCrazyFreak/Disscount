@@ -1,6 +1,6 @@
 import React from "react";
 import { Separator } from "@/components/ui/separator";
-import { formatQuantity } from "@/lib/utils/strings";
+import { formatQuantity } from "@/utils/strings";
 import {
   getMinPrice,
   getAveragePrice,

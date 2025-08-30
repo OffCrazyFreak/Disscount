@@ -13,14 +13,14 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ShoppingListDto } from "@/lib/api/types";
-import { ViewMode } from "@/lib/typings/view-mode";
+import { ViewMode } from "@/typings/view-mode";
 import { Button } from "@/components/ui/button-icon";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { formatDate } from "@/lib/utils/strings";
+import { formatDate } from "@/utils/strings";
 
 interface ShoppingListCardProps {
   shoppingList: ShoppingListDto;

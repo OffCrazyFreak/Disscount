@@ -6,8 +6,8 @@ import {
   ChainProductResponse,
 } from "./schemas";
 import { useMemo } from "react";
-import { locationNamesMap } from "@/lib/utils/mappings";
-import { StoreLocation } from "@/lib/typings/store-location";
+import { locationNamesMap } from "@/utils/mappings";
+import { StoreLocation } from "@/typings/store-location";
 
 interface ProductSearchParams {
   q: string;

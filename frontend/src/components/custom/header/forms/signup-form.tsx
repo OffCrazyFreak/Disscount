@@ -21,9 +21,9 @@ import {
   registerRequestSchema,
   RegisterRequest,
 } from "@/lib/api/schemas/auth-user";
-import { cn } from "@/lib/utils/generic";
+import { cn } from "@/utils/generic";
 import { authService } from "@/lib/api";
-import { useUser } from "@/lib/context/user-context";
+import { useUser } from "@/context/user-context";
 
 interface SignUpFormProps {
   onSuccess?: () => void;

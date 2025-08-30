@@ -19,10 +19,10 @@ import NoResults from "@/components/custom/no-results";
 import { FloatingActionButton } from "@/components/custom/floating-action-button";
 import { DigitalCardDto } from "@/lib/api/types";
 import { useViewMode } from "@/hooks/use-view-mode";
-import { filterByFields } from "@/lib/utils/generic";
+import { filterByFields } from "@/utils/generic";
 import { digitalCardService } from "@/lib/api";
 import { toast } from "sonner";
-import { useUser } from "@/lib/context/user-context";
+import { useUser } from "@/context/user-context";
 
 export default function DigitalCardsPage() {
   const searchParams = useSearchParams();

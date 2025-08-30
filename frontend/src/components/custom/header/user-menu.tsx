@@ -20,7 +20,7 @@ import {
 import { UserAvatar } from "@daveyplate/better-auth-ui";
 import UserPreferencesModal from "@/components/custom/header/forms/user-preferences-modal";
 import AccountDetailsModal from "@/components/custom/header/forms/account-details-modal";
-import { useUser } from "@/lib/context/user-context";
+import { useUser } from "@/context/user-context";
 
 export default function UserMenu() {
   const router = useRouter();

@@ -37,13 +37,13 @@ import {
   UserPreferencesFormType,
 } from "@/lib/api/schemas/preferences";
 import { PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/schemas/preferences";
-import { cn } from "@/lib/utils/generic";
+import { cn } from "@/utils/generic";
 import { preferencesService } from "@/lib/api";
-import { useUser } from "@/lib/context/user-context";
+import { useUser } from "@/context/user-context";
 import { useAllLocations } from "@/app/products/api/hooks";
 import cijeneService from "@/app/products/api";
 import { ChainStats } from "@/app/products/api/schemas";
-import { storeNamesMap } from "@/lib/utils/mappings";
+import { storeNamesMap } from "@/utils/mappings";
 import { UserDto } from "@/lib/api/schemas";
 
 interface UserPreferencesModalProps {

@@ -18,14 +18,14 @@ import SearchItemsLayout from "@/components/layouts/search-items-layout";
 import ShoppingListModal from "@/app/shopping-lists/components/forms/shopping-list-modal";
 import { ShoppingListDto } from "@/lib/api/types";
 import { useViewMode } from "@/hooks/use-view-mode";
-import { filterByFields } from "@/lib/utils/generic";
+import { filterByFields } from "@/utils/generic";
 import { shoppingListService } from "@/lib/api";
 import { AnimatedGroup } from "@/components/ui/animated-group";
 import ShoppingListsGroup from "@/app/shopping-lists/components/shopping-lists-group";
 import { FloatingActionButton } from "@/components/custom/floating-action-button";
 import NoResults from "@/components/custom/no-results";
 import ViewSwitcher from "@/components/custom/view-switcher";
-import { useUser } from "@/lib/context/user-context";
+import { useUser } from "@/context/user-context";
 
 export default function ShoppingListsPage() {
   const searchParams = useSearchParams();
