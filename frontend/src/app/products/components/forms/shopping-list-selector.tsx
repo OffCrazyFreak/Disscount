@@ -1,0 +1,181 @@
+import { useState } from "react";
+import { Loader2, Plus, ChevronDown, ListChecks } from "lucide-react";
+import { Button } from "@/components/ui/button-icon";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/utils/generic";
+import { formatDate } from "@/utils/strings";
+import { ShoppingListDto } from "@/lib/api/types";
+
+interface ShoppingListSelectorProps {
+  field: any;
+  isLoadingLists: boolean;
+  sortedShoppingLists: ShoppingListDto[];
+  customListTitle: string;
+  setCustomListTitle: (title: string) => void;
+  selectedList: ShoppingListDto | undefined;
+}
+
+export default function ShoppingListSelector({
+  field,
+  isLoadingLists,
+  sortedShoppingLists,
+  customListTitle,
+  setCustomListTitle,
+  selectedList,
+}: ShoppingListSelectorProps) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <FormField
+      control={field.control}
+      name="shoppingListId"
+      render={({ field }) => (
+        <FormItem className="flex flex-col">
+          <FormLabel>Shopping lista</FormLabel>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <FormControl>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={open}
+                  className=""
+                  disabled={isLoadingLists}
+                >
+                  {isLoadingLists ? (
+                    <>
+                      <Loader2 className="mr-2 size-4 animate-spin" />
+                      Učitavanje...
+                    </>
+                  ) : field.value === "new" ? (
+                    `Stvori novu listu "${customListTitle}"`
+                  ) : selectedList ? (
+                    <>
+                      {selectedList.title}
+                      <span className="text-gray-500">
+                        ({formatDate(selectedList.updatedAt)})
+                      </span>
+
+                      <span className="ml-auto text-xs text-gray-500">
+                        {selectedList.items.reduce(
+                          (sum, item) => (item.isChecked ? sum + 1 : sum),
+                          0
+                        )}
+                        /{selectedList.items?.length}
+                      </span>
+                    </>
+                  ) : (
+                    "Odaberi listu..."
+                  )}
+
+                  <ChevronDown
+                    className={cn(
+                      "ml-2 size-5 shrink-0 transition-transform",
+                      open && "rotate-180"
+                    )}
+                  />
+                </Button>
+              </FormControl>
+            </PopoverTrigger>
+
+            <PopoverContent className="w-sm">
+              <Command>
+                <CommandInput
+                  placeholder="Pretraži svoje liste ili stvori novu"
+                  value={customListTitle}
+                  onValueChange={setCustomListTitle}
+                />
+                <CommandList>
+                  <CommandEmpty>
+                    <div className="p-2">
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start"
+                        onClick={() => {
+                          field.onChange("new");
+                          setOpen(false);
+                        }}
+                      >
+                        <Plus className="size-4" />
+                        Stvori "{customListTitle}"
+                      </Button>
+                    </div>
+                  </CommandEmpty>
+
+                  {sortedShoppingLists.length > 0 && (
+                    <CommandGroup heading="Postojeće liste">
+                      {sortedShoppingLists.map((list) => (
+                        <CommandItem
+                          key={list.id}
+                          value={list.id}
+                          onSelect={() => {
+                            field.onChange(list.id);
+                            setOpen(false);
+                          }}
+                        >
+                          <ListChecks
+                            className={cn(
+                              "size-4",
+                              selectedList?.id === list.id && "text-primary"
+                            )}
+                          />
+                          {list.title}
+                          <span className="text-gray-500">
+                            ({formatDate(list.updatedAt)})
+                          </span>
+
+                          <span className="ml-auto text-xs text-gray-500">
+                            {list.items.reduce(
+                              (sum, item) => (item.isChecked ? sum + 1 : sum),
+                              0
+                            )}
+                            /{list.items?.length}
+                          </span>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  )}
+
+                  {customListTitle && (
+                    <CommandGroup heading="Nova lista">
+                      <CommandItem
+                        value={`new-${customListTitle}`}
+                        onSelect={() => {
+                          field.onChange("new");
+                          setOpen(false);
+                        }}
+                      >
+                        <Plus className="size-4" />
+                        Stvori "{customListTitle}"
+                      </CommandItem>
+                    </CommandGroup>
+                  )}
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}

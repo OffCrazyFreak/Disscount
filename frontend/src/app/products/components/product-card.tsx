@@ -7,7 +7,7 @@ import { ListPlus } from "lucide-react";
 import { ProductResponse } from "@/app/products/api/schemas";
 import { ProductInfo } from "@/app/products/components/product-card/product-info";
 import { ProductPrice } from "@/app/products/components/product-card/product-price";
-import AddToShoppingListModal from "@/app/products/components/add-to-shopping-list-modal";
+import AddToShoppingListForm from "@/app/products/components/forms/add-to-shopping-list-form";
 
 interface ProductCardProps {
   product: ProductResponse;
@@ -81,7 +81,7 @@ export const ProductCard = memo<ProductCardProps>(({ product }) => {
         </div>
       </Card>
 
-      <AddToShoppingListModal
+      <AddToShoppingListForm
         isOpen={isAddToListModalOpen}
         onOpenChange={setIsAddToListModalOpen}
         product={product}
