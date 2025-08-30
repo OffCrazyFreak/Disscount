@@ -8,13 +8,11 @@ import { ProductCard } from "@/app/products/components/product-card";
 interface ProductListProps {
   products: ProductResponse[];
   viewMode: "grid" | "list";
-  onAddToList?: (id: string | number) => void;
 }
 
 export const ProductList = memo(function ProductList({
   products,
   viewMode,
-  onAddToList,
 }: ProductListProps) {
   const columns = 2;
   const rowCount =

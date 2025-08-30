@@ -39,16 +39,18 @@ export default function ShoppingListsPage() {
   // Use user context for authentication and shopping lists data
   const {
     isAuthenticated,
-    shoppingLists: contextShoppingLists,
     isLoading: userLoading,
   } = useUser();
 
-  // React Query hook (disabled when not authenticated)
-  const { refetch } = shoppingListService.useGetCurrentUserShoppingLists();
+  // React Query hook - always enabled for authenticated users
+  const { 
+    data: shoppingLists = [], 
+    isLoading: isLoadingLists, 
+    refetch 
+  } = shoppingListService.useGetCurrentUserShoppingLists();
 
-  // Use context data if authenticated and available, otherwise show empty array
-  const shoppingLists = isAuthenticated ? contextShoppingLists : [];
-  const isLoading = userLoading;
+  // Use React Query data and loading state
+  const isLoading = userLoading || isLoadingLists;
 
   function handleSearch(q: string) {
     if (!q) {

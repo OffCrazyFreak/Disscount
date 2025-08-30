@@ -146,7 +146,7 @@ export default function ShoppingListDetailPage() {
                           item.isChecked ? "line-through text-gray-500" : ""
                         }`}
                       >
-                        {item.productName}
+                        {item.name}
                       </p>
                       {item.amount && (
                         <p className="text-sm text-gray-600">

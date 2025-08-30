@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { shoppingListItemDtoSchema } from "@/lib/api/schemas/shopping-list-item";
 
 // Shopping List schemas
 export const shoppingListRequestSchema = z.object({
@@ -13,22 +14,6 @@ export const shoppingListRequestSchema = z.object({
     .optional(),
 });
 
-export const shoppingListItemRequestSchema = z.object({
-  productApiId: z.string().min(1, "Product API ID je obavezan"),
-  productName: z.string().min(1, "Naziv proizvoda je obavezan"),
-  amount: z.number().int().min(1, "Količina mora biti veća od 0").optional(),
-  isChecked: z.boolean().optional(),
-});
-
-// DTO schemas extend request schemas
-export const shoppingListItemDtoSchema = shoppingListItemRequestSchema.extend({
-  id: z.string(),
-  shoppingListId: z.string(),
-  amount: z.number().int().min(1),
-  isChecked: z.boolean(),
-  createdAt: z.string(),
-});
-
 export const shoppingListDtoSchema = shoppingListRequestSchema.extend({
   id: z.string(),
   ownerId: z.string(),
@@ -41,8 +26,4 @@ export const shoppingListDtoSchema = shoppingListRequestSchema.extend({
 
 // Type exports
 export type ShoppingListRequest = z.infer<typeof shoppingListRequestSchema>;
-export type ShoppingListItemRequest = z.infer<
-  typeof shoppingListItemRequestSchema
->;
 export type ShoppingListDto = z.infer<typeof shoppingListDtoSchema>;
-export type ShoppingListItemDto = z.infer<typeof shoppingListItemDtoSchema>;

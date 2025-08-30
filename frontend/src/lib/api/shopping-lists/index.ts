@@ -130,7 +130,6 @@ export const useGetShoppingListById = (id: string) => {
   return useQuery<ShoppingListDto, Error>({
     queryKey: ["shoppingLists", id],
     queryFn: () => getShoppingListById(id),
-    enabled: !!id,
   });
 };
 

@@ -30,6 +30,7 @@ import {
   type ShoppingListRequest,
 } from "@/lib/api/schemas/shopping-list";
 import { ShoppingListDto } from "@/lib/api/types";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ShoppingListModalProps {
   isOpen: boolean;
@@ -46,6 +47,8 @@ export default function ShoppingListModal({
 }: ShoppingListModalProps) {
   const [createdListId, setCreatedListId] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
+  const queryClient = useQueryClient();
+
   const createShoppingListMutation =
     shoppingListService.useCreateShoppingList();
   const updateShoppingListMutation =
@@ -89,8 +92,13 @@ export default function ShoppingListModal({
           data: { title: data.title, isPublic: data.isPublic },
         },
         {
-          onSuccess: (response: any) => {
+          onSuccess: async (response: any) => {
             toast.success("Shopping lista je uspješno ažurirana!");
+
+            await queryClient.invalidateQueries({
+              queryKey: ["shoppingLists"],
+            });
+
             onOpenChange(false);
             form.reset();
             onSuccess?.();
@@ -109,9 +117,14 @@ export default function ShoppingListModal({
           isPublic: data.isPublic,
         },
         {
-          onSuccess: (response: any) => {
+          onSuccess: async (response: any) => {
             toast.success("Shopping lista je uspješno kreirana!");
             setCreatedListId(response.id);
+
+            await queryClient.invalidateQueries({
+              queryKey: ["shoppingLists"],
+            });
+
             // Don't reset or close the form if it's public, so user can copy the link
             if (!data.isPublic) {
               form.reset();

@@ -31,6 +31,8 @@ interface UserContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   refreshUser: () => Promise<UserDto | undefined>;
+  refreshShoppingLists: () => Promise<void>;
+  refreshDigitalCards: () => Promise<void>;
   setUser: (user: UserDto | null) => void;
   logout: () => void;
   updatePinnedStores: (stores: PinnedStoreDto[]) => void;
@@ -136,8 +138,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         setShoppingLists(lists || []);
         setDigitalCards(cards || []);
         // Invalidate existing cache to ensure fresh data
-        queryClient.invalidateQueries({ queryKey: ["shoppingLists"] });
-        queryClient.invalidateQueries({ queryKey: ["digitalCards"] });
+        queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
+        queryClient.invalidateQueries({ queryKey: ["digitalCards", "me"] });
       } catch (listCardErr) {
         console.error(
           "Failed to fetch shopping lists or digital cards after login:",
@@ -179,6 +181,26 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   const updateDigitalCards = useCallback((cards: DigitalCardDto[]) => {
     setDigitalCards(cards);
+  }, []);
+
+  // Refresh shopping lists from API
+  const refreshShoppingLists = useCallback(async () => {
+    try {
+      const lists = await shoppingListService.getCurrentUserShoppingLists();
+      setShoppingLists(lists || []);
+    } catch (error) {
+      console.error("Failed to refresh shopping lists:", error);
+    }
+  }, []);
+
+  // Refresh digital cards from API
+  const refreshDigitalCards = useCallback(async () => {
+    try {
+      const cards = await digitalCardService.getUserDigitalCards();
+      setDigitalCards(cards || []);
+    } catch (error) {
+      console.error("Failed to refresh digital cards:", error);
+    }
   }, []);
 
   // Check for stored token and fetch user data on mount
@@ -223,6 +245,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     isLoading,
     isAuthenticated: !!user,
     refreshUser,
+    refreshShoppingLists,
+    refreshDigitalCards,
     setUser,
     logout: handleLogout,
     updatePinnedStores,

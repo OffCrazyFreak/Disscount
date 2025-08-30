@@ -39,6 +39,7 @@ import { ChainStats } from "@/app/products/api/schemas";
 import { useAllLocations } from "@/app/products/api/hooks";
 import { ProductSearchBar } from "@/app/products/components/product-search-bar";
 import { storeNamesMap } from "@/utils/mappings";
+import { Button } from "../ui/button-icon";
 
 export const AppSidebar = memo(function AppSidebar() {
   const [categories, setCategories] = useState<any[]>(["First", "Second"]);
@@ -77,19 +78,25 @@ export const AppSidebar = memo(function AppSidebar() {
               <SidebarGroupContent>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <a href={"/shopping-lists"}>
+                    <Link
+                      href="/shopping-lists"
+                      className="flex items-center gap-2"
+                    >
                       <ListChecks />
                       <span>Shopping liste</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <a href={"/digital-cards"}>
+                    <Link
+                      href="/digital-cards"
+                      className="flex items-center gap-2"
+                    >
                       <CreditCard />
                       <span>Digitalne kartice</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarGroupContent>
@@ -106,13 +113,10 @@ export const AppSidebar = memo(function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a
-                    href="/products?filterBy=discount"
-                    className="cursor-pointer"
-                  >
+                  <Link href="/products?filterBy=discount">
                     <Percent />
                     <span>Sniženja</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
@@ -134,9 +138,9 @@ export const AppSidebar = memo(function AppSidebar() {
                     <SidebarMenuSub className="max-h-128 overflow-y-auto">
                       {categories.map((category) => (
                         <SidebarMenuSubItem key={category.id || category}>
-                          <a href={category.url || "#"}>
+                          <Link href={category.url || "#"}>
                             <span>{category.title || category}</span>
-                          </a>
+                          </Link>
                         </SidebarMenuSubItem>
                       ))}
                     </SidebarMenuSub>
@@ -218,10 +222,13 @@ export const AppSidebar = memo(function AppSidebar() {
 
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href="/statistics" className="cursor-pointer">
+                  <Link
+                    href="/statistics"
+                    className="cursor-pointer flex items-center gap-2"
+                  >
                     <ChartNoAxesCombined />
                     <span>Statistika</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

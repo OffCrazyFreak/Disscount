@@ -103,7 +103,10 @@ const Button = React.forwardRef<
     const Comp = asChild ? Slot : "button";
     return (
       <Comp
-        className={cn(buttonVariants({ variant, effect, size, className }))}
+        className={cn(
+          "cursor-pointer relative",
+          buttonVariants({ variant, effect, size, className })
+        )}
         disabled={loading}
         ref={ref}
         {...props}
@@ -132,7 +135,7 @@ const Button = React.forwardRef<
           iconPlacement === "right" &&
           !(hideIconOnLoading && loading) &&
           (effect === "expandIcon" ? (
-            <div className="w-0 translate-x-[100%] pl-0 opacity-0 transition-all duration-200 group-hover:w-5 group-hover:translate-x-0 group-hover:pl-2 group-hover:opacity-100">
+            <div className="w-0 relative translate-x-[100%] pl-0 opacity-0 transition-all duration-200 group-hover:w-5 group-hover:translate-x-0 group-hover:pl-2 group-hover:opacity-100">
               <Icon className="size-6" />
             </div>
           ) : (
