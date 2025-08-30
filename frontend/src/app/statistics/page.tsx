@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +35,131 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils/generic";
 
+// Memoized component for individual chain items to prevent unnecessary re-renders
+const ChainItem = memo(
+  ({
+    stat,
+    isExpanded,
+    onToggle,
+    storesByChainCode,
+    allStoresLoading,
+    index,
+    isLast,
+  }: {
+    stat: any;
+    isExpanded: boolean;
+    onToggle: () => void;
+    storesByChainCode: Record<string, any[]>;
+    allStoresLoading: boolean;
+    index: number;
+    isLast: boolean;
+  }) => {
+    return (
+      <div>
+        <Collapsible open={isExpanded} onOpenChange={onToggle}>
+          <CollapsibleTrigger asChild>
+            <div className="flex items-center gap-4">
+              <div className="flex-shrink-0 size-12 sm:size-16 rounded-sm overflow-hidden shadow-sm">
+                <Image
+                  src={`/store-chains/${stat.chain_code}.png`}
+                  alt={storeNamesMap[stat.chain_code]}
+                  width="256"
+                  height="256"
+                  className=" object-contain"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-gray-900">
+                      {storeNamesMap[stat.chain_code]}
+                    </h3>
+                    <p className="text-sm text-gray-600 flex items-center gap-2 sm:gap-4 flex-wrap my-2">
+                      <span className="flex items-center gap-2">
+                        <MapPin className="size-5 mb-1" />
+                        {stat.store_count}{" "}
+                        {parseInt(stat.store_count.toString().slice(-1)) > 1 &&
+                        parseInt(stat.store_count.toString().slice(-1)) < 5 &&
+                        stat.store_count > 21
+                          ? "trgovine"
+                          : "trgovina"}
+                      </span>
+                      <span className="hidden sm:inline">|</span>
+                      <span className="flex items-center gap-2">
+                        <Tag className="size-5 mb-1" />
+                        {stat.price_count}{" "}
+                        {parseInt(stat.price_count.toString().slice(-1)) > 1 &&
+                        parseInt(stat.price_count.toString().slice(-1)) < 5 &&
+                        stat.price_count > 21
+                          ? "cijene"
+                          : "cijena"}
+                      </span>
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ChevronDown
+                      className={cn(
+                        "size-8 text-gray-500 transition-transform",
+                        isExpanded && "rotate-180"
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CollapsibleTrigger>
+
+          <CollapsibleContent>
+            <div className="mt-4">
+              {allStoresLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="size-6 animate-spin mr-2" />
+                  Učitavanje trgovina...
+                </div>
+              ) : storesByChainCode[stat.chain_code] ? (
+                <div className="space-y-4">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Grad</TableHead>
+                          <TableHead>Adresa</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {storesByChainCode[stat.chain_code].map(
+                          (store, index) => (
+                            <TableRow key={index}>
+                              <TableCell className="text-gray-700 text-xs">
+                                {store.city || "Nepoznato"}
+                              </TableCell>
+                              <TableCell className="text-gray-700 text-xs">
+                                {store.address || "Nepoznato"}
+                              </TableCell>
+                            </TableRow>
+                          )
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  Nema podataka o trgovinama
+                </div>
+              )}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {!isLast && <Separator className="my-4" />}
+      </div>
+    );
+  }
+);
+
+ChainItem.displayName = "ChainItem";
+
 export default function StatisticsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [eanQuery, setEanQuery] = useState("");
@@ -64,11 +189,20 @@ export default function StatisticsPage() {
     refetch: refetchEan,
   } = cijeneService.useGetProductByEan({ ean: submittedEanQuery });
 
-  const toggleChainExpansion = (chainCode: string) => {
-    setExpandedChain(expandedChain === chainCode ? null : chainCode);
-  };
+  const toggleChainExpansion = React.useCallback((chainCode: string) => {
+    setExpandedChain((prev) => (prev === chainCode ? null : chainCode));
+  }, []);
 
-  // Group stores by chain_code for easier access
+  // Create memoized toggle handlers for each chain
+  const chainToggleHandlers = React.useMemo(() => {
+    if (!chainStats?.chain_stats) return {};
+
+    const handlers: Record<string, () => void> = {};
+    chainStats.chain_stats.forEach((stat) => {
+      handlers[stat.chain_code] = () => toggleChainExpansion(stat.chain_code);
+    });
+    return handlers;
+  }, [chainStats?.chain_stats, toggleChainExpansion]);
   const storesByChainCode = React.useMemo(() => {
     if (!allStores) return {};
 
@@ -143,120 +277,16 @@ export default function StatisticsPage() {
               {chainStats.chain_stats
                 .sort((a, b) => a.chain_code.localeCompare(b.chain_code))
                 .map((stat, index) => (
-                  <div>
-                    <Collapsible
-                      key={stat.chain_code}
-                      open={expandedChain === stat.chain_code}
-                      onOpenChange={() => toggleChainExpansion(stat.chain_code)}
-                    >
-                      <CollapsibleTrigger asChild>
-                        <div className="flex items-center gap-4">
-                          <div className="flex-shrink-0 size-12 sm:size-16 rounded-sm overflow-hidden shadow-sm">
-                            <Image
-                              src={`/store-chains/${stat.chain_code}.png`}
-                              alt={storeNamesMap[stat.chain_code]}
-                              width="256"
-                              height="256"
-                              className=" object-contain"
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <h3 className="font-semibold text-gray-900">
-                                  {storeNamesMap[stat.chain_code]}
-                                </h3>
-                                <p className="text-sm text-gray-600 flex items-center gap-2 sm:gap-4 flex-wrap my-2">
-                                  <span className="flex items-center gap-2">
-                                    <MapPin className="size-5 mb-1" />
-                                    {stat.store_count}{" "}
-                                    {parseInt(
-                                      stat.store_count.toString().slice(-1)
-                                    ) > 1 &&
-                                    parseInt(
-                                      stat.store_count.toString().slice(-1)
-                                    ) < 5 &&
-                                    stat.store_count > 21
-                                      ? "trgovine"
-                                      : "trgovina"}
-                                  </span>
-                                  <span className="hidden sm:inline">|</span>
-                                  <span className="flex items-center gap-2">
-                                    <Tag className="size-5 mb-1" />
-                                    {stat.price_count}{" "}
-                                    {parseInt(
-                                      stat.price_count.toString().slice(-1)
-                                    ) > 1 &&
-                                    parseInt(
-                                      stat.price_count.toString().slice(-1)
-                                    ) < 5 &&
-                                    stat.price_count > 21
-                                      ? "cijene"
-                                      : "cijena"}
-                                  </span>
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <ChevronDown
-                                  className={cn(
-                                    "size-8 text-gray-500 transition-transform",
-                                    expandedChain === stat.chain_code &&
-                                      "rotate-180"
-                                  )}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </CollapsibleTrigger>
-
-                      <CollapsibleContent>
-                        <div className="mt-4">
-                          {allStoresLoading ? (
-                            <div className="flex items-center justify-center py-8">
-                              <Loader2 className="size-6 animate-spin mr-2" />
-                              Učitavanje trgovina...
-                            </div>
-                          ) : storesByChainCode[stat.chain_code] ? (
-                            <div className="space-y-4">
-                              <div className="overflow-x-auto">
-                                <Table>
-                                  <TableHeader>
-                                    <TableRow>
-                                      <TableHead>Grad</TableHead>
-                                      <TableHead>Adresa</TableHead>
-                                    </TableRow>
-                                  </TableHeader>
-                                  <TableBody>
-                                    {storesByChainCode[stat.chain_code].map(
-                                      (store, index) => (
-                                        <TableRow key={index}>
-                                          <TableCell className="text-gray-700 text-xs">
-                                            {store.city || "Nepoznato"}
-                                          </TableCell>
-                                          <TableCell className="text-gray-700 text-xs">
-                                            {store.address || "Nepoznato"}
-                                          </TableCell>
-                                        </TableRow>
-                                      )
-                                    )}
-                                  </TableBody>
-                                </Table>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="text-center py-8 text-gray-500">
-                              Nema podataka o trgovinama
-                            </div>
-                          )}
-                        </div>
-                      </CollapsibleContent>
-                    </Collapsible>
-
-                    {index < chainStats.chain_stats.length - 1 && (
-                      <Separator className="my-4" />
-                    )}
-                  </div>
+                  <ChainItem
+                    key={stat.chain_code}
+                    stat={stat}
+                    isExpanded={expandedChain === stat.chain_code}
+                    onToggle={chainToggleHandlers[stat.chain_code]}
+                    storesByChainCode={storesByChainCode}
+                    allStoresLoading={allStoresLoading}
+                    index={index}
+                    isLast={index === chainStats.chain_stats.length - 1}
+                  />
                 ))}
             </div>
           ) : (
