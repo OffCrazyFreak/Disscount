@@ -15,7 +15,7 @@ export interface UseInfiniteProductsResult {
 
 export function useInfiniteProducts(
   q: string,
-  batchSize = 100
+  batchSize = 50
 ): UseInfiniteProductsResult {
   const { data: allProducts = [], isLoading, error } = useProductSearch({ q });
 

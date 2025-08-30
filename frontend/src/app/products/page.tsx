@@ -29,7 +29,7 @@ export default function ProductsPage() {
 
   const [viewMode, setViewMode] = useViewMode("/products", "grid");
 
-  const virtualizationBatchSize: number = 100;
+  const virtualizationBatchSize: number = 50;
   const { visibleProducts, total, hasMore, loadMore, isLoading, error } =
     useInfiniteProducts(initialQuery, virtualizationBatchSize);
 
