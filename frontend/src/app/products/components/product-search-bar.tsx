@@ -1,8 +1,9 @@
 "use client";
 
-import { memo, useCallback } from "react";
+import { memo, useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import SearchBar from "@/components/custom/search-bar";
+import BarcodeScanner from "@/components/custom/barcode-scanner";
 
 interface ProductSearchBarProps {
   onSearch?: (query: string) => void;
@@ -20,6 +21,7 @@ export const ProductSearchBar = memo(function ProductSearchBar({
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   const handleSearch = useCallback(
     (q: string) => {
@@ -34,19 +36,34 @@ export const ProductSearchBar = memo(function ProductSearchBar({
 
   const handleBarcodeClick = useCallback(() => {
     console.log("ProductSearchBar: barcode clicked");
-    // TODO: open scanner UI and call handleSearch with scanned barcode
+    setScannerOpen(true);
   }, []);
 
+  const handleScan = useCallback(
+    (result: string) => {
+      handleSearch(result);
+    },
+    [handleSearch]
+  );
+
   return (
-    <SearchBar
-      defaultValue={initialQuery}
-      placeholder="Pretraži proizvode..."
-      onSearch={handleSearch}
-      onBarcodeClick={handleBarcodeClick}
-      showBarcode={showBarcode}
-      clearable={true}
-      showSubmitButton={showSubmitButton}
-      submitLabel={submitLabel}
-    />
+    <>
+      <SearchBar
+        defaultValue={initialQuery}
+        placeholder="Pretraži proizvode..."
+        onSearch={handleSearch}
+        onBarcodeClick={handleBarcodeClick}
+        showBarcode={showBarcode}
+        clearable={true}
+        showSubmitButton={showSubmitButton}
+        submitLabel={submitLabel}
+      />
+
+      <BarcodeScanner
+        isOpen={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onScan={handleScan}
+      />
+    </>
   );
 });

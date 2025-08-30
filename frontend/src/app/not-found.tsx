@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { usePathname } from "next/dist/client/components/navigation";
+import { Suspense } from "react";
 
 export default function NotFound() {
   const pathname = usePathname();
@@ -25,16 +26,19 @@ export default function NotFound() {
             <div className="text-2xl">Hmm… ovo je neugodno. 😅</div>
           </CardTitle>
 
-          <CardDescription className="space-y-2">
-            <div>
-              Čini se da stranica{" "}
-              <span className="italic">&quot;{pathname}&quot;</span> ne postoji.
-            </div>
+          <Suspense fallback={<div>Učitavanje...</div>}>
+            <CardDescription className="space-y-2">
+              <div>
+                Čini se da stranica{" "}
+                <span className="italic">&quot;{pathname}&quot;</span> ne
+                postoji.
+              </div>
 
-            <div className="text-gray-600">
-              Vratimo se skupa na početnu stranicu, ili prijavi grešku!
-            </div>
-          </CardDescription>
+              <div className="text-gray-600">
+                Vratimo se skupa na početnu stranicu, ili prijavi grešku!
+              </div>
+            </CardDescription>
+          </Suspense>
         </CardHeader>
 
         <CardContent className="text-center mt-2 flex flex-wrap gap-2 items-center justify-center">

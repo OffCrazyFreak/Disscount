@@ -1,13 +1,22 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ProductSearchBar } from "@/app/products/components/product-search-bar";
 import { Button } from "@/components/ui/button-icon";
 import { ScanBarcode } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import BarcodeScanner from "@/components/custom/barcode-scanner";
 
 export default function HeroActions(): React.JSX.Element {
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const router = useRouter();
+
+  const handleScan = (result: string) => {
+    router.push(`/products?q=${encodeURIComponent(result)}`);
+  };
+
   return (
     <Card className="bg-background max-w-xl mx-auto rounded-2xl shadow-xl p-8 space-y-4">
       <ProductSearchBar showSubmitButton showBarcode={false} />
@@ -23,9 +32,7 @@ export default function HeroActions(): React.JSX.Element {
 
       <div className="">
         <Button
-          onClick={() => {
-            console.log("Skeniranje barkoda...");
-          }}
+          onClick={() => setScannerOpen(true)}
           variant="outline"
           size="lg"
           className="cursor-pointer w-full mb-6 text-lg py-6 border-2 border-primary hover:border-secondary hover:bg-green-50"
@@ -34,6 +41,12 @@ export default function HeroActions(): React.JSX.Element {
           Skeniraj barkod
         </Button>
       </div>
+
+      <BarcodeScanner
+        isOpen={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onScan={handleScan}
+      />
     </Card>
   );
 }

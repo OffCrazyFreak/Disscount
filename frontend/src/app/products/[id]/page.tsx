@@ -9,20 +9,14 @@ import { StoreChainCard } from "@/app/products/[id]/components/store-chain-card"
 import { ProductResponse } from "@/app/products/api/schemas";
 import { useUser } from "@/context/user-context";
 
-interface ProductDetailsPageProps {
-  product?: ProductResponse;
-}
-
-export default function ProductDetailsPage({
-  product: propProduct,
-}: ProductDetailsPageProps) {
+export default function ProductDetailsPage() {
   const params = useParams();
   const ean = params.id as string;
   const { user } = useUser();
 
   // Fetch product data if not provided as prop
   const {
-    data: fetchedProduct,
+    data: product,
     isLoading: productLoading,
     error: productError,
   } = cijeneService.useGetProductByEan({
@@ -37,8 +31,6 @@ export default function ProductDetailsPage({
   } = cijeneService.useGetPrices({
     eans: ean,
   });
-
-  const product = propProduct || fetchedProduct;
 
   // Group prices by chain
   const pricesByChain = React.useMemo(() => {

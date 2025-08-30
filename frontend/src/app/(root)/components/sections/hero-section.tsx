@@ -1,4 +1,4 @@
-import React from "react";
+import { Suspense } from "react";
 import Image from "next/image";
 import { TextEffect } from "@/components/ui/text-effect";
 import { AnimatedGroup } from "@/components/ui/animated-group";
@@ -23,7 +23,7 @@ function getTagLine(): string {
   return tagLines[randomIndex];
 }
 
-export default function HeroSection(): React.JSX.Element {
+export default function HeroSection() {
   const tagLine: string = getTagLine();
 
   return (
@@ -91,7 +91,9 @@ export default function HeroSection(): React.JSX.Element {
           </TextEffect>
         </div>
 
-        <HeroActions />
+        <Suspense fallback={<div>Loading...</div>}>
+          <HeroActions />
+        </Suspense>
       </div>
     </section>
   );

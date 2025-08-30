@@ -26,6 +26,7 @@
     "@tanstack/react-query": "^5.85.3",
     "@tanstack/react-query-devtools": "^5.85.3",
     "@tanstack/react-virtual": "^3.13.12",
+    "@yudiel/react-qr-scanner": "^2.3.1",
     "axios": "^1.11.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
