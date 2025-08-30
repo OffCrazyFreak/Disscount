@@ -12,8 +12,11 @@ public class ShoppingListItemDto {
 
     private UUID id;
     private UUID shoppingListId;
-    private String productApiId;
-    private String productName;
+    private String ean;
+    private String brand;
+    private String name;
+    private String quantity;
+    private String unit;
     private Integer amount;
     private Boolean isChecked;
     private LocalDateTime createdAt;

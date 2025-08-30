@@ -26,13 +26,22 @@ public class ShoppingListItem {
     @JoinColumn(name = "shopping_list_id", nullable = false)
     private ShoppingList shoppingList;
 
-    @NotBlank(message = "Product API ID is required")
-    @Column(name = "product_api_id", nullable = false)
-    private String productApiId;
+    @NotBlank(message = "EAN is required")
+    @Column(name = "ean", nullable = false)
+    private String ean;
+
+    @Column(name = "brand")
+    private String brand;
 
     @NotBlank(message = "Product name is required")
-    @Column(name = "product_name", nullable = false)
-    private String productName;
+    @Column(name = "name", nullable = false)
+    private String name;
+
+    @Column(name = "quantity")
+    private String quantity;
+
+    @Column(name = "unit")
+    private String unit;
 
     @Column(nullable = false)
     @Builder.Default

@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -38,13 +39,36 @@ public class ShoppingListItemService {
                         .filter(list -> list.getIsPublic())
                         .orElseThrow(() -> new BadRequestException("Shopping list not found or access denied")));
 
-        ShoppingListItem item = ShoppingListItem.builder()
-                .shoppingList(shoppingList)
-                .productApiId(request.getProductApiId())
-                .productName(request.getProductName())
-                .amount(request.getAmount() != null ? request.getAmount() : 1)
-                .isChecked(request.getIsChecked() != null ? request.getIsChecked() : false)
-                .build();
+        // Check if item with same name already exists in the shopping list
+        Optional<ShoppingListItem> existingItem = shoppingListItemRepository
+                .findActiveByShoppingListAndName(shoppingList, request.getName());
+
+        ShoppingListItem item;
+        if (existingItem.isPresent()) {
+            // Item exists, increase the amount
+            item = existingItem.get();
+            int newAmount = item.getAmount() + (request.getAmount() != null ? request.getAmount() : 1);
+            item.setAmount(newAmount);
+            
+            // Update other fields with new values if provided
+            if (request.getEan() != null) item.setEan(request.getEan());
+            if (request.getBrand() != null) item.setBrand(request.getBrand());
+            if (request.getQuantity() != null) item.setQuantity(request.getQuantity());
+            if (request.getUnit() != null) item.setUnit(request.getUnit());
+            
+        } else {
+            // Create new item
+            item = ShoppingListItem.builder()
+                    .shoppingList(shoppingList)
+                    .ean(request.getEan())
+                    .brand(request.getBrand())
+                    .name(request.getName())
+                    .quantity(request.getQuantity())
+                    .unit(request.getUnit())
+                    .amount(request.getAmount() != null ? request.getAmount() : 1)
+                    .isChecked(request.getIsChecked() != null ? request.getIsChecked() : false)
+                    .build();
+        }
 
         item = shoppingListItemRepository.save(item);
 
@@ -68,8 +92,11 @@ public class ShoppingListItemService {
                 .orElseThrow(() -> new BadRequestException("Shopping list item not found or access denied"));
 
         // Update fields
-        item.setProductApiId(request.getProductApiId());
-        item.setProductName(request.getProductName());
+        item.setEan(request.getEan());
+        item.setBrand(request.getBrand());
+        item.setName(request.getName());
+        item.setQuantity(request.getQuantity());
+        item.setUnit(request.getUnit());
         item.setAmount(request.getAmount() != null ? request.getAmount() : 1);
         item.setIsChecked(request.getIsChecked() != null ? request.getIsChecked() : false);
 
@@ -116,8 +143,11 @@ public class ShoppingListItemService {
         return ShoppingListItemDto.builder()
                 .id(item.getId())
                 .shoppingListId(item.getShoppingList().getId())
-                .productApiId(item.getProductApiId())
-                .productName(item.getProductName())
+                .ean(item.getEan())
+                .brand(item.getBrand())
+                .name(item.getName())
+                .quantity(item.getQuantity())
+                .unit(item.getUnit())
                 .amount(item.getAmount())
                 .isChecked(item.getIsChecked())
                 .createdAt(item.getCreatedAt())

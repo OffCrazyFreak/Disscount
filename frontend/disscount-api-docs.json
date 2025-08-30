@@ -204,6 +204,70 @@
         }
       }
     },
+    "/api/pinned-stores/bulk": {
+      "put": {
+        "tags": ["Pinned Stores"],
+        "summary": "Update user's pinned stores (bulk operation)",
+        "operationId": "updatePinnedStores",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkPinnedStoreRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PinnedStoreDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pinned-places/bulk": {
+      "put": {
+        "tags": ["Pinned Places"],
+        "summary": "Update user's pinned places (bulk operation)",
+        "operationId": "updatePinnedPlaces",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkPinnedPlaceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PinnedPlaceDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/digital-cards/{id}": {
       "get": {
         "tags": ["Digital Cards"],
@@ -394,70 +458,6 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/ShoppingListItemDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/pinned-stores/bulk": {
-      "post": {
-        "tags": ["Pinned Stores"],
-        "summary": "Update user's pinned stores (bulk operation)",
-        "operationId": "updatePinnedStores",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BulkPinnedStoreRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PinnedStoreDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/pinned-places/bulk": {
-      "post": {
-        "tags": ["Pinned Places"],
-        "summary": "Update user's pinned places (bulk operation)",
-        "operationId": "updatePinnedPlaces",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BulkPinnedPlaceRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PinnedPlaceDto"
-                  }
                 }
               }
             }
@@ -1071,13 +1071,22 @@
   "components": {
     "schemas": {
       "ShoppingListItemRequest": {
-        "required": ["productApiId", "productName"],
+        "required": ["ean", "name"],
         "type": "object",
         "properties": {
-          "productApiId": {
+          "ean": {
             "type": "string"
           },
-          "productName": {
+          "brand": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "string"
+          },
+          "unit": {
             "type": "string"
           },
           "amount": {
@@ -1100,10 +1109,19 @@
             "type": "string",
             "format": "uuid"
           },
-          "productApiId": {
+          "ean": {
             "type": "string"
           },
-          "productName": {
+          "brand": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "string"
+          },
+          "unit": {
             "type": "string"
           },
           "amount": {
@@ -1170,6 +1188,92 @@
             "items": {
               "$ref": "#/components/schemas/ShoppingListItemDto"
             }
+          }
+        }
+      },
+      "BulkPinnedStoreRequest": {
+        "required": ["stores"],
+        "type": "object",
+        "properties": {
+          "stores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PinnedStoreRequest"
+            }
+          }
+        }
+      },
+      "PinnedStoreRequest": {
+        "required": ["storeApiId", "storeName"],
+        "type": "object",
+        "properties": {
+          "storeApiId": {
+            "type": "string"
+          },
+          "storeName": {
+            "type": "string"
+          }
+        }
+      },
+      "PinnedStoreDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "storeApiId": {
+            "type": "string"
+          },
+          "storeName": {
+            "type": "string"
+          }
+        }
+      },
+      "BulkPinnedPlaceRequest": {
+        "required": ["places"],
+        "type": "object",
+        "properties": {
+          "places": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PinnedPlaceRequest"
+            }
+          }
+        }
+      },
+      "PinnedPlaceRequest": {
+        "required": ["placeApiId", "placeName"],
+        "type": "object",
+        "properties": {
+          "placeApiId": {
+            "type": "string"
+          },
+          "placeName": {
+            "type": "string"
+          }
+        }
+      },
+      "PinnedPlaceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "placeApiId": {
+            "type": "string"
+          },
+          "placeName": {
+            "type": "string"
           }
         }
       },
@@ -1264,92 +1368,6 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
-          }
-        }
-      },
-      "BulkPinnedStoreRequest": {
-        "required": ["stores"],
-        "type": "object",
-        "properties": {
-          "stores": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PinnedStoreRequest"
-            }
-          }
-        }
-      },
-      "PinnedStoreRequest": {
-        "required": ["storeApiId", "storeName"],
-        "type": "object",
-        "properties": {
-          "storeApiId": {
-            "type": "string"
-          },
-          "storeName": {
-            "type": "string"
-          }
-        }
-      },
-      "PinnedStoreDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "userId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "storeApiId": {
-            "type": "string"
-          },
-          "storeName": {
-            "type": "string"
-          }
-        }
-      },
-      "BulkPinnedPlaceRequest": {
-        "required": ["places"],
-        "type": "object",
-        "properties": {
-          "places": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PinnedPlaceRequest"
-            }
-          }
-        }
-      },
-      "PinnedPlaceRequest": {
-        "required": ["placeApiId", "placeName"],
-        "type": "object",
-        "properties": {
-          "placeApiId": {
-            "type": "string"
-          },
-          "placeName": {
-            "type": "string"
-          }
-        }
-      },
-      "PinnedPlaceDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "userId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "placeApiId": {
-            "type": "string"
-          },
-          "placeName": {
-            "type": "string"
           }
         }
       },
@@ -1543,13 +1561,19 @@
       "PageNotificationDto": {
         "type": "object",
         "properties": {
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
           "totalPages": {
             "type": "integer",
             "format": "int32"
           },
-          "totalElements": {
-            "type": "integer",
-            "format": "int64"
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
           },
           "size": {
             "type": "integer",
@@ -1567,12 +1591,6 @@
           },
           "sort": {
             "$ref": "#/components/schemas/SortObject"
-          },
-          "first": {
-            "type": "boolean"
-          },
-          "last": {
-            "type": "boolean"
           },
           "numberOfElements": {
             "type": "integer",
@@ -1596,11 +1614,11 @@
           "sort": {
             "$ref": "#/components/schemas/SortObject"
           },
-          "pageSize": {
+          "pageNumber": {
             "type": "integer",
             "format": "int32"
           },
-          "pageNumber": {
+          "pageSize": {
             "type": "integer",
             "format": "int32"
           },
@@ -1618,10 +1636,10 @@
           "empty": {
             "type": "boolean"
           },
-          "sorted": {
+          "unsorted": {
             "type": "boolean"
           },
-          "unsorted": {
+          "sorted": {
             "type": "boolean"
           }
         }

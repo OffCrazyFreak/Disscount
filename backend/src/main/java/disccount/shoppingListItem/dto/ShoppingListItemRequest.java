@@ -6,11 +6,17 @@ import lombok.Data;
 @Data
 public class ShoppingListItemRequest {
 
-    @NotBlank(message = "Product API ID is required")
-    private String productApiId;
+    @NotBlank(message = "EAN is required")
+    private String ean;
+
+    private String brand;
 
     @NotBlank(message = "Product name is required")
-    private String productName;
+    private String name;
+
+    private String quantity;
+
+    private String unit;
 
     private Integer amount = 1;
     private Boolean isChecked = false;
