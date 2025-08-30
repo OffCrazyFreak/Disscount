@@ -7,6 +7,7 @@ import {
   getMinPrice,
   getMaxPrice,
 } from "@/app/products/api/utils";
+import { formatQuantity } from "@/utils/strings";
 
 interface ProductInfoDisplayProps {
   product: ProductResponse;
@@ -97,7 +98,7 @@ export default function ProductInfoDisplay({
           <div className="border-r text-sm p-2">
             <span className="font-bold">Količina: </span>
             {product.quantity && product.unit
-              ? `${product.quantity}${product.unit}`
+              ? `${formatQuantity(product.quantity)}${product.unit}`
               : "Nepoznato"}
           </div>
 

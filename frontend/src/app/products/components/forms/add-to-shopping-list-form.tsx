@@ -20,7 +20,7 @@ import {
   AddToListFormData,
   addToListFormSchema,
 } from "@/app/products/typings/add-to-list";
-import ProductInfoDisplay from "@/app/products/components/forms/product-info-display";
+import ProductInfoDisplay from "@/app/products/components/product-info-display";
 import DuplicateWarning from "@/app/products/components/forms/duplicate-warning";
 import ShoppingListSelector from "@/app/products/components/forms/shopping-list-selector";
 import QuantityInput from "@/app/products/components/forms/quantity-input";
