@@ -37,10 +37,11 @@ import {
   UserPreferencesFormType,
 } from "@/lib/api/schemas/preferences";
 import { PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/schemas/preferences";
-import { mockStores, mockLocations } from "@/lib/mock/mock-preferences";
+import { mockStores } from "@/lib/mock/mock-preferences";
 import { cn } from "@/lib/utils/strings";
 import { preferencesService } from "@/lib/api";
 import { useUser } from "@/lib/context/user-context";
+import { useAllLocations } from "@/app/products/api/hooks";
 
 interface UserPreferencesModalProps {
   isOpen: boolean;
@@ -58,6 +59,8 @@ export default function UserPreferencesModal({
       pinnedPlaces: [],
     },
   });
+
+  const { data: locations, isLoading: locationsLoading } = useAllLocations();
 
   const { user, updatePinnedStores, updatePinnedPlaces } = useUser();
 
@@ -145,9 +148,7 @@ export default function UserPreferencesModal({
           {
             // data.pinnedLocations now contains place NAMES; map them to API shape
             places: data.pinnedPlaces.map((placeName) => ({
-              placeApiId:
-                mockLocations.find((l) => l.name === placeName)?.id ||
-                placeName,
+              placeApiId: placeName,
               placeName,
             })),
           },
@@ -269,10 +270,10 @@ export default function UserPreferencesModal({
                         ev.stopPropagation();
                       }}
                     >
-                      Naselja
+                      Lokacije
                     </FormLabel>
                     <p className="text-sm text-gray-500 mb-2">
-                      Odaberi naselja u tvojoj blizini.
+                      Odaberi lokacije u tvojoj blizini.
                     </p>
 
                     <MultiSelect
@@ -281,19 +282,21 @@ export default function UserPreferencesModal({
                     >
                       <FormControl>
                         <MultiSelectTrigger className="w-full">
-                          <MultiSelectValue placeholder="Odaberi naselja..." />
+                          <MultiSelectValue placeholder="Odaberi lokacije..." />
                         </MultiSelectTrigger>
                       </FormControl>
                       <MultiSelectContent className=" bg-white">
                         <MultiSelectGroup>
-                          {mockLocations.map((location) => (
-                            <MultiSelectItem
-                              key={location.id}
-                              value={location.name}
-                            >
-                              {location.name}
-                            </MultiSelectItem>
-                          ))}
+                          {locations
+                            .sort((a, b) => a.name.localeCompare(b.name))
+                            .map((location) => (
+                              <MultiSelectItem
+                                key={location.name}
+                                value={location.name}
+                              >
+                                {location.name}
+                              </MultiSelectItem>
+                            ))}
                         </MultiSelectGroup>
                       </MultiSelectContent>
                     </MultiSelect>
