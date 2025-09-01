@@ -80,8 +80,9 @@ export function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
             size={"lg"}
             className="w-full gap-4"
             onClick={handleGoogleSignIn}
+            icon={GoogleIcon}
+            iconPlacement="left"
           >
-            <GoogleIcon />
             Nastavi sa Google računom
           </Button>
         </div>
