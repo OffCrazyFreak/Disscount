@@ -91,3 +91,56 @@ This work is licensed under a
   pnpm install
   pnpm dev
 - The frontend runs on port 3000 by default: http://localhost:3000
+
+## How to contribute
+
+Contributions are welcome — whether it's a bug report, feature idea, documentation improvement or code change. Below are guidelines to make the process smooth for everyone.
+
+### Reporting bugs & suggesting ideas
+
+- Search existing issues before opening a new one to avoid duplicates.
+- Create a new issue and include:
+  - A clear title and description of the problem or idea.
+  - Steps to reproduce (for bugs) and expected vs actual behavior.
+  - Environment details (OS, Java/Maven/Node versions, Postgres version, browser) if relevant.
+  - Attach screenshots, logs or example requests/responses when helpful.
+- Use labels if available (bug, enhancement, question, docs).
+
+### Contributing code (pull requests)
+
+1. Fork the repository and create a feature branch from `master`:
+   - Branch name example: `feat/add-search-by-barcode` or `fix/shopping-list-null-pointer`.
+2. Follow project coding style:
+   - Backend: Java 21, use existing package structure and formatting.
+   - Frontend: follow existing TypeScript/React patterns, use Prettier extension and linting rules.
+3. Run tests and build locally before creating a PR:
+   - Backend: `cd backend && mvn clean install` (use `-DskipTests` only for quick local debugging).
+   - Frontend: `cd frontend && pnpm install && pnpm dev` (and run any available tests/lint scripts).
+4. Commit messages should be concise and descriptive. Reference related issue numbers in the PR or commit message.
+5. Open a pull request against the `master` branch and include:
+   - A summary of changes, why they were made, and any migration steps.
+   - Screenshots or short recordings for UI changes.
+   - Links to related issues.
+
+### Pull request checklist
+
+- [ ] Code builds and tests pass locally.
+- [ ] Linting/formatting applied.
+- [ ] No sensitive data (passwords, secrets) included.
+
+### Non-code contributions
+
+- Other improvements such as translations, UI & UX suggestions, icons and designs are welcome. Open issues or PRs just like for code.
+- Propose larger ideas in an issue first so maintainers can provide feedback before an implementation.
+
+### Review process
+
+- Maintainers will review PRs, request changes if necessary, and merge when ready.
+- Code Rabbit (an automated code-review tool) runs on pull requests and posts suggestions. Please review and address its recommendations before requesting a final review; if you disagree with a suggestion, explain why in the PR comments. Maintainers may require resolving important warnings before merging.
+- Please be responsive to review comments - small follow-ups are common.
+
+### Communication & conduct
+
+- Be respectful and constructive. This project follows the license in the repository; if a Code of Conduct is added later, contributors must follow it.
+
+Thank you for helping improve Disscount — every contribution helps!
