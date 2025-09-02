@@ -47,18 +47,47 @@ This work is licensed under a
 
 ### Prerequisites
 
-_List all software and dependencies that need to be installed (e.g., Node.js, pnpm, etc.). Specify versions if necessary. Provide installation commands and in what order._
+- Java 21
+- Maven 3.9+
+- Node.js 18+ (or latest LTS)
+- pnpm (or npm/yarn)
+- PostgreSQL (local or remote)
+- Git
 
 ### Game flow
 
-_Explain the typical flow of a game round in steps. For example: copy and edit .env for both frontend and backend, create database, run the backend, run the frontend, open localhost:3000..._
+- Start the backend first (so API is available), then start the frontend.
 
 ### Running the backend
 
-Start the server:
+1. Database (PostgreSQL)
 
-mvn clean install spring-boot:run
+- Create database and user (example):
+  sudo -u postgres psql -c "CREATE USER disccount WITH PASSWORD 'secret';"
+  sudo -u postgres psql -c "CREATE DATABASE disccount OWNER disccount;"
+- Adjust names/passwords as needed.
+
+2. Backend setup
+
+- Copy/configure environment variables (backend expects):
+  - SPRING_DATASOURCE_URL (e.g. jdbc:postgresql://localhost:5432/disscount)
+  - SPRING_DATASOURCE_USERNAME
+  - SPRING_DATASOURCE_PASSWORD
+  - JWT_SECRET (strong random string)
+- You can copy `.env.example` to `.env` in the backend folder if present.
+- Build and run:
+  cd backend
+  mvn clean install
+  mvn spring-boot:run
+- The backend starts on port 8080 by default. Open API docs at:
+  http://localhost:8080/api-docs
 
 ### Running the frontend
 
-pnpm run dev
+3. Frontend setup
+
+- Install and run:
+  cd frontend
+  pnpm install
+  pnpm dev
+- The frontend runs on port 3000 by default: http://localhost:3000
