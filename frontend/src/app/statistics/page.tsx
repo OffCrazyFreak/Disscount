@@ -1,11 +1,17 @@
 import Image from "next/image";
 import HealthStatus from "@/app/statistics/components/health-status";
 import ChainList from "@/app/statistics/components/chain-list";
+import { TextEffect } from "@/components/ui/text-effect";
+
+export const metadata = {
+  title: "Disscount - Statistika",
+  description: "Pregled statistike lanaca trgovina u Disscount aplikaciji.",
+};
 
 export default function StatisticsPage() {
   return (
     <div className="space-y-6">
-      <div className="text-center mb-8">
+      <div className="text-center mb-8 space-y-4">
         <div className="flex items-center justify-center space-x-4">
           {/* App logo */}
           <Image
@@ -19,6 +25,10 @@ export default function StatisticsPage() {
             <span className="text-primary">Disscount</span> Statistika
           </h1>
         </div>
+
+        <p className="text-balance text-md sm:text-lg">
+          Pregled statistike lanaca trgovina u Disscount aplikaciji.
+        </p>
       </div>
 
       <HealthStatus />
