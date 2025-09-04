@@ -39,28 +39,16 @@ export default function HeroSection() {
             className="mx-auto w-32 sm:w-48"
           />
 
-          <TextEffect
-            preset="fade-in-blur"
-            speedSegment={0.3}
-            as="h1"
-            className="text-4xl sm:text-6xl text-primary font-bold"
-          >
+          <h1 className="text-4xl sm:text-6xl text-primary font-bold">
             Disscount
-          </TextEffect>
+          </h1>
 
-          <TextEffect
-            per="line"
-            preset="fade-in-blur"
-            speedSegment={0.3}
-            delay={0.5}
-            as="p"
-            className="uppercase max-w-md mx-auto text-balance text-md sm:text-lg"
-          >
+          <p className="uppercase max-w-md mx-auto text-balance text-md sm:text-lg">
             {tagLine}
-          </TextEffect>
+          </p>
         </div>
 
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense>
           <HeroActions />
         </Suspense>
       </div>
