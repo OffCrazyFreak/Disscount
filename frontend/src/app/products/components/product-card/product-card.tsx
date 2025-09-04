@@ -4,7 +4,7 @@ import { memo, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button-icon";
 import { ListPlus } from "lucide-react";
-import { ProductResponse } from "@/app/products/api/schemas";
+import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { ProductInfo } from "@/app/products/components/product-card/product-info";
 import { ProductPrice } from "@/app/products/components/product-card/product-price";
 import AddToShoppingListForm from "@/app/products/components/forms/add-to-shopping-list-form";

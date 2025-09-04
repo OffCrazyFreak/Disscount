@@ -23,8 +23,8 @@ import {
   ChainProductResponse,
   ProductResponse,
   StorePrice,
-} from "@/app/products/api/schemas";
-import { getMinPrice, getMaxPrice } from "@/app/products/api/utils";
+} from "@/lib/cijene-api/schemas";
+import { getMinPrice, getMaxPrice } from "@/lib/cijene-api/utils";
 import { formatDate } from "@/utils/strings";
 import { useUser } from "@/context/user-context";
 

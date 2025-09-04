@@ -40,9 +40,9 @@ import { PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/schemas/preferences";
 import { cn } from "@/utils/generic";
 import { preferencesService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
-import { useAllLocations } from "@/app/products/api/hooks";
-import cijeneService from "@/app/products/api";
-import { ChainStats } from "@/app/products/api/schemas";
+import { useAllLocations } from "@/lib/cijene-api/hooks";
+import cijeneService from "@/lib/cijene-api";
+import { ChainStats } from "@/lib/cijene-api/schemas";
 import { storeNamesMap } from "@/utils/mappings";
 import { UserDto } from "@/lib/api/schemas";
 

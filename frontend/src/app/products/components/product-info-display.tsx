@@ -1,12 +1,12 @@
 import React from "react";
 import { Eye } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
-import { ProductResponse } from "@/app/products/api/schemas";
+import { ProductResponse } from "@/lib/cijene-api/schemas";
 import {
   getAveragePrice,
   getMinPrice,
   getMaxPrice,
-} from "@/app/products/api/utils";
+} from "@/lib/cijene-api/utils";
 import { formatQuantity } from "@/utils/strings";
 
 interface ProductInfoDisplayProps {

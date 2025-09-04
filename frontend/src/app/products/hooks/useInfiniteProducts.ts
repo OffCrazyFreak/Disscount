@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useProductSearch } from "@/app/products/api/hooks";
-import type { ProductResponse } from "@/app/products/api/schemas";
+import { useProductSearch } from "@/lib/cijene-api/hooks";
+import type { ProductResponse } from "@/lib/cijene-api/schemas";
 
 export interface UseInfiniteProductsResult {
   visibleProducts: ProductResponse[];

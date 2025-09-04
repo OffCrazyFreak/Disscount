@@ -3,10 +3,10 @@
 import React from "react";
 import { useParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import cijeneService from "@/app/products/api";
+import cijeneService from "@/lib/cijene-api";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
 import { StoreChainCard } from "@/app/products/[id]/components/store-chain-card";
-import { ProductResponse } from "@/app/products/api/schemas";
+import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { useUser } from "@/context/user-context";
 
 export default function ProductDetailsPage() {

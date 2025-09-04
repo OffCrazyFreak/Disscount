@@ -34,9 +34,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import cijeneService from "@/app/products/api";
-import { ChainStats } from "@/app/products/api/schemas";
-import { useAllLocations } from "@/app/products/api/hooks";
+import cijeneService from "@/lib/cijene-api";
+import { ChainStats } from "@/lib/cijene-api/schemas";
+import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { ProductSearchBar } from "@/app/products/components/product-search-bar";
 import { storeNamesMap } from "@/utils/mappings";
 import { Button } from "../ui/button-icon";

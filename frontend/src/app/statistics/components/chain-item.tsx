@@ -1,3 +1,5 @@
+"use client";
+
 import React, { memo } from "react";
 import { ChevronDown, Loader2, MapPin, Tag } from "lucide-react";
 import Image from "next/image";
@@ -17,28 +19,23 @@ import {
 } from "@/components/ui/table";
 import { storeNamesMap } from "@/utils/mappings";
 import { cn } from "@/utils/generic";
+import cijeneService from "@/lib/cijene-api";
 
 interface ChainItemProps {
   stat: any;
   isExpanded: boolean;
   onToggle: () => void;
-  storesByChainCode: Record<string, any[]>;
-  allStoresLoading: boolean;
   index: number;
   isLast: boolean;
 }
 
 // Memoized component for individual chain items to prevent unnecessary re-renders
 export const ChainItem = memo(
-  ({
-    stat,
-    isExpanded,
-    onToggle,
-    storesByChainCode,
-    allStoresLoading,
-    index,
-    isLast,
-  }: ChainItemProps) => {
+  ({ stat, isExpanded, onToggle, index, isLast }: ChainItemProps) => {
+    // Fetch stores for this specific chain when the item is rendered
+    const { data: storesData, isLoading: storesLoading } =
+      cijeneService.useListStoresByChain(stat.chain_code);
+
     return (
       <div>
         <Collapsible open={isExpanded} onOpenChange={onToggle}>
@@ -96,12 +93,12 @@ export const ChainItem = memo(
 
           <CollapsibleContent>
             <div className="mt-4">
-              {allStoresLoading ? (
+              {storesLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="size-6 animate-spin mr-2" />
                   Učitavanje trgovina...
                 </div>
-              ) : storesByChainCode[stat.chain_code] ? (
+              ) : storesData?.stores && storesData.stores.length > 0 ? (
                 <div className="max-h-128 overflow-y-auto">
                   <Table>
                     <TableHeader>
@@ -112,9 +109,10 @@ export const ChainItem = memo(
                     </TableHeader>
 
                     <TableBody>
-                      {/* Placeholder for future content */}
-                      {storesByChainCode[stat.chain_code]
-                        .sort((a, b) => a.city?.localeCompare(b.city))
+                      {storesData.stores
+                        .sort((a, b) =>
+                          (a.city || "").localeCompare(b.city || "")
+                        )
                         .map((store) => (
                           <TableRow key={store.address}>
                             <TableCell className="text-gray-700">

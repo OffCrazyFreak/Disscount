@@ -5,8 +5,8 @@ import {
   getMinPrice,
   getAveragePrice,
   getMaxPrice,
-} from "@/app/products/api/utils";
-import { ProductResponse } from "@/app/products/api/schemas";
+} from "@/lib/cijene-api/utils";
+import { ProductResponse } from "@/lib/cijene-api/schemas";
 
 interface ProductPriceProps {
   product: ProductResponse;

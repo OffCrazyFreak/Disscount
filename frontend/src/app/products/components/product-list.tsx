@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import type { ProductResponse } from "@/app/products/api/schemas";
+import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { ProductCard } from "@/app/products/components/product-card/product-card";
 
 interface ProductListProps {

@@ -14,7 +14,7 @@ import { Form } from "@/components/ui/form";
 import { shoppingListService } from "@/lib/api";
 import { ShoppingListRequest } from "@/lib/api/schemas/shopping-list";
 import { ShoppingListItemRequest } from "@/lib/api/schemas/shopping-list-item";
-import { ProductResponse } from "@/app/products/api/schemas";
+import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   AddToListFormData,
