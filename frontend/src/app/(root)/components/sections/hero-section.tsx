@@ -28,37 +28,6 @@ export default function HeroSection() {
 
   return (
     <section className="min-h-dvh -mt-24 relative grid items-center">
-      <AnimatedGroup
-        variants={{
-          container: {
-            visible: {
-              transition: {
-                delayChildren: 1,
-              },
-            },
-          },
-          item: {
-            hidden: {
-              opacity: 0,
-              y: 20,
-            },
-            visible: {
-              opacity: 1,
-              y: 0,
-              transition: {
-                type: "spring",
-                bounce: 0.3,
-                duration: 2,
-              },
-            },
-          },
-        }}
-        className="absolute inset-0 -z-20"
-      >
-        <></>
-        {/* TODO neka pozadinska slika/graf */}
-      </AnimatedGroup>
-
       <div className="text-center space-y-24">
         <div className="space-y-6">
           {/* App logo */}
