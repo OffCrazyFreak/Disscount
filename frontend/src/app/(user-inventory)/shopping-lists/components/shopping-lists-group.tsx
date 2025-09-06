@@ -2,7 +2,7 @@
 
 import React from "react";
 import { AnimatedGroup } from "@/components/ui/animated-group";
-import ShoppingListCard from "@/app/shopping-lists/components/shopping-list-card";
+import ShoppingListCard from "@/app/(user-inventory)/shopping-lists/components/shopping-list-card";
 import { ShoppingListDto } from "@/lib/api/types";
 import { ViewMode } from "@/typings/view-mode";
 

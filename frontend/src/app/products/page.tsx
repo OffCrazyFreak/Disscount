@@ -1,15 +1,21 @@
 "use client";
 
-import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Loader2 } from "lucide-react";
 import { ProductSearchBar } from "@/app/products/components/product-search-bar";
-import SearchItemsLayout from "@/components/layouts/search-items-layout";
+import ProductsLayout from "@/app/products/layout";
 import { useViewMode } from "@/hooks/use-view-mode";
 import NoResults from "@/components/custom/no-results";
 import useInfiniteProducts from "@/app/products/hooks/useInfiniteProducts";
 import { ProductList } from "@/app/products/components/product-list";
 import { Button } from "@/components/ui/button-icon";
+import { Suspense } from "react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Proizvodi",
+  description: "Pregled dostupnih proizvoda.",
+};
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
@@ -31,13 +37,17 @@ export default function ProductsPage() {
     useInfiniteProducts(initialQuery, virtualizationBatchSize);
 
   return (
-    <SearchItemsLayout
+    <ProductsLayout
       title={
         initialQuery.length > 0
           ? `Rezultati pretrage za "${initialQuery}" (${total})`
           : undefined
       }
-      search={<ProductSearchBar onSearch={handleSearch} showSubmitButton />}
+      search={
+        <Suspense>
+          <ProductSearchBar onSearch={handleSearch} showSubmitButton />
+        </Suspense>
+      }
       viewMode={viewMode}
       setViewMode={setViewMode}
     >
@@ -92,6 +102,6 @@ export default function ProductsPage() {
           </p>
         </div>
       )}
-    </SearchItemsLayout>
+    </ProductsLayout>
   );
 }

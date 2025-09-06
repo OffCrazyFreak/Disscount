@@ -5,17 +5,45 @@ import { AppSidebar } from "@/components/custom/app-sidebar";
 import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/footer";
 import { Providers } from "@/app/providers/providers";
+import { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "Disscount - Najbolje cijene u Hrvatskoj",
-  description:
-    "App for shoppers in Croatia to compare store prices, create smart shopping lists, track loyalty cards, and get deal alerts with barcode scanning & AI suggestions.",
+  metadataBase: new URL("https://OffCrazyFreak.github.io/Disscount"),
+  title: {
+    default: "Disscount - Pronađi najbolje cijene u Hrvatskoj",
+    template: "Disscount - %s",
+  },
+  creator: "Jakov Jakovac",
+  keywords: [
+    "disscount",
+    "disscount app",
+    "disscount hr",
+    "disscount hrvatska",
+    "najbolje cijene",
+    "shopping list",
+    "shopping lists",
+    "digital cards",
+    "digitalne kartice",
+    "loyalty cards",
+    "loyalty card",
+    "price comparison",
+    "price tracker",
+    "praćenje cijena",
+    "usporedba cijena",
+    "deal alerts",
+    "barcode scanner",
+    "ai suggestions",
+  ],
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html lang="hr">
@@ -31,7 +59,9 @@ export default function RootLayout({
 
             <Header />
 
-            <AppSidebar />
+            <aside>
+              <AppSidebar />
+            </aside>
 
             <main className="max-w-5xl mx-auto p-4 mt-24 w-full">
               {children}

@@ -3,19 +3,19 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import SearchBar from "@/components/custom/search-bar";
 
-interface ProductSearchBarProps {
+interface ShoppingListSearchProps {
   onSearch?: (query: string) => void;
   showBarcode?: boolean;
   showSubmitButton?: boolean;
   submitLabel?: string;
 }
 
-export default function ProductSearchBar({
+export default function ShoppingListSearchBar({
   onSearch,
   showBarcode = true,
   showSubmitButton = false,
   submitLabel = "Pretraži shopping liste",
-}: ProductSearchBarProps) {
+}: ShoppingListSearchProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") || "";

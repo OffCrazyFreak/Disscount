@@ -5,11 +5,15 @@ const CIJENE_API_BASE_URL = process.env.NEXT_PUBLIC_CIJENE_API_URL;
 const CIJENE_API_TOKEN = process.env.NEXT_PUBLIC_CIJENE_API_TOKEN;
 
 if (!CIJENE_API_BASE_URL) {
-  throw new Error("NEXT_PUBLIC_CIJENE_API_URL environment variable is required");
+  throw new Error(
+    "NEXT_PUBLIC_CIJENE_API_URL environment variable is required"
+  );
 }
 
 if (!CIJENE_API_TOKEN) {
-  throw new Error("NEXT_PUBLIC_CIJENE_API_TOKEN environment variable is required");
+  throw new Error(
+    "NEXT_PUBLIC_CIJENE_API_TOKEN environment variable is required"
+  );
 }
 
 // Create axios instance for Cijene API v1
@@ -44,7 +48,9 @@ const cijeneApiHealthClient: AxiosInstance = axios.create({
 const addLoggingInterceptor = (client: AxiosInstance, name: string) => {
   if (process.env.NODE_ENV === "development") {
     client.interceptors.request.use((config) => {
-      console.log(`[Cijene API ${name}] ${config.method?.toUpperCase()} ${config.url}`);
+      console.log(
+        `[Cijene API ${name}] ${config.method?.toUpperCase()} ${config.url}`
+      );
       return config;
     });
   }
@@ -57,7 +63,10 @@ const addErrorInterceptor = (client: AxiosInstance) => {
     (error) => {
       // Log errors in development
       if (process.env.NODE_ENV === "development") {
-        console.error("[Cijene API Error]", error.response?.data || error.message);
+        console.error(
+          "[Cijene API Error]",
+          error.response?.data || error.message
+        );
       }
 
       // Transform API errors into user-friendly messages

@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo, useState } from "react";
+import { memo, useMemo, useState, Suspense } from "react";
 import {
   ChevronDown,
   List,
@@ -66,7 +66,9 @@ export const AppSidebar = memo(function AppSidebar() {
       <SidebarHeader>
         <SidebarGroup>
           <SidebarGroupContent>
-            <ProductSearchBar />
+            <Suspense>
+              <ProductSearchBar />
+            </Suspense>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarHeader>

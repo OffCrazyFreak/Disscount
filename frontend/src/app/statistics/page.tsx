@@ -2,10 +2,11 @@ import Image from "next/image";
 import HealthStatus from "@/app/statistics/components/health-status";
 import ChainList from "@/app/statistics/components/chain-list";
 import { TextEffect } from "@/components/ui/text-effect";
+import { Metadata } from "next";
 
-export const metadata = {
-  title: "Disscount - Statistika",
-  description: "Pregled statistike lanaca trgovina u Disscount aplikaciji.",
+export const metadata: Metadata = {
+  title: "Statistika",
+  description: "Pregled statistike lanaca trgovina.",
 };
 
 export default function StatisticsPage() {

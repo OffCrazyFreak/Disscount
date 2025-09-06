@@ -8,6 +8,12 @@ import ProductInfoDisplay from "@/app/products/components/product-info-display";
 import { StoreChainCard } from "@/app/products/[id]/components/store-chain-card";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { useUser } from "@/context/user-context";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Proizvod - Detalji",
+  description: "Usporedba cijena proizvoda.",
+};
 
 export default function ProductDetailsPage() {
   const params = useParams();

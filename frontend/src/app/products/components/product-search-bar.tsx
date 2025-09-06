@@ -58,12 +58,6 @@ export const ProductSearchBar = memo(function ProductSearchBar({
         showSubmitButton={showSubmitButton}
         submitLabel={submitLabel}
       />
-
-      <BarcodeScanner
-        isOpen={scannerOpen}
-        onClose={() => setScannerOpen(false)}
-        onScan={handleScan}
-      />
     </>
   );
 });

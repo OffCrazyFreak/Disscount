@@ -1,35 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  Search,
-  Plus,
-  Loader2,
-  PlusIcon,
-  ClipboardEdit,
-  ChevronRightIcon,
-  Frown,
-} from "lucide-react";
+import { Search, Plus, Loader2, PlusIcon, Frown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ShoppingListCard from "@/app/shopping-lists/components/shopping-list-card";
-import ShoppingListsSearchBar from "@/app/shopping-lists/components/shopping-list-search-bar";
-import SearchItemsLayout from "@/components/layouts/search-items-layout";
-import ShoppingListModal from "@/app/shopping-lists/components/forms/shopping-list-modal";
+import ShoppingListsSearchBar from "@/app/(user-inventory)/shopping-lists/components/shopping-list-search-bar";
+import UserInventoryLayout from "@/app/(user-inventory)/layout";
+import ShoppingListModal from "@/app/(user-inventory)/shopping-lists/components/forms/shopping-list-modal";
 import { ShoppingListDto } from "@/lib/api/types";
 import { useViewMode } from "@/hooks/use-view-mode";
 import { filterByFields } from "@/utils/generic";
 import { shoppingListService } from "@/lib/api";
-import { AnimatedGroup } from "@/components/ui/animated-group";
-import ShoppingListsGroup from "@/app/shopping-lists/components/shopping-lists-group";
+import ShoppingListsGroup from "@/app/(user-inventory)/shopping-lists/components/shopping-lists-group";
 import { FloatingActionButton } from "@/components/custom/floating-action-button";
 import NoResults from "@/components/custom/no-results";
-import ViewSwitcher from "@/components/custom/view-switcher";
 import { useUser } from "@/context/user-context";
+import { Metadata } from "next";
 
-export default function ShoppingListsPage() {
-  const searchParams = useSearchParams();
-  const initialQuery = searchParams.get("q") || "";
+export const metadata: Metadata = {
+  title: "Popisi za kupnju",
+  description: "Upravljanje popisima za kupnju.",
+};
+
+export default function ShoppingListsPage({
+  searchParams,
+}: {
+  searchParams?: Record<string, string | string[]>;
+}) {
+  const initialQuery = Array.isArray(searchParams?.q)
+    ? searchParams?.q[0] || ""
+    : (searchParams?.q as string) || "";
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedShoppingList, setSelectedShoppingList] =
@@ -37,16 +37,13 @@ export default function ShoppingListsPage() {
   const [viewMode, setViewMode] = useViewMode("/shopping-lists", "grid");
 
   // Use user context for authentication and shopping lists data
-  const {
-    isAuthenticated,
-    isLoading: userLoading,
-  } = useUser();
+  const { isAuthenticated, isLoading: userLoading } = useUser();
 
   // React Query hook - always enabled for authenticated users
-  const { 
-    data: shoppingLists = [], 
-    isLoading: isLoadingLists, 
-    refetch 
+  const {
+    data: shoppingLists = [],
+    isLoading: isLoadingLists,
+    refetch,
   } = shoppingListService.useGetCurrentUserShoppingLists();
 
   // Use React Query data and loading state
@@ -90,21 +87,23 @@ export default function ShoppingListsPage() {
       <FloatingActionButton
         onClick={() => setIsModalOpen(true)}
         icon={<PlusIcon size={24} />}
-        label="Izradi shopping listu"
+        label="Izradi popis"
       />
 
-      <SearchItemsLayout
+      <UserInventoryLayout
         title={
           initialQuery.length > 0
             ? `Rezultati pretrage za "${initialQuery}" (${filteredShoppingLists.length})`
-            : `Moje shopping liste (${filteredShoppingLists.length})`
+            : `Moji popisi za kupnju (${filteredShoppingLists.length})`
         }
         search={
-          <ShoppingListsSearchBar
-            onSearch={handleSearch}
-            showSubmitButton
-            showBarcode={false}
-          />
+          <Suspense>
+            <ShoppingListsSearchBar
+              onSearch={handleSearch}
+              showSubmitButton
+              showBarcode={false}
+            />
+          </Suspense>
         }
         viewMode={viewMode}
         setViewMode={setViewMode}
@@ -153,7 +152,7 @@ export default function ShoppingListsPage() {
             )}
           </>
         )}
-      </SearchItemsLayout>
+      </UserInventoryLayout>
     </>
   );
 }

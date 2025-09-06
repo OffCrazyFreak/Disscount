@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,12 +8,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { usePathname } from "next/dist/client/components/navigation";
+import NotFoundClient from "@/app/not-found/components/not-found-client";
 import { Suspense } from "react";
+import type { Metadata } from "next";
+
+const metadata: Metadata = {
+  title: "Stranica nije pronađena - 404",
+  description: "Stranica koju tražite ne postoji.",
+};
 
 export default function NotFound() {
-  const pathname = usePathname();
-
   return (
     <div className="m-2 flex items-center justify-center min-h-[70dvh]">
       <Card className="w-full max-w-md mx-auto">
@@ -26,22 +28,22 @@ export default function NotFound() {
             <div className="text-2xl">Hmm… ovo je neugodno. 😅</div>
           </CardTitle>
 
-          <Suspense fallback={<div>Učitavanje...</div>}>
-            <CardDescription className="space-y-2">
-              <div>
-                Čini se da stranica{" "}
-                <span className="italic">&quot;{pathname}&quot;</span> ne
-                postoji.
-              </div>
+          <CardDescription className="space-y-2">
+            <div>
+              Čini se da stranica
+              <Suspense>
+                <NotFoundClient />
+              </Suspense>
+              ne postoji.
+            </div>
 
-              <div className="text-gray-600">
-                Vratimo se skupa na početnu stranicu, ili prijavi grešku!
-              </div>
-            </CardDescription>
-          </Suspense>
+            <div className="text-gray-600">
+              Vratimo se skupa na početnu stranicu, ili prijavi grešku!
+            </div>
+          </CardDescription>
         </CardHeader>
 
-        <CardContent className="text-center mt-2 flex flex-wrap gap-2 items-center justify-center">
+        <CardContent className="text-center mt-2 flex flex-wrap gap-4 items-center justify-center">
           <Button variant={"outline"} effect={"shineHover"} asChild>
             <Link href="/">Prijavi grešku</Link>
             {/* TODO: contact form */}

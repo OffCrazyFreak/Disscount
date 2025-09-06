@@ -20,13 +20,13 @@ export interface SearchBarProps {
 
 export default function SearchBar({
   defaultValue = "",
-  placeholder = "Search...",
+  placeholder = "Pretraži...",
   onSearch,
   onBarcodeClick,
   showBarcode = true,
   clearable = true,
   showSubmitButton = false,
-  submitLabel = "Search",
+  submitLabel = "Pretraži",
 }: SearchBarProps) {
   const { register, handleSubmit, watch, reset, setValue } = useForm<{
     query: string;

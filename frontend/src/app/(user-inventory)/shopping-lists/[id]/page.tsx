@@ -7,6 +7,13 @@ import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { shoppingListService } from "@/lib/api";
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Popis za kupnju - Detalji",
+  description: "Pregled i upravljanje stavkama na popisu za kupnju.",
+};
+
 export default function ShoppingListDetailPage() {
   const params = useParams();
   const router = useRouter();

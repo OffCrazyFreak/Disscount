@@ -11,7 +11,7 @@ type Props = {
   className?: string;
 };
 
-export default function SearchItemsLayout({
+export default function UserInventoryLayout({
   title,
   search,
   viewMode,

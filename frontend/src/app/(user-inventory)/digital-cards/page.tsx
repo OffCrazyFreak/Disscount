@@ -11,10 +11,10 @@ import {
   Frown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import DigitalCardSearchBar from "@/app/digital-cards/components/digital-card-search-bar";
-import SearchItemsLayout from "@/components/layouts/search-items-layout";
-import DigitalCardModal from "@/app/digital-cards/components/forms/digital-card-modal";
-import DigitalCardsGroup from "@/app/digital-cards/components/digital-cards-group";
+import DigitalCardSearchBar from "@/app/(user-inventory)/digital-cards/components/digital-card-search-bar";
+import UserInventoryLayout from "@/app/(user-inventory)/layout";
+import DigitalCardModal from "@/app/(user-inventory)/digital-cards/components/forms/digital-card-modal";
+import DigitalCardsGroup from "@/app/(user-inventory)/digital-cards/components/digital-cards-group";
 import NoResults from "@/components/custom/no-results";
 import { FloatingActionButton } from "@/components/custom/floating-action-button";
 import { DigitalCardDto } from "@/lib/api/types";
@@ -23,6 +23,12 @@ import { filterByFields } from "@/utils/generic";
 import { digitalCardService } from "@/lib/api";
 import { toast } from "sonner";
 import { useUser } from "@/context/user-context";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Digitalne kartice",
+  description: "Upravljanje digitalnim karticama.",
+};
 
 export default function DigitalCardsPage() {
   const searchParams = useSearchParams();
@@ -112,7 +118,7 @@ export default function DigitalCardsPage() {
         label="Dodaj digitalnu karticu"
       />
 
-      <SearchItemsLayout
+      <UserInventoryLayout
         title={
           initialQuery.length > 0
             ? `Rezultati pretrage za "${initialQuery}" (${filteredDigitalCards.length})`
@@ -173,7 +179,7 @@ export default function DigitalCardsPage() {
             )}
           </>
         )}
-      </SearchItemsLayout>
+      </UserInventoryLayout>
     </>
   );
 }
