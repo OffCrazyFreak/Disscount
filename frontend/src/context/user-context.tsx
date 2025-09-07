@@ -215,11 +215,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       // This ensures that users with valid refresh tokens don't appear as
       // unauthenticated during the initial app load
       try {
-        const response = await authService.refreshToken();
+        const data = await authService.refreshToken();
 
         // If refresh is successful, the token is automatically stored in the app storage
         // by the refreshToken function, so we can now fetch user data
-        if (response.accessToken) {
+        if (data.accessToken) {
           await refreshUser();
           return;
         }

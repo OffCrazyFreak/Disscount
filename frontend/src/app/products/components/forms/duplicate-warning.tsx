@@ -26,12 +26,12 @@ export default function DuplicateWarning({
 
         <div className="space-y-1">
           <h4 className="text-sm text-amber-600">
-            Proizvod već u shopping listi
+            Proizvod već u popisu za kupnju
           </h4>
           <p className="text-xs text-amber-900 text-justify">
-            Ovaj proizvod je već dodan u odabranu shopping listu. Dodavanjem
-            ovog proizvoda će se samo povećati njegova količina u shopping listi{" "}
-            ({duplicateItem.amount}) kom.
+            Ovaj proizvod je već dodan u odabran popis za kupnju. Dodavanjem
+            ovog proizvoda će se samo povećati njegova količina u popisu za
+            kupnju ({duplicateItem.amount}) kom.
           </p>
         </div>
       </div>

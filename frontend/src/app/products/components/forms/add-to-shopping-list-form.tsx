@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { Save } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -38,7 +39,6 @@ export default function AddToShoppingListForm({
   onOpenChange,
   product,
 }: AddToShoppingListFormProps) {
-  const [open, setOpen] = useState(false);
   const [customListTitle, setCustomListTitle] = useState("");
 
   const queryClient = useQueryClient();
@@ -91,28 +91,10 @@ export default function AddToShoppingListForm({
     }
   }, [isOpen, sortedShoppingLists, form]);
 
-  async function handleSubmit(data: AddToListFormData) {
+  function onSubmit(data: AddToListFormData) {
     if (!product) return;
 
-    try {
-      let listId = data.shoppingListId;
-
-      // If creating a new list, create it first
-      if (data.shoppingListId === "new" && customListTitle) {
-        const createRequest: ShoppingListRequest = {
-          title: customListTitle,
-          isPublic: false,
-        };
-
-        const newList = await createShoppingListMutation.mutateAsync(
-          createRequest
-        );
-        listId = newList.id;
-
-        toast.success(`Lista "${customListTitle}" je stvorena`);
-      }
-
-      // Add item to shopping list
+    const proceedToAdd = (listId: string) => {
       const itemRequest: ShoppingListItemRequest = {
         ean: product.ean,
         name: product.name || "",
@@ -123,47 +105,66 @@ export default function AddToShoppingListForm({
         isChecked: data.isChecked,
       };
 
-      await addItemMutation.mutateAsync({
-        listId,
-        data: itemRequest,
+      addItemMutation.mutate(
+        {
+          listId,
+          data: itemRequest,
+        },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["shoppingLists"] });
+            queryClient.invalidateQueries({ queryKey: ["shoppingListItems"] });
+
+            const listName =
+              data.shoppingListId === "new"
+                ? customListTitle
+                : sortedShoppingLists.find((list) => list.id === listId)
+                    ?.title || "lista";
+
+            toast.success(`Proizvod je dodan u "${listName}"`);
+
+            // Reset form and close modal
+            form.reset({
+              shoppingListId:
+                sortedShoppingLists.length > 0 ? sortedShoppingLists[0].id : "",
+              amount: 1,
+              isChecked: false,
+            });
+            setCustomListTitle("");
+
+            onOpenChange(false);
+          },
+          onError: (err) => {
+            toast.error("Greška pri dodavanju na popis");
+          },
+        }
+      );
+    };
+
+    // If creating a new list, create it first, then add the item in onSuccess
+    if (data.shoppingListId === "new" && customListTitle) {
+      const createRequest: ShoppingListRequest = {
+        title: customListTitle,
+        isPublic: false,
+      };
+
+      createShoppingListMutation.mutate(createRequest, {
+        onSuccess: (newList) => {
+          toast.success(`Lista "${customListTitle}" je stvorena`);
+          proceedToAdd(newList.id);
+        },
+        onError: (err) => {
+          toast.error("Greška pri stvaranju popisa za kupnju");
+        },
       });
-
-      await queryClient.invalidateQueries({ queryKey: ["shoppingLists"] });
-      await queryClient.invalidateQueries({ queryKey: ["shoppingListItems"] });
-
-      const listName =
-        data.shoppingListId === "new"
-          ? customListTitle
-          : sortedShoppingLists.find((list) => list.id === listId)?.title ||
-            "lista";
-
-      toast.success(`Proizvod je dodan u "${listName}"`);
-
-      // Reset form and close modal
-      form.reset({
-        shoppingListId:
-          sortedShoppingLists.length > 0 ? sortedShoppingLists[0].id : "",
-        amount: 1,
-        isChecked: false,
-      });
-      setCustomListTitle("");
-      setOpen(false);
-      onOpenChange(false);
-    } catch (error) {
-      console.error("Error adding to shopping list:", error);
-      toast.error("Greška pri dodavanju u listu");
+    } else {
+      proceedToAdd(data.shoppingListId);
     }
   }
 
   function handleCancel() {
-    form.reset({
-      shoppingListId:
-        sortedShoppingLists.length > 0 ? sortedShoppingLists[0].id : "",
-      amount: 1,
-      isChecked: false,
-    });
+    form.reset();
     setCustomListTitle("");
-    setOpen(false);
     onOpenChange(false);
   }
 
@@ -178,10 +179,13 @@ export default function AddToShoppingListForm({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-background">
+      <DialogContent
+        className="sm:max-w-md bg-background"
+        aria-describedby="add-to-shopping-list-form"
+      >
         <DialogHeader>
           <DialogTitle className="text-xl mb-2">
-            <DialogTitle>Dodaj proizvod u shopping listu</DialogTitle>
+            Dodaj proizvod u popis za kupnju
           </DialogTitle>
         </DialogHeader>
 
@@ -196,10 +200,7 @@ export default function AddToShoppingListForm({
         />
 
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <ShoppingListSelector
               field={form}
               isLoadingLists={isLoadingLists}
@@ -217,6 +218,7 @@ export default function AddToShoppingListForm({
               <Button
                 type="button"
                 variant="outline"
+                effect="ringHover"
                 onClick={handleCancel}
                 disabled={isSubmitting}
               >
@@ -225,8 +227,13 @@ export default function AddToShoppingListForm({
 
               <Button
                 type="submit"
-                loading={isSubmitting}
+                variant="default"
+                effect="expandIcon"
+                icon={Save}
+                iconPlacement="right"
                 disabled={isSubmitting}
+                loading={isSubmitting}
+                loadingText="Dodavanje"
               >
                 Dodaj
               </Button>

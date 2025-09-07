@@ -63,7 +63,7 @@ export default function Header(): JSX.Element {
                 >
                   <ListChecks className="size-4 group-hover:text-primary transition-colors" />
                   <span className="group-hover:text-primary transition-colors">
-                    Shopping liste
+                    Popisi za kupnju
                   </span>
                 </Link>
               </li>

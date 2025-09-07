@@ -69,24 +69,12 @@ export default function AccountDetailsModal({
   const form = useForm<UserRequest>({
     resolver: zodResolver(userRequestSchema),
     defaultValues: {
-      username: "",
-      stayLoggedInDays: 30,
-      notificationsPush: true,
-      notificationsEmail: true,
+      username: user?.username,
+      stayLoggedInDays: user?.stayLoggedInDays || 30,
+      notificationsPush: user?.notificationsPush ?? true,
+      notificationsEmail: user?.notificationsEmail ?? true,
     },
   });
-
-  // Update form when user data changes
-  useEffect(() => {
-    if (user) {
-      form.reset({
-        username: user.username || "",
-        stayLoggedInDays: user.stayLoggedInDays || 30,
-        notificationsPush: user.notificationsPush ?? true,
-        notificationsEmail: user.notificationsEmail ?? true,
-      });
-    }
-  }, [user, form]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -185,7 +173,7 @@ export default function AccountDetailsModal({
                 <FormItem>
                   <FormLabel>Korisničko ime</FormLabel>
                   <FormControl>
-                    <Input placeholder="Tvoje korisničko ime" {...field} />
+                    <Input {...field} />
                   </FormControl>
                   <FormDescription>Kako ćemo te zvati?</FormDescription>
                   <FormMessage />

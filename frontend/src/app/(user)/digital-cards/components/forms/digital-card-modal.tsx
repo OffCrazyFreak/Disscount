@@ -69,8 +69,7 @@ export default function DigitalCardModal({
     },
   });
 
-  const onSubmit = (data: any) => {
-    console.log("Submitting data:", data);
+  function onSubmit(data: DigitalCardRequest) {
     if (digitalCard) {
       updateMutation.mutate(
         { id: digitalCard.id, data },
@@ -110,7 +109,7 @@ export default function DigitalCardModal({
         },
       });
     }
-  };
+  }
 
   const handleCancel = () => {
     form.reset();

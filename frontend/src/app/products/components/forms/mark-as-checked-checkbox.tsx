@@ -29,7 +29,7 @@ export default function MarkAsCheckedCheckbox({
               Unaprijed označi proizvod kao kupljen
             </FormLabel>
             <FormDescription className="text-xs text-gray-500">
-              Ovo je moguće naknadno izmjeniti u shopping listi
+              Ovo je moguće naknadno izmjeniti u popisu za kupnju
             </FormDescription>
           </div>
         </FormItem>

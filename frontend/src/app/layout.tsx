@@ -22,6 +22,8 @@ export const metadata: Metadata = {
     "najbolje cijene",
     "shopping list",
     "shopping lists",
+    "popisi za kupnju",
+    "popis za kupnju",
     "digital cards",
     "digitalne kartice",
     "loyalty cards",

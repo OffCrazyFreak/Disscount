@@ -85,7 +85,7 @@ export const AppSidebar = memo(function AppSidebar() {
                       className="flex items-center gap-2"
                     >
                       <ListChecks />
-                      <span>Shopping liste</span>
+                      <span>Popisi za kupnju</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

@@ -50,7 +50,7 @@ export default function ShoppingListSelector({
       name="shoppingListId"
       render={({ field }) => (
         <FormItem className="flex flex-col">
-          <FormLabel>Shopping lista</FormLabel>
+          <FormLabel>Popis za kupnju</FormLabel>
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <FormControl>

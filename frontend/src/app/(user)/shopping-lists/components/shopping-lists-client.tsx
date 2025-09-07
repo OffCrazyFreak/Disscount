@@ -97,7 +97,7 @@ export default function ShoppingListsClient({ query }: { query: string }) {
         {isLoading && (
           <div className="text-center py-12">
             <Loader2 className="size-12 text-gray-400 mx-auto mb-4 animate-spin" />
-            <p className="text-gray-600">Dohvaćanje shopping lista...</p>
+            <p className="text-gray-600">Dohvaćanje popisa za kupnju...</p>
           </div>
         )}
 
@@ -118,11 +118,11 @@ export default function ShoppingListsClient({ query }: { query: string }) {
                 <Frown className="size-20 text-gray-400 mx-auto mb-4" />
 
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Nema shopping lista
+                  Nema popisa za kupnju
                 </h3>
 
                 <p className="text-gray-600 mb-6">
-                  Stvorite svoju prvu shopping listu i počnite organizirati
+                  Stvorite svoj prvi popis za kupnju i počnite organizirati
                   kupovinu
                 </p>
 
@@ -132,7 +132,7 @@ export default function ShoppingListsClient({ query }: { query: string }) {
                   iconPlacement="left"
                   onClick={() => setIsModalOpen(true)}
                 >
-                  Izradi novu shopping listu
+                  Izradi novi popis za kupnju
                 </Button>
               </div>
             )}

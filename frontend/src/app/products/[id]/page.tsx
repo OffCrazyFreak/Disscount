@@ -11,7 +11,8 @@ interface Props {
 }
 
 export default async function ProductDetailsPage({ params }: Props) {
-  const ean = params.id;
+  const urlParameters = await params;
+  const ean = urlParameters?.id;
 
   return <ProductDetailClient ean={ean} />;
 }

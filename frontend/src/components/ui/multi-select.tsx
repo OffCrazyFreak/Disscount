@@ -218,6 +218,8 @@ export function MultiSelectValue({
               clickToRemove
                 ? (e) => {
                     e.stopPropagation();
+                    e.preventDefault();
+
                     toggleValue(value);
                   }
                 : undefined

@@ -93,7 +93,7 @@ export default function ShoppingListModal({
         },
         {
           onSuccess: async (response: any) => {
-            toast.success("Shopping lista je uspješno ažurirana!");
+            toast.success("Popis za kupnju je uspješno ažuriran!");
 
             await queryClient.invalidateQueries({
               queryKey: ["shoppingLists"],
@@ -105,7 +105,7 @@ export default function ShoppingListModal({
           },
           onError: (error: Error) => {
             toast.error(
-              error.message || "Greška pri ažuriranju shopping liste"
+              error.message || "Greška pri ažuriranju popisa za kupnju"
             );
           },
         }
@@ -118,7 +118,7 @@ export default function ShoppingListModal({
         },
         {
           onSuccess: async (response: any) => {
-            toast.success("Shopping lista je uspješno kreirana!");
+            toast.success("Popis za kupnju je uspješno kreiran!");
             setCreatedListId(response.id);
 
             await queryClient.invalidateQueries({
@@ -133,7 +133,9 @@ export default function ShoppingListModal({
             onSuccess?.();
           },
           onError: (error: Error) => {
-            toast.error(error.message || "Greška pri kreiranju shopping liste");
+            toast.error(
+              error.message || "Greška pri kreiranju popisa za kupnju"
+            );
           },
         }
       );
@@ -164,7 +166,7 @@ export default function ShoppingListModal({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="bg-background sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl">Shopping lista</DialogTitle>
+          <DialogTitle className="text-xl">Popis za kupnju</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>

@@ -19,12 +19,12 @@ export const ProductInfo = memo(function ProductInfo({
       {category && (
         <div
           className="text-xs sm:text-sm text-gray-500 cursor-pointer hover:text-gray-700"
-          onClick={(ev: MouseEvent) => {
-            ev.stopPropagation();
+          onClick={(e: MouseEvent) => {
+            e.stopPropagation();
+            e.preventDefault();
+
             router.push(
-              `/products?filterBy=category:${encodeURIComponent(
-                category || ""
-              )}`
+              `/products?filterByCategory=${encodeURIComponent(category || "")}`
             );
           }}
         >
@@ -39,7 +39,7 @@ export const ProductInfo = memo(function ProductInfo({
           ev.stopPropagation();
         }}
       >
-        {name || "Unknown Product"}
+        {name || "Unknown product name"}
       </h3>
 
       {brand && (

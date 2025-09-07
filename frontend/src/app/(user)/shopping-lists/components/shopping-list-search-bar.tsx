@@ -14,7 +14,7 @@ export default function ShoppingListSearchBar({
   onSearch,
   showBarcode = true,
   showSubmitButton = false,
-  submitLabel = "Pretraži shopping liste",
+  submitLabel = "Pretraži popise za kupnju",
 }: ShoppingListSearchProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -31,7 +31,7 @@ export default function ShoppingListSearchBar({
   return (
     <SearchBar
       defaultValue={initialQuery}
-      placeholder="Pretraži shopping liste..."
+      placeholder="Pretraži popise za kupnju..."
       onSearch={handleSearch}
       showBarcode={showBarcode}
       clearable={true}

@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo, useState } from "react";
+import React, { memo, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button-icon";
 import { ListPlus } from "lucide-react";
@@ -51,6 +51,12 @@ export const ProductCard = memo<ProductCardProps>(({ product }) => {
 
   return (
     <>
+      <AddToShoppingListForm
+        isOpen={isAddToListModalOpen}
+        onOpenChange={setIsAddToListModalOpen}
+        product={product}
+      />
+
       <Link href={`/products/${product.ean}`}>
         <Card className="px-4 sm:px-6 py-2 sm:py-4 hover:shadow-lg shadow-sm transition-shadow">
           <div className="flex items-center justify-between gap-4">
@@ -73,7 +79,13 @@ export const ProductCard = memo<ProductCardProps>(({ product }) => {
               <Button
                 variant="default"
                 className="p-2 size-12"
-                onClick={handleAddToList}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+
+                  handleAddToList();
+                }}
+                type="button"
               >
                 <ListPlus className="size-7" />
               </Button>
@@ -81,12 +93,6 @@ export const ProductCard = memo<ProductCardProps>(({ product }) => {
           </div>
         </Card>
       </Link>
-
-      <AddToShoppingListForm
-        isOpen={isAddToListModalOpen}
-        onOpenChange={setIsAddToListModalOpen}
-        product={product}
-      />
     </>
   );
 });
