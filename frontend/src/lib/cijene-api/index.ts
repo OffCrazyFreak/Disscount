@@ -1,4 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
+import axios from "axios";
 import cijeneApiClient, {
   cijeneApiV0Client,
   cijeneApiHealthClient,
@@ -107,26 +108,6 @@ export const getProductByEan = async (
 };
 
 /**
- * Search for products by name
- */
-export const searchProducts = async (
-  params: SearchProductsParams
-): Promise<ProductSearchResponse> => {
-  const validatedParams = searchProductsParamsSchema.parse(params);
-
-  const queryParams = new URLSearchParams();
-  queryParams.append("q", validatedParams.q);
-  if (validatedParams.date) queryParams.append("date", validatedParams.date);
-  if (validatedParams.chains)
-    queryParams.append("chains", validatedParams.chains);
-
-  const response = await cijeneApiClient.get(
-    `/products?${queryParams.toString()}`
-  );
-  return productSearchResponseSchema.parse(response.data);
-};
-
-/**
  * Get product prices by store with filtering
  */
 export const getPrices = async (
@@ -156,10 +137,25 @@ export const getChainStats = async (): Promise<ChainStatsResponse> => {
 };
 
 /**
- * Health check
+ * Search products API function
  */
-export const healthCheck = async (): Promise<HealthCheckResponse> => {
-  const response = await cijeneApiHealthClient.get("/health");
+export const searchProductsApi = async (
+  params: SearchProductsParams
+): Promise<ProductSearchResponse> => {
+  const queryParams = new URLSearchParams();
+  queryParams.append("q", params.q);
+  if (params.date) queryParams.append("date", params.date);
+  if (params.chains) queryParams.append("chains", params.chains);
+
+  const response = await axios.get(`/api/products?${queryParams.toString()}`);
+  return response.data;
+};
+
+/**
+ * Health check API function
+ */
+export const healthCheckApi = async (): Promise<HealthCheckResponse> => {
+  const response = await axios.get("/api/health");
   return healthCheckResponseSchema.parse(response.data);
 };
 
@@ -245,8 +241,8 @@ export const useGetProductByEan = (params: GetProductParams) => {
 export const useSearchProducts = (params: SearchProductsParams) => {
   return useQuery<ProductSearchResponse, Error>({
     queryKey: ["cijene", "products", "search", params],
-    queryFn: () => searchProducts(params),
-    enabled: !!params.q && params.q.length >= 2,
+    queryFn: () => searchProductsApi(params),
+    enabled: !!params.q,
     staleTime: 6 * 60 * 60 * 1000, // 6 hours
   });
 };
@@ -280,7 +276,7 @@ export const useGetChainStats = () => {
 export const useHealthCheck = () => {
   return useQuery<HealthCheckResponse, Error>({
     queryKey: ["cijene", "health"],
-    queryFn: healthCheck,
+    queryFn: healthCheckApi,
     staleTime: 30 * 1000, // 30 seconds
     retry: 1, // Only retry once for health checks
   });
@@ -296,11 +292,11 @@ const cijeneService = {
   searchStores,
   listAllStores,
   getProductByEan,
-  searchProducts,
   getPrices,
   getChainStats,
 
-  healthCheck,
+  searchProductsApi,
+  healthCheckApi,
 
   // React Query hooks
   useListArchives,

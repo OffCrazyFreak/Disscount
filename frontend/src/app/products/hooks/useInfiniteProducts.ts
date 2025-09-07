@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useProductSearch } from "@/lib/cijene-api/hooks";
+import { useSearchProducts } from "@/lib/cijene-api";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 
 export interface UseInfiniteProductsResult {
@@ -17,7 +17,9 @@ export function useInfiniteProducts(
   q: string,
   batchSize = 50
 ): UseInfiniteProductsResult {
-  const { data: allProducts = [], isLoading, error } = useProductSearch({ q });
+  const { data, isLoading, error } = useSearchProducts({ q });
+
+  const allProducts = data?.products || [];
 
   const batchedProducts = useMemo(() => {
     const batches: ProductResponse[][] = [];
