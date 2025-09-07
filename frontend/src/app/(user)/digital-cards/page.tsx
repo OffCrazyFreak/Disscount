@@ -11,7 +11,7 @@ interface Props {
 }
 
 export default async function DigitalCardsPage({ searchParams }: Props) {
-  const query = searchParams?.q ?? "";
+  const query = (await searchParams?.q) ?? "";
 
   return <DigitalCardsClient query={query} />;
 }
