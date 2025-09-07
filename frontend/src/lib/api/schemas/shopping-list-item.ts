@@ -3,9 +3,9 @@ import { z } from "zod";
 export const shoppingListItemRequestSchema = z.object({
   ean: z.string().min(1, "EAN kod je obavezan"),
   name: z.string().min(1, "Naziv proizvoda je obavezan"),
-  brand: z.string().optional(),
-  quantity: z.string().optional(),
-  unit: z.string().optional(),
+  brand: z.string().nullable().optional(),
+  quantity: z.string().nullable().optional(),
+  unit: z.string().nullable().optional(),
   amount: z.number().int().min(1, "Količina mora biti veća od 0").default(1),
   isChecked: z.boolean().default(false),
 });

@@ -1,16 +1,9 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
 /**
  * Generic field-based filter helper.
  *
  * Example: filterByFields(products, q, ["name", "brand", "category"])
  */
-import { normalizeForSearch } from "./strings";
+import { normalizeForSearch } from "@/utils/strings";
 
 export function filterByFields<T extends Record<string, any>>(
   items: T[],

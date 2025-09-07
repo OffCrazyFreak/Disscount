@@ -4,23 +4,23 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Plus, Loader2, PlusIcon, Frown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ShoppingListsSearchBar from "@/app/(user-inventory)/shopping-lists/components/shopping-list-search-bar";
-import UserInventoryLayout from "@/app/(user-inventory)/layout";
-import ShoppingListModal from "@/app/(user-inventory)/shopping-lists/components/forms/shopping-list-modal";
+import ShoppingListsSearchBar from "@/app/(user)/shopping-lists/components/shopping-list-search-bar";
+import UserInventoryLayout from "@/app/(user)/layout";
+import ShoppingListModal from "@/app/(user)/shopping-lists/components/forms/shopping-list-modal";
 import { ShoppingListDto } from "@/lib/api/types";
 import { useViewMode } from "@/hooks/use-view-mode";
 import { filterByFields } from "@/utils/generic";
 import { shoppingListService } from "@/lib/api";
-import ShoppingListsGroup from "@/app/(user-inventory)/shopping-lists/components/shopping-lists-group";
+import ShoppingListsGroup from "@/app/(user)/shopping-lists/components/shopping-lists-group";
 import { FloatingActionButton } from "@/components/custom/floating-action-button";
 import NoResults from "@/components/custom/no-results";
 import { useUser } from "@/context/user-context";
 import { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Popisi za kupnju",
-  description: "Upravljanje popisima za kupnju.",
-};
+// export const metadata: Metadata = {
+//   title: "Popisi za kupnju",
+//   description: "Upravljanje popisima za kupnju.",
+// };
 
 export default function ShoppingListsPage({
   searchParams,

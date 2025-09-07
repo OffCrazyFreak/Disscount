@@ -18,7 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { storeNamesMap } from "@/utils/mappings";
-import { cn } from "@/utils/generic";
+import { cn } from "@/lib/utils";
 import cijeneService from "@/lib/cijene-api";
 
 interface ChainItemProps {

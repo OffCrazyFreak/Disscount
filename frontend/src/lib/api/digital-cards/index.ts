@@ -65,16 +65,10 @@ export const updateDigitalCard = async (
 };
 
 /**
- * Delete digital card (soft delete)
+ * Delete digital card
  */
-export const deleteDigitalCard = async (
-  id: string
-): Promise<DigitalCardDto> => {
-  const response = await apiClient.delete<DigitalCardDto>(
-    `/api/digital-cards/${id}`
-  );
-
-  return digitalCardDtoSchema.parse(response.data);
+export const deleteDigitalCard = async (id: string): Promise<void> => {
+  await apiClient.delete(`/api/digital-cards/${id}`);
 };
 
 // React Query hooks
@@ -110,7 +104,7 @@ export const useUpdateDigitalCard = () => {
 };
 
 export const useDeleteDigitalCard = () => {
-  return useMutation<DigitalCardDto, Error, string>({
+  return useMutation<void, Error, string>({
     mutationFn: deleteDigitalCard,
   });
 };

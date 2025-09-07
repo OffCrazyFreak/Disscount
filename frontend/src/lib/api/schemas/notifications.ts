@@ -3,8 +3,8 @@ import { z } from "zod";
 // Notification schemas
 export const notificationRequestSchema = z.object({
   message: z.string().min(1, "Poruka je obavezna"),
-  relatedProductApiId: z.string().optional(),
-  relatedStoreApiId: z.string().optional(),
+  relatedProductApiId: z.string().nullable().optional(),
+  relatedStoreApiId: z.string().nullable().optional(),
 });
 
 export const notificationDtoSchema = notificationRequestSchema.extend({

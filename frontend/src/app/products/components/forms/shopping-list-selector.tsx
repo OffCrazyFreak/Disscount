@@ -21,7 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/utils/generic";
+import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/strings";
 import { ShoppingListDto } from "@/lib/api/types";
 

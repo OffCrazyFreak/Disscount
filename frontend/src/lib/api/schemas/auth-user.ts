@@ -37,6 +37,7 @@ export const registerRequestSchema = z
       .string()
       .min(2, "Korisničko ime mora imati najmanje 2 znakova")
       .max(40, "Korisničko ime može imati najviše 40 znakova")
+      .nullable()
       .optional(),
     email: z.email("Unesi važeći email"),
     password: z
@@ -72,6 +73,7 @@ export const userRequestSchema = z.object({
     .string()
     .min(2, "Korisničko ime mora imati najmanje 2 znakova")
     .max(40, "Korisničko ime može imati najviše 40 znakova")
+    .nullable()
     .optional(),
   stayLoggedInDays: z.number().min(0).optional(),
   notificationsPush: z.boolean().optional(),
@@ -83,9 +85,9 @@ export const userDtoSchema = userRequestSchema.extend({
   email: z.email(),
   lastLoginAt: z.string(),
   subscriptionTier: z.enum(["FREE", "PRO"]),
-  subscriptionStartDate: z.string().optional(),
+  subscriptionStartDate: z.string().nullable().optional(),
   numberOfAiPrompts: z.number(),
-  lastAiPromptAt: z.string().optional(),
+  lastAiPromptAt: z.string().nullable().optional(),
   createdAt: z.string(),
   pinnedStores: z
     .array(
@@ -96,6 +98,7 @@ export const userDtoSchema = userRequestSchema.extend({
         storeName: z.string(),
       })
     )
+    .nullable()
     .optional(),
   pinnedPlaces: z
     .array(
@@ -106,6 +109,7 @@ export const userDtoSchema = userRequestSchema.extend({
         placeName: z.string(),
       })
     )
+    .nullable()
     .optional(),
 });
 

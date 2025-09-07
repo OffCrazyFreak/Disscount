@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const addToListFormSchema = z.object({
   shoppingListId: z.string().min(1, "Lista je obavezna"),
-  shoppingListTitle: z.string().optional(),
+  shoppingListTitle: z.string(),
   amount: z.number().int().min(1, "Količina mora biti veća od 0"),
   isChecked: z.boolean(),
 });

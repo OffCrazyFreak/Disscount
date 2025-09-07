@@ -11,24 +11,39 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { digitalCardService } from "@/lib/api";
+import { toast } from "sonner";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import DigitalCardModal from "@/app/(user)/digital-cards/components/forms/digital-card-modal";
 
 interface DigitalCardCardProps {
   digitalCard: DigitalCardDto;
-  onEdit?: (digitalCard: DigitalCardDto) => void;
-  onDelete?: (digitalCard: DigitalCardDto) => void;
-  onCopy?: (digitalCard: DigitalCardDto) => void;
+  handleEdit: (digitalCard: DigitalCardDto) => void;
 }
 
 export default function DigitalCardCard({
   digitalCard,
-  onEdit,
-  onDelete,
-  onCopy,
+  handleEdit,
 }: DigitalCardCardProps) {
-  const handleCopy = () => {
-    navigator.clipboard.writeText(digitalCard.value);
-    onCopy?.(digitalCard);
-  };
+  const queryClient = useQueryClient();
+  const deleteDigitalCardMutation = digitalCardService.useDeleteDigitalCard();
+
+  async function handleDelete(d: DigitalCardDto) {
+    if (confirm(`Jeste li sigurni da želite obrisati karticu "${d.title}"?`)) {
+      deleteDigitalCardMutation.mutate(d.id, {
+        onSuccess: async () => {
+          toast.success("Kartica obrisana.");
+          await queryClient.invalidateQueries({
+            queryKey: ["digitalCards", "me"],
+          });
+        },
+        onError: (error: any) => {
+          toast.error("Greška prilikom brisanja: " + error.message);
+        },
+      });
+    }
+  }
 
   return (
     <Card className="p-4 hover:shadow-md transition-shadow">
@@ -52,16 +67,13 @@ export default function DigitalCardCard({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEdit?.(digitalCard)}>
+            <DropdownMenuItem onClick={() => handleEdit(digitalCard)}>
               <Edit className="h-4 w-4 mr-2" />
               Uredi
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleCopy}>
-              <Copy className="h-4 w-4 mr-2" />
-              Kopiraj kod
-            </DropdownMenuItem>
+
             <DropdownMenuItem
-              onClick={() => onDelete?.(digitalCard)}
+              onClick={() => handleDelete(digitalCard)}
               className="text-red-700"
             >
               <Trash2 className="h-4 w-4 mr-2" />

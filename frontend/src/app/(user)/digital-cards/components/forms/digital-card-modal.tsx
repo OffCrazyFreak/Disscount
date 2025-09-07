@@ -1,16 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Save, CreditCard } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -18,6 +21,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import {
   Select,
@@ -33,6 +37,7 @@ import {
 } from "@/lib/api/types";
 import { digitalCardService } from "@/lib/api";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface DigitalCardModalProps {
   isOpen: boolean;
@@ -47,8 +52,7 @@ export default function DigitalCardModal({
   onSuccess,
   digitalCard,
 }: DigitalCardModalProps) {
-  const isEditing = !!digitalCard;
-  const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
 
   const createMutation = digitalCardService.useCreateDigitalCard();
   const updateMutation = digitalCardService.useUpdateDigitalCard();
@@ -58,46 +62,80 @@ export default function DigitalCardModal({
     defaultValues: {
       title: digitalCard?.title || "",
       value: digitalCard?.value || "",
-      type: digitalCard?.type || "",
-      codeType: digitalCard?.codeType || "",
-      color: digitalCard?.color || "",
-      note: digitalCard?.note || "",
+      type: digitalCard?.type || "loyalty",
+      codeType: digitalCard?.codeType || "barcode",
+      color: digitalCard?.color,
+      note: digitalCard?.note,
     },
   });
 
-  const onSubmit = async (data: DigitalCardRequest) => {
-    setIsLoading(true);
-    try {
-      if (isEditing && digitalCard) {
-        await updateMutation.mutateAsync({ id: digitalCard.id, data });
-        toast.success("Digitalna kartica je uspješno ažurirana!");
-      } else {
-        await createMutation.mutateAsync(data);
-        toast.success("Digitalna kartica je uspješno kreirana!");
-      }
-      onSuccess?.();
-      onOpenChange(false);
-      form.reset();
-    } catch (error: any) {
-      toast.error(
-        error.message || "Došlo je do greške prilikom spremanja kartice"
+  const onSubmit = (data: any) => {
+    console.log("Submitting data:", data);
+    if (digitalCard) {
+      updateMutation.mutate(
+        { id: digitalCard.id, data },
+        {
+          onSuccess: async () => {
+            toast.success("Digitalna kartica je uspješno ažurirana!");
+            await queryClient.invalidateQueries({
+              queryKey: ["digitalCards"],
+            });
+            onSuccess?.();
+            onOpenChange(false);
+          },
+          onError: (error: any) => {
+            form.setError("root", {
+              message:
+                error.message ||
+                "Došlo je do greške prilikom ažuriranja kartice",
+            });
+          },
+        }
       );
-    } finally {
-      setIsLoading(false);
+    } else {
+      createMutation.mutate(data, {
+        onSuccess: async () => {
+          toast.success("Digitalna kartica je uspješno kreirana!");
+          await queryClient.invalidateQueries({
+            queryKey: ["digitalCards"],
+          });
+          onSuccess?.();
+          onOpenChange(false);
+        },
+        onError: (error: any) => {
+          form.setError("root", {
+            message:
+              error.message || "Došlo je do greške prilikom kreiranja kartice",
+          });
+        },
+      });
     }
   };
 
+  const handleCancel = () => {
+    form.reset();
+    onOpenChange(false);
+  };
+
+  const isLoading = createMutation.isPending || updateMutation.isPending;
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {isEditing ? "Uredi digitalnu karticu" : "Nova digitalna kartica"}
+          <DialogTitle className="text-xl">
+            {digitalCard ? "Uredi digitalnu karticu" : "Nova digitalna kartica"}
           </DialogTitle>
         </DialogHeader>
 
+        {form.formState.errors.root && (
+          <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
+            {form.formState.errors.root.message}
+          </div>
+        )}
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="title"
@@ -105,7 +143,7 @@ export default function DigitalCardModal({
                 <FormItem>
                   <FormLabel>Naziv kartice</FormLabel>
                   <FormControl>
-                    <Input placeholder="Npr. Konzum kartica" {...field} />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -119,14 +157,14 @@ export default function DigitalCardModal({
                 <FormItem>
                   <FormLabel>Vrijednost/Kod</FormLabel>
                   <FormControl>
-                    <Input placeholder="Unesite kod kartice" {...field} />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-6">
               <FormField
                 control={form.control}
                 name="type"
@@ -138,7 +176,7 @@ export default function DigitalCardModal({
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Odaberite tip" />
                         </SelectTrigger>
                       </FormControl>
@@ -166,7 +204,7 @@ export default function DigitalCardModal({
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Odaberite tip koda" />
                         </SelectTrigger>
                       </FormControl>
@@ -188,13 +226,14 @@ export default function DigitalCardModal({
               name="color"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Boja kartice (opcionalno)</FormLabel>
+                  <FormLabel>Boja kartice</FormLabel>
                   <FormControl>
                     <Input
                       type="color"
                       placeholder="#ffffff"
                       {...field}
-                      className="h-10 w-20"
+                      value={field.value || "#ffffff"}
+                      className="h-15"
                     />
                   </FormControl>
                   <FormMessage />
@@ -207,29 +246,45 @@ export default function DigitalCardModal({
               name="note"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Napomena (opcionalno)</FormLabel>
+                  <FormLabel>Napomena</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Dodajte napomenu o kartici..."
+                    <Textarea
+                      placeholder="Unesite napomenu"
                       {...field}
+                      value={field.value || ""}
+                      maxLength={200}
                     />
                   </FormControl>
+                  <FormDescription>
+                    Dodatne informacije o vašoj kartici ({" "}
+                    {200 - (field.value?.length || 0)} preostalo).
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <div className="flex justify-end gap-2 pt-4">
+            <div className="flex justify-between pt-4">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => onOpenChange(false)}
+                effect="ringHover"
+                onClick={handleCancel}
                 disabled={isLoading}
               >
                 Odustani
               </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Spremam..." : isEditing ? "Ažuriraj" : "Stvori"}
+
+              <Button
+                type="submit"
+                variant="default"
+                effect="expandIcon"
+                icon={Save}
+                iconPlacement="right"
+                disabled={isLoading}
+                loading={isLoading}
+              >
+                {digitalCard ? "Ažuriraj" : "Stvori"}
               </Button>
             </div>
           </form>

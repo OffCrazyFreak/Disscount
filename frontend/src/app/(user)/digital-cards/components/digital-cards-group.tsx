@@ -7,24 +7,15 @@ import DigitalCardCard from "./digital-card-card";
 
 interface DigitalCardsGroupProps {
   digitalCards: DigitalCardDto[];
-  onEdit?: (digitalCard: DigitalCardDto) => void;
-  onDelete?: (digitalCard: DigitalCardDto) => void;
-  onCopy?: (digitalCard: DigitalCardDto) => void;
+  handleEdit: (digitalCard: DigitalCardDto) => void;
   viewMode?: ViewMode;
 }
 
 export default function DigitalCardsGroup({
   digitalCards,
-  onEdit,
-  onDelete,
-  onCopy,
+  handleEdit,
   viewMode = "grid",
 }: DigitalCardsGroupProps) {
-  const handleCopy = (digitalCard: DigitalCardDto) => {
-    onCopy?.(digitalCard);
-    // You could add a toast notification here
-  };
-
   return (
     <AnimatedGroup
       className={
@@ -37,10 +28,8 @@ export default function DigitalCardsGroup({
       {digitalCards.map((digitalCard) => (
         <DigitalCardCard
           key={digitalCard.id}
+          handleEdit={handleEdit}
           digitalCard={digitalCard}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onCopy={handleCopy}
         />
       ))}
     </AnimatedGroup>

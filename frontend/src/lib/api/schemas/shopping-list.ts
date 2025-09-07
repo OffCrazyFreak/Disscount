@@ -11,6 +11,7 @@ export const shoppingListRequestSchema = z.object({
   aiPrompt: z
     .string()
     .max(200, "AI prompt može imati najviše 200 znakova")
+    .nullable()
     .optional(),
 });
 
@@ -18,7 +19,7 @@ export const shoppingListDtoSchema = shoppingListRequestSchema.extend({
   id: z.string(),
   ownerId: z.string(),
   isPublic: z.boolean(),
-  aiAnswer: z.string().optional(),
+  aiAnswer: z.string().nullable().optional(),
   updatedAt: z.string(),
   createdAt: z.string(),
   items: z.array(shoppingListItemDtoSchema),

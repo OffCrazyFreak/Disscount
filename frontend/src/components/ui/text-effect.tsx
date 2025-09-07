@@ -1,5 +1,5 @@
 "use client";
-import { cn } from "@/utils/generic";
+import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "motion/react";
 import type {
   TargetAndTransition,

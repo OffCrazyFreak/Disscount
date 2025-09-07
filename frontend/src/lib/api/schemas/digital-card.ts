@@ -21,10 +21,12 @@ export const digitalCardRequestSchema = z.object({
   color: z
     .string()
     .regex(/^#[0-9A-Fa-f]{6}$/, "Boja mora biti u HEX formatu (#ffffff)")
+    .nullable()
     .optional(),
   note: z
     .string()
     .max(500, "Napomena može imati najviše 500 znakova")
+    .nullable()
     .optional(),
 });
 

@@ -37,7 +37,7 @@ import {
   UserPreferencesFormType,
 } from "@/lib/api/schemas/preferences";
 import { PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/schemas/preferences";
-import { cn } from "@/utils/generic";
+import { cn } from "@/lib/utils";
 import { preferencesService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 import { useAllLocations } from "@/lib/cijene-api/hooks";

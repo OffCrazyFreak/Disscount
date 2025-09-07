@@ -18,7 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { storeNamesMap } from "@/utils/mappings";
-import { cn } from "@/utils/generic";
+import { cn } from "@/lib/utils";
 import {
   ChainProductResponse,
   ProductResponse,
