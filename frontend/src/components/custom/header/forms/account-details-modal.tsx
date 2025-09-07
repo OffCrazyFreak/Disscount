@@ -173,7 +173,7 @@ export default function AccountDetailsModal({
                 <FormItem>
                   <FormLabel>Korisničko ime</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} value={field.value || ""} />
                   </FormControl>
                   <FormDescription>Kako ćemo te zvati?</FormDescription>
                   <FormMessage />
