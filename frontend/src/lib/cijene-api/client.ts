@@ -94,5 +94,4 @@ addErrorInterceptor(cijeneApiClient);
 addErrorInterceptor(cijeneApiV0Client);
 addErrorInterceptor(cijeneApiHealthClient);
 
-export { cijeneApiV0Client, cijeneApiHealthClient };
-export default cijeneApiClient;
+export { cijeneApiV0Client, cijeneApiHealthClient, cijeneApiClient };

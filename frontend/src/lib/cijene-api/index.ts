@@ -1,9 +1,10 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import cijeneApiClient, {
+import {
   cijeneApiV0Client,
   cijeneApiHealthClient,
-} from "./client";
+  cijeneApiClient,
+} from "@/lib/cijene-api/client";
 import {
   ListChainsResponse,
   ListStoresResponse,
@@ -29,7 +30,7 @@ import {
   searchProductsParamsSchema,
   searchStoresParamsSchema,
   getPricesParamsSchema,
-} from "./schemas";
+} from "@/lib/cijene-api/schemas";
 
 // API Functions
 
