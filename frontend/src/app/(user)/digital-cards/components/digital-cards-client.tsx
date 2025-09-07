@@ -23,14 +23,9 @@ import { filterByFields } from "@/utils/generic";
 import { digitalCardService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 
-export default function DigitalCardsClient({
-  initialQuery,
-}: {
-  initialQuery: string;
-}) {
+export default function DigitalCardsClient({ query }: { query: string }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [query, setQuery] = useState(initialQuery);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDigitalCard, setSelectedDigitalCard] =
     useState<DigitalCardDto | null>(null);
@@ -45,7 +40,6 @@ export default function DigitalCardsClient({
   const digitalCards = isAuthenticated ? contextDigitalCards : [];
 
   function handleSearch(query: string) {
-    setQuery(query);
     if (!query) {
       router.push(pathname);
     } else {
@@ -58,7 +52,7 @@ export default function DigitalCardsClient({
     setIsModalOpen(true);
   }
 
-  const filtered = filterByFields(digitalCards, query, [
+  const matchingDigitalCards = filterByFields(digitalCards, query, [
     "title",
     "type",
     "note",
@@ -85,8 +79,8 @@ export default function DigitalCardsClient({
       <UserInventoryLayout
         title={
           query
-            ? `Rezultati: "${query}" (${filtered.length})`
-            : `Moje digitalne kartice (${filtered.length})`
+            ? `Rezultati: "${query}" (${matchingDigitalCards.length})`
+            : `Moje digitalne kartice (${matchingDigitalCards.length})`
         }
         search={
           <DigitalCardSearchBar
@@ -107,9 +101,9 @@ export default function DigitalCardsClient({
 
         {!isLoading && (
           <>
-            {filtered.length > 0 ? (
+            {matchingDigitalCards.length > 0 ? (
               <DigitalCardsGroup
-                digitalCards={filtered}
+                digitalCards={matchingDigitalCards}
                 handleEdit={handleEdit}
                 viewMode={viewMode}
               />

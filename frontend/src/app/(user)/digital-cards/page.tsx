@@ -7,16 +7,11 @@ export const metadata: Metadata = {
 };
 
 interface Props {
-  searchParams?: { q?: string | string[] };
+  searchParams?: { q?: string };
 }
 
 export default async function DigitalCardsPage({ searchParams }: Props) {
-  // normalize the `q` param on the server
+  const query = searchParams?.q ?? "";
 
-  const query = await searchParams;
-  const initialQuery = Array.isArray(searchParams?.q)
-    ? searchParams.q[0]
-    : searchParams?.q ?? "";
-
-  return <DigitalCardsClient initialQuery={initialQuery} />;
+  return <DigitalCardsClient query={query} />;
 }
