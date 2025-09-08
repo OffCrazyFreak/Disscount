@@ -12,9 +12,13 @@ export const getMinPrice = (product: ProductResponse): number => {
   if (minPriceCache.has(product)) {
     return minPriceCache.get(product)!;
   }
-  const min = Math.min(...product.chains.map((c) => parseFloat(c.min_price)));
-  minPriceCache.set(product, min);
-  return min;
+  const prices = product.chains
+    .map((c) => parseFloat(c.min_price))
+    .filter((price) => Number.isFinite(price));
+  const min = prices.length > 0 ? Math.min(...prices) : 0;
+  const finalMin = Number.isFinite(min) ? min : 0;
+  minPriceCache.set(product, finalMin);
+  return finalMin;
 };
 
 /**
@@ -24,10 +28,13 @@ export const getMaxPrice = (product: ProductResponse): number => {
   if (maxPriceCache.has(product)) {
     return maxPriceCache.get(product)!;
   }
-  const max =
-    Math.max(...product.chains.map((c) => parseFloat(c.max_price))) || 0;
-  maxPriceCache.set(product, max);
-  return max;
+  const prices = product.chains
+    .map((c) => parseFloat(c.max_price))
+    .filter((price) => Number.isFinite(price));
+  const max = prices.length > 0 ? Math.max(...prices) : 0;
+  const finalMax = Number.isFinite(max) ? max : 0;
+  maxPriceCache.set(product, finalMax);
+  return finalMax;
 };
 
 /**
@@ -40,11 +47,16 @@ export const getAveragePrice = (
     return avgPriceCache.get(product)!;
   }
   if (product.chains.length > 0) {
-    const avg =
-      product.chains.reduce((sum, c) => sum + parseFloat(c.avg_price), 0) /
-      product.chains.length;
-    avgPriceCache.set(product, avg);
-    return avg;
+    const prices = product.chains
+      .map((c) => parseFloat(c.avg_price))
+      .filter((price) => Number.isFinite(price));
+    if (prices.length > 0) {
+      const avg = prices.reduce((sum, price) => sum + price, 0) / prices.length;
+      if (Number.isFinite(avg)) {
+        avgPriceCache.set(product, avg);
+        return avg;
+      }
+    }
   }
   return undefined;
 };
@@ -56,7 +68,7 @@ export const getMinPricePerUnit = (
   product: ProductResponse
 ): number | undefined => {
   const quantity = product.quantity ? parseFloat(product.quantity) : undefined;
-  if (quantity && quantity > 0) {
+  if (quantity && Number.isFinite(quantity) && quantity > 0) {
     return getMinPrice(product) / quantity;
   }
   return undefined;
@@ -69,7 +81,7 @@ export const getMaxPricePerUnit = (
   product: ProductResponse
 ): number | undefined => {
   const quantity = product.quantity ? parseFloat(product.quantity) : undefined;
-  if (quantity && quantity > 0) {
+  if (quantity && Number.isFinite(quantity) && quantity > 0) {
     return getMaxPrice(product) / quantity;
   }
   return undefined;
@@ -82,7 +94,7 @@ export const getAveragePricePerUnit = (
   product: ProductResponse
 ): number | undefined => {
   const quantity = product.quantity ? parseFloat(product.quantity) : undefined;
-  if (quantity && quantity > 0) {
+  if (quantity && Number.isFinite(quantity) && quantity > 0) {
     const avgPrice = getAveragePrice(product);
     return avgPrice !== undefined ? avgPrice / quantity : undefined;
   }
@@ -104,7 +116,15 @@ export const getLowestPriceChain = (product: ProductResponse) => {
     return undefined;
   }
 
-  return product.chains.reduce((lowest, current) =>
+  const validChains = product.chains.filter((c) =>
+    Number.isFinite(parseFloat(c.min_price))
+  );
+
+  if (validChains.length === 0) {
+    return undefined;
+  }
+
+  return validChains.reduce((lowest, current) =>
     parseFloat(current.min_price) < parseFloat(lowest.min_price)
       ? current
       : lowest
@@ -119,7 +139,15 @@ export const getHighestPriceChain = (product: ProductResponse) => {
     return undefined;
   }
 
-  return product.chains.reduce((highest, current) =>
+  const validChains = product.chains.filter((c) =>
+    Number.isFinite(parseFloat(c.min_price))
+  );
+
+  if (validChains.length === 0) {
+    return undefined;
+  }
+
+  return validChains.reduce((highest, current) =>
     parseFloat(current.min_price) > parseFloat(highest.min_price)
       ? current
       : highest
@@ -134,10 +162,19 @@ export const getAveragePriceChain = (product: ProductResponse) => {
     return undefined;
   }
 
-  const total = product.chains.reduce(
+  const validChains = product.chains.filter((c) =>
+    Number.isFinite(parseFloat(c.avg_price))
+  );
+
+  if (validChains.length === 0) {
+    return undefined;
+  }
+
+  const total = validChains.reduce(
     (sum, current) => sum + parseFloat(current.avg_price),
     0
   );
 
-  return total / product.chains.length;
+  const avg = total / validChains.length;
+  return Number.isFinite(avg) ? avg : undefined;
 };
