@@ -13,13 +13,6 @@ import { StoreLocation } from "@/typings/store-location";
  * Hook for fetching all locations/cities from all chains for sidebar
  */
 export function useAllLocations() {
-  // Get all chains first
-  const {
-    data: chainsData,
-    isLoading: chainsLoading,
-    error: chainsError,
-  } = cijeneService.useListChains();
-
   // Get all stores from all chains in one request
   const {
     data: storesData,
@@ -29,12 +22,7 @@ export function useAllLocations() {
 
   // Process and combine all store data
   const locations = useMemo<Array<StoreLocation>>(() => {
-    if (
-      chainsLoading ||
-      storesLoading ||
-      !chainsData?.chains ||
-      !storesData?.stores
-    ) {
+    if (storesLoading || !storesData?.stores) {
       return [];
     }
 
@@ -76,11 +64,11 @@ export function useAllLocations() {
         chains: Array.from(data.chains).sort(),
       }))
       .sort((a, b) => b.storeCount - a.storeCount);
-  }, [chainsData, storesData, chainsLoading, storesLoading]);
+  }, [storesData, storesLoading]);
 
   return {
     data: locations,
-    isLoading: chainsLoading || storesLoading,
-    error: chainsError || storesError,
+    isLoading: storesLoading,
+    error: storesError,
   };
 }
