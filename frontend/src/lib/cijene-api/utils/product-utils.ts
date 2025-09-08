@@ -110,7 +110,7 @@ export function getAveragePricePerUnit(
  * Check if product has multiple chains
  */
 export function hasMultipleChains(product: ProductResponse): boolean {
-  return product.chains && product.chains.length > 1;
+  return (product.chains?.length ?? 0) > 1;
 }
 
 /**
