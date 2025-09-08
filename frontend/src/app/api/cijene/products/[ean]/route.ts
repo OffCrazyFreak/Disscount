@@ -22,7 +22,7 @@ export async function GET(
 
   // Validate params
   const raw = {
-    ean,
+    ean: ean.trim(),
     date: searchParams.get("date") || undefined,
     chains: searchParams.get("chains") || undefined,
   };
