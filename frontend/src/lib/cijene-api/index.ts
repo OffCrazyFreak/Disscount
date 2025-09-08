@@ -68,14 +68,13 @@ export async function searchStores(
 ): Promise<ListStoresResponse> {
   // default to empty filter object
   const validated = searchStoresParamsSchema.parse(params ?? {});
-  const qs = new URLSearchParams();
-  Object.entries(validated).forEach(([k, v]) => {
-    if (v != null && v !== "") qs.append(k, String(v));
-  });
-
-  const response = await axios.get(
-    `/api/cijene/stores${qs.toString() && `?${qs}`}`
+  const filteredParams = Object.fromEntries(
+    Object.entries(validated).filter(([k, v]) => v != null && v !== "")
   );
+
+  const response = await axios.get("/api/cijene/stores", {
+    params: filteredParams,
+  });
   return listStoresResponseSchema.parse(response.data);
 }
 
@@ -197,8 +196,11 @@ export const useSearchStores = (params?: SearchStoresParams) =>
   useQuery<ListStoresResponse, Error>({
     queryKey: ["cijene", "stores", params ? JSON.stringify(params) : "all"],
     queryFn: () => searchStores(params),
-    // only disable if you really want to wait for some param
-    enabled: params === undefined || Object.values(params).some(Boolean),
+    // enable when no params or when any non-empty filter provided
+    enabled:
+      params === undefined ||
+      Object.keys(params).length === 0 ||
+      Object.values(params).some((v) => v != null && v !== ""),
     staleTime: 30 * 60 * 1000,
   });
 
