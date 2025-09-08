@@ -4,7 +4,8 @@
 
 Web and mobile (PWA) application for comparing product prices in Croatian shops, creating shopping lists, storing digital loyalty cards, and getting deal alerts with barcode scanning and AI suggestions.
 
-### Link: _TODO_
+## Link (temp)
+Deployed and available on: _[disscount.netlify.app](https://disscount.netlify.app/)_
 
 ## Visuals
 
@@ -30,9 +31,9 @@ Web and mobile (PWA) application for comparing product prices in Croatian shops,
 
 ## Attribution
 
-**Created by:**
+**Created by: Jakov Jakovac**
 
-- Jakov Jakovac
+Big thanks to _[Cijene API](https://github.com/senko/cijene-api/)_ for providing access to their API for data about products and store chains :)
 
 ## License [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
 
@@ -47,12 +48,11 @@ This work is licensed under a
 
 ### Prerequisites
 
+- Node.js 22.19.0+ (or latest LTS)
+- pnpm (or npm/yarn)
 - Java 21
 - Maven 3.9+
-- Node.js 18+ (or latest LTS)
-- pnpm (or npm/yarn)
 - PostgreSQL (local or remote)
-- Git
 
 ### Game flow
 
@@ -143,4 +143,4 @@ Contributions are welcome — whether it's a bug report, feature idea, documenta
 
 - Be respectful and constructive. This project follows the license in the repository; if a Code of Conduct is added later, contributors must follow it.
 
-Thank you for helping improve Disscount — every contribution helps!
+Thank you for helping improve Disscount - every contribution helps!
