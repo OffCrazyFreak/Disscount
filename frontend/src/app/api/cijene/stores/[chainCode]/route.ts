@@ -49,7 +49,8 @@ export async function GET(
     }
 
     // Handle other errors
-    console.error(`Stores for chain ${code} fetch failed:`, error);
-    return createApiError("Failed to fetch stores for chain", { status: 500 });
+    return createApiError("Failed to fetch stores for chain from upstream", {
+      status: 502,
+    });
   }
 }

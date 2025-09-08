@@ -41,7 +41,9 @@ export async function GET(
     if (chains) qs.append("chains", chains);
 
     const response = await cijeneApiV1Client.get(
-      `/products/${validEan}${qs.toString() ? `?${qs}` : ""}`
+      `/products/${encodeURIComponent(validEan)}${
+        qs.toString() ? `?${qs}` : ""
+      }`
     );
 
     const parsed = productResponseSchema.safeParse(response.data);
@@ -62,7 +64,9 @@ export async function GET(
         details: error.response?.data,
       });
     }
-    console.error("Get product by EAN failed:", error);
-    return createApiError("Failed to fetch product", { status: 500 });
+
+    return createApiError("Failed to fetch product from upstream", {
+      status: 502,
+    });
   }
 }

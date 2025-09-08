@@ -111,7 +111,9 @@ export const ChainItem = memo(
                     <TableBody>
                       {storesData.stores
                         .sort((a, b) =>
-                          (a.city || "").localeCompare(b.city || "")
+                          (a.city || "").localeCompare(b.city || "", "hr", {
+                            sensitivity: "base",
+                          })
                         )
                         .map((store) => (
                           <TableRow key={store.address}>

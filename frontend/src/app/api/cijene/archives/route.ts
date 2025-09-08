@@ -36,7 +36,6 @@ export async function GET(request: NextRequest) {
     }
 
     // Handle other errors
-    console.error("Archives list failed:", error);
     return createApiError("Failed to fetch archives list from upstream", {
       status: 502,
     });

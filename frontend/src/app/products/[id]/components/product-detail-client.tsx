@@ -115,7 +115,9 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
                 if (!aIsPinned && bIsPinned) return 1;
 
                 // If both are pinned or both are not pinned, alphabetical order
-                return a.chain.localeCompare(b.chain);
+                return a.chain.localeCompare(b.chain, "hr", {
+                  sensitivity: "base",
+                });
               })
               .map((chain, index) => {
                 return (
