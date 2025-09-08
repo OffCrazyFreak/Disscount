@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { cijeneApiV1Client, CijeneApiError } from "@/lib/cijene-api/client";
+import { cijeneApiHealthClient, CijeneApiError } from "@/lib/cijene-api/client";
 import { healthCheckResponseSchema } from "@/lib/cijene-api/schemas";
 import {
   createApiResponse,
@@ -8,7 +8,7 @@ import {
 
 export async function GET(request: NextRequest) {
   try {
-    const response = await cijeneApiV1Client.get("/health");
+    const response = await cijeneApiHealthClient.get("/health");
 
     // Validate response
     const validatedData = healthCheckResponseSchema.parse(response.data);

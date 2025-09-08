@@ -222,20 +222,6 @@ export const cijeneApiV1Client = createCijeneV1Client();
 export const cijeneApiV0Client = createCijeneV0Client();
 export const cijeneApiHealthClient = createCijeneHealthClient();
 
-// Export utilities
-export { logger };
-
-// Health check utility
-export const checkCijeneApiHealth = async (): Promise<boolean> => {
-  try {
-    await cijeneApiHealthClient.get("/health");
-    return true;
-  } catch (error) {
-    logger.error("Cijene API health check failed", error);
-    return false;
-  }
-};
-
 // Configuration validation utility
 export const validateCijeneConfig = (): void => {
   if (!CIJENE_API_URL) {

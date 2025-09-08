@@ -8,7 +8,6 @@ export default function HealthStatus() {
   const { data: health, isLoading: healthLoading } =
     cijeneService.useHealthCheck();
 
-
   if (healthLoading) {
     return (
       <div className="flex items-center gap-2">
@@ -19,9 +18,7 @@ export default function HealthStatus() {
   }
 
   return health ? (
-    <div className="text-green-600">
-      ✅ Cijene API je dostupan {health.status}
-    </div>
+    <div className="text-green-600">✅ Cijene API je dostupan</div>
   ) : (
     <div className="text-red-700">❌ Cijene API nije dostupan</div>
   );

@@ -14,7 +14,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Params }
 ) {
-  const { chainCode } = params;
+  const { chainCode } = await params;
 
   // Validate chain code parameter
   if (!chainCode || typeof chainCode !== "string") {
