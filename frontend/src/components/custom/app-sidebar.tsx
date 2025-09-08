@@ -53,15 +53,13 @@ export const AppSidebar = memo(function AppSidebar() {
   const { data: locations, isLoading: locationsLoading } = useAllLocations();
 
   const sortedChainStats = useMemo(() => {
-    return (
-      chainStats?.chain_stats?.sort((a, b) =>
-        a.chain_code.localeCompare(b.chain_code)
-      ) || []
-    );
+    const list = chainStats?.chain_stats ?? [];
+    return [...list].sort((a, b) => a.chain_code.localeCompare(b.chain_code));
   }, [chainStats]);
 
   const sortedLocations = useMemo(() => {
-    return locations?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+    const list = locations ?? [];
+    return [...list].sort((a, b) => a.name.localeCompare(b.name));
   }, [locations]);
 
   return (
