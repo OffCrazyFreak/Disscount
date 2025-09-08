@@ -86,7 +86,7 @@ export default function ProductInfoDisplay({
       </div>
 
       {/* Information Table */}
-      <div className="border border-gray-300 rounded-lg overflow-hidden">
+      <div className="border border-gray-300 rounded-lg overflow-hidden bg-background shadow-2xs">
         <div className="flex flex-wrap items-center">
           <div className="flex-1 min-w-xs">
             {/* First Row - Proizvođač */}

@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     const qs = new URLSearchParams();
     Object.entries(parsed.data).forEach(([k, v]) => {
       if (v !== undefined) {
-        qs.append(k, String(v));
+        qs.set(k, String(v));
       }
     });
 
