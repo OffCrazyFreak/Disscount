@@ -179,7 +179,7 @@ export default function AccountDetailsModal({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {form.formState.errors.root && (
-              <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
+              <div role="alert" aria-live="polite" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
                 {form.formState.errors.root.message as string}
               </div>
             )}
