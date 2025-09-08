@@ -23,9 +23,7 @@ export const ProductInfo = memo(function ProductInfo({
             e.stopPropagation();
             e.preventDefault();
 
-            router.push(
-              `/products?filterByCategory=${encodeURIComponent(category || "")}`
-            );
+            router.push(`/products?category=${encodeURIComponent(category)}`);
           }}
         >
           {category}

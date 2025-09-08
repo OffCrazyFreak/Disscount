@@ -116,7 +116,7 @@ export const AppSidebar = memo(function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link href="/products?filterBy=discount">
+                  <Link href="/products?discounted=true">
                     <Percent />
                     <span>Sniženja</span>
                   </Link>
@@ -184,7 +184,7 @@ export const AppSidebar = memo(function AppSidebar() {
                         >
                           <Link
                             className="flex justify-between items-center"
-                            href={`/product?filterBy=chain&value=${chain.chain_code}`}
+                            href={`/products?chain=${chain.chain_code}`}
                           >
                             <span>{storeNamesMap[chain.chain_code]}</span>
 
@@ -226,7 +226,7 @@ export const AppSidebar = memo(function AppSidebar() {
                         >
                           <Link
                             className="flex justify-between items-center"
-                            href={`/product?filterBy=location&value=${location.name}`}
+                            href={`/products?location=${location.name}`}
                           >
                             <span>{location.name}</span>
 

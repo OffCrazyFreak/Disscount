@@ -8,7 +8,7 @@ export default function HeroSection() {
       <div className="group relative">
         <div className="absolute inset-0 z-10 scale-90 grid place-items-center opacity-0 duration-500 group-hover:scale-100 group-hover:opacity-100">
           <Link
-            href="/products?filterBy=discount"
+            href="/products?discounted=true"
             className="block duration-150 hover:opacity-75"
           >
             <span>Pogledaj akcije</span>
