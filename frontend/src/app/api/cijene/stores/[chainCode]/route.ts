@@ -15,14 +15,15 @@ export async function GET(
   { params }: { params: Params }
 ) {
   const { chainCode } = await params;
+  const code = chainCode?.trim();
 
   // Validate chain code parameter
-  if (!chainCode || typeof chainCode !== "string") {
+  if (!code || typeof code !== "string") {
     return createApiError("Chain code is required", { status: 400 });
   }
 
   try {
-    const response = await cijeneApiV1Client.get(`/${chainCode}/stores/`);
+    const response = await cijeneApiV1Client.get(`/${code}/stores/`);
 
     // Validate response
     const parsed = listStoresResponseSchema.safeParse(response.data);
@@ -47,7 +48,7 @@ export async function GET(
     }
 
     // Handle other errors
-    console.error(`Stores for chain ${chainCode} fetch failed:`, error);
+    console.error(`Stores for chain ${code} fetch failed:`, error);
     return createApiError("Failed to fetch stores for chain", { status: 500 });
   }
 }
