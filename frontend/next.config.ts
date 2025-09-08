@@ -19,6 +19,31 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  // Apply static security headers at the Next.js layer so they are added
+  // to responses (including those proxied via rewrites) without middleware
+  // running per-request. Keeps behavior consistent with `middleware.ts`.
+  async headers() {
+    return [
+      {
+        source: "/api/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-XSS-Protection", value: "1; mode=block" },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=31536000; includeSubDomains",
+          },
+          { key: "X-DNS-Prefetch-Control", value: "on" },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
