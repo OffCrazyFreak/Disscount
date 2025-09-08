@@ -58,7 +58,8 @@ export async function GET(request: NextRequest) {
     if (error instanceof CijeneApiError) {
       return createApiError(error.message, {
         status: error.status >= 400 ? error.status : 500,
-        details: error.response,
+        // avoid leaking headers or internal metadata
+        details: error.response?.data,
       });
     }
 
