@@ -10,27 +10,25 @@ const USERS_BASE_PATH = "/api/users";
 export async function getCurrentUser(): Promise<UserDto> {
   const response = await apiClient.get<UserDto>(`${USERS_BASE_PATH}/me`);
   return response.data;
-};
+}
 
 /**
  * Update the current user's profile
  */
-export async function updateCurrentUser(
-  data: UserRequest
-): Promise<UserDto> {
+export async function updateCurrentUser(data: UserRequest): Promise<UserDto> {
   const response = await apiClient.patch<UserDto>(
     `${USERS_BASE_PATH}/me`,
     data
   );
   return response.data;
-};
+}
 
 /**
  * Delete (soft delete) the current user's account
  */
 export async function deleteCurrentUser(): Promise<void> {
   await apiClient.delete(`${USERS_BASE_PATH}/me`);
-};
+}
 
 /**
  * Get all users (admin only)
@@ -38,21 +36,19 @@ export async function deleteCurrentUser(): Promise<void> {
 export async function getAllUsers(): Promise<UserDto[]> {
   const response = await apiClient.get<UserDto[]>(USERS_BASE_PATH);
   return response.data;
-};
+}
 
 /**
  * Check if username exists
  */
-export async function checkUsernameExists(
-  username: string
-): Promise<boolean> {
+export async function checkUsernameExists(username: string): Promise<boolean> {
   const response = await apiClient.get<Record<string, boolean>>(
     `${USERS_BASE_PATH}/exists/username/${username}`
   );
   // Get first value from the response object
   const values = Object.keys(response.data).map((key) => response.data[key]);
   return values.length > 0 ? values[0] : false;
-};
+}
 
 /**
  * Check if email exists
@@ -64,7 +60,7 @@ export async function checkEmailExists(email: string): Promise<boolean> {
   // Get first value from the response object
   const values = Object.keys(response.data).map((key) => response.data[key]);
   return values.length > 0 ? values[0] : false;
-};
+}
 
 // React Query hooks
 export const useGetCurrentUser = () => {

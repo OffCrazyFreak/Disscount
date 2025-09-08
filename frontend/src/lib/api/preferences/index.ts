@@ -15,7 +15,7 @@ export async function getPinnedStores(): Promise<PinnedStoreDto[]> {
     "/api/pinned-stores/me"
   );
   return response.data;
-};
+}
 
 /**
  * Update user's pinned stores (bulk operation)
@@ -28,7 +28,7 @@ export async function updatePinnedStores(
     data
   );
   return response.data;
-};
+}
 
 /**
  * Get current user's pinned places
@@ -38,7 +38,7 @@ export async function getPinnedPlaces(): Promise<PinnedPlaceDto[]> {
     "/api/pinned-places/me"
   );
   return response.data;
-};
+}
 
 /**
  * Update user's pinned places (bulk operation)
@@ -51,7 +51,7 @@ export async function updatePinnedPlaces(
     data
   );
   return response.data;
-};
+}
 
 // React Query hooks
 export const useGetPinnedStores = () => {

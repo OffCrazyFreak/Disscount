@@ -21,7 +21,7 @@ export async function createDigitalCard(
   );
 
   return digitalCardDtoSchema.parse(response.data);
-};
+}
 
 /**
  * Get all digital cards for current user
@@ -32,20 +32,18 @@ export async function getUserDigitalCards(): Promise<DigitalCardDto[]> {
   );
 
   return response.data.map((item) => digitalCardDtoSchema.parse(item));
-};
+}
 
 /**
  * Get digital card by ID
  */
-export async function getDigitalCardById(
-  id: string
-): Promise<DigitalCardDto> {
+export async function getDigitalCardById(id: string): Promise<DigitalCardDto> {
   const response = await apiClient.get<DigitalCardDto>(
     `/api/digital-cards/${id}`
   );
 
   return digitalCardDtoSchema.parse(response.data);
-};
+}
 
 /**
  * Update digital card
@@ -62,14 +60,14 @@ export async function updateDigitalCard(
   );
 
   return digitalCardDtoSchema.parse(response.data);
-};
+}
 
 /**
  * Delete digital card
  */
 export async function deleteDigitalCard(id: string): Promise<void> {
   await apiClient.delete(`/api/digital-cards/${id}`);
-};
+}
 
 // React Query hooks
 export const useCreateDigitalCard = () => {

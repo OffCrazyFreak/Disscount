@@ -18,7 +18,7 @@ export async function createShoppingList(
     data
   );
   return response.data;
-};
+}
 
 /**
  * Get current user's shopping lists
@@ -30,7 +30,7 @@ export async function getCurrentUserShoppingLists(): Promise<
     "/api/shopping-lists/me"
   );
   return response.data;
-};
+}
 
 /**
  * Get shopping list by ID
@@ -42,7 +42,7 @@ export async function getShoppingListById(
     `/api/shopping-lists/${id}`
   );
   return response.data;
-};
+}
 
 /**
  * Update shopping list
@@ -56,14 +56,14 @@ export async function updateShoppingList(
     data
   );
   return response.data;
-};
+}
 
 /**
  * Delete shopping list
  */
 export async function deleteShoppingList(id: string): Promise<void> {
   await apiClient.delete(`/api/shopping-lists/${id}`);
-};
+}
 
 /**
  * Add item to shopping list
@@ -77,7 +77,7 @@ export async function addItemToShoppingList(
     data
   );
   return response.data;
-};
+}
 
 /**
  * Update shopping list item
@@ -91,14 +91,14 @@ export async function updateShoppingListItem(
     data
   );
   return response.data;
-};
+}
 
 /**
  * Delete shopping list item
  */
 export async function deleteShoppingListItem(itemId: string): Promise<void> {
   await apiClient.delete(`/api/shopping-lists/items/${itemId}`);
-};
+}
 
 /**
  * Get all items from user's active shopping lists
@@ -110,7 +110,7 @@ export async function getAllUserShoppingListItems(): Promise<
     "/api/shopping-lists/items"
   );
   return response.data;
-};
+}
 
 // React Query hooks
 export const useCreateShoppingList = () => {

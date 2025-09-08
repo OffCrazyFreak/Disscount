@@ -20,14 +20,12 @@ export async function login(data: LoginRequest): Promise<AuthResponse> {
   }
 
   return response.data;
-};
+}
 
 /**
  * Register a new user
  */
-export async function register(
-  data: RegisterRequest
-): Promise<AuthResponse> {
+export async function register(data: RegisterRequest): Promise<AuthResponse> {
   const response = await apiClient.post<AuthResponse>(
     `${AUTH_BASE_PATH}/register`,
     data
@@ -39,7 +37,7 @@ export async function register(
   }
 
   return response.data;
-};
+}
 
 /**
  * Refresh the access token using the refresh token in cookies
@@ -59,7 +57,7 @@ export async function refreshToken(): Promise<AuthResponse> {
   }
 
   return response.data;
-};
+}
 
 /**
  * Logout from current session
@@ -75,7 +73,7 @@ export async function logout(): Promise<void> {
 
   // Remove the access token from storage
   removeAccessToken();
-};
+}
 
 /**
  * Logout from all sessions
@@ -91,7 +89,7 @@ export async function logoutAll(): Promise<void> {
 
   // Remove the access token from storage
   removeAccessToken();
-};
+}
 
 // React Query hooks
 export const useLogin = () => {

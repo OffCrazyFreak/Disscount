@@ -19,7 +19,7 @@ export function getMinPrice(product: ProductResponse): number {
   const finalMin = Number.isFinite(min) ? min : 0;
   minPriceCache.set(product, finalMin);
   return finalMin;
-};
+}
 
 /**
  * Get maximum price for a product from Cijene API
@@ -35,14 +35,12 @@ export function getMaxPrice(product: ProductResponse): number {
   const finalMax = Number.isFinite(max) ? max : 0;
   maxPriceCache.set(product, finalMax);
   return finalMax;
-};
+}
 
 /**
  * Get average price for a product from Cijene API
  */
-export function getAveragePrice(
-  product: ProductResponse
-): number | undefined {
+export function getAveragePrice(product: ProductResponse): number | undefined {
   if (avgPriceCache.has(product)) {
     return avgPriceCache.get(product)!;
   }
@@ -66,7 +64,7 @@ export function getAveragePrice(
     }
   }
   return undefined;
-};
+}
 
 /**
  * Get minimum price per unit for a product
@@ -79,7 +77,7 @@ export function getMinPricePerUnit(
     return getMinPrice(product) / quantity;
   }
   return undefined;
-};
+}
 
 /**
  * Get maximum price per unit for a product
@@ -92,7 +90,7 @@ export function getMaxPricePerUnit(
     return getMaxPrice(product) / quantity;
   }
   return undefined;
-};
+}
 
 /**
  * Get average price per unit for a product
@@ -106,14 +104,14 @@ export function getAveragePricePerUnit(
     return avgPrice !== undefined ? avgPrice / quantity : undefined;
   }
   return undefined;
-};
+}
 
 /**
  * Check if product has multiple chains
  */
 export function hasMultipleChains(product: ProductResponse): boolean {
   return product.chains && product.chains.length > 1;
-};
+}
 
 /**
  * Get the lowest price chain for a product
@@ -139,7 +137,7 @@ export function getLowestPriceChain(product: ProductResponse) {
       ? current
       : lowest;
   });
-};
+}
 
 /**
  * Get the highest price chain for a product
@@ -165,4 +163,4 @@ export function getHighestPriceChain(product: ProductResponse) {
       ? current
       : highest;
   });
-};
+}
