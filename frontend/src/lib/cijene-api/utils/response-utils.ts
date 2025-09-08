@@ -23,9 +23,19 @@ export function createApiResponse<T>(
   // Set cache control (security headers handled by middleware)
   response.headers.set("Cache-Control", cacheControl);
 
-  // Add any additional headers
+  // Add any additional headers (but do not allow overriding security headers)
+  const immutableHeaders = new Set([
+    "x-content-type-options",
+    "x-frame-options",
+    "strict-transport-security",
+    "referrer-policy",
+    "x-dns-prefetch-control",
+    "x-xss-protection",
+  ]);
   Object.entries(additionalHeaders).forEach(([key, value]) => {
-    response.headers.set(key, value);
+    if (!immutableHeaders.has(key.toLowerCase())) {
+      response.headers.set(key, value);
+    }
   });
 
   return response;
