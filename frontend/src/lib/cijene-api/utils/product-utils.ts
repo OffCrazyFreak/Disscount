@@ -47,15 +47,22 @@ export const getAveragePrice = (
     return avgPriceCache.get(product)!;
   }
   if (product.chains.length > 0) {
-    const prices = product.chains
-      .map((c) => parseFloat(c.avg_price))
-      .filter((price) => Number.isFinite(price));
-    if (prices.length > 0) {
-      const avg = prices.reduce((sum, price) => sum + price, 0) / prices.length;
-      if (Number.isFinite(avg)) {
-        avgPriceCache.set(product, avg);
-        return avg;
+    let sum = 0;
+    let count = 0;
+    for (const chain of product.chains) {
+      const parsed = parseFloat(chain.avg_price);
+      if (Number.isFinite(parsed)) {
+        sum += parsed;
+        count += 1;
       }
+    }
+    if (count === 0) {
+      return undefined;
+    }
+    const avg = sum / count;
+    if (Number.isFinite(avg)) {
+      avgPriceCache.set(product, avg);
+      return avg;
     }
   }
   return undefined;
