@@ -8,7 +8,6 @@ export default function HealthStatus() {
   const { data: health, isLoading: healthLoading } =
     cijeneService.useHealthCheck();
 
-  console.log("Health data:", health?.status, "Loading:", healthLoading);
 
   if (healthLoading) {
     return (
