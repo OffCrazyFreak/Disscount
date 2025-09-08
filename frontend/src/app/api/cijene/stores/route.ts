@@ -8,6 +8,7 @@ import {
   createApiResponse,
   createApiError,
 } from "@/lib/cijene-api/utils/response-utils";
+import { z } from "zod";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -31,7 +32,7 @@ export async function GET(request: NextRequest) {
     if (!parsed.success) {
       return createApiError("Invalid search parameters", {
         status: 400,
-        details: parsed.error,
+        details: z.treeifyError(parsed.error),
       });
     }
 
@@ -53,6 +54,7 @@ export async function GET(request: NextRequest) {
     if (!parsedResponse.success) {
       return createApiError("Invalid response from external API", {
         status: 500,
+        details: z.treeifyError(parsedResponse.error),
       });
     }
     const validatedData = parsedResponse.data;

@@ -5,6 +5,7 @@ import {
   createApiResponse,
   createApiError,
 } from "@/lib/cijene-api/utils/response-utils";
+import { z } from "zod";
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,6 +16,7 @@ export async function GET(request: NextRequest) {
     if (!parsed.success) {
       return createApiError("Invalid response from external API", {
         status: 500,
+        details: z.treeifyError(parsed.error),
       });
     }
     const validatedData = parsed.data;
