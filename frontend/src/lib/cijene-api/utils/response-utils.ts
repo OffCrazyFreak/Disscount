@@ -20,7 +20,7 @@ export function createApiResponse<T>(
 
   const response = NextResponse.json(data, { status });
 
-  // Set cache control (security headers handled by middleware)
+  // Set cache control (security headers via next.config.ts headers())
   response.headers.set("Cache-Control", cacheControl);
 
   // Add any additional headers (but do not allow overriding security headers)

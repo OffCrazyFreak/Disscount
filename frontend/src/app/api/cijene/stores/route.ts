@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     }
     const validatedData = parsedResponse.data;
 
-    // Create response with caching headers (security headers handled by middleware)
+    // Create response with caching headers (security headers via next.config.ts headers())
     return createApiResponse(validatedData, {
       cacheControl: "public, max-age=1800, s-maxage=3600", // 30min browser, 1h CDN
     });
