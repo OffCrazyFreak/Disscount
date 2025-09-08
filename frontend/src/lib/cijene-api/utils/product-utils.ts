@@ -168,7 +168,7 @@ export const getHighestPriceChain = (product: ProductResponse) => {
 };
 
 /**
- * Get the average price chain for a product
+ * Get the average price for a product across its chains — returns a number or undefined if no chains
  */
 export const getAveragePriceChain = (product: ProductResponse) => {
   if (!product.chains || product.chains.length === 0) {
