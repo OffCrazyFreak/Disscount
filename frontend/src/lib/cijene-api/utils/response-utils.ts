@@ -4,8 +4,8 @@ import { NextResponse } from "next/server";
  * Creates a JSON response with common caching headers
  * Security headers are automatically added by middleware
  */
-export function createApiResponse(
-  data: any,
+export function createApiResponse<T>(
+  data: T,
   options: {
     status?: number;
     cacheControl?: string;
@@ -34,11 +34,11 @@ export function createApiResponse(
 /**
  * Creates an error response with appropriate status and headers
  */
-export function createApiError(
+export function createApiError<T = any>(
   message: string,
   options: {
     status?: number;
-    details?: any;
+    details?: T;
     additionalHeaders?: Record<string, string>;
   } = {}
 ) {
