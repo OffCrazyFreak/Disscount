@@ -6,12 +6,16 @@ const nextConfig: NextConfig = {
     // even if there are ESLint errors
     ignoreDuringBuilds: true,
   },
+
   async rewrites() {
+    const backendOrigin =
+      process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+
     return [
       {
         // Proxy all backend API calls except Cijene routes under /api/cijene
         source: "/api/:path((?!cijene/).*)",
-        destination: "http://localhost:8080/api/:path*",
+        destination: `${backendOrigin}/api/:path*`,
       },
     ];
   },
