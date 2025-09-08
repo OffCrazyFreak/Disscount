@@ -24,15 +24,11 @@ const nextConfig: NextConfig = {
   // to responses (including those proxied via rewrites) without middleware
   // running per-request. Keeps behavior consistent with `middleware.ts`.
   async headers() {
-    const isDev = process.env.NODE_ENV !== "production";
-
     // Build a CSP that permits Web Workers (blob:) and dev tooling while staying tight in prod
     const csp = [
       "default-src 'self'",
       // In dev, Next and some libs may rely on inline/eval and blob workers
-      `script-src 'self'${
-        isDev ? " 'unsafe-inline' 'unsafe-eval' blob:" : " 'unsafe-inline'"
-      }`,
+      `script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:`,
       // Explicitly allow workers from same origin and blob URLs
       "worker-src 'self' blob:",
       "style-src 'self' 'unsafe-inline'",
@@ -40,7 +36,7 @@ const nextConfig: NextConfig = {
       "img-src 'self' data: https: blob:",
       "font-src 'self' data:",
       // Allow API calls to same origin and HTTPS; include WS for dev HMR
-      `connect-src 'self' https:${isDev ? " ws: wss:" : ""}`,
+      `connect-src 'self' https: ws: wss:`,
       // Lock down embedding and legacy objects
       "frame-ancestors 'none'",
       "object-src 'none'",
