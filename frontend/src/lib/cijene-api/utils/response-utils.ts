@@ -44,7 +44,7 @@ export function createApiResponse<T>(
 /**
  * Creates an error response with appropriate status and headers
  */
-export function createApiError<T = any>(
+export function createApiError<T = unknown>(
   message: string,
   options: {
     status?: number;
