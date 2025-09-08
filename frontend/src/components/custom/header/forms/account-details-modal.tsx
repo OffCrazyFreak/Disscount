@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import axios, { AxiosError } from "axios";
 
 import {
   Dialog,
@@ -105,18 +106,26 @@ export default function AccountDetailsModal({
           setUser(updatedUser);
           onOpenChange(false);
         },
-        onError: (error: any) => {
-          const status = error?.response?.status ?? 0;
-          const serverMessage = error?.response?.data?.message as
-            | string
-            | undefined;
+        onError: (error: unknown) => {
+          let status = 0;
+          let serverMessage: string | undefined;
+
+          if (axios.isAxiosError(error)) {
+            status = error.response?.status ?? 0;
+            serverMessage =
+              ((error.response?.data as any)?.message as string | undefined) ||
+              error.message;
+          } else {
+            serverMessage = (error as any)?.message || "Unknown error";
+          }
+
           if (status >= 400 && status < 500) {
             form.setError("root", {
               type: "server",
               message: serverMessage || "Provjeri unesene podatke.",
             });
           } else {
-            toast.error(error.message || "Greška pri spremanju detalja");
+            toast.error(serverMessage || "Greška pri spremanju detalja");
           }
         },
       }
@@ -179,7 +188,11 @@ export default function AccountDetailsModal({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {form.formState.errors.root && (
-              <div role="alert" aria-live="polite" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
+              <div
+                role="alert"
+                aria-live="polite"
+                className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3"
+              >
                 {form.formState.errors.root.message as string}
               </div>
             )}
