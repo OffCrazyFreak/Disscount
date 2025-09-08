@@ -138,7 +138,7 @@ export default function ProductInfoDisplay({
             {/* Fourth Row - Jedinične cijene */}
             <div className="border-y text-sm p-2">
               <span className="font-bold">Jed. cijene: </span>
-              {product.chains.length > 0 ? (
+              {product.chains.length > 0 && product.quantity ? (
                 <span className="whitespace-nowrap">
                   <span className="text-green-700">
                     {minPricePerUnit?.toFixed(2)}€/{product.unit}

@@ -43,6 +43,7 @@ import { Button } from "../ui/button-icon";
 
 export const AppSidebar = memo(function AppSidebar() {
   const [categories, setCategories] = useState<any[]>(["First", "Second"]);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   const { data: chainStats, isLoading: chainStatsLoading } =
     cijeneService.useGetChainStats();
@@ -73,7 +74,7 @@ export const AppSidebar = memo(function AppSidebar() {
         </SidebarGroup>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="max-h-[70dvh] overflow-y-auto">
         <div className="sm:hidden">
           <SidebarMenu>
             <SidebarGroup>
@@ -123,7 +124,13 @@ export const AppSidebar = memo(function AppSidebar() {
               </SidebarMenuItem>
 
               <SidebarMenuItem>
-                <Collapsible defaultOpen={false} className="group/collapsible">
+                <Collapsible
+                  open={openMenu === "categories"}
+                  onOpenChange={(open) =>
+                    setOpenMenu(open ? "categories" : null)
+                  }
+                  className="group/collapsible"
+                >
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton asChild>
                       <div className="cursor-pointer group">
@@ -151,7 +158,11 @@ export const AppSidebar = memo(function AppSidebar() {
               </SidebarMenuItem>
 
               <SidebarMenuItem>
-                <Collapsible defaultOpen={false} className="group/collapsible">
+                <Collapsible
+                  open={openMenu === "stores"}
+                  onOpenChange={(open) => setOpenMenu(open ? "stores" : null)}
+                  className="group/collapsible"
+                >
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton asChild>
                       <div className="cursor-pointer group">
@@ -187,7 +198,13 @@ export const AppSidebar = memo(function AppSidebar() {
               </SidebarMenuItem>
 
               <SidebarMenuItem>
-                <Collapsible defaultOpen={false} className="group/collapsible">
+                <Collapsible
+                  open={openMenu === "locations"}
+                  onOpenChange={(open) =>
+                    setOpenMenu(open ? "locations" : null)
+                  }
+                  className="group/collapsible"
+                >
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton asChild>
                       <div className="cursor-pointer group">
