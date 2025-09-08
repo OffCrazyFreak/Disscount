@@ -46,7 +46,9 @@ export default function ChainList() {
           <div className="">
             {chainStats.chain_stats
               .sort((a: any, b: any) =>
-                a.chain_code.localeCompare(b.chain_code)
+                a.chain_code.localeCompare(b.chain_code, "hr", {
+                  sensitivity: "base",
+                })
               )
               .map((stat: any, index: number) => (
                 <ChainItem

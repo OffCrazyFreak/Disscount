@@ -172,12 +172,16 @@ export const StoreChainCard = memo(
                           if (!aIsPreferred && bIsPreferred) return 1;
 
                           // If both are preferred or both are not, sort by city first, then by address
-                          const cityCompare = (
-                            a.store.city || ""
-                          ).localeCompare(b.store.city || "");
+                          const cityCompare = (a.store.city || "").localeCompare(
+                            b.store.city || "",
+                            "hr",
+                            { sensitivity: "base" }
+                          );
                           if (cityCompare !== 0) return cityCompare;
                           return (a.store.address || "").localeCompare(
-                            b.store.address || ""
+                            b.store.address || "",
+                            "hr",
+                            { sensitivity: "base" }
                           );
                         })
                         .map((price, index) => {

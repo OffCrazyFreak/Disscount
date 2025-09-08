@@ -223,7 +223,11 @@ export default function UserPreferencesModal({
 
                 <div className="flex flex-wrap items-center justify-center gap-4">
                   {chainStats?.chain_stats
-                    .sort((a, b) => a.chain_code.localeCompare(b.chain_code))
+                    .sort((a, b) =>
+                      a.chain_code.localeCompare(b.chain_code, "hr", {
+                        sensitivity: "base",
+                      })
+                    )
                     .map((chain: ChainStats) => {
                       const isSelected = form
                         .watch("pinnedStores")
@@ -298,7 +302,11 @@ export default function UserPreferencesModal({
                       <MultiSelectContent className=" bg-white">
                         <MultiSelectGroup>
                           {locations
-                            .sort((a, b) => a.name.localeCompare(b.name))
+                            .sort((a, b) =>
+                              a.name.localeCompare(b.name, "hr", {
+                                sensitivity: "base",
+                              })
+                            )
                             .map((location) => (
                               <MultiSelectItem
                                 key={location.name}

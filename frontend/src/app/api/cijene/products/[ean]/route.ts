@@ -62,7 +62,9 @@ export async function GET(
         details: error.response?.data,
       });
     }
-    console.error("Get product by EAN failed:", error);
-    return createApiError("Failed to fetch product", { status: 500 });
+
+    return createApiError("Failed to fetch product from upstream", {
+      status: 502,
+    });
   }
 }

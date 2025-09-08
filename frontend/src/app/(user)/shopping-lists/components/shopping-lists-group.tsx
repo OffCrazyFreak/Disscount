@@ -57,7 +57,9 @@ export default function ShoppingListsGroup({
       }
     >
       {shoppingLists
-        .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+        .sort((a, b) =>
+          b.createdAt.localeCompare(a.createdAt, "hr", { sensitivity: "base" })
+        )
         .map((shoppingList) => (
           <ShoppingListCard
             key={shoppingList.id}

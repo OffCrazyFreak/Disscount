@@ -54,12 +54,16 @@ export const AppSidebar = memo(function AppSidebar() {
 
   const sortedChainStats = useMemo(() => {
     const list = chainStats?.chain_stats ?? [];
-    return [...list].sort((a, b) => a.chain_code.localeCompare(b.chain_code));
+    return [...list].sort((a, b) =>
+      a.chain_code.localeCompare(b.chain_code, "hr", { sensitivity: "base" })
+    );
   }, [chainStats]);
 
   const sortedLocations = useMemo(() => {
     const list = locations ?? [];
-    return [...list].sort((a, b) => a.name.localeCompare(b.name));
+    return [...list].sort((a, b) =>
+      a.name.localeCompare(b.name, "hr", { sensitivity: "base" })
+    );
   }, [locations]);
 
   return (
@@ -147,7 +151,11 @@ export const AppSidebar = memo(function AppSidebar() {
                     <SidebarMenuSub className="max-h-128 overflow-y-auto">
                       {categories.map((category) => (
                         <SidebarMenuSubItem key={category.id || category}>
-                          <Link href={category.url || "#"}>
+                          <Link
+                            href={`/products?category=${encodeURIComponent(
+                              category.id || category
+                            )}`}
+                          >
                             <span>{category.title || category}</span>
                           </Link>
                         </SidebarMenuSubItem>
@@ -184,7 +192,9 @@ export const AppSidebar = memo(function AppSidebar() {
                         >
                           <Link
                             className="flex justify-between items-center"
-                            href={`/products?chain=${chain.chain_code}`}
+                            href={`/products?chain=${encodeURIComponent(
+                              chain.chain_code
+                            )}`}
                           >
                             <span>{storeNamesMap[chain.chain_code]}</span>
 
@@ -226,7 +236,9 @@ export const AppSidebar = memo(function AppSidebar() {
                         >
                           <Link
                             className="flex justify-between items-center"
-                            href={`/products?location=${location.name}`}
+                            href={`/products?location=${encodeURIComponent(
+                              location.name
+                            )}`}
                           >
                             <span>{location.name}</span>
 

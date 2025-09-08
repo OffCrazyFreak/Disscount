@@ -34,7 +34,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Handle other errors
-    console.error("Chain stats failed:", error);
-    return createApiError("Failed to fetch chain stats", { status: 500 });
+    return createApiError("Failed to fetch chain stats from upstream", {
+      status: 502,
+    });
   }
 }
