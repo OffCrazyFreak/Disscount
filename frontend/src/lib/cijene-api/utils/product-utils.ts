@@ -132,10 +132,7 @@ export function getLowestPriceChain(product: ProductResponse) {
   return validChains.reduce((lowest, current) => {
     const currentPrice = parseFloat(current.min_price);
     const lowestPrice = parseFloat(lowest.min_price);
-    return (isNaN(currentPrice) ? Number.POSITIVE_INFINITY : currentPrice) <
-      (isNaN(lowestPrice) ? Number.POSITIVE_INFINITY : lowestPrice)
-      ? current
-      : lowest;
+    return currentPrice < lowestPrice ? current : lowest;
   });
 }
 
@@ -158,9 +155,6 @@ export function getHighestPriceChain(product: ProductResponse) {
   return validChains.reduce((highest, current) => {
     const currentPrice = parseFloat(current.max_price);
     const highestPrice = parseFloat(highest.max_price);
-    return (isNaN(currentPrice) ? 0 : currentPrice) >
-      (isNaN(highestPrice) ? 0 : highestPrice)
-      ? current
-      : highest;
+    return currentPrice > highestPrice ? current : highest;
   });
 }
