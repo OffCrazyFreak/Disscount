@@ -58,7 +58,7 @@ export function createApiError<T = any>(
 
   return createApiResponse(errorData, {
     status,
-    cacheControl: "no-cache",
+    cacheControl: status >= 400 ? "no-store" : "no-cache",
     additionalHeaders,
   });
 }

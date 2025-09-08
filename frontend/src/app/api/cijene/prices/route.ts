@@ -68,7 +68,8 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    console.error("Prices fetch failed:", error);
-    return createApiError("Failed to fetch prices", { status: 500 });
+    return createApiError("Failed to fetch prices from upstream", {
+      status: 502,
+    });
   }
 }

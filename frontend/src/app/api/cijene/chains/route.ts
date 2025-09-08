@@ -33,7 +33,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Handle other errors
-    console.error("Chains list failed:", error);
-    return createApiError("Failed to fetch chains list", { status: 500 });
+    return createApiError("Failed to fetch chains list from upstream", {
+      status: 502,
+    });
   }
 }

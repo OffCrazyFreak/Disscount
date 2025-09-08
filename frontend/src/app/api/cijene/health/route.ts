@@ -33,7 +33,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Handle other errors
-    console.error("Health check failed:", error);
-    return createApiError("Failed to check health", { status: 500 });
+    return createApiError("Failed to check health from upstream", {
+      status: 502,
+    });
   }
 }

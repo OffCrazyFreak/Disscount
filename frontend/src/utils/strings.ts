@@ -66,10 +66,10 @@ export function toPascalCase(str: string) {
  */
 export function formatQuantity(q?: string | null): string | null {
   if (q == null) return null;
-  if (q && q.includes(".")) {
+  if (q.includes(".")) {
     let trimmed = q.replace(/0+$/g, "");
     if (trimmed.endsWith(".")) trimmed = trimmed.slice(0, -1);
     return trimmed;
   }
-  return q ?? "";
+  return q;
 }

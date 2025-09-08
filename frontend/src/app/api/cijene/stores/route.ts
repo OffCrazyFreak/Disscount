@@ -71,7 +71,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Handle other errors
-    console.error("Stores fetch failed:", error);
-    return createApiError("Failed to fetch stores", { status: 500 });
+    return createApiError("Failed to fetch stores from upstream", {
+      status: 502,
+    });
   }
 }

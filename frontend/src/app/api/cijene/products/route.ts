@@ -60,7 +60,8 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    console.error("Unexpected error in products search:", error);
-    return createApiError("Failed to fetch products", { status: 500 });
+    return createApiError("Failed to fetch products from upstream", {
+      status: 502,
+    });
   }
 }
