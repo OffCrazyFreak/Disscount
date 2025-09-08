@@ -7,7 +7,7 @@ const USERS_BASE_PATH = "/api/users";
 /**
  * Get the current authenticated user
  */
-export const getCurrentUser = async (): Promise<UserDto> => {
+export async function getCurrentUser(): Promise<UserDto> {
   const response = await apiClient.get<UserDto>(`${USERS_BASE_PATH}/me`);
   return response.data;
 };
@@ -15,9 +15,9 @@ export const getCurrentUser = async (): Promise<UserDto> => {
 /**
  * Update the current user's profile
  */
-export const updateCurrentUser = async (
+export async function updateCurrentUser(
   data: UserRequest
-): Promise<UserDto> => {
+): Promise<UserDto> {
   const response = await apiClient.patch<UserDto>(
     `${USERS_BASE_PATH}/me`,
     data
@@ -28,14 +28,14 @@ export const updateCurrentUser = async (
 /**
  * Delete (soft delete) the current user's account
  */
-export const deleteCurrentUser = async (): Promise<void> => {
+export async function deleteCurrentUser(): Promise<void> {
   await apiClient.delete(`${USERS_BASE_PATH}/me`);
 };
 
 /**
  * Get all users (admin only)
  */
-export const getAllUsers = async (): Promise<UserDto[]> => {
+export async function getAllUsers(): Promise<UserDto[]> {
   const response = await apiClient.get<UserDto[]>(USERS_BASE_PATH);
   return response.data;
 };
@@ -43,9 +43,9 @@ export const getAllUsers = async (): Promise<UserDto[]> => {
 /**
  * Check if username exists
  */
-export const checkUsernameExists = async (
+export async function checkUsernameExists(
   username: string
-): Promise<boolean> => {
+): Promise<boolean> {
   const response = await apiClient.get<Record<string, boolean>>(
     `${USERS_BASE_PATH}/exists/username/${username}`
   );
@@ -57,7 +57,7 @@ export const checkUsernameExists = async (
 /**
  * Check if email exists
  */
-export const checkEmailExists = async (email: string): Promise<boolean> => {
+export async function checkEmailExists(email: string): Promise<boolean> {
   const response = await apiClient.get<Record<string, boolean>>(
     `${USERS_BASE_PATH}/exists/email/${email}`
   );

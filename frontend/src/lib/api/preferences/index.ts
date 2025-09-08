@@ -10,7 +10,7 @@ import {
 /**
  * Get current user's pinned stores
  */
-export const getPinnedStores = async (): Promise<PinnedStoreDto[]> => {
+export async function getPinnedStores(): Promise<PinnedStoreDto[]> {
   const response = await apiClient.get<PinnedStoreDto[]>(
     "/api/pinned-stores/me"
   );
@@ -20,9 +20,9 @@ export const getPinnedStores = async (): Promise<PinnedStoreDto[]> => {
 /**
  * Update user's pinned stores (bulk operation)
  */
-export const updatePinnedStores = async (
+export async function updatePinnedStores(
   data: BulkPinnedStoreRequest
-): Promise<PinnedStoreDto[]> => {
+): Promise<PinnedStoreDto[]> {
   const response = await apiClient.put<PinnedStoreDto[]>(
     "/api/pinned-stores/bulk",
     data
@@ -33,7 +33,7 @@ export const updatePinnedStores = async (
 /**
  * Get current user's pinned places
  */
-export const getPinnedPlaces = async (): Promise<PinnedPlaceDto[]> => {
+export async function getPinnedPlaces(): Promise<PinnedPlaceDto[]> {
   const response = await apiClient.get<PinnedPlaceDto[]>(
     "/api/pinned-places/me"
   );
@@ -43,9 +43,9 @@ export const getPinnedPlaces = async (): Promise<PinnedPlaceDto[]> => {
 /**
  * Update user's pinned places (bulk operation)
  */
-export const updatePinnedPlaces = async (
+export async function updatePinnedPlaces(
   data: BulkPinnedPlaceRequest
-): Promise<PinnedPlaceDto[]> => {
+): Promise<PinnedPlaceDto[]> {
   const response = await apiClient.put<PinnedPlaceDto[]>(
     "/api/pinned-places/bulk",
     data

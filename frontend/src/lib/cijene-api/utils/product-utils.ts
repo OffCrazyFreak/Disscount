@@ -8,7 +8,7 @@ const avgPriceCache = new WeakMap<ProductResponse, number>();
 /**
  * Get minimum price for a product from Cijene API
  */
-export const getMinPrice = (product: ProductResponse): number => {
+export function getMinPrice(product: ProductResponse): number {
   if (minPriceCache.has(product)) {
     return minPriceCache.get(product)!;
   }
@@ -24,7 +24,7 @@ export const getMinPrice = (product: ProductResponse): number => {
 /**
  * Get maximum price for a product from Cijene API
  */
-export const getMaxPrice = (product: ProductResponse): number => {
+export function getMaxPrice(product: ProductResponse): number {
   if (maxPriceCache.has(product)) {
     return maxPriceCache.get(product)!;
   }
@@ -40,9 +40,9 @@ export const getMaxPrice = (product: ProductResponse): number => {
 /**
  * Get average price for a product from Cijene API
  */
-export const getAveragePrice = (
+export function getAveragePrice(
   product: ProductResponse
-): number | undefined => {
+): number | undefined {
   if (avgPriceCache.has(product)) {
     return avgPriceCache.get(product)!;
   }
@@ -71,9 +71,9 @@ export const getAveragePrice = (
 /**
  * Get minimum price per unit for a product
  */
-export const getMinPricePerUnit = (
+export function getMinPricePerUnit(
   product: ProductResponse
-): number | undefined => {
+): number | undefined {
   const quantity = product.quantity ? parseFloat(product.quantity) : undefined;
   if (quantity && Number.isFinite(quantity) && quantity > 0) {
     return getMinPrice(product) / quantity;
@@ -84,9 +84,9 @@ export const getMinPricePerUnit = (
 /**
  * Get maximum price per unit for a product
  */
-export const getMaxPricePerUnit = (
+export function getMaxPricePerUnit(
   product: ProductResponse
-): number | undefined => {
+): number | undefined {
   const quantity = product.quantity ? parseFloat(product.quantity) : undefined;
   if (quantity && Number.isFinite(quantity) && quantity > 0) {
     return getMaxPrice(product) / quantity;
@@ -97,9 +97,9 @@ export const getMaxPricePerUnit = (
 /**
  * Get average price per unit for a product
  */
-export const getAveragePricePerUnit = (
+export function getAveragePricePerUnit(
   product: ProductResponse
-): number | undefined => {
+): number | undefined {
   const quantity = product.quantity ? parseFloat(product.quantity) : undefined;
   if (quantity && Number.isFinite(quantity) && quantity > 0) {
     const avgPrice = getAveragePrice(product);
@@ -111,14 +111,14 @@ export const getAveragePricePerUnit = (
 /**
  * Check if product has multiple chains
  */
-export const hasMultipleChains = (product: ProductResponse): boolean => {
+export function hasMultipleChains(product: ProductResponse): boolean {
   return product.chains && product.chains.length > 1;
 };
 
 /**
  * Get the lowest price chain for a product
  */
-export const getLowestPriceChain = (product: ProductResponse) => {
+export function getLowestPriceChain(product: ProductResponse) {
   if (!product.chains || product.chains.length === 0) {
     return undefined;
   }
@@ -144,7 +144,7 @@ export const getLowestPriceChain = (product: ProductResponse) => {
 /**
  * Get the highest price chain for a product
  */
-export const getHighestPriceChain = (product: ProductResponse) => {
+export function getHighestPriceChain(product: ProductResponse) {
   if (!product.chains || product.chains.length === 0) {
     return undefined;
   }
@@ -165,29 +165,4 @@ export const getHighestPriceChain = (product: ProductResponse) => {
       ? current
       : highest;
   });
-};
-
-/**
- * Get the average price for a product across its chains — returns a number or undefined if no chains
- */
-export const getAveragePriceChain = (product: ProductResponse) => {
-  if (!product.chains || product.chains.length === 0) {
-    return undefined;
-  }
-
-  const validChains = product.chains.filter((c) =>
-    Number.isFinite(parseFloat(c.avg_price))
-  );
-
-  if (validChains.length === 0) {
-    return undefined;
-  }
-
-  const total = validChains.reduce(
-    (sum, current) => sum + parseFloat(current.avg_price),
-    0
-  );
-
-  const avg = total / validChains.length;
-  return Number.isFinite(avg) ? avg : undefined;
 };

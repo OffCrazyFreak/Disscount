@@ -10,9 +10,9 @@ import {
 /**
  * Create a new shopping list
  */
-export const createShoppingList = async (
+export async function createShoppingList(
   data: ShoppingListRequest
-): Promise<ShoppingListDto> => {
+): Promise<ShoppingListDto> {
   const response = await apiClient.post<ShoppingListDto>(
     "/api/shopping-lists",
     data
@@ -23,9 +23,9 @@ export const createShoppingList = async (
 /**
  * Get current user's shopping lists
  */
-export const getCurrentUserShoppingLists = async (): Promise<
+export async function getCurrentUserShoppingLists(): Promise<
   ShoppingListDto[]
-> => {
+> {
   const response = await apiClient.get<ShoppingListDto[]>(
     "/api/shopping-lists/me"
   );
@@ -35,9 +35,9 @@ export const getCurrentUserShoppingLists = async (): Promise<
 /**
  * Get shopping list by ID
  */
-export const getShoppingListById = async (
+export async function getShoppingListById(
   id: string
-): Promise<ShoppingListDto> => {
+): Promise<ShoppingListDto> {
   const response = await apiClient.get<ShoppingListDto>(
     `/api/shopping-lists/${id}`
   );
@@ -47,10 +47,10 @@ export const getShoppingListById = async (
 /**
  * Update shopping list
  */
-export const updateShoppingList = async (
+export async function updateShoppingList(
   id: string,
   data: ShoppingListRequest
-): Promise<ShoppingListDto> => {
+): Promise<ShoppingListDto> {
   const response = await apiClient.put<ShoppingListDto>(
     `/api/shopping-lists/${id}`,
     data
@@ -61,17 +61,17 @@ export const updateShoppingList = async (
 /**
  * Delete shopping list
  */
-export const deleteShoppingList = async (id: string): Promise<void> => {
+export async function deleteShoppingList(id: string): Promise<void> {
   await apiClient.delete(`/api/shopping-lists/${id}`);
 };
 
 /**
  * Add item to shopping list
  */
-export const addItemToShoppingList = async (
+export async function addItemToShoppingList(
   listId: string,
   data: ShoppingListItemRequest
-): Promise<ShoppingListItemDto> => {
+): Promise<ShoppingListItemDto> {
   const response = await apiClient.post<ShoppingListItemDto>(
     `/api/shopping-lists/${listId}/items`,
     data
@@ -82,10 +82,10 @@ export const addItemToShoppingList = async (
 /**
  * Update shopping list item
  */
-export const updateShoppingListItem = async (
+export async function updateShoppingListItem(
   itemId: string,
   data: ShoppingListItemRequest
-): Promise<ShoppingListItemDto> => {
+): Promise<ShoppingListItemDto> {
   const response = await apiClient.put<ShoppingListItemDto>(
     `/api/shopping-lists/items/${itemId}`,
     data
@@ -96,16 +96,16 @@ export const updateShoppingListItem = async (
 /**
  * Delete shopping list item
  */
-export const deleteShoppingListItem = async (itemId: string): Promise<void> => {
+export async function deleteShoppingListItem(itemId: string): Promise<void> {
   await apiClient.delete(`/api/shopping-lists/items/${itemId}`);
 };
 
 /**
  * Get all items from user's active shopping lists
  */
-export const getAllUserShoppingListItems = async (): Promise<
+export async function getAllUserShoppingListItems(): Promise<
   ShoppingListItemDto[]
-> => {
+> {
   const response = await apiClient.get<ShoppingListItemDto[]>(
     "/api/shopping-lists/items"
   );

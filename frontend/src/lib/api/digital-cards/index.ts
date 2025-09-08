@@ -10,9 +10,9 @@ import {
 /**
  * Create a new digital card
  */
-export const createDigitalCard = async (
+export async function createDigitalCard(
   data: DigitalCardRequest
-): Promise<DigitalCardDto> => {
+): Promise<DigitalCardDto> {
   const validatedData = digitalCardRequestSchema.parse(data);
 
   const response = await apiClient.post<DigitalCardDto>(
@@ -26,7 +26,7 @@ export const createDigitalCard = async (
 /**
  * Get all digital cards for current user
  */
-export const getUserDigitalCards = async (): Promise<DigitalCardDto[]> => {
+export async function getUserDigitalCards(): Promise<DigitalCardDto[]> {
   const response = await apiClient.get<DigitalCardDto[]>(
     "/api/digital-cards/me"
   );
@@ -37,9 +37,9 @@ export const getUserDigitalCards = async (): Promise<DigitalCardDto[]> => {
 /**
  * Get digital card by ID
  */
-export const getDigitalCardById = async (
+export async function getDigitalCardById(
   id: string
-): Promise<DigitalCardDto> => {
+): Promise<DigitalCardDto> {
   const response = await apiClient.get<DigitalCardDto>(
     `/api/digital-cards/${id}`
   );
@@ -50,10 +50,10 @@ export const getDigitalCardById = async (
 /**
  * Update digital card
  */
-export const updateDigitalCard = async (
+export async function updateDigitalCard(
   id: string,
   data: DigitalCardRequest
-): Promise<DigitalCardDto> => {
+): Promise<DigitalCardDto> {
   const validatedData = digitalCardRequestSchema.parse(data);
 
   const response = await apiClient.put<DigitalCardDto>(
@@ -67,7 +67,7 @@ export const updateDigitalCard = async (
 /**
  * Delete digital card
  */
-export const deleteDigitalCard = async (id: string): Promise<void> => {
+export async function deleteDigitalCard(id: string): Promise<void> {
   await apiClient.delete(`/api/digital-cards/${id}`);
 };
 

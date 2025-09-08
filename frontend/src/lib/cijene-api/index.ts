@@ -37,7 +37,7 @@ import {
 /**
  * List available ZIP archives
  */
-export const listArchives = async (): Promise<ListArchivesResponse> => {
+export async function listArchives(): Promise<ListArchivesResponse> {
   const response = await axios.get("/api/cijene/archives");
   return listArchivesResponseSchema.parse(response.data);
 };
@@ -45,7 +45,7 @@ export const listArchives = async (): Promise<ListArchivesResponse> => {
 /**
  * List all retail chains
  */
-export const listChains = async (): Promise<ListChainsResponse> => {
+export async function listChains(): Promise<ListChainsResponse> {
   const response = await axios.get("/api/cijene/chains");
   return listChainsResponseSchema.parse(response.data);
 };
@@ -53,9 +53,9 @@ export const listChains = async (): Promise<ListChainsResponse> => {
 /**
  * List stores for a specific chain
  */
-export const listStoresByChain = async (
+export async function listStoresByChain(
   chainCode: string
-): Promise<ListStoresResponse> => {
+): Promise<ListStoresResponse> {
   const response = await axios.get(`/api/cijene/stores/${chainCode}`);
   return listStoresResponseSchema.parse(response.data);
 };
@@ -63,9 +63,9 @@ export const listStoresByChain = async (
 /**
  * Search stores with filters
  */
-export const searchStores = async (
+export async function searchStores(
   params?: SearchStoresParams
-): Promise<ListStoresResponse> => {
+): Promise<ListStoresResponse> {
   // default to empty filter object
   const validated = searchStoresParamsSchema.parse(params ?? {});
   const qs = new URLSearchParams();
@@ -82,9 +82,9 @@ export const searchStores = async (
 /**
  * Get product data/prices by barcode (EAN)
  */
-export const getProductByEan = async (
+export async function getProductByEan(
   params: GetProductParams
-): Promise<ProductResponse> => {
+): Promise<ProductResponse> {
   const validatedParams = getProductParamsSchema.parse(params);
 
   const queryParams = new URLSearchParams();
@@ -101,9 +101,9 @@ export const getProductByEan = async (
 /**
  * Get products by name
  */
-export const getProductByName = async (
+export async function getProductByName(
   params: SearchProductsParams
-): Promise<ProductSearchResponse> => {
+): Promise<ProductSearchResponse> {
   const queryParams = new URLSearchParams();
   queryParams.append("q", params.q);
   if (params.date) queryParams.append("date", params.date);
@@ -118,9 +118,9 @@ export const getProductByName = async (
 /**
  * Get product prices by store with filtering
  */
-export const getPrices = async (
+export async function getPrices(
   params: GetPricesParams
-): Promise<StorePricesResponse> => {
+): Promise<StorePricesResponse> {
   const validatedParams = getPricesParamsSchema.parse(params);
 
   const queryParams = new URLSearchParams();
@@ -139,7 +139,7 @@ export const getPrices = async (
 /**
  * Get chain statistics
  */
-export const getChainStats = async (): Promise<ChainStatsResponse> => {
+export async function getChainStats(): Promise<ChainStatsResponse> {
   const response = await axios.get("/api/cijene/chain-stats");
   return chainStatsResponseSchema.parse(response.data);
 };
@@ -147,7 +147,7 @@ export const getChainStats = async (): Promise<ChainStatsResponse> => {
 /**
  * Health check
  */
-export const healthCheck = async (): Promise<HealthCheckResponse> => {
+export async function healthCheck(): Promise<HealthCheckResponse> {
   const response = await axios.get("/api/cijene/health");
   return healthCheckResponseSchema.parse(response.data);
 };
