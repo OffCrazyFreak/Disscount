@@ -72,8 +72,8 @@ export function getAveragePrice(product: ProductResponse): number | undefined {
 export function getMinPricePerUnit(
   product: ProductResponse
 ): number | undefined {
-  const quantity = product.quantity ? parseFloat(product.quantity) : undefined;
-  if (quantity && Number.isFinite(quantity) && quantity > 0) {
+  const quantity = Number(product.quantity);
+  if (Number.isFinite(quantity) && quantity > 0) {
     return getMinPrice(product) / quantity;
   }
   return undefined;
@@ -85,8 +85,8 @@ export function getMinPricePerUnit(
 export function getMaxPricePerUnit(
   product: ProductResponse
 ): number | undefined {
-  const quantity = product.quantity ? parseFloat(product.quantity) : undefined;
-  if (quantity && Number.isFinite(quantity) && quantity > 0) {
+  const quantity = Number(product.quantity);
+  if (Number.isFinite(quantity) && quantity > 0) {
     return getMaxPrice(product) / quantity;
   }
   return undefined;
@@ -98,10 +98,12 @@ export function getMaxPricePerUnit(
 export function getAveragePricePerUnit(
   product: ProductResponse
 ): number | undefined {
-  const quantity = product.quantity ? parseFloat(product.quantity) : undefined;
-  if (quantity && Number.isFinite(quantity) && quantity > 0) {
+  const quantity = Number(product.quantity);
+  if (Number.isFinite(quantity) && quantity > 0) {
     const avgPrice = getAveragePrice(product);
-    return avgPrice !== undefined ? avgPrice / quantity : undefined;
+    if (avgPrice !== undefined) {
+      return avgPrice / quantity;
+    }
   }
   return undefined;
 }
