@@ -41,9 +41,11 @@ import { ProductSearchBar } from "@/app/products/components/product-search-bar";
 import { storeNamesMap } from "@/utils/mappings";
 import { Button } from "../ui/button-icon";
 
+type OpenSection = "categories" | "stores" | "locations" | null;
+
 export const AppSidebar = memo(function AppSidebar() {
   const [categories, setCategories] = useState<any[]>(["First", "Second"]);
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [openMenu, setOpenMenu] = useState<OpenSection>(null);
 
   const { data: chainStats, isLoading: chainStatsLoading } =
     cijeneService.useGetChainStats();
