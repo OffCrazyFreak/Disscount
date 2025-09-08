@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     // Build query string
     const queryParams = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
+    Object.entries(parsed.data).forEach(([key, value]) => {
       if (value !== undefined) {
         queryParams.append(key, value.toString());
       }
