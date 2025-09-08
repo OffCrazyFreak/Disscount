@@ -31,13 +31,6 @@ public class UserController {
             .orElse(ResponseEntity.notFound().build());
     }
 
-    // TODO: remove (temporary for testing)
-    @Operation(summary = "Get all users")
-    @GetMapping
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        List<UserDto> users = userService.findAll();
-        return ResponseEntity.ok(users);
-    }
 
     @Operation(summary = "Patch current user's profile (username, stayLoggedInDays, notifications)")
     @PatchMapping("/me")
@@ -64,20 +57,5 @@ public class UserController {
         userService.softDeleteUser(authenticatedUserId);
         
         return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
-    }
-
-
-    @Operation(summary = "Check if email exists")
-    @GetMapping("/exists/email/{email}")
-    public ResponseEntity<Map<String, Boolean>> checkEmailExists(@PathVariable String email) {
-        boolean exists = userService.existsByEmail(email);
-        return ResponseEntity.ok(Map.of("exists", exists));
-    }
-
-    @Operation(summary = "Check if username exists")
-    @GetMapping("/exists/username/{username}")
-    public ResponseEntity<Map<String, Boolean>> checkUsernameExists(@PathVariable String username) {
-        boolean exists = userService.existsByUsername(username);
-        return ResponseEntity.ok(Map.of("exists", exists));
     }
 }

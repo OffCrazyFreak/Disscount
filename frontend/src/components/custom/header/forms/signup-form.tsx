@@ -43,6 +43,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
   });
 
   const onSubmit = (data: RegisterRequest) => {
+    form.clearErrors("root");
     registerMutation.mutate(
       {
         email: data.email,
@@ -57,8 +58,22 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
           await handleUserLogin(response.user);
           onSuccess?.();
         },
-        onError: (error: Error) => {
-          toast.error(error.message || "Greška pri registraciji");
+        onError: (error: unknown) => {
+          // Show server error for 4xx
+          const axiosErr: any = error;
+          const status = axiosErr?.response?.status ?? 0;
+          const serverMessage = axiosErr?.response?.data?.message as
+            | string
+            | undefined;
+
+          if (status >= 400 && status < 500) {
+            form.setError("root", {
+              type: "server",
+              message: serverMessage || "Provjeri unesene podatke.",
+            });
+          } else {
+            toast.error(axiosErr?.message || "Greška pri registraciji");
+          }
         },
       }
     );
@@ -67,6 +82,11 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+        {form.formState.errors.root && (
+          <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
+            {form.formState.errors.root.message as string}
+          </div>
+        )}
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input

@@ -29,7 +29,6 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onSuccess }: LoginFormProps) {
-  const [loginRootError, setLoginRootError] = useState<string | null>(null);
   const loginMutation = authService.useLogin();
   const { handleUserLogin } = useUser();
 
@@ -43,7 +42,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
   const onSubmit = (data: LoginRequest) => {
     // clear previous root error and start login
-    setLoginRootError(null);
+    form.clearErrors("root");
     loginMutation.mutate(
       {
         usernameOrEmail: data.usernameOrEmail,
@@ -53,18 +52,27 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         onSuccess: async (response) => {
           toast.success("Prijava uspješna!");
           form.reset();
-          setLoginRootError(null);
           // Use handleUserLogin to set user and fetch shopping lists/digital cards
           await handleUserLogin(response.user);
           onSuccess?.();
         },
         onError: (error: unknown) => {
-          // If backend responds with 401 show a root-level form error in Croatian
           const axiosErr = error as AxiosError | undefined;
-          if (axiosErr?.response?.status === 401) {
-            setLoginRootError("Neispravno korisničko ime ili email i lozinka");
+          const status = axiosErr?.response?.status ?? 0;
+          const serverMessage =
+            // @ts-expect-error server may send { message }
+            (axiosErr?.response?.data?.message as string | undefined) ||
+            axiosErr?.message;
+
+          if (status >= 400 && status < 500) {
+            // 4xx -> show root form error
+            const message =
+              status === 401
+                ? "Neispravno korisničko ime ili email i lozinka"
+                : serverMessage || "Provjeri unesene podatke.";
+            form.setError("root", { type: "server", message });
           } else {
-            toast.error(axiosErr?.message || "Greška pri prijavi");
+            toast.error(serverMessage || "Greška pri prijavi");
           }
         },
       }
@@ -73,13 +81,13 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
   return (
     <>
-      {loginRootError && (
-        <div className="rounded-md bg-red-50 border border-red-700 p-3 text-red-700 text-sm">
-          {loginRootError}
-        </div>
-      )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+          {form.formState.errors.root && (
+            <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
+              {form.formState.errors.root.message as string}
+            </div>
+          )}
           <div className="grid gap-2">
             <Label htmlFor="usernameOrEmail">Korisničko ime ili email</Label>
             <Input

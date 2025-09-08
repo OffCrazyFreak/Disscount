@@ -90,6 +90,7 @@ export default function AccountDetailsModal({
   };
 
   const onSubmit = (data: UserRequest) => {
+    form.clearErrors("root");
     updateUserMutation.mutate(
       {
         username: data.username,
@@ -104,8 +105,19 @@ export default function AccountDetailsModal({
           setUser(updatedUser);
           onOpenChange(false);
         },
-        onError: (error) => {
-          toast.error(error.message || "Greška pri spremanju detalja");
+        onError: (error: any) => {
+          const status = error?.response?.status ?? 0;
+          const serverMessage = error?.response?.data?.message as
+            | string
+            | undefined;
+          if (status >= 400 && status < 500) {
+            form.setError("root", {
+              type: "server",
+              message: serverMessage || "Provjeri unesene podatke.",
+            });
+          } else {
+            toast.error(error.message || "Greška pri spremanju detalja");
+          }
         },
       }
     );
@@ -166,6 +178,11 @@ export default function AccountDetailsModal({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {form.formState.errors.root && (
+              <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
+                {form.formState.errors.root.message as string}
+              </div>
+            )}
             <FormField
               control={form.control}
               name="username"

@@ -45,6 +45,10 @@ public class AuthService {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new BadRequestException("Email already exists");
         }
+        // Ensure username is unique as well
+        if (request.getUsername() != null && userRepository.existsByUsername(request.getUsername())) {
+            throw new BadRequestException("Username already exists");
+        }
         
 
     // Validate password strength
