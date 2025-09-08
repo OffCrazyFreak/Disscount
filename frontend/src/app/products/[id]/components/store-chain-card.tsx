@@ -24,7 +24,7 @@ import {
   ProductResponse,
   StorePrice,
 } from "@/lib/cijene-api/schemas";
-import { getMinPrice, getMaxPrice } from "@/lib/cijene-api/utils";
+import { getMinPrice, getMaxPrice } from "@/lib/cijene-api/utils/product-utils";
 import { formatDate } from "@/utils/strings";
 import { useUser } from "@/context/user-context";
 

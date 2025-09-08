@@ -12,7 +12,7 @@ import { StoreLocation } from "@/typings/store-location";
 /**
  * Hook for fetching all locations/cities from all chains for sidebar
  */
-export const useAllLocations = () => {
+export function useAllLocations() {
   // Get all chains first
   const {
     data: chainsData,
@@ -25,7 +25,7 @@ export const useAllLocations = () => {
     data: storesData,
     isLoading: storesLoading,
     error: storesError,
-  } = cijeneService.useListAllStores();
+  } = cijeneService.useSearchStores();
 
   // Process and combine all store data
   const locations = useMemo<Array<StoreLocation>>(() => {
@@ -83,4 +83,4 @@ export const useAllLocations = () => {
     isLoading: chainsLoading || storesLoading,
     error: chainsError || storesError,
   };
-};
+}

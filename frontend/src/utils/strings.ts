@@ -64,10 +64,8 @@ export function toPascalCase(str: string) {
 /**
  * Trim trailing zeros from decimal quantities: "1.000" -> "1", "1.200" -> "1.2"
  */
-export function formatQuantity(q?: string | null) {
-  if (!q) return q;
-  // Only trim trailing zeros when a decimal point exists (avoid changing integers like "100")
-  if (q.includes(".")) {
+export function formatQuantity(q?: string) {
+  if (q && q.includes(".")) {
     let trimmed = q.replace(/0+$/g, "");
     if (trimmed.endsWith(".")) trimmed = trimmed.slice(0, -1);
     return trimmed;

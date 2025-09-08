@@ -9,7 +9,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/api/:path((?!health|products).*)",
+        // Proxy all backend API calls except Cijene routes under /api/cijene
+        source: "/api/:path((?!cijene/).*)",
         destination: "http://localhost:8080/api/:path*",
       },
     ];

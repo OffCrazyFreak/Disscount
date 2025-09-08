@@ -1,97 +1,259 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance, AxiosError, AxiosResponse } from "axios";
 
-// Get environment variables
-const CIJENE_API_BASE_URL = process.env.NEXT_PUBLIC_CIJENE_API_URL;
-const CIJENE_API_TOKEN = process.env.NEXT_PUBLIC_CIJENE_API_TOKEN;
+// Environment variables
+const CIJENE_API_URL = process.env.CIJENE_API_URL || "https://api.cijene.dev";
+const CIJENE_API_TOKEN = process.env.CIJENE_API_TOKEN;
 
-if (!CIJENE_API_BASE_URL) {
-  throw new Error(
-    "NEXT_PUBLIC_CIJENE_API_URL environment variable is required"
-  );
-}
-
-if (!CIJENE_API_TOKEN) {
-  throw new Error(
-    "NEXT_PUBLIC_CIJENE_API_TOKEN environment variable is required"
-  );
-}
-
-// Create axios instance for Cijene API v1
-const cijeneApiClient: AxiosInstance = axios.create({
-  baseURL: `${CIJENE_API_BASE_URL}/v1`,
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${CIJENE_API_TOKEN}`,
+// Logging utility
+const logger = {
+  info: (message: string, data?: any) => {
+    console.log(`[Cijene API] ${message}`, data || "");
   },
-  timeout: 10000, // 10 second timeout
-});
-
-// Create axios instance for v0 endpoints (archives)
-const cijeneApiV0Client: AxiosInstance = axios.create({
-  baseURL: `${CIJENE_API_BASE_URL}/v0`,
-  headers: {
-    "Content-Type": "application/json",
+  error: (message: string, error?: any) => {
+    console.error(`[Cijene API Error] ${message}`, error || "");
   },
-  timeout: 10000, // 10 second timeout
-});
-
-// Create axios instance for health endpoint (no version)
-const cijeneApiHealthClient: AxiosInstance = axios.create({
-  baseURL: CIJENE_API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
+  warn: (message: string, data?: any) => {
+    console.warn(`[Cijene API Warning] ${message}`, data || "");
   },
-  timeout: 5000, // 5 second timeout for health checks
-});
-
-// Add request interceptor for logging in development
-const addLoggingInterceptor = (client: AxiosInstance, name: string) => {
-  if (process.env.NODE_ENV === "development") {
-    client.interceptors.request.use((config) => {
-      console.log(
-        `[Cijene API ${name}] ${config.method?.toUpperCase()} ${config.url}`
-      );
-      return config;
-    });
-  }
 };
 
-// Add response interceptor for error handling
-const addErrorInterceptor = (client: AxiosInstance) => {
-  client.interceptors.response.use(
-    (response) => response,
-    (error) => {
-      // Log errors in development
+// Custom error class for better error handling
+export class CijeneApiError extends Error {
+  constructor(public status: number, message: string, public response?: any) {
+    super(message);
+    this.name = "CijeneApiError";
+  }
+}
+
+// Create Axios instance for Cijene API v1
+const createCijeneV1Client = (): AxiosInstance => {
+  const client = axios.create({
+    baseURL: `${CIJENE_API_URL}/v1`,
+    timeout: 30000, // 30 seconds timeout
+    headers: {
+      "Content-Type": "application/json",
+      "User-Agent": "Disscount-App/1.0",
+    },
+  });
+
+  // Request interceptor - add auth token and logging
+  client.interceptors.request.use(
+    (config) => {
+      // Add authorization header if token is available
+      if (CIJENE_API_TOKEN && config.headers) {
+        config.headers.Authorization = `Bearer ${CIJENE_API_TOKEN}`;
+      }
+
+      // Log outgoing requests (only in development)
       if (process.env.NODE_ENV === "development") {
-        console.error(
-          "[Cijene API Error]",
-          error.response?.data || error.message
+        logger.info(
+          `${config.method?.toUpperCase()} ${config.url}`,
+          config.params || config.data
         );
       }
 
-      // Transform API errors into user-friendly messages
-      if (error.response?.status === 401) {
-        throw new Error("Neispravna autentifikacija za Cijene API");
-      } else if (error.response?.status === 404) {
-        throw new Error("Traženi resurs nije pronađen");
-      } else if (error.response?.status >= 500) {
-        throw new Error("Greška na serveru. Pokušajte ponovo kasnije");
-      } else if (error.code === "ECONNABORTED") {
-        throw new Error("Zahtjev je istekao. Pokušajte ponovo");
-      }
-
-      throw error;
+      return config;
+    },
+    (error) => {
+      logger.error("Request configuration error", error);
+      return Promise.reject(error);
     }
   );
+
+  // Response interceptor - handle errors and logging
+  client.interceptors.response.use(
+    (response: AxiosResponse) => {
+      // Log successful responses (only in development)
+      if (process.env.NODE_ENV === "development") {
+        logger.info(
+          `${response.status} ${response.config.method?.toUpperCase()} ${
+            response.config.url
+          }`,
+          {
+            duration: response.headers["x-response-time"] || "unknown",
+            size: JSON.stringify(response.data).length,
+          }
+        );
+      }
+
+      return response;
+    },
+    (error: AxiosError) => {
+      const { config, response } = error;
+
+      // Create structured error information
+      const errorInfo = {
+        url: config?.url,
+        method: config?.method?.toUpperCase(),
+        status: response?.status,
+        message: response?.data || error.message,
+        timestamp: new Date().toISOString(),
+      };
+
+      // Log error with context
+      logger.error(
+        `API Error: ${errorInfo.method} ${errorInfo.url} - ${errorInfo.status}`,
+        errorInfo
+      );
+
+      // Transform error based on status code
+      if (response) {
+        const status = response.status;
+        let message = "An error occurred";
+
+        switch (status) {
+          case 400:
+            message = "Invalid request parameters";
+            break;
+          case 401:
+            message = "Authentication failed - Invalid API token";
+            break;
+          case 403:
+            message = "Access forbidden - Insufficient permissions";
+            break;
+          case 404:
+            message = "Resource not found";
+            break;
+          case 429:
+            message = "Rate limit exceeded - Please try again later";
+            break;
+          case 500:
+            message = "Internal server error";
+            break;
+          case 502:
+          case 503:
+          case 504:
+            message = "Service temporarily unavailable";
+            break;
+          default:
+            message = `Request failed with status ${status}`;
+        }
+
+        throw new CijeneApiError(status, message, response.data);
+      }
+
+      // Network errors or timeouts
+      if (error.code === "ECONNABORTED") {
+        throw new CijeneApiError(408, "Request timeout", null);
+      }
+
+      if (error.code === "ENOTFOUND" || error.code === "ECONNREFUSED") {
+        throw new CijeneApiError(503, "Service unavailable", null);
+      }
+
+      // Generic network error
+      throw new CijeneApiError(0, error.message || "Network error", null);
+    }
+  );
+
+  return client;
 };
 
-// Apply interceptors to all clients
-addLoggingInterceptor(cijeneApiClient, "v1");
-addLoggingInterceptor(cijeneApiV0Client, "v0");
-addLoggingInterceptor(cijeneApiHealthClient, "health");
+// Create Axios instance for Cijene API v0 (archives)
+const createCijeneV0Client = (): AxiosInstance => {
+  const client = axios.create({
+    baseURL: `${CIJENE_API_URL}/v0`,
+    timeout: 30000,
+    headers: {
+      "Content-Type": "application/json",
+      "User-Agent": "Disscount-App/1.0",
+    },
+  });
 
-addErrorInterceptor(cijeneApiClient);
-addErrorInterceptor(cijeneApiV0Client);
-addErrorInterceptor(cijeneApiHealthClient);
+  // Add same interceptors as v1 client
+  client.interceptors.request.use(
+    (config) => {
+      if (process.env.NODE_ENV === "development") {
+        logger.info(
+          `[v0] ${config.method?.toUpperCase()} ${config.url}`,
+          config.params || config.data
+        );
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
 
-export { cijeneApiV0Client, cijeneApiHealthClient, cijeneApiClient };
+  client.interceptors.response.use(
+    (response) => {
+      if (process.env.NODE_ENV === "development") {
+        logger.info(
+          `[v0] ${response.status} ${response.config.method?.toUpperCase()} ${
+            response.config.url
+          }`
+        );
+      }
+      return response;
+    },
+    (error) => {
+      logger.error(`[v0] API Error`, error.response?.data || error.message);
+      return Promise.reject(error);
+    }
+  );
+
+  return client;
+};
+
+// Create Axios instance for health endpoint
+const createCijeneHealthClient = (): AxiosInstance => {
+  const client = axios.create({
+    baseURL: CIJENE_API_URL,
+    timeout: 10000, // Shorter timeout for health checks
+    headers: {
+      "Content-Type": "application/json",
+      "User-Agent": "Disscount-App/1.0",
+    },
+  });
+
+  // Minimal interceptors for health checks
+  client.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      logger.error("Health check failed", error.message);
+      return Promise.reject(error);
+    }
+  );
+
+  return client;
+};
+
+// Export configured clients
+export const cijeneApiV1Client = createCijeneV1Client();
+export const cijeneApiV0Client = createCijeneV0Client();
+export const cijeneApiHealthClient = createCijeneHealthClient();
+
+// Export utilities
+export { logger };
+
+// Health check utility
+export const checkCijeneApiHealth = async (): Promise<boolean> => {
+  try {
+    await cijeneApiHealthClient.get("/health");
+    return true;
+  } catch (error) {
+    logger.error("Cijene API health check failed", error);
+    return false;
+  }
+};
+
+// Configuration validation utility
+export const validateCijeneConfig = (): void => {
+  if (!CIJENE_API_URL) {
+    throw new Error("CIJENE_API_URL environment variable is required");
+  }
+
+  if (!CIJENE_API_TOKEN) {
+    logger.warn("CIJENE_API_TOKEN not set - some endpoints may fail");
+  }
+
+  logger.info("Cijene API configuration", {
+    url: CIJENE_API_URL,
+    hasToken: !!CIJENE_API_TOKEN,
+    environment: process.env.NODE_ENV,
+  });
+};
+
+// Initialize configuration check
+if (process.env.NODE_ENV !== "test") {
+  validateCijeneConfig();
+}
