@@ -112,14 +112,14 @@ export const getAveragePricePerUnit = (
  * Check if product has multiple chains
  */
 export const hasMultipleChains = (product: ProductResponse): boolean => {
-  return product.chains.length > 1;
+  return product.chains && product.chains.length > 1;
 };
 
 /**
  * Get the lowest price chain for a product
  */
 export const getLowestPriceChain = (product: ProductResponse) => {
-  if (product.chains.length === 0) {
+  if (!product.chains || product.chains.length === 0) {
     return undefined;
   }
 
@@ -142,7 +142,7 @@ export const getLowestPriceChain = (product: ProductResponse) => {
  * Get the highest price chain for a product
  */
 export const getHighestPriceChain = (product: ProductResponse) => {
-  if (product.chains.length === 0) {
+  if (!product.chains || product.chains.length === 0) {
     return undefined;
   }
 
@@ -165,7 +165,7 @@ export const getHighestPriceChain = (product: ProductResponse) => {
  * Get the average price chain for a product
  */
 export const getAveragePriceChain = (product: ProductResponse) => {
-  if (product.chains.length === 0) {
+  if (!product.chains || product.chains.length === 0) {
     return undefined;
   }
 
