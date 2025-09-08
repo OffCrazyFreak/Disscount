@@ -41,8 +41,11 @@ import { ProductSearchBar } from "@/app/products/components/product-search-bar";
 import { storeNamesMap } from "@/utils/mappings";
 import { Button } from "../ui/button-icon";
 
+type OpenSection = "categories" | "stores" | "locations" | null;
+
 export const AppSidebar = memo(function AppSidebar() {
   const [categories, setCategories] = useState<any[]>(["First", "Second"]);
+  const [openMenu, setOpenMenu] = useState<OpenSection>(null);
 
   const { data: chainStats, isLoading: chainStatsLoading } =
     cijeneService.useGetChainStats();
@@ -50,15 +53,13 @@ export const AppSidebar = memo(function AppSidebar() {
   const { data: locations, isLoading: locationsLoading } = useAllLocations();
 
   const sortedChainStats = useMemo(() => {
-    return (
-      chainStats?.chain_stats?.sort((a, b) =>
-        a.chain_code.localeCompare(b.chain_code)
-      ) || []
-    );
+    const list = chainStats?.chain_stats ?? [];
+    return [...list].sort((a, b) => a.chain_code.localeCompare(b.chain_code));
   }, [chainStats]);
 
   const sortedLocations = useMemo(() => {
-    return locations?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+    const list = locations ?? [];
+    return [...list].sort((a, b) => a.name.localeCompare(b.name));
   }, [locations]);
 
   return (
@@ -73,7 +74,7 @@ export const AppSidebar = memo(function AppSidebar() {
         </SidebarGroup>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="max-h-[75dvh] min-h-0 overflow-y-auto">
         <div className="sm:hidden">
           <SidebarMenu>
             <SidebarGroup>
@@ -115,7 +116,7 @@ export const AppSidebar = memo(function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link href="/products?filterBy=discount">
+                  <Link href="/products?discounted=true">
                     <Percent />
                     <span>Sniženja</span>
                   </Link>
@@ -123,16 +124,22 @@ export const AppSidebar = memo(function AppSidebar() {
               </SidebarMenuItem>
 
               <SidebarMenuItem>
-                <Collapsible defaultOpen={false} className="group/collapsible">
+                <Collapsible
+                  open={openMenu === "categories"}
+                  onOpenChange={(open) =>
+                    setOpenMenu(open ? "categories" : null)
+                  }
+                  className="group/collapsible"
+                >
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton asChild>
-                      <div className="cursor-pointer group">
+                      <button type="button" className="cursor-pointer group">
                         <List />
                         <span>Kategorije</span>
 
                         <ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
                         <span className="sr-only">Toggle</span>
-                      </div>
+                      </button>
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
 
@@ -151,16 +158,20 @@ export const AppSidebar = memo(function AppSidebar() {
               </SidebarMenuItem>
 
               <SidebarMenuItem>
-                <Collapsible defaultOpen={false} className="group/collapsible">
+                <Collapsible
+                  open={openMenu === "stores"}
+                  onOpenChange={(open) => setOpenMenu(open ? "stores" : null)}
+                  className="group/collapsible"
+                >
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton asChild>
-                      <div className="cursor-pointer group">
+                      <button type="button" className="cursor-pointer group">
                         <Store />
                         <span>Trgovine</span>
 
                         <ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
                         <span className="sr-only">Toggle</span>
-                      </div>
+                      </button>
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
 
@@ -173,7 +184,7 @@ export const AppSidebar = memo(function AppSidebar() {
                         >
                           <Link
                             className="flex justify-between items-center"
-                            href={`/product?filterBy=chain&value=${chain.chain_code}`}
+                            href={`/products?chain=${chain.chain_code}`}
                           >
                             <span>{storeNamesMap[chain.chain_code]}</span>
 
@@ -187,16 +198,22 @@ export const AppSidebar = memo(function AppSidebar() {
               </SidebarMenuItem>
 
               <SidebarMenuItem>
-                <Collapsible defaultOpen={false} className="group/collapsible">
+                <Collapsible
+                  open={openMenu === "locations"}
+                  onOpenChange={(open) =>
+                    setOpenMenu(open ? "locations" : null)
+                  }
+                  className="group/collapsible"
+                >
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton asChild>
-                      <div className="cursor-pointer group">
+                      <button type="button" className="cursor-pointer group">
                         <MapPin />
                         <span>Lokacije</span>
 
                         <ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
                         <span className="sr-only">Toggle</span>
-                      </div>
+                      </button>
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
 
@@ -209,7 +226,7 @@ export const AppSidebar = memo(function AppSidebar() {
                         >
                           <Link
                             className="flex justify-between items-center"
-                            href={`/product?filterBy=location&value=${location.name}`}
+                            href={`/products?location=${location.name}`}
                           >
                             <span>{location.name}</span>
 

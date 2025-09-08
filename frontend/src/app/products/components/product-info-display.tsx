@@ -6,7 +6,10 @@ import {
   getAveragePrice,
   getMinPrice,
   getMaxPrice,
-} from "@/lib/cijene-api/utils";
+  getMinPricePerUnit,
+  getMaxPricePerUnit,
+  getAveragePricePerUnit,
+} from "@/lib/cijene-api/utils/product-utils";
 import { formatQuantity } from "@/utils/strings";
 
 interface ProductInfoDisplayProps {
@@ -19,6 +22,10 @@ export default function ProductInfoDisplay({
   const averagePrice = getAveragePrice(product);
   const minPrice = getMinPrice(product);
   const maxPrice = getMaxPrice(product);
+
+  const minPricePerUnit = getMinPricePerUnit(product);
+  const maxPricePerUnit = getMaxPricePerUnit(product);
+  const averagePricePerUnit = getAveragePricePerUnit(product);
 
   // Get the most common category from chains (similar to ProductCard logic)
   const category = React.useMemo(() => {
@@ -79,46 +86,77 @@ export default function ProductInfoDisplay({
       </div>
 
       {/* Information Table */}
-      <div className="border border-gray-300 rounded-lg overflow-hidden">
-        {/* First Row - Proizvođač */}
-        <div className="border-b text-sm p-2">
-          <span className="font-bold">Proizvođač: </span>
-          {product.brand || "Nepoznato"}
-        </div>
+      <div className="border border-gray-300 rounded-lg overflow-hidden bg-background shadow-2xs">
+        <div className="flex flex-wrap items-center">
+          <div className="flex-1 min-w-xs">
+            {/* First Row - Proizvođač */}
+            <div className="text-sm p-2">
+              <span className="font-bold">Proizvođač: </span>
+              {product.brand || "Nepoznato"}
+            </div>
 
-        {/* Second Row - Bar kod */}
-        <div className="border-b text-sm p-2">
-          <span className="font-bold">Bar kod: </span>
-          {product.ean || "Nepoznato"}
-        </div>
-
-        {/* Third Row - Split row */}
-        <div className="flex items-center">
-          {/* Left half - Količina */}
-          <div className="border-r text-sm p-2">
-            <span className="font-bold">Količina: </span>
-            {product.quantity && product.unit
-              ? `${formatQuantity(product.quantity)}${product.unit}`
-              : "Nepoznato"}
+            {/* Second Row - Bar kod */}
+            <div className="border-y text-sm p-2">
+              <span className="font-bold">Bar kod: </span>
+              {product.ean || "Nepoznato"}
+            </div>
           </div>
 
-          {/* Right half - Prosječna cijena */}
-          <div className="flex-1 border-l text-sm p-2">
-            <span className="font-bold">Cijene: </span>
-            {product.chains.length > 0 ? (
-              <span className="whitespace-nowrap">
-                <span className="text-green-700">{minPrice.toFixed(2)}€</span>
-                {/* <span className="text-gray-700">|</span> */}
-                <span className="text-gray-700">
-                  {" "}
-                  | {averagePrice?.toFixed(2)}€ |{" "}
+          <div className="border-l flex-1">
+            {/* Third Row - Split row */}
+            <div className="flex items-center">
+              {/* Left half - Količina */}
+              <div className="text-sm p-2">
+                <span className="font-bold">Količina: </span>
+                {product.quantity && product.unit
+                  ? `${formatQuantity(product.quantity)}${product.unit}`
+                  : "Nepoznato"}
+              </div>
+
+              {/* Right half - Prosječna cijena */}
+              <div className="flex-1 border-l text-sm p-2">
+                <span className="font-bold">Cijene: </span>
+                {product.chains.length > 0 ? (
+                  <span className="whitespace-nowrap">
+                    <span className="text-green-700">
+                      {minPrice.toFixed(2)}€
+                    </span>
+                    {/* <span className="text-gray-700">|</span> */}
+                    <span className="text-gray-700">
+                      {" "}
+                      | {averagePrice?.toFixed(2)}€ |{" "}
+                    </span>
+                    {/* <span className="text-gray-700">|</span> */}
+                    <span className="text-red-700">{maxPrice.toFixed(2)}€</span>
+                  </span>
+                ) : (
+                  "Nepoznato"
+                )}
+              </div>
+            </div>
+
+            {/* Fourth Row - Jedinične cijene */}
+            <div className="border-y text-sm p-2">
+              <span className="font-bold">Jed. cijene: </span>
+              {product.chains.length > 0 && product.quantity ? (
+                <span className="whitespace-nowrap">
+                  <span className="text-green-700">
+                    {minPricePerUnit?.toFixed(2)}€/{product.unit}
+                  </span>
+                  {/* <span className="text-gray-700">|</span> */}
+                  <span className="text-gray-700">
+                    {" "}
+                    | {averagePricePerUnit?.toFixed(2)}€/{product.unit} |{" "}
+                  </span>
+                  {/* <span className="text-gray-700">|</span> */}
+                  <span className="text-red-700">
+                    {maxPricePerUnit?.toFixed(2)}€/{product.unit}
+                  </span>
                 </span>
-                {/* <span className="text-gray-700">|</span> */}
-                <span className="text-red-700">{maxPrice.toFixed(2)}€</span>
-              </span>
-            ) : (
-              "Nepoznato"
-            )}
+              ) : (
+                "Nepoznato"
+              )}
+            </div>
           </div>
         </div>
       </div>

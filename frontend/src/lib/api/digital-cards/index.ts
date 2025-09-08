@@ -10,9 +10,9 @@ import {
 /**
  * Create a new digital card
  */
-export const createDigitalCard = async (
+export async function createDigitalCard(
   data: DigitalCardRequest
-): Promise<DigitalCardDto> => {
+): Promise<DigitalCardDto> {
   const validatedData = digitalCardRequestSchema.parse(data);
 
   const response = await apiClient.post<DigitalCardDto>(
@@ -21,39 +21,37 @@ export const createDigitalCard = async (
   );
 
   return digitalCardDtoSchema.parse(response.data);
-};
+}
 
 /**
  * Get all digital cards for current user
  */
-export const getUserDigitalCards = async (): Promise<DigitalCardDto[]> => {
+export async function getUserDigitalCards(): Promise<DigitalCardDto[]> {
   const response = await apiClient.get<DigitalCardDto[]>(
     "/api/digital-cards/me"
   );
 
   return response.data.map((item) => digitalCardDtoSchema.parse(item));
-};
+}
 
 /**
  * Get digital card by ID
  */
-export const getDigitalCardById = async (
-  id: string
-): Promise<DigitalCardDto> => {
+export async function getDigitalCardById(id: string): Promise<DigitalCardDto> {
   const response = await apiClient.get<DigitalCardDto>(
     `/api/digital-cards/${id}`
   );
 
   return digitalCardDtoSchema.parse(response.data);
-};
+}
 
 /**
  * Update digital card
  */
-export const updateDigitalCard = async (
+export async function updateDigitalCard(
   id: string,
   data: DigitalCardRequest
-): Promise<DigitalCardDto> => {
+): Promise<DigitalCardDto> {
   const validatedData = digitalCardRequestSchema.parse(data);
 
   const response = await apiClient.put<DigitalCardDto>(
@@ -62,14 +60,14 @@ export const updateDigitalCard = async (
   );
 
   return digitalCardDtoSchema.parse(response.data);
-};
+}
 
 /**
  * Delete digital card
  */
-export const deleteDigitalCard = async (id: string): Promise<void> => {
+export async function deleteDigitalCard(id: string): Promise<void> {
   await apiClient.delete(`/api/digital-cards/${id}`);
-};
+}
 
 // React Query hooks
 export const useCreateDigitalCard = () => {

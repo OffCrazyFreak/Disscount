@@ -69,7 +69,7 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
   }
 
   return (
-    <div>
+    <div className="space-y-4">
       {/* Product Information */}
       <ProductInfoDisplay product={product} />
 

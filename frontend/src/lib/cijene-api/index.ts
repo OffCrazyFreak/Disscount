@@ -1,8 +1,10 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import cijeneApiClient, {
+import axios from "axios";
+import {
   cijeneApiV0Client,
   cijeneApiHealthClient,
-} from "./client";
+  cijeneApiV1Client,
+} from "@/lib/cijene-api/client";
 import {
   ListChainsResponse,
   ListStoresResponse,
@@ -28,71 +30,60 @@ import {
   searchProductsParamsSchema,
   searchStoresParamsSchema,
   getPricesParamsSchema,
-} from "./schemas";
+} from "@/lib/cijene-api/schemas";
 
 // API Functions
 
 /**
  * List available ZIP archives
  */
-export const listArchives = async (): Promise<ListArchivesResponse> => {
-  const response = await cijeneApiV0Client.get("/list");
+export async function listArchives(): Promise<ListArchivesResponse> {
+  const response = await axios.get("/api/cijene/archives");
   return listArchivesResponseSchema.parse(response.data);
-};
+}
 
 /**
  * List all retail chains
  */
-export const listChains = async (): Promise<ListChainsResponse> => {
-  const response = await cijeneApiClient.get("/chains/");
+export async function listChains(): Promise<ListChainsResponse> {
+  const response = await axios.get("/api/cijene/chains");
   return listChainsResponseSchema.parse(response.data);
-};
+}
 
 /**
  * List stores for a specific chain
  */
-export const listStoresByChain = async (
+export async function listStoresByChain(
   chainCode: string
-): Promise<ListStoresResponse> => {
-  const response = await cijeneApiClient.get(`/${chainCode}/stores/`);
+): Promise<ListStoresResponse> {
+  const response = await axios.get(`/api/cijene/stores/${chainCode}`);
   return listStoresResponseSchema.parse(response.data);
-};
+}
 
 /**
  * Search stores with filters
  */
-export const searchStores = async (
-  params: SearchStoresParams
-): Promise<ListStoresResponse> => {
-  const validatedParams = searchStoresParamsSchema.parse(params);
-
-  const queryParams = new URLSearchParams();
-  Object.entries(validatedParams).forEach(([key, value]) => {
-    if (value !== undefined) {
-      queryParams.append(key, value.toString());
-    }
-  });
-
-  const response = await cijeneApiClient.get(
-    `/stores?${queryParams.toString()}`
+export async function searchStores(
+  params?: SearchStoresParams
+): Promise<ListStoresResponse> {
+  // default to empty filter object
+  const validated = searchStoresParamsSchema.parse(params ?? {});
+  const filteredParams = Object.fromEntries(
+    Object.entries(validated).filter(([k, v]) => v != null && v !== "")
   );
-  return listStoresResponseSchema.parse(response.data);
-};
 
-/**
- * List all stores from all chains
- */
-export const listAllStores = async (): Promise<ListStoresResponse> => {
-  const response = await cijeneApiClient.get(`/stores`);
+  const response = await axios.get("/api/cijene/stores", {
+    params: filteredParams,
+  });
   return listStoresResponseSchema.parse(response.data);
-};
+}
 
 /**
  * Get product data/prices by barcode (EAN)
  */
-export const getProductByEan = async (
+export async function getProductByEan(
   params: GetProductParams
-): Promise<ProductResponse> => {
+): Promise<ProductResponse> {
   const validatedParams = getProductParamsSchema.parse(params);
 
   const queryParams = new URLSearchParams();
@@ -100,38 +91,35 @@ export const getProductByEan = async (
   if (validatedParams.chains)
     queryParams.append("chains", validatedParams.chains);
 
-  const response = await cijeneApiClient.get(
-    `/products/${validatedParams.ean}?${queryParams.toString()}`
+  const response = await axios.get(
+    `/api/cijene/products/${validatedParams.ean}?${queryParams.toString()}`
   );
   return productResponseSchema.parse(response.data);
-};
+}
 
 /**
- * Search for products by name
+ * Get products by name
  */
-export const searchProducts = async (
+export async function getProductByName(
   params: SearchProductsParams
-): Promise<ProductSearchResponse> => {
-  const validatedParams = searchProductsParamsSchema.parse(params);
-
+): Promise<ProductSearchResponse> {
   const queryParams = new URLSearchParams();
-  queryParams.append("q", validatedParams.q);
-  if (validatedParams.date) queryParams.append("date", validatedParams.date);
-  if (validatedParams.chains)
-    queryParams.append("chains", validatedParams.chains);
+  queryParams.append("q", params.q);
+  if (params.date) queryParams.append("date", params.date);
+  if (params.chains) queryParams.append("chains", params.chains);
 
-  const response = await cijeneApiClient.get(
-    `/products?${queryParams.toString()}`
+  const response = await axios.get(
+    `/api/cijene/products?${queryParams.toString()}`
   );
-  return productSearchResponseSchema.parse(response.data);
-};
+  return response.data;
+}
 
 /**
  * Get product prices by store with filtering
  */
-export const getPrices = async (
+export async function getPrices(
   params: GetPricesParams
-): Promise<StorePricesResponse> => {
+): Promise<StorePricesResponse> {
   const validatedParams = getPricesParamsSchema.parse(params);
 
   const queryParams = new URLSearchParams();
@@ -141,27 +129,27 @@ export const getPrices = async (
     }
   });
 
-  const response = await cijeneApiClient.get(
-    `/prices?${queryParams.toString()}`
+  const response = await axios.get(
+    `/api/cijene/prices?${queryParams.toString()}`
   );
   return storePricesResponseSchema.parse(response.data);
-};
+}
 
 /**
  * Get chain statistics
  */
-export const getChainStats = async (): Promise<ChainStatsResponse> => {
-  const response = await cijeneApiClient.get("/chain-stats/");
+export async function getChainStats(): Promise<ChainStatsResponse> {
+  const response = await axios.get("/api/cijene/chain-stats");
   return chainStatsResponseSchema.parse(response.data);
-};
+}
 
 /**
  * Health check
  */
-export const healthCheck = async (): Promise<HealthCheckResponse> => {
-  const response = await cijeneApiHealthClient.get("/health");
+export async function healthCheck(): Promise<HealthCheckResponse> {
+  const response = await axios.get("/api/cijene/health");
   return healthCheckResponseSchema.parse(response.data);
-};
+}
 
 // React Query Hooks
 
@@ -194,47 +182,36 @@ export const useListStoresByChain = (chainCode: string) => {
   return useQuery<ListStoresResponse, Error>({
     queryKey: ["cijene", "stores", "chain", chainCode],
     queryFn: () => listStoresByChain(chainCode),
-    enabled: !!chainCode,
+    enabled: Boolean(chainCode),
     staleTime: 30 * 60 * 1000, // 30 minutes
   });
 };
 
 /**
- * Hook to search stores
+ * Single hook that does both “search” and “list all”:
+ *  • useStores()         → list all
+ *  • useStores(filters) → apply filters
  */
-export const useSearchStores = (params: SearchStoresParams) => {
-  return useQuery<ListStoresResponse, Error>({
-    queryKey: ["cijene", "stores", "search", params],
+export const useSearchStores = (params?: SearchStoresParams) =>
+  useQuery<ListStoresResponse, Error>({
+    queryKey: ["cijene", "stores", params ? JSON.stringify(params) : "all"],
     queryFn: () => searchStores(params),
-    enabled: !!(
-      params.chains ||
-      params.city ||
-      params.address ||
-      (params.lat && params.lon)
-    ),
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    // enable when no params or when any non-empty filter provided
+    enabled:
+      params === undefined ||
+      Object.keys(params).length === 0 ||
+      Object.values(params).some((v) => v != null && v !== ""),
+    staleTime: 30 * 60 * 1000,
   });
-};
-
-/**
- * Hook to list all stores from all chains
- */
-export const useListAllStores = () => {
-  return useQuery<ListStoresResponse, Error>({
-    queryKey: ["cijene", "stores", "all"],
-    queryFn: () => listAllStores(),
-    staleTime: 30 * 60 * 1000, // 30 minutes
-  });
-};
 
 /**
  * Hook to get product by EAN
  */
 export const useGetProductByEan = (params: GetProductParams) => {
   return useQuery<ProductResponse, Error>({
-    queryKey: ["cijene", "product", "ean", params],
+    queryKey: ["cijene", "product", "ean", JSON.stringify(params)],
     queryFn: () => getProductByEan(params),
-    enabled: !!params.ean,
+    enabled: Boolean(params.ean),
     staleTime: 6 * 60 * 60 * 1000, // 6 hours
   });
 };
@@ -242,11 +219,11 @@ export const useGetProductByEan = (params: GetProductParams) => {
 /**
  * Hook to search products
  */
-export const useSearchProducts = (params: SearchProductsParams) => {
+export const useGetProductByName = (params: SearchProductsParams) => {
   return useQuery<ProductSearchResponse, Error>({
-    queryKey: ["cijene", "products", "search", params],
-    queryFn: () => searchProducts(params),
-    enabled: !!params.q && params.q.length >= 2,
+    queryKey: ["cijene", "products", "search", JSON.stringify(params)],
+    queryFn: () => getProductByName(params),
+    enabled: Boolean(params.q),
     staleTime: 6 * 60 * 60 * 1000, // 6 hours
   });
 };
@@ -256,9 +233,9 @@ export const useSearchProducts = (params: SearchProductsParams) => {
  */
 export const useGetPrices = (params: GetPricesParams) => {
   return useQuery<StorePricesResponse, Error>({
-    queryKey: ["cijene", "prices", params],
+    queryKey: ["cijene", "prices", JSON.stringify(params)],
     queryFn: () => getPrices(params),
-    enabled: !!params.eans,
+    enabled: Boolean(params.eans),
     staleTime: 6 * 60 * 60 * 1000, // 6 hours
   });
 };
@@ -294,9 +271,8 @@ const cijeneService = {
   listChains,
   listStoresByChain,
   searchStores,
-  listAllStores,
   getProductByEan,
-  searchProducts,
+  getProductByName,
   getPrices,
   getChainStats,
 
@@ -308,9 +284,8 @@ const cijeneService = {
   useListChains,
   useListStoresByChain,
   useSearchStores,
-  useListAllStores,
   useGetProductByEan,
-  useSearchProducts,
+  useGetProductByName,
   useGetPrices,
   useGetChainStats,
 

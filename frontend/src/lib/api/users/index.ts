@@ -7,64 +7,60 @@ const USERS_BASE_PATH = "/api/users";
 /**
  * Get the current authenticated user
  */
-export const getCurrentUser = async (): Promise<UserDto> => {
+export async function getCurrentUser(): Promise<UserDto> {
   const response = await apiClient.get<UserDto>(`${USERS_BASE_PATH}/me`);
   return response.data;
-};
+}
 
 /**
  * Update the current user's profile
  */
-export const updateCurrentUser = async (
-  data: UserRequest
-): Promise<UserDto> => {
+export async function updateCurrentUser(data: UserRequest): Promise<UserDto> {
   const response = await apiClient.patch<UserDto>(
     `${USERS_BASE_PATH}/me`,
     data
   );
   return response.data;
-};
+}
 
 /**
  * Delete (soft delete) the current user's account
  */
-export const deleteCurrentUser = async (): Promise<void> => {
+export async function deleteCurrentUser(): Promise<void> {
   await apiClient.delete(`${USERS_BASE_PATH}/me`);
-};
+}
 
 /**
  * Get all users (admin only)
  */
-export const getAllUsers = async (): Promise<UserDto[]> => {
+export async function getAllUsers(): Promise<UserDto[]> {
   const response = await apiClient.get<UserDto[]>(USERS_BASE_PATH);
   return response.data;
-};
+}
 
 /**
  * Check if username exists
  */
-export const checkUsernameExists = async (
-  username: string
-): Promise<boolean> => {
+export async function checkUsernameExists(username: string): Promise<boolean> {
   const response = await apiClient.get<Record<string, boolean>>(
     `${USERS_BASE_PATH}/exists/username/${username}`
   );
   // Get first value from the response object
   const values = Object.keys(response.data).map((key) => response.data[key]);
   return values.length > 0 ? values[0] : false;
-};
+}
 
 /**
  * Check if email exists
  */
-export const checkEmailExists = async (email: string): Promise<boolean> => {
+export async function checkEmailExists(email: string): Promise<boolean> {
   const response = await apiClient.get<Record<string, boolean>>(
     `${USERS_BASE_PATH}/exists/email/${email}`
   );
   // Get first value from the response object
   const values = Object.keys(response.data).map((key) => response.data[key]);
   return values.length > 0 ? values[0] : false;
-};
+}
 
 // React Query hooks
 export const useGetCurrentUser = () => {

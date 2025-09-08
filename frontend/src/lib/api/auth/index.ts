@@ -8,7 +8,7 @@ const AUTH_BASE_PATH = "/api/auth";
 /**
  * Login user with username/email and password
  */
-export const login = async (data: LoginRequest): Promise<AuthResponse> => {
+export async function login(data: LoginRequest): Promise<AuthResponse> {
   const response = await apiClient.post<AuthResponse>(
     `${AUTH_BASE_PATH}/login`,
     data
@@ -20,14 +20,12 @@ export const login = async (data: LoginRequest): Promise<AuthResponse> => {
   }
 
   return response.data;
-};
+}
 
 /**
  * Register a new user
  */
-export const register = async (
-  data: RegisterRequest
-): Promise<AuthResponse> => {
+export async function register(data: RegisterRequest): Promise<AuthResponse> {
   const response = await apiClient.post<AuthResponse>(
     `${AUTH_BASE_PATH}/register`,
     data
@@ -39,12 +37,12 @@ export const register = async (
   }
 
   return response.data;
-};
+}
 
 /**
  * Refresh the access token using the refresh token in cookies
  */
-export const refreshToken = async (): Promise<AuthResponse> => {
+export async function refreshToken(): Promise<AuthResponse> {
   const response = await apiClient.post<AuthResponse>(
     `${AUTH_BASE_PATH}/refresh`,
     {},
@@ -59,12 +57,12 @@ export const refreshToken = async (): Promise<AuthResponse> => {
   }
 
   return response.data;
-};
+}
 
 /**
  * Logout from current session
  */
-export const logout = async (): Promise<void> => {
+export async function logout(): Promise<void> {
   await apiClient.post(
     `${AUTH_BASE_PATH}/logout`,
     {},
@@ -75,12 +73,12 @@ export const logout = async (): Promise<void> => {
 
   // Remove the access token from storage
   removeAccessToken();
-};
+}
 
 /**
  * Logout from all sessions
  */
-export const logoutAll = async (): Promise<void> => {
+export async function logoutAll(): Promise<void> {
   await apiClient.post(
     `${AUTH_BASE_PATH}/logout-all`,
     {},
@@ -91,7 +89,7 @@ export const logoutAll = async (): Promise<void> => {
 
   // Remove the access token from storage
   removeAccessToken();
-};
+}
 
 // React Query hooks
 export const useLogin = () => {
