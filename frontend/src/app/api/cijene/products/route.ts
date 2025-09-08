@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
   // Validate query params (convert null to undefined for optional fields)
   const params = {
-    q: searchParams.get("q"),
+    q: searchParams.get("q")?.trim(),
     date: searchParams.get("date") || undefined,
     chains: searchParams.get("chains") || undefined,
   };
