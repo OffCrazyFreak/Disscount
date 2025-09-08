@@ -27,12 +27,11 @@ export async function GET(request: NextRequest) {
     };
 
     // Validate search parameters
-    try {
-      searchStoresParamsSchema.parse(params);
-    } catch (validationError) {
+    const parsed = searchStoresParamsSchema.safeParse(params);
+    if (!parsed.success) {
       return createApiError("Invalid search parameters", {
         status: 400,
-        details: validationError,
+        details: parsed.error,
       });
     }
 
@@ -50,7 +49,13 @@ export async function GET(request: NextRequest) {
     );
 
     // Validate response
-    const validatedData = listStoresResponseSchema.parse(response.data);
+    const parsedResponse = listStoresResponseSchema.safeParse(response.data);
+    if (!parsedResponse.success) {
+      return createApiError("Invalid response from external API", {
+        status: 500,
+      });
+    }
+    const validatedData = parsedResponse.data;
 
     // Create response with caching headers (security headers handled by middleware)
     return createApiResponse(validatedData, {

@@ -11,7 +11,13 @@ export async function GET(request: NextRequest) {
     const response = await cijeneApiV1Client.get("/chain-stats/");
 
     // Validate response
-    const validatedData = chainStatsResponseSchema.parse(response.data);
+    const parsed = chainStatsResponseSchema.safeParse(response.data);
+    if (!parsed.success) {
+      return createApiError("Invalid response from external API", {
+        status: 500,
+      });
+    }
+    const validatedData = parsed.data;
 
     // Create response with caching headers (security headers handled by middleware)
     return createApiResponse(validatedData, {

@@ -18,10 +18,14 @@ export async function GET(request: NextRequest) {
     date: searchParams.get("date") || undefined,
     chains: searchParams.get("chains") || undefined,
   };
-  const validatedParams = searchProductsParamsSchema.parse(params);
-  if (!validatedParams) {
-    return createApiError("Invalid params", { status: 400 });
+  const parsed = searchProductsParamsSchema.safeParse(params);
+  if (!parsed.success) {
+    return createApiError("Invalid params", {
+      status: 400,
+      details: parsed.error,
+    });
   }
+  const validatedParams = parsed.data;
 
   // Build search string from validated params
   const searchParamsObj = new URLSearchParams();
@@ -36,7 +40,13 @@ export async function GET(request: NextRequest) {
     const response = await cijeneApiV1Client.get(`/products?${searchString}`);
 
     // Validate response
-    const validatedData = productSearchResponseSchema.parse(response.data);
+    const parsedResponse = productSearchResponseSchema.safeParse(response.data);
+    if (!parsedResponse.success) {
+      return createApiError("Invalid response from external API", {
+        status: 500,
+      });
+    }
+    const validatedData = parsedResponse.data;
 
     // Return with caching (security via middleware)
     return createApiResponse(validatedData, {

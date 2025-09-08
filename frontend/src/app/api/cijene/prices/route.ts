@@ -49,7 +49,13 @@ export async function GET(request: NextRequest) {
     const response = await cijeneApiV1Client.get(url);
 
     // Validate response
-    const data = storePricesResponseSchema.parse(response.data);
+    const parsedResponse = storePricesResponseSchema.safeParse(response.data);
+    if (!parsedResponse.success) {
+      return createApiError("Invalid response from external API", {
+        status: 500,
+      });
+    }
+    const data = parsedResponse.data;
 
     return createApiResponse(data, {
       cacheControl: "public, max-age=3600, s-maxage=7200", // 1h browser, 2h CDN

@@ -44,7 +44,13 @@ export async function GET(
       `/products/${validEan}${qs.toString() ? `?${qs}` : ""}`
     );
 
-    const data = productResponseSchema.parse(response.data);
+    const parsed = productResponseSchema.safeParse(response.data);
+    if (!parsed.success) {
+      return createApiError("Invalid response from external API", {
+        status: 500,
+      });
+    }
+    const data = parsed.data;
     return createApiResponse(data, {
       cacheControl: "public, max-age=21600, s-maxage=43200", // 6h browser, 12h CDN
     });
