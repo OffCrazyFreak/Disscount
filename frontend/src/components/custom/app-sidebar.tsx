@@ -135,13 +135,13 @@ export const AppSidebar = memo(function AppSidebar() {
                 >
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton asChild>
-                      <div className="cursor-pointer group">
+                      <button type="button" className="cursor-pointer group">
                         <List />
                         <span>Kategorije</span>
 
                         <ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
                         <span className="sr-only">Toggle</span>
-                      </div>
+                      </button>
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
 
@@ -167,13 +167,13 @@ export const AppSidebar = memo(function AppSidebar() {
                 >
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton asChild>
-                      <div className="cursor-pointer group">
+                      <button type="button" className="cursor-pointer group">
                         <Store />
                         <span>Trgovine</span>
 
                         <ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
                         <span className="sr-only">Toggle</span>
-                      </div>
+                      </button>
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
 
@@ -209,13 +209,13 @@ export const AppSidebar = memo(function AppSidebar() {
                 >
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton asChild>
-                      <div className="cursor-pointer group">
+                      <button type="button" className="cursor-pointer group">
                         <MapPin />
                         <span>Lokacije</span>
 
                         <ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
                         <span className="sr-only">Toggle</span>
-                      </div>
+                      </button>
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
 
