@@ -131,11 +131,14 @@ export const getLowestPriceChain = (product: ProductResponse) => {
     return undefined;
   }
 
-  return validChains.reduce((lowest, current) =>
-    parseFloat(current.min_price) < parseFloat(lowest.min_price)
+  return validChains.reduce((lowest, current) => {
+    const currentPrice = parseFloat(current.min_price);
+    const lowestPrice = parseFloat(lowest.min_price);
+    return (isNaN(currentPrice) ? Number.POSITIVE_INFINITY : currentPrice) <
+      (isNaN(lowestPrice) ? Number.POSITIVE_INFINITY : lowestPrice)
       ? current
-      : lowest
-  );
+      : lowest;
+  });
 };
 
 /**
@@ -147,18 +150,21 @@ export const getHighestPriceChain = (product: ProductResponse) => {
   }
 
   const validChains = product.chains.filter((c) =>
-    Number.isFinite(parseFloat(c.min_price))
+    Number.isFinite(parseFloat(c.max_price))
   );
 
   if (validChains.length === 0) {
     return undefined;
   }
 
-  return validChains.reduce((highest, current) =>
-    parseFloat(current.min_price) > parseFloat(highest.min_price)
+  return validChains.reduce((highest, current) => {
+    const currentPrice = parseFloat(current.max_price);
+    const highestPrice = parseFloat(highest.max_price);
+    return (isNaN(currentPrice) ? 0 : currentPrice) >
+      (isNaN(highestPrice) ? 0 : highestPrice)
       ? current
-      : highest
-  );
+      : highest;
+  });
 };
 
 /**
