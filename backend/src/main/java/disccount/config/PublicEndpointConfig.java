@@ -20,13 +20,7 @@ public class PublicEndpointConfig {
         new AntPathRequestMatcher("/v3/api-docs/**"),
         new AntPathRequestMatcher("/api-docs/**"),
         new AntPathRequestMatcher("/swagger-ui/**"),
-        new AntPathRequestMatcher("/swagger-ui.html"),
-
-        // User existence checks - open (for registration validation)
-        new AntPathRequestMatcher("/api/users/exists/**"),
-
-        // Get all users - open (for testing purposes - TODO: remove)
-        new AntPathRequestMatcher("/api/users", "GET")
+        new AntPathRequestMatcher("/swagger-ui.html")
     );
 
     public List<RequestMatcher> getPublicMatchers() {

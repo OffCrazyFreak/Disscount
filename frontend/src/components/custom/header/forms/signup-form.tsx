@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import axios, { AxiosError } from "axios";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,6 +44,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
   });
 
   const onSubmit = (data: RegisterRequest) => {
+    form.clearErrors("root");
     registerMutation.mutate(
       {
         email: data.email,
@@ -57,8 +59,27 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
           await handleUserLogin(response.user);
           onSuccess?.();
         },
-        onError: (error: Error) => {
-          toast.error(error.message || "Greška pri registraciji");
+        onError: (error: unknown) => {
+          let status = 0;
+          let serverMessage: string | undefined;
+
+          if (axios.isAxiosError(error)) {
+            status = error.response?.status ?? 0;
+            serverMessage =
+              ((error.response?.data as any)?.message as string | undefined) ||
+              error.message;
+          } else {
+            serverMessage = (error as any)?.message || "Unknown error";
+          }
+
+          if (status >= 400 && status < 500) {
+            form.setError("root", {
+              type: "server",
+              message: serverMessage || "Provjeri unesene podatke.",
+            });
+          } else {
+            toast.error(serverMessage || "Greška pri registraciji");
+          }
         },
       }
     );
@@ -67,6 +88,15 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+        {form.formState.errors.root && (
+          <div
+            role="alert"
+            aria-live="polite"
+            className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3"
+          >
+            {form.formState.errors.root.message as string}
+          </div>
+        )}
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input

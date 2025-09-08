@@ -28,12 +28,6 @@ public class UserService {
                 .map(this::convertToUserDto);
     }
 
-    public List<UserDto> findAll() {
-        return userRepository.findAll().stream()
-                .filter(user -> user.getDeletedAt() == null)
-                .map(this::convertToUserDto)
-                .collect(Collectors.toList());
-    }
 
 
     public UserDto updateProfile(UUID userId, String username, Integer stayLoggedInDays, Boolean notificationsPush, Boolean notificationsEmail) {
@@ -74,14 +68,6 @@ public class UserService {
         userRepository.save(user);
     }
 
-
-    public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
-    }
-
-    public boolean existsByUsername(String username) {
-        return userRepository.existsByUsername(username);
-    }
 
     private UserDto convertToUserDto(User user) {
         return UserDto.builder()
