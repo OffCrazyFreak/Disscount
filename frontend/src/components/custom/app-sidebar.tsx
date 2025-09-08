@@ -74,7 +74,7 @@ export const AppSidebar = memo(function AppSidebar() {
         </SidebarGroup>
       </SidebarHeader>
 
-      <SidebarContent className="max-h-[70dvh] overflow-y-auto">
+      <SidebarContent className="max-h-[75dvh] overflow-y-auto">
         <div className="sm:hidden">
           <SidebarMenu>
             <SidebarGroup>
