@@ -30,7 +30,9 @@ const nextConfig: NextConfig = {
     const csp = [
       "default-src 'self'",
       // In dev, Next and some libs may rely on inline/eval and blob workers
-      `script-src 'self'${isDev ? " 'unsafe-inline' 'unsafe-eval' blob:" : " 'unsafe-inline'"}`,
+      `script-src 'self'${
+        isDev ? " 'unsafe-inline' 'unsafe-eval' blob:" : " 'unsafe-inline'"
+      }`,
       // Explicitly allow workers from same origin and blob URLs
       "worker-src 'self' blob:",
       "style-src 'self' 'unsafe-inline'",
