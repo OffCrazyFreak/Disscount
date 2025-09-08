@@ -40,7 +40,7 @@ import {
 export async function listArchives(): Promise<ListArchivesResponse> {
   const response = await axios.get("/api/cijene/archives");
   return listArchivesResponseSchema.parse(response.data);
-};
+}
 
 /**
  * List all retail chains
@@ -48,7 +48,7 @@ export async function listArchives(): Promise<ListArchivesResponse> {
 export async function listChains(): Promise<ListChainsResponse> {
   const response = await axios.get("/api/cijene/chains");
   return listChainsResponseSchema.parse(response.data);
-};
+}
 
 /**
  * List stores for a specific chain
@@ -58,7 +58,7 @@ export async function listStoresByChain(
 ): Promise<ListStoresResponse> {
   const response = await axios.get(`/api/cijene/stores/${chainCode}`);
   return listStoresResponseSchema.parse(response.data);
-};
+}
 
 /**
  * Search stores with filters
@@ -77,7 +77,7 @@ export async function searchStores(
     `/api/cijene/stores${qs.toString() && `?${qs}`}`
   );
   return listStoresResponseSchema.parse(response.data);
-};
+}
 
 /**
  * Get product data/prices by barcode (EAN)
@@ -96,7 +96,7 @@ export async function getProductByEan(
     `/api/cijene/products/${validatedParams.ean}?${queryParams.toString()}`
   );
   return productResponseSchema.parse(response.data);
-};
+}
 
 /**
  * Get products by name
@@ -113,7 +113,7 @@ export async function getProductByName(
     `/api/cijene/products?${queryParams.toString()}`
   );
   return response.data;
-};
+}
 
 /**
  * Get product prices by store with filtering
@@ -134,7 +134,7 @@ export async function getPrices(
     `/api/cijene/prices?${queryParams.toString()}`
   );
   return storePricesResponseSchema.parse(response.data);
-};
+}
 
 /**
  * Get chain statistics
@@ -142,7 +142,7 @@ export async function getPrices(
 export async function getChainStats(): Promise<ChainStatsResponse> {
   const response = await axios.get("/api/cijene/chain-stats");
   return chainStatsResponseSchema.parse(response.data);
-};
+}
 
 /**
  * Health check
@@ -150,7 +150,7 @@ export async function getChainStats(): Promise<ChainStatsResponse> {
 export async function healthCheck(): Promise<HealthCheckResponse> {
   const response = await axios.get("/api/cijene/health");
   return healthCheckResponseSchema.parse(response.data);
-};
+}
 
 // React Query Hooks
 
@@ -183,7 +183,7 @@ export const useListStoresByChain = (chainCode: string) => {
   return useQuery<ListStoresResponse, Error>({
     queryKey: ["cijene", "stores", "chain", chainCode],
     queryFn: () => listStoresByChain(chainCode),
-    enabled: !!chainCode,
+    enabled: Boolean(chainCode),
     staleTime: 30 * 60 * 1000, // 30 minutes
   });
 };
@@ -195,7 +195,7 @@ export const useListStoresByChain = (chainCode: string) => {
  */
 export const useSearchStores = (params?: SearchStoresParams) =>
   useQuery<ListStoresResponse, Error>({
-    queryKey: ["cijene", "stores", params ?? "all"],
+    queryKey: ["cijene", "stores", params ? JSON.stringify(params) : "all"],
     queryFn: () => searchStores(params),
     // only disable if you really want to wait for some param
     enabled: params === undefined || Object.values(params).some(Boolean),
@@ -207,9 +207,9 @@ export const useSearchStores = (params?: SearchStoresParams) =>
  */
 export const useGetProductByEan = (params: GetProductParams) => {
   return useQuery<ProductResponse, Error>({
-    queryKey: ["cijene", "product", "ean", params],
+    queryKey: ["cijene", "product", "ean", JSON.stringify(params)],
     queryFn: () => getProductByEan(params),
-    enabled: !!params.ean,
+    enabled: Boolean(params.ean),
     staleTime: 6 * 60 * 60 * 1000, // 6 hours
   });
 };
@@ -219,9 +219,9 @@ export const useGetProductByEan = (params: GetProductParams) => {
  */
 export const useGetProductByName = (params: SearchProductsParams) => {
   return useQuery<ProductSearchResponse, Error>({
-    queryKey: ["cijene", "products", "search", params],
+    queryKey: ["cijene", "products", "search", JSON.stringify(params)],
     queryFn: () => getProductByName(params),
-    enabled: !!params.q,
+    enabled: Boolean(params.q),
     staleTime: 6 * 60 * 60 * 1000, // 6 hours
   });
 };
@@ -231,9 +231,9 @@ export const useGetProductByName = (params: SearchProductsParams) => {
  */
 export const useGetPrices = (params: GetPricesParams) => {
   return useQuery<StorePricesResponse, Error>({
-    queryKey: ["cijene", "prices", params],
+    queryKey: ["cijene", "prices", JSON.stringify(params)],
     queryFn: () => getPrices(params),
-    enabled: !!params.eans,
+    enabled: Boolean(params.eans),
     staleTime: 6 * 60 * 60 * 1000, // 6 hours
   });
 };
