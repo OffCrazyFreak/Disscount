@@ -15,10 +15,10 @@ export async function GET(request: NextRequest) {
 
   // Build raw params
   const raw = {
-    eans: searchParams.get("eans"),
-    chains: searchParams.get("chains") || undefined,
-    city: searchParams.get("city") || undefined,
-    address: searchParams.get("address") || undefined,
+    eans: searchParams.get("eans")?.trim() || undefined,
+    chains: searchParams.get("chains")?.trim() || undefined,
+    city: searchParams.get("city")?.trim() || undefined,
+    address: searchParams.get("address")?.trim() || undefined,
     lat: searchParams.get("lat")
       ? parseFloat(searchParams.get("lat")!)
       : undefined,

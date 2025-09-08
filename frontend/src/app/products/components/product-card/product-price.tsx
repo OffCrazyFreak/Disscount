@@ -34,7 +34,7 @@ export const ProductPrice = memo(({ product }: ProductPriceProps) => {
           </div>
         )}
 
-        {minPrice !== undefined ? (
+        {minPrice != null && maxPrice != null ? (
           <div className="font-bold text-md text-center">
             <div className="text-sm sm:text-md flex items-center gap-1 ">
               <span className="text-green-700">{minPrice.toFixed(2)}€</span>
@@ -53,17 +53,17 @@ export const ProductPrice = memo(({ product }: ProductPriceProps) => {
         )}
       </div>
 
-      {minPricePerUnit !== undefined && maxPricePerUnit !== undefined && (
+      {minPricePerUnit !== undefined && maxPricePerUnit !== undefined && product.unit && (
         <>
           <Separator className="px-10 mb-1" />
 
           <div className="text-sm sm:text-md flex items-center justify-center gap-1">
             <span className="text-green-700">
-              {minPricePerUnit.toFixed(2) + "€/" + product.unit}
+              {`${minPricePerUnit.toFixed(2)}€/${product.unit}`}
             </span>
             <span className="text-gray-700"> - </span>
             <span className="text-red-700">
-              {maxPricePerUnit.toFixed(2) + "€/" + product.unit}
+              {`${maxPricePerUnit.toFixed(2)}€/${product.unit}`}
             </span>
           </div>
         </>
