@@ -227,15 +227,24 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
                       content={<ChartTooltipContent />}
                     />
 
-                    {chainsToDisplay.map((chainCode, index) => (
-                      <Line
-                        key={chainCode}
-                        dataKey={chainCode}
-                        type="bump"
-                        stroke={`var(--chart-${(index % 5) + 1})`}
-                        dot={false}
-                      />
-                    ))}
+                    {chainsToDisplay.map((chainCode, index) => {
+                      // Check if this chain is pinned by the user
+                      const pinnedStoreIds =
+                        user?.pinnedStores?.map((store) => store.storeApiId) ||
+                        [];
+                      const isPinned = pinnedStoreIds.includes(chainCode);
+
+                      return (
+                        <Line
+                          key={chainCode}
+                          dataKey={chainCode}
+                          type="bump"
+                          stroke={`var(--chart-${(index % 5) + 1})`}
+                          strokeWidth={isPinned ? 2 : 0.3}
+                          dot={false}
+                        />
+                      );
+                    })}
                   </LineChart>
                 </ChartContainer>
               )}
