@@ -74,7 +74,16 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
       {/* Product Information */}
       <ProductInfoDisplay product={product} />
 
-      <PriceHistory ean={ean} />
+      <Suspense
+        fallback={
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="size-4 animate-spin" /> Učitavanje povijesti
+            cijena...
+          </div>
+        }
+      >
+        <PriceHistory ean={ean} product={product} />
+      </Suspense>
 
       {/* Store Chain Cards */}
       <div className="space-y-4">

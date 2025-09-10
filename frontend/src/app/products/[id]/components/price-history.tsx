@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Loader2 } from "lucide-react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-import cijeneService from "@/lib/cijene-api";
+import usePriceHistory from "@/app/products/[id]/hooks/use-price-history";
 import {
   Card,
   CardContent,
@@ -25,262 +25,74 @@ import { formatDate } from "@/utils/strings";
 
 interface PriceHistoryProps {
   ean: string;
+  product: ProductResponse;
 }
 
-export default function PriceHistory({ ean }: PriceHistoryProps) {
-  const [selectedPeriod, setSelectedPeriod] = useState(() => {
-    const data = getAppStorage();
-    const storedPeriod = data.priceHistoryPeriod;
-    if (storedPeriod && ["1W", "1M", "1Y", "ALL"].includes(storedPeriod)) {
-      return storedPeriod;
-    }
-    return "1W";
-  });
+type PeriodOption = "1W" | "1M" | "1Y" | "ALL";
+
+const periodOptions: Record<PeriodOption, { days: number; title: string }> = {
+  "1W": { days: 7, title: "(posljednjih 7 dana)" },
+  "1M": { days: 30, title: "(posljednjih 30 dana)" },
+  "1Y": { days: 365, title: "(posljednjih 365 dana)" },
+  ALL: { days: -1, title: "(od početka)" },
+};
+
+export default function PriceHistory({ ean, product }: PriceHistoryProps) {
+  const [selectedPeriod, setSelectedPeriod] = useState(
+    getAppStorage()?.priceHistoryPeriod || "1W"
+  );
 
   useEffect(() => {
     setAppStorage({ priceHistoryPeriod: selectedPeriod });
   }, [selectedPeriod]);
 
-  // Calculate dates based on selected period
-  const dates = useMemo(() => {
-    const dateArray = [];
-    const today = new Date();
-    let startDate: Date;
-    let daysToShow: number;
-
-    switch (selectedPeriod) {
-      case "1W":
-        daysToShow = 7;
-        break;
-      case "1M":
-        daysToShow = 30;
-        break;
-      case "1Y":
-        daysToShow = 365;
-        break;
-      case "ALL":
-        startDate = new Date("2025-05-17");
-        daysToShow = Math.ceil(
-          (today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
-        );
-        break;
-      default:
-        daysToShow = 7;
-    }
-
-    for (let i = daysToShow; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(today.getDate() - i);
-      const formattedDate = date.toISOString().split("T")[0];
-      const label = formatDate(formattedDate);
-      dateArray.push({ label, date: formattedDate });
-    }
-
-    return dateArray;
+  // Calculate days to show based on selected period
+  const daysToShow: number = useMemo(() => {
+    return periodOptions[selectedPeriod as PeriodOption]?.days || 7;
   }, [selectedPeriod]);
 
-  // Fetch current product data to get available chains
+  // Use the shared price history hook which fetches snapshots in parallel
   const {
-    data: product,
-    isLoading: productLoading,
-    error: productError,
-  } = cijeneService.useGetProductByEan({
-    ean,
-  });
+    data: chartData,
+    chains: historyChains,
+    isLoading: historyLoading,
+    isError: historyError,
+  } = usePriceHistory({ ean, days: daysToShow });
 
-  // Always create hooks for all possible dates to maintain consistent hook count
-  const allPossibleDates = useMemo(() => {
-    const dateArray = [];
-    const today = new Date();
-    const startDate = new Date("2025-05-16");
-    const daysDiff = Math.ceil(
-      (today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
-    );
-
-    for (let i = daysDiff; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(today.getDate() - i);
-      const formattedDate = date.toISOString().split("T")[0];
-      const label = formatDate(formattedDate);
-      dateArray.push({ label, date: formattedDate });
-    }
-
-    return dateArray;
-  }, []);
-
-  // Create hooks for all possible dates (fixed number)
-  const productQueries = allPossibleDates.map(({ date }) =>
-    cijeneService.useGetProductByEan({
-      ean,
-      date,
-    })
-  );
-
-  // Filter to only use the dates for the selected period
-  const allProducts = dates.map((dateItem) => {
-    const queryIndex = allPossibleDates.findIndex(
-      (d) => d.date === dateItem.date
-    );
-    return {
-      ...productQueries[queryIndex],
-      date: dateItem,
-    };
-  });
-
-  // Transform data for chart
-  const chartData = useMemo(() => {
-    const dataMap: Record<string, any> = {};
-
-    allProducts.forEach(({ data, date }) => {
-      if (!data) return;
-
-      data.chains.forEach((chain) => {
-        if (!dataMap[date.date]) {
-          dataMap[date.date] = { date: date.label };
-        }
-        dataMap[date.date][chain.chain] = parseFloat(chain.avg_price);
-      });
-    });
-
-    return Object.values(dataMap);
-  }, [allProducts]);
-
-  // Create chart config dynamically based on available chains
-  const chartConfig = useMemo(() => {
-    const config: ChartConfig = {};
-    const colors = [
-      "var(--chart-1)",
-      "var(--chart-2)",
-      "var(--chart-3)",
-      "var(--chart-4)",
-      "var(--chart-5)",
-    ];
-
-    if (product?.chains) {
-      product.chains.forEach((chain, index) => {
-        config[chain.chain] = {
-          label: storeNamesMap[chain.chain] || chain.chain,
-          color: colors[index % colors.length],
-        };
-      });
-    }
-
-    return config;
-  }, [product?.chains]);
-
-  // Calculate Y axis domain
-  const yAxisDomain = useMemo(() => {
-    if (!chartData.length) return [0, "dataMax"] as [number, string];
-
-    let minPrice = Infinity;
-    let maxPrice = -Infinity;
-
-    chartData.forEach((dataPoint) => {
-      Object.keys(dataPoint).forEach((key) => {
-        if (key !== "date" && dataPoint[key] !== undefined) {
-          const price = parseFloat(dataPoint[key]);
-          if (!isNaN(price)) {
-            minPrice = Math.min(minPrice, price);
-            maxPrice = Math.max(maxPrice, price);
-          }
-        }
-      });
-    });
-
-    if (minPrice === Infinity || maxPrice === -Infinity) {
-      return [0, "dataMax"] as [number, string];
-    }
-
-    const lowerBound = Math.floor(minPrice * 0.9);
-    const upperBound = Math.ceil(maxPrice * 1.1);
-
-    return [lowerBound, upperBound] as [number, number];
+  // Ensure dates displayed on the X axis are formatted using formatDate util
+  const formattedChartData = useMemo(() => {
+    const arr = (chartData ?? []).map((row) => ({
+      ...row,
+      date: formatDate(String(row.date)),
+    }));
+    return arr;
   }, [chartData]);
 
-  if (productLoading) {
-    return (
-      <div className="space-y-4">
-        <h2 className="text-lg font-bold text-gray-900">
-          Povijest cijena (od 17.5.2025.)
-        </h2>
-        <div className="flex items-center justify-center py-8">
-          <div className="flex items-center gap-2">
-            <Loader2 className="size-6 animate-spin" />
-            Učitavanje povijesti cijena...
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (productError || !product) {
-    return (
-      <div className="space-y-4">
-        <h2 className="text-lg font-bold text-gray-900">
-          Povijest cijena (od 17.5.2025.)
-        </h2>
-        <div className="text-center py-8">
-          <p className="text-gray-600">
-            Greška pri učitavanju podataka za grafikon.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  const getTitlePeriod = () => {
-    switch (selectedPeriod) {
-      case "1W":
-        return "(posljednjih 7 dana)";
-      case "1M":
-        return "(posljednjih 30 dana)";
-      case "1Y":
-        return "(posljednjih 365 dana)";
-      case "ALL":
-        return "(od početka)";
-      default:
-        return "";
-    }
-  };
-
-  if (productLoading) {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-center py-8">
-          <div className="flex items-center gap-2">
-            <Loader2 className="size-6 animate-spin" />
-            Učitavanje povijesti cijena...
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (productError || !product) {
-    return (
-      <div className="space-y-4">
-        <div className="text-center py-8">
-          <p className="text-gray-600">
-            Greška pri učitavanju povijesti cijena.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Memoize sorted chains for the chart lines
+  const sortedChains = useMemo(() => {
+    const chains = product?.chains || historyChains || [];
+    return chains
+      .slice()
+      .map((c) => (typeof c === "string" ? c : c.chain))
+      .sort((a: string, b: string) => {
+        const nameA = storeNamesMap[a] || a;
+        const nameB = storeNamesMap[b] || b;
+        return nameA.localeCompare(nameB, "hr", {
+          sensitivity: "base",
+        });
+      });
+  }, [product?.chains, historyChains]);
 
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-bold text-gray-900">
-        Povijest cijena {getTitlePeriod()}
+        Povijest cijena{" "}
+        {periodOptions[selectedPeriod as PeriodOption].title || ""}
       </h2>
       <Card>
         <CardContent>
-          <Tabs
-            value={selectedPeriod}
-            onValueChange={setSelectedPeriod}
-            className="w-full"
-          >
-            <TabsList className="grid w-full grid-cols-4">
+          <Tabs value={selectedPeriod} onValueChange={setSelectedPeriod}>
+            <TabsList className="">
               <TabsTrigger value="1W">1W</TabsTrigger>
               <TabsTrigger value="1M">1M</TabsTrigger>
               <TabsTrigger value="1Y">1Y</TabsTrigger>
@@ -288,24 +100,24 @@ export default function PriceHistory({ ean }: PriceHistoryProps) {
             </TabsList>
 
             <TabsContent value={selectedPeriod} className="mt-4">
-              {allProducts.some((p) => p.isLoading) ? (
+              {historyLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="flex items-center gap-2">
                     <Loader2 className="size-6 animate-spin" />
                     Učitavanje povijesti cijena...
                   </div>
                 </div>
-              ) : chartData.length === 0 ? (
+              ) : formattedChartData.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-gray-600">
                     Nema dostupnih podataka za grafikon.
                   </p>
                 </div>
               ) : (
-                <ChartContainer config={chartConfig}>
+                <ChartContainer config={{}}>
                   <LineChart
                     accessibilityLayer
-                    data={chartData}
+                    data={formattedChartData}
                     margin={{
                       left: 12,
                       right: 12,
@@ -313,7 +125,8 @@ export default function PriceHistory({ ean }: PriceHistoryProps) {
                       bottom: 12,
                     }}
                   >
-                    <CartesianGrid vertical={false} />
+                    <CartesianGrid vertical={true} />
+
                     <XAxis
                       dataKey="date"
                       tickLine={false}
@@ -338,20 +151,9 @@ export default function PriceHistory({ ean }: PriceHistoryProps) {
                               : 14;
 
                           // Show tick if it's the first day of the period or every Nth day
-                          if (selectedPeriod === "1W") {
-                            return day % frequency === 0
-                              ? `${day}.${month}.`
-                              : "";
-                          } else if (selectedPeriod === "1M") {
-                            return day % frequency === 0
-                              ? `${day}.${month}.`
-                              : "";
-                          } else {
-                            // For longer periods, show every Nth day
-                            return day % frequency === 0
-                              ? `${day}.${month}.`
-                              : "";
-                          }
+                          return day % frequency === 0
+                            ? value.slice(0, -5) // remove year and dot
+                            : "";
                         }
                         return value;
                       }}
@@ -360,30 +162,29 @@ export default function PriceHistory({ ean }: PriceHistoryProps) {
                       tickLine={false}
                       axisLine={false}
                       tickMargin={8}
-                      tickFormatter={(value) => `${value} €`}
-                      domain={yAxisDomain}
+                      tickFormatter={(value) => `${value.toFixed(2)} €`}
+                      domain={([dataMin, dataMax]) => {
+                        const padding = 0.05;
+                        return [
+                          dataMin * (1 - padding),
+                          dataMax * (1 + padding),
+                        ];
+                      }}
                     />
                     <ChartTooltip
                       cursor={false}
                       content={<ChartTooltipContent />}
                     />
-                    {product?.chains
-                      .sort((a, b) => {
-                        const nameA = storeNamesMap[a.chain] || a.chain;
-                        const nameB = storeNamesMap[b.chain] || b.chain;
-                        return nameA.localeCompare(nameB, "hr", {
-                          sensitivity: "base",
-                        });
-                      })
-                      .map((chain, index) => (
-                        <Line
-                          key={chain.chain}
-                          dataKey={chain.chain}
-                          type="basis"
-                          stroke={`var(--color-${chain.chain})`}
-                          dot={false}
-                        />
-                      ))}
+
+                    {sortedChains.map((chainCode, index) => (
+                      <Line
+                        key={chainCode}
+                        dataKey={chainCode}
+                        type="basis"
+                        stroke={`var(--chart-${(index % 5) + 1})`}
+                        dot={false}
+                      />
+                    ))}
                   </LineChart>
                 </ChartContainer>
               )}
