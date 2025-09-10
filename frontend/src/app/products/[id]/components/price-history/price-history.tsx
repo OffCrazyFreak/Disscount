@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { Loader2 } from "lucide-react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,20 +11,13 @@ import { storeNamesMap } from "@/utils/mappings";
 import usePriceHistory from "@/app/products/[id]/hooks/use-price-history";
 import PriceHistoryChart from "@/app/products/[id]/components/price-history/price-history-chart";
 import PriceHistoryControls from "@/app/products/[id]/components/price-history/price-history-controls";
+import { PeriodOption } from "@/app/products/[id]/typings/history-period-options";
+import { periodOptions } from "@/app/products/[id]/utils/price-history-contants";
 
 interface PriceHistoryProps {
   ean: string;
   product: ProductResponse;
 }
-
-type PeriodOption = "1W" | "1M" | "1Y" | "ALL";
-
-const periodOptions: Record<PeriodOption, { days: number; title: string }> = {
-  "1W": { days: 7, title: "(posljednjih 7 dana)" },
-  "1M": { days: 30, title: "(posljednjih 30 dana)" },
-  "1Y": { days: 365, title: "(posljednjih 365 dana)" },
-  ALL: { days: -1, title: "(od početka)" },
-};
 
 export default function PriceHistory({ ean, product }: PriceHistoryProps) {
   const [chartPrefs, setChartPrefs] = useState<{
@@ -86,13 +79,13 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
     );
   }, [allAvailableChains, chartPrefs.chains]);
 
-  const handlePeriodChange = (period: string) => {
+  const handlePeriodChange = useCallback((period: string) => {
     setChartPrefs((p) => ({ ...p, period: period as PeriodOption }));
-  };
+  }, []);
 
-  const handleChainsChange = (chains: string[]) => {
+  const handleChainsChange = useCallback((chains: string[]) => {
     setChartPrefs((p) => (chains.length > 0 ? { ...p, chains } : p));
-  };
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -126,7 +119,6 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
                   formattedChartData={formattedChartData}
                   allAvailableChains={allAvailableChains}
                   chainsToDisplay={chainsToDisplay}
-                  chartPrefs={chartPrefs}
                 />
               )}
             </TabsContent>

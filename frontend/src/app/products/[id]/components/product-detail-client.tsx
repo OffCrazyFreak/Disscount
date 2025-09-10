@@ -6,7 +6,7 @@ import cijeneService from "@/lib/cijene-api";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
 import { StoreChainCard } from "@/app/products/[id]/components/store-chain-card";
 import { useUser } from "@/context/user-context";
-import PriceHistory from "@/app/products/[id]/components/price-history";
+import PriceHistory from "@/app/products/[id]/components/price-history/price-history";
 
 export default function ProductDetailClient({ ean }: { ean: string }) {
   const { user } = useUser();
