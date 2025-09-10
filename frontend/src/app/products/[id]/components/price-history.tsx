@@ -126,7 +126,6 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
                   formattedChartData={formattedChartData}
                   allAvailableChains={allAvailableChains}
                   chainsToDisplay={chainsToDisplay}
-                  chartPrefs={chartPrefs}
                 />
               )}
             </TabsContent>
