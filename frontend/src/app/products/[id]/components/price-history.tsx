@@ -118,45 +118,45 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-bold text-gray-900">
-        Povijest cijena{" "}
-        {periodOptions[chartPrefs.period as PeriodOption].title || ""}
-      </h2>
+      <h2 className="text-lg font-bold text-gray-900">Povijest cijena</h2>
       <Card>
         <CardContent>
-          <div className="mb-4">
-            <MultiSelect
-              values={chartPrefs.chains}
-              onValuesChange={(chains) =>
-                setChartPrefs((p) => (chains.length > 0 ? { ...p, chains } : p))
-              }
-            >
-              <MultiSelectTrigger className="w-xs">
-                <MultiSelectValue placeholder="Odaberi trgovinske lance..." />
-              </MultiSelectTrigger>
-              <MultiSelectContent>
-                <MultiSelectGroup>
-                  {allAvailableChains.map((chainCode) => (
-                    <MultiSelectItem key={chainCode} value={chainCode}>
-                      {storeNamesMap[chainCode] || chainCode}
-                    </MultiSelectItem>
-                  ))}
-                </MultiSelectGroup>
-              </MultiSelectContent>
-            </MultiSelect>
-          </div>
           <Tabs
             value={chartPrefs.period}
             onValueChange={(v) =>
               setChartPrefs((p) => ({ ...p, period: v as PeriodOption }))
             }
           >
-            <TabsList className="">
-              <TabsTrigger value="1W">1W</TabsTrigger>
-              <TabsTrigger value="1M">1M</TabsTrigger>
-              <TabsTrigger value="1Y">1Y</TabsTrigger>
-              <TabsTrigger value="ALL">All</TabsTrigger>
-            </TabsList>
+            <div className="flex align-center justify-between mb-4">
+              <TabsList className="">
+                <TabsTrigger value="1W">1W</TabsTrigger>
+                <TabsTrigger value="1M">1M</TabsTrigger>
+                <TabsTrigger value="1Y">1Y</TabsTrigger>
+                <TabsTrigger value="ALL">All</TabsTrigger>
+              </TabsList>
+
+              <MultiSelect
+                values={chartPrefs.chains}
+                onValuesChange={(chains) =>
+                  setChartPrefs((p) =>
+                    chains.length > 0 ? { ...p, chains } : p
+                  )
+                }
+              >
+                <MultiSelectTrigger className="w-xs">
+                  <MultiSelectValue placeholder="Odaberi trgovinske lance..." />
+                </MultiSelectTrigger>
+                <MultiSelectContent>
+                  <MultiSelectGroup>
+                    {allAvailableChains.map((chainCode) => (
+                      <MultiSelectItem key={chainCode} value={chainCode}>
+                        {storeNamesMap[chainCode] || chainCode}
+                      </MultiSelectItem>
+                    ))}
+                  </MultiSelectGroup>
+                </MultiSelectContent>
+              </MultiSelect>
+            </div>
 
             <TabsContent value={chartPrefs.period} className="mt-4">
               {historyLoading ? (
