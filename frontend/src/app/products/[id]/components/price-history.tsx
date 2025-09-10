@@ -18,10 +18,19 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  MultiSelect,
+  MultiSelectContent,
+  MultiSelectGroup,
+  MultiSelectItem,
+  MultiSelectTrigger,
+  MultiSelectValue,
+} from "@/components/ui/multi-select";
 import { storeNamesMap } from "@/utils/mappings";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { getAppStorage, setAppStorage } from "@/lib/api/local-storage";
 import { formatDate } from "@/utils/strings";
+import { useUser } from "@/context/user-context";
 
 interface PriceHistoryProps {
   ean: string;
@@ -38,20 +47,32 @@ const periodOptions: Record<PeriodOption, { days: number; title: string }> = {
 };
 
 export default function PriceHistory({ ean, product }: PriceHistoryProps) {
-  const [selectedPeriod, setSelectedPeriod] = useState(
-    getAppStorage()?.priceHistoryPeriod || "1W"
-  );
+  const { user } = useUser();
+
+  const [chartPrefs, setChartPrefs] = useState<{
+    period: PeriodOption;
+    chains: string[];
+  }>(() => {
+    const localStoragePrefs = getAppStorage()?.priceHistoryChartPreferences;
+    if (localStoragePrefs) {
+      return localStoragePrefs;
+    }
+
+    return {
+      period: "1W",
+      chains: product.chains.map((c) => (typeof c === "string" ? c : c.chain)),
+    };
+  });
 
   useEffect(() => {
-    setAppStorage({ priceHistoryPeriod: selectedPeriod });
-  }, [selectedPeriod]);
+    setAppStorage({ priceHistoryChartPreferences: chartPrefs });
+  }, [chartPrefs]);
 
   // Calculate days to show based on selected period
   const daysToShow: number = useMemo(() => {
-    return periodOptions[selectedPeriod as PeriodOption]?.days || 7;
-  }, [selectedPeriod]);
+    return periodOptions[chartPrefs.period as PeriodOption]?.days;
+  }, [chartPrefs.period]);
 
-  // Use the shared price history hook which fetches snapshots in parallel
   const {
     data: chartData,
     chains: historyChains,
@@ -59,7 +80,6 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
     isError: historyError,
   } = usePriceHistory({ ean, days: daysToShow });
 
-  // Ensure dates displayed on the X axis are formatted using formatDate util
   const formattedChartData = useMemo(() => {
     const arr = (chartData ?? []).map((row) => ({
       ...row,
@@ -68,8 +88,7 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
     return arr;
   }, [chartData]);
 
-  // Memoize sorted chains for the chart lines
-  const sortedChains = useMemo(() => {
+  const allAvailableChains = useMemo(() => {
     const chains = product?.chains || historyChains || [];
     return chains
       .slice()
@@ -83,15 +102,55 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
       });
   }, [product?.chains, historyChains]);
 
+  const chainsToDisplay = useMemo(() => {
+    return allAvailableChains.filter((chain) =>
+      chartPrefs.chains.includes(chain)
+    );
+  }, [allAvailableChains, chartPrefs.chains]);
+
+  const chartConfig = useMemo(() => {
+    const cfg: ChartConfig = {};
+    allAvailableChains.forEach((chain) => {
+      cfg[chain] = { label: storeNamesMap[chain] || chain };
+    });
+    return cfg;
+  }, [allAvailableChains]);
+
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-bold text-gray-900">
         Povijest cijena{" "}
-        {periodOptions[selectedPeriod as PeriodOption].title || ""}
+        {periodOptions[chartPrefs.period as PeriodOption].title || ""}
       </h2>
       <Card>
         <CardContent>
-          <Tabs value={selectedPeriod} onValueChange={setSelectedPeriod}>
+          <div className="mb-4">
+            <MultiSelect
+              values={chartPrefs.chains}
+              onValuesChange={(chains) =>
+                setChartPrefs((p) => (chains.length > 0 ? { ...p, chains } : p))
+              }
+            >
+              <MultiSelectTrigger className="w-xs">
+                <MultiSelectValue placeholder="Odaberi trgovinske lance..." />
+              </MultiSelectTrigger>
+              <MultiSelectContent>
+                <MultiSelectGroup>
+                  {allAvailableChains.map((chainCode) => (
+                    <MultiSelectItem key={chainCode} value={chainCode}>
+                      {storeNamesMap[chainCode] || chainCode}
+                    </MultiSelectItem>
+                  ))}
+                </MultiSelectGroup>
+              </MultiSelectContent>
+            </MultiSelect>
+          </div>
+          <Tabs
+            value={chartPrefs.period}
+            onValueChange={(v) =>
+              setChartPrefs((p) => ({ ...p, period: v as PeriodOption }))
+            }
+          >
             <TabsList className="">
               <TabsTrigger value="1W">1W</TabsTrigger>
               <TabsTrigger value="1M">1M</TabsTrigger>
@@ -99,7 +158,7 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
               <TabsTrigger value="ALL">All</TabsTrigger>
             </TabsList>
 
-            <TabsContent value={selectedPeriod} className="mt-4">
+            <TabsContent value={chartPrefs.period} className="mt-4">
               {historyLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="flex items-center gap-2">
@@ -114,17 +173,8 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
                   </p>
                 </div>
               ) : (
-                <ChartContainer config={{}}>
-                  <LineChart
-                    accessibilityLayer
-                    data={formattedChartData}
-                    margin={{
-                      left: 12,
-                      right: 12,
-                      top: 12,
-                      bottom: 12,
-                    }}
-                  >
+                <ChartContainer config={chartConfig}>
+                  <LineChart accessibilityLayer data={formattedChartData}>
                     <CartesianGrid vertical={true} />
 
                     <XAxis
@@ -142,11 +192,11 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
 
                           // Show fewer ticks for better readability
                           const frequency =
-                            selectedPeriod === "1W"
+                            chartPrefs.period === "1W"
                               ? 1
-                              : selectedPeriod === "1M"
+                              : chartPrefs.period === "1M"
                               ? 3
-                              : selectedPeriod === "1Y"
+                              : chartPrefs.period === "1Y"
                               ? 7
                               : 14;
 
@@ -171,16 +221,17 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
                         ];
                       }}
                     />
+
                     <ChartTooltip
                       cursor={false}
                       content={<ChartTooltipContent />}
                     />
 
-                    {sortedChains.map((chainCode, index) => (
+                    {chainsToDisplay.map((chainCode, index) => (
                       <Line
                         key={chainCode}
                         dataKey={chainCode}
-                        type="basis"
+                        type="bump"
                         stroke={`var(--chart-${(index % 5) + 1})`}
                         dot={false}
                       />
