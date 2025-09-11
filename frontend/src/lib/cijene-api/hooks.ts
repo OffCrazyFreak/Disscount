@@ -121,11 +121,14 @@ export function usePriceHistory({ ean, days = 7 }: UsePriceHistoryArgs) {
   }, [days]);
 
   const queries = useQueries({
-    queries: dates.map((date) => ({
+    queries: dates.map((date, index) => ({
       queryKey: ["cijene", "product", "history", ean, date],
       queryFn: () => cijeneService.getProductByEan({ ean, date }),
       enabled: !!ean,
-      staleTime: 6 * 60 * 60 * 1000,
+      staleTime:
+        index === 0 || index === dates.length - 1
+          ? 60 * 1000
+          : 6 * 60 * 60 * 1000,
     })),
   });
 
@@ -136,23 +139,17 @@ export function usePriceHistory({ ean, days = 7 }: UsePriceHistoryArgs) {
     // collect all chain codes seen across all days
     const chainSet = new Set<string>();
 
-    const rows: HistoryDataPoint[] = dates
-      .map((date, idx) => {
-        const q = queries[idx];
-        const product = q?.data as ProductResponse;
+    const rows: HistoryDataPoint[] = dates.flatMap((date, idx) => {
+      const product = queries[idx]?.data as ProductResponse | undefined;
 
-        if (product?.chains) {
-          product.chains.forEach((c) => {
-            chainSet.add(c.chain);
-          });
-        }
+      if (product?.chains) {
+        product.chains.forEach((c) => {
+          chainSet.add(c.chain);
+        });
+      }
 
-        return {
-          date: formatDate(date),
-          product: product || ({} as ProductResponse),
-        };
-      })
-      .filter((item) => item.product && Object.keys(item.product).length > 0);
+      return product ? [{ date: formatDate(date), product }] : [];
+    });
 
     return { data: rows, chains: Array.from(chainSet) };
   }, [queries, dates]);
