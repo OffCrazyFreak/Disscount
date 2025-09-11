@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { storeNamesMap } from "@/utils/mappings";
+import { storeNamesMap, locationNamesMap } from "@/utils/mappings";
 import { cn } from "@/lib/utils";
 import cijeneService from "@/lib/cijene-api";
 
@@ -110,15 +110,23 @@ export const ChainItem = memo(
 
                     <TableBody>
                       {storesData.stores
-                        .sort((a, b) =>
-                          (a.city || "").localeCompare(b.city || "", "hr", {
+                        .sort((a, b) => {
+                          const aCityName = a.city 
+                            ? locationNamesMap[a.city] || a.city 
+                            : "";
+                          const bCityName = b.city 
+                            ? locationNamesMap[b.city] || b.city 
+                            : "";
+                          return aCityName.localeCompare(bCityName, "hr", {
                             sensitivity: "base",
-                          })
-                        )
+                          });
+                        })
                         .map((store) => (
                           <TableRow key={store.address}>
                             <TableCell className="text-gray-700">
-                              {store.city || "Nepoznato"}
+                              {store.city 
+                                ? locationNamesMap[store.city] || store.city 
+                                : "Nepoznato"}
                             </TableCell>
                             <TableCell className="text-gray-700">
                               {store.address || "Nepoznato"}

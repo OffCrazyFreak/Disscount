@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { ProductResponse, StorePrice } from "@/lib/cijene-api/schemas";
 import { getMinPrice, getMaxPrice } from "@/lib/cijene-api/utils/product-utils";
 import { useUser } from "@/context/user-context";
+import { locationNamesMap } from "@/utils/mappings";
 
 interface StoreCardPricesTableProps {
   storePrices: StorePrice[];
@@ -39,7 +40,7 @@ export const StoreCardPricesTable = memo(
             <TableRow>
               <TableHead className="font-bold">Lokacija</TableHead>
               <TableHead className="font-bold">Adresa</TableHead>
-              <TableHead className="font-bold">Cijena</TableHead>
+              <TableHead className="font-bold text-center">Cijena</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -49,24 +50,32 @@ export const StoreCardPricesTable = memo(
                 const preferredPlaceIds =
                   user?.pinnedPlaces?.map((place) => place.placeApiId) || [];
 
-                // Check if locations are preferred
-                const aIsPreferred = preferredPlaceIds.includes(
-                  a.store.city || ""
-                );
-                const bIsPreferred = preferredPlaceIds.includes(
-                  b.store.city || ""
-                );
+                // Check if locations are preferred (using standardized location names)
+                const aStandardizedCity = a.store.city
+                  ? locationNamesMap[a.store.city] || a.store.city
+                  : "";
+                const bStandardizedCity = b.store.city
+                  ? locationNamesMap[b.store.city] || b.store.city
+                  : "";
+                const aIsPreferred =
+                  preferredPlaceIds.includes(aStandardizedCity);
+                const bIsPreferred =
+                  preferredPlaceIds.includes(bStandardizedCity);
 
                 // Preferred locations come first
                 if (aIsPreferred && !bIsPreferred) return -1;
                 if (!aIsPreferred && bIsPreferred) return 1;
 
                 // If both are preferred or both are not, sort by city first, then by address
-                const cityCompare = (a.store.city || "").localeCompare(
-                  b.store.city || "",
-                  "hr",
-                  { sensitivity: "base" }
-                );
+                const aCityName = a.store.city
+                  ? locationNamesMap[a.store.city] || a.store.city
+                  : "";
+                const bCityName = b.store.city
+                  ? locationNamesMap[b.store.city] || b.store.city
+                  : "";
+                const cityCompare = aCityName.localeCompare(bCityName, "hr", {
+                  sensitivity: "base",
+                });
                 if (cityCompare !== 0) return cityCompare;
                 return (a.store.address || "").localeCompare(
                   b.store.address || "",
@@ -82,29 +91,32 @@ export const StoreCardPricesTable = memo(
                   ? parseFloat(price.regular_price)
                   : null;
 
-                // Check if this location is preferred
+                // Check if this location is preferred (using standardized location names)
+                const standardizedCity = price.store.city
+                  ? locationNamesMap[price.store.city] || price.store.city
+                  : "";
                 const isLocationPreferred =
                   user?.pinnedPlaces?.some(
-                    (place) => place.placeApiId === (price.store.city || "")
+                    (place) => place.placeApiId === standardizedCity
                   ) || false;
 
                 return (
-                  <TableRow key={`${price.store.code}-${index}`}>
-                    <TableCell
-                      className={cn(
-                        isLocationPreferred ? "text-gray-700" : "text-gray-500"
-                      )}
-                    >
-                      {price.store.city || "Nepoznato"}
+                  <TableRow
+                    key={`${price.store.code}-${index}`}
+                    className={cn(
+                      "text-balance [&>*]:whitespace-normal",
+                      isLocationPreferred ? "text-gray-700" : "text-gray-500"
+                    )}
+                  >
+                    <TableCell>
+                      {price.store.city
+                        ? locationNamesMap[price.store.city] || price.store.city
+                        : "Nepoznato"}
                     </TableCell>
-                    <TableCell
-                      className={cn(
-                        isLocationPreferred ? "text-gray-700" : "text-gray-500"
-                      )}
-                    >
-                      {price.store.address || "Nepoznato"}
-                    </TableCell>
-                    <TableCell className="text-gray-700 font-medium">
+
+                    <TableCell>{price.store.address || "Nepoznato"}</TableCell>
+
+                    <TableCell className="text-center">
                       {displayPrice ? (
                         <span
                           className={cn(
