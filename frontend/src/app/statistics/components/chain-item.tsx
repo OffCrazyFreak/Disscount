@@ -111,11 +111,11 @@ export const ChainItem = memo(
                     <TableBody>
                       {storesData.stores
                         .sort((a, b) => {
-                          const aCityName = a.city 
-                            ? locationNamesMap[a.city] || a.city 
+                          const aCityName = a.city
+                            ? locationNamesMap[a.city] || a.city
                             : "";
-                          const bCityName = b.city 
-                            ? locationNamesMap[b.city] || b.city 
+                          const bCityName = b.city
+                            ? locationNamesMap[b.city] || b.city
                             : "";
                           return aCityName.localeCompare(bCityName, "hr", {
                             sensitivity: "base",
@@ -124,8 +124,8 @@ export const ChainItem = memo(
                         .map((store) => (
                           <TableRow key={store.address}>
                             <TableCell className="text-gray-700">
-                              {store.city 
-                                ? locationNamesMap[store.city] || store.city 
+                              {store.city
+                                ? locationNamesMap[store.city] || store.city
                                 : "Nepoznato"}
                             </TableCell>
                             <TableCell className="text-gray-700">
@@ -150,5 +150,3 @@ export const ChainItem = memo(
     );
   }
 );
-
-ChainItem.displayName = "ChainItem";
