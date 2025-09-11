@@ -13,28 +13,28 @@ import { PeriodOption } from "@/app/products/[id]/typings/history-period-options
 import { periodOptions } from "@/app/products/[id]/utils/price-history-constants";
 
 interface PriceHistoryProps {
-  ean: string;
   product: ProductResponse;
 }
 
-export default function PriceHistory({ ean, product }: PriceHistoryProps) {
+export default function PriceHistory({ product }: PriceHistoryProps) {
   const [chartPrefs, setChartPrefs] = useState<{
     period: PeriodOption;
     chains: string[];
   }>(() => {
     const globalPrefs = getAppStorage()?.priceHistoryChartPreferences;
-    const productPrefs = globalPrefs?.[ean];
-    const availableChains = product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) || [];
-    
+    const productPrefs = globalPrefs?.[product.ean];
+    const availableChains =
+      product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) || [];
+
     // Get period from product-specific prefs or fall back to global period or default
     const period = productPrefs?.period || globalPrefs?.period || "1W";
-    
+
     if (productPrefs?.chains) {
       // Sanitize persisted chains by intersecting with available chains
-      const sanitizedChains = productPrefs.chains.filter((chain: string) => 
+      const sanitizedChains = productPrefs.chains.filter((chain: string) =>
         availableChains.includes(chain)
       );
-      
+
       return {
         period,
         chains: sanitizedChains.length > 0 ? sanitizedChains : availableChains,
@@ -51,19 +51,19 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
   useEffect(() => {
     // Load existing preferences
     const existingPrefs = getAppStorage()?.priceHistoryChartPreferences || {};
-    
+
     // Merge in the current product's preferences
     const updatedPrefs = {
       ...existingPrefs,
       period: chartPrefs.period, // Store period globally
-      [ean]: {
+      [product.ean]: {
         period: chartPrefs.period,
         chains: chartPrefs.chains,
       },
     };
-    
+
     setAppStorage({ priceHistoryChartPreferences: updatedPrefs });
-  }, [chartPrefs, ean]);
+  }, [chartPrefs, product.ean]);
 
   // Calculate days to show based on selected period
   const daysToShow: number = useMemo(() => {
@@ -75,7 +75,7 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
     chains: priceHistoryChains,
     isLoading: historyLoading,
     isError: historyError,
-  } = usePriceHistory({ ean, days: daysToShow });
+  } = usePriceHistory({ ean: product.ean, days: daysToShow });
 
   const handlePeriodChange = useCallback((period: string) => {
     setChartPrefs((p) => ({ ...p, period: period as PeriodOption }));
@@ -111,10 +111,10 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
                     Učitavanje povijesti cijena...
                   </div>
                 </div>
-              ) : priceHistoryData.length === 0 ? (
+              ) : priceHistoryData.length === 0 || historyError ? (
                 <div className="text-center py-8">
                   <p className="text-gray-600">
-                    Nema dostupnih podataka za grafikon.
+                    Nema dostupnih povijesnih podataka.
                   </p>
                 </div>
               ) : (

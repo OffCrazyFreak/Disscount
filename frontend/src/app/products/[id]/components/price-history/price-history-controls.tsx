@@ -18,6 +18,7 @@ import {
 import { ArrowBigUpDash } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";
+import { PeriodOption } from "../../typings/history-period-options";
 
 interface PriceHistoryControlsProps {
   chartPrefs: {

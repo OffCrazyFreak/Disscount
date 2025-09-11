@@ -82,7 +82,7 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
           </div>
         }
       >
-        <PriceHistory ean={ean} product={product} />
+        <PriceHistory product={product} />
       </Suspense>
 
       {/* Store Chain Cards */}

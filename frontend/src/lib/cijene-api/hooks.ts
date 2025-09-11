@@ -90,11 +90,14 @@ interface UsePriceHistoryArgs {
  * @param days - Number of days to fetch (default 7). Pass -1 for all available history, capped to not go earlier than 2025-05-16
  * @returns Object containing history data, chains, loading/error states
  */
+
+const START_DATE = new Date("2025-05-16");
+
 export function usePriceHistory({ ean, days = 7 }: UsePriceHistoryArgs) {
   const dates = useMemo(() => {
     const arr: string[] = [];
     const today = new Date();
-    const startCap = new Date("2025-05-16");
+    const startCap = START_DATE;
 
     // Cap days to not go earlier than start date
     const maxDaysFromCap = Math.max(
@@ -139,7 +142,7 @@ export function usePriceHistory({ ean, days = 7 }: UsePriceHistoryArgs) {
         const product = q?.data as ProductResponse;
 
         if (product?.chains) {
-          product.chains.forEach((c: any) => {
+          product.chains.forEach((c) => {
             chainSet.add(c.chain);
           });
         }
