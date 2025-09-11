@@ -42,19 +42,16 @@ const PriceHistoryControls = memo(function PriceHistoryControls({
   const priceChange: { difference: number; percentage: number } | null =
     useMemo(() => {
       if (priceHistoryData.length === 0) {
-        return {
-          difference: 0,
-          percentage: 0,
-        };
+        return null;
       }
 
       // Get the most recent and oldest data points with valid products
       const currentAvgPrice = getAveragePrice(
-        priceHistoryData[priceHistoryData.length - 1]?.product
+        priceHistoryData[priceHistoryData.length - 1].product
       );
-      const historicalAvgPrice = getAveragePrice(priceHistoryData[0]?.product);
+      const historicalAvgPrice = getAveragePrice(priceHistoryData[0].product);
 
-      if (!currentAvgPrice || !historicalAvgPrice) {
+      if (currentAvgPrice == null || historicalAvgPrice == null) {
         return null;
       }
 
