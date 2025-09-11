@@ -21,10 +21,8 @@ export async function GET(request: NextRequest) {
     }
     const validatedData = parsed.data;
 
-    // Create response with caching headers (security headers via next.config.ts headers())
-    return createApiResponse(validatedData, {
-      cacheControl: "public, max-age=30, s-maxage=60", // 30s browser, 1min CDN
-    });
+    // Create response (security headers via next.config.ts headers())
+    return createApiResponse(validatedData);
   } catch (error) {
     // Handle CijeneApiError with proper status codes
     if (error instanceof CijeneApiError) {

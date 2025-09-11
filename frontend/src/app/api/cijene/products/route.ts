@@ -50,10 +50,8 @@ export async function GET(request: NextRequest) {
     }
     const validatedData = parsedResponse.data;
 
-    // Return with caching (security via middleware)
-    return createApiResponse(validatedData, {
-      cacheControl: "no-cache",
-    });
+    // Return response (security via middleware)
+    return createApiResponse(validatedData);
   } catch (error) {
     if (error instanceof CijeneApiError) {
       return createApiError(error.message, {

@@ -59,9 +59,7 @@ export async function GET(request: NextRequest) {
     }
     const data = parsedResponse.data;
 
-    return createApiResponse(data, {
-      cacheControl: "public, max-age=3600, s-maxage=7200", // 1h browser, 2h CDN
-    });
+    return createApiResponse(data);
   } catch (error) {
     if (error instanceof CijeneApiError) {
       return createApiError(error.message, {

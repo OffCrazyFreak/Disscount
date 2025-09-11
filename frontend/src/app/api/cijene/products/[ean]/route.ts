@@ -53,9 +53,7 @@ export async function GET(
       });
     }
     const data = parsed.data;
-    return createApiResponse(data, {
-      cacheControl: "public, max-age=21600, s-maxage=43200", // 6h browser, 12h CDN
-    });
+    return createApiResponse(data);
   } catch (error) {
     if (error instanceof CijeneApiError) {
       return createApiError(error.message, {
