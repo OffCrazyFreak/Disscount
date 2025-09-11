@@ -6,13 +6,11 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { getAppStorage, setAppStorage } from "@/lib/api/local-storage";
-import { formatDate } from "@/utils/strings";
-import { storeNamesMap } from "@/utils/mappings";
-import usePriceHistory from "@/lib/cijene-api/hooks";
+import { usePriceHistory } from "@/lib/cijene-api/hooks";
 import PriceHistoryChart from "@/app/products/[id]/components/price-history/price-history-chart";
 import PriceHistoryControls from "@/app/products/[id]/components/price-history/price-history-controls";
 import { PeriodOption } from "@/app/products/[id]/typings/history-period-options";
-import { periodOptions } from "@/app/products/[id]/utils/price-history-contants";
+import { periodOptions } from "@/app/products/[id]/utils/price-history-constants";
 
 interface PriceHistoryProps {
   ean: string;
@@ -42,7 +40,7 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
 
   // Calculate days to show based on selected period
   const daysToShow: number = useMemo(() => {
-    return periodOptions[chartPrefs.period as PeriodOption]?.days;
+    return periodOptions[chartPrefs.period as PeriodOption]?.days || 7;
   }, [chartPrefs.period]);
 
   const {

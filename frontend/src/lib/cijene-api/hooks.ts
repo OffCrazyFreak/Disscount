@@ -90,10 +90,7 @@ interface UsePriceHistoryArgs {
  * @param days - Number of days to fetch (default 7). Pass -1 for all available history, capped to not go earlier than 2025-05-16
  * @returns Object containing history data, chains, loading/error states
  */
-export default function usePriceHistory({
-  ean,
-  days = 7,
-}: UsePriceHistoryArgs) {
+export function usePriceHistory({ ean, days = 7 }: UsePriceHistoryArgs) {
   const dates = useMemo(() => {
     const arr: string[] = [];
     const today = new Date();
