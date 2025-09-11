@@ -4,7 +4,7 @@ import React, { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 import cijeneService from "@/lib/cijene-api";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
-import { StoreChainCard } from "@/app/products/[id]/components/store-chain-card";
+import { StoreCard } from "@/app/products/[id]/components/store-card/store-card-base";
 import { useUser } from "@/context/user-context";
 import PriceHistory from "@/app/products/[id]/components/price-history/price-history-base";
 
@@ -123,7 +123,7 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
               })
               .map((chain, index) => {
                 return (
-                  <StoreChainCard
+                  <StoreCard
                     key={chain.chain}
                     chain={chain}
                     storePrices={pricesByChain[chain.chain] || []}
