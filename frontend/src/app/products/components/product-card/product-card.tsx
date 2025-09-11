@@ -9,12 +9,14 @@ import { ProductInfo } from "@/app/products/components/product-card/product-info
 import { ProductPrice } from "@/app/products/components/product-card/product-price";
 import AddToShoppingListForm from "@/app/products/components/forms/add-to-shopping-list-form";
 import Link from "next/link";
+import { ViewMode } from "@/typings/view-mode";
 
 interface ProductCardProps {
   product: ProductResponse;
+  viewMode: ViewMode;
 }
 
-export const ProductCard = memo<ProductCardProps>(({ product }) => {
+export const ProductCard = memo<ProductCardProps>(({ product, viewMode }) => {
   const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
 
   // Get category that appears most often in product.chains
@@ -59,8 +61,16 @@ export const ProductCard = memo<ProductCardProps>(({ product }) => {
 
       <Link href={`/products/${product.ean}`}>
         <Card className="px-4 sm:px-6 py-2 sm:py-4 hover:shadow-lg shadow-sm transition-shadow">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center justify-between gap-4">
+          <div
+            className={`${
+              viewMode === "grid" ? "flex-col" : "flex-row"
+            } flex items-center justify-between gap-4`}
+          >
+            <div
+              className={`${
+                viewMode === "grid" ? "flex-col" : "flex-row"
+              } flex items-center justify-between gap-4`}
+            >
               {/* Product Image */}
               <div className="size-20 bg-gray-100 rounded-lg hidden sm:grid place-items-center">
                 <span className="text-gray-400">IMG</span>

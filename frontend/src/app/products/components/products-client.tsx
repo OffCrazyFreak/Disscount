@@ -75,7 +75,7 @@ export default function ProductsClient({ query }: { query: string }) {
             More to load: {hasMore ? "yes" : "no"}
           </div> */}
 
-          <ProductList products={visibleProducts} viewMode={viewMode} />
+          <ProductList visibleProducts={visibleProducts} viewMode={viewMode} />
           {hasMore && (
             <div className="py-6 text-center">
               <Button variant="outline" size={"lg"} onClick={() => loadMore()}>

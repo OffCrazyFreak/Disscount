@@ -1,16 +1,17 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 import cijeneService from "@/lib/cijene-api";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
 import { StoreChainCard } from "@/app/products/[id]/components/store-chain-card";
 import { useUser } from "@/context/user-context";
+import PriceHistory from "@/app/products/[id]/components/price-history/price-history-base";
 
 export default function ProductDetailClient({ ean }: { ean: string }) {
   const { user } = useUser();
 
-  // Fetch product data if not provided as prop
+  // Fetch current product data
   const {
     data: product,
     isLoading: productLoading,
@@ -70,8 +71,9 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
 
   return (
     <div className="space-y-4">
-      {/* Product Information */}
       <ProductInfoDisplay product={product} />
+
+      <PriceHistory product={product} />
 
       {/* Store Chain Cards */}
       <div className="space-y-4">
@@ -132,6 +134,8 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
           </div>
         )}
       </div>
+
+      {/* TODO: cesto kupljeno zajedno section */}
     </div>
   );
 }
