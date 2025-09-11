@@ -64,14 +64,12 @@ const PriceHistoryControls = memo(function PriceHistoryControls({
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
       <div className="flex items-center justify-between gap-4 w-full sm:w-auto">
-        <Tabs value={chartPrefs.period} onValueChange={onPeriodChange}>
-          <TabsList className="">
-            <TabsTrigger value="1W">1W</TabsTrigger>
-            <TabsTrigger value="1M">1M</TabsTrigger>
-            <TabsTrigger value="1Y">1Y</TabsTrigger>
-            <TabsTrigger value="ALL">All</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <TabsList className="">
+          <TabsTrigger value="1W">1W</TabsTrigger>
+          <TabsTrigger value="1M">1M</TabsTrigger>
+          <TabsTrigger value="1Y">1Y</TabsTrigger>
+          <TabsTrigger value="ALL">All</TabsTrigger>
+        </TabsList>
 
         {priceChange && (
           <h3
