@@ -8,7 +8,7 @@ import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { getAppStorage, setAppStorage } from "@/lib/api/local-storage";
 import { formatDate } from "@/utils/strings";
 import { storeNamesMap } from "@/utils/mappings";
-import usePriceHistory from "@/app/products/[id]/hooks/use-price-history";
+import usePriceHistory from "@/lib/cijene-api/hooks";
 import PriceHistoryChart from "@/app/products/[id]/components/price-history/price-history-chart";
 import PriceHistoryControls from "@/app/products/[id]/components/price-history/price-history-controls";
 import { PeriodOption } from "@/app/products/[id]/typings/history-period-options";
@@ -45,39 +45,11 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
   }, [chartPrefs.period]);
 
   const {
-    data: chartData,
-    chains: historyChains,
+    data: priceHistoryData,
+    chains: priceHistoryChains,
     isLoading: historyLoading,
     isError: historyError,
   } = usePriceHistory({ ean, days: daysToShow });
-
-  const formattedChartData = useMemo(() => {
-    const arr = (chartData ?? []).map((row) => ({
-      ...row,
-      date: formatDate(String(row.date)),
-    }));
-    return arr;
-  }, [chartData]);
-
-  const allAvailableChains = useMemo(() => {
-    const chains = product?.chains || historyChains || [];
-    return chains
-      .slice()
-      .map((c) => (typeof c === "string" ? c : c.chain))
-      .sort((a: string, b: string) => {
-        const nameA = storeNamesMap[a] || a;
-        const nameB = storeNamesMap[b] || b;
-        return nameA.localeCompare(nameB, "hr", {
-          sensitivity: "base",
-        });
-      });
-  }, [product?.chains, historyChains]);
-
-  const chainsToDisplay = useMemo(() => {
-    return allAvailableChains.filter((chain) =>
-      chartPrefs.chains.includes(chain)
-    );
-  }, [allAvailableChains, chartPrefs.chains]);
 
   const handlePeriodChange = useCallback((period: string) => {
     setChartPrefs((p) => ({ ...p, period: period as PeriodOption }));
@@ -95,7 +67,8 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
           <Tabs value={chartPrefs.period} onValueChange={handlePeriodChange}>
             <PriceHistoryControls
               chartPrefs={chartPrefs}
-              allAvailableChains={allAvailableChains}
+              priceHistoryData={priceHistoryData}
+              priceHistoryChains={priceHistoryChains}
               onPeriodChange={handlePeriodChange}
               onChainsChange={handleChainsChange}
             />
@@ -108,7 +81,7 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
                     Učitavanje povijesti cijena...
                   </div>
                 </div>
-              ) : formattedChartData.length === 0 ? (
+              ) : priceHistoryData.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-gray-600">
                     Nema dostupnih podataka za grafikon.
@@ -116,9 +89,9 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
                 </div>
               ) : (
                 <PriceHistoryChart
-                  formattedChartData={formattedChartData}
-                  allAvailableChains={allAvailableChains}
-                  chainsToDisplay={chainsToDisplay}
+                  priceHistoryData={priceHistoryData}
+                  priceHistoryChains={priceHistoryChains}
+                  selectedChains={chartPrefs.chains}
                 />
               )}
             </TabsContent>

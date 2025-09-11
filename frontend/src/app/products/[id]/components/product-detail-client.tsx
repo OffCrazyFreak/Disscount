@@ -144,6 +144,8 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
           </div>
         )}
       </div>
+
+      {/* TODO: cesto kupljeno zajedno section */}
     </div>
   );
 }

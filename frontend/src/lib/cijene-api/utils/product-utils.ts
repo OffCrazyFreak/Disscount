@@ -160,3 +160,19 @@ export function getHighestPriceChain(product: ProductResponse) {
     return currentPrice > highestPrice ? current : highest;
   });
 }
+
+/**
+ * Calculate price change difference and percentage
+ */
+export function calculatePriceChange(
+  currentPrice: number,
+  previousPrice: number
+) {
+  const percentage = ((currentPrice - previousPrice) / previousPrice) * 100;
+  const difference = currentPrice - previousPrice;
+
+  return {
+    percentage,
+    difference,
+  };
+}

@@ -10,31 +10,58 @@ import {
 } from "@/components/ui/chart";
 import { storeNamesMap } from "@/utils/mappings";
 import { useUser } from "@/context/user-context";
+import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";
 
 interface PriceHistoryChartProps {
-  formattedChartData: any[];
-  allAvailableChains: string[];
-  chainsToDisplay: string[];
+  priceHistoryData: HistoryDataPoint[];
+  priceHistoryChains: string[];
+  selectedChains: string[];
 }
 
 const PriceHistoryChart = React.memo(function PriceHistoryChart({
-  formattedChartData,
-  allAvailableChains,
-  chainsToDisplay,
+  priceHistoryData,
+  priceHistoryChains,
+  selectedChains,
 }: PriceHistoryChartProps) {
   const { user } = useUser();
 
+  // Filter chains to display based on user selection
+  const chainsToDisplay = useMemo(() => {
+    return priceHistoryChains.filter((chain) => selectedChains.includes(chain));
+  }, [priceHistoryChains, selectedChains]);
+
+  // Transform the data for the chart: convert from HistoryDataPoint[] to chart format
+  const chartData = useMemo(() => {
+    return priceHistoryData.map((dataPoint) => {
+      const chartPoint: Record<string, any> = {
+        date: dataPoint.date,
+      };
+
+      // Add average price for each chain present in this data point
+      if (dataPoint.product?.chains) {
+        dataPoint.product.chains.forEach((chainData) => {
+          const avgPrice = parseFloat(chainData.avg_price);
+          if (Number.isFinite(avgPrice)) {
+            chartPoint[chainData.chain] = avgPrice;
+          }
+        });
+      }
+
+      return chartPoint;
+    });
+  }, [priceHistoryData]);
+
   const chartConfig = useMemo(() => {
     const cfg: ChartConfig = {};
-    allAvailableChains.forEach((chain) => {
+    priceHistoryChains.forEach((chain) => {
       cfg[chain] = { label: storeNamesMap[chain] || chain };
     });
     return cfg;
-  }, [allAvailableChains]);
+  }, [priceHistoryChains]);
 
   return (
     <ChartContainer config={chartConfig}>
-      <LineChart accessibilityLayer data={formattedChartData}>
+      <LineChart accessibilityLayer data={chartData}>
         <CartesianGrid vertical={true} />
 
         <XAxis
@@ -67,8 +94,8 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
               key={chainCode}
               dataKey={chainCode}
               type="bump"
-              stroke={`var(--chart-${(index % 5) + 1})`}
-              strokeWidth={isPinned ? 2 : 0.3}
+              stroke={`var(--chart-${(index % 13) + 1})`}
+              strokeWidth={isPinned ? 2 : 0.4}
               dot={false}
             />
           );
