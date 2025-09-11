@@ -37,6 +37,8 @@ const nextConfig: NextConfig = {
       "font-src 'self' data:",
       // Allow API calls to same origin and HTTPS; include WS for dev HMR
       `connect-src 'self' https: ws: wss:`,
+      // Allow framing of Netlify app
+      "frame-src 'self' https://app.netlify.com/",
       // Lock down embedding and legacy objects
       "frame-ancestors 'none'",
       "object-src 'none'",
