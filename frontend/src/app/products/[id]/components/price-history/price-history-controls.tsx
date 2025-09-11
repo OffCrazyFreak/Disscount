@@ -15,7 +15,6 @@ import {
   getAveragePrice,
   calculatePriceChange,
 } from "@/lib/cijene-api/utils/product-utils";
-import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { ArrowBigUpDash } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";

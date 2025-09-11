@@ -25,9 +25,20 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
 }: PriceHistoryChartProps) {
   const { user } = useUser();
 
-  // Filter chains to display based on user selection
+  // Filter chains to display based on user selection with sanitization
   const chainsToDisplay = useMemo(() => {
-    return priceHistoryChains.filter((chain) => selectedChains.includes(chain));
+    // Get intersection of selectedChains and priceHistoryChains
+    const intersection = priceHistoryChains.filter((chain) => 
+      selectedChains.includes(chain)
+    );
+    
+    // If intersection is empty or selectedChains is missing, fall back to all available chains
+    // Ensure at least one chain is selected
+    if (intersection.length === 0 || !selectedChains?.length) {
+      return priceHistoryChains.length > 0 ? priceHistoryChains : [];
+    }
+    
+    return intersection;
   }, [priceHistoryChains, selectedChains]);
 
   // Transform the data for the chart: convert from HistoryDataPoint[] to chart format

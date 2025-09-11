@@ -22,21 +22,48 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
     period: PeriodOption;
     chains: string[];
   }>(() => {
-    const localStoragePrefs = getAppStorage()?.priceHistoryChartPreferences;
-    if (localStoragePrefs) {
-      return localStoragePrefs;
+    const globalPrefs = getAppStorage()?.priceHistoryChartPreferences;
+    const productPrefs = globalPrefs?.[ean];
+    const availableChains = product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) || [];
+    
+    // Get period from product-specific prefs or fall back to global period or default
+    const period = productPrefs?.period || globalPrefs?.period || "1W";
+    
+    if (productPrefs?.chains) {
+      // Sanitize persisted chains by intersecting with available chains
+      const sanitizedChains = productPrefs.chains.filter((chain: string) => 
+        availableChains.includes(chain)
+      );
+      
+      return {
+        period,
+        chains: sanitizedChains.length > 0 ? sanitizedChains : availableChains,
+      };
     }
 
+    // If EAN isn't in preferences yet, default to all available chains
     return {
-      period: "1W",
-      chains:
-        product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) || [],
+      period,
+      chains: availableChains,
     };
   });
 
   useEffect(() => {
-    setAppStorage({ priceHistoryChartPreferences: chartPrefs });
-  }, [chartPrefs]);
+    // Load existing preferences
+    const existingPrefs = getAppStorage()?.priceHistoryChartPreferences || {};
+    
+    // Merge in the current product's preferences
+    const updatedPrefs = {
+      ...existingPrefs,
+      period: chartPrefs.period, // Store period globally
+      [ean]: {
+        period: chartPrefs.period,
+        chains: chartPrefs.chains,
+      },
+    };
+    
+    setAppStorage({ priceHistoryChartPreferences: updatedPrefs });
+  }, [chartPrefs, ean]);
 
   // Calculate days to show based on selected period
   const daysToShow: number = useMemo(() => {
@@ -55,7 +82,11 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
   }, []);
 
   const handleChainsChange = useCallback((chains: string[]) => {
-    setChartPrefs((p) => (chains.length > 0 ? { ...p, chains } : p));
+    // Ensure at least one chain is always selected
+    if (chains.length > 0) {
+      setChartPrefs((p) => ({ ...p, chains }));
+    }
+    // If no chains are selected, keep the current selection unchanged
   }, []);
 
   return (
