@@ -25,13 +25,13 @@ export default function PriceHistory({ ean, product }: PriceHistoryProps) {
     chains: string[];
   }>(() => {
     const localStoragePrefs = getAppStorage()?.priceHistoryChartPreferences;
-    if (localStoragePrefs) {
+    if (localStoragePrefs && Array.isArray(localStoragePrefs.chains)) {
       return localStoragePrefs;
     }
 
     return {
       period: "1W",
-      chains: product.chains.map((c) => (typeof c === "string" ? c : c.chain)),
+      chains: product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) ?? [],
     };
   });
 
