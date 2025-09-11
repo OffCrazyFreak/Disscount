@@ -4,6 +4,7 @@ import { memo, useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import SearchBar from "@/components/custom/search-bar";
 import BarcodeScanner from "@/components/custom/barcode-scanner";
+import { useSidebar } from "@/components/ui/sidebar";
 
 interface ProductSearchBarProps {
   onSearch?: (query: string) => void;
@@ -22,11 +23,14 @@ export const ProductSearchBar = memo(function ProductSearchBar({
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
   const [scannerOpen, setScannerOpen] = useState(false);
+  const { setOpen } = useSidebar();
 
   const handleSearch = useCallback(
     (q: string) => {
       if (q) {
         router.push(`/products?q=${encodeURIComponent(q)}`);
+
+        setOpen(false);
       }
 
       onSearch?.(q);
@@ -42,8 +46,10 @@ export const ProductSearchBar = memo(function ProductSearchBar({
   const handleScan = useCallback(
     (result: string) => {
       handleSearch(result);
+
+      setOpen(false);
     },
-    [handleSearch]
+    [handleSearch, setOpen]
   );
 
   return (

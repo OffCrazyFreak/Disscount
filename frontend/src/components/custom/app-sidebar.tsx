@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo, useState, Suspense } from "react";
+import { memo, useMemo, useState, Suspense, useEffect } from "react";
 import {
   ChevronDown,
   List,
@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import {
   Sidebar,
@@ -28,6 +29,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
@@ -46,11 +48,18 @@ type OpenSection = "categories" | "stores" | "locations" | null;
 export const AppSidebar = memo(function AppSidebar() {
   const [categories, setCategories] = useState<any[]>(["First", "Second"]);
   const [openMenu, setOpenMenu] = useState<OpenSection>(null);
+  const { setOpen } = useSidebar();
+  const pathname = usePathname();
 
   const { data: chainStats, isLoading: chainStatsLoading } =
     cijeneService.useGetChainStats();
 
   const { data: locations, isLoading: locationsLoading } = useAllLocations();
+
+  // Close sidebar when route changes
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   const sortedChainStats = useMemo(() => {
     const list = chainStats?.chain_stats ?? [];
