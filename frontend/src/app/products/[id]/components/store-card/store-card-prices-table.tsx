@@ -147,5 +147,3 @@ export const StoreCardPricesTable = memo(
     );
   }
 );
-
-StoreCardPricesTable.displayName = "StorePricesTable";
