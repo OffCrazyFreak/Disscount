@@ -106,7 +106,7 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
               dataKey={chainCode}
               type="bump"
               stroke={`var(--chart-${(index % 13) + 1})`}
-              strokeWidth={isPinned ? 2 : 0.4}
+              strokeWidth={pinnedStoreIds.length === 0 || isPinned ? 2 : 0.4}
               dot={false}
             />
           );
