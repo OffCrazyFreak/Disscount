@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     // Return with caching (security via middleware)
     return createApiResponse(validatedData, {
-      cacheControl: "public, max-age=10, s-maxage=10",
+      cacheControl: "public",
     }); // 3h browser, 6h CDN
   } catch (error) {
     if (error instanceof CijeneApiError) {
