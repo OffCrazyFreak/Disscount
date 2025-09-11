@@ -62,8 +62,8 @@ const PriceHistoryControls = memo(function PriceHistoryControls({
     }, [priceHistoryData]);
 
   return (
-    <div className="flex items-center justify-between mb-4">
-      <div className="flex items-center gap-4">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-4 w-full sm:w-auto">
         <Tabs value={chartPrefs.period} onValueChange={onPeriodChange}>
           <TabsList className="">
             <TabsTrigger value="1W">1W</TabsTrigger>
@@ -75,19 +75,18 @@ const PriceHistoryControls = memo(function PriceHistoryControls({
 
         {priceChange && (
           <h3
-            className={cn("flex items-center gap-2 transition-transform", {
+            className={cn("text-right flex gap-2 items-center transition-all", {
               "text-red-700": priceChange.difference > 0,
               "text-green-700": priceChange.difference < 0,
               "text-gray-700": priceChange.difference === 0,
             })}
           >
             <span className="">
-              {priceChange.difference > 0 && "+"}{" "}
-              {priceChange.difference.toFixed(2)} (
-              {priceChange.percentage.toFixed(2)}%)
+              {priceChange.difference > 0 && "+"}
+              {priceChange.difference} ({priceChange.percentage}%)
             </span>
             <ArrowBigUpDash
-              className={cn({
+              className={cn("hidden sm:inline", {
                 "rotate-180": priceChange.difference < 0,
               })}
             />
@@ -96,7 +95,7 @@ const PriceHistoryControls = memo(function PriceHistoryControls({
       </div>
 
       <MultiSelect values={chartPrefs.chains} onValuesChange={onChainsChange}>
-        <MultiSelectTrigger className="w-xs">
+        <MultiSelectTrigger className="w-full sm:w-sm">
           <MultiSelectValue placeholder="Odaberi trgovinske lance..." />
         </MultiSelectTrigger>
         <MultiSelectContent>
