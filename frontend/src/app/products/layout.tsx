@@ -1,13 +1,13 @@
-import React from "react";
+import { ReactNode } from "react";
 import { ViewMode } from "@/typings/view-mode";
 import ViewSwitcher from "@/components/custom/view-switcher";
 
 type Props = {
-  title?: React.ReactNode;
-  search?: React.ReactNode;
+  title?: ReactNode;
+  search?: ReactNode;
   viewMode?: ViewMode;
   setViewMode?: (v: ViewMode) => void;
-  children?: React.ReactNode;
+  children?: ReactNode;
   className?: string;
 };
 
@@ -24,7 +24,7 @@ export default function ProductsLayout({
       {search}
 
       <div className="my-6 space-y-4">
-        <div className="flex items-center justify-between gap-4 my-6">
+        <div className="flex items-center justify-between gap-4">
           <div>{title}</div>
 
           {setViewMode && (

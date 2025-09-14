@@ -24,7 +24,7 @@ export default function UserInventoryLayout({
       {search}
 
       <div className="my-6 space-y-4">
-        <div className="flex items-center justify-between gap-4 my-6">
+        <div className="flex items-center justify-between gap-4">
           <div>{title}</div>
 
           {setViewMode && (
