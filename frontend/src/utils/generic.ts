@@ -21,13 +21,13 @@ export function filterByFields<T extends Record<string, any>>(
       const raw = item[field];
       if (raw == null) continue;
 
-      const value = String(raw);
+      const value = normalizeForSearch(String(raw));
 
       // original, case-insensitive match
       if (value.toLowerCase().includes(qLower)) return true;
 
       // normalized, diacritic-insensitive match
-      if (normalizeForSearch(value).includes(qNorm)) return true;
+      if (value.includes(qNorm)) return true;
     }
 
     return false;

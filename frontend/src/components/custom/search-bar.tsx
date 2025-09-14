@@ -33,8 +33,11 @@ export default function SearchBar({
   const pathname = usePathname();
 
   // Only get initial query if current pathname matches searchRoute
+  // Decode the URL parameter to get the original user input
   const initialQuery =
-    pathname === searchRoute ? searchParams.get("q") || "" : "";
+    pathname === searchRoute
+      ? decodeURIComponent(searchParams.get("q") || "")
+      : "";
 
   const [scannerOpen, setScannerOpen] = useState(false);
   const { setOpen } = useSidebar();
@@ -59,13 +62,11 @@ export default function SearchBar({
   useEffect(() => {
     if (autoSearch) {
       const query = queryValue ?? "";
-      // For auto search, update the URL with the query (no trimming while typing)
+      // For auto search, update the URL with the original query (preserving user input)
       if (!query) {
         router.push(searchRoute);
       } else {
-        router.push(
-          `${searchRoute}?q=${encodeURIComponent(normalizeForSearch(query))}`
-        );
+        router.push(`${searchRoute}?q=${encodeURIComponent(query)}`);
       }
     }
   }, [queryValue, autoSearch, searchRoute, router]);
@@ -85,13 +86,11 @@ export default function SearchBar({
   function submit(data: { query: string }) {
     const q = data.query?.trim() ?? "";
 
-    // Navigate to specified route with query
+    // Navigate to specified route with original query (preserving user input)
     if (!q) {
       router.push(searchRoute);
     } else {
-      router.push(
-        `${searchRoute}?q=${encodeURIComponent(normalizeForSearch(q))}`
-      );
+      router.push(`${searchRoute}?q=${encodeURIComponent(q)}`);
     }
   }
 
@@ -107,10 +106,8 @@ export default function SearchBar({
   const handleScan = useCallback(
     (result: string) => {
       setValue("query", result);
-      // Navigate to specified route with query
-      router.push(
-        `${searchRoute}?q=${encodeURIComponent(normalizeForSearch(result))}`
-      );
+      // Navigate to specified route with original scanned result (preserving input)
+      router.push(`${searchRoute}?q=${encodeURIComponent(result)}`);
       setScannerOpen(false);
       setOpen(false);
     },
