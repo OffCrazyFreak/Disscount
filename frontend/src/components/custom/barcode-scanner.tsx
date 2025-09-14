@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, ScanBarcode, AlertTriangle } from "lucide-react";
+import { X, ScanBarcode, AlertTriangle, FlashlightIcon } from "lucide-react";
 
 interface IDetectedBarcode {
   rawValue: string;
@@ -20,17 +20,18 @@ interface BarcodeScannerProps {
   isOpen: boolean;
   onClose: () => void;
   onScan: (result: string) => void;
-  title?: string;
 }
 
 export default function BarcodeScanner({
   isOpen,
   onClose,
   onScan,
-  title = "Skeniranje barkoda",
 }: BarcodeScannerProps) {
   const [error, setError] = useState<string | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [torchEnabled, setTorchEnabled] = useState(false);
+  const [torchSupported, setTorchSupported] = useState(false);
+  const [videoTrack, setVideoTrack] = useState<MediaStreamTrack | null>(null);
 
   // Check camera permissions when component mounts
   useEffect(() => {
@@ -42,7 +43,21 @@ export default function BarcodeScanner({
   const checkCameraPermission = async () => {
     try {
       // Check if we can access the camera
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+      });
+
+      // Check torch support
+      const track = stream.getVideoTracks()[0];
+      setVideoTrack(track);
+
+      if (track && "getCapabilities" in track) {
+        const capabilities = track.getCapabilities() as any;
+        const hasTorch = capabilities.torch === true;
+        setTorchSupported(hasTorch);
+        console.log("Torch supported:", hasTorch);
+      }
+
       stream.getTracks().forEach((track) => track.stop()); // Stop the stream immediately
       setHasPermission(true);
       setError(null);
@@ -59,7 +74,6 @@ export default function BarcodeScanner({
     (detectedCodes: IDetectedBarcode[]) => {
       if (detectedCodes && detectedCodes.length > 0) {
         const result = detectedCodes[0].rawValue;
-        console.log("Scanned result:", result);
         onScan(result);
         onClose();
       }
@@ -68,13 +82,30 @@ export default function BarcodeScanner({
   );
 
   const handleError = useCallback((error: unknown) => {
-    console.error("Scanner error:", error);
     setError("Greška pri skeniranju. Molimo pokušajte ponovno.");
   }, []);
+
+  const toggleTorch = useCallback(async () => {
+    if (!videoTrack || !torchSupported) return;
+
+    try {
+      const newTorchState = !torchEnabled;
+      await videoTrack.applyConstraints({
+        advanced: [{ torch: newTorchState } as any],
+      });
+      setTorchEnabled(newTorchState);
+      console.log("Torch toggled to:", newTorchState);
+    } catch (err) {
+      console.error("Failed to toggle torch:", err);
+    }
+  }, [videoTrack, torchSupported, torchEnabled]);
 
   const handleClose = () => {
     setError(null);
     setHasPermission(null);
+    setTorchEnabled(false);
+    setTorchSupported(false);
+    setVideoTrack(null);
     onClose();
   };
 
@@ -83,8 +114,9 @@ export default function BarcodeScanner({
       <DialogContent className="max-w-md mx-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <ScanBarcode className="size-5" />
-            {title}
+            <ScanBarcode className="size-6" />
+
+            <p>Skeniraj kod</p>
           </DialogTitle>
         </DialogHeader>
 
@@ -113,8 +145,25 @@ export default function BarcodeScanner({
                 <Scanner
                   onScan={handleScan}
                   onError={handleError}
+                  formats={[
+                    "qr_code",
+                    "aztec",
+                    "codabar",
+                    "code_39",
+                    "code_93",
+                    "code_128",
+                    "data_matrix",
+                    "ean_8",
+                    "ean_13",
+                    "itf",
+                    "pdf417",
+                    "upc_a",
+                    "upc_e",
+                  ]}
                   constraints={{
                     facingMode: "environment", // Use back camera by default
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
                   }}
                   scanDelay={300}
                 />
@@ -123,6 +172,27 @@ export default function BarcodeScanner({
               <div className="absolute inset-0 pointer-events-none">
                 {/* Scanning overlay */}
                 <div className="absolute inset-4 border-2 border-white border-dashed rounded-lg opacity-70"></div>
+
+                {/* Torch button */}
+                {torchSupported && (
+                  <div className="absolute top-4 right-4 pointer-events-auto">
+                    <Button
+                      onClick={toggleTorch}
+                      variant="ghost"
+                      size="sm"
+                      className={`p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 ${
+                        torchEnabled ? "text-yellow-400" : "text-white"
+                      }`}
+                      title={
+                        torchEnabled
+                          ? "Isključi bljeskalicu"
+                          : "Uključi bljeskalicu"
+                      }
+                    >
+                      <FlashlightIcon className="size-5" />
+                    </Button>
+                  </div>
+                )}
 
                 {/* Instructions */}
                 <div className="absolute bottom-4 left-4 right-4">

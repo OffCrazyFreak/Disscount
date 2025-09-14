@@ -5,9 +5,8 @@ import { useForm } from "react-hook-form";
 import { Search, ScanBarcode, X } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
 import { Input } from "@/components/ui/input";
-import { normalizeForSearch } from "@/utils/strings";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import BarcodeScanner from "@/components/custom/barcode-scanner";
+import { useScanner } from "@/components/custom/scanner-context";
 import { useSidebar } from "@/components/ui/sidebar";
 
 interface SearchBarProps {
@@ -39,7 +38,7 @@ export default function SearchBar({
       ? decodeURIComponent(searchParams.get("q") || "")
       : "";
 
-  const [scannerOpen, setScannerOpen] = useState(false);
+  const { openScanner } = useScanner();
   const { setOpen } = useSidebar();
 
   const router = useRouter();
@@ -98,17 +97,9 @@ export default function SearchBar({
     reset({ query: "" });
   }
 
-  const handleBarcodeClick = useCallback(() => {
-    console.log("SearchBar: barcode clicked");
-    setScannerOpen(true);
-  }, []);
-
   const handleScan = useCallback(
     (result: string) => {
-      setValue("query", result);
-      // Navigate to specified route with original scanned result (preserving input)
-      router.push(`${searchRoute}?q=${encodeURIComponent(result)}`);
-      setScannerOpen(false);
+      router.push(`${searchRoute}/${encodeURIComponent(result)}`);
       setOpen(false);
     },
     [setValue, searchRoute, router, setOpen]
@@ -116,14 +107,6 @@ export default function SearchBar({
 
   return (
     <div className="">
-      {allowScanning && (
-        <BarcodeScanner
-          isOpen={scannerOpen}
-          onClose={() => setScannerOpen(false)}
-          onScan={handleScan}
-        />
-      )}
-
       <form
         onSubmit={handleSubmit(submit)}
         className="relative max-w-3xl mx-auto"
@@ -164,7 +147,7 @@ export default function SearchBar({
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={handleBarcodeClick}
+                onClick={() => openScanner(handleScan)}
                 className="p-2"
                 title="Scan barcode"
               >
