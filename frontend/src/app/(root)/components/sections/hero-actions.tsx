@@ -31,6 +31,7 @@ export default function HeroActions() {
             placeholder="Pretraži proizvode..."
             searchRoute="/products"
             clearable={true}
+            allowScanning={true}
             submitButtonLocation="Block"
           />
         </Suspense>

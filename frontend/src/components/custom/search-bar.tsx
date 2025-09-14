@@ -15,6 +15,7 @@ interface SearchBarProps {
   searchRoute: string;
   clearable?: boolean;
   autoSearch?: boolean;
+  allowScanning?: boolean;
   submitButtonLocation?: "None" | "Inline" | "Block";
   submitLabel?: string;
 }
@@ -25,6 +26,7 @@ export default function SearchBar({
   clearable = true,
   submitButtonLocation = "Block",
   autoSearch = false,
+  allowScanning = false,
   submitLabel = "Pretraži",
 }: SearchBarProps) {
   const searchParams = useSearchParams();
@@ -51,15 +53,13 @@ export default function SearchBar({
   // Auto search effect for pages that filter in state
   useEffect(() => {
     if (autoSearch) {
-      const trimmedQuery = queryValue?.trim() ?? "";
-      // For auto search, update the URL with the query
-      if (!trimmedQuery) {
+      const query = queryValue ?? "";
+      // For auto search, update the URL with the query (no trimming while typing)
+      if (!query) {
         router.push(searchRoute);
       } else {
         router.push(
-          `${searchRoute}?q=${normalizeForSearch(
-            encodeURIComponent(trimmedQuery)
-          )}`
+          `${searchRoute}?q=${normalizeForSearch(encodeURIComponent(query))}`
         );
       }
     }
@@ -114,11 +114,13 @@ export default function SearchBar({
 
   return (
     <div className="">
-      <BarcodeScanner
-        isOpen={scannerOpen}
-        onClose={() => setScannerOpen(false)}
-        onScan={handleScan}
-      />
+      {allowScanning && (
+        <BarcodeScanner
+          isOpen={scannerOpen}
+          onClose={() => setScannerOpen(false)}
+          onScan={handleScan}
+        />
+      )}
 
       <form
         onSubmit={handleSubmit(submit)}
@@ -155,16 +157,18 @@ export default function SearchBar({
               </Button>
             )}
 
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleBarcodeClick}
-              className="p-2"
-              title="Scan barcode"
-            >
-              <ScanBarcode className="size-5" />
-            </Button>
+            {allowScanning && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleBarcodeClick}
+                className="p-2"
+                title="Scan barcode"
+              >
+                <ScanBarcode className="size-5" />
+              </Button>
+            )}
           </div>
         </div>
 

@@ -85,6 +85,7 @@ export const AppSidebar = memo(function AppSidebar() {
                 placeholder="Pretraži proizvode..."
                 searchRoute="/products"
                 clearable={true}
+                allowScanning={true}
                 submitButtonLocation="Block"
               />
             </Suspense>
