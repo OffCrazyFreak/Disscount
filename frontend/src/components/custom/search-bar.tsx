@@ -6,7 +6,7 @@ import { Search, ScanBarcode, X } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
 import { Input } from "@/components/ui/input";
 import { normalizeForSearch } from "@/utils/strings";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import BarcodeScanner from "@/components/custom/barcode-scanner";
 import { useSidebar } from "@/components/ui/sidebar";
 
@@ -30,7 +30,12 @@ export default function SearchBar({
   submitLabel = "Pretraži",
 }: SearchBarProps) {
   const searchParams = useSearchParams();
-  const initialQuery = searchParams.get("q") || "";
+  const pathname = usePathname();
+
+  // Only get initial query if current pathname matches searchRoute
+  const initialQuery =
+    pathname === searchRoute ? searchParams.get("q") || "" : "";
+
   const [scannerOpen, setScannerOpen] = useState(false);
   const { setOpen } = useSidebar();
 
