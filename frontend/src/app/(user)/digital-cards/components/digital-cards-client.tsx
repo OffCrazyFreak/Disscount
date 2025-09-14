@@ -1,18 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import {
-  Search,
-  Plus,
-  Loader2,
-  PlusIcon,
-  CreditCard,
-  Frown,
-} from "lucide-react";
+import { useState, Suspense } from "react";
+import { usePathname } from "next/navigation";
+import { Search, Plus, Loader2, PlusIcon, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/custom/search-bar";
-import UserInventoryLayout from "@/app/(user)/layout";
 import DigitalCardModal from "@/app/(user)/digital-cards/components/forms/digital-card-modal";
 import DigitalCardsGroup from "@/app/(user)/digital-cards/components/digital-cards-group";
 import NoResults from "@/components/custom/no-results";
@@ -22,6 +14,7 @@ import { useViewMode } from "@/hooks/use-view-mode";
 import { filterByFields } from "@/utils/generic";
 import { digitalCardService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
+import ViewSwitcher from "@/components/custom/view-switcher";
 
 export default function DigitalCardsClient({ query }: { query: string }) {
   const pathname = usePathname();
@@ -67,63 +60,61 @@ export default function DigitalCardsClient({ query }: { query: string }) {
         label="Dodaj digitalnu karticu"
       />
 
-      <UserInventoryLayout
-        title={
-          query
-            ? `Rezultati: "${query}" (${matchingDigitalCards.length})`
-            : `Moje digitalne kartice (${matchingDigitalCards.length})`
-        }
-        search={
+      <div className="space-y-4">
+        <Suspense>
           <SearchBar
             placeholder="Pretraži digitalne kartice..."
-            submitButtonLocation="None"
+            clearable={true}
+            submitButtonLocation="Block"
             autoSearch={true}
           />
-        }
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-      >
-        {isLoading && (
+        </Suspense>
+
+        <div className="flex items-center justify-between gap-4">
+          <h3>
+            {query.length > 0
+              ? `Rezultati pretrage za "${query}" (${matchingDigitalCards.length})`
+              : `Moje digitalne kartice (${matchingDigitalCards.length})`}
+          </h3>
+
+          <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} />
+        </div>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="size-8 animate-spin text-gray-400" />
+            <span className="ml-2 text-gray-600">Dohvaćanje kartica…</span>
+          </div>
+        ) : matchingDigitalCards.length > 0 ? (
+          <DigitalCardsGroup
+            digitalCards={matchingDigitalCards}
+            handleEdit={handleEdit}
+            viewMode={viewMode}
+          />
+        ) : query ? (
+          <NoResults
+            icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
+          />
+        ) : (
           <div className="text-center py-12">
-            <Loader2 className="size-12 text-gray-400 mx-auto mb-4 animate-spin" />
-            <p className="text-gray-600">Dohvaćanje kartica…</p>
+            <CreditCard className="size-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Nema digitalnih kartica
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Stvorite svoju prvu digitalnu karticu…
+            </p>
+            <Button
+              effect="shineHover"
+              icon={Plus}
+              iconPlacement="left"
+              onClick={() => setIsModalOpen(true)}
+            >
+              Dodaj digitalnu karticu
+            </Button>
           </div>
         )}
-
-        {!isLoading && (
-          <>
-            {matchingDigitalCards.length > 0 ? (
-              <DigitalCardsGroup
-                digitalCards={matchingDigitalCards}
-                handleEdit={handleEdit}
-                viewMode={viewMode}
-              />
-            ) : query ? (
-              <NoResults
-                icon={<Search className="size-20 text-gray-400 mx-auto mb-4" />}
-              />
-            ) : (
-              <div className="text-center py-12">
-                <CreditCard className="size-20 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Nema digitalnih kartica
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Stvorite svoju prvu digitalnu karticu…
-                </p>
-                <Button
-                  effect="shineHover"
-                  icon={Plus}
-                  iconPlacement="left"
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  Dodaj digitalnu karticu
-                </Button>
-              </div>
-            )}
-          </>
-        )}
-      </UserInventoryLayout>
+      </div>
     </>
   );
 }

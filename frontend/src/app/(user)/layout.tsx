@@ -11,29 +11,6 @@ type Props = {
   className?: string;
 };
 
-export default function UserInventoryLayout({
-  title,
-  search,
-  viewMode,
-  setViewMode,
-  children,
-  className,
-}: Props) {
-  return (
-    <div className={className ?? "max-w-3xl mx-auto"}>
-      {search}
-
-      <div className="my-6 space-y-4">
-        <div className="flex items-center justify-between gap-4">
-          <div>{title}</div>
-
-          {setViewMode && (
-            <ViewSwitcher value={viewMode} onChange={setViewMode} />
-          )}
-        </div>
-
-        {children}
-      </div>
-    </div>
-  );
+export default function UserInventoryLayout({ children }: Props) {
+  return <div className="max-w-3xl mx-auto">{children}</div>;
 }

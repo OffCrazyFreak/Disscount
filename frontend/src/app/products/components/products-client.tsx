@@ -13,7 +13,6 @@ import SearchBar from "@/components/custom/search-bar";
 
 export default function ProductsClient({ query }: { query: string }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [viewMode, setViewMode] = useViewMode(pathname);
 
   const virtualizationBatchSize: number = 50;
