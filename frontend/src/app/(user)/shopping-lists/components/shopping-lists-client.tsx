@@ -4,7 +4,7 @@ import { Suspense, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Search, Plus, Loader2, PlusIcon, Frown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ShoppingListsSearchBar from "@/app/(user)/shopping-lists/components/shopping-list-search-bar";
+import SearchBar from "@/components/custom/search-bar";
 import UserInventoryLayout from "@/app/(user)/layout";
 import ShoppingListModal from "@/app/(user)/shopping-lists/components/forms/shopping-list-modal";
 import { ShoppingListDto } from "@/lib/api/types";
@@ -18,7 +18,6 @@ import { useUser } from "@/context/user-context";
 
 export default function ShoppingListsClient({ query }: { query: string }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedShoppingList, setSelectedShoppingList] =
     useState<ShoppingListDto | null>(null);
@@ -36,14 +35,6 @@ export default function ShoppingListsClient({ query }: { query: string }) {
 
   // Use React Query data and loading state
   const isLoading = userLoading || isLoadingLists;
-
-  function handleSearch(q: string) {
-    if (!q) {
-      router.push(pathname);
-    } else {
-      router.push(`${pathname}?q=${encodeURIComponent(q)}`);
-    }
-  }
 
   const handleCreateSuccess = () => {
     refetch();
@@ -84,10 +75,10 @@ export default function ShoppingListsClient({ query }: { query: string }) {
         }
         search={
           <Suspense>
-            <ShoppingListsSearchBar
-              onSearch={handleSearch}
-              showSubmitButton
-              showBarcode={false}
+            <SearchBar
+              placeholder="Pretraži popise za kupnju..."
+              submitButtonLocation="None"
+              autoSearch={true}
             />
           </Suspense>
         }

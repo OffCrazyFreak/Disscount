@@ -11,7 +11,7 @@ import {
   Frown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import DigitalCardSearchBar from "@/app/(user)/digital-cards/components/digital-card-search-bar";
+import SearchBar from "@/components/custom/search-bar";
 import UserInventoryLayout from "@/app/(user)/layout";
 import DigitalCardModal from "@/app/(user)/digital-cards/components/forms/digital-card-modal";
 import DigitalCardsGroup from "@/app/(user)/digital-cards/components/digital-cards-group";
@@ -25,7 +25,6 @@ import { useUser } from "@/context/user-context";
 
 export default function DigitalCardsClient({ query }: { query: string }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDigitalCard, setSelectedDigitalCard] =
     useState<DigitalCardDto | null>(null);
@@ -38,14 +37,6 @@ export default function DigitalCardsClient({ query }: { query: string }) {
   } = useUser();
   const { refetch } = digitalCardService.useGetUserDigitalCards();
   const digitalCards = isAuthenticated ? contextDigitalCards : [];
-
-  function handleSearch(query: string) {
-    if (!query) {
-      router.push(pathname);
-    } else {
-      router.push(`${pathname}?q=${encodeURIComponent(query)}`);
-    }
-  }
 
   function handleEdit(digitalCard: DigitalCardDto) {
     setSelectedDigitalCard(digitalCard);
@@ -83,10 +74,10 @@ export default function DigitalCardsClient({ query }: { query: string }) {
             : `Moje digitalne kartice (${matchingDigitalCards.length})`
         }
         search={
-          <DigitalCardSearchBar
-            onSearch={handleSearch}
-            showSubmitButton
-            showBarcode={false}
+          <SearchBar
+            placeholder="Pretraži digitalne kartice..."
+            submitButtonLocation="None"
+            autoSearch={true}
           />
         }
         viewMode={viewMode}

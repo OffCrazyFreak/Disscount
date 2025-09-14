@@ -1,75 +1,146 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { Search, ScanBarcode, X } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
 import { Input } from "@/components/ui/input";
 import { normalizeForSearch } from "@/utils/strings";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import BarcodeScanner from "@/components/custom/barcode-scanner";
+import { useSidebar } from "@/components/ui/sidebar";
 
-export interface SearchBarProps {
-  defaultValue?: string;
+interface SearchBarProps {
   placeholder?: string;
-  onSearch?: (query: string) => void;
-  onBarcodeClick?: () => void;
-  showBarcode?: boolean;
+  searchRoute?: string;
   clearable?: boolean;
-  showSubmitButton?: boolean;
+  autoSearch?: boolean;
+  submitButtonLocation?: "None" | "Inline" | "Block";
   submitLabel?: string;
 }
 
 export default function SearchBar({
-  defaultValue = "",
   placeholder = "Pretraži...",
-  onSearch,
-  onBarcodeClick,
-  showBarcode = true,
+  searchRoute,
   clearable = true,
-  showSubmitButton = false,
+  submitButtonLocation = "Block",
+  autoSearch = false,
   submitLabel = "Pretraži",
 }: SearchBarProps) {
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("q") || "";
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const { setOpen } = useSidebar();
+
+  const pathname = usePathname();
+  const router = useRouter();
+
   const { register, handleSubmit, watch, reset, setValue } = useForm<{
     query: string;
   }>({
-    defaultValues: { query: defaultValue },
+    defaultValues: { query: initialQuery },
   });
 
   const queryValue = watch("query");
 
   useEffect(() => {
-    setValue("query", defaultValue);
-  }, [defaultValue, setValue]);
+    setValue("query", initialQuery);
+  }, [initialQuery, setValue]);
 
   // Clear filtering when input is empty after trimming.
-  // Use a ref to avoid repeatedly calling onSearch("") on every render when
-  // the field stays empty (prevents rerender loops in parents that update
-  // state in onSearch).
   const clearedRef = useRef(false);
+  // Auto search effect for pages that filter in state
+  useEffect(() => {
+    if (autoSearch) {
+      const trimmedQuery = queryValue?.trim() ?? "";
+      // For auto search, update the URL with the query
+      if (searchRoute) {
+        if (!trimmedQuery) {
+          router.push(searchRoute);
+        } else {
+          router.push(`${searchRoute}?q=${normalizeForSearch(encodeURIComponent(trimmedQuery))}`);
+        }
+      } else {
+        if (!trimmedQuery) {
+          router.push(pathname);
+        } else {
+          router.push(`${pathname}?q=${normalizeForSearch(encodeURIComponent(trimmedQuery))}`);
+        }
+      }
+    }
+  }, [queryValue, autoSearch, searchRoute, router, pathname]);
+
   useEffect(() => {
     const trimmedQuery = queryValue?.trim() ?? "";
     if (trimmedQuery.length === 0) {
       if (!clearedRef.current) {
-        onSearch?.("");
         clearedRef.current = true;
       }
     } else {
       // reset guard when there's a non-empty value
       clearedRef.current = false;
     }
-  }, [queryValue, onSearch]);
+  }, [queryValue]);
 
   function submit(data: { query: string }) {
     const q = data.query?.trim() ?? "";
-    onSearch?.(q);
+
+    if (searchRoute) {
+      // Navigate to specified route with query
+      if (!q) {
+        router.push(searchRoute);
+      } else {
+        router.push(
+          `${searchRoute}?q=${normalizeForSearch(encodeURIComponent(q))}`
+        );
+      }
+    } else {
+      // Default behavior: navigate with query params on current path
+      if (!q) {
+        router.push(pathname);
+      } else {
+        router.push(
+          `${pathname}?q=${normalizeForSearch(encodeURIComponent(q))}`
+        );
+      }
+    }
   }
 
   function handleClear() {
     reset({ query: "" });
-    onSearch?.("");
   }
+
+  const handleBarcodeClick = useCallback(() => {
+    console.log("SearchBar: barcode clicked");
+    setScannerOpen(true);
+  }, []);
+
+  const handleScan = useCallback(
+    (result: string) => {
+      setValue("query", result);
+      if (searchRoute) {
+        // Navigate to specified route with query
+        router.push(
+          `${searchRoute}?q=${normalizeForSearch(encodeURIComponent(result))}`
+        );
+      } else {
+        // Default behavior: navigate with query params on current path
+        submit({ query: result });
+      }
+      setScannerOpen(false);
+      setOpen(false);
+    },
+    [setValue, searchRoute, router, setOpen]
+  );
 
   return (
     <div className="">
+      <BarcodeScanner
+        isOpen={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onScan={handleScan}
+      />
+
       <form
         onSubmit={handleSubmit(submit)}
         className="relative max-w-3xl mx-auto"
@@ -105,22 +176,20 @@ export default function SearchBar({
               </Button>
             )}
 
-            {showBarcode && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={onBarcodeClick}
-                className="p-2"
-                title="Scan barcode"
-              >
-                <ScanBarcode className="size-5" />
-              </Button>
-            )}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleBarcodeClick}
+              className="p-2"
+              title="Scan barcode"
+            >
+              <ScanBarcode className="size-5" />
+            </Button>
           </div>
         </div>
 
-        {showSubmitButton && (
+        {submitButtonLocation !== "None" && (
           <div className="mt-4">
             <Button
               type="submit"

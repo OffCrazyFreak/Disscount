@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import {
   Sidebar,
@@ -39,9 +39,9 @@ import {
 import cijeneService from "@/lib/cijene-api";
 import { ChainStats } from "@/lib/cijene-api/schemas";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
-import { ProductSearchBar } from "@/app/products/components/product-search-bar";
 import { storeNamesMap } from "@/utils/mappings";
 import { Button } from "../ui/button-icon";
+import SearchBar from "./search-bar";
 
 type OpenSection = "categories" | "stores" | "locations" | null;
 
@@ -81,7 +81,12 @@ export const AppSidebar = memo(function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <Suspense>
-              <ProductSearchBar />
+              <SearchBar
+                placeholder="Pretraži proizvode..."
+                searchRoute="/products"
+                clearable={true}
+                submitButtonLocation="Block"
+              />
             </Suspense>
           </SidebarGroupContent>
         </SidebarGroup>
