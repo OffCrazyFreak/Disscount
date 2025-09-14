@@ -67,7 +67,7 @@ export default function ShoppingListSelector({
                         <Loader2 className="size-5 animate-spin" />
                         <span className="sr-only">Učitavanje...</span>
                       </div>
-                    ) : field.value === "new" ? (
+                    ) : field.value === "new" && customListTitle ? (
                       <div>Stvori novu listu "{customListTitle}"</div>
                     ) : selectedList ? (
                       <div className="flex items-center justify-between gap-2">
@@ -102,7 +102,7 @@ export default function ShoppingListSelector({
               </FormControl>
             </PopoverTrigger>
 
-            <PopoverContent className="w-sm">
+            <PopoverContent className="w-max max-w-sm">
               <Command>
                 <CommandInput
                   placeholder="Pretraži svoje liste ili stvori novu"
