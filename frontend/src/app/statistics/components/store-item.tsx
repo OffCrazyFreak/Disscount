@@ -78,7 +78,8 @@ export const ChainItem = memo(
                       </span>
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+
+                  <div className="">
                     <ChevronDown
                       className={cn(
                         "size-8 text-gray-500 transition-transform",

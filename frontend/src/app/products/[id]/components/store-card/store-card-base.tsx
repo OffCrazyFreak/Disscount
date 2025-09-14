@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import { memo, useState } from "react";
 import { ChevronDown, AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import {
@@ -134,12 +134,14 @@ export const StoreCard = memo(
                   Cijene po lokacijama
                 </p>
 
-                <ChevronDown
-                  className={cn(
-                    "size-6 text-gray-500 transition-transform",
-                    isExpanded && "rotate-180"
-                  )}
-                />
+                <div className="">
+                  <ChevronDown
+                    className={cn(
+                      "size-8 text-gray-500 transition-transform",
+                      isExpanded && "rotate-180"
+                    )}
+                  />
+                </div>
               </div>
             </CardHeader>
           </CollapsibleTrigger>
