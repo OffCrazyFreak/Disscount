@@ -58,38 +58,43 @@ export default function ShoppingListSelector({
                   variant="outline"
                   role="combobox"
                   aria-expanded={open}
-                  className=""
+                  className="flex items-center justify-between gap-2"
                   disabled={isLoadingLists}
                 >
-                  {isLoadingLists ? (
-                    <>
-                      <Loader2 className="mr-2 size-4 animate-spin" />
-                      Učitavanje...
-                    </>
-                  ) : field.value === "new" ? (
-                    `Stvori novu listu "${customListTitle}"`
-                  ) : selectedList ? (
-                    <>
-                      {selectedList.title}
-                      <span className="text-gray-500">
-                        ({formatDate(selectedList.updatedAt)})
-                      </span>
+                  <div className="flex-1 text-left">
+                    {isLoadingLists ? (
+                      <div>
+                        <Loader2 className="size-5 animate-spin" />
+                        <span className="sr-only">Učitavanje...</span>
+                      </div>
+                    ) : field.value === "new" ? (
+                      <div>Stvori novu listu "{customListTitle}"</div>
+                    ) : selectedList ? (
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="space-x-2">
+                          <span>{selectedList.title}</span>
 
-                      <span className="ml-auto text-xs text-gray-500">
-                        {selectedList.items.reduce(
-                          (sum, item) => (item.isChecked ? sum + 1 : sum),
-                          0
-                        )}
-                        /{selectedList.items?.length}
-                      </span>
-                    </>
-                  ) : (
-                    "Odaberi listu..."
-                  )}
+                          <span className="text-gray-500">
+                            ({formatDate(selectedList.updatedAt)})
+                          </span>
+                        </div>
+
+                        <div className="text-xs text-gray-500">
+                          {selectedList.items.reduce(
+                            (sum, item) => (item.isChecked ? sum + 1 : sum),
+                            0
+                          )}
+                          /{selectedList.items?.length}
+                        </div>
+                      </div>
+                    ) : (
+                      "Odaberi listu..."
+                    )}
+                  </div>
 
                   <ChevronDown
                     className={cn(
-                      "ml-2 size-5 shrink-0 transition-transform",
+                      "size-6 transition-transform",
                       open && "rotate-180"
                     )}
                   />

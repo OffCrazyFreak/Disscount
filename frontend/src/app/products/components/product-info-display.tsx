@@ -58,17 +58,15 @@ export default function ProductInfoDisplay({
       {/* Header Row */}
       <div className="flex items-center justify-between gap-4">
         {/* Left side - Image and product info */}
-        <div className="flex items-center gap-4 flex-1">
+        <div className="flex-1 flex items-center gap-4">
           {/* Placeholder Image */}
-          <div className="size-16 bg-gray-100 shadow-sm rounded-lg flex items-center justify-center shrink-0">
+          <div className="hidden sm:size-16 bg-gray-100 shadow-sm rounded-lg flex items-center justify-center shrink-0">
             <span className="text-gray-400 text-sm">IMG</span>
           </div>
 
           {/* Product Name and Category */}
-          <div className="">
-            <h3 className="font-semibold">
-              {product.name || "Unknown Product"}
-            </h3>
+          <div className="text-pretty">
+            <h3 className="font-bold">{product.name}</h3>
             {category && <p className="text-sm text-gray-500">{category}</p>}
           </div>
         </div>
@@ -76,7 +74,7 @@ export default function ProductInfoDisplay({
         {/* Right side - Eye button */}
         <Button
           size="icon"
-          className="size-12 shrink-0"
+          className="size-12"
           onClick={() => {
             // TODO: Implement functionality
           }}
@@ -88,7 +86,7 @@ export default function ProductInfoDisplay({
       {/* Information Table */}
       <div className="border border-gray-300 rounded-lg overflow-hidden bg-background shadow-2xs">
         <div className="flex flex-wrap items-center">
-          <div className="flex-1 min-w-xs">
+          <div className="w-full">
             {/* First Row - Proizvođač */}
             <div className="text-sm p-2">
               <span className="font-bold">Proizvođač: </span>
