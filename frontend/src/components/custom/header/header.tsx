@@ -48,9 +48,9 @@ export default function Header(): JSX.Element {
                     alt="Disscount logo"
                     width={128}
                     height={128}
-                    className="size-8 sm:size-12"
+                    className="size-8 sm:size-10"
                   />
-                  <span className="font-bold text-lg sm:text-2xl text-primary">
+                  <span className="font-bold text-lg sm:text-xl text-primary">
                     Disscount
                   </span>
                 </Link>

@@ -66,7 +66,7 @@ export default function DigitalCardsClient({ query }: { query: string }) {
             placeholder="Pretraži digitalne kartice..."
             searchRoute={pathname}
             clearable={true}
-            submitButtonLocation="Block"
+            submitButtonLocation="None"
             autoSearch={true}
           />
         </Suspense>

@@ -55,17 +55,15 @@ export default function BarcodeScanner({
         const capabilities = track.getCapabilities() as any;
         const hasTorch = capabilities.torch === true;
         setTorchSupported(hasTorch);
-        console.log("Torch supported:", hasTorch);
       }
 
       stream.getTracks().forEach((track) => track.stop()); // Stop the stream immediately
       setHasPermission(true);
       setError(null);
     } catch (err) {
-      console.error("Camera permission error:", err);
       setHasPermission(false);
       setError(
-        "Potreban je pristup kameri za skeniranje barkoda. Molimo omogućite pristup kameri u postavkama pregljednika."
+        "Potreban je pristup kameri za skeniranje. Molimo omogućite pristup kameri u postavkama preglednika."
       );
     }
   };
@@ -88,16 +86,11 @@ export default function BarcodeScanner({
   const toggleTorch = useCallback(async () => {
     if (!videoTrack || !torchSupported) return;
 
-    try {
-      const newTorchState = !torchEnabled;
-      await videoTrack.applyConstraints({
-        advanced: [{ torch: newTorchState } as any],
-      });
-      setTorchEnabled(newTorchState);
-      console.log("Torch toggled to:", newTorchState);
-    } catch (err) {
-      console.error("Failed to toggle torch:", err);
-    }
+    const newTorchState = !torchEnabled;
+    await videoTrack.applyConstraints({
+      advanced: [{ torch: newTorchState } as any],
+    });
+    setTorchEnabled(newTorchState);
   }, [videoTrack, torchSupported, torchEnabled]);
 
   const handleClose = () => {
@@ -197,7 +190,7 @@ export default function BarcodeScanner({
                 {/* Instructions */}
                 <div className="absolute bottom-4 left-4 right-4">
                   <div className="bg-black bg-opacity-70 text-white text-sm px-3 py-2 rounded text-center">
-                    Usmjerite kameru prema barkodu
+                    Usmjeri kameru prema kodu
                   </div>
                 </div>
               </div>
