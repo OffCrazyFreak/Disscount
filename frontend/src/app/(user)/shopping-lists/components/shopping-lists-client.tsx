@@ -71,6 +71,7 @@ export default function ShoppingListsClient({ query }: { query: string }) {
         <Suspense>
           <SearchBar
             placeholder="Pretraži popise za kupnju..."
+            searchRoute={pathname}
             clearable={true}
             submitButtonLocation="Block"
             autoSearch={true}

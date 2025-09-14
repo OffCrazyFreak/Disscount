@@ -24,6 +24,7 @@ export default function ProductsClient({ query }: { query: string }) {
       <Suspense>
         <SearchBar
           placeholder="Pretraži proizvode..."
+          searchRoute={pathname}
           clearable={true}
           submitButtonLocation="Block"
         />

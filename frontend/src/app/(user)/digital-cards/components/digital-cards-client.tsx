@@ -64,6 +64,7 @@ export default function DigitalCardsClient({ query }: { query: string }) {
         <Suspense>
           <SearchBar
             placeholder="Pretraži digitalne kartice..."
+            searchRoute={pathname}
             clearable={true}
             submitButtonLocation="Block"
             autoSearch={true}

@@ -6,13 +6,13 @@ import { Search, ScanBarcode, X } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
 import { Input } from "@/components/ui/input";
 import { normalizeForSearch } from "@/utils/strings";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import BarcodeScanner from "@/components/custom/barcode-scanner";
 import { useSidebar } from "@/components/ui/sidebar";
 
 interface SearchBarProps {
   placeholder?: string;
-  searchRoute?: string;
+  searchRoute: string;
   clearable?: boolean;
   autoSearch?: boolean;
   submitButtonLocation?: "None" | "Inline" | "Block";
@@ -32,7 +32,6 @@ export default function SearchBar({
   const [scannerOpen, setScannerOpen] = useState(false);
   const { setOpen } = useSidebar();
 
-  const pathname = usePathname();
   const router = useRouter();
 
   const { register, handleSubmit, watch, reset, setValue } = useForm<{
@@ -54,29 +53,17 @@ export default function SearchBar({
     if (autoSearch) {
       const trimmedQuery = queryValue?.trim() ?? "";
       // For auto search, update the URL with the query
-      if (searchRoute) {
-        if (!trimmedQuery) {
-          router.push(searchRoute);
-        } else {
-          router.push(
-            `${searchRoute}?q=${normalizeForSearch(
-              encodeURIComponent(trimmedQuery)
-            )}`
-          );
-        }
+      if (!trimmedQuery) {
+        router.push(searchRoute);
       } else {
-        if (!trimmedQuery) {
-          router.push(pathname);
-        } else {
-          router.push(
-            `${pathname}?q=${normalizeForSearch(
-              encodeURIComponent(trimmedQuery)
-            )}`
-          );
-        }
+        router.push(
+          `${searchRoute}?q=${normalizeForSearch(
+            encodeURIComponent(trimmedQuery)
+          )}`
+        );
       }
     }
-  }, [queryValue, autoSearch, searchRoute, router, pathname]);
+  }, [queryValue, autoSearch, searchRoute, router]);
 
   useEffect(() => {
     const trimmedQuery = queryValue?.trim() ?? "";
@@ -93,24 +80,13 @@ export default function SearchBar({
   function submit(data: { query: string }) {
     const q = data.query?.trim() ?? "";
 
-    if (searchRoute) {
-      // Navigate to specified route with query
-      if (!q) {
-        router.push(searchRoute);
-      } else {
-        router.push(
-          `${searchRoute}?q=${normalizeForSearch(encodeURIComponent(q))}`
-        );
-      }
+    // Navigate to specified route with query
+    if (!q) {
+      router.push(searchRoute);
     } else {
-      // Default behavior: navigate with query params on current path
-      if (!q) {
-        router.push(pathname);
-      } else {
-        router.push(
-          `${pathname}?q=${normalizeForSearch(encodeURIComponent(q))}`
-        );
-      }
+      router.push(
+        `${searchRoute}?q=${normalizeForSearch(encodeURIComponent(q))}`
+      );
     }
   }
 
@@ -126,15 +102,10 @@ export default function SearchBar({
   const handleScan = useCallback(
     (result: string) => {
       setValue("query", result);
-      if (searchRoute) {
-        // Navigate to specified route with query
-        router.push(
-          `${searchRoute}?q=${normalizeForSearch(encodeURIComponent(result))}`
-        );
-      } else {
-        // Default behavior: navigate with query params on current path
-        submit({ query: result });
-      }
+      // Navigate to specified route with query
+      router.push(
+        `${searchRoute}?q=${normalizeForSearch(encodeURIComponent(result))}`
+      );
       setScannerOpen(false);
       setOpen(false);
     },
