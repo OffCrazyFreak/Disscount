@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense } from "react";
+import { Suspense, useCallback, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import cijeneService from "@/lib/cijene-api";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
@@ -10,6 +10,13 @@ import PriceHistory from "@/app/products/[id]/components/price-history/price-his
 
 export default function ProductDetailClient({ ean }: { ean: string }) {
   const { user } = useUser();
+  const [expandedStore, setExpandedStore] = useState<string | null>(null);
+
+  const toggleStoreExpansion = useCallback((chainCode: string) => {
+    setExpandedStore((prev: string | null) =>
+      prev === chainCode ? null : chainCode
+    );
+  }, []);
 
   // Fetch current product data
   const {
@@ -29,16 +36,19 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
     eans: ean,
   });
 
-  // Group prices by chain
-  const pricesByChain = React.useMemo(() => {
+  // Group prices by store chain
+  const pricesByStore = useMemo(() => {
     if (!pricesData?.store_prices) return {};
 
     const grouped: Record<string, typeof pricesData.store_prices> = {};
     pricesData.store_prices.forEach((price) => {
-      if (!grouped[price.chain]) {
-        grouped[price.chain] = [];
+      const store = price.chain;
+
+      if (!grouped[store]) {
+        grouped[store] = [];
       }
-      grouped[price.chain].push(price);
+
+      grouped[store].push(price);
     });
     return grouped;
   }, [pricesData]);
@@ -75,7 +85,7 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
 
       <PriceHistory product={product} />
 
-      {/* Store Chain Cards */}
+      {/* Store chain cards */}
       <div className="space-y-4">
         <h2 className="text-lg font-bold text-gray-900">
           Cijene po lancima trgovina
@@ -116,17 +126,32 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
                 if (aIsPinned && !bIsPinned) return -1;
                 if (!aIsPinned && bIsPinned) return 1;
 
-                // If both are pinned or both are not pinned, alphabetical order
+                // If both are pinned or both are not pinned, sort by prices (avg then min then max)
+                const aAvg = parseFloat(a.avg_price);
+                const bAvg = parseFloat(b.avg_price);
+                if (aAvg !== bAvg) return aAvg - bAvg;
+
+                const aMin = parseFloat(a.min_price);
+                const bMin = parseFloat(b.min_price);
+                if (aMin !== bMin) return aMin - bMin;
+
+                const aMax = parseFloat(a.max_price);
+                const bMax = parseFloat(b.max_price);
+                if (aMax !== bMax) return aMax - bMax;
+
+                // If all prices are equal, sort alphabetically
                 return a.chain.localeCompare(b.chain, "hr", {
                   sensitivity: "base",
                 });
               })
-              .map((chain, index) => {
+              .map((store, index) => {
                 return (
                   <StoreCard
-                    key={chain.chain}
-                    chain={chain}
-                    storePrices={pricesByChain[chain.chain] || []}
+                    key={store.chain}
+                    isExpanded={expandedStore === store.chain}
+                    onToggle={() => toggleStoreExpansion(store.chain)}
+                    store={store}
+                    storePrices={pricesByStore[store.chain] || []}
                     product={product}
                   />
                 );
