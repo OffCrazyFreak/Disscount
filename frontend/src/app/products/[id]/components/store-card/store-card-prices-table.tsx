@@ -104,7 +104,7 @@ export const StoreCardPricesTable = memo(
                   <TableRow
                     key={`${price.store.code}-${index}`}
                     className={cn(
-                      "text-balance [&>*]:whitespace-normal",
+                      "text-pretty [&>*]:whitespace-normal",
                       isLocationPreferred ? "text-gray-700" : "text-gray-500"
                     )}
                   >

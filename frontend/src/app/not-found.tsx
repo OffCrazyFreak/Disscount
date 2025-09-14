@@ -52,9 +52,9 @@ export default function NotFound() {
           <Button
             asChild
             effect={"shineHover"}
-            className="text-balance whitespace-wrap"
+            className="text-pretty whitespace-wrap"
           >
-            <Link href="/" className="text-balance whitespace-wrap">
+            <Link href="/" className="text-pretty whitespace-wrap">
               Povratak na početnu
             </Link>
           </Button>

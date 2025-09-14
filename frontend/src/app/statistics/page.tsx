@@ -27,7 +27,7 @@ export default function StatisticsPage() {
           </h1>
         </div>
 
-        <p className="text-balance text-md sm:text-lg">
+        <p className="text-pretty text-md sm:text-lg">
           Pregled statistike lanaca trgovina u Disscount aplikaciji.
         </p>
       </div>

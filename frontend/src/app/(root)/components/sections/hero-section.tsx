@@ -43,7 +43,7 @@ export default function HeroSection() {
             Disscount
           </h1>
 
-          <p className="uppercase max-w-md mx-auto text-balance text-md sm:text-lg">
+          <p className="uppercase max-w-md mx-auto text-pretty text-md sm:text-lg">
             {tagLine}
           </p>
         </div>

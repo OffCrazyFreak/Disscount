@@ -10,11 +10,13 @@ import { AuthModal } from "@/components/custom/header/forms/auth-modal";
 import { useUser } from "@/context/user-context";
 import UserMenu from "@/components/custom/header/user-menu";
 import NotificationsDropdown from "@/components/custom/header/notifications-dropdown";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Header(): JSX.Element {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { isAuthenticated } = useUser();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,7 +31,7 @@ export default function Header(): JSX.Element {
       <nav className="fixed z-20 inset-x-4 my-4">
         <div
           className={cn(
-            "mx-auto max-w-6xl transition-all duration-300 px-6",
+            "mx-auto max-w-6xl transition-all duration-300 px-2",
             isScrolled &&
               "bg-background/50 max-w-5xl rounded-2xl border backdrop-blur-sm px-4"
           )}
@@ -46,9 +48,9 @@ export default function Header(): JSX.Element {
                     alt="Disscount logo"
                     width={128}
                     height={128}
-                    className="size-10"
+                    className="size-8 sm:size-12"
                   />
-                  <span className="font-bold text-lg text-primary">
+                  <span className="font-bold text-lg sm:text-2xl text-primary">
                     Disscount
                   </span>
                 </Link>
@@ -92,6 +94,7 @@ export default function Header(): JSX.Element {
                 rounded={"full"}
                 animation="spin-slow"
                 shadow="base"
+                size={isMobile ? "sm" : "default"}
                 className="cursor-pointer min-w-fit"
                 onClick={() => {
                   setIsAuthModalOpen(true);

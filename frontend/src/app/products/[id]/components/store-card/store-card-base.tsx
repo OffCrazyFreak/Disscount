@@ -52,25 +52,25 @@ export const StoreCard = memo(
       <Collapsible open={isExpanded} onOpenChange={onToggle}>
         <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CollapsibleTrigger asChild className="cursor-pointer">
-            <CardHeader className="flex items-center gap-4">
-              {/* Store Chain Image */}
-              <div className="flex-shrink-0 size-12 sm:size-16 rounded-sm overflow-hidden shadow-sm">
-                <Image
-                  src={`/store-chains/${store.chain}.png`}
-                  alt={storeNamesMap[store.chain] || store.chain}
-                  width="256"
-                  height="256"
-                  className={cn(
-                    "object-contain w-full h-full",
-                    !isPreferred && "opacity-40"
-                  )}
-                />
-              </div>
+            <CardHeader className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                {/* Store Chain Image */}
+                <div className="flex-shrink-0 size-12 sm:size-16 rounded-sm overflow-hidden shadow-sm">
+                  <Image
+                    src={`/store-chains/${store.chain}.png`}
+                    alt={storeNamesMap[store.chain] || store.chain}
+                    width="256"
+                    height="256"
+                    className={cn(
+                      "object-contain w-full h-full",
+                      !isPreferred && "opacity-40"
+                    )}
+                  />
+                </div>
 
-              <div className="flex-1 min-w-0">
-                {/* Chain Name and Badge */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                <div className="flex-1 min-w-0">
+                  {/* Chain Name and Badge */}
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-semibold text-gray-900">
                       {storeNamesMap[store.chain] || store.chain}
                     </h3>
@@ -87,61 +87,59 @@ export const StoreCard = memo(
                       )}
                     </div>
                   </div>
-                </div>
 
-                {/* Price Information */}
-                <div className="mt-2">
-                  <div className="flex items-center gap-4 text-sm">
-                    <span
-                      className={cn(
-                        storeMinPrice === productMaxPrice
-                          ? "text-red-700 font-bolder"
-                          : storeMinPrice === productMinPrice
-                          ? "text-green-700 font-bolder"
-                          : "text-gray-700"
-                      )}
-                    >
-                      Min: {storeMinPrice.toFixed(2)}€
-                    </span>
-                    <span
-                      className={cn(
-                        storeAvgPrice === productMaxPrice
-                          ? "text-red-700 font-bolder"
-                          : storeAvgPrice === productMinPrice
-                          ? "text-green-700 font-bolder"
-                          : "text-gray-700"
-                      )}
-                    >
-                      Prosjek: {storeAvgPrice.toFixed(2)}€
-                    </span>
-                    <span
-                      className={cn(
-                        storeMaxPrice === productMaxPrice
-                          ? "text-red-700 font-bolder"
-                          : storeMaxPrice === productMinPrice
-                          ? "text-green-700 font-bolder"
-                          : "text-gray-700"
-                      )}
-                    >
-                      Max: {storeMaxPrice.toFixed(2)}€
-                    </span>
+                  {/* Price Information */}
+                  <div className="mt-2">
+                    <div className="flex items-center gap-4 text-sm">
+                      <span
+                        className={cn(
+                          storeMinPrice === productMaxPrice
+                            ? "text-red-700 font-bolder"
+                            : storeMinPrice === productMinPrice
+                            ? "text-green-700 font-bolder"
+                            : "text-gray-700"
+                        )}
+                      >
+                        Min: {storeMinPrice.toFixed(2)}€
+                      </span>
+                      <span
+                        className={cn(
+                          storeAvgPrice === productMaxPrice
+                            ? "text-red-700 font-bolder"
+                            : storeAvgPrice === productMinPrice
+                            ? "text-green-700 font-bolder"
+                            : "text-gray-700"
+                        )}
+                      >
+                        Prosjek: {storeAvgPrice.toFixed(2)}€
+                      </span>
+                      <span
+                        className={cn(
+                          storeMaxPrice === productMaxPrice
+                            ? "text-red-700 font-bolder"
+                            : storeMaxPrice === productMinPrice
+                            ? "text-green-700 font-bolder"
+                            : "text-gray-700"
+                        )}
+                      >
+                        Max: {storeMaxPrice.toFixed(2)}€
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <p className="text-muted-foreground text-sm">
+              <div className="flex-1 flex items-center justify-end gap-4">
+                <p className="hidden sm:inline text-gray-700 text-sm text-pretty text-right">
                   Cijene po lokacijama
                 </p>
 
-                <div className="">
-                  <ChevronDown
-                    className={cn(
-                      "size-8 text-gray-500 transition-transform",
-                      isExpanded && "rotate-180"
-                    )}
-                  />
-                </div>
+                <ChevronDown
+                  className={cn(
+                    "size-8 text-gray-500 transition-transform",
+                    isExpanded && "rotate-180"
+                  )}
+                />
               </div>
             </CardHeader>
           </CollapsibleTrigger>
