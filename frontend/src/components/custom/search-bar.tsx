@@ -58,13 +58,21 @@ export default function SearchBar({
         if (!trimmedQuery) {
           router.push(searchRoute);
         } else {
-          router.push(`${searchRoute}?q=${normalizeForSearch(encodeURIComponent(trimmedQuery))}`);
+          router.push(
+            `${searchRoute}?q=${normalizeForSearch(
+              encodeURIComponent(trimmedQuery)
+            )}`
+          );
         }
       } else {
         if (!trimmedQuery) {
           router.push(pathname);
         } else {
-          router.push(`${pathname}?q=${normalizeForSearch(encodeURIComponent(trimmedQuery))}`);
+          router.push(
+            `${pathname}?q=${normalizeForSearch(
+              encodeURIComponent(trimmedQuery)
+            )}`
+          );
         }
       }
     }
