@@ -114,22 +114,9 @@ export default function BarcodeScanner({
                   onScan={handleScan}
                   onError={handleError}
                   constraints={{
-                    width: 400,
-                    height: 300,
                     facingMode: "environment", // Use back camera by default
                   }}
                   scanDelay={300}
-                  styles={{
-                    container: {
-                      width: "100%",
-                      height: "300px",
-                    },
-                    video: {
-                      width: "100%",
-                      height: "300px",
-                      objectFit: "cover",
-                    },
-                  }}
                 />
               </div>
 
@@ -146,16 +133,6 @@ export default function BarcodeScanner({
               </div>
             </div>
           )}
-
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={handleClose}>
-              <X className="size-4 mr-2" />
-              Zatvori
-            </Button>
-            {hasPermission === false && (
-              <Button onClick={checkCameraPermission}>Pokušaj ponovno</Button>
-            )}
-          </div>
         </div>
       </DialogContent>
     </Dialog>

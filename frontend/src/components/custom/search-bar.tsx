@@ -64,7 +64,7 @@ export default function SearchBar({
         router.push(searchRoute);
       } else {
         router.push(
-          `${searchRoute}?q=${normalizeForSearch(encodeURIComponent(query))}`
+          `${searchRoute}?q=${encodeURIComponent(normalizeForSearch(query))}`
         );
       }
     }
@@ -90,7 +90,7 @@ export default function SearchBar({
       router.push(searchRoute);
     } else {
       router.push(
-        `${searchRoute}?q=${normalizeForSearch(encodeURIComponent(q))}`
+        `${searchRoute}?q=${encodeURIComponent(normalizeForSearch(q))}`
       );
     }
   }
@@ -109,7 +109,7 @@ export default function SearchBar({
       setValue("query", result);
       // Navigate to specified route with query
       router.push(
-        `${searchRoute}?q=${normalizeForSearch(encodeURIComponent(result))}`
+        `${searchRoute}?q=${encodeURIComponent(normalizeForSearch(result))}`
       );
       setScannerOpen(false);
       setOpen(false);
