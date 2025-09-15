@@ -102,3 +102,5 @@ export const ProductItem = memo<IProductItemProps>(({ product, viewMode }) => {
     </>
   );
 });
+
+ProductItem.displayName = "ProductItem";

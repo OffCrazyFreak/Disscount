@@ -9,7 +9,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCameraScanner } from "@/context/scanner-context";
 import { useSidebar } from "@/components/ui/sidebar";
 
-interface SearchBarProps {
+interface ISearchBarProps {
   placeholder?: string;
   searchRoute: string;
   clearable?: boolean;
@@ -27,7 +27,7 @@ export default function SearchBar({
   autoSearch = false,
   allowScanning = false,
   submitLabel = "Pretraži",
-}: SearchBarProps) {
+}: ISearchBarProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
 

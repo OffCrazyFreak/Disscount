@@ -7,11 +7,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-interface QuantityInputProps {
+interface IQuantityInputProps {
   field: any;
 }
 
-export default function QuantityInput({ field }: QuantityInputProps) {
+export default function QuantityInput({ field }: IQuantityInputProps) {
   return (
     <FormField
       control={field.control}

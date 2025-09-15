@@ -32,7 +32,7 @@ import {
 import { ShoppingListDto } from "@/lib/api/types";
 import { useQueryClient } from "@tanstack/react-query";
 
-interface ShoppingListModalProps {
+interface IShoppingListModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
@@ -44,7 +44,7 @@ export default function ShoppingListModal({
   onOpenChange,
   onSuccess,
   shoppingList,
-}: ShoppingListModalProps) {
+}: IShoppingListModalProps) {
   const [createdListId, setCreatedListId] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const queryClient = useQueryClient();

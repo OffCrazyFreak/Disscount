@@ -10,13 +10,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { X, ScanBarcode, AlertTriangle, FlashlightIcon } from "lucide-react";
+import { IScannedCode } from "@/typings/scanned-code";
 
-interface IDetectedCode {
-  rawValue: string;
-  format?: string;
-}
-
-interface CodeScannerProps {
+interface ICodeScannerProps {
   isOpen: boolean;
   onClose: () => void;
   onScan: (result: string) => void;
@@ -26,7 +22,7 @@ export default function CameraScanner({
   isOpen,
   onClose,
   onScan,
-}: CodeScannerProps) {
+}: ICodeScannerProps) {
   const [error, setError] = useState<string | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [torchEnabled, setTorchEnabled] = useState(false);
@@ -119,7 +115,7 @@ export default function CameraScanner({
   }
 
   const handleScan = useCallback(
-    (detectedCodes: IDetectedCode[]) => {
+    (detectedCodes: IScannedCode[]) => {
       if (detectedCodes && detectedCodes.length > 0) {
         const result = detectedCodes[0].rawValue;
         onScan(result);

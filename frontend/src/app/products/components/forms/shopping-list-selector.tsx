@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/strings";
 import { ShoppingListDto } from "@/lib/api/types";
 
-interface ShoppingListSelectorProps {
+interface IShoppingListSelectorProps {
   field: any;
   isLoadingLists: boolean;
   sortedShoppingLists: ShoppingListDto[];
@@ -41,7 +41,7 @@ export default function ShoppingListSelector({
   customListTitle,
   setCustomListTitle,
   selectedList,
-}: ShoppingListSelectorProps) {
+}: IShoppingListSelectorProps) {
   const [open, setOpen] = useState(false);
 
   return (

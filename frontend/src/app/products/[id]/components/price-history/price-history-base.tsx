@@ -12,11 +12,11 @@ import PriceHistoryControls from "@/app/products/[id]/components/price-history/p
 import { PeriodOption } from "@/app/products/[id]/typings/history-period-options";
 import { periodOptions } from "@/app/products/[id]/utils/price-history-constants";
 
-interface PriceHistoryProps {
+interface IPriceHistoryProps {
   product: ProductResponse;
 }
 
-export default function PriceHistory({ product }: PriceHistoryProps) {
+export default function PriceHistory({ product }: IPriceHistoryProps) {
   const [chartPrefs, setChartPrefs] = useState<{
     period: PeriodOption;
     chains: string[];

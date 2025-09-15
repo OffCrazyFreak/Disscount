@@ -28,17 +28,17 @@ import QuantityInput from "@/app/products/components/forms/quantity-input";
 import MarkAsCheckedCheckbox from "@/app/products/components/forms/mark-as-checked-checkbox";
 import { Button } from "@/components/ui/button";
 
-interface AddToShoppingListFormProps {
+interface IAddToShoppingListFormProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  product: ProductResponse | null;
+  product: ProductResponse;
 }
 
 export default function AddToShoppingListForm({
   isOpen,
   onOpenChange,
   product,
-}: AddToShoppingListFormProps) {
+}: IAddToShoppingListFormProps) {
   const [customListTitle, setCustomListTitle] = useState("");
 
   const queryClient = useQueryClient();

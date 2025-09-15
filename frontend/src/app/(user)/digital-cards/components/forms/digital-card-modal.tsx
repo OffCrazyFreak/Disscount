@@ -37,7 +37,7 @@ import { digitalCardService } from "@/lib/api";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
-interface DigitalCardModalProps {
+interface IDigitalCardModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
@@ -49,7 +49,7 @@ export default function DigitalCardModal({
   onOpenChange,
   onSuccess,
   digitalCard,
-}: DigitalCardModalProps) {
+}: IDigitalCardModalProps) {
   const queryClient = useQueryClient();
 
   const createMutation = digitalCardService.useCreateDigitalCard();

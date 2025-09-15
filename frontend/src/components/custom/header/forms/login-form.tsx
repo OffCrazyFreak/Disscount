@@ -24,11 +24,11 @@ import {
 } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/password-input";
 
-interface LoginFormProps {
+interface ILoginFormProps {
   onSuccess?: () => void;
 }
 
-export function LoginForm({ onSuccess }: LoginFormProps) {
+export function LoginForm({ onSuccess }: ILoginFormProps) {
   const loginMutation = authService.useLogin();
   const { handleUserLogin } = useUser();
 

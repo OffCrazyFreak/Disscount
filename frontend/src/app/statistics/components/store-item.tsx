@@ -22,7 +22,7 @@ import { pluralizeCroatian } from "@/utils/strings";
 import { cn } from "@/lib/utils";
 import cijeneService from "@/lib/cijene-api";
 
-interface ChainItemProps {
+interface IStoreItemProps {
   stat: any;
   isExpanded: boolean;
   onToggle: () => void;
@@ -31,8 +31,8 @@ interface ChainItemProps {
 }
 
 // Memoized component for individual chain items to prevent unnecessary re-renders
-export const ChainItem = memo(
-  ({ stat, isExpanded, onToggle, index, isLast }: ChainItemProps) => {
+export const StoreItem = memo(
+  ({ stat, isExpanded, onToggle, index, isLast }: IStoreItemProps) => {
     // Fetch stores for this specific chain when the item is rendered
     const { data: storesData, isLoading: storesLoading } =
       cijeneService.useListStoresByChain(stat.chain_code);

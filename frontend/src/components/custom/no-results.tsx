@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 
-interface NoResultsProps {
+interface INoResultsProps {
   icon?: ReactNode;
   title?: string;
   description?: string;
@@ -14,7 +14,7 @@ export default function NoResults({
   title = "Nema rezultata",
   description = "Probajte s drugim pojmom za pretraživanje",
   className = "",
-}: NoResultsProps) {
+}: INoResultsProps) {
   return (
     <div className={`text-center py-12 ${className}`}>
       {icon}

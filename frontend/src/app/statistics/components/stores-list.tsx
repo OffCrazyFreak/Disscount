@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, TrendingUp } from "lucide-react";
 import cijeneService from "@/lib/cijene-api";
-import { ChainItem } from "./store-item";
+import { StoreItem } from "@/app/statistics/components/store-item";
 
 export default function ChainList() {
   const [expandedChain, setExpandedChain] = useState<string | null>(null);
@@ -51,7 +51,7 @@ export default function ChainList() {
                 })
               )
               .map((stat: any, index: number) => (
-                <ChainItem
+                <StoreItem
                   key={stat.chain_code}
                   stat={stat}
                   isExpanded={expandedChain === stat.chain_code}

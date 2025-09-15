@@ -44,9 +44,8 @@ import { useAllLocations } from "@/lib/cijene-api/hooks";
 import cijeneService from "@/lib/cijene-api";
 import { ChainStats } from "@/lib/cijene-api/schemas";
 import { storeNamesMap } from "@/utils/mappings";
-import { UserDto } from "@/lib/api/schemas";
 
-interface UserPreferencesModalProps {
+interface IUserPreferencesModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -54,7 +53,7 @@ interface UserPreferencesModalProps {
 export default function UserPreferencesModal({
   isOpen,
   onOpenChange,
-}: UserPreferencesModalProps) {
+}: IUserPreferencesModalProps) {
   const { user, updatePinnedStores, updatePinnedPlaces } = useUser();
 
   const form = useForm<UserPreferencesFormType>({

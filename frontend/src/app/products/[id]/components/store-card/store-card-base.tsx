@@ -18,9 +18,9 @@ import {
 import { getMinPrice, getMaxPrice } from "@/lib/cijene-api/utils/product-utils";
 import { formatDate } from "@/utils/strings";
 import { useUser } from "@/context/user-context";
-import { StoreCardPricesTable } from "./store-card-prices-table";
+import { StoreCardPricesTable } from "@/app/products/[id]/components/store-card/store-card-prices-table";
 
-interface StoreCardProps {
+interface IStoreCardProps {
   store: ChainProductResponse;
   storePrices: StorePrice[];
   product: ProductResponse;
@@ -29,7 +29,7 @@ interface StoreCardProps {
 }
 
 export const StoreCard = memo(
-  ({ isExpanded, onToggle, store, storePrices, product }: StoreCardProps) => {
+  ({ isExpanded, onToggle, store, storePrices, product }: IStoreCardProps) => {
     const { user } = useUser();
 
     // Check if this store chain is preferred by the user
@@ -159,3 +159,5 @@ export const StoreCard = memo(
     );
   }
 );
+
+StoreCard.displayName = "StoreCard";

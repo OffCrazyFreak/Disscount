@@ -6,11 +6,11 @@ export const metadata: Metadata = {
   description: "Pregled dostupnih proizvoda.",
 };
 
-interface Props {
+interface IPageProps {
   searchParams?: { q?: string };
 }
 
-export default async function ProductsPage({ searchParams }: Props) {
+export default async function ProductsPage({ searchParams }: IPageProps) {
   const searchParameters = await searchParams;
   const rawQuery = searchParameters?.q ?? "";
   const query = decodeURIComponent(rawQuery) || rawQuery;

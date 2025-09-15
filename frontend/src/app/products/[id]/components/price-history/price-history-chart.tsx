@@ -12,7 +12,7 @@ import { storeNamesMap } from "@/utils/mappings";
 import { useUser } from "@/context/user-context";
 import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";
 
-interface PriceHistoryChartProps {
+interface IPriceHistoryChartProps {
   priceHistoryData: HistoryDataPoint[];
   priceHistoryChains: string[];
   selectedChains: string[];
@@ -22,7 +22,7 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
   priceHistoryData,
   priceHistoryChains,
   selectedChains,
-}: PriceHistoryChartProps) {
+}: IPriceHistoryChartProps) {
   const { user } = useUser();
 
   // Filter chains to display based on user selection with sanitization

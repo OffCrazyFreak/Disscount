@@ -26,11 +26,11 @@ import { cn } from "@/lib/utils";
 import { authService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 
-interface SignUpFormProps {
+interface ISignUpFormProps {
   onSuccess?: () => void;
 }
 
-export function SignUpForm({ onSuccess }: SignUpFormProps) {
+export function SignUpForm({ onSuccess }: ISignUpFormProps) {
   const registerMutation = authService.useRegister();
   const { handleUserLogin } = useUser();
 

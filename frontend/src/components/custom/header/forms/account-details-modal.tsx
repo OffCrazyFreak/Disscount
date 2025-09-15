@@ -49,7 +49,7 @@ import { userRequestSchema, UserRequest } from "@/lib/api/schemas/auth-user";
 import { authService, userService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 
-interface AccountDetailsModalProps {
+interface IAccountDetailsModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -57,7 +57,7 @@ interface AccountDetailsModalProps {
 export default function AccountDetailsModal({
   isOpen,
   onOpenChange,
-}: AccountDetailsModalProps) {
+}: IAccountDetailsModalProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { user, isLoading: isUserLoading, setUser, logout } = useUser();
   const queryClient = useQueryClient();

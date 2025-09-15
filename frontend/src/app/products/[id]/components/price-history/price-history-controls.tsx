@@ -19,7 +19,7 @@ import { ArrowBigUpDash } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";
 
-interface PriceHistoryControlsProps {
+interface IPriceHistoryControlsProps {
   chartPrefs: {
     period: string;
     chains: string[];
@@ -34,7 +34,7 @@ const PriceHistoryControls = memo(function PriceHistoryControls({
   priceHistoryData,
   priceHistoryChains,
   onChainsChange,
-}: PriceHistoryControlsProps) {
+}: IPriceHistoryControlsProps) {
   // Calculate current and historical average prices based on available data
   const priceChange: { difference: number; percentage: number } | null =
     useMemo(() => {

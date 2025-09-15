@@ -12,13 +12,13 @@ import {
 } from "@/lib/cijene-api/utils/product-utils";
 import { formatQuantity } from "@/utils/strings";
 
-interface ProductInfoDisplayProps {
+interface IProductInfoDisplayProps {
   product: ProductResponse;
 }
 
 export default function ProductInfoDisplay({
   product,
-}: ProductInfoDisplayProps) {
+}: IProductInfoDisplayProps) {
   const averagePrice = getAveragePrice(product);
   const minPrice = getMinPrice(product);
   const maxPrice = getMaxPrice(product);

@@ -3,26 +3,22 @@ import { Separator } from "@/components/ui/separator";
 import { formatQuantity } from "@/utils/strings";
 import {
   getMinPrice,
-  getAveragePrice,
   getMaxPrice,
   getMinPricePerUnit,
   getMaxPricePerUnit,
-  getAveragePricePerUnit,
 } from "@/lib/cijene-api/utils/product-utils";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 
-interface ProductPriceProps {
+interface IProductPriceProps {
   product: ProductResponse;
 }
 
-export const ProductPrice = memo(({ product }: ProductPriceProps) => {
+export const ProductPrice = memo(({ product }: IProductPriceProps) => {
   const minPrice = getMinPrice(product);
   const maxPrice = getMaxPrice(product);
-  const averagePrice = getAveragePrice(product);
 
   const minPricePerUnit = getMinPricePerUnit(product);
   const maxPricePerUnit = getMaxPricePerUnit(product);
-  const averagePricePerUnit = getAveragePricePerUnit(product);
 
   return (
     <div>
@@ -73,3 +69,5 @@ export const ProductPrice = memo(({ product }: ProductPriceProps) => {
     </div>
   );
 });
+
+ProductPrice.displayName = "ProductPrice";

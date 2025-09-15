@@ -25,7 +25,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 
 // Define the shape of our context
-interface UserContextType {
+interface IUserContext {
   user: UserDto | null;
   isLoading: boolean;
   isAuthenticated: boolean;
@@ -44,7 +44,7 @@ interface UserContextType {
 }
 
 // Create the context with a default value
-const UserContext = createContext<UserContextType | undefined>(undefined);
+const UserContext = createContext<IUserContext | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserDto | null>(null);
@@ -236,7 +236,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, [refreshUser]);
 
   // The context value that will be provided
-  const value: UserContextType = {
+  const value: IUserContext = {
     user,
     isLoading,
     isAuthenticated: !!user,

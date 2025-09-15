@@ -7,13 +7,13 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 
-interface MarkAsCheckedCheckboxProps {
+interface IMarkAsCheckedCheckboxProps {
   field: any;
 }
 
 export default function MarkAsCheckedCheckbox({
   field,
-}: MarkAsCheckedCheckboxProps) {
+}: IMarkAsCheckedCheckboxProps) {
   return (
     <FormField
       control={field.control}
