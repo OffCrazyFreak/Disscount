@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import cijeneService from "@/lib/cijene-api";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
@@ -144,7 +144,7 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
                   sensitivity: "base",
                 });
               })
-              .map((store, index) => {
+              .map((store) => {
                 return (
                   <StoreCard
                     key={store.chain}
