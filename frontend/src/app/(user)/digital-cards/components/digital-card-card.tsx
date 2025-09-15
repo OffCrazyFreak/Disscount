@@ -4,7 +4,7 @@ import { DigitalCardDto } from "@/lib/api/types";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Edit, Trash2, Copy } from "lucide-react";
+import { MoreVertical, Edit, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,9 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { digitalCardService } from "@/lib/api";
 import { toast } from "sonner";
-import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import DigitalCardModal from "@/app/(user)/digital-cards/components/forms/digital-card-modal";
 
 interface DigitalCardCardProps {
   digitalCard: DigitalCardDto;

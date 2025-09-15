@@ -7,7 +7,7 @@ import {
 } from "@/lib/cijene-api/utils/response-utils";
 import { z } from "zod";
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const response = await cijeneApiHealthClient.get("/health");
 

@@ -3,7 +3,6 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import {
-  ListPlus,
   Calendar,
   Globe,
   Lock,
@@ -11,7 +10,6 @@ import {
   LucideClipboardEdit,
   ListChecks,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { ShoppingListDto } from "@/lib/api/types";
 import { ViewMode } from "@/typings/view-mode";
 import { Button } from "@/components/ui/button-icon";

@@ -1,5 +1,3 @@
-import { Suspense } from "react";
-import { AnimatedGroup } from "@/components/ui/animated-group";
 import HeroSection from "@/app/(root)/components/sections/hero-section";
 import FeaturesSection from "@/app/(root)/components/sections/features-section";
 import StoresSection from "@/app/(root)/components/sections/stores-section";

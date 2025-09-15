@@ -3,7 +3,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -12,7 +11,7 @@ import NotFoundClient from "@/app/not-found/components/not-found-client";
 import { Suspense } from "react";
 import type { Metadata } from "next";
 
-const metadata: Metadata = {
+export const metadata: Metadata = {
   title: "Stranica nije pronađena - 404",
   description: "Stranica koju tražite ne postoji.",
 };

@@ -1,10 +1,8 @@
 import { AnimatedGroup } from "@/components/ui/animated-group";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
