@@ -2,7 +2,7 @@ import { AnimatedGroup } from "@/components/ui/animated-group";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
-export default function HeroSection() {
+export default function StoresSection() {
   return (
     <section>
       <div className="group relative">
