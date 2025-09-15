@@ -148,4 +148,4 @@ export const StorePricesTable = memo(
   }
 );
 
-StorePricesTable.displayName = "StoreCardPricesTable";
+StorePricesTable.displayName = "StorePricesTable";

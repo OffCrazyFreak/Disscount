@@ -197,7 +197,7 @@ export default function AddToShoppingListForm({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <ShoppingListSelector
-              field={form}
+              formField={form}
               isLoadingLists={isLoadingLists}
               sortedShoppingLists={sortedShoppingLists}
               customListTitle={customListTitle}
@@ -205,9 +205,9 @@ export default function AddToShoppingListForm({
               selectedList={selectedList}
             />
 
-            <QuantityInput field={form} />
+            <QuantityInput formField={form} />
 
-            <MarkAsCheckedCheckbox field={form} />
+            <MarkAsCheckedCheckbox formField={form} />
 
             <div className="flex justify-between pt-4">
               <Button

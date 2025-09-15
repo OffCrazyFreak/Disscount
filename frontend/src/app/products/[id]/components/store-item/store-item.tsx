@@ -157,4 +157,4 @@ export const StoreItem = memo(
   }
 );
 
-StoreItem.displayName = "StoreCard";
+StoreItem.displayName = "StoreItem";

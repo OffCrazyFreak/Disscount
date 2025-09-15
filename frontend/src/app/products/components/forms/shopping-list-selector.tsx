@@ -28,7 +28,7 @@ import { UseFormReturn } from "react-hook-form";
 import { AddToListFormData } from "@/app/products/typings/add-to-list";
 
 interface IShoppingListSelectorProps {
-  field: UseFormReturn<AddToListFormData>;
+  formField: UseFormReturn<AddToListFormData>;
   isLoadingLists: boolean;
   sortedShoppingLists: ShoppingListDto[];
   customListTitle: string;
@@ -37,7 +37,7 @@ interface IShoppingListSelectorProps {
 }
 
 export default function ShoppingListSelector({
-  field,
+  formField,
   isLoadingLists,
   sortedShoppingLists,
   customListTitle,
@@ -48,7 +48,7 @@ export default function ShoppingListSelector({
 
   return (
     <FormField
-      control={field.control}
+      control={formField.control}
       name="shoppingListId"
       render={({ field }) => (
         <FormItem className="flex flex-col">

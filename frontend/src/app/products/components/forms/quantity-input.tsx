@@ -10,13 +10,13 @@ import { UseFormReturn } from "react-hook-form";
 import { AddToListFormData } from "@/app/products/typings/add-to-list";
 
 interface IQuantityInputProps {
-  field: UseFormReturn<AddToListFormData>;
+  formField: UseFormReturn<AddToListFormData>;
 }
 
-export default function QuantityInput({ field }: IQuantityInputProps) {
+export default function QuantityInput({ formField }: IQuantityInputProps) {
   return (
     <FormField
-      control={field.control}
+      control={formField.control}
       name="amount"
       render={({ field }) => (
         <FormItem>

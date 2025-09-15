@@ -101,6 +101,7 @@ export const ProductItem = memo<IProductItemProps>(({ product, viewMode }) => {
             <Button
               variant="default"
               className="p-2 size-12"
+              aria-label="Dodaj na popis za kupnju"
               onClick={(e: React.MouseEvent) => {
                 e.stopPropagation();
                 e.preventDefault();
