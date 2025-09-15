@@ -99,7 +99,6 @@ export default function PriceHistory({ product }: PriceHistoryProps) {
               chartPrefs={chartPrefs}
               priceHistoryData={priceHistoryData}
               priceHistoryChains={priceHistoryChains}
-              onPeriodChange={handlePeriodChange}
               onChainsChange={handleChainsChange}
             />
 

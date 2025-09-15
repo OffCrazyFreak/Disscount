@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Search, Loader2 } from "lucide-react";
 import { useViewMode } from "@/hooks/use-view-mode";
 import NoResults from "@/components/custom/no-results";

@@ -3,7 +3,6 @@
 import { memo } from "react";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { ProductCard } from "@/app/products/components/product-card/product-card";
-import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ProductListProps {

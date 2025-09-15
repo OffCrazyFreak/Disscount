@@ -134,7 +134,7 @@ export default function AddToShoppingListForm({
 
             onOpenChange(false);
           },
-          onError: (err) => {
+          onError: (_err) => {
             toast.error("Greška pri dodavanju na popis");
           },
         }
@@ -153,7 +153,7 @@ export default function AddToShoppingListForm({
           toast.success(`Lista "${customListTitle}" je stvorena`);
           proceedToAdd(newList.id);
         },
-        onError: (err) => {
+        onError: (_err) => {
           toast.error("Greška pri stvaranju popisa za kupnju");
         },
       });
