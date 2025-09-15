@@ -91,7 +91,10 @@ export default function UserPreferencesModal({
     if (!isOpen) return;
 
     // First try to use preferences from user context if available
-    const userPrefs = user as any;
+    const userPrefs = user as {
+      pinnedStores?: PinnedStoreDto[];
+      pinnedPlaces?: PinnedPlaceDto[];
+    };
 
     if (userPrefs?.pinnedStores || userPrefs?.pinnedPlaces) {
       const storeNames = (
@@ -175,7 +178,7 @@ export default function UserPreferencesModal({
       updatePinnedPlaces(placesResponse);
 
       toast.success("Preference uspješno spremljene!");
-    } catch (error) {
+    } catch {
       toast.error("Greška pri spremanju preferenca");
     }
   };
