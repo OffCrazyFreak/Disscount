@@ -53,17 +53,6 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
     return grouped;
   }, [pricesData]);
 
-  if (productLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center gap-2">
-          <Loader2 className="size-6 animate-spin" />
-          Učitavanje proizvoda...
-        </div>
-      </div>
-    );
-  }
-
   if (productError || !product) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
