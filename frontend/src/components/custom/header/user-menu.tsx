@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,21 +7,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Settings,
-  LogOut,
-  UserRoundCog,
-  UserRoundPen,
-  UserRound,
-  Settings2,
-} from "lucide-react";
+import { LogOut, UserRound, Settings2 } from "lucide-react";
 import { UserAvatar } from "@daveyplate/better-auth-ui";
 import UserPreferencesModal from "@/components/custom/header/forms/user-preferences-modal";
 import AccountDetailsModal from "@/components/custom/header/forms/account-details-modal";
 import { useUser } from "@/context/user-context";
 
 export default function UserMenu() {
-  const router = useRouter();
   const { user, logout } = useUser();
   const [isAccountDetailsOpen, setIsAccountDetailsOpen] = useState(false);
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
