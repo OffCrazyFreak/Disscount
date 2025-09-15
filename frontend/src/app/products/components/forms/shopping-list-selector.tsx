@@ -58,6 +58,7 @@ export default function ShoppingListSelector({
                   variant="outline"
                   role="combobox"
                   aria-expanded={open}
+                  aria-haspopup="listbox"
                   className="flex items-center justify-between gap-2"
                   disabled={isLoadingLists}
                 >
@@ -74,9 +75,11 @@ export default function ShoppingListSelector({
                         <div className="space-x-2">
                           <span>{selectedList.title}</span>
 
-                          <span className="text-gray-500">
-                            ({formatDate(selectedList.updatedAt)})
-                          </span>
+                          {selectedList.updatedAt && (
+                            <span className="text-gray-500">
+                              ({formatDate(selectedList.updatedAt)})
+                            </span>
+                          )}
                         </div>
 
                         <div className="text-xs text-gray-500">
@@ -144,9 +147,11 @@ export default function ShoppingListSelector({
                             )}
                           />
                           {list.title}
-                          <span className="text-gray-500">
-                            ({formatDate(list.updatedAt)})
-                          </span>
+                          {list.updatedAt && (
+                            <span className="text-gray-500">
+                              ({formatDate(list.updatedAt)})
+                            </span>
+                          )}
 
                           <span className="ml-auto text-xs text-gray-500">
                             {list.items.reduce(
