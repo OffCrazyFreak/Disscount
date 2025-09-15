@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useCallback, useContext, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+  useMemo,
+} from "react";
 import BarcodeScanner from "@/components/custom/barcode-scanner";
 
 type ScanCallback = (result: string) => void;
@@ -34,7 +40,10 @@ export function ScannerProvider({ children }: { children: React.ReactNode }) {
     [cb, closeScanner]
   );
 
-  const value = useMemo(() => ({ openScanner, closeScanner }), [openScanner, closeScanner]);
+  const value = useMemo(
+    () => ({ openScanner, closeScanner }),
+    [openScanner, closeScanner]
+  );
   return (
     <ScannerContext.Provider value={value}>
       {children}
