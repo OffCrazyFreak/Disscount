@@ -73,7 +73,7 @@ export default function ShoppingListsClient({ query }: { query: string }) {
             placeholder="Pretraži popise za kupnju..."
             searchRoute={pathname}
             clearable={true}
-            submitButtonLocation="None"
+            submitButtonLocation="none"
             autoSearch={true}
           />
         </Suspense>

@@ -15,7 +15,7 @@ interface SearchBarProps {
   clearable?: boolean;
   autoSearch?: boolean;
   allowScanning?: boolean;
-  submitButtonLocation?: "None" | "Inline" | "Block";
+  submitButtonLocation?: "none" | "auto" | "block";
   submitLabel?: string;
 }
 
@@ -23,7 +23,7 @@ export default function SearchBar({
   placeholder = "Pretraži...",
   searchRoute,
   clearable = true,
-  submitButtonLocation = "Block",
+  submitButtonLocation = "auto",
   autoSearch = false,
   allowScanning = false,
   submitLabel = "Pretraži",
@@ -78,8 +78,8 @@ export default function SearchBar({
 
   function submit(data: { query: string }) {
     const q = data.query?.trim() ?? "";
+    setOpen(false);
 
-    // Navigate to specified route with original query (preserving user input)
     if (!q) {
       router.replace(searchRoute);
     } else {
@@ -103,22 +103,15 @@ export default function SearchBar({
     <div>
       <form
         onSubmit={handleSubmit(submit)}
-        className="relative max-w-3xl mx-auto"
+        className="relative max-w-3xl mx-auto flex items-center gap-4 flex-wrap"
       >
-        <div className="relative">
+        <div className="relative grow-100">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 size-5" />
           <Input
             {...register("query")}
             type="text"
             placeholder={placeholder}
             className="pl-10 pr-14 py-6 text-gray-500 focus:text-gray-700 bg-white"
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                // Trigger react-hook-form submit
-                void handleSubmit(submit)();
-              }
-            }}
             autoComplete="off"
           />
 
@@ -151,18 +144,18 @@ export default function SearchBar({
           </div>
         </div>
 
-        {submitButtonLocation !== "None" && (
-          <div className="mt-4">
-            <Button
-              type="submit"
-              size="lg"
-              className="cursor-pointer w-full text-lg py-6 bg-primary hover:bg-secondary"
-              disabled={!queryValue?.trim()}
-            >
-              <Search className="size-5 mr-2" />
-              {submitLabel}
-            </Button>
-          </div>
+        {submitButtonLocation !== "none" && (
+          <Button
+            type="submit"
+            size="lg"
+            className={`text-lg p-6 bg-primary hover:bg-secondary grow ${
+              submitButtonLocation === "block" && "w-full"
+            }`}
+            disabled={!queryValue?.trim()}
+          >
+            <Search className="size-5 mr-2" />
+            {submitLabel}
+          </Button>
         )}
       </form>
     </div>

@@ -86,7 +86,7 @@ export const AppSidebar = memo(function AppSidebar() {
                 searchRoute="/products"
                 clearable={true}
                 allowScanning={true}
-                submitButtonLocation="Block"
+                submitButtonLocation="block"
               />
             </Suspense>
           </SidebarGroupContent>

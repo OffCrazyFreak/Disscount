@@ -27,7 +27,6 @@ export default function ProductsClient({ query }: { query: string }) {
           searchRoute={pathname}
           clearable={true}
           allowScanning={true}
-          submitButtonLocation="Block"
         />
       </Suspense>
 

@@ -29,7 +29,7 @@ export default function HeroActions() {
             searchRoute="/products"
             clearable={true}
             allowScanning={false}
-            submitButtonLocation="Block"
+            submitButtonLocation="block"
           />
         </Suspense>
 
