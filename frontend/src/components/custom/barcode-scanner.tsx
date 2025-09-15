@@ -32,6 +32,7 @@ export default function BarcodeScanner({
   const [torchEnabled, setTorchEnabled] = useState(false);
   const [torchSupported, setTorchSupported] = useState(false);
   const [videoTrack, setVideoTrack] = useState<MediaStreamTrack | null>(null);
+  const [cameraDeviceId, setCameraDeviceId] = useState<string | undefined>();
 
   // Check camera permissions when component mounts
   useEffect(() => {
@@ -56,7 +57,12 @@ export default function BarcodeScanner({
         setTorchSupported(Boolean(capabilities?.torch));
       }
 
-      stream.getTracks().forEach((track) => track.stop()); // Stop the stream immediately
+      // Store deviceId to ensure Scanner uses the same device
+      const settings = track.getSettings();
+      const deviceId = settings.deviceId;
+      setCameraDeviceId(deviceId);
+
+      // Do not stop the stream yet; reuse for the active session. We'll stop on close.
       setHasPermission(true);
       setError(null);
     } catch (err) {
@@ -96,7 +102,13 @@ export default function BarcodeScanner({
     setHasPermission(null);
     setTorchEnabled(false);
     setTorchSupported(false);
+    if (videoTrack) {
+      try {
+        videoTrack.stop();
+      } catch {}
+    }
     setVideoTrack(null);
+    setCameraDeviceId(undefined);
     onClose();
   }
 
@@ -152,7 +164,10 @@ export default function BarcodeScanner({
                     "upc_e",
                   ]}
                   constraints={{
-                    facingMode: "environment", // Use back camera by default
+                    // Prefer the same device to keep torch control in sync
+                    ...(cameraDeviceId
+                      ? { deviceId: { exact: cameraDeviceId } }
+                      : { facingMode: "environment" }), // use back camera
                     width: { ideal: 1280 },
                     height: { ideal: 720 },
                   }}
