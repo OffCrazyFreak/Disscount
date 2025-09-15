@@ -156,11 +156,11 @@ export default function ShoppingListSelector({
                           )}
 
                           <span className="ml-auto text-xs text-gray-500">
-                            {list.items.reduce(
+                            {list.items?.reduce(
                               (sum, item) => (item.isChecked ? sum + 1 : sum),
                               0
-                            )}
-                            /{list.items?.length}
+                            ) ?? 0}
+                            /{list.items?.length ?? 0}
                           </span>
                         </CommandItem>
                       ))}
