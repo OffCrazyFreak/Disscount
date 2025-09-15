@@ -51,7 +51,7 @@ export function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-background">
+      <DialogContent className="">
         <DialogHeader>
           <DialogTitle className="text-xl mb-2">
             {authMode === "login" ? "Prijava" : "Registracija"}

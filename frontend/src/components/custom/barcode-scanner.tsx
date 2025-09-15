@@ -159,7 +159,7 @@ export default function BarcodeScanner({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md mx-auto">
+      <DialogContent className="">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ScanBarcode className="size-6" />

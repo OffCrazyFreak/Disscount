@@ -180,7 +180,7 @@ export default function AccountDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="">
         <DialogHeader>
           <DialogTitle className="text-xl">Račun</DialogTitle>
         </DialogHeader>
