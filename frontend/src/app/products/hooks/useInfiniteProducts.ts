@@ -19,7 +19,7 @@ export function useInfiniteProducts(
 ): IUseInfiniteProductsResult {
   const { data, isLoading, error } = useGetProductByName({ q });
 
-  const allProducts = data?.products || [];
+  const allProducts = useMemo(() => data?.products || [], [data?.products]);
 
   const batchedProducts = useMemo(() => {
     const batches: ProductResponse[][] = [];

@@ -6,9 +6,11 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
+import { UseFormReturn } from "react-hook-form";
+import { AddToListFormData } from "@/app/products/typings/add-to-list";
 
 interface IMarkAsCheckedCheckboxProps {
-  field: any;
+  field: UseFormReturn<AddToListFormData>;
 }
 
 export default function MarkAsCheckedCheckbox({

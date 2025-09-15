@@ -11,6 +11,7 @@ import {
 import { storeNamesMap } from "@/utils/mappings";
 import { useUser } from "@/context/user-context";
 import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";
+import { ChartDataPoint } from "@/typings/chart-data";
 
 interface IPriceHistoryChartProps {
   priceHistoryData: HistoryDataPoint[];
@@ -43,8 +44,8 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
 
   // Transform the data for the chart: convert from HistoryDataPoint[] to chart format
   const chartData = useMemo(() => {
-    return priceHistoryData.map((dataPoint) => {
-      const chartPoint: Record<string, any> = {
+    return priceHistoryData.map((dataPoint): ChartDataPoint => {
+      const chartPoint: ChartDataPoint = {
         date: dataPoint.date,
       };
 
@@ -80,7 +81,7 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          tickFormatter={(value, index) => value.slice(0, -5)}
+          tickFormatter={(value) => value.slice(0, -5)}
         />
         <YAxis
           tickLine={false}
