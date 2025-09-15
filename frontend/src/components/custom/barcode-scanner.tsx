@@ -41,15 +41,63 @@ export default function BarcodeScanner({
     }
   }, [isOpen]);
 
+  // Try to pick the most likely "main" back camera from available devices
+  function pickMainBackCamera(devices: MediaDeviceInfo[]): string | undefined {
+    const videoInputs = devices.filter((d) => d.kind === "videoinput");
+    if (videoInputs.length === 0) return undefined;
+
+    // Prefer labels that look like back/rear environment
+    const backish = videoInputs.filter((d) =>
+      /back|rear|environment/i.test(d.label)
+    );
+
+    // Among back cameras, prefer ones that look like the "main" wide camera
+    const mainPreferred = backish.find((d) =>
+      /wide(?!\s*macro|\s*ultra)|standard|main/i.test(d.label)
+    );
+    if (mainPreferred) return mainPreferred.deviceId;
+
+    if (backish.length > 0) return backish[0].deviceId;
+
+    // Fallback to the first available camera
+    return videoInputs[0]?.deviceId;
+  }
+
   async function checkCameraPermission() {
     try {
-      // Check if we can access the camera
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
+      // 1) Request a provisional stream to unlock device labels and prefer back camera
+      let provisionalStream: MediaStream | null = null;
+      try {
+        provisionalStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" } },
+        });
+      } catch {
+        // Fallback: request any camera just to get permission
+        provisionalStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
+      }
+
+      // 2) Enumerate devices and pick the most likely main back camera
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const preferredId = pickMainBackCamera(devices);
+
+      // 3) Close provisional tracks before opening the final one
+      provisionalStream?.getTracks().forEach((t) => {
+        try {
+          t.stop();
+        } catch {}
+      });
+
+      // 4) Open the final stream using the chosen device (or fallback to environment)
+      const finalStream = await navigator.mediaDevices.getUserMedia({
+        video: preferredId
+          ? { deviceId: { exact: preferredId } }
+          : { facingMode: { ideal: "environment" } },
       });
 
       // Check torch support
-      const track = stream.getVideoTracks()[0];
+      const track = finalStream.getVideoTracks()[0];
       setVideoTrack(track);
 
       if (track && "getCapabilities" in track) {
@@ -57,12 +105,9 @@ export default function BarcodeScanner({
         setTorchSupported(Boolean(capabilities?.torch));
       }
 
-      // Store deviceId to ensure Scanner uses the same device
       const settings = track.getSettings();
-      const deviceId = settings.deviceId;
-      setCameraDeviceId(deviceId);
+      setCameraDeviceId(settings.deviceId);
 
-      // Do not stop the stream yet; reuse for the active session. We'll stop on close.
       setHasPermission(true);
       setError(null);
     } catch (err) {
