@@ -18,10 +18,8 @@ import { usePathname } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -40,13 +38,12 @@ import cijeneService from "@/lib/cijene-api";
 import { ChainStats } from "@/lib/cijene-api/schemas";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { storeNamesMap } from "@/utils/mappings";
-import { Button } from "../ui/button-icon";
-import SearchBar from "./search-bar";
+import SearchBar from "@/components/custom/search-bar";
 
 type OpenSection = "categories" | "stores" | "locations" | null;
 
 export const AppSidebar = memo(function AppSidebar() {
-  const [categories, setCategories] = useState<any[]>(["First", "Second"]);
+  const [categories, setCategories] = useState<string[]>(["First", "Second"]);
   const [openMenu, setOpenMenu] = useState<OpenSection>(null);
   const { setOpen } = useSidebar();
   const pathname = usePathname();
@@ -59,7 +56,7 @@ export const AppSidebar = memo(function AppSidebar() {
   // Close sidebar when route changes
   useEffect(() => {
     setOpen(false);
-  }, [pathname]);
+  }, [pathname, setOpen]);
 
   const sortedChainStats = useMemo(() => {
     const list = chainStats?.chain_stats ?? [];
@@ -165,13 +162,13 @@ export const AppSidebar = memo(function AppSidebar() {
                   <CollapsibleContent>
                     <SidebarMenuSub className="max-h-128 overflow-y-auto">
                       {categories.map((category) => (
-                        <SidebarMenuSubItem key={category.id || category}>
+                        <SidebarMenuSubItem key={category}>
                           <Link
                             href={`/products?category=${encodeURIComponent(
-                              category.id || category
+                              category
                             )}`}
                           >
-                            <span>{category.title || category}</span>
+                            <span>{category}</span>
                           </Link>
                         </SidebarMenuSubItem>
                       ))}

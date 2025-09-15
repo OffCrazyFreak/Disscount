@@ -134,8 +134,8 @@ export default function AddToShoppingListForm({
 
             onOpenChange(false);
           },
-          onError: (_err) => {
-            toast.error("Greška pri dodavanju na popis");
+          onError: (err) => {
+            toast.error("Greška pri dodavanju na popis: " + err.message);
           },
         }
       );
@@ -153,8 +153,8 @@ export default function AddToShoppingListForm({
           toast.success(`Lista "${customListTitle}" je stvorena`);
           proceedToAdd(newList.id);
         },
-        onError: (_err) => {
-          toast.error("Greška pri stvaranju popisa za kupnju");
+        onError: (err) => {
+          toast.error("Greška pri stvaranju popisa za kupnju: " + err.message);
         },
       });
     } else {
