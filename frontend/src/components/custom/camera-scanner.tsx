@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, ScanBarcode, AlertTriangle, FlashlightIcon } from "lucide-react";
+import { ScanBarcode, AlertTriangle, FlashlightIcon } from "lucide-react";
 import { IScannedCode } from "@/typings/scanned-code";
 
 interface ICodeScannerProps {
@@ -220,8 +220,8 @@ export default function CameraScanner({
                 {/* Scanning overlay */}
                 <div className="absolute inset-4 border-2 border-white border-dashed rounded-lg opacity-70"></div>
 
-                {/* Torch button */}
-                {torchSupported && (
+                {/* Torch button TODO */}
+                {/* {torchSupported && (
                   <div className="absolute top-4 right-4 pointer-events-auto">
                     <Button
                       onClick={toggleTorch}
@@ -239,7 +239,7 @@ export default function CameraScanner({
                       <FlashlightIcon className="size-5" />
                     </Button>
                   </div>
-                )}
+                )} */}
 
                 {/* Instructions */}
                 <div className="absolute bottom-4 left-4 right-4">

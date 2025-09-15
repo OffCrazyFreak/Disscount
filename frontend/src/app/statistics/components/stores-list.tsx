@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, TrendingUp } from "lucide-react";
 import cijeneService from "@/lib/cijene-api";
 import { StoreItem } from "@/app/statistics/components/store-item";
+import { ChainStats } from "@/lib/cijene-api/schemas";
 
 export default function ChainList() {
   const [expandedChain, setExpandedChain] = useState<string | null>(null);
@@ -22,7 +23,7 @@ export default function ChainList() {
     if (!chainStats?.chain_stats) return {};
 
     const handlers: Record<string, () => void> = {};
-    chainStats.chain_stats.forEach((stat: any) => {
+    chainStats.chain_stats.forEach((stat: ChainStats) => {
       handlers[stat.chain_code] = () => toggleChainExpansion(stat.chain_code);
     });
     return handlers;
@@ -45,18 +46,17 @@ export default function ChainList() {
         ) : chainStats ? (
           <div>
             {chainStats.chain_stats
-              .sort((a: any, b: any) =>
+              .sort((a: ChainStats, b: ChainStats) =>
                 a.chain_code.localeCompare(b.chain_code, "hr", {
                   sensitivity: "base",
                 })
               )
-              .map((stat: any, index: number) => (
+              .map((stat: ChainStats, index: number) => (
                 <StoreItem
                   key={stat.chain_code}
                   stat={stat}
                   isExpanded={expandedChain === stat.chain_code}
                   onToggle={chainToggleHandlers[stat.chain_code]}
-                  index={index}
                   isLast={index === chainStats.chain_stats.length - 1}
                 />
               ))}
