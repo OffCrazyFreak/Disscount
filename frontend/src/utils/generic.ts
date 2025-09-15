@@ -13,7 +13,6 @@ export function filterByFields<T extends Record<string, any>>(
   const q = (query || "").trim();
   if (!q) return items;
 
-  const qLower = q.toLowerCase();
   const qNorm = normalizeForSearch(q);
 
   return items.filter((item) => {
@@ -23,10 +22,7 @@ export function filterByFields<T extends Record<string, any>>(
 
       const value = normalizeForSearch(String(raw));
 
-      // original, case-insensitive match
-      if (value.toLowerCase().includes(qLower)) return true;
-
-      // normalized, diacritic-insensitive match
+      // normalized match (case-insensitive + diacritic-insensitive)
       if (value.includes(qNorm)) return true;
     }
 
