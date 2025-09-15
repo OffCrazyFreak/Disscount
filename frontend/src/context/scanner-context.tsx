@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useCallback, useContext, useState } from "react";
-import BarcodeScanner from "./barcode-scanner";
+import BarcodeScanner from "@/components/custom/barcode-scanner";
 
 type ScanCallback = (result: string) => void;
 

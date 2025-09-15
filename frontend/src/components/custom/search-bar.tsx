@@ -6,7 +6,7 @@ import { Search, ScanBarcode, X } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
 import { Input } from "@/components/ui/input";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useScanner } from "@/components/custom/scanner-context";
+import { useScanner } from "@/context/scanner-context";
 import { useSidebar } from "@/components/ui/sidebar";
 
 interface SearchBarProps {
@@ -43,17 +43,24 @@ export default function SearchBar({
 
   const router = useRouter();
 
-  const { register, handleSubmit, watch, reset, setValue } = useForm<{
-    query: string;
-  }>({
-    defaultValues: { query: initialQuery },
-  });
+  const { register, handleSubmit, watch, reset, setValue, getValues } =
+    useForm<{
+      query: string;
+    }>({
+      defaultValues: { query: initialQuery },
+    });
 
   const queryValue = watch("query");
 
   useEffect(() => {
-    setValue("query", initialQuery);
-  }, [initialQuery, setValue]);
+    if (getValues("query") !== initialQuery) {
+      setValue("query", initialQuery, {
+        shouldDirty: false,
+        shouldTouch: false,
+        shouldValidate: false,
+      });
+    }
+  }, [initialQuery, setValue, getValues]);
 
   // Auto search for pages that filter in state
   useEffect(() => {

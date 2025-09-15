@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button-icon";
 import { ScanBarcode } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { useScanner } from "@/components/custom/scanner-context";
+import { useScanner } from "@/context/scanner-context";
 import SearchBar from "@/components/custom/search-bar";
 
 export default function HeroActions() {
