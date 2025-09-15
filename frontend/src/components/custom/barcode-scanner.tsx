@@ -178,7 +178,7 @@ export default function BarcodeScanner({
             </div>
           )}
 
-          {hasPermission === false && !error && (
+          {hasPermission === null && !error && (
             <div className="relative w-full rounded-lg border border-blue-200 bg-blue-50 p-4 text-blue-800">
               <div className="flex items-start gap-3">
                 <AlertTriangle className="h-4 w-4 mt-0.5" />
