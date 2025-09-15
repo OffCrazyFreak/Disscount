@@ -8,8 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { ScanBarcode, AlertTriangle, FlashlightIcon } from "lucide-react";
+import { ScanBarcode, AlertTriangle } from "lucide-react";
 import { IScannedCode } from "@/typings/scanned-code";
 
 interface ICodeScannerProps {
@@ -146,6 +145,16 @@ export default function CameraScanner({
   function handleClose() {
     setError(null);
     setHasPermission(null);
+    // Turn off torch if it is currently enabled
+    if (videoTrack && torchEnabled) {
+      try {
+        videoTrack.applyConstraints({
+          advanced: [{ torch: false } as MediaTrackConstraints],
+        });
+      } catch {
+        // ignore errors disabling torch
+      }
+    }
     setTorchEnabled(false);
     setTorchSupported(false);
     if (videoTrack) {
@@ -224,27 +233,6 @@ export default function CameraScanner({
               <div className="absolute inset-0 pointer-events-none">
                 {/* Scanning overlay */}
                 <div className="absolute inset-4 border-2 border-white border-dashed rounded-lg opacity-70"></div>
-
-                {/* TODO: (remove) Torch button  */}
-                {/* {torchSupported && (
-                  <div className="absolute top-4 right-4 pointer-events-auto">
-                    <Button
-                      onClick={toggleTorch}
-                      variant="ghost"
-                      size="sm"
-                      className={`p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 ${
-                        torchEnabled ? "text-yellow-400" : "text-white"
-                      }`}
-                      title={
-                        torchEnabled
-                          ? "Isključi bljeskalicu"
-                          : "Uključi bljeskalicu"
-                      }
-                    >
-                      <FlashlightIcon className="size-5" />
-                    </Button>
-                  </div>
-                )} */}
 
                 {/* Instructions */}
                 <div className="absolute bottom-4 left-4 right-4">
