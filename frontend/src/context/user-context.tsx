@@ -222,7 +222,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           await refreshUser();
           return;
         }
-      } catch (_error) {
+      } catch (error) {
         // Refresh failed, which means no valid refresh token exists
         // This is expected for users who haven't logged in or whose refresh tokens have expired
         // console.log("No valid refresh token found, user needs to log in");

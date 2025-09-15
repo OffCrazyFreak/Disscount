@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import cijeneService from "@/lib/cijene-api";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
-import { StoreCard } from "@/app/products/[id]/components/store-card/store-card-base";
+import { StoreItem } from "@/app/products/[id]/components/store-item/store-item";
 import { useUser } from "@/context/user-context";
 import PriceHistory from "@/app/products/[id]/components/price-history/price-history-base";
 
@@ -146,7 +146,7 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
               })
               .map((store) => {
                 return (
-                  <StoreCard
+                  <StoreItem
                     key={store.chain}
                     isExpanded={expandedStore === store.chain}
                     onToggle={() => toggleStoreExpansion(store.chain)}

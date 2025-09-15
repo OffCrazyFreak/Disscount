@@ -16,7 +16,7 @@ export function useViewMode(path: string, defaultMode: ViewMode = "grid") {
     try {
       const stored = getViewMode(path, defaultMode);
       if (stored && stored !== mode) setModeInternal(stored);
-    } catch (_e) {
+    } catch (error) {
       // ignore
     }
   }, []);
@@ -25,7 +25,7 @@ export function useViewMode(path: string, defaultMode: ViewMode = "grid") {
   useEffect(() => {
     try {
       setViewModeInStorage(path, mode);
-    } catch (_e) {
+    } catch (error) {
       // ignore
     }
   }, [path, mode]);

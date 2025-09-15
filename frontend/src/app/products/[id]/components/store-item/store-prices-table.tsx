@@ -13,13 +13,13 @@ import { getMinPrice, getMaxPrice } from "@/lib/cijene-api/utils/product-utils";
 import { useUser } from "@/context/user-context";
 import { locationNamesMap } from "@/utils/mappings";
 
-interface IStoreCardPricesTableProps {
+interface IStorePricesTableProps {
   storePrices: StorePrice[];
   product: ProductResponse;
 }
 
-export const StoreCardPricesTable = memo(
-  ({ storePrices, product }: IStoreCardPricesTableProps) => {
+export const StorePricesTable = memo(
+  ({ storePrices, product }: IStorePricesTableProps) => {
     const { user } = useUser();
 
     const productMinPrice = getMinPrice(product);
@@ -148,4 +148,4 @@ export const StoreCardPricesTable = memo(
   }
 );
 
-StoreCardPricesTable.displayName = "StoreCardPricesTable";
+StorePricesTable.displayName = "StoreCardPricesTable";

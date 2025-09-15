@@ -6,7 +6,7 @@ import {
   createApiError,
 } from "@/lib/cijene-api/utils/response-utils";
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const response = await cijeneApiV1Client.get("/chain-stats/");
 

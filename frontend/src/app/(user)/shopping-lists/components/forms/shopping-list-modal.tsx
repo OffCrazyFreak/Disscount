@@ -150,7 +150,7 @@ export default function ShoppingListModal({
       await navigator.clipboard.writeText(link);
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
-    } catch (_err) {
+    } catch (error) {
       toast.error("Greška pri kopiranju poveznice");
     }
   };
