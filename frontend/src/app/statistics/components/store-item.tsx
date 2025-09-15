@@ -61,13 +61,21 @@ export const ChainItem = memo(
                       <span className="flex items-center gap-2">
                         <MapPin className="size-5 mb-1" />
                         {stat.store_count}{" "}
-                        {pluralizeCroatian(stat.store_count, "trgovina", "trgovine")}
+                        {pluralizeCroatian(
+                          stat.store_count,
+                          "trgovina",
+                          "trgovine"
+                        )}
                       </span>
                       <span className="hidden sm:inline">|</span>
                       <span className="flex items-center gap-2">
                         <Tag className="size-5 mb-1" />
                         {stat.price_count}{" "}
-                        {pluralizeCroatian(stat.price_count, "cijena", "cijene")}
+                        {pluralizeCroatian(
+                          stat.price_count,
+                          "cijena",
+                          "cijene"
+                        )}
                       </span>
                     </p>
                   </div>

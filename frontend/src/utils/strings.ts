@@ -89,6 +89,7 @@ export function pluralizeCroatian(
   const last = n % 10;
   const lastTwo = n % 100;
   if (last === 1 && lastTwo !== 11) return singular;
-  if (last >= 2 && last <= 4 && !(lastTwo >= 12 && lastTwo <= 14)) return plural;
+  if (last >= 2 && last <= 4 && !(lastTwo >= 12 && lastTwo <= 14))
+    return plural;
   return singular;
 }

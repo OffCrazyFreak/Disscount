@@ -96,9 +96,9 @@ export const StoreCard = memo(
                       <span
                         className={cn(
                           storeMinPrice === productMaxPrice
-                            ? "text-red-700 font-bolder"
+                            ? "text-red-700 font-bold"
                             : storeMinPrice === productMinPrice
-                            ? "text-green-700 font-bolder"
+                            ? "text-green-700 font-bold"
                             : "text-gray-700"
                         )}
                       >
@@ -107,9 +107,9 @@ export const StoreCard = memo(
                       <span
                         className={cn(
                           storeAvgPrice === productMaxPrice
-                            ? "text-red-700 font-bolder"
+                            ? "text-red-700 font-bold"
                             : storeAvgPrice === productMinPrice
-                            ? "text-green-700 font-bolder"
+                            ? "text-green-700 font-bold"
                             : "text-gray-700"
                         )}
                       >
@@ -118,9 +118,9 @@ export const StoreCard = memo(
                       <span
                         className={cn(
                           storeMaxPrice === productMaxPrice
-                            ? "text-red-700 font-bolder"
+                            ? "text-red-700 font-bold"
                             : storeMaxPrice === productMinPrice
-                            ? "text-green-700 font-bolder"
+                            ? "text-green-700 font-bold"
                             : "text-gray-700"
                         )}
                       >
