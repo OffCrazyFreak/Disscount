@@ -70,16 +70,21 @@ const PriceHistoryControls = memo(function PriceHistoryControls({
 
         {priceChange && (
           <h3
-            className={cn("text-right flex gap-2 items-center transition-all", {
-              "text-red-700": priceChange.difference > 0,
-              "text-green-700": priceChange.difference < 0,
-              "text-gray-700": priceChange.difference === 0,
-            })}
+            className={cn(
+              "text-right flex gap-2 flex-wrap items-center justify-end transition-all",
+              {
+                "text-red-700": priceChange.difference > 0,
+                "text-green-700": priceChange.difference < 0,
+                "text-gray-700": priceChange.difference === 0,
+              }
+            )}
           >
             <span>
               {priceChange.difference > 0 && "+"}
-              {priceChange.difference} ({priceChange.percentage}%)
+              {priceChange.difference}€
             </span>
+
+            <span>({priceChange.percentage}%)</span>
             <ArrowBigUpDash
               className={cn("hidden sm:inline", {
                 "rotate-180": priceChange.difference < 0,
