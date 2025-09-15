@@ -19,33 +19,7 @@ export default function StoresSection() {
         </div>
 
         <AnimatedGroup
-          variants={{
-            container: {
-              visible: {
-                transition: {
-                  staggerChildren: 0.1,
-                  delayChildren: 0.75,
-                },
-              },
-            },
-            item: {
-              hidden: {
-                opacity: 0,
-                filter: "blur(12px)",
-                y: 12,
-              },
-              visible: {
-                opacity: 1,
-                filter: "blur(0px)",
-                y: 0,
-                transition: {
-                  type: "spring" as const,
-                  bounce: 0.3,
-                  duration: 1.5,
-                },
-              },
-            },
-          }}
+          preset="fade"
           className="group-hover:blur-xs mx-auto mt-12 grid max-w-2xl grid-cols-4 gap-x-12 gap-y-8 transition-all duration-500 group-hover:opacity-50 sm:gap-x-16 sm:gap-y-14"
         >
           <div className="flex">

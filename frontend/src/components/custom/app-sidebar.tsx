@@ -56,7 +56,7 @@ export const AppSidebar = memo(function AppSidebar() {
   // Close sidebar when route changes
   useEffect(() => {
     setOpen(false);
-  }, [pathname, setOpen]);
+  }, [pathname]);
 
   const sortedChainStats = useMemo(() => {
     const list = chainStats?.chain_stats ?? [];

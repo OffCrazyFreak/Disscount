@@ -1,22 +1,22 @@
 "use client";
 
-import React, { memo, useMemo, useState } from "react";
+import { memo, useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button-icon";
 import { ListPlus } from "lucide-react";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
-import { ProductInfo } from "@/app/products/components/product-card/product-info";
-import { ProductPrice } from "@/app/products/components/product-card/product-price";
+import { ProductInfo } from "@/app/products/components/product-item/product-info";
+import { ProductPrice } from "@/app/products/components/product-item/product-price";
 import AddToShoppingListForm from "@/app/products/components/forms/add-to-shopping-list-form";
 import Link from "next/link";
 import { ViewMode } from "@/typings/view-mode";
 
-interface ProductCardProps {
+interface IProductItemProps {
   product: ProductResponse;
   viewMode: ViewMode;
 }
 
-export const ProductCard = memo<ProductCardProps>(({ product, viewMode }) => {
+export const ProductItem = memo<IProductItemProps>(({ product, viewMode }) => {
   const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
 
   // Get category that appears most often in product.chains
@@ -46,10 +46,6 @@ export const ProductCard = memo<ProductCardProps>(({ product, viewMode }) => {
 
     return mostFrequentCategory;
   }, [product.chains]);
-
-  function handleAddToList() {
-    setIsAddToListModalOpen(true);
-  }
 
   return (
     <>
@@ -93,7 +89,7 @@ export const ProductCard = memo<ProductCardProps>(({ product, viewMode }) => {
                   e.stopPropagation();
                   e.preventDefault();
 
-                  handleAddToList();
+                  setIsAddToListModalOpen(true);
                 }}
                 type="button"
               >

@@ -175,8 +175,6 @@ export default function AddToShoppingListForm({
   const isSubmitting =
     createShoppingListMutation.isPending || addItemMutation.isPending;
 
-  if (!product) return "Product not found";
-
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent aria-describedby="add-to-shopping-list-form">

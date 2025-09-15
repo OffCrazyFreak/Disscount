@@ -5,16 +5,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ViewMode } from "@/typings/view-mode";
 
-interface ViewSwitcherProps {
-  viewMode: "grid" | "list";
-  setViewMode: (mode: "grid" | "list") => void;
+interface IViewSwitcherProps {
+  viewMode: ViewMode;
+  setViewMode: (mode: ViewMode) => void;
 }
 
 export default function ViewSwitcher({
   viewMode,
   setViewMode,
-}: ViewSwitcherProps) {
+}: IViewSwitcherProps) {
   return (
     <TooltipProvider>
       <div

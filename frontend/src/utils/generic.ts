@@ -1,10 +1,10 @@
+import { normalizeForSearch } from "@/utils/strings";
+
 /**
  * Generic field-based filter helper.
  *
  * Example: filterByFields(products, q, ["name", "brand", "category"])
  */
-import { normalizeForSearch } from "@/utils/strings";
-
 export function filterByFields<T extends Record<string, any>>(
   items: T[],
   query: string | null,

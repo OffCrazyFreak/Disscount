@@ -22,17 +22,17 @@ import { formatDate } from "@/utils/strings";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-interface ShoppingListCardProps {
+interface IShoppingListItemProps {
   shoppingList: ShoppingListDto;
   onEdit?: (shoppingList: ShoppingListDto) => void;
   viewMode?: ViewMode;
 }
 
-export default function ShoppingListCard({
+export default function ShoppingListItem({
   shoppingList,
   onEdit,
   viewMode = "list",
-}: ShoppingListCardProps) {
+}: IShoppingListItemProps) {
   const itemCount = shoppingList.items?.length || 0;
   const checkedCount =
     shoppingList.items?.filter((item) => item.isChecked)?.length || 0;

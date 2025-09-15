@@ -14,16 +14,17 @@ import {
 import { digitalCardService } from "@/lib/api";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { formatDate } from "@/utils/strings";
 
-interface DigitalCardCardProps {
+interface IDigitalCardItemProps {
   digitalCard: DigitalCardDto;
   handleEdit: (digitalCard: DigitalCardDto) => void;
 }
 
-export default function DigitalCardCard({
+export default function DigitalCardItem({
   digitalCard,
   handleEdit,
-}: DigitalCardCardProps) {
+}: IDigitalCardItemProps) {
   const queryClient = useQueryClient();
   const deleteDigitalCardMutation = digitalCardService.useDeleteDigitalCard();
 
@@ -94,7 +95,7 @@ export default function DigitalCardCard({
         )}
 
         <p className="text-xs text-gray-500">
-          Stvoreno {new Date(digitalCard.createdAt).toLocaleDateString("hr-HR")}
+          Stvoreno {formatDate(digitalCard.createdAt)}
         </p>
       </div>
     </Card>

@@ -10,11 +10,12 @@ import { ShoppingListDto } from "@/lib/api/types";
 import { useViewMode } from "@/hooks/use-view-mode";
 import { filterByFields } from "@/utils/generic";
 import { shoppingListService } from "@/lib/api";
-import ShoppingListsGroup from "@/app/(user)/shopping-lists/components/shopping-lists-group";
+import ShoppingListItem from "@/app/(user)/shopping-lists/components/shopping-list-item";
 import { FloatingActionButton } from "@/components/custom/floating-action-button";
 import NoResults from "@/components/custom/no-results";
 import { useUser } from "@/context/user-context";
 import ViewSwitcher from "@/components/custom/view-switcher";
+import { AnimatedGroup } from "@/components/ui/animated-group";
 
 export default function ShoppingListsClient({ query }: { query: string }) {
   const pathname = usePathname();
@@ -98,11 +99,25 @@ export default function ShoppingListsClient({ query }: { query: string }) {
             </span>
           </div>
         ) : filteredShoppingLists.length > 0 ? (
-          <ShoppingListsGroup
-            shoppingLists={filteredShoppingLists}
-            onEdit={handleEdit}
-            viewMode={viewMode}
-          />
+          <AnimatedGroup
+            preset="fade"
+            className={
+              viewMode === "grid"
+                ? "grid grid-cols-1 sm:grid-cols-2 gap-4"
+                : "space-y-4"
+            }
+          >
+            {shoppingLists
+              .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+              .map((shoppingList) => (
+                <ShoppingListItem
+                  key={shoppingList.id}
+                  shoppingList={shoppingList}
+                  onEdit={handleEdit}
+                  viewMode={viewMode}
+                />
+              ))}
+          </AnimatedGroup>
         ) : query ? (
           <NoResults
             icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}

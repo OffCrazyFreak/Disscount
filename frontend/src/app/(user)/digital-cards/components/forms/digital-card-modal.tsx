@@ -1,15 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Save, CreditCard } from "lucide-react";
+import { Save } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,11 +80,12 @@ export default function DigitalCardModal({
             onSuccess?.();
             onOpenChange(false);
           },
-          onError: (error: any) => {
+          onError: (error: unknown) => {
+            const message =
+              error instanceof Error ? error.message : String(error);
             form.setError("root", {
               message:
-                error.message ||
-                "Došlo je do greške prilikom ažuriranja kartice",
+                message || "Došlo je do greške prilikom ažuriranja kartice",
             });
           },
         }
@@ -101,10 +100,11 @@ export default function DigitalCardModal({
           onSuccess?.();
           onOpenChange(false);
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
+          const message =
+            error instanceof Error ? error.message : String(error);
           form.setError("root", {
-            message:
-              error.message || "Došlo je do greške prilikom kreiranja kartice",
+            message: message || "Došlo je do greške prilikom kreiranja kartice",
           });
         },
       });

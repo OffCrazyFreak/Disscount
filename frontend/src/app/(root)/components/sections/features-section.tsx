@@ -11,33 +11,7 @@ export default function HeroSection() {
   return (
     <section>
       <AnimatedGroup
-        variants={{
-          container: {
-            visible: {
-              transition: {
-                staggerChildren: 0.1,
-                delayChildren: 0.75,
-              },
-            },
-          },
-          item: {
-            hidden: {
-              opacity: 0,
-              filter: "blur(12px)",
-              y: 12,
-            },
-            visible: {
-              opacity: 1,
-              filter: "blur(0px)",
-              y: 0,
-              transition: {
-                type: "spring" as const,
-                bounce: 0.3,
-                duration: 1.5,
-              },
-            },
-          },
-        }}
+        preset="fade"
         className="grid grid-cols-1 md:grid-cols-3 gap-6 w-sm md:w-auto mx-auto text-center"
       >
         <Card className="gap-4">
