@@ -15,7 +15,9 @@ export default function HeroActions() {
 
   const handleScan = useCallback(
     (result: string) => {
-      router.push(`/products/${encodeURIComponent(result)}`);
+      const trimmedResult = result?.trim();
+      if (!trimmedResult) return;
+      router.push(`/products/${encodeURIComponent(trimmedResult)}`);
     },
     [router]
   );
