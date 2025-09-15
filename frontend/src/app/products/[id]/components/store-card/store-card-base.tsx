@@ -63,7 +63,9 @@ export const StoreCard = memo(
                     height="256"
                     className={cn(
                       "object-contain w-full h-full",
-                      user?.pinnedStores && !isPreferred && "opacity-40"
+                      !isPreferred &&
+                        (user?.pinnedStores?.length ?? 0) > 0 &&
+                        "opacity-40"
                     )}
                   />
                 </div>

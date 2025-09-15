@@ -85,8 +85,8 @@ export default function ProductInfoDisplay({
 
       {/* Information Table */}
       <div className="border border-gray-300 rounded-lg overflow-hidden bg-background shadow-2xs">
-        <div className="flex flex-wrap items-center">
-          <div className="w-full">
+        <div className="flex flex-wrap items-center justify-between">
+          <div className="grow-1">
             {/* First Row - Proizvođač */}
             <div className="text-sm p-2">
               <span className="font-bold">Proizvođač: </span>
@@ -100,7 +100,7 @@ export default function ProductInfoDisplay({
             </div>
           </div>
 
-          <div className="border-l flex-1">
+          <div className="border-l grow-1">
             {/* Third Row - Split row */}
             <div className="flex items-center">
               {/* Left half - Količina */}
