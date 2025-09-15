@@ -8,7 +8,7 @@ import {
   useMemo,
   useRef,
 } from "react";
-import BarcodeScanner from "@/components/custom/barcode-scanner";
+import CodeScanner from "@/components/custom/code-scanner";
 
 type ScanCallback = (result: string) => void;
 
@@ -49,11 +49,7 @@ export function ScannerProvider({ children }: { children: React.ReactNode }) {
   return (
     <ScannerContext.Provider value={value}>
       {children}
-      <BarcodeScanner
-        isOpen={isOpen}
-        onClose={closeScanner}
-        onScan={handleScan}
-      />
+      <CodeScanner isOpen={isOpen} onClose={closeScanner} onScan={handleScan} />
     </ScannerContext.Provider>
   );
 }

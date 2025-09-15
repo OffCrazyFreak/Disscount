@@ -2,9 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   eslint: {
-    // ⚠️ TODO: This will allow production builds to complete
-    // even if there are ESLint errors
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false, // ⚠️ This set to true will allow production builds to complete even if there are ESLint errors
   },
 
   async rewrites() {

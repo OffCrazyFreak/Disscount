@@ -11,22 +11,22 @@ import {
 import { Button } from "@/components/ui/button";
 import { X, ScanBarcode, AlertTriangle, FlashlightIcon } from "lucide-react";
 
-interface IDetectedBarcode {
+interface IDetectedCode {
   rawValue: string;
   format?: string;
 }
 
-interface BarcodeScannerProps {
+interface CodeScannerProps {
   isOpen: boolean;
   onClose: () => void;
   onScan: (result: string) => void;
 }
 
-export default function BarcodeScanner({
+export default function CodeScanner({
   isOpen,
   onClose,
   onScan,
-}: BarcodeScannerProps) {
+}: CodeScannerProps) {
   const [error, setError] = useState<string | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [torchEnabled, setTorchEnabled] = useState(false);
@@ -119,7 +119,7 @@ export default function BarcodeScanner({
   }
 
   const handleScan = useCallback(
-    (detectedCodes: IDetectedBarcode[]) => {
+    (detectedCodes: IDetectedCode[]) => {
       if (detectedCodes && detectedCodes.length > 0) {
         const result = detectedCodes[0].rawValue;
         onScan(result);
