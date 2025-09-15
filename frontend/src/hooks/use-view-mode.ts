@@ -19,7 +19,7 @@ export function useViewMode(path: string, defaultMode: ViewMode = "grid") {
     } catch (_e) {
       // ignore
     }
-  }, [path, defaultMode, mode]);
+  }, []);
 
   // Persist to local storage when mode changes
   useEffect(() => {
