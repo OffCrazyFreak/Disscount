@@ -40,7 +40,7 @@ export default function BarcodeScanner({
     }
   }, [isOpen]);
 
-  const checkCameraPermission = async () => {
+  async function checkCameraPermission() {
     try {
       // Check if we can access the camera
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -53,8 +53,7 @@ export default function BarcodeScanner({
 
       if (track && "getCapabilities" in track) {
         const capabilities = track.getCapabilities() as any;
-        const hasTorch = capabilities.torch === true;
-        setTorchSupported(hasTorch);
+        setTorchSupported(Boolean(capabilities?.torch));
       }
 
       stream.getTracks().forEach((track) => track.stop()); // Stop the stream immediately
@@ -66,17 +65,16 @@ export default function BarcodeScanner({
         "Potreban je pristup kameri za skeniranje. Molimo omogućite pristup kameri u postavkama preglednika."
       );
     }
-  };
+  }
 
   const handleScan = useCallback(
     (detectedCodes: IDetectedBarcode[]) => {
       if (detectedCodes && detectedCodes.length > 0) {
         const result = detectedCodes[0].rawValue;
         onScan(result);
-        onClose();
       }
     },
-    [onScan, onClose]
+    [onScan]
   );
 
   const handleError = useCallback((error: unknown) => {
@@ -93,14 +91,14 @@ export default function BarcodeScanner({
     setTorchEnabled(newTorchState);
   }, [videoTrack, torchSupported, torchEnabled]);
 
-  const handleClose = () => {
+  function handleClose() {
     setError(null);
     setHasPermission(null);
     setTorchEnabled(false);
     setTorchSupported(false);
     setVideoTrack(null);
     onClose();
-  };
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>

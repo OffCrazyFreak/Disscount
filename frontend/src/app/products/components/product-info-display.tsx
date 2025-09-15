@@ -60,13 +60,13 @@ export default function ProductInfoDisplay({
         {/* Left side - Image and product info */}
         <div className="flex-1 flex items-center gap-4">
           {/* Placeholder Image */}
-          <div className="hidden sm:size-16 bg-gray-100 shadow-sm rounded-lg flex items-center justify-center shrink-0">
+          <div className="hidden sm:grid place-items-center size-16 bg-gray-100 shadow-sm rounded-lg">
             <span className="text-gray-400 text-sm">IMG</span>
           </div>
 
           {/* Product Name and Category */}
           <div className="text-pretty">
-            <h3 className="font-bold">{product.name}</h3>
+            <h3 className="font-bold">{product.name || "Nepoznato"}</h3>
             {category && <p className="text-sm text-gray-500">{category}</p>}
           </div>
         </div>

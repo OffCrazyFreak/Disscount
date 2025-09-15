@@ -34,7 +34,9 @@ export default function ProductsClient({ query }: { query: string }) {
       <div className="flex items-center justify-between gap-4">
         <h3>
           {query.length > 0
-            ? `Rezultati pretrage za "${query}" (${total})`
+            ? `Rezultati pretrage za "${query}"${
+                isLoading ? "" : ` (${total})`
+              }`
             : undefined}
         </h3>
 

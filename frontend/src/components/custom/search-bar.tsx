@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { Search, ScanBarcode, X } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
@@ -55,9 +55,7 @@ export default function SearchBar({
     setValue("query", initialQuery);
   }, [initialQuery, setValue]);
 
-  // Clear filtering when input is empty after trimming.
-  const clearedRef = useRef(false);
-  // Auto search effect for pages that filter in state
+  // Auto search for pages that filter in state
   useEffect(() => {
     if (autoSearch) {
       const query = queryValue ?? "";
@@ -69,18 +67,6 @@ export default function SearchBar({
       }
     }
   }, [queryValue, autoSearch, searchRoute, router]);
-
-  useEffect(() => {
-    const trimmedQuery = queryValue?.trim() ?? "";
-    if (trimmedQuery.length === 0) {
-      if (!clearedRef.current) {
-        clearedRef.current = true;
-      }
-    } else {
-      // reset guard when there's a non-empty value
-      clearedRef.current = false;
-    }
-  }, [queryValue]);
 
   function submit(data: { query: string }) {
     const q = data.query?.trim() ?? "";
