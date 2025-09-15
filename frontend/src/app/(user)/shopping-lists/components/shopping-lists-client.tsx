@@ -82,7 +82,9 @@ export default function ShoppingListsClient({ query }: { query: string }) {
           <h3>
             {query.length > 0
               ? `Rezultati pretrage za "${query}" (${filteredShoppingLists.length})`
-              : `Moji popisi za kupnju (${filteredShoppingLists.length})`}
+              : `Moji popisi za kupnju${
+                  isLoading ? "" : ` (${filteredShoppingLists.length})`
+                }`}
           </h3>
 
           <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} />

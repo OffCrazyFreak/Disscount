@@ -21,6 +21,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { formatDate } from "@/utils/strings";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface ShoppingListCardProps {
   shoppingList: ShoppingListDto;
@@ -33,14 +35,9 @@ export default function ShoppingListCard({
   onEdit,
   viewMode = "list",
 }: ShoppingListCardProps) {
-  const router = useRouter();
-
   const itemCount = shoppingList.items?.length || 0;
   const checkedCount =
     shoppingList.items?.filter((item) => item.isChecked)?.length || 0;
-
-  const baseClasses =
-    "hover:shadow-md hover:scale-[1.01] transition-all duration-200 cursor-pointer";
 
   const variants: Record<string, string> = {
     list: "px-6 py-4",
@@ -48,12 +45,10 @@ export default function ShoppingListCard({
   };
 
   return (
-    <Card
-      className={`${variants[viewMode]} ${baseClasses}`}
-      onClick={() => router.push(`/shopping-lists/${shoppingList.id}`)}
-    >
-      <div
-        className={`flex items-center justify-between gap-4 ${
+    <Card className={cn(variants[viewMode], "hover:shadow-md transition-all")}>
+      <Link
+        href={`/shopping-lists/${shoppingList.id}`}
+        className={`flex items-center justify-between gap-4 cursor-pointer ${
           viewMode === "grid" ? "flex-col items-start" : ""
         }`}
       >
@@ -118,7 +113,7 @@ export default function ShoppingListCard({
         >
           <LucideClipboardEdit className="size-6" />
         </Button>
-      </div>
+      </Link>
     </Card>
   );
 }

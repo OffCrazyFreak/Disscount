@@ -13,8 +13,7 @@ interface Props {
 export default async function ShoppingListsPage({ searchParams }: Props) {
   const searchParameters = await searchParams;
   const rawQuery = searchParameters?.q ?? "";
-  // Decode the URL parameter to get the original user input
-  const query = rawQuery ? decodeURIComponent(rawQuery) : "";
+  const query = decodeURIComponent(rawQuery) || rawQuery;
 
   return <ShoppingListsClient query={query} />;
 }

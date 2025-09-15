@@ -63,9 +63,9 @@ export default function SearchBar({
       const query = queryValue ?? "";
       // For auto search, update the URL with the original query (preserving user input)
       if (!query) {
-        router.push(searchRoute);
+        router.replace(searchRoute);
       } else {
-        router.push(`${searchRoute}?q=${encodeURIComponent(query)}`);
+        router.replace(`${searchRoute}?q=${encodeURIComponent(query)}`);
       }
     }
   }, [queryValue, autoSearch, searchRoute, router]);
@@ -87,14 +87,15 @@ export default function SearchBar({
 
     // Navigate to specified route with original query (preserving user input)
     if (!q) {
-      router.push(searchRoute);
+      router.replace(searchRoute);
     } else {
-      router.push(`${searchRoute}?q=${encodeURIComponent(q)}`);
+      router.replace(`${searchRoute}?q=${encodeURIComponent(q)}`);
     }
   }
 
   function handleClear() {
     reset({ query: "" });
+    router.replace(searchRoute);
   }
 
   const handleScan = useCallback(
