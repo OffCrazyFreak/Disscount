@@ -87,9 +87,11 @@ apiClient.interceptors.response.use(
           // Set the new authorization header
           if (newRequestConfig.headers) {
             (
-              newRequestConfig.headers as any
+              newRequestConfig.headers as Record<string, string>
             ).Authorization = `Bearer ${response.data.accessToken}`;
-            (newRequestConfig.headers as any)["X-Retry-After-Refresh"] = "true";
+            (newRequestConfig.headers as Record<string, string>)[
+              "X-Retry-After-Refresh"
+            ] = "true";
           }
 
           return apiClient(newRequestConfig);

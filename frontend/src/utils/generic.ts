@@ -5,7 +5,7 @@ import { normalizeForSearch } from "@/utils/strings";
  *
  * Example: filterByFields(products, q, ["name", "brand", "category"])
  */
-export function filterByFields<T extends Record<string, any>>(
+export function filterByFields<T extends Record<string, unknown>>(
   items: T[],
   query: string | null,
   fields: Array<keyof T>

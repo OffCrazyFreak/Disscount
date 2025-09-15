@@ -47,7 +47,7 @@ export function removeAccessToken() {
   const current = getAppStorage();
   if (!current || !Object.prototype.hasOwnProperty.call(current, "accessToken"))
     return;
-  const { accessToken, ...rest } = current;
+  const { accessToken: _, ...rest } = current;
   try {
     // If there are other keys keep them, otherwise remove the whole key
     if (Object.keys(rest).length === 0) {

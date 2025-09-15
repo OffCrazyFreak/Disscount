@@ -6,20 +6,24 @@ const CIJENE_API_TOKEN = process.env.CIJENE_API_TOKEN;
 
 // Logging utility
 const logger = {
-  info: (message: string, data?: any) => {
+  info: (message: string, data?: unknown) => {
     console.log(`[Cijene API] ${message}`, data || "");
   },
-  error: (message: string, error?: any) => {
+  error: (message: string, error?: unknown) => {
     console.error(`[Cijene API Error] ${message}`, error || "");
   },
-  warn: (message: string, data?: any) => {
+  warn: (message: string, data?: unknown) => {
     console.warn(`[Cijene API Warning] ${message}`, data || "");
   },
 };
 
 // Custom error class for better error handling
 export class CijeneApiError extends Error {
-  constructor(public status: number, message: string, public response?: any) {
+  constructor(
+    public status: number,
+    message: string,
+    public response?: unknown
+  ) {
     super(message);
     this.name = "CijeneApiError";
   }
