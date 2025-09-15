@@ -55,13 +55,13 @@ export default function ShoppingListCard({
         <div className="flex items-center gap-4 flex-1">
           {/* Shopping List Icon */}
           {viewMode === "list" && (
-            <div className="hidden sm:flex size-16 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
+            <div className="hidden sm:flex size-16 bg-primary/10 rounded-lg items-center justify-center shrink-0">
               <ListChecks className="size-8 text-primary" />
             </div>
           )}
 
           {/* Shopping List Info */}
-          <div className="flex items-left justify-between flex-col">
+          <div className="flex items-start justify-between flex-col">
             <div className="flex items-center gap-2">
               <h3 className="font-bold truncate m-0 p-0">
                 {shoppingList.title}
@@ -81,20 +81,18 @@ export default function ShoppingListCard({
               </Tooltip>
             </div>
 
-            <div className="flex items-left flex-wrap gap-2 text-sm text-gray-600">
+            <div className="flex items-start flex-wrap gap-2 text-sm text-gray-600">
               <div className="flex items-center gap-2">
                 <Calendar className="size-4" />
                 <span>{formatDate(shoppingList.createdAt)}</span>
               </div>
 
               <div className="text-gray-400">
-                {itemCount > 0 ? (
+                {itemCount > 0 && (
                   <span className="flex items-center">
                     ({checkedCount}/{itemCount}&nbsp;
                     <CheckCheck size={"16"} />)
                   </span>
-                ) : (
-                  <span>(empty)</span>
                 )}
               </div>
             </div>
