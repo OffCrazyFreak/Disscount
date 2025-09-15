@@ -2,34 +2,14 @@
 // Keeps all data under the "Disccount_app" key and exposes helpers
 // to read/merge specific fields (so we don't overwrite unrelated settings).
 import { ViewMode } from "@/typings/view-mode";
+import { AppData } from "@/typings/local-storage";
 import { PeriodOption } from "@/app/products/[id]/typings/history-period-options";
+import {
+  PriceHistoryChartPreferences,
+  ProductChartPreferences,
+} from "@/typings/local-storage";
 
 const APP_KEY = "Disccount_app";
-
-// Product-specific preferences for price history charts
-interface ProductChartPreferences {
-  period?: PeriodOption;
-  chains?: string[];
-}
-
-// Price history chart preferences structure
-interface PriceHistoryChartPreferences {
-  // Global period setting
-  period?: PeriodOption;
-  // Product-specific settings keyed by EAN
-  [productEan: string]: ProductChartPreferences | PeriodOption | undefined;
-}
-
-// Main app data structure based on real localStorage example
-interface AppData {
-  accessToken?: string;
-  viewModes?: Record<string, ViewMode>;
-  priceHistoryChartPreferences?: PriceHistoryChartPreferences;
-  [key: string]: unknown;
-}
-
-// Export types for use in other components
-export type { AppData, PriceHistoryChartPreferences, ProductChartPreferences };
 
 export function getAppStorage(): AppData {
   if (typeof window === "undefined") return {};
@@ -86,20 +66,6 @@ export function removeAccessToken() {
   }
 }
 
-const localStorageAPI = {
-  getAppStorage,
-  setAppStorage,
-  getAccessToken,
-  setAccessToken,
-  removeAccessToken,
-  getViewMode,
-  setViewMode,
-  getPriceHistoryPreferences,
-  setPriceHistoryPreferences,
-};
-
-export default localStorageAPI;
-
 /**
  * Get stored view mode for a specific path.
  * Falls back to provided default ("grid") if missing.
@@ -143,7 +109,9 @@ export function getPriceHistoryPreferences(productEan: string): {
 
     return {
       globalPeriod: prefs.period,
-      productPreferences: prefs[productEan] as ProductChartPreferences | undefined,
+      productPreferences: prefs[productEan] as
+        | ProductChartPreferences
+        | undefined,
     };
   } catch {
     return {};
@@ -162,15 +130,27 @@ export function setPriceHistoryPreferences(
   try {
     const current = getAppStorage();
     const existingPrefs = current.priceHistoryChartPreferences || {};
-    
+
     const updatedPrefs: PriceHistoryChartPreferences = {
       ...existingPrefs,
       ...(globalPeriod && { period: globalPeriod }),
       [productEan]: preferences,
     };
-    
+
     setAppStorage({ priceHistoryChartPreferences: updatedPrefs });
   } catch (e) {
     console.error("Failed to set price history preferences", e);
   }
 }
+
+const localStorageAPI = {
+  getAppStorage,
+  setAppStorage,
+  getAccessToken,
+  setAccessToken,
+  removeAccessToken,
+  getViewMode,
+  setViewMode,
+};
+
+export default localStorageAPI;

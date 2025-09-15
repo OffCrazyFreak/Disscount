@@ -5,9 +5,9 @@ import { Loader2 } from "lucide-react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
-import { 
-  getPriceHistoryPreferences, 
-  setPriceHistoryPreferences 
+import {
+  getPriceHistoryPreferences,
+  setPriceHistoryPreferences,
 } from "@/lib/api/local-storage";
 import { usePriceHistory } from "@/lib/cijene-api/hooks";
 import PriceHistoryChart from "@/app/products/[id]/components/price-history/price-history-chart";
@@ -24,7 +24,9 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
     period: PeriodOption;
     chains: string[];
   }>(() => {
-    const { globalPeriod, productPreferences } = getPriceHistoryPreferences(product.ean);
+    const { globalPeriod, productPreferences } = getPriceHistoryPreferences(
+      product.ean
+    );
     const availableChains =
       product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) || [];
 
@@ -35,8 +37,8 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
 
     if (productPreferences?.chains) {
       // Sanitize persisted chains by intersecting with available chains
-      const sanitizedChains = productPreferences.chains.filter((chain: string) =>
-        availableChains.includes(chain)
+      const sanitizedChains = productPreferences.chains.filter(
+        (chain: string) => availableChains.includes(chain)
       );
 
       return {
