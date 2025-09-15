@@ -68,8 +68,8 @@ export default function ShoppingListSelector({
                         <Loader2 className="size-5 animate-spin" />
                         <span className="sr-only">Učitavanje...</span>
                       </div>
-                    ) : field.value === "new" && customListTitle ? (
-                      <div>Stvori novu listu "{customListTitle}"</div>
+                    ) : field.value === "new" && customListTitle.trim() ? (
+                      <div>Stvori novu listu "{customListTitle.trim()}"</div>
                     ) : selectedList ? (
                       <div className="flex items-center justify-between gap-2">
                         <div className="space-x-2">
@@ -83,10 +83,10 @@ export default function ShoppingListSelector({
                         </div>
 
                         <div className="text-xs text-gray-500">
-                          {(selectedList.items?.reduce(
+                          {selectedList.items?.reduce(
                             (sum, item) => (item.isChecked ? sum + 1 : sum),
                             0
-                          ) ?? 0)}
+                          ) ?? 0}
                           /{selectedList.items?.length ?? 0}
                         </div>
                       </div>
@@ -105,7 +105,7 @@ export default function ShoppingListSelector({
               </FormControl>
             </PopoverTrigger>
 
-            <PopoverContent className="w-max max-w-sm">
+            <PopoverContent className="w-sm max-w-[75dvw]">
               <Command>
                 <CommandInput
                   placeholder="Pretraži svoje liste ili stvori novu"
@@ -118,13 +118,15 @@ export default function ShoppingListSelector({
                       <Button
                         variant="ghost"
                         className="w-full justify-start"
+                        disabled={!customListTitle.trim()}
                         onClick={() => {
+                          if (!customListTitle.trim()) return;
                           field.onChange("new");
                           setOpen(false);
                         }}
                       >
                         <Plus className="size-4" />
-                        Stvori "{customListTitle}"
+                        Stvori "{customListTitle.trim()}"
                       </Button>
                     </div>
                   </CommandEmpty>
@@ -165,7 +167,7 @@ export default function ShoppingListSelector({
                     </CommandGroup>
                   )}
 
-                  {customListTitle && (
+                  {customListTitle.trim() && (
                     <CommandGroup heading="Nova lista">
                       <CommandItem
                         value={`new-${customListTitle}`}
