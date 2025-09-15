@@ -59,7 +59,7 @@ export async function GET(
       return createApiError(error.message, {
         status: error.status >= 400 ? error.status : 500,
         // avoid leaking headers or internal metadata
-        details: error.response?.data,
+        details: error.response,
       });
     }
 

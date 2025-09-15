@@ -37,7 +37,7 @@ export default function DigitalCardItem({
             queryKey: ["digitalCards", "me"],
           });
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
           toast.error("Greška prilikom brisanja: " + error.message);
         },
       });

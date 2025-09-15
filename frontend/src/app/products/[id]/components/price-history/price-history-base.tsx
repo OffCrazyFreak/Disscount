@@ -5,7 +5,10 @@ import { Loader2 } from "lucide-react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
-import { getAppStorage, setAppStorage } from "@/lib/api/local-storage";
+import { 
+  getPriceHistoryPreferences, 
+  setPriceHistoryPreferences 
+} from "@/lib/api/local-storage";
 import { usePriceHistory } from "@/lib/cijene-api/hooks";
 import PriceHistoryChart from "@/app/products/[id]/components/price-history/price-history-chart";
 import PriceHistoryControls from "@/app/products/[id]/components/price-history/price-history-controls";
@@ -21,17 +24,18 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
     period: PeriodOption;
     chains: string[];
   }>(() => {
-    const globalPrefs = getAppStorage()?.priceHistoryChartPreferences;
-    const productPrefs = globalPrefs?.[product.ean];
+    const { globalPeriod, productPreferences } = getPriceHistoryPreferences(product.ean);
     const availableChains =
       product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) || [];
 
     // Get period from product-specific prefs or fall back to global period or default
-    const period = productPrefs?.period || globalPrefs?.period || "1W";
+    const period = (productPreferences?.period ||
+      globalPeriod ||
+      "1W") as PeriodOption;
 
-    if (productPrefs?.chains) {
+    if (productPreferences?.chains) {
       // Sanitize persisted chains by intersecting with available chains
-      const sanitizedChains = productPrefs.chains.filter((chain: string) =>
+      const sanitizedChains = productPreferences.chains.filter((chain: string) =>
         availableChains.includes(chain)
       );
 
@@ -49,20 +53,15 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
   });
 
   useEffect(() => {
-    // Load existing preferences
-    const existingPrefs = getAppStorage()?.priceHistoryChartPreferences || {};
-
-    // Merge in the current product's preferences
-    const updatedPrefs = {
-      ...existingPrefs,
-      period: chartPrefs.period, // Store period globally
-      [product.ean]: {
+    // Save preferences using the helper function
+    setPriceHistoryPreferences(
+      product.ean,
+      {
         period: chartPrefs.period,
         chains: chartPrefs.chains,
       },
-    };
-
-    setAppStorage({ priceHistoryChartPreferences: updatedPrefs });
+      chartPrefs.period // Also save as global period
+    );
   }, [chartPrefs, product.ean]);
 
   // Calculate days to show based on selected period

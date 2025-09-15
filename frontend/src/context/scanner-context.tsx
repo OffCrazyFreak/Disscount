@@ -10,8 +10,10 @@ import {
 } from "react";
 import CameraScanner from "@/components/custom/camera-scanner";
 
+type ScannerCallback = (result: string) => void;
+
 interface IScannerContext {
-  openScanner: (cb?: any) => void;
+  openScanner: (cb?: ScannerCallback) => void;
   closeScanner: () => void;
 }
 
@@ -23,9 +25,9 @@ export function CameraScannerProvider({
   children: React.ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const cbRef = useRef<any>(undefined);
+  const cbRef = useRef<ScannerCallback | undefined>(undefined);
 
-  const openScanner = useCallback((callback?: any) => {
+  const openScanner = useCallback((callback?: ScannerCallback) => {
     cbRef.current = callback;
     setIsOpen(true);
   }, []);
