@@ -33,10 +33,11 @@ export default function SearchBar({
 
   // Only get initial query if current pathname matches searchRoute
   // Decode the URL parameter to get the original user input
-  const initialQuery =
-    pathname === searchRoute
-      ? decodeURIComponent(searchParams.get("q") || "")
-      : "";
+  const matchesRoute =
+    pathname.replace(/\/$/, "") === searchRoute.replace(/\/$/, "");
+  const initialQuery = matchesRoute
+    ? decodeURIComponent(searchParams.get("q") || "")
+    : "";
 
   const { openScanner } = useScanner();
   const { setOpen } = useSidebar();
