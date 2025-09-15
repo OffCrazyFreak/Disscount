@@ -73,3 +73,23 @@ export function formatQuantity(q?: string | null): string | null {
   }
   return q;
 }
+
+/**
+ * Pluralize Croatian nouns based on number (handles 12-14, 112-114, etc.).
+ * @param n The number to check
+ * @param singular The singular form (e.g., "cijena")
+ * @param plural The plural form (e.g., "cijene")
+ * @returns The appropriate form
+ */
+export function pluralizeCroatian(
+  n: number,
+  singular: string,
+  plural: string
+): string {
+  const last = n % 10;
+  const lastTwo = n % 100;
+  if (last === 1 && lastTwo !== 11) return singular;
+  if (last >= 2 && last <= 4 && !(lastTwo >= 12 && lastTwo <= 14))
+    return plural;
+  return singular;
+}

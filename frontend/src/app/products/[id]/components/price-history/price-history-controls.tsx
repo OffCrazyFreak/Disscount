@@ -61,7 +61,7 @@ const PriceHistoryControls = memo(function PriceHistoryControls({
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
       <div className="flex items-center justify-between gap-4 w-full sm:w-auto">
-        <TabsList className="">
+        <TabsList>
           <TabsTrigger value="1W">1W</TabsTrigger>
           <TabsTrigger value="1M">1M</TabsTrigger>
           <TabsTrigger value="1Y">1Y</TabsTrigger>
@@ -70,16 +70,21 @@ const PriceHistoryControls = memo(function PriceHistoryControls({
 
         {priceChange && (
           <h3
-            className={cn("text-right flex gap-2 items-center transition-all", {
-              "text-red-700": priceChange.difference > 0,
-              "text-green-700": priceChange.difference < 0,
-              "text-gray-700": priceChange.difference === 0,
-            })}
+            className={cn(
+              "text-right flex gap-2 flex-wrap items-center justify-end transition-all",
+              {
+                "text-red-700": priceChange.difference > 0,
+                "text-green-700": priceChange.difference < 0,
+                "text-gray-700": priceChange.difference === 0,
+              }
+            )}
           >
-            <span className="">
+            <span>
               {priceChange.difference > 0 && "+"}
-              {priceChange.difference} ({priceChange.percentage}%)
+              {priceChange.difference}€
             </span>
+
+            <span>({priceChange.percentage}%)</span>
             <ArrowBigUpDash
               className={cn("hidden sm:inline", {
                 "rotate-180": priceChange.difference < 0,

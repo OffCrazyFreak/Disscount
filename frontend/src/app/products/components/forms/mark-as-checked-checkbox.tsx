@@ -24,7 +24,7 @@ export default function MarkAsCheckedCheckbox({
             <Checkbox checked={field.value} onCheckedChange={field.onChange} />
           </FormControl>
 
-          <div className="">
+          <div>
             <FormLabel className="cursor-pointer mb-1">
               Unaprijed označi proizvod kao kupljen
             </FormLabel>

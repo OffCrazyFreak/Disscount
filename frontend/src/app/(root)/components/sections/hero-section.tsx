@@ -48,9 +48,7 @@ export default function HeroSection() {
           </p>
         </div>
 
-        <Suspense>
-          <HeroActions />
-        </Suspense>
+        <HeroActions />
       </div>
     </section>
   );

@@ -179,10 +179,7 @@ export default function AddToShoppingListForm({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="sm:max-w-md bg-background"
-        aria-describedby="add-to-shopping-list-form"
-      >
+      <DialogContent aria-describedby="add-to-shopping-list-form">
         <DialogHeader>
           <DialogTitle className="text-xl mb-2">
             Dodaj proizvod u popis za kupnju

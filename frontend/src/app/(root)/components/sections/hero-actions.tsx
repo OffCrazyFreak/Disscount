@@ -1,33 +1,38 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useCallback, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import { ProductSearchBar } from "@/app/products/components/product-search-bar";
 import { Button } from "@/components/ui/button-icon";
 import { ScanBarcode } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import BarcodeScanner from "@/components/custom/barcode-scanner";
+import { useScanner } from "@/context/scanner-context";
+import SearchBar from "@/components/custom/search-bar";
 
 export default function HeroActions() {
-  const [scannerOpen, setScannerOpen] = useState(false);
+  const { openScanner } = useScanner();
   const router = useRouter();
 
-  const handleScan = (result: string) => {
-    router.push(`/products?q=${encodeURIComponent(result)}`);
-  };
+  const handleScan = useCallback(
+    (result: string) => {
+      const trimmedResult = result?.trim();
+      if (!trimmedResult) return;
+      router.push(`/products/${encodeURIComponent(trimmedResult)}`);
+    },
+    [router]
+  );
 
   return (
     <>
-      <BarcodeScanner
-        isOpen={scannerOpen}
-        onClose={() => setScannerOpen(false)}
-        onScan={handleScan}
-      />
-
       <Card className="bg-background max-w-xl mx-auto rounded-2xl shadow-xl p-8 space-y-4">
         <Suspense>
-          <ProductSearchBar showSubmitButton showBarcode={false} />
+          <SearchBar
+            placeholder="Pretraži proizvode..."
+            searchRoute="/products"
+            clearable={true}
+            allowScanning={false}
+            submitButtonLocation="block"
+          />
         </Suspense>
 
         <div className="relative">
@@ -39,9 +44,9 @@ export default function HeroActions() {
           </div>
         </div>
 
-        <div className="">
+        <div>
           <Button
-            onClick={() => setScannerOpen(true)}
+            onClick={() => openScanner(handleScan)}
             variant="outline"
             size="lg"
             className="cursor-pointer w-full mb-6 text-lg py-6 border-2 border-primary hover:border-secondary hover:bg-green-50"

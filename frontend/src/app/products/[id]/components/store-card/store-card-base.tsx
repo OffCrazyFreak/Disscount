@@ -59,11 +59,13 @@ export const StoreCard = memo(
                   <Image
                     src={`/store-chains/${store.chain}.png`}
                     alt={storeNamesMap[store.chain] || store.chain}
-                    width="256"
-                    height="256"
+                    width={256}
+                    height={256}
                     className={cn(
                       "object-contain w-full h-full",
-                      !isPreferred && "opacity-40"
+                      !isPreferred &&
+                        (user?.pinnedStores?.length ?? 0) > 0 &&
+                        "opacity-40"
                     )}
                   />
                 </div>
@@ -94,9 +96,9 @@ export const StoreCard = memo(
                       <span
                         className={cn(
                           storeMinPrice === productMaxPrice
-                            ? "text-red-700 font-bolder"
+                            ? "text-red-700 font-bold"
                             : storeMinPrice === productMinPrice
-                            ? "text-green-700 font-bolder"
+                            ? "text-green-700 font-bold"
                             : "text-gray-700"
                         )}
                       >
@@ -105,9 +107,9 @@ export const StoreCard = memo(
                       <span
                         className={cn(
                           storeAvgPrice === productMaxPrice
-                            ? "text-red-700 font-bolder"
+                            ? "text-red-700 font-bold"
                             : storeAvgPrice === productMinPrice
-                            ? "text-green-700 font-bolder"
+                            ? "text-green-700 font-bold"
                             : "text-gray-700"
                         )}
                       >
@@ -116,9 +118,9 @@ export const StoreCard = memo(
                       <span
                         className={cn(
                           storeMaxPrice === productMaxPrice
-                            ? "text-red-700 font-bolder"
+                            ? "text-red-700 font-bold"
                             : storeMaxPrice === productMinPrice
-                            ? "text-green-700 font-bolder"
+                            ? "text-green-700 font-bold"
                             : "text-gray-700"
                         )}
                       >

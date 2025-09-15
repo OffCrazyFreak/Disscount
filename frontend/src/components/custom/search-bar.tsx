@@ -1,93 +1,117 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { Search, ScanBarcode, X } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
 import { Input } from "@/components/ui/input";
-import { normalizeForSearch } from "@/utils/strings";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useScanner } from "@/context/scanner-context";
+import { useSidebar } from "@/components/ui/sidebar";
 
-export interface SearchBarProps {
-  defaultValue?: string;
+interface SearchBarProps {
   placeholder?: string;
-  onSearch?: (query: string) => void;
-  onBarcodeClick?: () => void;
-  showBarcode?: boolean;
+  searchRoute: string;
   clearable?: boolean;
-  showSubmitButton?: boolean;
+  autoSearch?: boolean;
+  allowScanning?: boolean;
+  submitButtonLocation?: "none" | "auto" | "block";
   submitLabel?: string;
 }
 
 export default function SearchBar({
-  defaultValue = "",
   placeholder = "Pretraži...",
-  onSearch,
-  onBarcodeClick,
-  showBarcode = true,
+  searchRoute,
   clearable = true,
-  showSubmitButton = false,
+  submitButtonLocation = "auto",
+  autoSearch = false,
+  allowScanning = false,
   submitLabel = "Pretraži",
 }: SearchBarProps) {
-  const { register, handleSubmit, watch, reset, setValue } = useForm<{
-    query: string;
-  }>({
-    defaultValues: { query: defaultValue },
-  });
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  // Only get initial query if current pathname matches searchRoute
+  // Decode the URL parameter to get the original user input
+  const matchesRoute =
+    pathname.replace(/\/$/, "") === searchRoute.replace(/\/$/, "");
+  const initialQuery = matchesRoute
+    ? decodeURIComponent(searchParams.get("q") || "")
+    : "";
+
+  const { openScanner } = useScanner();
+  const { setOpen } = useSidebar();
+
+  const router = useRouter();
+
+  const { register, handleSubmit, watch, reset, setValue, getValues } =
+    useForm<{
+      query: string;
+    }>({
+      defaultValues: { query: initialQuery },
+    });
 
   const queryValue = watch("query");
 
   useEffect(() => {
-    setValue("query", defaultValue);
-  }, [defaultValue, setValue]);
-
-  // Clear filtering when input is empty after trimming.
-  // Use a ref to avoid repeatedly calling onSearch("") on every render when
-  // the field stays empty (prevents rerender loops in parents that update
-  // state in onSearch).
-  const clearedRef = useRef(false);
-  useEffect(() => {
-    const trimmedQuery = queryValue?.trim() ?? "";
-    if (trimmedQuery.length === 0) {
-      if (!clearedRef.current) {
-        onSearch?.("");
-        clearedRef.current = true;
-      }
-    } else {
-      // reset guard when there's a non-empty value
-      clearedRef.current = false;
+    if (getValues("query") !== initialQuery) {
+      setValue("query", initialQuery, {
+        shouldDirty: false,
+        shouldTouch: false,
+        shouldValidate: false,
+      });
     }
-  }, [queryValue, onSearch]);
+  }, [initialQuery, setValue, getValues]);
+
+  // Auto search for pages that filter in state
+  useEffect(() => {
+    if (autoSearch) {
+      const query = queryValue ?? "";
+      // For auto search, update the URL with the original query (preserving user input)
+      if (!query) {
+        router.replace(searchRoute);
+      } else {
+        router.replace(`${searchRoute}?q=${encodeURIComponent(query)}`);
+      }
+    }
+  }, [queryValue, autoSearch, searchRoute, router]);
 
   function submit(data: { query: string }) {
     const q = data.query?.trim() ?? "";
-    onSearch?.(q);
+    setOpen(false);
+
+    if (!q) {
+      router.replace(searchRoute);
+    } else {
+      router.replace(`${searchRoute}?q=${encodeURIComponent(q)}`);
+    }
   }
 
   function handleClear() {
     reset({ query: "" });
-    onSearch?.("");
+    router.replace(searchRoute);
   }
 
+  const handleScan = useCallback(
+    (result: string) => {
+      router.push(`${searchRoute}/${encodeURIComponent(result)}`);
+      setOpen(false);
+    },
+    [searchRoute, router, setOpen]
+  );
   return (
-    <div className="">
+    <div>
       <form
         onSubmit={handleSubmit(submit)}
-        className="relative max-w-3xl mx-auto"
+        className="relative max-w-3xl mx-auto flex items-center gap-4 flex-wrap"
       >
-        <div className="relative">
+        <div className="relative grow-100">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 size-5" />
           <Input
             {...register("query")}
             type="text"
             placeholder={placeholder}
             className="pl-10 pr-14 py-6 text-gray-500 focus:text-gray-700 bg-white"
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                // Trigger react-hook-form submit
-                void handleSubmit(submit)();
-              }
-            }}
             autoComplete="off"
           />
 
@@ -105,12 +129,12 @@ export default function SearchBar({
               </Button>
             )}
 
-            {showBarcode && (
+            {allowScanning && (
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={onBarcodeClick}
+                onClick={() => openScanner(handleScan)}
                 className="p-2"
                 title="Scan barcode"
               >
@@ -120,18 +144,18 @@ export default function SearchBar({
           </div>
         </div>
 
-        {showSubmitButton && (
-          <div className="mt-4">
-            <Button
-              type="submit"
-              size="lg"
-              className="cursor-pointer w-full text-lg py-6 bg-primary hover:bg-secondary"
-              disabled={!queryValue?.trim()}
-            >
-              <Search className="size-5 mr-2" />
-              {submitLabel}
-            </Button>
-          </div>
+        {submitButtonLocation !== "none" && (
+          <Button
+            type="submit"
+            size="lg"
+            className={`text-lg p-6 bg-primary hover:bg-secondary grow ${
+              submitButtonLocation === "block" && "w-full"
+            }`}
+            disabled={!queryValue?.trim()}
+          >
+            <Search className="size-5 mr-2" />
+            {submitLabel}
+          </Button>
         )}
       </form>
     </div>

@@ -39,9 +39,9 @@ import {
 import cijeneService from "@/lib/cijene-api";
 import { ChainStats } from "@/lib/cijene-api/schemas";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
-import { ProductSearchBar } from "@/app/products/components/product-search-bar";
 import { storeNamesMap } from "@/utils/mappings";
 import { Button } from "../ui/button-icon";
+import SearchBar from "./search-bar";
 
 type OpenSection = "categories" | "stores" | "locations" | null;
 
@@ -81,7 +81,13 @@ export const AppSidebar = memo(function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <Suspense>
-              <ProductSearchBar />
+              <SearchBar
+                placeholder="Pretraži proizvode..."
+                searchRoute="/products"
+                clearable={true}
+                allowScanning={true}
+                submitButtonLocation="block"
+              />
             </Suspense>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -207,7 +213,7 @@ export const AppSidebar = memo(function AppSidebar() {
                           >
                             <span>{storeNamesMap[chain.chain_code]}</span>
 
-                            <span className="">{`(${chain.store_count})`}</span>
+                            <span>{`(${chain.store_count})`}</span>
                           </Link>
                         </SidebarMenuSubItem>
                       ))}
@@ -251,7 +257,7 @@ export const AppSidebar = memo(function AppSidebar() {
                           >
                             <span>{location.name}</span>
 
-                            <span className="">{`(${location.storeCount})`}</span>
+                            <span>{`(${location.storeCount})`}</span>
                           </Link>
                         </SidebarMenuSubItem>
                       ))}

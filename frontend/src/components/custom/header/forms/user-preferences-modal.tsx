@@ -199,10 +199,7 @@ export default function UserPreferencesModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent
-        aria-describedby="user-preferences-modal"
-        className="bg-background sm:max-w-md overflow-y-auto"
-      >
+      <DialogContent aria-describedby="user-preferences-modal">
         <DialogHeader>
           <DialogTitle className="text-xl">Preference</DialogTitle>
         </DialogHeader>
@@ -221,7 +218,7 @@ export default function UserPreferencesModal({
                   Odaberi trgovine u tvojoj blizini.
                 </p>
 
-                <div className="flex flex-wrap items-center justify-center gap-4">
+                <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
                   {chainStats?.chain_stats
                     .sort((a, b) =>
                       a.chain_code.localeCompare(b.chain_code, "hr", {
@@ -243,7 +240,7 @@ export default function UserPreferencesModal({
                           )}
                           onClick={() => toggleStore(chain.chain_code)}
                         >
-                          <div className="size-16 sm:size-22 grid place-items-center relative transition-all">
+                          <div className="size-16 sm:size-20 grid place-items-center relative transition-all">
                             <Image
                               src={`/store-chains/${chain.chain_code}.png`}
                               alt={storeNamesMap[chain.chain_code]}
