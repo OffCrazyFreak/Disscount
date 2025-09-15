@@ -107,7 +107,7 @@ export default function SearchBar({
   );
 
   return (
-    <div className="">
+    <div>
       <form
         onSubmit={handleSubmit(submit)}
         className="relative max-w-3xl mx-auto"

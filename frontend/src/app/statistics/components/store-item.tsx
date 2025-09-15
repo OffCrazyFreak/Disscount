@@ -79,7 +79,7 @@ export const ChainItem = memo(
                     </p>
                   </div>
 
-                  <div className="">
+                  <div>
                     <ChevronDown
                       className={cn(
                         "size-8 text-gray-500 transition-transform",
@@ -103,7 +103,7 @@ export const ChainItem = memo(
                 <div className="max-h-128 overflow-y-auto">
                   <Table>
                     <TableHeader>
-                      <TableRow className="">
+                      <TableRow>
                         <TableHead className="font-bold">Grad</TableHead>
                         <TableHead className="font-bold">Adresa</TableHead>
                       </TableRow>

@@ -43,7 +43,7 @@ export default function HeroSection() {
         className="grid grid-cols-1 md:grid-cols-3 gap-6 w-sm md:w-auto mx-auto text-center"
       >
         <Card className="gap-4">
-          <CardHeader className="">
+          <CardHeader>
             <CardTitle className="text-2xl">💰</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -55,7 +55,7 @@ export default function HeroSection() {
         </Card>
 
         <Card className="gap-4">
-          <CardHeader className="">
+          <CardHeader>
             <CardTitle className="text-2xl">📋</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -67,7 +67,7 @@ export default function HeroSection() {
         </Card>
 
         <Card className="gap-4">
-          <CardHeader className="">
+          <CardHeader>
             <CardTitle className="text-2xl">📈</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">

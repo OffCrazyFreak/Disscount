@@ -42,7 +42,7 @@ export default function HeroActions() {
           </div>
         </div>
 
-        <div className="">
+        <div>
           <Button
             onClick={() => openScanner(handleScan)}
             variant="outline"

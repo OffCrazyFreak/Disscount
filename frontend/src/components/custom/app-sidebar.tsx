@@ -213,7 +213,7 @@ export const AppSidebar = memo(function AppSidebar() {
                           >
                             <span>{storeNamesMap[chain.chain_code]}</span>
 
-                            <span className="">{`(${chain.store_count})`}</span>
+                            <span>{`(${chain.store_count})`}</span>
                           </Link>
                         </SidebarMenuSubItem>
                       ))}
@@ -257,7 +257,7 @@ export const AppSidebar = memo(function AppSidebar() {
                           >
                             <span>{location.name}</span>
 
-                            <span className="">{`(${location.storeCount})`}</span>
+                            <span>{`(${location.storeCount})`}</span>
                           </Link>
                         </SidebarMenuSubItem>
                       ))}

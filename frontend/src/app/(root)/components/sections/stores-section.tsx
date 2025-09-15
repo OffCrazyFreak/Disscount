@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function HeroSection() {
   return (
-    <section className="">
+    <section>
       <div className="group relative">
         <div className="absolute inset-0 z-10 scale-90 grid place-items-center opacity-0 duration-500 group-hover:scale-100 group-hover:opacity-100">
           <Link

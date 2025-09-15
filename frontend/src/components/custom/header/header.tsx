@@ -27,7 +27,7 @@ export default function Header(): JSX.Element {
   }, []);
 
   return (
-    <header className="">
+    <header>
       <nav className="fixed z-20 inset-x-4 my-4">
         <div
           className={cn(
@@ -102,7 +102,7 @@ export default function Header(): JSX.Element {
               >
                 <div className="flex items-center space-x-2 px-2 py-1">
                   <LogIn className="w-5.5" />
-                  <span className="">Prijava</span>
+                  <span>Prijava</span>
                 </div>
               </BgAnimateButton>
             )}
