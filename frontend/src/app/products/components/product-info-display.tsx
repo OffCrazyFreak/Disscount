@@ -74,7 +74,8 @@ export default function ProductInfoDisplay({
         {/* Right side - Eye button */}
         <Button
           size="icon"
-          className="size-12"
+          aria-label="Dodaj u praćenje"
+          className="size-12 shrink-0"
           onClick={() => {
             // TODO: Implement functionality
           }}

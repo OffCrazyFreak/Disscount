@@ -6,6 +6,7 @@ import {
   useContext,
   useState,
   useMemo,
+  useRef,
 } from "react";
 import BarcodeScanner from "@/components/custom/barcode-scanner";
 
@@ -20,24 +21,25 @@ const ScannerContext = createContext<ScannerContextValue | null>(null);
 
 export function ScannerProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [cb, setCb] = useState<ScanCallback | undefined>(undefined);
+  const cbRef = useRef<ScanCallback | undefined>(undefined);
 
   const openScanner = useCallback((callback?: ScanCallback) => {
-    setCb(() => callback);
+    cbRef.current = callback;
     setIsOpen(true);
   }, []);
 
   const closeScanner = useCallback(() => {
     setIsOpen(false);
-    setCb(undefined);
+    cbRef.current = undefined;
   }, []);
 
   const handleScan = useCallback(
     (result: string) => {
+      const cb = cbRef.current;
       if (cb) cb(result);
       closeScanner();
     },
-    [cb, closeScanner]
+    [closeScanner]
   );
 
   const value = useMemo(
