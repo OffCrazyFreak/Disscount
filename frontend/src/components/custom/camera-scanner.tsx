@@ -30,13 +30,6 @@ export default function CameraScanner({
   const [videoTrack, setVideoTrack] = useState<MediaStreamTrack | null>(null);
   const [cameraDeviceId, setCameraDeviceId] = useState<string | undefined>();
 
-  // Check camera permissions when component mounts
-  useEffect(() => {
-    if (isOpen) {
-      checkCameraPermission();
-    }
-  }, [isOpen]);
-
   // Try to pick the most likely "main" back camera from available devices
   function pickMainBackCamera(devices: MediaDeviceInfo[]): string | undefined {
     const videoInputs = devices.filter((d) => d.kind === "videoinput");
@@ -59,7 +52,8 @@ export default function CameraScanner({
     return videoInputs[0]?.deviceId;
   }
 
-  async function checkCameraPermission() {
+  // Check camera permissions when component mounts
+  const checkCameraPermission = useCallback(async () => {
     try {
       // 1) Request a provisional stream to unlock device labels and prefer back camera
       let provisionalStream: MediaStream | null = null;
@@ -82,7 +76,9 @@ export default function CameraScanner({
       provisionalStream?.getTracks().forEach((t) => {
         try {
           t.stop();
-        } catch {}
+        } catch {
+          // Ignore errors when stopping tracks
+        }
       });
 
       // 4) Open the final stream using the chosen device (or fallback to environment)
@@ -97,7 +93,10 @@ export default function CameraScanner({
       setVideoTrack(track);
 
       if (track && "getCapabilities" in track) {
-        const capabilities = track.getCapabilities() as any;
+        const capabilities =
+          track.getCapabilities() as MediaTrackCapabilities & {
+            torch?: boolean;
+          };
         setTorchSupported(Boolean(capabilities?.torch));
       }
 
@@ -106,13 +105,19 @@ export default function CameraScanner({
 
       setHasPermission(true);
       setError(null);
-    } catch (err) {
+    } catch {
       setHasPermission(false);
       setError(
         "Potreban je pristup kameri za skeniranje. Molimo omogućite pristup kameri u postavkama preglednika."
       );
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      checkCameraPermission();
+    }
+  }, [isOpen, checkCameraPermission]);
 
   const handleScan = useCallback(
     (detectedCodes: IScannedCode[]) => {
@@ -124,7 +129,7 @@ export default function CameraScanner({
     [onScan]
   );
 
-  const handleError = useCallback((error: unknown) => {
+  const handleError = useCallback(() => {
     setError("Greška pri skeniranju. Molimo pokušajte ponovno.");
   }, []);
 
@@ -133,7 +138,7 @@ export default function CameraScanner({
 
     const newTorchState = !torchEnabled;
     await videoTrack.applyConstraints({
-      advanced: [{ torch: newTorchState } as any],
+      advanced: [{ torch: newTorchState } as MediaTrackConstraints],
     });
     setTorchEnabled(newTorchState);
   }, [videoTrack, torchSupported, torchEnabled]);
@@ -220,7 +225,7 @@ export default function CameraScanner({
                 {/* Scanning overlay */}
                 <div className="absolute inset-4 border-2 border-white border-dashed rounded-lg opacity-70"></div>
 
-                {/* Torch button TODO */}
+                {/* TODO: (remove) Torch button  */}
                 {/* {torchSupported && (
                   <div className="absolute top-4 right-4 pointer-events-auto">
                     <Button
