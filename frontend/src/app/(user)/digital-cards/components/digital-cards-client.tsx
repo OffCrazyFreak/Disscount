@@ -98,7 +98,7 @@ export default function DigitalCardsClient({ query }: { query: string }) {
             }
             preset="fade"
           >
-            {digitalCards.map((digitalCard) => (
+            {matchingDigitalCards.map((digitalCard) => (
               <DigitalCardItem
                 key={digitalCard.id}
                 handleEdit={handleEdit}

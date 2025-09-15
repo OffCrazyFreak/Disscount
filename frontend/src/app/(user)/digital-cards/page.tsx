@@ -6,15 +6,14 @@ export const metadata: Metadata = {
   description: "Pregled i upravljanje digitalnim karticama.",
 };
 
-interface ISearchParamsProps {
-  searchParams?: { q?: string };
+interface IPageProps {
+  searchParams?: Record<string, string | string[] | undefined>;
 }
 
-export default async function DigitalCardsPage({
-  searchParams,
-}: ISearchParamsProps) {
+export default async function DigitalCardsPage({ searchParams }: IPageProps) {
   const searchParameters = await searchParams;
-  const rawQuery = searchParameters?.q ?? "";
+  const qParam = searchParameters?.q;
+  const rawQuery = (Array.isArray(qParam) ? qParam[0] : qParam) || "";
   const query = decodeURIComponent(rawQuery) || rawQuery;
 
   return <DigitalCardsClient query={query} />;

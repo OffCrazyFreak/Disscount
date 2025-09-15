@@ -7,12 +7,13 @@ export const metadata: Metadata = {
 };
 
 interface IPageProps {
-  searchParams?: { q?: string };
+  searchParams?: Record<string, string | string[] | undefined>;
 }
 
 export default async function ShoppingListsPage({ searchParams }: IPageProps) {
   const searchParameters = await searchParams;
-  const rawQuery = searchParameters?.q ?? "";
+  const qParam = searchParameters?.q;
+  const rawQuery = (Array.isArray(qParam) ? qParam[0] : qParam) || "";
   const query = decodeURIComponent(rawQuery) || rawQuery;
 
   return <ShoppingListsClient query={query} />;

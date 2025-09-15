@@ -107,7 +107,7 @@ export default function ShoppingListsClient({ query }: { query: string }) {
                 : "space-y-4"
             }
           >
-            {shoppingLists
+            {filteredShoppingLists
               .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
               .map((shoppingList) => (
                 <ShoppingListItem
