@@ -34,8 +34,9 @@ export function ScannerProvider({ children }: { children: React.ReactNode }) {
     [cb, closeScanner]
   );
 
+  const value = useMemo(() => ({ openScanner, closeScanner }), [openScanner, closeScanner]);
   return (
-    <ScannerContext.Provider value={{ openScanner, closeScanner }}>
+    <ScannerContext.Provider value={value}>
       {children}
       <BarcodeScanner
         isOpen={isOpen}

@@ -96,9 +96,8 @@ export default function SearchBar({
       router.push(`${searchRoute}/${encodeURIComponent(result)}`);
       setOpen(false);
     },
-    [setValue, searchRoute, router, setOpen]
+    [searchRoute, router, setOpen]
   );
-
   return (
     <div>
       <form

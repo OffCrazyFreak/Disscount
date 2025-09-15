@@ -83,11 +83,11 @@ export default function ShoppingListSelector({
                         </div>
 
                         <div className="text-xs text-gray-500">
-                          {selectedList.items.reduce(
+                          {(selectedList.items?.reduce(
                             (sum, item) => (item.isChecked ? sum + 1 : sum),
                             0
-                          )}
-                          /{selectedList.items?.length}
+                          ) ?? 0)}
+                          /{selectedList.items?.length ?? 0}
                         </div>
                       </div>
                     ) : (
