@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import apiClient from "../api-base";
 import { AuthResponse, LoginRequest, RegisterRequest } from "../types";
 import { setAccessToken, removeAccessToken } from "../local-storage";

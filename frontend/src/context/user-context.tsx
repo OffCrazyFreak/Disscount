@@ -22,7 +22,6 @@ import {
   ShoppingListDto,
   DigitalCardDto,
 } from "@/lib/api/types";
-import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
 // Define the shape of our context
@@ -223,10 +222,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           await refreshUser();
           return;
         }
-      } catch (error) {
+      } catch (_error) {
         // Refresh failed, which means no valid refresh token exists
         // This is expected for users who haven't logged in or whose refresh tokens have expired
-        console.log("No valid refresh token found, user needs to log in");
+        // console.log("No valid refresh token found, user needs to log in");
       }
 
       // No valid tokens available, user is not authenticated
