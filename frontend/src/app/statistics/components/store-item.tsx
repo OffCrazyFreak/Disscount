@@ -152,3 +152,5 @@ export const StoreItem = memo(
     );
   }
 );
+
+StoreItem.displayName = "StoreItem";
