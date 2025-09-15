@@ -74,8 +74,12 @@ export default function DigitalCardsClient({ query }: { query: string }) {
         <div className="flex items-center justify-between gap-4">
           <h3>
             {query.length > 0
-              ? `Rezultati pretrage za "${query}" (${matchingDigitalCards.length})`
-              : `Moje digitalne kartice (${matchingDigitalCards.length})`}
+              ? `Rezultati pretrage za "${query}"${
+                  isLoading ? "" : ` (${matchingDigitalCards.length})`
+                }`
+              : `Moje digitalne kartice${
+                  isLoading ? "" : ` (${matchingDigitalCards.length})`
+                }`}
           </h3>
 
           <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} />
