@@ -18,6 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { storeNamesMap, locationNamesMap } from "@/utils/mappings";
+import { pluralizeCroatian } from "@/utils/strings";
 import { cn } from "@/lib/utils";
 import cijeneService from "@/lib/cijene-api";
 
@@ -45,8 +46,8 @@ export const ChainItem = memo(
                 <Image
                   src={`/store-chains/${stat.chain_code}.png`}
                   alt={storeNamesMap[stat.chain_code]}
-                  width="256"
-                  height="256"
+                  width={256}
+                  height={256}
                   className=" object-contain"
                 />
               </div>
@@ -60,21 +61,13 @@ export const ChainItem = memo(
                       <span className="flex items-center gap-2">
                         <MapPin className="size-5 mb-1" />
                         {stat.store_count}{" "}
-                        {parseInt(stat.store_count.toString().slice(-1)) > 1 &&
-                        parseInt(stat.store_count.toString().slice(-1)) < 5 &&
-                        stat.store_count > 21
-                          ? "trgovine"
-                          : "trgovina"}
+                        {pluralizeCroatian(stat.store_count, "trgovina", "trgovine")}
                       </span>
                       <span className="hidden sm:inline">|</span>
                       <span className="flex items-center gap-2">
                         <Tag className="size-5 mb-1" />
                         {stat.price_count}{" "}
-                        {parseInt(stat.price_count.toString().slice(-1)) > 1 &&
-                        parseInt(stat.price_count.toString().slice(-1)) < 5 &&
-                        stat.price_count > 21
-                          ? "cijene"
-                          : "cijena"}
+                        {pluralizeCroatian(stat.price_count, "cijena", "cijene")}
                       </span>
                     </p>
                   </div>

@@ -59,8 +59,8 @@ export const StoreCard = memo(
                   <Image
                     src={`/store-chains/${store.chain}.png`}
                     alt={storeNamesMap[store.chain] || store.chain}
-                    width="256"
-                    height="256"
+                    width={256}
+                    height={256}
                     className={cn(
                       "object-contain w-full h-full",
                       !isPreferred &&
