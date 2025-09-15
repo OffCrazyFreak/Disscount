@@ -22,7 +22,7 @@ interface CodeScannerProps {
   onScan: (result: string) => void;
 }
 
-export default function CodeScanner({
+export default function CameraScanner({
   isOpen,
   onClose,
   onScan,

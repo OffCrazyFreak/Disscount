@@ -8,7 +8,7 @@ import {
   useMemo,
   useRef,
 } from "react";
-import CodeScanner from "@/components/custom/code-scanner";
+import CameraScanner from "@/components/custom/camera-scanner";
 
 type ScanCallback = (result: string) => void;
 
@@ -19,7 +19,11 @@ interface ScannerContextValue {
 
 const ScannerContext = createContext<ScannerContextValue | null>(null);
 
-export function ScannerProvider({ children }: { children: React.ReactNode }) {
+export function CameraScannerProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const cbRef = useRef<ScanCallback | undefined>(undefined);
 
@@ -49,12 +53,16 @@ export function ScannerProvider({ children }: { children: React.ReactNode }) {
   return (
     <ScannerContext.Provider value={value}>
       {children}
-      <CodeScanner isOpen={isOpen} onClose={closeScanner} onScan={handleScan} />
+      <CameraScanner
+        isOpen={isOpen}
+        onClose={closeScanner}
+        onScan={handleScan}
+      />
     </ScannerContext.Provider>
   );
 }
 
-export function useScanner() {
+export function useCameraScanner() {
   const ctx = useContext(ScannerContext);
   if (!ctx) throw new Error("useScanner must be used within ScannerProvider");
   return ctx;

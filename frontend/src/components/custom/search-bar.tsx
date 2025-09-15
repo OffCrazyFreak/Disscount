@@ -6,7 +6,7 @@ import { Search, ScanBarcode, X } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
 import { Input } from "@/components/ui/input";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useScanner } from "@/context/scanner-context";
+import { useCameraScanner } from "@/context/scanner-context";
 import { useSidebar } from "@/components/ui/sidebar";
 
 interface SearchBarProps {
@@ -39,7 +39,7 @@ export default function SearchBar({
     ? decodeURIComponent(searchParams.get("q") || "")
     : "";
 
-  const { openScanner } = useScanner();
+  const { openScanner } = useCameraScanner();
   const { setOpen } = useSidebar();
 
   const router = useRouter();
