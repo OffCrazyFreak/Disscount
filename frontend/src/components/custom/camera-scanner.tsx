@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import {
   Dialog,
@@ -24,84 +24,30 @@ export default function CameraScanner({
 }: ICodeScannerProps) {
   const [error, setError] = useState<string | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [torchEnabled, setTorchEnabled] = useState(false);
-  const [torchSupported, setTorchSupported] = useState(false);
   const [videoTrack, setVideoTrack] = useState<MediaStreamTrack | null>(null);
-  const [cameraDeviceId, setCameraDeviceId] = useState<string | undefined>();
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // Try to pick the most likely "main" back camera from available devices
-  function pickMainBackCamera(devices: MediaDeviceInfo[]): string | undefined {
-    const videoInputs = devices.filter((d) => d.kind === "videoinput");
-    if (videoInputs.length === 0) return undefined;
+  const disableTorch = useCallback(
+    async (track?: MediaStreamTrack | null) => {
+      const t = track ?? videoTrack;
+      if (!t) return;
+      try {
+        // Attempt to force-disable torch if supported
+        // Some browsers require advanced constraints
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - torch is not in standard TS lib types
+        await t.applyConstraints({ advanced: [{ torch: false }] });
+      } catch {
+        // ignore
+      }
+    },
+    [videoTrack]
+  );
 
-    // Prefer labels that look like back/rear environment
-    const backish = videoInputs.filter((d) =>
-      /back|rear|environment/i.test(d.label)
-    );
-
-    // Among back cameras, prefer ones that look like the "main" wide camera
-    const mainPreferred = backish.find((d) =>
-      /wide(?!\s*macro|\s*ultra)|standard|main/i.test(d.label)
-    );
-    if (mainPreferred) return mainPreferred.deviceId;
-
-    if (backish.length > 0) return backish[0].deviceId;
-
-    // Fallback to the first available camera
-    return videoInputs[0]?.deviceId;
-  }
-
-  // Check camera permissions when component mounts
+  // Check camera permission by requesting basic video access
   const checkCameraPermission = useCallback(async () => {
     try {
-      // 1) Request a provisional stream to unlock device labels and prefer back camera
-      let provisionalStream: MediaStream | null = null;
-      try {
-        provisionalStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: "environment" } },
-        });
-      } catch {
-        // Fallback: request any camera just to get permission
-        provisionalStream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-        });
-      }
-
-      // 2) Enumerate devices and pick the most likely main back camera
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const preferredId = pickMainBackCamera(devices);
-
-      // 3) Close provisional tracks before opening the final one
-      provisionalStream?.getTracks().forEach((t) => {
-        try {
-          t.stop();
-        } catch {
-          // Ignore errors when stopping tracks
-        }
-      });
-
-      // 4) Open the final stream using the chosen device (or fallback to environment)
-      const finalStream = await navigator.mediaDevices.getUserMedia({
-        video: preferredId
-          ? { deviceId: { exact: preferredId } }
-          : { facingMode: { ideal: "environment" } },
-      });
-
-      // Check torch support
-      const track = finalStream.getVideoTracks()[0];
-      setVideoTrack(track);
-
-      if (track && "getCapabilities" in track) {
-        const capabilities =
-          track.getCapabilities() as MediaTrackCapabilities & {
-            torch?: boolean;
-          };
-        setTorchSupported(Boolean(capabilities?.torch));
-      }
-
-      const settings = track.getSettings();
-      setCameraDeviceId(settings.deviceId);
-
+      await navigator.mediaDevices.getUserMedia({ video: true });
       setHasPermission(true);
       setError(null);
     } catch {
@@ -118,52 +64,52 @@ export default function CameraScanner({
     }
   }, [isOpen, checkCameraPermission]);
 
+  // Try to capture the underlying video track from the rendered Scanner's video element
+  useEffect(() => {
+    if (!isOpen || hasPermission !== true) return;
+    const el = containerRef.current;
+    if (!el) return;
+
+    const tryGrab = () => {
+      const video = el.querySelector("video") as HTMLVideoElement | null;
+      const stream = (video?.srcObject as MediaStream | null) ?? null;
+      const track = stream?.getVideoTracks?.()[0] ?? null;
+      if (track) setVideoTrack(track);
+    };
+    // Run now and after a tick to cover delayed mount
+    tryGrab();
+    const id = window.setTimeout(tryGrab, 150);
+    return () => window.clearTimeout(id);
+  }, [isOpen, hasPermission]);
+
   const handleScan = useCallback(
     (detectedCodes: IScannedCode[]) => {
       if (detectedCodes && detectedCodes.length > 0) {
         const result = detectedCodes[0].rawValue;
+
+        // Proactively turn off torch before closing via parent
+        disableTorch();
         onScan(result);
       }
     },
-    [onScan]
+    [onScan, disableTorch]
   );
 
   const handleError = useCallback(() => {
     setError("Greška pri skeniranju. Molimo pokušajte ponovno.");
   }, []);
 
-  const toggleTorch = useCallback(async () => {
-    if (!videoTrack || !torchSupported) return;
-
-    const newTorchState = !torchEnabled;
-    await videoTrack.applyConstraints({
-      advanced: [{ torch: newTorchState } as MediaTrackConstraints],
-    });
-    setTorchEnabled(newTorchState);
-  }, [videoTrack, torchSupported, torchEnabled]);
-
   function handleClose() {
     setError(null);
     setHasPermission(null);
-    // Turn off torch if it is currently enabled
-    if (videoTrack && torchEnabled) {
-      try {
-        videoTrack.applyConstraints({
-          advanced: [{ torch: false } as MediaTrackConstraints],
-        });
-      } catch {
-        // ignore errors disabling torch
-      }
-    }
-    setTorchEnabled(false);
-    setTorchSupported(false);
+    // Ensure torch is disabled and stop track if present
     if (videoTrack) {
+      disableTorch(videoTrack);
       try {
         videoTrack.stop();
       } catch {}
+      setVideoTrack(null);
     }
-    setVideoTrack(null);
-    setCameraDeviceId(undefined);
     onClose();
   }
 
@@ -173,12 +119,11 @@ export default function CameraScanner({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ScanBarcode className="size-6" />
-
-            <p>Skeniraj kod</p>
+            <span>Skeniraj kod</span>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4" ref={containerRef}>
           {error && (
             <div className="relative w-full rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">
               <div className="flex items-start gap-3">
@@ -219,14 +164,11 @@ export default function CameraScanner({
                     "upc_e",
                   ]}
                   constraints={{
-                    // Prefer the same device to keep torch control in sync
-                    ...(cameraDeviceId
-                      ? { deviceId: { exact: cameraDeviceId } }
-                      : { facingMode: "environment" }), // use back camera
+                    facingMode: "rear",
                     width: { ideal: 1280 },
                     height: { ideal: 720 },
                   }}
-                  scanDelay={300}
+                  scanDelay={100}
                 />
               </div>
 
