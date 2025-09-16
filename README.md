@@ -10,23 +10,26 @@ Deployed and available on: _[disscount.netlify.app](https://disscount.netlify.ap
 ## Visuals
 
 <p align="center">
-  <img width="90%" src="https://pic.pnnet.dev/960x540" alt="Disscount - Home page"/>
+  <img width="90%" src="https://github.com/user-attachments/assets/5567a6ee-1c9c-40cb-86eb-58b94e010ed5" alt="Disscount - Home page"/>
   
-  <img width="45%" src="https://pic.pnnet.dev/960x540" alt="Disscount - Search products"/>
+  <img width="45%" src="https://github.com/user-attachments/assets/5f87935e-f803-4c8e-813a-82c1513d911d" alt="Disscount - Search products"/>
   
-  <img width="45%" src="https://pic.pnnet.dev/960x540" alt="Disscount - Product details"/>
+  <img width="45%" src="https://github.com/user-attachments/assets/c9e460f0-f880-44ea-ade7-95627118434f" alt="Disscount - Product details 1"/>
   
-  <img width="45%" src="https://pic.pnnet.dev/960x540" alt="Disscount - Shopping lists"/>
+  <img width="45%" src="https://github.com/user-attachments/assets/dc08334f-e48b-48a8-adbe-5df8b3091991" alt="Disscount - Product details 2"/>
+
+  <img width="45%" src="https://github.com/user-attachments/assets/cdd9688a-2c3b-45e1-9ddf-073cd8eff603" alt="Disscount - Prefrences"/>
   
-  <img width="45%" src="https://pic.pnnet.dev/960x540" alt="Disscount - Shopping list details"/>
+  <img width="45%" src="https://github.com/user-attachments/assets/68e51d74-b348-4295-8506-277ed0719eba" alt="Disscount - Shopping lists"/>
   
-  <img width="45%" src="https://pic.pnnet.dev/960x540" alt="Disscount - Digital cards"/>
+  <img width="45%" src="https://github.com/user-attachments/assets/3d200d85-cfea-4f25-9341-a96ee60da4a7" alt="Disscount - Shopping list details"/>
   
-  <img width="45%" src="https://pic.pnnet.dev/960x540" alt="Disscount - Digital card details"/>
+  <img width="45%" src="https://github.com/user-attachments/assets/fc6e93d7-ed97-43ec-b157-b5f111564972" alt="Disscount - Digital cards"/>
   
-  <img width="45%" src="https://pic.pnnet.dev/960x540" alt="Disscount - Statistics"/>
+  <!--<img width="45%" src="https://pic.pnnet.dev/960x540" alt="Disscount - Digital card details"/>-->
   
-  <img width="45%" src="https://pic.pnnet.dev/960x540" alt="Disscount - Prefrences"/>
+  <img width="45%" src="https://github.com/user-attachments/assets/20698d06-50ed-4d1c-ad6f-8cdd9c0d4cc8" alt="Disscount - Statistics"/>
+  
 </p>
 
 ## Attribution
@@ -54,7 +57,7 @@ This work is licensed under a
 - Maven 3.9+
 - PostgreSQL (local or remote)
 
-### Game flow
+### Startup flow
 
 - Start the backend first (so API is available), then start the frontend.
 
