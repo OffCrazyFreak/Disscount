@@ -65,6 +65,8 @@ export function CameraScannerProvider({
 export function useCameraScanner() {
   const ctx = useContext(CameraScannerContext);
   if (!ctx)
-    throw new Error("useScanner must be used within CameraScannerProvider");
+    throw new Error(
+      "useCameraScanner must be used within CameraScannerProvider"
+    );
   return ctx;
 }

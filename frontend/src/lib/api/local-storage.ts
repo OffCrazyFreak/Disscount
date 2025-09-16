@@ -2,8 +2,8 @@
 // Keeps all data under the "Disscount_app" key and exposes helpers
 // to read/merge specific fields (so we don't overwrite unrelated settings).
 import { ViewMode } from "@/typings/view-mode";
-import { AppData } from "@/typings/local-storage";
 import {
+  AppData,
   PriceHistoryChartPreferences,
   ProductChartPreferences,
 } from "@/typings/local-storage";
