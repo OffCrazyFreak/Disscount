@@ -12,7 +12,7 @@ import {
 import { usePriceHistory } from "@/lib/cijene-api/hooks";
 import PriceHistoryChart from "@/app/products/[id]/components/price-history/price-history-chart";
 import PriceHistoryControls from "@/app/products/[id]/components/price-history/price-history-controls";
-import { PeriodOption } from "@/app/products/[id]/typings/history-period-options";
+import { PeriodOption } from "@/typings/history-period-options";
 import { periodOptions } from "@/app/products/[id]/utils/price-history-constants";
 
 interface IPriceHistoryProps {
