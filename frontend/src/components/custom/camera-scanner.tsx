@@ -169,7 +169,7 @@ export default function CameraScanner({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ScanBarcode className="size-6" />

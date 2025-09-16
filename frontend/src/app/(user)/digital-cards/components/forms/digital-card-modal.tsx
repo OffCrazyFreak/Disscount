@@ -120,7 +120,7 @@ export default function DigitalCardModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-xl">
             {digitalCard ? "Uredi digitalnu karticu" : "Nova digitalna kartica"}

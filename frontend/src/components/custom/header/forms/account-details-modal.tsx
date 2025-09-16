@@ -170,7 +170,7 @@ export default function AccountDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-xl">Račun</DialogTitle>
         </DialogHeader>

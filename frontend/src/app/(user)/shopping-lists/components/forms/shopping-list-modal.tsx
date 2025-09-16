@@ -164,7 +164,7 @@ export default function ShoppingListModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-xl">Popis za kupnju</DialogTitle>
         </DialogHeader>
