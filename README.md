@@ -2,7 +2,7 @@
 
 ## Description
 
-Web and mobile (PWA) application for comparing product prices in Croatian shops, creating shopping lists, storing digital loyalty cards, and getting deal alerts with barcode scanning and AI suggestions.
+Web and mobile (PWA) application for comparing product prices in Croatian stores, creating shopping lists, storing digital loyalty cards, and getting deal alerts with barcode scanning and AI suggestions.
 
 ## Link (temp)
 Deployed and available on: _[disscount.netlify.app](https://disscount.netlify.app/)_
