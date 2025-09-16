@@ -32,7 +32,7 @@ export default function FooterSection() {
 
           <div className="mx-auto flex items-center justify-center gap-4">
             <Link
-              href="https://github.com/OffCrazyFreak"
+              href="https://github.com/OffCrazyFreak/Disscount"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub"
