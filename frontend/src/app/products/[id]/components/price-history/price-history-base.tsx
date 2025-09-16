@@ -33,9 +33,9 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
 
     if (productPreferences?.chains) {
       // Sanitize persisted chains by intersecting with available chains
-      const sanitizedChains = productPreferences.chains.filter(
-        (chain: string) => availableChains.includes(chain)
-      );
+      const sanitizedChains = Array.from(
+        new Set(productPreferences.chains)
+      ).filter((chain) => availableChains.includes(chain));
 
       return {
         period,

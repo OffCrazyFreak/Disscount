@@ -1,3 +1,5 @@
+"use client";
+
 import { memo } from "react";
 import { ChevronDown, AlertTriangle } from "lucide-react";
 import Image from "next/image";
