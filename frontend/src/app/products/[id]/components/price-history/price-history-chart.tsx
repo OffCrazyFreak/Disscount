@@ -11,8 +11,9 @@ import {
 import { storeNamesMap } from "@/utils/mappings";
 import { useUser } from "@/context/user-context";
 import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";
+import { ChartDataPoint } from "@/typings/chart-data";
 
-interface PriceHistoryChartProps {
+interface IPriceHistoryChartProps {
   priceHistoryData: HistoryDataPoint[];
   priceHistoryChains: string[];
   selectedChains: string[];
@@ -22,7 +23,7 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
   priceHistoryData,
   priceHistoryChains,
   selectedChains,
-}: PriceHistoryChartProps) {
+}: IPriceHistoryChartProps) {
   const { user } = useUser();
 
   // Filter chains to display based on user selection with sanitization
@@ -43,8 +44,8 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
 
   // Transform the data for the chart: convert from HistoryDataPoint[] to chart format
   const chartData = useMemo(() => {
-    return priceHistoryData.map((dataPoint) => {
-      const chartPoint: Record<string, any> = {
+    return priceHistoryData.map((dataPoint): ChartDataPoint => {
+      const chartPoint: ChartDataPoint = {
         date: dataPoint.date,
       };
 
@@ -80,7 +81,9 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          tickFormatter={(value, index) => value.slice(0, -5)}
+          tickFormatter={(value) =>
+            typeof value === "string" ? value.slice(0, -5) : String(value)
+          }
         />
         <YAxis
           tickLine={false}

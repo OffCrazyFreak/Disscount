@@ -8,22 +8,26 @@ import {
   useMemo,
   useRef,
 } from "react";
-import BarcodeScanner from "@/components/custom/barcode-scanner";
+import CameraScanner from "@/components/custom/camera-scanner";
 
-type ScanCallback = (result: string) => void;
+type CameraScannerCallback = (result: string) => void;
 
-interface ScannerContextValue {
-  openScanner: (cb?: ScanCallback) => void;
+interface ICameraScannerContext {
+  openScanner: (cb?: CameraScannerCallback) => void;
   closeScanner: () => void;
 }
 
-const ScannerContext = createContext<ScannerContextValue | null>(null);
+const CameraScannerContext = createContext<ICameraScannerContext | null>(null);
 
-export function ScannerProvider({ children }: { children: React.ReactNode }) {
+export function CameraScannerProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [isOpen, setIsOpen] = useState(false);
-  const cbRef = useRef<ScanCallback | undefined>(undefined);
+  const cbRef = useRef<CameraScannerCallback | undefined>(undefined);
 
-  const openScanner = useCallback((callback?: ScanCallback) => {
+  const openScanner = useCallback((callback?: CameraScannerCallback) => {
     cbRef.current = callback;
     setIsOpen(true);
   }, []);
@@ -47,19 +51,22 @@ export function ScannerProvider({ children }: { children: React.ReactNode }) {
     [openScanner, closeScanner]
   );
   return (
-    <ScannerContext.Provider value={value}>
+    <CameraScannerContext.Provider value={value}>
       {children}
-      <BarcodeScanner
+      <CameraScanner
         isOpen={isOpen}
         onClose={closeScanner}
         onScan={handleScan}
       />
-    </ScannerContext.Provider>
+    </CameraScannerContext.Provider>
   );
 }
 
-export function useScanner() {
-  const ctx = useContext(ScannerContext);
-  if (!ctx) throw new Error("useScanner must be used within ScannerProvider");
+export function useCameraScanner() {
+  const ctx = useContext(CameraScannerContext);
+  if (!ctx)
+    throw new Error(
+      "useCameraScanner must be used within CameraScannerProvider"
+    );
   return ctx;
 }

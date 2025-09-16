@@ -1,9 +1,14 @@
 // Simple wrapper around a single localStorage key to store app-wide data
-// Keeps all data under the "Disccount_app" key and exposes helpers
+// Keeps all data under the "Disscount_app" key and exposes helpers
 // to read/merge specific fields (so we don't overwrite unrelated settings).
-const APP_KEY = "Disccount_app";
+import { ViewMode } from "@/typings/view-mode";
+import {
+  AppData,
+  PriceHistoryChartPreferences,
+  ProductChartPreferences,
+} from "@/typings/local-storage";
 
-type AppData = Record<string, any>;
+const APP_KEY = "Disscount_app";
 
 export function getAppStorage(): AppData {
   if (typeof window === "undefined") return {};
@@ -60,16 +65,6 @@ export function removeAccessToken() {
   }
 }
 
-export default {
-  getAppStorage,
-  setAppStorage,
-  getAccessToken,
-  setAccessToken,
-  removeAccessToken,
-};
-
-type ViewMode = "list" | "grid";
-
 /**
  * Get stored view mode for a specific path.
  * Falls back to provided default ("grid") if missing.
@@ -95,5 +90,49 @@ export function setViewMode(path: string, mode: ViewMode) {
     setAppStorage({ viewModes });
   } catch (e) {
     console.error("Failed to set view mode", e);
+  }
+}
+
+/**
+ * Get price history chart preferences for a specific product.
+ */
+export function getPriceHistoryPreferences(productEan: string): {
+  productPreferences?: ProductChartPreferences;
+} {
+  if (typeof window === "undefined") return {};
+  try {
+    const data = getAppStorage();
+    const prefs = data.priceHistoryChartPreferences;
+    if (!prefs) return {};
+
+    return {
+      productPreferences: prefs[productEan] as
+        | ProductChartPreferences
+        | undefined,
+    };
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Set price history chart preferences for a specific product.
+ */
+export function setPriceHistoryPreferences(
+  productEan: string,
+  preferences: ProductChartPreferences
+) {
+  try {
+    const current = getAppStorage();
+    const existingPrefs = current.priceHistoryChartPreferences || {};
+
+    const updatedPrefs: PriceHistoryChartPreferences = {
+      ...existingPrefs,
+      [productEan]: preferences,
+    };
+
+    setAppStorage({ priceHistoryChartPreferences: updatedPrefs });
+  } catch (e) {
+    console.error("Failed to set price history preferences", e);
   }
 }

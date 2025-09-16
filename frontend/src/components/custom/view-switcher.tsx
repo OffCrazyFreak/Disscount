@@ -5,16 +5,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ViewMode } from "@/typings/view-mode";
 
-interface ViewSwitcherProps {
-  viewMode: "grid" | "list";
-  setViewMode: (mode: "grid" | "list") => void;
+interface IViewSwitcherProps {
+  viewMode: ViewMode;
+  setViewMode: (mode: ViewMode) => void;
 }
 
 export default function ViewSwitcher({
   viewMode,
   setViewMode,
-}: ViewSwitcherProps) {
+}: IViewSwitcherProps) {
   return (
     <TooltipProvider>
       <div
@@ -26,7 +27,7 @@ export default function ViewSwitcher({
           <TooltipTrigger asChild>
             <label
               data-state={viewMode === "grid" ? "active" : "inactive"}
-              className="data-[state=active]:bg-primary data-[state=active]:text-white text-foreground dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 dark:text-muted-foreground rounded-sm p-2 transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none"
+              className="cursor-pointer data-[state=active]:bg-primary data-[state=active]:text-white text-foreground dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 dark:text-muted-foreground rounded-sm p-2 transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none"
             >
               <input
                 className="sr-only"
@@ -47,7 +48,7 @@ export default function ViewSwitcher({
           <TooltipTrigger asChild>
             <label
               data-state={viewMode === "list" ? "active" : "inactive"}
-              className="data-[state=active]:bg-primary data-[state=active]:text-white text-foreground dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 dark:text-muted-foreground rounded-sm p-2 transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none"
+              className="cursor-pointer data-[state=active]:bg-primary data-[state=active]:text-white text-foreground dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 dark:text-muted-foreground rounded-sm p-2 transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none"
             >
               <input
                 className="sr-only"

@@ -28,17 +28,17 @@ import QuantityInput from "@/app/products/components/forms/quantity-input";
 import MarkAsCheckedCheckbox from "@/app/products/components/forms/mark-as-checked-checkbox";
 import { Button } from "@/components/ui/button";
 
-interface AddToShoppingListFormProps {
+interface IAddToShoppingListFormProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  product: ProductResponse | null;
+  product: ProductResponse;
 }
 
 export default function AddToShoppingListForm({
   isOpen,
   onOpenChange,
   product,
-}: AddToShoppingListFormProps) {
+}: IAddToShoppingListFormProps) {
   const [customListTitle, setCustomListTitle] = useState("");
 
   const queryClient = useQueryClient();
@@ -135,7 +135,7 @@ export default function AddToShoppingListForm({
             onOpenChange(false);
           },
           onError: (err) => {
-            toast.error("Greška pri dodavanju na popis");
+            toast.error("Greška pri dodavanju na popis: " + err.message);
           },
         }
       );
@@ -154,7 +154,7 @@ export default function AddToShoppingListForm({
           proceedToAdd(newList.id);
         },
         onError: (err) => {
-          toast.error("Greška pri stvaranju popisa za kupnju");
+          toast.error("Greška pri stvaranju popisa za kupnju: " + err.message);
         },
       });
     } else {
@@ -174,8 +174,6 @@ export default function AddToShoppingListForm({
 
   const isSubmitting =
     createShoppingListMutation.isPending || addItemMutation.isPending;
-
-  if (!product) return "Product not found";
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -199,7 +197,7 @@ export default function AddToShoppingListForm({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <ShoppingListSelector
-              field={form}
+              formField={form}
               isLoadingLists={isLoadingLists}
               sortedShoppingLists={sortedShoppingLists}
               customListTitle={customListTitle}
@@ -207,9 +205,9 @@ export default function AddToShoppingListForm({
               selectedList={selectedList}
             />
 
-            <QuantityInput field={form} />
+            <QuantityInput formField={form} />
 
-            <MarkAsCheckedCheckbox field={form} />
+            <MarkAsCheckedCheckbox formField={form} />
 
             <div className="flex justify-between pt-4">
               <Button

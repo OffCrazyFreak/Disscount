@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import axios, { AxiosError } from "axios";
+import { isAxiosError } from "axios";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,11 +23,11 @@ import {
 } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/password-input";
 
-interface LoginFormProps {
+interface ILoginFormProps {
   onSuccess?: () => void;
 }
 
-export function LoginForm({ onSuccess }: LoginFormProps) {
+export function LoginForm({ onSuccess }: ILoginFormProps) {
   const loginMutation = authService.useLogin();
   const { handleUserLogin } = useUser();
 
@@ -60,13 +59,13 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           let status = 0;
           let serverMessage: string | undefined;
 
-          if (axios.isAxiosError(error)) {
+          if (isAxiosError(error)) {
             status = error.response?.status ?? 0;
             serverMessage =
-              ((error.response?.data as any)?.message as string | undefined) ||
+              (error.response?.data as { message?: string })?.message ||
               error.message;
           } else {
-            serverMessage = (error as any)?.message || "Unknown error";
+            serverMessage = (error as Error)?.message || "Unknown error";
           }
 
           if (status >= 400 && status < 500) {

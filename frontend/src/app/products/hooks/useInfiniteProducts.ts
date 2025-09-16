@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useGetProductByName } from "@/lib/cijene-api";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 
-export interface UseInfiniteProductsResult {
+interface IUseInfiniteProductsResult {
   visibleProducts: ProductResponse[];
   total: number;
   hasMore: boolean;
@@ -16,10 +16,10 @@ export interface UseInfiniteProductsResult {
 export function useInfiniteProducts(
   q: string,
   batchSize = 50
-): UseInfiniteProductsResult {
+): IUseInfiniteProductsResult {
   const { data, isLoading, error } = useGetProductByName({ q });
 
-  const allProducts = data?.products || [];
+  const allProducts = useMemo(() => data?.products || [], [data?.products]);
 
   const batchedProducts = useMemo(() => {
     const batches: ProductResponse[][] = [];

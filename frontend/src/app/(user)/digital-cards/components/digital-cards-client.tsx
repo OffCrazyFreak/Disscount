@@ -6,7 +6,7 @@ import { Search, Plus, Loader2, PlusIcon, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/custom/search-bar";
 import DigitalCardModal from "@/app/(user)/digital-cards/components/forms/digital-card-modal";
-import DigitalCardsGroup from "@/app/(user)/digital-cards/components/digital-cards-group";
+import DigitalCardItem from "@/app/(user)/digital-cards/components/digital-card-item";
 import NoResults from "@/components/custom/no-results";
 import { FloatingActionButton } from "@/components/custom/floating-action-button";
 import { DigitalCardDto } from "@/lib/api/types";
@@ -15,6 +15,7 @@ import { filterByFields } from "@/utils/generic";
 import { digitalCardService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 import ViewSwitcher from "@/components/custom/view-switcher";
+import { AnimatedGroup } from "@/components/ui/animated-group";
 
 export default function DigitalCardsClient({ query }: { query: string }) {
   const pathname = usePathname();
@@ -89,11 +90,22 @@ export default function DigitalCardsClient({ query }: { query: string }) {
             <span className="ml-2 text-gray-600">Dohvaćanje kartica…</span>
           </div>
         ) : matchingDigitalCards.length > 0 ? (
-          <DigitalCardsGroup
-            digitalCards={matchingDigitalCards}
-            handleEdit={handleEdit}
-            viewMode={viewMode}
-          />
+          <AnimatedGroup
+            className={
+              viewMode === "grid"
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                : "space-y-4"
+            }
+            preset="fade"
+          >
+            {matchingDigitalCards.map((digitalCard) => (
+              <DigitalCardItem
+                key={digitalCard.id}
+                handleEdit={handleEdit}
+                digitalCard={digitalCard}
+              />
+            ))}
+          </AnimatedGroup>
         ) : query ? (
           <NoResults
             icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}

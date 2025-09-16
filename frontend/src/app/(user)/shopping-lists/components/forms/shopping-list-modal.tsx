@@ -32,7 +32,7 @@ import {
 import { ShoppingListDto } from "@/lib/api/types";
 import { useQueryClient } from "@tanstack/react-query";
 
-interface ShoppingListModalProps {
+interface IShoppingListModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
@@ -44,7 +44,7 @@ export default function ShoppingListModal({
   onOpenChange,
   onSuccess,
   shoppingList,
-}: ShoppingListModalProps) {
+}: IShoppingListModalProps) {
   const [createdListId, setCreatedListId] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const queryClient = useQueryClient();
@@ -76,7 +76,7 @@ export default function ShoppingListModal({
     }
     setCreatedListId(null);
     setIsCopied(false);
-  }, [shoppingList]);
+  }, [shoppingList, form]);
 
   const watchIsPublic = form.watch("isPublic");
 
@@ -92,7 +92,7 @@ export default function ShoppingListModal({
           data: { title: data.title, isPublic: data.isPublic },
         },
         {
-          onSuccess: async (response: any) => {
+          onSuccess: async () => {
             toast.success("Popis za kupnju je uspješno ažuriran!");
 
             await queryClient.invalidateQueries({
@@ -117,7 +117,7 @@ export default function ShoppingListModal({
           isPublic: data.isPublic,
         },
         {
-          onSuccess: async (response: any) => {
+          onSuccess: async (response: ShoppingListDto) => {
             toast.success("Popis za kupnju je uspješno kreiran!");
             setCreatedListId(response.id);
 
@@ -150,7 +150,7 @@ export default function ShoppingListModal({
       await navigator.clipboard.writeText(link);
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
-    } catch (err) {
+    } catch (error) {
       toast.error("Greška pri kopiranju poveznice");
     }
   };
@@ -164,7 +164,7 @@ export default function ShoppingListModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-xl">Popis za kupnju</DialogTitle>
         </DialogHeader>

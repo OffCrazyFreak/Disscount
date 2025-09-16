@@ -6,15 +6,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { UseFormReturn } from "react-hook-form";
+import { AddToListFormData } from "@/app/products/typings/add-to-list";
 
-interface QuantityInputProps {
-  field: any;
+interface IQuantityInputProps {
+  formField: UseFormReturn<AddToListFormData>;
 }
 
-export default function QuantityInput({ field }: QuantityInputProps) {
+export default function QuantityInput({ formField }: IQuantityInputProps) {
   return (
     <FormField
-      control={field.control}
+      control={formField.control}
       name="amount"
       render={({ field }) => (
         <FormItem>

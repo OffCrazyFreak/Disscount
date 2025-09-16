@@ -1,4 +1,6 @@
-import { memo, useState } from "react";
+"use client";
+
+import { memo } from "react";
 import { ChevronDown, AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import {
@@ -18,9 +20,9 @@ import {
 import { getMinPrice, getMaxPrice } from "@/lib/cijene-api/utils/product-utils";
 import { formatDate } from "@/utils/strings";
 import { useUser } from "@/context/user-context";
-import { StoreCardPricesTable } from "./store-card-prices-table";
+import { StorePricesTable } from "@/app/products/[id]/components/store-item/store-prices-table";
 
-interface StoreCardProps {
+interface IStoreItemProps {
   store: ChainProductResponse;
   storePrices: StorePrice[];
   product: ProductResponse;
@@ -28,8 +30,8 @@ interface StoreCardProps {
   onToggle?: () => void;
 }
 
-export const StoreCard = memo(
-  ({ isExpanded, onToggle, store, storePrices, product }: StoreCardProps) => {
+export const StoreItem = memo(
+  ({ isExpanded, onToggle, store, storePrices, product }: IStoreItemProps) => {
     const { user } = useUser();
 
     // Check if this store chain is preferred by the user
@@ -148,10 +150,7 @@ export const StoreCard = memo(
 
           <CollapsibleContent>
             <CardContent className="pt-0">
-              <StoreCardPricesTable
-                storePrices={storePrices}
-                product={product}
-              />
+              <StorePricesTable storePrices={storePrices} product={product} />
             </CardContent>
           </CollapsibleContent>
         </Card>
@@ -159,3 +158,5 @@ export const StoreCard = memo(
     );
   }
 );
+
+StoreItem.displayName = "StoreItem";

@@ -1,22 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  CloudUpload,
-  Loader2,
-  Paperclip,
-  X,
-  Trash2,
-  LogOut,
-  Save,
-  SaveIcon,
-  ArrowRight,
-} from "lucide-react";
+import { CloudUpload, Paperclip, X, Trash2, LogOut, Save } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import { isAxiosError } from "axios";
 
 import {
   Dialog,
@@ -49,7 +39,7 @@ import { userRequestSchema, UserRequest } from "@/lib/api/schemas/auth-user";
 import { authService, userService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 
-interface AccountDetailsModalProps {
+interface IAccountDetailsModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -57,7 +47,7 @@ interface AccountDetailsModalProps {
 export default function AccountDetailsModal({
   isOpen,
   onOpenChange,
-}: AccountDetailsModalProps) {
+}: IAccountDetailsModalProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { user, isLoading: isUserLoading, setUser, logout } = useUser();
   const queryClient = useQueryClient();
@@ -110,13 +100,13 @@ export default function AccountDetailsModal({
           let status = 0;
           let serverMessage: string | undefined;
 
-          if (axios.isAxiosError(error)) {
+          if (isAxiosError(error)) {
             status = error.response?.status ?? 0;
             serverMessage =
-              ((error.response?.data as any)?.message as string | undefined) ||
+              (error.response?.data as { message?: string })?.message ||
               error.message;
           } else {
-            serverMessage = (error as any)?.message || "Unknown error";
+            serverMessage = (error as Error)?.message || "Unknown error";
           }
 
           if (status >= 400 && status < 500) {
@@ -180,7 +170,7 @@ export default function AccountDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-xl">Račun</DialogTitle>
         </DialogHeader>

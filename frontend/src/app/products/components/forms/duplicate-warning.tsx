@@ -1,6 +1,6 @@
 import { TriangleAlert } from "lucide-react";
 
-interface DuplicateWarningProps {
+interface IDuplicateWarningProps {
   hasDuplicateEan: boolean;
   selectedListId: string;
   duplicateItem:
@@ -14,7 +14,7 @@ export default function DuplicateWarning({
   hasDuplicateEan,
   selectedListId,
   duplicateItem,
-}: DuplicateWarningProps) {
+}: IDuplicateWarningProps) {
   if (!hasDuplicateEan || selectedListId === "new" || !duplicateItem) {
     return null;
   }

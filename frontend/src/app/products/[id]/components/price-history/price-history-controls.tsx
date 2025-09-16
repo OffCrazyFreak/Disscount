@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useMemo } from "react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   MultiSelect,
   MultiSelectContent,
@@ -18,15 +18,13 @@ import {
 import { ArrowBigUpDash } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";
-import { PeriodOption } from "../../typings/history-period-options";
 
-interface PriceHistoryControlsProps {
+interface IPriceHistoryControlsProps {
   chartPrefs: {
     period: string;
     chains: string[];
   };
   priceHistoryChains: string[];
-  onPeriodChange: (period: string) => void;
   onChainsChange: (chains: string[]) => void;
   priceHistoryData: HistoryDataPoint[];
 }
@@ -35,9 +33,8 @@ const PriceHistoryControls = memo(function PriceHistoryControls({
   chartPrefs,
   priceHistoryData,
   priceHistoryChains,
-  onPeriodChange,
   onChainsChange,
-}: PriceHistoryControlsProps) {
+}: IPriceHistoryControlsProps) {
   // Calculate current and historical average prices based on available data
   const priceChange: { difference: number; percentage: number } | null =
     useMemo(() => {

@@ -1,4 +1,4 @@
-import { PeriodOption } from "@/app/products/[id]/typings/history-period-options";
+import { PeriodOption } from "@/typings/history-period-options";
 
 export const periodOptions: Record<
   PeriodOption,

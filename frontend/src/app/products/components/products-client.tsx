@@ -1,17 +1,19 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Search, Loader2 } from "lucide-react";
 import { useViewMode } from "@/hooks/use-view-mode";
 import NoResults from "@/components/custom/no-results";
 import useInfiniteProducts from "@/app/products/hooks/useInfiniteProducts";
-import { ProductList } from "@/app/products/components/product-list";
+import { ProductItem } from "@/app/products/components/product-item/product-item";
 import { Button } from "@/components/ui/button-icon";
 import { Suspense } from "react";
 import ViewSwitcher from "@/components/custom/view-switcher";
 import SearchBar from "@/components/custom/search-bar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function ProductsClient({ query }: { query: string }) {
+  const isMobile = useIsMobile();
   const pathname = usePathname();
   const [viewMode, setViewMode] = useViewMode(pathname);
 
@@ -72,8 +74,25 @@ export default function ProductsClient({ query }: { query: string }) {
             Currently showing: {visibleProducts.length} products. <br />
             More to load: {hasMore ? "yes" : "no"}
           </div> */}
+          <div
+            className={`${
+              viewMode !== "grid" || isMobile
+                ? "space-y-4"
+                : "grid grid-cols-2 sm:grid-cols-3 gap-4"
+            }`}
+          >
+            {visibleProducts.map((product) => (
+              <div
+                key={product.ean}
+                className={`${
+                  viewMode !== "grid" || isMobile ? "w-full" : "w-76"
+                }`}
+              >
+                <ProductItem product={product} viewMode={viewMode} />
+              </div>
+            ))}
+          </div>
 
-          <ProductList visibleProducts={visibleProducts} viewMode={viewMode} />
           {hasMore && (
             <div className="py-6 text-center">
               <Button variant="outline" size={"lg"} onClick={() => loadMore()}>

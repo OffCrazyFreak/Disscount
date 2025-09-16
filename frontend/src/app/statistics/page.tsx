@@ -1,7 +1,6 @@
 import Image from "next/image";
 import HealthStatus from "@/app/statistics/components/health-status";
 import ChainList from "@/app/statistics/components/stores-list";
-import { TextEffect } from "@/components/ui/text-effect";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

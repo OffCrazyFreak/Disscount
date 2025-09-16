@@ -3,7 +3,6 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import {
-  ListPlus,
   Calendar,
   Globe,
   Lock,
@@ -11,7 +10,6 @@ import {
   LucideClipboardEdit,
   ListChecks,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { ShoppingListDto } from "@/lib/api/types";
 import { ViewMode } from "@/typings/view-mode";
 import { Button } from "@/components/ui/button-icon";
@@ -24,17 +22,17 @@ import { formatDate } from "@/utils/strings";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-interface ShoppingListCardProps {
+interface IShoppingListItemProps {
   shoppingList: ShoppingListDto;
   onEdit?: (shoppingList: ShoppingListDto) => void;
   viewMode?: ViewMode;
 }
 
-export default function ShoppingListCard({
+export default function ShoppingListItem({
   shoppingList,
   onEdit,
   viewMode = "list",
-}: ShoppingListCardProps) {
+}: IShoppingListItemProps) {
   const itemCount = shoppingList.items?.length || 0;
   const checkedCount =
     shoppingList.items?.filter((item) => item.isChecked)?.length || 0;

@@ -16,14 +16,14 @@ import { LoginForm } from "@/components/custom/header/forms/login-form";
 import { SignUpForm } from "@/components/custom/header/forms/signup-form";
 import { GoogleIcon } from "@daveyplate/better-auth-ui";
 
-interface AuthModalProps {
+interface IAuthModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 type AuthMode = "login" | "signup";
 
-export function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
+export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
   const [authMode, setAuthMode] = useState<AuthMode>("login");
   const [showOnboarding, setShowOnboarding] = useState(false);
 
@@ -51,7 +51,7 @@ export function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-xl mb-2">
             {authMode === "login" ? "Prijava" : "Registracija"}

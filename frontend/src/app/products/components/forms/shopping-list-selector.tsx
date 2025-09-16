@@ -24,9 +24,11 @@ import {
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/strings";
 import { ShoppingListDto } from "@/lib/api/types";
+import { UseFormReturn } from "react-hook-form";
+import { AddToListFormData } from "@/app/products/typings/add-to-list";
 
-interface ShoppingListSelectorProps {
-  field: any;
+interface IShoppingListSelectorProps {
+  formField: UseFormReturn<AddToListFormData>;
   isLoadingLists: boolean;
   sortedShoppingLists: ShoppingListDto[];
   customListTitle: string;
@@ -35,18 +37,18 @@ interface ShoppingListSelectorProps {
 }
 
 export default function ShoppingListSelector({
-  field,
+  formField,
   isLoadingLists,
   sortedShoppingLists,
   customListTitle,
   setCustomListTitle,
   selectedList,
-}: ShoppingListSelectorProps) {
+}: IShoppingListSelectorProps) {
   const [open, setOpen] = useState(false);
 
   return (
     <FormField
-      control={field.control}
+      control={formField.control}
       name="shoppingListId"
       render={({ field }) => (
         <FormItem className="flex flex-col">
@@ -69,7 +71,9 @@ export default function ShoppingListSelector({
                         <span className="sr-only">Učitavanje...</span>
                       </div>
                     ) : field.value === "new" && customListTitle.trim() ? (
-                      <div>Stvori novu listu "{customListTitle.trim()}"</div>
+                      <div>
+                        {`Stvori novu listu "${customListTitle.trim()}"`}
+                      </div>
                     ) : selectedList ? (
                       <div className="flex items-center justify-between gap-2">
                         <div className="space-x-2">
@@ -126,7 +130,7 @@ export default function ShoppingListSelector({
                         }}
                       >
                         <Plus className="size-4" />
-                        Stvori "{customListTitle.trim()}"
+                        <span>{`Stvori "${customListTitle.trim()}"`}</span>
                       </Button>
                     </div>
                   </CommandEmpty>
@@ -177,7 +181,7 @@ export default function ShoppingListSelector({
                         }}
                       >
                         <Plus className="size-4" />
-                        Stvori "{customListTitle}"
+                        Stvori &ldquo;{customListTitle}&rdquo;
                       </CommandItem>
                     </CommandGroup>
                   )}

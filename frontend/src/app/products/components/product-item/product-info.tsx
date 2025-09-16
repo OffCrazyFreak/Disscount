@@ -1,7 +1,9 @@
+"use client";
+
 import { memo, MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 
-interface ProductInfoProps {
+interface IProductInfoProps {
   name: string | null;
   brand?: string | null;
   category: string | null;
@@ -11,7 +13,7 @@ export const ProductInfo = memo(function ProductInfo({
   name,
   brand,
   category,
-}: ProductInfoProps) {
+}: IProductInfoProps) {
   const router = useRouter();
 
   return (

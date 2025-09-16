@@ -1,7 +1,4 @@
-import { Suspense } from "react";
 import Image from "next/image";
-import { TextEffect } from "@/components/ui/text-effect";
-import { AnimatedGroup } from "@/components/ui/animated-group";
 import HeroActions from "@/app/(root)/components/sections/hero-actions";
 
 const tagLines: string[] = [
@@ -27,7 +24,7 @@ export default function HeroSection() {
   const tagLine: string = getTagLine();
 
   return (
-    <section className="min-h-dvh -mt-24 relative grid items-center">
+    <section className="h-[70dvh] relative grid items-center">
       <div className="text-center space-y-24">
         <div className="space-y-6">
           {/* App logo */}

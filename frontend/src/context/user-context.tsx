@@ -22,11 +22,10 @@ import {
   ShoppingListDto,
   DigitalCardDto,
 } from "@/lib/api/types";
-import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
 // Define the shape of our context
-interface UserContextType {
+interface IUserContext {
   user: UserDto | null;
   isLoading: boolean;
   isAuthenticated: boolean;
@@ -45,7 +44,7 @@ interface UserContextType {
 }
 
 // Create the context with a default value
-const UserContext = createContext<UserContextType | undefined>(undefined);
+const UserContext = createContext<IUserContext | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserDto | null>(null);
@@ -226,7 +225,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         // Refresh failed, which means no valid refresh token exists
         // This is expected for users who haven't logged in or whose refresh tokens have expired
-        console.log("No valid refresh token found, user needs to log in");
+        // console.log("No valid refresh token found, user needs to log in");
       }
 
       // No valid tokens available, user is not authenticated
@@ -237,7 +236,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, [refreshUser]);
 
   // The context value that will be provided
-  const value: UserContextType = {
+  const value: IUserContext = {
     user,
     isLoading,
     isAuthenticated: !!user,

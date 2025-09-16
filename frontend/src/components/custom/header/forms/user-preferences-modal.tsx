@@ -44,9 +44,8 @@ import { useAllLocations } from "@/lib/cijene-api/hooks";
 import cijeneService from "@/lib/cijene-api";
 import { ChainStats } from "@/lib/cijene-api/schemas";
 import { storeNamesMap } from "@/utils/mappings";
-import { UserDto } from "@/lib/api/schemas";
 
-interface UserPreferencesModalProps {
+interface IUserPreferencesModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -54,7 +53,7 @@ interface UserPreferencesModalProps {
 export default function UserPreferencesModal({
   isOpen,
   onOpenChange,
-}: UserPreferencesModalProps) {
+}: IUserPreferencesModalProps) {
   const { user, updatePinnedStores, updatePinnedPlaces } = useUser();
 
   const form = useForm<UserPreferencesFormType>({
@@ -92,7 +91,10 @@ export default function UserPreferencesModal({
     if (!isOpen) return;
 
     // First try to use preferences from user context if available
-    const userPrefs = user as any;
+    const userPrefs = user as {
+      pinnedStores?: PinnedStoreDto[];
+      pinnedPlaces?: PinnedPlaceDto[];
+    };
 
     if (userPrefs?.pinnedStores || userPrefs?.pinnedPlaces) {
       const storeNames = (
@@ -176,7 +178,7 @@ export default function UserPreferencesModal({
       updatePinnedPlaces(placesResponse);
 
       toast.success("Preference uspješno spremljene!");
-    } catch (error) {
+    } catch {
       toast.error("Greška pri spremanju preferenca");
     }
   };

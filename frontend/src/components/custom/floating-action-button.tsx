@@ -1,11 +1,10 @@
 "use client";
 
 import { ReactNode } from "react";
-import { Button } from "@/components/ui/button-icon";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
-interface FloatingActionButtonProps {
+interface IFloatingActionButtonProps {
   onClick: () => void;
   icon: ReactNode;
   label: string;
@@ -26,7 +25,7 @@ export function FloatingActionButton({
   label,
   className,
   position = "bottom-right",
-}: FloatingActionButtonProps) {
+}: IFloatingActionButtonProps) {
   return (
     <div className={`fixed ${positionClasses[position]} z-50`}>
       <Tooltip>

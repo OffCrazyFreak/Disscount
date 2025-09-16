@@ -6,22 +6,27 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
+import { UseFormReturn } from "react-hook-form";
+import { AddToListFormData } from "@/app/products/typings/add-to-list";
 
-interface MarkAsCheckedCheckboxProps {
-  field: any;
+interface IMarkAsCheckedCheckboxProps {
+  formField: UseFormReturn<AddToListFormData>;
 }
 
 export default function MarkAsCheckedCheckbox({
-  field,
-}: MarkAsCheckedCheckboxProps) {
+  formField,
+}: IMarkAsCheckedCheckboxProps) {
   return (
     <FormField
-      control={field.control}
+      control={formField.control}
       name="isChecked"
       render={({ field }) => (
         <FormItem className="flex items-center gap-4 ">
           <FormControl className="shadow-md cursor-pointer">
-            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+            <Checkbox
+              checked={!!field.value}
+              onCheckedChange={(v) => field.onChange(!!v)}
+            />
           </FormControl>
 
           <div>
