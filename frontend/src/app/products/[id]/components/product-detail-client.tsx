@@ -1,12 +1,12 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { Loader2 } from "lucide-react";
 import cijeneService from "@/lib/cijene-api";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
 import { StoreItem } from "@/app/products/[id]/components/store-item/store-item";
 import { useUser } from "@/context/user-context";
 import PriceHistory from "@/app/products/[id]/components/price-history/price-history-base";
+import Loading from "@/app/loading";
 
 export default function ProductDetailClient({ ean }: { ean: string }) {
   const { user } = useUser();
@@ -53,6 +53,12 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
     return grouped;
   }, [pricesData]);
 
+  // Show loading state while fetching product
+  if (productLoading) {
+    return <Loading />;
+  }
+
+  // Show error state if product failed to load or not found
   if (productError || !product) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -82,10 +88,7 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
 
         {pricesLoading ? (
           <div className="flex items-center justify-center py-8">
-            <div className="flex items-center gap-2">
-              <Loader2 className="size-6 animate-spin" />
-              Učitavanje cijena...
-            </div>
+            <Loading />
           </div>
         ) : pricesError ? (
           <div className="text-center py-8">

@@ -2,7 +2,7 @@ import { JSX } from "react";
 
 export default function Loading(): JSX.Element {
   return (
-    <div className="grid place-items-center h-[calc(70dvh)]">
+    <div className="grid place-items-center h-[70dvh]">
       <svg
         width="96"
         height="96"
