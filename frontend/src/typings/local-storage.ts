@@ -9,10 +9,8 @@ export interface ProductChartPreferences {
 
 // Price history chart preferences structure
 export interface PriceHistoryChartPreferences {
-  // Global period setting
-  period?: PeriodOption;
-  // Product-specific settings keyed by EAN
-  [productEan: string]: ProductChartPreferences | PeriodOption | undefined;
+  // Product-specific preferences keyed by EAN
+  [productEan: string]: ProductChartPreferences | undefined;
 }
 
 // Main app data structure based on real localStorage example

@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ViewMode } from "@/typings/view-mode";
-import {
-  getViewMode,
-  setViewMode as setViewModeInStorage,
-} from "@/lib/api/local-storage";
+import { getViewMode, setViewMode } from "@/lib/api/local-storage";
 
 // Hook to persist view mode per page path inside the single app storage object.
 // Uses the existing app storage wrapper so all settings live under one key.
@@ -24,7 +21,7 @@ export function useViewMode(path: string, defaultMode: ViewMode = "grid") {
   // Persist to local storage when mode changes
   useEffect(() => {
     try {
-      setViewModeInStorage(path, mode);
+      setViewMode(path, mode);
     } catch (error) {
       // ignore
     }

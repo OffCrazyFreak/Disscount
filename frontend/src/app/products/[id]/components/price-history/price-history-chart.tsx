@@ -81,7 +81,9 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          tickFormatter={(value) => value.slice(0, -5)}
+          tickFormatter={(value) =>
+            typeof value === "string" ? value.slice(0, -5) : String(value)
+          }
         />
         <YAxis
           tickLine={false}

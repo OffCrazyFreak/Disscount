@@ -24,16 +24,12 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
     period: PeriodOption;
     chains: string[];
   }>(() => {
-    const { globalPeriod, productPreferences } = getPriceHistoryPreferences(
-      product.ean
-    );
+    const { productPreferences } = getPriceHistoryPreferences(product.ean);
     const availableChains =
       product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) || [];
 
-    // Get period from product-specific prefs or fall back to global period or default
-    const period = (productPreferences?.period ||
-      globalPeriod ||
-      "1W") as PeriodOption;
+    // Get period from product-specific prefs or default
+    const period = (productPreferences?.period || "1W") as PeriodOption;
 
     if (productPreferences?.chains) {
       // Sanitize persisted chains by intersecting with available chains
@@ -54,17 +50,13 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
     };
   });
 
+  // Persist product-specific preferences whenever period or chains change
   useEffect(() => {
-    // Save preferences using the helper function
-    setPriceHistoryPreferences(
-      product.ean,
-      {
-        period: chartPrefs.period,
-        chains: chartPrefs.chains,
-      },
-      chartPrefs.period // Also save as global period
-    );
-  }, [chartPrefs, product.ean]);
+    setPriceHistoryPreferences(product.ean, {
+      period: chartPrefs.period,
+      chains: chartPrefs.chains,
+    });
+  }, [chartPrefs.period, chartPrefs.chains, product.ean]);
 
   // Calculate days to show based on selected period
   const daysToShow: number = useMemo(() => {

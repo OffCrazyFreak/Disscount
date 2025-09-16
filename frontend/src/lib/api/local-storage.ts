@@ -3,7 +3,6 @@
 // to read/merge specific fields (so we don't overwrite unrelated settings).
 import { ViewMode } from "@/typings/view-mode";
 import { AppData } from "@/typings/local-storage";
-import { PeriodOption } from "@/app/products/[id]/typings/history-period-options";
 import {
   PriceHistoryChartPreferences,
   ProductChartPreferences,
@@ -98,7 +97,6 @@ export function setViewMode(path: string, mode: ViewMode) {
  * Get price history chart preferences for a specific product.
  */
 export function getPriceHistoryPreferences(productEan: string): {
-  globalPeriod?: PeriodOption;
   productPreferences?: ProductChartPreferences;
 } {
   if (typeof window === "undefined") return {};
@@ -108,7 +106,6 @@ export function getPriceHistoryPreferences(productEan: string): {
     if (!prefs) return {};
 
     return {
-      globalPeriod: prefs.period,
       productPreferences: prefs[productEan] as
         | ProductChartPreferences
         | undefined,
@@ -123,17 +120,14 @@ export function getPriceHistoryPreferences(productEan: string): {
  */
 export function setPriceHistoryPreferences(
   productEan: string,
-  preferences: ProductChartPreferences,
-  globalPeriod?: PeriodOption
+  preferences: ProductChartPreferences
 ) {
-  if (typeof window === "undefined") return;
   try {
     const current = getAppStorage();
     const existingPrefs = current.priceHistoryChartPreferences || {};
 
     const updatedPrefs: PriceHistoryChartPreferences = {
       ...existingPrefs,
-      ...(globalPeriod && { period: globalPeriod }),
       [productEan]: preferences,
     };
 
@@ -142,15 +136,3 @@ export function setPriceHistoryPreferences(
     console.error("Failed to set price history preferences", e);
   }
 }
-
-const localStorageAPI = {
-  getAppStorage,
-  setAppStorage,
-  getAccessToken,
-  setAccessToken,
-  removeAccessToken,
-  getViewMode,
-  setViewMode,
-};
-
-export default localStorageAPI;
