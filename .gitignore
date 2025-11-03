@@ -65,3 +65,5 @@ frontend/yarn.lock
 # --- Misc ---
 *.bak
 *.orig
+
+desktop.ini
