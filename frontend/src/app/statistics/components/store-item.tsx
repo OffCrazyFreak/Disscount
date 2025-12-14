@@ -45,7 +45,7 @@ export const StoreItem = memo(
               <div className="flex-shrink-0 size-12 sm:size-16 rounded-sm overflow-hidden shadow-sm">
                 <Image
                   src={`/store-chains/${stat.chain_code}.png`}
-                  alt={storeNamesMap[stat.chain_code]}
+                  alt={storeNamesMap[stat.chain_code] ?? stat.chain_code}
                   width={256}
                   height={256}
                   className=" object-contain"
