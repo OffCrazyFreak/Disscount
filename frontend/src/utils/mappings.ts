@@ -11,6 +11,7 @@ export const storeNamesMap: Record<string, string> = {
   kaufland: "Kaufland",
   metro: "Metro",
   eurospin: "Eurospin",
+  jadranka_trgovina: "Jadranka",
   dm: "dm",
   ktc: "KTC",
   trgocentar: "Trgocentar",
