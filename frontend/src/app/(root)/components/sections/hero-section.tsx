@@ -13,6 +13,8 @@ const tagLines: string[] = [
   "Pronađi najbolje ponude u Hrvatskoj!",
   "Kupuj kvalitetno i jeftino!",
   "Kupuj pametno, uštedi više!",
+  "Tvoj partner u pametnoj kupovini!",
+  "Zaboravi na kataloge i letke!",
 ];
 
 function getTagLine(): string {
