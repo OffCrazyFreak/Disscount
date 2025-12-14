@@ -145,6 +145,8 @@ export const searchProductsParamsSchema = z.object({
   q: z.string(),
   date: z.iso.date().optional(),
   chains: z.string().optional(),
+  fuzzy: z.boolean().optional(),
+  limit: z.number().min(1).max(100).optional(),
 });
 
 export const searchStoresParamsSchema = z.object({

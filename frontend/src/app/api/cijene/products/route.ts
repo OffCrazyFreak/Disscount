@@ -18,6 +18,15 @@ export async function GET(request: NextRequest) {
     q: searchParams.get("q")?.trim(),
     date: searchParams.get("date") || undefined,
     chains: searchParams.get("chains") || undefined,
+    fuzzy:
+      searchParams.get("fuzzy") === "true"
+        ? true
+        : searchParams.get("fuzzy") === "false"
+        ? false
+        : undefined,
+    limit: searchParams.get("limit")
+      ? parseInt(searchParams.get("limit")!)
+      : undefined,
   };
   const parsed = searchProductsParamsSchema.safeParse(params);
   if (!parsed.success) {
@@ -35,6 +44,10 @@ export async function GET(request: NextRequest) {
     searchParamsObj.append("date", validatedParams.date);
   if (validatedParams.chains)
     searchParamsObj.append("chains", validatedParams.chains);
+  if (validatedParams.fuzzy !== undefined)
+    searchParamsObj.append("fuzzy", validatedParams.fuzzy.toString());
+  if (validatedParams.limit !== undefined)
+    searchParamsObj.append("limit", validatedParams.limit.toString());
   const searchString = searchParamsObj.toString();
 
   try {

@@ -17,7 +17,11 @@ export function useInfiniteProducts(
   q: string,
   batchSize = 50
 ): IUseInfiniteProductsResult {
-  const { data, isLoading, error } = useGetProductByName({ q });
+  const { data, isLoading, error } = useGetProductByName({
+    q,
+    fuzzy: false,
+    limit: 100,
+  });
 
   const allProducts = useMemo(() => data?.products || [], [data?.products]);
 
