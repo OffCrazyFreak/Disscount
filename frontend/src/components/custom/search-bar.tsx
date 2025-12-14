@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Search, ScanBarcode, X } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
@@ -43,6 +43,7 @@ export default function SearchBar({
   const { setOpen } = useSidebar();
 
   const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const { register, handleSubmit, watch, reset, setValue, getValues } =
     useForm<{
@@ -52,6 +53,8 @@ export default function SearchBar({
     });
 
   const queryValue = watch("query");
+
+  const { ref: registerRef, ...registerProps } = register("query");
 
   useEffect(() => {
     if (getValues("query") !== initialQuery) {
@@ -90,6 +93,7 @@ export default function SearchBar({
   function handleClear() {
     reset({ query: "" });
     router.replace(searchRoute);
+    inputRef.current?.focus();
   }
 
   const handleScan = useCallback(
@@ -108,7 +112,11 @@ export default function SearchBar({
         <div className="relative grow-100">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 size-5" />
           <Input
-            {...register("query")}
+            ref={(el) => {
+              inputRef.current = el;
+              registerRef(el);
+            }}
+            {...registerProps}
             type="text"
             placeholder={placeholder}
             className="pl-10 pr-14 py-6 text-gray-500 focus:text-gray-700 bg-white"

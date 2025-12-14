@@ -36,7 +36,7 @@ export default function ProductsClient({ query }: { query: string }) {
         <h3>
           {query.length > 0
             ? `Rezultati pretrage za "${query}"${
-                isLoading ? "" : ` (${total})`
+                isLoading ? "" : ` (${total}${total >= 100 ? "+" : ""})`
               }`
             : undefined}
         </h3>
