@@ -1,10 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  eslint: {
-    ignoreDuringBuilds: false, // ⚠️ This set to true will allow production builds to complete even if there are ESLint errors
-  },
-
   async rewrites() {
     const backendOrigin =
       process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";

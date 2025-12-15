@@ -245,10 +245,12 @@ export default function UserPreferencesModal({
                           <div className="size-16 sm:size-20 grid place-items-center relative transition-all">
                             <Image
                               src={`/store-chains/${chain.chain_code}.png`}
-                              alt={storeNamesMap[chain.chain_code]}
+                              alt={
+                                storeNamesMap[chain.chain_code] ??
+                                chain.chain_code
+                              }
                               fill
-                              sizes="256px"
-                              priority={true}
+                              sizes="128px"
                               className={cn(
                                 "opacity-40 object-contain",
                                 isSelected && "opacity-100"
