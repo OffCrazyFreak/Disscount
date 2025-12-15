@@ -40,7 +40,7 @@ export default function ShoppingListDetailClient({
           <Link href="/shopping-lists">
             <Button variant="outline">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Natrag na liste
+              Natrag na popise za kupnju
             </Button>
           </Link>
         </div>
@@ -59,13 +59,17 @@ export default function ShoppingListDetailClient({
         <Link href="/shopping-lists">
           <Button variant="ghost" size="sm" className="mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Natrag na liste
+            Natrag na popise za kupnju
           </Button>
         </Link>
 
         <div className="flex items-center gap-3 mb-2">
           <h1 className="text-2xl font-bold">{shoppingList.title}</h1>
-          <div title={shoppingList.isPublic ? "Javna lista" : "Privatna lista"}>
+          <div
+            title={
+              shoppingList.isPublic ? "Popis je javan" : "Popis je privatan"
+            }
+          >
             {shoppingList.isPublic ? (
               <Globe className="h-5 w-5 text-green-600" />
             ) : (
@@ -114,7 +118,7 @@ export default function ShoppingListDetailClient({
 
         {itemCount === 0 ? (
           <Card className="p-8 text-center">
-            <p className="text-gray-600">Ova lista još nema stavki.</p>
+            <p className="text-gray-600">Ovaj popis još nema stavki.</p>
           </Card>
         ) : (
           <div className="space-y-2">

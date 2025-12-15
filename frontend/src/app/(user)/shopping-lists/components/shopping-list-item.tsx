@@ -44,58 +44,66 @@ export default function ShoppingListItem({
 
   return (
     <Card className={cn(variants[viewMode], "hover:shadow-md transition-all")}>
-      <Link
-        href={`/shopping-lists/${shoppingList.id}`}
+      <div
         className={`flex items-center justify-between gap-4 cursor-pointer ${
           viewMode === "grid" ? "flex-col items-start" : ""
         }`}
       >
-        <div className="flex items-center gap-4 flex-1">
-          {/* Shopping List Icon */}
-          {viewMode === "list" && (
-            <div className="hidden sm:flex size-16 bg-primary/10 rounded-lg items-center justify-center shrink-0">
-              <ListChecks className="size-8 text-primary" />
-            </div>
-          )}
+        <Link
+          href={`/shopping-lists/${shoppingList.id}`}
+          className={`flex items-center gap-4 flex-1 ${
+            viewMode === "grid" ? "flex-col items-start" : ""
+          }`}
+        >
+          <div className="flex items-center gap-4 flex-1">
+            {/* Shopping List Icon */}
+            {viewMode === "list" && (
+              <div className="hidden sm:flex size-16 bg-primary/10 rounded-lg items-center justify-center shrink-0">
+                <ListChecks className="size-8 text-primary" />
+              </div>
+            )}
 
-          {/* Shopping List Info */}
-          <div className="flex items-start justify-between flex-col">
-            <div className="flex items-center gap-2">
-              <h3 className="font-bold truncate m-0 p-0">
-                {shoppingList.title}
-              </h3>
-
-              <Tooltip>
-                <TooltipTrigger>
-                  {shoppingList.isPublic ? (
-                    <Globe className="size-5 text-primary" />
-                  ) : (
-                    <Lock className="size-5 text-gray-400" />
-                  )}
-                </TooltipTrigger>
-                <TooltipContent>
-                  {shoppingList.isPublic ? "Javna lista" : "Privatna lista"}
-                </TooltipContent>
-              </Tooltip>
-            </div>
-
-            <div className="flex items-start flex-wrap gap-2 text-sm text-gray-600">
+            {/* Shopping List Info */}
+            <div className="flex items-start justify-between flex-col">
               <div className="flex items-center gap-2">
-                <Calendar className="size-4" />
-                <span>{formatDate(shoppingList.createdAt)}</span>
+                <h3 className="font-bold truncate m-0 p-0">
+                  {shoppingList.title}
+                </h3>
+
+                <Tooltip>
+                  <TooltipTrigger>
+                    {shoppingList.isPublic ? (
+                      <Globe className="size-5 text-primary" />
+                    ) : (
+                      <Lock className="size-5 text-gray-400" />
+                    )}
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {shoppingList.isPublic
+                      ? "Popis je javan"
+                      : "Popis je privatan"}
+                  </TooltipContent>
+                </Tooltip>
               </div>
 
-              <div className="text-gray-400">
-                {itemCount > 0 && (
-                  <span className="flex items-center">
-                    ({checkedCount}/{itemCount}&nbsp;
-                    <CheckCheck size={"16"} />)
-                  </span>
-                )}
+              <div className="flex items-start flex-wrap gap-2 text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <Calendar className="size-4" />
+                  <span>{formatDate(shoppingList.createdAt)}</span>
+                </div>
+
+                <div className="text-gray-400">
+                  {itemCount > 0 && (
+                    <span className="flex items-center">
+                      ({checkedCount}/{itemCount}&nbsp;
+                      <CheckCheck size={"16"} />)
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </Link>
 
         <Button
           size={"icon"}
@@ -109,7 +117,7 @@ export default function ShoppingListItem({
         >
           <LucideClipboardEdit className="size-6" />
         </Button>
-      </Link>
+      </div>
     </Card>
   );
 }

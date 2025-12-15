@@ -112,7 +112,7 @@ export default function ShoppingListSelector({
             <PopoverContent className="w-sm max-w-[75dvw]">
               <Command>
                 <CommandInput
-                  placeholder="Pretraži svoje liste ili stvori novu"
+                  placeholder="Pretraži svoje popise ili stvori novi..."
                   value={customListTitle}
                   onValueChange={setCustomListTitle}
                 />
@@ -172,7 +172,7 @@ export default function ShoppingListSelector({
                   )}
 
                   {customListTitle.trim() && (
-                    <CommandGroup heading="Nova lista">
+                    <CommandGroup heading="Novi popis za kupnju">
                       <CommandItem
                         value={`new-${customListTitle}`}
                         onSelect={() => {

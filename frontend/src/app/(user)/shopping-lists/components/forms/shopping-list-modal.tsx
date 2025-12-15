@@ -176,7 +176,7 @@ export default function ShoppingListModal({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Naziv liste</FormLabel>
+                  <FormLabel>Naziv popisa za kupnju</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Roštilj 01.05." autoFocus />
                   </FormControl>
@@ -193,7 +193,9 @@ export default function ShoppingListModal({
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
-                        <FormLabel className="text-base">Javna lista</FormLabel>
+                        <FormLabel className="text-base">
+                          Popis je javan
+                        </FormLabel>
                         <FormDescription>
                           Drugi korisnici će moći dohvatiti listu pomoću
                           sljedeće poveznice:

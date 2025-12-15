@@ -119,7 +119,7 @@ export default function AddToShoppingListForm({
               data.shoppingListId === "new"
                 ? customListTitle
                 : sortedShoppingLists.find((list) => list.id === listId)
-                    ?.title || "lista";
+                    ?.title || "popis";
 
             toast.success(`Proizvod je dodan u "${listName}"`);
 
@@ -150,7 +150,7 @@ export default function AddToShoppingListForm({
 
       createShoppingListMutation.mutate(createRequest, {
         onSuccess: (newList) => {
-          toast.success(`Lista "${customListTitle}" je stvorena`);
+          toast.success(`Popis za kupnju "${customListTitle}" je stvoren`);
           proceedToAdd(newList.id);
         },
         onError: (err) => {
