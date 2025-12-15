@@ -250,8 +250,7 @@ export default function UserPreferencesModal({
                                 chain.chain_code
                               }
                               fill
-                              sizes="256px"
-                              priority={true}
+                              sizes="128px"
                               className={cn(
                                 "opacity-40 object-contain",
                                 isSelected && "opacity-100"
