@@ -41,7 +41,7 @@ export default function ProductsClient({ query }: { query: string }) {
             : undefined}
         </h3>
 
-        <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} />
+        {/* <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} /> */}
       </div>
 
       {isLoading ? (

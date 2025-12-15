@@ -40,7 +40,7 @@ import { useQueryClient } from "@tanstack/react-query";
 interface IDigitalCardModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess?: () => void;
+  onSuccess?: () => void | Promise<void>;
   digitalCard?: DigitalCardDto | null;
 }
 
@@ -77,7 +77,7 @@ export default function DigitalCardModal({
             await queryClient.invalidateQueries({
               queryKey: ["digitalCards"],
             });
-            onSuccess?.();
+            await onSuccess?.();
             onOpenChange(false);
           },
           onError: (error: unknown) => {
@@ -97,7 +97,7 @@ export default function DigitalCardModal({
           await queryClient.invalidateQueries({
             queryKey: ["digitalCards"],
           });
-          onSuccess?.();
+          await onSuccess?.();
           onOpenChange(false);
         },
         onError: (error: unknown) => {
@@ -232,7 +232,7 @@ export default function DigitalCardModal({
                       placeholder="#ffffff"
                       {...field}
                       value={field.value || "#ffffff"}
-                      className="h-15"
+                      className="h-16"
                     />
                   </FormControl>
                   <FormMessage />

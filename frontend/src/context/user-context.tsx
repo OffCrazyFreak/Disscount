@@ -7,21 +7,9 @@ import React, {
   useState,
   useCallback,
 } from "react";
-import {
-  authService,
-  userService,
-  preferencesService,
-  shoppingListService,
-  digitalCardService,
-} from "@/lib/api";
+import { authService, userService, preferencesService } from "@/lib/api";
 import { getAccessToken } from "@/lib/api/local-storage";
-import {
-  UserDto,
-  PinnedStoreDto,
-  PinnedPlaceDto,
-  ShoppingListDto,
-  DigitalCardDto,
-} from "@/lib/api/types";
+import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
 import { useQueryClient } from "@tanstack/react-query";
 
 // Define the shape of our context
@@ -30,16 +18,10 @@ interface IUserContext {
   isLoading: boolean;
   isAuthenticated: boolean;
   refreshUser: () => Promise<UserDto | undefined>;
-  refreshShoppingLists: () => Promise<void>;
-  refreshDigitalCards: () => Promise<void>;
   setUser: (user: UserDto | null) => void;
   logout: () => void;
   updatePinnedStores: (stores: PinnedStoreDto[]) => void;
   updatePinnedPlaces: (places: PinnedPlaceDto[]) => void;
-  shoppingLists: ShoppingListDto[];
-  digitalCards: DigitalCardDto[];
-  updateShoppingLists: (lists: ShoppingListDto[]) => void;
-  updateDigitalCards: (cards: DigitalCardDto[]) => void;
   handleUserLogin: (user: UserDto) => Promise<void>;
 }
 
@@ -49,8 +31,6 @@ const UserContext = createContext<IUserContext | undefined>(undefined);
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserDto | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [shoppingLists, setShoppingLists] = useState<ShoppingListDto[]>([]);
-  const [digitalCards, setDigitalCards] = useState<DigitalCardDto[]>([]);
   const queryClient = useQueryClient();
 
   // Get the logout mutation
@@ -80,23 +60,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       }
 
       setUser(userData);
-      // Fetch user's shopping lists and digital cards in parallel
-      try {
-        const [lists, cards] = await Promise.all([
-          shoppingListService.getCurrentUserShoppingLists(),
-          digitalCardService.getUserDigitalCards(),
-        ]);
-        setShoppingLists(lists || []);
-        setDigitalCards(cards || []);
-      } catch (listCardErr) {
-        console.error(
-          "Failed to fetch shopping lists or digital cards:",
-          listCardErr
-        );
-        // keep empty arrays if fetching fails
-        setShoppingLists([]);
-        setDigitalCards([]);
-      }
       return userData;
     } catch (error) {
       console.error("Failed to fetch user:", error);
@@ -111,125 +74,36 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     logoutMutation.mutate(undefined, {
       onSuccess: () => {
         setUser(null);
-        // Clear cached lists/cards on logout
-        setShoppingLists([]);
-        setDigitalCards([]);
         // Invalidate all React Query caches related to user data
         queryClient.clear();
       },
     });
   }, [logoutMutation, queryClient]);
 
-  // Handle user login - fetch shopping lists and digital cards after login
-  const handleUserLogin = useCallback(
-    async (userData: UserDto) => {
-      setUser(userData);
-
-      // Fetch user's shopping lists and digital cards in parallel
-      try {
-        const [lists, cards] = await Promise.all([
-          shoppingListService.getCurrentUserShoppingLists(),
-          digitalCardService.getUserDigitalCards(),
-        ]);
-        setShoppingLists(lists || []);
-        setDigitalCards(cards || []);
-        // Invalidate existing cache to ensure fresh data
-        queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
-        queryClient.invalidateQueries({ queryKey: ["digitalCards", "me"] });
-      } catch (listCardErr) {
-        console.error(
-          "Failed to fetch shopping lists or digital cards after login:",
-          listCardErr
-        );
-        // keep empty arrays if fetching fails
-        setShoppingLists([]);
-        setDigitalCards([]);
-      }
-    },
-    [queryClient]
-  );
-
-  // Update pinned stores in user context
+  // Update pinned stores
   const updatePinnedStores = useCallback((stores: PinnedStoreDto[]) => {
-    setUser((prevUser) => {
-      if (!prevUser) return null;
-      return {
-        ...prevUser,
-        pinnedStores: stores,
-      };
-    });
+    setUser((prev) => (prev ? { ...prev, pinnedStores: stores } : null));
   }, []);
 
-  // Update pinned places in user context
+  // Update pinned places
   const updatePinnedPlaces = useCallback((places: PinnedPlaceDto[]) => {
-    setUser((prevUser) => {
-      if (!prevUser) return null;
-      return {
-        ...prevUser,
-        pinnedPlaces: places,
-      };
-    });
+    setUser((prev) => (prev ? { ...prev, pinnedPlaces: places } : null));
   }, []);
 
-  const updateShoppingLists = useCallback((lists: ShoppingListDto[]) => {
-    setShoppingLists(lists);
+  // Handle user login
+  const handleUserLogin = useCallback(async (userData: UserDto) => {
+    setUser(userData);
   }, []);
 
-  const updateDigitalCards = useCallback((cards: DigitalCardDto[]) => {
-    setDigitalCards(cards);
-  }, []);
-
-  // Refresh shopping lists from API
-  const refreshShoppingLists = useCallback(async () => {
-    try {
-      const lists = await shoppingListService.getCurrentUserShoppingLists();
-      setShoppingLists(lists || []);
-    } catch (error) {
-      console.error("Failed to refresh shopping lists:", error);
-    }
-  }, []);
-
-  // Refresh digital cards from API
-  const refreshDigitalCards = useCallback(async () => {
-    try {
-      const cards = await digitalCardService.getUserDigitalCards();
-      setDigitalCards(cards || []);
-    } catch (error) {
-      console.error("Failed to refresh digital cards:", error);
-    }
-  }, []);
-
-  // Check for stored token and fetch user data on mount
+  // Initialize auth on mount
   useEffect(() => {
     const initializeAuth = async () => {
-      const accessToken = getAccessToken();
-
-      // If we have a token, fetch user data directly
-      if (accessToken) {
+      const token = getAccessToken();
+      if (token) {
         await refreshUser();
-        return;
+      } else {
+        setIsLoading(false);
       }
-
-      // If no access token, try to refresh using the refresh token cookie
-      // This ensures that users with valid refresh tokens don't appear as
-      // unauthenticated during the initial app load
-      try {
-        const data = await authService.refreshToken();
-
-        // If refresh is successful, the token is automatically stored in the app storage
-        // by the refreshToken function, so we can now fetch user data
-        if (data.accessToken) {
-          await refreshUser();
-          return;
-        }
-      } catch (error) {
-        // Refresh failed, which means no valid refresh token exists
-        // This is expected for users who haven't logged in or whose refresh tokens have expired
-        // console.log("No valid refresh token found, user needs to log in");
-      }
-
-      // No valid tokens available, user is not authenticated
-      setIsLoading(false);
     };
 
     initializeAuth();
@@ -241,16 +115,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     isLoading,
     isAuthenticated: !!user,
     refreshUser,
-    refreshShoppingLists,
-    refreshDigitalCards,
     setUser,
     logout: handleLogout,
     updatePinnedStores,
     updatePinnedPlaces,
-    shoppingLists,
-    digitalCards,
-    updateShoppingLists,
-    updateDigitalCards,
     handleUserLogin,
   };
 

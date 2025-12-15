@@ -16,21 +16,21 @@ import { digitalCardService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 import ViewSwitcher from "@/components/custom/view-switcher";
 import { AnimatedGroup } from "@/components/ui/animated-group";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function DigitalCardsClient({ query }: { query: string }) {
   const pathname = usePathname();
+  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDigitalCard, setSelectedDigitalCard] =
     useState<DigitalCardDto | null>(null);
   const [viewMode, setViewMode] = useViewMode(pathname, "grid");
 
-  const {
-    isAuthenticated,
-    digitalCards: contextDigitalCards,
-    isLoading,
-  } = useUser();
-  const { refetch } = digitalCardService.useGetUserDigitalCards();
-  const digitalCards = isAuthenticated ? contextDigitalCards : [];
+  const { isAuthenticated, isLoading: userLoading } = useUser();
+  const { data: digitalCards = [], isLoading } =
+    digitalCardService.useGetUserDigitalCards();
+
+  const isUserLoading = userLoading || isLoading;
 
   function handleEdit(digitalCard: DigitalCardDto) {
     setSelectedDigitalCard(digitalCard);
@@ -51,7 +51,11 @@ export default function DigitalCardsClient({ query }: { query: string }) {
           setIsModalOpen(open);
           if (!open) setSelectedDigitalCard(null);
         }}
-        onSuccess={refetch}
+        onSuccess={() =>
+          queryClient.invalidateQueries({
+            queryKey: ["digitalCards", "me"],
+          })
+        }
         digitalCard={selectedDigitalCard}
       />
 
@@ -77,14 +81,14 @@ export default function DigitalCardsClient({ query }: { query: string }) {
             {query.length > 0
               ? `Rezultati pretrage za "${query}" (${matchingDigitalCards.length})`
               : `Moje digitalne kartice${
-                  isLoading ? "" : ` (${matchingDigitalCards.length})`
+                  isUserLoading ? "" : ` (${matchingDigitalCards.length})`
                 }`}
           </h3>
 
-          <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} />
+          {/* <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} /> */}
         </div>
 
-        {isLoading ? (
+        {isUserLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="size-8 animate-spin text-gray-400" />
             <span className="ml-2 text-gray-600">Dohvaćanje kartica…</span>

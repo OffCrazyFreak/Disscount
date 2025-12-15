@@ -15,6 +15,7 @@ import { digitalCardService } from "@/lib/api";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "@/utils/strings";
+import { useUser } from "@/context/user-context";
 
 interface IDigitalCardItemProps {
   digitalCard: DigitalCardDto;
@@ -34,7 +35,7 @@ export default function DigitalCardItem({
         onSuccess: async () => {
           toast.success("Kartica obrisana.");
           await queryClient.invalidateQueries({
-            queryKey: ["digitalCards", "me"],
+            queryKey: ["digitalCards"],
           });
         },
         onError: (error: Error) => {

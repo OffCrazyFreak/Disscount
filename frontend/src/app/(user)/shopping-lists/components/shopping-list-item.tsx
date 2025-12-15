@@ -1,123 +1,86 @@
 "use client";
 
-import React from "react";
-import { Card } from "@/components/ui/card";
-import {
-  Calendar,
-  Globe,
-  Lock,
-  CheckCheck,
-  LucideClipboardEdit,
-  ListChecks,
-} from "lucide-react";
+import Link from "next/link";
 import { ShoppingListDto } from "@/lib/api/types";
-import { ViewMode } from "@/typings/view-mode";
-import { Button } from "@/components/ui/button-icon";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
-  TooltipContent,
   TooltipTrigger,
+  TooltipContent,
 } from "@/components/ui/tooltip";
+import { Globe, Lock, Edit, Calendar, ListChecks } from "lucide-react";
 import { formatDate } from "@/utils/strings";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { Activity } from "react";
 
-interface IShoppingListItemProps {
+interface IShoppingListListItemProps {
   shoppingList: ShoppingListDto;
-  onEdit?: (shoppingList: ShoppingListDto) => void;
-  viewMode?: ViewMode;
+  handleEdit: (shoppingList: ShoppingListDto) => void;
 }
 
-export default function ShoppingListItem({
+export default function ShoppingListListItem({
   shoppingList,
-  onEdit,
-  viewMode = "list",
-}: IShoppingListItemProps) {
-  const itemCount = shoppingList.items?.length || 0;
-  const checkedCount =
-    shoppingList.items?.filter((item) => item.isChecked)?.length || 0;
-
-  const variants: Record<string, string> = {
-    list: "px-6 py-4",
-    grid: "p-4",
-  };
+  handleEdit,
+}: IShoppingListListItemProps) {
+  const checkedCount = shoppingList.items.filter(
+    (item) => item.isChecked
+  ).length;
+  const totalCount = shoppingList.items.length;
 
   return (
-    <Card className={cn(variants[viewMode], "hover:shadow-md transition-all")}>
-      <div
-        className={`flex items-center justify-between gap-4 cursor-pointer ${
-          viewMode === "grid" ? "flex-col items-start" : ""
-        }`}
+    <Card className="p-4 hover:shadow-md transition-shadow">
+      {/* Overlay link to make whole card clickable */}
+      <Link
+        href={`/shopping-lists/${shoppingList.id}`}
+        className="flex items-stretch sm:items-center justify-between gap-4 flex-col sm:flex-row"
       >
-        <Link
-          href={`/shopping-lists/${shoppingList.id}`}
-          className={`flex items-center gap-4 flex-1 ${
-            viewMode === "grid" ? "flex-col items-start" : ""
-          }`}
-        >
-          <div className="flex items-center gap-4 flex-1">
-            {/* Shopping List Icon */}
-            {viewMode === "list" && (
-              <div className="hidden sm:flex size-16 bg-primary/10 rounded-lg items-center justify-center shrink-0">
-                <ListChecks className="size-8 text-primary" />
+        <div className="flex items-center justify-between gap-4 min-w-0 flex-1">
+          {/* Title */}
+          <h3 className="font-bold text-lg truncate">{shoppingList.title}</h3>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex-shrink-0" tabIndex={0}>
+                {shoppingList.isPublic ? (
+                  <Globe className="size-5 text-primary" />
+                ) : (
+                  <Lock className="size-5 text-gray-600" />
+                )}
               </div>
-            )}
+            </TooltipTrigger>
 
-            {/* Shopping List Info */}
-            <div className="flex items-start justify-between flex-col">
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold truncate m-0 p-0">
-                  {shoppingList.title}
-                </h3>
+            <TooltipContent sideOffset={4}>
+              {shoppingList.isPublic ? "Popis je javan" : "Popis je privatan"}
+            </TooltipContent>
+          </Tooltip>{" "}
+        </div>
 
-                <Tooltip>
-                  <TooltipTrigger>
-                    {shoppingList.isPublic ? (
-                      <Globe className="size-5 text-primary" />
-                    ) : (
-                      <Lock className="size-5 text-gray-400" />
-                    )}
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {shoppingList.isPublic
-                      ? "Popis je javan"
-                      : "Popis je privatan"}
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-
-              <div className="flex items-start flex-wrap gap-2 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <Calendar className="size-4" />
-                  <span>{formatDate(shoppingList.createdAt)}</span>
-                </div>
-
-                <div className="text-gray-400">
-                  {itemCount > 0 && (
-                    <span className="flex items-center">
-                      ({checkedCount}/{itemCount}&nbsp;
-                      <CheckCheck size={"16"} />)
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
+        {/* Right-side meta */}
+        <div className="flex items-center justify-between gap-2 sm:gap-6">
+          {/* Updated Date */}
+          <div className="flex items-start pt-1 gap-2 text-sm text-gray-600">
+            <Calendar className="size-5" />
+            <span>{formatDate(shoppingList.updatedAt)}</span>
           </div>
-        </Link>
-
-        <Button
-          size={"icon"}
-          className="size-10 sm:size-12"
-          onClick={(ev: React.MouseEvent) => {
-            ev.stopPropagation();
-
-            // Handle edit action
-            if (onEdit) onEdit(shoppingList);
-          }}
-        >
-          <LucideClipboardEdit className="size-6" />
-        </Button>
-      </div>
+          {/* Item Count */}
+          <div className="flex items-start pt-1 gap-2 text-sm text-gray-600">
+            <ListChecks className="size-5" />
+            <span>
+              {checkedCount}/{totalCount}
+            </span>
+          </div>
+          <Button
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleEdit(shoppingList);
+            }}
+            className="flex-shrink-0 size-9 bg-primary text-white rounded-sm grid place-items-center z-20"
+          >
+            <Edit className="size-5 text-white" />
+          </Button>{" "}
+        </div>
+      </Link>
     </Card>
   );
 }
