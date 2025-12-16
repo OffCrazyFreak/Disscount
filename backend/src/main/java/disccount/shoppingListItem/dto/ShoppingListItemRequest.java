@@ -1,5 +1,7 @@
 package disccount.shoppingListItem.dto;
 
+import java.math.BigDecimal;
+
 import disccount.shoppingListItem.domain.enums.StoreChain;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -22,6 +24,6 @@ public class ShoppingListItemRequest {
     private Integer amount = 1;
     private Boolean isChecked = false;
     private StoreChain chainCode;
-    private Double avgPrice;
-    private Double storePrice;
+    private BigDecimal avgPrice;
+    private BigDecimal storePrice;
 }

@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { shoppingListService } from "@/lib/api";
 import { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import { formatDate } from "@/utils/strings";
+import { storeNamesMap } from "@/utils/mappings";
 import ShoppingListModal from "@/app/(user)/shopping-lists/components/forms/shopping-list-modal";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -238,40 +239,89 @@ export default function ShoppingListDetailClient({
           </Card>
         ) : (
           <div className="space-y-2">
-            {shoppingList.items.map((item) => (
-              <Card key={item.id} className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                        item.isChecked
-                          ? "bg-green-500 border-green-500 text-white"
-                          : "border-gray-300"
-                      }`}
-                    >
-                      {item.isChecked && "✓"}
-                    </div>
-                    <div>
-                      <p
-                        className={`font-medium ${
-                          item.isChecked ? "line-through text-gray-500" : ""
+            {shoppingList.items.map((item) => {
+              // Map backend enum (e.g. "PLODINE" or "TRGOVINA_KRK") to our storeNamesMap key
+              const chainKey = item.chainCode
+                ? item.chainCode.toLowerCase().replace(/_/g, "-")
+                : null;
+              const storeName = chainKey
+                ? storeNamesMap[chainKey] ?? chainKey
+                : null;
+
+              return (
+                <Card key={item.id} className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                          item.isChecked
+                            ? "bg-green-500 border-green-500 text-white"
+                            : "border-gray-300"
                         }`}
                       >
-                        {item.name}
-                      </p>
-                      {item.amount && (
-                        <p className="text-sm text-gray-600">
-                          Količina: {item.amount}
+                        {item.isChecked && "✓"}
+                      </div>
+                      <div>
+                        <p
+                          className={`font-medium ${
+                            item.isChecked ? "line-through text-gray-500" : ""
+                          }`}
+                        >
+                          {item.name}
                         </p>
-                      )}
+                        {item.amount && (
+                          <p className="text-sm text-gray-600">
+                            Količina: {item.amount}
+                          </p>
+                        )}
+
+                        {/* Store / price info */}
+                        {(storeName ||
+                          item.avgPrice != null ||
+                          item.storePrice != null) && (
+                          <div className="text-sm text-gray-600 mt-1">
+                            {storeName && (
+                              <span className="mr-2">
+                                Kupovina: {storeName}
+                              </span>
+                            )}
+                            {item.avgPrice != null && (
+                              <span className="mr-2">
+                                Prosječna: {item.avgPrice.toFixed(2)}€
+                              </span>
+                            )}
+                            {item.storePrice != null && (
+                              <span className="text-red-700">
+                                Cijena u trgovini: {item.storePrice.toFixed(2)}€
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Updated info */}
+                        {(item.updatedAt || item.updatedByUserId) && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            {item.updatedAt && (
+                              <span>
+                                Izmijenjeno: {formatDate(item.updatedAt)}
+                              </span>
+                            )}
+                            {item.updatedByUserId && (
+                              <span className="ml-2">
+                                od: {item.updatedByUserId}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {formatDate(item.createdAt)}
                     </div>
                   </div>
-                  <div className="text-sm text-gray-500">
-                    {formatDate(item.createdAt)}
-                  </div>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>

@@ -8,6 +8,9 @@ export const shoppingListItemRequestSchema = z.object({
   unit: z.string().nullable().optional(),
   amount: z.number().int().min(1, "Količina mora biti veća od 0").default(1),
   isChecked: z.boolean().default(false),
+  chainCode: z.string().nullable().optional(),
+  avgPrice: z.number().nullable().optional(),
+  storePrice: z.number().nullable().optional(),
 });
 
 // DTO schemas extend request schemas
@@ -15,6 +18,8 @@ export const shoppingListItemDtoSchema = shoppingListItemRequestSchema.extend({
   id: z.string(),
   shoppingListId: z.string(),
   createdAt: z.string(),
+  updatedAt: z.string().nullable().optional(),
+  updatedByUserId: z.string().nullable().optional(),
 });
 
 // Type exports

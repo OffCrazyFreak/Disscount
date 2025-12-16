@@ -7,6 +7,8 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import java.math.BigDecimal;
+
 import disccount.shoppingList.domain.ShoppingList;
 import disccount.shoppingListItem.domain.enums.StoreChain;
 import disccount.user.domain.User;
@@ -58,11 +60,10 @@ public class ShoppingListItem {
     private StoreChain chainCode;
 
     @Column(name = "avg_price")
-    private Double avgPrice;
+    private BigDecimal avgPrice;
 
     @Column(name = "store_price")
-    private Double storePrice;
-
+    private BigDecimal storePrice;
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

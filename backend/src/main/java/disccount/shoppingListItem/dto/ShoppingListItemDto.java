@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.math.BigDecimal;
 
 @Data
 @Builder
@@ -21,8 +22,8 @@ public class ShoppingListItemDto {
     private Integer amount;
     private Boolean isChecked;
     private StoreChain chainCode;
-    private Double avgPrice;
-    private Double storePrice;
+    private BigDecimal avgPrice;
+    private BigDecimal storePrice;    
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private UUID updatedByUserId;
