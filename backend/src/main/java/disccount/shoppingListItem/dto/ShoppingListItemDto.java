@@ -1,5 +1,6 @@
 package disccount.shoppingListItem.dto;
 
+import disccount.shoppingListItem.domain.enums.StoreChain;
 import lombok.Builder;
 import lombok.Data;
 
@@ -19,5 +20,10 @@ public class ShoppingListItemDto {
     private String unit;
     private Integer amount;
     private Boolean isChecked;
+    private StoreChain chainCode;
+    private Double avgPrice;
+    private Double storePrice;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private UUID updatedByUserId;
 }

@@ -115,7 +115,12 @@ public class ShoppingListService {
                         .unit(item.getUnit())
                         .amount(item.getAmount())
                         .isChecked(item.getIsChecked())
+                        .chainCode(item.getChainCode())
+                        .avgPrice(item.getAvgPrice())
+                        .storePrice(item.getStorePrice())
                         .createdAt(item.getCreatedAt())
+                        .updatedAt(item.getUpdatedAt())
+                        .updatedByUserId(item.getUpdatedByUser() != null ? item.getUpdatedByUser().getId() : null)
                         .build())
                 .collect(Collectors.toList());
 

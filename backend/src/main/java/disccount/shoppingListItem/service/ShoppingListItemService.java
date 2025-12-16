@@ -55,7 +55,13 @@ public class ShoppingListItemService {
             if (request.getBrand() != null) item.setBrand(request.getBrand());
             if (request.getQuantity() != null) item.setQuantity(request.getQuantity());
             if (request.getUnit() != null) item.setUnit(request.getUnit());
+            if (request.getChainCode() != null) item.setChainCode(request.getChainCode());
+            if (request.getAvgPrice() != null) item.setAvgPrice(request.getAvgPrice());
+            if (request.getStorePrice() != null) item.setStorePrice(request.getStorePrice());
             
+            // Update tracking fields
+            item.setUpdatedAt(LocalDateTime.now());
+            item.setUpdatedByUser(owner);
         } else {
             // Create new item
             item = ShoppingListItem.builder()
@@ -67,6 +73,10 @@ public class ShoppingListItemService {
                     .unit(request.getUnit())
                     .amount(request.getAmount() != null ? request.getAmount() : 1)
                     .isChecked(request.getIsChecked() != null ? request.getIsChecked() : false)
+                    .chainCode(request.getChainCode())
+                    .avgPrice(request.getAvgPrice())
+                    .storePrice(request.getStorePrice())
+                    .updatedByUser(owner)
                     .build();
         }
 
@@ -91,6 +101,9 @@ public class ShoppingListItemService {
                 })
                 .orElseThrow(() -> new BadRequestException("Shopping list item not found or access denied"));
 
+        User currentUser = userRepository.findById(ownerId)
+                .orElseThrow(() -> new UnauthorizedException("User not found"));
+
         // Update fields
         item.setEan(request.getEan());
         item.setBrand(request.getBrand());
@@ -99,6 +112,13 @@ public class ShoppingListItemService {
         item.setUnit(request.getUnit());
         item.setAmount(request.getAmount() != null ? request.getAmount() : 1);
         item.setIsChecked(request.getIsChecked() != null ? request.getIsChecked() : false);
+        item.setChainCode(request.getChainCode());
+        item.setAvgPrice(request.getAvgPrice());
+        item.setStorePrice(request.getStorePrice());
+        
+        // Update tracking fields
+        item.setUpdatedAt(LocalDateTime.now());
+        item.setUpdatedByUser(currentUser);
 
         item = shoppingListItemRepository.save(item);
 
@@ -150,7 +170,12 @@ public class ShoppingListItemService {
                 .unit(item.getUnit())
                 .amount(item.getAmount())
                 .isChecked(item.getIsChecked())
+                .chainCode(item.getChainCode())
+                .avgPrice(item.getAvgPrice())
+                .storePrice(item.getStorePrice())
                 .createdAt(item.getCreatedAt())
+                .updatedAt(item.getUpdatedAt())
+                .updatedByUserId(item.getUpdatedByUser() != null ? item.getUpdatedByUser().getId() : null)
                 .build();
     }
 }
