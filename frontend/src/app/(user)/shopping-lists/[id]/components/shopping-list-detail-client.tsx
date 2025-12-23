@@ -9,6 +9,9 @@ import {
   Lock,
   LucideClipboardEdit,
   Trash2,
+  Minus,
+  Plus,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
 import { Card } from "@/components/ui/card";
@@ -29,12 +32,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import ShoppingListStoreSummary from "./shopping-list-store-summary";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
+
+interface ShoppingListDetailClientProps {
+  listId: string;
+}
 
 export default function ShoppingListDetailClient({
   listId,
-}: {
-  listId: string;
-}) {
+}: ShoppingListDetailClientProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,6 +56,9 @@ export default function ShoppingListDetailClient({
 
   const deleteShoppingListMutation =
     shoppingListService.useDeleteShoppingList();
+
+  const updateItemMutation = shoppingListService.useUpdateShoppingListItem();
+  const deleteItemMutation = shoppingListService.useDeleteShoppingListItem();
 
   if (isLoading) {
     return (
@@ -141,6 +152,107 @@ export default function ShoppingListDetailClient({
     await queryClient.invalidateQueries({
       queryKey: ["shoppingLists", listId],
     });
+  };
+
+  const handleItemCheckedChange = async (
+    itemId: string,
+    isChecked: boolean
+  ) => {
+    const item = shoppingList.items.find((i) => i.id === itemId);
+    if (!item) return;
+
+    // Optimistic update
+    const queryKey = ["shoppingLists", listId];
+    await queryClient.cancelQueries({ queryKey });
+    const previousData = queryClient.getQueryData<ShoppingList>(queryKey);
+
+    queryClient.setQueryData<ShoppingList | undefined>(queryKey, (old) => {
+      if (!old) return old;
+      return {
+        ...old,
+        items: old.items.map((i) =>
+          i.id === itemId ? { ...i, isChecked } : i
+        ),
+      };
+    });
+
+    try {
+      await updateItemMutation.mutateAsync({
+        itemId,
+        data: {
+          ean: item.ean,
+          name: item.name,
+          amount: item.amount || 1,
+          isChecked,
+          brand: item.brand,
+          quantity: item.quantity,
+          unit: item.unit,
+          chainCode: item.chainCode,
+          avgPrice: item.avgPrice,
+          storePrice: item.storePrice,
+        },
+      });
+      await queryClient.invalidateQueries({ queryKey });
+    } catch (error) {
+      // Revert on error
+      queryClient.setQueryData(queryKey, previousData);
+      toast.error("Greška pri ažuriranju stavke");
+    }
+  };
+
+  const handleItemAmountChange = async (itemId: string, amount: number) => {
+    if (amount < 1) return;
+
+    const item = shoppingList.items.find((i) => i.id === itemId);
+    if (!item) return;
+
+    // Optimistic update
+    const queryKey = ["shoppingLists", listId];
+    await queryClient.cancelQueries({ queryKey });
+    const previousData = queryClient.getQueryData<ShoppingList>(queryKey);
+
+    queryClient.setQueryData<ShoppingList | undefined>(queryKey, (old) => {
+      if (!old) return old;
+      return {
+        ...old,
+        items: old.items.map((i) => (i.id === itemId ? { ...i, amount } : i)),
+      };
+    });
+
+    try {
+      await updateItemMutation.mutateAsync({
+        itemId,
+        data: {
+          ean: item.ean,
+          name: item.name,
+          amount,
+          isChecked: item.isChecked,
+          brand: item.brand,
+          quantity: item.quantity,
+          unit: item.unit,
+          chainCode: item.chainCode,
+          avgPrice: item.avgPrice,
+          storePrice: item.storePrice,
+        },
+      });
+      await queryClient.invalidateQueries({ queryKey });
+    } catch (error) {
+      // Revert on error
+      queryClient.setQueryData(queryKey, previousData);
+      toast.error("Greška pri ažuriranju količine");
+    }
+  };
+
+  const handleDeleteItem = async (itemId: string) => {
+    try {
+      await deleteItemMutation.mutateAsync(itemId);
+      await queryClient.invalidateQueries({
+        queryKey: ["shoppingLists", listId],
+      });
+      toast.success("Stavka je obrisana");
+    } catch (error) {
+      toast.error("Greška pri brisanju stavke");
+    }
   };
 
   return (
@@ -238,93 +350,127 @@ export default function ShoppingListDetailClient({
             <p className="text-gray-600">Ovaj popis još nema stavki.</p>
           </Card>
         ) : (
-          <div className="space-y-2">
-            {shoppingList.items.map((item) => {
-              // Map backend enum (e.g. "PLODINE" or "TRGOVINA_KRK") to our storeNamesMap key
-              const chainKey = item.chainCode
-                ? item.chainCode.toLowerCase().replace(/_/g, "-")
-                : null;
-              const storeName = chainKey
-                ? storeNamesMap[chainKey] ?? chainKey
-                : null;
+          <Card className="p-4">
+            <div className="space-y-2">
+              {[...shoppingList.items]
+                .sort((a, b) =>
+                  a.name.localeCompare(b.name, "hr", { sensitivity: "base" })
+                )
+                .map((item, index, sortedItems) => {
+                  // Map backend enum (e.g. "PLODINE" or "TRGOVINA_KRK") to our storeNamesMap key
+                  const chainKey = item.chainCode
+                    ? item.chainCode.toLowerCase().replace(/_/g, "-")
+                    : null;
+                  const storeName = chainKey
+                    ? (storeNamesMap[chainKey] ?? chainKey)
+                    : null;
 
-              return (
-                <Card key={item.id} className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                          item.isChecked
-                            ? "bg-green-500 border-green-500 text-white"
-                            : "border-gray-300"
-                        }`}
-                      >
-                        {item.isChecked && "✓"}
-                      </div>
-                      <div>
-                        <p
-                          className={`font-medium ${
-                            item.isChecked ? "line-through text-gray-500" : ""
-                          }`}
-                        >
-                          {item.name}
-                        </p>
-                        {item.amount && (
-                          <p className="text-sm text-gray-600">
-                            Količina: {item.amount}
-                          </p>
-                        )}
-
-                        {/* Store / price info */}
-                        {(storeName ||
-                          item.avgPrice != null ||
-                          item.storePrice != null) && (
-                          <div className="text-sm text-gray-600 mt-1">
-                            {storeName && (
-                              <span className="mr-2">
-                                Kupovina: {storeName}
-                              </span>
-                            )}
-                            {item.avgPrice != null && (
-                              <span className="mr-2">
-                                Prosječna: {item.avgPrice.toFixed(2)}€
-                              </span>
-                            )}
-                            {item.storePrice != null && (
-                              <span className="text-red-700">
-                                Cijena u trgovini: {item.storePrice.toFixed(2)}€
-                              </span>
+                  return (
+                    <div key={item.id}>
+                      <div className="flex items-center justify-between py-3">
+                        {/* Left side: Checkbox and item name */}
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <Checkbox
+                            checked={item.isChecked}
+                            onCheckedChange={(checked) =>
+                              handleItemCheckedChange(
+                                item.id,
+                                checked as boolean
+                              )
+                            }
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p
+                              className={`font-medium truncate ${
+                                item.isChecked
+                                  ? "line-through text-gray-500"
+                                  : ""
+                              }`}
+                            >
+                              {item.name}
+                            </p>
+                            {item.brand && (
+                              <p className="text-sm text-gray-600 truncate">
+                                {item.brand}
+                              </p>
                             )}
                           </div>
-                        )}
+                        </div>
 
-                        {/* Updated info */}
-                        {(item.updatedAt || item.updatedByUserId) && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            {item.updatedAt && (
-                              <span>
-                                Izmijenjeno: {formatDate(item.updatedAt)}
-                              </span>
-                            )}
-                            {item.updatedByUserId && (
-                              <span className="ml-2">
-                                od: {item.updatedByUserId}
-                              </span>
-                            )}
+                        {/* Right side: Amount controls, price, and remove button */}
+                        <div className="flex items-center gap-3 ml-4">
+                          {/* Amount controls */}
+                          <div className="flex items-center gap-1">
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              className="size-8"
+                              onClick={() =>
+                                handleItemAmountChange(
+                                  item.id,
+                                  (item.amount || 1) - 1
+                                )
+                              }
+                              disabled={(item.amount || 1) <= 1}
+                            >
+                              <Minus className="size-4" />
+                            </Button>
+                            <span className="w-8 text-center font-medium">
+                              {item.amount || 1}
+                            </span>
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              className="size-8"
+                              onClick={() =>
+                                handleItemAmountChange(
+                                  item.id,
+                                  (item.amount || 1) + 1
+                                )
+                              }
+                            >
+                              <Plus className="size-4" />
+                            </Button>
                           </div>
-                        )}
+
+                          {/* Average price */}
+                          {item.avgPrice != null && (
+                            <div className="text-sm font-medium text-gray-700 min-w-0">
+                              {item.avgPrice.toFixed(2)}€
+                            </div>
+                          )}
+
+                          {/* Remove button */}
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="size-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => handleDeleteItem(item.id)}
+                            disabled={deleteItemMutation.isPending}
+                          >
+                            {deleteItemMutation.isPending ? (
+                              <Loader2 className="size-4 animate-spin" />
+                            ) : (
+                              <X className="size-4" />
+                            )}
+                          </Button>
+                        </div>
                       </div>
+
+                      {/* Separator (except for last item) */}
+                      {index < sortedItems.length - 1 && (
+                        <Separator className="my-2" />
+                      )}
                     </div>
-                    <div className="text-sm text-gray-500">
-                      {formatDate(item.createdAt)}
-                    </div>
-                  </div>
-                </Card>
-              );
-            })}
-          </div>
+                  );
+                })}
+            </div>
+          </Card>
         )}
       </div>
+
+      {/* Store Summary */}
+      <ShoppingListStoreSummary shoppingList={shoppingList} />
 
       <ShoppingListModal
         isOpen={isModalOpen}
