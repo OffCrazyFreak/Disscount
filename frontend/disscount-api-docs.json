@@ -796,92 +796,6 @@
         }
       }
     },
-    "/api/users": {
-      "get": {
-        "tags": ["User Management"],
-        "summary": "Get all users",
-        "operationId": "getAllUsers",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/users/exists/username/{username}": {
-      "get": {
-        "tags": ["User Management"],
-        "summary": "Check if username exists",
-        "operationId": "checkUsernameExists",
-        "parameters": [
-          {
-            "name": "username",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "boolean"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/users/exists/email/{email}": {
-      "get": {
-        "tags": ["User Management"],
-        "summary": "Check if email exists",
-        "operationId": "checkEmailExists",
-        "parameters": [
-          {
-            "name": "email",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "boolean"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/shopping-lists/me": {
       "get": {
         "tags": ["Shopping Lists"],
@@ -1095,6 +1009,39 @@
           },
           "isChecked": {
             "type": "boolean"
+          },
+          "chainCode": {
+            "type": "string",
+            "enum": [
+              "PLODINE",
+              "TOMMY",
+              "KONZUM",
+              "LIDL",
+              "STUDENAC",
+              "SPAR",
+              "KAUFLAND",
+              "METRO",
+              "EUROSPIN",
+              "JADRANKA_TRGOVINA",
+              "DM",
+              "KTC",
+              "TRGOCENTAR",
+              "VRUTAK",
+              "ZABAC",
+              "NTL",
+              "RIBOLA",
+              "ROTO",
+              "BOSO",
+              "BRODOKOMERC",
+              "TRGOVINA_KRK",
+              "LORENCO"
+            ]
+          },
+          "avgPrice": {
+            "type": "number"
+          },
+          "storePrice": {
+            "type": "number"
           }
         }
       },
@@ -1131,9 +1078,50 @@
           "isChecked": {
             "type": "boolean"
           },
+          "chainCode": {
+            "type": "string",
+            "enum": [
+              "PLODINE",
+              "TOMMY",
+              "KONZUM",
+              "LIDL",
+              "STUDENAC",
+              "SPAR",
+              "KAUFLAND",
+              "METRO",
+              "EUROSPIN",
+              "JADRANKA_TRGOVINA",
+              "DM",
+              "KTC",
+              "TRGOCENTAR",
+              "VRUTAK",
+              "ZABAC",
+              "NTL",
+              "RIBOLA",
+              "ROTO",
+              "BOSO",
+              "BRODOKOMERC",
+              "TRGOVINA_KRK",
+              "LORENCO"
+            ]
+          },
+          "avgPrice": {
+            "type": "number"
+          },
+          "storePrice": {
+            "type": "number"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedByUserId": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -1614,6 +1602,9 @@
           "sort": {
             "$ref": "#/components/schemas/SortObject"
           },
+          "unpaged": {
+            "type": "boolean"
+          },
           "pageNumber": {
             "type": "integer",
             "format": "int32"
@@ -1624,9 +1615,6 @@
           },
           "paged": {
             "type": "boolean"
-          },
-          "unpaged": {
-            "type": "boolean"
           }
         }
       },
@@ -1636,10 +1624,10 @@
           "empty": {
             "type": "boolean"
           },
-          "unsorted": {
+          "sorted": {
             "type": "boolean"
           },
-          "sorted": {
+          "unsorted": {
             "type": "boolean"
           }
         }
