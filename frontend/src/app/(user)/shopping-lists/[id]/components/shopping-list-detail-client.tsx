@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Loader2,
   ArrowLeft,
@@ -35,6 +35,13 @@ import {
 import ShoppingListStoreSummary from "./shopping-list-store-summary";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import StoreChainSelect from "./store-chain-select";
+import { useUser } from "@/context/user-context";
+import {
+  findCheapestStoreForItem,
+  getAveragePriceForItem,
+  getStorePricesForItem,
+} from "@/utils/shopping-list-utils";
 
 interface ShoppingListDetailClientProps {
   listId: string;
@@ -45,14 +52,78 @@ export default function ShoppingListDetailClient({
 }: ShoppingListDetailClientProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { user } = useUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [cheapestStores, setCheapestStores] = useState<Record<string, string>>(
+    {}
+  );
+  const [averagePrices, setAveragePrices] = useState<Record<string, number>>(
+    {}
+  );
+  const [storePrices, setStorePrices] = useState<
+    Record<string, Record<string, number>>
+  >({});
 
   const {
     data: shoppingList,
     isLoading,
     error,
   } = shoppingListService.useGetShoppingListById(listId);
+
+  // Compute cheapest stores for all items
+  useEffect(() => {
+    if (!shoppingList?.items || !user?.pinnedStores) return;
+
+    const computeCheapestStores = async () => {
+      const stores: Record<string, string> = {};
+
+      for (const item of shoppingList.items) {
+        const cheapestStore = await findCheapestStoreForItem(
+          item,
+          user.pinnedStores || undefined
+        );
+        if (cheapestStore) {
+          stores[item.id] = cheapestStore;
+        }
+      }
+
+      setCheapestStores(stores);
+    };
+
+    computeCheapestStores();
+  }, [shoppingList?.items, user?.pinnedStores]);
+
+  // Compute average prices for unchecked items
+  useEffect(() => {
+    if (!shoppingList?.items) return;
+
+    const computeAveragePrices = async () => {
+      const prices: Record<string, number> = {};
+      const stores: Record<string, Record<string, number>> = {};
+
+      for (const item of shoppingList.items) {
+        // Only fetch for unchecked items (checked items should have avgPrice from DB)
+        if (!item.isChecked) {
+          const avgPrice = await getAveragePriceForItem(item);
+          const itemStorePrices = await getStorePricesForItem(item);
+
+          if (avgPrice !== null) {
+            prices[item.id] = avgPrice;
+          }
+
+          if (Object.keys(itemStorePrices).length > 0) {
+            stores[item.id] = itemStorePrices;
+          }
+        }
+      }
+
+      setAveragePrices(prices);
+      setStorePrices(stores);
+    };
+
+    computeAveragePrices();
+  }, [shoppingList?.items]);
 
   const deleteShoppingListMutation =
     shoppingListService.useDeleteShoppingList();
@@ -172,22 +243,48 @@ export default function ShoppingListDetailClient({
         if (!old) return old;
         return {
           ...old,
-          items: old.items?.map((i) =>
-            i.id === itemId ? { ...i, isChecked: checked } : i
-          ),
+          items: old.items?.map((i) => {
+            if (i.id === itemId) {
+              const updatedItem = { ...i, isChecked: checked };
+              // If checking the item, include the current average price
+              if (checked) {
+                const currentAvgPrice = averagePrices[i.id];
+                if (currentAvgPrice !== undefined) {
+                  updatedItem.avgPrice = currentAvgPrice;
+                }
+              }
+              return updatedItem;
+            }
+            return i;
+          }),
         };
       }
     );
 
-    // Update the item
+    // Update the item - include avgPrice and storePrice when checking
+    const updateData = {
+      ...item,
+      isChecked: checked,
+    };
+
+    // If checking the item, include the current average price and store price
+    if (checked) {
+      const currentAvgPrice = averagePrices[item.id];
+      if (currentAvgPrice !== undefined) {
+        updateData.avgPrice = currentAvgPrice;
+      }
+
+      // Include the store price from the selected store
+      if (item.chainCode && storePrices[item.id]?.[item.chainCode]) {
+        updateData.storePrice = storePrices[item.id][item.chainCode];
+      }
+    }
+
     updateItemMutation.mutate(
       {
         listId,
         itemId,
-        data: {
-          ...item,
-          isChecked: checked,
-        },
+        data: updateData,
       },
       {
         onError: (error: Error) => {
@@ -200,7 +297,9 @@ export default function ShoppingListDetailClient({
           );
         },
         onSettled: () => {
-          queryClient.invalidateQueries({ queryKey: ["shoppingLists", listId] });
+          queryClient.invalidateQueries({
+            queryKey: ["shoppingLists", listId],
+          });
           queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
         },
       }
@@ -255,7 +354,64 @@ export default function ShoppingListDetailClient({
           );
         },
         onSettled: () => {
-          queryClient.invalidateQueries({ queryKey: ["shoppingLists", listId] });
+          queryClient.invalidateQueries({
+            queryKey: ["shoppingLists", listId],
+          });
+          queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
+        },
+      }
+    );
+  };
+
+  const handleStoreChainChange = async (itemId: string, chainCode: string) => {
+    // Find the item to update
+    const item = shoppingList.items?.find((i) => i.id === itemId);
+    if (!item) return;
+
+    // Optimistic update
+    await queryClient.cancelQueries({ queryKey: ["shoppingLists", listId] });
+    const previousData = queryClient.getQueryData<ShoppingList>([
+      "shoppingLists",
+      listId,
+    ]);
+
+    queryClient.setQueryData<ShoppingList | undefined>(
+      ["shoppingLists", listId],
+      (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          items: old.items?.map((i) =>
+            i.id === itemId ? { ...i, chainCode: chainCode } : i
+          ),
+        };
+      }
+    );
+
+    // Update the item
+    updateItemMutation.mutate(
+      {
+        listId,
+        itemId,
+        data: {
+          ...item,
+          chainCode: chainCode,
+        },
+      },
+      {
+        onError: (error: Error) => {
+          // Rollback on error
+          if (previousData) {
+            queryClient.setQueryData(["shoppingLists", listId], previousData);
+          }
+          toast.error(
+            error.message || "Greška pri ažuriranju stavke. Pokušajte ponovno."
+          );
+        },
+        onSettled: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["shoppingLists", listId],
+          });
           queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
         },
       }
@@ -298,7 +454,9 @@ export default function ShoppingListDetailClient({
           toast.success("Stavka je uspješno obrisana!");
         },
         onSettled: () => {
-          queryClient.invalidateQueries({ queryKey: ["shoppingLists", listId] });
+          queryClient.invalidateQueries({
+            queryKey: ["shoppingLists", listId],
+          });
           queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
         },
       }
@@ -333,25 +491,26 @@ export default function ShoppingListDetailClient({
             </div>
             <Button
               size="icon"
-              variant="ghost"
-              className="size-10"
+              variant="default"
+              className="p-2 size-12 shrink-0"
               onClick={handleEdit}
               title="Uredi popis"
             >
-              <LucideClipboardEdit className="size-5" />
+              <LucideClipboardEdit className="size-6" />
             </Button>
+
             <Button
               size="icon"
-              variant="ghost"
-              className="size-10 text-red-600 hover:text-red-700 hover:bg-red-50"
+              variant="default"
+              className="p-2 size-12 shrink-0 bg-red-600 hover:bg-red-700"
               onClick={handleDelete}
               title="Obriši popis"
               disabled={deleteShoppingListMutation.isPending}
             >
               {deleteShoppingListMutation.isPending ? (
-                <Loader2 className="size-5 animate-spin" />
+                <Loader2 className="size-6 animate-spin" />
               ) : (
-                <Trash2 className="size-5" />
+                <Trash2 className="size-6" />
               )}
             </Button>
           </div>
@@ -393,7 +552,7 @@ export default function ShoppingListDetailClient({
 
       {/* Items */}
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold">Stavke ({itemCount})</h2>
+        <h2 className="text-lg font-semibold">Proizvodi ({itemCount})</h2>
 
         {itemCount === 0 ? (
           <Card className="p-8 text-center">
@@ -401,7 +560,7 @@ export default function ShoppingListDetailClient({
           </Card>
         ) : (
           <Card className="p-4">
-            <div className="space-y-2">
+            <div className="space-y-1">
               {[...shoppingList.items]
                 .sort((a, b) =>
                   a.name.localeCompare(b.name, "hr", { sensitivity: "base" })
@@ -417,9 +576,9 @@ export default function ShoppingListDetailClient({
 
                   return (
                     <div key={item.id}>
-                      <div className="flex items-center justify-between py-3">
-                        {/* Left side: Checkbox and item name */}
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="flex items-center justify-between py-1 flex-wrap sm:flex-nowrap gap-6">
+                        {/* Left side: Checkbox, item name, and delete button (mobile) */}
+                        <div className="flex items-center gap-4 w-full sm:w-auto">
                           <Checkbox
                             checked={item.isChecked}
                             onCheckedChange={(checked) =>
@@ -429,9 +588,9 @@ export default function ShoppingListDetailClient({
                               )
                             }
                           />
-                          <div className="min-w-0 flex-1">
+                          <div className="flex-1">
                             <p
-                              className={`font-medium truncate ${
+                              className={`text-sm sm:text-md ${
                                 item.isChecked
                                   ? "line-through text-gray-500"
                                   : ""
@@ -440,61 +599,17 @@ export default function ShoppingListDetailClient({
                               {item.name}
                             </p>
                             {item.brand && (
-                              <p className="text-sm text-gray-600 truncate">
+                              <p className="text-xs sm:text-sm text-gray-600 text-wrap">
                                 {item.brand}
                               </p>
                             )}
                           </div>
-                        </div>
 
-                        {/* Right side: Amount controls, price, and remove button */}
-                        <div className="flex items-center gap-3 ml-4">
-                          {/* Amount controls */}
-                          <div className="flex items-center gap-1">
-                            <Button
-                              size="icon"
-                              variant="outline"
-                              className="size-8"
-                              onClick={() =>
-                                handleItemAmountChange(
-                                  item.id,
-                                  (item.amount || 1) - 1
-                                )
-                              }
-                              disabled={(item.amount || 1) <= 1}
-                            >
-                              <Minus className="size-4" />
-                            </Button>
-                            <span className="w-8 text-center font-medium">
-                              {item.amount || 1}
-                            </span>
-                            <Button
-                              size="icon"
-                              variant="outline"
-                              className="size-8"
-                              onClick={() =>
-                                handleItemAmountChange(
-                                  item.id,
-                                  (item.amount || 1) + 1
-                                )
-                              }
-                            >
-                              <Plus className="size-4" />
-                            </Button>
-                          </div>
-
-                          {/* Average price */}
-                          {item.avgPrice != null && (
-                            <div className="text-sm font-medium text-gray-700 min-w-0">
-                              {item.avgPrice.toFixed(2)}€
-                            </div>
-                          )}
-
-                          {/* Remove button */}
+                          {/* Delete button - shown on mobile in same row as item name */}
                           <Button
                             size="icon"
-                            variant="ghost"
-                            className="size-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            variant="default"
+                            className="size-7 sm:hidden p-2 bg-red-600 hover:bg-red-700"
                             onClick={() => handleDeleteItem(item.id)}
                             disabled={deleteItemMutation.isPending}
                           >
@@ -502,6 +617,92 @@ export default function ShoppingListDetailClient({
                               <Loader2 className="size-4 animate-spin" />
                             ) : (
                               <X className="size-4" />
+                            )}
+                          </Button>
+                        </div>
+
+                        {/* Right side: Amount controls, price, and remove button */}
+                        <div className="flex items-center justify-between gap-8 w-full sm:w-auto">
+                          <div className="flex items-center justify-between gap-4 w-full">
+                            {/* Amount controls */}
+                            <div className="flex items-center gap-1">
+                              <Button
+                                size="icon"
+                                variant="default"
+                                className="size-7 sm:size-10"
+                                onClick={() =>
+                                  handleItemAmountChange(
+                                    item.id,
+                                    (item.amount || 1) - 1
+                                  )
+                                }
+                                disabled={(item.amount || 1) <= 1}
+                              >
+                                <Minus className="size-4 sm:size-5" />
+                              </Button>
+                              <span className="w-8 text-center font-medium">
+                                {item.amount || 1}
+                              </span>
+                              <Button
+                                size="icon"
+                                variant="default"
+                                className="size-7 sm:size-10"
+                                onClick={() =>
+                                  handleItemAmountChange(
+                                    item.id,
+                                    (item.amount || 1) + 1
+                                  )
+                                }
+                              >
+                                <Plus className="size-4 sm:size-5" />
+                              </Button>
+                            </div>
+
+                            <div className="hidden sm:block flex-shrink-0">
+                              {/* Average price - from DB for checked items, from API for unchecked items */}
+                              {(() => {
+                                const price = item.isChecked
+                                  ? item.avgPrice
+                                  : averagePrices[item.id];
+                                return price != null ? (
+                                  <div className="text-sm font-medium text-gray-700 w-20 text-right">
+                                    ~{price.toFixed(2)}€
+                                  </div>
+                                ) : null;
+                              })()}
+                            </div>
+
+                            {/* Store Chain Select */}
+                            <StoreChainSelect
+                              value={item.chainCode}
+                              onChange={(chainCode: string) =>
+                                handleStoreChainChange(item.id, chainCode)
+                              }
+                              disabled={item.isChecked}
+                              defaultValue={cheapestStores[item.id]}
+                              storePrices={storePrices[item.id] || {}}
+                              averagePrice={
+                                item.isChecked
+                                  ? item.avgPrice || undefined
+                                  : averagePrices[item.id]
+                              }
+                              isChecked={item.isChecked}
+                              storePriceFromDb={item.storePrice || undefined}
+                            />
+                          </div>
+
+                          {/* Remove button - hidden on mobile, shown on larger screens */}
+                          <Button
+                            size="icon"
+                            variant="default"
+                            className="hidden sm:flex size-7 sm:size-10 p-2 bg-red-600 hover:bg-red-700"
+                            onClick={() => handleDeleteItem(item.id)}
+                            disabled={deleteItemMutation.isPending}
+                          >
+                            {deleteItemMutation.isPending ? (
+                              <Loader2 className="size-4 sm:size-5 animate-spin" />
+                            ) : (
+                              <X className="size-4 sm:size-5" />
                             )}
                           </Button>
                         </div>

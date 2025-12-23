@@ -110,7 +110,7 @@ export const ProductItem = memo<IProductItemProps>(({ product, viewMode }) => {
               }}
               type="button"
             >
-              <ListPlus className="size-7" />
+              <ListPlus className="size-6" />
             </Button>
           </div>
         </div>
