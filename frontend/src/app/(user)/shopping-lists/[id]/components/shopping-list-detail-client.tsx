@@ -154,105 +154,155 @@ export default function ShoppingListDetailClient({
     });
   };
 
-  const handleItemCheckedChange = async (
-    itemId: string,
-    isChecked: boolean
-  ) => {
-    const item = shoppingList.items.find((i) => i.id === itemId);
+  const handleItemCheckedChange = async (itemId: string, checked: boolean) => {
+    // Find the item to update
+    const item = shoppingList.items?.find((i) => i.id === itemId);
     if (!item) return;
 
     // Optimistic update
-    const queryKey = ["shoppingLists", listId];
-    await queryClient.cancelQueries({ queryKey });
-    const previousData = queryClient.getQueryData<ShoppingList>(queryKey);
+    await queryClient.cancelQueries({ queryKey: ["shoppingLists", listId] });
+    const previousData = queryClient.getQueryData<ShoppingList>([
+      "shoppingLists",
+      listId,
+    ]);
 
-    queryClient.setQueryData<ShoppingList | undefined>(queryKey, (old) => {
-      if (!old) return old;
-      return {
-        ...old,
-        items: old.items.map((i) =>
-          i.id === itemId ? { ...i, isChecked } : i
-        ),
-      };
-    });
+    queryClient.setQueryData<ShoppingList | undefined>(
+      ["shoppingLists", listId],
+      (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          items: old.items?.map((i) =>
+            i.id === itemId ? { ...i, isChecked: checked } : i
+          ),
+        };
+      }
+    );
 
-    try {
-      await updateItemMutation.mutateAsync({
+    // Update the item
+    updateItemMutation.mutate(
+      {
+        listId,
         itemId,
         data: {
-          ean: item.ean,
-          name: item.name,
-          amount: item.amount || 1,
-          isChecked,
-          brand: item.brand,
-          quantity: item.quantity,
-          unit: item.unit,
-          chainCode: item.chainCode,
-          avgPrice: item.avgPrice,
-          storePrice: item.storePrice,
+          ...item,
+          isChecked: checked,
         },
-      });
-      await queryClient.invalidateQueries({ queryKey });
-    } catch (error) {
-      // Revert on error
-      queryClient.setQueryData(queryKey, previousData);
-      toast.error("Greška pri ažuriranju stavke");
-    }
+      },
+      {
+        onError: (error: Error) => {
+          // Rollback on error
+          if (previousData) {
+            queryClient.setQueryData(["shoppingLists", listId], previousData);
+          }
+          toast.error(
+            error.message || "Greška pri ažuriranju stavke. Pokušajte ponovno."
+          );
+        },
+        onSettled: () => {
+          queryClient.invalidateQueries({ queryKey: ["shoppingLists", listId] });
+          queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
+        },
+      }
+    );
   };
 
-  const handleItemAmountChange = async (itemId: string, amount: number) => {
-    if (amount < 1) return;
+  const handleItemAmountChange = async (itemId: string, newAmount: number) => {
+    if (newAmount < 1) return;
 
-    const item = shoppingList.items.find((i) => i.id === itemId);
+    // Find the item to update
+    const item = shoppingList.items?.find((i) => i.id === itemId);
     if (!item) return;
 
     // Optimistic update
-    const queryKey = ["shoppingLists", listId];
-    await queryClient.cancelQueries({ queryKey });
-    const previousData = queryClient.getQueryData<ShoppingList>(queryKey);
+    await queryClient.cancelQueries({ queryKey: ["shoppingLists", listId] });
+    const previousData = queryClient.getQueryData<ShoppingList>([
+      "shoppingLists",
+      listId,
+    ]);
 
-    queryClient.setQueryData<ShoppingList | undefined>(queryKey, (old) => {
-      if (!old) return old;
-      return {
-        ...old,
-        items: old.items.map((i) => (i.id === itemId ? { ...i, amount } : i)),
-      };
-    });
+    queryClient.setQueryData<ShoppingList | undefined>(
+      ["shoppingLists", listId],
+      (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          items: old.items?.map((i) =>
+            i.id === itemId ? { ...i, amount: newAmount } : i
+          ),
+        };
+      }
+    );
 
-    try {
-      await updateItemMutation.mutateAsync({
+    // Update the item
+    updateItemMutation.mutate(
+      {
+        listId,
         itemId,
         data: {
-          ean: item.ean,
-          name: item.name,
-          amount,
-          isChecked: item.isChecked,
-          brand: item.brand,
-          quantity: item.quantity,
-          unit: item.unit,
-          chainCode: item.chainCode,
-          avgPrice: item.avgPrice,
-          storePrice: item.storePrice,
+          ...item,
+          amount: newAmount,
         },
-      });
-      await queryClient.invalidateQueries({ queryKey });
-    } catch (error) {
-      // Revert on error
-      queryClient.setQueryData(queryKey, previousData);
-      toast.error("Greška pri ažuriranju količine");
-    }
+      },
+      {
+        onError: (error: Error) => {
+          // Rollback on error
+          if (previousData) {
+            queryClient.setQueryData(["shoppingLists", listId], previousData);
+          }
+          toast.error(
+            error.message || "Greška pri ažuriranju stavke. Pokušajte ponovno."
+          );
+        },
+        onSettled: () => {
+          queryClient.invalidateQueries({ queryKey: ["shoppingLists", listId] });
+          queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
+        },
+      }
+    );
   };
 
   const handleDeleteItem = async (itemId: string) => {
-    try {
-      await deleteItemMutation.mutateAsync(itemId);
-      await queryClient.invalidateQueries({
-        queryKey: ["shoppingLists", listId],
-      });
-      toast.success("Stavka je obrisana");
-    } catch (error) {
-      toast.error("Greška pri brisanju stavke");
-    }
+    // Optimistic update
+    await queryClient.cancelQueries({ queryKey: ["shoppingLists", listId] });
+    const previousData = queryClient.getQueryData<ShoppingList>([
+      "shoppingLists",
+      listId,
+    ]);
+
+    queryClient.setQueryData<ShoppingList | undefined>(
+      ["shoppingLists", listId],
+      (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          items: old.items?.filter((i) => i.id !== itemId),
+        };
+      }
+    );
+
+    // Delete the item
+    deleteItemMutation.mutate(
+      { listId, itemId },
+      {
+        onError: (error: Error) => {
+          // Rollback on error
+          if (previousData) {
+            queryClient.setQueryData(["shoppingLists", listId], previousData);
+          }
+          toast.error(
+            error.message || "Greška pri brisanju stavke. Pokušajte ponovno."
+          );
+        },
+        onSuccess: () => {
+          toast.success("Stavka je uspješno obrisana!");
+        },
+        onSettled: () => {
+          queryClient.invalidateQueries({ queryKey: ["shoppingLists", listId] });
+          queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
+        },
+      }
+    );
   };
 
   return (

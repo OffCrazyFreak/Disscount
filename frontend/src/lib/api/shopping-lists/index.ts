@@ -83,11 +83,12 @@ export async function addItemToShoppingList(
  * Update shopping list item
  */
 export async function updateShoppingListItem(
+  listId: string,
   itemId: string,
   data: ShoppingListItemRequest
 ): Promise<ShoppingListItemDto> {
   const response = await apiClient.put<ShoppingListItemDto>(
-    `/api/shopping-lists/items/${itemId}`,
+    `/api/shopping-lists/${listId}/items/${itemId}`,
     data
   );
   return response.data;
@@ -96,8 +97,11 @@ export async function updateShoppingListItem(
 /**
  * Delete shopping list item
  */
-export async function deleteShoppingListItem(itemId: string): Promise<void> {
-  await apiClient.delete(`/api/shopping-lists/items/${itemId}`);
+export async function deleteShoppingListItem(
+  listId: string,
+  itemId: string
+): Promise<void> {
+  await apiClient.delete(`/api/shopping-lists/${listId}/items/${itemId}`);
 }
 
 /**
@@ -163,15 +167,16 @@ export const useUpdateShoppingListItem = () => {
   return useMutation<
     ShoppingListItemDto,
     Error,
-    { itemId: string; data: ShoppingListItemRequest }
+    { listId: string; itemId: string; data: ShoppingListItemRequest }
   >({
-    mutationFn: ({ itemId, data }) => updateShoppingListItem(itemId, data),
+    mutationFn: ({ listId, itemId, data }) =>
+      updateShoppingListItem(listId, itemId, data),
   });
 };
 
 export const useDeleteShoppingListItem = () => {
-  return useMutation<void, Error, string>({
-    mutationFn: deleteShoppingListItem,
+  return useMutation<void, Error, { listId: string; itemId: string }>({
+    mutationFn: ({ listId, itemId }) => deleteShoppingListItem(listId, itemId),
   });
 };
 

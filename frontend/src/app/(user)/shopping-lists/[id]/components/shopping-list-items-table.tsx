@@ -112,7 +112,12 @@ export const ShoppingListItemsTable = memo(
                     className={cn("text-pretty [&>*]:whitespace-normal")}
                   >
                     <TableCell>
-                      <p className={cn(!isAvailable && "text-gray-400")}>
+                      <p
+                        className={cn(
+                          !isAvailable && "text-gray-400",
+                          item.isChecked && "line-through text-gray-700"
+                        )}
+                      >
                         {item.name}
                       </p>
                     </TableCell>
