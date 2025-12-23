@@ -1,7 +1,6 @@
 "use client";
 
-import { memo, MouseEvent } from "react";
-import { useRouter } from "next/navigation";
+import { memo } from "react";
 
 interface IProductInfoProps {
   name: string | null;
@@ -14,19 +13,11 @@ export const ProductInfo = memo(function ProductInfo({
   brand,
   category,
 }: IProductInfoProps) {
-  const router = useRouter();
-
   return (
     <div className="flex-1">
       {category && (
         <div
-          className="text-xs sm:text-sm text-gray-500 cursor-pointer hover:text-gray-700"
-          onClick={(e: MouseEvent) => {
-            e.stopPropagation();
-            e.preventDefault();
-
-            router.push(`/products?category=${encodeURIComponent(category)}`);
-          }}
+          className="text-xs sm:text-sm text-gray-500"
         >
           {category}
         </div>
@@ -34,10 +25,6 @@ export const ProductInfo = memo(function ProductInfo({
 
       <h3
         className="font-bold text-sm sm:text-md"
-        onClick={(ev: MouseEvent) => {
-          // Prevent the card click handler from firing
-          ev.stopPropagation();
-        }}
       >
         {name || "Unknown product name"}
       </h3>
@@ -45,10 +32,6 @@ export const ProductInfo = memo(function ProductInfo({
       {brand && (
         <div
           className="text-xs sm:text-sm"
-          onClick={(ev: MouseEvent) => {
-            // Prevent the card click handler from firing
-            ev.stopPropagation();
-          }}
         >
           {brand}
         </div>
