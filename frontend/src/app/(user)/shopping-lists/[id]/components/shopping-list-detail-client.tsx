@@ -165,6 +165,26 @@ export default function ShoppingListDetailClient({
   const checkedCount =
     shoppingList.items?.filter((item) => item.isChecked)?.length || 0;
 
+  // Calculate total savings from checked items
+  const { totalSavings, totalPotentialCost } = shoppingList.items
+    ?.filter((item) => item.isChecked && item.avgPrice && item.storePrice)
+    .reduce(
+      (acc, item) => {
+        const potentialCost = item.avgPrice! * (item.amount || 1);
+        const actualCost = item.storePrice! * (item.amount || 1);
+        const savings = potentialCost - actualCost;
+
+        return {
+          totalSavings: acc.totalSavings + savings,
+          totalPotentialCost: acc.totalPotentialCost + potentialCost,
+        };
+      },
+      { totalSavings: 0, totalPotentialCost: 0 }
+    ) || { totalSavings: 0, totalPotentialCost: 0 };
+
+  const savingsPercentage =
+    totalPotentialCost > 0 ? (totalSavings / totalPotentialCost) * 100 : 0;
+
   const handleEdit = () => {
     setIsModalOpen(true);
   };
@@ -466,16 +486,18 @@ export default function ShoppingListDetailClient({
   return (
     <div className="max-w-3xl mx-auto">
       {/* Header */}
-      <div className="mb-6">
-        <Link href="/shopping-lists">
-          <Button variant="ghost" size="sm" className="mb-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Natrag na popise za kupnju
-          </Button>
-        </Link>
+      <div className="mb-6 space-y-4">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Link href="/shopping-lists">
+              <Button variant="ghost" className="size-10">
+                <ArrowLeft className="size-6" />
+              </Button>
+            </Link>
 
-        <div className="flex items-center gap-3 mb-2">
-          <h1 className="text-2xl font-bold">{shoppingList.title}</h1>
+            <h1 className="text-2xl font-bold">{shoppingList.title}</h1>
+          </div>
+
           <div className="flex items-center gap-2 ml-auto">
             <div
               title={
@@ -516,14 +538,24 @@ export default function ShoppingListDetailClient({
           </div>
         </div>
 
-        <div className="flex items-center gap-4 text-sm text-gray-600">
-          <div className="flex items-center gap-1">
-            <Calendar className="h-4 w-4" />
-            <span>Stvorena: {formatDate(shoppingList.createdAt)}</span>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4 text-sm text-gray-600">
+            <div className="flex items-center gap-1">
+              <Calendar className="h-4 w-4" />
+              <span>Stvorena: {formatDate(shoppingList.createdAt)}</span>
+            </div>
+
+            <div>
+              {itemCount} stavki ({checkedCount} završeno)
+            </div>
           </div>
-          <div>
-            {itemCount} stavki ({checkedCount} završeno)
-          </div>
+
+          {/* Savings Summary */}
+          {checkedCount > 0 && totalSavings > 0 && (
+            <div className="flex items-center justify-center gap-2 text-green-600 text-lg font-semibold">
+              {savingsPercentage.toFixed(1)}% / {totalSavings.toFixed(2)}€
+            </div>
+          )}
         </div>
       </div>
 
@@ -636,7 +668,9 @@ export default function ShoppingListDetailClient({
                                     (item.amount || 1) - 1
                                   )
                                 }
-                                disabled={(item.amount || 1) <= 1}
+                                disabled={
+                                  (item.amount || 1) <= 1 || item.isChecked
+                                }
                               >
                                 <Minus className="size-4 sm:size-5" />
                               </Button>
@@ -653,6 +687,7 @@ export default function ShoppingListDetailClient({
                                     (item.amount || 1) + 1
                                   )
                                 }
+                                disabled={item.isChecked}
                               >
                                 <Plus className="size-4 sm:size-5" />
                               </Button>
