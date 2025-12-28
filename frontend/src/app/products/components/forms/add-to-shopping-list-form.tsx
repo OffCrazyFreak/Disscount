@@ -28,7 +28,7 @@ import QuantityInput from "@/app/products/components/forms/quantity-input";
 import MarkAsCheckedCheckbox from "@/app/products/components/forms/mark-as-checked-checkbox";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/user-context";
-import StoreChainSelect from "@/app/(user)/shopping-lists/[id]/components/store-chain-select";
+import StoreChainSelect from "@/components/custom/store-chain-select";
 import {
   getAveragePriceForItem,
   getStorePricesForItem,

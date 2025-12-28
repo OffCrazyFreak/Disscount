@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useQueries } from "@tanstack/react-query";
 import cijeneService from "@/lib/cijene-api";
 import { ShoppingListDto } from "@/lib/api/types";
-import { ShoppingListStoreItem } from "./shopping-list-store-item";
+import { ShoppingListStoreItem } from "./shopping-list-store-card";
 import { useUser } from "@/context/user-context";
 import {
   ProductResponse,

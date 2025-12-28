@@ -2,7 +2,7 @@ import { Minus, Plus, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import StoreChainSelect from "./store-chain-select";
+import StoreChainSelect from "../../../../../components/custom/store-chain-select";
 import { storeNamesMap } from "@/utils/mappings";
 import type { ShoppingListItemDto } from "@/lib/api/types";
 

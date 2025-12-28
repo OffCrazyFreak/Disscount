@@ -96,29 +96,38 @@ export default function ShoppingListDetailClient({
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <ShoppingListHeader
-        shoppingList={shoppingList}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        isDeleting={deleteShoppingListMutation.isPending}
-        totalSavings={totalSavings}
-        savingsPercentage={savingsPercentage}
-      />
+    <div className="max-w-3xl mx-auto space-y-8">
+      {/* Header Section */}
+      <section>
+        <ShoppingListHeader
+          shoppingList={shoppingList}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          isDeleting={deleteShoppingListMutation.isPending}
+          totalSavings={totalSavings}
+          savingsPercentage={savingsPercentage}
+        />
+      </section>
 
-      <ShoppingListItems
-        shoppingList={shoppingList}
-        onItemCheckedChange={handleItemCheckedChange}
-        onItemAmountChange={handleItemAmountChange}
-        onStoreChainChange={handleStoreChainChange}
-        onDeleteItem={handleDeleteItem}
-        deletingItemId={deletingItemId}
-        cheapestStores={cheapestStores}
-        averagePrices={averagePrices}
-        storePrices={storePrices}
-      />
+      {/* Shopping List Items Section */}
+      <section>
+        <ShoppingListItems
+          shoppingList={shoppingList}
+          onItemCheckedChange={handleItemCheckedChange}
+          onItemAmountChange={handleItemAmountChange}
+          onStoreChainChange={handleStoreChainChange}
+          onDeleteItem={handleDeleteItem}
+          deletingItemId={deletingItemId}
+          cheapestStores={cheapestStores}
+          averagePrices={averagePrices}
+          storePrices={storePrices}
+        />
+      </section>
 
-      <ShoppingListStoreSummary shoppingList={shoppingList} />
+      {/* Store Summary Section */}
+      <section>
+        <ShoppingListStoreSummary shoppingList={shoppingList} />
+      </section>
 
       <ShoppingListModal
         isOpen={isModalOpen}
