@@ -32,7 +32,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import ShoppingListStoreSummary from "./shopping-list-store-summary";
+import ShoppingListStoreSummary from "./shopping-list-stores-list";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import StoreChainSelect from "./store-chain-select";
