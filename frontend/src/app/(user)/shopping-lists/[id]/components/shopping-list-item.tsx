@@ -8,9 +8,11 @@ import type { ShoppingListItemDto } from "@/lib/api/types";
 
 interface ShoppingListItemProps {
   item: ShoppingListItemDto;
-  onCheckedChange: (checked: boolean) => void;
-  onAmountChange: (newAmount: number) => void;
-  onStoreChainChange: (chainCode: string) => void;
+  onUpdate: (updatedItem: {
+    isChecked: boolean;
+    amount: number;
+    chainCode: string | null;
+  }) => void;
   onDelete: () => void;
   isDeleting: boolean;
   cheapestStore?: string;
@@ -21,9 +23,7 @@ interface ShoppingListItemProps {
 
 export default function ShoppingListItem({
   item,
-  onCheckedChange,
-  onAmountChange,
-  onStoreChainChange,
+  onUpdate,
   onDelete,
   isDeleting,
   cheapestStore,
@@ -47,7 +47,13 @@ export default function ShoppingListItem({
         <div className="flex items-center gap-4 w-full sm:w-auto">
           <Checkbox
             checked={item.isChecked}
-            onCheckedChange={(checked) => onCheckedChange(checked as boolean)}
+            onCheckedChange={(checked) =>
+              onUpdate({
+                isChecked: checked as boolean,
+                amount: item.amount || 1,
+                chainCode: item.chainCode!,
+              })
+            }
           />
           <div className="flex-1">
             <p
@@ -89,7 +95,13 @@ export default function ShoppingListItem({
                 size="icon"
                 variant="default"
                 className="size-7 sm:size-10"
-                onClick={() => onAmountChange((item.amount || 1) - 1)}
+                onClick={() =>
+                  onUpdate({
+                    isChecked: item.isChecked,
+                    amount: (item.amount || 1) - 1,
+                    chainCode: item.chainCode!,
+                  })
+                }
                 disabled={(item.amount || 1) <= 1 || item.isChecked}
               >
                 <Minus className="size-4 sm:size-5" />
@@ -101,7 +113,13 @@ export default function ShoppingListItem({
                 size="icon"
                 variant="default"
                 className="size-7 sm:size-10"
-                onClick={() => onAmountChange((item.amount || 1) + 1)}
+                onClick={() =>
+                  onUpdate({
+                    isChecked: item.isChecked,
+                    amount: (item.amount || 1) + 1,
+                    chainCode: item.chainCode!,
+                  })
+                }
                 disabled={item.isChecked}
               >
                 <Plus className="size-4 sm:size-5" />
@@ -119,7 +137,13 @@ export default function ShoppingListItem({
             {/* Store Chain Select */}
             <StoreChainSelect
               value={item.chainCode}
-              onChange={onStoreChainChange}
+              onChange={(chainCode) =>
+                onUpdate({
+                  isChecked: item.isChecked,
+                  amount: item.amount || 1,
+                  chainCode,
+                })
+              }
               disabled={item.isChecked}
               defaultValue={cheapestStore}
               storePrices={storePrices}

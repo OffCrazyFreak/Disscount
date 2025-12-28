@@ -55,7 +55,14 @@ export function useShoppingListMutations(
     });
   };
 
-  const handleItemCheckedChange = async (itemId: string, checked: boolean) => {
+  const handleItemUpdate = async (
+    itemId: string,
+    updatedItem: {
+      isChecked: boolean;
+      amount: number;
+      chainCode: string | null;
+    }
+  ) => {
     const shoppingList = queryClient.getQueryData<ShoppingList>([
       "shoppingLists",
       listId,
@@ -63,6 +70,9 @@ export function useShoppingListMutations(
 
     const item = shoppingList?.items?.find((i) => i.id === itemId);
     if (!item) return;
+
+    // Validate amount
+    if (updatedItem.amount < 1) return;
 
     // Optimistic update
     await queryClient.cancelQueries({ queryKey: ["shoppingLists", listId] });
@@ -79,15 +89,15 @@ export function useShoppingListMutations(
           ...old,
           items: old.items?.map((i) => {
             if (i.id === itemId) {
-              const updatedItem = { ...i, isChecked: checked };
+              const updated = { ...i, ...updatedItem };
               // If checking the item, include the current average price
-              if (checked) {
+              if (updatedItem.isChecked) {
                 const currentAvgPrice = averagePrices[i.id];
                 if (currentAvgPrice !== undefined) {
-                  updatedItem.avgPrice = currentAvgPrice;
+                  updated.avgPrice = currentAvgPrice;
                 }
               }
-              return updatedItem;
+              return updated;
             }
             return i;
           }),
@@ -95,22 +105,25 @@ export function useShoppingListMutations(
       }
     );
 
-    // Update the item - include avgPrice and storePrice when checking
+    // Prepare update data
     const updateData = {
       ...item,
-      isChecked: checked,
+      ...updatedItem,
     };
 
     // If checking the item, include the current average price and store price
-    if (checked) {
+    if (updatedItem.isChecked) {
       const currentAvgPrice = averagePrices[item.id];
       if (currentAvgPrice !== undefined) {
         updateData.avgPrice = currentAvgPrice;
       }
 
       // Include the store price from the selected store
-      if (item.chainCode && storePrices[item.id]?.[item.chainCode]) {
-        updateData.storePrice = storePrices[item.id][item.chainCode];
+      if (
+        updatedItem.chainCode &&
+        storePrices[item.id]?.[updatedItem.chainCode]
+      ) {
+        updateData.storePrice = storePrices[item.id][updatedItem.chainCode];
       }
     }
 
@@ -119,124 +132,6 @@ export function useShoppingListMutations(
         listId,
         itemId,
         data: updateData,
-      },
-      {
-        onError: (error: Error) => {
-          if (previousData) {
-            queryClient.setQueryData(["shoppingLists", listId], previousData);
-          }
-          toast.error(
-            error.message || "Greška pri ažuriranju stavke. Pokušajte ponovno."
-          );
-        },
-        onSettled: () => {
-          queryClient.invalidateQueries({
-            queryKey: ["shoppingLists", listId],
-          });
-          queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
-        },
-      }
-    );
-  };
-
-  const handleItemAmountChange = async (itemId: string, newAmount: number) => {
-    if (newAmount < 1) return;
-
-    const shoppingList = queryClient.getQueryData<ShoppingList>([
-      "shoppingLists",
-      listId,
-    ]);
-
-    const item = shoppingList?.items?.find((i) => i.id === itemId);
-    if (!item) return;
-
-    // Optimistic update
-    await queryClient.cancelQueries({ queryKey: ["shoppingLists", listId] });
-    const previousData = queryClient.getQueryData<ShoppingList>([
-      "shoppingLists",
-      listId,
-    ]);
-
-    queryClient.setQueryData<ShoppingList | undefined>(
-      ["shoppingLists", listId],
-      (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          items: old.items?.map((i) =>
-            i.id === itemId ? { ...i, amount: newAmount } : i
-          ),
-        };
-      }
-    );
-
-    // Update the item
-    updateItemMutation.mutate(
-      {
-        listId,
-        itemId,
-        data: {
-          ...item,
-          amount: newAmount,
-        },
-      },
-      {
-        onError: (error: Error) => {
-          if (previousData) {
-            queryClient.setQueryData(["shoppingLists", listId], previousData);
-          }
-          toast.error(
-            error.message || "Greška pri ažuriranju stavke. Pokušajte ponovno."
-          );
-        },
-        onSettled: () => {
-          queryClient.invalidateQueries({
-            queryKey: ["shoppingLists", listId],
-          });
-          queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
-        },
-      }
-    );
-  };
-
-  const handleStoreChainChange = async (itemId: string, chainCode: string) => {
-    const shoppingList = queryClient.getQueryData<ShoppingList>([
-      "shoppingLists",
-      listId,
-    ]);
-
-    const item = shoppingList?.items?.find((i) => i.id === itemId);
-    if (!item) return;
-
-    // Optimistic update
-    await queryClient.cancelQueries({ queryKey: ["shoppingLists", listId] });
-    const previousData = queryClient.getQueryData<ShoppingList>([
-      "shoppingLists",
-      listId,
-    ]);
-
-    queryClient.setQueryData<ShoppingList | undefined>(
-      ["shoppingLists", listId],
-      (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          items: old.items?.map((i) =>
-            i.id === itemId ? { ...i, chainCode: chainCode } : i
-          ),
-        };
-      }
-    );
-
-    // Update the item
-    updateItemMutation.mutate(
-      {
-        listId,
-        itemId,
-        data: {
-          ...item,
-          chainCode: chainCode,
-        },
       },
       {
         onError: (error: Error) => {
@@ -307,9 +202,7 @@ export function useShoppingListMutations(
   return {
     deleteShoppingListMutation,
     confirmDelete,
-    handleItemCheckedChange,
-    handleItemAmountChange,
-    handleStoreChainChange,
+    handleItemUpdate,
     handleDeleteItem,
     deletingItemId,
   };

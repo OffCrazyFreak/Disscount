@@ -39,9 +39,7 @@ export default function ShoppingListDetailClient({
   const {
     deleteShoppingListMutation,
     confirmDelete,
-    handleItemCheckedChange,
-    handleItemAmountChange,
-    handleStoreChainChange,
+    handleItemUpdate,
     handleDeleteItem,
     deletingItemId,
   } = useShoppingListMutations(listId, averagePrices, storePrices);
@@ -113,9 +111,7 @@ export default function ShoppingListDetailClient({
       <section>
         <ShoppingListItems
           shoppingList={shoppingList}
-          onItemCheckedChange={handleItemCheckedChange}
-          onItemAmountChange={handleItemAmountChange}
-          onStoreChainChange={handleStoreChainChange}
+          onItemUpdate={handleItemUpdate}
           onDeleteItem={handleDeleteItem}
           deletingItemId={deletingItemId}
           cheapestStores={cheapestStores}

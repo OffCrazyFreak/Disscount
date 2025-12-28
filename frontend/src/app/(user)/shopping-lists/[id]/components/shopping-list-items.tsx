@@ -4,9 +4,14 @@ import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 
 interface ShoppingListItemsProps {
   shoppingList: ShoppingList;
-  onItemCheckedChange: (itemId: string, checked: boolean) => void;
-  onItemAmountChange: (itemId: string, newAmount: number) => void;
-  onStoreChainChange: (itemId: string, chainCode: string) => void;
+  onItemUpdate: (
+    itemId: string,
+    updatedItem: {
+      isChecked: boolean;
+      amount: number;
+      chainCode: string | null;
+    }
+  ) => void;
   onDeleteItem: (itemId: string) => void;
   deletingItemId: string | null;
   cheapestStores: Record<string, string>;
@@ -16,9 +21,7 @@ interface ShoppingListItemsProps {
 
 export default function ShoppingListItems({
   shoppingList,
-  onItemCheckedChange,
-  onItemAmountChange,
-  onStoreChainChange,
+  onItemUpdate,
   onDeleteItem,
   deletingItemId,
   cheapestStores,
@@ -51,15 +54,7 @@ export default function ShoppingListItems({
             <ShoppingListItem
               key={item.id}
               item={item}
-              onCheckedChange={(checked) =>
-                onItemCheckedChange(item.id, checked)
-              }
-              onAmountChange={(newAmount) =>
-                onItemAmountChange(item.id, newAmount)
-              }
-              onStoreChainChange={(chainCode) =>
-                onStoreChainChange(item.id, chainCode)
-              }
+              onUpdate={(updatedItem) => onItemUpdate(item.id, updatedItem)}
               onDelete={() => onDeleteItem(item.id)}
               isDeleting={deletingItemId === item.id}
               cheapestStore={cheapestStores[item.id]}
