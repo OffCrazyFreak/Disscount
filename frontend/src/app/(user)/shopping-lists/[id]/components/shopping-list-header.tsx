@@ -6,6 +6,7 @@ import {
   LucideClipboardEdit,
   Trash2,
   Loader2,
+  Copy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
 import Link from "next/link";
@@ -16,7 +17,9 @@ interface ShoppingListHeaderProps {
   shoppingList: ShoppingList;
   onEdit: () => void;
   onDelete: () => void;
+  onCopy: () => void;
   isDeleting: boolean;
+  isCopying: boolean;
   totalSavings: number;
   savingsPercentage: number;
 }
@@ -25,7 +28,9 @@ export default function ShoppingListHeader({
   shoppingList,
   onEdit,
   onDelete,
+  onCopy,
   isDeleting,
+  isCopying,
   totalSavings,
   savingsPercentage,
 }: ShoppingListHeaderProps) {
@@ -59,6 +64,20 @@ export default function ShoppingListHeader({
               <Lock className="h-5 w-5 text-gray-400" />
             )}
           </div>
+          <Button
+            size="icon"
+            variant="default"
+            className="p-2 size-12 shrink-0"
+            onClick={onCopy}
+            title="Kopiraj popis"
+            disabled={isCopying}
+          >
+            {isCopying ? (
+              <Loader2 className="size-6 animate-spin" />
+            ) : (
+              <Copy className="size-6" />
+            )}
+          </Button>
           <Button
             size="icon"
             variant="default"
