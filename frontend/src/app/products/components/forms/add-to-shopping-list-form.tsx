@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Activity } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -27,6 +27,13 @@ import ShoppingListSelector from "@/app/products/components/forms/shopping-list-
 import QuantityInput from "@/app/products/components/forms/quantity-input";
 import MarkAsCheckedCheckbox from "@/app/products/components/forms/mark-as-checked-checkbox";
 import { Button } from "@/components/ui/button";
+import { useUser } from "@/context/user-context";
+import StoreChainSelect from "@/app/(user)/shopping-lists/[id]/components/store-chain-select";
+import {
+  getAveragePriceForItem,
+  getStorePricesForItem,
+  findCheapestStoreForItem,
+} from "@/utils/shopping-list-utils";
 
 interface IAddToShoppingListFormProps {
   isOpen: boolean;
@@ -40,8 +47,12 @@ export default function AddToShoppingListForm({
   product,
 }: IAddToShoppingListFormProps) {
   const [customListTitle, setCustomListTitle] = useState("");
+  const [storePrices, setStorePrices] = useState<Record<string, number>>({});
+  const [averagePrice, setAveragePrice] = useState<number | null>(null);
+  const [cheapestStore, setCheapestStore] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
+  const { user } = useUser();
 
   const { data: shoppingLists = [], isLoading: isLoadingLists } =
     shoppingListService.useGetCurrentUserShoppingLists();
@@ -56,6 +67,7 @@ export default function AddToShoppingListForm({
       shoppingListId: "",
       amount: 1,
       isChecked: false,
+      chainCode: null,
     },
   });
 
@@ -91,10 +103,59 @@ export default function AddToShoppingListForm({
     }
   }, [isOpen, sortedShoppingLists, form]);
 
-  function onSubmit(data: AddToListFormData) {
+  // Watch isChecked to toggle visibility
+  const isChecked = form.watch("isChecked");
+
+  // Fetch store prices once when form opens
+  useEffect(() => {
+    if (isOpen && product) {
+      const fetchPrices = async () => {
+        try {
+          const tempItem = {
+            id: "",
+            shoppingListId: "",
+            ean: product.ean,
+            name: product.name || "",
+            brand: product.brand || undefined,
+            quantity: product.quantity || undefined,
+            unit: product.unit || undefined,
+            amount: 1,
+            isChecked: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            updatedByUserId: null,
+            avgPrice: null,
+            storePrice: null,
+            chainCode: null,
+          };
+
+          const [avgPrice, prices, cheapest] = await Promise.all([
+            getAveragePriceForItem(tempItem),
+            getStorePricesForItem(tempItem),
+            findCheapestStoreForItem(tempItem, user?.pinnedStores || undefined),
+          ]);
+
+          setAveragePrice(avgPrice);
+          setStorePrices(prices);
+          setCheapestStore(cheapest);
+
+          // Set default chain code to cheapest store
+          if (cheapest && !form.getValues("chainCode")) {
+            form.setValue("chainCode", cheapest);
+          }
+        } catch (error) {
+          console.error("Error fetching prices:", error);
+        }
+      };
+
+      fetchPrices();
+    }
+  }, [isOpen, product, user?.pinnedStores, form]);
+
+  async function onSubmit(data: AddToListFormData) {
     if (!product) return;
 
-    const proceedToAdd = (listId: string) => {
+    const proceedToAdd = async (listId: string) => {
       const itemRequest: ShoppingListItemRequest = {
         ean: product.ean,
         name: product.name || "",
@@ -104,6 +165,14 @@ export default function AddToShoppingListForm({
         amount: data.amount,
         isChecked: data.isChecked,
       };
+
+      // If the item is marked as checked, include price information and store
+      if (data.isChecked && data.chainCode) {
+        itemRequest.chainCode = data.chainCode;
+        itemRequest.avgPrice = averagePrice || undefined;
+        itemRequest.storePrice = storePrices[data.chainCode];
+      }
+      // If unchecked, explicitly don't send chainCode, avgPrice, or storePrice
 
       addItemMutation.mutate(
         {
@@ -129,8 +198,12 @@ export default function AddToShoppingListForm({
                 sortedShoppingLists.length > 0 ? sortedShoppingLists[0].id : "",
               amount: 1,
               isChecked: false,
+              chainCode: null,
             });
             setCustomListTitle("");
+            setStorePrices({});
+            setAveragePrice(null);
+            setCheapestStore(null);
 
             onOpenChange(false);
           },
@@ -207,7 +280,25 @@ export default function AddToShoppingListForm({
 
             <QuantityInput formField={form} />
 
-            <MarkAsCheckedCheckbox formField={form} />
+            <Activity mode={hasDuplicateEan ? "hidden" : "visible"}>
+              <MarkAsCheckedCheckbox formField={form} />
+            </Activity>
+
+            <Activity
+              mode={isChecked && !hasDuplicateEan ? "visible" : "hidden"}
+            >
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Trgovina</label>
+                <StoreChainSelect
+                  value={form.watch("chainCode") || ""}
+                  onChange={(value) => form.setValue("chainCode", value)}
+                  storePrices={storePrices}
+                  averagePrice={averagePrice || undefined}
+                  isChecked={false}
+                  classname="w-full"
+                />
+              </div>
+            </Activity>
 
             <div className="flex justify-between pt-4">
               <Button

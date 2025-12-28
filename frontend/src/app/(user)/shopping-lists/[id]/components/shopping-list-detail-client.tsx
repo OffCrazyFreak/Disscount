@@ -750,6 +750,7 @@ export default function ShoppingListDetailClient({
                               }
                               isChecked={item.isChecked}
                               storePriceFromDb={item.storePrice || undefined}
+                              classname="sm:w-72 sm:flex-none"
                             />
                           </div>
 

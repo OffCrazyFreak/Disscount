@@ -69,27 +69,37 @@ export async function findCheapestStoreForItem(
       return null;
     }
 
-    // If pinnedStores exists and is not empty, first try to use the default/preferred store
+    // If pinnedStores exists and is not empty, find the cheapest among pinned stores
     if (pinnedStores && pinnedStores.length > 0) {
-      const defaultStore = pinnedStores[0];
-      if (defaultStore) {
-        const defaultStoreName = defaultStore.storeName.toUpperCase();
+      let cheapestChain = null;
+      let cheapestPrice = Infinity;
 
-        // Check if the default store has this item
+      // Check all pinned stores and find the cheapest one
+      for (const pinnedStore of pinnedStores) {
+        const pinnedStoreName = pinnedStore.storeName.toUpperCase();
+
         for (const chainProduct of productData.chains) {
-          const isDefaultStore =
-            chainProduct.chain.toUpperCase().includes(defaultStoreName) ||
-            defaultStoreName.includes(chainProduct.chain.toUpperCase());
+          const isPinnedStore =
+            chainProduct.chain.toUpperCase().includes(pinnedStoreName) ||
+            pinnedStoreName.includes(chainProduct.chain.toUpperCase());
 
-          if (isDefaultStore) {
-            // Found the default store with the item, return it
-            return nameToChainCode(chainProduct.chain);
+          if (isPinnedStore) {
+            const price = parseFloat(chainProduct.avg_price);
+            if (price < cheapestPrice) {
+              cheapestPrice = price;
+              cheapestChain = nameToChainCode(chainProduct.chain);
+            }
           }
         }
       }
+
+      // If we found a pinned store with the item, return the cheapest one
+      if (cheapestChain) {
+        return cheapestChain;
+      }
     }
 
-    // Find the cheapest store across all available stores
+    // Fall back to finding the cheapest store across all available stores
     let cheapestChain = null;
     let cheapestPrice = Infinity;
 

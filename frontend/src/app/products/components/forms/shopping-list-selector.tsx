@@ -34,6 +34,7 @@ interface IShoppingListSelectorProps {
   customListTitle: string;
   setCustomListTitle: (title: string) => void;
   selectedList: ShoppingListDto | undefined;
+  disabled?: boolean;
 }
 
 export default function ShoppingListSelector({
@@ -43,6 +44,7 @@ export default function ShoppingListSelector({
   customListTitle,
   setCustomListTitle,
   selectedList,
+  disabled = false,
 }: IShoppingListSelectorProps) {
   const [open, setOpen] = useState(false);
 
@@ -62,7 +64,7 @@ export default function ShoppingListSelector({
                   aria-expanded={open}
                   aria-haspopup="listbox"
                   className="flex items-center justify-between gap-2"
-                  disabled={isLoadingLists}
+                  disabled={isLoadingLists || disabled}
                 >
                   <div className="flex-1 text-left">
                     {isLoadingLists ? (

@@ -5,6 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { storeNamesMap, STORE_CHAIN_OPTIONS } from "@/utils/mappings";
 import { useEffect, useState } from "react";
 
@@ -17,6 +18,7 @@ interface StoreChainSelectProps {
   averagePrice?: number;
   isChecked?: boolean; // Whether the item is checked
   storePriceFromDb?: number; // Store price from database when item is checked
+  classname?: string;
 }
 
 export default function StoreChainSelect({
@@ -28,6 +30,7 @@ export default function StoreChainSelect({
   averagePrice,
   isChecked = false,
   storePriceFromDb,
+  classname,
 }: StoreChainSelectProps) {
   const [displayValue, setDisplayValue] = useState<string>(value || "");
 
@@ -72,7 +75,9 @@ export default function StoreChainSelect({
 
   return (
     <Select value={displayValue} onValueChange={onChange} disabled={disabled}>
-      <SelectTrigger className="min-w-0  sm:w-72 sm:flex-none h-9 text-xs sm:text-sm">
+      <SelectTrigger
+        className={cn("min-w-0 h-9 text-xs sm:text-sm", classname)}
+      >
         <SelectValue placeholder="Trgovina" />
       </SelectTrigger>
 
