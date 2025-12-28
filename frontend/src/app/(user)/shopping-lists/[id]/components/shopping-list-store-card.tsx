@@ -24,8 +24,8 @@ import {
 interface ShoppingListStoreItemProps {
   chain: ChainProductResponse & { itemCount: number };
   shoppingList: ShoppingListDto;
-  allChainsMin?: number;
-  allChainsMax?: number;
+  absoluteMinPrice: number;
+  absoluteMaxPrice: number;
   productsData: ProductResponse[];
   completeStoresAnalysis: {
     bestStore: (ChainProductResponse & { itemCount: number }) | null;
@@ -39,8 +39,8 @@ export const ShoppingListStoreItem = memo(
   ({
     chain,
     shoppingList,
-    allChainsMin,
-    allChainsMax,
+    absoluteMinPrice,
+    absoluteMaxPrice,
     productsData,
     completeStoresAnalysis,
     hasLowestPriceItem,
@@ -77,10 +77,6 @@ export const ShoppingListStoreItem = memo(
       hasAllItems && completeStoresAnalysis.bestStore?.chain === chain.chain;
     const isWorstCompleteStore =
       hasAllItems && completeStoresAnalysis.worstStore?.chain === chain.chain;
-
-    // Calculate overall min/max across all chains for comparison
-    const overallMin = allChainsMin ?? storeAvgPrice;
-    const overallMax = allChainsMax ?? storeAvgPrice;
 
     return (
       <Collapsible
@@ -151,10 +147,10 @@ export const ShoppingListStoreItem = memo(
                     <div className="flex items-center gap-4 text-sm">
                       <span
                         className={cn(
-                          isWorstCompleteStore
-                            ? "text-red-700 font-bold"
-                            : isBestCompleteStore
-                              ? "text-green-700 font-bold"
+                          hasAllItems && storeMinPrice === absoluteMinPrice
+                            ? "text-green-600 font-bold"
+                            : hasAllItems && storeMinPrice === absoluteMaxPrice
+                              ? "text-red-700 font-bold"
                               : "text-gray-700"
                         )}
                       >
@@ -162,10 +158,10 @@ export const ShoppingListStoreItem = memo(
                       </span>
                       <span
                         className={cn(
-                          isWorstCompleteStore
-                            ? "text-red-700 font-bold"
-                            : isBestCompleteStore
-                              ? "text-green-700 font-bold"
+                          hasAllItems && storeAvgPrice === absoluteMinPrice
+                            ? "text-green-600 font-bold"
+                            : hasAllItems && storeAvgPrice === absoluteMaxPrice
+                              ? "text-red-700 font-bold"
                               : "text-gray-700"
                         )}
                       >
@@ -173,10 +169,10 @@ export const ShoppingListStoreItem = memo(
                       </span>
                       <span
                         className={cn(
-                          isWorstCompleteStore
-                            ? "text-red-700 font-bold"
-                            : isBestCompleteStore
-                              ? "text-green-700 font-bold"
+                          hasAllItems && storeMaxPrice === absoluteMinPrice
+                            ? "text-green-600 font-bold"
+                            : hasAllItems && storeMaxPrice === absoluteMaxPrice
+                              ? "text-red-700 font-bold"
                               : "text-gray-700"
                         )}
                       >

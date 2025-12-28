@@ -209,16 +209,32 @@ export default function ShoppingListStoreSummary({
     return highestPriceStores;
   }, [productsData, shoppingList.items]);
 
-  // Calculate overall min/max across all chains
-  const overallPrices = useMemo<{ min: number; max: number }>(() => {
-    if (allChains.length === 0) return { min: 0, max: 0 };
+  // Calculate absolute global minimum and maximum across ALL price types
+  // Only consider stores that have ALL items from the shopping list
+  const absolutePrices = useMemo<{ min: number; max: number }>(() => {
+    if (!shoppingList.items || shoppingList.items.length === 0) {
+      return { min: 0, max: 0 };
+    }
 
-    const avgPrices = allChains.map((chain) => parseFloat(chain.avg_price));
+    const totalItems = shoppingList.items.length;
+    const completeChains = allChains.filter(
+      (chain) => chain.itemCount === totalItems
+    );
+
+    if (completeChains.length === 0) return { min: 0, max: 0 };
+
+    const allPrices: number[] = [];
+    completeChains.forEach((chain) => {
+      allPrices.push(parseFloat(chain.min_price));
+      allPrices.push(parseFloat(chain.avg_price));
+      allPrices.push(parseFloat(chain.max_price));
+    });
+
     return {
-      min: Math.min(...avgPrices),
-      max: Math.max(...avgPrices),
+      min: Math.min(...allPrices),
+      max: Math.max(...allPrices),
     };
-  }, [allChains]);
+  }, [allChains, shoppingList.items]);
 
   if (productsLoading) {
     return (
@@ -282,8 +298,8 @@ export default function ShoppingListStoreSummary({
               key={chain.chain}
               chain={chain}
               shoppingList={shoppingList}
-              allChainsMin={overallPrices.min}
-              allChainsMax={overallPrices.max}
+              absoluteMinPrice={absolutePrices.min}
+              absoluteMaxPrice={absolutePrices.max}
               productsData={productsData}
               completeStoresAnalysis={completeStoresAnalysis}
               hasLowestPriceItem={storesWithLowestPriceItems.has(chain.chain)}
