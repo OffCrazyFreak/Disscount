@@ -10,6 +10,7 @@ import {
   ProductResponse,
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
+import { compareStoreChains } from "@/utils/shopping-list-utils";
 
 interface ShoppingListStoreSummaryProps {
   shoppingList: ShoppingListDto;
@@ -178,6 +179,36 @@ export default function ShoppingListStoreSummary({
     return lowestPriceStores;
   }, [productsData, shoppingList.items]);
 
+  // Calculate which stores have at least one item with the highest price
+  const storesWithHighestPriceItems = useMemo<Set<string>>(() => {
+    const highestPriceStores = new Set<string>();
+
+    // For each item in the shopping list
+    shoppingList.items?.forEach((item) => {
+      const product = productsData.find((p) => p?.ean === item.ean);
+      if (!product || !product.chains || product.chains.length === 0) return;
+
+      // Find the maximum price for this item across all chains
+      const allChainPrices = product.chains
+        .map((c) => parseFloat(c.avg_price))
+        .filter((p) => !isNaN(p));
+
+      if (allChainPrices.length === 0) return;
+
+      const maxPrice = Math.max(...allChainPrices);
+
+      // Find which chains offer this maximum price
+      product.chains.forEach((chain) => {
+        const chainPrice = parseFloat(chain.avg_price);
+        if (chainPrice === maxPrice) {
+          highestPriceStores.add(chain.chain);
+        }
+      });
+    });
+
+    return highestPriceStores;
+  }, [productsData, shoppingList.items]);
+
   // Calculate overall min/max across all chains
   const overallPrices = useMemo<{ min: number; max: number }>(() => {
     if (allChains.length === 0) return { min: 0, max: 0 };
@@ -244,29 +275,7 @@ export default function ShoppingListStoreSummary({
             // Get user's pinned store IDs
             const pinnedStoreIds =
               user?.pinnedStores?.map((store) => store.storeApiId) || [];
-
-            // Check if chains are pinned
-            const aIsPinned = pinnedStoreIds.includes(a.chain);
-            const bIsPinned = pinnedStoreIds.includes(b.chain);
-
-            // 1. Pinned chains come first
-            if (aIsPinned && !bIsPinned) return -1;
-            if (!aIsPinned && bIsPinned) return 1;
-
-            // 2. If both are pinned or both are not pinned, sort by item count (highest first)
-            const aItemCount = a.itemCount;
-            const bItemCount = b.itemCount;
-            if (aItemCount !== bItemCount) return bItemCount - aItemCount;
-
-            // 3. If item counts are equal, sort by average price (lowest first)
-            const aAvgPrice = parseFloat(a.avg_price);
-            const bAvgPrice = parseFloat(b.avg_price);
-            if (aAvgPrice !== bAvgPrice) return aAvgPrice - bAvgPrice;
-
-            // If all criteria are equal, sort alphabetically
-            return a.chain.localeCompare(b.chain, "hr", {
-              sensitivity: "base",
-            });
+            return compareStoreChains(a, b, pinnedStoreIds);
           })
           .map((chain) => (
             <ShoppingListStoreItem
@@ -278,6 +287,7 @@ export default function ShoppingListStoreSummary({
               productsData={productsData}
               completeStoresAnalysis={completeStoresAnalysis}
               hasLowestPriceItem={storesWithLowestPriceItems.has(chain.chain)}
+              hasHighestPriceItem={storesWithHighestPriceItems.has(chain.chain)}
             />
           ))}
       </div>

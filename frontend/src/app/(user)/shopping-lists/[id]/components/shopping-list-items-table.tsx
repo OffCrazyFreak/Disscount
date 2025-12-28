@@ -1,6 +1,7 @@
 "use client";
 
 import React, { memo } from "react";
+import { ChevronUp, ArrowDown, ArrowUp } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -15,9 +16,10 @@ import {
   ProductResponse,
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
+import { sortShoppingListItemsByAvailabilityAndName } from "@/app/(user)/shopping-lists/[id]/components/shopping-list-utils";
 
 interface ShoppingListItemsTableProps {
-  chain: ChainProductResponse & { itemCount: number };
+  chain: ChainProductResponse;
   shoppingList: ShoppingListDto;
   productsData: ProductResponse[];
 }
@@ -45,32 +47,14 @@ export const ShoppingListItemsTable = memo(
           </TableHeader>
           <TableBody>
             {[...shoppingList.items]
-              .sort((a, b) => {
-                // Find product data for both items
-                const productA = productsData.find((p) => p?.ean === a.ean);
-                const productB = productsData.find((p) => p?.ean === b.ean);
-
-                // Find chain data for both items
-                const chainDataA = productA?.chains?.find(
-                  (c: any) => c.chain === chain.chain
-                );
-                const chainDataB = productB?.chains?.find(
-                  (c: any) => c.chain === chain.chain
-                );
-
-                // Check availability
-                const isAvailableA = Boolean(chainDataA);
-                const isAvailableB = Boolean(chainDataB);
-
-                // Available items come first
-                if (isAvailableA && !isAvailableB) return -1;
-                if (!isAvailableA && isAvailableB) return 1;
-
-                // Within each group, sort alphabetically
-                return a.name.localeCompare(b.name, "hr", {
-                  sensitivity: "base",
-                });
-              })
+              .sort((a, b) =>
+                sortShoppingListItemsByAvailabilityAndName(
+                  a,
+                  b,
+                  productsData,
+                  chain
+                )
+              )
               .map((item) => {
                 // Find the product data for this item
                 const product = productsData.find((p) => p?.ean === item.ean);
@@ -83,7 +67,7 @@ export const ShoppingListItemsTable = memo(
                 // Check if item is available in this chain
                 const isAvailable = Boolean(chainData);
 
-                // Get the price (prefer special_price, then regular_price)
+                // Get the average price for this chain
                 const price = chainData ? parseFloat(chainData.avg_price) : 0;
                 const quantity = item.amount || 1;
                 const total = price * quantity;
@@ -140,6 +124,7 @@ export const ShoppingListItemsTable = memo(
                       {isAvailable ? (
                         <span
                           className={cn(
+                            "flex items-center justify-center gap-1",
                             isLowestPrice
                               ? "text-green-600 font-bold"
                               : isHighestPrice
@@ -148,6 +133,21 @@ export const ShoppingListItemsTable = memo(
                           )}
                         >
                           {price.toFixed(2)}€
+                          {isLowestPrice && (
+                            <>
+                              <ArrowDown
+                                className="size-3"
+                                aria-hidden="true"
+                              />
+                              <span className="sr-only">najniža cijena</span>
+                            </>
+                          )}
+                          {isHighestPrice && (
+                            <>
+                              <ArrowUp className="size-3" aria-hidden="true" />
+                              <span className="sr-only">najviša cijena</span>
+                            </>
+                          )}
                         </span>
                       ) : (
                         <span className="text-gray-400">-</span>
@@ -158,6 +158,7 @@ export const ShoppingListItemsTable = memo(
                       {isAvailable ? (
                         <span
                           className={cn(
+                            "flex items-center justify-center gap-1",
                             isLowestPrice
                               ? "font-medium text-green-600"
                               : isHighestPrice

@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useState, useCallback } from "react";
-import { ChevronDown, AlertTriangle } from "lucide-react";
+import { ChevronDown, AlertTriangle, ArrowUp, ArrowDown } from "lucide-react";
 import Image from "next/image";
 import {
   Collapsible,
@@ -32,6 +32,7 @@ interface ShoppingListStoreItemProps {
     worstStore: (ChainProductResponse & { itemCount: number }) | null;
   };
   hasLowestPriceItem: boolean;
+  hasHighestPriceItem: boolean;
 }
 
 export const ShoppingListStoreItem = memo(
@@ -43,6 +44,7 @@ export const ShoppingListStoreItem = memo(
     productsData,
     completeStoresAnalysis,
     hasLowestPriceItem,
+    hasHighestPriceItem,
   }: ShoppingListStoreItemProps) => {
     const { user } = useUser();
     const [expandedStore, setExpandedStore] = useState<string | null>(null);
@@ -107,12 +109,13 @@ export const ShoppingListStoreItem = memo(
 
                 <div className="flex-1 min-w-0">
                   {/* Chain Name and Badge */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {/* Store Summary */}
-
-                    {/* Green dot indicates this store has at least one item with the lowest price */}
+                  <div className="flex items-center gap-1 flex-wrap">
+                    {/* Price indicators */}
                     {hasLowestPriceItem && (
-                      <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0" />
+                      <ArrowDown className="size-4 text-green-600 flex-shrink-0" />
+                    )}
+                    {hasHighestPriceItem && (
+                      <ArrowUp className="size-4 text-red-700 flex-shrink-0" />
                     )}
 
                     <h3 className="font-semibold text-gray-900">

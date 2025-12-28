@@ -2,6 +2,7 @@ import { ShoppingListItemDto } from "@/lib/api/types";
 import { PinnedStoreDto } from "@/lib/api/schemas/preferences";
 import cijenesApi from "@/lib/cijene-api";
 import { getAveragePrice } from "@/lib/cijene-api/utils/product-utils";
+import { ChainProductResponse } from "@/lib/cijene-api/schemas";
 
 /**
  * Get store prices for an item by EAN
@@ -60,10 +61,6 @@ export async function findCheapestStoreForItem(
   item: ShoppingListItemDto,
   pinnedStores: PinnedStoreDto[] | undefined
 ): Promise<string | null> {
-  if (!pinnedStores || pinnedStores.length === 0) {
-    return null;
-  }
-
   try {
     // Fetch product pricing data by EAN
     const productData = await cijenesApi.getProductByEan({ ean: item.ean });
@@ -72,25 +69,27 @@ export async function findCheapestStoreForItem(
       return null;
     }
 
-    // First, try to use the default/preferred store from user preferences (first pinned store)
-    const defaultStore = pinnedStores[0];
-    if (defaultStore) {
-      const defaultStoreName = defaultStore.storeName.toUpperCase();
+    // If pinnedStores exists and is not empty, first try to use the default/preferred store
+    if (pinnedStores && pinnedStores.length > 0) {
+      const defaultStore = pinnedStores[0];
+      if (defaultStore) {
+        const defaultStoreName = defaultStore.storeName.toUpperCase();
 
-      // Check if the default store has this item
-      for (const chainProduct of productData.chains) {
-        const isDefaultStore =
-          chainProduct.chain.toUpperCase().includes(defaultStoreName) ||
-          defaultStoreName.includes(chainProduct.chain.toUpperCase());
+        // Check if the default store has this item
+        for (const chainProduct of productData.chains) {
+          const isDefaultStore =
+            chainProduct.chain.toUpperCase().includes(defaultStoreName) ||
+            defaultStoreName.includes(chainProduct.chain.toUpperCase());
 
-        if (isDefaultStore) {
-          // Found the default store with the item, return it
-          return nameToChainCode(chainProduct.chain);
+          if (isDefaultStore) {
+            // Found the default store with the item, return it
+            return nameToChainCode(chainProduct.chain);
+          }
         }
       }
     }
 
-    // If default store doesn't have the item, find the cheapest store that does have it
+    // Find the cheapest store across all available stores
     let cheapestChain = null;
     let cheapestPrice = Infinity;
 
@@ -123,4 +122,40 @@ function nameToChainCode(chainName: string): string {
   };
 
   return specialCases[normalized] || normalized;
+}
+
+/**
+ * Comparator function for sorting store chains by multiple criteria
+ * @param a First chain to compare
+ * @param b Second chain to compare
+ * @param pinnedStoreIds Array of pinned store IDs
+ * @returns Negative if a < b, positive if a > b, 0 if equal
+ */
+export function compareStoreChains(
+  a: ChainProductResponse & { itemCount: number },
+  b: ChainProductResponse & { itemCount: number },
+  pinnedStoreIds: string[]
+): number {
+  // Check if chains are pinned
+  const aIsPinned = pinnedStoreIds.includes(a.chain);
+  const bIsPinned = pinnedStoreIds.includes(b.chain);
+
+  // 1. Pinned chains come first
+  if (aIsPinned && !bIsPinned) return -1;
+  if (!aIsPinned && bIsPinned) return 1;
+
+  // 2. If both are pinned or both are not pinned, sort by item count (highest first)
+  const aItemCount = a.itemCount;
+  const bItemCount = b.itemCount;
+  if (aItemCount !== bItemCount) return bItemCount - aItemCount;
+
+  // 3. If item counts are equal, sort by average price (lowest first)
+  const aAvgPrice = parseFloat(a.avg_price);
+  const bAvgPrice = parseFloat(b.avg_price);
+  if (aAvgPrice !== bAvgPrice) return aAvgPrice - bAvgPrice;
+
+  // If all criteria are equal, sort alphabetically
+  return a.chain.localeCompare(b.chain, "hr", {
+    sensitivity: "base",
+  });
 }

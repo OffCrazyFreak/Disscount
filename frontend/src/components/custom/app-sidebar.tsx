@@ -45,7 +45,7 @@ type OpenSection = "categories" | "stores" | "locations" | null;
 export const AppSidebar = memo(function AppSidebar() {
   const [categories, setCategories] = useState<string[]>(["First", "Second"]);
   const [openMenu, setOpenMenu] = useState<OpenSection>(null);
-  const { setOpen } = useSidebar();
+  const { setOpen, setOpenMobile } = useSidebar();
   const pathname = usePathname();
 
   const { data: chainStats, isLoading: chainStatsLoading } =
@@ -56,6 +56,7 @@ export const AppSidebar = memo(function AppSidebar() {
   // Close sidebar when route changes
   useEffect(() => {
     setOpen(false);
+    setOpenMobile(false);
   }, [pathname]);
 
   const sortedChainStats = useMemo(() => {

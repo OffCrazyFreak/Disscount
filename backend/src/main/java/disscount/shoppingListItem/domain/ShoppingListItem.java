@@ -59,11 +59,12 @@ public class ShoppingListItem {
     @Enumerated(EnumType.STRING)
     private StoreChain chainCode;
 
-    @Column(name = "avg_price")
+    @Column(name = "avg_price", precision = 10, scale = 4)  // Allows up to 4 decimal places
     private BigDecimal avgPrice;
 
-    @Column(name = "store_price")
+    @Column(name = "store_price", precision = 10, scale = 4)
     private BigDecimal storePrice;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

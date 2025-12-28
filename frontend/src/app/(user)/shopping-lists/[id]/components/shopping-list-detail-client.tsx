@@ -55,6 +55,7 @@ export default function ShoppingListDetailClient({
   const { user } = useUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
   const [cheapestStores, setCheapestStores] = useState<Record<string, string>>(
     {}
   );
@@ -75,26 +76,51 @@ export default function ShoppingListDetailClient({
   useEffect(() => {
     if (!shoppingList?.items || !user?.pinnedStores) return;
 
+    const abortController = new AbortController();
+
     const computeCheapestStores = async () => {
-      const stores: Record<string, string> = {};
+      try {
+        const promises = shoppingList.items.map(async (item) => {
+          try {
+            const cheapestStore = await findCheapestStoreForItem(
+              item,
+              user.pinnedStores || undefined
+            );
+            return { itemId: item.id, cheapestStore };
+          } catch (error) {
+            console.error(
+              `Failed to find cheapest store for item ${item.id}:`,
+              error
+            );
+            return { itemId: item.id, cheapestStore: null };
+          }
+        });
 
-      for (const item of shoppingList.items) {
-        const cheapestStore = await findCheapestStoreForItem(
-          item,
-          user.pinnedStores || undefined
-        );
-        if (cheapestStore) {
-          stores[item.id] = cheapestStore;
-        }
+        const results = await Promise.allSettled(promises);
+
+        if (abortController.signal.aborted) return;
+
+        const stores: Record<string, string> = {};
+        results.forEach((result) => {
+          if (result.status === "fulfilled" && result.value.cheapestStore) {
+            stores[result.value.itemId] = result.value.cheapestStore;
+          }
+        });
+
+        setCheapestStores(stores);
+      } catch (error) {
+        console.error("Error computing cheapest stores:", error);
       }
-
-      setCheapestStores(stores);
     };
 
     computeCheapestStores();
+
+    return () => {
+      abortController.abort();
+    };
   }, [shoppingList?.items, user?.pinnedStores]);
 
-  // Compute average prices for unchecked items
+  // Compute average prices and store prices for all items on page load
   useEffect(() => {
     if (!shoppingList?.items) return;
 
@@ -102,19 +128,18 @@ export default function ShoppingListDetailClient({
       const prices: Record<string, number> = {};
       const stores: Record<string, Record<string, number>> = {};
 
+      // Fetch price data for ALL items, regardless of checked status
+      // This ensures data is always available when toggling items
       for (const item of shoppingList.items) {
-        // Only fetch for unchecked items (checked items should have avgPrice from DB)
-        if (!item.isChecked) {
-          const avgPrice = await getAveragePriceForItem(item);
-          const itemStorePrices = await getStorePricesForItem(item);
+        const avgPrice = await getAveragePriceForItem(item);
+        const itemStorePrices = await getStorePricesForItem(item);
 
-          if (avgPrice !== null) {
-            prices[item.id] = avgPrice;
-          }
+        if (avgPrice !== null) {
+          prices[item.id] = avgPrice;
+        }
 
-          if (Object.keys(itemStorePrices).length > 0) {
-            stores[item.id] = itemStorePrices;
-          }
+        if (Object.keys(itemStorePrices).length > 0) {
+          stores[item.id] = itemStorePrices;
         }
       }
 
@@ -439,6 +464,7 @@ export default function ShoppingListDetailClient({
   };
 
   const handleDeleteItem = async (itemId: string) => {
+    setDeletingItemId(itemId);
     // Optimistic update
     await queryClient.cancelQueries({ queryKey: ["shoppingLists", listId] });
     const previousData = queryClient.getQueryData<ShoppingList>([
@@ -474,6 +500,7 @@ export default function ShoppingListDetailClient({
           toast.success("Stavka je uspješno obrisana!");
         },
         onSettled: () => {
+          setDeletingItemId(null);
           queryClient.invalidateQueries({
             queryKey: ["shoppingLists", listId],
           });
@@ -643,9 +670,9 @@ export default function ShoppingListDetailClient({
                             variant="default"
                             className="size-7 sm:hidden p-2 bg-red-600 hover:bg-red-700"
                             onClick={() => handleDeleteItem(item.id)}
-                            disabled={deleteItemMutation.isPending}
+                            disabled={deletingItemId === item.id}
                           >
-                            {deleteItemMutation.isPending ? (
+                            {deletingItemId === item.id ? (
                               <Loader2 className="size-4 animate-spin" />
                             ) : (
                               <X className="size-4" />
@@ -732,9 +759,9 @@ export default function ShoppingListDetailClient({
                             variant="default"
                             className="hidden sm:flex size-7 sm:size-10 p-2 bg-red-600 hover:bg-red-700"
                             onClick={() => handleDeleteItem(item.id)}
-                            disabled={deleteItemMutation.isPending}
+                            disabled={deletingItemId === item.id}
                           >
-                            {deleteItemMutation.isPending ? (
+                            {deletingItemId === item.id ? (
                               <Loader2 className="size-4 sm:size-5 animate-spin" />
                             ) : (
                               <X className="size-4 sm:size-5" />
