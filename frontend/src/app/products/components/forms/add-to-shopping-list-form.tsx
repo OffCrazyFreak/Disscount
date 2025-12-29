@@ -74,9 +74,7 @@ export default function AddToShoppingListForm({
   // Get selected shopping list details to check for duplicates
   const selectedListId = form.watch("shoppingListId");
   const { data: selectedShoppingList } =
-    shoppingListService.useGetShoppingListById(
-      selectedListId && selectedListId !== "new" ? selectedListId : ""
-    );
+    shoppingListService.useGetShoppingListById(selectedListId);
 
   // Check for duplicate EAN in selected list
   const duplicateItem = selectedShoppingList?.items?.find(

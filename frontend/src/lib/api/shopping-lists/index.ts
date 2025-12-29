@@ -134,6 +134,7 @@ export const useGetShoppingListById = (id: string) => {
   return useQuery<ShoppingListDto, Error>({
     queryKey: ["shoppingLists", id],
     queryFn: () => getShoppingListById(id),
+    enabled: !!id && id !== "new", // Only fetch if id is valid and not "new"
   });
 };
 
