@@ -120,21 +120,10 @@ export default function ShoppingListSelector({
                 />
                 <CommandList>
                   <CommandEmpty>
-                    <div className="p-2">
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start"
-                        disabled={!customListTitle.trim()}
-                        onClick={() => {
-                          if (!customListTitle.trim()) return;
-                          field.onChange("new");
-                          setOpen(false);
-                        }}
-                      >
-                        <Plus className="size-4" />
-                        <span>{`Stvori "${customListTitle.trim()}"`}</span>
-                      </Button>
-                    </div>
+                    <p>
+                      Počni upisivati naziv da stvoriš svoj prvi popis za kupnju
+                      direktno ovdje.
+                    </p>
                   </CommandEmpty>
 
                   {sortedShoppingLists.length > 0 && (

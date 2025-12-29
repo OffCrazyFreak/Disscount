@@ -101,6 +101,23 @@ export default function AddToShoppingListForm({
     }
   }, [isOpen, sortedShoppingLists, form]);
 
+  // Reset selectedListId if the selected list was deleted
+  useEffect(() => {
+    const currentSelectedId = form.getValues("shoppingListId");
+    if (
+      currentSelectedId &&
+      currentSelectedId !== "new" &&
+      !sortedShoppingLists.find((list) => list.id === currentSelectedId)
+    ) {
+      // The selected list was deleted, reset to empty or first available
+      if (sortedShoppingLists.length > 0) {
+        form.setValue("shoppingListId", sortedShoppingLists[0].id);
+      } else {
+        form.setValue("shoppingListId", "");
+      }
+    }
+  }, [sortedShoppingLists, form]);
+
   // Watch isChecked to toggle visibility
   const isChecked = form.watch("isChecked");
 

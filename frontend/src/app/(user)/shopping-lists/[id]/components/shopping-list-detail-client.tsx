@@ -10,7 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import ShoppingListStoreSummary from "./shopping-list-stores-list";
 import ShoppingListHeader from "@/app/(user)/shopping-lists/[id]/components/shopping-list-header";
 import ShoppingListItems from "@/app/(user)/shopping-lists/[id]/components/shopping-list-items";
-import DeleteListDialog from "@/app/(user)/shopping-lists/[id]/components/delete-list-dialog";
+import DeleteListDialog from "@/app/(user)/shopping-lists/components/forms/delete-shopping-list-dialog";
 import { useShoppingListData } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-data";
 import { useShoppingListMutations } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-mutations";
 import { shoppingListService } from "@/lib/api";
