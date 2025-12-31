@@ -8,6 +8,7 @@ import {
 import { cn } from "@/lib/utils";
 import { storeNamesMap, STORE_CHAIN_OPTIONS } from "@/utils/mappings";
 import { useEffect, useState } from "react";
+import { ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 
 interface StoreChainSelectProps {
   value: string | null | undefined;
@@ -52,11 +53,11 @@ export default function StoreChainSelect({
       if (chainCode !== value) return null; // Only show difference for selected store when checked
 
       const difference = storePriceFromDb - averagePrice;
-      const percentage = (difference / averagePrice) * 100;
+      const percentage = Math.abs((difference / averagePrice) * 100);
 
       return {
         percentage: percentage.toFixed(1),
-        absolute: difference.toFixed(2),
+        difference: difference.toFixed(2),
       };
     }
 
@@ -65,11 +66,11 @@ export default function StoreChainSelect({
 
     const storePrice = storePrices[chainCode];
     const difference = storePrice - averagePrice;
-    const percentage = (difference / averagePrice) * 100;
+    const percentage = Math.abs((difference / averagePrice) * 100);
 
     return {
       percentage: percentage.toFixed(1),
-      absolute: difference.toFixed(2),
+      difference: difference.toFixed(2),
     };
   };
 
@@ -88,24 +89,49 @@ export default function StoreChainSelect({
               ? option.code === value // When checked, only show the selected store
               : storePrices[option.code] !== undefined || option.code === value // When unchecked, show available stores and current selection
         ).map((option) => {
-          const diff = getPriceDifference(option.code);
-          const diffText = diff
-            ? ` (${parseFloat(diff.percentage) > 0 ? "+" : ""}${diff.percentage}%, ${parseFloat(diff.absolute) > 0 ? "+" : ""}${diff.absolute}€)`
-            : "";
+          const priceDifference = getPriceDifference(option.code);
 
           // Determine color based on difference (positive = red, negative = green)
-          const diffColorClass = diff
-            ? parseFloat(diff.absolute) > 0
-              ? "text-red-600"
-              : parseFloat(diff.absolute) < 0
-                ? "text-green-600"
-                : "text-gray-500"
+          const diffColorClass = priceDifference
+            ? parseFloat(priceDifference.difference) > 0
+              ? "text-red-700"
+              : parseFloat(priceDifference.difference) < 0
+              ? "text-green-700"
+              : "text-gray-500"
             : "text-gray-500";
 
           return (
             <SelectItem key={option.code} value={option.code}>
-              <span>{storeNamesMap[option.key] || option.key}</span>
-              <span className={`text-xs ${diffColorClass}`}>{diffText}</span>
+              <div className="flex items-center gap-2 w-full">
+                <span>{storeNamesMap[option.key] || option.key}</span>
+
+                {priceDifference && (
+                  <span
+                    className={cn(
+                      "text-xs flex items-center gap-1",
+                      diffColorClass
+                    )}
+                  >
+                    <span>
+                      {parseFloat(priceDifference.difference) > 0 && "+"}
+                      {priceDifference.difference}€
+                    </span>
+
+                    <span>({priceDifference.percentage}%)</span>
+
+                    {parseFloat(priceDifference.difference) !== 0 &&
+                      (parseFloat(priceDifference.difference) < 0 ? (
+                        <ArrowBigDownDash
+                          className={cn("size-4", diffColorClass)}
+                        />
+                      ) : (
+                        <ArrowBigUpDash
+                          className={cn("size-4", diffColorClass)}
+                        />
+                      ))}
+                  </span>
+                )}
+              </div>
             </SelectItem>
           );
         })}

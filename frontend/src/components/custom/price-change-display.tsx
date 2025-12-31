@@ -1,4 +1,4 @@
-import { ArrowBigUpDash } from "lucide-react";
+import { ArrowBigDownDash, ArrowBigUpDash } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PriceChangeDisplayProps {
@@ -26,17 +26,18 @@ export default function PriceChangeDisplay({
     >
       <span>
         {priceChange.difference > 0 && "+"}
+        {/* minus is displayed automatically from the number */}
         {priceChange.difference}€
       </span>
 
       <span>({priceChange.percentage}%)</span>
-      {priceChange.difference !== 0 && (
-        <ArrowBigUpDash
-          className={cn("hidden sm:inline", {
-            "rotate-180": priceChange.difference < 0,
-          })}
-        />
-      )}
+
+      {priceChange.difference !== 0 &&
+        (priceChange.difference < 0 ? (
+          <ArrowBigDownDash className="hidden sm:inline" />
+        ) : (
+          <ArrowBigUpDash className="hidden sm:inline" />
+        ))}
     </h3>
   );
 }
