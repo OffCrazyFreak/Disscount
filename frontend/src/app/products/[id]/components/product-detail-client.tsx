@@ -76,83 +76,89 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
 
   return (
     <div className="space-y-4">
-      <ProductInfoDisplay product={product} />
+      <section>
+        <ProductInfoDisplay product={product} />
+      </section>
 
-      <PriceHistory product={product} />
+      <section>
+        <PriceHistory product={product} />
+      </section>
 
-      {/* Store chain cards */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-bold text-gray-900">
-          Cijene po lancima trgovina
-        </h2>
+      <section>
+        {/* Store chain cards */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold text-gray-900">
+            Cijene po lancima trgovina
+          </h2>
 
-        {pricesLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <Loading />
-          </div>
-        ) : pricesError ? (
-          <div className="text-center py-8">
-            <p className="text-gray-600">
-              Greška pri učitavanju cijena. Pokušajte ponovno.
-            </p>
-          </div>
-        ) : product.chains.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-600">
-              Nema dostupnih cijena za ovaj proizvod.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {product.chains
-              .sort((a, b) => {
-                // Get user's pinned store IDs
-                const pinnedStoreIds =
-                  user?.pinnedStores?.map((store) => store.storeApiId) || [];
+          {pricesLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loading />
+            </div>
+          ) : pricesError ? (
+            <div className="text-center py-8">
+              <p className="text-gray-600">
+                Greška pri učitavanju cijena. Pokušajte ponovno.
+              </p>
+            </div>
+          ) : product.chains.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-600">
+                Nema dostupnih cijena za ovaj proizvod.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {product.chains
+                .sort((a, b) => {
+                  // Get user's pinned store IDs
+                  const pinnedStoreIds =
+                    user?.pinnedStores?.map((store) => store.storeApiId) || [];
 
-                // Check if chains are pinned
-                const aIsPinned = pinnedStoreIds.includes(a.chain);
-                const bIsPinned = pinnedStoreIds.includes(b.chain);
+                  // Check if chains are pinned
+                  const aIsPinned = pinnedStoreIds.includes(a.chain);
+                  const bIsPinned = pinnedStoreIds.includes(b.chain);
 
-                // Pinned chains come first
-                if (aIsPinned && !bIsPinned) return -1;
-                if (!aIsPinned && bIsPinned) return 1;
+                  // Pinned chains come first
+                  if (aIsPinned && !bIsPinned) return -1;
+                  if (!aIsPinned && bIsPinned) return 1;
 
-                // If both are pinned or both are not pinned, sort by prices (avg then min then max)
-                const aAvg = parseFloat(a.avg_price);
-                const bAvg = parseFloat(b.avg_price);
-                if (aAvg !== bAvg) return aAvg - bAvg;
+                  // If both are pinned or both are not pinned, sort by prices (avg then min then max)
+                  const aAvg = parseFloat(a.avg_price);
+                  const bAvg = parseFloat(b.avg_price);
+                  if (aAvg !== bAvg) return aAvg - bAvg;
 
-                const aMin = parseFloat(a.min_price);
-                const bMin = parseFloat(b.min_price);
-                if (aMin !== bMin) return aMin - bMin;
+                  const aMin = parseFloat(a.min_price);
+                  const bMin = parseFloat(b.min_price);
+                  if (aMin !== bMin) return aMin - bMin;
 
-                const aMax = parseFloat(a.max_price);
-                const bMax = parseFloat(b.max_price);
-                if (aMax !== bMax) return aMax - bMax;
+                  const aMax = parseFloat(a.max_price);
+                  const bMax = parseFloat(b.max_price);
+                  if (aMax !== bMax) return aMax - bMax;
 
-                // If all prices are equal, sort alphabetically
-                return a.chain.localeCompare(b.chain, "hr", {
-                  sensitivity: "base",
-                });
-              })
-              .map((store) => {
-                return (
-                  <StoreItem
-                    key={store.chain}
-                    isExpanded={expandedStore === store.chain}
-                    onToggle={() => toggleStoreExpansion(store.chain)}
-                    store={store}
-                    storePrices={pricesByStore[store.chain] || []}
-                    product={product}
-                  />
-                );
-              })}
-          </div>
-        )}
-      </div>
+                  // If all prices are equal, sort alphabetically
+                  return a.chain.localeCompare(b.chain, "hr", {
+                    sensitivity: "base",
+                  });
+                })
+                .map((store) => {
+                  return (
+                    <StoreItem
+                      key={store.chain}
+                      isExpanded={expandedStore === store.chain}
+                      onToggle={() => toggleStoreExpansion(store.chain)}
+                      store={store}
+                      storePrices={pricesByStore[store.chain] || []}
+                      product={product}
+                    />
+                  );
+                })}
+            </div>
+          )}
+        </div>
+      </section>
 
-      {/* TODO: cesto kupljeno zajedno section */}
+      <section>{/* TODO: cesto kupljeno zajedno section */}</section>
     </div>
   );
 }

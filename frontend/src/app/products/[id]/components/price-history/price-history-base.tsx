@@ -12,9 +12,15 @@ import {
 } from "@/lib/api/local-storage";
 import { usePriceHistory } from "@/lib/cijene-api/hooks";
 import PriceHistoryChart from "@/app/products/[id]/components/price-history/price-history-chart";
-import PriceHistoryControls from "@/app/products/[id]/components/price-history/price-history-controls";
+import PriceHistoryPeriodSelect from "@/components/custom/price-history-period-select";
+import StoreChainMultiSelect from "@/components/custom/store-chain-multi-select";
+import PriceChangeDisplay from "@/components/custom/price-change-display";
 import { PeriodOption } from "@/typings/history-period-options";
 import { periodOptions } from "@/app/products/[id]/utils/price-history-constants";
+import {
+  getAveragePrice,
+  calculatePriceChange,
+} from "@/lib/cijene-api/utils/product-utils";
 
 interface IPriceHistoryProps {
   product: ProductResponse;
@@ -92,18 +98,47 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
     // If no chains are selected, keep the current selection unchanged
   }, []);
 
+  // Calculate price change
+  const priceChange = useMemo(() => {
+    if (priceHistoryData.length === 0) {
+      return null;
+    }
+
+    const currentAvgPrice = getAveragePrice(
+      priceHistoryData[priceHistoryData.length - 1].product
+    );
+    const historicalAvgPrice = getAveragePrice(priceHistoryData[0].product);
+
+    if (currentAvgPrice == null || historicalAvgPrice == null) {
+      return null;
+    }
+
+    return calculatePriceChange(currentAvgPrice, historicalAvgPrice);
+  }, [priceHistoryData]);
+
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-bold text-gray-900">Povijest cijena</h2>
       <Card>
         <CardContent>
           <Tabs value={chartPrefs.period} onValueChange={handlePeriodChange}>
-            <PriceHistoryControls
-              chartPrefs={chartPrefs}
-              priceHistoryData={priceHistoryData}
-              priceHistoryChains={priceHistoryChains}
-              onChainsChange={handleChainsChange}
-            />
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+              <div className="flex items-center justify-between gap-4 w-full sm:w-auto">
+                <PriceHistoryPeriodSelect
+                  value={chartPrefs.period}
+                  onChange={handlePeriodChange}
+                />
+
+                <PriceChangeDisplay priceChange={priceChange} />
+              </div>
+
+              <StoreChainMultiSelect
+                chains={priceHistoryChains}
+                selectedChains={chartPrefs.chains}
+                onChainsChange={handleChainsChange}
+                className="w-full sm:w-sm"
+              />
+            </div>
 
             <TabsContent value={chartPrefs.period} className="mt-4">
               {historyLoading ? (

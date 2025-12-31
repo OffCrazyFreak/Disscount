@@ -10,6 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import ShoppingListStoreSummary from "./shopping-list-stores-list";
 import ShoppingListHeader from "@/app/(user)/shopping-lists/[id]/components/shopping-list-header";
 import ShoppingListItems from "@/app/(user)/shopping-lists/[id]/components/shopping-list-items";
+import ShoppingListPriceHistory from "@/app/(user)/shopping-lists/[id]/components/shopping-list-price-history";
 import DeleteListDialog from "@/app/(user)/shopping-lists/components/forms/delete-shopping-list-dialog";
 import { useShoppingListData } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-data";
 import { useShoppingListMutations } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-mutations";
@@ -186,6 +187,11 @@ export default function ShoppingListDetailClient({
           averagePrices={averagePrices}
           storePrices={storePrices}
         />
+      </section>
+
+      {/* Price History Section */}
+      <section>
+        <ShoppingListPriceHistory shoppingList={shoppingList} />
       </section>
 
       {/* Store Summary Section */}

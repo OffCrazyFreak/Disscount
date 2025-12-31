@@ -1,7 +1,12 @@
 "use client";
 
 import { memo, useState, useCallback } from "react";
-import { ChevronDown, AlertTriangle, ArrowUp, ArrowDown } from "lucide-react";
+import {
+  ChevronDown,
+  AlertTriangle,
+  ArrowBigUpDash,
+  ArrowBigDownDash,
+} from "lucide-react";
 import Image from "next/image";
 import {
   Collapsible,
@@ -108,10 +113,10 @@ export const ShoppingListStoreItem = memo(
                   <div className="flex items-center gap-1 flex-wrap">
                     {/* Price indicators */}
                     {hasLowestPriceItem && (
-                      <ArrowDown className="size-4 text-green-600 flex-shrink-0" />
+                      <ArrowBigDownDash className="size-5 text-green-600 flex-shrink-0" />
                     )}
                     {hasHighestPriceItem && (
-                      <ArrowUp className="size-4 text-red-700 flex-shrink-0" />
+                      <ArrowBigUpDash className="size-5 text-red-700 flex-shrink-0" />
                     )}
 
                     <h3 className="font-semibold text-gray-900">
@@ -150,8 +155,8 @@ export const ShoppingListStoreItem = memo(
                           hasAllItems && storeMinPrice === absoluteMinPrice
                             ? "text-green-600 font-bold"
                             : hasAllItems && storeMinPrice === absoluteMaxPrice
-                              ? "text-red-700 font-bold"
-                              : "text-gray-700"
+                            ? "text-red-700 font-bold"
+                            : "text-gray-700"
                         )}
                       >
                         Min: {storeMinPrice.toFixed(2)}€
@@ -161,8 +166,8 @@ export const ShoppingListStoreItem = memo(
                           hasAllItems && storeAvgPrice === absoluteMinPrice
                             ? "text-green-600 font-bold"
                             : hasAllItems && storeAvgPrice === absoluteMaxPrice
-                              ? "text-red-700 font-bold"
-                              : "text-gray-700"
+                            ? "text-red-700 font-bold"
+                            : "text-gray-700"
                         )}
                       >
                         Prosjek: {storeAvgPrice.toFixed(2)}€
@@ -172,8 +177,8 @@ export const ShoppingListStoreItem = memo(
                           hasAllItems && storeMaxPrice === absoluteMinPrice
                             ? "text-green-600 font-bold"
                             : hasAllItems && storeMaxPrice === absoluteMaxPrice
-                              ? "text-red-700 font-bold"
-                              : "text-gray-700"
+                            ? "text-red-700 font-bold"
+                            : "text-gray-700"
                         )}
                       >
                         Max: {storeMaxPrice.toFixed(2)}€

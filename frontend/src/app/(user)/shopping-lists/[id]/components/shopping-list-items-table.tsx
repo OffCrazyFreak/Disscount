@@ -1,7 +1,7 @@
 "use client";
 
 import React, { memo } from "react";
-import { ChevronUp, ArrowDown, ArrowUp } from "lucide-react";
+import { ChevronUp, ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -124,19 +124,19 @@ export const ShoppingListItemsTable = memo(
                       {isAvailable ? (
                         <span
                           className={cn(
-                            "flex items-center justify-center gap-1",
+                            "flex items-start justify-center gap-1",
                             isLowestPrice
                               ? "text-green-600 font-bold"
                               : isHighestPrice
-                                ? "text-red-700 font-bold"
-                                : "text-gray-700"
+                              ? "text-red-700 font-bold"
+                              : "text-gray-700"
                           )}
                         >
                           {price.toFixed(2)}€
                           {isLowestPrice && (
                             <>
-                              <ArrowDown
-                                className="size-3"
+                              <ArrowBigDownDash
+                                className="size-5"
                                 aria-hidden="true"
                               />
                               <span className="sr-only">najniža cijena</span>
@@ -144,7 +144,10 @@ export const ShoppingListItemsTable = memo(
                           )}
                           {isHighestPrice && (
                             <>
-                              <ArrowUp className="size-3" aria-hidden="true" />
+                              <ArrowBigUpDash
+                                className="size-5"
+                                aria-hidden="true"
+                              />
                               <span className="sr-only">najviša cijena</span>
                             </>
                           )}
@@ -162,8 +165,8 @@ export const ShoppingListItemsTable = memo(
                             isLowestPrice
                               ? "font-medium text-green-600"
                               : isHighestPrice
-                                ? "font-medium text-red-700"
-                                : "font-medium text-gray-900"
+                              ? "font-medium text-red-700"
+                              : "font-medium text-gray-900"
                           )}
                         >
                           {total.toFixed(2)}€
