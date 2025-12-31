@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
+import { useUser } from "@/context/user-context";
 import {
   getPriceHistoryPreferences,
   setPriceHistoryPreferences,
@@ -20,6 +21,8 @@ interface IPriceHistoryProps {
 }
 
 export default function PriceHistory({ product }: IPriceHistoryProps) {
+  const { user } = useUser();
+
   const [chartPrefs, setChartPrefs] = useState<{
     period: PeriodOption;
     chains: string[];
@@ -43,10 +46,17 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
       };
     }
 
-    // If EAN isn't in preferences yet, default to all available chains
+    // If EAN isn't in preferences yet, default to preferred stores only (if any exist)
+    const preferredStoreIds =
+      user?.pinnedStores?.map((s) => s.storeApiId) || [];
+    const preferredChains = availableChains.filter((chain) =>
+      preferredStoreIds.includes(chain)
+    );
+
+    // If there are preferred stores, select only those; otherwise select all
     return {
       period,
-      chains: availableChains,
+      chains: preferredChains.length > 0 ? preferredChains : availableChains,
     };
   });
 

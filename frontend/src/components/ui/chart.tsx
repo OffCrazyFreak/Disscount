@@ -118,6 +118,7 @@ function ChartTooltipContent({
   color,
   nameKey,
   labelKey,
+  pinnedStoreIds,
 }: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
   React.ComponentProps<"div"> & {
     hideLabel?: boolean;
@@ -125,6 +126,7 @@ function ChartTooltipContent({
     indicator?: "line" | "dot" | "dashed";
     nameKey?: string;
     labelKey?: string;
+    pinnedStoreIds?: string[];
   }) {
   const { config } = useChart();
 
@@ -181,10 +183,25 @@ function ChartTooltipContent({
       <div className="grid gap-1.5">
         {payload
           .filter((item) => item.type !== "none")
+          .sort((a, b) => {
+            const aKey = `${nameKey || a.name || a.dataKey || "value"}`;
+            const bKey = `${nameKey || b.name || b.dataKey || "value"}`;
+            const aConfig = getPayloadConfigFromPayload(config, a, aKey);
+            const bConfig = getPayloadConfigFromPayload(config, b, bKey);
+            const aLabel = String(aConfig?.label || a.name || "");
+            const bLabel = String(bConfig?.label || b.name || "");
+            return aLabel.localeCompare(bLabel);
+          })
           .map((item, index) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`;
             const itemConfig = getPayloadConfigFromPayload(config, item, key);
             const indicatorColor = color || item.payload.fill || item.color;
+            const isAverage = String(item.dataKey) === "_average";
+            const isPinned =
+              pinnedStoreIds?.includes(String(item.dataKey)) ?? true;
+            const hasPreferredStores = (pinnedStoreIds?.length ?? 0) > 0;
+            const shouldReduceOpacity =
+              !isAverage && !isPinned && hasPreferredStores;
 
             return (
               <div
@@ -211,7 +228,8 @@ function ChartTooltipContent({
                               "w-0 border-[1.5px] border-dashed bg-transparent":
                                 indicator === "dashed",
                               "my-0.5": nestLabel && indicator === "dashed",
-                            }
+                            },
+                            shouldReduceOpacity && "opacity-40"
                           )}
                           style={
                             {
@@ -224,18 +242,29 @@ function ChartTooltipContent({
                     )}
                     <div
                       className={cn(
-                        "flex flex-1 justify-between leading-none",
+                        "flex flex-1 gap-1 justify-between leading-none",
                         nestLabel ? "items-end" : "items-center"
                       )}
                     >
                       <div className="grid gap-1.5">
                         {nestLabel ? tooltipLabel : null}
-                        <span className="text-muted-foreground">
+                        <span
+                          className={cn(
+                            "text-muted-foreground",
+                            shouldReduceOpacity && "opacity-60"
+                          )}
+                        >
                           {itemConfig?.label || item.name}
                         </span>
                       </div>
+
                       {item.value && (
-                        <span className="text-foreground font-mono font-medium tabular-nums">
+                        <span
+                          className={cn(
+                            "text-foreground font-mono font-medium tabular-nums",
+                            shouldReduceOpacity && "opacity-60"
+                          )}
+                        >
                           {item.value.toLocaleString()}
                         </span>
                       )}

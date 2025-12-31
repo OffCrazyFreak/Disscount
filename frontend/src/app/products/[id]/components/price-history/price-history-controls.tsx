@@ -97,11 +97,17 @@ const PriceHistoryControls = memo(function PriceHistoryControls({
         </MultiSelectTrigger>
         <MultiSelectContent>
           <MultiSelectGroup>
-            {priceHistoryChains.map((chainCode) => (
-              <MultiSelectItem key={chainCode} value={chainCode}>
-                {storeNamesMap[chainCode] || chainCode}
-              </MultiSelectItem>
-            ))}
+            {priceHistoryChains
+              .sort((a, b) => {
+                const aName = storeNamesMap[a] || a;
+                const bName = storeNamesMap[b] || b;
+                return aName.localeCompare(bName);
+              })
+              .map((chainCode) => (
+                <MultiSelectItem key={chainCode} value={chainCode}>
+                  {storeNamesMap[chainCode] || chainCode}
+                </MultiSelectItem>
+              ))}
           </MultiSelectGroup>
         </MultiSelectContent>
       </MultiSelect>

@@ -26,6 +26,11 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
 }: IPriceHistoryChartProps) {
   const { user } = useUser();
 
+  const pinnedStoreIds = useMemo(
+    () => user?.pinnedStores?.map((store) => store.storeApiId) || [],
+    [user?.pinnedStores]
+  );
+
   // Filter chains to display based on user selection with sanitization
   const chainsToDisplay = useMemo(() => {
     // Get intersection of selectedChains and priceHistoryChains
@@ -51,23 +56,38 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
 
       // Add average price for each chain present in this data point
       if (dataPoint.product?.chains) {
+        const prices: number[] = [];
+
         dataPoint.product.chains.forEach((chainData) => {
           const avgPrice = parseFloat(chainData.avg_price);
           if (Number.isFinite(avgPrice)) {
             chartPoint[chainData.chain] = avgPrice;
+
+            // Collect prices for selected chains to calculate average
+            if (chainsToDisplay.includes(chainData.chain)) {
+              prices.push(avgPrice);
+            }
           }
         });
+
+        // Calculate and add average price for selected chains
+        if (prices.length > 0) {
+          const avgOfSelected =
+            prices.reduce((sum, price) => sum + price, 0) / prices.length;
+          chartPoint["_average"] = parseFloat(avgOfSelected.toFixed(2));
+        }
       }
 
       return chartPoint;
     });
-  }, [priceHistoryData]);
+  }, [priceHistoryData, chainsToDisplay]);
 
   const chartConfig = useMemo(() => {
     const cfg: ChartConfig = {};
     priceHistoryChains.forEach((chain) => {
       cfg[chain] = { label: storeNamesMap[chain] || chain };
     });
+    cfg["_average"] = { label: "Prosjek" };
     return cfg;
   }, [priceHistoryChains]);
 
@@ -94,13 +114,53 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
             const padding = 0.05;
             return [dataMin * (1 - padding), dataMax * (1 + padding)];
           }}
+          ticks={useMemo(() => {
+            const padding = 0.05;
+            const paddedMin =
+              chartData.length > 0 && chainsToDisplay.length > 0
+                ? Math.min(
+                    ...chartData.flatMap((d) =>
+                      Object.entries(d)
+                        .filter(
+                          ([k]) => k !== "date" && chainsToDisplay.includes(k)
+                        )
+                        .map(([_, v]) => (typeof v === "number" ? v : 0))
+                    )
+                  ) *
+                  (1 - padding)
+                : 0;
+            const paddedMax =
+              chartData.length > 0 && chainsToDisplay.length > 0
+                ? Math.max(
+                    ...chartData.flatMap((d) =>
+                      Object.entries(d)
+                        .filter(
+                          ([k]) => k !== "date" && chainsToDisplay.includes(k)
+                        )
+                        .map(([_, v]) => (typeof v === "number" ? v : 0))
+                    )
+                  ) *
+                  (1 + padding)
+                : 1;
+
+            const ticks = [];
+            const step = 0.25;
+            const start = Math.floor(paddedMin / step) * step;
+            const end = Math.ceil(paddedMax / step) * step;
+
+            for (let i = start; i <= end; i += step) {
+              ticks.push(parseFloat(i.toFixed(2)));
+            }
+            return ticks;
+          }, [chartData, chainsToDisplay])}
         />
 
-        <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+        <ChartTooltip
+          cursor={true}
+          content={<ChartTooltipContent pinnedStoreIds={pinnedStoreIds} />}
+        />
 
         {chainsToDisplay.map((chainCode, index) => {
-          const pinnedStoreIds =
-            user?.pinnedStores?.map((store) => store.storeApiId) || [];
           const isPinned = pinnedStoreIds.includes(chainCode);
 
           return (
@@ -114,6 +174,17 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
             />
           );
         })}
+
+        {/* Average line for selected chains */}
+        <Line
+          key="_average"
+          dataKey="_average"
+          type="bump"
+          stroke="#666"
+          strokeWidth={1}
+          strokeDasharray="5 5"
+          dot={false}
+        />
       </LineChart>
     </ChartContainer>
   );
