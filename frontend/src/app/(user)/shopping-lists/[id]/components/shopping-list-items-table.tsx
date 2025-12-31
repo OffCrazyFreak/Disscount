@@ -1,6 +1,7 @@
 "use client";
 
 import React, { memo } from "react";
+import Link from "next/link";
 import { ChevronUp, ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 import {
   Table,
@@ -96,14 +97,16 @@ export const ShoppingListItemsTable = memo(
                     className={cn("text-pretty [&>*]:whitespace-normal")}
                   >
                     <TableCell>
-                      <p
+                      <Link
+                        href={`/products/${item.ean}`}
                         className={cn(
+                          "hover:underline hover:text-primary cursor-pointer",
                           !isAvailable && "text-gray-400",
                           item.isChecked && "line-through text-gray-700"
                         )}
                       >
                         {item.name}
-                      </p>
+                      </Link>
                     </TableCell>
 
                     <TableCell

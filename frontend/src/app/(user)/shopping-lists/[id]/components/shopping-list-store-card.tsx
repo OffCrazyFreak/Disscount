@@ -188,12 +188,18 @@ export const ShoppingListStoreItem = memo(
                 </div>
               </div>
 
-              <ChevronDown
-                className={cn(
-                  "size-8 text-gray-500 transition-transform flex-shrink-0",
-                  expandedStore === chain.chain && "rotate-180"
-                )}
-              />
+              <div className="flex-1 flex items-center justify-end gap-4">
+                <p className="hidden sm:inline text-gray-700 text-sm text-pretty text-right">
+                  Dostupnost proizvoda
+                </p>
+
+                <ChevronDown
+                  className={cn(
+                    "size-8 text-gray-500 transition-transform flex-shrink-0",
+                    expandedStore === chain.chain && "rotate-180"
+                  )}
+                />
+              </div>
             </CardHeader>
           </CollapsibleTrigger>
 

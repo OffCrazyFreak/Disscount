@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Minus, Plus, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -35,7 +36,7 @@ export default function ShoppingListItem({
   const chainKey = item.chainCode
     ? item.chainCode.toLowerCase().replace(/_/g, "-")
     : null;
-  const storeName = chainKey ? (storeNamesMap[chainKey] ?? chainKey) : null;
+  const storeName = chainKey ? storeNamesMap[chainKey] ?? chainKey : null;
 
   // Average price - from DB for checked items, from API for unchecked items
   const displayPrice = item.isChecked ? item.avgPrice : averagePrice;
@@ -56,13 +57,14 @@ export default function ShoppingListItem({
             }
           />
           <div className="flex-1">
-            <p
-              className={`text-sm sm:text-md ${
+            <Link
+              href={`/products/${item.ean}`}
+              className={`text-sm sm:text-md hover:underline hover:text-primary cursor-pointer ${
                 item.isChecked ? "line-through text-gray-500" : ""
               }`}
             >
               {item.name}
-            </p>
+            </Link>
             {item.brand && (
               <p className="text-xs sm:text-sm text-gray-600 text-wrap">
                 {item.brand}
