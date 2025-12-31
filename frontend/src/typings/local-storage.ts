@@ -5,6 +5,7 @@ import { PeriodOption } from "@/typings/history-period-options";
 export interface ProductChartPreferences {
   period?: PeriodOption;
   chains?: string[];
+  isPriceHistoryOpen?: boolean;
 }
 
 // Price history chart preferences structure

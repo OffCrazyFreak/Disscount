@@ -77,18 +77,12 @@ export const ShoppingListStoreItem = memo(
     const totalItemsInList = shoppingList.items?.length || 0;
     const hasAllItems = chain.itemCount === totalItemsInList;
 
-    // Determine if this store should be highlighted
-    const isBestCompleteStore =
-      hasAllItems && completeStoresAnalysis.bestStore?.chain === chain.chain;
-    const isWorstCompleteStore =
-      hasAllItems && completeStoresAnalysis.worstStore?.chain === chain.chain;
-
     return (
-      <Collapsible
-        open={expandedStore === chain.chain}
-        onOpenChange={() => toggleStoreExpansion(chain.chain)}
-      >
-        <Card className="shadow-sm hover:shadow-md transition-shadow">
+      <Card className="shadow-sm hover:shadow-md transition-shadow py-0">
+        <Collapsible
+          open={expandedStore === chain.chain}
+          onOpenChange={() => toggleStoreExpansion(chain.chain)}
+        >
           <CollapsibleTrigger asChild className="cursor-pointer">
             <CardHeader className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
@@ -212,8 +206,8 @@ export const ShoppingListStoreItem = memo(
               />
             </CardContent>
           </CollapsibleContent>
-        </Card>
-      </Collapsible>
+        </Collapsible>
+      </Card>
     );
   }
 );

@@ -108,7 +108,7 @@ export default function ProductInfoDisplay({
               <div className="text-sm p-2">
                 <span className="font-bold">Količina: </span>
                 {product.quantity && product.unit
-                  ? `${formatQuantity(product.quantity)}${product.unit}`
+                  ? `${formatQuantity(product.quantity)} ${product.unit}`
                   : "Nepoznato"}
               </div>
 

@@ -149,7 +149,7 @@ export const StoreItem = memo(
           </CollapsibleTrigger>
 
           <CollapsibleContent>
-            <CardContent className="pt-0">
+            <CardContent>
               <StorePricesTable storePrices={storePrices} product={product} />
             </CardContent>
           </CollapsibleContent>

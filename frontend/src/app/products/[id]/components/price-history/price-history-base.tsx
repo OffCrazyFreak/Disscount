@@ -1,9 +1,15 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronDown } from "lucide-react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { useUser } from "@/context/user-context";
 import {
@@ -66,13 +72,19 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
     };
   });
 
-  // Persist product-specific preferences whenever period or chains change
+  const [isPriceHistoryOpen, setIsPriceHistoryOpen] = useState(() => {
+    const { productPreferences } = getPriceHistoryPreferences(product.ean);
+    return productPreferences?.isPriceHistoryOpen ?? true;
+  });
+
+  // Persist product-specific preferences whenever period, chains, or isOpen change
   useEffect(() => {
     setPriceHistoryPreferences(product.ean, {
       period: chartPrefs.period,
       chains: chartPrefs.chains,
+      isPriceHistoryOpen: isPriceHistoryOpen,
     });
-  }, [chartPrefs.period, chartPrefs.chains, product.ean]);
+  }, [chartPrefs.period, chartPrefs.chains, isPriceHistoryOpen, product.ean]);
 
   // Calculate days to show based on selected period
   const daysToShow: number = useMemo(() => {
@@ -117,54 +129,76 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
   }, [priceHistoryData]);
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-bold text-gray-900">Povijest cijena</h2>
-      <Card>
-        <CardContent>
-          <Tabs value={chartPrefs.period} onValueChange={handlePeriodChange}>
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
-              <div className="flex items-center justify-between gap-4 w-full sm:w-auto">
-                <PriceHistoryPeriodSelect
-                  value={chartPrefs.period}
-                  onChange={handlePeriodChange}
-                />
+    <Card className="shadow-sm hover:shadow-md transition-shadow">
+      <Collapsible
+        open={isPriceHistoryOpen}
+        onOpenChange={setIsPriceHistoryOpen}
+      >
+        <CollapsibleTrigger asChild className="cursor-pointer">
+          <CardHeader className="flex items-center justify-between gap-4">
+            <h3 className="text-lg font-bold text-gray-900">Povijest cijena</h3>
 
-                <PriceChangeDisplay priceChange={priceChange} />
-              </div>
-
-              <StoreChainMultiSelect
-                chains={priceHistoryChains}
-                selectedChains={chartPrefs.chains}
-                onChainsChange={handleChainsChange}
-                className="w-full sm:w-sm"
+            <div className="flex-1 flex items-center justify-end gap-4">
+              <p className="hidden sm:inline text-gray-700 text-sm text-pretty text-right">
+                {isPriceHistoryOpen ? "Sakrij" : "Prikaži"}
+              </p>
+              <ChevronDown
+                className={cn(
+                  "size-8 text-gray-500 transition-transform flex-shrink-0",
+                  isPriceHistoryOpen && "rotate-180"
+                )}
               />
             </div>
+          </CardHeader>
+        </CollapsibleTrigger>
 
-            <TabsContent value={chartPrefs.period} className="mt-4">
-              {historyLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="size-6 animate-spin" />
-                    Učitavanje povijesti cijena...
-                  </div>
+        <CollapsibleContent>
+          <CardContent className="pt-0">
+            <Tabs value={chartPrefs.period} onValueChange={handlePeriodChange}>
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+                <div className="flex items-center justify-between gap-4 w-full sm:w-auto">
+                  <PriceHistoryPeriodSelect
+                    value={chartPrefs.period}
+                    onChange={handlePeriodChange}
+                  />
+
+                  <PriceChangeDisplay priceChange={priceChange} />
                 </div>
-              ) : priceHistoryData.length === 0 || historyError ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-600">
-                    Nema dostupnih povijesnih podataka.
-                  </p>
-                </div>
-              ) : (
-                <PriceHistoryChart
-                  priceHistoryData={priceHistoryData}
-                  priceHistoryChains={priceHistoryChains}
+
+                <StoreChainMultiSelect
+                  chains={priceHistoryChains}
                   selectedChains={chartPrefs.chains}
+                  onChainsChange={handleChainsChange}
+                  className="w-full sm:w-sm"
                 />
-              )}
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-    </div>
+              </div>
+
+              <TabsContent value={chartPrefs.period} className="mt-4">
+                {historyLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="size-6 animate-spin" />
+                      Učitavanje povijesti cijena...
+                    </div>
+                  </div>
+                ) : priceHistoryData.length === 0 || historyError ? (
+                  <div className="text-center py-8">
+                    <p className="text-gray-600">
+                      Nema dostupnih povijesnih podataka.
+                    </p>
+                  </div>
+                ) : (
+                  <PriceHistoryChart
+                    priceHistoryData={priceHistoryData}
+                    priceHistoryChains={priceHistoryChains}
+                    selectedChains={chartPrefs.chains}
+                  />
+                )}
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
+    </Card>
   );
 }

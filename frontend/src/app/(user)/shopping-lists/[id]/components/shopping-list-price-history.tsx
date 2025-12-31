@@ -8,12 +8,18 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import StoreChainMultiSelect from "@/components/custom/store-chain-multi-select";
 import PriceHistoryPeriodSelect from "@/components/custom/price-history-period-select";
 import PriceChangeDisplay from "@/components/custom/price-change-display";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronDown } from "lucide-react";
 import { ShoppingListDto } from "@/lib/api/types";
 import { usePriceHistory } from "@/lib/cijene-api/hooks";
 import { PeriodOption } from "@/typings/history-period-options";
@@ -21,6 +27,7 @@ import { periodOptions } from "@/app/products/[id]/utils/price-history-constants
 import { storeNamesMap } from "@/utils/mappings";
 import { useUser } from "@/context/user-context";
 import { calculatePriceChange } from "@/lib/cijene-api/utils/product-utils";
+import { Separator } from "@/components/ui/separator";
 
 interface ShoppingListPriceHistoryProps {
   shoppingList: ShoppingListDto;
@@ -37,6 +44,7 @@ export default function ShoppingListPriceHistory({
   const { user } = useUser();
   const [period, setPeriod] = useState<PeriodOption>("1W");
   const [selectedChains, setSelectedChains] = useState<string[]>([]);
+  const [isPriceHistoryOpen, setIsPriceHistoryOpen] = useState(false);
 
   const daysToShow = useMemo(() => {
     return periodOptions[period]?.days || 7;
@@ -229,96 +237,118 @@ export default function ShoppingListPriceHistory({
   }
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-bold text-gray-900">Povijest cijena</h2>
-      <Card>
-        <CardContent>
-          <Tabs value={period} onValueChange={handlePeriodChange}>
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <PriceHistoryPeriodSelect
-                  value={period}
-                  onChange={handlePeriodChange}
-                />
-                <PriceChangeDisplay priceChange={priceChange} />
-              </div>
+    <Card className="shadow-sm hover:shadow-md transition-shadow">
+      <Collapsible
+        open={isPriceHistoryOpen}
+        onOpenChange={setIsPriceHistoryOpen}
+      >
+        <CollapsibleTrigger asChild className="cursor-pointer">
+          <CardHeader className="flex items-center justify-between gap-4">
+            <h3 className="text-lg font-bold text-gray-900">Povijest cijena</h3>
 
-              <StoreChainMultiSelect
-                chains={availableChains}
-                selectedChains={selectedChains}
-                onChainsChange={handleChainsChange}
-                className="w-full sm:w-sm"
+            <div className="flex-1 flex items-center justify-end gap-4">
+              <p className="hidden sm:inline text-gray-700 text-sm text-pretty text-right">
+                {isPriceHistoryOpen ? "Sakrij" : "Prikaži"}
+              </p>
+              <ChevronDown
+                className={cn(
+                  "size-8 text-gray-500 transition-transform flex-shrink-0",
+                  isPriceHistoryOpen && "rotate-180"
+                )}
               />
             </div>
+          </CardHeader>
+        </CollapsibleTrigger>
 
-            <TabsContent value={period} className="mt-4">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="size-6 animate-spin" />
-                    Učitavanje povijesti cijena...
+        <CollapsibleContent>
+          <CardContent className="pt-0">
+            <Tabs value={period} onValueChange={handlePeriodChange}>
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <PriceHistoryPeriodSelect
+                    value={period}
+                    onChange={handlePeriodChange}
+                  />
+                  <PriceChangeDisplay priceChange={priceChange} />
+                </div>
+
+                <StoreChainMultiSelect
+                  chains={availableChains}
+                  selectedChains={selectedChains}
+                  onChainsChange={handleChainsChange}
+                  className="w-full sm:w-sm"
+                />
+              </div>
+
+              <TabsContent value={period} className="mt-4">
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="size-6 animate-spin" />
+                      Učitavanje povijesti cijena...
+                    </div>
                   </div>
-                </div>
-              ) : chartData.length === 0 || hasError ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-600">
-                    Nema dostupnih povijesnih podataka.
-                  </p>
-                </div>
-              ) : (
-                <ChartContainer config={chartConfig}>
-                  <LineChart accessibilityLayer data={chartData}>
-                    <CartesianGrid vertical={true} />
+                ) : chartData.length === 0 || hasError ? (
+                  <div className="text-center py-8">
+                    <p className="text-gray-600">
+                      Nema dostupnih povijesnih podataka.
+                    </p>
+                  </div>
+                ) : (
+                  <ChartContainer config={chartConfig}>
+                    <LineChart accessibilityLayer data={chartData}>
+                      <CartesianGrid vertical={true} />
 
-                    <XAxis
-                      dataKey="date"
-                      tickLine={false}
-                      axisLine={false}
-                      tickMargin={8}
-                      tickFormatter={(value) =>
-                        typeof value === "string"
-                          ? value.slice(0, -5)
-                          : String(value)
-                      }
-                    />
-
-                    <YAxis
-                      tickLine={false}
-                      axisLine={false}
-                      tickMargin={8}
-                      tickFormatter={(value) => `${value.toFixed(2)} €`}
-                      domain={([dataMin, dataMax]) => {
-                        const padding = 0.05;
-                        return [
-                          dataMin * (1 - padding),
-                          dataMax * (1 + padding),
-                        ];
-                      }}
-                      ticks={yAxisTicks}
-                    />
-
-                    <ChartTooltip
-                      cursor={true}
-                      content={<ChartTooltipContent />}
-                    />
-
-                    {eans.map((ean, index) => (
-                      <Line
-                        key={ean}
-                        dataKey={ean}
-                        type="bump"
-                        stroke={`var(--chart-${(index % 13) + 1})`}
-                        strokeWidth={2}
-                        dot={false}
+                      <XAxis
+                        dataKey="date"
+                        tickLine={false}
+                        axisLine={false}
+                        tickMargin={8}
+                        tickFormatter={(value) =>
+                          typeof value === "string"
+                            ? value.slice(0, -5)
+                            : String(value)
+                        }
                       />
-                    ))}
-                  </LineChart>
-                </ChartContainer>
-              )}
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-    </div>
+
+                      <YAxis
+                        tickLine={false}
+                        axisLine={false}
+                        tickMargin={8}
+                        tickFormatter={(value) => `${value.toFixed(2)} €`}
+                        domain={([dataMin, dataMax]) => {
+                          const padding = 0.05;
+                          return [
+                            dataMin * (1 - padding),
+                            dataMax * (1 + padding),
+                          ];
+                        }}
+                        ticks={yAxisTicks}
+                      />
+
+                      <ChartTooltip
+                        cursor={true}
+                        content={<ChartTooltipContent />}
+                      />
+
+                      {eans.map((ean, index) => (
+                        <Line
+                          key={ean}
+                          dataKey={ean}
+                          type="bump"
+                          stroke={`var(--chart-${(index % 13) + 1})`}
+                          strokeWidth={2}
+                          dot={false}
+                        />
+                      ))}
+                    </LineChart>
+                  </ChartContainer>
+                )}
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
+    </Card>
   );
 }

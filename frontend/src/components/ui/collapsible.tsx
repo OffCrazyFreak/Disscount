@@ -10,11 +10,13 @@ function Collapsible({
 }
 
 function CollapsibleTrigger({
+  className,
   ...props
 }: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleTrigger>) {
   return (
     <CollapsiblePrimitive.CollapsibleTrigger
       data-slot="collapsible-trigger"
+      className={cn("cursor-pointer py-4", className)}
       {...props}
     />
   );
@@ -27,7 +29,7 @@ function CollapsibleContent({
   return (
     <CollapsiblePrimitive.CollapsibleContent
       data-slot="collapsible-content"
-      className={cn("CollapsibleContent overflow-hidden", className)}
+      className={cn("CollapsibleContent overflow-hidden my-2", className)}
       {...props}
     />
   );

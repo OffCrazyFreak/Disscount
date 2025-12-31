@@ -43,6 +43,7 @@ export const StorePricesTable = memo(
               <TableHead className="font-bold text-center">Cijena</TableHead>
             </TableRow>
           </TableHeader>
+
           <TableBody>
             {storePrices
               .sort((a, b) => {
