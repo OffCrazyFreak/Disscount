@@ -42,6 +42,12 @@ export default function ShoppingListItem({
   // Average price - from DB for checked items, from API for unchecked items
   const displayPrice = item.isChecked ? item.avgPrice : averagePrice;
 
+  // Calculate average price per unit
+  const avgPricePerUnit =
+    displayPrice && item.quantity
+      ? displayPrice / parseFloat(item.quantity)
+      : undefined;
+
   return (
     <>
       <div className="flex items-center justify-between py-1 flex-wrap sm:flex-nowrap gap-6">
@@ -91,53 +97,68 @@ export default function ShoppingListItem({
 
         {/* Right side: Amount controls, price, and remove button */}
         <div className="flex flex-shrink-0 items-center justify-between gap-8 w-full sm:w-auto">
-          <div className="flex items-center justify-between gap-4 w-full">
-            <div className="flex flex-shrink-0 items-center gap-2 text-sm font-medium text-gray-700 text-right">
-              <span className="">
-                {item.quantity &&
-                  item.unit &&
-                  `${formatQuantity(item.quantity)} ${item.unit}`}
-              </span>
-              <span>~ {displayPrice?.toFixed(2)}€</span>
-            </div>
+          <div className="flex sm:items-center justify-between gap-4 flex-col sm:flex-row w-full">
+            <div className="flex items-center justify-between gap-4">
+              {item.quantity && item.unit ? (
+                <div className="">
+                  <div className="flex flex-shrink-0 items-center gap-2 text-gray-700 text-right">
+                    <span className="">
+                      {`${formatQuantity(item.quantity)} ${item.unit}`}
+                    </span>
 
-            {/* Amount controls */}
-            <div className="flex items-center gap-1">
-              <Button
-                size="icon"
-                variant="default"
-                className="size-7 sm:size-10"
-                onClick={() =>
-                  onUpdate({
-                    isChecked: item.isChecked,
-                    amount: (item.amount || 1) - 1,
-                    chainCode: item.chainCode!,
-                  })
-                }
-                disabled={(item.amount || 1) <= 1 || item.isChecked}
-              >
-                <Minus className="size-4 sm:size-5" />
-              </Button>
+                    <span>~ {displayPrice?.toFixed(2)}€</span>
+                  </div>
 
-              <span className="w-8 text-center font-medium">
-                {item.amount || 1}
-              </span>
+                  <Separator className="px-10 mb-1" />
 
-              <Button
-                size="icon"
-                variant="default"
-                className="size-7 sm:size-10"
-                onClick={() =>
-                  onUpdate({
-                    isChecked: item.isChecked,
-                    amount: (item.amount || 1) + 1,
-                    chainCode: item.chainCode!,
-                  })
-                }
-                disabled={item.isChecked}
-              >
-                <Plus className="size-4 sm:size-5" />
-              </Button>
+                  <div className="text-sm font-medium text-gray-700 text-center">
+                    {avgPricePerUnit?.toFixed(2)}€/{item.unit}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-shrink-0 text-sm font-medium text-gray-700">
+                  <span>~ {displayPrice?.toFixed(2)}€</span>
+                </div>
+              )}
+
+              {/* Amount controls */}
+              <div className="flex items-center gap-1">
+                <Button
+                  size="icon"
+                  variant="default"
+                  className="size-7 sm:size-10"
+                  onClick={() =>
+                    onUpdate({
+                      isChecked: item.isChecked,
+                      amount: (item.amount || 1) - 1,
+                      chainCode: item.chainCode!,
+                    })
+                  }
+                  disabled={(item.amount || 1) <= 1 || item.isChecked}
+                >
+                  <Minus className="size-4 sm:size-5" />
+                </Button>
+
+                <span className="w-8 text-center font-medium">
+                  {item.amount || 1}
+                </span>
+
+                <Button
+                  size="icon"
+                  variant="default"
+                  className="size-7 sm:size-10"
+                  onClick={() =>
+                    onUpdate({
+                      isChecked: item.isChecked,
+                      amount: (item.amount || 1) + 1,
+                      chainCode: item.chainCode!,
+                    })
+                  }
+                  disabled={item.isChecked}
+                >
+                  <Plus className="size-4 sm:size-5" />
+                </Button>
+              </div>
             </div>
 
             {/* Store Chain Select */}
