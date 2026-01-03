@@ -1,5 +1,5 @@
 import React from "react";
-import { Eye } from "lucide-react";
+import { Eye, Image, ListPlus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import {
@@ -11,13 +11,21 @@ import {
   getAveragePricePerUnit,
 } from "@/lib/cijene-api/utils/product-utils";
 import { formatQuantity } from "@/utils/strings";
+import {
+  TooltipContent,
+  TooltipTrigger,
+  Tooltip,
+} from "@/components/ui/tooltip";
+import ProductActionButtons from "@/app/products/components/product-action-buttons";
 
 interface IProductInfoDisplayProps {
   product: ProductResponse;
+  enableActionButtons?: boolean;
 }
 
 export default function ProductInfoDisplay({
   product,
+  enableActionButtons = true,
 }: IProductInfoDisplayProps) {
   const averagePrice = getAveragePrice(product);
   const minPrice = getMinPrice(product);
@@ -59,10 +67,10 @@ export default function ProductInfoDisplay({
       <div className="flex items-center justify-between gap-4">
         {/* Left side - Image and product info */}
         <div className="flex-1 flex items-center gap-4">
-          {/* Placeholder Image */}
-          <div className="hidden sm:grid place-items-center size-16 bg-gray-100 shadow-sm rounded-lg">
+          {/* TODO: Product Image */}
+          {/* <div className="hidden sm:grid place-items-center size-16 bg-gray-100 shadow-sm rounded-lg">
             <span className="text-gray-400 text-sm">IMG</span>
-          </div>
+          </div> */}
 
           {/* Product Name and Category */}
           <div className="text-pretty">
@@ -71,17 +79,15 @@ export default function ProductInfoDisplay({
           </div>
         </div>
 
-        {/* Right side - Eye button */}
-        <Button
-          size="icon"
-          aria-label="Dodaj u praćenje"
-          className="size-12 shrink-0"
-          onClick={() => {
-            // TODO: Implement functionality
-          }}
-        >
-          <Eye className="size-6" />
-        </Button>
+        {/* Right side - Action buttons */}
+        {enableActionButtons && (
+          <ProductActionButtons
+            product={product}
+            showSearchImage={true}
+            showAddToList={true}
+            showAddToWatchList={true}
+          />
+        )}
       </div>
 
       {/* Information Table */}

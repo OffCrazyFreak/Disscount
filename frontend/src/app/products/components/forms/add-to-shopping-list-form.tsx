@@ -273,7 +273,7 @@ export default function AddToShoppingListForm({
         </DialogHeader>
 
         {/* Product Information Display */}
-        <ProductInfoDisplay product={product} />
+        <ProductInfoDisplay product={product} enableActionButtons={false} />
 
         {/* Warning for duplicate EAN */}
         <DuplicateWarning

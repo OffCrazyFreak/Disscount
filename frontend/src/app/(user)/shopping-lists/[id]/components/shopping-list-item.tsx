@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import StoreChainSelect from "../../../../../components/custom/store-chain-select";
 import { storeNamesMap } from "@/utils/mappings";
 import type { ShoppingListItemDto } from "@/lib/api/types";
+import { formatQuantity } from "@/utils/strings";
 
 interface ShoppingListItemProps {
   item: ShoppingListItemDto;
@@ -95,7 +96,7 @@ export default function ShoppingListItem({
               <span className="">
                 {item.quantity &&
                   item.unit &&
-                  `${parseFloat(item.quantity).toFixed(2)} ${item.unit}`}
+                  `${formatQuantity(item.quantity)} ${item.unit}`}
               </span>
               <span>~ {displayPrice?.toFixed(2)}€</span>
             </div>

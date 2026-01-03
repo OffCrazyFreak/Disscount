@@ -1,16 +1,14 @@
 "use client";
 
-import { memo, useState, useMemo } from "react";
+import { memo, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button-icon";
-import { ListPlus } from "lucide-react";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { ProductInfo } from "@/app/products/components/product-item/product-info";
-import { ProductPrice } from "@/app/products/components/product-item/product-price";
-import AddToShoppingListForm from "@/app/products/components/forms/add-to-shopping-list-form";
+import { ProductUnitPriceDetails } from "@/app/products/components/product-item/product-price";
 import { ViewMode } from "@/typings/view-mode";
 import { useQueryClient } from "@tanstack/react-query";
+import ProductActionButtons from "@/app/products/components/product-action-buttons";
 
 interface IProductItemProps {
   product: ProductResponse;
@@ -18,7 +16,6 @@ interface IProductItemProps {
 }
 
 export const ProductItem = memo<IProductItemProps>(({ product, viewMode }) => {
-  const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -62,60 +59,42 @@ export const ProductItem = memo<IProductItemProps>(({ product, viewMode }) => {
   };
 
   return (
-    <>
-      <AddToShoppingListForm
-        isOpen={isAddToListModalOpen}
-        onOpenChange={setIsAddToListModalOpen}
-        product={product}
-      />
-
-      <Card
-        onClick={handleProductClick}
-        className="cursor-pointer px-4 sm:px-6 py-2 sm:py-4 hover:shadow-lg shadow-sm transition-shadow"
-      >
-        <div
-          className={`${
-            viewMode === "grid" ? "flex-col" : "flex-row"
-          } flex items-center justify-between gap-4`}
-        >
-          <div
-            className={`${
-              viewMode === "grid" ? "flex-col" : "flex-row"
-            } flex items-center justify-between gap-4`}
-          >
-            {/* Product Image */}
-            <div className="size-20 bg-gray-100 rounded-lg hidden sm:grid place-items-center">
+    <Card
+      onClick={handleProductClick}
+      className="cursor-pointer px-3 sm:px-6 py-2 sm:py-4 hover:shadow-lg shadow-sm transition-shadow"
+    >
+      <div className="flex sm:items-center justify-between gap-2 sm:gap-4 flex-col sm:flex-row">
+        <div className="flex items-center justify-between gap-4">
+          {/* TODO: Product Image */}
+          {/* <div className="size-20 bg-gray-100 rounded-lg hidden sm:grid place-items-center">
               <span className="text-gray-400">IMG</span>
-            </div>
+            </div> */}
 
-            <ProductInfo
-              name={product.name}
-              brand={product.brand}
-              category={category}
+          <ProductInfo
+            name={product.name}
+            brand={product.brand}
+            category={category}
+          />
+
+          <ProductUnitPriceDetails product={product} />
+
+          {/* Icon buttons */}
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <ProductActionButtons
+              product={product}
+              showSearchImage={true}
+              showAddToList={true}
+              showAddToWatchList={false}
+              className="flex-col sm:flex-row"
             />
           </div>
-
-          <div className="flex items-center justify-between gap-4">
-            <ProductPrice product={product} />
-
-            <Button
-              variant="default"
-              className="p-2 size-12"
-              aria-label="Dodaj na popis za kupnju"
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                e.preventDefault();
-
-                setIsAddToListModalOpen(true);
-              }}
-              type="button"
-            >
-              <ListPlus className="size-6" />
-            </Button>
-          </div>
         </div>
-      </Card>
-    </>
+      </div>
+    </Card>
   );
 });
 
