@@ -89,8 +89,17 @@ export default function ShoppingListItem({
         </div>
 
         {/* Right side: Amount controls, price, and remove button */}
-        <div className="flex items-center justify-between gap-8 w-full sm:w-auto">
+        <div className="flex flex-shrink-0 items-center justify-between gap-8 w-full sm:w-auto">
           <div className="flex items-center justify-between gap-4 w-full">
+            <div className="flex flex-shrink-0 items-center gap-2 text-sm font-medium text-gray-700 text-right">
+              <span className="">
+                {item.quantity &&
+                  item.unit &&
+                  `${parseFloat(item.quantity).toFixed(2)} ${item.unit}`}
+              </span>
+              <span>~ {displayPrice?.toFixed(2)}€</span>
+            </div>
+
             {/* Amount controls */}
             <div className="flex items-center gap-1">
               <Button
@@ -126,14 +135,6 @@ export default function ShoppingListItem({
               >
                 <Plus className="size-4 sm:size-5" />
               </Button>
-            </div>
-
-            <div className="hidden sm:block flex-shrink-0">
-              {displayPrice != null ? (
-                <div className="text-sm font-medium text-gray-700 w-20 text-right">
-                  ~{displayPrice.toFixed(2)}€
-                </div>
-              ) : null}
             </div>
 
             {/* Store Chain Select */}
