@@ -1,19 +1,10 @@
 import { Card } from "@/components/ui/card";
 import ShoppingListItem from "./shopping-list-item";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
+import { useShoppingListItemMutations } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-item-mutations";
 
 interface ShoppingListItemsProps {
   shoppingList: ShoppingList;
-  onItemUpdate: (
-    itemId: string,
-    updatedItem: {
-      isChecked: boolean;
-      amount: number;
-      chainCode: string | null;
-    }
-  ) => void;
-  onDeleteItem: (itemId: string) => void;
-  deletingItemId: string | null;
   cheapestStores: Record<string, string>;
   averagePrices: Record<string, number>;
   storePrices: Record<string, Record<string, number>>;
@@ -21,13 +12,13 @@ interface ShoppingListItemsProps {
 
 export default function ShoppingListItems({
   shoppingList,
-  onItemUpdate,
-  onDeleteItem,
-  deletingItemId,
   cheapestStores,
   averagePrices,
   storePrices,
 }: ShoppingListItemsProps) {
+  const { handleItemUpdate, handleDeleteItem, deletingItemId } =
+    useShoppingListItemMutations(shoppingList.id, averagePrices, storePrices);
+
   const itemCount = shoppingList.items?.length || 0;
 
   if (itemCount === 0) {
@@ -54,8 +45,8 @@ export default function ShoppingListItems({
             <ShoppingListItem
               key={item.id}
               item={item}
-              onUpdate={(updatedItem) => onItemUpdate(item.id, updatedItem)}
-              onDelete={() => onDeleteItem(item.id)}
+              onUpdate={(updatedItem) => handleItemUpdate(item.id, updatedItem)}
+              onDelete={() => handleDeleteItem(item.id)}
               isDeleting={deletingItemId === item.id}
               cheapestStore={cheapestStores[item.id]}
               averagePrice={averagePrices[item.id]}

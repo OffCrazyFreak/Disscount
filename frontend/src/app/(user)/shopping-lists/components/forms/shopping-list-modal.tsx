@@ -20,14 +20,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  ShoppingListDto,
-  ShoppingListRequest,
-  shoppingListRequestSchema,
-} from "@/lib/api/types";
-import { shoppingListService } from "@/lib/api";
-import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
+import type { ShoppingListDto, ShoppingListRequest } from "@/lib/api/types";
+import { shoppingListRequestSchema } from "@/lib/api/types";
+import { useShoppingListModal } from "@/app/(user)/shopping-lists/hooks/use-shopping-list-modal";
 
 interface IShoppingListModalProps {
   isOpen: boolean;
@@ -42,17 +37,20 @@ export default function ShoppingListModal({
   onSuccess,
   shoppingList,
 }: IShoppingListModalProps) {
-  const queryClient = useQueryClient();
-
-  const createMutation = shoppingListService.useCreateShoppingList();
-  const updateMutation = shoppingListService.useUpdateShoppingList();
-
   const form = useForm<ShoppingListRequest>({
     resolver: zodResolver(shoppingListRequestSchema),
     defaultValues: {
       title: shoppingList?.title || "",
       isPublic: shoppingList?.isPublic || false,
     },
+  });
+
+  const { onSubmit, handleCancel, isLoading } = useShoppingListModal({
+    shoppingList,
+    onSuccess,
+    onOpenChange,
+    setError: form.setError,
+    reset: form.reset,
   });
 
   // Reset form when shopping list changes
@@ -64,58 +62,6 @@ export default function ShoppingListModal({
       });
     }
   }, [isOpen, shoppingList, form]);
-
-  function onSubmit(data: ShoppingListRequest) {
-    if (shoppingList) {
-      updateMutation.mutate(
-        { id: shoppingList.id, data },
-        {
-          onSuccess: async () => {
-            toast.success("Popis za kupnju je uspješno ažuriran!");
-            await queryClient.invalidateQueries({
-              queryKey: ["shoppingLists"],
-            });
-            await onSuccess?.();
-            onOpenChange(false);
-          },
-          onError: (error: unknown) => {
-            const message =
-              error instanceof Error ? error.message : String(error);
-            form.setError("root", {
-              message:
-                message || "Došlo je do greške prilikom ažuriranja popisa",
-            });
-          },
-        }
-      );
-    } else {
-      createMutation.mutate(data, {
-        onSuccess: async () => {
-          toast.success("Popis za kupnju je uspješno kreiran!");
-          await queryClient.invalidateQueries({
-            queryKey: ["shoppingLists"],
-          });
-          await onSuccess?.();
-          onOpenChange(false);
-          form.reset();
-        },
-        onError: (error: unknown) => {
-          const message =
-            error instanceof Error ? error.message : String(error);
-          form.setError("root", {
-            message: message || "Došlo je do greške prilikom kreiranja popisa",
-          });
-        },
-      });
-    }
-  }
-
-  const handleCancel = () => {
-    form.reset();
-    onOpenChange(false);
-  };
-
-  const isLoading = createMutation.isPending || updateMutation.isPending;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>

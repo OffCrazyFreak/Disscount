@@ -21,8 +21,6 @@ export default function ShoppingListsClient({ query }: { query: string }) {
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedShoppingList, setSelectedShoppingList] =
-    useState<ShoppingListDto | null>(null);
   const [viewMode, setViewMode] = useViewMode(pathname, "grid");
 
   const { isAuthenticated, isLoading: userLoading } = useUser();
@@ -30,11 +28,6 @@ export default function ShoppingListsClient({ query }: { query: string }) {
     shoppingListService.useGetCurrentUserShoppingLists();
 
   const isUserLoading = userLoading || isLoading;
-
-  function handleEdit(shoppingList: ShoppingListDto) {
-    setSelectedShoppingList(shoppingList);
-    setIsModalOpen(true);
-  }
 
   const matchingShoppingLists = filterByFields(shoppingLists, query, ["title"]);
 
@@ -44,14 +37,13 @@ export default function ShoppingListsClient({ query }: { query: string }) {
         isOpen={isModalOpen}
         onOpenChange={(open: boolean) => {
           setIsModalOpen(open);
-          if (!open) setSelectedShoppingList(null);
         }}
         onSuccess={() =>
           queryClient.invalidateQueries({
             queryKey: ["shoppingLists", "me"],
           })
         }
-        shoppingList={selectedShoppingList}
+        shoppingList={null}
       />
 
       <FloatingActionButton
@@ -93,7 +85,6 @@ export default function ShoppingListsClient({ query }: { query: string }) {
             {matchingShoppingLists.map((shoppingList) => (
               <ShoppingListItem
                 key={shoppingList.id}
-                handleEdit={handleEdit}
                 shoppingList={shoppingList}
               />
             ))}

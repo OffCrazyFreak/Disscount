@@ -250,6 +250,7 @@ export default function ShoppingListPriceHistory({
               <p className="hidden sm:inline text-gray-700 text-sm text-pretty text-right">
                 {isPriceHistoryOpen ? "Sakrij" : "Prikaži"}
               </p>
+
               <ChevronDown
                 className={cn(
                   "size-8 text-gray-500 transition-transform flex-shrink-0",

@@ -3,7 +3,7 @@ import { Minus, Plus, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import StoreChainSelect from "../../../../../components/custom/store-chain-select";
+import StoreChainSelect from "../../../../../../components/custom/store-chain-select";
 import { storeNamesMap } from "@/utils/mappings";
 import type { ShoppingListItemDto } from "@/lib/api/types";
 import { formatQuantity } from "@/utils/strings";
@@ -118,9 +118,11 @@ export default function ShoppingListItem({
               >
                 <Minus className="size-4 sm:size-5" />
               </Button>
+
               <span className="w-8 text-center font-medium">
                 {item.amount || 1}
               </span>
+
               <Button
                 size="icon"
                 variant="default"
@@ -154,7 +156,7 @@ export default function ShoppingListItem({
               averagePrice={averagePrice}
               isChecked={item.isChecked}
               storePriceFromDb={item.storePrice || undefined}
-              classname="sm:w-72 sm:flex-none"
+              classname="w-full sm:w-72 sm:flex-none"
             />
           </div>
 

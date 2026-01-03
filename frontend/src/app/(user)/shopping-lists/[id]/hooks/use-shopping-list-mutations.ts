@@ -3,21 +3,22 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { shoppingListService } from "@/lib/api";
-import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
+import type {
+  ShoppingListDto as ShoppingList,
+  ShoppingListRequest,
+  ShoppingListItemRequest,
+} from "@/lib/api/types";
 
 export function useShoppingListMutations(
   listId: string,
-  averagePrices: Record<string, number>,
-  storePrices: Record<string, Record<string, number>>
+  shoppingList?: ShoppingList
 ) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
+  const [isCopying, setIsCopying] = useState(false);
 
   const deleteShoppingListMutation =
     shoppingListService.useDeleteShoppingList();
-  const updateItemMutation = shoppingListService.useUpdateShoppingListItem();
-  const deleteItemMutation = shoppingListService.useDeleteShoppingListItem();
 
   const confirmDelete = async () => {
     // Prepare optimistic update: remove item from cache immediately
@@ -55,155 +56,67 @@ export function useShoppingListMutations(
     });
   };
 
-  const handleItemUpdate = async (
-    itemId: string,
-    updatedItem: {
-      isChecked: boolean;
-      amount: number;
-      chainCode: string | null;
-    }
-  ) => {
-    const shoppingList = queryClient.getQueryData<ShoppingList>([
-      "shoppingLists",
-      listId,
-    ]);
+  async function handleCopy() {
+    if (!shoppingList) return;
 
-    const item = shoppingList?.items?.find((i) => i.id === itemId);
-    if (!item) return;
+    setIsCopying(true);
+    try {
+      // Create new shopping list with copied title
+      const newListData: ShoppingListRequest = {
+        title: `${shoppingList.title} (Kopija)`,
+        isPublic: false,
+      };
 
-    // Validate amount
-    if (updatedItem.amount < 1) return;
+      const newList = await shoppingListService.createShoppingList(newListData);
 
-    // Optimistic update
-    await queryClient.cancelQueries({ queryKey: ["shoppingLists", listId] });
-    const previousData = queryClient.getQueryData<ShoppingList>([
-      "shoppingLists",
-      listId,
-    ]);
+      // Copy items with only the necessary fields
+      if (shoppingList.items && shoppingList.items.length > 0) {
+        const copyPromises = shoppingList.items.map((item) => {
+          const newItemData: ShoppingListItemRequest = {
+            ean: item.ean,
+            name: item.name,
+            brand: item.brand,
+            quantity: item.quantity,
+            unit: item.unit,
+            amount: item.amount,
+            // Default values (not copying these from original)
+            isChecked: false,
+            chainCode: null,
+            avgPrice: null,
+            storePrice: null,
+          };
 
-    queryClient.setQueryData<ShoppingList | undefined>(
-      ["shoppingLists", listId],
-      (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          items: old.items?.map((i) => {
-            if (i.id === itemId) {
-              const updated = { ...i, ...updatedItem };
-              // If checking the item, include the current average price
-              if (updatedItem.isChecked) {
-                const currentAvgPrice = averagePrices[i.id];
-                if (currentAvgPrice !== undefined) {
-                  updated.avgPrice = currentAvgPrice;
-                }
-              }
-              return updated;
-            }
-            return i;
-          }),
-        };
-      }
-    );
-
-    // Prepare update data
-    const updateData = {
-      ...item,
-      ...updatedItem,
-    };
-
-    // If checking the item, include the current average price and store price
-    if (updatedItem.isChecked) {
-      const currentAvgPrice = averagePrices[item.id];
-      if (currentAvgPrice !== undefined) {
-        updateData.avgPrice = currentAvgPrice;
-      }
-
-      // Include the store price from the selected store
-      if (
-        updatedItem.chainCode &&
-        storePrices[item.id]?.[updatedItem.chainCode]
-      ) {
-        updateData.storePrice = storePrices[item.id][updatedItem.chainCode];
-      }
-    }
-
-    updateItemMutation.mutate(
-      {
-        listId,
-        itemId,
-        data: updateData,
-      },
-      {
-        onError: (error: Error) => {
-          if (previousData) {
-            queryClient.setQueryData(["shoppingLists", listId], previousData);
-          }
-          toast.error(
-            error.message || "Greška pri ažuriranju stavke. Pokušajte ponovno."
+          return shoppingListService.addItemToShoppingList(
+            newList.id,
+            newItemData
           );
-        },
-        onSettled: () => {
-          queryClient.invalidateQueries({
-            queryKey: ["shoppingLists", listId],
-          });
-          queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
-        },
+        });
+
+        await Promise.all(copyPromises);
       }
-    );
-  };
 
-  const handleDeleteItem = async (itemId: string) => {
-    setDeletingItemId(itemId);
+      // Invalidate queries to refresh data
+      await queryClient.invalidateQueries({
+        queryKey: ["shoppingLists"],
+      });
 
-    // Optimistic update
-    await queryClient.cancelQueries({ queryKey: ["shoppingLists", listId] });
-    const previousData = queryClient.getQueryData<ShoppingList>([
-      "shoppingLists",
-      listId,
-    ]);
+      // Show success toast
+      toast.success("Popis za kupnju je uspješno kopiran!");
 
-    queryClient.setQueryData<ShoppingList | undefined>(
-      ["shoppingLists", listId],
-      (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          items: old.items?.filter((i) => i.id !== itemId),
-        };
-      }
-    );
-
-    // Delete the item
-    deleteItemMutation.mutate(
-      { listId, itemId },
-      {
-        onError: (error: Error) => {
-          if (previousData) {
-            queryClient.setQueryData(["shoppingLists", listId], previousData);
-          }
-          toast.error(
-            error.message || "Greška pri brisanju stavke. Pokušajte ponovno."
-          );
-        },
-        onSuccess: () => {
-          toast.success("Stavka je uspješno obrisana!");
-        },
-        onSettled: () => {
-          setDeletingItemId(null);
-          queryClient.invalidateQueries({
-            queryKey: ["shoppingLists", listId],
-          });
-          queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
-        },
-      }
-    );
-  };
+      // Navigate to new shopping list
+      router.push(`/shopping-lists/${newList.id}`);
+    } catch (error) {
+      console.error("Error copying shopping list:", error);
+      toast.error("Greška pri kopiranju popisa za kupnju");
+    } finally {
+      setIsCopying(false);
+    }
+  }
 
   return {
     deleteShoppingListMutation,
     confirmDelete,
-    handleItemUpdate,
-    handleDeleteItem,
-    deletingItemId,
+    handleCopy,
+    isCopying,
   };
 }

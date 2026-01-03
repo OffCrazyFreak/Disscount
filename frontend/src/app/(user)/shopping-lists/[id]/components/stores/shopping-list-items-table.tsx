@@ -17,7 +17,7 @@ import {
   ProductResponse,
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
-import { sortShoppingListItemsByAvailabilityAndName } from "@/app/(user)/shopping-lists/[id]/components/shopping-list-utils";
+import { sortShoppingListItemsByAvailabilityAndName } from "@/app/(user)/shopping-lists/[id]/utils/shopping-list-utils";
 
 interface ShoppingListItemsTableProps {
   chain: ChainProductResponse;
