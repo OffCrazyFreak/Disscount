@@ -3,6 +3,11 @@ import { Minus, Plus, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import StoreChainSelect from "../../../../../../components/custom/store-chain-select";
 import { storeNamesMap } from "@/utils/mappings";
 import type { ShoppingListItemDto } from "@/lib/api/types";
@@ -82,15 +87,15 @@ export default function ShoppingListItem({
           {/* Delete button - shown on mobile in same row as item name */}
           <Button
             size="icon"
-            variant="default"
-            className="size-7 sm:hidden p-2 bg-red-600 hover:bg-red-700"
+            aria-label="Ukloni proizvod"
+            className="sm:hidden size-8 sm:size-10 shrink-0 bg-red-600 hover:bg-red-700"
             onClick={onDelete}
             disabled={isDeleting}
           >
             {isDeleting ? (
-              <Loader2 className="size-4 animate-spin" />
+              <Loader2 className="size-5 sm:size-6 animate-spin" />
             ) : (
-              <X className="size-4" />
+              <X className="size-5 sm:size-6" />
             )}
           </Button>
         </div>
@@ -98,9 +103,9 @@ export default function ShoppingListItem({
         {/* Right side: Amount controls, price, and remove button */}
         <div className="flex flex-shrink-0 items-center justify-between gap-8 w-full sm:w-auto">
           <div className="flex sm:items-center justify-between gap-4 flex-col sm:flex-row w-full">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center justify-between gap-6">
               {item.quantity && item.unit ? (
-                <div className="">
+                <div className="text-nowrap">
                   <div className="flex flex-shrink-0 items-center gap-2 text-gray-700 text-right">
                     <span className="">
                       {`${formatQuantity(item.quantity)} ${item.unit}`}
@@ -109,7 +114,7 @@ export default function ShoppingListItem({
                     <span>~ {displayPrice?.toFixed(2)}€</span>
                   </div>
 
-                  <Separator className="px-10 mb-1" />
+                  <Separator className="mb-1" />
 
                   <div className="text-sm font-medium text-gray-700 text-center">
                     {avgPricePerUnit?.toFixed(2)}€/{item.unit}
@@ -122,11 +127,11 @@ export default function ShoppingListItem({
               )}
 
               {/* Amount controls */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
                 <Button
                   size="icon"
-                  variant="default"
-                  className="size-7 sm:size-10"
+                  aria-label="Povećaj količinu za 1"
+                  className="size-8 sm:size-10 shrink-0"
                   onClick={() =>
                     onUpdate({
                       isChecked: item.isChecked,
@@ -139,14 +144,12 @@ export default function ShoppingListItem({
                   <Minus className="size-4 sm:size-5" />
                 </Button>
 
-                <span className="w-8 text-center font-medium">
-                  {item.amount || 1}
-                </span>
+                <span className="text-center min-w-8">{item.amount}</span>
 
                 <Button
                   size="icon"
-                  variant="default"
-                  className="size-7 sm:size-10"
+                  aria-label="Povećaj količinu za 1"
+                  className="size-8 sm:size-10 shrink-0"
                   onClick={() =>
                     onUpdate({
                       isChecked: item.isChecked,
@@ -182,17 +185,18 @@ export default function ShoppingListItem({
           </div>
 
           {/* Remove button - hidden on mobile, shown on larger screens */}
+
           <Button
             size="icon"
-            variant="default"
-            className="hidden sm:flex size-7 sm:size-10 p-2 bg-red-600 hover:bg-red-700"
+            aria-label="Ukloni proizvod"
+            className="hidden sm:flex size-8 sm:size-10 shrink-0 bg-red-600 hover:bg-red-700"
             onClick={onDelete}
             disabled={isDeleting}
           >
             {isDeleting ? (
-              <Loader2 className="size-4 sm:size-5 animate-spin" />
+              <Loader2 className="size-5 sm:size-6 animate-spin" />
             ) : (
-              <X className="size-4 sm:size-5" />
+              <X className="size-5 sm:size-6" />
             )}
           </Button>
         </div>
