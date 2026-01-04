@@ -26,7 +26,10 @@ export default function ShoppingListItems({
       <div className="space-y-4">
         <h2 className="text-lg font-semibold">Proizvodi (0)</h2>
         <Card className="p-8 text-center">
-          <p className="text-gray-600">Ovaj popis još nema stavki.</p>
+          <p className="text-gray-600">
+            Ovaj popis još ne sadrži proizvode. Probaj pretražiti proizvode pa
+            ih dodaj na ovaj popis.
+          </p>
         </Card>
       </div>
     );
