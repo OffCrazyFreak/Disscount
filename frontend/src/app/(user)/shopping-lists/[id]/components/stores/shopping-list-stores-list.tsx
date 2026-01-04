@@ -10,7 +10,7 @@ import {
   ProductResponse,
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
-import { compareStoreChains } from "@/utils/shopping-list-utils";
+import { compareStoreChains } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
 
 interface ShoppingListStoreSummaryProps {
   shoppingList: ShoppingListDto;

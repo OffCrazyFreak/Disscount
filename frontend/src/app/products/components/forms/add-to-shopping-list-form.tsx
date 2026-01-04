@@ -33,7 +33,7 @@ import {
   getAveragePriceForItem,
   getStorePricesForItem,
   findCheapestStoreForItem,
-} from "@/utils/shopping-list-utils";
+} from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
 
 interface IAddToShoppingListFormProps {
   isOpen: boolean;
