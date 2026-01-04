@@ -15,7 +15,7 @@ export function useShoppingListItemMutations(
   const updateItemMutation = shoppingListService.useUpdateShoppingListItem();
   const deleteItemMutation = shoppingListService.useDeleteShoppingListItem();
 
-  const handleItemUpdate = async (
+  const handleUpdateItem = async (
     itemId: string,
     updatedItem: {
       isChecked: boolean;
@@ -160,7 +160,7 @@ export function useShoppingListItemMutations(
   };
 
   return {
-    handleItemUpdate,
+    handleUpdateItem,
     handleDeleteItem,
     deletingItemId,
   };

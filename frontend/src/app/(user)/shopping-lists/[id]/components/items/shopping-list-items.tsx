@@ -16,7 +16,7 @@ export default function ShoppingListItems({
   averagePrices,
   storePrices,
 }: ShoppingListItemsProps) {
-  const { handleItemUpdate, handleDeleteItem, deletingItemId } =
+  const { handleUpdateItem, handleDeleteItem, deletingItemId } =
     useShoppingListItemMutations(shoppingList.id, averagePrices, storePrices);
 
   const itemCount = shoppingList.items?.length || 0;
@@ -45,7 +45,7 @@ export default function ShoppingListItems({
             <ShoppingListItem
               key={item.id}
               item={item}
-              onUpdate={(updatedItem) => handleItemUpdate(item.id, updatedItem)}
+              onUpdate={(updatedItem) => handleUpdateItem(item.id, updatedItem)}
               onDelete={() => handleDeleteItem(item.id)}
               isDeleting={deletingItemId === item.id}
               cheapestStore={cheapestStores[item.id]}
