@@ -30,8 +30,8 @@ export default function DeleteListDialog({
         <DialogHeader>
           <DialogTitle>Obriši popis za kupnju</DialogTitle>
           <DialogDescription>
-            Jeste li sigurni da želite obrisati popis "{listTitle}"? Ova akcija
-            se ne može poništiti.
+            Jeste li sigurni da želite obrisati popis &quot;{listTitle}&quot;?
+            Ova akcija se ne može poništiti.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

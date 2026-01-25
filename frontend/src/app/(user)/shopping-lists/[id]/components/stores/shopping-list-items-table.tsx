@@ -53,8 +53,8 @@ export const ShoppingListItemsTable = memo(
                   a,
                   b,
                   productsData,
-                  chain
-                )
+                  chain,
+                ),
               )
               .map((item) => {
                 // Find the product data for this item
@@ -62,7 +62,8 @@ export const ShoppingListItemsTable = memo(
 
                 // Find the chain data for this product
                 const chainData = product?.chains?.find(
-                  (c: any) => c.chain === chain.chain
+                  (c: { chain: string; avg_price: string }) =>
+                    c.chain === chain.chain,
                 );
 
                 // Check if item is available in this chain
@@ -76,7 +77,9 @@ export const ShoppingListItemsTable = memo(
                 // Find the minimum price for this item across all chains
                 const allChainPrices =
                   product?.chains
-                    ?.map((c: any) => parseFloat(c.avg_price))
+                    ?.map((c: { chain: string; avg_price: string }) =>
+                      parseFloat(c.avg_price),
+                    )
                     .filter((p) => !isNaN(p)) || [];
                 const minPriceAcrossChains =
                   allChainPrices.length > 0 ? Math.min(...allChainPrices) : 0;
@@ -102,7 +105,7 @@ export const ShoppingListItemsTable = memo(
                         className={cn(
                           "hover:underline hover:text-primary cursor-pointer",
                           !isAvailable && "text-gray-400",
-                          item.isChecked && "line-through text-gray-700"
+                          item.isChecked && "line-through text-gray-700",
                         )}
                       >
                         {item.name}
@@ -112,7 +115,7 @@ export const ShoppingListItemsTable = memo(
                     <TableCell
                       className={cn(
                         "text-center",
-                        !isAvailable && "text-gray-400"
+                        !isAvailable && "text-gray-400",
                       )}
                     >
                       {quantity}
@@ -121,7 +124,7 @@ export const ShoppingListItemsTable = memo(
                     <TableCell
                       className={cn(
                         "text-center",
-                        !isAvailable && "text-gray-400"
+                        !isAvailable && "text-gray-400",
                       )}
                     >
                       {isAvailable ? (
@@ -131,8 +134,8 @@ export const ShoppingListItemsTable = memo(
                             isLowestPrice
                               ? "text-green-600 font-bold"
                               : isHighestPrice
-                              ? "text-red-700 font-bold"
-                              : "text-gray-700"
+                                ? "text-red-700 font-bold"
+                                : "text-gray-700",
                           )}
                         >
                           {price.toFixed(2)}€
@@ -168,8 +171,8 @@ export const ShoppingListItemsTable = memo(
                             isLowestPrice
                               ? "font-medium text-green-600"
                               : isHighestPrice
-                              ? "font-medium text-red-700"
-                              : "font-medium text-gray-900"
+                                ? "font-medium text-red-700"
+                                : "font-medium text-gray-900",
                           )}
                         >
                           {total.toFixed(2)}€
@@ -185,7 +188,7 @@ export const ShoppingListItemsTable = memo(
         </Table>
       </div>
     );
-  }
+  },
 );
 
 ShoppingListItemsTable.displayName = "ShoppingListItemsTable";

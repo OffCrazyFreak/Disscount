@@ -78,7 +78,7 @@ export default function AddToShoppingListForm({
 
   // Check for duplicate EAN in selected list
   const duplicateItem = selectedShoppingList?.items?.find(
-    (item) => item.ean === product?.ean
+    (item) => item.ean === product?.ean,
   );
   const hasDuplicateEan = !!duplicateItem;
 
@@ -87,7 +87,7 @@ export default function AddToShoppingListForm({
     .slice()
     .sort(
       (a, b) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
     );
 
   // Set default selection when lists are loaded or when modal opens
@@ -225,7 +225,7 @@ export default function AddToShoppingListForm({
           onError: (err) => {
             toast.error("Greška pri dodavanju na popis: " + err.message);
           },
-        }
+        },
       );
     };
 
@@ -257,7 +257,7 @@ export default function AddToShoppingListForm({
   }
 
   const selectedList = sortedShoppingLists.find(
-    (list) => list.id === form.watch("shoppingListId")
+    (list) => list.id === form.watch("shoppingListId"),
   );
 
   const isSubmitting =

@@ -4,7 +4,40 @@ Make sure to always follow project structure and conventions, including file org
 
 After every code generation, ALWAYS provide a brief explanation of the code changes you made and why because I'm still learning and I want to become a better developer.
 
+Make sure to always fetch and follow proper and most recent documentation, especially for libraries.
+
+Do not prematurely optimize code. Focus on clarity and correctness first. Especially for frontend now that react compiler optimizations are very good.
+
 # Frontend Development Guidelines
+
+## Technology Stack Versions
+
+**Core Framework & Runtime:**
+
+- Next.js: `16.0.10`
+- React: `19.2.3`
+- React DOM: `19.2.3`
+
+**Key Libraries:**
+
+- React Query (@tanstack/react-query): `^5.90.12`
+- React Hook Form: `^7.68.0`
+- Recharts: `2.15.4`
+- Zod: `^4.1.13`
+- Axios: `^1.13.2`
+- Sonner (Toast): `^2.0.7`
+- Lucide React (Icons): `^0.561.0`
+- Tailwind CSS: `^4`
+- Radix UI: Latest component versions
+- Motion (Animations): `^12.23.26`
+
+**Development Tools:**
+
+- ESLint: Latest
+- TypeScript: Latest
+- Tailwind CSS with PostCSS: Latest
+
+## Guidelines
 
 NEVER run "pnpm run dev" or any other development server command, because I always already have my dev server running. Also never run build commands.
 NEVER use ":any" as a type in typescript code. Check the types and define proper interfaces or types when necessary.
