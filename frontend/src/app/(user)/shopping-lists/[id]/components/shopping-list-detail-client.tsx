@@ -25,8 +25,6 @@ export default function ShoppingListDetailClient({
     cheapestStores,
     averagePrices,
     storePrices,
-    totalSavings,
-    savingsPercentage,
   } = useShoppingListData(listId);
 
   if (isLoading) {
