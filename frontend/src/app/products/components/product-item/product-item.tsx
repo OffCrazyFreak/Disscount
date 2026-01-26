@@ -51,7 +51,7 @@ export const ProductItem = memo<IProductItemProps>(({ product, viewMode }) => {
     // Pre-populate the React Query cache with the product data
     queryClient.setQueryData(
       ["cijene", "product", "ean", JSON.stringify({ ean: product.ean })],
-      product
+      product,
     );
 
     // Navigate to the product details page
@@ -64,7 +64,7 @@ export const ProductItem = memo<IProductItemProps>(({ product, viewMode }) => {
       className="cursor-pointer px-3 sm:px-6 py-2 sm:py-4 hover:shadow-lg shadow-sm transition-shadow"
     >
       <div className="flex sm:items-center justify-between gap-2 sm:gap-4 flex-col sm:flex-row">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between sm:gap-8 gap-4 flex-1">
           {/* TODO: Product Image */}
           {/* <div className="size-20 bg-gray-100 rounded-lg hidden sm:grid place-items-center">
               <span className="text-gray-400">IMG</span>

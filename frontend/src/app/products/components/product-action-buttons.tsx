@@ -9,6 +9,7 @@ import {
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { cn } from "@/lib/utils";
 import AddToShoppingListForm from "@/app/products/components/forms/add-to-shopping-list-form";
+import { formatQuantity } from "@/utils/strings";
 
 interface IProductActionButtonsProps {
   product: ProductResponse;
@@ -44,11 +45,18 @@ export default function ProductActionButtons({
                 aria-label="Pretraži sliku proizvoda"
                 className="size-10 sm:size-12 shrink-0"
                 onClick={() => {
-                  const searchQuery = `${product.name}${
-                    product.brand ? ` ${product.brand}` : ""
-                  }`;
+                  let searchQuery = `${product.name}`;
+
+                  if (product.brand) {
+                    searchQuery += ` ${product.brand}`;
+                  }
+
+                  if (product.quantity) {
+                    searchQuery += ` ${formatQuantity(product.quantity)}`;
+                  }
+
                   const googleShoppingUrl = `https://www.google.com/search?udm=2&q=${encodeURIComponent(
-                    searchQuery
+                    searchQuery,
                   )}`;
                   window.open(googleShoppingUrl, "_blank");
                 }}
