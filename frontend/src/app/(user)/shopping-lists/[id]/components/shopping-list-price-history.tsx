@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState, useCallback } from "react";
+import { useQueries } from "@tanstack/react-query";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import {
   ChartConfig,
@@ -22,6 +23,8 @@ import PriceChangeDisplay from "@/components/custom/price-change-display";
 import { Loader2, ChevronDown } from "lucide-react";
 import { ShoppingListDto } from "@/lib/api/types";
 import { usePriceHistory } from "@/lib/cijene-api/hooks";
+import cijeneService from "@/lib/cijene-api";
+import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { PeriodOption } from "@/typings/history-period-options";
 import { periodOptions } from "@/constants/price-history";
 import { storeNamesMap } from "@/constants/store-mappings";
@@ -55,23 +58,75 @@ export default function ShoppingListPriceHistory({
     return shoppingList.items?.map((item) => item.ean) || [];
   }, [shoppingList.items]);
 
-  // Fetch price history for all products
-  const priceHistories = eans.map((ean) =>
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    usePriceHistory({ ean, days: daysToShow }),
-  );
+  // Generate dates for fetching price history
+  const dates = useMemo(() => {
+    const arr: string[] = [];
+    const today = new Date();
+    const START_DATE = new Date("2025-05-16");
+    const maxDaysFromCap = Math.max(
+      0,
+      Math.ceil(
+        (today.getTime() - START_DATE.getTime()) / (1000 * 60 * 60 * 24),
+      ),
+    );
 
-  const isLoading = priceHistories.some((ph) => ph.isLoading);
-  const hasError = priceHistories.some((ph) => ph.isError);
+    let cappedDays: number;
+    if (daysToShow === -1) {
+      cappedDays = maxDaysFromCap;
+    } else {
+      cappedDays = Math.min(daysToShow, maxDaysFromCap);
+    }
+
+    for (let i = 0; i < cappedDays; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      arr.push(d.toISOString().slice(0, 10));
+    }
+    return arr.reverse(); // chronological
+  }, [daysToShow]);
+
+  // Fetch price history using useQueries to avoid hooks in loops
+  const queries = useQueries({
+    queries: eans.flatMap((ean) =>
+      dates.map((date, index) => ({
+        queryKey: ["cijene", "product", "history", ean, date],
+        queryFn: () => cijeneService.getProductByEan({ ean, date }),
+        enabled: !!ean,
+        staleTime:
+          index === 0 || index === dates.length - 1
+            ? 60 * 1000
+            : 6 * 60 * 60 * 1000,
+      })),
+    ),
+  });
+
+  const isLoading = queries.some((q) => q.isLoading);
+  const hasError = queries.some((q) => q.isError);
+
+  // Group queries by EAN for processing
+  const priceHistoriesByEan = useMemo(() => {
+    const result: Record<string, ProductResponse[]> = {};
+    eans.forEach((ean, eanIndex) => {
+      const startIdx = eanIndex * dates.length;
+      const endIdx = startIdx + dates.length;
+      result[ean] = queries
+        .slice(startIdx, endIdx)
+        .map((q) => q.data as ProductResponse)
+        .filter(Boolean);
+    });
+    return result;
+  }, [queries, eans, dates.length]);
 
   // Get all available chains from the price histories
   const availableChains = useMemo(() => {
     const chainSet = new Set<string>();
-    priceHistories.forEach((ph) => {
-      ph.chains.forEach((chain) => chainSet.add(chain));
+    Object.values(priceHistoriesByEan).forEach((products) => {
+      products.forEach((product) => {
+        product.chains?.forEach((chain) => chainSet.add(chain.chain));
+      });
     });
     return Array.from(chainSet);
-  }, [priceHistories]);
+  }, [priceHistoriesByEan]);
 
   // Initialize selected chains with preferred stores or all chains
   React.useEffect(() => {
@@ -90,18 +145,18 @@ export default function ShoppingListPriceHistory({
 
   // Transform data: calculate average price per product per day
   const chartData = useMemo(() => {
-    if (priceHistories.length === 0 || priceHistories[0].data.length === 0) {
+    if (eans.length === 0 || dates.length === 0) {
       return [];
     }
 
     const dateMap = new Map<string, ChartDataPoint>();
 
-    priceHistories.forEach((priceHistory, index) => {
-      const ean = eans[index];
-      const item = shoppingList.items?.find((i) => i.ean === ean);
+    eans.forEach((ean) => {
+      const products = priceHistoriesByEan[ean] || [];
 
-      priceHistory.data.forEach((dataPoint) => {
-        const date = dataPoint.date;
+      products.forEach((product, dateIndex) => {
+        const date = dates[dateIndex];
+        if (!date) return;
 
         if (!dateMap.has(date)) {
           dateMap.set(date, { date });
@@ -110,10 +165,10 @@ export default function ShoppingListPriceHistory({
         const chartPoint = dateMap.get(date)!;
 
         // Calculate average price across selected chains only
-        if (dataPoint.product?.chains && dataPoint.product.chains.length > 0) {
+        if (product?.chains && product.chains.length > 0) {
           const prices: number[] = [];
 
-          dataPoint.product.chains.forEach((chainData) => {
+          product.chains.forEach((chainData) => {
             // Only include prices from selected chains
             if (selectedChains.includes(chainData.chain)) {
               const avgPrice = parseFloat(chainData.avg_price);
@@ -135,7 +190,7 @@ export default function ShoppingListPriceHistory({
     return Array.from(dateMap.values()).sort((a, b) =>
       a.date.localeCompare(b.date),
     );
-  }, [priceHistories, eans, shoppingList.items, selectedChains]);
+  }, [priceHistoriesByEan, eans, dates, selectedChains]);
 
   // Create chart config with product names
   const chartConfig = useMemo(() => {
