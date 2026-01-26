@@ -43,7 +43,7 @@ import { useUser } from "@/context/user-context";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
 import cijeneService from "@/lib/cijene-api";
 import { ChainStats } from "@/lib/cijene-api/schemas";
-import { storeNamesMap } from "@/utils/mappings";
+import { storeNamesMap } from "@/constants/store-mappings";
 
 interface IUserPreferencesModalProps {
   isOpen: boolean;
@@ -115,11 +115,11 @@ export default function UserPreferencesModal({
     if (currentStores || currentPlaces) {
       // Prefer the friendly store name when available, fall back to API id
       const storeNames = ((currentStores as PinnedStoreDto[]) || []).map(
-        (s) => s.storeName || s.storeApiId || s.id
+        (s) => s.storeName || s.storeApiId || s.id,
       );
       // use place names for UI selection
       const placeNames = ((currentPlaces as PinnedPlaceDto[]) || []).map(
-        (p) => p.placeName || p.placeApiId
+        (p) => p.placeName || p.placeApiId,
       );
 
       // reset form values with fetched store NAMES and place NAMES
@@ -146,10 +146,10 @@ export default function UserPreferencesModal({
             },
             onError: (error) => {
               toast.error(
-                error.message || "Greška pri spremanju preferenca trgovina"
+                error.message || "Greška pri spremanju preferenca trgovina",
               );
             },
-          }
+          },
         ),
 
         updatePlacesMutation.mutateAsync(
@@ -166,10 +166,10 @@ export default function UserPreferencesModal({
             },
             onError: (error) => {
               toast.error(
-                error.message || "Greška pri spremanju preferenca lokacija"
+                error.message || "Greška pri spremanju preferenca lokacija",
               );
             },
-          }
+          },
         ),
       ]);
 
@@ -225,7 +225,7 @@ export default function UserPreferencesModal({
                     .sort((a, b) =>
                       a.chain_code.localeCompare(b.chain_code, "hr", {
                         sensitivity: "base",
-                      })
+                      }),
                     )
                     .map((chain: ChainStats) => {
                       const isSelected = form
@@ -238,7 +238,7 @@ export default function UserPreferencesModal({
                             "relative shadow-sm border-2 rounded-lg cursor-pointer transition-all overflow-hidden",
                             isSelected
                               ? "border-primary bg-green-100"
-                              : "border-gray-200 hover:border-gray-400"
+                              : "border-gray-200 hover:border-gray-400",
                           )}
                           onClick={() => toggleStore(chain.chain_code)}
                         >
@@ -253,7 +253,7 @@ export default function UserPreferencesModal({
                               sizes="128px"
                               className={cn(
                                 "opacity-40 object-contain",
-                                isSelected && "opacity-100"
+                                isSelected && "opacity-100",
                               )}
                             />
 
@@ -306,7 +306,7 @@ export default function UserPreferencesModal({
                             .sort((a, b) =>
                               a.name.localeCompare(b.name, "hr", {
                                 sensitivity: "base",
-                              })
+                              }),
                             )
                             .map((location) => (
                               <MultiSelectItem

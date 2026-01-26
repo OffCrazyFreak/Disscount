@@ -9,7 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import StoreChainSelect from "../../../../../../components/custom/store-chain-select";
-import { storeNamesMap } from "@/utils/mappings";
+import { storeNamesMap } from "@/constants/store-mappings";
 import type { ShoppingListItemDto } from "@/lib/api/types";
 import { formatQuantity } from "@/utils/strings";
 
@@ -42,7 +42,7 @@ export default function ShoppingListItem({
   const chainKey = item.chainCode
     ? item.chainCode.toLowerCase().replace(/_/g, "-")
     : null;
-  const storeName = chainKey ? storeNamesMap[chainKey] ?? chainKey : null;
+  const storeName = chainKey ? (storeNamesMap[chainKey] ?? chainKey) : null;
 
   // Average price - from DB for checked items, from API for unchecked items
   const displayPrice = item.isChecked ? item.avgPrice : averagePrice;

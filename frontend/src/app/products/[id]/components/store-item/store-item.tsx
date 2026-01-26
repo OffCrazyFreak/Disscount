@@ -10,14 +10,14 @@ import {
 } from "@/components/ui/collapsible";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { storeNamesMap } from "@/utils/mappings";
+import { storeNamesMap } from "@/constants/store-mappings";
 import { cn } from "@/lib/utils";
 import {
   ChainProductResponse,
   ProductResponse,
   StorePrice,
 } from "@/lib/cijene-api/schemas";
-import { getMinPrice, getMaxPrice } from "@/lib/cijene-api/utils/product-utils";
+import { getMinPrice, getMaxPrice } from "@/app/products/utils/product-utils";
 import { formatDate } from "@/utils/strings";
 import { useUser } from "@/context/user-context";
 import { StorePricesTable } from "@/app/products/[id]/components/store-item/store-prices-table";
@@ -67,7 +67,7 @@ export const StoreItem = memo(
                       "object-contain w-full h-full",
                       !isPreferred &&
                         (user?.pinnedStores?.length ?? 0) > 0 &&
-                        "opacity-40"
+                        "opacity-40",
                     )}
                   />
                 </div>
@@ -100,8 +100,8 @@ export const StoreItem = memo(
                           storeMinPrice === productMaxPrice
                             ? "text-red-700 font-bold"
                             : storeMinPrice === productMinPrice
-                            ? "text-green-700 font-bold"
-                            : "text-gray-700"
+                              ? "text-green-700 font-bold"
+                              : "text-gray-700",
                         )}
                       >
                         Min: {storeMinPrice.toFixed(2)}€
@@ -111,8 +111,8 @@ export const StoreItem = memo(
                           storeAvgPrice === productMaxPrice
                             ? "text-red-700 font-bold"
                             : storeAvgPrice === productMinPrice
-                            ? "text-green-700 font-bold"
-                            : "text-gray-700"
+                              ? "text-green-700 font-bold"
+                              : "text-gray-700",
                         )}
                       >
                         Prosjek: {storeAvgPrice.toFixed(2)}€
@@ -122,8 +122,8 @@ export const StoreItem = memo(
                           storeMaxPrice === productMaxPrice
                             ? "text-red-700 font-bold"
                             : storeMaxPrice === productMinPrice
-                            ? "text-green-700 font-bold"
-                            : "text-gray-700"
+                              ? "text-green-700 font-bold"
+                              : "text-gray-700",
                         )}
                       >
                         Max: {storeMaxPrice.toFixed(2)}€
@@ -141,7 +141,7 @@ export const StoreItem = memo(
                 <ChevronDown
                   className={cn(
                     "size-8 text-gray-500 transition-transform",
-                    isExpanded && "rotate-180"
+                    isExpanded && "rotate-180",
                   )}
                 />
               </div>
@@ -156,7 +156,7 @@ export const StoreItem = memo(
         </Card>
       </Collapsible>
     );
-  }
+  },
 );
 
 StoreItem.displayName = "StoreItem";

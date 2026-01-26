@@ -182,10 +182,15 @@ export default function AddToShoppingListForm({
       };
 
       // If the item is marked as checked, include price information and store
-      if (data.isChecked && data.chainCode) {
-        itemRequest.chainCode = data.chainCode;
-        itemRequest.avgPrice = averagePrice || undefined;
-        itemRequest.storePrice = storePrices[data.chainCode];
+      if (data.isChecked) {
+        // Use the selected chainCode, or fall back to cheapest store
+        const selectedChainCode = data.chainCode || cheapestStore;
+
+        if (selectedChainCode) {
+          itemRequest.chainCode = selectedChainCode;
+          itemRequest.avgPrice = averagePrice || undefined;
+          itemRequest.storePrice = storePrices[selectedChainCode];
+        }
       }
       // If unchecked, explicitly don't send chainCode, avgPrice, or storePrice
 

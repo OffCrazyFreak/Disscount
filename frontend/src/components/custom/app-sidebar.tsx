@@ -38,7 +38,7 @@ import {
 import cijeneService from "@/lib/cijene-api";
 import { ChainStats } from "@/lib/cijene-api/schemas";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
-import { storeNamesMap } from "@/utils/mappings";
+import { storeNamesMap } from "@/constants/store-mappings";
 import SearchBar from "@/components/custom/search-bar";
 import Image from "next/image";
 

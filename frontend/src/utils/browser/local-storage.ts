@@ -120,7 +120,7 @@ export function getPriceHistoryPreferences(productEan: string): {
  */
 export function setPriceHistoryPreferences(
   productEan: string,
-  preferences: ProductChartPreferences
+  preferences: ProductChartPreferences,
 ) {
   try {
     const current = getAppStorage();

@@ -6,7 +6,7 @@ import {
   getMaxPrice,
   getMinPricePerUnit,
   getMaxPricePerUnit,
-} from "@/lib/cijene-api/utils/product-utils";
+} from "@/app/products/utils/product-utils";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 
 interface IProductUnitPriceDetailsProps {
@@ -69,7 +69,7 @@ export const ProductUnitPriceDetails = memo(
           )}
       </div>
     );
-  }
+  },
 );
 
 ProductUnitPriceDetails.displayName = "ProductPrice";

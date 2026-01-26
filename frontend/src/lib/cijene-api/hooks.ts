@@ -6,7 +6,7 @@ import {
   ChainProductResponse,
 } from "./schemas";
 import { useMemo } from "react";
-import { locationNamesMap } from "@/utils/mappings";
+import { locationNamesMap } from "@/constants/store-mappings";
 import { StoreLocation } from "@/typings/store-location";
 
 /**
@@ -102,7 +102,7 @@ export function usePriceHistory({ ean, days = 7 }: UsePriceHistoryArgs) {
     // Cap days to not go earlier than start date
     const maxDaysFromCap = Math.max(
       0,
-      Math.ceil((today.getTime() - startCap.getTime()) / (1000 * 60 * 60 * 24))
+      Math.ceil((today.getTime() - startCap.getTime()) / (1000 * 60 * 60 * 24)),
     );
 
     let cappedDays: number;

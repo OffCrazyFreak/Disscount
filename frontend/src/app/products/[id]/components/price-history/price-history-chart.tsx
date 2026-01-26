@@ -8,7 +8,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { storeNamesMap } from "@/utils/mappings";
+import { storeNamesMap } from "@/constants/store-mappings";
 import { useUser } from "@/context/user-context";
 import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";
 import { ChartDataPoint } from "@/typings/chart-data";
@@ -28,14 +28,14 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
 
   const pinnedStoreIds = useMemo(
     () => user?.pinnedStores?.map((store) => store.storeApiId) || [],
-    [user?.pinnedStores]
+    [user?.pinnedStores],
   );
 
   // Filter chains to display based on user selection with sanitization
   const chainsToDisplay = useMemo(() => {
     // Get intersection of selectedChains and priceHistoryChains
     const intersection = priceHistoryChains.filter((chain) =>
-      selectedChains.includes(chain)
+      selectedChains.includes(chain),
     );
 
     // If intersection is empty or selectedChains is missing, fall back to all available chains
@@ -122,10 +122,10 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
                     ...chartData.flatMap((d) =>
                       Object.entries(d)
                         .filter(
-                          ([k]) => k !== "date" && chainsToDisplay.includes(k)
+                          ([k]) => k !== "date" && chainsToDisplay.includes(k),
                         )
-                        .map(([_, v]) => (typeof v === "number" ? v : 0))
-                    )
+                        .map(([_, v]) => (typeof v === "number" ? v : 0)),
+                    ),
                   ) *
                   (1 - padding)
                 : 0;
@@ -135,10 +135,10 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
                     ...chartData.flatMap((d) =>
                       Object.entries(d)
                         .filter(
-                          ([k]) => k !== "date" && chainsToDisplay.includes(k)
+                          ([k]) => k !== "date" && chainsToDisplay.includes(k),
                         )
-                        .map(([_, v]) => (typeof v === "number" ? v : 0))
-                    )
+                        .map(([_, v]) => (typeof v === "number" ? v : 0)),
+                    ),
                   ) *
                   (1 + padding)
                 : 1;

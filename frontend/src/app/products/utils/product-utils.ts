@@ -1,4 +1,4 @@
-import { ProductResponse } from "../schemas";
+import { ProductResponse } from "@/lib/cijene-api/schemas";
 
 // Memoization caches
 const minPriceCache = new WeakMap<ProductResponse, number>();
@@ -70,7 +70,7 @@ export function getAveragePrice(product: ProductResponse): number | undefined {
  * Get minimum price per unit for a product
  */
 export function getMinPricePerUnit(
-  product: ProductResponse
+  product: ProductResponse,
 ): number | undefined {
   const quantity = Number(product.quantity);
   if (Number.isFinite(quantity) && quantity > 0) {
@@ -83,7 +83,7 @@ export function getMinPricePerUnit(
  * Get maximum price per unit for a product
  */
 export function getMaxPricePerUnit(
-  product: ProductResponse
+  product: ProductResponse,
 ): number | undefined {
   const quantity = Number(product.quantity);
   if (Number.isFinite(quantity) && quantity > 0) {
@@ -96,7 +96,7 @@ export function getMaxPricePerUnit(
  * Get average price per unit for a product
  */
 export function getAveragePricePerUnit(
-  product: ProductResponse
+  product: ProductResponse,
 ): number | undefined {
   const quantity = Number(product.quantity);
   if (Number.isFinite(quantity) && quantity > 0) {
@@ -124,7 +124,7 @@ export function getLowestPriceChain(product: ProductResponse) {
   }
 
   const validChains = product.chains.filter((c) =>
-    Number.isFinite(parseFloat(c.min_price))
+    Number.isFinite(parseFloat(c.min_price)),
   );
 
   if (validChains.length === 0) {
@@ -147,7 +147,7 @@ export function getHighestPriceChain(product: ProductResponse) {
   }
 
   const validChains = product.chains.filter((c) =>
-    Number.isFinite(parseFloat(c.max_price))
+    Number.isFinite(parseFloat(c.max_price)),
   );
 
   if (validChains.length === 0) {
@@ -166,10 +166,10 @@ export function getHighestPriceChain(product: ProductResponse) {
  */
 export function calculatePriceChange(
   currentPrice: number,
-  previousPrice: number
+  previousPrice: number,
 ) {
   const percentage = Number(
-    Math.abs(((currentPrice - previousPrice) / previousPrice) * 100).toFixed(2)
+    Math.abs(((currentPrice - previousPrice) / previousPrice) * 100).toFixed(2),
   );
   const difference = Number((currentPrice - previousPrice).toFixed(2));
 

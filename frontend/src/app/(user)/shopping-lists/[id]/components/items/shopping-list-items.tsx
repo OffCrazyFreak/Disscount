@@ -36,12 +36,19 @@ export default function ShoppingListItems({
   }
 
   const sortedItems = [...shoppingList.items].sort((a, b) =>
-    a.name.localeCompare(b.name, "hr", { sensitivity: "base" })
+    a.name.localeCompare(b.name, "hr", { sensitivity: "base" }),
   );
+
+  const checkedCount =
+    shoppingList.items?.filter((item) => item.isChecked)?.length || 0;
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Proizvodi ({itemCount})</h2>
+      <h2 className="text-lg font-semibold">
+        {checkedCount > 0
+          ? `Proizvodi (${checkedCount}/${itemCount} kupljeno)`
+          : `Proizvodi (${itemCount})`}
+      </h2>
       <Card className="p-4">
         <div className="space-y-1">
           {sortedItems.map((item, index) => (

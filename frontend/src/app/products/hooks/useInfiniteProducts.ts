@@ -13,9 +13,9 @@ interface IUseInfiniteProductsResult {
   error: unknown;
 }
 
-export function useInfiniteProducts(
+export default function useInfiniteProducts(
   q: string,
-  batchSize = 50
+  batchSize = 50,
 ): IUseInfiniteProductsResult {
   const { data, isLoading, error } = useGetProductByName({
     q,
@@ -34,7 +34,7 @@ export function useInfiniteProducts(
   }, [allProducts, batchSize]);
 
   const [batchesToShow, setBatchesToShow] = useState<number>(
-    batchedProducts.length > 0 ? 1 : 0
+    batchedProducts.length > 0 ? 1 : 0,
   );
 
   // Reset visible batches when query or results change
@@ -74,5 +74,3 @@ export function useInfiniteProducts(
     error,
   };
 }
-
-export default useInfiniteProducts;

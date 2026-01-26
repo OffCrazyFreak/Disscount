@@ -7,6 +7,7 @@ import ShoppingListStoreSummary from "./stores/shopping-list-stores-list";
 import ShoppingListHeader from "@/app/(user)/shopping-lists/[id]/components/shopping-list-header";
 import ShoppingListItems from "@/app/(user)/shopping-lists/[id]/components/items/shopping-list-items";
 import ShoppingListPriceHistory from "@/app/(user)/shopping-lists/[id]/components/shopping-list-price-history";
+import ShoppingListInfoTable from "@/app/(user)/shopping-lists/[id]/components/shopping-list-info-table";
 import { useShoppingListData } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-data";
 
 interface ShoppingListDetailClientProps {
@@ -62,10 +63,14 @@ export default function ShoppingListDetailClient({
     <div className="max-w-3xl mx-auto space-y-8">
       {/* Header Section */}
       <section>
-        <ShoppingListHeader
+        <ShoppingListHeader shoppingList={shoppingList} />
+      </section>
+
+      {/* Info Display Section */}
+      <section>
+        <ShoppingListInfoTable
           shoppingList={shoppingList}
-          totalSavings={totalSavings}
-          savingsPercentage={savingsPercentage}
+          averagePrices={averagePrices}
         />
       </section>
 

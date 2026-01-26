@@ -1,7 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import apiClient from "../api-base";
 import { AuthResponse, LoginRequest, RegisterRequest } from "../types";
-import { setAccessToken, removeAccessToken } from "../local-storage";
+import {
+  setAccessToken,
+  removeAccessToken,
+} from "@/utils/browser/local-storage";
 
 const AUTH_BASE_PATH = "/api/auth";
 
@@ -11,7 +14,7 @@ const AUTH_BASE_PATH = "/api/auth";
 export async function login(data: LoginRequest): Promise<AuthResponse> {
   const response = await apiClient.post<AuthResponse>(
     `${AUTH_BASE_PATH}/login`,
-    data
+    data,
   );
 
   // Store the access token in localStorage
@@ -28,7 +31,7 @@ export async function login(data: LoginRequest): Promise<AuthResponse> {
 export async function register(data: RegisterRequest): Promise<AuthResponse> {
   const response = await apiClient.post<AuthResponse>(
     `${AUTH_BASE_PATH}/register`,
-    data
+    data,
   );
 
   // Store the access token in localStorage
@@ -48,7 +51,7 @@ export async function refreshToken(): Promise<AuthResponse> {
     {},
     {
       withCredentials: true, // Required to include cookies
-    }
+    },
   );
 
   // Store the new access token
@@ -68,7 +71,7 @@ export async function logout(): Promise<void> {
     {},
     {
       withCredentials: true, // Required to include cookies
-    }
+    },
   );
 
   // Remove the access token from storage
@@ -84,7 +87,7 @@ export async function logoutAll(): Promise<void> {
     {},
     {
       withCredentials: true, // Required to include cookies
-    }
+    },
   );
 
   // Remove the access token from storage

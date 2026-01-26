@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { storeNamesMap } from "@/utils/mappings";
+import { storeNamesMap } from "@/constants/store-mappings";
 import { cn } from "@/lib/utils";
 import { ShoppingListDto } from "@/lib/api/types";
 import { useUser } from "@/context/user-context";

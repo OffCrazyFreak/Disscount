@@ -23,10 +23,10 @@ import { Loader2, ChevronDown } from "lucide-react";
 import { ShoppingListDto } from "@/lib/api/types";
 import { usePriceHistory } from "@/lib/cijene-api/hooks";
 import { PeriodOption } from "@/typings/history-period-options";
-import { periodOptions } from "@/app/products/[id]/utils/price-history-constants";
-import { storeNamesMap } from "@/utils/mappings";
+import { periodOptions } from "@/constants/price-history";
+import { storeNamesMap } from "@/constants/store-mappings";
 import { useUser } from "@/context/user-context";
-import { calculatePriceChange } from "@/lib/cijene-api/utils/product-utils";
+import { calculatePriceChange } from "@/app/products/utils/product-utils";
 import { Separator } from "@/components/ui/separator";
 
 interface ShoppingListPriceHistoryProps {
@@ -58,7 +58,7 @@ export default function ShoppingListPriceHistory({
   // Fetch price history for all products
   const priceHistories = eans.map((ean) =>
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    usePriceHistory({ ean, days: daysToShow })
+    usePriceHistory({ ean, days: daysToShow }),
   );
 
   const isLoading = priceHistories.some((ph) => ph.isLoading);
@@ -79,11 +79,11 @@ export default function ShoppingListPriceHistory({
       const preferredStoreIds =
         user?.pinnedStores?.map((s) => s.storeApiId) || [];
       const preferredChains = availableChains.filter((chain) =>
-        preferredStoreIds.includes(chain)
+        preferredStoreIds.includes(chain),
       );
 
       setSelectedChains(
-        preferredChains.length > 0 ? preferredChains : availableChains
+        preferredChains.length > 0 ? preferredChains : availableChains,
       );
     }
   }, [availableChains, selectedChains.length, user?.pinnedStores]);
@@ -133,7 +133,7 @@ export default function ShoppingListPriceHistory({
     });
 
     return Array.from(dateMap.values()).sort((a, b) =>
-      a.date.localeCompare(b.date)
+      a.date.localeCompare(b.date),
     );
   }, [priceHistories, eans, shoppingList.items, selectedChains]);
 
@@ -156,7 +156,7 @@ export default function ShoppingListPriceHistory({
     const allPrices = chartData.flatMap((d) =>
       Object.entries(d)
         .filter(([k]) => k !== "date")
-        .map(([_, v]) => (typeof v === "number" ? v : 0))
+        .map(([_, v]) => (typeof v === "number" ? v : 0)),
     );
 
     if (allPrices.length === 0) return [];
@@ -187,7 +187,7 @@ export default function ShoppingListPriceHistory({
 
   const pinnedStoreIds = useMemo(
     () => user?.pinnedStores?.map((store) => store.storeApiId) || [],
-    [user?.pinnedStores]
+    [user?.pinnedStores],
   );
 
   // Calculate total price change for all items in the shopping list
@@ -254,7 +254,7 @@ export default function ShoppingListPriceHistory({
               <ChevronDown
                 className={cn(
                   "size-8 text-gray-500 transition-transform flex-shrink-0",
-                  isPriceHistoryOpen && "rotate-180"
+                  isPriceHistoryOpen && "rotate-180",
                 )}
               />
             </div>

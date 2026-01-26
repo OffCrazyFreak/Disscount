@@ -8,7 +8,7 @@ import React, {
   useCallback,
 } from "react";
 import { authService, userService, preferencesService } from "@/lib/api";
-import { getAccessToken } from "@/lib/api/local-storage";
+import { getAccessToken } from "@/utils/browser/local-storage";
 import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
 import { useQueryClient } from "@tanstack/react-query";
 

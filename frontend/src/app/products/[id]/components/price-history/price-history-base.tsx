@@ -15,18 +15,18 @@ import { useUser } from "@/context/user-context";
 import {
   getPriceHistoryPreferences,
   setPriceHistoryPreferences,
-} from "@/lib/api/local-storage";
+} from "@/utils/browser/local-storage";
 import { usePriceHistory } from "@/lib/cijene-api/hooks";
 import PriceHistoryChart from "@/app/products/[id]/components/price-history/price-history-chart";
 import PriceHistoryPeriodSelect from "@/components/custom/price-history-period-select";
 import StoreChainMultiSelect from "@/components/custom/store-chain-multi-select";
 import PriceChangeDisplay from "@/components/custom/price-change-display";
 import { PeriodOption } from "@/typings/history-period-options";
-import { periodOptions } from "@/app/products/[id]/utils/price-history-constants";
+import { periodOptions } from "@/constants/price-history";
 import {
   getAveragePrice,
   calculatePriceChange,
-} from "@/lib/cijene-api/utils/product-utils";
+} from "@/app/products/utils/product-utils";
 
 interface IPriceHistoryProps {
   product: ProductResponse;
@@ -49,7 +49,7 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
     if (productPreferences?.chains) {
       // Sanitize persisted chains by intersecting with available chains
       const sanitizedChains = Array.from(
-        new Set(productPreferences.chains)
+        new Set(productPreferences.chains),
       ).filter((chain) => availableChains.includes(chain));
 
       return {
@@ -62,7 +62,7 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
     const preferredStoreIds =
       user?.pinnedStores?.map((s) => s.storeApiId) || [];
     const preferredChains = availableChains.filter((chain) =>
-      preferredStoreIds.includes(chain)
+      preferredStoreIds.includes(chain),
     );
 
     // If there are preferred stores, select only those; otherwise select all
@@ -117,7 +117,7 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
     }
 
     const currentAvgPrice = getAveragePrice(
-      priceHistoryData[priceHistoryData.length - 1].product
+      priceHistoryData[priceHistoryData.length - 1].product,
     );
     const historicalAvgPrice = getAveragePrice(priceHistoryData[0].product);
 
@@ -145,7 +145,7 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
               <ChevronDown
                 className={cn(
                   "size-8 text-gray-500 transition-transform flex-shrink-0",
-                  isPriceHistoryOpen && "rotate-180"
+                  isPriceHistoryOpen && "rotate-180",
                 )}
               />
             </div>

@@ -6,7 +6,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { storeNamesMap, STORE_CHAIN_OPTIONS } from "@/utils/mappings";
+import { storeNamesMap, STORE_CHAIN_OPTIONS } from "@/constants/store-mappings";
 import { useEffect, useState } from "react";
 import { ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 
@@ -87,7 +87,7 @@ export default function StoreChainSelect({
           (option) =>
             isChecked
               ? option.code === value // When checked, only show the selected store
-              : storePrices[option.code] !== undefined || option.code === value // When unchecked, show available stores and current selection
+              : storePrices[option.code] !== undefined || option.code === value, // When unchecked, show available stores and current selection
         ).map((option) => {
           const priceDifference = getPriceDifference(option.code);
 
@@ -96,8 +96,8 @@ export default function StoreChainSelect({
             ? parseFloat(priceDifference.difference) > 0
               ? "text-red-700"
               : parseFloat(priceDifference.difference) < 0
-              ? "text-green-700"
-              : "text-gray-500"
+                ? "text-green-700"
+                : "text-gray-500"
             : "text-gray-500";
 
           return (
@@ -109,7 +109,7 @@ export default function StoreChainSelect({
                   <span
                     className={cn(
                       "text-xs flex items-center gap-1",
-                      diffColorClass
+                      diffColorClass,
                     )}
                   >
                     <span>

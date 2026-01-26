@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { storeNamesMap, locationNamesMap } from "@/utils/mappings";
+import { storeNamesMap, locationNamesMap } from "@/constants/store-mappings";
 import { pluralizeCroatian } from "@/utils/strings";
 import { cn } from "@/lib/utils";
 import cijeneService from "@/lib/cijene-api";
@@ -64,7 +64,7 @@ export const StoreItem = memo(
                         {pluralizeCroatian(
                           stat.store_count,
                           "trgovina",
-                          "trgovine"
+                          "trgovine",
                         )}
                       </span>
                       <span className="hidden sm:inline">|</span>
@@ -74,7 +74,7 @@ export const StoreItem = memo(
                         {pluralizeCroatian(
                           stat.price_count,
                           "cijena",
-                          "cijene"
+                          "cijene",
                         )}
                       </span>
                     </p>
@@ -84,7 +84,7 @@ export const StoreItem = memo(
                     <ChevronDown
                       className={cn(
                         "size-8 text-gray-500 transition-transform",
-                        isExpanded && "rotate-180"
+                        isExpanded && "rotate-180",
                       )}
                     />
                   </div>
@@ -150,7 +150,7 @@ export const StoreItem = memo(
         {!isLast && <Separator className="my-4" />}
       </div>
     );
-  }
+  },
 );
 
 StoreItem.displayName = "StoreItem";

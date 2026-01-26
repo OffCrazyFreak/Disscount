@@ -8,7 +8,7 @@ import {
   getAccessToken,
   setAccessToken,
   removeAccessToken,
-} from "./local-storage";
+} from "@/utils/browser/local-storage";
 
 // Prefer a relative path in the browser so Next.js rewrites (defined in next.config.ts)
 // can proxy requests to the backend during development and avoid CORS issues.
@@ -74,7 +74,7 @@ apiClient.interceptors.response.use(
           {},
           {
             withCredentials: true, // Important to include cookies
-          }
+          },
         );
 
         if (response.data && response.data.accessToken) {
@@ -86,9 +86,8 @@ apiClient.interceptors.response.use(
 
           // Set the new authorization header
           if (newRequestConfig.headers) {
-            (
-              newRequestConfig.headers as Record<string, string>
-            ).Authorization = `Bearer ${response.data.accessToken}`;
+            (newRequestConfig.headers as Record<string, string>).Authorization =
+              `Bearer ${response.data.accessToken}`;
             (newRequestConfig.headers as Record<string, string>)[
               "X-Retry-After-Refresh"
             ] = "true";
@@ -124,7 +123,7 @@ apiClient.interceptors.response.use(
     } catch (retryError) {
       return Promise.reject(retryError);
     }
-  }
+  },
 );
 
 export default apiClient;

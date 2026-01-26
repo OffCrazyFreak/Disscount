@@ -42,12 +42,18 @@ Do not prematurely optimize code. Focus on clarity and correctness first. Especi
 NEVER run "pnpm run dev" or any other development server command, because I always already have my dev server running. Also never run build commands.
 NEVER use ":any" as a type in typescript code. Check the types and define proper interfaces or types when necessary.
 
-ALWAYS check if all typescript types are correct and there are no type errors first by linting using "pnpm run lint" and then by using "pnpm exec tsc --noEmit" before providing the final code.
+ALWAYS check if all typescript types are correct and there are no type errors by using "pnpm exec tsc --noEmit" before providing the final code.
 ALWAYS use frontend design skill when generating frontend code.
 
 If you are asked to generate code that involves API calls, check if the API endpoints exist in the file disscount-api-docs.json and cijene-api-docs.json or the backend codebase. If they do not exist, inform me that the endpoints do not exist and ask for further instructions.
 
 If you need to import some hooks or components from react library, ALWAYS import them by "import { x } from 'react';" instead of React.x or other ways.
+
+Write all function with syntax "function functionName() {}" instead of arrow functions like "const functionName = () => {}" unless it's a small inline function.
+
+Feature-specific code goes in feature folders (products/, shopping-lists/), shared/generic code stays in central locations (utils/, lib/, constants/).
+
+Add empty rows for better readability between logical blocks of code, my prettier will take care of the rest.
 
 # Backend Development Guidelines
 

@@ -9,9 +9,9 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { ProductResponse, StorePrice } from "@/lib/cijene-api/schemas";
-import { getMinPrice, getMaxPrice } from "@/lib/cijene-api/utils/product-utils";
+import { getMinPrice, getMaxPrice } from "@/app/products/utils/product-utils";
 import { useUser } from "@/context/user-context";
-import { locationNamesMap } from "@/utils/mappings";
+import { locationNamesMap } from "@/constants/store-mappings";
 
 interface IStorePricesTableProps {
   storePrices: StorePrice[];
@@ -81,7 +81,7 @@ export const StorePricesTable = memo(
                 return (a.store.address || "").localeCompare(
                   b.store.address || "",
                   "hr",
-                  { sensitivity: "base" }
+                  { sensitivity: "base" },
                 );
               })
               .map((price, index) => {
@@ -89,8 +89,8 @@ export const StorePricesTable = memo(
                 const displayPrice = price.special_price
                   ? parseFloat(price.special_price)
                   : price.regular_price
-                  ? parseFloat(price.regular_price)
-                  : null;
+                    ? parseFloat(price.regular_price)
+                    : null;
 
                 // Check if this location is preferred (using standardized location names)
                 const standardizedCity = price.store.city
@@ -98,7 +98,7 @@ export const StorePricesTable = memo(
                   : "";
                 const isLocationPreferred =
                   user?.pinnedPlaces?.some(
-                    (place) => place.placeApiId === standardizedCity
+                    (place) => place.placeApiId === standardizedCity,
                   ) || false;
 
                 return (
@@ -106,7 +106,7 @@ export const StorePricesTable = memo(
                     key={`${price.store.code}-${index}`}
                     className={cn(
                       "text-pretty [&>*]:whitespace-normal",
-                      isLocationPreferred ? "text-gray-700" : "text-gray-500"
+                      isLocationPreferred ? "text-gray-700" : "text-gray-500",
                     )}
                   >
                     <TableCell>
@@ -124,10 +124,10 @@ export const StorePricesTable = memo(
                             displayPrice === productMinPrice
                               ? "text-green-600"
                               : displayPrice === productMaxPrice
-                              ? "text-red-700"
-                              : isLocationPreferred
-                              ? "text-gray-700"
-                              : "text-gray-500"
+                                ? "text-red-700"
+                                : isLocationPreferred
+                                  ? "text-gray-700"
+                                  : "text-gray-500",
                           )}
                         >
                           {displayPrice.toFixed(2)}€
@@ -146,7 +146,7 @@ export const StorePricesTable = memo(
         </Table>
       </div>
     );
-  }
+  },
 );
 
 StorePricesTable.displayName = "StorePricesTable";
