@@ -101,7 +101,7 @@ export default function SearchBar({
       router.push(`${searchRoute}/${encodeURIComponent(result)}`);
       setOpen(false);
     },
-    [searchRoute, router, setOpen]
+    [searchRoute, router, setOpen],
   );
   return (
     <div>
@@ -119,7 +119,7 @@ export default function SearchBar({
             {...registerProps}
             type="text"
             placeholder={placeholder}
-            className="pl-10 pr-14 py-6 text-gray-500 focus:text-gray-700 bg-white"
+            className="pl-10 pr-22 py-6 text-gray-500 focus:text-gray-700 bg-white"
             autoComplete="off"
           />
 
@@ -130,10 +130,11 @@ export default function SearchBar({
                 variant="ghost"
                 size="sm"
                 onClick={handleClear}
-                className="text-gray-400 hover:text-gray-600"
+                className="p-2"
+                title="Clear search"
                 aria-label="Clear search"
               >
-                <X />
+                <X className="size-5" />
               </Button>
             )}
 
@@ -145,6 +146,7 @@ export default function SearchBar({
                 onClick={() => openScanner(handleScan)}
                 className="p-2"
                 title="Scan barcode"
+                aria-label="Scan barcode"
               >
                 <ScanBarcode className="size-5" />
               </Button>

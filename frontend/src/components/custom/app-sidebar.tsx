@@ -27,6 +27,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarSeparator,
+  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import {
@@ -39,6 +40,7 @@ import { ChainStats } from "@/lib/cijene-api/schemas";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { storeNamesMap } from "@/utils/mappings";
 import SearchBar from "@/components/custom/search-bar";
+import Image from "next/image";
 
 type OpenSection = "categories" | "stores" | "locations" | null;
 
@@ -62,20 +64,38 @@ export const AppSidebar = memo(function AppSidebar() {
   const sortedChainStats = useMemo(() => {
     const list = chainStats?.chain_stats ?? [];
     return [...list].sort((a, b) =>
-      a.chain_code.localeCompare(b.chain_code, "hr", { sensitivity: "base" })
+      a.chain_code.localeCompare(b.chain_code, "hr", { sensitivity: "base" }),
     );
   }, [chainStats]);
 
   const sortedLocations = useMemo(() => {
     const list = locations ?? [];
     return [...list].sort((a, b) =>
-      a.name.localeCompare(b.name, "hr", { sensitivity: "base" })
+      a.name.localeCompare(b.name, "hr", { sensitivity: "base" }),
     );
   }, [locations]);
 
   return (
     <Sidebar variant="floating" className="mt-24 h-fit">
       <SidebarHeader>
+        <div className="flex md:hidden items-center justify-between gap-2 mx-2 my-4">
+          <Link href="/" className="flex items-center gap-2">
+            <Image
+              src="/disscount-logo.png"
+              alt="Disscount logo"
+              width={128}
+              height={128}
+              className="size-8 sm:size-10"
+            />
+
+            <span className="font-bold text-lg sm:text-xl text-primary">
+              Disscount
+            </span>
+          </Link>
+
+          <SidebarTrigger className="m-0 p-0 text-gray-800" />
+        </div>
+
         <SidebarGroup>
           <SidebarGroupContent>
             <Suspense>
@@ -166,7 +186,7 @@ export const AppSidebar = memo(function AppSidebar() {
                         <SidebarMenuSubItem key={category}>
                           <Link
                             href={`/products?category=${encodeURIComponent(
-                              category
+                              category,
                             )}`}
                           >
                             <span>{category}</span>
@@ -206,7 +226,7 @@ export const AppSidebar = memo(function AppSidebar() {
                           <Link
                             className="flex justify-between items-center"
                             href={`/products?chain=${encodeURIComponent(
-                              chain.chain_code
+                              chain.chain_code,
                             )}`}
                           >
                             <span>{storeNamesMap[chain.chain_code]}</span>
@@ -250,7 +270,7 @@ export const AppSidebar = memo(function AppSidebar() {
                           <Link
                             className="flex justify-between items-center"
                             href={`/products?location=${encodeURIComponent(
-                              location.name
+                              location.name,
                             )}`}
                           >
                             <span>{location.name}</span>
