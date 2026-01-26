@@ -7,7 +7,7 @@ export function ToasterProvider({ children }: { children: ReactNode }) {
   return (
     <>
       {children}
-      <Toaster richColors position="top-center" />
+      <Toaster richColors position="bottom-right" />
     </>
   );
 }
