@@ -68,7 +68,7 @@ export default function ShoppingListInfoTable({
                   <span className="text-red-700">{maxTotal.toFixed(2)}€</span>
                 </span>
               ) : (
-                "0.00€"
+                "-"
               )}
             </td>
 
@@ -86,7 +86,7 @@ export default function ShoppingListInfoTable({
                   <span className="text-red-700">{maxToSpend.toFixed(2)}€</span>
                 </span>
               ) : (
-                "0.00€"
+                "-"
               )}
             </td>
           </tr>

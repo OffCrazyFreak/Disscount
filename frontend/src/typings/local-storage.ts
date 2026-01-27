@@ -6,18 +6,30 @@ export interface ProductChartPreferences {
   period?: PeriodOption;
   chains?: string[];
   isPriceHistoryOpen?: boolean;
+  storesOpen?: boolean;
 }
 
-// Price history chart preferences structure
-export interface PriceHistoryChartPreferences {
+// Product preferences structure
+export interface ProductsPreferences {
   // Product-specific preferences keyed by EAN
   [productEan: string]: ProductChartPreferences | undefined;
+}
+
+// Shopping list preferences structure
+export interface ShoppingListsPreferences {
+  itemsOpen?: boolean;
+  priceHistoryOpen?: boolean;
+  priceHistoryPeriod?: PeriodOption;
+  priceHistoryChains?: string[];
+  storesOpen?: boolean;
+  [key: string]: unknown;
 }
 
 // Main app data structure based on real localStorage example
 export interface AppData {
   accessToken?: string;
   viewModes?: Record<string, ViewMode>;
-  priceHistoryChartPreferences?: PriceHistoryChartPreferences;
+  productsPreferences?: ProductsPreferences;
+  shoppingListsPreferences?: Record<string, ShoppingListsPreferences>; // Shopping list ID -> preferences
   [key: string]: unknown;
 }

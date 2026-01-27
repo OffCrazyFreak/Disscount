@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { Loader2, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
@@ -9,7 +9,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { useUser } from "@/context/user-context";
 import {
@@ -39,17 +41,17 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
     period: PeriodOption;
     chains: string[];
   }>(() => {
-    const { productPreferences } = getPriceHistoryPreferences(product.ean);
+    const { productsPreferences } = getPriceHistoryPreferences(product.ean);
     const availableChains =
       product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) || [];
 
     // Get period from product-specific prefs or default
-    const period = (productPreferences?.period || "1W") as PeriodOption;
+    const period = (productsPreferences?.period || "1W") as PeriodOption;
 
-    if (productPreferences?.chains) {
+    if (productsPreferences?.chains) {
       // Sanitize persisted chains by intersecting with available chains
       const sanitizedChains = Array.from(
-        new Set(productPreferences.chains),
+        new Set(productsPreferences.chains),
       ).filter((chain) => availableChains.includes(chain));
 
       return {
@@ -73,8 +75,8 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
   });
 
   const [isPriceHistoryOpen, setIsPriceHistoryOpen] = useState(() => {
-    const { productPreferences } = getPriceHistoryPreferences(product.ean);
-    return productPreferences?.isPriceHistoryOpen ?? true;
+    const { productsPreferences } = getPriceHistoryPreferences(product.ean);
+    return productsPreferences?.isPriceHistoryOpen ?? true;
   });
 
   // Persist product-specific preferences whenever period, chains, or isOpen change
@@ -129,39 +131,38 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
   }, [priceHistoryData]);
 
   return (
-    <Card className="shadow-sm hover:shadow-md transition-shadow">
-      <Collapsible
-        open={isPriceHistoryOpen}
-        onOpenChange={setIsPriceHistoryOpen}
-      >
-        <CollapsibleTrigger asChild className="cursor-pointer">
-          <CardHeader className="flex items-center justify-between gap-4">
-            <h3 className="text-lg font-bold text-gray-900">Povijest cijena</h3>
+    <Collapsible open={isPriceHistoryOpen} onOpenChange={setIsPriceHistoryOpen}>
+      <CollapsibleTrigger asChild className="py-2">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="text-lg font-semibold">Povijest cijena</h2>
 
-            <div className="flex-1 flex items-center justify-end gap-4">
-              <p className="hidden sm:inline text-gray-700 text-sm text-pretty text-right">
-                {isPriceHistoryOpen ? "Sakrij" : "Prikaži"}
-              </p>
-              <ChevronDown
-                className={cn(
-                  "size-8 text-gray-500 transition-transform flex-shrink-0",
-                  isPriceHistoryOpen && "rotate-180",
-                )}
-              />
-            </div>
-          </CardHeader>
-        </CollapsibleTrigger>
+          <Separator className="flex-1 my-2" />
 
-        <CollapsibleContent>
-          <CardContent className="pt-0">
+          <div className="flex items-center gap-4">
+            <p className="hidden sm:inline text-gray-700 text-sm">
+              {isPriceHistoryOpen ? "Sakrij" : "Prikaži"}
+            </p>
+
+            <ChevronDown
+              className={cn(
+                "size-8 text-gray-500 transition-transform flex-shrink-0",
+                isPriceHistoryOpen && "rotate-180",
+              )}
+            />
+          </div>
+        </div>
+      </CollapsibleTrigger>
+
+      <CollapsibleContent>
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
+          <CardContent className="p-6">
             <Tabs value={chartPrefs.period} onValueChange={handlePeriodChange}>
               <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
-                <div className="flex items-center justify-between gap-4 w-full sm:w-auto">
+                <div className="flex items-center gap-2">
                   <PriceHistoryPeriodSelect
                     value={chartPrefs.period}
                     onChange={handlePeriodChange}
                   />
-
                   <PriceChangeDisplay priceChange={priceChange} />
                 </div>
 
@@ -175,12 +176,7 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
 
               <TabsContent value={chartPrefs.period} className="mt-4">
                 {historyLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="size-6 animate-spin" />
-                      Učitavanje povijesti cijena...
-                    </div>
-                  </div>
+                  <BlockLoadingSpinner />
                 ) : priceHistoryData.length === 0 || historyError ? (
                   <div className="text-center py-8">
                     <p className="text-gray-600">
@@ -197,8 +193,8 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
               </TabsContent>
             </Tabs>
           </CardContent>
-        </CollapsibleContent>
-      </Collapsible>
-    </Card>
+        </Card>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

@@ -1,8 +1,9 @@
 "use client";
 
-import { Loader2, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button-icon";
 import Link from "next/link";
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import ShoppingListStoreSummary from "./stores/shopping-list-stores-list";
 import ShoppingListHeader from "@/app/(user)/shopping-lists/[id]/components/shopping-list-header";
 import ShoppingListItems from "@/app/(user)/shopping-lists/[id]/components/items/shopping-list-items";
@@ -30,10 +31,7 @@ export default function ShoppingListDetailClient({
   if (isLoading) {
     return (
       <div className="max-w-3xl mx-auto">
-        <div className="text-center py-12">
-          <Loader2 className="size-12 text-gray-400 mx-auto mb-4 animate-spin" />
-          <p className="text-gray-600">Dohvaćanje popisa za kupnju...</p>
-        </div>
+        <BlockLoadingSpinner size={96} />
       </div>
     );
   }

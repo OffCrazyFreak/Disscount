@@ -1,7 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
+import { ChevronDown } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import cijeneService from "@/lib/cijene-api";
 import { ShoppingListDto } from "@/lib/api/types";
 import { ShoppingListStoreItem } from "./shopping-list-store-card";
@@ -11,6 +14,17 @@ import {
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
 import { compareStoreChains } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import {
+  getShoppingListStoresOpen,
+  setShoppingListStoresOpen,
+} from "@/utils/browser/local-storage";
 
 interface ShoppingListStoreSummaryProps {
   shoppingList: ShoppingListDto;
@@ -20,6 +34,16 @@ export default function ShoppingListStoreSummary({
   shoppingList,
 }: ShoppingListStoreSummaryProps) {
   const { user } = useUser();
+
+  const [isStoresOpen, setIsStoresOpen] = useState(() =>
+    getShoppingListStoresOpen(shoppingList.id),
+  );
+
+  const handleToggleStores = (open: boolean) => {
+    setIsStoresOpen(open);
+    setShoppingListStoresOpen(shoppingList.id, open);
+  };
+
   // Get all EANs from shopping list items
   const eans = useMemo(() => {
     return (
@@ -67,7 +91,7 @@ export default function ShoppingListStoreSummary({
       product.chains.forEach((chain) => {
         // Find the corresponding shopping list item
         const shoppingItem = shoppingList.items?.find(
-          (item) => item.ean === product.ean
+          (item) => item.ean === product.ean,
         );
         if (!shoppingItem) return;
 
@@ -110,7 +134,7 @@ export default function ShoppingListStoreSummary({
           .toISOString()
           .split("T")[0] as `${number}-${number}-${number}`,
         itemCount: chainData.itemCount,
-      })
+      }),
     );
   }, [productsData, shoppingList.items]);
 
@@ -125,7 +149,7 @@ export default function ShoppingListStoreSummary({
 
     const totalItems = shoppingList.items.length;
     const completeStores = allChains.filter(
-      (chain) => chain.itemCount === totalItems
+      (chain) => chain.itemCount === totalItems,
     );
 
     if (completeStores.length === 0) {
@@ -218,7 +242,7 @@ export default function ShoppingListStoreSummary({
 
     const totalItems = shoppingList.items.length;
     const completeChains = allChains.filter(
-      (chain) => chain.itemCount === totalItems
+      (chain) => chain.itemCount === totalItems,
     );
 
     if (completeChains.length === 0) return { min: 0, max: 0 };
@@ -236,77 +260,74 @@ export default function ShoppingListStoreSummary({
     };
   }, [allChains, shoppingList.items]);
 
-  if (productsLoading) {
-    return (
-      <div className="space-y-4">
-        <h2 className="text-lg font-bold text-gray-900">
-          Cijene po lancima trgovina
-        </h2>
-        <div className="flex items-center justify-center py-8">
-          <div className="text-gray-600">Dohvaćanje cijena...</div>
-        </div>
-      </div>
-    );
-  }
+  return (
+    <Collapsible open={isStoresOpen} onOpenChange={handleToggleStores}>
+      <CollapsibleTrigger asChild className="cursor-pointer py-2">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="text-lg font-semibold">Cijene po lancima trgovina</h2>
 
-  if (productsError || productsData.length === 0) {
-    return (
-      <div className="space-y-4">
-        <h2 className="text-lg font-bold text-gray-900">
-          Cijene po lancima trgovina
-        </h2>
-        <div className="text-center py-8">
-          <p className="text-gray-600">
+          <Separator className="flex-1 my-2" />
+
+          <div className="flex items-center gap-4">
+            <p className="hidden sm:inline text-gray-700 text-sm">
+              {isStoresOpen ? "Sakrij" : "Prikaži"}
+            </p>
+
+            <ChevronDown
+              className={cn(
+                "size-8 text-gray-500 transition-transform flex-shrink-0",
+                isStoresOpen && "rotate-180",
+              )}
+            />
+          </div>
+        </div>
+      </CollapsibleTrigger>
+
+      <CollapsibleContent>
+        {productsLoading ? (
+          <BlockLoadingSpinner />
+        ) : !shoppingList.items || shoppingList.items.length === 0 ? (
+          <p className="p-2 text-gray-600 text-center">
+            Ovaj popis još ne sadrži proizvode. Probaj pretražiti proizvode pa
+            ih dodaj na ovaj popis.
+          </p>
+        ) : productsError ? (
+          <p className="p-2 text-gray-600 text-center">
             Greška pri učitavanju cijena. Pokušajte ponovno.
           </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (allChains.length === 0) {
-    return (
-      <div className="space-y-4">
-        <h2 className="text-lg font-bold text-gray-900">
-          Cijene po lancima trgovina
-        </h2>
-        <div className="text-center py-8">
-          <p className="text-gray-600">
+        ) : allChains.length === 0 ? (
+          <p className="p-2 text-gray-600 text-center">
             Nema dostupnih cijena za stavke na popisu.
           </p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-bold text-gray-900">
-        Cijene po lancima trgovina
-      </h2>
-
-      <div className="space-y-4">
-        {allChains
-          .sort((a, b) => {
-            // Get user's pinned store IDs
-            const pinnedStoreIds =
-              user?.pinnedStores?.map((store) => store.storeApiId) || [];
-            return compareStoreChains(a, b, pinnedStoreIds);
-          })
-          .map((chain) => (
-            <ShoppingListStoreItem
-              key={chain.chain}
-              chain={chain}
-              shoppingList={shoppingList}
-              absoluteMinPrice={absolutePrices.min}
-              absoluteMaxPrice={absolutePrices.max}
-              productsData={productsData}
-              completeStoresAnalysis={completeStoresAnalysis}
-              hasLowestPriceItem={storesWithLowestPriceItems.has(chain.chain)}
-              hasHighestPriceItem={storesWithHighestPriceItems.has(chain.chain)}
-            />
-          ))}
-      </div>
-    </div>
+        ) : (
+          <div className="space-y-4">
+            {allChains
+              .sort((a, b) => {
+                // Get user's pinned store IDs
+                const pinnedStoreIds =
+                  user?.pinnedStores?.map((store) => store.storeApiId) || [];
+                return compareStoreChains(a, b, pinnedStoreIds);
+              })
+              .map((chain) => (
+                <ShoppingListStoreItem
+                  key={chain.chain}
+                  chain={chain}
+                  shoppingList={shoppingList}
+                  absoluteMinPrice={absolutePrices.min}
+                  absoluteMaxPrice={absolutePrices.max}
+                  productsData={productsData}
+                  completeStoresAnalysis={completeStoresAnalysis}
+                  hasLowestPriceItem={storesWithLowestPriceItems.has(
+                    chain.chain,
+                  )}
+                  hasHighestPriceItem={storesWithHighestPriceItems.has(
+                    chain.chain,
+                  )}
+                />
+              ))}
+          </div>
+        )}
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

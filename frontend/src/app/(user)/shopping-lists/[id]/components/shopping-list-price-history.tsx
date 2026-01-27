@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import {
@@ -17,20 +17,28 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Separator } from "@/components/ui/separator";
 import StoreChainMultiSelect from "@/components/custom/store-chain-multi-select";
 import PriceHistoryPeriodSelect from "@/components/custom/price-history-period-select";
 import PriceChangeDisplay from "@/components/custom/price-change-display";
-import { Loader2, ChevronDown } from "lucide-react";
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
+import { ChevronDown } from "lucide-react";
 import { ShoppingListDto } from "@/lib/api/types";
-import { usePriceHistory } from "@/lib/cijene-api/hooks";
 import cijeneService from "@/lib/cijene-api";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { PeriodOption } from "@/typings/history-period-options";
 import { periodOptions } from "@/constants/price-history";
-import { storeNamesMap } from "@/constants/store-mappings";
 import { useUser } from "@/context/user-context";
 import { calculatePriceChange } from "@/app/products/utils/product-utils";
-import { Separator } from "@/components/ui/separator";
+import { formatDate } from "@/utils/strings";
+import {
+  getShoppingListPriceHistoryOpen,
+  setShoppingListPriceHistoryOpen,
+  getShoppingListPriceHistoryPeriod,
+  setShoppingListPriceHistoryPeriod,
+  getShoppingListPriceHistoryChains,
+  setShoppingListPriceHistoryChains,
+} from "@/utils/browser/local-storage";
 
 interface ShoppingListPriceHistoryProps {
   shoppingList: ShoppingListDto;
@@ -45,9 +53,15 @@ export default function ShoppingListPriceHistory({
   shoppingList,
 }: ShoppingListPriceHistoryProps) {
   const { user } = useUser();
-  const [period, setPeriod] = useState<PeriodOption>("1W");
+  const [period, setPeriod] = useState<PeriodOption>(() =>
+    getShoppingListPriceHistoryPeriod(shoppingList.id),
+  );
+
+  // Initialize with empty array - will be set by useEffect after availableChains loads
   const [selectedChains, setSelectedChains] = useState<string[]>([]);
-  const [isPriceHistoryOpen, setIsPriceHistoryOpen] = useState(false);
+  const [isPriceHistoryOpen, setIsPriceHistoryOpen] = useState(() =>
+    getShoppingListPriceHistoryOpen(shoppingList.id),
+  );
 
   const daysToShow = useMemo(() => {
     return periodOptions[period]?.days || 7;
@@ -128,20 +142,37 @@ export default function ShoppingListPriceHistory({
     return Array.from(chainSet);
   }, [priceHistoriesByEan]);
 
-  // Initialize selected chains with preferred stores or all chains
-  React.useEffect(() => {
-    if (availableChains.length > 0 && selectedChains.length === 0) {
-      const preferredStoreIds =
-        user?.pinnedStores?.map((s) => s.storeApiId) || [];
-      const preferredChains = availableChains.filter((chain) =>
-        preferredStoreIds.includes(chain),
-      );
+  // Initialize selected chains - runs only when availableChains changes from empty to populated
+  useEffect(() => {
+    if (availableChains.length === 0) return;
 
-      setSelectedChains(
-        preferredChains.length > 0 ? preferredChains : availableChains,
+    // First try to load from localStorage
+    const savedChains = getShoppingListPriceHistoryChains(shoppingList.id);
+
+    if (savedChains && savedChains.length > 0) {
+      // Use saved chains if they exist in available chains
+      const validSavedChains = savedChains.filter((chain) =>
+        availableChains.includes(chain),
       );
+      if (validSavedChains.length > 0) {
+        setSelectedChains(validSavedChains);
+        return;
+      }
     }
-  }, [availableChains, selectedChains.length, user?.pinnedStores]);
+
+    // Fall back to preferred stores or all chains
+    const preferredStoreIds =
+      user?.pinnedStores?.map((s) => s.storeApiId) || [];
+    const preferredChains = availableChains.filter((chain) =>
+      preferredStoreIds.includes(chain),
+    );
+
+    const chainsToSet =
+      preferredChains.length > 0 ? preferredChains : availableChains;
+    setSelectedChains(chainsToSet);
+    setShoppingListPriceHistoryChains(shoppingList.id, chainsToSet);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [availableChains.join(","), shoppingList.id]);
 
   // Transform data: calculate average price per product per day
   const chartData = useMemo(() => {
@@ -159,7 +190,7 @@ export default function ShoppingListPriceHistory({
         if (!date) return;
 
         if (!dateMap.has(date)) {
-          dateMap.set(date, { date });
+          dateMap.set(date, { date: formatDate(date) });
         }
 
         const chartPoint = dateMap.get(date)!;
@@ -230,15 +261,24 @@ export default function ShoppingListPriceHistory({
     return ticks;
   }, [chartData]);
 
-  const handlePeriodChange = useCallback((value: string) => {
-    setPeriod(value as PeriodOption);
-  }, []);
+  const handlePeriodChange = useCallback(
+    (value: string) => {
+      const newPeriod = value as PeriodOption;
+      setPeriod(newPeriod);
+      setShoppingListPriceHistoryPeriod(shoppingList.id, newPeriod);
+    },
+    [shoppingList.id],
+  );
 
-  const handleChainsChange = useCallback((chains: string[]) => {
-    if (chains.length > 0) {
-      setSelectedChains(chains);
-    }
-  }, []);
+  const handleChainsChange = useCallback(
+    (chains: string[]) => {
+      if (chains.length > 0) {
+        setSelectedChains(chains);
+        setShoppingListPriceHistoryChains(shoppingList.id, chains);
+      }
+    },
+    [shoppingList.id],
+  );
 
   const pinnedStoreIds = useMemo(
     () => user?.pinnedStores?.map((store) => store.storeApiId) || [],
@@ -292,32 +332,37 @@ export default function ShoppingListPriceHistory({
   }
 
   return (
-    <Card className="shadow-sm hover:shadow-md transition-shadow">
-      <Collapsible
-        open={isPriceHistoryOpen}
-        onOpenChange={setIsPriceHistoryOpen}
-      >
-        <CollapsibleTrigger asChild className="cursor-pointer">
-          <CardHeader className="flex items-center justify-between gap-4">
-            <h3 className="text-lg font-bold text-gray-900">Povijest cijena</h3>
+    <Collapsible
+      open={isPriceHistoryOpen}
+      onOpenChange={(open) => {
+        setIsPriceHistoryOpen(open);
+        setShoppingListPriceHistoryOpen(shoppingList.id, open);
+      }}
+    >
+      <CollapsibleTrigger asChild className="py-2">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="text-lg font-semibold">Povijest cijena</h2>
 
-            <div className="flex-1 flex items-center justify-end gap-4">
-              <p className="hidden sm:inline text-gray-700 text-sm text-pretty text-right">
-                {isPriceHistoryOpen ? "Sakrij" : "Prikaži"}
-              </p>
+          <Separator className="flex-1 my-2" />
 
-              <ChevronDown
-                className={cn(
-                  "size-8 text-gray-500 transition-transform flex-shrink-0",
-                  isPriceHistoryOpen && "rotate-180",
-                )}
-              />
-            </div>
-          </CardHeader>
-        </CollapsibleTrigger>
+          <div className="flex items-center gap-4">
+            <p className="hidden sm:inline text-gray-700 text-sm">
+              {isPriceHistoryOpen ? "Sakrij" : "Prikaži"}
+            </p>
 
-        <CollapsibleContent>
-          <CardContent className="pt-0">
+            <ChevronDown
+              className={cn(
+                "size-8 text-gray-500 transition-transform flex-shrink-0",
+                isPriceHistoryOpen && "rotate-180",
+              )}
+            />
+          </div>
+        </div>
+      </CollapsibleTrigger>
+
+      <CollapsibleContent>
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
+          <CardContent className="p-6">
             <Tabs value={period} onValueChange={handlePeriodChange}>
               <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
@@ -338,12 +383,7 @@ export default function ShoppingListPriceHistory({
 
               <TabsContent value={period} className="mt-4">
                 {isLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="size-6 animate-spin" />
-                      Učitavanje povijesti cijena...
-                    </div>
-                  </div>
+                  <BlockLoadingSpinner />
                 ) : chartData.length === 0 || hasError ? (
                   <div className="text-center py-8">
                     <p className="text-gray-600">
@@ -403,8 +443,8 @@ export default function ShoppingListPriceHistory({
               </TabsContent>
             </Tabs>
           </CardContent>
-        </CollapsibleContent>
-      </Collapsible>
-    </Card>
+        </Card>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

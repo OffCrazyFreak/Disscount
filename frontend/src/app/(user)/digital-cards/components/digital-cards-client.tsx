@@ -17,6 +17,7 @@ import { useUser } from "@/context/user-context";
 import ViewSwitcher from "@/components/custom/view-switcher";
 import { AnimatedGroup } from "@/components/ui/animated-group";
 import { useQueryClient } from "@tanstack/react-query";
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 
 export default function DigitalCardsClient({ query }: { query: string }) {
   const pathname = usePathname();
@@ -89,10 +90,7 @@ export default function DigitalCardsClient({ query }: { query: string }) {
         </div>
 
         {isUserLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="size-8 animate-spin text-gray-400" />
-            <span className="ml-2 text-gray-600">Dohvaćanje kartica…</span>
-          </div>
+          <BlockLoadingSpinner />
         ) : matchingDigitalCards.length > 0 ? (
           <AnimatedGroup
             className={
