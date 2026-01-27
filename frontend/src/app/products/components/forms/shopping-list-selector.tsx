@@ -74,7 +74,7 @@ export default function ShoppingListSelector({
                       </div>
                     ) : field.value === "new" && customListTitle.trim() ? (
                       <div>
-                        {`Stvori novu listu "${customListTitle.trim()}"`}
+                        {`Stvori novi popis "${customListTitle.trim()}"`}
                       </div>
                     ) : selectedList ? (
                       <div className="flex items-center justify-between gap-2">
@@ -91,20 +91,20 @@ export default function ShoppingListSelector({
                         <div className="text-xs text-gray-500">
                           {selectedList.items?.reduce(
                             (sum, item) => (item.isChecked ? sum + 1 : sum),
-                            0
+                            0,
                           ) ?? 0}
                           /{selectedList.items?.length ?? 0}
                         </div>
                       </div>
                     ) : (
-                      "Odaberi listu..."
+                      "Odaberi popis..."
                     )}
                   </div>
 
                   <ChevronDown
                     className={cn(
                       "size-6 transition-transform",
-                      open && "rotate-180"
+                      open && "rotate-180",
                     )}
                   />
                 </Button>
@@ -127,7 +127,7 @@ export default function ShoppingListSelector({
                   </CommandEmpty>
 
                   {sortedShoppingLists.length > 0 && (
-                    <CommandGroup heading="Postojeće liste">
+                    <CommandGroup heading="Postojeći popisi">
                       {sortedShoppingLists.map((list) => (
                         <CommandItem
                           key={list.id}
@@ -140,7 +140,7 @@ export default function ShoppingListSelector({
                           <ListChecks
                             className={cn(
                               "size-4",
-                              selectedList?.id === list.id && "text-primary"
+                              selectedList?.id === list.id && "text-primary",
                             )}
                           />
                           {list.title}
@@ -153,7 +153,7 @@ export default function ShoppingListSelector({
                           <span className="ml-auto text-xs text-gray-500">
                             {list.items?.reduce(
                               (sum, item) => (item.isChecked ? sum + 1 : sum),
-                              0
+                              0,
                             ) ?? 0}
                             /{list.items?.length ?? 0}
                           </span>
