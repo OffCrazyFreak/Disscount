@@ -285,7 +285,9 @@ export default function ShoppingListStoreSummary({
 
       <CollapsibleContent>
         {productsLoading ? (
-          <BlockLoadingSpinner />
+          <div className="grid place-items-center">
+            <BlockLoadingSpinner />
+          </div>
         ) : !shoppingList.items || shoppingList.items.length === 0 ? (
           <p className="p-2 text-gray-600 text-center">
             Ovaj popis još ne sadrži proizvode. Probaj pretražiti proizvode pa

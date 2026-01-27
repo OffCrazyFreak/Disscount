@@ -90,7 +90,9 @@ export default function DigitalCardsClient({ query }: { query: string }) {
         </div>
 
         {isUserLoading ? (
-          <BlockLoadingSpinner />
+          <div className="grid place-items-center">
+            <BlockLoadingSpinner />
+          </div>
         ) : matchingDigitalCards.length > 0 ? (
           <AnimatedGroup
             className={

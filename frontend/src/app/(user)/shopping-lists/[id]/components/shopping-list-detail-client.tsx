@@ -26,11 +26,12 @@ export default function ShoppingListDetailClient({
     cheapestStores,
     averagePrices,
     storePrices,
+    isPricesLoading,
   } = useShoppingListData(listId);
 
   if (isLoading) {
     return (
-      <div className="max-w-3xl mx-auto">
+      <div className="grid place-items-center">
         <BlockLoadingSpinner size={96} />
       </div>
     );
@@ -67,6 +68,7 @@ export default function ShoppingListDetailClient({
         <ShoppingListInfoTable
           shoppingList={shoppingList}
           averagePrices={averagePrices}
+          isPricesLoading={isPricesLoading}
         />
       </section>
 

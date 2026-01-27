@@ -383,7 +383,9 @@ export default function ShoppingListPriceHistory({
 
               <TabsContent value={period} className="mt-4">
                 {isLoading ? (
-                  <BlockLoadingSpinner />
+                  <div className="grid place-items-center">
+                    <BlockLoadingSpinner />
+                  </div>
                 ) : chartData.length === 0 || hasError ? (
                   <div className="text-center py-8">
                     <p className="text-gray-600">

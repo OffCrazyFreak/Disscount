@@ -75,7 +75,11 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
 
   // Show loading state while fetching product
   if (productLoading) {
-    return <BlockLoadingSpinner />;
+    return (
+      <div className="grid place-items-center">
+        <BlockLoadingSpinner />
+      </div>
+    );
   }
 
   // Show error state if product failed to load or not found
@@ -131,7 +135,9 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
 
           <CollapsibleContent>
             {pricesLoading ? (
-              <BlockLoadingSpinner />
+              <div className="grid place-items-center">
+                <BlockLoadingSpinner />
+              </div>
             ) : pricesError ? (
               <p className="p-2 text-gray-600 text-center">
                 Greška pri učitavanju cijena. Pokušajte ponovno.

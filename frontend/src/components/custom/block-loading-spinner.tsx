@@ -6,7 +6,7 @@ export default function BlockLoadingSpinner({
   size = 64,
 }: BlockLoadingSpinnerProps) {
   return (
-    <div className="flex items-center justify-center py-8">
+    <div className="px-1 inline-block">
       <svg
         width={size}
         height={size}

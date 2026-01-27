@@ -176,7 +176,9 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
 
               <TabsContent value={chartPrefs.period} className="mt-4">
                 {historyLoading ? (
-                  <BlockLoadingSpinner />
+                  <div className="grid place-items-center">
+                    <BlockLoadingSpinner />
+                  </div>
                 ) : priceHistoryData.length === 0 || historyError ? (
                   <div className="text-center py-8">
                     <p className="text-gray-600">

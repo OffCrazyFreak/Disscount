@@ -77,7 +77,9 @@ export default function ShoppingListsClient({ query }: { query: string }) {
         </div>
 
         {isUserLoading ? (
-          <BlockLoadingSpinner />
+          <div className="grid place-items-center">
+            <BlockLoadingSpinner />
+          </div>
         ) : matchingShoppingLists.length > 0 ? (
           <>
             {matchingShoppingLists.map((shoppingList) => (

@@ -11,14 +11,15 @@ import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 export function useShoppingListData(listId: string) {
   const { user } = useUser();
   const [cheapestStores, setCheapestStores] = useState<Record<string, string>>(
-    {}
+    {},
   );
   const [averagePrices, setAveragePrices] = useState<Record<string, number>>(
-    {}
+    {},
   );
   const [storePrices, setStorePrices] = useState<
     Record<string, Record<string, number>>
   >({});
+  const [isPricesLoading, setIsPricesLoading] = useState(false);
 
   const {
     data: shoppingList,
@@ -38,13 +39,13 @@ export function useShoppingListData(listId: string) {
           try {
             const cheapestStore = await findCheapestStoreForItem(
               item,
-              user.pinnedStores || undefined
+              user.pinnedStores || undefined,
             );
             return { itemId: item.id, cheapestStore };
           } catch (error) {
             console.error(
               `Failed to find cheapest store for item ${item.id}:`,
-              error
+              error,
             );
             return { itemId: item.id, cheapestStore: null };
           }
@@ -79,6 +80,7 @@ export function useShoppingListData(listId: string) {
     if (!shoppingList?.items) return;
 
     const computeAveragePrices = async () => {
+      setIsPricesLoading(true);
       const prices: Record<string, number> = {};
       const stores: Record<string, Record<string, number>> = {};
 
@@ -99,6 +101,7 @@ export function useShoppingListData(listId: string) {
 
       setAveragePrices(prices);
       setStorePrices(stores);
+      setIsPricesLoading(false);
     };
 
     computeAveragePrices();
@@ -118,7 +121,7 @@ export function useShoppingListData(listId: string) {
           totalPotentialCost: acc.totalPotentialCost + potentialCost,
         };
       },
-      { totalSavings: 0, totalPotentialCost: 0 }
+      { totalSavings: 0, totalPotentialCost: 0 },
     ) || { totalSavings: 0, totalPotentialCost: 0 };
 
   const savingsPercentage =
@@ -134,5 +137,6 @@ export function useShoppingListData(listId: string) {
     totalSavings,
     totalPotentialCost,
     savingsPercentage,
+    isPricesLoading,
   };
 }

@@ -4,15 +4,18 @@ import { useMemo } from "react";
 import { ShoppingListDto } from "@/lib/api/types";
 import { formatDate } from "@/utils/strings";
 import { calculateShoppingListStats } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 
 interface IShoppingListInfoTableProps {
   shoppingList: ShoppingListDto;
   averagePrices: Record<string, number>;
+  isPricesLoading?: boolean;
 }
 
 export default function ShoppingListInfoTable({
   shoppingList,
   averagePrices,
+  isPricesLoading = false,
 }: IShoppingListInfoTableProps) {
   const {
     minTotal,
@@ -58,7 +61,9 @@ export default function ShoppingListInfoTable({
           <tr className="flex flex-col sm:table-row border-y">
             <td className="p-2 border-b sm:border-b-0 sm:border-r">
               <span className="font-bold">Ukupno: </span>
-              {totalCount > 0 ? (
+              {isPricesLoading ? (
+                <BlockLoadingSpinner size={16} />
+              ) : totalCount > 0 ? (
                 <span className="whitespace-nowrap">
                   <span className="text-green-700">{minTotal.toFixed(2)}€</span>
                   <span className="text-gray-700">
@@ -74,7 +79,9 @@ export default function ShoppingListInfoTable({
 
             <td className="p-2">
               <span className="font-bold">Preostalo: </span>
-              {totalCount > checkedCount ? (
+              {isPricesLoading ? (
+                <BlockLoadingSpinner size={16} />
+              ) : totalCount > 0 ? (
                 <span className="whitespace-nowrap">
                   <span className="text-green-700">
                     {minToSpend.toFixed(2)}€
