@@ -180,7 +180,10 @@ export default function ShoppingListPriceHistory({
       return [];
     }
 
-    const dateMap = new Map<string, ChartDataPoint>();
+    const dateMap = new Map<
+      string,
+      { isoDate: string; data: ChartDataPoint }
+    >();
 
     eans.forEach((ean) => {
       const products = priceHistoriesByEan[ean] || [];
@@ -190,10 +193,14 @@ export default function ShoppingListPriceHistory({
         if (!date) return;
 
         if (!dateMap.has(date)) {
-          dateMap.set(date, { date: formatDate(date) });
+          dateMap.set(date, {
+            isoDate: date,
+            data: { date: formatDate(date) },
+          });
         }
 
-        const chartPoint = dateMap.get(date)!;
+        const entry = dateMap.get(date)!;
+        const chartPoint = entry.data;
 
         // Calculate average price across selected chains only
         if (product?.chains && product.chains.length > 0) {
@@ -218,9 +225,9 @@ export default function ShoppingListPriceHistory({
       });
     });
 
-    return Array.from(dateMap.values()).sort((a, b) =>
-      a.date.localeCompare(b.date),
-    );
+    return Array.from(dateMap.values())
+      .sort((a, b) => a.isoDate.localeCompare(b.isoDate))
+      .map((entry) => entry.data);
   }, [priceHistoriesByEan, eans, dates, selectedChains]);
 
   // Create chart config with product names
@@ -369,6 +376,7 @@ export default function ShoppingListPriceHistory({
                   <PriceHistoryPeriodSelect
                     value={period}
                     onChange={handlePeriodChange}
+                    disabledPeriods={["1Y", "ALL"]}
                   />
                   <PriceChangeDisplay priceChange={priceChange} />
                 </div>
