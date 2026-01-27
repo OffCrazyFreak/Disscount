@@ -19,6 +19,7 @@ export default function Header(): JSX.Element {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { isAuthenticated } = useUser();
   const isMobile = useIsMobile();
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -64,10 +65,26 @@ export default function Header(): JSX.Element {
                 <li>
                   <Link
                     href="/shopping-lists"
-                    className="flex items-center space-x-2 text-muted-foreground hover:text-accent-foreground block duration-150 group hover:scale-110"
+                    className={cn(
+                      "flex items-center space-x-2 text-muted-foreground hover:text-accent-foreground duration-150 group hover:scale-110",
+                      pathname.startsWith("/shopping-lists") &&
+                        "font-bold text-primary",
+                    )}
                   >
-                    <ListChecks className="size-4 group-hover:text-primary transition-colors" />
-                    <span className="group-hover:text-primary transition-colors">
+                    <ListChecks
+                      className={cn(
+                        "size-4 group-hover:text-primary transition-colors",
+                        pathname.startsWith("/shopping-lists") &&
+                          "text-primary",
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "group-hover:text-primary transition-colors",
+                        pathname.startsWith("/shopping-lists") &&
+                          "text-primary",
+                      )}
+                    >
                       Popisi za kupnju
                     </span>
                   </Link>
@@ -76,10 +93,24 @@ export default function Header(): JSX.Element {
                 <li>
                   <Link
                     href="/digital-cards"
-                    className="flex items-center space-x-2 text-muted-foreground hover:text-accent-foreground block duration-150 group hover:scale-110"
+                    className={cn(
+                      "flex items-center space-x-2 text-muted-foreground hover:text-accent-foreground duration-150 group hover:scale-110",
+                      pathname.startsWith("/digital-cards") &&
+                        "font-bold text-primary",
+                    )}
                   >
-                    <CreditCard className="size-4 group-hover:text-primary transition-all" />
-                    <span className="group-hover:text-primary transition-all">
+                    <CreditCard
+                      className={cn(
+                        "size-4 group-hover:text-primary transition-all",
+                        pathname.startsWith("/digital-cards") && "text-primary",
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "group-hover:text-primary transition-all",
+                        pathname.startsWith("/digital-cards") && "text-primary",
+                      )}
+                    >
                       Digitalne kartice
                     </span>
                   </Link>

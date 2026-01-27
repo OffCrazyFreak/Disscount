@@ -41,6 +41,7 @@ import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { storeNamesMap } from "@/constants/store-mappings";
 import SearchBar from "@/components/custom/search-bar";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 type OpenSection = "categories" | "stores" | "locations" | null;
 
@@ -120,9 +121,19 @@ export const AppSidebar = memo(function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <Link
                       href="/shopping-lists"
-                      className="flex items-center gap-2"
+                      className={cn(
+                        "flex items-center gap-2",
+                        pathname.startsWith("/shopping-lists") &&
+                          "font-bold text-primary",
+                      )}
                     >
-                      <ListChecks />
+                      <ListChecks
+                        className={
+                          pathname.startsWith("/shopping-lists")
+                            ? "text-primary"
+                            : ""
+                        }
+                      />
                       <span>Popisi za kupnju</span>
                     </Link>
                   </SidebarMenuButton>
@@ -132,9 +143,19 @@ export const AppSidebar = memo(function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <Link
                       href="/digital-cards"
-                      className="flex items-center gap-2"
+                      className={cn(
+                        "flex items-center gap-2",
+                        pathname.startsWith("/digital-cards") &&
+                          "font-bold text-primary",
+                      )}
                     >
-                      <CreditCard />
+                      <CreditCard
+                        className={
+                          pathname.startsWith("/digital-cards")
+                            ? "text-primary"
+                            : ""
+                        }
+                      />
                       <span>Digitalne kartice</span>
                     </Link>
                   </SidebarMenuButton>
@@ -288,9 +309,17 @@ export const AppSidebar = memo(function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <Link
                     href="/statistics"
-                    className="cursor-pointer flex items-center gap-2"
+                    className={cn(
+                      "cursor-pointer flex items-center gap-2",
+                      pathname.startsWith("/statistics") &&
+                        "font-bold text-primary",
+                    )}
                   >
-                    <ChartNoAxesCombined />
+                    <ChartNoAxesCombined
+                      className={
+                        pathname.startsWith("/statistics") ? "text-primary" : ""
+                      }
+                    />
                     <span>Statistika</span>
                   </Link>
                 </SidebarMenuButton>
