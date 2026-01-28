@@ -62,7 +62,7 @@ export default function ShoppingListSelector({
         <FormItem className="flex flex-col">
           <FormLabel>Popis za kupnju</FormLabel>
 
-          <Popover open={open} onOpenChange={setOpen}>
+          <Popover open={open} onOpenChange={setOpen} modal={true}>
             <PopoverTrigger asChild>
               <FormControl>
                 <Button
