@@ -1,7 +1,6 @@
 import { ArrowLeft, Calendar, ChevronLeft, Globe, Lock } from "lucide-react";
-import { Button } from "@/components/ui/button-icon";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { formatDate } from "@/utils/strings";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import ShoppingListActionButtons from "@/app/(user)/shopping-lists/[id]/components/shopping-list-action-buttons";
 import {
@@ -20,9 +19,9 @@ export default function ShoppingListHeader({
   return (
     <div className="mb-6 space-y-4">
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-0 sm:gap-1 min-w-0 flex-1">
+        <div className="flex items-center gap-0 sm:gap-1 min-w-0">
           <Link href="/shopping-lists">
-            <Button variant="ghost" className="size-10 flex-shrink-0">
+            <Button variant="ghost" className="" size={"icon"}>
               <ChevronLeft className="size-6 sm:size-7" />
             </Button>
           </Link>
@@ -33,6 +32,7 @@ export default function ShoppingListHeader({
                 {shoppingList.title}
               </h1>
             </TooltipTrigger>
+
             <TooltipContent>
               <p>{shoppingList.title}</p>
             </TooltipContent>

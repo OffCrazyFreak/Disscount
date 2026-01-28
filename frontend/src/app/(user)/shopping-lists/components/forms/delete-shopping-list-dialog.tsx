@@ -1,5 +1,5 @@
 import { Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button-icon";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -34,20 +34,29 @@ export default function DeleteListDialog({
             Ova akcija se ne može poništiti.
           </DialogDescription>
         </DialogHeader>
+
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Odustani
-          </Button>
-          <Button
-            onClick={onConfirm}
-            className="bg-red-600 hover:bg-red-700"
-            disabled={isDeleting}
-          >
-            {isDeleting ? (
-              <Loader2 className="size-4 animate-spin mr-2" />
-            ) : null}
-            Obriši
-          </Button>
+          <div className="flex justify-between items-center w-full flex-row">
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => onOpenChange(false)}
+            >
+              Odustani
+            </Button>
+
+            <Button
+              onClick={onConfirm}
+              disabled={isDeleting}
+              size="lg"
+              variant="destructive"
+            >
+              {isDeleting ? (
+                <Loader2 className="size-4 animate-spin mr-2" />
+              ) : null}
+              Obriši
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

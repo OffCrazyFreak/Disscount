@@ -14,7 +14,7 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-xs",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground shadow-sm",
+          "outline-2 hover:outline-secondary hover:bg-green-50 hover:text-accent-foreground shadow-sm",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-xs",
         ghost: "hover:bg-accent hover:text-accent-foreground",
@@ -41,16 +41,16 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        sm: "h-9 rounded-md px-3 py-4",
+        lg: "h-11 rounded-md px-8 py-6",
+        icon: "size-10",
       },
     },
     defaultVariants: {
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 interface LoadingProps {
@@ -71,7 +71,8 @@ interface IconRefProps {
 }
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
@@ -88,7 +89,7 @@ const Button = React.forwardRef<
       className,
       variant,
       effect,
-      size = "lg",
+      size = "default",
       icon: Icon,
       iconPlacement,
       loading,
@@ -98,14 +99,14 @@ const Button = React.forwardRef<
       asChild = false,
       ...props
     },
-    ref
+    ref,
   ) => {
     const Comp = asChild ? Slot : "button";
     return (
       <Comp
         className={cn(
           "cursor-pointer relative",
-          buttonVariants({ variant, effect, size, className })
+          buttonVariants({ variant, effect, size, className }),
         )}
         disabled={loading}
         ref={ref}
@@ -114,6 +115,7 @@ const Button = React.forwardRef<
         {loading && loadingIconPlacement === "left" && (
           <Spinner variant={variant || "default"} />
         )}
+
         {Icon &&
           iconPlacement === "left" &&
           !(hideIconOnLoading && loading) &&
@@ -124,13 +126,16 @@ const Button = React.forwardRef<
           ) : (
             <Icon className="size-6" />
           ))}
+
         <Slottable>{loading ? loadingText : props.children}</Slottable>
+
         {loading && loadingIconPlacement === "right" && (
           <Spinner
             variant={variant || "default"}
             className="ml-2 animate-spin"
           />
         )}
+
         {Icon &&
           iconPlacement === "right" &&
           !(hideIconOnLoading && loading) &&
@@ -143,8 +148,9 @@ const Button = React.forwardRef<
           ))}
       </Comp>
     );
-  }
+  },
 );
+
 Button.displayName = "Button";
 
 export { Button, buttonVariants };

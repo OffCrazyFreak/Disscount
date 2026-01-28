@@ -1,14 +1,10 @@
 import Link from "next/link";
 import { Minus, Plus, X, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button-icon";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import StoreChainSelect from "../../../../../../components/custom/store-chain-select";
+
+import StoreChainSelect from "@/components/custom/store-chain-select";
 import { storeNamesMap } from "@/constants/store-mappings";
 import type { ShoppingListItemDto } from "@/lib/api/types";
 import { formatQuantity } from "@/utils/strings";
@@ -71,14 +67,14 @@ export default function ShoppingListItem({
           <div className="flex-1">
             <Link
               href={`/products/${item.ean}`}
-              className={`text-sm sm:text-md hover:underline hover:text-primary cursor-pointer ${
+              className={`text-sm sm:text-md text-pretty hover:underline hover:text-primary cursor-pointer ${
                 item.isChecked ? "line-through text-gray-500" : ""
               }`}
             >
               {item.name}
             </Link>
             {item.brand && (
-              <p className="text-xs sm:text-sm text-gray-600 text-wrap">
+              <p className="text-xs sm:text-sm text-gray-600 text-pretty">
                 {item.brand}
               </p>
             )}
@@ -106,7 +102,7 @@ export default function ShoppingListItem({
             <div className="flex items-center justify-between gap-6">
               {item.quantity && item.unit ? (
                 <div className="text-nowrap">
-                  <div className="flex flex-shrink-0 items-center gap-2 text-gray-700 text-right">
+                  <div className="flex flex-shrink-0 items-center gap-2 text-gray-700 text-right text-sm sm:text-md">
                     <span className="">
                       {`${formatQuantity(item.quantity)} ${item.unit}`}
                     </span>
@@ -116,7 +112,7 @@ export default function ShoppingListItem({
 
                   <Separator className="mb-1" />
 
-                  <div className="text-sm font-medium text-gray-700 text-center">
+                  <div className="text-xs sm:text-sm font-medium text-gray-700 text-center">
                     {avgPricePerUnit?.toFixed(2)}€/{item.unit}
                   </div>
                 </div>

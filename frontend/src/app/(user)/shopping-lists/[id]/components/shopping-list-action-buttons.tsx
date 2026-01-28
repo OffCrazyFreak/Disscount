@@ -1,6 +1,6 @@
 import React, { MouseEvent, useState } from "react";
 import { LucideClipboardEdit, Trash2, Loader2, Copy } from "lucide-react";
-import { Button } from "@/components/ui/button-icon";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,

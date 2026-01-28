@@ -1,6 +1,6 @@
-import React, { MouseEvent, useState } from "react";
+import { useState } from "react";
 import { Eye, Image, ListPlus } from "lucide-react";
-import { Button } from "@/components/ui/button-icon";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,

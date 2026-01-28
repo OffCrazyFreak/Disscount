@@ -6,20 +6,20 @@ import { useViewMode } from "@/hooks/use-view-mode";
 import NoResults from "@/components/custom/no-results";
 import useInfiniteProducts from "@/app/products/hooks/useInfiniteProducts";
 import { ProductItem } from "@/app/products/components/product-item/product-item";
-import { Button } from "@/components/ui/button-icon";
+import { Button } from "@/components/ui/button";
 import { Suspense } from "react";
 import ViewSwitcher from "@/components/custom/view-switcher";
 import SearchBar from "@/components/custom/search-bar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 
 export default function ProductsClient({ query }: { query: string }) {
   const isMobile = useIsMobile();
   const pathname = usePathname();
   const [viewMode, setViewMode] = useViewMode(pathname);
 
-  const virtualizationBatchSize: number = 50;
   const { visibleProducts, total, hasMore, loadMore, isLoading, error } =
-    useInfiniteProducts(query, virtualizationBatchSize);
+    useInfiniteProducts(query);
 
   return (
     <div className="space-y-4">
@@ -46,8 +46,7 @@ export default function ProductsClient({ query }: { query: string }) {
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="size-8 animate-spin text-gray-400" />
-          <span className="ml-2 text-gray-600">Pretraživanje...</span>
+          <BlockLoadingSpinner />
         </div>
       ) : error ? (
         <div className="text-center py-12">
@@ -93,13 +92,13 @@ export default function ProductsClient({ query }: { query: string }) {
             ))}
           </div>
 
-          {hasMore && (
+          {/* {hasMore && (
             <div className="py-6 text-center">
-              <Button variant="outline" size={"lg"} onClick={() => loadMore()}>
+              <Button variant="outline" onClick={() => loadMore()}>
                 Učitaj više
               </Button>
             </div>
-          )}
+          )} */}
         </>
       ) : (
         <div className="text-center py-12">

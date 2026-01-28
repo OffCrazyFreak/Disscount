@@ -1,12 +1,6 @@
-import React from "react";
-import { Eye, Image, ListPlus, Search } from "lucide-react";
-import { Button } from "@/components/ui/button-icon";
+import { useMemo } from "react";
+
 import { ProductResponse } from "@/lib/cijene-api/schemas";
-import {
-  TooltipContent,
-  TooltipTrigger,
-  Tooltip,
-} from "@/components/ui/tooltip";
 import ProductActionButtons from "@/app/products/components/product-action-buttons";
 import ProductInfoTable from "@/app/products/components/product-info-table";
 
@@ -20,7 +14,7 @@ export default function ProductInfoDisplay({
   enableActionButtons = true,
 }: IProductInfoDisplayProps) {
   // Get the most common category from chains (similar to ProductCard logic)
-  const category = React.useMemo(() => {
+  const category = useMemo(() => {
     if (!product.chains || product.chains.length === 0) return null;
 
     const categoryCount: Record<string, number> = {};

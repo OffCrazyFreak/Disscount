@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Loader2, Plus, ChevronDown, ListChecks } from "lucide-react";
-import { Button } from "@/components/ui/button-icon";
+import { Button } from "@/components/ui/button";
 import {
   FormControl,
   FormField,
@@ -61,9 +61,10 @@ export default function ShoppingListSelector({
                 <Button
                   variant="outline"
                   role="combobox"
+                  size="default"
                   aria-expanded={open}
                   aria-haspopup="listbox"
-                  className="flex items-center justify-between gap-2"
+                  className="flex items-center justify-between gap-2 outline-none"
                   disabled={isLoadingLists || disabled}
                 >
                   <div className="flex-1 text-left">

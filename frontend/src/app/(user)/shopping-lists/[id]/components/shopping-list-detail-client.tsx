@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button-icon";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import ShoppingListStoreSummary from "./stores/shopping-list-stores-list";
@@ -45,8 +45,9 @@ export default function ShoppingListDetailClient({
             <h3 className="text-lg font-semibold mb-2">Greška</h3>
             <p>Popis za kupnju nije pronađen ili se dogodila greška.</p>
           </div>
+
           <Link href="/shopping-lists">
-            <Button variant="outline">
+            <Button variant="ghost" size="icon">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Natrag na popise za kupnju
             </Button>

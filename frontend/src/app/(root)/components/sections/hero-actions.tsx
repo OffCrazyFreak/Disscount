@@ -2,7 +2,7 @@
 
 import { useCallback, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button-icon";
+import { Button } from "@/components/ui/button";
 import { ScanBarcode } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -19,7 +19,7 @@ export default function HeroActions() {
       if (!trimmedResult) return;
       router.push(`/products/${encodeURIComponent(trimmedResult)}`);
     },
-    [router]
+    [router],
   );
 
   return (
@@ -49,7 +49,7 @@ export default function HeroActions() {
             onClick={() => openScanner(handleScan)}
             variant="outline"
             size="lg"
-            className="cursor-pointer w-full mb-6 text-lg py-6 border-2 border-primary hover:border-secondary hover:bg-green-50"
+            className="w-full text-lg"
           >
             <ScanBarcode className="size-6 mr-2" />
             Skeniraj barkod

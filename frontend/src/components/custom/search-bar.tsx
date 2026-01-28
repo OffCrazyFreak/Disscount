@@ -3,7 +3,7 @@
 import React, { useEffect, useCallback, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Search, ScanBarcode, X } from "lucide-react";
-import { Button } from "@/components/ui/button-icon";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCameraScanner } from "@/context/scanner-context";
@@ -128,7 +128,7 @@ export default function SearchBar({
               <Button
                 type="button"
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={handleClear}
                 className="p-2"
                 title="Clear search"
@@ -142,7 +142,7 @@ export default function SearchBar({
               <Button
                 type="button"
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={() => openScanner(handleScan)}
                 className="p-2"
                 title="Scan barcode"

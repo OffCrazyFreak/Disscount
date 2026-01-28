@@ -333,7 +333,6 @@ export default function AddToShoppingListForm({
 
               <Button
                 type="submit"
-                variant="default"
                 effect="expandIcon"
                 icon={Save}
                 iconPlacement="right"

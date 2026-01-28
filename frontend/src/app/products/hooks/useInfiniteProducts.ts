@@ -20,7 +20,7 @@ export default function useInfiniteProducts(
   const { data, isLoading, error } = useGetProductByName({
     q,
     fuzzy: false,
-    limit: 100,
+    limit: 100, // TODO: remove limit
   });
 
   const allProducts = useMemo(() => data?.products || [], [data?.products]);
