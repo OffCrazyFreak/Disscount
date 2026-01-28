@@ -2,6 +2,12 @@ import { useState } from "react";
 import { Loader2, Plus, ChevronDown, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   FormControl,
   FormField,
   FormItem,
@@ -55,6 +61,7 @@ export default function ShoppingListSelector({
       render={({ field }) => (
         <FormItem className="flex flex-col">
           <FormLabel>Popis za kupnju</FormLabel>
+
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <FormControl>
@@ -67,35 +74,33 @@ export default function ShoppingListSelector({
                   className="flex items-center justify-between gap-2 outline-none"
                   disabled={isLoadingLists || disabled}
                 >
-                  <div className="flex-1 text-left">
+                  <div className="flex-1 text-left w-0">
                     {isLoadingLists ? (
                       <div>
                         <Loader2 className="size-5 animate-spin" />
                         <span className="sr-only">Učitavanje...</span>
                       </div>
                     ) : field.value === "new" && customListTitle.trim() ? (
-                      <div>
+                      <div className="truncate">
                         {`Stvori novi popis "${customListTitle.trim()}"`}
                       </div>
                     ) : selectedList ? (
                       <div className="flex items-center justify-between gap-2">
-                        <div className="space-x-2">
-                          <span>{selectedList.title}</span>
+                        <span className="truncate">{selectedList.title}</span>
 
-                          {selectedList.updatedAt && (
-                            <span className="text-gray-500">
-                              ({formatDate(selectedList.updatedAt)})
-                            </span>
-                          )}
-                        </div>
+                        {selectedList.updatedAt && (
+                          <span className="text-gray-500 text-xs whitespace-nowrap">
+                            ({formatDate(selectedList.updatedAt)})
+                          </span>
+                        )}
 
-                        <div className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500">
                           {selectedList.items?.reduce(
                             (sum, item) => (item.isChecked ? sum + 1 : sum),
                             0,
                           ) ?? 0}
                           /{selectedList.items?.length ?? 0}
-                        </div>
+                        </span>
                       </div>
                     ) : (
                       "Odaberi popis..."
@@ -104,7 +109,7 @@ export default function ShoppingListSelector({
 
                   <ChevronDown
                     className={cn(
-                      "size-6 transition-transform",
+                      "size-6 flex-shrink-0 transition-transform",
                       open && "rotate-180",
                     )}
                   />
@@ -144,9 +149,18 @@ export default function ShoppingListSelector({
                               selectedList?.id === list.id && "text-primary",
                             )}
                           />
-                          {list.title}
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="truncate">{list.title}</span>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{list.title}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                           {list.updatedAt && (
-                            <span className="text-gray-500">
+                            <span className="text-gray-500 text-xs">
                               ({formatDate(list.updatedAt)})
                             </span>
                           )}
@@ -171,9 +185,14 @@ export default function ShoppingListSelector({
                           field.onChange("new");
                           setOpen(false);
                         }}
+                        className="text-nowrap"
                       >
                         <Plus className="size-4" />
-                        Stvori &ldquo;{customListTitle}&rdquo;
+                        Stvori &ldquo;
+                        <span className="truncate">
+                          {customListTitle.trim()}
+                        </span>
+                        &rdquo;
                       </CommandItem>
                     </CommandGroup>
                   )}
