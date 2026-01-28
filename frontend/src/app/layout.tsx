@@ -65,7 +65,7 @@ export default function RootLayout({
               <AppSidebar />
             </aside>
 
-            <main className="max-w-5xl mx-auto p-4 mt-24 w-full">
+            <main className="max-w-5xl mx-auto p-4 mt-24 w-full overflow-y-hidden">
               {children}
             </main>
 
