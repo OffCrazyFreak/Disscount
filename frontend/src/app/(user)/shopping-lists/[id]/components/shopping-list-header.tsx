@@ -52,7 +52,13 @@ export default function ShoppingListHeader({
               <Lock className="h-5 w-5 text-gray-400" />
             )}
           </div>
-          <ShoppingListActionButtons shoppingList={shoppingList} />
+          <ShoppingListActionButtons
+            shoppingList={shoppingList}
+            showCopyButton={true}
+            showShareButton={true}
+            showEditButton={true}
+            showDeleteButton={true}
+          />
         </div>
       </div>
     </div>

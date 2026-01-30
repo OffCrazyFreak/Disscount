@@ -20,7 +20,7 @@ export default function ShoppingListListItem({
   shoppingList,
 }: IShoppingListListItemProps) {
   const checkedCount = shoppingList.items.filter(
-    (item) => item.isChecked
+    (item) => item.isChecked,
   ).length;
   const totalCount = shoppingList.items.length;
 
@@ -75,7 +75,8 @@ export default function ShoppingListListItem({
           >
             <ShoppingListActionButtons
               shoppingList={shoppingList}
-              showCopyButton={false}
+              showEditButton={true}
+              showDeleteButton={true}
             />
           </div>
         </div>
