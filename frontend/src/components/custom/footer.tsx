@@ -16,7 +16,7 @@ export default function FooterSection() {
   return (
     <footer className="mt-auto">
       <div className="m-4">
-        <div className="bg-background/50 rounded-2xl border backdrop-blur-sm p-6 mx-auto max-w-5xl flex flex-wrap items-center justify-between gap-6">
+        <div className="bg-background/50 mx-auto max-w-5xl rounded-2xl border backdrop-blur-sm p-6  flex flex-wrap items-center justify-between gap-6">
           <div
             aria-label="Copyright Jakov Jakovac 2025"
             className="text-muted-foreground text-sm flex-1 flex flex-wrap items-center gap-2"

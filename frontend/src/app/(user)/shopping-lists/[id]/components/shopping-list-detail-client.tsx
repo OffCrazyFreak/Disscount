@@ -39,7 +39,7 @@ export default function ShoppingListDetailClient({
 
   if (error || !shoppingList) {
     return (
-      <div className="max-w-3xl mx-auto">
+      <div className="mx-auto">
         <div className="text-center py-12">
           <div className="text-red-700 mb-4">
             <h3 className="text-lg font-semibold mb-2">Greška</h3>
@@ -58,7 +58,7 @@ export default function ShoppingListDetailClient({
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
+    <div className="space-y-8">
       {/* Header Section */}
       <section>
         <ShoppingListHeader shoppingList={shoppingList} />

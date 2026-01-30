@@ -107,7 +107,7 @@ export default function SearchBar({
     <div>
       <form
         onSubmit={handleSubmit(submit)}
-        className="relative max-w-3xl mx-auto flex items-center gap-4 flex-wrap"
+        className="relative flex items-center gap-4 flex-wrap"
       >
         <div className="relative grow-100">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 size-5" />
