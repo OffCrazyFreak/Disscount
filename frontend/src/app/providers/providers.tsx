@@ -7,20 +7,23 @@ import { ToasterProvider } from "@/app/providers/toaster-provider";
 import { UserContextProvider } from "@/app/providers/user-provider";
 import { ReactScan } from "@/app/providers/react-scan";
 import { CameraScannerProvider } from "@/context/scanner-context";
+import { NotificationsProvider } from "@/context/notifications-context";
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <ReactQueryProviderWrapper>
       <UserContextProvider>
-        <SidebarProvider>
-          <CameraScannerProvider>
-            <ToasterProvider>
-              <ReactScan />
+        <NotificationsProvider>
+          <SidebarProvider>
+            <CameraScannerProvider>
+              <ToasterProvider>
+                <ReactScan />
 
-              {children}
-            </ToasterProvider>
-          </CameraScannerProvider>
-        </SidebarProvider>
+                {children}
+              </ToasterProvider>
+            </CameraScannerProvider>
+          </SidebarProvider>
+        </NotificationsProvider>
       </UserContextProvider>
     </ReactQueryProviderWrapper>
   );

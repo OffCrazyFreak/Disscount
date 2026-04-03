@@ -63,7 +63,7 @@ export default function ProductInfoDisplay({
             product={product}
             showSearchImage={true}
             showAddToList={true}
-            showAddToWatchList={true}
+            showAddToWatchlist={true}
           />
         )}
       </div>

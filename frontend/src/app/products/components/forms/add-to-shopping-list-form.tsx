@@ -14,7 +14,10 @@ import {
 import { Form } from "@/components/ui/form";
 import { shoppingListService } from "@/lib/api";
 import { ShoppingListRequest } from "@/lib/api/schemas/shopping-list";
-import { ShoppingListItemRequest } from "@/lib/api/schemas/shopping-list-item";
+import {
+  ShoppingListItemDto,
+  ShoppingListItemRequest,
+} from "@/lib/api/schemas/shopping-list-item";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -22,7 +25,7 @@ import {
   addToListFormSchema,
 } from "@/app/products/typings/add-to-list";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
-import DuplicateWarning from "@/app/products/components/forms/duplicate-warning";
+import FormWarning from "@/components/custom/form-warning";
 import ShoppingListSelector from "@/app/products/components/forms/shopping-list-selector";
 import QuantityInput from "@/app/products/components/forms/quantity-input";
 import MarkAsCheckedCheckbox from "@/app/products/components/forms/mark-as-checked-checkbox";
@@ -77,10 +80,8 @@ export default function AddToShoppingListForm({
     shoppingListService.useGetShoppingListById(selectedListId);
 
   // Check for duplicate EAN in selected list
-  const duplicateItem = selectedShoppingList?.items?.find(
-    (item) => item.ean === product?.ean,
-  );
-  const hasDuplicateEan = !!duplicateItem;
+  const duplicateItem: ShoppingListItemDto | undefined =
+    selectedShoppingList?.items?.find((item) => item.ean === product?.ean);
 
   // Sort shopping lists by updatedAt (newest first) and set default selection
   const sortedShoppingLists = shoppingLists
@@ -280,13 +281,6 @@ export default function AddToShoppingListForm({
         {/* Product Information Display */}
         <ProductInfoDisplay product={product} enableActionButtons={false} />
 
-        {/* Warning for duplicate EAN */}
-        <DuplicateWarning
-          hasDuplicateEan={hasDuplicateEan}
-          selectedListId={selectedListId}
-          duplicateItem={duplicateItem}
-        />
-
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <ShoppingListSelector
@@ -298,15 +292,21 @@ export default function AddToShoppingListForm({
               selectedList={selectedList}
             />
 
+            {/* Warning for duplicate EAN */}
+            {duplicateItem && (
+              <FormWarning
+                title="Proizvod već u popisu za kupnju"
+                text={`Ovaj proizvod je već dodan u odabran popis za kupnju. Dodavanjem ovog proizvoda će se samo povećati njegova količina u popisu za kupnju sa ${duplicateItem.amount} na ${duplicateItem.amount + form.watch("amount")}.`}
+              />
+            )}
+
             <QuantityInput formField={form} />
 
-            <Activity mode={hasDuplicateEan ? "hidden" : "visible"}>
+            <Activity mode={duplicateItem ? "hidden" : "visible"}>
               <MarkAsCheckedCheckbox formField={form} />
             </Activity>
 
-            <Activity
-              mode={isChecked && !hasDuplicateEan ? "visible" : "hidden"}
-            >
+            <Activity mode={isChecked && !duplicateItem ? "visible" : "hidden"}>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Trgovina</label>
                 <StoreChainSelect

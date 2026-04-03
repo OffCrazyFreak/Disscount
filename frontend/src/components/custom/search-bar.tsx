@@ -130,7 +130,6 @@ export default function SearchBar({
                 variant="ghost"
                 size="icon"
                 onClick={handleClear}
-                className="p-2"
                 title="Clear search"
                 aria-label="Clear search"
               >
@@ -144,7 +143,6 @@ export default function SearchBar({
                 variant="ghost"
                 size="icon"
                 onClick={() => openScanner(handleScan)}
-                className="p-2"
                 title="Scan barcode"
                 aria-label="Scan barcode"
               >

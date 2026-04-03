@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { storeNamesMap } from "@/constants/store-mappings";
+import { storeNamesMap } from "@/constants/name-mappings";
 import { cn } from "@/lib/utils";
 import {
   ChainProductResponse,

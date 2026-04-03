@@ -158,11 +158,12 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
           <CardContent className="p-6">
             <Tabs value={chartPrefs.period} onValueChange={handlePeriodChange}>
               <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 justify-between w-full">
                   <PriceHistoryPeriodSelect
                     value={chartPrefs.period}
                     onChange={handlePeriodChange}
                   />
+
                   <PriceChangeDisplay priceChange={priceChange} />
                 </div>
 

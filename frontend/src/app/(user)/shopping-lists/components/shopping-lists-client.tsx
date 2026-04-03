@@ -2,19 +2,16 @@
 
 import { useState, Suspense } from "react";
 import { usePathname } from "next/navigation";
-import { Search, Plus, Loader2, PlusIcon, ShoppingCart } from "lucide-react";
+import { Search, Plus, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/custom/search-bar";
 import ShoppingListModal from "@/app/(user)/shopping-lists/components/forms/shopping-list-modal";
 import ShoppingListItem from "@/app/(user)/shopping-lists/components/shopping-list-item";
+import CreateShoppingListButton from "@/app/(user)/shopping-lists/components/create-shopping-list-button";
 import NoResults from "@/components/custom/no-results";
-import { FloatingActionButton } from "@/components/custom/floating-action-button";
-import { ShoppingListDto } from "@/lib/api/types";
-import { useViewMode } from "@/hooks/use-view-mode";
 import { filterByFields } from "@/utils/generic";
 import { shoppingListService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
-import ViewSwitcher from "@/components/custom/view-switcher";
 import { useQueryClient } from "@tanstack/react-query";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 
@@ -22,9 +19,8 @@ export default function ShoppingListsClient({ query }: { query: string }) {
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [viewMode, setViewMode] = useViewMode(pathname, "grid");
 
-  const { isAuthenticated, isLoading: userLoading } = useUser();
+  const { isLoading: userLoading } = useUser();
   const { data: shoppingLists = [], isLoading } =
     shoppingListService.useGetCurrentUserShoppingLists();
 
@@ -47,12 +43,6 @@ export default function ShoppingListsClient({ query }: { query: string }) {
         shoppingList={null}
       />
 
-      <FloatingActionButton
-        onClick={() => setIsModalOpen(true)}
-        icon={<PlusIcon size={24} />}
-        label="Dodaj popis za kupnju"
-      />
-
       <div className="space-y-4">
         <Suspense>
           <SearchBar
@@ -73,7 +63,9 @@ export default function ShoppingListsClient({ query }: { query: string }) {
                 }`}
           </h3>
 
-          {/* <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} /> */}
+          <CreateShoppingListButton
+            onCreateClick={() => setIsModalOpen(true)}
+          />
         </div>
 
         {isUserLoading ? (
@@ -108,7 +100,7 @@ export default function ShoppingListsClient({ query }: { query: string }) {
               iconPlacement="left"
               onClick={() => setIsModalOpen(true)}
             >
-              Dodaj popis za kupnju
+              Stvori popis za kupnju
             </Button>
           </div>
         )}

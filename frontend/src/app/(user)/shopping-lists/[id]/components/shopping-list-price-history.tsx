@@ -372,12 +372,13 @@ export default function ShoppingListPriceHistory({
           <CardContent className="p-6">
             <Tabs value={period} onValueChange={handlePeriodChange}>
               <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between w-full gap-2">
                   <PriceHistoryPeriodSelect
                     value={period}
                     onChange={handlePeriodChange}
                     disabledPeriods={["1Y", "ALL"]}
                   />
+
                   <PriceChangeDisplay priceChange={priceChange} />
                 </div>
 

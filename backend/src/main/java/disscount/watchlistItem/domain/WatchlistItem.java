@@ -30,9 +30,12 @@ public class WatchlistItem {
     @Column(name = "product_api_id", nullable = false)
     private String productApiId;
 
-    @NotBlank(message = "Product name is required")
-    @Column(name = "product_name", nullable = false)
-    private String productName;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "watch_type", nullable = false)
+    private WatchType watchType;
+
+    @Column(name = "threshold_value", nullable = false)
+    private Double thresholdValue;
 
     @Column(name = "last_notified_at")
     private LocalDateTime lastNotifiedAt;
@@ -40,11 +43,20 @@ public class WatchlistItem {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }

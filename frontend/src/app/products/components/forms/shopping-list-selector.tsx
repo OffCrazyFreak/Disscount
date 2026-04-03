@@ -85,7 +85,7 @@ export default function ShoppingListSelector({
                         {`Stvori novi popis "${customListTitle.trim()}"`}
                       </div>
                     ) : selectedList ? (
-                      <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
                         <span className="truncate">{selectedList.title}</span>
 
                         {selectedList.updatedAt && (
@@ -94,7 +94,7 @@ export default function ShoppingListSelector({
                           </span>
                         )}
 
-                        <span className="text-xs text-gray-500">
+                        <span className="ml-auto text-xs text-gray-500">
                           {selectedList.items?.reduce(
                             (sum, item) => (item.isChecked ? sum + 1 : sum),
                             0,

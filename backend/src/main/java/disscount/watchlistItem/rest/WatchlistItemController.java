@@ -24,11 +24,11 @@ public class WatchlistItemController {
 
     private final WatchlistItemService watchlistItemService;
 
-    @Operation(summary = "Add product to watchlist")
+    @Operation(summary = "Add product to watchlist or update existing threshold")
     @PostMapping
-    public ResponseEntity<WatchlistItemDto> addToWatchlist(@Valid @RequestBody WatchlistItemRequest request) {
+    public ResponseEntity<WatchlistItemDto> addOrUpdateWatchlist(@Valid @RequestBody WatchlistItemRequest request) {
         UUID userId = SecurityUtils.getCurrentUserId();
-        WatchlistItemDto created = watchlistItemService.addToWatchlist(userId, request);
+        WatchlistItemDto created = watchlistItemService.addOrUpdateWatchlist(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -48,12 +48,11 @@ public class WatchlistItemController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Fetch product from watchlist by product API ID")
+    @Operation(summary = "Fetch watchlist items for a product by product API ID")
     @GetMapping("/product/{productApiId}")
-    public ResponseEntity<WatchlistItemDto> getWatchlistItemByProductApiId(@PathVariable String productApiId) {
+    public ResponseEntity<List<WatchlistItemDto>> getWatchlistItemsByProductApiId(@PathVariable String productApiId) {
         UUID userId = SecurityUtils.getCurrentUserId();
-        return watchlistItemService.getWatchlistItemByProductApiId(userId, productApiId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        List<WatchlistItemDto> watchlistItems = watchlistItemService.getWatchlistItemsByProductApiId(userId, productApiId);
+        return ResponseEntity.ok(watchlistItems);
     }
 }

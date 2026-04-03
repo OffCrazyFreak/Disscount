@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { storeNamesMap, locationNamesMap } from "@/constants/store-mappings";
+import { storeNamesMap, locationNamesMap } from "@/constants/name-mappings";
 import { pluralizeCroatian } from "@/utils/strings";
 import { cn } from "@/lib/utils";
 import cijeneService from "@/lib/cijene-api";

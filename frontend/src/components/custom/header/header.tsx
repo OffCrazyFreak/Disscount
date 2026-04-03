@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { CreditCard, ListChecks, LogIn } from "lucide-react";
+import { LogIn } from "lucide-react";
 import { JSX, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -13,13 +13,20 @@ import NotificationsDropdown from "@/components/custom/header/notifications-drop
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePathname } from "next/navigation";
 import SearchBar from "@/components/custom/search-bar";
+import { userNavItems } from "@/constants/navigation";
+import { Badge } from "@/components/ui/badge";
+import { useNotifications } from "@/context/notifications-context";
 
 export default function Header(): JSX.Element {
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false); // Track if the page is scrolled for header opacity
+
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { isAuthenticated } = useUser();
+
   const isMobile = useIsMobile();
   const pathname = usePathname();
+
+  const { notifications } = useNotifications();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -61,60 +68,47 @@ export default function Header(): JSX.Element {
                 </Link>
               </div>
 
-              <ul className="hidden sm:flex gap-8 text-sm ">
-                <li>
-                  <Link
-                    href="/shopping-lists"
-                    className={cn(
-                      "flex items-center space-x-2 text-muted-foreground hover:text-accent-foreground duration-150 group hover:scale-110",
-                      pathname.startsWith("/shopping-lists") &&
-                        "font-bold text-primary",
-                    )}
-                  >
-                    <ListChecks
-                      className={cn(
-                        "size-4 group-hover:text-primary transition-colors",
-                        pathname.startsWith("/shopping-lists") &&
-                          "text-primary",
-                      )}
-                    />
-                    <span
-                      className={cn(
-                        "group-hover:text-primary transition-colors",
-                        pathname.startsWith("/shopping-lists") &&
-                          "text-primary",
-                      )}
-                    >
-                      Popisi za kupnju
-                    </span>
-                  </Link>
-                </li>
+              <ul className="hidden md:flex gap-8 text-sm ">
+                {userNavItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname.startsWith(item.href);
 
-                <li>
-                  <Link
-                    href="/digital-cards"
-                    className={cn(
-                      "flex items-center space-x-2 text-muted-foreground hover:text-accent-foreground duration-150 group hover:scale-110",
-                      pathname.startsWith("/digital-cards") &&
-                        "font-bold text-primary",
-                    )}
-                  >
-                    <CreditCard
-                      className={cn(
-                        "size-4 group-hover:text-primary transition-all",
-                        pathname.startsWith("/digital-cards") && "text-primary",
-                      )}
-                    />
-                    <span
-                      className={cn(
-                        "group-hover:text-primary transition-all",
-                        pathname.startsWith("/digital-cards") && "text-primary",
-                      )}
+                  return (
+                    <li
+                      key={item.id}
+                      className={cn(!item.showInHeader && "hidden")}
                     >
-                      Digitalne kartice
-                    </span>
-                  </Link>
-                </li>
+                      <Link
+                        href={item.href}
+                        className={cn(
+                          "flex items-center space-x-2 text-muted-foreground hover:text-accent-foreground duration-150 group hover:scale-110 relative",
+                          isActive && "font-bold text-primary",
+                        )}
+                      >
+                        <Icon
+                          className={cn(
+                            "size-4 group-hover:text-primary transition-colors",
+                            isActive && "text-primary",
+                          )}
+                        />
+                        <span
+                          className={cn(
+                            "group-hover:text-primary transition-colors relative",
+                            isActive && "text-primary",
+                          )}
+                        >
+                          {item.label}
+
+                          {item.badge && notifications.length > 0 && (
+                            <Badge className="absolute -top-2 -right-3.5 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-green-500 text-white hover:bg-green-600">
+                              {notifications.length}
+                            </Badge>
+                          )}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
 
               <div className="max-w-72 hidden lg:block flex-1 ml-auto">

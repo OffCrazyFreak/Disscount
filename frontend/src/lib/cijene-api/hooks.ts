@@ -6,7 +6,7 @@ import {
   ChainProductResponse,
 } from "./schemas";
 import { useMemo } from "react";
-import { locationNamesMap } from "@/constants/store-mappings";
+import { locationNamesMap } from "@/constants/name-mappings";
 import { StoreLocation } from "@/typings/store-location";
 
 /**

@@ -126,7 +126,7 @@ export default function ShoppingListInfoTable({
                   }
                 >
                   {Math.abs(savedAmount).toFixed(2)}€ (
-                  {Math.abs(savedPercentage).toFixed(1)}%)
+                  {Math.round(Math.abs(savedPercentage))}%)
                 </span>
               ) : (
                 <span className="text-gray-700">-</span>

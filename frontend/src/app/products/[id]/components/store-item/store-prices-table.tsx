@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { ProductResponse, StorePrice } from "@/lib/cijene-api/schemas";
 import { getMinPrice, getMaxPrice } from "@/app/products/utils/product-utils";
 import { useUser } from "@/context/user-context";
-import { locationNamesMap } from "@/constants/store-mappings";
+import { locationNamesMap } from "@/constants/name-mappings";
 
 interface IStorePricesTableProps {
   storePrices: StorePrice[];

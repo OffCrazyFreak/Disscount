@@ -1,16 +1,7 @@
 "use client";
 
 import { memo, useMemo, useState, Suspense, useEffect } from "react";
-import {
-  ChevronDown,
-  List,
-  CreditCard,
-  MapPin,
-  Percent,
-  ListChecks,
-  ChartNoAxesCombined,
-  Store,
-} from "lucide-react";
+import { ChevronDown, MapPin, Percent } from "lucide-react";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -38,10 +29,13 @@ import {
 import cijeneService from "@/lib/cijene-api";
 import { ChainStats } from "@/lib/cijene-api/schemas";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
-import { storeNamesMap } from "@/constants/store-mappings";
+import { storeNamesMap } from "@/constants/name-mappings";
 import SearchBar from "@/components/custom/search-bar";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { productNavItems, userNavItems } from "@/constants/navigation";
+import { Badge } from "@/components/ui/badge";
+import { useNotifications } from "@/context/notifications-context";
 
 type OpenSection = "categories" | "stores" | "locations" | null;
 
@@ -50,6 +44,7 @@ export const AppSidebar = memo(function AppSidebar() {
   const [openMenu, setOpenMenu] = useState<OpenSection>(null);
   const { setOpen, setOpenMobile } = useSidebar();
   const pathname = usePathname();
+  const { notifications, hasNotifications } = useNotifications();
 
   const { data: chainStats, isLoading: chainStatsLoading } =
     cijeneService.useGetChainStats();
@@ -113,58 +108,48 @@ export const AppSidebar = memo(function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="max-h-[75dvh] min-h-0 overflow-y-auto">
-        <div className="sm:hidden">
+        <div>
           <SidebarMenu>
             <SidebarGroup>
               <SidebarGroupContent>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link
-                      href="/shopping-lists"
-                      className={cn(
-                        "flex items-center gap-2",
-                        pathname.startsWith("/shopping-lists") &&
-                          "font-bold text-primary",
-                      )}
-                    >
-                      <ListChecks
-                        className={
-                          pathname.startsWith("/shopping-lists")
-                            ? "text-primary"
-                            : ""
-                        }
-                      />
-                      <span>Popisi za kupnju</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                {userNavItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname.startsWith(item.href);
 
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link
-                      href="/digital-cards"
-                      className={cn(
-                        "flex items-center gap-2",
-                        pathname.startsWith("/digital-cards") &&
-                          "font-bold text-primary",
-                      )}
+                  return (
+                    <SidebarMenuItem
+                      key={item.id}
+                      className={cn(item.showInHeader && "md:hidden")}
                     >
-                      <CreditCard
-                        className={
-                          pathname.startsWith("/digital-cards")
-                            ? "text-primary"
-                            : ""
-                        }
-                      />
-                      <span>Digitalne kartice</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        className={cn(isActive && "hover:text-primary")}
+                      >
+                        <Link
+                          href={item.href}
+                          className={cn(
+                            "flex items-center gap-2 relative",
+                            isActive && "font-bold text-primary",
+                          )}
+                        >
+                          <Icon className={isActive ? "text-primary" : ""} />
+                          <span>{item.label}</span>
+
+                          {item.badge && (
+                            <Badge className="ml-auto h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-green-500 text-white hover:bg-green-600">
+                              {notifications.length}
+                            </Badge>
+                          )}
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarMenu>
 
-          <div className="mx-4">
+          <div className="mx-2">
             <SidebarSeparator className="ml-0 mt-2" />
           </div>
         </div>
@@ -172,158 +157,133 @@ export const AppSidebar = memo(function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/products?discounted=true">
-                    <Percent />
-                    <span>Sniženja</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {productNavItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname.startsWith(item.href);
 
-              <SidebarMenuItem>
-                <Collapsible
-                  open={openMenu === "categories"}
-                  onOpenChange={(open) =>
-                    setOpenMenu(open ? "categories" : null)
-                  }
-                  className="group/collapsible"
-                >
-                  <CollapsibleTrigger asChild>
+                if (item.isCollapsible) {
+                  const isStoresOpen =
+                    item.id === "stores" && openMenu === "stores";
+                  const isLocationsOpen =
+                    item.id === "locations" && openMenu === "locations";
+                  const isCategoriesOpen =
+                    item.id === "categories" && openMenu === "categories";
+                  const isOpen =
+                    isStoresOpen || isLocationsOpen || isCategoriesOpen;
+
+                  return (
+                    <SidebarMenuItem key={item.id}>
+                      <Collapsible
+                        open={isOpen}
+                        onOpenChange={(open) =>
+                          setOpenMenu(open ? (item.id as OpenSection) : null)
+                        }
+                        className="group/collapsible"
+                      >
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton asChild>
+                            <button
+                              type="button"
+                              className="cursor-pointer group"
+                            >
+                              <Icon />
+                              <span>{item.label}</span>
+                              <ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                              <span className="sr-only">Toggle</span>
+                            </button>
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+
+                        <CollapsibleContent>
+                          {item.id === "categories" && (
+                            <SidebarMenuSub>
+                              {categories.map((category) => (
+                                <SidebarMenuSubItem key={category}>
+                                  <Link
+                                    className={`flex justify-between items-center ${
+                                      pathname.includes(
+                                        encodeURIComponent(category),
+                                      )
+                                        ? "text-primary font-bold"
+                                        : ""
+                                    }`}
+                                    href={`/products?category=${encodeURIComponent(
+                                      category,
+                                    )}`}
+                                  >
+                                    <span>{category}</span>
+                                  </Link>
+                                </SidebarMenuSubItem>
+                              ))}
+                            </SidebarMenuSub>
+                          )}
+
+                          {item.id === "stores" && (
+                            <SidebarMenuSub className="max-h-160 overflow-y-auto">
+                              {sortedChainStats.map((chain) => (
+                                <SidebarMenuSubItem
+                                  className="hover:bg-gray-200 rounded-md px-2 hover:text-gray-900"
+                                  key={chain.chain_code}
+                                >
+                                  <Link
+                                    className="flex justify-between items-center"
+                                    href={`/products?chain=${encodeURIComponent(
+                                      chain.chain_code,
+                                    )}`}
+                                  >
+                                    <span>
+                                      {storeNamesMap[chain.chain_code]}
+                                    </span>
+                                    <span>{`(${chain.store_count})`}</span>
+                                  </Link>
+                                </SidebarMenuSubItem>
+                              ))}
+                            </SidebarMenuSub>
+                          )}
+
+                          {item.id === "locations" && (
+                            <SidebarMenuSub className="max-h-160 overflow-y-auto">
+                              {sortedLocations.map((location) => (
+                                <SidebarMenuSubItem
+                                  className="hover:bg-gray-200 rounded-md px-2 hover:text-gray-900"
+                                  key={location.name}
+                                >
+                                  <Link
+                                    className="flex justify-between items-center"
+                                    href={`/products?location=${encodeURIComponent(
+                                      location.name,
+                                    )}`}
+                                  >
+                                    <span>{location.name}</span>
+                                    <span>{`(${location.storeCount})`}</span>
+                                  </Link>
+                                </SidebarMenuSubItem>
+                              ))}
+                            </SidebarMenuSub>
+                          )}
+                        </CollapsibleContent>
+                      </Collapsible>
+                    </SidebarMenuItem>
+                  );
+                }
+
+                return (
+                  <SidebarMenuItem key={item.id}>
                     <SidebarMenuButton asChild>
-                      <button type="button" className="cursor-pointer group">
-                        <List />
-                        <span>Kategorije</span>
-
-                        <ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                        <span className="sr-only">Toggle</span>
-                      </button>
+                      <Link
+                        href={item.href}
+                        className={cn(
+                          "cursor-pointer flex items-center gap-2",
+                          isActive && "font-bold text-primary",
+                        )}
+                      >
+                        <Icon className={isActive ? "text-primary" : ""} />
+                        <span>{item.label}</span>
+                      </Link>
                     </SidebarMenuButton>
-                  </CollapsibleTrigger>
-
-                  <CollapsibleContent>
-                    <SidebarMenuSub className="max-h-128 overflow-y-auto">
-                      {categories.map((category) => (
-                        <SidebarMenuSubItem key={category}>
-                          <Link
-                            href={`/products?category=${encodeURIComponent(
-                              category,
-                            )}`}
-                          >
-                            <span>{category}</span>
-                          </Link>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                </Collapsible>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <Collapsible
-                  open={openMenu === "stores"}
-                  onOpenChange={(open) => setOpenMenu(open ? "stores" : null)}
-                  className="group/collapsible"
-                >
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton asChild>
-                      <button type="button" className="cursor-pointer group">
-                        <Store />
-                        <span>Trgovine</span>
-
-                        <ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                        <span className="sr-only">Toggle</span>
-                      </button>
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-
-                  <CollapsibleContent>
-                    <SidebarMenuSub className="max-h-160 overflow-y-auto">
-                      {sortedChainStats.map((chain: ChainStats) => (
-                        <SidebarMenuSubItem
-                          className="hover:bg-gray-200 rounded-md px-2 hover:text-gray-900"
-                          key={chain.chain_code}
-                        >
-                          <Link
-                            className="flex justify-between items-center"
-                            href={`/products?chain=${encodeURIComponent(
-                              chain.chain_code,
-                            )}`}
-                          >
-                            <span>{storeNamesMap[chain.chain_code]}</span>
-
-                            <span>{`(${chain.store_count})`}</span>
-                          </Link>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                </Collapsible>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <Collapsible
-                  open={openMenu === "locations"}
-                  onOpenChange={(open) =>
-                    setOpenMenu(open ? "locations" : null)
-                  }
-                  className="group/collapsible"
-                >
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton asChild>
-                      <button type="button" className="cursor-pointer group">
-                        <MapPin />
-                        <span>Lokacije</span>
-
-                        <ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                        <span className="sr-only">Toggle</span>
-                      </button>
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-
-                  <CollapsibleContent>
-                    <SidebarMenuSub className="max-h-160 overflow-y-auto">
-                      {sortedLocations.map((location) => (
-                        <SidebarMenuSubItem
-                          className="hover:bg-gray-200 rounded-md px-2 hover:text-gray-900"
-                          key={location.name}
-                        >
-                          <Link
-                            className="flex justify-between items-center"
-                            href={`/products?location=${encodeURIComponent(
-                              location.name,
-                            )}`}
-                          >
-                            <span>{location.name}</span>
-
-                            <span>{`(${location.storeCount})`}</span>
-                          </Link>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                </Collapsible>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link
-                    href="/statistics"
-                    className={cn(
-                      "cursor-pointer flex items-center gap-2",
-                      pathname.startsWith("/statistics") &&
-                        "font-bold text-primary",
-                    )}
-                  >
-                    <ChartNoAxesCombined
-                      className={
-                        pathname.startsWith("/statistics") ? "text-primary" : ""
-                      }
-                    />
-                    <span>Statistika</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
