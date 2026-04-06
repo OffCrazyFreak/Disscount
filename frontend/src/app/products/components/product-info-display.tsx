@@ -3,6 +3,9 @@ import { useMemo } from "react";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import ProductActionButtons from "@/app/products/components/product-action-buttons";
 import ProductInfoTable from "@/app/products/components/product-info-table";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface IProductInfoDisplayProps {
   product: ProductResponse;
@@ -13,6 +16,16 @@ export default function ProductInfoDisplay({
   product,
   enableActionButtons = true,
 }: IProductInfoDisplayProps) {
+  const router = useRouter();
+
+  const handleBackClick = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/");
+    }
+  };
+
   // Get the most common category from chains (similar to ProductCard logic)
   const category = useMemo(() => {
     if (!product.chains || product.chains.length === 0) return null;
@@ -45,6 +58,10 @@ export default function ProductInfoDisplay({
       <div className="flex items-center justify-between gap-4">
         {/* Left side - Image and product info */}
         <div className="flex-1 flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={handleBackClick}>
+            <ChevronLeft className="size-6 sm:size-7" />
+          </Button>
+
           {/* TODO: Product Image */}
           {/* <div className="hidden sm:grid place-items-center size-16 bg-gray-100 shadow-sm rounded-lg">
             <span className="text-gray-400 text-sm">IMG</span>

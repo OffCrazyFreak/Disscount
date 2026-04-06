@@ -39,14 +39,14 @@ export const userNavItems: NavigationItem[] = [
 
     showInHeader: true,
   },
-  {
-    id: "digital-cards",
-    href: "/digital-cards",
-    label: "Digitalne kartice",
-    icon: CreditCard,
+  // {
+  //   id: "digital-cards",
+  //   href: "/digital-cards",
+  //   label: "Digitalne kartice",
+  //   icon: CreditCard,
 
-    showInHeader: true,
-  },
+  //   showInHeader: true,
+  // },
   {
     id: "statistics",
     href: "/statistics",
