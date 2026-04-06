@@ -1,21 +1,29 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useQueries } from "@tanstack/react-query";
-import { Search, Eye } from "lucide-react";
+import { Search, Eye, ChevronDown } from "lucide-react";
 import SearchBar from "@/components/custom/search-bar";
 import NoResults from "@/components/custom/no-results";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import WatchlistItem from "@/app/(user)/watchlist/components/watchlist-item";
 import CreateDiscountedListButton from "@/app/(user)/watchlist/components/create-discounted-list-button";
-import { watchlistService } from "@/lib/api";
+import { shoppingListService, watchlistService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 import { getProductByEan } from "@/lib/cijene-api";
 import { filterByFields } from "@/utils/generic";
+import { cn } from "@/lib/utils";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Separator } from "@/components/ui/separator";
 import {
   calculateDiscountInfo,
   extractPinnedStoreChainCodes,
+  getMaxDiscountPercentage,
   groupWatchlistItemsByProduct,
   isWatchThresholdReached,
   sortWatchlistItemsByDiscount,
@@ -29,10 +37,13 @@ interface WatchlistSearchItem extends WatchlistItemWithProduct {
 
 export default function WatchlistClient({ query }: { query: string }) {
   const pathname = usePathname();
+  const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(true);
 
   const { user, isAuthenticated, isLoading: userLoading } = useUser();
   const { data: watchlistItems = [], isLoading: watchlistLoading } =
     watchlistService.useGetCurrentUserWatchlist();
+  const { data: shoppingListItems = [], isLoading: shoppingListItemsLoading } =
+    shoppingListService.useGetAllUserShoppingListItems();
 
   const groupedWatchlistItems = useMemo(
     () => groupWatchlistItemsByProduct(watchlistItems),
@@ -103,6 +114,121 @@ export default function WatchlistClient({ query }: { query: string }) {
     });
   }, [enrichedItems, hasPinnedStores]);
 
+  const watchedProductApiIds = useMemo(() => {
+    return new Set(groupedWatchlistItems.map((item) => item.productApiId));
+  }, [groupedWatchlistItems]);
+
+  const suggestionProductApiIds = useMemo(() => {
+    const uniqueProductApiIds = new Set<string>();
+    const suggestions: string[] = [];
+
+    for (const shoppingListItem of shoppingListItems) {
+      const productApiId = shoppingListItem.ean?.trim();
+
+      if (
+        !productApiId ||
+        uniqueProductApiIds.has(productApiId) ||
+        watchedProductApiIds.has(productApiId)
+      ) {
+        continue;
+      }
+
+      uniqueProductApiIds.add(productApiId);
+      suggestions.push(productApiId);
+    }
+
+    return suggestions;
+  }, [shoppingListItems, watchedProductApiIds]);
+
+  const suggestionOccurrenceByProductApiId = useMemo(() => {
+    const occurrenceMap = new Map<string, number>();
+
+    for (const shoppingListItem of shoppingListItems) {
+      const productApiId = shoppingListItem.ean?.trim();
+
+      if (!productApiId || watchedProductApiIds.has(productApiId)) {
+        continue;
+      }
+
+      const currentCount = occurrenceMap.get(productApiId) || 0;
+      occurrenceMap.set(productApiId, currentCount + 1);
+    }
+
+    return occurrenceMap;
+  }, [shoppingListItems, watchedProductApiIds]);
+
+  const suggestionProductQueries = useQueries({
+    queries: suggestionProductApiIds.map((productApiId) => ({
+      queryKey: [
+        "cijene",
+        "product",
+        "ean",
+        "watchlist-suggestion",
+        productApiId,
+      ],
+      queryFn: () => getProductByEan({ ean: productApiId }),
+      enabled: Boolean(productApiId) && isAuthenticated,
+      staleTime: 6 * 60 * 60 * 1000,
+    })),
+  });
+
+  const suggestionItems = useMemo<WatchlistItemWithProduct[]>(() => {
+    return suggestionProductApiIds.map((productApiId, index) => {
+      const productQuery = suggestionProductQueries[index];
+      const product = productQuery?.data;
+      const queryError = productQuery?.error;
+
+      return {
+        productApiId,
+        watchlistItems: [],
+        product,
+        discountInfo: product
+          ? calculateDiscountInfo(product, pinnedStoreChainCodes)
+          : null,
+        isLoading: productQuery?.isLoading ?? false,
+        error: queryError instanceof Error ? queryError : null,
+      };
+    });
+  }, [
+    suggestionProductApiIds,
+    suggestionProductQueries,
+    pinnedStoreChainCodes,
+  ]);
+
+  const filteredSuggestionItems = useMemo<WatchlistSearchItem[]>(() => {
+    const searchableItems = suggestionItems.map((item) => ({
+      ...item,
+      productName: item.product?.name || "",
+      brand: item.product?.brand || "",
+    }));
+
+    const filteredItems = filterByFields(searchableItems, query, [
+      "productName",
+      "brand",
+    ]);
+
+    return [...filteredItems].sort((a, b) => {
+      const occurrenceA =
+        suggestionOccurrenceByProductApiId.get(a.productApiId) || 0;
+      const occurrenceB =
+        suggestionOccurrenceByProductApiId.get(b.productApiId) || 0;
+
+      if (occurrenceB !== occurrenceA) {
+        return occurrenceB - occurrenceA;
+      }
+
+      return (
+        getMaxDiscountPercentage(b.discountInfo, hasPinnedStores) -
+        getMaxDiscountPercentage(a.discountInfo, hasPinnedStores)
+      );
+    });
+  }, [
+    suggestionItems,
+    query,
+    suggestionOccurrenceByProductApiId,
+    hasPinnedStores,
+  ]);
+
   return (
     <div className="space-y-4">
       <Suspense>
@@ -157,6 +283,58 @@ export default function WatchlistClient({ query }: { query: string }) {
           </p>
         </div>
       )}
+
+      {!userLoading &&
+        !watchlistLoading &&
+        (shoppingListItemsLoading || filteredSuggestionItems.length > 0) && (
+          <Collapsible
+            open={isSuggestionsOpen}
+            onOpenChange={setIsSuggestionsOpen}
+          >
+            <CollapsibleTrigger asChild className="cursor-pointer py-2">
+              <div className="flex items-center justify-between gap-4">
+                <h2 className="text-lg font-semibold">
+                  Prijedlozi proizvoda za praćenje (
+                  {filteredSuggestionItems.length})
+                </h2>
+
+                <Separator className="flex-1 my-2" />
+
+                <div className="flex items-center gap-4">
+                  <p className="hidden sm:inline text-gray-700 text-sm">
+                    {isSuggestionsOpen ? "Sakrij" : "Prikaži"}
+                  </p>
+
+                  <ChevronDown
+                    className={cn(
+                      "size-8 text-gray-500 transition-transform flex-shrink-0",
+                      isSuggestionsOpen && "rotate-180",
+                    )}
+                  />
+                </div>
+              </div>
+            </CollapsibleTrigger>
+
+            <CollapsibleContent>
+              {shoppingListItemsLoading ? (
+                <div className="grid place-items-center py-6">
+                  <BlockLoadingSpinner />
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {filteredSuggestionItems.map((item) => (
+                    <WatchlistItem
+                      key={`suggestion-${item.productApiId}`}
+                      item={item}
+                      actionMode="add"
+                      showThresholdBadges={false}
+                    />
+                  ))}
+                </div>
+              )}
+            </CollapsibleContent>
+          </Collapsible>
+        )}
     </div>
   );
 }

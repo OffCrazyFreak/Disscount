@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { X, Loader2 } from "lucide-react";
+import { X, Loader2, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,9 +20,15 @@ import { formatQuantity } from "@/utils/strings";
 
 interface WatchlistItemProps {
   item: WatchlistItemWithProduct;
+  actionMode?: "remove" | "add";
+  showThresholdBadges?: boolean;
 }
 
-export default function WatchlistItem({ item }: WatchlistItemProps) {
+export default function WatchlistItem({
+  item,
+  actionMode = "remove",
+  showThresholdBadges = true,
+}: WatchlistItemProps) {
   const {
     watchlistItems,
     productApiId,
@@ -38,6 +44,7 @@ export default function WatchlistItem({ item }: WatchlistItemProps) {
   const [selectedWatchType, setSelectedWatchType] = useState<WatchType>(
     WatchType.percentage,
   );
+  const isAddMode = actionMode === "add";
 
   async function handleRemove() {
     try {
@@ -114,6 +121,15 @@ export default function WatchlistItem({ item }: WatchlistItemProps) {
     setIsWatchlistModalOpen(true);
   }
 
+  function handleOpenWatchlistModal() {
+    if (!product) {
+      return;
+    }
+
+    setSelectedWatchType(WatchType.percentage);
+    setIsWatchlistModalOpen(true);
+  }
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       {product && (
@@ -155,12 +171,19 @@ export default function WatchlistItem({ item }: WatchlistItemProps) {
 
             <Button
               size="icon"
-              aria-label="Ukloni proizvod"
-              className="sm:hidden size-8 sm:size-10 shrink-0 bg-red-600 hover:bg-red-700"
-              onClick={handleRemove}
-              disabled={isRemoving}
+              aria-label={isAddMode ? "Dodaj proizvod" : "Ukloni proizvod"}
+              className={cn(
+                "sm:hidden size-8 sm:size-10 shrink-0",
+                isAddMode
+                  ? "bg-primary hover:bg-primary/90"
+                  : "bg-red-600 hover:bg-red-700",
+              )}
+              onClick={isAddMode ? handleOpenWatchlistModal : handleRemove}
+              disabled={isAddMode ? !product : isRemoving}
             >
-              {isRemoving ? (
+              {isAddMode ? (
+                <Eye className="size-5 sm:size-6" />
+              ) : isRemoving ? (
                 <Loader2 className="size-5 sm:size-6 animate-spin" />
               ) : (
                 <X className="size-5 sm:size-6" />
@@ -179,54 +202,63 @@ export default function WatchlistItem({ item }: WatchlistItemProps) {
               />
 
               {/* Threshold badges */}
-              <div className="flex flex-col items-center justify-center gap-2">
-                {[...watchlistItems]
-                  .sort((a, b) =>
-                    a.watchType === WatchType.percentage
-                      ? -1
-                      : b.watchType === WatchType.percentage
-                        ? 1
-                        : 0,
-                  )
-                  .map((watchlistItem) => (
-                    <Badge
-                      key={watchlistItem.id}
-                      variant="outline"
-                      asChild
-                      className={cn(
-                        "text-xs cursor-pointer",
-                        isWatchRequirementAchieved(
-                          watchlistItem.thresholdValue,
-                          watchlistItem.watchType,
-                        ) &&
-                          "border-green-600 bg-green-50 text-green-700 text-bold",
-                      )}
-                    >
-                      <button
-                        type="button"
-                        onClick={(event) =>
-                          handleBadgeClick(event, watchlistItem.watchType)
-                        }
-                        disabled={!product}
+              {showThresholdBadges && (
+                <div className="flex flex-col items-center justify-center gap-2">
+                  {[...watchlistItems]
+                    .sort((a, b) =>
+                      a.watchType === WatchType.percentage
+                        ? -1
+                        : b.watchType === WatchType.percentage
+                          ? 1
+                          : 0,
+                    )
+                    .map((watchlistItem) => (
+                      <Badge
+                        key={watchlistItem.id}
+                        variant="outline"
+                        asChild
+                        className={cn(
+                          "text-xs cursor-pointer",
+                          isWatchRequirementAchieved(
+                            watchlistItem.thresholdValue,
+                            watchlistItem.watchType,
+                          ) &&
+                            "border-green-600 bg-green-50 text-green-700 text-bold",
+                        )}
                       >
-                        {watchlistItem.watchType === "ABSOLUTE"
-                          ? `- ${watchlistItem.thresholdValue.toFixed(2)}€`
-                          : `- ${Math.round(watchlistItem.thresholdValue)}%`}
-                      </button>
-                    </Badge>
-                  ))}
-              </div>
+                        <button
+                          type="button"
+                          onClick={(event) =>
+                            handleBadgeClick(event, watchlistItem.watchType)
+                          }
+                          disabled={!product}
+                        >
+                          {watchlistItem.watchType === "ABSOLUTE"
+                            ? `- ${watchlistItem.thresholdValue.toFixed(2)}€`
+                            : `- ${Math.round(watchlistItem.thresholdValue)}%`}
+                        </button>
+                      </Badge>
+                    ))}
+                </div>
+              )}
             </div>
 
             {/* Remove button - hidden on mobile, shown on larger screens */}
             <Button
               size="icon"
-              aria-label="Ukloni proizvod"
-              className="hidden sm:flex size-8 sm:size-10 shrink-0 bg-red-600 hover:bg-red-700"
-              onClick={handleRemove}
-              disabled={isRemoving}
+              aria-label={isAddMode ? "Dodaj proizvod" : "Ukloni proizvod"}
+              className={cn(
+                "hidden sm:flex size-8 sm:size-10 shrink-0",
+                isAddMode
+                  ? "bg-primary hover:bg-primary/90"
+                  : "bg-red-600 hover:bg-red-700",
+              )}
+              onClick={isAddMode ? handleOpenWatchlistModal : handleRemove}
+              disabled={isAddMode ? !product : isRemoving}
             >
-              {isRemoving ? (
+              {isAddMode ? (
+                <Eye className="size-5 sm:size-6" />
+              ) : isRemoving ? (
                 <Loader2 className="size-5 sm:size-6 animate-spin" />
               ) : (
                 <X className="size-5 sm:size-6" />
