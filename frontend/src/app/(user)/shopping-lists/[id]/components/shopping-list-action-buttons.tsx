@@ -5,6 +5,7 @@ import {
   Loader2,
   Copy,
   Share2,
+  MoreVertical,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +13,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
@@ -36,7 +43,6 @@ export default function ShoppingListActionButtons({
   showEditButton = false,
   showDeleteButton = false,
   showShareButton = false,
-  className,
 }: ShoppingListActionButtonsProps) {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -88,7 +94,8 @@ export default function ShoppingListActionButtons({
         listTitle={shoppingList.title}
       />
 
-      <div className={cn("flex items-center gap-1 sm:gap-2", className)}>
+      {/* Desktop View - Show all buttons */}
+      <div className={cn("hidden sm:flex items-center gap-1 sm:gap-2")}>
         {showShareButton && (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -185,6 +192,79 @@ export default function ShoppingListActionButtons({
             </TooltipContent>
           </Tooltip>
         )}
+      </div>
+
+      {/* Mobile View - Show dropdown menu */}
+      <div className="flex sm:hidden">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="icon" aria-label="Dodatne opcije" variant="default">
+              <MoreVertical className="size-6" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-max">
+            {showShareButton && (
+              <DropdownMenuItem
+                onSelect={handleShare}
+                className="cursor-pointer flex items-center gap-4"
+                disabled={isSharing}
+              >
+                {isSharing ? (
+                  <Loader2 className="size-5 animate-spin" />
+                ) : (
+                  <Share2 className="size-5" />
+                )}
+                <span>Podijeli popis</span>
+              </DropdownMenuItem>
+            )}
+
+            {showCopyButton && (
+              <DropdownMenuItem
+                onSelect={() => {
+                  handleCopy();
+                }}
+                className="cursor-pointer flex items-center gap-4"
+                disabled={isCopying}
+              >
+                {isCopying ? (
+                  <Loader2 className="size-5 animate-spin" />
+                ) : (
+                  <Copy className="size-5" />
+                )}
+                <span>Kopiraj popis</span>
+              </DropdownMenuItem>
+            )}
+
+            {showEditButton && (
+              <DropdownMenuItem
+                onSelect={() => {
+                  setIsModalOpen(true);
+                }}
+                className="cursor-pointer flex items-center gap-4"
+              >
+                <LucideClipboardEdit className="size-5" />
+                <span>Uredi popis</span>
+              </DropdownMenuItem>
+            )}
+
+            {showDeleteButton && (
+              <DropdownMenuItem
+                onSelect={() => {
+                  setIsDeleteDialogOpen(true);
+                }}
+                className="cursor-pointer flex items-center gap-4 text-red-600"
+                disabled={deleteShoppingListMutation.isPending}
+              >
+                {deleteShoppingListMutation.isPending ? (
+                  <Loader2 className="size-5 animate-spin" />
+                ) : (
+                  <Trash2 className="size-5 text-red-600" />
+                )}
+                <span>Obriši popis</span>
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </>
   );
