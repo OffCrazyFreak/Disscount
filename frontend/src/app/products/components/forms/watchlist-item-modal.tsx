@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/field";
 import { watchlistService, WatchType } from "@/lib/api";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
-import { useQueryClient } from "@tanstack/react-query";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
 import {
   getAveragePrice,
@@ -41,8 +40,6 @@ export default function WatchlistItemModal({
   product,
   initialWatchType,
 }: IWatchlistItemModalProps) {
-  const queryClient = useQueryClient();
-
   const addToWatchlistMutation = watchlistService.useAddToWatchlist();
   const removeFromWatchlistMutation = watchlistService.useRemoveFromWatchlist();
 
@@ -195,11 +192,6 @@ export default function WatchlistItemModal({
         thresholdValue: parseFloat(thresholdValue),
       });
 
-      // Invalidate queries
-      queryClient.invalidateQueries({
-        queryKey: watchlistService.QUERY_KEYS.all,
-      });
-
       if (isUpdate) {
         toast.success(
           `Prag ažuriran s ${oldValue} na ${parseFloat(thresholdValue)}`,
@@ -219,11 +211,6 @@ export default function WatchlistItemModal({
 
     try {
       await removeFromWatchlistMutation.mutateAsync(existingItemForType.id);
-
-      // Invalidate queries
-      queryClient.invalidateQueries({
-        queryKey: watchlistService.QUERY_KEYS.all,
-      });
 
       toast.success(
         `Za proizvod se više ne prati ${existingItemForType.watchType === WatchType.percentage ? "postotak" : "cijena"}`,
