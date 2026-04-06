@@ -43,7 +43,7 @@ export function getMaxPrice(product: ProductResponse): number {
 /**
  * Get average price for a product from Cijene API
  */
-export function getAveragePrice(product: ProductResponse): number | undefined {
+export function getAveragePrice(product: ProductResponse): number {
   if (avgPriceCache.has(product)) {
     return avgPriceCache.get(product)!;
   }
@@ -57,16 +57,14 @@ export function getAveragePrice(product: ProductResponse): number | undefined {
         count += 1;
       }
     }
-    if (count === 0) {
-      return undefined;
-    }
+
     const avg = sum / count;
     if (Number.isFinite(avg)) {
       avgPriceCache.set(product, avg);
       return avg;
     }
   }
-  return undefined;
+  return 0;
 }
 
 /**

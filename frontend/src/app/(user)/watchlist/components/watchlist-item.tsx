@@ -223,7 +223,7 @@ export default function WatchlistItem({
                             watchlistItem.thresholdValue,
                             watchlistItem.watchType,
                           ) &&
-                            "border-green-600 bg-green-50 text-green-700 text-bold",
+                            "border-green-600 bg-green-50 text-green-700 font-bold",
                         )}
                       >
                         <button

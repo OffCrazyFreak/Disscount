@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Sparkles, Loader2, PlusIcon } from "lucide-react";
+import { Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FloatingActionButton } from "@/components/custom/floating-action-button";
 import { shoppingListService } from "@/lib/api";

@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from "react";
 import { usePathname } from "next/navigation";
-import { Search, Plus, Loader2, PlusIcon, CreditCard } from "lucide-react";
+import { Search, Plus, Loader2, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/custom/search-bar";
 import DigitalCardModal from "@/app/(user)/digital-cards/components/forms/digital-card-modal";
@@ -62,7 +62,7 @@ export default function DigitalCardsClient({ query }: { query: string }) {
 
       <FloatingActionButton
         onClick={() => setIsModalOpen(true)}
-        icon={<PlusIcon size={24} />}
+        icon={<Plus size={24} />}
         label="Dodaj digitalnu karticu"
       />
 

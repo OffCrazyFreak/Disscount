@@ -33,13 +33,13 @@ export default function NotificationsDropdown() {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="max-w-screen">
+      <DropdownMenuContent align="end" className="max-w-screen sm:max-w-xs">
         {/* Summary section */}
         {hasNotifications && (
           <div className="px-3 py-2 border-b">
-            <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
               <div className="flex items-center gap-2">
-                <HandCoins className="size-8 hidden sm:block" />
+                <HandCoins className="size-8 hidden sm:block text-green-700" />
 
                 <div>
                   <div className="text-md text-green-700">
@@ -47,21 +47,20 @@ export default function NotificationsDropdown() {
                   </div>
 
                   <div className="text-sm text-green-600">
-                    ({Math.round(summary.totalSavingsPercentage)}% na{" "}
-                    {summary.itemCount}{" "}
+                    (≥ {summary.totalSavings.toFixed(2)}€ na {summary.itemCount}{" "}
                     {summary.itemCount === 1 ? "proizvod" : "proizvoda"})
                   </div>
                 </div>
               </div>
 
               <span className="text-lg font-bold text-green-700">
-                {summary.totalSavings.toFixed(2)}€
+                {Math.round(summary.totalSavingsPercentage)}%
               </span>
             </div>
           </div>
         )}
 
-        <div className="max-h-120 overflow-y-auto">
+        <div className="max-h-128 overflow-y-auto">
           {isLoading ? (
             <div className="p-6 flex items-center justify-center gap-2 text-muted-foreground">
               <Loader2 className="size-4 animate-spin" />
@@ -72,6 +71,7 @@ export default function NotificationsDropdown() {
               <p className="text-sm text-muted-foreground">
                 Danas nema sniženja na praćenim proizvodima 😔
               </p>
+
               <Link
                 href="/watchlist"
                 className="text-xs text-primary hover:underline mt-2 inline-block"
@@ -113,13 +113,13 @@ export default function NotificationsDropdown() {
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex flex-col gap-2">
                         <div>
-                          <h4 className="text-sm text-balance hover:text-primary transition-colors">
+                          <h4 className="text-sm text text-pretty hover:text-primary transition-colors text-gray-900">
                             {notification.productName}
                             {quantityWithUnit ? ` (${quantityWithUnit})` : ""}
                           </h4>
 
                           {notification.productBrand && (
-                            <p className="text-xs text-muted-background text-balance">
+                            <p className="text-xs text-gray-600 text-pretty">
                               {notification.productBrand}
                             </p>
                           )}

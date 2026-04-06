@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, PlusIcon } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FloatingActionButton } from "@/components/custom/floating-action-button";
 

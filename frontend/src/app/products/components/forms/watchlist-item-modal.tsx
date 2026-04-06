@@ -50,10 +50,6 @@ export default function WatchlistItemModal({
 }: IWatchlistItemModalProps) {
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    console.log("WatchlistItemModal opened:", isOpen);
-  }, [isOpen]);
-
   const addToWatchlistMutation = watchlistService.useAddToWatchlist();
   const removeFromWatchlistMutation = watchlistService.useRemoveFromWatchlist();
 
@@ -62,7 +58,7 @@ export default function WatchlistItemModal({
     watchlistService.useGetWatchlistItemsByProductApiId(product?.ean || "");
 
   // Get current prices for reference
-  const avgPrice = product ? getAveragePrice(product) : undefined;
+  const avgPrice = product ? getAveragePrice(product) : 0;
   const minPrice = product ? getMinPrice(product) : 0;
 
   // Form state
@@ -101,7 +97,7 @@ export default function WatchlistItemModal({
         } else {
           // ABSOLUTE - suggest 10% below min price
           const suggestedPrice =
-            minPrice > 0 ? Math.round(minPrice * 0.9 * 100) / 100 : 0;
+            minPrice > 0 ? Math.round(avgPrice * 0.1 * 100) / 100 : 0;
           setThresholdValue(
             suggestedPrice > 0 ? suggestedPrice.toString() : "",
           );
@@ -143,8 +139,9 @@ export default function WatchlistItemModal({
 
   function updateThresholdBy(delta: number): void {
     const currentValue = getCurrentThresholdValue();
-    const maxValue = watchType === WatchType.percentage ? 100 : 1000;
-    const minValue = watchType === WatchType.percentage ? 1 : 0.01;
+    const minValue = minThresholdValue;
+    const maxValue = maxThresholdValue;
+
     const nextValue = Math.min(
       maxValue,
       Math.max(minValue, currentValue + delta),
@@ -161,13 +158,26 @@ export default function WatchlistItemModal({
   function validateForm(): boolean {
     const value = parseFloat(thresholdValue);
 
-    if (isNaN(value) || value <= 0) {
+    if (isNaN(value)) {
       setError("Unesite valjanu vrijednost");
       return false;
     }
 
-    if (watchType === WatchType.percentage && (value < 1 || value > 100)) {
-      setError("Postotak mora biti između 1 i 100");
+    if (
+      watchType === WatchType.percentage &&
+      (value < minThresholdValue || value > maxThresholdValue)
+    ) {
+      setError(
+        `Postotak mora biti između ${minThresholdValue}% i ${maxThresholdValue}%`,
+      );
+      return false;
+    } else if (
+      watchType === WatchType.absolute &&
+      (value < minThresholdValue || value > maxThresholdValue)
+    ) {
+      setError(
+        `Iznos mora biti između ${minThresholdValue}€ i ${maxThresholdValue}€`,
+      );
       return false;
     }
 
@@ -260,7 +270,8 @@ export default function WatchlistItemModal({
   const alertMessage = buildAlertMessage();
   const thresholdSteps = getThresholdSteps();
   const currentThresholdValue = getCurrentThresholdValue();
-  const minThresholdValue = watchType === WatchType.percentage ? 1 : 0.01;
+  const minThresholdValue = watchType === WatchType.absolute ? 0.1 : 1;
+  const maxThresholdValue = watchType === WatchType.absolute ? 999 : 99;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -328,7 +339,10 @@ export default function WatchlistItemModal({
 
           {/* Threshold Input */}
           <Field data-invalid={!!error}>
-            <FieldLabel htmlFor="thresholdValue">Minimalno sniženje</FieldLabel>
+            <FieldLabel htmlFor="thresholdValue">
+              Minimalno sniženje{" "}
+              {watchType === WatchType.absolute ? "(€)" : "(%)"}:
+            </FieldLabel>
 
             <FieldContent>
               <div className="flex items-center gap-4 mx-auto my-2">
@@ -364,11 +378,11 @@ export default function WatchlistItemModal({
                 <Input
                   id="thresholdValue"
                   type="number"
-                  step={watchType === WatchType.absolute ? "0.01" : "1"}
-                  min={watchType === WatchType.absolute ? "0.01" : "1"}
-                  max={watchType === WatchType.percentage ? "100" : 1000}
+                  step={watchType === WatchType.absolute ? 0.5 : 5}
+                  min={minThresholdValue}
+                  max={maxThresholdValue}
                   placeholder={
-                    watchType === WatchType.absolute ? "Npr. 2.50" : "Npr. 10"
+                    watchType === WatchType.absolute ? "Npr. 12€" : "Npr. 15%"
                   }
                   value={thresholdValue}
                   onChange={(e) => setThresholdValue(e.target.value)}
@@ -381,6 +395,10 @@ export default function WatchlistItemModal({
                   aria-label={`Povećaj prag za ${thresholdSteps.primary}`}
                   className="size-13 rounded-full shrink-0 text-lg font-bold"
                   onClick={() => updateThresholdBy(thresholdSteps.primary)}
+                  disabled={
+                    currentThresholdValue + thresholdSteps.primary >
+                    maxThresholdValue
+                  }
                 >
                   +{thresholdSteps.primary}
                 </Button>
@@ -392,6 +410,10 @@ export default function WatchlistItemModal({
                   aria-label={`Povećaj prag za ${thresholdSteps.secondary}`}
                   className="hidden sm:flex size-14 rounded-full shrink-0 text-lg font-bold"
                   onClick={() => updateThresholdBy(thresholdSteps.secondary)}
+                  disabled={
+                    currentThresholdValue + thresholdSteps.secondary >
+                    maxThresholdValue
+                  }
                 >
                   +{thresholdSteps.secondary}
                 </Button>
