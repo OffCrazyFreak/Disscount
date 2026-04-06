@@ -80,7 +80,7 @@ export default function NotificationsDropdown() {
               </Link>
             </div>
           ) : (
-            notifications
+            [...notifications]
               .sort((a, b) => {
                 const maxDiscountA = Math.max(
                   ...a.discountedStores.map(

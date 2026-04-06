@@ -56,11 +56,13 @@ export function extractPinnedStoreChainCodes(
     return [];
   }
 
-  return pinnedStores.map((store) => {
-    const parts = store.storeName.split(" ");
+  return pinnedStores
+    .map((store) => {
+      const primaryNamePart = store.storeName?.trim().split(/\s+/)[0] || "";
 
-    return normalizeForSearch(parts[0]).toUpperCase();
-  });
+      return normalizeForSearch(primaryNamePart).toUpperCase();
+    })
+    .filter((chainCode) => chainCode.length > 0);
 }
 
 export function groupWatchlistItemsByProduct(

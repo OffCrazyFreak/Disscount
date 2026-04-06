@@ -35,12 +35,13 @@ export default function CreateDiscountedListButton({
         isPublic: false,
       });
 
-      const createItemPromises = discountedItems
+      const itemsToAdd = discountedItems
         .filter((item) => item.product)
-        .map((item) => {
-          const product = item.product!;
+        .map((item) => item.product!);
 
-          return shoppingListService.addItemToShoppingList(createdList.id, {
+      const createItemResults = await Promise.allSettled(
+        itemsToAdd.map((product) =>
+          shoppingListService.addItemToShoppingList(createdList.id, {
             ean: product.ean,
             name: product.name || product.ean,
             brand: product.brand || null,
@@ -51,10 +52,31 @@ export default function CreateDiscountedListButton({
             chainCode: null,
             avgPrice: null,
             storePrice: null,
-          });
-        });
+          }),
+        ),
+      );
 
-      await Promise.all(createItemPromises);
+      const failedAdds = createItemResults.filter(
+        (result) => result.status === "rejected",
+      );
+
+      if (failedAdds.length > 0) {
+        try {
+          await shoppingListService.deleteShoppingList(createdList.id);
+
+          toast.error(
+            "Neke stavke nije bilo moguće dodati. Popis je automatski uklonjen.",
+          );
+        } catch {
+          toast.error(
+            "Neke stavke nije bilo moguće dodati, a popis nije moguće automatski ukloniti.",
+          );
+
+          router.push(`/shopping-lists/${createdList.id}`);
+        }
+
+        return;
+      }
 
       toast.success("Popis sniženih proizvoda je uspješno kreiran");
       router.push(`/shopping-lists/${createdList.id}`);

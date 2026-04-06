@@ -10,7 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { watchlistService } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
-import { WatchlistItemWithProduct } from "@/app/(user)/watchlist/utils/watchlist-utils";
+import {
+  isWatchThresholdReached,
+  WatchlistItemWithProduct,
+} from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { useUser } from "@/context/user-context";
 import { cn } from "@/lib/utils";
 import WatchlistItemDiscountInfo from "@/app/(user)/watchlist/components/watchlist-item-discount-info";
@@ -81,29 +84,18 @@ export default function WatchlistItem({
 
   function isWatchRequirementAchieved(
     thresholdValue: number,
-    watchType: string,
+    watchType: WatchType,
   ): boolean {
-    if (!discountInfo || !hasPinnedStores) {
+    if (!discountInfo) {
       return false;
     }
 
-    if (discountInfo.preferredDifference === null) {
-      return false;
-    }
-
-    // Badge is achieved only when preferred-store value is truly discounted.
-    if (discountInfo.preferredDifference >= 0) {
-      return false;
-    }
-
-    const discountAmount = discountInfo.preferredDiscount || 0;
-    const discountPercentage = discountInfo.preferredPercentage || 0;
-
-    if (watchType === "ABSOLUTE") {
-      return discountAmount >= thresholdValue;
-    }
-
-    return discountPercentage >= thresholdValue;
+    return isWatchThresholdReached(
+      discountInfo,
+      watchType,
+      thresholdValue,
+      hasPinnedStores,
+    );
   }
 
   function handleBadgeClick(

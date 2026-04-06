@@ -14,7 +14,13 @@ export default async function ProductsPage({ searchParams }: IPageProps) {
   const searchParameters = await searchParams;
   const qParam = searchParameters?.q;
   const rawQuery = (Array.isArray(qParam) ? qParam[0] : qParam) || "";
-  const query = decodeURIComponent(rawQuery) || rawQuery;
+  let query = rawQuery;
+
+  try {
+    query = decodeURIComponent(rawQuery) || rawQuery;
+  } catch {
+    query = rawQuery;
+  }
 
   return <ProductsClient query={query} />;
 }

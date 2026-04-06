@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,8 +27,8 @@ public class WatchlistItemController {
     @PostMapping
     public ResponseEntity<WatchlistItemDto> addOrUpdateWatchlist(@Valid @RequestBody WatchlistItemRequest request) {
         UUID userId = SecurityUtils.getCurrentUserId();
-        WatchlistItemDto created = watchlistItemService.addOrUpdateWatchlist(userId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        WatchlistItemDto watchlistItem = watchlistItemService.addOrUpdateWatchlist(userId, request);
+        return ResponseEntity.ok(watchlistItem);
     }
 
     @Operation(summary = "Get current user's watchlist")
