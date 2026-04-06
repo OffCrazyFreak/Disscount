@@ -6,7 +6,7 @@ import {
   MultiSelectTrigger,
   MultiSelectValue,
 } from "@/components/ui/multi-select";
-import { storeNamesMap } from "@/constants/store-mappings";
+import { storeNamesMap } from "@/constants/name-mappings";
 
 interface StoreChainMultiSelectProps {
   chains: string[];

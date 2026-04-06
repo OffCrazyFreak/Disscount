@@ -53,28 +53,30 @@ export default function ShoppingListItems({
   return (
     <Collapsible open={isItemsOpen} onOpenChange={handleToggleItems}>
       <CollapsibleTrigger asChild className="py-2">
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold">
-            {checkedCount > 0
-              ? `Proizvodi (${checkedCount}/${shoppingList.items.length} kupljeno)`
-              : `Proizvodi (${shoppingList.items.length})`}
-          </h2>
+        <button type="button" className="w-full text-left">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-lg font-semibold">
+              {checkedCount > 0
+                ? `Proizvodi (${checkedCount}/${shoppingList.items.length} kupljeno)`
+                : `Proizvodi (${shoppingList.items.length})`}
+            </h2>
 
-          <Separator className="flex-1 my-2" />
+            <Separator className="flex-1 my-2" />
 
-          <div className="flex items-center gap-4">
-            <p className="hidden sm:inline text-gray-700 text-sm">
-              {isItemsOpen ? "Sakrij" : "Prikaži"}
-            </p>
+            <div className="flex items-center gap-4">
+              <p className="hidden sm:inline text-gray-700 text-sm">
+                {isItemsOpen ? "Sakrij" : "Prikaži"}
+              </p>
 
-            <ChevronDown
-              className={cn(
-                "size-8 text-gray-500 transition-transform flex-shrink-0",
-                isItemsOpen && "rotate-180",
-              )}
-            />
+              <ChevronDown
+                className={cn(
+                  "size-8 text-gray-500 transition-transform flex-shrink-0",
+                  isItemsOpen && "rotate-180",
+                )}
+              />
+            </div>
           </div>
-        </div>
+        </button>
       </CollapsibleTrigger>
 
       <CollapsibleContent>

@@ -43,7 +43,7 @@ import { useUser } from "@/context/user-context";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
 import cijeneService from "@/lib/cijene-api";
 import { ChainStats } from "@/lib/cijene-api/schemas";
-import { storeNamesMap } from "@/constants/store-mappings";
+import { storeNamesMap } from "@/constants/name-mappings";
 
 interface IUserPreferencesModalProps {
   isOpen: boolean;

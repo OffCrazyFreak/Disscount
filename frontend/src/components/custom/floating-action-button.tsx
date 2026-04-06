@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface IFloatingActionButtonProps {
@@ -9,6 +10,7 @@ interface IFloatingActionButtonProps {
   icon: ReactNode;
   label: string;
   className?: string;
+  disabled?: boolean;
   position?: "bottom-right" | "bottom-left" | "top-right" | "top-left";
 }
 
@@ -24,22 +26,23 @@ export function FloatingActionButton({
   icon,
   label,
   className,
+  disabled = false,
   position = "bottom-right",
 }: IFloatingActionButtonProps) {
   return (
     <div className={`fixed ${positionClasses[position]} z-50`}>
       <Tooltip>
-        <TooltipTrigger>
-          <div
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            size="icon"
             onClick={onClick}
-            className={cn(
-              "grid place-items-center cursor-pointer size-16 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg",
-              className
-            )}
+            disabled={disabled}
+            aria-label={label}
+            className={cn("size-16 rounded-full shadow-lg", className)}
           >
             {icon}
-            <span className="sr-only">{label}</span>
-          </div>
+          </Button>
         </TooltipTrigger>
         <TooltipContent side="left">{label}</TooltipContent>
       </Tooltip>

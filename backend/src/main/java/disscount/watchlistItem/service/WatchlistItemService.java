@@ -5,11 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.exceptions.BadRequestException;
-import disscount.exceptions.ConflictException;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.watchlistItem.dao.WatchlistItemRepository;
 import disscount.watchlistItem.domain.WatchlistItem;
+import disscount.watchlistItem.domain.WatchType;
 import disscount.watchlistItem.dto.WatchlistItemDto;
 import disscount.watchlistItem.dto.WatchlistItemRequest;
 
@@ -27,22 +27,28 @@ public class WatchlistItemService {
     private final WatchlistItemRepository watchlistItemRepository;
     private final UserRepository userRepository;
 
-    public WatchlistItemDto addToWatchlist(UUID userId, WatchlistItemRequest request) {
+    public WatchlistItemDto addOrUpdateWatchlist(UUID userId, WatchlistItemRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BadRequestException("User not found"));
 
-        // Check if product is already in user's watchlist
+        // Check if product with the same watch type exists
         Optional<WatchlistItem> existing = watchlistItemRepository
-                .findByProductApiId(request.getProductApiId(), userId);
+                .findByProductApiIdAndWatchType(request.getProductApiId(), request.getWatchType(), userId);
         
         if (existing.isPresent()) {
-            throw new ConflictException("Product is already in your watchlist");
+            // Update existing threshold
+            WatchlistItem watchlistItem = existing.get();
+            watchlistItem.setThresholdValue(request.getThresholdValue());
+            WatchlistItem saved = watchlistItemRepository.save(watchlistItem);
+            return mapToDto(saved);
         }
 
+        // Create new watchlist item
         WatchlistItem watchlistItem = WatchlistItem.builder()
                 .user(user)
                 .productApiId(request.getProductApiId())
-                .productName(request.getProductName())
+                .watchType(request.getWatchType())
+                .thresholdValue(request.getThresholdValue())
                 .build();
 
         WatchlistItem saved = watchlistItemRepository.save(watchlistItem);
@@ -65,11 +71,14 @@ public class WatchlistItemService {
         watchlistItemRepository.save(watchlistItem);
     }
 
-    public Optional<WatchlistItemDto> getWatchlistItemByProductApiId(UUID userId, String productApiId) {
-        Optional<WatchlistItem> watchlistItem = watchlistItemRepository
+    @Transactional(readOnly = true)
+    public List<WatchlistItemDto> getWatchlistItemsByProductApiId(UUID userId, String productApiId) {
+        List<WatchlistItem> watchlistItems = watchlistItemRepository
                 .findByProductApiId(productApiId, userId);
 
-        return watchlistItem.map(this::mapToDto);
+        return watchlistItems.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
     public void updateLastNotifiedAt(UUID watchlistItemId) {
@@ -85,9 +94,11 @@ public class WatchlistItemService {
                 .id(watchlistItem.getId())
                 .userId(watchlistItem.getUser().getId())
                 .productApiId(watchlistItem.getProductApiId())
-                .productName(watchlistItem.getProductName())
+                .watchType(watchlistItem.getWatchType())
+                .thresholdValue(watchlistItem.getThresholdValue())
                 .lastNotifiedAt(watchlistItem.getLastNotifiedAt())
                 .createdAt(watchlistItem.getCreatedAt())
+                .updatedAt(watchlistItem.getUpdatedAt())
                 .build();
     }
 }

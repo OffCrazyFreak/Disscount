@@ -31,12 +31,20 @@ export default function SearchBar({
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
+  function decodeQuerySafely(rawQuery: string): string {
+    try {
+      return decodeURIComponent(rawQuery);
+    } catch {
+      return rawQuery;
+    }
+  }
+
   // Only get initial query if current pathname matches searchRoute
   // Decode the URL parameter to get the original user input
   const matchesRoute =
     pathname.replace(/\/$/, "") === searchRoute.replace(/\/$/, "");
   const initialQuery = matchesRoute
-    ? decodeURIComponent(searchParams.get("q") || "")
+    ? decodeQuerySafely(searchParams.get("q") || "")
     : "";
 
   const { openScanner } = useCameraScanner();
@@ -130,7 +138,6 @@ export default function SearchBar({
                 variant="ghost"
                 size="icon"
                 onClick={handleClear}
-                className="p-2"
                 title="Clear search"
                 aria-label="Clear search"
               >
@@ -144,7 +151,6 @@ export default function SearchBar({
                 variant="ghost"
                 size="icon"
                 onClick={() => openScanner(handleScan)}
-                className="p-2"
                 title="Scan barcode"
                 aria-label="Scan barcode"
               >

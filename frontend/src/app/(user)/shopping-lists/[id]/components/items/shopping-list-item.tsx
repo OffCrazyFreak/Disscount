@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 
 import StoreChainSelect from "@/components/custom/store-chain-select";
-import { storeNamesMap } from "@/constants/store-mappings";
+import { storeNamesMap } from "@/constants/name-mappings";
 import type { ShoppingListItemDto } from "@/lib/api/types";
 import { formatQuantity } from "@/utils/strings";
 

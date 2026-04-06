@@ -1,4 +1,7 @@
-import { ProductResponse } from "@/lib/cijene-api/schemas";
+import {
+  ChainProductResponse,
+  ProductResponse,
+} from "@/lib/cijene-api/schemas";
 
 // Memoization caches
 const minPriceCache = new WeakMap<ProductResponse, number>();
@@ -40,7 +43,7 @@ export function getMaxPrice(product: ProductResponse): number {
 /**
  * Get average price for a product from Cijene API
  */
-export function getAveragePrice(product: ProductResponse): number | undefined {
+export function getAveragePrice(product: ProductResponse): number {
   if (avgPriceCache.has(product)) {
     return avgPriceCache.get(product)!;
   }
@@ -54,16 +57,57 @@ export function getAveragePrice(product: ProductResponse): number | undefined {
         count += 1;
       }
     }
-    if (count === 0) {
-      return undefined;
-    }
+
     const avg = sum / count;
     if (Number.isFinite(avg)) {
       avgPriceCache.set(product, avg);
       return avg;
     }
   }
-  return undefined;
+  return 0;
+}
+
+/**
+ * Parse price value from API string.
+ */
+export function parsePrice(value: string): number | null {
+  const parsed = Number.parseFloat(value);
+
+  if (!Number.isFinite(parsed)) {
+    return null;
+  }
+
+  return parsed;
+}
+
+/**
+ * Get cheapest chain and its min price from a chain list.
+ */
+export function getCheapestChainByMinPrice(
+  chains: ChainProductResponse[],
+): { chain: ChainProductResponse; price: number } | null {
+  const pricedChains: Array<{ chain: ChainProductResponse; price: number }> =
+    [];
+
+  for (const chain of chains) {
+    const price = parsePrice(chain.min_price);
+
+    if (price !== null) {
+      pricedChains.push({ chain, price });
+    }
+  }
+
+  if (pricedChains.length === 0) {
+    return null;
+  }
+
+  return pricedChains.reduce((lowest, current) => {
+    if (current.price < lowest.price) {
+      return current;
+    }
+
+    return lowest;
+  });
 }
 
 /**
@@ -119,23 +163,9 @@ export function hasMultipleChains(product: ProductResponse): boolean {
  * Get the lowest price chain for a product
  */
 export function getLowestPriceChain(product: ProductResponse) {
-  if (!product.chains || product.chains.length === 0) {
-    return undefined;
-  }
+  const cheapestChain = getCheapestChainByMinPrice(product.chains || []);
 
-  const validChains = product.chains.filter((c) =>
-    Number.isFinite(parseFloat(c.min_price)),
-  );
-
-  if (validChains.length === 0) {
-    return undefined;
-  }
-
-  return validChains.reduce((lowest, current) => {
-    const currentPrice = parseFloat(current.min_price);
-    const lowestPrice = parseFloat(lowest.min_price);
-    return currentPrice < lowestPrice ? current : lowest;
-  });
+  return cheapestChain?.chain;
 }
 
 /**
@@ -168,8 +198,8 @@ export function calculatePriceChange(
   currentPrice: number,
   previousPrice: number,
 ) {
-  const percentage = Number(
-    Math.abs(((currentPrice - previousPrice) / previousPrice) * 100).toFixed(2),
+  const percentage = Math.abs(
+    ((currentPrice - previousPrice) / previousPrice) * 100,
   );
   const difference = Number((currentPrice - previousPrice).toFixed(2));
 

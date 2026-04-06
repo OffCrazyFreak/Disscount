@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, Image, ListPlus } from "lucide-react";
+import { Image, ListPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -10,12 +10,14 @@ import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { cn } from "@/lib/utils";
 import AddToShoppingListForm from "@/app/products/components/forms/add-to-shopping-list-form";
 import { formatQuantity } from "@/utils/strings";
+import WatchlistActionButton from "@/app/products/components/watchlist-action-button";
+import { watchlistService } from "@/lib/api";
 
 interface IProductActionButtonsProps {
   product: ProductResponse;
   showSearchImage?: boolean;
   showAddToList?: boolean;
-  showAddToWatchList?: boolean;
+  showAddToWatchlist?: boolean;
   className?: string;
 }
 
@@ -23,10 +25,16 @@ export default function ProductActionButtons({
   product,
   showSearchImage = true,
   showAddToList = true,
-  showAddToWatchList = true,
+  showAddToWatchlist = true,
   className,
 }: IProductActionButtonsProps) {
   const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
+  const { data: currentUserWatchlist = [] } =
+    watchlistService.useGetCurrentUserWatchlist();
+
+  const isInWatchlist = currentUserWatchlist.some(
+    (watchlistItem) => watchlistItem.productApiId === product.ean,
+  );
 
   return (
     <>
@@ -92,25 +100,11 @@ export default function ProductActionButtons({
           </Tooltip>
         )}
 
-        {showAddToWatchList && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                aria-label="Prati proizvod"
-                className="size-10 sm:size-12 shrink-0"
-                onClick={() => {
-                  // TODO: Implement follow product functionality
-                }}
-              >
-                <Eye className="size-6 sm:size-7" />
-              </Button>
-            </TooltipTrigger>
-
-            <TooltipContent className="px-2 py-1 text-xs">
-              Prati proizvod
-            </TooltipContent>
-          </Tooltip>
+        {showAddToWatchlist && (
+          <WatchlistActionButton
+            product={product}
+            isInWatchlist={isInWatchlist}
+          />
         )}
       </div>
     </>

@@ -56,6 +56,8 @@ Feature-specific code goes in feature folders (products/, shopping-lists/), shar
 
 Add empty rows for better readability between logical blocks of code, my prettier will take care of the rest.
 
+If I tell you to refactor something into a separate component or function, make sure to check if there already exists a similar component or function in the codebase and reuse it instead of writing a new one. If there is no similar component or function, then create a new one in a separate file, instead of writing it in the same file.
+
 # Backend Development Guidelines
 
 NEVER run "mvn spring-boot:run" or any other development server command, because I always already have my dev server running. Also never run build commands.

@@ -133,24 +133,26 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
   return (
     <Collapsible open={isPriceHistoryOpen} onOpenChange={setIsPriceHistoryOpen}>
       <CollapsibleTrigger asChild className="py-2">
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold">Povijest cijena</h2>
+        <button type="button" className="w-full text-left">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-lg font-semibold">Povijest cijena</h2>
 
-          <Separator className="flex-1 my-2" />
+            <Separator className="flex-1 my-2" />
 
-          <div className="flex items-center gap-4">
-            <p className="hidden sm:inline text-gray-700 text-sm">
-              {isPriceHistoryOpen ? "Sakrij" : "Prikaži"}
-            </p>
+            <div className="flex items-center gap-4">
+              <p className="hidden sm:inline text-gray-700 text-sm">
+                {isPriceHistoryOpen ? "Sakrij" : "Prikaži"}
+              </p>
 
-            <ChevronDown
-              className={cn(
-                "size-8 text-gray-500 transition-transform flex-shrink-0",
-                isPriceHistoryOpen && "rotate-180",
-              )}
-            />
+              <ChevronDown
+                className={cn(
+                  "size-8 text-gray-500 transition-transform flex-shrink-0",
+                  isPriceHistoryOpen && "rotate-180",
+                )}
+              />
+            </div>
           </div>
-        </div>
+        </button>
       </CollapsibleTrigger>
 
       <CollapsibleContent>
@@ -158,11 +160,12 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
           <CardContent className="p-6">
             <Tabs value={chartPrefs.period} onValueChange={handlePeriodChange}>
               <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 justify-between w-full">
                   <PriceHistoryPeriodSelect
                     value={chartPrefs.period}
                     onChange={handlePeriodChange}
                   />
+
                   <PriceChangeDisplay priceChange={priceChange} />
                 </div>
 

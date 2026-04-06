@@ -8,7 +8,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { storeNamesMap } from "@/constants/store-mappings";
+import { storeNamesMap } from "@/constants/name-mappings";
 import { useUser } from "@/context/user-context";
 import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";
 import { ChartDataPoint } from "@/typings/chart-data";

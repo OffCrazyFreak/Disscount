@@ -30,34 +30,28 @@ export default function QuantityInput({ formField }: IQuantityInputProps) {
                 size="sm"
                 variant="outline"
                 aria-label="Smanji količinu za 5"
-                className="hidden sm:flex size-14 rounded-full shrink-0"
+                className="hidden sm:flex size-14 rounded-full shrink-0 text-lg font-bold"
                 onClick={() => field.onChange(Math.max(1, field.value - 5))}
                 disabled={field.value <= 5}
               >
-                <div className="flex items-center">
-                  <Minus className="size-5" />
-                  <span className="text-lg font-bold">5</span>
-                </div>
+                -5
               </Button>
 
               <Button
                 type="button"
                 size="icon"
                 aria-label="Smanji količinu za 2"
-                className="size-13 rounded-full shrink-0"
+                className="size-13 rounded-full shrink-0 text-lg font-bold"
                 onClick={() => field.onChange(Math.max(1, field.value - 2))}
                 disabled={field.value <= 2}
               >
-                <div className="flex items-center">
-                  <Minus className="size-5" />
-                  <span className="text-lg font-bold">2</span>
-                </div>
+                -2
               </Button>
 
               <Input
                 type="number"
                 min={1}
-                className="text-center w-32 sm:w-64"
+                className="text-center w-20 sm:w-40"
                 {...field}
                 onChange={(e) => {
                   const value = parseInt(e.target.value);
@@ -69,13 +63,10 @@ export default function QuantityInput({ formField }: IQuantityInputProps) {
                 type="button"
                 size="icon"
                 aria-label="Povećaj količinu za 2"
-                className="size-13 rounded-full shrink-0"
+                className="size-13 rounded-full shrink-0 text-lg font-bold"
                 onClick={() => field.onChange(field.value + 2)}
               >
-                <div className="flex items-center">
-                  <Plus className="size-5" />
-                  <span className="text-lg font-bold">2</span>
-                </div>
+                +2
               </Button>
 
               <Button
@@ -83,13 +74,10 @@ export default function QuantityInput({ formField }: IQuantityInputProps) {
                 size="sm"
                 variant="outline"
                 aria-label="Povećaj količinu za 5"
-                className="hidden sm:flex size-14 rounded-full shrink-0"
+                className="hidden sm:flex size-14 rounded-full shrink-0 text-lg font-bold"
                 onClick={() => field.onChange(field.value + 5)}
               >
-                <div className="flex items-center">
-                  <Plus className="size-5" />
-                  <span className="text-lg font-bold">5</span>
-                </div>
+                +5
               </Button>
             </div>
           </FormControl>

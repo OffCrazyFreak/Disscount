@@ -1,16 +1,16 @@
 import { Metadata } from "next";
-import ShoppingListsClient from "@/app/(user)/shopping-lists/components/shopping-lists-client";
+import WatchlistClient from "@/app/(user)/watchlist/components/watchlist-client";
 
 export const metadata: Metadata = {
-  title: "Popisi za kupnju",
-  description: "Upravljanje popisima za kupnju.",
+  title: "Popis za praćenje",
+  description: "Prati cijene proizvoda i primi obavijesti o popustima.",
 };
 
 interface IPageProps {
-  searchParams?: Record<string, string | string[] | undefined>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function ShoppingListsPage({ searchParams }: IPageProps) {
+export default async function WatchlistPage({ searchParams }: IPageProps) {
   const searchParameters = await searchParams;
   const qParam = searchParameters?.q;
   const rawQuery = (Array.isArray(qParam) ? qParam[0] : qParam) || "";
@@ -22,5 +22,5 @@ export default async function ShoppingListsPage({ searchParams }: IPageProps) {
     query = rawQuery;
   }
 
-  return <ShoppingListsClient query={query} />;
+  return <WatchlistClient query={query} />;
 }

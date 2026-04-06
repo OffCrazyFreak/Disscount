@@ -88,7 +88,7 @@ export const ProductItem = memo<IProductItemProps>(({ product, viewMode }) => {
               product={product}
               showSearchImage={true}
               showAddToList={true}
-              showAddToWatchList={false}
+              showAddToWatchlist={false}
               className="flex-col sm:flex-row"
             />
           </div>
@@ -97,5 +97,3 @@ export const ProductItem = memo<IProductItemProps>(({ product, viewMode }) => {
     </Card>
   );
 });
-
-ProductItem.displayName = "ProductItem";

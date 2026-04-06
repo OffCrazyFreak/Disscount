@@ -6,7 +6,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { storeNamesMap, STORE_CHAIN_OPTIONS } from "@/constants/store-mappings";
+import { storeNamesMap, STORE_CHAIN_OPTIONS } from "@/constants/name-mappings";
 import { useEffect, useState } from "react";
 import { ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 
@@ -56,7 +56,7 @@ export default function StoreChainSelect({
       const percentage = Math.abs((difference / averagePrice) * 100);
 
       return {
-        percentage: percentage.toFixed(1),
+        percentage: Math.round(percentage).toString(),
         difference: difference.toFixed(2),
       };
     }
@@ -69,7 +69,7 @@ export default function StoreChainSelect({
     const percentage = Math.abs((difference / averagePrice) * 100);
 
     return {
-      percentage: percentage.toFixed(1),
+      percentage: Math.round(percentage).toString(),
       difference: difference.toFixed(2),
     };
   };

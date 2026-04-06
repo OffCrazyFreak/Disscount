@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { storeNamesMap, locationNamesMap } from "@/constants/store-mappings";
+import { storeNamesMap, locationNamesMap } from "@/constants/name-mappings";
 import { pluralizeCroatian } from "@/utils/strings";
 import { cn } from "@/lib/utils";
 import cijeneService from "@/lib/cijene-api";
@@ -41,56 +41,58 @@ export const StoreItem = memo(
       <div>
         <Collapsible open={isExpanded} onOpenChange={onToggle}>
           <CollapsibleTrigger asChild>
-            <div className="flex items-center gap-4">
-              <div className="flex-shrink-0 size-12 sm:size-16 rounded-sm overflow-hidden shadow-sm">
-                <Image
-                  src={`/store-chains/${stat.chain_code}.png`}
-                  alt={storeNamesMap[stat.chain_code] ?? stat.chain_code}
-                  width={256}
-                  height={256}
-                  className=" object-contain"
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-gray-900">
-                      {storeNamesMap[stat.chain_code]}
-                    </h3>
-                    <p className="text-sm text-gray-600 flex items-center gap-2 sm:gap-4 flex-wrap my-2">
-                      <span className="flex items-center gap-2">
-                        <MapPin className="size-5 mb-1" />
-                        {stat.store_count}{" "}
-                        {pluralizeCroatian(
-                          stat.store_count,
-                          "trgovina",
-                          "trgovine",
-                        )}
-                      </span>
-                      <span className="hidden sm:inline">|</span>
-                      <span className="flex items-center gap-2">
-                        <Tag className="size-5 mb-1" />
-                        {stat.price_count}{" "}
-                        {pluralizeCroatian(
-                          stat.price_count,
-                          "cijena",
-                          "cijene",
-                        )}
-                      </span>
-                    </p>
-                  </div>
+            <button type="button" className="w-full text-left">
+              <div className="flex items-center gap-4">
+                <div className="flex-shrink-0 size-12 sm:size-16 rounded-sm overflow-hidden shadow-sm">
+                  <Image
+                    src={`/store-chains/${stat.chain_code}.png`}
+                    alt={storeNamesMap[stat.chain_code] ?? stat.chain_code}
+                    width={256}
+                    height={256}
+                    className=" object-contain"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-gray-900">
+                        {storeNamesMap[stat.chain_code]}
+                      </h3>
+                      <p className="text-sm text-gray-600 flex items-center gap-2 sm:gap-4 flex-wrap my-2">
+                        <span className="flex items-center gap-2">
+                          <MapPin className="size-5 mb-1" />
+                          {stat.store_count}{" "}
+                          {pluralizeCroatian(
+                            stat.store_count,
+                            "trgovina",
+                            "trgovine",
+                          )}
+                        </span>
+                        <span className="hidden sm:inline">|</span>
+                        <span className="flex items-center gap-2">
+                          <Tag className="size-5 mb-1" />
+                          {stat.price_count}{" "}
+                          {pluralizeCroatian(
+                            stat.price_count,
+                            "cijena",
+                            "cijene",
+                          )}
+                        </span>
+                      </p>
+                    </div>
 
-                  <div>
-                    <ChevronDown
-                      className={cn(
-                        "size-8 text-gray-500 transition-transform",
-                        isExpanded && "rotate-180",
-                      )}
-                    />
+                    <div>
+                      <ChevronDown
+                        className={cn(
+                          "size-8 text-gray-500 transition-transform",
+                          isExpanded && "rotate-180",
+                        )}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </button>
           </CollapsibleTrigger>
 
           <CollapsibleContent>

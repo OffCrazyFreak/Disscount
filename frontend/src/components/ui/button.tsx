@@ -17,7 +17,7 @@ const buttonVariants = cva(
           "outline-2 hover:outline-secondary hover:bg-green-50 hover:text-accent-foreground shadow-sm",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-xs",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
+        ghost: "hover:bg-accent/70 hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
       effect: {
@@ -120,11 +120,11 @@ const Button = React.forwardRef<
           iconPlacement === "left" &&
           !(hideIconOnLoading && loading) &&
           (effect === "expandIcon" ? (
-            <div className="w-0 translate-x-[0%] pr-0 opacity-0 transition-all duration-200 group-hover:w-5 group-hover:translate-x-100 group-hover:pr-2 group-hover:opacity-100">
-              <Icon className="size-6" />
+            <div className="w-0 translate-x-[0%] pr-0 opacity-0 transition-all duration-200 group-hover:w-5 group-hover:-translate-x-1 group-hover:pr-2 group-hover:opacity-100">
+              <Icon className="size-5" />
             </div>
           ) : (
-            <Icon className="size-6" />
+            <Icon className="size-5" />
           ))}
 
         <Slottable>{loading ? loadingText : props.children}</Slottable>
@@ -141,10 +141,10 @@ const Button = React.forwardRef<
           !(hideIconOnLoading && loading) &&
           (effect === "expandIcon" ? (
             <div className="w-0 relative translate-x-[100%] pl-0 opacity-0 transition-all duration-200 group-hover:w-5 group-hover:translate-x-0 group-hover:pl-2 group-hover:opacity-100">
-              <Icon className="size-6" />
+              <Icon className="size-5" />
             </div>
           ) : (
-            <Icon className="size-6" />
+            <Icon className="size-5" />
           ))}
       </Comp>
     );

@@ -21,16 +21,16 @@ export default function PriceChangeDisplay({
           "text-red-700": priceChange.difference > 0,
           "text-green-700": priceChange.difference < 0,
           "text-gray-700": priceChange.difference === 0,
-        }
+        },
       )}
     >
       <span>
         {priceChange.difference > 0 && "+"}
         {/* minus is displayed automatically from the number */}
-        {priceChange.difference}€
+        {priceChange.difference.toFixed(2)}€
       </span>
 
-      <span>({priceChange.percentage}%)</span>
+      <span>({Math.round(Math.abs(priceChange.percentage))}%)</span>
 
       {priceChange.difference !== 0 &&
         (priceChange.difference < 0 ? (
