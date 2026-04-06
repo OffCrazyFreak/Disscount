@@ -16,8 +16,10 @@ export default function FormWarning({ title, text }: IFormWarningProps) {
         <TriangleAlert className="size-10 shrink-0 text-amber-600" />
 
         <div className="space-y-1">
-          <h4 className="text-sm text-amber-600">{title}</h4>
-          <p className="text-xs text-amber-900 text-justify">{text}</p>
+          {title && <h4 className="text-sm text-amber-600">{title}</h4>}
+          {text && (
+            <p className="text-xs text-amber-900 text-justify">{text}</p>
+          )}
         </div>
       </div>
     </div>

@@ -66,10 +66,17 @@ export default function WatchlistClient({ query }: { query: string }) {
     })),
   });
 
+  const productsLoading = productQueries.some(
+    (query) => query.isLoading || query.isFetching,
+  );
+
   const enrichedItems = useMemo<WatchlistItemWithProduct[]>(() => {
     return groupedWatchlistItems.map((groupedItem, index) => {
       const productQuery = productQueries[index];
-      const product = productQuery?.data;
+      const isProductLoading = Boolean(
+        productQuery?.isLoading || productQuery?.isFetching,
+      );
+      const product = isProductLoading ? undefined : productQuery?.data;
       const queryError = productQuery?.error;
 
       return {
@@ -79,7 +86,7 @@ export default function WatchlistClient({ query }: { query: string }) {
         discountInfo: product
           ? calculateDiscountInfo(product, pinnedStoreChainCodes)
           : null,
-        isLoading: productQuery?.isLoading ?? false,
+        isLoading: isProductLoading,
         error: queryError instanceof Error ? queryError : null,
       };
     });
@@ -96,6 +103,10 @@ export default function WatchlistClient({ query }: { query: string }) {
   }, [enrichedItems, query]);
 
   const discountedItems = useMemo<WatchlistItemWithProduct[]>(() => {
+    if (productsLoading) {
+      return [];
+    }
+
     return enrichedItems.filter((item) => {
       if (!item.discountInfo || !item.product) {
         return false;
@@ -112,7 +123,7 @@ export default function WatchlistClient({ query }: { query: string }) {
         ),
       );
     });
-  }, [enrichedItems, hasPinnedStores]);
+  }, [enrichedItems, hasPinnedStores, productsLoading]);
 
   const watchedProductApiIds = useMemo(() => {
     return new Set(groupedWatchlistItems.map((item) => item.productApiId));
@@ -248,7 +259,9 @@ export default function WatchlistClient({ query }: { query: string }) {
             : `Praćeni proizvodi${userLoading || watchlistLoading ? "" : ` (${filteredItems.length})`}`}
         </h3>
 
-        <CreateDiscountedListButton discountedItems={discountedItems} />
+        {!productsLoading && (
+          <CreateDiscountedListButton discountedItems={discountedItems} />
+        )}
       </div>
 
       {userLoading || watchlistLoading ? (

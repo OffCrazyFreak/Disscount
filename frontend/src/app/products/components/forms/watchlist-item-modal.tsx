@@ -2,14 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import {
-  Eye,
-  TrendingDown,
-  Percent,
-  Minus,
-  Plus,
-  MinusIcon,
-} from "lucide-react";
+import { Eye, TrendingDown, Percent } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -97,14 +90,14 @@ export default function WatchlistItemModal({
         } else {
           // ABSOLUTE - suggest 10% below min price
           const suggestedPrice =
-            minPrice > 0 ? Math.round(avgPrice * 0.1 * 100) / 100 : 0;
+            avgPrice > 0 ? Math.round(avgPrice * 0.1 * 100) / 100 : 0;
           setThresholdValue(
             suggestedPrice > 0 ? suggestedPrice.toString() : "",
           );
         }
       }
     }
-  }, [isOpen, product, watchType, existingItemForType, minPrice]);
+  }, [isOpen, product, watchType, existingItemForType, avgPrice]);
 
   function getCurrentThresholdValue(): number {
     const parsedValue = Number.parseFloat(thresholdValue);
@@ -195,10 +188,7 @@ export default function WatchlistItemModal({
 
       await addToWatchlistMutation.mutateAsync({
         productApiId: product.ean,
-        watchType:
-          watchType === WatchType.percentage
-            ? WatchType.percentage
-            : WatchType.absolute,
+        watchType: watchType,
         thresholdValue: parseFloat(thresholdValue),
       });
 

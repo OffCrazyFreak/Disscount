@@ -42,7 +42,6 @@ export function FloatingActionButton({
             className={cn("size-16 rounded-full shadow-lg", className)}
           >
             {icon}
-            <span className="sr-only">{label}</span>
           </Button>
         </TooltipTrigger>
         <TooltipContent side="left">{label}</TooltipContent>

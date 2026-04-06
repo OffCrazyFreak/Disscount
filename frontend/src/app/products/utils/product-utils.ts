@@ -198,8 +198,8 @@ export function calculatePriceChange(
   currentPrice: number,
   previousPrice: number,
 ) {
-  const percentage = Math.round(
-    Math.abs(((currentPrice - previousPrice) / previousPrice) * 100),
+  const percentage = Math.abs(
+    ((currentPrice - previousPrice) / previousPrice) * 100,
   );
   const difference = Number((currentPrice - previousPrice).toFixed(2));
 

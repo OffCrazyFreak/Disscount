@@ -57,12 +57,10 @@ export default function WatchlistItemDiscountInfo({
             {discountInfo.preferredDifference !== null &&
             discountInfo.preferredPercentage !== null
               ? `${discountInfo.preferredDifference > 0 ? "+" : ""}${discountInfo.preferredDifference.toFixed(2)}€ (${Math.round(Math.abs(discountInfo.preferredPercentage))}%)`
-              : "Nema podataka"}
+              : "Nedostupno"}
           </p>
         ) : (
-          <p className="text-xs text-muted-foreground">
-            Nema odabranih trgovina
-          </p>
+          <p className="text-xs text-muted-foreground">Postavi preference</p>
         )}
       </div>
 

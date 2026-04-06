@@ -11,6 +11,8 @@ interface CreateShoppingListButtonProps {
 export default function CreateShoppingListButton({
   onCreateClick,
 }: CreateShoppingListButtonProps) {
+  const buttonText = "Stvori popis za kupnju";
+
   return (
     <>
       <Button
@@ -21,13 +23,13 @@ export default function CreateShoppingListButton({
         iconPlacement="left"
         className="hidden sm:inline-flex"
       >
-        Stvori popis za kupnju
+        {buttonText}
       </Button>
 
       <FloatingActionButton
         onClick={onCreateClick}
         icon={<Plus size={24} />}
-        label="Stvori popis za kupnju"
+        label={buttonText}
         className="sm:hidden"
       />
     </>

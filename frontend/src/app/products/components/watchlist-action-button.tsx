@@ -1,0 +1,60 @@
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ProductResponse } from "@/lib/cijene-api/schemas";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import { watchlistService } from "@/lib/api";
+import WatchlistItemModal from "@/app/products/components/forms/watchlist-item-modal";
+
+interface IWatchlistActionButtonProps {
+  product: ProductResponse;
+}
+
+export default function WatchlistActionButton({
+  product,
+}: IWatchlistActionButtonProps) {
+  const [isWatchlistModalOpen, setIsWatchlistModalOpen] = useState(false);
+
+  const { data: existingWatchlistItems = [] } =
+    watchlistService.useGetWatchlistItemsByProductApiId(product?.ean || "");
+  const isInWatchlist = existingWatchlistItems.length > 0;
+
+  return (
+    <>
+      {isWatchlistModalOpen && (
+        <WatchlistItemModal
+          isOpen={isWatchlistModalOpen}
+          onOpenChange={setIsWatchlistModalOpen}
+          product={product}
+        />
+      )}
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            size="icon"
+            aria-label="Prati proizvod"
+            className="size-10 sm:size-12 shrink-0"
+            onClick={() => {
+              setIsWatchlistModalOpen(true);
+            }}
+          >
+            {isInWatchlist ? (
+              <EyeOff className="size-6 sm:size-7" />
+            ) : (
+              <Eye className="size-6 sm:size-7" />
+            )}
+          </Button>
+        </TooltipTrigger>
+
+        <TooltipContent className="px-2 py-1 text-xs">
+          {isInWatchlist ? "Ažuriraj praćenje" : "Prati proizvod"}
+        </TooltipContent>
+      </Tooltip>
+    </>
+  );
+}

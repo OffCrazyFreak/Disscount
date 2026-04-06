@@ -163,10 +163,11 @@ function isPreferredChain(
 
   const chainCode = normalizeForSearch(chain.code);
   const chainName = normalizeForSearch(chain.chain);
+  const normalizedPinnedStoreChainCodes = pinnedStoreChainCodes.map(
+    (preferredCode) => normalizeForSearch(preferredCode),
+  );
 
-  return pinnedStoreChainCodes.some((preferredCode) => {
-    const normalizedPreferredCode = normalizeForSearch(preferredCode);
-
+  return normalizedPinnedStoreChainCodes.some((normalizedPreferredCode) => {
     return (
       normalizedPreferredCode === chainCode ||
       chainCode.includes(normalizedPreferredCode) ||

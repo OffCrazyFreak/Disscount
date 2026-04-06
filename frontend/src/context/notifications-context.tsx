@@ -145,7 +145,18 @@ export function NotificationsProvider({
           currentPrice: store.currentPrice,
           discountAmount: store.discountAmount,
           discountPercentage: store.discountPercentage,
-        }));
+        }))
+        .sort((a, b) => {
+          if (b.discountAmount !== a.discountAmount) {
+            return b.discountAmount - a.discountAmount;
+          }
+
+          if (b.discountPercentage !== a.discountPercentage) {
+            return b.discountPercentage - a.discountPercentage;
+          }
+
+          return a.currentPrice - b.currentPrice;
+        });
 
       if (discountedStores.length === 0) {
         return;

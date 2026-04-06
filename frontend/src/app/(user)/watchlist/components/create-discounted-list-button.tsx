@@ -20,6 +20,8 @@ export default function CreateDiscountedListButton({
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
 
+  const buttonText = `Stvori popis sniženih proizvoda (${discountedItems.length})`;
+
   async function handleCreateDiscountedList() {
     if (isCreating || discountedItems.length === 0) {
       return;
@@ -100,7 +102,7 @@ export default function CreateDiscountedListButton({
         loadingText="Stvaranje popisa..."
         className="hidden sm:inline-flex"
       >
-        Stvori popis sniženih proizvoda ({discountedItems.length})
+        {buttonText}
       </Button>
 
       <FloatingActionButton
@@ -112,7 +114,7 @@ export default function CreateDiscountedListButton({
             <Sparkles size={24} />
           )
         }
-        label="Stvori popis sniženih proizvoda"
+        label={buttonText}
         className="sm:hidden"
         disabled={isCreating || discountedItems.length === 0}
       />

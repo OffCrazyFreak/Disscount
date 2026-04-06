@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, EyeOff, Image, ListPlus } from "lucide-react";
+import { Image, ListPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -9,9 +9,8 @@ import {
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { cn } from "@/lib/utils";
 import AddToShoppingListForm from "@/app/products/components/forms/add-to-shopping-list-form";
-import WatchlistItemModal from "@/app/products/components/forms/watchlist-item-modal";
 import { formatQuantity } from "@/utils/strings";
-import { watchlistService } from "@/lib/api";
+import WatchlistActionButton from "@/app/products/components/watchlist-action-button";
 
 interface IProductActionButtonsProps {
   product: ProductResponse;
@@ -29,24 +28,12 @@ export default function ProductActionButtons({
   className,
 }: IProductActionButtonsProps) {
   const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
-  const [isWatchlistModalOpen, setIsWatchlistModalOpen] = useState(false);
-
-  // Check if product is in watchlist
-  const { data: existingWatchlistItems = [] } =
-    watchlistService.useGetWatchlistItemsByProductApiId(product?.ean || "");
-  const isInWatchlist = existingWatchlistItems.length > 0;
 
   return (
     <>
       <AddToShoppingListForm
         isOpen={isAddToListModalOpen}
         onOpenChange={setIsAddToListModalOpen}
-        product={product}
-      />
-
-      <WatchlistItemModal
-        isOpen={isWatchlistModalOpen}
-        onOpenChange={setIsWatchlistModalOpen}
         product={product}
       />
 
@@ -106,30 +93,7 @@ export default function ProductActionButtons({
           </Tooltip>
         )}
 
-        {showAddToWatchlist && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                aria-label="Prati proizvod"
-                className="size-10 sm:size-12 shrink-0"
-                onClick={() => {
-                  setIsWatchlistModalOpen(true);
-                }}
-              >
-                {isInWatchlist ? (
-                  <EyeOff className="size-6 sm:size-7" />
-                ) : (
-                  <Eye className="size-6 sm:size-7" />
-                )}
-              </Button>
-            </TooltipTrigger>
-
-            <TooltipContent className="px-2 py-1 text-xs">
-              {isInWatchlist ? "Ažuriraj praćenje" : "Prati proizvod"}
-            </TooltipContent>
-          </Tooltip>
-        )}
+        {showAddToWatchlist && <WatchlistActionButton product={product} />}
       </div>
     </>
   );

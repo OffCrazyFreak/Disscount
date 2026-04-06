@@ -135,7 +135,7 @@ export const AppSidebar = memo(function AppSidebar() {
                           <Icon className={isActive ? "text-primary" : ""} />
                           <span>{item.label}</span>
 
-                          {item.badge && notifications.length > 0 && (
+                          {item.badge && hasNotifications && (
                             <Badge className="ml-auto h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-green-500 text-white hover:bg-green-600">
                               {notifications.length}
                             </Badge>
