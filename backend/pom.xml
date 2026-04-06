@@ -13,6 +13,13 @@
 	<version>1.0.0</version>
 	<name>Disscount</name>
 	<description>Disscount - Shopping made easy</description>
+	<licenses>
+		<license>
+			<name>Business Source License 1.1</name>
+			<url>https://spdx.org/licenses/BUSL-1.1.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 	<properties>
 		<java.version>21</java.version>
 	</properties>
