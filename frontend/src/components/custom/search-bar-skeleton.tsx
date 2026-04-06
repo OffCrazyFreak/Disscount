@@ -16,7 +16,7 @@ export default function SearchBarSkeleton({
   return (
     <div className={className}>
       <div className="relative flex items-center gap-4 flex-wrap">
-        <div className="relative grow-100">
+        <div className="relative flex-1">
           <Skeleton className="h-12 w-full rounded-md" />
         </div>
 
