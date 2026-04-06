@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Search, Plus, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/custom/search-bar";
+import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
 import ShoppingListModal from "@/app/(user)/shopping-lists/components/forms/shopping-list-modal";
 import ShoppingListItem from "@/app/(user)/shopping-lists/components/shopping-list-item";
 import CreateShoppingListButton from "@/app/(user)/shopping-lists/components/create-shopping-list-button";
@@ -44,7 +45,7 @@ export default function ShoppingListsClient({ query }: { query: string }) {
       />
 
       <div className="space-y-4">
-        <Suspense>
+        <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
           <SearchBar
             placeholder="Pretraži popise za kupnju..."
             searchRoute={pathname}

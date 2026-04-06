@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useCameraScanner } from "@/context/scanner-context";
 import SearchBar from "@/components/custom/search-bar";
+import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
 
 export default function HeroActions() {
   const { openScanner } = useCameraScanner();
@@ -25,7 +26,7 @@ export default function HeroActions() {
   return (
     <>
       <Card className="bg-background max-w-xl mx-auto rounded-2xl shadow-xl p-8 space-y-4">
-        <Suspense>
+        <Suspense fallback={<SearchBarSkeleton submitButtonLocation="block" />}>
           <SearchBar
             placeholder="Pretraži proizvode..."
             searchRoute="/products"

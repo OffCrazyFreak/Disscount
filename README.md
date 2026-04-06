@@ -5,6 +5,7 @@
 Web and mobile (PWA) application for comparing product prices in Croatian stores, creating shopping lists, storing digital loyalty cards, and getting deal alerts with barcode scanning and AI suggestions.
 
 ## Link
+
 Deployed and available on: _[disscount.me](https://disscount.me/)_
 
 ## Visuals
@@ -38,14 +39,24 @@ Deployed and available on: _[disscount.me](https://disscount.me/)_
 
 Big thanks to _[Cijene API](https://github.com/senko/cijene-api/)_ for providing access to their API for data about products and store chains :)
 
-## License [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
+## License [![BUSL 1.1][busl-shield]][busl]
 
-[cc-by-nc-sa]: http://creativecommons.org/licenses/by-nc-sa/4.0/
-[cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png
-[cc-by-nc-sa-shield]: https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-cyan.svg
+[busl]: https://spdx.org/licenses/BUSL-1.1.html
+[busl-shield]: https://img.shields.io/badge/License-BUSL%201.1-cyan.svg
 
-This work is licensed under a
-[Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License][cc-by-nc-sa].
+This work is licensed under the
+[Business Source License 1.1 (BUSL-1.1)](https://github.com/OffCrazyFreak/Disscount/blob/main/LICENSE).
+
+License parameters used in this repository:
+
+- Licensor: Jakov Jakovac
+- Additional Use Grant: None
+- Change Date: Five (5) years from the date the Licensed Work is published
+- Change License: GPL-3.0-or-later
+
+Under BUSL-1.1 terms, each version converts on the Change Date or on the fourth anniversary of first publicly available distribution of that version, whichever comes first.
+
+Commercial use is restricted unless covered by an Additional Use Grant or separate commercial terms from the Licensor.
 
 ## How to run
 

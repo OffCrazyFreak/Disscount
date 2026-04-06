@@ -5,7 +5,7 @@ import { AppSidebar } from "@/components/custom/app-sidebar";
 import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/footer";
 import { Providers } from "@/app/providers/providers";
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://OffCrazyFreak.github.io/Disscount"),
@@ -62,7 +62,9 @@ export default function RootLayout({
             <Header />
 
             <aside>
-              <AppSidebar />
+              <Suspense fallback={null}>
+                <AppSidebar />
+              </Suspense>
             </aside>
 
             <main className="max-w-4xl mx-auto p-4 mt-24 w-full overflow-y-hidden">

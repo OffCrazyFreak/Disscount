@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Search, Plus, Loader2, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/custom/search-bar";
+import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
 import DigitalCardModal from "@/app/(user)/digital-cards/components/forms/digital-card-modal";
 import DigitalCardItem from "@/app/(user)/digital-cards/components/digital-card-item";
 import NoResults from "@/components/custom/no-results";
@@ -67,7 +68,7 @@ export default function DigitalCardsClient({ query }: { query: string }) {
       />
 
       <div className="space-y-4">
-        <Suspense>
+        <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
           <SearchBar
             placeholder="Pretraži digitalne kartice..."
             searchRoute={pathname}
