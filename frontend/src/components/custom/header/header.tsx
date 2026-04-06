@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { LogIn } from "lucide-react";
-import { JSX, useEffect, useState } from "react";
+import { JSX, Suspense, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import BgAnimateButton from "@/components/ui/bg-animate-button";
@@ -13,6 +13,7 @@ import NotificationsDropdown from "@/components/custom/header/notifications-drop
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePathname } from "next/navigation";
 import SearchBar from "@/components/custom/search-bar";
+import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
 import { userNavItems } from "@/constants/navigation";
 import { Badge } from "@/components/ui/badge";
 import { useNotifications } from "@/context/notifications-context";
@@ -112,13 +113,17 @@ export default function Header(): JSX.Element {
               </ul>
 
               <div className="max-w-72 hidden lg:block flex-1 ml-auto">
-                <SearchBar
-                  placeholder="Pretraži proizvode..."
-                  searchRoute="/products"
-                  submitButtonLocation="none"
-                  clearable={true}
-                  allowScanning={true}
-                />
+                <Suspense
+                  fallback={<SearchBarSkeleton submitButtonLocation="none" />}
+                >
+                  <SearchBar
+                    placeholder="Pretraži proizvode..."
+                    searchRoute="/products"
+                    submitButtonLocation="none"
+                    clearable={true}
+                    allowScanning={true}
+                  />
+                </Suspense>
               </div>
 
               <div className="flex items-center justify-between gap-8">

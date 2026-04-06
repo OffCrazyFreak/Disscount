@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useQueries } from "@tanstack/react-query";
 import { Search, Eye, ChevronDown } from "lucide-react";
 import SearchBar from "@/components/custom/search-bar";
+import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
 import NoResults from "@/components/custom/no-results";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import WatchlistItem from "@/app/(user)/watchlist/components/watchlist-item";
@@ -242,7 +243,7 @@ export default function WatchlistClient({ query }: { query: string }) {
 
   return (
     <div className="space-y-4">
-      <Suspense>
+      <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
         <SearchBar
           placeholder="Pretraži popis za praćenje..."
           searchRoute={pathname}

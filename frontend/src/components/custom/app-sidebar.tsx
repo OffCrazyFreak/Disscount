@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useMemo, useState, Suspense, useEffect } from "react";
-import { ChevronDown, MapPin, Percent } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -27,10 +27,10 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import cijeneService from "@/lib/cijene-api";
-import { ChainStats } from "@/lib/cijene-api/schemas";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { storeNamesMap } from "@/constants/name-mappings";
 import SearchBar from "@/components/custom/search-bar";
+import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { productNavItems, userNavItems } from "@/constants/navigation";
@@ -100,7 +100,9 @@ export const AppSidebar = memo(function AppSidebar() {
 
         <SidebarGroup>
           <SidebarGroupContent>
-            <Suspense>
+            <Suspense
+              fallback={<SearchBarSkeleton submitButtonLocation="block" />}
+            >
               <SearchBar
                 placeholder="Pretraži proizvode..."
                 searchRoute="/products"

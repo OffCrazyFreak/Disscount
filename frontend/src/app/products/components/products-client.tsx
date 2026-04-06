@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Suspense } from "react";
 import ViewSwitcher from "@/components/custom/view-switcher";
 import SearchBar from "@/components/custom/search-bar";
+import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 
@@ -23,7 +24,7 @@ export default function ProductsClient({ query }: { query: string }) {
 
   return (
     <div className="space-y-4">
-      <Suspense>
+      <Suspense fallback={<SearchBarSkeleton />}>
         <SearchBar
           placeholder="Pretraži proizvode..."
           searchRoute={pathname}
