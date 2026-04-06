@@ -181,7 +181,7 @@ export function getScopedDiscountedStores(
   pinnedStoreChainCodes: string[],
   hasPinnedStores: boolean,
 ): ScopedDiscountedStore[] {
-  const avgPrice = getAveragePrice(product) ?? 0;
+  const avgPrice = getAveragePrice(product);
 
   if (avgPrice <= 0) {
     return [];
@@ -223,7 +223,7 @@ export function calculateDiscountInfo(
   product: ProductResponse,
   pinnedStoreChainCodes: string[],
 ): DiscountInfo {
-  const avgPrice = getAveragePrice(product) ?? 0;
+  const avgPrice = getAveragePrice(product);
 
   const cheapestOverall = getCheapestChainByMinPrice(product.chains);
   const preferredChains = product.chains.filter((chain) =>

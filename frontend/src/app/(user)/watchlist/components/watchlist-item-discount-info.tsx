@@ -3,6 +3,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { DiscountInfo } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { cn } from "@/lib/utils";
+import UserPreferencesModal from "@/components/custom/header/forms/user-preferences-modal";
+import { useState } from "react";
 
 interface WatchlistItemDiscountInfoProps {
   discountInfo: DiscountInfo | null;
@@ -17,6 +19,8 @@ export default function WatchlistItemDiscountInfo({
   isLoading,
   error,
 }: WatchlistItemDiscountInfoProps) {
+  const [isPreferencesModalOpen, setIsPreferencesModalOpen] = useState(false);
+
   if (isLoading) {
     return (
       <div className="space-y-2">
@@ -36,61 +40,74 @@ export default function WatchlistItemDiscountInfo({
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-start gap-2">
-        <Star
-          className={cn("size-4 sm:size-5", {
-            "text-red-700": (discountInfo.preferredDifference ?? 0) > 0,
-            "text-green-700": (discountInfo.preferredDifference ?? 0) < 0,
-            "text-gray-700": (discountInfo.preferredDifference ?? 0) === 0,
-          })}
-        />
+    <>
+      <UserPreferencesModal
+        isOpen={isPreferencesModalOpen}
+        onOpenChange={setIsPreferencesModalOpen}
+      />
 
-        {hasPinnedStores ? (
-          <p
-            className={cn("text-sm font-bold", {
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-start gap-2">
+          <Star
+            className={cn("size-4 sm:size-5", {
               "text-red-700": (discountInfo.preferredDifference ?? 0) > 0,
               "text-green-700": (discountInfo.preferredDifference ?? 0) < 0,
               "text-gray-700": (discountInfo.preferredDifference ?? 0) === 0,
             })}
-          >
-            {discountInfo.preferredDifference !== null &&
-            discountInfo.preferredPercentage !== null
-              ? `${discountInfo.preferredDifference > 0 ? "+" : ""}${discountInfo.preferredDifference.toFixed(2)}€ (${Math.round(Math.abs(discountInfo.preferredPercentage))}%)`
-              : "Nedostupno"}
-          </p>
-        ) : (
-          <p className="text-xs text-muted-foreground">Postavi preference</p>
-        )}
-      </div>
+          />
 
-      <Separator className="" />
+          {hasPinnedStores ? (
+            <p
+              className={cn("text-sm font-bold", {
+                "text-red-700": (discountInfo.preferredDifference ?? 0) > 0,
+                "text-green-700": (discountInfo.preferredDifference ?? 0) < 0,
+                "text-gray-700": (discountInfo.preferredDifference ?? 0) === 0,
+              })}
+            >
+              {discountInfo.preferredDifference !== null &&
+              discountInfo.preferredPercentage !== null
+                ? `${discountInfo.preferredDifference > 0 ? "+" : ""}${discountInfo.preferredDifference.toFixed(2)}€ (${Math.round(Math.abs(discountInfo.preferredPercentage))}%)`
+                : "Nedostupno"}
+            </p>
+          ) : (
+            <button
+              type="button"
+              className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer italic"
+              onClick={() => setIsPreferencesModalOpen(true)}
+            >
+              Postavi preference
+            </button>
+          )}
+        </div>
 
-      <div className="flex items-center justify-start gap-2">
-        <Store
-          className={cn("size-4 sm:size-5", {
-            "text-red-700": (discountInfo.totalDifference ?? 0) > 0,
-            "text-green-700": (discountInfo.totalDifference ?? 0) < 0,
-            "text-gray-700": (discountInfo.totalDifference ?? 0) === 0,
-          })}
-        />
+        <Separator className="" />
 
-        <p
-          className={cn(
-            "text-sm font-medium text-right flex gap-2 flex-wrap items-center justify-end transition-all",
-            {
+        <div className="flex items-center justify-start gap-2">
+          <Store
+            className={cn("size-4 sm:size-5", {
               "text-red-700": (discountInfo.totalDifference ?? 0) > 0,
               "text-green-700": (discountInfo.totalDifference ?? 0) < 0,
               "text-gray-700": (discountInfo.totalDifference ?? 0) === 0,
-            },
-          )}
-        >
-          {discountInfo.totalDifference !== null &&
-          discountInfo.totalPercentage !== null
-            ? `${discountInfo.totalDifference > 0 ? "+" : ""}${discountInfo.totalDifference.toFixed(2)}€ (${Math.round(Math.abs(discountInfo.totalPercentage))}%)`
-            : "Nema podataka"}
-        </p>
+            })}
+          />
+
+          <p
+            className={cn(
+              "text-sm font-medium text-right flex gap-2 flex-wrap items-center justify-end transition-all",
+              {
+                "text-red-700": (discountInfo.totalDifference ?? 0) > 0,
+                "text-green-700": (discountInfo.totalDifference ?? 0) < 0,
+                "text-gray-700": (discountInfo.totalDifference ?? 0) === 0,
+              },
+            )}
+          >
+            {discountInfo.totalDifference !== null &&
+            discountInfo.totalPercentage !== null
+              ? `${discountInfo.totalDifference > 0 ? "+" : ""}${discountInfo.totalDifference.toFixed(2)}€ (${Math.round(Math.abs(discountInfo.totalPercentage))}%)`
+              : "Nema podataka"}
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

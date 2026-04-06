@@ -120,9 +120,11 @@ export default function DigitalCardsClient({ query }: { query: string }) {
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               Nema digitalnih kartica
             </h3>
+
             <p className="text-gray-600 mb-6">
               Stvorite svoju prvu digitalnu karticu…
             </p>
+
             <Button
               effect="shineHover"
               icon={Plus}

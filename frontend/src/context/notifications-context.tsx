@@ -50,6 +50,7 @@ interface INotificationsContext {
   summary: NotificationsSummary;
   isLoading: boolean;
   hasNotifications: boolean;
+  hasWatchlistItems: boolean;
 }
 
 const NotificationsContext = createContext<INotificationsContext | undefined>(
@@ -90,6 +91,13 @@ export function NotificationsProvider({
       staleTime: 6 * 60 * 60 * 1000, // 6 hours
     })),
   });
+
+  const productQueriesStateKey = productQueries
+    .map(
+      (query, index) =>
+        `${groupedWatchlistItems[index]?.productApiId || ""}:${query.status}:${query.fetchStatus}:${query.dataUpdatedAt}:${query.errorUpdatedAt}`,
+    )
+    .join("|");
 
   // Generate grouped notifications from products with threshold-matched discounts
   const { notifications, summary } = useMemo(() => {
@@ -200,9 +208,9 @@ export function NotificationsProvider({
     };
   }, [
     groupedWatchlistItems,
-    productQueries,
     pinnedStoreChainCodes,
     hasPinnedStores,
+    productQueriesStateKey,
   ]);
 
   const isLoading = watchlistLoading || productQueries.some((q) => q.isLoading);
@@ -212,6 +220,7 @@ export function NotificationsProvider({
     summary,
     isLoading,
     hasNotifications: notifications.length > 0,
+    hasWatchlistItems: watchlistItems.length > 0,
   };
 
   return (

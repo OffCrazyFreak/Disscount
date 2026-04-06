@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Loader2, HandCoins } from "lucide-react";
+import { Loader2, HandCoins, Eye } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,14 +13,22 @@ import { Badge } from "@/components/ui/badge";
 import { BellRingIcon } from "@/components/custom/icons/BellRingIcon";
 import { useNotifications } from "@/context/notifications-context";
 import { formatQuantity } from "@/utils/strings";
+import { useRouter } from "next/navigation";
 
 export default function NotificationsDropdown() {
-  const { notifications, summary, isLoading, hasNotifications } =
-    useNotifications();
-  const [isOpen, setIsOpen] = useState(false);
+  const {
+    notifications,
+    summary,
+    isLoading,
+    hasNotifications,
+    hasWatchlistItems,
+  } = useNotifications();
+  const router = useRouter();
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+    <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <BellRingIcon size={18} />
@@ -67,17 +75,28 @@ export default function NotificationsDropdown() {
               <span className="text-sm">Učitavanje...</span>
             </div>
           ) : notifications.length === 0 ? (
-            <div className="p-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                Danas nema sniženja na praćenim proizvodima 😔
+            <div className="p-2 space-y-4 text-center">
+              <p className="text-sm text-muted-foreground text-pretty">
+                {hasWatchlistItems
+                  ? "Danas nema popusta na praćenim proizvodima."
+                  : "Dodaj proizvode na popis za praćenje kako bi te obavijestili kada proizvodi koje želiš budu na popustu u tvojim trgovinama!"}
               </p>
 
-              <Link
-                href="/watchlist"
-                className="text-xs text-primary hover:underline mt-2 inline-block"
-              >
-                Dodaj proizvode za praćenje
-              </Link>
+              {!hasWatchlistItems && (
+                <Button
+                  effect="shineHover"
+                  size={"default"}
+                  icon={Eye}
+                  iconPlacement="left"
+                  onClick={() => {
+                    setIsDropdownOpen(false);
+
+                    router.push("/watchlist");
+                  }}
+                >
+                  Dodaj proizvode
+                </Button>
+              )}
             </div>
           ) : (
             [...notifications]
@@ -107,7 +126,7 @@ export default function NotificationsDropdown() {
                   <Link
                     key={notification.id}
                     href={`/products/${notification.productApiId}`}
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => setIsDropdownOpen(false)}
                     className="block p-4 border-b last:border-b-0 hover:bg-primary/5 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-2">

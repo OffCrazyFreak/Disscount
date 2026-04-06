@@ -3,7 +3,7 @@ import WatchlistClient from "@/app/(user)/watchlist/components/watchlist-client"
 
 export const metadata: Metadata = {
   title: "Popis za praćenje",
-  description: "Prati cijene proizvoda i primi obavijesti o sniženjima.",
+  description: "Prati cijene proizvoda i primi obavijesti o popustima.",
 };
 
 interface IPageProps {

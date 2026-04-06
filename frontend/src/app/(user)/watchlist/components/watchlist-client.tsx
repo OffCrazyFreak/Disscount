@@ -286,13 +286,10 @@ export default function WatchlistClient({ query }: { query: string }) {
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
             Nema praćenih proizvoda
           </h3>
+
           <p className="text-gray-600 mb-6">
             Dodajte proizvode na popis za praćenje kako biste primali obavijesti
-            o sniženjima.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Na stranici proizvoda kliknite na <Eye className="inline size-4" />{" "}
-            ikonu za praćenje.
+            o popustima.
           </p>
         </div>
       )}

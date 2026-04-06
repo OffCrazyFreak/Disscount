@@ -7,21 +7,19 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
-import { watchlistService } from "@/lib/api";
 import WatchlistItemModal from "@/app/products/components/forms/watchlist-item-modal";
 
 interface IWatchlistActionButtonProps {
   product: ProductResponse;
+  isInWatchlist: boolean;
 }
 
 export default function WatchlistActionButton({
   product,
+  isInWatchlist,
 }: IWatchlistActionButtonProps) {
   const [isWatchlistModalOpen, setIsWatchlistModalOpen] = useState(false);
-
-  const { data: existingWatchlistItems = [] } =
-    watchlistService.useGetWatchlistItemsByProductApiId(product?.ean || "");
-  const isInWatchlist = existingWatchlistItems.length > 0;
+  const actionLabel = isInWatchlist ? "Ažuriraj praćenje" : "Prati proizvod";
 
   return (
     <>
@@ -37,7 +35,7 @@ export default function WatchlistActionButton({
         <TooltipTrigger asChild>
           <Button
             size="icon"
-            aria-label="Prati proizvod"
+            aria-label={actionLabel}
             className="size-10 sm:size-12 shrink-0"
             onClick={() => {
               setIsWatchlistModalOpen(true);
@@ -52,7 +50,7 @@ export default function WatchlistActionButton({
         </TooltipTrigger>
 
         <TooltipContent className="px-2 py-1 text-xs">
-          {isInWatchlist ? "Ažuriraj praćenje" : "Prati proizvod"}
+          {actionLabel}
         </TooltipContent>
       </Tooltip>
     </>

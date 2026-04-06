@@ -241,7 +241,9 @@ export default function WatchlistItemModal({
     }
 
     if (absoluteItem) {
-      parts.push(`minimalnim pragom cijene od ${absoluteItem.thresholdValue}€`);
+      parts.push(
+        `minimalnim pragom popusta od ${absoluteItem.thresholdValue}€`,
+      );
     }
 
     return `Ovaj proizvod je već na popisu za praćenje s ${parts.join(" te ")}.`;
@@ -301,7 +303,7 @@ export default function WatchlistItemModal({
                   <Percent className="mb-3 size-6" />
                   <span className="text-sm font-medium">Postotak</span>
                   <span className="text-xs text-muted-foreground text-center">
-                    Obavijesti kad sniženje bude veće od određenog postotka
+                    Obavijesti kad popust bude veći od određenog postotka
                   </span>
                 </button>
               </div>

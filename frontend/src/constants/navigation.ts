@@ -58,23 +58,23 @@ export const userNavItems: NavigationItem[] = [
 ];
 
 export const productNavItems: NavigationItem[] = [
-  {
-    id: "discounted",
-    href: "/products?discounted=true",
-    label: "Sniženja",
-    icon: Percent,
+  // {
+  //   id: "discounted",
+  //   href: "/products?discounted=true",
+  //   label: "Popusti",
+  //   icon: Percent,
 
-    showInHeader: false,
-  },
-  {
-    id: "categories",
-    href: "#",
-    label: "Kategorije",
-    icon: List,
+  //   showInHeader: false,
+  // },
+  // {
+  //   id: "categories",
+  //   href: "#",
+  //   label: "Kategorije",
+  //   icon: List,
 
-    showInHeader: false,
-    isCollapsible: true,
-  },
+  //   showInHeader: false,
+  //   isCollapsible: true,
+  // },
   {
     id: "stores",
     href: "#",
