@@ -4,7 +4,7 @@ import { memo, useMemo, useState, Suspense, useEffect } from "react";
 import { ChevronDown, MapPin, Percent } from "lucide-react";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import {
   Sidebar,
@@ -44,7 +44,13 @@ export const AppSidebar = memo(function AppSidebar() {
   const [openMenu, setOpenMenu] = useState<OpenSection>(null);
   const { setOpen, setOpenMobile } = useSidebar();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { notifications, hasNotifications } = useNotifications();
+
+  const searchParamsString = searchParams.toString();
+  const fullPath = `${pathname}${searchParamsString ? `?${searchParamsString}` : ""}`;
+  const selectedCategory = searchParams.get("category");
+  const isDiscountedFilterActive = searchParams.get("discounted") === "true";
 
   const { data: chainStats, isLoading: chainStatsLoading } =
     cijeneService.useGetChainStats();
@@ -159,7 +165,11 @@ export const AppSidebar = memo(function AppSidebar() {
             <SidebarMenu>
               {productNavItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = pathname.startsWith(item.href);
+                const isActive =
+                  item.id === "discounted"
+                    ? pathname.startsWith("/products") &&
+                      isDiscountedFilterActive
+                    : item.href !== "#" && fullPath.startsWith(item.href);
 
                 if (item.isCollapsible) {
                   const isStoresOpen =
@@ -200,13 +210,11 @@ export const AppSidebar = memo(function AppSidebar() {
                               {categories.map((category) => (
                                 <SidebarMenuSubItem key={category}>
                                   <Link
-                                    className={`flex justify-between items-center ${
-                                      pathname.includes(
-                                        encodeURIComponent(category),
-                                      )
-                                        ? "text-primary font-bold"
-                                        : ""
-                                    }`}
+                                    className={cn(
+                                      "flex justify-between items-center",
+                                      selectedCategory === category &&
+                                        "text-primary font-bold",
+                                    )}
                                     href={`/products?category=${encodeURIComponent(
                                       category,
                                     )}`}

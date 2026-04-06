@@ -27,6 +27,47 @@ interface WatchlistItemProps {
   showThresholdBadges?: boolean;
 }
 
+interface WatchlistActionButtonProps {
+  visibilityClassName: string;
+  isAddMode: boolean;
+  isRemoving: boolean;
+  hasProduct: boolean;
+  onAdd: () => void;
+  onRemove: () => void;
+}
+
+function WatchlistActionButton({
+  visibilityClassName,
+  isAddMode,
+  isRemoving,
+  hasProduct,
+  onAdd,
+  onRemove,
+}: WatchlistActionButtonProps) {
+  return (
+    <Button
+      size="icon"
+      aria-label={isAddMode ? "Dodaj proizvod" : "Ukloni proizvod"}
+      className={cn(
+        visibilityClassName,
+        isAddMode
+          ? "bg-primary hover:bg-primary/90"
+          : "bg-red-600 hover:bg-red-700",
+      )}
+      onClick={isAddMode ? onAdd : onRemove}
+      disabled={isAddMode ? !hasProduct : isRemoving}
+    >
+      {isAddMode ? (
+        <Eye className="size-5 sm:size-6" />
+      ) : isRemoving ? (
+        <Loader2 className="size-5 sm:size-6 animate-spin" />
+      ) : (
+        <X className="size-5 sm:size-6" />
+      )}
+    </Button>
+  );
+}
+
 export default function WatchlistItem({
   item,
   actionMode = "remove",
@@ -50,23 +91,35 @@ export default function WatchlistItem({
   const isAddMode = actionMode === "add";
 
   async function handleRemove() {
-    try {
-      setIsRemoving(true);
+    setIsRemoving(true);
 
-      await Promise.all(
+    try {
+      const removeResults = await Promise.allSettled(
         watchlistItems.map((watchlistItem) =>
           watchlistService.removeFromWatchlist(watchlistItem.id),
         ),
       );
 
-      queryClient.invalidateQueries({
-        queryKey: watchlistService.QUERY_KEYS.all,
-      });
+      const failedRemovals = removeResults.filter(
+        (result) => result.status === "rejected",
+      ).length;
 
-      toast.success("Proizvod uklonjen s popisa za praćenje");
+      if (failedRemovals === 0) {
+        toast.success("Proizvod uklonjen s popisa za praćenje");
+      } else if (failedRemovals === watchlistItems.length) {
+        toast.error("Greška pri uklanjanju proizvoda");
+      } else {
+        toast.error(
+          `Djelomično uklanjanje: ${failedRemovals} stavki nije moguće ukloniti.`,
+        );
+      }
     } catch {
       toast.error("Greška pri uklanjanju proizvoda");
     } finally {
+      await queryClient.invalidateQueries({
+        queryKey: watchlistService.QUERY_KEYS.all,
+      });
+
       setIsRemoving(false);
     }
   }
@@ -161,26 +214,14 @@ export default function WatchlistItem({
               </div>
             </Link>
 
-            <Button
-              size="icon"
-              aria-label={isAddMode ? "Dodaj proizvod" : "Ukloni proizvod"}
-              className={cn(
-                "sm:hidden size-8 sm:size-10 shrink-0",
-                isAddMode
-                  ? "bg-primary hover:bg-primary/90"
-                  : "bg-red-600 hover:bg-red-700",
-              )}
-              onClick={isAddMode ? handleOpenWatchlistModal : handleRemove}
-              disabled={isAddMode ? !product : isRemoving}
-            >
-              {isAddMode ? (
-                <Eye className="size-5 sm:size-6" />
-              ) : isRemoving ? (
-                <Loader2 className="size-5 sm:size-6 animate-spin" />
-              ) : (
-                <X className="size-5 sm:size-6" />
-              )}
-            </Button>
+            <WatchlistActionButton
+              visibilityClassName="sm:hidden size-8 sm:size-10 shrink-0"
+              isAddMode={isAddMode}
+              isRemoving={isRemoving}
+              hasProduct={Boolean(product)}
+              onAdd={handleOpenWatchlistModal}
+              onRemove={handleRemove}
+            />
           </div>
 
           <div className="flex items-center gap-4">
@@ -236,26 +277,14 @@ export default function WatchlistItem({
             </div>
 
             {/* Remove button - hidden on mobile, shown on larger screens */}
-            <Button
-              size="icon"
-              aria-label={isAddMode ? "Dodaj proizvod" : "Ukloni proizvod"}
-              className={cn(
-                "hidden sm:flex size-8 sm:size-10 shrink-0",
-                isAddMode
-                  ? "bg-primary hover:bg-primary/90"
-                  : "bg-red-600 hover:bg-red-700",
-              )}
-              onClick={isAddMode ? handleOpenWatchlistModal : handleRemove}
-              disabled={isAddMode ? !product : isRemoving}
-            >
-              {isAddMode ? (
-                <Eye className="size-5 sm:size-6" />
-              ) : isRemoving ? (
-                <Loader2 className="size-5 sm:size-6 animate-spin" />
-              ) : (
-                <X className="size-5 sm:size-6" />
-              )}
-            </Button>
+            <WatchlistActionButton
+              visibilityClassName="hidden sm:flex size-8 sm:size-10 shrink-0"
+              isAddMode={isAddMode}
+              isRemoving={isRemoving}
+              hasProduct={Boolean(product)}
+              onAdd={handleOpenWatchlistModal}
+              onRemove={handleRemove}
+            />
           </div>
         </div>
       </CardContent>

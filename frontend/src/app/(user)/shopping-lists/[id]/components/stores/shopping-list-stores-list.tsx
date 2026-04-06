@@ -263,24 +263,28 @@ export default function ShoppingListStoreSummary({
   return (
     <Collapsible open={isStoresOpen} onOpenChange={handleToggleStores}>
       <CollapsibleTrigger asChild className="cursor-pointer py-2">
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold">Cijene po lancima trgovina</h2>
+        <button type="button" className="w-full text-left">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-lg font-semibold">
+              Cijene po lancima trgovina
+            </h2>
 
-          <Separator className="flex-1 my-2" />
+            <Separator className="flex-1 my-2" />
 
-          <div className="flex items-center gap-4">
-            <p className="hidden sm:inline text-gray-700 text-sm">
-              {isStoresOpen ? "Sakrij" : "Prikaži"}
-            </p>
+            <div className="flex items-center gap-4">
+              <p className="hidden sm:inline text-gray-700 text-sm">
+                {isStoresOpen ? "Sakrij" : "Prikaži"}
+              </p>
 
-            <ChevronDown
-              className={cn(
-                "size-8 text-gray-500 transition-transform flex-shrink-0",
-                isStoresOpen && "rotate-180",
-              )}
-            />
+              <ChevronDown
+                className={cn(
+                  "size-8 text-gray-500 transition-transform flex-shrink-0",
+                  isStoresOpen && "rotate-180",
+                )}
+              />
+            </div>
           </div>
-        </div>
+        </button>
       </CollapsibleTrigger>
 
       <CollapsibleContent>

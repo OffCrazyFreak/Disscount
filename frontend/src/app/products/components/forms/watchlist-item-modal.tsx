@@ -130,6 +130,9 @@ export default function WatchlistItemModal({
     };
   }
 
+  const minThresholdValue = watchType === WatchType.absolute ? 0.1 : 1;
+  const maxThresholdValue = watchType === WatchType.absolute ? 999 : 99;
+
   function updateThresholdBy(delta: number): void {
     const currentValue = getCurrentThresholdValue();
     const minValue = minThresholdValue;
@@ -260,8 +263,6 @@ export default function WatchlistItemModal({
   const alertMessage = buildAlertMessage();
   const thresholdSteps = getThresholdSteps();
   const currentThresholdValue = getCurrentThresholdValue();
-  const minThresholdValue = watchType === WatchType.absolute ? 0.1 : 1;
-  const maxThresholdValue = watchType === WatchType.absolute ? 999 : 99;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -412,7 +413,7 @@ export default function WatchlistItemModal({
 
             {existingItemForType?.watchType === watchType &&
               existingItemForType?.thresholdValue !==
-                parseFloat(thresholdValue) && (
+                getCurrentThresholdValue() && (
                 <FieldDescription className="text-xs ">
                   Minimalan prag će biti ažuriran s{" "}
                   {existingItemForType?.thresholdValue} na {thresholdValue}.
