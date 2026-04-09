@@ -242,7 +242,8 @@ export const AppSidebar = memo(function AppSidebar() {
                                     )}`}
                                   >
                                     <span>
-                                      {storeNamesMap[chain.chain_code]}
+                                      {storeNamesMap[chain.chain_code] ||
+                                        chain.chain_code}
                                     </span>
                                     <span>{`(${chain.store_count})`}</span>
                                   </Link>

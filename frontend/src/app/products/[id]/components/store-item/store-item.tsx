@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { ChevronDown, AlertTriangle } from "lucide-react";
+import { ChevronDown, TriangleAlert } from "lucide-react";
 import Image from "next/image";
 import {
   Collapsible,
@@ -86,7 +86,7 @@ export const StoreItem = memo(
                             variant="secondary"
                             className="bg-amber-100 text-amber-800 border-amber-200"
                           >
-                            <AlertTriangle className="size-4 mr-1" />
+                            <TriangleAlert className="size-4 mr-1" />
                             Podaci od {formatDate(store.price_date)}
                           </Badge>
                         )}

@@ -246,7 +246,7 @@ export default function UserPreferencesModal({
                             <Image
                               src={`/store-chains/${chain.chain_code}.png`}
                               alt={
-                                storeNamesMap[chain.chain_code] ??
+                                storeNamesMap[chain.chain_code] ||
                                 chain.chain_code
                               }
                               fill
@@ -259,7 +259,7 @@ export default function UserPreferencesModal({
 
                             {/* {!isSelected && (
                               <span className="hidden sm:text-xs font-bold text-center z-10 p-1 break-all">
-                                {storeNamesMap[chain.chain_code]}
+                                {storeNamesMap[chain.chain_code] || chain.chain_code}
                               </span>
                             )} */}
                           </div>

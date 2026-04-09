@@ -46,7 +46,7 @@ export const StoreItem = memo(
                 <div className="flex-shrink-0 size-12 sm:size-16 rounded-sm overflow-hidden shadow-sm">
                   <Image
                     src={`/store-chains/${stat.chain_code}.png`}
-                    alt={storeNamesMap[stat.chain_code] ?? stat.chain_code}
+                    alt={storeNamesMap[stat.chain_code] || stat.chain_code}
                     width={256}
                     height={256}
                     className=" object-contain"
@@ -56,8 +56,9 @@ export const StoreItem = memo(
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-semibold text-gray-900">
-                        {storeNamesMap[stat.chain_code]}
+                        {storeNamesMap[stat.chain_code] || stat.chain_code}
                       </h3>
+
                       <p className="text-sm text-gray-600 flex items-center gap-2 sm:gap-4 flex-wrap my-2">
                         <span className="flex items-center gap-2">
                           <MapPin className="size-5 mb-1" />

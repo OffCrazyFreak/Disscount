@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 
 import StoreChainSelect from "@/components/custom/store-chain-select";
-import { storeNamesMap } from "@/constants/name-mappings";
+
 import type { ShoppingListItemDto } from "@/lib/api/types";
 import { formatQuantity } from "@/utils/strings";
 
@@ -34,12 +34,6 @@ export default function ShoppingListItem({
   storePrices,
   showSeparator,
 }: ShoppingListItemProps) {
-  // Map backend enum (e.g. "PLODINE" or "TRGOVINA_KRK") to our storeNamesMap key
-  const chainKey = item.chainCode
-    ? item.chainCode.toLowerCase().replace(/_/g, "-")
-    : null;
-  const storeName = chainKey ? (storeNamesMap[chainKey] ?? chainKey) : null;
-
   // Average price - from DB for checked items, from API for unchecked items
   const displayPrice = item.isChecked ? item.avgPrice : averagePrice;
 

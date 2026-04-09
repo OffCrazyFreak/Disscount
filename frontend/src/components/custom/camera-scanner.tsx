@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ScanBarcode, AlertTriangle } from "lucide-react";
+import { ScanBarcode, TriangleAlert } from "lucide-react";
 import { IScannedCode } from "@/typings/scanned-code";
 
 interface ICodeScannerProps {
@@ -41,7 +41,7 @@ export default function CameraScanner({
         // ignore
       }
     },
-    [videoTrack]
+    [videoTrack],
   );
 
   // Check camera permission by requesting basic video access
@@ -53,7 +53,7 @@ export default function CameraScanner({
     } catch {
       setHasPermission(false);
       setError(
-        "Potreban je pristup kameri za skeniranje. Molimo omogućite pristup kameri u postavkama preglednika."
+        "Potreban je pristup kameri za skeniranje. Molimo omogućite pristup kameri u postavkama preglednika.",
       );
     }
   }, []);
@@ -92,7 +92,7 @@ export default function CameraScanner({
         onScan(result);
       }
     },
-    [onScan, disableTorch]
+    [onScan, disableTorch],
   );
 
   const handleError = useCallback(() => {
@@ -127,7 +127,7 @@ export default function CameraScanner({
           {error && (
             <div className="relative w-full rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">
               <div className="flex items-start gap-3">
-                <AlertTriangle className="h-4 w-4 mt-0.5" />
+                <TriangleAlert className="h-4 w-4 mt-0.5" />
                 <div className="text-sm">{error}</div>
               </div>
             </div>
@@ -136,7 +136,7 @@ export default function CameraScanner({
           {hasPermission === null && !error && (
             <div className="relative w-full rounded-lg border border-blue-200 bg-blue-50 p-4 text-blue-800">
               <div className="flex items-start gap-3">
-                <AlertTriangle className="h-4 w-4 mt-0.5" />
+                <TriangleAlert className="h-4 w-4 mt-0.5" />
                 <div className="text-sm">Provjeravam pristup kameri...</div>
               </div>
             </div>

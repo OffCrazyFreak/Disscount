@@ -359,8 +359,7 @@ export function formatShoppingListForSharing(
 
     // Get store name from chainCode
     const storeName = item.chainCode
-      ? storeNamesMap[item.chainCode.toLowerCase().replace(/_/g, "-")] ||
-        item.chainCode
+      ? storeNamesMap[item.chainCode] || item.chainCode
       : "";
     const store = storeName ? ` - ${storeName}` : "";
 

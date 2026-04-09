@@ -3,7 +3,7 @@
 import { memo, useState, useCallback } from "react";
 import {
   ChevronDown,
-  AlertTriangle,
+  TriangleAlert,
   ArrowBigUpDash,
   ArrowBigDownDash,
 } from "lucide-react";
@@ -123,8 +123,8 @@ const ShoppingListStoreItemComponent = ({
                           variant="secondary"
                           className="bg-orange-100 text-orange-800 border-orange-200"
                         >
-                          <AlertTriangle className="size-4 mr-1" />
-                          Nedostaju neki proizvodi ({chain.itemCount}/
+                          <TriangleAlert className="size-4 mr-1" />
+                          Proizvodi nedostupni ({chain.itemCount}/
                           {totalItemsInList})
                         </Badge>
                       )}
@@ -134,7 +134,7 @@ const ShoppingListStoreItemComponent = ({
                           variant="secondary"
                           className="bg-amber-100 text-amber-800 border-amber-200"
                         >
-                          <AlertTriangle className="size-4 mr-1" />
+                          <TriangleAlert className="size-4 mr-1" />
                           Podaci od {formatDate(chain.price_date)}
                         </Badge>
                       )}

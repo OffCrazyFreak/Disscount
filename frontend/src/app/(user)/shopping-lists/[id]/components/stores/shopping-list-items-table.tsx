@@ -2,7 +2,13 @@
 
 import React, { memo } from "react";
 import Link from "next/link";
-import { ChevronUp, ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
+import {
+  ChevronUp,
+  ArrowBigUpDash,
+  ArrowBigDownDash,
+  TriangleAlert,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -11,6 +17,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { ShoppingListDto } from "@/lib/api/types";
 import {
@@ -18,6 +29,7 @@ import {
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
 import { sortShoppingListItemsByAvailabilityAndName } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ShoppingListItemsTableProps {
   chain: ChainProductResponse;
@@ -27,6 +39,8 @@ interface ShoppingListItemsTableProps {
 
 export const ShoppingListItemsTable = memo(
   ({ chain, shoppingList, productsData }: ShoppingListItemsTableProps) => {
+    const isMobile = useIsMobile();
+
     if (!shoppingList.items || shoppingList.items.length === 0) {
       return (
         <div className="text-center py-8 text-gray-500">
@@ -110,6 +124,29 @@ export const ShoppingListItemsTable = memo(
                       >
                         {item.name}
                       </Link>
+
+                      {!isAvailable && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            {isMobile ? (
+                              <TriangleAlert className="size-4 shrink-0 text-amber-600 inline ml-2" />
+                            ) : (
+                              <Badge
+                                variant="secondary"
+                                className="bg-orange-100 text-orange-800 border-orange-200"
+                              >
+                                <TriangleAlert className="size-4 shrink-0 text-amber-600 inline ml-2" />
+                                Proizvod nedostupan
+                              </Badge>
+                            )}
+                            ;
+                          </TooltipTrigger>
+
+                          <TooltipContent className="px-2 py-1 text-xs">
+                            Proizvod nije dostupan u ovoj trgovini
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
                     </TableCell>
 
                     <TableCell

@@ -57,13 +57,7 @@ const NotificationsContext = createContext<INotificationsContext | undefined>(
   undefined,
 );
 
-interface NotificationsProviderProps {
-  children: ReactNode;
-}
-
-export function NotificationsProvider({
-  children,
-}: NotificationsProviderProps) {
+export function NotificationsProvider({ children }: { children: ReactNode }) {
   const { user, isAuthenticated } = useUser();
 
   // Fetch watchlist items
@@ -146,10 +140,7 @@ export function NotificationsProvider({
           ),
         )
         .map((store) => ({
-          chainName:
-            storeNamesMap[store.chain.code.toLowerCase().replace(/_/g, "-")] ||
-            storeNamesMap[store.chain.chain.toLowerCase().replace(/_/g, "-")] ||
-            toPascalCase(store.chain.chain.toLowerCase()),
+          chainName: storeNamesMap[store.chain.chain] || store.chain.chain,
           currentPrice: store.currentPrice,
           discountAmount: store.discountAmount,
           discountPercentage: store.discountPercentage,
