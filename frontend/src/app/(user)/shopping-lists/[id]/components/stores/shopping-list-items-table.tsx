@@ -133,13 +133,12 @@ export const ShoppingListItemsTable = memo(
                             ) : (
                               <Badge
                                 variant="secondary"
-                                className="bg-orange-100 text-orange-800 border-orange-200"
+                                className="bg-orange-100 text-orange-800 border-orange-200 ml-2"
                               >
-                                <TriangleAlert className="size-4 shrink-0 text-amber-600 inline ml-2" />
+                                <TriangleAlert className="size-4 shrink-0 text-amber-600" />
                                 Proizvod nedostupan
                               </Badge>
                             )}
-                            ;
                           </TooltipTrigger>
 
                           <TooltipContent className="px-2 py-1 text-xs">
