@@ -116,10 +116,7 @@ export default function ShoppingListPriceHistory({
           dataPoint.product.chains.forEach((chainData) => {
             // Only include prices from selected chains
             if (selectedChains.includes(chainData.chain)) {
-              const avgPrice = parseFloat(chainData.avg_price);
-              if (Number.isFinite(avgPrice)) {
-                prices.push(avgPrice);
-              }
+              prices.push(chainData.avg_price);
             }
           });
 

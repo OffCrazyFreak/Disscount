@@ -11,7 +11,6 @@ import {
 import StoreChainSelect from "../../../../../../components/custom/store-chain-select";
 import { storeNamesMap } from "@/utils/mappings";
 import type { ShoppingListItemDto } from "@/lib/api/types";
-import { formatQuantity } from "@/utils/strings";
 
 interface ShoppingListItemProps {
   item: ShoppingListItemDto;
@@ -49,9 +48,7 @@ export default function ShoppingListItem({
 
   // Calculate average price per unit
   const avgPricePerUnit =
-    displayPrice && item.quantity
-      ? displayPrice / parseFloat(item.quantity)
-      : undefined;
+    displayPrice && item.quantity ? displayPrice / item.quantity : undefined;
 
   return (
     <>
@@ -107,9 +104,7 @@ export default function ShoppingListItem({
               {item.quantity && item.unit ? (
                 <div className="text-nowrap">
                   <div className="flex flex-shrink-0 items-center gap-2 text-gray-700 text-right">
-                    <span className="">
-                      {`${formatQuantity(item.quantity)} ${item.unit}`}
-                    </span>
+                    <span className="">{`${item.quantity} ${item.unit}`}</span>
 
                     <span>~ {displayPrice?.toFixed(2)}€</span>
                   </div>

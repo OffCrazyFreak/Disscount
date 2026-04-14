@@ -16,10 +16,8 @@ export const listChainsResponseSchema = z.object({
   chains: z.array(z.string()),
 });
 
-export type ListChainsResponse = z.infer<typeof listChainsResponseSchema>;
-
 // Store schemas
-export const storeSchema = z.object({
+export const chainSchema = z.object({
   chain_id: z.number(),
   code: z.string(),
   type: z.string().nullable(),
@@ -31,7 +29,7 @@ export const storeSchema = z.object({
   phone: z.string().nullable(),
 });
 
-export const storeResponseSchema = z.object({
+export const chainResponseSchema = z.object({
   chain_code: z.string(),
   code: z.string(),
   type: z.string().nullable(),
@@ -44,12 +42,12 @@ export const storeResponseSchema = z.object({
 });
 
 export const listStoresResponseSchema = z.object({
-  stores: z.array(storeResponseSchema),
+  stores: z.array(chainResponseSchema),
 });
 
-export type Store = z.infer<typeof storeSchema>;
-export type StoreResponse = z.infer<typeof storeResponseSchema>;
-export type ListStoresResponse = z.infer<typeof listStoresResponseSchema>;
+export type Chain = z.infer<typeof chainSchema>;
+export type ChainResponse = z.infer<typeof chainResponseSchema>;
+export type ListChainsResponse = z.infer<typeof listStoresResponseSchema>;
 
 // Product schemas
 export const chainProductResponseSchema = z.object({
@@ -59,10 +57,30 @@ export const chainProductResponseSchema = z.object({
   brand: z.string().nullable(),
   category: z.string().nullable(),
   unit: z.string().nullable(),
-  quantity: z.string().nullable(),
-  min_price: z.string(),
-  max_price: z.string(),
-  avg_price: z.string(),
+  quantity: z.preprocess((val) => {
+    if (typeof val === "string") {
+      const num = Number(val);
+      return isNaN(num) ? null : num;
+    }
+  }, z.number().nullable()),
+  min_price: z.preprocess((val) => {
+    if (typeof val === "string") {
+      const num = Number(val);
+      return isNaN(num) ? null : num;
+    }
+  }, z.number()),
+  max_price: z.preprocess((val) => {
+    if (typeof val === "string") {
+      const num = Number(val);
+      return isNaN(num) ? null : num;
+    }
+  }, z.number()),
+  avg_price: z.preprocess((val) => {
+    if (typeof val === "string") {
+      const num = Number(val);
+      return isNaN(num) ? null : num;
+    }
+  }, z.number()),
   price_date: z.iso.date(),
 });
 
@@ -70,7 +88,13 @@ export const productResponseSchema = z.object({
   ean: z.string(),
   brand: z.string().nullable(),
   name: z.string().nullable(),
-  quantity: z.string().nullable(),
+  quantity: z.preprocess((val) => {
+    if (typeof val === "string") {
+      const num = Number(val);
+      return isNaN(num) ? null : num;
+    }
+    return val;
+  }, z.number().nullable()),
   unit: z.string().nullable(),
   chains: z.array(chainProductResponseSchema),
 });
@@ -93,7 +117,7 @@ export const storePriceSchema = z.object({
   unit_price: z.string().nullable(),
   best_price_30: z.string().nullable(),
   anchor_price: z.string().nullable(),
-  store: storeSchema,
+  store: chainSchema,
 });
 
 export const storePricesResponseSchema = z.object({

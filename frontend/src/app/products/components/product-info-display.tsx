@@ -1,21 +1,12 @@
 import React from "react";
-import { Eye, Image, ListPlus, Search } from "lucide-react";
-import { Button } from "@/components/ui/button-icon";
+
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import {
   getAveragePrice,
   getMinPrice,
   getMaxPrice,
-  getMinPricePerUnit,
-  getMaxPricePerUnit,
-  getAveragePricePerUnit,
 } from "@/lib/cijene-api/utils/product-utils";
-import { formatQuantity } from "@/utils/strings";
-import {
-  TooltipContent,
-  TooltipTrigger,
-  Tooltip,
-} from "@/components/ui/tooltip";
+
 import ProductActionButtons from "@/app/products/components/product-action-buttons";
 
 interface IProductInfoDisplayProps {
@@ -27,13 +18,19 @@ export default function ProductInfoDisplay({
   product,
   enableActionButtons = true,
 }: IProductInfoDisplayProps) {
-  const averagePrice = getAveragePrice(product);
   const minPrice = getMinPrice(product);
   const maxPrice = getMaxPrice(product);
+  const averagePrice = getAveragePrice(product);
 
-  const minPricePerUnit = getMinPricePerUnit(product);
-  const maxPricePerUnit = getMaxPricePerUnit(product);
-  const averagePricePerUnit = getAveragePricePerUnit(product);
+  const minPricePerUnit = product.quantity
+    ? minPrice / product.quantity
+    : undefined;
+  const maxPricePerUnit = product.quantity
+    ? maxPrice / product.quantity
+    : undefined;
+  const averagePricePerUnit = product.quantity
+    ? averagePrice / product.quantity
+    : undefined;
 
   // Get the most common category from chains (similar to ProductCard logic)
   const category = React.useMemo(() => {
@@ -114,7 +111,7 @@ export default function ProductInfoDisplay({
               <div className="text-sm p-2">
                 <span className="font-bold">Količina: </span>
                 {product.quantity && product.unit
-                  ? `${formatQuantity(product.quantity)} ${product.unit}`
+                  ? `${product.quantity} ${product.unit}`
                   : "Nepoznato"}
               </div>
 

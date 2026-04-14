@@ -24,9 +24,8 @@ export async function getStorePricesForItem(
     const storePrices: Record<string, number> = {};
     for (const chain of productData.chains) {
       const chainCode = nameToChainCode(chain.chain);
-      if (chainCode) {
-        storePrices[chainCode] = parseFloat(chain.avg_price);
-      }
+
+      storePrices[chainCode] = chain.avg_price;
     }
 
     return storePrices;
@@ -84,7 +83,7 @@ export async function findCheapestStoreForItem(
             pinnedStoreName.includes(chainProduct.chain.toUpperCase());
 
           if (isPinnedStore) {
-            const price = parseFloat(chainProduct.avg_price);
+            const price = chainProduct.avg_price;
             if (price < cheapestPrice) {
               cheapestPrice = price;
               cheapestChain = nameToChainCode(chainProduct.chain);
@@ -104,7 +103,7 @@ export async function findCheapestStoreForItem(
     let cheapestPrice = Infinity;
 
     for (const chainProduct of productData.chains) {
-      const price = parseFloat(chainProduct.avg_price);
+      const price = chainProduct.avg_price;
       if (price < cheapestPrice) {
         cheapestPrice = price;
         cheapestChain = nameToChainCode(chainProduct.chain);
@@ -160,8 +159,8 @@ export function compareStoreChains(
   if (aItemCount !== bItemCount) return bItemCount - aItemCount;
 
   // 3. If item counts are equal, sort by average price (lowest first)
-  const aAvgPrice = parseFloat(a.avg_price);
-  const bAvgPrice = parseFloat(b.avg_price);
+  const aAvgPrice = a.avg_price;
+  const bAvgPrice = b.avg_price;
   if (aAvgPrice !== bAvgPrice) return aAvgPrice - bAvgPrice;
 
   // If all criteria are equal, sort alphabetically

@@ -48,7 +48,7 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="hr" data-scroll-behavior="smooth">
+    <html lang="hr" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="antialiased bg-zinc-50 relative">
         <Providers>
           <div className="min-h-screen flex flex-col w-full">

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import {
   ListChainsResponse,
-  ListStoresResponse,
+  ListChainsResponse,
   ProductResponse,
   ProductSearchResponse,
   StorePricesResponse,
@@ -50,7 +50,7 @@ export async function listChains(): Promise<ListChainsResponse> {
  */
 export async function listStoresByChain(
   chainCode: string
-): Promise<ListStoresResponse> {
+): Promise<ListChainsResponse> {
   const response = await axios.get(`/api/cijene/stores/${chainCode}`);
   return listStoresResponseSchema.parse(response.data);
 }
@@ -60,7 +60,7 @@ export async function listStoresByChain(
  */
 export async function searchStores(
   params?: SearchStoresParams
-): Promise<ListStoresResponse> {
+): Promise<ListChainsResponse> {
   // default to empty filter object
   const validated = searchStoresParamsSchema.parse(params ?? {});
   const filteredParams = Object.fromEntries(
@@ -178,7 +178,7 @@ export const useListChains = () => {
  * Hook to list stores by chain
  */
 export const useListStoresByChain = (chainCode: string) => {
-  return useQuery<ListStoresResponse, Error>({
+  return useQuery<ListChainsResponse, Error>({
     queryKey: ["cijene", "stores", "chain", chainCode],
     queryFn: () => listStoresByChain(chainCode),
     enabled: Boolean(chainCode),
@@ -192,7 +192,7 @@ export const useListStoresByChain = (chainCode: string) => {
  *  • useStores(filters) → apply filters
  */
 export const useSearchStores = (params?: SearchStoresParams) =>
-  useQuery<ListStoresResponse, Error>({
+  useQuery<ListChainsResponse, Error>({
     queryKey: ["cijene", "stores", params ? JSON.stringify(params) : "all"],
     queryFn: () => searchStores(params),
     // enable when no params or when any non-empty filter provided

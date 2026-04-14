@@ -62,19 +62,6 @@ export function toPascalCase(str: string) {
 }
 
 /**
- * Trim trailing zeros from decimal quantities: "1.000" -> "1", "1.200" -> "1.2"
- */
-export function formatQuantity(q?: string | null): string | null {
-  if (q == null) return null;
-  if (q.includes(".")) {
-    let trimmed = q.replace(/0+$/g, "");
-    if (trimmed.endsWith(".")) trimmed = trimmed.slice(0, -1);
-    return trimmed;
-  }
-  return q;
-}
-
-/**
  * Pluralize Croatian nouns based on number (handles 12-14, 112-114, etc.).
  * @param n The number to check
  * @param singular The singular form (e.g., "cijena")

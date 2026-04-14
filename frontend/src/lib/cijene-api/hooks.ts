@@ -2,7 +2,7 @@ import * as cijeneService from "./index";
 import {
   ProductResponse,
   StorePrice,
-  StoreResponse,
+  ChainResponse,
   ChainProductResponse,
 } from "./schemas";
 import { useMemo } from "react";
@@ -35,7 +35,7 @@ export function useAllLocations() {
       }
     >();
 
-    storesData.stores.forEach((store: StoreResponse) => {
+    storesData.stores.forEach((store: ChainResponse) => {
       if (!store.city) return; // Skip stores without city info
 
       const city = store.city.trim();
