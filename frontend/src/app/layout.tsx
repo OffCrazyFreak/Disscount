@@ -52,7 +52,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="hr" data-scroll-behavior="smooth">
-      <body className={`${sairaStencil.variable} antialiased bg-zinc-50 relative`}>
+      <body
+        className={`${sairaStencil.variable} antialiased bg-zinc-50 relative`}
+      >
         <Providers>
           <div className="min-h-screen flex flex-col w-full">
             {/* pattern background */}
