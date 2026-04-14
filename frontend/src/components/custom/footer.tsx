@@ -31,7 +31,9 @@ export default function FooterSection() {
                 className="size-8"
               />
 
-              <span className="font-bold text-primary">Disscount</span>
+              <span className="font-saira-stencil-semibold text-primary text-lg">
+                disscount
+              </span>
             </Link>
 
             <CopyrightIcon size={16} />
