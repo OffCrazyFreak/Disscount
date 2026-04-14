@@ -6,6 +6,7 @@ import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/footer";
 import { Providers } from "@/app/providers/providers";
 import { ReactNode, Suspense } from "react";
+import { sairaStencil } from "@/app/fonts";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://OffCrazyFreak.github.io/Disscount"),
@@ -35,6 +36,8 @@ export const metadata: Metadata = {
     "deal alerts",
     "barcode scanner",
     "ai suggestions",
+    "discounts",
+    "discount",
   ],
   robots: {
     index: true,
@@ -49,7 +52,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="hr" data-scroll-behavior="smooth">
-      <body className="antialiased bg-zinc-50 relative">
+      <body className={`${sairaStencil.variable} antialiased bg-zinc-50 relative`}>
         <Providers>
           <div className="min-h-screen flex flex-col w-full">
             {/* pattern background */}

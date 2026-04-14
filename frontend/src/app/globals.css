@@ -131,15 +131,20 @@
   --spacing: 0.2rem;
   --shadow-2xs: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.13);
   --shadow-xs: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.13);
-  --shadow-sm: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
+  --shadow-sm:
+    1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
     1px 1px 2px -0.5px hsl(0 0% 0% / 0.25);
-  --shadow: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
+  --shadow:
+    1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
     1px 1px 2px -0.5px hsl(0 0% 0% / 0.25);
-  --shadow-md: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
+  --shadow-md:
+    1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
     1px 2px 4px -0.5px hsl(0 0% 0% / 0.25);
-  --shadow-lg: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
+  --shadow-lg:
+    1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
     1px 4px 6px -0.5px hsl(0 0% 0% / 0.25);
-  --shadow-xl: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
+  --shadow-xl:
+    1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
     1px 8px 10px -0.5px hsl(0 0% 0% / 0.25);
   --shadow-2xl: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.63);
   --tracking-normal: 0.025em;
@@ -187,15 +192,20 @@
   --spacing: 0.2rem;
   --shadow-2xs: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.13);
   --shadow-xs: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.13);
-  --shadow-sm: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
+  --shadow-sm:
+    1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
     1px 1px 2px -0.5px hsl(0 0% 0% / 0.25);
-  --shadow: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
+  --shadow:
+    1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
     1px 1px 2px -0.5px hsl(0 0% 0% / 0.25);
-  --shadow-md: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
+  --shadow-md:
+    1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
     1px 2px 4px -0.5px hsl(0 0% 0% / 0.25);
-  --shadow-lg: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
+  --shadow-lg:
+    1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
     1px 4px 6px -0.5px hsl(0 0% 0% / 0.25);
-  --shadow-xl: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
+  --shadow-xl:
+    1px 2px 5px 0.5px hsl(0 0% 0% / 0.25),
     1px 8px 10px -0.5px hsl(0 0% 0% / 0.25);
   --shadow-2xl: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.63);
 }
@@ -241,4 +251,9 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+.font-saira-stencil-semibold {
+  font-family: var(--font-saira-stencil), ui-sans-serif, sans-serif;
+  font-weight: 600;
 }

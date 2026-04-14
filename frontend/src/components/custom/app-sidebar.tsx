@@ -90,8 +90,8 @@ export const AppSidebar = memo(function AppSidebar() {
               className="size-8 sm:size-10"
             />
 
-            <span className="font-bold text-lg sm:text-xl text-primary">
-              Disscount
+            <span className="font-saira-stencil-semibold text-2xl sm:text-3xl text-primary">
+              disscount
             </span>
           </Link>
 

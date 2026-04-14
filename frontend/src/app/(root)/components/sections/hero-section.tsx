@@ -38,8 +38,8 @@ export default function HeroSection() {
             className="mx-auto w-32 sm:w-48"
           />
 
-          <h1 className="text-4xl sm:text-6xl text-primary font-bold">
-            Disscount
+          <h1 className="text-5xl sm:text-7xl text-primary font-saira-stencil-semibold">
+            disscount
           </h1>
 
           <p className="uppercase max-w-md mx-auto text-pretty text-md sm:text-lg">
