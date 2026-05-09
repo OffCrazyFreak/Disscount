@@ -27,6 +27,9 @@ export const storeNamesMap: Record<string, string> = {
   branka: "Branka",
   djelo_vodice: "Djelo Vodice",
   gavranovic: "Gavranović",
+  bure: "Bure",
+  dukat: "Dukat",
+  stanic: "Diskont Stanić",
 };
 
 /**
