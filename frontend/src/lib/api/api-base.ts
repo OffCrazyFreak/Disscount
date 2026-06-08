@@ -4,11 +4,7 @@ import axios, {
   AxiosRequestConfig,
   InternalAxiosRequestConfig,
 } from "axios";
-import {
-  getAccessToken,
-  setAccessToken,
-  removeAccessToken,
-} from "@/utils/browser/local-storage";
+import { authClient } from "@/lib/auth-client";
 
 // Prefer a relative path in the browser so Next.js rewrites (defined in next.config.ts)
 // can proxy requests to the backend during development and avoid CORS issues.
@@ -40,16 +36,66 @@ function sleep(ms: number) {
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 200; // 0.2s
 
-// Add request interceptor to include auth token
-apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = typeof window !== "undefined" ? getAccessToken() : null;
+// --- better-auth JWT handling -------------------------------------------------
+// The Spring backend is a resource server that validates better-auth JWTs via
+// JWKS. We fetch a short-lived JWT from better-auth (cookie-authenticated) and
+// attach it as a Bearer token. The token is cached in memory and refreshed on a
+// 401 (or after sign-out via clearAuthToken).
+let cachedJwt: string | null = null;
+// While logged out, every request would otherwise re-hit /api/auth/token (401).
+// Once we learn there's no session, back off briefly instead of hammering it.
+let noSessionUntil = 0;
+const NO_SESSION_BACKOFF_MS = 5000;
 
-  if (token && config.headers) {
-    config.headers.Authorization = `Bearer ${token}`;
+async function fetchJwt(): Promise<string | null> {
+  if (typeof window === "undefined") return null;
+
+  if (Date.now() < noSessionUntil) return null;
+
+  try {
+    const { data } = await authClient.token();
+    cachedJwt = data?.token ?? null;
+  } catch {
+    cachedJwt = null;
   }
 
-  return config;
-});
+  if (!cachedJwt) {
+    noSessionUntil = Date.now() + NO_SESSION_BACKOFF_MS;
+  }
+
+  return cachedJwt;
+}
+
+async function getJwt(): Promise<string | null> {
+  return cachedJwt ?? fetchJwt();
+}
+
+// Call on sign-out: drop the token and back off from /api/auth/token.
+export function clearAuthToken() {
+  cachedJwt = null;
+  noSessionUntil = Date.now() + NO_SESSION_BACKOFF_MS;
+}
+
+// Call on sign-in: clear the backoff so the next request fetches a token now.
+export function resetAuthToken() {
+  cachedJwt = null;
+  noSessionUntil = 0;
+}
+
+// Add request interceptor to include the better-auth JWT
+apiClient.interceptors.request.use(
+  async (config: InternalAxiosRequestConfig) => {
+    if (typeof window !== "undefined") {
+      const token = await getJwt();
+
+      if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+
+    return config;
+  },
+);
 
 // Add response interceptor for token refresh and retry logic
 apiClient.interceptors.response.use(
@@ -62,46 +108,30 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Handle 401 Unauthorized by attempting token refresh
+    // Handle 401 Unauthorized by fetching a fresh JWT and retrying once
     if (
       error.response?.status === 401 &&
       !originalRequest.headers?.["X-Retry-After-Refresh"]
     ) {
-      try {
-        // Call the refresh token endpoint
-        const response = await axios.post(
-          `${API_BASE_URL}/api/auth/refresh`,
-          {},
-          {
-            withCredentials: true, // Important to include cookies
-          },
-        );
+      cachedJwt = null;
+      const token = await fetchJwt();
 
-        if (response.data && response.data.accessToken) {
-          // Store the new access token
-          setAccessToken(response.data.accessToken);
+      if (token) {
+        const newRequestConfig = { ...originalRequest };
 
-          // Create a new request with the same config but new headers
-          const newRequestConfig = { ...originalRequest };
-
-          // Set the new authorization header
-          if (newRequestConfig.headers) {
-            (newRequestConfig.headers as Record<string, string>).Authorization =
-              `Bearer ${response.data.accessToken}`;
-            (newRequestConfig.headers as Record<string, string>)[
-              "X-Retry-After-Refresh"
-            ] = "true";
-          }
-
-          return apiClient(newRequestConfig);
+        if (newRequestConfig.headers) {
+          (newRequestConfig.headers as Record<string, string>).Authorization =
+            `Bearer ${token}`;
+          (newRequestConfig.headers as Record<string, string>)[
+            "X-Retry-After-Refresh"
+          ] = "true";
         }
-      } catch (refreshError) {
-        // If refresh fails, clear token and reject
-        removeAccessToken();
 
-        // You might want to redirect to login page or dispatch logout action here
-        return Promise.reject(refreshError);
+        return apiClient(newRequestConfig);
       }
+
+      // Not authenticated (no token) — surface the 401 to the caller.
+      return Promise.reject(error);
     }
 
     // For other errors, implement retry with linear backoff

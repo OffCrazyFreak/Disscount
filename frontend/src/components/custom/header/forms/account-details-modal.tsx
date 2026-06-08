@@ -18,13 +18,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import {
   Form,
@@ -36,7 +29,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { userRequestSchema, UserRequest } from "@/lib/api/schemas/auth-user";
-import { authService, userService } from "@/lib/api";
+import { userService } from "@/lib/api";
+import { authClient } from "@/lib/auth-client";
 import { useUser } from "@/context/user-context";
 
 interface IAccountDetailsModalProps {
@@ -49,19 +43,19 @@ export default function AccountDetailsModal({
   onOpenChange,
 }: IAccountDetailsModalProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isLoggingOutAll, setIsLoggingOutAll] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { user, isLoading: isUserLoading, setUser, logout } = useUser();
   const queryClient = useQueryClient();
 
   // Update mutations
   const updateUserMutation = userService.useUpdateCurrentUser();
   const deleteUserMutation = userService.useDeleteCurrentUser();
-  const logoutAllMutation = authService.useLogoutAll();
 
   const form = useForm<UserRequest>({
     resolver: zodResolver(userRequestSchema),
     defaultValues: {
       username: user?.username,
-      stayLoggedInDays: user?.stayLoggedInDays || 30,
       notificationsPush: user?.notificationsPush ?? true,
       notificationsEmail: user?.notificationsEmail ?? true,
     },
@@ -85,7 +79,6 @@ export default function AccountDetailsModal({
     updateUserMutation.mutate(
       {
         username: data.username,
-        stayLoggedInDays: data.stayLoggedInDays,
         notificationsPush: data.notificationsPush,
         notificationsEmail: data.notificationsEmail,
       },
@@ -126,46 +119,61 @@ export default function AccountDetailsModal({
     onOpenChange(false);
   };
 
-  const handleDeleteUser = () => {
+  const handleDeleteUser = async () => {
     if (
-      confirm(
+      !confirm(
         "Jeste li sigurni da želite obrisati svoj račun? Ova akcija se ne može poništiti."
       )
     ) {
-      deleteUserMutation.mutate(undefined, {
-        onSuccess: () => {
-          toast.success("Račun je uspješno obrisan!");
-          logout();
-          onOpenChange(false);
-        },
-        onError: (error) => {
-          toast.error(error.message || "Greška pri brisanju računa");
-        },
-      });
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      // 1) Backend anonymizes the profile (strips PII, keeps business data).
+      //    Runs first, while we still have a valid session/JWT.
+      await deleteUserMutation.mutateAsync();
+
+      // 2) Delete the better-auth identity so the email can be re-used.
+      const { error } = await authClient.deleteUser();
+      if (error) {
+        throw new Error(error.message || "Brisanje identiteta nije uspjelo");
+      }
+
+      toast.success("Račun je uspješno obrisan!");
+      onOpenChange(false);
+      // 3) Clear local state (signOut is a no-op now that the user is gone).
+      logout();
+    } catch (error) {
+      toast.error((error as Error)?.message || "Greška pri brisanju računa");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
-  const handleLogoutAll = () => {
-    if (confirm("Jeste li sigurni da se želite odjaviti sa svih uređaja?")) {
-      logoutAllMutation.mutate(undefined, {
-        onSuccess: () => {
-          toast.success("Odjavljen si sa svih uređaja!");
-          setUser(null);
-          // Clear all React Query caches
-          queryClient.clear();
-          onOpenChange(false);
-        },
-        onError: (error) => {
-          toast.error(error.message || "Greška pri odjavi sa svih uređaja");
-        },
-      });
+  const handleLogoutAll = async () => {
+    if (!confirm("Jeste li sigurni da se želite odjaviti sa svih ostalih uređaja?"))
+      return;
+
+    setIsLoggingOutAll(true);
+    const { error } = await authClient.revokeOtherSessions();
+    setIsLoggingOutAll(false);
+
+    if (error) {
+      toast.error(error.message || "Greška pri odjavi sa svih uređaja");
+      return;
     }
+
+    toast.success("Odjavljen si sa svih ostalih uređaja!");
+    // Drop cached per-user queries; the current session stays active.
+    queryClient.clear();
+    onOpenChange(false);
   };
 
   const isLoading =
     updateUserMutation.isPending ||
-    deleteUserMutation.isPending ||
-    logoutAllMutation.isPending ||
+    isDeleting ||
+    isLoggingOutAll ||
     isUserLoading;
 
   return (
@@ -251,34 +259,6 @@ export default function AccountDetailsModal({
 
             <FormField
               control={form.control}
-              name="stayLoggedInDays"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Ostani prijavljen</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    defaultValue={field.value?.toString()}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Odaberi koliko dana želiš ostati prijavljen" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="0">Ne ostajaj prijavljen</SelectItem>
-                      <SelectItem value="7">7 dana</SelectItem>
-                      <SelectItem value="30">30 dana</SelectItem>
-                      <SelectItem value="90">90 dana</SelectItem>
-                      <SelectItem value="180">180 dana</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
               name="notificationsPush"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
@@ -329,21 +309,23 @@ export default function AccountDetailsModal({
 
               <div className="flex flex-col gap-4">
                 <Button
+                  type="button"
                   onClick={handleLogoutAll}
                   variant="outline"
                   icon={LogOut}
                   iconPlacement="left"
-                  loading={logoutAllMutation.isPending}
+                  loading={isLoggingOutAll}
                 >
-                  Odjavi se sa svih uređaja
+                  Odjavi se sa svih ostalih uređaja
                 </Button>
 
                 <Button
+                  type="button"
                   onClick={handleDeleteUser}
                   variant="destructive"
                   icon={Trash2}
                   iconPlacement="left"
-                  loading={deleteUserMutation.isPending}
+                  loading={isDeleting}
                 >
                   Obriši račun
                 </Button>

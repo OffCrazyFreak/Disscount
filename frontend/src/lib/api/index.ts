@@ -1,5 +1,4 @@
 import apiClient from "./api-base";
-import authService from "./auth";
 import userService from "./users";
 import preferencesService from "./preferences";
 import shoppingListService from "./shopping-lists";
@@ -11,7 +10,6 @@ export { WatchType } from "./schemas/watchlist";
 
 export {
   apiClient,
-  authService,
   userService,
   preferencesService,
   shoppingListService,

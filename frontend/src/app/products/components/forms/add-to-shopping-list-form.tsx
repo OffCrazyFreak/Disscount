@@ -57,8 +57,12 @@ export default function AddToShoppingListForm({
   const queryClient = useQueryClient();
   const { user } = useUser();
 
+  // Only fetch the user's lists when the modal is actually open and they're
+  // logged in — this component stays mounted on public product pages.
   const { data: shoppingLists = [], isLoading: isLoadingLists } =
-    shoppingListService.useGetCurrentUserShoppingLists();
+    shoppingListService.useGetCurrentUserShoppingLists({
+      enabled: isOpen && !!user,
+    });
 
   const createShoppingListMutation =
     shoppingListService.useCreateShoppingList();

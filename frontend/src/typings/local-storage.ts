@@ -27,7 +27,6 @@ export interface ShoppingListsPreferences {
 
 // Main app data structure based on real localStorage example
 export interface AppData {
-  accessToken?: string;
   viewModes?: Record<string, ViewMode>;
   productsPreferences?: ProductsPreferences;
   shoppingListsPreferences?: Record<string, ShoppingListsPreferences>; // Shopping list ID -> preferences

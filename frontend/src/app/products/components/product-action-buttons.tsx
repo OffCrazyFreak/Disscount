@@ -12,6 +12,7 @@ import AddToShoppingListForm from "@/app/products/components/forms/add-to-shoppi
 import { formatQuantity } from "@/utils/strings";
 import WatchlistActionButton from "@/app/products/components/watchlist-action-button";
 import { watchlistService } from "@/lib/api";
+import { useUser } from "@/context/user-context";
 
 interface IProductActionButtonsProps {
   product: ProductResponse;
@@ -29,8 +30,9 @@ export default function ProductActionButtons({
   className,
 }: IProductActionButtonsProps) {
   const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
+  const { isAuthenticated } = useUser();
   const { data: currentUserWatchlist = [] } =
-    watchlistService.useGetCurrentUserWatchlist();
+    watchlistService.useGetCurrentUserWatchlist({ enabled: isAuthenticated });
 
   const isInWatchlist = currentUserWatchlist.some(
     (watchlistItem) => watchlistItem.productApiId === product.ean,

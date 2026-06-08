@@ -83,11 +83,12 @@ export const AppSidebar = memo(function AppSidebar() {
         <div className="flex md:hidden items-center justify-between gap-2 mx-2 my-4">
           <Link href="/" className="flex items-center gap-2">
             <Image
-              src="/disscount-logo.png"
+              src="/disscount-logo.svg"
               alt="Disscount logo"
               width={128}
               height={128}
               className="size-8 sm:size-10"
+              loading="eager"
             />
 
             <span className="font-saira-stencil-semibold text-2xl sm:text-3xl text-primary">

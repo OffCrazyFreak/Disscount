@@ -25,9 +25,9 @@ export default function UserMenu() {
           <UserAvatar
             className="font-bold text-sm cursor-pointer"
             user={{
-              name: user?.username || "",
+              name: user?.username || user?.name || "",
               email: user?.email || "",
-              image: null, // API doesn't provide image yet
+              image: user?.image ?? null,
             }}
             aria-label="User menu"
             size={"xl"}
@@ -39,14 +39,14 @@ export default function UserMenu() {
             <UserAvatar
               className="font-bold text-sm"
               user={{
-                name: user?.username || "",
+                name: user?.username || user?.name || "",
                 email: user?.email || "",
-                image: null, // API doesn't provide image yet
+                image: user?.image ?? null,
               }}
               size={"lg"}
             />
             <div className="space-y-1">
-              <div className="font-bold">{user?.username}</div>
+              <div className="font-bold">{user?.username || user?.name}</div>
               <div className="text-xs text-gray-400">{user?.email}</div>
             </div>
           </DropdownMenuLabel>

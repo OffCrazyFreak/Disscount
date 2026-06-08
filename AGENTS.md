@@ -14,28 +14,41 @@ Do not prematurely optimize code. Focus on clarity and correctness first. Especi
 
 **Core Framework & Runtime:**
 
-- Next.js: `16.0.10`
-- React: `19.2.3`
-- React DOM: `19.2.3`
+- Next.js: `16.2.2` (App Router, Turbopack)
+- React: `19.2.4`
+- React DOM: `19.2.4`
+- Package manager: pnpm `11.5.2` (settings live in `pnpm-workspace.yaml`, not the package.json `pnpm` field)
+
+**Auth & Data layer:**
+
+- better-auth: `1.6.14` (identity provider; Drizzle adapter; JWT plugin)
+- @daveyplate/better-auth-ui: `3.4.0`
+- Drizzle ORM: `0.45.2` / drizzle-kit: `0.31.10`
+- pg (node-postgres): `8.21.0`
+- dotenv: `17.4.2`
+- (Auth tables live in Postgres alongside the Spring backend; the Spring backend validates better-auth JWTs via JWKS.)
 
 **Key Libraries:**
 
-- React Query (@tanstack/react-query): `^5.90.12`
-- React Hook Form: `^7.68.0`
+- React Query (@tanstack/react-query): `5.101.0` (+ devtools `5.101.0`, react-virtual `3.14.2`)
+- React Hook Form: `7.77.0` (+ @hookform/resolvers `5.4.0`)
 - Recharts: `2.15.4`
-- Zod: `^4.1.13`
-- Axios: `^1.13.2`
-- Sonner (Toast): `^2.0.7`
-- Lucide React (Icons): `^0.561.0`
-- Tailwind CSS: `^4`
-- Radix UI: Latest component versions
-- Motion (Animations): `^12.23.26`
+- Zod: `4.4.3`
+- Axios: `1.17.0`
+- Sonner (Toast): `2.0.7`
+- Lucide React (Icons): `0.561.0`
+- Tailwind CSS: `4.3.0` (with @tailwindcss/postcss)
+- Radix UI: `radix-ui` `1.5.0` (+ individual `@radix-ui/react-*` primitives)
+- Motion (Animations): `12.40.0`
+- cmdk: `1.1.1`, @yudiel/react-qr-scanner: `2.6.0`
 
 **Development Tools:**
 
-- ESLint: Latest
-- TypeScript: Latest
-- Tailwind CSS with PostCSS: Latest
+- TypeScript: `5.9.3`
+- ESLint: `9.39.4` (eslint-config-next `16.2.2`)
+- Tailwind CSS with PostCSS
+
+**Backend (for context):** Spring Boot `3.1.0` on Java `21`, Spring Security OAuth2 Resource Server (validates better-auth JWTs via JWKS), Spring Data JPA + PostgreSQL.
 
 ## Guidelines
 
@@ -58,6 +71,30 @@ Add empty rows for better readability between logical blocks of code, my prettie
 
 If I tell you to refactor something into a separate component or function, make sure to check if there already exists a similar component or function in the codebase and reuse it instead of writing a new one. If there is no similar component or function, then create a new one in a separate file, instead of writing it in the same file.
 
+Never edit the package.json or packege-lock.json files directly, but instead use "pnpm add package-name@version" or "pnpm remove package-name" to manage dependencies.
+
+If you need docs about a library, always fetch the most recent documentation from the official website or repository, instead of searching in node modules or other places.
+
 # Backend Development Guidelines
 
 NEVER run "mvn spring-boot:run" or any other development server command, because I always already have my dev server running. Also never run build commands.
+
+# Commit message requirement
+
+At the end of every response that includes code changes, include a suggested Git commit message.
+
+Use this format:
+
+```text
+Short summary in imperative mood
+
+Brief explanation of why the change was needed.
+
+Changes:
+- Specific change 1
+- Specific change 2
+- Specific change 3
+
+Notes:
+- Optional important detail for reviewers or future maintenance
+```

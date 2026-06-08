@@ -60,9 +60,10 @@ const NotificationsContext = createContext<INotificationsContext | undefined>(
 export function NotificationsProvider({ children }: { children: ReactNode }) {
   const { user, isAuthenticated } = useUser();
 
-  // Fetch watchlist items
+  // Fetch watchlist items (only when logged in — this provider is global and
+  // mounts on public pages too).
   const { data: watchlistItems = [], isLoading: watchlistLoading } =
-    watchlistService.useGetCurrentUserWatchlist();
+    watchlistService.useGetCurrentUserWatchlist({ enabled: isAuthenticated });
 
   const groupedWatchlistItems = useMemo(
     () => groupWatchlistItemsByProduct(watchlistItems),

@@ -15,11 +15,12 @@ export default function StatisticsPage() {
         <div className="flex items-center justify-center space-x-4">
           {/* App logo */}
           <Image
-            src="/disscount-logo.png"
+            src="/disscount-logo.svg"
             alt="Disscount logo"
             width={128}
             height={128}
             className="size-16"
+            loading="eager"
           />
           <h1 className="text-3xl font-bold">
             <span className="text-primary">Disscount</span> Statistika

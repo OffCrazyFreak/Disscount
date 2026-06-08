@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { isAxiosError } from "axios";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +22,7 @@ import {
   RegisterRequest,
 } from "@/lib/api/schemas/auth-user";
 import { cn } from "@/lib/utils";
-import { authService } from "@/lib/api";
+import { signUp } from "@/lib/auth-client";
 import { useUser } from "@/context/user-context";
 
 interface ISignUpFormProps {
@@ -31,58 +30,41 @@ interface ISignUpFormProps {
 }
 
 export function SignUpForm({ onSuccess }: ISignUpFormProps) {
-  const registerMutation = authService.useRegister();
   const { handleUserLogin } = useUser();
 
   const form = useForm<RegisterRequest>({
     resolver: zodResolver(registerRequestSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
     },
   });
 
-  const onSubmit = (data: RegisterRequest) => {
+  const onSubmit = async (data: RegisterRequest) => {
     form.clearErrors("root");
-    registerMutation.mutate(
-      {
-        email: data.email,
-        password: data.password,
-        confirmPassword: data.confirmPassword,
-      },
-      {
-        onSuccess: async (response) => {
-          toast.success("Uspješno ste se registrirali!");
-          form.reset();
-          // Use handleUserLogin to set user and fetch shopping lists/digital cards
-          await handleUserLogin(response.user);
-          onSuccess?.();
-        },
-        onError: (error: unknown) => {
-          let status = 0;
-          let serverMessage: string | undefined;
 
-          if (isAxiosError(error)) {
-            status = error.response?.status ?? 0;
-            serverMessage =
-              (error.response?.data as { message?: string })?.message ||
-              error.message;
-          } else {
-            serverMessage = (error as Error)?.message || "Unknown error";
-          }
+    const { error } = await signUp.email({
+      name: data.name,
+      email: data.email,
+      password: data.password,
+    });
 
-          if (status >= 400 && status < 500) {
-            form.setError("root", {
-              type: "server",
-              message: serverMessage || "Provjeri unesene podatke.",
-            });
-          } else {
-            toast.error(serverMessage || "Greška pri registraciji");
-          }
-        },
-      }
-    );
+    if (error) {
+      const message =
+        error.status === 422
+          ? "Korisnik s tim emailom već postoji"
+          : error.message || "Greška pri registraciji";
+      form.setError("root", { type: "server", message });
+      return;
+    }
+
+    toast.success("Uspješno ste se registrirali!");
+    form.reset();
+    // autoSignIn is enabled, so a session already exists — load the profile.
+    await handleUserLogin();
+    onSuccess?.();
   };
 
   return (
@@ -97,6 +79,22 @@ export function SignUpForm({ onSuccess }: ISignUpFormProps) {
             {form.formState.errors.root.message as string}
           </div>
         )}
+        <div className="grid gap-2">
+          <Label htmlFor="name">Ime</Label>
+          <Input
+            id="name"
+            type="text"
+            placeholder="Ivan Horvat"
+            {...form.register("name")}
+            className={cn(form.formState.errors.name && "border-red-700")}
+          />
+          {form.formState.errors.name && (
+            <p className="text-sm text-red-700">
+              {form.formState.errors.name.message}
+            </p>
+          )}
+        </div>
+
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input
@@ -157,9 +155,9 @@ export function SignUpForm({ onSuccess }: ISignUpFormProps) {
           type="submit"
           size={"lg"}
           className="w-full"
-          disabled={registerMutation.isPending}
+          disabled={form.formState.isSubmitting}
         >
-          {registerMutation.isPending ? (
+          {form.formState.isSubmitting ? (
             <Loader2 size={16} className="animate-spin" />
           ) : (
             "Registriraj se"

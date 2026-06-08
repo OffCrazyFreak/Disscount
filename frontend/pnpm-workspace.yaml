@@ -1,0 +1,18 @@
+allowBuilds:
+  '@nestjs/core': true
+  '@openapitools/openapi-generator-cli': true
+  core-js: true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+
+# In pnpm-workspace.yaml these are TOP-LEVEL keys (the old package.json
+# "pnpm.overrides" nesting is no longer read by pnpm 11).
+overrides:
+  '@types/react': '19.2.14'
+  '@types/react-dom': '19.2.3'
+  # Pin kysely to the last 0.28.x: better-auth's bundled kysely adapter imports
+  # DEFAULT_MIGRATION_TABLE/_LOCK_TABLE from kysely's main entry, which 0.29.x
+  # moved to kysely/migration (breaks Turbopack). We use the Drizzle adapter, so
+  # kysely's version only needs to satisfy that static import.
+  kysely: '0.28.17'

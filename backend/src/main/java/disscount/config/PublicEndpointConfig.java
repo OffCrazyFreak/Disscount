@@ -1,6 +1,5 @@
 package disscount.config;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
@@ -11,11 +10,6 @@ import java.util.List;
 public class PublicEndpointConfig {
 
     private final List<RequestMatcher> PUBLIC_MATCHERS = List.of(
-        // Auth endpoints - registration/login/refresh open
-        new AntPathRequestMatcher("/api/auth/register"),
-        new AntPathRequestMatcher("/api/auth/login"),
-        new AntPathRequestMatcher("/api/auth/refresh"),
-        
         // Documentation - open (allow OpenAPI JSON + UI resources)
         new AntPathRequestMatcher("/v3/api-docs/**"),
         new AntPathRequestMatcher("/api-docs/**"),
@@ -25,12 +19,5 @@ public class PublicEndpointConfig {
 
     public List<RequestMatcher> getPublicMatchers() {
         return PUBLIC_MATCHERS;
-    }
-
-    public boolean isPublic(HttpServletRequest request) {
-        for (RequestMatcher matcher : PUBLIC_MATCHERS) {
-            if (matcher.matches(request)) return true;
-        }
-        return false;
     }
 }

@@ -7,10 +7,12 @@ import React, {
   useState,
   useCallback,
 } from "react";
-import { authService, userService, preferencesService } from "@/lib/api";
-import { getAccessToken } from "@/utils/browser/local-storage";
-import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
 import { useQueryClient } from "@tanstack/react-query";
+
+import { userService, preferencesService } from "@/lib/api";
+import { authClient, useSession } from "@/lib/auth-client";
+import { clearAuthToken, resetAuthToken } from "@/lib/api/api-base";
+import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
 
 // Define the shape of our context
 interface IUserContext {
@@ -22,36 +24,35 @@ interface IUserContext {
   logout: () => void;
   updatePinnedStores: (stores: PinnedStoreDto[]) => void;
   updatePinnedPlaces: (places: PinnedPlaceDto[]) => void;
-  handleUserLogin: (user: UserDto) => Promise<void>;
+  handleUserLogin: () => Promise<void>;
 }
 
 // Create the context with a default value
 const UserContext = createContext<IUserContext | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
+  // Identity (id/name/email/image) comes from better-auth.
+  const { data: session, isPending: isSessionLoading } = useSession();
+  // Business profile (subscription, notifications, pinned stores/places, ...)
+  // comes from the Spring backend.
   const [user, setUser] = useState<UserDto | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const queryClient = useQueryClient();
 
-  // Get the logout mutation
-  const logoutMutation = authService.useLogout();
-
-  // Function to refresh user data
+  // Fetch the current user's business profile and merge in their preferences.
   const refreshUser = useCallback(async () => {
     try {
       setIsLoading(true);
       const userData = await userService.getCurrentUser();
 
-      // If the user data doesn't include preferences, fetch them
+      // If the profile doesn't include preferences, fetch them in parallel.
       if (userData && (!userData.pinnedStores || !userData.pinnedPlaces)) {
         try {
-          // Fetch preferences in parallel
           const [stores, places] = await Promise.all([
             preferencesService.getPinnedStores(),
             preferencesService.getPinnedPlaces(),
           ]);
 
-          // Update the user data with preferences
           userData.pinnedStores = stores;
           userData.pinnedPlaces = places;
         } catch (prefError) {
@@ -69,16 +70,17 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Handle logout
-  const handleLogout = useCallback(() => {
-    logoutMutation.mutate(undefined, {
-      onSuccess: () => {
-        setUser(null);
-        // Invalidate all React Query caches related to user data
-        queryClient.clear();
-      },
-    });
-  }, [logoutMutation, queryClient]);
+  // Handle logout — clear the better-auth session and all local user state.
+  const handleLogout = useCallback(async () => {
+    try {
+      await authClient.signOut();
+    } finally {
+      clearAuthToken();
+      setUser(null);
+      // Invalidate all React Query caches related to user data
+      queryClient.clear();
+    }
+  }, [queryClient]);
 
   // Update pinned stores
   const updatePinnedStores = useCallback((stores: PinnedStoreDto[]) => {
@@ -90,30 +92,40 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setUser((prev) => (prev ? { ...prev, pinnedPlaces: places } : null));
   }, []);
 
-  // Handle user login
-  const handleUserLogin = useCallback(async (userData: UserDto) => {
-    setUser(userData);
-  }, []);
-
-  // Initialize auth on mount
-  useEffect(() => {
-    const initializeAuth = async () => {
-      const token = getAccessToken();
-      if (token) {
-        await refreshUser();
-      } else {
-        setIsLoading(false);
-      }
-    };
-
-    initializeAuth();
+  // Called by the login/signup forms after a successful better-auth sign-in.
+  const handleUserLogin = useCallback(async () => {
+    // A prior sign-out may have engaged the token backoff — clear it so the
+    // profile fetch can grab a fresh JWT immediately.
+    resetAuthToken();
+    await refreshUser();
   }, [refreshUser]);
 
-  // The context value that will be provided
+  // Load (or clear) the profile whenever the better-auth session changes.
+  useEffect(() => {
+    if (isSessionLoading) return;
+
+    if (session?.user) {
+      void refreshUser();
+    } else {
+      setUser(null);
+      setIsLoading(false);
+    }
+  }, [isSessionLoading, session?.user?.id, refreshUser]);
+
+  // Merge the display identity (name/image) from the session into the profile
+  // so existing consumers can read everything off a single `user` object.
+  const mergedUser: UserDto | null = user
+    ? {
+        ...user,
+        name: session?.user?.name ?? user.name ?? null,
+        image: session?.user?.image ?? user.image ?? null,
+      }
+    : null;
+
   const value: IUserContext = {
-    user,
-    isLoading,
-    isAuthenticated: !!user,
+    user: mergedUser,
+    isLoading: isLoading || isSessionLoading,
+    isAuthenticated: !!mergedUser,
     refreshUser,
     setUser,
     logout: handleLogout,

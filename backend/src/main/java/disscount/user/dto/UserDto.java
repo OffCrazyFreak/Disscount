@@ -16,12 +16,10 @@ import disscount.user.domain.enums.SubscriptionTier;
 @AllArgsConstructor
 @Builder
 public class UserDto {
-    
+
     private UUID id;
     private String username;
     private String email;
-    private LocalDateTime lastLoginAt;
-    private Integer stayLoggedInDays;
     private Boolean notificationsPush;
     private Boolean notificationsEmail;
     private SubscriptionTier subscriptionTier;

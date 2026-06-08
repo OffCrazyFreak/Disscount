@@ -24,11 +24,12 @@ export default function FooterSection() {
             <Link href="/" className="flex items-center space-x-2">
               {/* App logo */}
               <Image
-                src="/disscount-logo.png"
+                src="/disscount-logo.svg"
                 alt="Disscount logo"
                 width={128}
                 height={128}
                 className="size-8"
+                loading="eager"
               />
 
               <span className="font-saira-stencil-semibold text-primary text-lg">

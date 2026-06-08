@@ -123,10 +123,14 @@ export const useCreateShoppingList = () => {
   });
 };
 
-export const useGetCurrentUserShoppingLists = () => {
+export const useGetCurrentUserShoppingLists = (options?: {
+  enabled?: boolean;
+}) => {
   return useQuery<ShoppingListDto[], Error>({
     queryKey: ["shoppingLists", "me"],
     queryFn: getCurrentUserShoppingLists,
+    // Only hit the per-user endpoint when logged in (avoids 401 spam on public pages).
+    enabled: options?.enabled ?? true,
   });
 };
 

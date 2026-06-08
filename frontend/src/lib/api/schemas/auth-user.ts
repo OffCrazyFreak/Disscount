@@ -1,73 +1,32 @@
 import { z } from "zod";
 
-// Auth schemas
+// Auth schemas — better-auth uses email + password. Credential strength is
+// enforced by better-auth on the server (minPasswordLength); we keep light
+// client-side checks for UX.
 export const loginRequestSchema = z.object({
-  usernameOrEmail: z
-    .string()
-    .min(2, { message: "Korisničko ime ili email mora imati najmanje 2 znaka" })
-    .refine(
-      (value) =>
-        value.includes("@")
-          ? z.email().safeParse(value).success
-          : value.length >= 2 && value.length <= 40,
-      "Nevažeće korisničko ime ili email"
-    ),
-  password: z
-    .string()
-    .min(12, { message: "Lozinka mora imati najmanje 12 znakova" })
-    .max(40, { message: "Lozinka može imati najviše 40 znakova" })
-    .refine((password) => /[A-Z]/.test(password), {
-      message: "Lozinka mora sadržavati barem jedno veliko slovo",
-    })
-    .refine((password) => /[a-z]/.test(password), {
-      message: "Lozinka mora sadržavati barem jedno malo slovo",
-    })
-    .refine((password) => /[0-9]/.test(password), {
-      message: "Lozinka mora sadržavati barem jedan broj",
-    })
-    .refine((password) => /[!@#$%^&*]/.test(password), {
-      message:
-        "Lozinka mora sadržavati barem jedan specijalni znak (npr. !@#$%^&*)",
-    }),
+  email: z.email("Unesi važeći email"),
+  password: z.string().min(1, { message: "Lozinka je obavezna" }),
 });
 
 export const registerRequestSchema = z
   .object({
-    username: z
+    name: z
       .string()
-      .min(2, "Korisničko ime mora imati najmanje 2 znakova")
-      .max(40, "Korisničko ime može imati najviše 40 znakova")
-      .nullable()
-      .optional(),
+      .min(2, "Ime mora imati najmanje 2 znaka")
+      .max(60, "Ime može imati najviše 60 znakova"),
     email: z.email("Unesi važeći email"),
     password: z
       .string()
-      .min(12, { message: "Lozinka mora imati najmanje 12 znakova" })
-      .max(40, { message: "Lozinka može imati najviše 40 znakova" })
-      .refine((password) => /[A-Z]/.test(password), {
-        message: "Lozinka mora sadržavati barem jedno veliko slovo",
-      })
-      .refine((password) => /[a-z]/.test(password), {
-        message: "Lozinka mora sadržavati barem jedno malo slovo",
-      })
-      .refine((password) => /[0-9]/.test(password), {
-        message: "Lozinka mora sadržavati barem jedan broj",
-      })
-      .refine((password) => /[!@#$%^&*]/.test(password), {
-        message:
-          "Lozinka mora sadržavati barem jedan specijalni znak (npr. !@#$%^&*)",
-      }),
+      .min(8, { message: "Lozinka mora imati najmanje 8 znakova" })
+      .max(128, { message: "Lozinka može imati najviše 128 znakova" }),
     confirmPassword: z.string(),
-    stayLoggedInDays: z.number().min(0).optional(),
-    notificationsPush: z.boolean().optional(),
-    notificationsEmail: z.boolean().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Lozinke se ne podudaraju",
     path: ["confirmPassword"],
   });
 
-// User schemas
+// Profile update schema — business fields owned by the Spring backend.
 export const userRequestSchema = z.object({
   username: z
     .string()
@@ -75,7 +34,6 @@ export const userRequestSchema = z.object({
     .max(40, "Korisničko ime može imati najviše 40 znakova")
     .nullable()
     .optional(),
-  stayLoggedInDays: z.number().min(0).optional(),
   notificationsPush: z.boolean().optional(),
   notificationsEmail: z.boolean().optional(),
 });
@@ -83,7 +41,10 @@ export const userRequestSchema = z.object({
 export const userDtoSchema = userRequestSchema.extend({
   id: z.string(),
   email: z.email(),
-  lastLoginAt: z.string(),
+  // Display identity comes from the better-auth session and is merged in
+  // client-side (the backend profile does not store name/image).
+  name: z.string().nullable().optional(),
+  image: z.string().nullable().optional(),
   subscriptionTier: z.enum(["FREE", "PRO"]),
   subscriptionStartDate: z.string().nullable().optional(),
   numberOfAiPrompts: z.number(),

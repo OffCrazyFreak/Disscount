@@ -64,10 +64,12 @@ export function useAddToWatchlist() {
   });
 }
 
-export function useGetCurrentUserWatchlist() {
+export function useGetCurrentUserWatchlist(options?: { enabled?: boolean }) {
   return useQuery<WatchlistItemDto[], Error>({
     queryKey: WATCHLIST_QUERY_KEYS.me,
     queryFn: getCurrentUserWatchlist,
+    // Only hit the per-user endpoint when logged in (avoids 401 spam on public pages).
+    enabled: options?.enabled ?? true,
   });
 }
 

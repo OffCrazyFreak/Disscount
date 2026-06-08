@@ -1,7 +1,6 @@
 package disscount.user.domain;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +14,13 @@ import java.util.UUID;
 
 import disscount.user.domain.enums.SubscriptionTier;
 
+/**
+ * Business profile for a user. Identity (credentials, email verification, OAuth
+ * accounts, sessions) is owned by better-auth in its own tables. The id here is
+ * the SAME id better-auth generates (a UUID), so all existing foreign keys keep
+ * referencing this row. The profile is created lazily on first authenticated
+ * request (see UserProvisioningFilter).
+ */
 @Entity
 @Table(name = "app_user", uniqueConstraints = {
     @UniqueConstraint(columnNames = "username"),
@@ -26,32 +32,21 @@ import disscount.user.domain.enums.SubscriptionTier;
 @AllArgsConstructor
 @Builder
 public class User {
-    
+
+    // Assigned from the better-auth user id (not generated here).
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    // Username is optional at registration; users may set it later via profile update
+    // Username is optional; users may set it later via profile update.
     @Column(nullable = true, unique = true)
     private String username;
 
-    @NotBlank(message = "Email is required")
+    // Denormalized from the better-auth identity for display/convenience.
+    // Nullable because account deletion nulls PII (username + email) while
+    // keeping the row + its business data as an anonymized orphan.
     @Email(message = "Email should be valid")
-    @Column(nullable = false, unique = true)
+    @Column(nullable = true, unique = true)
     private String email;
-
-    @Column(name = "password_hash")
-    private String passwordHash;
-
-    @Column(name = "google_id")
-    private String googleId;
-
-    @Column(name = "last_login_at")
-    private LocalDateTime lastLoginAt;
-
-    @Column(name = "stay_logged_in_days", nullable = false)
-    @Builder.Default
-    private Integer stayLoggedInDays = 30;
 
     @Column(name = "notifications_push", nullable = false)
     @Builder.Default

@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { LoginForm } from "@/components/custom/header/forms/login-form";
 import { SignUpForm } from "@/components/custom/header/forms/signup-form";
+import { signIn } from "@/lib/auth-client";
 import { GoogleIcon } from "@daveyplate/better-auth-ui";
 
 interface IAuthModalProps {
@@ -36,9 +37,17 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
     setShowOnboarding(true);
   };
 
-  const handleGoogleSignIn = () => {
-    // TODO: Implement Google OAuth flow
-    toast.info("Google prijava će biti dodana uskoro");
+  const handleGoogleSignIn = async () => {
+    // Redirects to Google and back to the app; the session is then picked up
+    // by the user context. callbackURL is where the user lands afterwards.
+    const { error } = await signIn.social({
+      provider: "google",
+      callbackURL: "/",
+    });
+
+    if (error) {
+      toast.error("Greška pri Google prijavi");
+    }
   };
 
   const switchToSignUp = () => {

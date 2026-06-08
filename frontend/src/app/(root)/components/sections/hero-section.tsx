@@ -31,11 +31,12 @@ export default function HeroSection() {
         <div className="space-y-6">
           {/* App logo */}
           <Image
-            src="/disscount-logo.png"
+            src="/disscount-logo.svg"
             alt="Disscount logo"
             width={512}
             height={512}
             className="mx-auto w-32 sm:w-48"
+            loading="eager"
           />
 
           <h1 className="text-5xl sm:text-7xl text-primary font-saira-stencil-semibold">
