@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from "axios";
 
 import { authClient } from "@/lib/auth-client";
 
@@ -21,6 +21,13 @@ let cachedToken: string | null = null;
 let tokenBackoffUntil = 0;
 
 const TOKEN_BACKOFF_MS = 10_000;
+
+const MAX_RETRIES = 3;
+const BASE_DELAY_MS = 200;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 async function getToken(): Promise<string | null> {
   if (Date.now() < tokenBackoffUntil) return null;
@@ -85,7 +92,20 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    // Retry on network errors or 5xx with linear backoff; skip 4xx client errors
+    if (error.response && error.response.status < 500) {
+      return Promise.reject(error);
+    }
+
+    const retryConfig = originalRequest as AxiosRequestConfig & { __retryCount?: number };
+    retryConfig.__retryCount = (retryConfig.__retryCount ?? 0) + 1;
+
+    if (retryConfig.__retryCount > MAX_RETRIES) {
+      return Promise.reject(error);
+    }
+
+    await sleep(BASE_DELAY_MS * retryConfig.__retryCount);
+    return apiClient(retryConfig);
   },
 );
 

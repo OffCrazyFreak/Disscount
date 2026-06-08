@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -29,7 +28,6 @@ interface ISignUpFormProps {
 }
 
 export function SignUpForm({ onSuccess }: ISignUpFormProps) {
-  const [isPending, setIsPending] = useState(false);
   const { handleUserLogin } = useUser();
 
   const form = useForm<RegisterRequest>({
@@ -43,7 +41,6 @@ export function SignUpForm({ onSuccess }: ISignUpFormProps) {
 
   async function onSubmit(data: RegisterRequest) {
     form.clearErrors("root");
-    setIsPending(true);
 
     try {
       const result = await signUp.email({
@@ -68,8 +65,6 @@ export function SignUpForm({ onSuccess }: ISignUpFormProps) {
       onSuccess?.();
     } catch {
       toast.error("Greška pri registraciji. Pokušaj ponovo.");
-    } finally {
-      setIsPending(false);
     }
   }
 
@@ -145,8 +140,8 @@ export function SignUpForm({ onSuccess }: ISignUpFormProps) {
           )}
         />
 
-        <Button type="submit" size="lg" className="w-full" disabled={isPending}>
-          {isPending ? (
+        <Button type="submit" size="lg" className="w-full" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? (
             <Loader2 size={16} className="animate-spin" />
           ) : (
             "Registriraj se"

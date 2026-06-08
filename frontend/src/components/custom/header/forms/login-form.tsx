@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleCheck, Loader2 } from "lucide-react";
@@ -30,7 +29,6 @@ interface ILoginFormProps {
 }
 
 export function LoginForm({ onSuccess, isLastUsed }: ILoginFormProps) {
-  const [isPending, setIsPending] = useState(false);
   const { handleUserLogin } = useUser();
 
   const form = useForm<LoginRequest>({
@@ -43,7 +41,6 @@ export function LoginForm({ onSuccess, isLastUsed }: ILoginFormProps) {
 
   async function onSubmit(data: LoginRequest) {
     form.clearErrors("root");
-    setIsPending(true);
 
     try {
       const result = await signIn.email({
@@ -68,8 +65,6 @@ export function LoginForm({ onSuccess, isLastUsed }: ILoginFormProps) {
       onSuccess?.();
     } catch {
       toast.error("Greška pri prijavi. Pokušaj ponovo.");
-    } finally {
-      setIsPending(false);
     }
   }
 
@@ -124,13 +119,13 @@ export function LoginForm({ onSuccess, isLastUsed }: ILoginFormProps) {
           )}
         />
 
-        <Button type="submit" size="lg" className="w-full" disabled={isPending}>
-          {isPending ? (
+        <Button type="submit" size="lg" className="w-full" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? (
             <Loader2 size={16} className="animate-spin" />
           ) : (
             "Prijavi se"
           )}
-          {isLastUsed && !isPending && (
+          {isLastUsed && !form.formState.isSubmitting && (
             <span className="absolute right-3 inline-flex items-center gap-0.5 rounded-full bg-white px-1.5 py-0.5 text-[10px] font-medium text-primary">
               <CircleCheck size={9} />
               Zadnja prijava

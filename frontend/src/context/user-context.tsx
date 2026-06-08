@@ -47,12 +47,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      // Merge session identity fields that aren't stored on the backend profile
-      if (session?.user) {
-        userData.name = userData.name ?? session.user.name ?? null;
-        userData.image = userData.image ?? session.user.image ?? null;
-      }
-
       setUser(userData);
       return userData;
     } catch (error) {
@@ -61,22 +55,19 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [session]);
+  }, []);
 
-  // Drive user state from the better-auth session
   useEffect(() => {
     if (sessionPending) return;
 
     if (session?.user) {
-      resetAuthToken();
       refreshUser();
     } else {
       clearAuthToken();
       setUser(null);
       setIsLoading(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.user?.id, sessionPending]);
+  }, [session?.user?.id, sessionPending, refreshUser]);
 
   const handleLogout = useCallback(async () => {
     await authClient.signOut();
@@ -99,10 +90,20 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setUser((prev) => (prev ? { ...prev, pinnedPlaces: places } : null));
   }, []);
 
+  // Merge session identity (name/image from better-auth) into the backend profile at render time.
+  // Keeps refreshUser free of session dependency while still exposing a single unified user object.
+  const mergedUser: UserDto | null = user
+    ? {
+        ...user,
+        name: session?.user?.name ?? user.name ?? null,
+        image: session?.user?.image ?? user.image ?? null,
+      }
+    : null;
+
   const value: IUserContext = {
-    user,
-    isLoading,
-    isAuthenticated: !!user,
+    user: mergedUser,
+    isLoading: isLoading || sessionPending,
+    isAuthenticated: !!mergedUser,
     refreshUser,
     setUser,
     logout: handleLogout,

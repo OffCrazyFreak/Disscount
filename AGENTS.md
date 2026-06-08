@@ -69,7 +69,7 @@ Add empty rows for better readability between logical blocks of code, my prettie
 
 If I tell you to refactor something into a separate component or function, make sure to check if there already exists a similar component or function in the codebase and reuse it instead of writing a new one. If there is no similar component or function, then create a new one in a separate file, instead of writing it in the same file.
 
-Never edit the package.json or packege-lock.json files directly, but instead use "pnpm add package-name@version" or "pnpm remove package-name" to manage dependencies.
+Never edit the package.json or package-lock.json files directly, but instead use "pnpm add package-name@version" or "pnpm remove package-name" to manage dependencies.
 
 If you need docs about a library, always fetch the most recent documentation from the official website or repository, instead of searching in node modules or other places.
 

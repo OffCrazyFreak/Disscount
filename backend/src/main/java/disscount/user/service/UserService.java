@@ -9,6 +9,7 @@ import disscount.exceptions.ConflictException;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.user.dto.UserDto;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -43,7 +44,9 @@ public class UserService {
                 user.setDeletedAt(null);
                 changed = true;
             }
-            if (user.getEmail() == null) {
+            // Sync email whenever the JWT claim differs — handles provider email changes
+            // and restores the field after account anonymization
+            if (!email.equals(user.getEmail())) {
                 user.setEmail(email);
                 changed = true;
             }
@@ -51,7 +54,11 @@ public class UserService {
                 userRepository.save(user);
             }
         } else {
-            userRepository.save(User.builder().id(id).email(email).build());
+            try {
+                userRepository.save(User.builder().id(id).email(email).build());
+            } catch (DataIntegrityViolationException ignored) {
+                // Concurrent first-login race: the other request won — profile already exists
+            }
         }
     }
 
