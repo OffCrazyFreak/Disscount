@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { CircleCheck } from "lucide-react";
 import { toast } from "sonner";
 import { signIn } from "@/lib/auth-client";
 
@@ -16,6 +17,10 @@ import { Separator } from "@/components/ui/separator";
 import { LoginForm } from "@/components/custom/header/forms/login-form";
 import { SignUpForm } from "@/components/custom/header/forms/signup-form";
 import { GoogleIcon } from "@daveyplate/better-auth-ui";
+import {
+  getLastLoginMethod,
+  setLastLoginMethod,
+} from "@/utils/browser/local-storage";
 
 interface IAuthModalProps {
   isOpen: boolean;
@@ -27,6 +32,13 @@ type AuthMode = "login" | "signup";
 export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
   const [authMode, setAuthMode] = useState<AuthMode>("login");
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [lastLoginMethod, setLastLoginMethodState] = useState<
+    "email" | "google" | null
+  >(null);
+
+  useEffect(() => {
+    setLastLoginMethodState(getLastLoginMethod());
+  }, [isOpen]);
 
   const handleLoginSuccess = () => {
     onOpenChange(false);
@@ -39,6 +51,8 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
 
   const handleGoogleSignIn = async () => {
     try {
+      setLastLoginMethod("google");
+      setLastLoginMethodState("google");
       await signIn.social({ provider: "google", callbackURL: "/" });
     } catch {
       toast.error("Greška pri Google prijavi. Pokušaj ponovo.");
@@ -64,7 +78,10 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
 
         <div className="grid gap-8">
           {authMode === "login" ? (
-            <LoginForm onSuccess={handleLoginSuccess} />
+            <LoginForm
+              onSuccess={handleLoginSuccess}
+              isLastUsed={lastLoginMethod === "email"}
+            />
           ) : (
             <SignUpForm onSuccess={handleSignUpSuccess} />
           )}
@@ -88,6 +105,12 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
             iconPlacement="left"
           >
             Nastavi sa Google računom
+            {lastLoginMethod === "google" && (
+              <span className="absolute right-3 inline-flex items-center gap-0.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-white">
+                <CircleCheck size={9} />
+                Zadnja prijava
+              </span>
+            )}
           </Button>
         </div>
 

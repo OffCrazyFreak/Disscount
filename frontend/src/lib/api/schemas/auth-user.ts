@@ -9,10 +9,6 @@ export const loginRequestSchema = z.object({
 
 export const registerRequestSchema = z
   .object({
-    name: z
-      .string()
-      .min(1, "Ime je obavezno")
-      .max(100, "Ime može imati najviše 100 znakova"),
     email: z.email("Unesi važeći email"),
     password: passwordSchema,
     confirmPassword: z.string(),

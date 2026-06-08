@@ -22,6 +22,7 @@ import { registerRequestSchema, RegisterRequest } from "@/lib/api/schemas/auth-u
 import { cn } from "@/lib/utils";
 import { signUp } from "@/lib/auth-client";
 import { useUser } from "@/context/user-context";
+import { setLastLoginMethod } from "@/utils/browser/local-storage";
 
 interface ISignUpFormProps {
   onSuccess?: () => void;
@@ -34,7 +35,6 @@ export function SignUpForm({ onSuccess }: ISignUpFormProps) {
   const form = useForm<RegisterRequest>({
     resolver: zodResolver(registerRequestSchema),
     defaultValues: {
-      name: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -47,7 +47,7 @@ export function SignUpForm({ onSuccess }: ISignUpFormProps) {
 
     try {
       const result = await signUp.email({
-        name: data.name,
+        name: data.email.split("@")[0],
         email: data.email,
         password: data.password,
       });
@@ -63,6 +63,7 @@ export function SignUpForm({ onSuccess }: ISignUpFormProps) {
 
       toast.success("Uspješno ste se registrirali!");
       form.reset();
+      setLastLoginMethod("email");
       await handleUserLogin();
       onSuccess?.();
     } catch {
@@ -84,23 +85,6 @@ export function SignUpForm({ onSuccess }: ISignUpFormProps) {
             {form.formState.errors.root.message as string}
           </div>
         )}
-
-        <div className="grid gap-2">
-          <Label htmlFor="name">Ime</Label>
-          <Input
-            id="name"
-            type="text"
-            placeholder="Tvoje ime"
-            autoComplete="name"
-            {...form.register("name")}
-            className={cn(form.formState.errors.name && "border-red-700")}
-          />
-          {form.formState.errors.name && (
-            <p className="text-sm text-red-700">
-              {form.formState.errors.name.message}
-            </p>
-          )}
-        </div>
 
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>

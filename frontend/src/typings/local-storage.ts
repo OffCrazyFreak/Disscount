@@ -30,5 +30,6 @@ export interface AppData {
   viewModes?: Record<string, ViewMode>;
   productsPreferences?: ProductsPreferences;
   shoppingListsPreferences?: Record<string, ShoppingListsPreferences>; // Shopping list ID -> preferences
+  lastLoginMethod?: "email" | "google";
   [key: string]: unknown;
 }

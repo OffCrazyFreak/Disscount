@@ -267,6 +267,21 @@ export function getProductStoresOpen(productEan: string): boolean {
 }
 
 /**
+ * Get the login method the user last used (email or google).
+ */
+export function getLastLoginMethod(): "email" | "google" | null {
+  const data = getAppStorage();
+  return data.lastLoginMethod ?? null;
+}
+
+/**
+ * Persist the login method the user just used so we can show a "last used" badge.
+ */
+export function setLastLoginMethod(method: "email" | "google") {
+  setAppStorage({ lastLoginMethod: method });
+}
+
+/**
  * Set product stores open state for a specific product.
  */
 export function setProductStoresOpen(productEan: string, isOpen: boolean) {

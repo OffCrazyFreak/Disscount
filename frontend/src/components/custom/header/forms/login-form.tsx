@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { CircleCheck, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { loginRequestSchema, LoginRequest } from "@/lib/api/schemas/auth-user";
 import { cn } from "@/lib/utils";
 import { signIn } from "@/lib/auth-client";
 import { useUser } from "@/context/user-context";
+import { setLastLoginMethod } from "@/utils/browser/local-storage";
 import {
   Form,
   FormControl,
@@ -25,9 +26,10 @@ import { PasswordInput } from "@/components/ui/password-input";
 
 interface ILoginFormProps {
   onSuccess?: () => void;
+  isLastUsed?: boolean;
 }
 
-export function LoginForm({ onSuccess }: ILoginFormProps) {
+export function LoginForm({ onSuccess, isLastUsed }: ILoginFormProps) {
   const [isPending, setIsPending] = useState(false);
   const { handleUserLogin } = useUser();
 
@@ -61,6 +63,7 @@ export function LoginForm({ onSuccess }: ILoginFormProps) {
 
       toast.success("Prijava uspješna!");
       form.reset();
+      setLastLoginMethod("email");
       await handleUserLogin();
       onSuccess?.();
     } catch {
@@ -126,6 +129,12 @@ export function LoginForm({ onSuccess }: ILoginFormProps) {
             <Loader2 size={16} className="animate-spin" />
           ) : (
             "Prijavi se"
+          )}
+          {isLastUsed && !isPending && (
+            <span className="absolute right-3 inline-flex items-center gap-0.5 rounded-full bg-white px-1.5 py-0.5 text-[10px] font-medium text-primary">
+              <CircleCheck size={9} />
+              Zadnja prijava
+            </span>
           )}
         </Button>
       </form>
