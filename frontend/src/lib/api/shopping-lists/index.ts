@@ -123,12 +123,13 @@ export const useCreateShoppingList = () => {
   });
 };
 
-export const useGetCurrentUserShoppingLists = () => {
+export function useGetCurrentUserShoppingLists({ enabled = true }: { enabled?: boolean } = {}) {
   return useQuery<ShoppingListDto[], Error>({
     queryKey: ["shoppingLists", "me"],
     queryFn: getCurrentUserShoppingLists,
+    enabled,
   });
-};
+}
 
 export const useGetShoppingListById = (id: string) => {
   return useQuery<ShoppingListDto, Error>({

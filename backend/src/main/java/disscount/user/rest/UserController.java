@@ -11,7 +11,6 @@ import disscount.user.dto.UserRequest;
 import disscount.user.service.UserService;
 import disscount.util.SecurityUtils;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -32,31 +31,24 @@ public class UserController {
             .orElse(ResponseEntity.notFound().build());
     }
 
-
-    @Operation(summary = "Patch current user's profile (username, stayLoggedInDays, notifications)")
+    @Operation(summary = "Update current user's profile (username, notifications)")
     @PatchMapping("/me")
-    public ResponseEntity<UserDto> updateCurrentUser(
-            @RequestBody UserRequest request) {
+    public ResponseEntity<UserDto> updateCurrentUser(@RequestBody UserRequest request) {
         UUID authenticatedUserId = SecurityUtils.getCurrentUserId();
-
         UserDto updatedUser = userService.updateProfile(
                 authenticatedUserId,
                 request.getUsername(),
-                request.getStayLoggedInDays(),
                 request.getNotificationsPush(),
                 request.getNotificationsEmail()
         );
-
         return ResponseEntity.ok(updatedUser);
     }
 
-    @Operation(summary = "Soft delete current user")
+    @Operation(summary = "Anonymize and soft-delete current user's profile")
     @DeleteMapping("/me")
     public ResponseEntity<Map<String, String>> deleteCurrentUser() {
         UUID authenticatedUserId = SecurityUtils.getCurrentUserId();
-
-        userService.softDeleteUser(authenticatedUserId);
-        
+        userService.deleteAccount(authenticatedUserId);
         return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
     }
 }

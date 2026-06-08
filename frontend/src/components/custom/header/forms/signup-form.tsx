@@ -1,10 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { isAxiosError } from "axios";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,12 +18,9 @@ import {
   Form,
 } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/password-input";
-import {
-  registerRequestSchema,
-  RegisterRequest,
-} from "@/lib/api/schemas/auth-user";
+import { registerRequestSchema, RegisterRequest } from "@/lib/api/schemas/auth-user";
 import { cn } from "@/lib/utils";
-import { authService } from "@/lib/api";
+import { signUp } from "@/lib/auth-client";
 import { useUser } from "@/context/user-context";
 
 interface ISignUpFormProps {
@@ -31,59 +28,49 @@ interface ISignUpFormProps {
 }
 
 export function SignUpForm({ onSuccess }: ISignUpFormProps) {
-  const registerMutation = authService.useRegister();
+  const [isPending, setIsPending] = useState(false);
   const { handleUserLogin } = useUser();
 
   const form = useForm<RegisterRequest>({
     resolver: zodResolver(registerRequestSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
     },
   });
 
-  const onSubmit = (data: RegisterRequest) => {
+  async function onSubmit(data: RegisterRequest) {
     form.clearErrors("root");
-    registerMutation.mutate(
-      {
+    setIsPending(true);
+
+    try {
+      const result = await signUp.email({
+        name: data.name,
         email: data.email,
         password: data.password,
-        confirmPassword: data.confirmPassword,
-      },
-      {
-        onSuccess: async (response) => {
-          toast.success("Uspješno ste se registrirali!");
-          form.reset();
-          // Use handleUserLogin to set user and fetch shopping lists/digital cards
-          await handleUserLogin(response.user);
-          onSuccess?.();
-        },
-        onError: (error: unknown) => {
-          let status = 0;
-          let serverMessage: string | undefined;
+      });
 
-          if (isAxiosError(error)) {
-            status = error.response?.status ?? 0;
-            serverMessage =
-              (error.response?.data as { message?: string })?.message ||
-              error.message;
-          } else {
-            serverMessage = (error as Error)?.message || "Unknown error";
-          }
-
-          if (status >= 400 && status < 500) {
-            form.setError("root", {
-              type: "server",
-              message: serverMessage || "Provjeri unesene podatke.",
-            });
-          } else {
-            toast.error(serverMessage || "Greška pri registraciji");
-          }
-        },
+      if (result.error) {
+        const message =
+          result.error.status === 422
+            ? "Korisnik s tim emailom već postoji"
+            : result.error.message || "Provjeri unesene podatke.";
+        form.setError("root", { type: "server", message });
+        return;
       }
-    );
-  };
+
+      toast.success("Uspješno ste se registrirali!");
+      form.reset();
+      await handleUserLogin();
+      onSuccess?.();
+    } catch {
+      toast.error("Greška pri registraciji. Pokušaj ponovo.");
+    } finally {
+      setIsPending(false);
+    }
+  }
 
   return (
     <Form {...form}>
@@ -97,12 +84,31 @@ export function SignUpForm({ onSuccess }: ISignUpFormProps) {
             {form.formState.errors.root.message as string}
           </div>
         )}
+
+        <div className="grid gap-2">
+          <Label htmlFor="name">Ime</Label>
+          <Input
+            id="name"
+            type="text"
+            placeholder="Tvoje ime"
+            autoComplete="name"
+            {...form.register("name")}
+            className={cn(form.formState.errors.name && "border-red-700")}
+          />
+          {form.formState.errors.name && (
+            <p className="text-sm text-red-700">
+              {form.formState.errors.name.message}
+            </p>
+          )}
+        </div>
+
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
             type="email"
             placeholder="korisnik@example.com"
+            autoComplete="email"
             {...form.register("email")}
             className={cn(form.formState.errors.email && "border-red-700")}
           />
@@ -122,7 +128,8 @@ export function SignUpForm({ onSuccess }: ISignUpFormProps) {
               <FormControl>
                 <PasswordInput
                   {...field}
-                  placeholder="********"
+                  placeholder="••••••••"
+                  autoComplete="new-password"
                   className={cn(
                     form.formState.errors.password && "border-red-700"
                   )}
@@ -142,7 +149,8 @@ export function SignUpForm({ onSuccess }: ISignUpFormProps) {
               <FormControl>
                 <PasswordInput
                   {...field}
-                  placeholder="********"
+                  placeholder="••••••••"
+                  autoComplete="new-password"
                   className={cn(
                     form.formState.errors.confirmPassword && "border-red-700"
                   )}
@@ -153,13 +161,8 @@ export function SignUpForm({ onSuccess }: ISignUpFormProps) {
           )}
         />
 
-        <Button
-          type="submit"
-          size={"lg"}
-          className="w-full"
-          disabled={registerMutation.isPending}
-        >
-          {registerMutation.isPending ? (
+        <Button type="submit" size="lg" className="w-full" disabled={isPending}>
+          {isPending ? (
             <Loader2 size={16} className="animate-spin" />
           ) : (
             "Registriraj se"

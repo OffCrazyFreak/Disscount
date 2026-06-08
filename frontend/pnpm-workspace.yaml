@@ -1,0 +1,10 @@
+overrides:
+  kysely: '0.28.17'
+allowBuilds:
+  esbuild: true
+  sharp: true
+  core-js: true
+  unrs-resolver: true
+  '@nestjs/core': true
+  '@openapitools/openapi-generator-cli': true
+  '@tailwindcss/oxide': true

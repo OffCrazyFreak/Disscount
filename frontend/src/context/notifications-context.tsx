@@ -60,9 +60,9 @@ const NotificationsContext = createContext<INotificationsContext | undefined>(
 export function NotificationsProvider({ children }: { children: ReactNode }) {
   const { user, isAuthenticated } = useUser();
 
-  // Fetch watchlist items
+  // Gate the watchlist query — avoids hitting /api/watchlist/me (and /api/auth/token) when logged out
   const { data: watchlistItems = [], isLoading: watchlistLoading } =
-    watchlistService.useGetCurrentUserWatchlist();
+    watchlistService.useGetCurrentUserWatchlist({ enabled: isAuthenticated });
 
   const groupedWatchlistItems = useMemo(
     () => groupWatchlistItemsByProduct(watchlistItems),

@@ -1,8 +1,6 @@
 package disscount.user.domain;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -26,32 +24,17 @@ import disscount.user.domain.enums.SubscriptionTier;
 @AllArgsConstructor
 @Builder
 public class User {
-    
+
+    // ID is assigned externally by better-auth (same UUID as the better-auth `user.id`)
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    // Username is optional at registration; users may set it later via profile update
     @Column(nullable = true, unique = true)
     private String username;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email should be valid")
-    @Column(nullable = false, unique = true)
+    // Nullable: email is nulled during account deletion to free it for re-registration
+    @Column(nullable = true, unique = true)
     private String email;
-
-    @Column(name = "password_hash")
-    private String passwordHash;
-
-    @Column(name = "google_id")
-    private String googleId;
-
-    @Column(name = "last_login_at")
-    private LocalDateTime lastLoginAt;
-
-    @Column(name = "stay_logged_in_days", nullable = false)
-    @Builder.Default
-    private Integer stayLoggedInDays = 30;
 
     @Column(name = "notifications_push", nullable = false)
     @Builder.Default

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { signIn } from "@/lib/auth-client";
 
 import {
   Dialog,
@@ -36,9 +37,12 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
     setShowOnboarding(true);
   };
 
-  const handleGoogleSignIn = () => {
-    // TODO: Implement Google OAuth flow
-    toast.info("Google prijava će biti dodana uskoro");
+  const handleGoogleSignIn = async () => {
+    try {
+      await signIn.social({ provider: "google", callbackURL: "/" });
+    } catch {
+      toast.error("Greška pri Google prijavi. Pokušaj ponovo.");
+    }
   };
 
   const switchToSignUp = () => {

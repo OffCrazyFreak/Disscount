@@ -58,7 +58,7 @@ export default function AddToShoppingListForm({
   const { user } = useUser();
 
   const { data: shoppingLists = [], isLoading: isLoadingLists } =
-    shoppingListService.useGetCurrentUserShoppingLists();
+    shoppingListService.useGetCurrentUserShoppingLists({ enabled: isOpen && !!user });
 
   const createShoppingListMutation =
     shoppingListService.useCreateShoppingList();

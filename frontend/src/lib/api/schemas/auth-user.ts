@@ -1,73 +1,27 @@
 import { z } from "zod";
 
-// Auth schemas
+const passwordSchema = z.string().min(8, { message: "Lozinka mora imati najmanje 8 znakova" });
+
 export const loginRequestSchema = z.object({
-  usernameOrEmail: z
-    .string()
-    .min(2, { message: "Korisničko ime ili email mora imati najmanje 2 znaka" })
-    .refine(
-      (value) =>
-        value.includes("@")
-          ? z.email().safeParse(value).success
-          : value.length >= 2 && value.length <= 40,
-      "Nevažeće korisničko ime ili email"
-    ),
-  password: z
-    .string()
-    .min(12, { message: "Lozinka mora imati najmanje 12 znakova" })
-    .max(40, { message: "Lozinka može imati najviše 40 znakova" })
-    .refine((password) => /[A-Z]/.test(password), {
-      message: "Lozinka mora sadržavati barem jedno veliko slovo",
-    })
-    .refine((password) => /[a-z]/.test(password), {
-      message: "Lozinka mora sadržavati barem jedno malo slovo",
-    })
-    .refine((password) => /[0-9]/.test(password), {
-      message: "Lozinka mora sadržavati barem jedan broj",
-    })
-    .refine((password) => /[!@#$%^&*]/.test(password), {
-      message:
-        "Lozinka mora sadržavati barem jedan specijalni znak (npr. !@#$%^&*)",
-    }),
+  email: z.email("Unesi važeći email"),
+  password: passwordSchema,
 });
 
 export const registerRequestSchema = z
   .object({
-    username: z
+    name: z
       .string()
-      .min(2, "Korisničko ime mora imati najmanje 2 znakova")
-      .max(40, "Korisničko ime može imati najviše 40 znakova")
-      .nullable()
-      .optional(),
+      .min(1, "Ime je obavezno")
+      .max(100, "Ime može imati najviše 100 znakova"),
     email: z.email("Unesi važeći email"),
-    password: z
-      .string()
-      .min(12, { message: "Lozinka mora imati najmanje 12 znakova" })
-      .max(40, { message: "Lozinka može imati najviše 40 znakova" })
-      .refine((password) => /[A-Z]/.test(password), {
-        message: "Lozinka mora sadržavati barem jedno veliko slovo",
-      })
-      .refine((password) => /[a-z]/.test(password), {
-        message: "Lozinka mora sadržavati barem jedno malo slovo",
-      })
-      .refine((password) => /[0-9]/.test(password), {
-        message: "Lozinka mora sadržavati barem jedan broj",
-      })
-      .refine((password) => /[!@#$%^&*]/.test(password), {
-        message:
-          "Lozinka mora sadržavati barem jedan specijalni znak (npr. !@#$%^&*)",
-      }),
+    password: passwordSchema,
     confirmPassword: z.string(),
-    stayLoggedInDays: z.number().min(0).optional(),
-    notificationsPush: z.boolean().optional(),
-    notificationsEmail: z.boolean().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Lozinke se ne podudaraju",
     path: ["confirmPassword"],
   });
 
-// User schemas
 export const userRequestSchema = z.object({
   username: z
     .string()
@@ -75,15 +29,15 @@ export const userRequestSchema = z.object({
     .max(40, "Korisničko ime može imati najviše 40 znakova")
     .nullable()
     .optional(),
-  stayLoggedInDays: z.number().min(0).optional(),
   notificationsPush: z.boolean().optional(),
   notificationsEmail: z.boolean().optional(),
 });
 
 export const userDtoSchema = userRequestSchema.extend({
   id: z.string(),
-  email: z.email(),
-  lastLoginAt: z.string(),
+  email: z.email().nullable().optional(),
+  name: z.string().nullable().optional(),
+  image: z.string().nullable().optional(),
   subscriptionTier: z.enum(["FREE", "PRO"]),
   subscriptionStartDate: z.string().nullable().optional(),
   numberOfAiPrompts: z.number(),
@@ -113,7 +67,6 @@ export const userDtoSchema = userRequestSchema.extend({
     .optional(),
 });
 
-// Type exports
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
 export type RegisterRequest = z.infer<typeof registerRequestSchema>;
 export type UserRequest = z.infer<typeof userRequestSchema>;

@@ -1,18 +1,13 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useCallback,
-} from "react";
-import { authService, userService, preferencesService } from "@/lib/api";
-import { getAccessToken } from "@/utils/browser/local-storage";
-import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
-// Define the shape of our context
+import { authClient, useSession } from "@/lib/auth-client";
+import { clearAuthToken, resetAuthToken } from "@/lib/api/api-base";
+import { userService, preferencesService } from "@/lib/api";
+import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
+
 interface IUserContext {
   user: UserDto | null;
   isLoading: boolean;
@@ -22,36 +17,29 @@ interface IUserContext {
   logout: () => void;
   updatePinnedStores: (stores: PinnedStoreDto[]) => void;
   updatePinnedPlaces: (places: PinnedPlaceDto[]) => void;
-  handleUserLogin: (user: UserDto) => Promise<void>;
+  handleUserLogin: () => Promise<void>;
 }
 
-// Create the context with a default value
 const UserContext = createContext<IUserContext | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserDto | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState(true);
+
   const queryClient = useQueryClient();
+  const { data: session, isPending: sessionPending } = useSession();
 
-  // Get the logout mutation
-  const logoutMutation = authService.useLogout();
-
-  // Function to refresh user data
   const refreshUser = useCallback(async () => {
     try {
       setIsLoading(true);
       const userData = await userService.getCurrentUser();
 
-      // If the user data doesn't include preferences, fetch them
       if (userData && (!userData.pinnedStores || !userData.pinnedPlaces)) {
         try {
-          // Fetch preferences in parallel
           const [stores, places] = await Promise.all([
             preferencesService.getPinnedStores(),
             preferencesService.getPinnedPlaces(),
           ]);
-
-          // Update the user data with preferences
           userData.pinnedStores = stores;
           userData.pinnedPlaces = places;
         } catch (prefError) {
@@ -59,57 +47,58 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
+      // Merge session identity fields that aren't stored on the backend profile
+      if (session?.user) {
+        userData.name = userData.name ?? session.user.name ?? null;
+        userData.image = userData.image ?? session.user.image ?? null;
+      }
+
       setUser(userData);
       return userData;
     } catch (error) {
-      console.error("Failed to fetch user:", error);
+      console.error("Failed to fetch user profile:", error);
       setUser(null);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [session]);
 
-  // Handle logout
-  const handleLogout = useCallback(() => {
-    logoutMutation.mutate(undefined, {
-      onSuccess: () => {
-        setUser(null);
-        // Invalidate all React Query caches related to user data
-        queryClient.clear();
-      },
-    });
-  }, [logoutMutation, queryClient]);
+  // Drive user state from the better-auth session
+  useEffect(() => {
+    if (sessionPending) return;
 
-  // Update pinned stores
+    if (session?.user) {
+      resetAuthToken();
+      refreshUser();
+    } else {
+      clearAuthToken();
+      setUser(null);
+      setIsLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user?.id, sessionPending]);
+
+  const handleLogout = useCallback(async () => {
+    await authClient.signOut();
+    clearAuthToken();
+    queryClient.clear();
+    setUser(null);
+  }, [queryClient]);
+
+  // Called by login/signup forms after signIn/signUp succeeds to eagerly load the profile
+  const handleUserLogin = useCallback(async () => {
+    resetAuthToken();
+    await refreshUser();
+  }, [refreshUser]);
+
   const updatePinnedStores = useCallback((stores: PinnedStoreDto[]) => {
     setUser((prev) => (prev ? { ...prev, pinnedStores: stores } : null));
   }, []);
 
-  // Update pinned places
   const updatePinnedPlaces = useCallback((places: PinnedPlaceDto[]) => {
     setUser((prev) => (prev ? { ...prev, pinnedPlaces: places } : null));
   }, []);
 
-  // Handle user login
-  const handleUserLogin = useCallback(async (userData: UserDto) => {
-    setUser(userData);
-  }, []);
-
-  // Initialize auth on mount
-  useEffect(() => {
-    const initializeAuth = async () => {
-      const token = getAccessToken();
-      if (token) {
-        await refreshUser();
-      } else {
-        setIsLoading(false);
-      }
-    };
-
-    initializeAuth();
-  }, [refreshUser]);
-
-  // The context value that will be provided
   const value: IUserContext = {
     user,
     isLoading,
@@ -125,7 +114,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
 
-// Custom hook to use the user context
 export function useUser() {
   const context = useContext(UserContext);
   if (context === undefined) {

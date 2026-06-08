@@ -64,10 +64,11 @@ export function useAddToWatchlist() {
   });
 }
 
-export function useGetCurrentUserWatchlist() {
+export function useGetCurrentUserWatchlist({ enabled = true } = {}) {
   return useQuery<WatchlistItemDto[], Error>({
     queryKey: WATCHLIST_QUERY_KEYS.me,
     queryFn: getCurrentUserWatchlist,
+    enabled,
   });
 }
 

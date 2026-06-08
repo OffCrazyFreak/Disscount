@@ -14,9 +14,20 @@ Do not prematurely optimize code. Focus on clarity and correctness first. Especi
 
 **Core Framework & Runtime:**
 
-- Next.js: `16.0.10`
-- React: `19.2.3`
-- React DOM: `19.2.3`
+- Next.js: `16.2.2`
+- React: `19.2.4`
+- React DOM: `19.2.4`
+
+**Authentication:**
+
+- better-auth: `1.6.14`
+- @daveyplate/better-auth-ui: `^3.2.13`
+
+**Database (frontend — better-auth identity store):**
+
+- drizzle-orm: `0.45.2`
+- drizzle-kit: `^0.31.10`
+- pg: `8.21.0`
 
 **Key Libraries:**
 
@@ -34,7 +45,7 @@ Do not prematurely optimize code. Focus on clarity and correctness first. Especi
 **Development Tools:**
 
 - ESLint: Latest
-- TypeScript: Latest
+- TypeScript: `^5.7`
 - Tailwind CSS with PostCSS: Latest
 
 ## Guidelines
@@ -58,6 +69,30 @@ Add empty rows for better readability between logical blocks of code, my prettie
 
 If I tell you to refactor something into a separate component or function, make sure to check if there already exists a similar component or function in the codebase and reuse it instead of writing a new one. If there is no similar component or function, then create a new one in a separate file, instead of writing it in the same file.
 
+Never edit the package.json or packege-lock.json files directly, but instead use "pnpm add package-name@version" or "pnpm remove package-name" to manage dependencies.
+
+If you need docs about a library, always fetch the most recent documentation from the official website or repository, instead of searching in node modules or other places.
+
 # Backend Development Guidelines
 
 NEVER run "mvn spring-boot:run" or any other development server command, because I always already have my dev server running. Also never run build commands.
+
+# Commit message requirement
+
+At the end of every response that includes code changes, include a suggested Git commit message.
+
+Use this format:
+
+```text
+Short summary in imperative mood
+
+Brief explanation of why the change was needed.
+
+Changes:
+- Specific change 1
+- Specific change 2
+- Specific change 3
+
+Notes:
+- Optional important detail for reviewers or future maintenance
+```
