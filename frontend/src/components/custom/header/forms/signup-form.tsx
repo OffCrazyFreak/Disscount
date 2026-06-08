@@ -25,9 +25,10 @@ import { setLastLoginMethod } from "@/utils/browser/local-storage";
 
 interface ISignUpFormProps {
   onSuccess?: () => void;
+  externalDisabled?: boolean;
 }
 
-export function SignUpForm({ onSuccess }: ISignUpFormProps) {
+export function SignUpForm({ onSuccess, externalDisabled }: ISignUpFormProps) {
   const { handleUserLogin } = useUser();
 
   const form = useForm<RegisterRequest>({
@@ -58,10 +59,10 @@ export function SignUpForm({ onSuccess }: ISignUpFormProps) {
         return;
       }
 
+      await handleUserLogin();
       toast.success("Uspješno ste se registrirali!");
       form.reset();
       setLastLoginMethod("email");
-      await handleUserLogin();
       onSuccess?.();
     } catch {
       toast.error("Greška pri registraciji. Pokušaj ponovo.");
@@ -140,7 +141,7 @@ export function SignUpForm({ onSuccess }: ISignUpFormProps) {
           )}
         />
 
-        <Button type="submit" size="lg" className="w-full" disabled={form.formState.isSubmitting}>
+        <Button type="submit" size="lg" className="w-full" disabled={form.formState.isSubmitting || externalDisabled}>
           {form.formState.isSubmitting ? (
             <Loader2 size={16} className="animate-spin" />
           ) : (

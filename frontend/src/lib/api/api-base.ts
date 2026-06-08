@@ -80,7 +80,7 @@ apiClient.interceptors.response.use(
       error.response?.status === 401 &&
       !originalRequest.headers?.["X-Retry-After-Refresh"]
     ) {
-      cachedToken = null;
+      resetAuthToken();
       const freshToken = await getToken();
 
       if (freshToken && originalRequest.headers) {

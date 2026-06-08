@@ -35,6 +35,7 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
   const [lastLoginMethod, setLastLoginMethodState] = useState<
     "email" | "google" | null
   >(null);
+  const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
 
   useEffect(() => {
     setLastLoginMethodState(getLastLoginMethod());
@@ -50,12 +51,17 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
   };
 
   const handleGoogleSignIn = async () => {
+    if (isGoogleSigningIn) return;
+
+    setIsGoogleSigningIn(true);
     try {
       setLastLoginMethod("google");
       setLastLoginMethodState("google");
       await signIn.social({ provider: "google", callbackURL: "/" });
     } catch {
       toast.error("Greška pri Google prijavi. Pokušaj ponovo.");
+    } finally {
+      setIsGoogleSigningIn(false);
     }
   };
 
@@ -81,9 +87,13 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
             <LoginForm
               onSuccess={handleLoginSuccess}
               isLastUsed={lastLoginMethod === "email"}
+              externalDisabled={isGoogleSigningIn}
             />
           ) : (
-            <SignUpForm onSuccess={handleSignUpSuccess} />
+            <SignUpForm
+              onSuccess={handleSignUpSuccess}
+              externalDisabled={isGoogleSigningIn}
+            />
           )}
 
           <div className="relative">
@@ -101,11 +111,13 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
             size={"lg"}
             className="w-full gap-4"
             onClick={handleGoogleSignIn}
+            disabled={isGoogleSigningIn}
+            loading={isGoogleSigningIn}
             icon={GoogleIcon}
             iconPlacement="left"
           >
             Nastavi sa Google računom
-            {lastLoginMethod === "google" && (
+            {lastLoginMethod === "google" && !isGoogleSigningIn && (
               <span className="absolute right-3 inline-flex items-center gap-0.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-white">
                 <CircleCheck size={9} />
                 Zadnja prijava

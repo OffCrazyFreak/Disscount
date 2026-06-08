@@ -14,7 +14,7 @@ interface IUserContext {
   isAuthenticated: boolean;
   refreshUser: () => Promise<UserDto | undefined>;
   setUser: (user: UserDto | null) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   updatePinnedStores: (stores: PinnedStoreDto[]) => void;
   updatePinnedPlaces: (places: PinnedPlaceDto[]) => void;
   handleUserLogin: () => Promise<void>;
@@ -70,10 +70,13 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, [session?.user?.id, sessionPending, refreshUser]);
 
   const handleLogout = useCallback(async () => {
-    await authClient.signOut();
-    clearAuthToken();
-    queryClient.clear();
-    setUser(null);
+    try {
+      await authClient.signOut();
+    } finally {
+      clearAuthToken();
+      queryClient.clear();
+      setUser(null);
+    }
   }, [queryClient]);
 
   // Called by login/signup forms after signIn/signUp succeeds to eagerly load the profile

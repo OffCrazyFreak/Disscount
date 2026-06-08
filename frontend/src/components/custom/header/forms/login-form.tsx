@@ -26,9 +26,10 @@ import { PasswordInput } from "@/components/ui/password-input";
 interface ILoginFormProps {
   onSuccess?: () => void;
   isLastUsed?: boolean;
+  externalDisabled?: boolean;
 }
 
-export function LoginForm({ onSuccess, isLastUsed }: ILoginFormProps) {
+export function LoginForm({ onSuccess, isLastUsed, externalDisabled }: ILoginFormProps) {
   const { handleUserLogin } = useUser();
 
   const form = useForm<LoginRequest>({
@@ -58,10 +59,10 @@ export function LoginForm({ onSuccess, isLastUsed }: ILoginFormProps) {
         return;
       }
 
+      await handleUserLogin();
       toast.success("Prijava uspješna!");
       form.reset();
       setLastLoginMethod("email");
-      await handleUserLogin();
       onSuccess?.();
     } catch {
       toast.error("Greška pri prijavi. Pokušaj ponovo.");
@@ -119,13 +120,13 @@ export function LoginForm({ onSuccess, isLastUsed }: ILoginFormProps) {
           )}
         />
 
-        <Button type="submit" size="lg" className="w-full" disabled={form.formState.isSubmitting}>
+        <Button type="submit" size="lg" className="w-full" disabled={form.formState.isSubmitting || externalDisabled}>
           {form.formState.isSubmitting ? (
             <Loader2 size={16} className="animate-spin" />
           ) : (
             "Prijavi se"
           )}
-          {isLastUsed && !form.formState.isSubmitting && (
+          {isLastUsed && !form.formState.isSubmitting && !externalDisabled && (
             <span className="absolute right-3 inline-flex items-center gap-0.5 rounded-full bg-white px-1.5 py-0.5 text-[10px] font-medium text-primary">
               <CircleCheck size={9} />
               Zadnja prijava
