@@ -8,6 +8,7 @@ import disscount.exceptions.BadRequestException;
 import disscount.exceptions.ConflictException;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
+import disscount.user.domain.enums.AccountType;
 import disscount.user.dto.UserDto;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -54,8 +55,13 @@ public class UserService {
                 userRepository.save(user);
             }
         } else {
+            // First user to ever register becomes the platform admin; everyone else is a consumer.
+            // count() includes soft-deleted rows so a deleted admin never re-triggers auto-promotion.
+            AccountType accountType = userRepository.count() == 0
+                    ? AccountType.ADMIN
+                    : AccountType.CONSUMER;
             try {
-                userRepository.save(User.builder().id(id).email(email).build());
+                userRepository.save(User.builder().id(id).email(email).accountType(accountType).build());
             } catch (DataIntegrityViolationException ignored) {
                 // Concurrent first-login race: the other request won — profile already exists
             }
@@ -107,6 +113,7 @@ public class UserService {
                 .email(user.getEmail())
                 .notificationsPush(user.getNotificationsPush())
                 .notificationsEmail(user.getNotificationsEmail())
+                .accountType(user.getAccountType())
                 .createdAt(user.getCreatedAt())
                 .build();
     }

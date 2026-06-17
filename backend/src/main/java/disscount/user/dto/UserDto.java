@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import disscount.user.domain.enums.AccountType;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,5 +21,6 @@ public class UserDto {
     private String email;
     private Boolean notificationsPush;
     private Boolean notificationsEmail;
+    private AccountType accountType;
     private LocalDateTime createdAt;
 }

@@ -34,6 +34,7 @@ export const userDtoSchema = userRequestSchema.extend({
   email: z.email().nullable().optional(),
   name: z.string().nullable().optional(),
   image: z.string().nullable().optional(),
+  accountType: z.enum(["ADMIN", "CONSUMER", "ENTERPRISE", "PUBLIC_SECTOR"]),
   createdAt: z.string(),
   pinnedStores: z
     .array(
@@ -63,3 +64,13 @@ export type LoginRequest = z.infer<typeof loginRequestSchema>;
 export type RegisterRequest = z.infer<typeof registerRequestSchema>;
 export type UserRequest = z.infer<typeof userRequestSchema>;
 export type UserDto = z.infer<typeof userDtoSchema>;
+
+export type AccountType = UserDto["accountType"];
+
+// Croatian display labels for account types
+export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
+  ADMIN: "Admin",
+  CONSUMER: "Korisnik",
+  ENTERPRISE: "Partner",
+  PUBLIC_SECTOR: "Javni sektor",
+};

@@ -10,6 +10,8 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import disscount.user.domain.enums.AccountType;
+
 @Entity
 @Table(name = "app_user", uniqueConstraints = {
     @UniqueConstraint(columnNames = "username"),
@@ -40,6 +42,13 @@ public class User {
     @Column(name = "notifications_email", nullable = false)
     @Builder.Default
     private Boolean notificationsEmail = true;
+
+    // Set on first login: ADMIN if no users exist yet, otherwise CONSUMER.
+    // Elevated to ENTERPRISE / PUBLIC_SECTOR manually via the admin dashboard.
+    @Enumerated(EnumType.STRING)
+    @Column(name = "account_type", nullable = false)
+    @Builder.Default
+    private AccountType accountType = AccountType.CONSUMER;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
