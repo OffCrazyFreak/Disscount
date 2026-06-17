@@ -107,10 +107,6 @@ public class UserService {
                 .email(user.getEmail())
                 .notificationsPush(user.getNotificationsPush())
                 .notificationsEmail(user.getNotificationsEmail())
-                .subscriptionTier(user.getSubscriptionTier())
-                .subscriptionStartDate(user.getSubscriptionStartDate())
-                .numberOfAiPrompts(user.getNumberOfAiPrompts())
-                .lastAiPromptAt(user.getLastAiPromptAt())
                 .createdAt(user.getCreatedAt())
                 .build();
     }

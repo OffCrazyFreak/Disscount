@@ -5,11 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import disscount.user.domain.enums.SubscriptionTier;
 
 @Data
 @NoArgsConstructor
@@ -22,9 +19,5 @@ public class UserDto {
     private String email;
     private Boolean notificationsPush;
     private Boolean notificationsEmail;
-    private SubscriptionTier subscriptionTier;
-    private LocalDate subscriptionStartDate;
-    private Integer numberOfAiPrompts;
-    private LocalDateTime lastAiPromptAt;
     private LocalDateTime createdAt;
 }

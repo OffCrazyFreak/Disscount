@@ -34,10 +34,6 @@ export const userDtoSchema = userRequestSchema.extend({
   email: z.email().nullable().optional(),
   name: z.string().nullable().optional(),
   image: z.string().nullable().optional(),
-  subscriptionTier: z.enum(["FREE", "PRO"]),
-  subscriptionStartDate: z.string().nullable().optional(),
-  numberOfAiPrompts: z.number(),
-  lastAiPromptAt: z.string().nullable().optional(),
   createdAt: z.string(),
   pinnedStores: z
     .array(

@@ -7,11 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import disscount.user.domain.enums.SubscriptionTier;
 
 @Entity
 @Table(name = "app_user", uniqueConstraints = {
@@ -43,21 +40,6 @@ public class User {
     @Column(name = "notifications_email", nullable = false)
     @Builder.Default
     private Boolean notificationsEmail = true;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "subscription_tier", nullable = false)
-    @Builder.Default
-    private SubscriptionTier subscriptionTier = SubscriptionTier.FREE;
-
-    @Column(name = "subscription_start_date")
-    private LocalDate subscriptionStartDate;
-
-    @Column(name = "number_of_ai_prompts", nullable = false)
-    @Builder.Default
-    private Integer numberOfAiPrompts = 0;
-
-    @Column(name = "last_ai_prompt_at")
-    private LocalDateTime lastAiPromptAt;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
