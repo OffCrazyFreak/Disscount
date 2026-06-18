@@ -21,6 +21,7 @@ public class UserDto {
     private String email;
     private Boolean notificationsPush;
     private Boolean notificationsEmail;
+    private String image;
     private AccountType accountType;
     private LocalDateTime createdAt;
 }

@@ -54,6 +54,7 @@ export const auth = betterAuth({
         definePayload: ({ user }) => ({
           email: user.email,
           name: user.name,
+          image: user.image,
         }),
       },
     }),

@@ -39,7 +39,8 @@ public class UserController {
                 authenticatedUserId,
                 request.getUsername(),
                 request.getNotificationsPush(),
-                request.getNotificationsEmail()
+                request.getNotificationsEmail(),
+                request.getImage()
         );
         return ResponseEntity.ok(updatedUser);
     }

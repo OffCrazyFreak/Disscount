@@ -27,13 +27,13 @@ export const userRequestSchema = z.object({
     .optional(),
   notificationsPush: z.boolean().optional(),
   notificationsEmail: z.boolean().optional(),
+  image: z.string().nullable().optional(),
 });
 
 export const userDtoSchema = userRequestSchema.extend({
   id: z.string(),
   email: z.email().nullable().optional(),
   name: z.string().nullable().optional(),
-  image: z.string().nullable().optional(),
   accountType: z.enum(["ADMIN", "CONSUMER", "ENTERPRISE", "PUBLIC_SECTOR"]),
   createdAt: z.string(),
   pinnedStores: z
@@ -74,3 +74,13 @@ export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   ENTERPRISE: "Partner",
   PUBLIC_SECTOR: "Javni sektor",
 };
+
+const DASHBOARD_ACCOUNT_TYPES: AccountType[] = [
+  "ADMIN",
+  "ENTERPRISE",
+  "PUBLIC_SECTOR",
+];
+
+export function canAccessDashboard(accountType?: AccountType | null): boolean {
+  return !!accountType && DASHBOARD_ACCOUNT_TYPES.includes(accountType);
+}

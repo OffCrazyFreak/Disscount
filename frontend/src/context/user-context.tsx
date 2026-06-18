@@ -99,7 +99,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     ? {
         ...user,
         name: session?.user?.name ?? user.name ?? null,
-        image: session?.user?.image ?? user.image ?? null,
+        image: user.image ?? null,
       }
     : null;
 

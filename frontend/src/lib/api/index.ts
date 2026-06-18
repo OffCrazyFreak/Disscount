@@ -4,6 +4,7 @@ import preferencesService from "./preferences";
 import shoppingListService from "./shopping-lists";
 import digitalCardService from "./digital-cards";
 import watchlistService from "./watchlist";
+import adminService from "./admin";
 
 export { WatchType } from "./schemas/watchlist";
 
@@ -14,4 +15,5 @@ export {
   shoppingListService,
   digitalCardService,
   watchlistService,
+  adminService,
 };

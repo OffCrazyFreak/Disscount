@@ -8,6 +8,8 @@ Make sure to always fetch and follow proper and most recent documentation, espec
 
 Do not prematurely optimize code. Focus on clarity and correctness first. Especially for frontend now that react compiler optimizations are very good.
 
+Don't overuse comments. Write self-explanatory code and use comments only when necessary to explain complex logic or decisions.
+
 # Frontend Development Guidelines
 
 ## Technology Stack Versions

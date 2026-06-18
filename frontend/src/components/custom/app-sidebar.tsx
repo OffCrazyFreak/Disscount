@@ -36,6 +36,8 @@ import { cn } from "@/lib/utils";
 import { productNavItems, userNavItems } from "@/constants/navigation";
 import { Badge } from "@/components/ui/badge";
 import { useNotifications } from "@/context/notifications-context";
+import { useUser } from "@/context/user-context";
+import { canAccessDashboard } from "@/lib/api/schemas/auth-user";
 
 type OpenSection = "categories" | "stores" | "locations" | null;
 
@@ -46,6 +48,9 @@ export const AppSidebar = memo(function AppSidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { notifications, hasNotifications } = useNotifications();
+  const { user } = useUser();
+
+  const showDashboard = canAccessDashboard(user?.accountType);
 
   const searchParamsString = searchParams.toString();
   const fullPath = `${pathname}${searchParamsString ? `?${searchParamsString}` : ""}`;
@@ -127,7 +132,9 @@ export const AppSidebar = memo(function AppSidebar() {
                   return (
                     <SidebarMenuItem
                       key={item.id}
-                      className={cn(item.showInHeader && "md:hidden")}
+                      className={cn(
+                        !showDashboard && item.showInHeader && "md:hidden",
+                      )}
                     >
                       <SidebarMenuButton
                         asChild

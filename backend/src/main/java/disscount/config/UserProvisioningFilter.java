@@ -35,9 +35,11 @@ public class UserProvisioningFilter extends OncePerRequestFilter {
         if (auth instanceof JwtAuthenticationToken jwtAuth) {
             String sub = jwtAuth.getToken().getSubject();
             String email = jwtAuth.getToken().getClaimAsString("email");
+            String name = jwtAuth.getToken().getClaimAsString("name");
+            String image = jwtAuth.getToken().getClaimAsString("image");
 
             try {
-                userService.ensureActiveProfile(UUID.fromString(sub), email);
+                userService.ensureActiveProfile(UUID.fromString(sub), email, name, image);
             } catch (IllegalArgumentException ignored) {
                 // sub is not a UUID — token not issued by our better-auth instance
             } catch (Exception e) {

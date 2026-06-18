@@ -7,4 +7,5 @@ public class UserRequest {
     private String username;
     private Boolean notificationsPush;
     private Boolean notificationsEmail;
+    private String image;
 }

@@ -5,10 +5,13 @@ import org.springframework.stereotype.Repository;
 
 import disscount.user.domain.User;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByUsername(String username);
+
+    List<User> findByDeletedAtIsNullOrderByCreatedAtAsc();
 }

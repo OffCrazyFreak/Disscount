@@ -1,5 +1,7 @@
 package disscount.user.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +14,10 @@ import disscount.user.domain.enums.AccountType;
 import disscount.user.dto.UserDto;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import disscount.exceptions.ForbiddenException;
+
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,6 +27,9 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public Optional<UserDto> findById(UUID id) {
         return userRepository.findById(id)
@@ -33,7 +41,7 @@ public class UserService {
      * Idempotent upsert called on every authenticated request via UserProvisioningFilter.
      * Creates the profile row on first login, or revives a soft-deleted one.
      */
-    public void ensureActiveProfile(UUID id, String email) {
+    public void ensureActiveProfile(UUID id, String email, String name, String image) {
         if (email == null) return;
 
         Optional<User> existing = userRepository.findById(id);
@@ -51,6 +59,8 @@ public class UserService {
                 user.setEmail(email);
                 changed = true;
             }
+            // image is intentionally not synced here: the avatar is user-owned after creation,
+            // so a cleared avatar must not be repopulated from the provider on the next request
             if (changed) {
                 userRepository.save(user);
             }
@@ -60,15 +70,25 @@ public class UserService {
             AccountType accountType = userRepository.count() == 0
                     ? AccountType.ADMIN
                     : AccountType.CONSUMER;
+            // Seed the username from the provider name, but only if it's free — username is unique
+            String username = (name != null && !name.isBlank() && !userRepository.existsByUsername(name))
+                    ? name
+                    : null;
             try {
-                userRepository.save(User.builder().id(id).email(email).accountType(accountType).build());
+                userRepository.save(User.builder()
+                        .id(id)
+                        .email(email)
+                        .username(username)
+                        .image(image)
+                        .accountType(accountType)
+                        .build());
             } catch (DataIntegrityViolationException ignored) {
                 // Concurrent first-login race: the other request won — profile already exists
             }
         }
     }
 
-    public UserDto updateProfile(UUID userId, String username, Boolean notificationsPush, Boolean notificationsEmail) {
+    public UserDto updateProfile(UUID userId, String username, Boolean notificationsPush, Boolean notificationsEmail, String image) {
         User user = userRepository.findById(userId)
                 .filter(u -> u.getDeletedAt() == null)
                 .orElseThrow(() -> new BadRequestException("User not found"));
@@ -87,6 +107,11 @@ public class UserService {
             user.setNotificationsEmail(notificationsEmail);
         }
 
+        // null = leave unchanged, "" = clear the avatar, otherwise store the new base64 image
+        if (image != null) {
+            user.setImage(image.isEmpty() ? null : image);
+        }
+
         user = userRepository.save(user);
         return convertToUserDto(user);
     }
@@ -102,8 +127,62 @@ public class UserService {
 
         user.setUsername(null);
         user.setEmail(null);
+        user.setImage(null);
         user.setDeletedAt(LocalDateTime.now());
         userRepository.save(user);
+    }
+
+    /**
+     * Throws unless the given user is an active ADMIN. Used to gate admin-only endpoints.
+     */
+    public void requireAdmin(UUID userId) {
+        boolean isAdmin = userRepository.findById(userId)
+                .filter(u -> u.getDeletedAt() == null)
+                .map(u -> u.getAccountType() == AccountType.ADMIN)
+                .orElse(false);
+
+        if (!isAdmin) {
+            throw new ForbiddenException("Admin access required");
+        }
+    }
+
+    public List<UserDto> findAllActive() {
+        return userRepository.findByDeletedAtIsNullOrderByCreatedAtAsc()
+                .stream()
+                .map(this::convertToUserDto)
+                .toList();
+    }
+
+    /**
+     * Fully removes another user (admin action): deletes the better-auth identity — which
+     * cascades its sessions/accounts — then anonymizes and soft-deletes the profile row so
+     * business data stays intact. better-auth shares this database, so the identity is removed
+     * directly via a native delete.
+     */
+    public void deleteUserAsAdmin(UUID targetUserId, UUID adminUserId) {
+        if (targetUserId.equals(adminUserId)) {
+            throw new BadRequestException("You cannot delete your own account from the admin panel");
+        }
+
+        entityManager.createNativeQuery("DELETE FROM \"user\" WHERE id = :id")
+                .setParameter("id", targetUserId)
+                .executeUpdate();
+
+        deleteAccount(targetUserId);
+    }
+
+    public UserDto updateAccountType(UUID userId, AccountType accountType) {
+        if (accountType == null) {
+            throw new BadRequestException("Account type is required");
+        }
+
+        User user = userRepository.findById(userId)
+                .filter(u -> u.getDeletedAt() == null)
+                .orElseThrow(() -> new BadRequestException("User not found"));
+
+        user.setAccountType(accountType);
+        user = userRepository.save(user);
+        return convertToUserDto(user);
     }
 
     private UserDto convertToUserDto(User user) {
@@ -113,6 +192,7 @@ public class UserService {
                 .email(user.getEmail())
                 .notificationsPush(user.getNotificationsPush())
                 .notificationsEmail(user.getNotificationsEmail())
+                .image(user.getImage())
                 .accountType(user.getAccountType())
                 .createdAt(user.getCreatedAt())
                 .build();

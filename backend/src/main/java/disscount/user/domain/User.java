@@ -43,6 +43,10 @@ public class User {
     @Builder.Default
     private Boolean notificationsEmail = true;
 
+    // Base64 avatar; Google sign-ins use the session image instead, so this stays null unless uploaded.
+    @Column(name = "image", columnDefinition = "TEXT")
+    private String image;
+
     // Set on first login: ADMIN if no users exist yet, otherwise CONSUMER.
     // Elevated to ENTERPRISE / PUBLIC_SECTOR manually via the admin dashboard.
     @Enumerated(EnumType.STRING)
