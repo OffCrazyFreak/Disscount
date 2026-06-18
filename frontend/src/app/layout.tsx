@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 
 import { AppSidebar } from "@/components/custom/app-sidebar";
@@ -52,6 +53,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="hr" data-scroll-behavior="smooth">
+      {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
+        <Script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+          strategy="afterInteractive"
+        />
+      )}
       <body
         className={`${sairaStencil.variable} antialiased bg-zinc-50 relative`}
       >

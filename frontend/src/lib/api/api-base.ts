@@ -14,53 +14,108 @@ const apiClient: AxiosInstance = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// In-memory JWT cache — avoids calling authClient.token() on every request
-let cachedToken: string | null = null;
+// In-memory JWT cache. The token's `exp` is decoded so we can refresh shortly
+// before it expires instead of waiting for a 401 round-trip.
+const TOKEN_REFRESH_SKEW_SECONDS = 30;
 
-// Backoff timestamp: don't hit /api/auth/token before this time (ms)
-let tokenBackoffUntil = 0;
-
-const TOKEN_BACKOFF_MS = 10_000;
+// Cooldown after a failed fetch — avoids hammering /api/auth/token when logged out
+const RETRY_COOLDOWN_MS = 2_000;
 
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 200;
+
+let cachedToken: string | null = null;
+let cachedExp: number | null = null;
+let inflightTokenPromise: Promise<string | null> | null = null;
+let lastFailedAttemptAt = 0;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function getToken(): Promise<string | null> {
-  if (Date.now() < tokenBackoffUntil) return null;
+function decodeBase64Url(value: string): string {
+  const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+  return atob(padded);
+}
 
-  if (cachedToken) return cachedToken;
+function parseTokenExp(token: string): number | null {
+  const payloadSegment = token.split(".")[1];
+  if (!payloadSegment) return null;
 
   try {
-    const result = await authClient.token();
-    const token = result?.data?.token ?? null;
-    if (!token) {
-      tokenBackoffUntil = Date.now() + TOKEN_BACKOFF_MS;
-      return null;
-    }
-    cachedToken = token;
-    return cachedToken;
+    const payload = JSON.parse(decodeBase64Url(payloadSegment)) as { exp?: number };
+    return payload.exp ?? null;
   } catch {
-    tokenBackoffUntil = Date.now() + TOKEN_BACKOFF_MS;
     return null;
   }
 }
 
-export function clearAuthToken() {
+function isCachedTokenFresh(): boolean {
+  if (!cachedToken || !cachedExp) return false;
+
+  const nowInSeconds = Math.floor(Date.now() / 1000);
+  return cachedExp - TOKEN_REFRESH_SKEW_SECONDS > nowInSeconds;
+}
+
+function clearTokenCache() {
   cachedToken = null;
-  tokenBackoffUntil = Date.now() + TOKEN_BACKOFF_MS;
+  cachedExp = null;
+}
+
+async function requestFreshToken(): Promise<string | null> {
+  try {
+    const result = await authClient.token();
+    const token = result?.data?.token ?? null;
+
+    if (!token) {
+      clearTokenCache();
+      lastFailedAttemptAt = Date.now();
+      return null;
+    }
+
+    cachedToken = token;
+    cachedExp = parseTokenExp(token);
+    lastFailedAttemptAt = 0;
+    return token;
+  } catch {
+    clearTokenCache();
+    lastFailedAttemptAt = Date.now();
+    return null;
+  }
+}
+
+async function getToken(forceRefresh = false): Promise<string | null> {
+  if (typeof window === "undefined") return null;
+
+  if (!forceRefresh && isCachedTokenFresh()) return cachedToken;
+
+  if (!forceRefresh && Date.now() - lastFailedAttemptAt < RETRY_COOLDOWN_MS) {
+    return null;
+  }
+
+  // Dedupe concurrent callers so a burst of requests triggers a single token fetch
+  if (!inflightTokenPromise) {
+    inflightTokenPromise = requestFreshToken().finally(() => {
+      inflightTokenPromise = null;
+    });
+  }
+
+  return inflightTokenPromise;
+}
+
+export function clearAuthToken() {
+  clearTokenCache();
+  lastFailedAttemptAt = Date.now();
 }
 
 export function resetAuthToken() {
-  cachedToken = null;
-  tokenBackoffUntil = 0;
+  clearTokenCache();
+  lastFailedAttemptAt = 0;
 }
 
 apiClient.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
-  if (typeof window !== "undefined" && config.headers) {
+  if (config.headers) {
     const token = await getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -80,8 +135,7 @@ apiClient.interceptors.response.use(
       error.response?.status === 401 &&
       !originalRequest.headers?.["X-Retry-After-Refresh"]
     ) {
-      resetAuthToken();
-      const freshToken = await getToken();
+      const freshToken = await getToken(true);
 
       if (freshToken && originalRequest.headers) {
         (originalRequest.headers as Record<string, string>).Authorization = `Bearer ${freshToken}`;
