@@ -25,16 +25,16 @@
       "description": "Shopping list item management endpoints"
     },
     {
-      "name": "Authentication",
-      "description": "Authentication and user management endpoints"
-    },
-    {
       "name": "Shopping Lists",
       "description": "Shopping list management endpoints"
     },
     {
       "name": "Pinned Places",
       "description": "User pinned places management endpoints"
+    },
+    {
+      "name": "Admin",
+      "description": "Admin-only management endpoints"
     },
     {
       "name": "Pinned Stores",
@@ -370,8 +370,8 @@
     "/api/watchlist": {
       "post": {
         "tags": ["Watchlist"],
-        "summary": "Add product to watchlist",
-        "operationId": "addToWatchlist",
+        "summary": "Add product to watchlist or update existing threshold",
+        "operationId": "addOrUpdateWatchlist",
         "requestBody": {
           "content": {
             "application/json": {
@@ -523,127 +523,6 @@
         }
       }
     },
-    "/api/auth/register": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Register a new user",
-        "operationId": "register",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/auth/refresh": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Refresh access token using refresh token",
-        "operationId": "refreshToken",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/auth/logout": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Logout from current session",
-        "operationId": "logout",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/auth/logout-all": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Logout from all sessions",
-        "operationId": "logoutAll",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/auth/login": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Login with email/username and password",
-        "operationId": "login",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LoginRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/users/me": {
       "get": {
         "tags": ["User Management"],
@@ -664,7 +543,7 @@
       },
       "delete": {
         "tags": ["User Management"],
-        "summary": "Soft delete current user",
+        "summary": "Anonymize and soft-delete current user's profile",
         "operationId": "deleteCurrentUser",
         "responses": {
           "200": {
@@ -684,7 +563,7 @@
       },
       "patch": {
         "tags": ["User Management"],
-        "summary": "Patch current user's profile (username, stayLoggedInDays, notifications)",
+        "summary": "Update current user's profile (username, notifications)",
         "operationId": "updateCurrentUser",
         "requestBody": {
           "content": {
@@ -745,11 +624,82 @@
         }
       }
     },
+    "/api/admin/users/{userId}": {
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Delete a user (admin only)",
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Admin"],
+        "summary": "Change a user's account type (admin only)",
+        "operationId": "updateAccountType",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAccountTypeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/watchlist/product/{productApiId}": {
       "get": {
         "tags": ["Watchlist"],
-        "summary": "Fetch product from watchlist by product API ID",
-        "operationId": "getWatchlistItemByProductApiId",
+        "summary": "Fetch watchlist items for a product by product API ID",
+        "operationId": "getWatchlistItemsByProductApiId",
         "parameters": [
           {
             "name": "productApiId",
@@ -766,7 +716,10 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/WatchlistItemDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WatchlistItemDto"
+                  }
                 }
               }
             }
@@ -927,6 +880,28 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/DigitalCardDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "List all active users (admin only)",
+        "operationId": "getAllUsers",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDto"
                   }
                 }
               }
@@ -1180,7 +1155,6 @@
         }
       },
       "BulkPinnedStoreRequest": {
-        "required": ["stores"],
         "type": "object",
         "properties": {
           "stores": {
@@ -1223,7 +1197,6 @@
         }
       },
       "BulkPinnedPlaceRequest": {
-        "required": ["places"],
         "type": "object",
         "properties": {
           "places": {
@@ -1321,14 +1294,19 @@
         }
       },
       "WatchlistItemRequest": {
-        "required": ["productApiId", "productName"],
+        "required": ["productApiId", "thresholdValue", "watchType"],
         "type": "object",
         "properties": {
           "productApiId": {
             "type": "string"
           },
-          "productName": {
-            "type": "string"
+          "watchType": {
+            "type": "string",
+            "enum": ["PERCENTAGE", "ABSOLUTE"]
+          },
+          "thresholdValue": {
+            "type": "number",
+            "format": "double"
           }
         }
       },
@@ -1346,14 +1324,23 @@
           "productApiId": {
             "type": "string"
           },
-          "productName": {
-            "type": "string"
+          "watchType": {
+            "type": "string",
+            "enum": ["PERCENTAGE", "ABSOLUTE"]
+          },
+          "thresholdValue": {
+            "type": "number",
+            "format": "double"
           },
           "lastNotifiedAt": {
             "type": "string",
             "format": "date-time"
           },
           "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
             "type": "string",
             "format": "date-time"
           }
@@ -1403,46 +1390,20 @@
           }
         }
       },
-      "RegisterRequest": {
-        "required": ["email", "password"],
+      "UserRequest": {
         "type": "object",
         "properties": {
           "username": {
-            "maxLength": 40,
-            "minLength": 2,
             "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "maxLength": 100,
-            "minLength": 12,
-            "type": "string"
-          },
-          "stayLoggedInDays": {
-            "type": "integer",
-            "format": "int32"
           },
           "notificationsPush": {
             "type": "boolean"
           },
           "notificationsEmail": {
             "type": "boolean"
-          }
-        }
-      },
-      "AuthResponse": {
-        "type": "object",
-        "properties": {
-          "accessToken": {
-            "type": "string"
           },
-          "tokenType": {
+          "image": {
             "type": "string"
-          },
-          "user": {
-            "$ref": "#/components/schemas/UserDto"
           }
         }
       },
@@ -1459,35 +1420,18 @@
           "email": {
             "type": "string"
           },
-          "lastLoginAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "stayLoggedInDays": {
-            "type": "integer",
-            "format": "int32"
-          },
           "notificationsPush": {
             "type": "boolean"
           },
           "notificationsEmail": {
             "type": "boolean"
           },
-          "subscriptionTier": {
-            "type": "string",
-            "enum": ["FREE", "PRO"]
+          "image": {
+            "type": "string"
           },
-          "subscriptionStartDate": {
+          "accountType": {
             "type": "string",
-            "format": "date"
-          },
-          "numberOfAiPrompts": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "lastAiPromptAt": {
-            "type": "string",
-            "format": "date-time"
+            "enum": ["ADMIN", "CONSUMER", "ENTERPRISE", "PUBLIC_SECTOR"]
           },
           "createdAt": {
             "type": "string",
@@ -1495,33 +1439,12 @@
           }
         }
       },
-      "LoginRequest": {
-        "required": ["password", "usernameOrEmail"],
+      "UpdateAccountTypeRequest": {
         "type": "object",
         "properties": {
-          "usernameOrEmail": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
-        }
-      },
-      "UserRequest": {
-        "type": "object",
-        "properties": {
-          "username": {
-            "type": "string"
-          },
-          "stayLoggedInDays": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "notificationsPush": {
-            "type": "boolean"
-          },
-          "notificationsEmail": {
-            "type": "boolean"
+          "accountType": {
+            "type": "string",
+            "enum": ["ADMIN", "CONSUMER", "ENTERPRISE", "PUBLIC_SECTOR"]
           }
         }
       },
@@ -1549,19 +1472,16 @@
       "PageNotificationDto": {
         "type": "object",
         "properties": {
-          "totalElements": {
-            "type": "integer",
-            "format": "int64"
-          },
           "totalPages": {
             "type": "integer",
             "format": "int32"
           },
-          "first": {
-            "type": "boolean"
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
           },
-          "last": {
-            "type": "boolean"
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
           },
           "size": {
             "type": "integer",
@@ -1584,8 +1504,11 @@
             "type": "integer",
             "format": "int32"
           },
-          "pageable": {
-            "$ref": "#/components/schemas/PageableObject"
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
           },
           "empty": {
             "type": "boolean"
@@ -1595,16 +1518,6 @@
       "PageableObject": {
         "type": "object",
         "properties": {
-          "offset": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "sort": {
-            "$ref": "#/components/schemas/SortObject"
-          },
-          "unpaged": {
-            "type": "boolean"
-          },
           "pageNumber": {
             "type": "integer",
             "format": "int32"
@@ -1613,7 +1526,17 @@
             "type": "integer",
             "format": "int32"
           },
+          "offset": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
+          },
           "paged": {
+            "type": "boolean"
+          },
+          "unpaged": {
             "type": "boolean"
           }
         }
@@ -1621,10 +1544,10 @@
       "SortObject": {
         "type": "object",
         "properties": {
-          "empty": {
+          "sorted": {
             "type": "boolean"
           },
-          "sorted": {
+          "empty": {
             "type": "boolean"
           },
           "unsorted": {
