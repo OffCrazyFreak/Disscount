@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   Link2,
   TriangleAlert,
+  Loader2,
   type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -75,13 +76,26 @@ export default function SecurityModal({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
+  const [accountsStatus, setAccountsStatus] = useState<
+    "loading" | "loaded" | "error"
+  >("loading");
 
   const loadAccounts = useCallback(async () => {
-    const { data } = await authClient.listAccounts();
-    if (data) {
+    setAccountsStatus("loading");
+
+    try {
+      const { data, error } = await authClient.listAccounts();
+      if (error || !data) {
+        setAccountsStatus("error");
+        return;
+      }
+
       setAccounts(
         data.map((a) => ({ providerId: a.providerId, accountId: a.accountId })),
       );
+      setAccountsStatus("loaded");
+    } catch {
+      setAccountsStatus("error");
     }
   }, []);
 
@@ -96,7 +110,12 @@ export default function SecurityModal({
     setShowLogoutAllConfirm(false);
 
     try {
-      await authClient.revokeOtherSessions();
+      const { error } = await authClient.revokeOtherSessions();
+      if (error) {
+        toast.error("Greška pri odjavi sa svih uređaja.");
+        return;
+      }
+
       toast.success("Odjavljen si sa svih ostalih uređaja!");
       onOpenChange(false);
     } catch (error) {
@@ -113,7 +132,12 @@ export default function SecurityModal({
     setShowDeleteConfirm(false);
 
     try {
-      await authClient.deleteUser();
+      const { error } = await authClient.deleteUser();
+      if (error) {
+        toast.error("Greška pri brisanju računa. Pokušaj ponovo.");
+        return;
+      }
+
       await userService.deleteCurrentUser();
 
       clearAuthToken();
@@ -157,21 +181,37 @@ export default function SecurityModal({
           </DialogHeader>
 
           <div className="flex flex-col gap-6">
-            <section className="space-y-3">
-              <SectionLabel icon={ShieldCheck}>
-                Prijava i sigurnost
-              </SectionLabel>
+            {accountsStatus === "loading" && (
+              <div className="flex justify-center py-6">
+                <Loader2 className="size-5 animate-spin text-primary" />
+              </div>
+            )}
 
-              <AccountCredentialsForm
-                hasPassword={hasPassword}
-                onChanged={loadAccounts}
-              />
-            </section>
+            {accountsStatus === "error" && (
+              <p className="text-sm text-destructive">
+                Greška pri dohvaćanju podataka o računu. Pokušaj ponovo.
+              </p>
+            )}
 
-            <section className="space-y-3">
-              <SectionLabel icon={Link2}>Povezani računi</SectionLabel>
-              <LinkedAccounts accounts={accounts} onChanged={loadAccounts} />
-            </section>
+            {accountsStatus === "loaded" && (
+              <>
+                <section className="space-y-3">
+                  <SectionLabel icon={ShieldCheck}>
+                    Prijava i sigurnost
+                  </SectionLabel>
+
+                  <AccountCredentialsForm
+                    hasPassword={hasPassword}
+                    onChanged={loadAccounts}
+                  />
+                </section>
+
+                <section className="space-y-3">
+                  <SectionLabel icon={Link2}>Povezani računi</SectionLabel>
+                  <LinkedAccounts accounts={accounts} onChanged={loadAccounts} />
+                </section>
+              </>
+            )}
 
             <section className="space-y-4">
               <SectionLabel icon={TriangleAlert} className="text-destructive">

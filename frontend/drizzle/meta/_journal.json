@@ -8,6 +8,13 @@
       "when": 1780918924620,
       "tag": "0000_stale_mister_sinister",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1781967749693,
+      "tag": "0001_silly_talos",
+      "breakpoints": true
     }
   ]
 }

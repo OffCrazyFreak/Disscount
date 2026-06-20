@@ -5,7 +5,12 @@ import { auth } from "@/lib/auth";
 import { passwordSchema } from "@/lib/api/schemas/auth-user";
 
 export async function POST(request: Request) {
-  const { newPassword } = (await request.json()) as { newPassword?: unknown };
+  let newPassword: unknown;
+  try {
+    ({ newPassword } = (await request.json()) as { newPassword?: unknown });
+  } catch {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
 
   const parsed = passwordSchema.safeParse(newPassword);
   if (!parsed.success) {
@@ -21,6 +26,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ status: true });
   } catch {
-    return NextResponse.json({ error: "Failed to set password" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Failed to set password" },
+      { status: 500 }
+    );
   }
 }

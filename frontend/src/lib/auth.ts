@@ -5,9 +5,22 @@ import { nextCookies } from "better-auth/next-js";
 
 import { db } from "../db";
 
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value;
+}
+
+const BETTER_AUTH_URL = requireEnv("BETTER_AUTH_URL");
+const BETTER_AUTH_SECRET = requireEnv("BETTER_AUTH_SECRET");
+const GOOGLE_CLIENT_ID = requireEnv("NEXT_PUBLIC_GOOGLE_CLIENT_ID");
+const GOOGLE_CLIENT_SECRET = requireEnv("GOOGLE_CLIENT_SECRET");
+
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL,
-  secret: process.env.BETTER_AUTH_SECRET,
+  baseURL: BETTER_AUTH_URL,
+  secret: BETTER_AUTH_SECRET,
 
   database: drizzleAdapter(db, { provider: "pg" }),
 
@@ -25,8 +38,8 @@ export const auth = betterAuth({
 
   socialProviders: {
     google: {
-      clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: GOOGLE_CLIENT_ID,
+      clientSecret: GOOGLE_CLIENT_SECRET,
     },
     // TODO: add Facebook provider
   },

@@ -36,6 +36,7 @@ export default function AccountCredentialsForm({
   const [newPassword, setNewPassword] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -143,6 +144,7 @@ export default function AccountCredentialsForm({
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
+    setSubmitError(null);
     if (!validate()) return;
 
     setIsSubmitting(true);
@@ -152,6 +154,8 @@ export default function AccountCredentialsForm({
       } else {
         await handleSetPassword();
       }
+    } catch {
+      setSubmitError("Nešto je pošlo po krivu. Pokušaj ponovo.");
     } finally {
       setIsSubmitting(false);
     }
@@ -228,6 +232,10 @@ export default function AccountCredentialsForm({
             <p className="text-xs text-destructive">{errors.currentPassword}</p>
           )}
         </div>
+      )}
+
+      {submitError && (
+        <p className="text-xs text-destructive">{submitError}</p>
       )}
 
       <Button

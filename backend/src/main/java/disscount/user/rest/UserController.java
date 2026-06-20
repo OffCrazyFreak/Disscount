@@ -2,6 +2,7 @@ package disscount.user.rest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +34,7 @@ public class UserController {
 
     @Operation(summary = "Update current user's profile (username, notifications)")
     @PatchMapping("/me")
-    public ResponseEntity<UserDto> updateCurrentUser(@RequestBody UserRequest request) {
+    public ResponseEntity<UserDto> updateCurrentUser(@Valid @RequestBody UserRequest request) {
         UUID authenticatedUserId = SecurityUtils.getCurrentUserId();
         UserDto updatedUser = userService.updateProfile(
                 authenticatedUserId,

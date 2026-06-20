@@ -6,6 +6,7 @@ import {
   boolean,
   uuid,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
@@ -69,7 +70,10 @@ export const account = pgTable(
   },
   (table) => [
     index("account_userId_idx").on(table.userId),
-    index("account_provider_account_idx").on(table.providerId, table.accountId),
+    uniqueIndex("account_provider_account_idx").on(
+      table.providerId,
+      table.accountId,
+    ),
   ],
 );
 
