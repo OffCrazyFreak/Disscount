@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.exceptions.BadRequestException;
-import disscount.exceptions.ConflictException;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.user.domain.enums.AccountType;
@@ -70,10 +69,7 @@ public class UserService {
             AccountType accountType = userRepository.count() == 0
                     ? AccountType.ADMIN
                     : AccountType.CONSUMER;
-            // Seed the username from the provider name, but only if it's free — username is unique
-            String username = (name != null && !name.isBlank() && !userRepository.existsByUsername(name))
-                    ? name
-                    : null;
+            String username = seedUsername(name, email);
             try {
                 userRepository.save(User.builder()
                         .id(id)
@@ -88,15 +84,26 @@ public class UserService {
         }
     }
 
+    /**
+     * Seeds a username for a brand-new profile from the provider display name,
+     * falling back to the email local-part when the name is missing.
+     * Usernames are not unique, so no de-duplication is needed.
+     */
+    private String seedUsername(String name, String email) {
+        if (name != null && !name.isBlank()) {
+            return name.trim();
+        }
+
+        String localPart = email.split("@")[0];
+        return localPart.isBlank() ? null : localPart;
+    }
+
     public UserDto updateProfile(UUID userId, String username, Boolean notificationsPush, Boolean notificationsEmail, String image) {
         User user = userRepository.findById(userId)
                 .filter(u -> u.getDeletedAt() == null)
                 .orElseThrow(() -> new BadRequestException("User not found"));
 
         if (username != null && !username.equals(user.getUsername())) {
-            if (userRepository.existsByUsername(username)) {
-                throw new ConflictException("Username already exists");
-            }
             user.setUsername(username);
         }
 

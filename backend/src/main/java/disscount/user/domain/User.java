@@ -14,7 +14,6 @@ import disscount.user.domain.enums.AccountType;
 
 @Entity
 @Table(name = "app_user", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "username"),
     @UniqueConstraint(columnNames = "email")
 })
 @Getter
@@ -28,7 +27,7 @@ public class User {
     @Id
     private UUID id;
 
-    @Column(nullable = true, unique = true)
+    @Column(nullable = true)
     private String username;
 
     // Nullable: email is nulled during account deletion to free it for re-registration

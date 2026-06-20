@@ -50,7 +50,7 @@ export default function UserMenu() {
             <div className="space-y-1">
               <div className="font-bold">{user?.username}</div>
               <div className="text-xs text-gray-400">{user?.email}</div>
-              {user?.accountType && (
+              {user?.accountType && user.accountType !== "CONSUMER" && (
                 <Badge className="text-xs">
                   {ACCOUNT_TYPE_LABELS[user.accountType]}
                 </Badge>
