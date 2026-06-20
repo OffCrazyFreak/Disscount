@@ -1,7 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { Trash2, LogOut } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Trash2,
+  LogOut,
+  ShieldCheck,
+  Link2,
+  TriangleAlert,
+  type LucideIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
@@ -15,12 +22,40 @@ import {
 } from "@/components/ui/dialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import AccountCredentialsForm from "@/components/custom/header/forms/account-credentials-form";
+import LinkedAccounts from "@/components/custom/header/forms/linked-accounts";
 import { userService } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import { clearAuthToken } from "@/lib/api/api-base";
-import { ACCOUNT_TYPE_LABELS } from "@/lib/api/schemas/auth-user";
 import { useUser } from "@/context/user-context";
+import { cn } from "@/lib/utils";
+
+interface LinkedAccount {
+  providerId: string;
+  accountId: string;
+}
+
+function SectionLabel({
+  icon: Icon,
+  className,
+  children,
+}: {
+  icon: LucideIcon;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground",
+        className,
+      )}
+    >
+      <Icon className="size-3.5" />
+      {children}
+    </div>
+  );
+}
 
 interface ISecurityModalProps {
   isOpen: boolean;
@@ -31,13 +66,30 @@ export default function SecurityModal({
   isOpen,
   onOpenChange,
 }: ISecurityModalProps) {
-  const { user, setUser } = useUser();
+  const { setUser } = useUser();
   const queryClient = useQueryClient();
 
   const [isRevoking, setIsRevoking] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showLogoutAllConfirm, setShowLogoutAllConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
+
+  const loadAccounts = useCallback(async () => {
+    const { data } = await authClient.listAccounts();
+    if (data) {
+      setAccounts(
+        data.map((a) => ({ providerId: a.providerId, accountId: a.accountId })),
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) loadAccounts();
+  }, [isOpen, loadAccounts]);
+
+  const hasPassword = accounts.some((a) => a.providerId === "credential");
 
   async function handleLogoutAll() {
     setIsRevoking(true);
@@ -96,7 +148,7 @@ export default function SecurityModal({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent>
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl">Sigurnost</DialogTitle>
             <DialogDescription>
@@ -104,39 +156,74 @@ export default function SecurityModal({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex flex-col gap-4">
-            {user?.accountType && (
-              <div className="flex items-center justify-between rounded-lg border p-4">
-                <span className="text-sm font-medium">Tip računa</span>
-                <Badge variant="secondary">
-                  {ACCOUNT_TYPE_LABELS[user.accountType]}
-                </Badge>
+          <div className="flex flex-col gap-6">
+            <section className="space-y-3">
+              <SectionLabel icon={ShieldCheck}>
+                Prijava i sigurnost
+              </SectionLabel>
+
+              <AccountCredentialsForm
+                hasPassword={hasPassword}
+                onChanged={loadAccounts}
+              />
+            </section>
+
+            <section className="space-y-3">
+              <SectionLabel icon={Link2}>Povezani računi</SectionLabel>
+              <LinkedAccounts accounts={accounts} onChanged={loadAccounts} />
+            </section>
+
+            <section className="space-y-4">
+              <SectionLabel icon={TriangleAlert} className="text-destructive">
+                Opasna zona
+              </SectionLabel>
+
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Odjava sa svih uređaja</p>
+                  <p className="text-xs text-muted-foreground">
+                    Odjavi se sa svih ostalih uređaja osim ovog.
+                  </p>
+                </div>
+
+                <Button
+                  type="button"
+                  onClick={() => setShowLogoutAllConfirm(true)}
+                  variant="outline"
+                  size="sm"
+                  icon={LogOut}
+                  iconPlacement="left"
+                  loading={isRevoking}
+                  disabled={isLoading}
+                  className="shrink-0"
+                >
+                  Odjava
+                </Button>
               </div>
-            )}
 
-            <Button
-              type="button"
-              onClick={() => setShowLogoutAllConfirm(true)}
-              variant="outline"
-              icon={LogOut}
-              iconPlacement="left"
-              loading={isRevoking}
-              disabled={isLoading}
-            >
-              Odjavi se sa svih uređaja
-            </Button>
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Obriši račun</p>
+                  <p className="text-xs text-muted-foreground">
+                    Trajno obriši svoj račun i sve podatke.
+                  </p>
+                </div>
 
-            <Button
-              type="button"
-              onClick={() => setShowDeleteConfirm(true)}
-              variant="destructive"
-              icon={Trash2}
-              iconPlacement="left"
-              loading={isDeleting}
-              disabled={isLoading}
-            >
-              Obriši račun
-            </Button>
+                <Button
+                  type="button"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  variant="destructive"
+                  size="sm"
+                  icon={Trash2}
+                  iconPlacement="left"
+                  loading={isDeleting}
+                  disabled={isLoading}
+                  className="shrink-0"
+                >
+                  Obriši
+                </Button>
+              </div>
+            </section>
           </div>
         </DialogContent>
       </Dialog>
@@ -146,7 +233,7 @@ export default function SecurityModal({
         onOpenChange={setShowLogoutAllConfirm}
         title="Odjava sa svih uređaja"
         description="Jeste li sigurni da se želite odjaviti sa svih ostalih uređaja? Ova sesija ostaje aktivna."
-        confirmLabel="Odjavi se"
+        confirmLabel="Odjava"
         variant="default"
         onConfirm={handleLogoutAll}
         isLoading={isRevoking}

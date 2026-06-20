@@ -13,10 +13,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { LoginForm } from "@/components/custom/header/forms/login-form";
 import { SignUpForm } from "@/components/custom/header/forms/signup-form";
-import { GoogleIcon } from "@daveyplate/better-auth-ui";
+import { GoogleIcon } from "@/components/icons/google-icon";
+import { FacebookIcon } from "@/components/icons/facebook-icon";
 import {
   getLastLoginMethod,
   setLastLoginMethod,
@@ -123,6 +125,18 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
                 Zadnja prijava
               </span>
             )}
+          </Button>
+
+          <Button
+            variant="outline"
+            size={"lg"}
+            className="w-full gap-4"
+            disabled
+            icon={FacebookIcon}
+            iconPlacement="left"
+          >
+            Nastavi sa Facebook računom
+            <Badge className="absolute right-3 text-[10px]">USKORO</Badge>
           </Button>
         </div>
 

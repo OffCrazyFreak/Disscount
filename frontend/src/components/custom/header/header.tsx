@@ -125,7 +125,7 @@ export default function Header(): JSX.Element {
                               {item.label}
 
                               {item.badge && hasNotifications && (
-                                <Badge className="absolute -top-2 -right-3.5 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-green-500 text-white hover:bg-green-600">
+                                <Badge className="absolute -top-2 -right-3.5 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
                                   {notifications.length}
                                 </Badge>
                               )}

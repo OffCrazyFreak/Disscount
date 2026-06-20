@@ -135,7 +135,7 @@ export default function AdminUsersTable() {
                   <TableCell>
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="outline"
                       size="icon"
                       aria-label="Obriši račun"
                       className="text-destructive hover:text-destructive"

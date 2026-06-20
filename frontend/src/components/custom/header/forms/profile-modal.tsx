@@ -206,7 +206,7 @@ export default function ProfileModal({
                   {avatarPreview && (
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       className="justify-start text-destructive hover:text-destructive"
                       onClick={removeAvatar}

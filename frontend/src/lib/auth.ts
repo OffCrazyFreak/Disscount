@@ -19,7 +19,7 @@ export const auth = betterAuth({
 
   emailAndPassword: {
     enabled: true,
-    minPasswordLength: 8,
+    minPasswordLength: 12,
     // TODO: implement sendResetPassword via Resend for forgot-password flow
   },
 
@@ -43,6 +43,9 @@ export const auth = betterAuth({
 
   user: {
     deleteUser: { enabled: true },
+    // Emails aren't verified yet, so a change applies immediately.
+    // TODO: add sendChangeEmailVerification once Resend email verification is wired up
+    changeEmail: { enabled: true },
   },
 
   plugins: [

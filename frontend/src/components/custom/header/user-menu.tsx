@@ -12,6 +12,8 @@ import { UserAvatar } from "@daveyplate/better-auth-ui";
 import UserPreferencesModal from "@/components/custom/header/forms/user-preferences-modal";
 import ProfileModal from "@/components/custom/header/forms/profile-modal";
 import SecurityModal from "@/components/custom/header/forms/security-modal";
+import { Badge } from "@/components/ui/badge";
+import { ACCOUNT_TYPE_LABELS } from "@/lib/api/schemas/auth-user";
 import { useUser } from "@/context/user-context";
 
 export default function UserMenu() {
@@ -48,6 +50,11 @@ export default function UserMenu() {
             <div className="space-y-1">
               <div className="font-bold">{user?.username}</div>
               <div className="text-xs text-gray-400">{user?.email}</div>
+              {user?.accountType && (
+                <Badge className="text-xs">
+                  {ACCOUNT_TYPE_LABELS[user.accountType]}
+                </Badge>
+              )}
             </div>
           </DropdownMenuLabel>
 
