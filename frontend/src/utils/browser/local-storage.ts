@@ -38,34 +38,6 @@ export function setAppStorage(partial: AppData) {
   }
 }
 
-export function getAccessToken(): string | null {
-  const data = getAppStorage();
-  return data.accessToken ?? null;
-}
-
-export function setAccessToken(token: string | null | undefined) {
-  if (token == null) return removeAccessToken();
-  setAppStorage({ accessToken: token });
-}
-
-export function removeAccessToken() {
-  if (typeof window === "undefined") return;
-  const current = getAppStorage();
-  if (!current || !Object.prototype.hasOwnProperty.call(current, "accessToken"))
-    return;
-  const { accessToken, ...rest } = current;
-  try {
-    // If there are other keys keep them, otherwise remove the whole key
-    if (Object.keys(rest).length === 0) {
-      localStorage.removeItem(APP_KEY);
-    } else {
-      localStorage.setItem(APP_KEY, JSON.stringify(rest));
-    }
-  } catch (e) {
-    console.error("Failed to remove accessToken from storage", e);
-  }
-}
-
 /**
  * Get stored view mode for a specific path.
  * Falls back to provided default ("grid") if missing.
@@ -292,6 +264,21 @@ export function getProductStoresOpen(productEan: string): boolean {
   const data = getAppStorage();
   // Default to true (open)
   return data.productsPreferences?.[productEan]?.storesOpen ?? true;
+}
+
+/**
+ * Get the login method the user last used (email or google).
+ */
+export function getLastLoginMethod(): "email" | "google" | null {
+  const data = getAppStorage();
+  return data.lastLoginMethod ?? null;
+}
+
+/**
+ * Persist the login method the user just used so we can show a "last used" badge.
+ */
+export function setLastLoginMethod(method: "email" | "google") {
+  setAppStorage({ lastLoginMethod: method });
 }
 
 /**

@@ -1,73 +1,35 @@
 import { z } from "zod";
 
-// Auth schemas
+const PASSWORD_ERROR =
+  "Lozinka mora imati barem 12 znakova i treba sadržavati najmanje jedno veliko slovo, jedno malo slovo te broj (0-9).";
+
+// Shared rules for any newly created password (signup, set/change password).
+// Not used for login, where any existing password must be accepted.
+export const passwordSchema = z.string().refine(
+  (value) =>
+    value.length >= 12 &&
+    /[A-Z]/.test(value) &&
+    /[a-z]/.test(value) &&
+    /[0-9]/.test(value),
+  { message: PASSWORD_ERROR }
+);
+
 export const loginRequestSchema = z.object({
-  usernameOrEmail: z
-    .string()
-    .min(2, { message: "Korisničko ime ili email mora imati najmanje 2 znaka" })
-    .refine(
-      (value) =>
-        value.includes("@")
-          ? z.email().safeParse(value).success
-          : value.length >= 2 && value.length <= 40,
-      "Nevažeće korisničko ime ili email"
-    ),
-  password: z
-    .string()
-    .min(12, { message: "Lozinka mora imati najmanje 12 znakova" })
-    .max(40, { message: "Lozinka može imati najviše 40 znakova" })
-    .refine((password) => /[A-Z]/.test(password), {
-      message: "Lozinka mora sadržavati barem jedno veliko slovo",
-    })
-    .refine((password) => /[a-z]/.test(password), {
-      message: "Lozinka mora sadržavati barem jedno malo slovo",
-    })
-    .refine((password) => /[0-9]/.test(password), {
-      message: "Lozinka mora sadržavati barem jedan broj",
-    })
-    .refine((password) => /[!@#$%^&*]/.test(password), {
-      message:
-        "Lozinka mora sadržavati barem jedan specijalni znak (npr. !@#$%^&*)",
-    }),
+  email: z.email("Unesi važeći email"),
+  password: z.string().min(1, "Unesi lozinku"),
 });
 
 export const registerRequestSchema = z
   .object({
-    username: z
-      .string()
-      .min(2, "Korisničko ime mora imati najmanje 2 znakova")
-      .max(40, "Korisničko ime može imati najviše 40 znakova")
-      .nullable()
-      .optional(),
     email: z.email("Unesi važeći email"),
-    password: z
-      .string()
-      .min(12, { message: "Lozinka mora imati najmanje 12 znakova" })
-      .max(40, { message: "Lozinka može imati najviše 40 znakova" })
-      .refine((password) => /[A-Z]/.test(password), {
-        message: "Lozinka mora sadržavati barem jedno veliko slovo",
-      })
-      .refine((password) => /[a-z]/.test(password), {
-        message: "Lozinka mora sadržavati barem jedno malo slovo",
-      })
-      .refine((password) => /[0-9]/.test(password), {
-        message: "Lozinka mora sadržavati barem jedan broj",
-      })
-      .refine((password) => /[!@#$%^&*]/.test(password), {
-        message:
-          "Lozinka mora sadržavati barem jedan specijalni znak (npr. !@#$%^&*)",
-      }),
+    password: passwordSchema,
     confirmPassword: z.string(),
-    stayLoggedInDays: z.number().min(0).optional(),
-    notificationsPush: z.boolean().optional(),
-    notificationsEmail: z.boolean().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Lozinke se ne podudaraju",
     path: ["confirmPassword"],
   });
 
-// User schemas
 export const userRequestSchema = z.object({
   username: z
     .string()
@@ -75,19 +37,16 @@ export const userRequestSchema = z.object({
     .max(40, "Korisničko ime može imati najviše 40 znakova")
     .nullable()
     .optional(),
-  stayLoggedInDays: z.number().min(0).optional(),
   notificationsPush: z.boolean().optional(),
   notificationsEmail: z.boolean().optional(),
+  image: z.string().nullable().optional(),
 });
 
 export const userDtoSchema = userRequestSchema.extend({
   id: z.string(),
-  email: z.email(),
-  lastLoginAt: z.string(),
-  subscriptionTier: z.enum(["FREE", "PRO"]),
-  subscriptionStartDate: z.string().nullable().optional(),
-  numberOfAiPrompts: z.number(),
-  lastAiPromptAt: z.string().nullable().optional(),
+  email: z.email().nullable().optional(),
+  name: z.string().nullable().optional(),
+  accountType: z.enum(["ADMIN", "CONSUMER", "ENTERPRISE", "PUBLIC_SECTOR"]),
   createdAt: z.string(),
   pinnedStores: z
     .array(
@@ -113,8 +72,27 @@ export const userDtoSchema = userRequestSchema.extend({
     .optional(),
 });
 
-// Type exports
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
 export type RegisterRequest = z.infer<typeof registerRequestSchema>;
 export type UserRequest = z.infer<typeof userRequestSchema>;
 export type UserDto = z.infer<typeof userDtoSchema>;
+
+export type AccountType = UserDto["accountType"];
+
+// Croatian display labels for account types
+export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
+  ADMIN: "Admin",
+  CONSUMER: "Korisnik",
+  ENTERPRISE: "Partner",
+  PUBLIC_SECTOR: "Javni sektor",
+};
+
+const DASHBOARD_ACCOUNT_TYPES: AccountType[] = [
+  "ADMIN",
+  "ENTERPRISE",
+  "PUBLIC_SECTOR",
+];
+
+export function canAccessDashboard(accountType?: AccountType | null): boolean {
+  return !!accountType && DASHBOARD_ACCOUNT_TYPES.includes(accountType);
+}

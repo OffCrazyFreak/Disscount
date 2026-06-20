@@ -1,128 +1,165 @@
-import axios, {
-  AxiosError,
-  AxiosInstance,
-  AxiosRequestConfig,
-  InternalAxiosRequestConfig,
-} from "axios";
-import {
-  getAccessToken,
-  setAccessToken,
-  removeAccessToken,
-} from "@/utils/browser/local-storage";
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from "axios";
 
-// Prefer a relative path in the browser so Next.js rewrites (defined in next.config.ts)
-// can proxy requests to the backend during development and avoid CORS issues.
-// On the server (Next.js SSR), fall back to an absolute backend URL if provided or
-// to http://localhost:8080 for local development.
-const API_PUBLIC_BASE = process.env.NEXT_PUBLIC_API_URL; // optional (e.g. https://api.example.com)
+import { authClient } from "@/lib/auth-client";
+
+const API_PUBLIC_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 const API_BASE_URL =
   typeof window !== "undefined"
-    ? // run through Next.js proxy in browser
-      ""
-    : // server-side: use explicit backend URL if set, otherwise default to localhost
-      API_PUBLIC_BASE || "http://localhost:8080";
+    ? ""
+    : API_PUBLIC_BASE || "http://localhost:8080";
 
-// Create base axios instance
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
 });
 
-// Helper functions
+// In-memory JWT cache. The token's `exp` is decoded so we can refresh shortly
+// before it expires instead of waiting for a 401 round-trip.
+const TOKEN_REFRESH_SKEW_SECONDS = 30;
+
+// Cooldown after a failed fetch — avoids hammering /api/auth/token when logged out
+const RETRY_COOLDOWN_MS = 2_000;
+
+const MAX_RETRIES = 3;
+const BASE_DELAY_MS = 200;
+
+let cachedToken: string | null = null;
+let cachedExp: number | null = null;
+let inflightTokenPromise: Promise<string | null> | null = null;
+let lastFailedAttemptAt = 0;
+
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Constants for retry policy
-const MAX_RETRIES = 3;
-const BASE_DELAY_MS = 200; // 0.2s
+function decodeBase64Url(value: string): string {
+  const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+  return atob(padded);
+}
 
-// Add request interceptor to include auth token
-apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = typeof window !== "undefined" ? getAccessToken() : null;
+function parseTokenExp(token: string): number | null {
+  const payloadSegment = token.split(".")[1];
+  if (!payloadSegment) return null;
 
-  if (token && config.headers) {
-    config.headers.Authorization = `Bearer ${token}`;
+  try {
+    const payload = JSON.parse(decodeBase64Url(payloadSegment)) as { exp?: number };
+    return payload.exp ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function isCachedTokenFresh(): boolean {
+  if (!cachedToken || !cachedExp) return false;
+
+  const nowInSeconds = Math.floor(Date.now() / 1000);
+  return cachedExp - TOKEN_REFRESH_SKEW_SECONDS > nowInSeconds;
+}
+
+function clearTokenCache() {
+  cachedToken = null;
+  cachedExp = null;
+}
+
+async function requestFreshToken(): Promise<string | null> {
+  try {
+    const result = await authClient.token();
+    const token = result?.data?.token ?? null;
+
+    if (!token) {
+      clearTokenCache();
+      lastFailedAttemptAt = Date.now();
+      return null;
+    }
+
+    cachedToken = token;
+    cachedExp = parseTokenExp(token);
+    lastFailedAttemptAt = 0;
+    return token;
+  } catch {
+    clearTokenCache();
+    lastFailedAttemptAt = Date.now();
+    return null;
+  }
+}
+
+async function getToken(forceRefresh = false): Promise<string | null> {
+  if (typeof window === "undefined") return null;
+
+  if (!forceRefresh && isCachedTokenFresh()) return cachedToken;
+
+  if (!forceRefresh && Date.now() - lastFailedAttemptAt < RETRY_COOLDOWN_MS) {
+    return null;
   }
 
+  // Dedupe concurrent callers so a burst of requests triggers a single token fetch
+  if (!inflightTokenPromise) {
+    inflightTokenPromise = requestFreshToken().finally(() => {
+      inflightTokenPromise = null;
+    });
+  }
+
+  return inflightTokenPromise;
+}
+
+export function clearAuthToken() {
+  clearTokenCache();
+  lastFailedAttemptAt = Date.now();
+}
+
+export function resetAuthToken() {
+  clearTokenCache();
+  lastFailedAttemptAt = 0;
+}
+
+apiClient.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
+  if (config.headers) {
+    const token = await getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
   return config;
 });
 
-// Add response interceptor for token refresh and retry logic
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config;
 
-    // If no original request context, reject
-    if (!originalRequest) {
-      return Promise.reject(error);
-    }
+    if (!originalRequest) return Promise.reject(error);
 
-    // Handle 401 Unauthorized by attempting token refresh
     if (
       error.response?.status === 401 &&
       !originalRequest.headers?.["X-Retry-After-Refresh"]
     ) {
-      try {
-        // Call the refresh token endpoint
-        const response = await axios.post(
-          `${API_BASE_URL}/api/auth/refresh`,
-          {},
-          {
-            withCredentials: true, // Important to include cookies
-          },
-        );
+      const freshToken = await getToken(true);
 
-        if (response.data && response.data.accessToken) {
-          // Store the new access token
-          setAccessToken(response.data.accessToken);
-
-          // Create a new request with the same config but new headers
-          const newRequestConfig = { ...originalRequest };
-
-          // Set the new authorization header
-          if (newRequestConfig.headers) {
-            (newRequestConfig.headers as Record<string, string>).Authorization =
-              `Bearer ${response.data.accessToken}`;
-            (newRequestConfig.headers as Record<string, string>)[
-              "X-Retry-After-Refresh"
-            ] = "true";
-          }
-
-          return apiClient(newRequestConfig);
-        }
-      } catch (refreshError) {
-        // If refresh fails, clear token and reject
-        removeAccessToken();
-
-        // You might want to redirect to login page or dispatch logout action here
-        return Promise.reject(refreshError);
+      if (freshToken && originalRequest.headers) {
+        (originalRequest.headers as Record<string, string>).Authorization = `Bearer ${freshToken}`;
+        (originalRequest.headers as Record<string, string>)["X-Retry-After-Refresh"] = "true";
+        return apiClient(originalRequest);
       }
-    }
 
-    // For other errors, implement retry with linear backoff
-    const retryConfig = originalRequest as AxiosRequestConfig & {
-      __retryCount?: number;
-    };
-    retryConfig.__retryCount = retryConfig.__retryCount || 0;
-
-    if (retryConfig.__retryCount >= MAX_RETRIES) {
       return Promise.reject(error);
     }
 
-    retryConfig.__retryCount += 1;
-    const delayMs = BASE_DELAY_MS * retryConfig.__retryCount;
-
-    try {
-      await sleep(delayMs);
-      return apiClient(retryConfig);
-    } catch (retryError) {
-      return Promise.reject(retryError);
+    // Retry on network errors or 5xx with linear backoff; skip 4xx client errors
+    if (error.response && error.response.status < 500) {
+      return Promise.reject(error);
     }
+
+    const retryConfig = originalRequest as AxiosRequestConfig & { __retryCount?: number };
+    retryConfig.__retryCount = (retryConfig.__retryCount ?? 0) + 1;
+
+    if (retryConfig.__retryCount > MAX_RETRIES) {
+      return Promise.reject(error);
+    }
+
+    await sleep(BASE_DELAY_MS * retryConfig.__retryCount);
+    return apiClient(retryConfig);
   },
 );
 

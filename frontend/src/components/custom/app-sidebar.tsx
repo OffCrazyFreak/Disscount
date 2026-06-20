@@ -36,6 +36,8 @@ import { cn } from "@/lib/utils";
 import { productNavItems, userNavItems } from "@/constants/navigation";
 import { Badge } from "@/components/ui/badge";
 import { useNotifications } from "@/context/notifications-context";
+import { useUser } from "@/context/user-context";
+import { canAccessDashboard } from "@/lib/api/schemas/auth-user";
 
 type OpenSection = "categories" | "stores" | "locations" | null;
 
@@ -46,6 +48,9 @@ export const AppSidebar = memo(function AppSidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { notifications, hasNotifications } = useNotifications();
+  const { user } = useUser();
+
+  const showDashboard = canAccessDashboard(user?.accountType);
 
   const searchParamsString = searchParams.toString();
   const fullPath = `${pathname}${searchParamsString ? `?${searchParamsString}` : ""}`;
@@ -127,7 +132,9 @@ export const AppSidebar = memo(function AppSidebar() {
                   return (
                     <SidebarMenuItem
                       key={item.id}
-                      className={cn(item.showInHeader && "md:hidden")}
+                      className={cn(
+                        !showDashboard && item.showInHeader && "md:hidden",
+                      )}
                     >
                       <SidebarMenuButton
                         asChild
@@ -144,7 +151,7 @@ export const AppSidebar = memo(function AppSidebar() {
                           <span>{item.label}</span>
 
                           {item.badge && hasNotifications && (
-                            <Badge className="ml-auto h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-green-500 text-white hover:bg-green-600">
+                            <Badge className="ml-auto h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
                               {notifications.length}
                             </Badge>
                           )}

@@ -70,16 +70,16 @@ class ShoppingListControllerTest {
 
         // Create test users
         testUser = User.builder()
+                .id(UUID.randomUUID())
                 .email("test@example.com")
                 .username("testuser")
-                .passwordHash("hashedpassword")
                 .build();
         testUser = userRepository.save(testUser);
 
         otherUser = User.builder()
+                .id(UUID.randomUUID())
                 .email("other@example.com")
                 .username("otheruser")
-                .passwordHash("hashedpassword")
                 .build();
         otherUser = userRepository.save(otherUser);
 

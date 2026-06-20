@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { CircleCheck } from "lucide-react";
 import { toast } from "sonner";
+import { signIn } from "@/lib/auth-client";
 
 import {
   Dialog,
@@ -11,10 +13,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { LoginForm } from "@/components/custom/header/forms/login-form";
 import { SignUpForm } from "@/components/custom/header/forms/signup-form";
-import { GoogleIcon } from "@daveyplate/better-auth-ui";
+import { GoogleIcon } from "@/components/icons/google-icon";
+import { FacebookIcon } from "@/components/icons/facebook-icon";
+import {
+  getLastLoginMethod,
+  setLastLoginMethod,
+} from "@/utils/browser/local-storage";
 
 interface IAuthModalProps {
   isOpen: boolean;
@@ -26,6 +34,14 @@ type AuthMode = "login" | "signup";
 export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
   const [authMode, setAuthMode] = useState<AuthMode>("login");
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [lastLoginMethod, setLastLoginMethodState] = useState<
+    "email" | "google" | null
+  >(null);
+  const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
+
+  useEffect(() => {
+    setLastLoginMethodState(getLastLoginMethod());
+  }, [isOpen]);
 
   const handleLoginSuccess = () => {
     onOpenChange(false);
@@ -36,9 +52,19 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
     setShowOnboarding(true);
   };
 
-  const handleGoogleSignIn = () => {
-    // TODO: Implement Google OAuth flow
-    toast.info("Google prijava će biti dodana uskoro");
+  const handleGoogleSignIn = async () => {
+    if (isGoogleSigningIn) return;
+
+    setIsGoogleSigningIn(true);
+    try {
+      setLastLoginMethod("google");
+      setLastLoginMethodState("google");
+      await signIn.social({ provider: "google", callbackURL: "/" });
+    } catch {
+      toast.error("Greška pri Google prijavi. Pokušaj ponovo.");
+    } finally {
+      setIsGoogleSigningIn(false);
+    }
   };
 
   const switchToSignUp = () => {
@@ -60,9 +86,16 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
 
         <div className="grid gap-8">
           {authMode === "login" ? (
-            <LoginForm onSuccess={handleLoginSuccess} />
+            <LoginForm
+              onSuccess={handleLoginSuccess}
+              isLastUsed={lastLoginMethod === "email"}
+              externalDisabled={isGoogleSigningIn}
+            />
           ) : (
-            <SignUpForm onSuccess={handleSignUpSuccess} />
+            <SignUpForm
+              onSuccess={handleSignUpSuccess}
+              externalDisabled={isGoogleSigningIn}
+            />
           )}
 
           <div className="relative">
@@ -80,10 +113,30 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
             size={"lg"}
             className="w-full gap-4"
             onClick={handleGoogleSignIn}
+            disabled={isGoogleSigningIn}
+            loading={isGoogleSigningIn}
             icon={GoogleIcon}
             iconPlacement="left"
           >
             Nastavi sa Google računom
+            {lastLoginMethod === "google" && !isGoogleSigningIn && (
+              <span className="absolute right-3 inline-flex items-center gap-0.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-white">
+                <CircleCheck size={9} />
+                Zadnja prijava
+              </span>
+            )}
+          </Button>
+
+          <Button
+            variant="outline"
+            size={"lg"}
+            className="w-full gap-4"
+            disabled
+            icon={FacebookIcon}
+            iconPlacement="left"
+          >
+            Nastavi sa Facebook računom
+            <Badge className="absolute right-3 text-[10px]">USKORO</Badge>
           </Button>
         </div>
 

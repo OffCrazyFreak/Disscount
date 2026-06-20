@@ -1,23 +1,19 @@
 package disscount.user.domain;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import disscount.user.domain.enums.SubscriptionTier;
+import disscount.user.domain.enums.AccountType;
 
 @Entity
 @Table(name = "app_user", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "username"),
     @UniqueConstraint(columnNames = "email")
 })
 @Getter
@@ -26,32 +22,17 @@ import disscount.user.domain.enums.SubscriptionTier;
 @AllArgsConstructor
 @Builder
 public class User {
-    
+
+    // ID is assigned externally by better-auth (same UUID as the better-auth `user.id`)
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    // Username is optional at registration; users may set it later via profile update
-    @Column(nullable = true, unique = true)
+    @Column(nullable = true)
     private String username;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email should be valid")
-    @Column(nullable = false, unique = true)
+    // Nullable: email is nulled during account deletion to free it for re-registration
+    @Column(nullable = true, unique = true)
     private String email;
-
-    @Column(name = "password_hash")
-    private String passwordHash;
-
-    @Column(name = "google_id")
-    private String googleId;
-
-    @Column(name = "last_login_at")
-    private LocalDateTime lastLoginAt;
-
-    @Column(name = "stay_logged_in_days", nullable = false)
-    @Builder.Default
-    private Integer stayLoggedInDays = 30;
 
     @Column(name = "notifications_push", nullable = false)
     @Builder.Default
@@ -61,20 +42,16 @@ public class User {
     @Builder.Default
     private Boolean notificationsEmail = true;
 
+    // Base64 avatar; Google sign-ins use the session image instead, so this stays null unless uploaded.
+    @Column(name = "image", columnDefinition = "TEXT")
+    private String image;
+
+    // Set on first login: ADMIN if no users exist yet, otherwise CONSUMER.
+    // Elevated to ENTERPRISE / PUBLIC_SECTOR manually via the admin dashboard.
     @Enumerated(EnumType.STRING)
-    @Column(name = "subscription_tier", nullable = false)
+    @Column(name = "account_type", nullable = false)
     @Builder.Default
-    private SubscriptionTier subscriptionTier = SubscriptionTier.FREE;
-
-    @Column(name = "subscription_start_date")
-    private LocalDate subscriptionStartDate;
-
-    @Column(name = "number_of_ai_prompts", nullable = false)
-    @Builder.Default
-    private Integer numberOfAiPrompts = 0;
-
-    @Column(name = "last_ai_prompt_at")
-    private LocalDateTime lastAiPromptAt;
+    private AccountType accountType = AccountType.CONSUMER;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
