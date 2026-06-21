@@ -1,8 +1,10 @@
 import { ViewMode } from "@/typings/view-mode";
 import { PeriodOption } from "@/typings/history-period-options";
 
-// Sign-in methods the user can use, persisted to show a "last used" badge
-export type LoginMethod = "email" | "google" | "facebook";
+// Sign-in methods the user can use, persisted to show a "last used" badge.
+// Single source of truth so the type and runtime validation can't drift.
+export const LOGIN_METHODS = ["email", "google", "facebook"] as const;
+export type LoginMethod = (typeof LOGIN_METHODS)[number];
 
 // Product-specific preferences for price history charts
 export interface ProductChartPreferences {

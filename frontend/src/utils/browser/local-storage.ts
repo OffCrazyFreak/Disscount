@@ -8,6 +8,7 @@ import {
   ProductsPreferences,
   ProductChartPreferences,
   LoginMethod,
+  LOGIN_METHODS,
 } from "@/typings/local-storage";
 
 const APP_KEY = "Disscount_app";
@@ -271,8 +272,8 @@ export function getProductStoresOpen(productEan: string): boolean {
  * Get the login method the user last used (email, google, or facebook).
  */
 export function getLastLoginMethod(): LoginMethod | null {
-  const data = getAppStorage();
-  return data.lastLoginMethod ?? null;
+  const method = getAppStorage().lastLoginMethod;
+  return method && LOGIN_METHODS.includes(method) ? method : null;
 }
 
 /**

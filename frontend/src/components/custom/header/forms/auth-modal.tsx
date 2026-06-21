@@ -79,7 +79,7 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
     setShowOnboarding(true);
   };
 
-  const handleSocialSignIn = async (provider: "google" | "facebook") => {
+  async function handleSocialSignIn(provider: "google" | "facebook") {
     if (socialPending) return;
 
     setSocialPending(provider);
@@ -96,7 +96,7 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
       toast.error(`Greška pri ${label} prijavi. Pokušaj ponovo.`);
       setSocialPending(null);
     }
-  };
+  }
 
   const switchToSignUp = () => {
     setAuthMode("signup");
