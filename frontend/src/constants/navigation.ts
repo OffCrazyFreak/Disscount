@@ -6,6 +6,8 @@ import {
   List,
   Store,
   MapPin,
+  Map as MapIcon,
+  Wallet,
   ChartNoAxesCombined,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -16,6 +18,7 @@ export interface NavigationItem {
   label: string;
   icon: LucideIcon;
   badge?: boolean; // For items that can show badge counts
+  comingSoon?: boolean; // Show an "USKORO" badge for not-yet-available features
   showInHeader: boolean; // Show in desktop header navigation
   isCollapsible?: boolean; // Has sub-menu (Kategorije, Trgovine, Lokacije)
 }
@@ -25,7 +28,7 @@ export const userNavItems: NavigationItem[] = [
   {
     id: "shopping-lists",
     href: "/shopping-lists",
-    label: "Popisi za kupnju",
+    label: "Popisi",
     icon: ListChecks,
 
     showInHeader: true,
@@ -39,19 +42,29 @@ export const userNavItems: NavigationItem[] = [
 
     showInHeader: true,
   },
-  // {
-  //   id: "digital-cards",
-  //   href: "/digital-cards",
-  //   label: "Digitalne kartice",
-  //   icon: CreditCard,
+  {
+    id: "digital-cards",
+    href: "/digital-cards",
+    label: "Kartice",
+    icon: CreditCard,
+    comingSoon: true,
 
-  //   showInHeader: true,
-  // },
+    showInHeader: false,
+  },
   {
     id: "statistics",
     href: "/statistics",
     label: "Statistika",
     icon: ChartNoAxesCombined,
+
+    showInHeader: false,
+  },
+  {
+    id: "spending",
+    href: "/spending",
+    label: "Potrošnja",
+    icon: Wallet,
+    comingSoon: true,
 
     showInHeader: false,
   },
@@ -94,5 +107,14 @@ export const productNavItems: NavigationItem[] = [
     showInHeader: false,
 
     isCollapsible: true,
+  },
+  {
+    id: "map",
+    href: "/map",
+    label: "Karta",
+    icon: MapIcon,
+    comingSoon: true,
+
+    showInHeader: false,
   },
 ];

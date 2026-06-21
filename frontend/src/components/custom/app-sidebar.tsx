@@ -136,27 +136,36 @@ export const AppSidebar = memo(function AppSidebar() {
                         !showDashboard && item.showInHeader && "md:hidden",
                       )}
                     >
-                      <SidebarMenuButton
-                        asChild
-                        className={cn(isActive && "hover:text-primary")}
-                      >
-                        <Link
-                          href={item.href}
-                          className={cn(
-                            "flex items-center gap-2 relative",
-                            isActive && "font-bold text-primary",
-                          )}
-                        >
-                          <Icon className={isActive ? "text-primary" : ""} />
+                      {item.comingSoon ? (
+                        <SidebarMenuButton type="button" disabled>
+                          <Icon />
                           <span>{item.label}</span>
 
-                          {item.badge && hasNotifications && (
-                            <Badge className="ml-auto h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
-                              {notifications.length}
-                            </Badge>
-                          )}
-                        </Link>
-                      </SidebarMenuButton>
+                          <Badge className="ml-auto text-[10px]">USKORO</Badge>
+                        </SidebarMenuButton>
+                      ) : (
+                        <SidebarMenuButton
+                          asChild
+                          className={cn(isActive && "hover:text-primary")}
+                        >
+                          <Link
+                            href={item.href}
+                            className={cn(
+                              "flex items-center gap-2 relative",
+                              isActive && "font-bold text-primary",
+                            )}
+                          >
+                            <Icon className={isActive ? "text-primary" : ""} />
+                            <span>{item.label}</span>
+
+                            {item.badge && hasNotifications && (
+                              <Badge className="ml-auto h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                                {notifications.length}
+                              </Badge>
+                            )}
+                          </Link>
+                        </SidebarMenuButton>
+                      )}
                     </SidebarMenuItem>
                   );
                 })}
@@ -287,18 +296,27 @@ export const AppSidebar = memo(function AppSidebar() {
 
                 return (
                   <SidebarMenuItem key={item.id}>
-                    <SidebarMenuButton asChild>
-                      <Link
-                        href={item.href}
-                        className={cn(
-                          "cursor-pointer flex items-center gap-2",
-                          isActive && "font-bold text-primary",
-                        )}
-                      >
-                        <Icon className={isActive ? "text-primary" : ""} />
+                    {item.comingSoon ? (
+                      <SidebarMenuButton type="button" disabled>
+                        <Icon />
                         <span>{item.label}</span>
-                      </Link>
-                    </SidebarMenuButton>
+
+                        <Badge className="ml-auto text-[10px]">USKORO</Badge>
+                      </SidebarMenuButton>
+                    ) : (
+                      <SidebarMenuButton asChild>
+                        <Link
+                          href={item.href}
+                          className={cn(
+                            "cursor-pointer flex items-center gap-2",
+                            isActive && "font-bold text-primary",
+                          )}
+                        >
+                          <Icon className={isActive ? "text-primary" : ""} />
+                          <span>{item.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    )}
                   </SidebarMenuItem>
                 );
               })}
