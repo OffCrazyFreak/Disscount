@@ -96,3 +96,7 @@ const DASHBOARD_ACCOUNT_TYPES: AccountType[] = [
 export function canAccessDashboard(accountType?: AccountType | null): boolean {
   return !!accountType && DASHBOARD_ACCOUNT_TYPES.includes(accountType);
 }
+
+export function isAdmin(accountType?: AccountType | null): boolean {
+  return accountType === "ADMIN";
+}

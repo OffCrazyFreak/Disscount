@@ -100,6 +100,26 @@ export default function Header(): JSX.Element {
                     .map((item) => {
                       const Icon = item.icon;
                       const isActive = pathname.startsWith(item.href);
+                      const label = item.shortLabel ?? item.label;
+
+                      // Coming-soon items are not navigable in the navbar; the
+                      // USKORO badge sits on top, like the notification badge.
+                      if (item.comingSoon) {
+                        return (
+                          <li key={item.id}>
+                            <span className="flex items-center space-x-2 text-muted-foreground/70 cursor-not-allowed relative">
+                              <Icon className="size-4" />
+                              <span className="relative">
+                                {label}
+
+                                <Badge className="absolute -top-3 -right-7 h-4 rounded-full px-1 py-0 text-[9px] leading-none">
+                                  USKORO
+                                </Badge>
+                              </span>
+                            </span>
+                          </li>
+                        );
+                      }
 
                       return (
                         <li key={item.id}>
@@ -122,7 +142,7 @@ export default function Header(): JSX.Element {
                                 isActive && "text-primary",
                               )}
                             >
-                              {item.label}
+                              {label}
 
                               {item.badge && hasNotifications && (
                                 <Badge className="absolute -top-2 -right-3.5 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
