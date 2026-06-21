@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { CircleCheck } from "lucide-react";
 import { toast } from "sonner";
 import { signIn } from "@/lib/auth-client";
@@ -13,7 +14,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { LoginForm } from "@/components/custom/header/forms/login-form";
 import { SignUpForm } from "@/components/custom/header/forms/signup-form";
@@ -23,6 +23,7 @@ import {
   getLastLoginMethod,
   setLastLoginMethod,
 } from "@/utils/browser/local-storage";
+import { LoginMethod } from "@/typings/local-storage";
 
 interface IAuthModalProps {
   isOpen: boolean;
@@ -34,14 +35,40 @@ type AuthMode = "login" | "signup";
 export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
   const [authMode, setAuthMode] = useState<AuthMode>("login");
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [lastLoginMethod, setLastLoginMethodState] = useState<
-    "email" | "google" | null
+  const [lastLoginMethod, setLastLoginMethodState] = useState<LoginMethod | null>(
+    null,
+  );
+  const [socialPending, setSocialPending] = useState<
+    "google" | "facebook" | null
   >(null);
-  const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
 
   useEffect(() => {
     setLastLoginMethodState(getLastLoginMethod());
   }, [isOpen]);
+
+  // Surface OAuth failures: better-auth redirects to "/" with ?error=<code>.
+  // The only social error we can produce is a Facebook login without email.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get("error");
+    if (!error) return;
+
+    toast.error(
+      error === "email_not_found"
+        ? "Tvoj Facebook račun nije podijelio email adresu. Prijavi se emailom ili Facebook računom koji ima email."
+        : "Greška pri prijavi. Pokušaj ponovo.",
+    );
+
+    params.delete("error");
+    const query = params.toString();
+    window.history.replaceState(
+      {},
+      "",
+      window.location.pathname + (query ? `?${query}` : ""),
+    );
+  }, []);
 
   const handleLoginSuccess = () => {
     onOpenChange(false);
@@ -52,20 +79,24 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
     setShowOnboarding(true);
   };
 
-  const handleGoogleSignIn = async () => {
-    if (isGoogleSigningIn) return;
+  async function handleSocialSignIn(provider: "google" | "facebook") {
+    if (socialPending) return;
 
-    setIsGoogleSigningIn(true);
+    setSocialPending(provider);
     try {
-      setLastLoginMethod("google");
-      setLastLoginMethodState("google");
-      await signIn.social({ provider: "google", callbackURL: "/" });
+      setLastLoginMethod(provider);
+      setLastLoginMethodState(provider);
+      await signIn.social({
+        provider,
+        callbackURL: "/",
+        errorCallbackURL: "/",
+      });
     } catch {
-      toast.error("Greška pri Google prijavi. Pokušaj ponovo.");
-    } finally {
-      setIsGoogleSigningIn(false);
+      const label = provider === "google" ? "Google" : "Facebook";
+      toast.error(`Greška pri ${label} prijavi. Pokušaj ponovo.`);
+      setSocialPending(null);
     }
-  };
+  }
 
   const switchToSignUp = () => {
     setAuthMode("signup");
@@ -89,12 +120,12 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
             <LoginForm
               onSuccess={handleLoginSuccess}
               isLastUsed={lastLoginMethod === "email"}
-              externalDisabled={isGoogleSigningIn}
+              externalDisabled={socialPending !== null}
             />
           ) : (
             <SignUpForm
               onSuccess={handleSignUpSuccess}
-              externalDisabled={isGoogleSigningIn}
+              externalDisabled={socialPending !== null}
             />
           )}
 
@@ -112,14 +143,14 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
             variant="outline"
             size={"lg"}
             className="w-full gap-4"
-            onClick={handleGoogleSignIn}
-            disabled={isGoogleSigningIn}
-            loading={isGoogleSigningIn}
+            onClick={() => handleSocialSignIn("google")}
+            disabled={socialPending !== null}
+            loading={socialPending === "google"}
             icon={GoogleIcon}
             iconPlacement="left"
           >
             Nastavi sa Google računom
-            {lastLoginMethod === "google" && !isGoogleSigningIn && (
+            {lastLoginMethod === "google" && socialPending !== "google" && (
               <span className="absolute right-3 inline-flex items-center gap-0.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-white">
                 <CircleCheck size={9} />
                 Zadnja prijava
@@ -131,13 +162,42 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
             variant="outline"
             size={"lg"}
             className="w-full gap-4"
-            disabled
+            onClick={() => handleSocialSignIn("facebook")}
+            disabled={socialPending !== null}
+            loading={socialPending === "facebook"}
             icon={FacebookIcon}
             iconPlacement="left"
           >
             Nastavi sa Facebook računom
-            <Badge className="absolute right-3 text-[10px]">USKORO</Badge>
+            {lastLoginMethod === "facebook" && socialPending !== "facebook" && (
+              <span className="absolute right-3 inline-flex items-center gap-0.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-white">
+                <CircleCheck size={9} />
+                Zadnja prijava
+              </span>
+            )}
           </Button>
+
+          <p className="text-center text-xs text-muted-foreground text-balance">
+            Nastavkom prihvaćaš naše{" "}
+            <Link
+              href="/terms-of-service"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-primary"
+            >
+              Uvjete korištenja
+            </Link>{" "}
+            i{" "}
+            <Link
+              href="/privacy-policy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-primary"
+            >
+              Pravila privatnosti
+            </Link>
+            .
+          </p>
         </div>
 
         <DialogFooter className="text-xs text-gray-500 text-center my-2 block">
