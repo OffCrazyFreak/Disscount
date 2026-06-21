@@ -1,6 +1,9 @@
 import { ViewMode } from "@/typings/view-mode";
 import { PeriodOption } from "@/typings/history-period-options";
 
+// Sign-in methods the user can use, persisted to show a "last used" badge
+export type LoginMethod = "email" | "google" | "facebook";
+
 // Product-specific preferences for price history charts
 export interface ProductChartPreferences {
   period?: PeriodOption;
@@ -30,6 +33,6 @@ export interface AppData {
   viewModes?: Record<string, ViewMode>;
   productsPreferences?: ProductsPreferences;
   shoppingListsPreferences?: Record<string, ShoppingListsPreferences>; // Shopping list ID -> preferences
-  lastLoginMethod?: "email" | "google";
+  lastLoginMethod?: LoginMethod;
   [key: string]: unknown;
 }

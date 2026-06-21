@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ComponentType, type SVGProps } from "react";
 import { Loader2, Link2, Unlink } from "lucide-react";
 import { toast } from "sonner";
 
@@ -20,98 +20,114 @@ interface ILinkedAccountsProps {
   onChanged: () => void;
 }
 
+type SocialProvider = "google" | "facebook";
+
+const PROVIDERS: {
+  id: SocialProvider;
+  label: string;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
+}[] = [
+  { id: "google", label: "Google", icon: GoogleIcon },
+  { id: "facebook", label: "Facebook", icon: FacebookIcon },
+];
+
 export default function LinkedAccounts({
   accounts,
   onChanged,
 }: ILinkedAccountsProps) {
-  const [pending, setPending] = useState(false);
+  // Holds the provider currently being linked/unlinked, so only its row spins.
+  const [pending, setPending] = useState<SocialProvider | null>(null);
 
-  const googleAccount = accounts.find((a) => a.providerId === "google");
-  // A login method is the password (credential) or any linked social account.
+  // A sign-in method is the password (credential) or any linked social account.
   const signInMethodCount = accounts.length;
-  const canUnlinkGoogle = !!googleAccount && signInMethodCount > 1;
 
-  async function handleLinkGoogle() {
-    setPending(true);
+  async function handleLink(provider: SocialProvider) {
+    setPending(provider);
     try {
-      // Redirects to Google and back; the account is linked on return.
+      // Redirects to the provider and back; the account is linked on return.
       await authClient.linkSocial({
-        provider: "google",
+        provider,
         callbackURL: window.location.pathname,
       });
     } catch {
-      toast.error("Greška pri povezivanju Google računa.");
-      setPending(false);
+      toast.error("Greška pri povezivanju računa.");
+      setPending(null);
     }
   }
 
-  async function handleUnlinkGoogle() {
-    if (!googleAccount) return;
-
-    setPending(true);
+  async function handleUnlink(provider: SocialProvider, accountId: string) {
+    setPending(provider);
     const { error } = await authClient.unlinkAccount({
-      providerId: "google",
-      accountId: googleAccount.accountId,
+      providerId: provider,
+      accountId,
     });
 
     if (error) {
-      toast.error("Greška pri odspajanju Google računa.");
+      toast.error("Greška pri odspajanju računa.");
     } else {
-      toast.success("Google račun je odspojen.");
+      toast.success("Račun je odspojen.");
       onChanged();
     }
-    setPending(false);
+    setPending(null);
   }
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <GoogleIcon className="size-5" />
-          <span className="text-sm">Google</span>
-          {googleAccount && <Badge className="text-xs">Povezano</Badge>}
-        </div>
+      {PROVIDERS.map(({ id, label, icon: Icon }) => {
+        const account = accounts.find((a) => a.providerId === id);
+        // Never let the user unlink their only remaining sign-in method.
+        const canUnlink = !!account && signInMethodCount > 1;
+        const isPending = pending === id;
 
-        {googleAccount ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            icon={Unlink}
-            iconPlacement="left"
-            disabled={pending || !canUnlinkGoogle}
-            onClick={handleUnlinkGoogle}
-            title={
-              canUnlinkGoogle
-                ? undefined
-                : "Ne možeš odspojiti jedini način prijave."
-            }
-          >
-            {pending ? <Loader2 size={15} className="animate-spin" /> : "Odspoji"}
-          </Button>
-        ) : (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            icon={Link2}
-            iconPlacement="left"
-            disabled={pending}
-            onClick={handleLinkGoogle}
-          >
-            {pending ? <Loader2 size={15} className="animate-spin" /> : "Poveži"}
-          </Button>
-        )}
-      </div>
+        return (
+          <div key={id} className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Icon className="size-5" />
+              <span className="text-sm">{label}</span>
+              {account && <Badge className="text-xs">Povezano</Badge>}
+            </div>
 
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <FacebookIcon className="size-5" />
-          <span className="text-sm">Facebook</span>
-        </div>
-
-        <Badge className="text-xs">USKORO</Badge>
-      </div>
+            {account ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                icon={Unlink}
+                iconPlacement="left"
+                disabled={pending !== null || !canUnlink}
+                onClick={() => handleUnlink(id, account.accountId)}
+                title={
+                  canUnlink
+                    ? undefined
+                    : "Ne možeš odspojiti jedini način prijave."
+                }
+              >
+                {isPending ? (
+                  <Loader2 size={15} className="animate-spin" />
+                ) : (
+                  "Odspoji"
+                )}
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                icon={Link2}
+                iconPlacement="left"
+                disabled={pending !== null}
+                onClick={() => handleLink(id)}
+              >
+                {isPending ? (
+                  <Loader2 size={15} className="animate-spin" />
+                ) : (
+                  "Poveži"
+                )}
+              </Button>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
