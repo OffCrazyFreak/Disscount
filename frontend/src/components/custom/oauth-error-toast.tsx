@@ -5,14 +5,22 @@ import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 // Better Auth appends ?error=<code> to the redirect when a social sign-in or account-linking
-// flow fails. Map the codes we can produce to localized, friendly messages.
+// flow fails. Map every code we can hit to a localized, specific message so the user always
+// learns WHY (rather than a generic "something went wrong").
 const ERROR_MESSAGES: Record<string, string> = {
   email_not_found:
     "Tvoj Facebook račun nije podijelio email adresu. Prijavi se emailom ili Facebook računom koji ima email.",
+  // Linking flow: the provider's email differs from the logged-in account's email.
   "email_doesn't_match":
-    "Taj račun koristi drugu email adresu. Možeš povezati samo račune s istom email adresom.",
+    "Povezivanje nije uspjelo jer taj račun koristi drugu email adresu. Možeš povezati samo račune koji imaju istu email adresu kao tvoj.",
+  // Linking flow: that exact provider account already belongs to another Disscount user.
+  account_already_linked_to_different_user:
+    "Taj račun je već povezan s drugim Disscount korisnikom. Ne možeš ga povezati s ovim računom.",
+  // Sign-in flow: a matching account exists but can't be auto-linked under current rules.
   account_not_linked:
-    "Ovu prijavu nije moguće povezati s postojećim računom. Prijavi se postojećom metodom pa poveži račun u postavkama.",
+    "Ovu prijavu nije moguće automatski povezati s postojećim računom. Prijavi se postojećom metodom pa poveži račun u postavkama sigurnosti.",
+  please_restart_the_process:
+    "Postupak prijave je istekao ili je prekinut. Pokušaj ponovo.",
 };
 
 const DEFAULT_MESSAGE = "Došlo je do greške pri prijavi. Pokušaj ponovo.";

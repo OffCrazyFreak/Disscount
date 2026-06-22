@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Trash2,
   LogOut,
@@ -11,7 +11,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 
 import {
@@ -75,35 +75,29 @@ export default function SecurityModal({
   const [showLogoutAllConfirm, setShowLogoutAllConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
-  const [accountsStatus, setAccountsStatus] = useState<
-    "loading" | "loaded" | "error"
-  >("loading");
-
-  const loadAccounts = useCallback(async () => {
-    setAccountsStatus("loading");
-
-    try {
+  // Fetch linked accounts when the modal opens (React Query, the codebase standard) — no
+  // state-setting effect. reloadAccounts is handed to children to refresh after link/unlink.
+  const {
+    data: accounts = [],
+    status: accountsStatus,
+    refetch: reloadAccounts,
+  } = useQuery({
+    queryKey: ["linked-accounts"],
+    enabled: isOpen,
+    queryFn: async (): Promise<LinkedAccount[]> => {
       const { data, error } = await authClient.listAccounts();
       if (error || !data) {
-        setAccountsStatus("error");
-        return;
+        throw new Error("Failed to load accounts");
       }
-
-      setAccounts(
-        data.map((a) => ({ providerId: a.providerId, accountId: a.accountId })),
-      );
-      setAccountsStatus("loaded");
-    } catch {
-      setAccountsStatus("error");
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isOpen) loadAccounts();
-  }, [isOpen, loadAccounts]);
+      return data.map((a) => ({
+        providerId: a.providerId,
+        accountId: a.accountId,
+      }));
+    },
+  });
 
   const hasPassword = accounts.some((a) => a.providerId === "credential");
+  const hasLinkedSocial = accounts.some((a) => a.providerId !== "credential");
 
   async function handleLogoutAll() {
     setIsRevoking(true);
@@ -181,7 +175,7 @@ export default function SecurityModal({
           </DialogHeader>
 
           <div className="flex flex-col gap-6">
-            {accountsStatus === "loading" && (
+            {accountsStatus === "pending" && (
               <div className="flex justify-center py-6">
                 <Loader2 className="size-5 animate-spin text-primary" />
               </div>
@@ -193,7 +187,7 @@ export default function SecurityModal({
               </p>
             )}
 
-            {accountsStatus === "loaded" && (
+            {accountsStatus === "success" && (
               <>
                 <section className="space-y-3">
                   <SectionLabel icon={ShieldCheck}>
@@ -202,13 +196,14 @@ export default function SecurityModal({
 
                   <AccountCredentialsForm
                     hasPassword={hasPassword}
-                    onChanged={loadAccounts}
+                    hasLinkedSocial={hasLinkedSocial}
+                    onChanged={reloadAccounts}
                   />
                 </section>
 
                 <section className="space-y-3">
                   <SectionLabel icon={Link2}>Povezani računi</SectionLabel>
-                  <LinkedAccounts accounts={accounts} onChanged={loadAccounts} />
+                  <LinkedAccounts accounts={accounts} onChanged={reloadAccounts} />
                 </section>
               </>
             )}

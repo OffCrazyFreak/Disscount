@@ -16,6 +16,7 @@ import { useUser } from "@/context/user-context";
 
 interface IAccountCredentialsFormProps {
   hasPassword: boolean;
+  hasLinkedSocial: boolean;
   onChanged: () => void;
 }
 
@@ -27,10 +28,15 @@ interface FieldErrors {
 
 export default function AccountCredentialsForm({
   hasPassword,
+  hasLinkedSocial,
   onChanged,
 }: IAccountCredentialsFormProps) {
   const { user, refreshUser } = useUser();
   const currentEmail = user?.email ?? "";
+
+  // "One email defines the user": the email is editable only with a password AND no social
+  // account linked, so a provider login can never carry a different email than the account.
+  const canEditEmail = hasPassword && !hasLinkedSocial;
 
   const [email, setEmail] = useState(currentEmail);
   const [prevEmail, setPrevEmail] = useState(currentEmail);
@@ -50,7 +56,7 @@ export default function AccountCredentialsForm({
   function validate(): boolean {
     const next: FieldErrors = {};
 
-    if (hasPassword && email !== currentEmail) {
+    if (canEditEmail && email !== currentEmail) {
       if (!z.email().safeParse(email).success) {
         next.email = "Unesi važeći email";
       }
@@ -131,10 +137,23 @@ export default function AccountCredentialsForm({
         }
       }
 
-      const { error } = await authClient.changeEmail({ newEmail: email });
+      // Goes through the guarded endpoint, which enforces "no social linked" server-side.
+      const response = await fetch("/api/account/change-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newEmail: email }),
+      });
 
-      if (error) {
-        setErrors({ email: error.message ?? "Greška pri promjeni emaila." });
+      if (!response.ok) {
+        const data = (await response.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        setErrors({
+          email:
+            data.error === "social_linked"
+              ? "Za promjenu emaila prvo odspoji povezane račune (Google, Facebook)."
+              : "Greška pri promjeni emaila.",
+        });
         return;
       }
     }
@@ -190,7 +209,7 @@ export default function AccountCredentialsForm({
           type="email"
           autoComplete="email"
           value={email}
-          disabled={!hasPassword}
+          disabled={!canEditEmail}
           onChange={(e) => {
             setEmail(e.target.value);
             setErrors((prev) => ({ ...prev, email: undefined }));
@@ -199,6 +218,12 @@ export default function AccountCredentialsForm({
         {!hasPassword && (
           <p className="text-xs text-muted-foreground">
             Postavi lozinku da bi mogao promijeniti email.
+          </p>
+        )}
+        {hasPassword && hasLinkedSocial && (
+          <p className="text-xs text-muted-foreground">
+            Za promjenu emaila prvo odspoji povezane račune (Google, Facebook).
+            Svaki račun ima samo jednu email adresu.
           </p>
         )}
         {errors.email && (
