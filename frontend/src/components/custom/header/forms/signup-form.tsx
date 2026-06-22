@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -17,19 +18,21 @@ import {
   Form,
 } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/password-input";
-import { registerRequestSchema, RegisterRequest } from "@/lib/api/schemas/auth-user";
+import {
+  registerRequestSchema,
+  RegisterRequest,
+} from "@/lib/api/schemas/auth-user";
 import { cn } from "@/lib/utils";
-import { signUp } from "@/lib/auth-client";
-import { useUser } from "@/context/user-context";
-import { setLastLoginMethod } from "@/utils/browser/local-storage";
+import InboxNotice from "@/components/custom/header/forms/inbox-notice";
 
 interface ISignUpFormProps {
-  onSuccess?: () => void;
   externalDisabled?: boolean;
 }
 
-export function SignUpForm({ onSuccess, externalDisabled }: ISignUpFormProps) {
-  const { handleUserLogin } = useUser();
+export function SignUpForm({ externalDisabled }: ISignUpFormProps) {
+  // Set once registration succeeds. Email verification is required, so we don't log in —
+  // we show a "check your inbox" notice instead.
+  const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
   const form = useForm<RegisterRequest>({
     resolver: zodResolver(registerRequestSchema),
@@ -44,29 +47,37 @@ export function SignUpForm({ onSuccess, externalDisabled }: ISignUpFormProps) {
     form.clearErrors("root");
 
     try {
-      const result = await signUp.email({
-        name: data.email.split("@")[0],
-        email: data.email,
-        password: data.password,
+      // The endpoint always responds the same way (no account-existence enumeration):
+      // a new email gets a verification link, an existing account a "set/reset password" link.
+      const response = await fetch("/api/account/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: data.email, password: data.password }),
       });
 
-      if (result.error) {
-        const message =
-          result.error.status === 422
-            ? "Korisnik s tim emailom već postoji"
-            : result.error.message || "Provjeri unesene podatke.";
-        form.setError("root", { type: "server", message });
+      if (!response.ok) {
+        form.setError("root", {
+          type: "server",
+          message: "Provjeri unesene podatke.",
+        });
         return;
       }
 
-      await handleUserLogin();
-      toast.success("Uspješno ste se registrirali!");
+      setSubmittedEmail(data.email);
       form.reset();
-      setLastLoginMethod("email");
-      onSuccess?.();
     } catch {
       toast.error("Greška pri registraciji. Pokušaj ponovo.");
     }
+  }
+
+  if (submittedEmail) {
+    return (
+      <InboxNotice
+        title="Provjeri svoj inbox"
+        description="Poslali smo ti email s poveznicom za dovršetak registracije na:"
+        email={submittedEmail}
+      />
+    );
   }
 
   return (
@@ -111,7 +122,7 @@ export function SignUpForm({ onSuccess, externalDisabled }: ISignUpFormProps) {
                   placeholder="••••••••"
                   autoComplete="new-password"
                   className={cn(
-                    form.formState.errors.password && "border-red-700"
+                    form.formState.errors.password && "border-red-700",
                   )}
                 />
               </FormControl>
@@ -132,7 +143,7 @@ export function SignUpForm({ onSuccess, externalDisabled }: ISignUpFormProps) {
                   placeholder="••••••••"
                   autoComplete="new-password"
                   className={cn(
-                    form.formState.errors.confirmPassword && "border-red-700"
+                    form.formState.errors.confirmPassword && "border-red-700",
                   )}
                 />
               </FormControl>
@@ -141,7 +152,12 @@ export function SignUpForm({ onSuccess, externalDisabled }: ISignUpFormProps) {
           )}
         />
 
-        <Button type="submit" size="lg" className="w-full" disabled={form.formState.isSubmitting || externalDisabled}>
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full"
+          disabled={form.formState.isSubmitting || externalDisabled}
+        >
           {form.formState.isSubmitting ? (
             <Loader2 size={16} className="animate-spin" />
           ) : (

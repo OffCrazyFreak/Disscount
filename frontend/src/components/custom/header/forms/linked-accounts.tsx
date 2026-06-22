@@ -44,10 +44,13 @@ export default function LinkedAccounts({
   async function handleLink(provider: SocialProvider) {
     setPending(provider);
     try {
-      // Redirects to the provider and back; the account is linked on return.
+      // Redirects to the provider and back; the account is linked on return. On failure
+      // (e.g. the provider's email doesn't match this account) Better Auth redirects to
+      // errorCallbackURL with ?error=, which the app-wide OAuthErrorToast surfaces.
       await authClient.linkSocial({
         provider,
         callbackURL: window.location.pathname,
+        errorCallbackURL: window.location.pathname,
       });
     } catch {
       toast.error("Greška pri povezivanju računa.");

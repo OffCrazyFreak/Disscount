@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -33,15 +33,19 @@ export default function AccountCredentialsForm({
   const currentEmail = user?.email ?? "";
 
   const [email, setEmail] = useState(currentEmail);
+  const [prevEmail, setPrevEmail] = useState(currentEmail);
   const [newPassword, setNewPassword] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
+  // Sync the editable field when the loaded account email changes — the React-recommended
+  // "adjust state during render" pattern, no effect needed.
+  if (currentEmail !== prevEmail) {
+    setPrevEmail(currentEmail);
     setEmail(currentEmail);
-  }, [currentEmail]);
+  }
 
   function validate(): boolean {
     const next: FieldErrors = {};
@@ -139,7 +143,19 @@ export default function AccountCredentialsForm({
     await refreshUser();
     setNewPassword("");
     setCurrentPassword("");
-    toast.success("Promjene su spremljene!");
+
+    if (emailChanged) {
+      // changeEmail sends a confirmation to the CURRENT address; the new email applies only
+      // after that link is clicked, so revert the field and don't claim it's active yet.
+      setEmail(currentEmail);
+      toast.success(
+        wantPasswordChange
+          ? "Lozinka je promijenjena. Za promjenu emaila potvrdi poveznicu poslanu na tvoju trenutnu adresu."
+          : "Poslali smo poveznicu za potvrdu na tvoju trenutnu email adresu. Promjena emaila primijenit će se nakon potvrde.",
+      );
+    } else {
+      toast.success("Lozinka je promijenjena.");
+    }
   }
 
   async function onSubmit(event: React.FormEvent) {
