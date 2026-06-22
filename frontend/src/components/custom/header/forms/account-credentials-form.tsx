@@ -118,7 +118,7 @@ export default function AccountCredentialsForm({
           currentPassword:
             error.status === 400
               ? "Trenutna lozinka nije točna."
-              : error.message ?? "Greška pri promjeni lozinke.",
+              : (error.message ?? "Greška pri promjeni lozinke."),
         });
         return;
       }
@@ -223,7 +223,6 @@ export default function AccountCredentialsForm({
         {hasPassword && hasLinkedSocial && (
           <p className="text-xs text-muted-foreground">
             Za promjenu emaila prvo odspoji povezane račune (Google, Facebook).
-            Svaki račun ima samo jednu email adresu.
           </p>
         )}
         {errors.email && (
@@ -275,9 +274,7 @@ export default function AccountCredentialsForm({
         </div>
       )}
 
-      {submitError && (
-        <p className="text-xs text-destructive">{submitError}</p>
-      )}
+      {submitError && <p className="text-xs text-destructive">{submitError}</p>}
 
       <Button
         type="submit"
@@ -286,7 +283,11 @@ export default function AccountCredentialsForm({
         disabled={saveDisabled}
         className="w-full"
       >
-        {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : "Spremi"}
+        {isSubmitting ? (
+          <Loader2 size={16} className="animate-spin" />
+        ) : (
+          "Spremi"
+        )}
       </Button>
     </form>
   );
