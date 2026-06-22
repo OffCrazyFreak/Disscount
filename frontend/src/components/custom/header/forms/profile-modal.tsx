@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -264,6 +265,40 @@ export default function ProfileModal({
                 </FormItem>
               )}
             />
+
+            {/* Coming-soon email features (disabled placeholders) */}
+            {[
+              {
+                label: "Novosti i ažuriranja",
+                description: "Povremene novosti o Disscountu na tvoj email.",
+              },
+              {
+                label: "Sniženja s liste praćenja",
+                description:
+                  "Email kad proizvod s tvoje liste praćenja padne na akciju.",
+              },
+              {
+                label: "Kontakt za povratne informacije",
+                description:
+                  "Dopusti da ti se javimo za povratne informacije o aplikaciji.",
+              },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="flex flex-row items-center justify-between rounded-lg border p-4 opacity-60"
+              >
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium">{item.label}</p>
+                    <Badge className="text-[10px]">USKORO</Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {item.description}
+                  </p>
+                </div>
+                <Switch checked={false} disabled />
+              </div>
+            ))}
 
             <div className="flex justify-between">
               <Button

@@ -4,14 +4,8 @@ import { jwt } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 
 import { db } from "../db";
-
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
-  }
-  return value;
-}
+import { requireEnv } from "@/lib/env";
+import { emailService } from "@/lib/email";
 
 const BETTER_AUTH_URL = requireEnv("BETTER_AUTH_URL");
 const BETTER_AUTH_SECRET = requireEnv("BETTER_AUTH_SECRET");
@@ -35,7 +29,19 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 12,
-    // TODO: implement sendResetPassword via Resend for forgot-password flow
+    requireEmailVerification: true,
+    sendResetPassword: async ({ user, url, token }) => {
+      // Don't await — keeps response timing constant (no email-exists oracle).
+      void emailService.sendPasswordReset({ to: user.email, url, token });
+    },
+  },
+
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url, token }) => {
+      void emailService.sendVerificationEmail({ to: user.email, url, token });
+    },
   },
 
   socialProviders: {
@@ -54,18 +60,28 @@ export const auth = betterAuth({
   account: {
     accountLinking: {
       enabled: true,
+      // Auto-link providers sharing an email. Both flags are needed: trustedProviders trusts
+      // the incoming provider, and requireLocalEmailVerified:false lets linking proceed even
+      // when the existing account is unverified (Facebook returns email_verified=false).
       trustedProviders: ["google", "facebook"],
-      // TODO: remove requireLocalEmailVerified:false once Resend email verification is wired up
-      // Both flags are required: trustedProviders clears the provider check, this clears the local-email check
       requireLocalEmailVerified: false,
     },
   },
 
   user: {
     deleteUser: { enabled: true },
-    // Emails aren't verified yet, so a change applies immediately.
-    // TODO: add sendChangeEmailVerification once Resend email verification is wired up
-    changeEmail: { enabled: true },
+    changeEmail: {
+      enabled: true,
+      // Sent to the current address to approve the change before it applies.
+      sendChangeEmailConfirmation: async ({ user, newEmail, url, token }) => {
+        void emailService.sendChangeEmailVerification({
+          to: user.email,
+          url,
+          token,
+          newEmail,
+        });
+      },
+    },
   },
 
   plugins: [

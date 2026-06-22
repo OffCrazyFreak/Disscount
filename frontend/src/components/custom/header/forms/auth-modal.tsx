@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { LoginForm } from "@/components/custom/header/forms/login-form";
 import { SignUpForm } from "@/components/custom/header/forms/signup-form";
+import { ForgotPasswordForm } from "@/components/custom/header/forms/forgot-password-form";
 import { GoogleIcon } from "@/components/icons/google-icon";
 import { FacebookIcon } from "@/components/icons/facebook-icon";
 import {
@@ -30,11 +31,10 @@ interface IAuthModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type AuthMode = "login" | "signup";
+type AuthMode = "login" | "signup" | "forgot";
 
 export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
   const [authMode, setAuthMode] = useState<AuthMode>("login");
-  const [showOnboarding, setShowOnboarding] = useState(false);
   const [lastLoginMethod, setLastLoginMethodState] = useState<LoginMethod | null>(
     null,
   );
@@ -46,37 +46,12 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
     setLastLoginMethodState(getLastLoginMethod());
   }, [isOpen]);
 
-  // Surface OAuth failures: better-auth redirects to "/" with ?error=<code>.
-  // The only social error we can produce is a Facebook login without email.
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const params = new URLSearchParams(window.location.search);
-    const error = params.get("error");
-    if (!error) return;
-
-    toast.error(
-      error === "email_not_found"
-        ? "Tvoj Facebook račun nije podijelio email adresu. Prijavi se emailom ili Facebook računom koji ima email."
-        : "Greška pri prijavi. Pokušaj ponovo.",
-    );
-
-    params.delete("error");
-    const query = params.toString();
-    window.history.replaceState(
-      {},
-      "",
-      window.location.pathname + (query ? `?${query}` : ""),
-    );
-  }, []);
-
   const handleLoginSuccess = () => {
     onOpenChange(false);
   };
 
-  const handleSignUpSuccess = () => {
-    onOpenChange(false);
-    setShowOnboarding(true);
+  const handleForgotPassword = () => {
+    setAuthMode("forgot");
   };
 
   async function handleSocialSignIn(provider: "google" | "facebook") {
@@ -111,33 +86,43 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-xl mb-2">
-            {authMode === "login" ? "Prijava" : "Registracija"}
+            {authMode === "login"
+              ? "Prijava"
+              : authMode === "signup"
+                ? "Registracija"
+                : "Zaboravljena lozinka"}
           </DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-8">
-          {authMode === "login" ? (
+          {authMode === "login" && (
             <LoginForm
               onSuccess={handleLoginSuccess}
+              onForgotPassword={handleForgotPassword}
               isLastUsed={lastLoginMethod === "email"}
-              externalDisabled={socialPending !== null}
-            />
-          ) : (
-            <SignUpForm
-              onSuccess={handleSignUpSuccess}
               externalDisabled={socialPending !== null}
             />
           )}
 
-          <div className="relative">
-            <Separator />
+          {authMode === "signup" && (
+            <SignUpForm externalDisabled={socialPending !== null} />
+          )}
 
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="bg-background px-4 text-muted-foreground">
-                ili
-              </span>
-            </div>
-          </div>
+          {authMode === "forgot" && (
+            <ForgotPasswordForm onBackToLogin={switchToLogin} />
+          )}
+
+          {authMode !== "forgot" && (
+            <>
+              <div className="relative">
+                <Separator />
+
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="bg-background px-4 text-muted-foreground">
+                    ili
+                  </span>
+                </div>
+              </div>
 
           <Button
             variant="outline"
@@ -193,15 +178,17 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
               target="_blank"
               rel="noopener noreferrer"
               className="underline hover:text-primary"
-            >
-              Pravila privatnosti
-            </Link>
-            .
-          </p>
+                >
+                  Pravila privatnosti
+                </Link>
+                .
+              </p>
+            </>
+          )}
         </div>
 
         <DialogFooter className="text-xs text-gray-500 text-center my-2 block">
-          {authMode === "login" ? (
+          {authMode === "login" && (
             <>
               Još nemaš račun?{" "}
               <button
@@ -212,7 +199,9 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
                 Registriraj se
               </button>
             </>
-          ) : (
+          )}
+
+          {authMode === "signup" && (
             <>
               Već imaš račun?{" "}
               <button
