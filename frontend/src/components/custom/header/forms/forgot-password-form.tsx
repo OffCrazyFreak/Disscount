@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -34,13 +35,20 @@ export function ForgotPasswordForm({ onBackToLogin }: IForgotPasswordFormProps) 
   async function onSubmit(data: ForgotPasswordForm) {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin;
 
-    // Carry the email back so the reset page can sign the user in automatically after reset.
-    await authClient.requestPasswordReset({
-      email: data.email,
-      redirectTo: `${appUrl}/reset-password?email=${encodeURIComponent(data.email)}`,
-    });
+    try {
+      // No email in the URL (it would leak via history/Referer/logs); the link carries the token.
+      await authClient.requestPasswordReset({
+        email: data.email,
+        redirectTo: `${appUrl}/reset-password`,
+      });
+    } catch {
+      // Only a thrown transport/runtime failure reaches here; API-level { error } is intentionally
+      // ignored so the response can't reveal whether the account exists.
+      toast.error("Greška pri slanju poveznice. Pokušaj ponovo.");
+      return;
+    }
 
-    // Always show the same notice regardless of outcome — no account-existence enumeration.
+    // Same notice regardless of whether the account exists — no enumeration.
     setSubmittedEmail(data.email);
   }
 

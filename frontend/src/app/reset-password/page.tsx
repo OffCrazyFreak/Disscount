@@ -8,15 +8,16 @@ export const metadata: Metadata = {
 };
 
 interface IPageProps {
-  searchParams?: Promise<{ token?: string; email?: string }>;
+  searchParams?: Promise<{ token?: string | string[] }>;
 }
 
-// The reset/set-password email link lands here as /reset-password?token=...&email=...
-// (Better Auth appends &token=). The modal is rendered over the app, matching the auth dialogs.
+// The reset/set-password email link lands here as /reset-password?token=... (Better Auth
+// appends the token). The modal is rendered over the app, matching the auth dialogs.
 export default async function ResetPasswordPage({ searchParams }: IPageProps) {
   const params = await searchParams;
+  // Next can hand a repeated query param as an array — take the first value.
+  const rawToken = params?.token;
+  const token = Array.isArray(rawToken) ? (rawToken[0] ?? "") : (rawToken ?? "");
 
-  return (
-    <ResetPasswordModal token={params?.token ?? ""} email={params?.email} />
-  );
+  return <ResetPasswordModal token={token} />;
 }

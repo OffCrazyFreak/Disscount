@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/form";
 import { passwordSchema } from "@/lib/api/schemas/auth-user";
 import { authClient } from "@/lib/auth-client";
-import { useUser } from "@/context/user-context";
 
 const resetPasswordSchema = z
   .object({
@@ -42,18 +41,16 @@ type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
 interface IResetPasswordModalProps {
   token: string;
-  email?: string;
 }
 
 // Opened from the password-reset / set-password email link. Setting the password also creates
 // the credential for OAuth-only users (that's how social accounts gain email login). On success
-// we sign the user in automatically with the new password and send them home.
+// the user is sent to log in — we deliberately don't auto-login, so no email/PII is carried in
+// the reset URL.
 export default function ResetPasswordModal({
   token,
-  email,
 }: IResetPasswordModalProps) {
   const router = useRouter();
-  const { handleUserLogin } = useUser();
 
   const form = useForm<ResetPasswordForm>({
     resolver: zodResolver(resetPasswordSchema),
@@ -61,30 +58,19 @@ export default function ResetPasswordModal({
   });
 
   async function onSubmit(data: ResetPasswordForm) {
-    const { error } = await authClient.resetPassword({
-      newPassword: data.password,
-      token,
-    });
-
-    if (error) {
-      toast.error("Poveznica je nevažeća ili je istekla. Zatraži novu.");
-      return;
-    }
-
-    // Auto-login with the new password when we know the email (OAuth emails are verified, so
-    // this works for Google and Facebook accounts too).
-    if (email) {
-      const { error: signInError } = await authClient.signIn.email({
-        email,
-        password: data.password,
+    try {
+      const { error } = await authClient.resetPassword({
+        newPassword: data.password,
+        token,
       });
 
-      if (!signInError) {
-        await handleUserLogin();
-        toast.success("Lozinka je postavljena. Prijavljen/a si!");
-        router.push("/");
+      if (error) {
+        toast.error("Poveznica je nevažeća ili je istekla. Zatraži novu.");
         return;
       }
+    } catch {
+      toast.error("Greška pri postavljanju lozinke. Pokušaj ponovo.");
+      return;
     }
 
     toast.success("Lozinka je postavljena. Sada se možeš prijaviti.");

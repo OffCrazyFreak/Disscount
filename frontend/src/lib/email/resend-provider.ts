@@ -19,22 +19,31 @@ export class ResendProvider implements EmailProvider {
     react,
     idempotencyKey,
   }: EmailMessage): Promise<EmailResult> {
-    // The Resend SDK never throws — it returns { data, error }. It renders the React Email
-    // template (and its plain-text alternative) from the `react` field automatically.
-    const { data, error } = await this.client.emails.send(
-      {
-        from: this.from,
-        to: [to],
-        subject,
-        react,
-      },
-      idempotencyKey ? { idempotencyKey } : undefined,
-    );
+    try {
+      // The SDK returns { data, error } for API-level errors and renders the React Email
+      // template (plus plain-text) from `react` automatically.
+      const { data, error } = await this.client.emails.send(
+        {
+          from: this.from,
+          to: [to],
+          subject,
+          react,
+        },
+        idempotencyKey ? { idempotencyKey } : undefined,
+      );
 
-    if (error) {
-      return { id: null, error: error.message };
+      if (error) {
+        return { id: null, error: error.message };
+      }
+
+      return { id: data?.id ?? null, error: null };
+    } catch (error) {
+      // It can still THROW on transport/network failures — normalize those into an EmailResult
+      // so fire-and-forget callers never produce an unhandled rejection.
+      return {
+        id: null,
+        error: error instanceof Error ? error.message : "Email transport failed",
+      };
     }
-
-    return { id: data?.id ?? null, error: null };
   }
 }

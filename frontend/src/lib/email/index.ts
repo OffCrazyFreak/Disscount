@@ -1,3 +1,7 @@
+// Build-time guard: importing this module (which reads RESEND_API_KEY) from any client bundle
+// becomes a hard error, so the key can never leak to the browser.
+import "server-only";
+
 import { requireEnv } from "@/lib/env";
 import { EmailService } from "./email-service";
 import { ResendProvider } from "./resend-provider";

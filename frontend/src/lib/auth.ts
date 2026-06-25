@@ -2,7 +2,8 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { jwt } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
-import { and, eq } from "drizzle-orm";
+import { APIError } from "better-auth/api";
+import { and, eq, ne } from "drizzle-orm";
 
 import { db } from "../db";
 import { account } from "../db/auth-schema";
@@ -42,6 +43,29 @@ async function dispatchResetPasswordEmail(
   }
 }
 
+// Returns whether the user has any non-credential (social) account linked. Used to enforce the
+// "one email defines the user" invariant.
+async function hasLinkedSocialAccount(userId: string): Promise<boolean> {
+  const rows = await db
+    .select({ id: account.id })
+    .from(account)
+    .where(and(eq(account.userId, userId), ne(account.providerId, "credential")))
+    .limit(1);
+
+  return rows.length > 0;
+}
+
+// Non-PII rejection handler for the fire-and-forget email sends, so a failed dispatch surfaces
+// in logs instead of becoming an unhandled rejection (without logging recipient addresses).
+function logEmailFailure(kind: string) {
+  return (error: unknown) => {
+    console.error(
+      `Failed to send ${kind} email:`,
+      error instanceof Error ? error.name : typeof error,
+    );
+  };
+}
+
 export const auth = betterAuth({
   baseURL: BETTER_AUTH_URL,
   secret: BETTER_AUTH_SECRET,
@@ -64,8 +88,11 @@ export const auth = betterAuth({
     revokeSessionsOnPasswordReset: true,
     sendResetPassword: async ({ user, url, token }) => {
       // Fire-and-forget so the response time is identical whether or not the email exists
-      // (no enumeration oracle). The DB lookup runs inside the un-awaited task.
-      void dispatchResetPasswordEmail(user.id, user.email, url, token);
+      // (no enumeration oracle). The DB lookup runs inside the un-awaited task; .catch keeps a
+      // failed send from becoming an unhandled rejection.
+      void dispatchResetPasswordEmail(user.id, user.email, url, token).catch(
+        logEmailFailure("password-reset"),
+      );
     },
   },
 
@@ -73,7 +100,9 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url, token }) => {
-      void emailService.sendVerificationEmail({ to: user.email, url, token });
+      void emailService
+        .sendVerificationEmail({ to: user.email, url, token })
+        .catch(logEmailFailure("verification"));
     },
   },
 
@@ -102,18 +131,39 @@ export const auth = betterAuth({
   },
 
   databaseHooks: {
-    user: {
+    account: {
       create: {
-        // OAuth providers (Google, Facebook) are trusted to own the email, so mark it verified
-        // on creation. This keeps requireEmailVerification's gate intact for email/password
-        // sign-ups (which must verify) while letting social accounts auto-link and auto-login.
-        // Facebook is the key case: it returns no email-verified claim, so without this it would
-        // be stored unverified and block linking.
-        before: async (user, ctx) => {
-          const isEmailSignup = ctx?.path === "/sign-up/email";
+        // Positive OAuth signal: when a social account is created (sign-up or linking), mark the
+        // user's email verified — the provider owns the email. Credential accounts are skipped,
+        // so email/password sign-ups keep requireEmailVerification's gate. Google already arrives
+        // verified; this is what makes Facebook (which returns no verified claim) work without
+        // the deprecated requireLocalEmailVerified flag, and it can't accidentally verify a
+        // credential signup (unlike a path-based check).
+        after: async (createdAccount, ctx) => {
+          if (!ctx || createdAccount.providerId === "credential") return;
 
-          if (!isEmailSignup) {
-            return { data: { ...user, emailVerified: true } };
+          await ctx.context.internalAdapter.updateUser(createdAccount.userId, {
+            emailVerified: true,
+          });
+        },
+      },
+    },
+    user: {
+      update: {
+        // Defense-in-depth for the single-email invariant. The /api/account/change-email POST
+        // guard runs at request time; this re-checks when the change is actually applied (the
+        // confirmation-link click is an update op whose ctx carries the session), closing the
+        // race where a social account is linked between request and confirmation.
+        before: async (userData, ctx) => {
+          const changingEmail = typeof userData.email === "string";
+          const userId = ctx?.context.session?.user.id;
+          if (!changingEmail || !userId) return;
+
+          if (await hasLinkedSocialAccount(userId)) {
+            throw new APIError("BAD_REQUEST", {
+              message:
+                "Za promjenu emaila prvo odspoji povezane račune (Google, Facebook).",
+            });
           }
         },
       },
@@ -126,12 +176,9 @@ export const auth = betterAuth({
       enabled: true,
       // Sent to the CURRENT address to approve the change before it applies.
       sendChangeEmailConfirmation: async ({ user, newEmail, url, token }) => {
-        void emailService.sendChangeEmailConfirmation({
-          to: user.email,
-          url,
-          token,
-          newEmail,
-        });
+        void emailService
+          .sendChangeEmailConfirmation({ to: user.email, url, token, newEmail })
+          .catch(logEmailFailure("change-email confirmation"));
       },
     },
   },

@@ -46,8 +46,9 @@ export async function POST(request: Request) {
       await auth.api.requestPasswordReset({
         body: {
           email,
-          // Carry the email back so the reset page can sign the user in automatically.
-          redirectTo: `${requireEnv("BETTER_AUTH_URL")}/reset-password?email=${encodeURIComponent(email)}`,
+          // No email in the URL (it would leak via history/Referer/logs); the reset page
+          // works off the token alone and the user logs in after setting the password.
+          redirectTo: `${requireEnv("BETTER_AUTH_URL")}/reset-password`,
         },
       });
     } else {
@@ -60,9 +61,12 @@ export async function POST(request: Request) {
       });
     }
   } catch (error) {
-    // Swallow to keep the response identical regardless of branch/outcome (anti-enumeration);
-    // log server-side so real failures are still observable.
-    console.error("Registration handler failed:", error);
+    // Swallow to keep the response identical regardless of branch/outcome (anti-enumeration).
+    // Log only the error name/type — never the raw error, which can carry the email/password.
+    console.error(
+      "Registration handler failed:",
+      error instanceof Error ? error.name : typeof error,
+    );
   }
 
   return NextResponse.json({ status: true });
