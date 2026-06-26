@@ -5,6 +5,7 @@ import "./globals.css";
 import { AppSidebar } from "@/components/custom/app-sidebar";
 import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/footer";
+import OAuthErrorToast from "@/components/custom/oauth-error-toast";
 import { Providers } from "@/app/providers/providers";
 import { ReactNode, Suspense } from "react";
 import { sairaStencil } from "@/app/fonts";
@@ -65,6 +66,10 @@ export default function RootLayout({
         className={`${sairaStencil.variable} antialiased bg-zinc-50 relative`}
       >
         <Providers>
+          <Suspense fallback={null}>
+            <OAuthErrorToast />
+          </Suspense>
+
           <div className="min-h-screen flex flex-col w-full">
             {/* pattern background */}
             <div className="absolute inset-0 z-[-15] bg-[url('/+_pattern.png')] bg-repeat opacity-100" />
