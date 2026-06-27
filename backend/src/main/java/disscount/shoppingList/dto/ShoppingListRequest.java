@@ -10,5 +10,4 @@ public class ShoppingListRequest {
     private String title;
 
     private Boolean isPublic = false;
-    private String aiPrompt;
 }

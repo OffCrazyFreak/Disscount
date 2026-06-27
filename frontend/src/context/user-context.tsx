@@ -93,12 +93,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setUser((prev) => (prev ? { ...prev, pinnedPlaces: places } : null));
   }, []);
 
-  // Merge session identity (name/image from better-auth) into the backend profile at render time.
+  // Merge session identity (name/email/image from better-auth) into the backend profile at render time.
+  // Email is no longer stored in app_user, so it comes from the better-auth session for the current user.
   // Keeps refreshUser free of session dependency while still exposing a single unified user object.
   const mergedUser: UserDto | null = user
     ? {
         ...user,
         name: session?.user?.name ?? user.name ?? null,
+        email: session?.user?.email ?? user.email ?? null,
         image: user.image ?? null,
       }
     : null;

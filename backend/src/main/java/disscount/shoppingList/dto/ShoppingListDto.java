@@ -17,8 +17,6 @@ public class ShoppingListDto {
     private UUID ownerId;
     private String title;
     private Boolean isPublic;
-    private String aiPrompt;
-    private String aiAnswer;
     private LocalDateTime updatedAt;
     private LocalDateTime createdAt;
     private List<ShoppingListItemDto> items;

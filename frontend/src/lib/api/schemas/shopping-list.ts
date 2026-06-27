@@ -8,18 +8,12 @@ export const shoppingListRequestSchema = z.object({
     .min(3, "Naziv mora imati najmanje 3 znaka")
     .max(100, "Naziv može imati najviše 100 znakova"),
   isPublic: z.boolean().optional(),
-  aiPrompt: z
-    .string()
-    .max(200, "AI prompt može imati najviše 200 znakova")
-    .nullable()
-    .optional(),
 });
 
 export const shoppingListDtoSchema = shoppingListRequestSchema.extend({
   id: z.string(),
   ownerId: z.string(),
   isPublic: z.boolean(),
-  aiAnswer: z.string().nullable().optional(),
   updatedAt: z.string(),
   createdAt: z.string(),
   items: z.array(shoppingListItemDtoSchema),

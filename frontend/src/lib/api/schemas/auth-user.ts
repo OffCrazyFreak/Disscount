@@ -30,6 +30,23 @@ export const registerRequestSchema = z
     path: ["confirmPassword"],
   });
 
+// Mirrors the backend AcquisitionChannel enum — granular per platform so marketing
+// attribution can distinguish Instagram vs Facebook vs TikTok, etc.
+export const acquisitionChannelSchema = z.enum([
+  "GOOGLE_SEARCH",
+  "INSTAGRAM",
+  "FACEBOOK",
+  "TIKTOK",
+  "YOUTUBE",
+  "FRIEND_OR_FAMILY",
+  "ONLINE_AD",
+  "BLOG_OR_NEWS",
+  "APP_STORE",
+  "POSTER_OR_FLYER",
+  "EVENT",
+  "OTHER",
+]);
+
 export const userRequestSchema = z.object({
   username: z
     .string()
@@ -39,15 +56,30 @@ export const userRequestSchema = z.object({
     .optional(),
   notificationsPush: z.boolean().optional(),
   notificationsEmail: z.boolean().optional(),
+  newsletter: z.boolean().optional(),
+  feedbackContact: z.boolean().optional(),
+  acquisitionChannel: acquisitionChannelSchema.nullable().optional(),
   image: z.string().nullable().optional(),
 });
 
-export const userDtoSchema = userRequestSchema.extend({
-  id: z.string(),
-  email: z.email().nullable().optional(),
-  name: z.string().nullable().optional(),
-  accountType: z.enum(["ADMIN", "CONSUMER", "ENTERPRISE", "PUBLIC_SECTOR"]),
-  createdAt: z.string(),
+export const userDtoSchema = userRequestSchema
+  .omit({
+    notificationsPush: true,
+    notificationsEmail: true,
+    newsletter: true,
+    feedbackContact: true,
+  })
+  .extend({
+    id: z.string(),
+    email: z.email().nullable().optional(),
+    name: z.string().nullable().optional(),
+    accountType: z.enum(["ADMIN", "CONSUMER", "ENTERPRISE", "PUBLIC_SECTOR"]),
+    // Enable-timestamps (ISO strings); null = off. Drives the profile switches AND stats dashboards.
+    notificationsPushEnabledAt: z.string().nullable().optional(),
+    notificationsEmailEnabledAt: z.string().nullable().optional(),
+    newsletterEnabledAt: z.string().nullable().optional(),
+    feedbackContactEnabledAt: z.string().nullable().optional(),
+    createdAt: z.string(),
   pinnedStores: z
     .array(
       z.object({
@@ -79,12 +111,30 @@ export type UserDto = z.infer<typeof userDtoSchema>;
 
 export type AccountType = UserDto["accountType"];
 
+export type AcquisitionChannel = z.infer<typeof acquisitionChannelSchema>;
+
 // Croatian display labels for account types
 export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   ADMIN: "Admin",
   CONSUMER: "Korisnik",
   ENTERPRISE: "Partner",
   PUBLIC_SECTOR: "Javni sektor",
+};
+
+// Croatian display labels for the "Kako si saznao za Disscount?" dropdown
+export const ACQUISITION_CHANNEL_LABELS: Record<AcquisitionChannel, string> = {
+  GOOGLE_SEARCH: "Google pretraga",
+  INSTAGRAM: "Instagram",
+  FACEBOOK: "Facebook",
+  TIKTOK: "TikTok",
+  YOUTUBE: "YouTube",
+  FRIEND_OR_FAMILY: "Preporuka prijatelja ili obitelji",
+  ONLINE_AD: "Online oglas",
+  BLOG_OR_NEWS: "Blog, članak ili mediji",
+  APP_STORE: "App Store / Google Play",
+  POSTER_OR_FLYER: "Plakat ili letak",
+  EVENT: "Sajam ili događaj",
+  OTHER: "Ostalo",
 };
 
 const DASHBOARD_ACCOUNT_TYPES: AccountType[] = [

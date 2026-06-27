@@ -37,12 +37,6 @@ public class ShoppingList {
     @Builder.Default
     private Boolean isPublic = false;
 
-    @Column(name = "ai_prompt", columnDefinition = "TEXT")
-    private String aiPrompt;
-
-    @Column(name = "ai_answer", columnDefinition = "TEXT")
-    private String aiAnswer;
-
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 

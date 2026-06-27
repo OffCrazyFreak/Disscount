@@ -20,6 +20,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Form,
   FormControl,
   FormDescription,
@@ -28,7 +35,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { userRequestSchema, UserRequest } from "@/lib/api/schemas/auth-user";
+import {
+  userRequestSchema,
+  UserRequest,
+  ACQUISITION_CHANNEL_LABELS,
+} from "@/lib/api/schemas/auth-user";
 import { userService } from "@/lib/api";
 import { fileToBase64 } from "@/utils/browser/file";
 import { useUser } from "@/context/user-context";
@@ -55,8 +66,11 @@ export default function ProfileModal({
     resolver: zodResolver(userRequestSchema),
     defaultValues: {
       username: user?.username ?? undefined,
-      notificationsPush: user?.notificationsPush ?? true,
-      notificationsEmail: user?.notificationsEmail ?? true,
+      notificationsPush: !!user?.notificationsPushEnabledAt,
+      notificationsEmail: !!user?.notificationsEmailEnabledAt,
+      newsletter: !!user?.newsletterEnabledAt,
+      feedbackContact: !!user?.feedbackContactEnabledAt,
+      acquisitionChannel: user?.acquisitionChannel ?? undefined,
     },
   });
 
@@ -64,8 +78,11 @@ export default function ProfileModal({
     if (isOpen) {
       form.reset({
         username: user?.username ?? undefined,
-        notificationsPush: user?.notificationsPush ?? true,
-        notificationsEmail: user?.notificationsEmail ?? true,
+        notificationsPush: !!user?.notificationsPushEnabledAt,
+        notificationsEmail: !!user?.notificationsEmailEnabledAt,
+        newsletter: !!user?.newsletterEnabledAt,
+        feedbackContact: !!user?.feedbackContactEnabledAt,
+        acquisitionChannel: user?.acquisitionChannel ?? undefined,
       });
       setAvatarPreview(user?.image ?? null);
       setAvatarTouched(false);
@@ -103,6 +120,9 @@ export default function ProfileModal({
         username: data.username,
         notificationsPush: data.notificationsPush,
         notificationsEmail: data.notificationsEmail,
+        newsletter: data.newsletter,
+        feedbackContact: data.feedbackContact,
+        acquisitionChannel: data.acquisitionChannel,
         ...(avatarTouched ? { image: avatarPreview ?? "" } : {}),
       },
       {
@@ -261,6 +281,82 @@ export default function ProfileModal({
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="newsletter"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel>Novosti i ažuriranja</FormLabel>
+                    <FormDescription>
+                      Povremene novosti o Disscountu na tvoj email.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="feedbackContact"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel>Kontakt za povratne informacije</FormLabel>
+                    <FormDescription>
+                      Dopusti da ti se javimo za povratne informacije o
+                      aplikaciji.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="acquisitionChannel"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Kako si saznao za Disscount?</FormLabel>
+                  <Select
+                    value={field.value ?? undefined}
+                    onValueChange={field.onChange}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Odaberi izvor" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Object.entries(ACQUISITION_CHANNEL_LABELS).map(
+                        ([value, label]) => (
+                          <SelectItem key={value} value={value}>
+                            {label}
+                          </SelectItem>
+                        )
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Pomaže nam da znamo gdje te možemo bolje pronaći.
+                  </FormDescription>
+                  <FormMessage />
                 </FormItem>
               )}
             />

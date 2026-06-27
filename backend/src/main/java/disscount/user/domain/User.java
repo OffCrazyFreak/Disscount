@@ -11,11 +11,10 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import disscount.user.domain.enums.AccountType;
+import disscount.user.domain.enums.AcquisitionChannel;
 
 @Entity
-@Table(name = "app_user", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "email")
-})
+@Table(name = "app_user")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -30,17 +29,25 @@ public class User {
     @Column(nullable = true)
     private String username;
 
-    // Nullable: email is nulled during account deletion to free it for re-registration
-    @Column(nullable = true, unique = true)
-    private String email;
+    // Preference toggles are stored as timestamps instead of booleans: null = off,
+    // non-null = on AND when it was last switched on (lightweight usage stat without an event log).
+    @Column(name = "notifications_push_enabled_at")
+    private LocalDateTime notificationsPushEnabledAt;
 
-    @Column(name = "notifications_push", nullable = false)
-    @Builder.Default
-    private Boolean notificationsPush = true;
+    @Column(name = "notifications_email_enabled_at")
+    private LocalDateTime notificationsEmailEnabledAt;
 
-    @Column(name = "notifications_email", nullable = false)
-    @Builder.Default
-    private Boolean notificationsEmail = true;
+    // Marketing consents — default OFF (null) per GDPR opt-in.
+    @Column(name = "newsletter_enabled_at")
+    private LocalDateTime newsletterEnabledAt;
+
+    @Column(name = "feedback_contact_enabled_at")
+    private LocalDateTime feedbackContactEnabledAt;
+
+    // How the user first heard about Disscount; null until they answer in the profile modal.
+    @Enumerated(EnumType.STRING)
+    @Column(name = "acquisition_channel")
+    private AcquisitionChannel acquisitionChannel;
 
     // Base64 avatar; Google sign-ins use the session image instead, so this stays null unless uploaded.
     @Column(name = "image", columnDefinition = "TEXT")

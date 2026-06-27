@@ -10,13 +10,16 @@ import disscount.exceptions.BadRequestException;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.user.domain.enums.AccountType;
+import disscount.user.domain.enums.AcquisitionChannel;
 import disscount.user.dto.UserDto;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import disscount.exceptions.ForbiddenException;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -52,12 +55,8 @@ public class UserService {
                 user.setDeletedAt(null);
                 changed = true;
             }
-            // Sync email whenever the JWT claim differs — handles provider email changes
-            // and restores the field after account anonymization
-            if (!email.equals(user.getEmail())) {
-                user.setEmail(email);
-                changed = true;
-            }
+            // Email is no longer mirrored here: it lives authoritatively in the better-auth `user`
+            // table, and the backend reads it from there (admin list) or the session (current user).
             // image is intentionally not synced here: the avatar is user-owned after creation,
             // so a cleared avatar must not be repopulated from the provider on the next request
             if (changed) {
@@ -70,13 +69,16 @@ public class UserService {
                     ? AccountType.ADMIN
                     : AccountType.CONSUMER;
             String username = seedUsername(name, email);
+            // Service notifications default ON; marketing consents (newsletter/feedback) stay OFF.
+            LocalDateTime now = LocalDateTime.now();
             try {
                 userRepository.save(User.builder()
                         .id(id)
-                        .email(email)
                         .username(username)
                         .image(image)
                         .accountType(accountType)
+                        .notificationsPushEnabledAt(now)
+                        .notificationsEmailEnabledAt(now)
                         .build());
             } catch (DataIntegrityViolationException ignored) {
                 // Concurrent first-login race: the other request won — profile already exists
@@ -98,7 +100,9 @@ public class UserService {
         return localPart.isBlank() ? null : localPart;
     }
 
-    public UserDto updateProfile(UUID userId, String username, Boolean notificationsPush, Boolean notificationsEmail, String image) {
+    public UserDto updateProfile(UUID userId, String username, Boolean notificationsPush,
+            Boolean notificationsEmail, Boolean newsletter, Boolean feedbackContact,
+            AcquisitionChannel acquisitionChannel, String image) {
         User user = userRepository.findById(userId)
                 .filter(u -> u.getDeletedAt() == null)
                 .orElseThrow(() -> new BadRequestException("User not found"));
@@ -107,11 +111,13 @@ public class UserService {
             user.setUsername(username);
         }
 
-        if (notificationsPush != null) {
-            user.setNotificationsPush(notificationsPush);
-        }
-        if (notificationsEmail != null) {
-            user.setNotificationsEmail(notificationsEmail);
+        user.setNotificationsPushEnabledAt(applyToggle(user.getNotificationsPushEnabledAt(), notificationsPush));
+        user.setNotificationsEmailEnabledAt(applyToggle(user.getNotificationsEmailEnabledAt(), notificationsEmail));
+        user.setNewsletterEnabledAt(applyToggle(user.getNewsletterEnabledAt(), newsletter));
+        user.setFeedbackContactEnabledAt(applyToggle(user.getFeedbackContactEnabledAt(), feedbackContact));
+
+        if (acquisitionChannel != null) {
+            user.setAcquisitionChannel(acquisitionChannel);
         }
 
         // null = leave unchanged, "" = clear the avatar, otherwise store the new base64 image
@@ -124,6 +130,21 @@ public class UserService {
     }
 
     /**
+     * Translates a desired on/off switch state into the stored timestamp:
+     * null = leave unchanged, true = set now() only if currently off (preserve the original
+     * enable time), false = clear.
+     */
+    private LocalDateTime applyToggle(LocalDateTime current, Boolean desired) {
+        if (desired == null) {
+            return current;
+        }
+        if (desired) {
+            return current != null ? current : LocalDateTime.now();
+        }
+        return null;
+    }
+
+    /**
      * Anonymizes the profile: nulls PII fields and soft-deletes.
      * The row is kept so business data (watchlists, shopping lists, etc.) remains intact.
      * better-auth identity must be deleted separately via authClient.deleteUser() on the frontend.
@@ -133,7 +154,6 @@ public class UserService {
                 .orElseThrow(() -> new BadRequestException("User not found"));
 
         user.setUsername(null);
-        user.setEmail(null);
         user.setImage(null);
         user.setDeletedAt(LocalDateTime.now());
         userRepository.save(user);
@@ -154,10 +174,33 @@ public class UserService {
     }
 
     public List<UserDto> findAllActive() {
-        return userRepository.findByDeletedAtIsNullOrderByCreatedAtAsc()
+        List<UserDto> dtos = userRepository.findByDeletedAtIsNullOrderByCreatedAtAsc()
                 .stream()
                 .map(this::convertToUserDto)
                 .toList();
+
+        // Email lives in the better-auth `user` table (shared DB), not in app_user.
+        // Populate it here so the admin list still shows it, keeping a single source of truth.
+        if (!dtos.isEmpty()) {
+            Map<UUID, String> emailsById = fetchEmailsFromAuth(dtos.stream().map(UserDto::getId).toList());
+            dtos.forEach(dto -> dto.setEmail(emailsById.get(dto.getId())));
+        }
+
+        return dtos;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<UUID, String> fetchEmailsFromAuth(List<UUID> ids) {
+        List<Object[]> rows = entityManager
+                .createNativeQuery("SELECT id, email FROM \"user\" WHERE id IN (:ids)")
+                .setParameter("ids", ids)
+                .getResultList();
+
+        Map<UUID, String> emailsById = new HashMap<>();
+        for (Object[] row : rows) {
+            emailsById.put((UUID) row[0], (String) row[1]);
+        }
+        return emailsById;
     }
 
     /**
@@ -193,12 +236,16 @@ public class UserService {
     }
 
     private UserDto convertToUserDto(User user) {
+        // email is intentionally omitted: the current user reads it from the better-auth session,
+        // and the admin list backfills it from the better-auth `user` table (see findAllActive).
         return UserDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())
-                .email(user.getEmail())
-                .notificationsPush(user.getNotificationsPush())
-                .notificationsEmail(user.getNotificationsEmail())
+                .notificationsPushEnabledAt(user.getNotificationsPushEnabledAt())
+                .notificationsEmailEnabledAt(user.getNotificationsEmailEnabledAt())
+                .newsletterEnabledAt(user.getNewsletterEnabledAt())
+                .feedbackContactEnabledAt(user.getFeedbackContactEnabledAt())
+                .acquisitionChannel(user.getAcquisitionChannel())
                 .image(user.getImage())
                 .accountType(user.getAccountType())
                 .createdAt(user.getCreatedAt())

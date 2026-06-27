@@ -36,7 +36,6 @@ public class ShoppingListService {
                 .owner(owner)
                 .title(request.getTitle())
                 .isPublic(request.getIsPublic() != null ? request.getIsPublic() : false)
-                .aiPrompt(request.getAiPrompt())
                 .build();
 
         shoppingList = shoppingListRepository.save(shoppingList);
@@ -79,7 +78,6 @@ public class ShoppingListService {
         // Update fields
         shoppingList.setTitle(request.getTitle());
         shoppingList.setIsPublic(request.getIsPublic() != null ? request.getIsPublic() : false);
-        shoppingList.setAiPrompt(request.getAiPrompt());
 
         shoppingList = shoppingListRepository.save(shoppingList);
         return convertToDto(shoppingList);
@@ -130,8 +128,6 @@ public class ShoppingListService {
                 .ownerId(shoppingList.getOwner().getId())
                 .title(shoppingList.getTitle())
                 .isPublic(shoppingList.getIsPublic())
-                .aiPrompt(shoppingList.getAiPrompt())
-                .aiAnswer(shoppingList.getAiAnswer())
                 .updatedAt(shoppingList.getUpdatedAt())
                 .createdAt(shoppingList.getCreatedAt())
                 .items(itemDtos)
