@@ -1,12 +1,7 @@
-overrides:
-  kysely: '0.28.17'
-  '@types/react': '19.2.14'
-  '@types/react-dom': '19.2.3'
 allowBuilds:
-  esbuild: true
-  sharp: true
-  core-js: true
-  unrs-resolver: true
-  '@nestjs/core': true
-  '@openapitools/openapi-generator-cli': true
-  '@tailwindcss/oxide': true
+  '@openapitools/openapi-generator-cli': set this to true or false
+  '@sentry/cli': set this to true or false
+  core-js: set this to true or false
+  esbuild: set this to true or false
+  sharp: set this to true or false
+  unrs-resolver: set this to true or false

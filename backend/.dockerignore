@@ -1,0 +1,12 @@
+# Build output (the image builds the jar itself)
+target/
+
+# Secrets / local env (passed in at runtime, never baked into the image)
+.env
+.env.example
+
+# IDE / tooling noise
+.idea/
+.vscode/
+*.iml
+HELP.md
