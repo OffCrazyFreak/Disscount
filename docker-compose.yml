@@ -1,0 +1,117 @@
+# Full local stack: Postgres + Spring Boot backend + Next.js frontend.
+# Values come from .env (see example.env). Only the frontend is published to the host;
+# backend and db stay private on the compose network (browser -> frontend -> /api proxy -> backend).
+
+# Shared frontend build definition (same image layers are reused by the runner and the
+# one-shot migrate service, so `next build` only runs once).
+x-frontend-build: &frontend-build
+  context: ./frontend
+  args:
+    NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+    NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
+    NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+    NEXT_PUBLIC_ENABLE_REACT_SCAN: ${NEXT_PUBLIC_ENABLE_REACT_SCAN}
+    NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
+
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: disscount-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # No host port published — reach it via the compose network (db:5432) or
+    # `docker compose exec db psql`. Add `ports: ["5433:5432"]` if you want host access.
+
+  # One-shot: apply better-auth/drizzle migrations, then exit. Uses the frontend `build`
+  # stage (it has drizzle-kit + the drizzle/ folder). Hibernate creates the backend tables.
+  migrate:
+    build:
+      <<: *frontend-build
+      target: build
+    container_name: disscount-migrate
+    restart: "no"
+    command: ["pnpm", "exec", "drizzle-kit", "migrate"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: ./backend
+    container_name: disscount-backend
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      BETTER_AUTH_JWKS_URI: ${BETTER_AUTH_JWKS_URI}
+      BETTER_AUTH_ISSUER: ${BETTER_AUTH_ISSUER}
+      SENTRY_DSN: ${SENTRY_DSN}
+      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      <<: *frontend-build
+      target: runner
+    container_name: disscount-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Runtime secrets (server-only)
+      DATABASE_URL: ${DATABASE_URL}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      FACEBOOK_CLIENT_ID: ${FACEBOOK_CLIENT_ID}
+      FACEBOOK_CLIENT_SECRET: ${FACEBOOK_CLIENT_SECRET}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      EMAIL_FROM: ${EMAIL_FROM}
+      CIJENE_API_URL: ${CIJENE_API_URL}
+      CIJENE_API_TOKEN: ${CIJENE_API_TOKEN}
+      # Server-side reads of NEXT_PUBLIC_* at runtime. NEXT_PUBLIC_GOOGLE_CLIENT_ID is read
+      # dynamically (requireEnv) so Next can't inline it — it MUST be present at runtime.
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
+      NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+      NEXT_PUBLIC_ENABLE_REACT_SCAN: ${NEXT_PUBLIC_ENABLE_REACT_SCAN}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      backend:
+        condition: service_healthy
+
+volumes:
+  pgdata:

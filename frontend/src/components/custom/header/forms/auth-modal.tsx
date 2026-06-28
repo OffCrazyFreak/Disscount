@@ -14,12 +14,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { LoginForm } from "@/components/custom/header/forms/login-form";
 import { SignUpForm } from "@/components/custom/header/forms/signup-form";
 import { ForgotPasswordForm } from "@/components/custom/header/forms/forgot-password-form";
 import { GoogleIcon } from "@/components/icons/google-icon";
 import { FacebookIcon } from "@/components/icons/facebook-icon";
+import { FACEBOOK_COMING_SOON } from "@/constants/auth";
 import {
   getLastLoginMethod,
   setLastLoginMethod,
@@ -149,19 +151,23 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
               size={"lg"}
               className="w-full gap-4"
               onClick={() => handleSocialSignIn("facebook")}
-              disabled={socialPending !== null}
+              disabled={socialPending !== null || FACEBOOK_COMING_SOON}
               loading={socialPending === "facebook"}
               icon={FacebookIcon}
               iconPlacement="left"
             >
               Nastavi sa Facebook računom
-              {lastLoginMethod === "facebook" &&
+              {FACEBOOK_COMING_SOON ? (
+                <Badge className="absolute right-3 text-[10px]">USKORO</Badge>
+              ) : (
+                lastLoginMethod === "facebook" &&
                 socialPending !== "facebook" && (
                   <span className="absolute right-3 inline-flex items-center gap-0.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-white">
                     <CircleCheck size={9} />
                     Zadnja prijava
                   </span>
-                )}
+                )
+              )}
             </Button>
 
             <p className="text-center text-xs text-muted-foreground text-balance">

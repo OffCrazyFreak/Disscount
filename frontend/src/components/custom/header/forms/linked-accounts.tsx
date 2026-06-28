@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { GoogleIcon } from "@/components/icons/google-icon";
 import { FacebookIcon } from "@/components/icons/facebook-icon";
 import { authClient } from "@/lib/auth-client";
+import { FACEBOOK_COMING_SOON } from "@/constants/auth";
 
 interface LinkedAccount {
   providerId: string;
@@ -26,9 +27,15 @@ const PROVIDERS: {
   id: SocialProvider;
   label: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
+  comingSoon?: boolean;
 }[] = [
   { id: "google", label: "Google", icon: GoogleIcon },
-  { id: "facebook", label: "Facebook", icon: FacebookIcon },
+  {
+    id: "facebook",
+    label: "Facebook",
+    icon: FacebookIcon,
+    comingSoon: FACEBOOK_COMING_SOON,
+  },
 ];
 
 export default function LinkedAccounts({
@@ -76,7 +83,7 @@ export default function LinkedAccounts({
 
   return (
     <div className="space-y-3">
-      {PROVIDERS.map(({ id, label, icon: Icon }) => {
+      {PROVIDERS.map(({ id, label, icon: Icon, comingSoon }) => {
         const account = accounts.find((a) => a.providerId === id);
         // Never let the user unlink their only remaining sign-in method.
         const canUnlink = !!account && signInMethodCount > 1;
@@ -88,6 +95,9 @@ export default function LinkedAccounts({
               <Icon className="size-5" />
               <span className="text-sm">{label}</span>
               {account && <Badge className="text-xs">Povezano</Badge>}
+              {!account && comingSoon && (
+                <Badge className="text-xs">USKORO</Badge>
+              )}
             </div>
 
             {account ? (
@@ -118,7 +128,7 @@ export default function LinkedAccounts({
                 size="sm"
                 icon={Link2}
                 iconPlacement="left"
-                disabled={pending !== null}
+                disabled={pending !== null || comingSoon}
                 onClick={() => handleLink(id)}
               >
                 {isPending ? (

@@ -1,0 +1,18 @@
+# Dependencies & build output (the image installs/builds these itself)
+node_modules
+.next
+out
+
+# Secrets / local env — supplied at runtime, never baked into the image
+.env.local
+.env*.local
+.env.sentry-build-plugin
+
+# VCS / tooling / OS noise
+.git
+.gitignore
+*.tsbuildinfo
+npm-debug.log*
+.DS_Store
+.vscode
+.idea
