@@ -83,7 +83,7 @@ NEVER run "mvn spring-boot:run" or any other development server command, because
 
 # Commit message requirement
 
-At the end of every response that includes code changes, include a suggested Git commit message.
+At the end of every response that includes code changes, include a suggested Git commit message. To make sure you don't miss any changes, first check with git status and git diff what are the changes made, and then using this info and your converstation history in this chat, make a message.
 
 Use this format:
 
