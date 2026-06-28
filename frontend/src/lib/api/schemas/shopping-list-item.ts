@@ -11,7 +11,10 @@ export const shoppingListItemRequestSchema = z.object({
     .number()
     .int()
     .min(1, "Količina mora biti veća od 0")
-    .max(MAX_SHOPPING_LIST_ITEM_AMOUNT, "Količina ne može biti veća od 999")
+    .max(
+      MAX_SHOPPING_LIST_ITEM_AMOUNT,
+      `Količina ne može biti veća od ${MAX_SHOPPING_LIST_ITEM_AMOUNT}`,
+    )
     .default(1),
   isChecked: z.boolean().default(false),
   chainCode: z.string().nullable().optional(),

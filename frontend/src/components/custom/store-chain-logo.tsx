@@ -53,7 +53,7 @@ export default function StoreChainLogo({
       src={`/store-chains/${chain}.png`}
       alt={label}
       onError={() => setHasError(true)}
-      className={className}
+      className={cn(!fill && "w-full h-full", className)}
       {...(fill ? { fill, sizes } : { width, height })}
     />
   );

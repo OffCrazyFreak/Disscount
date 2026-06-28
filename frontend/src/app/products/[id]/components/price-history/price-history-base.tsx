@@ -24,7 +24,11 @@ import PriceHistoryPeriodSelect from "@/components/custom/price-history-period-s
 import StoreChainMultiSelect from "@/components/custom/store-chain-multi-select";
 import PriceChangeDisplay from "@/components/custom/price-change-display";
 import { PeriodOption } from "@/typings/history-period-options";
-import { periodOptions, DISABLED_PERIODS } from "@/constants/price-history";
+import {
+  periodOptions,
+  DISABLED_PERIODS,
+  getEnabledPeriod,
+} from "@/constants/price-history";
 import {
   getAveragePrice,
   calculatePriceChange,
@@ -45,8 +49,11 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
     const availableChains =
       product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) || [];
 
-    // Get period from product-specific prefs or default
-    const period = (productsPreferences?.period || "1W") as PeriodOption;
+    // Get period from product-specific prefs or default, coercing a persisted
+    // disabled period (e.g. "1Y"/"ALL") back to an enabled one
+    const period = getEnabledPeriod(
+      (productsPreferences?.period || "1W") as PeriodOption,
+    );
 
     if (productsPreferences?.chains) {
       // Sanitize persisted chains by intersecting with available chains

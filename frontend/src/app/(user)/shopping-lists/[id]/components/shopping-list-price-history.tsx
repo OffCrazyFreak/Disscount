@@ -27,7 +27,11 @@ import { ShoppingListDto } from "@/lib/api/types";
 import cijeneService from "@/lib/cijene-api";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { PeriodOption } from "@/typings/history-period-options";
-import { periodOptions, DISABLED_PERIODS } from "@/constants/price-history";
+import {
+  periodOptions,
+  DISABLED_PERIODS,
+  getEnabledPeriod,
+} from "@/constants/price-history";
 import { useUser } from "@/context/user-context";
 import { calculatePriceChange } from "@/app/products/utils/product-utils";
 import { formatDate } from "@/utils/strings";
@@ -56,7 +60,7 @@ export default function ShoppingListPriceHistory({
   const { user } = useUser();
   const { tooltipActive, touchHandlers } = useTouchTooltipDismiss();
   const [period, setPeriod] = useState<PeriodOption>(() =>
-    getShoppingListPriceHistoryPeriod(shoppingList.id),
+    getEnabledPeriod(getShoppingListPriceHistoryPeriod(shoppingList.id)),
   );
 
   // Initialize with empty array - will be set by useEffect after availableChains loads

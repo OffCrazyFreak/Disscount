@@ -56,7 +56,9 @@ export default function QuantityInput({ formField }: IQuantityInputProps) {
                 className="text-center w-20 sm:w-40"
                 {...field}
                 onChange={(e) => {
-                  const value = parseInt(e.target.value);
+                  // valueAsNumber parses the full number (e.g. 1e2 -> 100);
+                  // floor keeps it an integer count without truncating like parseInt
+                  const value = Math.floor(e.target.valueAsNumber);
 
                   field.onChange(
                     isNaN(value) || value < 1

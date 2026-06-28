@@ -168,6 +168,17 @@ export default function AddToShoppingListForm({
     }
   }, [isOpen, product, user?.pinnedStores, form]);
 
+  // Clear cached price/store state when the modal closes, so reopening it for a
+  // different product can't prefill the previous product's chain and price
+  // (which StoreChainSelect would auto-commit) before the new fetch resolves.
+  useEffect(() => {
+    if (!isOpen) {
+      setStorePrices({});
+      setAveragePrice(null);
+      setCheapestStore(null);
+    }
+  }, [isOpen]);
+
   async function onSubmit(data: AddToListFormData) {
     if (!product) return;
 

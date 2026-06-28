@@ -48,7 +48,9 @@ public class ShoppingListItemService {
         if (existingItem.isPresent()) {
             // Item exists, increase the amount
             item = existingItem.get();
-            int newAmount = item.getAmount() + (request.getAmount() != null ? request.getAmount() : 1);
+            int requestedAmount = request.getAmount() != null ? request.getAmount() : 1;
+            // Cap the merged total at the same limit the request DTO enforces (@Max)
+            int newAmount = Math.min(item.getAmount() + requestedAmount, 999);
             item.setAmount(newAmount);
             
             // Update other fields with new values if provided

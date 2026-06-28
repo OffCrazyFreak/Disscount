@@ -131,7 +131,7 @@ export const StorePricesTable = memo(
                     <TableCell>{price.store.address || "Nepoznato"}</TableCell>
 
                     <TableCell className="text-center">
-                      {displayPrice ? (
+                      {displayPrice != null ? (
                         <span
                           className={cn(
                             priceExtreme === "min"

@@ -13,3 +13,10 @@ export const periodOptions: Record<
 // Periods temporarily disabled until the API can return them in one request
 // (fetching a full year / all history day-by-day is too heavy).
 export const DISABLED_PERIODS: PeriodOption[] = ["1Y", "ALL"];
+
+// Coerce a (possibly persisted) period to an enabled one. A user whose stored
+// preference is a now-disabled period (e.g. "1Y"/"ALL" still in localStorage)
+// would otherwise mount straight into the heavy fetch the disabling prevents.
+export function getEnabledPeriod(period: PeriodOption): PeriodOption {
+  return DISABLED_PERIODS.includes(period) ? "1W" : period;
+}

@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
@@ -27,6 +28,10 @@ public class ShoppingListItemRequest {
     private Integer amount = 1;
 
     private Boolean isChecked = false;
+
+    // Free-form cijene chain slug (e.g. "konzum", "trgovina-krk"); validate only
+    // the format, never against a fixed list, so new upstream chains never break.
+    @Pattern(regexp = "^[a-z0-9_-]+$", message = "Invalid chain code")
     private String chainCode;
     private BigDecimal avgPrice;
     private BigDecimal storePrice;
