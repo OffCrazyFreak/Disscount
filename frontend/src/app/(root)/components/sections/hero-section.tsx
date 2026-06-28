@@ -26,8 +26,8 @@ export default function HeroSection() {
   const tagLine: string = getTagLine();
 
   return (
-    <section className="h-[70dvh] relative grid items-center">
-      <div className="text-center space-y-24">
+    <section className="min-h-[70dvh] relative grid items-center">
+      <div className="text-center space-y-12 sm:space-y-24">
         <div className="space-y-6">
           {/* App logo */}
           <Image

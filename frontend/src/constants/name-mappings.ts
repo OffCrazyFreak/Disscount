@@ -30,17 +30,8 @@ export const storeNamesMap: Record<string, string> = {
   bure: "Bure",
   dukat: "Dukat",
   stanic: "Diskont Stanić",
+  stridon: "Stridon",
 };
-
-/**
- * Store chain options for dropdowns, generated from storeNamesMap and sorted alphabetically by display name.
- */
-export const STORE_CHAIN_OPTIONS = Object.keys(storeNamesMap)
-  .map((key) => ({
-    code: key.toUpperCase().replace(/-/g, "_"),
-    key: key,
-  }))
-  .sort((a, b) => storeNamesMap[a.key].localeCompare(storeNamesMap[b.key]));
 
 /**
  * Map location codes to their display names.

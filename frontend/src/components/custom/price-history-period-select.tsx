@@ -13,10 +13,10 @@ export default function PriceHistoryPeriodSelect({
   disabledPeriods = [],
 }: PriceHistoryPeriodSelectProps) {
   const periods: { value: PeriodOption; label: string }[] = [
-    { value: "1W", label: "1W" },
+    { value: "1W", label: "1T" },
     { value: "1M", label: "1M" },
-    { value: "1Y", label: "1Y" },
-    { value: "ALL", label: "All" },
+    { value: "1Y", label: "1G" },
+    { value: "ALL", label: "Sve" },
   ];
 
   return (

@@ -49,16 +49,24 @@ export default function ProductInfoTable({ product }: IProductInfoTableProps) {
               <td className="p-2 flex-1">
                 <span className="font-bold">Cijene: </span>
                 {product.chains.length > 0 ? (
-                  <span className="whitespace-nowrap">
-                    <span className="text-green-700">
+                  minPrice === maxPrice ? (
+                    <span className="whitespace-nowrap text-gray-700">
                       {minPrice.toFixed(2)}€
                     </span>
-                    <span className="text-gray-700">
-                      {" "}
-                      | {averagePrice?.toFixed(2)}€ |{" "}
+                  ) : (
+                    <span className="whitespace-nowrap">
+                      <span className="text-green-700">
+                        {minPrice.toFixed(2)}€
+                      </span>
+                      <span className="text-gray-700">
+                        {" "}
+                        | {averagePrice?.toFixed(2)}€ |{" "}
+                      </span>
+                      <span className="text-red-700">
+                        {maxPrice.toFixed(2)}€
+                      </span>
                     </span>
-                    <span className="text-red-700">{maxPrice.toFixed(2)}€</span>
-                  </span>
+                  )
                 ) : (
                   "Nepoznato"
                 )}
@@ -70,18 +78,24 @@ export default function ProductInfoTable({ product }: IProductInfoTableProps) {
             <tr className="flex flex-col sm:table-row">
               <td className="p-2 flex-1">
                 <span className="font-bold">Jed. cijene: </span>
-                <span className="whitespace-nowrap">
-                  <span className="text-green-700">
+                {minPricePerUnit === maxPricePerUnit ? (
+                  <span className="whitespace-nowrap text-gray-700">
                     {minPricePerUnit?.toFixed(2)}€/{product.unit}
                   </span>
-                  <span className="text-gray-700">
-                    {" "}
-                    | {averagePricePerUnit?.toFixed(2)}€/{product.unit} |{" "}
+                ) : (
+                  <span className="whitespace-nowrap">
+                    <span className="text-green-700">
+                      {minPricePerUnit?.toFixed(2)}€/{product.unit}
+                    </span>
+                    <span className="text-gray-700">
+                      {" "}
+                      | {averagePricePerUnit?.toFixed(2)}€/{product.unit} |{" "}
+                    </span>
+                    <span className="text-red-700">
+                      {maxPricePerUnit?.toFixed(2)}€/{product.unit}
+                    </span>
                   </span>
-                  <span className="text-red-700">
-                    {maxPricePerUnit?.toFixed(2)}€/{product.unit}
-                  </span>
-                </span>
+                )}
               </td>
             </tr>
           )}

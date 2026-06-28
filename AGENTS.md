@@ -18,7 +18,7 @@ If you need to add env variables, first notify the user and then update both the
 
 **Core Framework & Runtime:**
 
-- Next.js: `16.2.2`
+- Next.js: `16.2.9`
 - React: `19.2.4`
 - React DOM: `19.2.4`
 
@@ -27,30 +27,47 @@ If you need to add env variables, first notify the user and then update both the
 - better-auth: `1.6.14`
 - @daveyplate/better-auth-ui: `^3.2.13`
 
-**Database (frontend — better-auth identity store):**
+**Database (frontend, better-auth identity store):**
 
 - drizzle-orm: `0.45.2`
 - drizzle-kit: `^0.31.10`
 - pg: `8.21.0`
+- kysely: `0.28.17` (pinned on purpose: better-auth's kysely-adapter breaks on 0.29)
 
 **Key Libraries:**
 
 - React Query (@tanstack/react-query): `^5.90.12`
-- React Hook Form: `^7.68.0`
-- Recharts: `2.15.4`
+- React Virtual (@tanstack/react-virtual): `^3.13.13`
+- React Hook Form: `^7.68.0` (with @hookform/resolvers `^5.2.2`)
+- Recharts: `3.9.0`
 - Zod: `^4.1.13`
 - Axios: `^1.13.2`
 - Sonner (Toast): `^2.0.7`
 - Lucide React (Icons): `^0.561.0`
 - Tailwind CSS: `^4`
-- Radix UI: Latest component versions
+- Radix UI: `radix-ui` `^1.4.3` (plus individual `@radix-ui/react-*` components)
 - Motion (Animations): `^12.23.26`
+- QR/barcode scanning (@yudiel/react-qr-scanner): `^2.4.1`
+- Email (Resend `^6.14.0` + react-email `^6.6.3`)
+- Error tracking (@sentry/nextjs): `^10.62.0`
+- UI utilities: class-variance-authority `^0.7.1`, clsx `^2.1.1`, tailwind-merge `^3.4.0`, cmdk `^1.1.1`
 
 **Development Tools:**
 
-- ESLint: Latest
+- ESLint: `^9` (eslint-config-next `16.2.2`)
 - TypeScript: `^5.7`
-- Tailwind CSS with PostCSS: Latest
+- Tailwind CSS with PostCSS (@tailwindcss/postcss): `^4`
+- react-scan: `^0.4.3` (render profiling)
+- OpenAPI client generator (@openapitools/openapi-generator-cli): `^2.25.2`
+
+**Deployment & Infrastructure:**
+
+- Docker + Docker Compose (multi-stage builds; `docker-compose.prod.yml` is what Dokploy deploys)
+- Dokploy on a Hetzner VPS (self-hosted PaaS), with Traefik reverse proxy + Let's Encrypt TLS
+- Cloudflare: DNS, CDN, proxy, SSL (Full strict)
+- PostgreSQL: `17` (self-hosted container, one shared app database)
+- Cloudflare R2: off-site database and Dokploy config backups
+- Sentry (error tracking) + UptimeRobot (uptime monitoring)
 
 ## Guidelines
 
@@ -81,9 +98,37 @@ If you need docs about a library, always fetch the most recent documentation fro
 
 NEVER run "mvn spring-boot:run" or any other development server command, because I always already have my dev server running. Also never run build commands.
 
+## Technology Stack Versions
+
+**Core:**
+
+- Spring Boot: `3.1.0` (spring-boot-starter-parent)
+- Java: `21`
+- Maven: `3.9+`
+- PostgreSQL JDBC driver (org.postgresql): version managed by the Spring Boot parent
+
+**Spring starters:** data-jpa, web, validation, security, oauth2-resource-server (validates better-auth ES256 JWTs via JWKS), mail, actuator.
+
+**Other libraries:**
+
+- springdoc-openapi (Swagger UI at `/api-docs`): `2.1.0`
+- sentry-spring-boot-starter-jakarta: `8.16.0`
+- Lombok: `1.18.30`
+- spring-dotenv (me.paulschwarz): `3.0.0`
+
+# Deployment Guidelines
+
+The app is self-hosted on a Hetzner VPS via Dokploy (Docker Compose). See docs/DEPLOYMENT.md for the full infrastructure reference (architecture, env vars, DNS/SSL, backups, monitoring).
+
+NEVER run deployment, Docker, or Dokploy commands (deploy, build, push images, prune, server restarts) unless I explicitly ask, since deploys happen automatically on push.
+
+Environment variables live in Dokploy, set per environment, NOT in committed files. Remember `NEXT_PUBLIC_*` vars are baked at build time, so changing them needs a redeploy, not just a restart.
+
+The repository is PUBLIC. NEVER commit secrets, credentials, the server IP, or the SSH user; use placeholders in any committed docs.
+
 # Commit message requirement
 
-At the end of every response that includes code changes, include a suggested Git commit message.
+At the end of every response that includes code changes, include a suggested Git commit message. To make sure you don't miss any changes, first check with git status and git diff what are the changes made, and then using this info and your converstation history in this chat, make a message.
 
 Use this format:
 

@@ -9,7 +9,11 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { ProductResponse, StorePrice } from "@/lib/cijene-api/schemas";
-import { getMinPrice, getMaxPrice } from "@/app/products/utils/product-utils";
+import {
+  getMinPrice,
+  getMaxPrice,
+  getPriceExtreme,
+} from "@/app/products/utils/product-utils";
 import { useUser } from "@/context/user-context";
 import { locationNamesMap } from "@/constants/name-mappings";
 
@@ -101,6 +105,15 @@ export const StorePricesTable = memo(
                     (place) => place.placeApiId === standardizedCity,
                   ) || false;
 
+                const priceExtreme =
+                  displayPrice != null
+                    ? getPriceExtreme(
+                        displayPrice,
+                        productMinPrice,
+                        productMaxPrice,
+                      )
+                    : null;
+
                 return (
                   <TableRow
                     key={`${price.store.code}-${index}`}
@@ -118,12 +131,12 @@ export const StorePricesTable = memo(
                     <TableCell>{price.store.address || "Nepoznato"}</TableCell>
 
                     <TableCell className="text-center">
-                      {displayPrice ? (
+                      {displayPrice != null ? (
                         <span
                           className={cn(
-                            displayPrice === productMinPrice
+                            priceExtreme === "min"
                               ? "text-green-600"
-                              : displayPrice === productMaxPrice
+                              : priceExtreme === "max"
                                 ? "text-red-700"
                                 : isLocationPreferred
                                   ? "text-gray-700"
