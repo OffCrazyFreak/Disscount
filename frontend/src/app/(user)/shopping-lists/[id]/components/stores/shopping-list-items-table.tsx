@@ -30,6 +30,7 @@ import {
 } from "@/lib/cijene-api/schemas";
 import { sortShoppingListItemsByAvailabilityAndName } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { getPriceExtreme } from "@/app/products/utils/product-utils";
 
 interface ShoppingListItemsTableProps {
   chain: ChainProductResponse;
@@ -99,14 +100,18 @@ export const ShoppingListItemsTable = memo(
                   allChainPrices.length > 0 ? Math.min(...allChainPrices) : 0;
                 const maxPriceAcrossChains =
                   allChainPrices.length > 0 ? Math.max(...allChainPrices) : 0;
-                const isLowestPrice =
-                  isAvailable &&
-                  price === minPriceAcrossChains &&
-                  allChainPrices.length > 1;
-                const isHighestPrice =
-                  isAvailable &&
-                  price === maxPriceAcrossChains &&
-                  allChainPrices.length > 1;
+
+                // getPriceExtreme returns null when min === max (a single price,
+                // or all chains equal), so a uniform price is never flagged.
+                const priceExtreme = isAvailable
+                  ? getPriceExtreme(
+                      price,
+                      minPriceAcrossChains,
+                      maxPriceAcrossChains,
+                    )
+                  : null;
+                const isLowestPrice = priceExtreme === "min";
+                const isHighestPrice = priceExtreme === "max";
 
                 return (
                   <TableRow

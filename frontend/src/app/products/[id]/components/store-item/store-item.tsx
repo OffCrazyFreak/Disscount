@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { ChevronDown, TriangleAlert } from "lucide-react";
-import Image from "next/image";
+import StoreChainLogo from "@/components/custom/store-chain-logo";
 import {
   Collapsible,
   CollapsibleContent,
@@ -17,7 +17,11 @@ import {
   ProductResponse,
   StorePrice,
 } from "@/lib/cijene-api/schemas";
-import { getMinPrice, getMaxPrice } from "@/app/products/utils/product-utils";
+import {
+  getMinPrice,
+  getMaxPrice,
+  getPriceExtreme,
+} from "@/app/products/utils/product-utils";
 import { formatDate } from "@/utils/strings";
 import { useUser } from "@/context/user-context";
 import { StorePricesTable } from "@/app/products/[id]/components/store-item/store-prices-table";
@@ -50,6 +54,22 @@ export const StoreItem = memo(
     const productMinPrice = getMinPrice(product);
     const productMaxPrice = getMaxPrice(product);
 
+    const minExtreme = getPriceExtreme(
+      storeMinPrice,
+      productMinPrice,
+      productMaxPrice,
+    );
+    const avgExtreme = getPriceExtreme(
+      storeAvgPrice,
+      productMinPrice,
+      productMaxPrice,
+    );
+    const maxExtreme = getPriceExtreme(
+      storeMaxPrice,
+      productMinPrice,
+      productMaxPrice,
+    );
+
     return (
       <Collapsible open={isExpanded} onOpenChange={onToggle}>
         <Card className="shadow-sm hover:shadow-md transition-shadow">
@@ -59,11 +79,8 @@ export const StoreItem = memo(
                 <div className="flex items-center gap-4">
                   {/* Store Chain Image */}
                   <div className="flex-shrink-0 size-12 sm:size-16 rounded-sm overflow-hidden shadow-sm">
-                    <Image
-                      src={`/store-chains/${store.chain}.png`}
-                      alt={storeNamesMap[store.chain] || store.chain}
-                      width={256}
-                      height={256}
+                    <StoreChainLogo
+                      chain={store.chain}
                       className={cn(
                         "object-contain w-full h-full",
                         !isPreferred &&
@@ -98,9 +115,9 @@ export const StoreItem = memo(
                       <div className="flex items-center gap-4 text-sm">
                         <span
                           className={cn(
-                            storeMinPrice === productMaxPrice
+                            minExtreme === "max"
                               ? "text-red-700 font-bold"
-                              : storeMinPrice === productMinPrice
+                              : minExtreme === "min"
                                 ? "text-green-700 font-bold"
                                 : "text-gray-700",
                           )}
@@ -109,9 +126,9 @@ export const StoreItem = memo(
                         </span>
                         <span
                           className={cn(
-                            storeAvgPrice === productMaxPrice
+                            avgExtreme === "max"
                               ? "text-red-700 font-bold"
-                              : storeAvgPrice === productMinPrice
+                              : avgExtreme === "min"
                                 ? "text-green-700 font-bold"
                                 : "text-gray-700",
                           )}
@@ -120,9 +137,9 @@ export const StoreItem = memo(
                         </span>
                         <span
                           className={cn(
-                            storeMaxPrice === productMaxPrice
+                            maxExtreme === "max"
                               ? "text-red-700 font-bold"
-                              : storeMaxPrice === productMinPrice
+                              : maxExtreme === "min"
                                 ? "text-green-700 font-bold"
                                 : "text-gray-700",
                           )}

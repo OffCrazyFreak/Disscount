@@ -12,6 +12,7 @@ import { storeNamesMap } from "@/constants/name-mappings";
 import { useUser } from "@/context/user-context";
 import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";
 import { ChartDataPoint } from "@/typings/chart-data";
+import { useTouchTooltipDismiss } from "@/hooks/use-touch-tooltip-dismiss";
 
 interface IPriceHistoryChartProps {
   priceHistoryData: HistoryDataPoint[];
@@ -25,6 +26,8 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
   selectedChains,
 }: IPriceHistoryChartProps) {
   const { user } = useUser();
+
+  const { tooltipActive, touchHandlers } = useTouchTooltipDismiss();
 
   const pinnedStoreIds = useMemo(
     () => user?.pinnedStores?.map((store) => store.storeApiId) || [],
@@ -92,7 +95,7 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
   }, [priceHistoryChains]);
 
   return (
-    <ChartContainer config={chartConfig}>
+    <ChartContainer config={chartConfig} {...touchHandlers}>
       <LineChart accessibilityLayer data={chartData}>
         <CartesianGrid vertical={true} />
 
@@ -156,6 +159,7 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
         />
 
         <ChartTooltip
+          active={tooltipActive}
           cursor={true}
           content={<ChartTooltipContent pinnedStoreIds={pinnedStoreIds} />}
         />

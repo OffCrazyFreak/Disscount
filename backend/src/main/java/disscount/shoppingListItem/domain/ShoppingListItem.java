@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import disscount.shoppingList.domain.ShoppingList;
-import disscount.shoppingListItem.domain.enums.StoreChain;
 import disscount.user.domain.User;
 
 import java.math.BigDecimal;
@@ -56,8 +55,7 @@ public class ShoppingListItem {
     private Boolean isChecked = false;
 
     @Column(name = "chain_code")
-    @Enumerated(EnumType.STRING)
-    private StoreChain chainCode;
+    private String chainCode;
 
     @Column(name = "avg_price", precision = 10, scale = 4)  // Allows up to 4 decimal places
     private BigDecimal avgPrice;

@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useMemo, useState, Suspense, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, LayoutDashboard } from "lucide-react";
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -56,6 +56,8 @@ export const AppSidebar = memo(function AppSidebar() {
 
   const showDashboard = canAccessDashboard(user?.accountType);
   const userIsAdmin = isAdmin(user?.accountType);
+
+  const isDashboardActive = pathname.startsWith("/dashboard");
 
   const searchParamsString = searchParams.toString();
   const fullPath = `${pathname}${searchParamsString ? `?${searchParamsString}` : ""}`;
@@ -240,7 +242,7 @@ export const AppSidebar = memo(function AppSidebar() {
             </span>
           </Link>
 
-          <SidebarTrigger className="m-0 p-0 text-gray-800" />
+          <SidebarTrigger className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground" />
         </div>
 
         <SidebarGroup>
@@ -261,6 +263,42 @@ export const AppSidebar = memo(function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="max-h-[75dvh] min-h-0 overflow-y-auto">
+        {/* Dashboard sits in the desktop header, so it's only surfaced here on
+            mobile, pinned above all other items and split off by a separator. */}
+        {showDashboard && (
+          <div className="md:hidden">
+            <SidebarMenu>
+              <SidebarGroup>
+                <SidebarGroupContent>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      className={cn(isDashboardActive && "hover:text-primary")}
+                    >
+                      <Link
+                        href="/dashboard"
+                        className={cn(
+                          "flex items-center gap-2",
+                          isDashboardActive && "font-bold text-primary",
+                        )}
+                      >
+                        <LayoutDashboard
+                          className={isDashboardActive ? "text-primary" : ""}
+                        />
+                        <span>Nadzorna ploča</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            </SidebarMenu>
+
+            <div className="mx-2">
+              <SidebarSeparator className="ml-0 mt-2" />
+            </div>
+          </div>
+        )}
+
         <div>
           <SidebarMenu>
             <SidebarGroup>

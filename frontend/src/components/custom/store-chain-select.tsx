@@ -6,7 +6,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { storeNamesMap, STORE_CHAIN_OPTIONS } from "@/constants/name-mappings";
+import { storeNamesMap } from "@/constants/name-mappings";
 import { useEffect, useState } from "react";
 import { ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 
@@ -74,6 +74,24 @@ export default function StoreChainSelect({
     };
   };
 
+  // Build options from the live cijene price data (chain slugs), not a static
+  // list, so any chain the API returns is selectable, even unmapped ones.
+  // When checked, only the chosen store is shown; otherwise all priced stores
+  // plus the current selection.
+  const availableChainCodes = (
+    isChecked
+      ? value
+        ? [value]
+        : []
+      : Array.from(
+          new Set([...Object.keys(storePrices), ...(value ? [value] : [])]),
+        )
+  ).sort((a, b) =>
+    (storeNamesMap[a] || a).localeCompare(storeNamesMap[b] || b, "hr", {
+      sensitivity: "base",
+    }),
+  );
+
   return (
     <Select value={displayValue} onValueChange={onChange} disabled={disabled}>
       <SelectTrigger
@@ -83,13 +101,8 @@ export default function StoreChainSelect({
       </SelectTrigger>
 
       <SelectContent>
-        {STORE_CHAIN_OPTIONS.filter(
-          (option) =>
-            isChecked
-              ? option.code === value // When checked, only show the selected store
-              : storePrices[option.code] !== undefined || option.code === value, // When unchecked, show available stores and current selection
-        ).map((option) => {
-          const priceDifference = getPriceDifference(option.code);
+        {availableChainCodes.map((chainCode) => {
+          const priceDifference = getPriceDifference(chainCode);
 
           // Determine color based on difference (positive = red, negative = green)
           const diffColorClass = priceDifference
@@ -101,9 +114,9 @@ export default function StoreChainSelect({
             : "text-gray-500";
 
           return (
-            <SelectItem key={option.code} value={option.code}>
+            <SelectItem key={chainCode} value={chainCode}>
               <div className="flex items-center gap-2 w-full">
-                <span>{storeNamesMap[option.key] || option.key}</span>
+                <span>{storeNamesMap[chainCode] || chainCode}</span>
 
                 {priceDifference && (
                   <span

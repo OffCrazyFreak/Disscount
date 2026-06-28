@@ -34,9 +34,17 @@ export const ProductUnitPriceDetails = memo(
           {minPrice != null && maxPrice != null ? (
             <div className="font-bold text-md text-center">
               <div className="text-sm sm:text-md flex items-center gap-1 ">
-                <span className="text-green-700">{minPrice.toFixed(2)}€</span>
-                <span className="text-gray-700"> - </span>
-                <span className="text-red-700">{maxPrice.toFixed(2)}€</span>
+                {minPrice === maxPrice ? (
+                  <span className="text-gray-700">{minPrice.toFixed(2)}€</span>
+                ) : (
+                  <>
+                    <span className="text-green-700">
+                      {minPrice.toFixed(2)}€
+                    </span>
+                    <span className="text-gray-700"> - </span>
+                    <span className="text-red-700">{maxPrice.toFixed(2)}€</span>
+                  </>
+                )}
               </div>
 
               {/* <div className="text-green-600">{minPrice.toFixed(2)}€</div>
@@ -57,13 +65,21 @@ export const ProductUnitPriceDetails = memo(
               <Separator className="px-10 mb-1" />
 
               <div className="text-sm sm:text-md flex items-center justify-center gap-1">
-                <span className="text-green-700">
-                  {`${minPricePerUnit.toFixed(2)}€/${product.unit}`}
-                </span>
-                <span className="text-gray-700"> - </span>
-                <span className="text-red-700">
-                  {`${maxPricePerUnit.toFixed(2)}€/${product.unit}`}
-                </span>
+                {minPricePerUnit === maxPricePerUnit ? (
+                  <span className="text-gray-700">
+                    {`${minPricePerUnit.toFixed(2)}€/${product.unit}`}
+                  </span>
+                ) : (
+                  <>
+                    <span className="text-green-700">
+                      {`${minPricePerUnit.toFixed(2)}€/${product.unit}`}
+                    </span>
+                    <span className="text-gray-700"> - </span>
+                    <span className="text-red-700">
+                      {`${maxPricePerUnit.toFixed(2)}€/${product.unit}`}
+                    </span>
+                  </>
+                )}
               </div>
             </>
           )}

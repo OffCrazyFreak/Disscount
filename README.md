@@ -60,51 +60,88 @@ Commercial use is restricted unless covered by an Additional Use Grant or separa
 
 ## How to run
 
+The quickest way to run the full stack (frontend + backend + PostgreSQL) locally is with Docker Compose:
+
+```bash
+cp example.env .env   # then fill in the values
+docker compose up -d --build
+# frontend: http://localhost:3000
+```
+
+To run the services manually instead, follow the steps below.
+
 ### Prerequisites
 
-- Node.js 22.19.0+ (or latest LTS)
-- pnpm (or npm/yarn)
-- Java 21
-- Maven 3.9+
-- PostgreSQL (local or remote)
+- Node.js 22 LTS+ and pnpm
+- Java 21 and Maven 3.9+
+- PostgreSQL 14+ (17 in production)
+- Docker + Docker Compose (only for the quick-run path above)
 
 ### Startup flow
 
-- Start the backend first (so API is available), then start the frontend.
+The backend and frontend share one PostgreSQL database: the backend owns the app tables (Hibernate `ddl-auto`), the frontend owns the better-auth tables (drizzle). Create the database, run the backend, then the frontend.
 
-### Running the backend
+### 1. Database (PostgreSQL)
 
-1. Database (PostgreSQL)
+Create a database and user (example), and reuse these values in both env files below:
 
-- Create database and user (example):
-  sudo -u postgres psql -c "CREATE USER disccount WITH PASSWORD 'secret';"
-  sudo -u postgres psql -c "CREATE DATABASE disccount OWNER disccount;"
-- Adjust names/passwords as needed.
+```bash
+sudo -u postgres psql -c "CREATE USER disscount WITH PASSWORD 'secret';"
+sudo -u postgres psql -c "CREATE DATABASE disscount OWNER disscount;"
+```
 
-2. Backend setup
+### 2. Backend (Spring Boot)
 
-- Copy/configure environment variables (backend expects):
-  - SPRING_DATASOURCE_URL (e.g. jdbc:postgresql://localhost:5432/disscount)
-  - SPRING_DATASOURCE_USERNAME
-  - SPRING_DATASOURCE_PASSWORD
-  - JWT_SECRET (strong random string)
-- You can copy `.env.example` to `.env` in the backend folder if present.
-- Build and run:
-  cd backend
-  mvn clean install
-  mvn spring-boot:run
-- The backend starts on port 8080 by default. Open API docs at:
-  http://localhost:8080/api-docs
+```bash
+cd backend
+cp .env.example .env
+```
 
-### Running the frontend
+Set in `backend/.env`:
 
-3. Frontend setup
+- `SPRING_DATASOURCE_URL` (e.g. `jdbc:postgresql://localhost:5432/disscount`)
+- `SPRING_DATASOURCE_USERNAME` and `SPRING_DATASOURCE_PASSWORD`
+- `BETTER_AUTH_JWKS_URI` (e.g. `http://localhost:3000/api/auth/jwks`)
 
-- Install and run:
-  cd frontend
-  pnpm install
-  pnpm dev
-- The frontend runs on port 3000 by default: http://localhost:3000
+Build and run with the `local` Spring profile (it supplies local better-auth defaults, the JWKS URL and issuer at `http://localhost:3000`, so the app starts without extra config):
+
+```bash
+mvn clean install
+mvn spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+The backend runs on port 8080. Swagger UI: http://localhost:8080/api-docs
+
+### 3. Frontend (Next.js)
+
+```bash
+cd frontend
+cp .env.local.example .env.local
+```
+
+Set in `frontend/.env.local` (see the file for the full list):
+
+- `DATABASE_URL` (same Postgres DB, e.g. `postgresql://disscount:secret@localhost:5432/disscount`)
+- `BETTER_AUTH_SECRET` (strong random string) and `BETTER_AUTH_URL=http://localhost:3000`
+- `NEXT_PUBLIC_API_URL=http://localhost:8080` and `NEXT_PUBLIC_APP_URL=http://localhost:3000`
+- Google OAuth (`NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`) and Facebook (`FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET`)
+- `RESEND_API_KEY` + `EMAIL_FROM`, and `CIJENE_API_URL` + `CIJENE_API_TOKEN`
+
+Install dependencies, create the better-auth tables, then run:
+
+```bash
+pnpm install
+pnpm drizzle-kit migrate   # creates the better-auth tables in the shared DB
+pnpm dev
+```
+
+The frontend runs on http://localhost:3000
+
+## Deployment
+
+Disscount is self-hosted on a Hetzner VPS using [Dokploy](https://dokploy.com) (Docker Compose), with Traefik for routing and automatic Let's Encrypt TLS, and Cloudflare in front for DNS, CDN, and proxying. Production deploys automatically from the `master` branch, and a staging environment deploys from the `dev` branch, on every push.
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the full infrastructure reference: architecture, environment variables, DNS and SSL, security, backups and restore, monitoring, and how to add more apps to the server.
 
 ## How to contribute
 

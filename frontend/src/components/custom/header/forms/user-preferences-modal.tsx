@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import Image from "next/image";
+import StoreChainLogo from "@/components/custom/store-chain-logo";
 import {
   userPreferencesSchema,
   UserPreferencesFormType,
@@ -243,12 +243,8 @@ export default function UserPreferencesModal({
                           onClick={() => toggleStore(chain.chain_code)}
                         >
                           <div className="size-16 sm:size-20 grid place-items-center relative transition-all">
-                            <Image
-                              src={`/store-chains/${chain.chain_code}.png`}
-                              alt={
-                                storeNamesMap[chain.chain_code] ||
-                                chain.chain_code
-                              }
+                            <StoreChainLogo
+                              chain={chain.chain_code}
                               fill
                               sizes="128px"
                               className={cn(

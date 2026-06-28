@@ -191,6 +191,34 @@ export function getHighestPriceChain(product: ProductResponse) {
   });
 }
 
+export type PriceExtreme = "min" | "max" | null;
+
+/**
+ * Classify a price against a range's overall min/max.
+ * Returns null when the value is neither extreme, OR when min === max — a
+ * uniform price has no cheapest/most-expensive distinction to color, so every
+ * view renders it neutrally instead of disagreeing (red vs green).
+ */
+export function getPriceExtreme(
+  value: number,
+  min: number,
+  max: number,
+): PriceExtreme {
+  if (![value, min, max].every(Number.isFinite)) {
+    return null;
+  }
+  if (min === max) {
+    return null;
+  }
+  if (value === min) {
+    return "min";
+  }
+  if (value === max) {
+    return "max";
+  }
+  return null;
+}
+
 /**
  * Calculate price change difference and percentage
  */

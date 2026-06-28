@@ -6,8 +6,6 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import disscount.shoppingListItem.domain.enums.StoreChain;
-
 import java.math.BigDecimal;
 
 @Data
@@ -23,7 +21,7 @@ public class ShoppingListItemDto {
     private String unit;
     private Integer amount;
     private Boolean isChecked;
-    private StoreChain chainCode;
+    private String chainCode;
     private BigDecimal avgPrice;
     private BigDecimal storePrice;    
     private LocalDateTime createdAt;

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/form";
 import { UseFormReturn } from "react-hook-form";
 import { AddToListFormData } from "@/app/products/typings/add-to-list";
+import { MAX_SHOPPING_LIST_ITEM_AMOUNT } from "@/constants/shopping-list";
 
 interface IQuantityInputProps {
   formField: UseFormReturn<AddToListFormData>;
@@ -51,11 +52,19 @@ export default function QuantityInput({ formField }: IQuantityInputProps) {
               <Input
                 type="number"
                 min={1}
+                max={MAX_SHOPPING_LIST_ITEM_AMOUNT}
                 className="text-center w-20 sm:w-40"
                 {...field}
                 onChange={(e) => {
-                  const value = parseInt(e.target.value);
-                  field.onChange(isNaN(value) || value < 1 ? 1 : value);
+                  // valueAsNumber parses the full number (e.g. 1e2 -> 100);
+                  // floor keeps it an integer count without truncating like parseInt
+                  const value = Math.floor(e.target.valueAsNumber);
+
+                  field.onChange(
+                    isNaN(value) || value < 1
+                      ? 1
+                      : Math.min(MAX_SHOPPING_LIST_ITEM_AMOUNT, value),
+                  );
                 }}
               />
 
@@ -64,7 +73,12 @@ export default function QuantityInput({ formField }: IQuantityInputProps) {
                 size="icon"
                 aria-label="Povećaj količinu za 2"
                 className="size-13 rounded-full shrink-0 text-lg font-bold"
-                onClick={() => field.onChange(field.value + 2)}
+                onClick={() =>
+                  field.onChange(
+                    Math.min(MAX_SHOPPING_LIST_ITEM_AMOUNT, field.value + 2),
+                  )
+                }
+                disabled={field.value >= MAX_SHOPPING_LIST_ITEM_AMOUNT}
               >
                 +2
               </Button>
@@ -75,7 +89,12 @@ export default function QuantityInput({ formField }: IQuantityInputProps) {
                 variant="outline"
                 aria-label="Povećaj količinu za 5"
                 className="hidden sm:flex size-14 rounded-full shrink-0 text-lg font-bold"
-                onClick={() => field.onChange(field.value + 5)}
+                onClick={() =>
+                  field.onChange(
+                    Math.min(MAX_SHOPPING_LIST_ITEM_AMOUNT, field.value + 5),
+                  )
+                }
+                disabled={field.value >= MAX_SHOPPING_LIST_ITEM_AMOUNT}
               >
                 +5
               </Button>
