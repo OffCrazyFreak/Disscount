@@ -25,13 +25,10 @@ export async function getStorePricesForItem(
       return {};
     }
 
-    // Map chain codes to prices
+    // Map chain codes (cijene slugs) to prices
     const storePrices: Record<string, number> = {};
     for (const chain of productData.chains) {
-      const chainCode = nameToChainCode(chain.chain);
-      if (chainCode) {
-        storePrices[chainCode] = parseFloat(chain.avg_price);
-      }
+      storePrices[chain.chain] = parseFloat(chain.avg_price);
     }
 
     return storePrices;
@@ -93,7 +90,7 @@ export async function findCheapestStoreForItem(
             const price = parseFloat(chainProduct.avg_price);
             if (price < cheapestPrice) {
               cheapestPrice = price;
-              cheapestChain = nameToChainCode(chainProduct.chain);
+              cheapestChain = chainProduct.chain;
             }
           }
         }
@@ -113,7 +110,7 @@ export async function findCheapestStoreForItem(
       const price = parseFloat(chainProduct.avg_price);
       if (price < cheapestPrice) {
         cheapestPrice = price;
-        cheapestChain = nameToChainCode(chainProduct.chain);
+        cheapestChain = chainProduct.chain;
       }
     }
 
@@ -122,22 +119,6 @@ export async function findCheapestStoreForItem(
     console.error("Error fetching product pricing:", error);
     return null;
   }
-}
-
-/**
- * Convert a chain name from the API to the backend enum code
- * E.g., "Plodine" -> "PLODINE", "Konzum" -> "KONZUM"
- */
-function nameToChainCode(chainName: string): string {
-  const normalized = chainName.toUpperCase().replace(/\s+/g, "_");
-
-  // Handle special cases
-  const specialCases: Record<string, string> = {
-    JADRANKA: "JADRANKA_TRGOVINA",
-    TRGOVINA_KRK: "TRGOVINA_KRK",
-  };
-
-  return specialCases[normalized] || normalized;
 }
 
 /**

@@ -21,9 +21,12 @@ public class ShoppingListItemRequest {
 
     private String unit;
 
+    @Min(value = 1, message = "Amount must be at least 1")
+    @Max(value = 999, message = "Amount must not exceed 999")
     private Integer amount = 1;
+
     private Boolean isChecked = false;
-    private StoreChain chainCode;
+    private String chainCode;
     private BigDecimal avgPrice;
     private BigDecimal storePrice;
 }

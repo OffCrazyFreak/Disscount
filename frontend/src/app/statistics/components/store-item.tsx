@@ -2,7 +2,7 @@
 
 import React, { memo } from "react";
 import { ChevronDown, Loader2, MapPin, Tag } from "lucide-react";
-import Image from "next/image";
+import StoreChainLogo from "@/components/custom/store-chain-logo";
 import {
   Collapsible,
   CollapsibleContent,
@@ -44,12 +44,9 @@ export const StoreItem = memo(
             <button type="button" className="w-full text-left">
               <div className="flex items-center gap-4">
                 <div className="flex-shrink-0 size-12 sm:size-16 rounded-sm overflow-hidden shadow-sm">
-                  <Image
-                    src={`/store-chains/${stat.chain_code}.png`}
-                    alt={storeNamesMap[stat.chain_code] || stat.chain_code}
-                    width={256}
-                    height={256}
-                    className=" object-contain"
+                  <StoreChainLogo
+                    chain={stat.chain_code}
+                    className="object-contain"
                   />
                 </div>
                 <div className="flex-1 min-w-0">

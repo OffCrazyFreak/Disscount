@@ -7,7 +7,7 @@ import {
   ArrowBigUpDash,
   ArrowBigDownDash,
 } from "lucide-react";
-import Image from "next/image";
+import StoreChainLogo from "@/components/custom/store-chain-logo";
 import {
   Collapsible,
   CollapsibleContent,
@@ -88,11 +88,8 @@ const ShoppingListStoreItemComponent = ({
               <div className="flex items-center gap-4">
                 {/* Store Chain Image */}
                 <div className="flex-shrink-0 size-12 sm:size-16 rounded-sm overflow-hidden shadow-sm">
-                  <Image
-                    src={`/store-chains/${chain.chain}.png`}
-                    alt={storeNamesMap[chain.chain] || chain.chain}
-                    width={256}
-                    height={256}
+                  <StoreChainLogo
+                    chain={chain.chain}
                     className={cn(
                       "object-contain w-full h-full",
                       !isPreferred &&
