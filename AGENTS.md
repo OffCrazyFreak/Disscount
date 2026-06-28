@@ -88,14 +88,14 @@ At the end of every response that includes code changes, include a suggested Git
 Use this format:
 
 ```text
-Short summary in imperative mood
-
-Brief explanation of why the change was needed.
+type(scope): Short summary in imperative mood
 
 Changes:
 - Specific change 1
 - Specific change 2
 - Specific change 3
+
+Brief explanation of why the change was needed.
 
 Notes:
 - Optional important detail for reviewers or future maintenance
