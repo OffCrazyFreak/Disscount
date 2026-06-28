@@ -242,7 +242,7 @@ export const AppSidebar = memo(function AppSidebar() {
             </span>
           </Link>
 
-          <SidebarTrigger className="m-0 p-0 text-gray-800" />
+          <SidebarTrigger className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground" />
         </div>
 
         <SidebarGroup>
