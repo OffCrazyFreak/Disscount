@@ -27,10 +27,11 @@ import { ShoppingListDto } from "@/lib/api/types";
 import cijeneService from "@/lib/cijene-api";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { PeriodOption } from "@/typings/history-period-options";
-import { periodOptions } from "@/constants/price-history";
+import { periodOptions, DISABLED_PERIODS } from "@/constants/price-history";
 import { useUser } from "@/context/user-context";
 import { calculatePriceChange } from "@/app/products/utils/product-utils";
 import { formatDate } from "@/utils/strings";
+import { useTouchTooltipDismiss } from "@/hooks/use-touch-tooltip-dismiss";
 import {
   getShoppingListPriceHistoryOpen,
   setShoppingListPriceHistoryOpen,
@@ -53,6 +54,7 @@ export default function ShoppingListPriceHistory({
   shoppingList,
 }: ShoppingListPriceHistoryProps) {
   const { user } = useUser();
+  const { tooltipActive, touchHandlers } = useTouchTooltipDismiss();
   const [period, setPeriod] = useState<PeriodOption>(() =>
     getShoppingListPriceHistoryPeriod(shoppingList.id),
   );
@@ -378,7 +380,7 @@ export default function ShoppingListPriceHistory({
                   <PriceHistoryPeriodSelect
                     value={period}
                     onChange={handlePeriodChange}
-                    disabledPeriods={["1Y", "ALL"]}
+                    disabledPeriods={DISABLED_PERIODS}
                   />
 
                   <PriceChangeDisplay priceChange={priceChange} />
@@ -404,7 +406,7 @@ export default function ShoppingListPriceHistory({
                     </p>
                   </div>
                 ) : (
-                  <ChartContainer config={chartConfig}>
+                  <ChartContainer config={chartConfig} {...touchHandlers}>
                     <LineChart accessibilityLayer data={chartData}>
                       <CartesianGrid vertical={true} />
 
@@ -436,6 +438,7 @@ export default function ShoppingListPriceHistory({
                       />
 
                       <ChartTooltip
+                        active={tooltipActive}
                         cursor={true}
                         content={<ChartTooltipContent />}
                       />

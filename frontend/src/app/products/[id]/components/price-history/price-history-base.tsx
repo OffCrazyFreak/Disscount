@@ -24,7 +24,7 @@ import PriceHistoryPeriodSelect from "@/components/custom/price-history-period-s
 import StoreChainMultiSelect from "@/components/custom/store-chain-multi-select";
 import PriceChangeDisplay from "@/components/custom/price-change-display";
 import { PeriodOption } from "@/typings/history-period-options";
-import { periodOptions } from "@/constants/price-history";
+import { periodOptions, DISABLED_PERIODS } from "@/constants/price-history";
 import {
   getAveragePrice,
   calculatePriceChange,
@@ -76,7 +76,7 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
 
   const [isPriceHistoryOpen, setIsPriceHistoryOpen] = useState(() => {
     const { productsPreferences } = getPriceHistoryPreferences(product.ean);
-    return productsPreferences?.isPriceHistoryOpen ?? true;
+    return productsPreferences?.isPriceHistoryOpen ?? false;
   });
 
   // Persist product-specific preferences whenever period, chains, or isOpen change
@@ -164,6 +164,7 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
                   <PriceHistoryPeriodSelect
                     value={chartPrefs.period}
                     onChange={handlePeriodChange}
+                    disabledPeriods={DISABLED_PERIODS}
                   />
 
                   <PriceChangeDisplay priceChange={priceChange} />

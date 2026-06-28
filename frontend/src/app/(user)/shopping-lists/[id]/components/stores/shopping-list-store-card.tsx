@@ -25,6 +25,7 @@ import {
   ProductResponse,
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
+import { getPriceExtreme } from "@/app/products/utils/product-utils";
 
 interface ShoppingListStoreItemProps {
   chain: ChainProductResponse & { itemCount: number };
@@ -75,6 +76,18 @@ const ShoppingListStoreItemComponent = ({
   // Check if this store has all items from the shopping list
   const totalItemsInList = shoppingList.items?.length || 0;
   const hasAllItems = chain.itemCount === totalItemsInList;
+
+  // Only color the totals when this store covers every item, so the comparison
+  // against the absolute min/max range is meaningful.
+  const minExtreme = hasAllItems
+    ? getPriceExtreme(storeMinPrice, absoluteMinPrice, absoluteMaxPrice)
+    : null;
+  const avgExtreme = hasAllItems
+    ? getPriceExtreme(storeAvgPrice, absoluteMinPrice, absoluteMaxPrice)
+    : null;
+  const maxExtreme = hasAllItems
+    ? getPriceExtreme(storeMaxPrice, absoluteMinPrice, absoluteMaxPrice)
+    : null;
 
   return (
     <Card className="shadow-sm hover:shadow-md transition-shadow py-0">
@@ -143,9 +156,9 @@ const ShoppingListStoreItemComponent = ({
                     <div className="flex items-center gap-4 text-sm">
                       <span
                         className={cn(
-                          hasAllItems && storeMinPrice === absoluteMinPrice
+                          minExtreme === "min"
                             ? "text-green-600 font-bold"
-                            : hasAllItems && storeMinPrice === absoluteMaxPrice
+                            : minExtreme === "max"
                               ? "text-red-700 font-bold"
                               : "text-gray-700",
                         )}
@@ -154,9 +167,9 @@ const ShoppingListStoreItemComponent = ({
                       </span>
                       <span
                         className={cn(
-                          hasAllItems && storeAvgPrice === absoluteMinPrice
+                          avgExtreme === "min"
                             ? "text-green-600 font-bold"
-                            : hasAllItems && storeAvgPrice === absoluteMaxPrice
+                            : avgExtreme === "max"
                               ? "text-red-700 font-bold"
                               : "text-gray-700",
                         )}
@@ -165,9 +178,9 @@ const ShoppingListStoreItemComponent = ({
                       </span>
                       <span
                         className={cn(
-                          hasAllItems && storeMaxPrice === absoluteMinPrice
+                          maxExtreme === "min"
                             ? "text-green-600 font-bold"
-                            : hasAllItems && storeMaxPrice === absoluteMaxPrice
+                            : maxExtreme === "max"
                               ? "text-red-700 font-bold"
                               : "text-gray-700",
                         )}

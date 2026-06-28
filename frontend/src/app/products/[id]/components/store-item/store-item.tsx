@@ -17,7 +17,11 @@ import {
   ProductResponse,
   StorePrice,
 } from "@/lib/cijene-api/schemas";
-import { getMinPrice, getMaxPrice } from "@/app/products/utils/product-utils";
+import {
+  getMinPrice,
+  getMaxPrice,
+  getPriceExtreme,
+} from "@/app/products/utils/product-utils";
 import { formatDate } from "@/utils/strings";
 import { useUser } from "@/context/user-context";
 import { StorePricesTable } from "@/app/products/[id]/components/store-item/store-prices-table";
@@ -49,6 +53,22 @@ export const StoreItem = memo(
 
     const productMinPrice = getMinPrice(product);
     const productMaxPrice = getMaxPrice(product);
+
+    const minExtreme = getPriceExtreme(
+      storeMinPrice,
+      productMinPrice,
+      productMaxPrice,
+    );
+    const avgExtreme = getPriceExtreme(
+      storeAvgPrice,
+      productMinPrice,
+      productMaxPrice,
+    );
+    const maxExtreme = getPriceExtreme(
+      storeMaxPrice,
+      productMinPrice,
+      productMaxPrice,
+    );
 
     return (
       <Collapsible open={isExpanded} onOpenChange={onToggle}>
@@ -95,9 +115,9 @@ export const StoreItem = memo(
                       <div className="flex items-center gap-4 text-sm">
                         <span
                           className={cn(
-                            storeMinPrice === productMaxPrice
+                            minExtreme === "max"
                               ? "text-red-700 font-bold"
-                              : storeMinPrice === productMinPrice
+                              : minExtreme === "min"
                                 ? "text-green-700 font-bold"
                                 : "text-gray-700",
                           )}
@@ -106,9 +126,9 @@ export const StoreItem = memo(
                         </span>
                         <span
                           className={cn(
-                            storeAvgPrice === productMaxPrice
+                            avgExtreme === "max"
                               ? "text-red-700 font-bold"
-                              : storeAvgPrice === productMinPrice
+                              : avgExtreme === "min"
                                 ? "text-green-700 font-bold"
                                 : "text-gray-700",
                           )}
@@ -117,9 +137,9 @@ export const StoreItem = memo(
                         </span>
                         <span
                           className={cn(
-                            storeMaxPrice === productMaxPrice
+                            maxExtreme === "max"
                               ? "text-red-700 font-bold"
-                              : storeMaxPrice === productMinPrice
+                              : maxExtreme === "min"
                                 ? "text-green-700 font-bold"
                                 : "text-gray-700",
                           )}
