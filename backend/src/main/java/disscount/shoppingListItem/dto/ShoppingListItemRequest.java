@@ -2,7 +2,8 @@ package disscount.shoppingListItem.dto;
 
 import java.math.BigDecimal;
 
-import disscount.shoppingListItem.domain.enums.StoreChain;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 

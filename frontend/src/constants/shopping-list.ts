@@ -1,0 +1,1 @@
+export const MAX_SHOPPING_LIST_ITEM_AMOUNT = 999;

@@ -312,6 +312,7 @@ export default function AddToShoppingListForm({
                 <StoreChainSelect
                   value={form.watch("chainCode") || ""}
                   onChange={(value) => form.setValue("chainCode", value)}
+                  defaultValue={cheapestStore}
                   storePrices={storePrices}
                   averagePrice={averagePrice || undefined}
                   isChecked={false}

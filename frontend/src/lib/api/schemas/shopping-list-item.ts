@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MAX_SHOPPING_LIST_ITEM_AMOUNT } from "@/constants/shopping-list";
 
 export const shoppingListItemRequestSchema = z.object({
   ean: z.string().min(1, "EAN kod je obavezan"),
@@ -6,7 +7,12 @@ export const shoppingListItemRequestSchema = z.object({
   brand: z.string().nullable().optional(),
   quantity: z.string().nullable().optional(),
   unit: z.string().nullable().optional(),
-  amount: z.number().int().min(1, "Količina mora biti veća od 0").default(1),
+  amount: z
+    .number()
+    .int()
+    .min(1, "Količina mora biti veća od 0")
+    .max(MAX_SHOPPING_LIST_ITEM_AMOUNT, "Količina ne može biti veća od 999")
+    .default(1),
   isChecked: z.boolean().default(false),
   chainCode: z.string().nullable().optional(),
   avgPrice: z.number().nullable().optional(),
