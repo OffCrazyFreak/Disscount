@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 // Chrome/Edge fire `beforeinstallprompt` before showing their own install UI.
 // We capture the event so we can trigger installation from our own button.
@@ -15,8 +15,6 @@ interface IOSNavigator extends Navigator {
 }
 
 function detectStandalone(): boolean {
-  if (typeof window === "undefined") return false;
-
   return (
     window.matchMedia("(display-mode: standalone)").matches ||
     (window.navigator as IOSNavigator).standalone === true
@@ -24,8 +22,6 @@ function detectStandalone(): boolean {
 }
 
 function detectIOS(): boolean {
-  if (typeof window === "undefined") return false;
-
   const ua = window.navigator.userAgent.toLowerCase();
   const isIPhoneLike = /iphone|ipad|ipod/.test(ua);
   // iPadOS reports as desktop Safari, so detect it via touch points.
@@ -51,55 +47,95 @@ function detectIOSSafari(): boolean {
   return !isOtheriOSBrowser && !isInAppBrowser;
 }
 
+// Shared install state. Lives at module scope so every consumer (the floating
+// banner and the sidebar banner) reads the same captured prompt; consuming it
+// once clears it everywhere. `ready` stays false until client detection runs,
+// which keeps SSR/first paint from flashing install UI.
+interface InstallState {
+  deferredPrompt: BeforeInstallPromptEvent | null;
+  isStandalone: boolean;
+  isIOS: boolean;
+  isIOSSafari: boolean;
+  ready: boolean;
+}
+
+const SERVER_STATE: InstallState = {
+  deferredPrompt: null,
+  isStandalone: false,
+  isIOS: false,
+  isIOSSafari: false,
+  ready: false,
+};
+
+let state: InstallState = SERVER_STATE;
+const listeners = new Set<() => void>();
+let initialized = false;
+
+function setState(patch: Partial<InstallState>) {
+  state = { ...state, ...patch };
+  listeners.forEach((listener) => listener());
+}
+
+// Attach the window listeners exactly once, on the first subscription.
+function init() {
+  if (initialized || typeof window === "undefined") return;
+  initialized = true;
+
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    setState({ deferredPrompt: event as BeforeInstallPromptEvent });
+  });
+
+  window.addEventListener("appinstalled", () => {
+    setState({ deferredPrompt: null, isStandalone: true });
+  });
+
+  setState({
+    isStandalone: detectStandalone(),
+    isIOS: detectIOS(),
+    isIOSSafari: detectIOSSafari(),
+    ready: true,
+  });
+}
+
+function subscribe(onChange: () => void) {
+  listeners.add(onChange);
+  init();
+
+  return () => {
+    listeners.delete(onChange);
+  };
+}
+
+function getSnapshot() {
+  return state;
+}
+
+function getServerSnapshot() {
+  return SERVER_STATE;
+}
+
+async function promptInstall() {
+  const { deferredPrompt } = state;
+  if (!deferredPrompt) return;
+
+  await deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+
+  // The prompt can only be used once; clear it for all consumers.
+  setState({ deferredPrompt: null });
+}
+
 export function useInstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] =
-    useState<BeforeInstallPromptEvent | null>(null);
-  const [isIOS, setIsIOS] = useState(false);
-  const [isIOSSafari, setIsIOSSafari] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(false);
-
-  useEffect(() => {
-    setIsIOS(detectIOS());
-    setIsIOSSafari(detectIOSSafari());
-    setIsStandalone(detectStandalone());
-
-    function handleBeforeInstallPrompt(event: Event) {
-      event.preventDefault();
-      setDeferredPrompt(event as BeforeInstallPromptEvent);
-    }
-
-    function handleAppInstalled() {
-      setDeferredPrompt(null);
-      setIsStandalone(true);
-    }
-
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    window.addEventListener("appinstalled", handleAppInstalled);
-
-    return () => {
-      window.removeEventListener(
-        "beforeinstallprompt",
-        handleBeforeInstallPrompt,
-      );
-      window.removeEventListener("appinstalled", handleAppInstalled);
-    };
-  }, []);
-
-  async function promptInstall() {
-    if (!deferredPrompt) return;
-
-    await deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-
-    // The prompt can only be used once; drop it afterwards.
-    setDeferredPrompt(null);
-  }
+  const { deferredPrompt, isStandalone, isIOS, isIOSSafari, ready } =
+    useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   // Only surface install UI when installation can actually work: either a
   // native prompt was captured (Chromium), or it's iOS Safari (manual add to
   // home screen). Unsupported browsers get nothing. Hidden once installed.
   const canInstall = deferredPrompt !== null;
-  const canShowInstallUI = !isStandalone && (canInstall || isIOSSafari);
+  const canShowInstallUI =
+    ready && !isStandalone && (canInstall || isIOSSafari);
 
   return { canInstall, canShowInstallUI, isIOS, isStandalone, promptInstall };
 }
