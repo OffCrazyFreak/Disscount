@@ -9,6 +9,7 @@ import ShoppingListHeader from "@/app/(user)/shopping-lists/[id]/components/shop
 import ShoppingListItems from "@/app/(user)/shopping-lists/[id]/components/items/shopping-list-items";
 import ShoppingListPriceHistory from "@/app/(user)/shopping-lists/[id]/components/shopping-list-price-history";
 import ShoppingListInfoTable from "@/app/(user)/shopping-lists/[id]/components/shopping-list-info-table";
+import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
 import { useShoppingListData } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-data";
 
 interface ShoppingListDetailClientProps {
@@ -23,6 +24,7 @@ export default function ShoppingListDetailClient({
     shoppingList,
     isLoading,
     error,
+    listUpdatedAt,
     cheapestStores,
     averagePrices,
     storePrices,
@@ -62,6 +64,14 @@ export default function ShoppingListDetailClient({
       {/* Header Section */}
       <section>
         <ShoppingListHeader shoppingList={shoppingList} />
+
+        {listUpdatedAt > 0 && (
+          <LastSyncedLabel
+            updatedAt={listUpdatedAt}
+            prefix="Popis osvježen"
+            className="mt-1 block"
+          />
+        )}
       </section>
 
       {/* Info Display Section */}

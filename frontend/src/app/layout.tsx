@@ -6,8 +6,8 @@ import { AppSidebar } from "@/components/custom/app-sidebar";
 import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/footer";
 import OAuthErrorToast from "@/components/custom/oauth-error-toast";
-import RegisterServiceWorker from "@/components/custom/pwa/register-service-worker";
 import InstallBanner from "@/components/custom/pwa/install-banner";
+import OfflineIndicator from "@/components/custom/offline/offline-indicator";
 import { Providers } from "@/app/providers/providers";
 import { ReactNode, Suspense } from "react";
 import { sairaStencil } from "@/app/fonts";
@@ -92,7 +92,7 @@ export default function RootLayout({
         className={`${sairaStencil.variable} antialiased bg-zinc-50 relative`}
       >
         <Providers>
-          <RegisterServiceWorker />
+          <OfflineIndicator />
           <InstallBanner />
 
           <Suspense fallback={null}>

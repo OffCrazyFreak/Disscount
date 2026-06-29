@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
     "types": [
-      "node"
+      "node",
+      "@serwist/next/typings"
     ],
     "target": "ES2017",
     "lib": [
       "dom",
       "dom.iterable",
-      "esnext"
+      "esnext",
+      "webworker"
     ],
     "allowJs": true,
     "skipLibCheck": true,
@@ -43,6 +45,7 @@
     "dist",
     "build",
     ".git",
-    ".next"
+    ".next",
+    "public/sw.js"
   ]
 }
