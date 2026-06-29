@@ -67,3 +67,5 @@ frontend/yarn.lock
 *.orig
 
 desktop.ini
+
+docs/disscount_*
