@@ -36,14 +36,31 @@ function detectIOS(): boolean {
   return isIPhoneLike || isIPadOS;
 }
 
+// On iOS only Safari can add to the home screen. Third-party iOS browsers
+// (Chrome/Firefox/Edge/Opera, the Google app) and in-app webviews
+// (Instagram, Facebook, ...) use WebKit but can't, so we treat them as
+// unsupported.
+function detectIOSSafari(): boolean {
+  if (!detectIOS()) return false;
+
+  const ua = window.navigator.userAgent;
+  const isOtheriOSBrowser = /CriOS|FxiOS|EdgiOS|OPiOS|GSA/i.test(ua);
+  const isInAppBrowser =
+    /FBAN|FBAV|FB_IAB|Instagram|Line|Twitter|TikTok|Snapchat/i.test(ua);
+
+  return !isOtheriOSBrowser && !isInAppBrowser;
+}
+
 export function useInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
+  const [isIOSSafari, setIsIOSSafari] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
     setIsIOS(detectIOS());
+    setIsIOSSafari(detectIOSSafari());
     setIsStandalone(detectStandalone());
 
     function handleBeforeInstallPrompt(event: Event) {
@@ -78,11 +95,11 @@ export function useInstallPrompt() {
     setDeferredPrompt(null);
   }
 
-  // Show install affordances whenever the app isn't already installed. When a
-  // native prompt was captured we trigger it directly; otherwise the UI falls
-  // back to manual platform instructions (iOS Safari, or the browser menu).
+  // Only surface install UI when installation can actually work: either a
+  // native prompt was captured (Chromium), or it's iOS Safari (manual add to
+  // home screen). Unsupported browsers get nothing. Hidden once installed.
   const canInstall = deferredPrompt !== null;
-  const canShowInstallUI = !isStandalone;
+  const canShowInstallUI = !isStandalone && (canInstall || isIOSSafari);
 
   return { canInstall, canShowInstallUI, isIOS, isStandalone, promptInstall };
 }

@@ -67,15 +67,15 @@ export default function InstallInstructionsSheet({
           text: (
             <>
               Odaberi <Download className="inline size-5 text-primary" />{" "}
-              <span className="font-medium">Instaliraj aplikaciju</span> (ili{" "}
-              <span className="font-medium">Dodaj na početni zaslon</span>).
+              <span className="font-medium">Dodaj na početni zaslon</span> (ili{" "}
+              <span className="font-medium">Instaliraj aplikaciju</span>).
             </>
           ),
         },
         {
           text: (
             <>
-              Potvrdi s <span className="font-medium">Instaliraj</span>.
+              Potvrdi odabir.
             </>
           ),
         },
@@ -85,9 +85,9 @@ export default function InstallInstructionsSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="rounded-t-2xl">
         <SheetHeader>
-          <SheetTitle>Instaliraj Disscount</SheetTitle>
+          <SheetTitle>Dodaj na početni zaslon</SheetTitle>
           <SheetDescription>
-            Dodaj aplikaciju na početni zaslon u nekoliko koraka.
+            Dodaj Disscount na početni zaslon u nekoliko koraka.
           </SheetDescription>
         </SheetHeader>
 

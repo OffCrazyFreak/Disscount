@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Download } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useInstallPrompt } from "./use-install-prompt";
 import InstallInstructionsSheet from "./install-instructions-sheet";
 
-// Persistent install banner pinned to the bottom of the sidebar. Stays visible
-// while the app isn't installed; uses the native prompt when available and
-// otherwise opens manual instructions.
+// Persistent banner pinned to the bottom of the sidebar. Stays visible while
+// the app isn't installed (on browsers that support it); uses the native
+// prompt when available and otherwise opens manual instructions.
 export default function InstallSidebarBanner() {
   const { canShowInstallUI, canInstall, isIOS, promptInstall } =
     useInstallPrompt();
@@ -29,27 +29,24 @@ export default function InstallSidebarBanner() {
 
   return (
     <>
-      <div className="flex items-center gap-3 rounded-lg border bg-card p-3">
-        <Image
-          src="/icons/icon-192.png"
-          alt="Disscount"
-          width={40}
-          height={40}
-          className="size-10 shrink-0 rounded-lg"
-        />
+      <div className="flex flex-col gap-3 rounded-lg border bg-card p-3">
+        <div className="flex items-center gap-3">
+          <Image
+            src="/icons/icon-192.png"
+            alt="Disscount"
+            width={40}
+            height={40}
+            className="size-10 shrink-0 rounded-lg"
+          />
 
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium leading-tight">
-            Instaliraj aplikaciju
-          </p>
-          <p className="text-xs leading-tight text-muted-foreground">
-            Brži pristup s početnog zaslona.
+          <p className="min-w-0 flex-1 text-sm leading-tight text-muted-foreground">
+            Dodaj Disscount na početni zaslon za brži pristup.
           </p>
         </div>
 
-        <Button size="sm" onClick={handleInstall}>
-          <Download className="size-4" />
-          Instaliraj
+        <Button size="sm" className="w-full" onClick={handleInstall}>
+          <Plus className="size-4" />
+          Dodaj na početni zaslon
         </Button>
       </div>
 
