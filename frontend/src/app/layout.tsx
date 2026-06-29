@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
 
@@ -6,15 +6,37 @@ import { AppSidebar } from "@/components/custom/app-sidebar";
 import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/footer";
 import OAuthErrorToast from "@/components/custom/oauth-error-toast";
+import InstallBanner from "@/components/custom/pwa/install-banner";
+import OfflineIndicator from "@/components/custom/offline/offline-indicator";
 import { Providers } from "@/app/providers/providers";
 import { ReactNode, Suspense } from "react";
 import { sairaStencil } from "@/app/fonts";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://OffCrazyFreak.github.io/Disscount"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+  ),
   title: {
     default: "Disscount - Pronađi najbolje cijene u Hrvatskoj",
     template: "Disscount - %s",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Disscount",
+  },
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      {
+        url: "/icons/apple-touch-icon-180.png",
+        sizes: "180x180",
+        type: "image/png",
+      },
+    ],
   },
   creator: "Jakov Jakovac",
   keywords: [
@@ -47,6 +69,10 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#2ec50d",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -66,6 +92,9 @@ export default function RootLayout({
         className={`${sairaStencil.variable} antialiased bg-zinc-50 relative`}
       >
         <Providers>
+          <OfflineIndicator />
+          <InstallBanner />
+
           <Suspense fallback={null}>
             <OAuthErrorToast />
           </Suspense>
