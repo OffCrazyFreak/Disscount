@@ -1,9 +1,13 @@
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
-import { defaultShouldDehydrateQuery } from "@tanstack/react-query";
+import {
+  defaultShouldDehydrateMutation,
+  defaultShouldDehydrateQuery,
+} from "@tanstack/react-query";
 import type { PersistQueryClientOptions } from "@tanstack/react-query-persist-client";
 import { get, set, del } from "idb-keyval";
 
 import { shouldPersistQuery } from "./cached-query-keys";
+import { shouldPersistMutation } from "./offline-mutation-keys";
 
 const IDB_CACHE_KEY = "disscount-react-query-cache";
 
@@ -34,5 +38,10 @@ export const persistOptions: Omit<PersistQueryClientOptions, "queryClient"> = {
     // Persist only successful queries that are on the offline whitelist.
     shouldDehydrateQuery: (query) =>
       defaultShouldDehydrateQuery(query) && shouldPersistQuery(query.queryKey),
+    // Persist only paused (offline) mutations on the offline allowlist, so they
+    // can be replayed on reconnect.
+    shouldDehydrateMutation: (mutation) =>
+      defaultShouldDehydrateMutation(mutation) &&
+      shouldPersistMutation(mutation),
   },
 };

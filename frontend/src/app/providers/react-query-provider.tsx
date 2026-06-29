@@ -9,6 +9,7 @@ import {
   persistOptions,
   OFFLINE_CACHE_MAX_AGE_MS,
 } from "@/lib/offline/persister";
+import { registerOfflineMutationDefaults } from "@/lib/offline/offline-mutations";
 
 export function ReactQueryProviderWrapper({
   children,
@@ -16,23 +17,31 @@ export function ReactQueryProviderWrapper({
   children: ReactNode;
 }) {
   // keep QueryClient stable across re-renders
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            // gcTime must be >= the persister's maxAge, otherwise entries are
-            // evicted from memory before they can be restored from disk.
-            gcTime: OFFLINE_CACHE_MAX_AGE_MS,
-          },
+  const [queryClient] = useState(() => {
+    const client = new QueryClient({
+      defaultOptions: {
+        queries: {
+          // gcTime must be >= the persister's maxAge, otherwise entries are
+          // evicted from memory before they can be restored from disk.
+          gcTime: OFFLINE_CACHE_MAX_AGE_MS,
         },
-      }),
-  );
+      },
+    });
+
+    // Register replay functions so offline writes restored from disk can resume.
+    registerOfflineMutationDefaults(client);
+
+    return client;
+  });
 
   return (
     <PersistQueryClientProvider
       client={queryClient}
       persistOptions={persistOptions}
+      // Once the cache is restored, replay any writes that were queued offline.
+      onSuccess={() => {
+        queryClient.resumePausedMutations();
+      }}
     >
       {children}
       <ReactQueryDevtools />
