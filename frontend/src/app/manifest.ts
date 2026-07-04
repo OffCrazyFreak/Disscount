@@ -1,9 +1,14 @@
 import type { MetadataRoute } from "next";
 import { userNavItems } from "@/constants/navigation";
 
+// `launch_handler` isn't in Next's manifest type yet, so extend it here.
+type WebAppManifest = MetadataRoute.Manifest & {
+  launch_handler?: { client_mode?: string | string[] };
+};
+
 // Web App Manifest (served at /manifest.webmanifest). Next.js injects the
 // <link rel="manifest"> automatically when this file exists.
-export default function manifest(): MetadataRoute.Manifest {
+export default function manifest(): WebAppManifest {
   // App shortcuts (long-press the installed icon) mirror the live user nav
   // items, skipping ones that aren't released yet so the list stays accurate.
   const shortcuts = userNavItems
@@ -27,7 +32,7 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "hr",
     dir: "ltr",
     background_color: "#fafafa",
-    theme_color: "#2ec50d",
+    theme_color: "#ffffff",
     categories: ["shopping", "lifestyle"],
     icons: [
       {
@@ -49,6 +54,24 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "maskable",
       },
     ],
+    // Shown in the browser's richer (app-store-like) install dialog.
+    screenshots: [
+      {
+        src: "/screenshots/screenshot-narrow.png",
+        sizes: "1080x1920",
+        type: "image/png",
+        form_factor: "narrow",
+      },
+      {
+        src: "/screenshots/screenshot-wide.png",
+        sizes: "1920x1080",
+        type: "image/png",
+        form_factor: "wide",
+      },
+    ],
     shortcuts,
+    // Reuse an already-open window instead of spawning a new one when launched
+    // from a shortcut or notification.
+    launch_handler: { client_mode: "focus-existing" },
   };
 }
