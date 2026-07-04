@@ -1,4 +1,4 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { onlineManager, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { shoppingListService } from "@/lib/api";
 import type { ShoppingListDto, ShoppingListRequest } from "@/lib/api/types";
@@ -25,6 +25,11 @@ export function useShoppingListModal({
   const updateMutation = shoppingListService.useUpdateShoppingList();
 
   function onSubmit(data: ShoppingListRequest) {
+    // Offline, the mutation is paused and replays on reconnect, so its
+    // onSuccess (which closes the modal) won't run for a while. Close the modal
+    // now and tell the user instead of leaving the submit button spinning.
+    const isOffline = !onlineManager.isOnline();
+
     if (shoppingList) {
       updateMutation.mutate(
         { id: shoppingList.id, data },
@@ -66,6 +71,14 @@ export function useShoppingListModal({
           });
         },
       });
+    }
+
+    if (isOffline) {
+      toast.info(
+        "Izvan ste mreže — promjena će se sinkronizirati kad se vratite na mrežu.",
+      );
+      onOpenChange(false);
+      if (!shoppingList) reset();
     }
   }
 

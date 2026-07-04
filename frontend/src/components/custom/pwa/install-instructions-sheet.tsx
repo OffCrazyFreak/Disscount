@@ -1,0 +1,107 @@
+"use client";
+
+import { ReactNode } from "react";
+import { SquareArrowUp, Plus, EllipsisVertical, Download } from "lucide-react";
+
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
+
+interface InstallInstructionsSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  isIOS: boolean;
+}
+
+interface Step {
+  text: ReactNode;
+}
+
+// Manual install steps for browsers without a usable install-prompt API:
+// iOS Safari uses Share -> Add to Home Screen; other browsers use their menu.
+export default function InstallInstructionsSheet({
+  open,
+  onOpenChange,
+  isIOS,
+}: InstallInstructionsSheetProps) {
+  const steps: Step[] = isIOS
+    ? [
+        {
+          text: (
+            <>
+              Dodirni gumb <SquareArrowUp className="inline size-5 text-primary" />{" "}
+              <span className="font-medium">Podijeli</span> u Safariju.
+            </>
+          ),
+        },
+        {
+          text: (
+            <>
+              Odaberi <Plus className="inline size-5 text-primary" />{" "}
+              <span className="font-medium">Dodaj na početni zaslon</span>.
+            </>
+          ),
+        },
+        {
+          text: (
+            <>
+              Potvrdi s <span className="font-medium">Dodaj</span>.
+            </>
+          ),
+        },
+      ]
+    : [
+        {
+          text: (
+            <>
+              Otvori izbornik preglednika{" "}
+              <EllipsisVertical className="inline size-5 text-primary" />.
+            </>
+          ),
+        },
+        {
+          text: (
+            <>
+              Odaberi <Download className="inline size-5 text-primary" />{" "}
+              <span className="font-medium">Dodaj na početni zaslon</span> (ili{" "}
+              <span className="font-medium">Instaliraj aplikaciju</span>).
+            </>
+          ),
+        },
+        {
+          text: (
+            <>
+              Potvrdi odabir.
+            </>
+          ),
+        },
+      ];
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="bottom" className="rounded-t-2xl">
+        <SheetHeader>
+          <SheetTitle>Dodaj na početni zaslon</SheetTitle>
+          <SheetDescription>
+            Dodaj Disscount na početni zaslon u nekoliko koraka.
+          </SheetDescription>
+        </SheetHeader>
+
+        <ol className="flex flex-col gap-4 px-4 pb-8">
+          {steps.map((step, index) => (
+            <li key={index} className="flex items-center gap-3">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
+                {index + 1}
+              </span>
+              <span>{step.text}</span>
+            </li>
+          ))}
+        </ol>
+      </SheetContent>
+    </Sheet>
+  );
+}

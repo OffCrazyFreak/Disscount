@@ -8,6 +8,7 @@ import { StoreItem } from "@/app/products/[id]/components/store-item/store-item"
 import { useUser } from "@/context/user-context";
 import PriceHistory from "@/app/products/[id]/components/price-history/price-history-base";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
+import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
 import {
   Collapsible,
   CollapsibleContent,
@@ -52,6 +53,7 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
     data: pricesData,
     isLoading: pricesLoading,
     error: pricesError,
+    dataUpdatedAt: pricesUpdatedAt,
   } = cijeneService.useGetPrices({
     eans: ean,
   });
@@ -136,6 +138,14 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
           </CollapsibleTrigger>
 
           <CollapsibleContent>
+            {pricesUpdatedAt > 0 && (
+              <LastSyncedLabel
+                updatedAt={pricesUpdatedAt}
+                prefix="Cijene osvježene"
+                className="mb-3 block"
+              />
+            )}
+
             {pricesLoading ? (
               <div className="grid place-items-center">
                 <BlockLoadingSpinner />

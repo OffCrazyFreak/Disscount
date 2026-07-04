@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import apiClient from "../api-base";
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 import {
   ShoppingListRequest,
   ShoppingListDto,
@@ -119,6 +120,7 @@ export async function getAllUserShoppingListItems(): Promise<
 // React Query hooks
 export const useCreateShoppingList = () => {
   return useMutation<ShoppingListDto, Error, ShoppingListRequest>({
+    mutationKey: OFFLINE_MUTATION_KEYS.shoppingListCreate,
     mutationFn: createShoppingList,
   });
 };
@@ -145,12 +147,14 @@ export const useUpdateShoppingList = () => {
     Error,
     { id: string; data: ShoppingListRequest }
   >({
+    mutationKey: OFFLINE_MUTATION_KEYS.shoppingListUpdate,
     mutationFn: ({ id, data }) => updateShoppingList(id, data),
   });
 };
 
 export const useDeleteShoppingList = () => {
   return useMutation<void, Error, string>({
+    mutationKey: OFFLINE_MUTATION_KEYS.shoppingListDelete,
     mutationFn: deleteShoppingList,
   });
 };
@@ -161,6 +165,7 @@ export const useAddItemToShoppingList = () => {
     Error,
     { listId: string; data: ShoppingListItemRequest }
   >({
+    mutationKey: OFFLINE_MUTATION_KEYS.shoppingListItemAdd,
     mutationFn: ({ listId, data }) => addItemToShoppingList(listId, data),
   });
 };
@@ -171,6 +176,7 @@ export const useUpdateShoppingListItem = () => {
     Error,
     { listId: string; itemId: string; data: ShoppingListItemRequest }
   >({
+    mutationKey: OFFLINE_MUTATION_KEYS.shoppingListItemUpdate,
     mutationFn: ({ listId, itemId, data }) =>
       updateShoppingListItem(listId, itemId, data),
   });
@@ -178,6 +184,7 @@ export const useUpdateShoppingListItem = () => {
 
 export const useDeleteShoppingListItem = () => {
   return useMutation<void, Error, { listId: string; itemId: string }>({
+    mutationKey: OFFLINE_MUTATION_KEYS.shoppingListItemDelete,
     mutationFn: ({ listId, itemId }) => deleteShoppingListItem(listId, itemId),
   });
 };
