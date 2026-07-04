@@ -1,7 +1,10 @@
 import ActionEmail from "./components/action-email";
+import { getEmailTranslator } from "@/emails/email-translator";
+import { defaultLocale, type Locale } from "@/i18n/config";
 
 interface ISetPasswordEmailProps {
   setPasswordUrl: string;
+  locale?: Locale;
 }
 
 // Sent when someone registers with an email that already has an OAuth-only account
@@ -9,15 +12,20 @@ interface ISetPasswordEmailProps {
 // "reset", since they are adding email/password login for the first time.
 export default function SetPasswordEmail({
   setPasswordUrl,
+  locale = defaultLocale,
 }: ISetPasswordEmailProps) {
+  const t = getEmailTranslator(locale);
+
   return (
     <ActionEmail
-      preview="Postavi lozinku za svoj Disscount račun"
-      heading="Postavi lozinku za svoj račun"
-      intro="Za ovu email adresu već postoji Disscount račun (prijava putem Googlea ili Facebooka). Klikni na gumb ispod kako bi postavio/la lozinku i ubuduće se mogao/la prijaviti i emailom. Poveznica vrijedi ograničeno vrijeme."
-      buttonLabel="Postavi lozinku"
+      t={t}
+      locale={locale}
+      preview={t("setPassword.preview")}
+      heading={t("setPassword.heading")}
+      intro={t("setPassword.intro")}
+      buttonLabel={t("setPassword.button")}
       buttonUrl={setPasswordUrl}
-      footnote="Ako nisi ti zatražio/la ovo, zanemari ovaj email — tvoj račun ostaje nepromijenjen."
+      footnote={t("setPassword.footnote")}
     />
   );
 }

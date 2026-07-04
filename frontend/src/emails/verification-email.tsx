@@ -1,20 +1,28 @@
 import ActionEmail from "./components/action-email";
+import { getEmailTranslator } from "@/emails/email-translator";
+import { defaultLocale, type Locale } from "@/i18n/config";
 
 interface IVerificationEmailProps {
   verificationUrl: string;
+  locale?: Locale;
 }
 
 export default function VerificationEmail({
   verificationUrl,
+  locale = defaultLocale,
 }: IVerificationEmailProps) {
+  const t = getEmailTranslator(locale);
+
   return (
     <ActionEmail
-      preview="Potvrdi svoju email adresu za Disscount"
-      heading="Potvrdi svoju email adresu"
-      intro="Hvala na registraciji! Klikni na gumb ispod kako bi potvrdio/la svoju email adresu i aktivirao/la svoj Disscount račun."
-      buttonLabel="Potvrdi email"
+      t={t}
+      locale={locale}
+      preview={t("verify.preview")}
+      heading={t("verify.heading")}
+      intro={t("verify.intro")}
+      buttonLabel={t("verify.button")}
       buttonUrl={verificationUrl}
-      footnote="Ako nisi ti zatražio/la ovaj račun, slobodno zanemari ovaj email."
+      footnote={t("verify.footnote")}
     />
   );
 }

@@ -3,12 +3,16 @@ import VerificationEmail from "@/emails/verification-email";
 import PasswordResetEmail from "@/emails/password-reset-email";
 import SetPasswordEmail from "@/emails/set-password-email";
 import ChangeEmailConfirmation from "@/emails/change-email-confirmation";
+import { getEmailTranslator } from "@/emails/email-translator";
+import type { Locale } from "@/i18n/config";
 
 interface TokenEmailArgs {
   to: string;
   url: string;
   // Used to build an idempotency key so a retried hook doesn't send a duplicate.
   token: string;
+  // Recipient's locale, resolved by the caller (getRequestLocale).
+  locale: Locale;
 }
 
 interface ChangeEmailArgs extends TokenEmailArgs {
@@ -20,39 +24,49 @@ interface ChangeEmailArgs extends TokenEmailArgs {
 export class EmailService {
   constructor(private readonly provider: EmailProvider) {}
 
-  sendVerificationEmail({ to, url, token }: TokenEmailArgs) {
+  sendVerificationEmail({ to, url, token, locale }: TokenEmailArgs) {
+    const t = getEmailTranslator(locale);
     return this.provider.send({
       to,
-      subject: "Potvrdi svoju email adresu",
-      react: VerificationEmail({ verificationUrl: url }),
+      subject: t("verify.subject"),
+      react: VerificationEmail({ verificationUrl: url, locale }),
       idempotencyKey: `verify-email/${token}`,
     });
   }
 
-  sendPasswordReset({ to, url, token }: TokenEmailArgs) {
+  sendPasswordReset({ to, url, token, locale }: TokenEmailArgs) {
+    const t = getEmailTranslator(locale);
     return this.provider.send({
       to,
-      subject: "Ponovno postavljanje lozinke",
-      react: PasswordResetEmail({ resetUrl: url }),
+      subject: t("reset.subject"),
+      react: PasswordResetEmail({ resetUrl: url, locale }),
       idempotencyKey: `reset-password/${token}`,
     });
   }
 
   // Same underlying reset token, different wording: for OAuth-only accounts adding a password.
-  sendSetPassword({ to, url, token }: TokenEmailArgs) {
+  sendSetPassword({ to, url, token, locale }: TokenEmailArgs) {
+    const t = getEmailTranslator(locale);
     return this.provider.send({
       to,
-      subject: "Postavi lozinku za svoj račun",
-      react: SetPasswordEmail({ setPasswordUrl: url }),
+      subject: t("setPassword.subject"),
+      react: SetPasswordEmail({ setPasswordUrl: url, locale }),
       idempotencyKey: `set-password/${token}`,
     });
   }
 
-  sendChangeEmailConfirmation({ to, url, token, newEmail }: ChangeEmailArgs) {
+  sendChangeEmailConfirmation({
+    to,
+    url,
+    token,
+    newEmail,
+    locale,
+  }: ChangeEmailArgs) {
+    const t = getEmailTranslator(locale);
     return this.provider.send({
       to,
-      subject: "Potvrdi promjenu email adrese",
-      react: ChangeEmailConfirmation({ confirmUrl: url, newEmail }),
+      subject: t("changeEmail.subject"),
+      react: ChangeEmailConfirmation({ confirmUrl: url, newEmail, locale }),
       idempotencyKey: `change-email/${token}`,
     });
   }
