@@ -88,7 +88,7 @@ flowchart TB
 Two caches, on purpose:
 
 - **Cache Storage (service worker):** the app shell (HTML/JS/CSS precache), static assets, and **public** `/api/cijene/*` GET responses. Never authenticated responses.
-- **IndexedDB (React Query):** the dynamic and **private** data (shopping lists, watchlist, viewed products, recent searches, profile). This is what makes authed screens work offline, and it is purged on logout.
+- **IndexedDB (React Query):** the dynamic and **private** data (shopping lists, watchlist, viewed products, recent searches, profile). This is what makes authed screens work offline, and it is purged whenever the session ends (logout, expiry, revoked cookie, or sign-out in another tab).
 
 Everything is same-origin: the browser calls `/api/cijene/*` (Next.js route handlers to the external Cijene API) and `/api/*` (Next.js `rewrites()` proxy to the Spring backend), so the service worker can see and selectively cache them.
 
@@ -173,7 +173,7 @@ flowchart LR
 - `react-query-provider.tsx` uses `PersistQueryClientProvider`. The `QueryClient` sets a default `gcTime` equal to the persister `maxAge` (7 days), so entries are not garbage-collected out of memory before they can be restored from disk.
 - `persister.ts` builds a `createAsyncStoragePersister` backed by `idb-keyval` (IndexedDB, larger and safer than localStorage). `maxAge` 7 days, `buster` `"1"` (bump to invalidate all persisted caches after a breaking data-shape change).
 - `cached-query-keys.ts` is the **whitelist**: only queries whose top-level key is in `cijene`, `shoppingLists`, `shoppingListItems`, `watchlist`, `digitalCards`, `pinnedStores`, `pinnedPlaces`, or `users` are persisted, and only when successful. Everything else (for example admin data) is never written to disk. Coming-soon features carry `TODO(offline)` markers here to be added when they ship.
-- `purge.ts` (`purgeOfflineCache`) clears both the in-memory and IndexedDB caches. It is called from `user-context.tsx` inside `handleLogout` so authed data never lingers on a shared device.
+- `purge.ts` (`purgeOfflineCache`) clears both the in-memory and IndexedDB caches, guarded so a failed IndexedDB clear never blocks logout. `user-context.tsx` calls it on **any transition to unauthenticated** (explicit logout, session expiry, revoked cookie, or sign-out in another tab), not just explicit logout, so a previous user's data and queued writes never linger on a shared device.
 
 ### 5c. Offline UX
 
@@ -341,7 +341,8 @@ Read from `frontend/package.json`.
 | **Stale SW 404s `/sw.js` in dev** | A service worker registered during earlier production testing keeps re-checking `/sw.js`, which 404s in dev. Harmless; unregister it in DevTools, Application, Service Workers. |
 | **Persisted paused mutations need defaults** | Persisting a paused mutation without a matching `setMutationDefaults` means it cannot be replayed after a reload. That is why `offline-mutations.ts` + `resumePausedMutations()` exist, and why the persister only dehydrates allowlisted mutations. |
 | **`gcTime` must be >= `maxAge`** | Otherwise React Query evicts an entry from memory before it can be restored from disk. Both are 7 days. |
-| **Authed data must not hit Cache Storage** | The service worker uses `NetworkOnly` for `/api/*` (non-cijene). Private data lives only in IndexedDB, which is purged on logout. |
+| **Authed data must not hit Cache Storage** | The service worker uses `NetworkOnly` for `/api/*` (non-cijene). Private data lives only in IndexedDB, which is purged on any transition to unauthenticated (logout, expiry, revoked cookie, other-tab sign-out), not just explicit logout. |
+| **Auth-loss purge also clears the public cache** | `purgeOfflineCache` wipes the whole React Query IndexedDB cache, including public product data, so an anonymous user's cache does not survive a full reload. In production the Serwist SW still serves `/api/cijene` GETs from Cache Storage, so public offline browsing keeps working. |
 | **iOS splash must be server-rendered** | The `apple-touch-startup-image` links must be in the initial HTML `<head>` (iOS reads them at launch). They are rendered through the provider tree so React hoists them during SSR, not injected client-side. |
 | **`@tanstack` persist version pin** | Pinned to `5.101.1` to match `react-query`; a mismatch causes duplicate `query-core` and `tsc` errors. |
 | **Watchlist add/remove is not optimistic offline** | The write queues correctly but the UI does not reflect it until it syncs. A future optimistic-toggle improvement. |
