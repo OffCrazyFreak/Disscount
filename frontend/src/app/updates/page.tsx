@@ -1,11 +1,16 @@
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import UpdatesClient from "@/app/updates/components/updates-client";
 
-export const metadata: Metadata = {
-  title: "Novosti",
-  description: "Najnovije objave i novosti o Disscountu.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("pages.updates");
+
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
 
 interface IPageProps {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;

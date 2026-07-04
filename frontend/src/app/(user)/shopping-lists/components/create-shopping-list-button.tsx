@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { FloatingActionButton } from "@/components/custom/floating-action-button";
 
@@ -11,7 +12,8 @@ interface CreateShoppingListButtonProps {
 export default function CreateShoppingListButton({
   onCreateClick,
 }: CreateShoppingListButtonProps) {
-  const buttonText = "Stvori popis za kupnju";
+  const t = useTranslations("pages.shoppingLists");
+  const buttonText = t("create");
 
   return (
     <>

@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { Search, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useViewMode } from "@/hooks/use-view-mode";
 import NoResults from "@/components/custom/no-results";
 import useInfiniteProducts from "@/app/products/hooks/useInfiniteProducts";
@@ -15,6 +16,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 
 export default function ProductsClient({ query }: { query: string }) {
+  const t = useTranslations("pages.products");
   const isMobile = useIsMobile();
   const pathname = usePathname();
   const [viewMode, setViewMode] = useViewMode(pathname);
@@ -26,7 +28,7 @@ export default function ProductsClient({ query }: { query: string }) {
     <div className="space-y-4">
       <Suspense fallback={<SearchBarSkeleton />}>
         <SearchBar
-          placeholder="Pretraži proizvode..."
+          placeholder={t("searchPlaceholder")}
           searchRoute={pathname}
           clearable={true}
           allowScanning={true}
@@ -36,9 +38,10 @@ export default function ProductsClient({ query }: { query: string }) {
       <div className="flex items-center justify-between gap-4">
         <h3>
           {query.length > 0 &&
-            `Rezultati pretrage za "${query}"${
-              isLoading ? "" : ` (${total}${total >= 100 ? "+" : ""})`
-            }`}
+            t("searchResults", {
+              query,
+              count: isLoading ? "" : ` (${total}${total >= 100 ? "+" : ""})`,
+            })}
         </h3>
 
         {/* <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} /> */}
@@ -52,11 +55,9 @@ export default function ProductsClient({ query }: { query: string }) {
         <div className="text-center py-12">
           <Search className="size-12 text-red-700 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Greška pri pretraživanju
+            {t("errorTitle")}
           </h3>
-          <p className="text-gray-600 mb-6">
-            Došlo je do greške pri dohvaćanju podataka. Pokušajte ponovo.
-          </p>
+          <p className="text-gray-600 mb-6">{t("errorDescription")}</p>
         </div>
       ) : query && total === 0 ? (
         <NoResults
@@ -104,11 +105,9 @@ export default function ProductsClient({ query }: { query: string }) {
         <div className="text-center py-12">
           <Search className="size-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Počnite pretraživanje
+            {t("startTitle")}
           </h3>
-          <p className="text-gray-600 mb-6">
-            Unesite naziv proizvoda koji tražite
-          </p>
+          <p className="text-gray-600 mb-6">{t("startDescription")}</p>
         </div>
       )}
     </div>

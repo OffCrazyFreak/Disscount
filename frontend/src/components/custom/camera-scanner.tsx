@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +23,7 @@ export default function CameraScanner({
   onClose,
   onScan,
 }: ICodeScannerProps) {
+  const t = useTranslations("scanner");
   const [error, setError] = useState<string | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [videoTrack, setVideoTrack] = useState<MediaStreamTrack | null>(null);
@@ -52,11 +54,9 @@ export default function CameraScanner({
       setError(null);
     } catch {
       setHasPermission(false);
-      setError(
-        "Potreban je pristup kameri za skeniranje. Molimo omogućite pristup kameri u postavkama preglednika.",
-      );
+      setError(t("permissionError"));
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (isOpen) {
@@ -96,8 +96,8 @@ export default function CameraScanner({
   );
 
   const handleError = useCallback(() => {
-    setError("Greška pri skeniranju. Molimo pokušajte ponovno.");
-  }, []);
+    setError(t("scanError"));
+  }, [t]);
 
   function handleClose() {
     setError(null);
@@ -119,7 +119,7 @@ export default function CameraScanner({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ScanBarcode className="size-6" />
-            <span>Skeniraj kod</span>
+            <span>{t("title")}</span>
           </DialogTitle>
         </DialogHeader>
 
@@ -137,7 +137,7 @@ export default function CameraScanner({
             <div className="relative w-full rounded-lg border border-blue-200 bg-blue-50 p-4 text-blue-800">
               <div className="flex items-start gap-3">
                 <TriangleAlert className="h-4 w-4 mt-0.5" />
-                <div className="text-sm">Provjeravam pristup kameri...</div>
+                <div className="text-sm">{t("checking")}</div>
               </div>
             </div>
           )}
@@ -179,7 +179,7 @@ export default function CameraScanner({
                 {/* Instructions */}
                 <div className="absolute bottom-4 left-4 right-4">
                   <div className="bg-black bg-opacity-70 text-white text-sm px-3 py-2 rounded text-center">
-                    Usmjeri kameru prema kodu
+                    {t("instruction")}
                   </div>
                 </div>
               </div>

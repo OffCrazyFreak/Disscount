@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CloudUpload, X, Save } from "lucide-react";
 import { toast } from "sonner";
 import { isAxiosError } from "axios";
+import { useTranslations } from "next-intl";
 import { UserAvatar } from "@daveyplate/better-auth-ui";
 
 import {
@@ -39,6 +40,7 @@ import {
   userRequestSchema,
   UserRequest,
   ACQUISITION_CHANNEL_LABELS,
+  AcquisitionChannel,
 } from "@/lib/api/schemas/auth-user";
 import { userService } from "@/lib/api";
 import { fileToBase64 } from "@/utils/browser/file";
@@ -56,6 +58,9 @@ export default function ProfileModal({
   onOpenChange,
 }: IProfileModalProps) {
   const { user, isLoading: isUserLoading, setUser } = useUser();
+  const t = useTranslations("settings.profile");
+  const tCommon = useTranslations("common");
+  const tChannels = useTranslations("acquisitionChannels");
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarTouched, setAvatarTouched] = useState(false);
@@ -94,7 +99,7 @@ export default function ProfileModal({
     if (!file) return;
 
     if (file.size > MAX_AVATAR_BYTES) {
-      toast.error("Slika je prevelika. Maksimalna veličina je 1 MB.");
+      toast.error(t("avatarTooLarge"));
       return;
     }
 
@@ -103,7 +108,7 @@ export default function ProfileModal({
       setAvatarPreview(base64);
       setAvatarTouched(true);
     } catch {
-      toast.error("Greška pri učitavanju slike.");
+      toast.error(t("avatarError"));
     }
   }
 
@@ -127,7 +132,7 @@ export default function ProfileModal({
       },
       {
         onSuccess: (updatedUser) => {
-          toast.success("Profil uspješno spremljen!");
+          toast.success(t("saveSuccess"));
           setUser(updatedUser);
           onOpenChange(false);
         },
@@ -147,10 +152,10 @@ export default function ProfileModal({
           if (status >= 400 && status < 500) {
             form.setError("root", {
               type: "server",
-              message: serverMessage || "Provjeri unesene podatke.",
+              message: serverMessage || t("checkInput"),
             });
           } else {
-            toast.error(serverMessage || "Greška pri spremanju profila");
+            toast.error(serverMessage || t("saveError"));
           }
         },
       }
@@ -163,7 +168,7 @@ export default function ProfileModal({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-xl">Profil</DialogTitle>
+          <DialogTitle className="text-xl">{t("title")}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -183,18 +188,18 @@ export default function ProfileModal({
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Korisničko ime</FormLabel>
+                  <FormLabel>{t("usernameLabel")}</FormLabel>
                   <FormControl>
                     <Input {...field} value={field.value || ""} />
                   </FormControl>
-                  <FormDescription>Kako ćemo te zvati?</FormDescription>
+                  <FormDescription>{t("usernameHint")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
             <div className="space-y-3">
-              <Label>Avatar (opcionalno)</Label>
+              <Label>{t("avatarLabel")}</Label>
 
               <div className="flex items-center gap-4">
                 <UserAvatar
@@ -220,7 +225,7 @@ export default function ProfileModal({
                     className="inline-flex items-center gap-2 px-3 py-2 text-sm border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
                   >
                     <CloudUpload className="w-4 h-4" />
-                    Učitaj sliku
+                    {t("uploadImage")}
                   </label>
 
                   {avatarPreview && (
@@ -232,13 +237,13 @@ export default function ProfileModal({
                       onClick={removeAvatar}
                     >
                       <X className="w-4 h-4" />
-                      Ukloni
+                      {t("remove")}
                     </Button>
                   )}
                 </div>
               </div>
 
-              <p className="text-xs text-gray-500">PNG, JPG ili GIF (do 1 MB).</p>
+              <p className="text-xs text-gray-500">{t("avatarHint")}</p>
             </div>
 
             <FormField
@@ -247,11 +252,8 @@ export default function ProfileModal({
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel>Dopusti obavijesti aplikacije</FormLabel>
-                    <FormDescription>
-                      Na mobilnu aplikaciju ćeš dobiti obavijesti za akcije o
-                      proizvodima koje odabereš.
-                    </FormDescription>
+                    <FormLabel>{t("pushLabel")}</FormLabel>
+                    <FormDescription>{t("pushHint")}</FormDescription>
                   </div>
                   <FormControl>
                     <Switch
@@ -269,11 +271,8 @@ export default function ProfileModal({
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel>Dopusti email obavijesti</FormLabel>
-                    <FormDescription>
-                      Na email ćeš dobiti obavijesti za akcije o proizvodima
-                      koje odabereš.
-                    </FormDescription>
+                    <FormLabel>{t("emailLabel")}</FormLabel>
+                    <FormDescription>{t("emailHint")}</FormDescription>
                   </div>
                   <FormControl>
                     <Switch
@@ -291,10 +290,8 @@ export default function ProfileModal({
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel>Novosti i ažuriranja</FormLabel>
-                    <FormDescription>
-                      Povremene novosti o Disscountu na tvoj email.
-                    </FormDescription>
+                    <FormLabel>{t("newsletterLabel")}</FormLabel>
+                    <FormDescription>{t("newsletterHint")}</FormDescription>
                   </div>
                   <FormControl>
                     <Switch
@@ -312,11 +309,8 @@ export default function ProfileModal({
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel>Kontakt za povratne informacije</FormLabel>
-                    <FormDescription>
-                      Dopusti da ti se javimo za povratne informacije o
-                      aplikaciji.
-                    </FormDescription>
+                    <FormLabel>{t("feedbackLabel")}</FormLabel>
+                    <FormDescription>{t("feedbackHint")}</FormDescription>
                   </div>
                   <FormControl>
                     <Switch
@@ -333,29 +327,29 @@ export default function ProfileModal({
               name="acquisitionChannel"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Kako si saznao za Disscount?</FormLabel>
+                  <FormLabel>{t("acquisitionLabel")}</FormLabel>
                   <Select
                     value={field.value ?? undefined}
                     onValueChange={field.onChange}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Odaberi izvor" />
+                        <SelectValue placeholder={t("acquisitionPlaceholder")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {Object.entries(ACQUISITION_CHANNEL_LABELS).map(
-                        ([value, label]) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
-                        )
-                      )}
+                      {(
+                        Object.keys(
+                          ACQUISITION_CHANNEL_LABELS,
+                        ) as AcquisitionChannel[]
+                      ).map((value) => (
+                        <SelectItem key={value} value={value}>
+                          {tChannels(value)}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>
-                    Pomaže nam da znamo gdje te možemo bolje pronaći.
-                  </FormDescription>
+                  <FormDescription>{t("acquisitionHint")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -369,7 +363,7 @@ export default function ProfileModal({
                 onClick={() => onOpenChange(false)}
                 disabled={isLoading}
               >
-                Odustani
+                {tCommon("cancel")}
               </Button>
 
               <Button
@@ -381,12 +375,12 @@ export default function ProfileModal({
                 disabled={isLoading}
                 loading={updateUserMutation.isPending}
               >
-                Spremi
+                {tCommon("save")}
               </Button>
             </div>
 
             <DialogFooter className="text-xs text-gray-500 text-center">
-              Ove podatke možeš kasnije izmijeniti u postavkama računa.
+              {t("footer")}
             </DialogFooter>
           </form>
         </Form>

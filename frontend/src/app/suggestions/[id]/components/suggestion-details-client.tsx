@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArrowLeft, Calendar, MessageSquare } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Card } from "@/components/ui/card";
 import UpvoteButton from "@/app/suggestions/components/upvote-button";
@@ -13,6 +14,8 @@ export default function SuggestionDetailsClient({
 }: {
   suggestion: Suggestion;
 }) {
+  const t = useTranslations("pages.suggestions");
+
   return (
     <div className="space-y-6">
       <Link
@@ -20,7 +23,7 @@ export default function SuggestionDetailsClient({
         className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary"
       >
         <ArrowLeft className="size-4" />
-        Natrag na ideje i prijedloge
+        {t("backToList")}
       </Link>
 
       <Card className="space-y-4 p-6">
@@ -47,7 +50,7 @@ export default function SuggestionDetailsClient({
       <section className="space-y-4">
         <h2 className="flex items-center gap-2 text-lg font-semibold">
           <MessageSquare className="size-5" />
-          Komentari ({suggestion.comments.length})
+          {t("comments", { count: suggestion.comments.length })}
         </h2>
 
         {suggestion.comments.length > 0 ? (
@@ -66,10 +69,7 @@ export default function SuggestionDetailsClient({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">
-            Još nema komentara. Budi prvi koji će komentirati kada značajka
-            postane dostupna.
-          </p>
+          <p className="text-sm text-muted-foreground">{t("noComments")}</p>
         )}
       </section>
     </div>

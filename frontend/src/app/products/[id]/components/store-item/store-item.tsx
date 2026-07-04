@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import { ChevronDown, TriangleAlert } from "lucide-react";
+import { useTranslations } from "next-intl";
 import StoreChainLogo from "@/components/custom/store-chain-logo";
 import {
   Collapsible,
@@ -37,6 +38,7 @@ interface IStoreItemProps {
 export const StoreItem = memo(
   ({ isExpanded, onToggle, store, storePrices, product }: IStoreItemProps) => {
     const { user } = useUser();
+    const t = useTranslations("productDetail");
 
     // Check if this store chain is preferred by the user
     const isPreferred =
@@ -104,7 +106,7 @@ export const StoreItem = memo(
                             className="bg-amber-100 text-amber-800 border-amber-200"
                           >
                             <TriangleAlert className="size-4 mr-1" />
-                            Podaci od {formatDate(store.price_date)}
+                            {t("dataFrom", { date: formatDate(store.price_date) })}
                           </Badge>
                         )}
                       </div>
@@ -122,7 +124,7 @@ export const StoreItem = memo(
                                 : "text-gray-700",
                           )}
                         >
-                          Min: {storeMinPrice.toFixed(2)}€
+                          {t("min")}: {storeMinPrice.toFixed(2)}€
                         </span>
                         <span
                           className={cn(
@@ -133,7 +135,7 @@ export const StoreItem = memo(
                                 : "text-gray-700",
                           )}
                         >
-                          Prosjek: {storeAvgPrice.toFixed(2)}€
+                          {t("avg")}: {storeAvgPrice.toFixed(2)}€
                         </span>
                         <span
                           className={cn(
@@ -144,7 +146,7 @@ export const StoreItem = memo(
                                 : "text-gray-700",
                           )}
                         >
-                          Max: {storeMaxPrice.toFixed(2)}€
+                          {t("max")}: {storeMaxPrice.toFixed(2)}€
                         </span>
                       </div>
                     </div>
@@ -153,7 +155,7 @@ export const StoreItem = memo(
 
                 <div className="flex-1 flex items-center justify-end gap-4">
                   <p className="hidden sm:inline text-gray-700 text-sm text-pretty text-right">
-                    Cijene po lokacijama
+                    {t("pricesByLocation")}
                   </p>
 
                   <ChevronDown

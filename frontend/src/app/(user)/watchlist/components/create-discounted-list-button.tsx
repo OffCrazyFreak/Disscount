@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Sparkles, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { FloatingActionButton } from "@/components/custom/floating-action-button";
 import { shoppingListService } from "@/lib/api";
@@ -18,9 +19,10 @@ export default function CreateDiscountedListButton({
   discountedItems,
 }: CreateDiscountedListButtonProps) {
   const router = useRouter();
+  const t = useTranslations("pages.watchlist");
   const [isCreating, setIsCreating] = useState(false);
 
-  const buttonText = `Stvori popis sniženih proizvoda (${discountedItems.length})`;
+  const buttonText = t("createDiscountedList", { count: discountedItems.length });
 
   async function handleCreateDiscountedList() {
     if (isCreating || discountedItems.length === 0) {
@@ -33,7 +35,7 @@ export default function CreateDiscountedListButton({
       const today = formatDate(new Date().toISOString());
 
       const createdList = await shoppingListService.createShoppingList({
-        title: `Sniženo ${today}`,
+        title: t("discountedListTitle", { date: today }),
         isPublic: false,
       });
 
@@ -66,13 +68,9 @@ export default function CreateDiscountedListButton({
         try {
           await shoppingListService.deleteShoppingList(createdList.id);
 
-          toast.error(
-            "Neke stavke nije bilo moguće dodati. Popis je automatski uklonjen.",
-          );
+          toast.error(t("partialFailRemoved"));
         } catch {
-          toast.error(
-            "Neke stavke nije bilo moguće dodati, a popis nije moguće automatski ukloniti.",
-          );
+          toast.error(t("partialFailNotRemoved"));
 
           router.push(`/shopping-lists/${createdList.id}`);
         }
@@ -80,10 +78,10 @@ export default function CreateDiscountedListButton({
         return;
       }
 
-      toast.success("Popis sniženih proizvoda je uspješno kreiran");
+      toast.success(t("createSuccess"));
       router.push(`/shopping-lists/${createdList.id}`);
     } catch {
-      toast.error("Greška pri kreiranju popisa sniženih proizvoda");
+      toast.error(t("createError"));
     } finally {
       setIsCreating(false);
     }
@@ -99,7 +97,7 @@ export default function CreateDiscountedListButton({
         iconPlacement="left"
         disabled={isCreating || discountedItems.length === 0}
         loading={isCreating}
-        loadingText="Stvaranje popisa..."
+        loadingText={t("creatingList")}
         className="hidden sm:inline-flex"
       >
         {buttonText}

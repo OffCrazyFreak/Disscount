@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslations } from "next-intl";
 import { Separator } from "@/components/ui/separator";
 import { formatQuantity } from "@/utils/strings";
 import {
@@ -15,6 +16,7 @@ interface IProductUnitPriceDetailsProps {
 
 export const ProductUnitPriceDetails = memo(
   ({ product }: IProductUnitPriceDetailsProps) => {
+    const t = useTranslations("productDetail");
     const minPrice = getMinPrice(product);
     const maxPrice = getMaxPrice(product);
 
@@ -54,7 +56,7 @@ export const ProductUnitPriceDetails = memo(
           </div> */}
             </div>
           ) : (
-            <div className="text-gray-500 text-sm">Nepoznata cijena</div>
+            <div className="text-gray-500 text-sm">{t("unknownPrice")}</div>
           )}
         </div>
 

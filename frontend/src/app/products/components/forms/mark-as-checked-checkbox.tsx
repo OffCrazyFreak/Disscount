@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   FormControl,
@@ -16,6 +17,8 @@ interface IMarkAsCheckedCheckboxProps {
 export default function MarkAsCheckedCheckbox({
   formField,
 }: IMarkAsCheckedCheckboxProps) {
+  const t = useTranslations("addToList");
+
   return (
     <FormField
       control={formField.control}
@@ -31,10 +34,10 @@ export default function MarkAsCheckedCheckbox({
 
           <div>
             <FormLabel className="cursor-pointer mb-1">
-              Unaprijed označi proizvod kao kupljen
+              {t("markCheckedLabel")}
             </FormLabel>
             <FormDescription className="text-xs text-gray-500">
-              Ovo je moguće naknadno izmjeniti u popisu za kupnju
+              {t("markCheckedHint")}
             </FormDescription>
           </div>
         </FormItem>

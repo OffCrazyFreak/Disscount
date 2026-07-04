@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Eye, TrendingDown, Percent } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -40,6 +41,8 @@ export default function WatchlistItemModal({
   product,
   initialWatchType,
 }: IWatchlistItemModalProps) {
+  const t = useTranslations("watchModal");
+  const tCommon = useTranslations("common");
   const addToWatchlistMutation = watchlistService.useAddToWatchlist();
   const removeFromWatchlistMutation = watchlistService.useRemoveFromWatchlist();
 
@@ -152,7 +155,7 @@ export default function WatchlistItemModal({
     const value = parseFloat(thresholdValue);
 
     if (isNaN(value)) {
-      setError("Unesite valjanu vrijednost");
+      setError(t("invalidValue"));
       return false;
     }
 
@@ -161,7 +164,10 @@ export default function WatchlistItemModal({
       (value < minThresholdValue || value > maxThresholdValue)
     ) {
       setError(
-        `Postotak mora biti između ${minThresholdValue}% i ${maxThresholdValue}%`,
+        t("percentRange", {
+          min: minThresholdValue,
+          max: maxThresholdValue,
+        }),
       );
       return false;
     } else if (
@@ -169,7 +175,10 @@ export default function WatchlistItemModal({
       (value < minThresholdValue || value > maxThresholdValue)
     ) {
       setError(
-        `Iznos mora biti između ${minThresholdValue}€ i ${maxThresholdValue}€`,
+        t("amountRange", {
+          min: minThresholdValue,
+          max: maxThresholdValue,
+        }),
       );
       return false;
     }
@@ -194,15 +203,18 @@ export default function WatchlistItemModal({
 
       if (isUpdate) {
         toast.success(
-          `Prag ažuriran s ${oldValue} na ${parseFloat(thresholdValue)}`,
+          t("thresholdUpdated", {
+            old: String(oldValue),
+            new: parseFloat(thresholdValue),
+          }),
         );
       } else {
-        toast.success("Proizvod dodan na popis za praćenje");
+        toast.success(t("added"));
       }
 
       onOpenChange(false);
     } catch {
-      toast.error("Greška pri spremanju");
+      toast.error(t("saveError"));
     }
   }
 
@@ -213,11 +225,13 @@ export default function WatchlistItemModal({
       await removeFromWatchlistMutation.mutateAsync(existingItemForType.id);
 
       toast.success(
-        `Za proizvod se više ne prati ${existingItemForType.watchType === WatchType.percentage ? "postotak" : "cijena"}`,
+        existingItemForType.watchType === WatchType.percentage
+          ? t("removedPercent")
+          : t("removedPrice"),
       );
       onOpenChange(false);
     } catch {
-      toast.error("Greška pri uklanjanju");
+      toast.error(t("removeError"));
     }
   }
 
@@ -236,17 +250,17 @@ export default function WatchlistItemModal({
 
     if (percentageItem) {
       parts.push(
-        `minimalnim pragom postotka od ${Math.round(percentageItem.thresholdValue)}%`,
+        t("existingPercentPart", {
+          value: Math.round(percentageItem.thresholdValue),
+        }),
       );
     }
 
     if (absoluteItem) {
-      parts.push(
-        `minimalnim pragom popusta od ${absoluteItem.thresholdValue}€`,
-      );
+      parts.push(t("existingAbsPart", { value: absoluteItem.thresholdValue }));
     }
 
-    return `Ovaj proizvod je već na popisu za praćenje s ${parts.join(" te ")}.`;
+    return t("existingText", { parts: parts.join(` ${t("existingJoin")} `) });
   }
 
   const alertMessage = buildAlertMessage();
@@ -259,7 +273,7 @@ export default function WatchlistItemModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Eye className="size-5 sm:size-6" />
-            Dodaj na popis za praćenje
+            {t("title")}
           </DialogTitle>
         </DialogHeader>
 
@@ -272,7 +286,7 @@ export default function WatchlistItemModal({
         <div className="space-y-6">
           {/* Watch Type Selection */}
           <Field>
-            <FieldLabel>Način praćenja</FieldLabel>
+            <FieldLabel>{t("mode")}</FieldLabel>
             <FieldContent>
               <div className="grid grid-cols-2 gap-4">
                 <button
@@ -285,9 +299,9 @@ export default function WatchlistItemModal({
                   }`}
                 >
                   <TrendingDown className="mb-3 size-6" />
-                  <span className="text-sm font-medium">Cijena</span>
+                  <span className="text-sm font-medium">{t("priceMode")}</span>
                   <span className="text-xs text-muted-foreground text-center">
-                    Obavijesti kad cijena padne za određeni iznos
+                    {t("priceModeHint")}
                   </span>
                 </button>
 
@@ -301,9 +315,9 @@ export default function WatchlistItemModal({
                   }`}
                 >
                   <Percent className="mb-3 size-6" />
-                  <span className="text-sm font-medium">Postotak</span>
+                  <span className="text-sm font-medium">{t("percentMode")}</span>
                   <span className="text-xs text-muted-foreground text-center">
-                    Obavijesti kad popust bude veći od određenog postotka
+                    {t("percentModeHint")}
                   </span>
                 </button>
               </div>
@@ -311,17 +325,15 @@ export default function WatchlistItemModal({
           </Field>
 
           {alertMessage && !isCheckingWatchlist && (
-            <FormWarning
-              title="Proizvod već na popisu za praćenje"
-              text={alertMessage}
-            />
+            <FormWarning title={t("existingTitle")} text={alertMessage} />
           )}
 
           {/* Threshold Input */}
           <Field data-invalid={!!error}>
             <FieldLabel htmlFor="thresholdValue">
-              Minimalno sniženje{" "}
-              {watchType === WatchType.absolute ? "(€)" : "(%)"}:
+              {watchType === WatchType.absolute
+                ? t("minReductionAbs")
+                : t("minReductionPct")}
             </FieldLabel>
 
             <FieldContent>
@@ -330,7 +342,9 @@ export default function WatchlistItemModal({
                   type="button"
                   size="sm"
                   variant="outline"
-                  aria-label={`Smanji prag za ${thresholdSteps.secondary}`}
+                  aria-label={t("decreaseThresholdBy", {
+                    n: thresholdSteps.secondary,
+                  })}
                   className="hidden sm:flex size-14 rounded-full shrink-0 text-lg font-bold"
                   onClick={() => updateThresholdBy(-thresholdSteps.secondary)}
                   disabled={
@@ -344,7 +358,9 @@ export default function WatchlistItemModal({
                 <Button
                   type="button"
                   size="icon"
-                  aria-label={`Smanji prag za ${thresholdSteps.primary}`}
+                  aria-label={t("decreaseThresholdBy", {
+                    n: thresholdSteps.primary,
+                  })}
                   className="size-13 rounded-full shrink-0 text-lg font-bold"
                   onClick={() => updateThresholdBy(-thresholdSteps.primary)}
                   disabled={
@@ -362,7 +378,9 @@ export default function WatchlistItemModal({
                   min={minThresholdValue}
                   max={maxThresholdValue}
                   placeholder={
-                    watchType === WatchType.absolute ? "Npr. 12€" : "Npr. 15%"
+                    watchType === WatchType.absolute
+                      ? t("placeholderAbs")
+                      : t("placeholderPct")
                   }
                   value={thresholdValue}
                   onChange={(e) => setThresholdValue(e.target.value)}
@@ -372,7 +390,9 @@ export default function WatchlistItemModal({
                 <Button
                   type="button"
                   size="icon"
-                  aria-label={`Povećaj prag za ${thresholdSteps.primary}`}
+                  aria-label={t("increaseThresholdBy", {
+                    n: thresholdSteps.primary,
+                  })}
                   className="size-13 rounded-full shrink-0 text-lg font-bold"
                   onClick={() => updateThresholdBy(thresholdSteps.primary)}
                   disabled={
@@ -387,7 +407,9 @@ export default function WatchlistItemModal({
                   type="button"
                   size="sm"
                   variant="outline"
-                  aria-label={`Povećaj prag za ${thresholdSteps.secondary}`}
+                  aria-label={t("increaseThresholdBy", {
+                    n: thresholdSteps.secondary,
+                  })}
                   className="hidden sm:flex size-14 rounded-full shrink-0 text-lg font-bold"
                   onClick={() => updateThresholdBy(thresholdSteps.secondary)}
                   disabled={
@@ -404,8 +426,10 @@ export default function WatchlistItemModal({
               existingItemForType?.thresholdValue !==
                 getCurrentThresholdValue() && (
                 <FieldDescription className="text-xs ">
-                  Minimalan prag će biti ažuriran s{" "}
-                  {existingItemForType?.thresholdValue} na {thresholdValue}.
+                  {t("updatePreview", {
+                    old: String(existingItemForType?.thresholdValue),
+                    new: thresholdValue,
+                  })}
                 </FieldDescription>
               )}
 
@@ -419,7 +443,7 @@ export default function WatchlistItemModal({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Odustani
+              {tCommon("cancel")}
             </Button>
 
             <div className="flex items-center gap-3">
@@ -433,7 +457,7 @@ export default function WatchlistItemModal({
                   isCheckingWatchlist
                 }
               >
-                Ukloni
+                {tCommon("remove")}
               </Button>
 
               <Button
@@ -444,10 +468,10 @@ export default function WatchlistItemModal({
                 }
               >
                 {addToWatchlistMutation.isPending
-                  ? "Spremanje..."
+                  ? t("saving")
                   : existingItemForType
-                    ? "Ažuriraj"
-                    : "Dodaj"}
+                    ? tCommon("update")
+                    : tCommon("add")}
               </Button>
             </div>
           </div>

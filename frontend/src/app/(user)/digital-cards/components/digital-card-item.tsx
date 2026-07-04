@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { digitalCardService } from "@/lib/api";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "@/utils/strings";
 import { useUser } from "@/context/user-context";
@@ -27,19 +28,21 @@ export default function DigitalCardItem({
   handleEdit,
 }: IDigitalCardItemProps) {
   const queryClient = useQueryClient();
+  const t = useTranslations("pages.digitalCards");
+  const tCommon = useTranslations("common");
   const deleteDigitalCardMutation = digitalCardService.useDeleteDigitalCard();
 
   async function handleDelete(d: DigitalCardDto) {
-    if (confirm(`Jeste li sigurni da želite obrisati karticu "${d.title}"?`)) {
+    if (confirm(t("deleteConfirm", { title: d.title }))) {
       deleteDigitalCardMutation.mutate(d.id, {
         onSuccess: async () => {
-          toast.success("Kartica obrisana.");
+          toast.success(t("deleted"));
           await queryClient.invalidateQueries({
             queryKey: ["digitalCards"],
           });
         },
         onError: (error: Error) => {
-          toast.error("Greška prilikom brisanja: " + error.message);
+          toast.error(t("deleteError", { message: error.message }));
         },
       });
     }
@@ -69,7 +72,7 @@ export default function DigitalCardItem({
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => handleEdit(digitalCard)}>
               <Edit className="h-4 w-4 mr-2" />
-              Uredi
+              {t("edit")}
             </DropdownMenuItem>
 
             <DropdownMenuItem
@@ -77,7 +80,7 @@ export default function DigitalCardItem({
               className="text-red-700"
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              Obriši
+              {tCommon("delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -96,7 +99,7 @@ export default function DigitalCardItem({
         )}
 
         <p className="text-xs text-gray-500">
-          Stvoreno {formatDate(digitalCard.createdAt)}
+          {t("createdLabel", { date: formatDate(digitalCard.createdAt) })}
         </p>
       </div>
     </Card>

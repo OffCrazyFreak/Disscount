@@ -1,4 +1,5 @@
 import { Star, Store } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { DiscountInfo } from "@/app/(user)/watchlist/utils/watchlist-utils";
@@ -19,6 +20,7 @@ export default function WatchlistItemDiscountInfo({
   isLoading,
   error,
 }: WatchlistItemDiscountInfoProps) {
+  const t = useTranslations("pages.watchlist");
   const [isPreferencesModalOpen, setIsPreferencesModalOpen] = useState(false);
 
   if (isLoading) {
@@ -32,11 +34,15 @@ export default function WatchlistItemDiscountInfo({
   }
 
   if (error) {
-    return <p className="text-sm text-destructive">Greška pri učitavanju</p>;
+    return (
+      <p className="text-sm text-destructive">{t("discountLoadError")}</p>
+    );
   }
 
   if (!discountInfo) {
-    return <p className="text-sm text-muted-foreground">Nema podataka</p>;
+    return (
+      <p className="text-sm text-muted-foreground">{t("discountNoData")}</p>
+    );
   }
 
   return (
@@ -67,7 +73,7 @@ export default function WatchlistItemDiscountInfo({
               {discountInfo.preferredDifference !== null &&
               discountInfo.preferredPercentage !== null
                 ? `${discountInfo.preferredDifference > 0 ? "+" : ""}${discountInfo.preferredDifference.toFixed(2)}€ (${Math.round(Math.abs(discountInfo.preferredPercentage))}%)`
-                : "Nedostupno"}
+                : t("unavailable")}
             </p>
           ) : (
             <button
@@ -75,7 +81,7 @@ export default function WatchlistItemDiscountInfo({
               className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer italic"
               onClick={() => setIsPreferencesModalOpen(true)}
             >
-              Postavi preference
+              {t("setPreferences")}
             </button>
           )}
         </div>
@@ -104,7 +110,7 @@ export default function WatchlistItemDiscountInfo({
             {discountInfo.totalDifference !== null &&
             discountInfo.totalPercentage !== null
               ? `${discountInfo.totalDifference > 0 ? "+" : ""}${discountInfo.totalDifference.toFixed(2)}€ (${Math.round(Math.abs(discountInfo.totalPercentage))}%)`
-              : "Nema podataka"}
+              : t("discountNoData")}
           </p>
         </div>
       </div>

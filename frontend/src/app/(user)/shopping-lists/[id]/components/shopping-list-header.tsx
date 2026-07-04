@@ -1,4 +1,5 @@
 import { ArrowLeft, Calendar, ChevronLeft, Globe, Lock } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
@@ -16,6 +17,8 @@ interface ShoppingListHeaderProps {
 export default function ShoppingListHeader({
   shoppingList,
 }: ShoppingListHeaderProps) {
+  const t = useTranslations("shoppingListDetail");
+
   return (
     <div className="mb-6 space-y-4">
       <div className="flex items-center gap-4">
@@ -41,9 +44,7 @@ export default function ShoppingListHeader({
 
         <div className="flex items-center gap-2 ml-auto">
           <div
-            title={
-              shoppingList.isPublic ? "Popis je javan" : "Popis je privatan"
-            }
+            title={shoppingList.isPublic ? t("public") : t("private")}
             className="mr-2"
           >
             {shoppingList.isPublic ? (

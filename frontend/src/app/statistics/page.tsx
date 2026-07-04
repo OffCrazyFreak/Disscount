@@ -2,13 +2,21 @@ import Image from "next/image";
 import HealthStatus from "@/app/statistics/components/health-status";
 import ChainList from "@/app/statistics/components/stores-list";
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: "Statistika",
-  description: "Pregled statistike lanaca trgovina.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("pages.statistics");
 
-export default function StatisticsPage() {
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
+
+export default async function StatisticsPage() {
+  const t = await getTranslations("pages.statistics");
+  const tCommon = await getTranslations("common");
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-8 space-y-4">
@@ -16,19 +24,17 @@ export default function StatisticsPage() {
           {/* App logo */}
           <Image
             src="/disscount-logo.png"
-            alt="Disscount logo"
+            alt={tCommon("logoAlt")}
             width={128}
             height={128}
             className="size-16"
           />
           <h1 className="text-3xl font-bold">
-            <span className="text-primary">Disscount</span> Statistika
+            <span className="text-primary">Disscount</span> {t("heading")}
           </h1>
         </div>
 
-        <p className="text-pretty text-md sm:text-lg">
-          Pregled statistike lanaca trgovina.
-        </p>
+        <p className="text-pretty text-md sm:text-lg">{t("description")}</p>
       </div>
 
       <HealthStatus />

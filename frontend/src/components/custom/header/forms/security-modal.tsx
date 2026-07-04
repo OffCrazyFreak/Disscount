@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
+import { useTranslations } from "next-intl";
 
 import {
   Dialog,
@@ -69,6 +70,7 @@ export default function SecurityModal({
 }: ISecurityModalProps) {
   const { setUser } = useUser();
   const queryClient = useQueryClient();
+  const t = useTranslations("settings.security");
 
   const [isRevoking, setIsRevoking] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -106,16 +108,16 @@ export default function SecurityModal({
     try {
       const { error } = await authClient.revokeOtherSessions();
       if (error) {
-        toast.error("Greška pri odjavi sa svih uređaja.");
+        toast.error(t("logoutAllError"));
         return;
       }
 
-      toast.success("Odjavljen si sa svih ostalih uređaja!");
+      toast.success(t("logoutAllSuccess"));
       onOpenChange(false);
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Nepoznata greška";
-      toast.error(`Greška pri odjavi sa svih uređaja: ${message}`);
+        error instanceof Error ? error.message : t("unknownError");
+      toast.error(t("logoutAllErrorDetail", { message }));
     } finally {
       setIsRevoking(false);
     }
@@ -128,7 +130,7 @@ export default function SecurityModal({
     try {
       const { error } = await authClient.deleteUser();
       if (error) {
-        toast.error("Greška pri brisanju računa. Pokušaj ponovo.");
+        toast.error(t("deleteError"));
         return;
       }
 
@@ -138,7 +140,7 @@ export default function SecurityModal({
       queryClient.clear();
       setUser(null);
 
-      toast.success("Račun je uspješno obrisan!");
+      toast.success(t("deleteSuccess"));
       onOpenChange(false);
     } catch (error) {
       if (isAxiosError(error)) {
@@ -147,14 +149,14 @@ export default function SecurityModal({
           ?.message;
 
         if (status === 404) {
-          toast.error("Korisnički račun nije pronađen.");
+          toast.error(t("userNotFound"));
         } else if (status >= 500) {
-          toast.error("Serverska greška. Pokušaj ponovo.");
+          toast.error(t("serverError"));
         } else {
-          toast.error(serverMessage || "Greška pri brisanju računa.");
+          toast.error(serverMessage || t("deleteErrorGeneric"));
         }
       } else {
-        toast.error("Greška pri brisanju računa. Provjeri internetsku vezu.");
+        toast.error(t("deleteErrorNetwork"));
       }
     } finally {
       setIsDeleting(false);
@@ -168,10 +170,8 @@ export default function SecurityModal({
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
         <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl">Sigurnost</DialogTitle>
-            <DialogDescription>
-              Upravljaj prijavama i svojim računom.
-            </DialogDescription>
+            <DialogTitle className="text-xl">{t("title")}</DialogTitle>
+            <DialogDescription>{t("description")}</DialogDescription>
           </DialogHeader>
 
           <div className="flex flex-col gap-6">
@@ -182,16 +182,14 @@ export default function SecurityModal({
             )}
 
             {accountsStatus === "error" && (
-              <p className="text-sm text-destructive">
-                Greška pri dohvaćanju podataka o računu. Pokušaj ponovo.
-              </p>
+              <p className="text-sm text-destructive">{t("loadError")}</p>
             )}
 
             {accountsStatus === "success" && (
               <>
                 <section className="space-y-3">
                   <SectionLabel icon={ShieldCheck}>
-                    Prijava i sigurnost
+                    {t("loginSection")}
                   </SectionLabel>
 
                   <AccountCredentialsForm
@@ -202,7 +200,7 @@ export default function SecurityModal({
                 </section>
 
                 <section className="space-y-3">
-                  <SectionLabel icon={Link2}>Povezani računi</SectionLabel>
+                  <SectionLabel icon={Link2}>{t("linkedSection")}</SectionLabel>
                   <LinkedAccounts accounts={accounts} onChanged={reloadAccounts} />
                 </section>
               </>
@@ -210,14 +208,14 @@ export default function SecurityModal({
 
             <section className="space-y-4">
               <SectionLabel icon={TriangleAlert} className="text-destructive">
-                Opasna zona
+                {t("dangerZone")}
               </SectionLabel>
 
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
-                  <p className="text-sm font-medium">Odjava sa svih uređaja</p>
+                  <p className="text-sm font-medium">{t("logoutAllTitle")}</p>
                   <p className="text-xs text-muted-foreground">
-                    Odjavi se sa svih ostalih uređaja osim ovog.
+                    {t("logoutAllHint")}
                   </p>
                 </div>
 
@@ -232,15 +230,15 @@ export default function SecurityModal({
                   disabled={isLoading}
                   className="shrink-0"
                 >
-                  Odjava
+                  {t("logoutAll")}
                 </Button>
               </div>
 
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
-                  <p className="text-sm font-medium">Obriši račun</p>
+                  <p className="text-sm font-medium">{t("deleteAccountTitle")}</p>
                   <p className="text-xs text-muted-foreground">
-                    Trajno obriši svoj račun i sve podatke.
+                    {t("deleteAccountHint")}
                   </p>
                 </div>
 
@@ -255,7 +253,7 @@ export default function SecurityModal({
                   disabled={isLoading}
                   className="shrink-0"
                 >
-                  Obriši
+                  {t("deleteAccount")}
                 </Button>
               </div>
             </section>
@@ -266,9 +264,9 @@ export default function SecurityModal({
       <ConfirmDialog
         isOpen={showLogoutAllConfirm}
         onOpenChange={setShowLogoutAllConfirm}
-        title="Odjava sa svih uređaja"
-        description="Jeste li sigurni da se želite odjaviti sa svih ostalih uređaja? Ova sesija ostaje aktivna."
-        confirmLabel="Odjava"
+        title={t("logoutAllTitle")}
+        description={t("logoutAllConfirmDesc")}
+        confirmLabel={t("logoutAll")}
         variant="default"
         onConfirm={handleLogoutAll}
         isLoading={isRevoking}
@@ -277,9 +275,9 @@ export default function SecurityModal({
       <ConfirmDialog
         isOpen={showDeleteConfirm}
         onOpenChange={setShowDeleteConfirm}
-        title="Brisanje računa"
-        description="Ova akcija se ne može poništiti. Svi vaši podaci bit će trajno obrisani."
-        confirmLabel="Obriši račun"
+        title={t("deleteConfirmTitle")}
+        description={t("deleteConfirmDesc")}
+        confirmLabel={t("deleteConfirm")}
         variant="destructive"
         onConfirm={handleDeleteUser}
         isLoading={isDeleting}

@@ -1,11 +1,16 @@
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import MapClient from "@/app/map/components/map-client";
 
-export const metadata: Metadata = {
-  title: "Karta i radno vrijeme trgovina",
-  description: "Pregled trgovina i njihovog radnog vremena na karti.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("pages.map");
+
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
 
 interface IPageProps {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;

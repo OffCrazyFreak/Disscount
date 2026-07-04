@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import ProductActionButtons from "@/app/products/components/product-action-buttons";
@@ -16,6 +17,7 @@ export default function ProductInfoDisplay({
   product,
   enableActionButtons = true,
 }: IProductInfoDisplayProps) {
+  const t = useTranslations("common");
   const router = useRouter();
 
   const handleBackClick = () => {
@@ -69,7 +71,7 @@ export default function ProductInfoDisplay({
 
           {/* Product Name and Category */}
           <div className="text-pretty">
-            <h3 className="font-bold">{product.name || "Nepoznato"}</h3>
+            <h3 className="font-bold">{product.name || t("unknown")}</h3>
             {category && <p className="text-sm text-gray-500">{category}</p>}
           </div>
         </div>

@@ -1,10 +1,15 @@
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import WatchlistClient from "@/app/(user)/watchlist/components/watchlist-client";
 
-export const metadata: Metadata = {
-  title: "Popis za praćenje",
-  description: "Prati cijene proizvoda i primi obavijesti o popustima.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("pages.watchlist");
+
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
 
 interface IPageProps {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;

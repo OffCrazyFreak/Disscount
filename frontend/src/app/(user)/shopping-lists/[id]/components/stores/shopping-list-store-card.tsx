@@ -7,6 +7,7 @@ import {
   ArrowBigUpDash,
   ArrowBigDownDash,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import StoreChainLogo from "@/components/custom/store-chain-logo";
 import {
   Collapsible,
@@ -52,6 +53,8 @@ const ShoppingListStoreItemComponent = ({
   hasHighestPriceItem,
 }: ShoppingListStoreItemProps) => {
   const { user } = useUser();
+  const t = useTranslations("shoppingListDetail");
+  const tProduct = useTranslations("productDetail");
   const [expandedStore, setExpandedStore] = useState<string | null>(null);
 
   const toggleStoreExpansion = useCallback((chainCode: string) => {
@@ -134,8 +137,10 @@ const ShoppingListStoreItemComponent = ({
                           className="bg-orange-100 text-orange-800 border-orange-200"
                         >
                           <TriangleAlert className="size-4 mr-1" />
-                          Proizvodi nedostupni ({chain.itemCount}/
-                          {totalItemsInList})
+                          {t("productsUnavailable", {
+                            available: chain.itemCount,
+                            total: totalItemsInList,
+                          })}
                         </Badge>
                       )}
 
@@ -145,7 +150,9 @@ const ShoppingListStoreItemComponent = ({
                           className="bg-amber-100 text-amber-800 border-amber-200"
                         >
                           <TriangleAlert className="size-4 mr-1" />
-                          Podaci od {formatDate(chain.price_date)}
+                          {tProduct("dataFrom", {
+                            date: formatDate(chain.price_date),
+                          })}
                         </Badge>
                       )}
                     </div>
@@ -163,7 +170,7 @@ const ShoppingListStoreItemComponent = ({
                               : "text-gray-700",
                         )}
                       >
-                        Min: {storeMinPrice.toFixed(2)}€
+                        {tProduct("min")}: {storeMinPrice.toFixed(2)}€
                       </span>
                       <span
                         className={cn(
@@ -174,7 +181,7 @@ const ShoppingListStoreItemComponent = ({
                               : "text-gray-700",
                         )}
                       >
-                        Prosjek: {storeAvgPrice.toFixed(2)}€
+                        {tProduct("avg")}: {storeAvgPrice.toFixed(2)}€
                       </span>
                       <span
                         className={cn(
@@ -185,7 +192,7 @@ const ShoppingListStoreItemComponent = ({
                               : "text-gray-700",
                         )}
                       >
-                        Max: {storeMaxPrice.toFixed(2)}€
+                        {tProduct("max")}: {storeMaxPrice.toFixed(2)}€
                       </span>
                     </div>
                   </div>
@@ -194,7 +201,7 @@ const ShoppingListStoreItemComponent = ({
 
               <div className="flex-1 flex items-center justify-end gap-4">
                 <p className="hidden sm:inline text-gray-700 text-sm text-pretty text-right">
-                  Dostupnost proizvoda
+                  {t("productAvailability")}
                 </p>
 
                 <ChevronDown

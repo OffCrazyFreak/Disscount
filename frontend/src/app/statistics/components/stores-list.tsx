@@ -3,11 +3,14 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, TrendingUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 import cijeneService from "@/lib/cijene-api";
 import { StoreItem } from "@/app/statistics/components/store-item";
 import { ChainStats } from "@/lib/cijene-api/schemas";
 
 export default function ChainList() {
+  const t = useTranslations("pages.statistics");
+  const tCommon = useTranslations("common");
   const [expandedChain, setExpandedChain] = useState<string | null>(null);
 
   const { data: chainStats, isLoading: statsLoading } =
@@ -34,14 +37,14 @@ export default function ChainList() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingUp className="size-5" />
-          Statistike po lancima
+          {t("chainStatsHeading")}
         </CardTitle>
       </CardHeader>
       <CardContent>
         {statsLoading ? (
           <div className="flex items-center gap-2">
             <Loader2 className="size-4 animate-spin" />
-            Učitavanje...
+            {tCommon("loading")}
           </div>
         ) : chainStats ? (
           <div>
@@ -62,7 +65,7 @@ export default function ChainList() {
               ))}
           </div>
         ) : (
-          <div className="text-gray-500">Nema podataka</div>
+          <div className="text-gray-500">{t("noData")}</div>
         )}
       </CardContent>
     </Card>

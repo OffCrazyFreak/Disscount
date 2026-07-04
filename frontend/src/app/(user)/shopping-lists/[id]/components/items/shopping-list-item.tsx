@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Minus, Plus, X, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
@@ -34,6 +35,8 @@ export default function ShoppingListItem({
   storePrices,
   showSeparator,
 }: ShoppingListItemProps) {
+  const t = useTranslations("shoppingListDetail");
+
   // Average price - from DB for checked items, from API for unchecked items
   const displayPrice = item.isChecked ? item.avgPrice : averagePrice;
 
@@ -77,7 +80,7 @@ export default function ShoppingListItem({
           {/* Delete button - shown on mobile in same row as item name */}
           <Button
             size="icon"
-            aria-label="Ukloni proizvod"
+            aria-label={t("removeItem")}
             className="sm:hidden size-8 sm:size-10 shrink-0 bg-red-600 hover:bg-red-700"
             onClick={onDelete}
             disabled={isDeleting}
@@ -120,7 +123,7 @@ export default function ShoppingListItem({
               <div className="flex items-center gap-2">
                 <Button
                   size="icon"
-                  aria-label="Povećaj količinu za 1"
+                  aria-label={t("decreaseQuantity")}
                   className="size-8 sm:size-10 shrink-0"
                   onClick={() =>
                     onUpdate({
@@ -138,7 +141,7 @@ export default function ShoppingListItem({
 
                 <Button
                   size="icon"
-                  aria-label="Povećaj količinu za 1"
+                  aria-label={t("increaseQuantity")}
                   className="size-8 sm:size-10 shrink-0"
                   onClick={() =>
                     onUpdate({
@@ -178,7 +181,7 @@ export default function ShoppingListItem({
 
           <Button
             size="icon"
-            aria-label="Ukloni proizvod"
+            aria-label={t("removeItem")}
             className="hidden sm:flex size-8 sm:size-10 shrink-0 bg-red-600 hover:bg-red-700"
             onClick={onDelete}
             disabled={isDeleting}

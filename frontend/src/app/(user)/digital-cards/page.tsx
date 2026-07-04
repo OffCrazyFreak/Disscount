@@ -1,10 +1,15 @@
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import DigitalCardsClient from "@/app/(user)/digital-cards/components/digital-cards-client";
 
-export const metadata: Metadata = {
-  title: "Moje digitalne kartice",
-  description: "Pregled i upravljanje digitalnim karticama.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("pages.digitalCards");
+
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
 
 interface IPageProps {
   searchParams?: Record<string, string | string[] | undefined>;

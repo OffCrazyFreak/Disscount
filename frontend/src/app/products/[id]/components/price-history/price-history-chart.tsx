@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import {
   ChartConfig,
@@ -26,6 +27,7 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
   selectedChains,
 }: IPriceHistoryChartProps) {
   const { user } = useUser();
+  const t = useTranslations("priceHistory");
 
   const { tooltipActive, touchHandlers } = useTouchTooltipDismiss();
 
@@ -90,9 +92,9 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
     priceHistoryChains.forEach((chain) => {
       cfg[chain] = { label: storeNamesMap[chain] || chain };
     });
-    cfg["_average"] = { label: "Prosjek" };
+    cfg["_average"] = { label: t("avg") };
     return cfg;
-  }, [priceHistoryChains]);
+  }, [priceHistoryChains, t]);
 
   return (
     <ChartContainer config={chartConfig} {...touchHandlers}>

@@ -2,6 +2,7 @@
 
 import { useCallback, Suspense } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ScanBarcode } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -11,6 +12,7 @@ import SearchBar from "@/components/custom/search-bar";
 import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
 
 export default function HeroActions() {
+  const t = useTranslations("hero");
   const { openScanner } = useCameraScanner();
   const router = useRouter();
 
@@ -28,7 +30,7 @@ export default function HeroActions() {
       <Card className="bg-background max-w-xl mx-auto rounded-2xl shadow-xl p-8 space-y-4">
         <Suspense fallback={<SearchBarSkeleton submitButtonLocation="block" />}>
           <SearchBar
-            placeholder="Pretraži proizvode..."
+            placeholder={t("searchPlaceholder")}
             searchRoute="/products"
             clearable={true}
             allowScanning={false}
@@ -40,7 +42,7 @@ export default function HeroActions() {
           <Separator />
           <div className="absolute inset-0 flex items-center justify-center">
             <h2 className="bg-background text-lg px-2 text-muted-foreground">
-              ili
+              {t("or")}
             </h2>
           </div>
         </div>
@@ -53,7 +55,7 @@ export default function HeroActions() {
             className="w-full text-lg"
           >
             <ScanBarcode className="size-6 mr-2" />
-            Skeniraj barkod
+            {t("scanBarcode")}
           </Button>
         </div>
       </Card>

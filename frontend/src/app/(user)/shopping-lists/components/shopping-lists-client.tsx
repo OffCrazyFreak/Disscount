@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { Search, Plus, ShoppingCart } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/custom/search-bar";
 import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
@@ -17,6 +18,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 
 export default function ShoppingListsClient({ query }: { query: string }) {
+  const t = useTranslations("pages.shoppingLists");
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,7 +49,7 @@ export default function ShoppingListsClient({ query }: { query: string }) {
       <div className="space-y-4">
         <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
           <SearchBar
-            placeholder="Pretraži popise za kupnju..."
+            placeholder={t("searchPlaceholder")}
             searchRoute={pathname}
             clearable={true}
             submitButtonLocation="none"
@@ -58,10 +60,15 @@ export default function ShoppingListsClient({ query }: { query: string }) {
         <div className="flex items-center justify-between gap-4">
           <h3>
             {query.length > 0
-              ? `Rezultati pretrage za "${query}" (${matchingShoppingLists.length})`
-              : `Moji popisi za kupnju${
-                  isUserLoading ? "" : ` (${matchingShoppingLists.length})`
-                }`}
+              ? t("searchResults", {
+                  query,
+                  count: matchingShoppingLists.length,
+                })
+              : t("heading", {
+                  count: isUserLoading
+                    ? ""
+                    : ` (${matchingShoppingLists.length})`,
+                })}
           </h3>
 
           <CreateShoppingListButton
@@ -90,18 +97,16 @@ export default function ShoppingListsClient({ query }: { query: string }) {
           <div className="text-center py-12">
             <ShoppingCart className="size-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Nema popisa za kupnju
+              {t("emptyTitle")}
             </h3>
-            <p className="text-gray-600 mb-6">
-              Stvorite svoj prvi popis za kupnju…
-            </p>
+            <p className="text-gray-600 mb-6">{t("emptyDescription")}</p>
             <Button
               effect="shineHover"
               icon={Plus}
               iconPlacement="left"
               onClick={() => setIsModalOpen(true)}
             >
-              Stvori popis za kupnju
+              {t("create")}
             </Button>
           </div>
         )}

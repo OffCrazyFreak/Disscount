@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowLeft } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
@@ -9,6 +10,7 @@ import ShoppingListHeader from "@/app/(user)/shopping-lists/[id]/components/shop
 import ShoppingListItems from "@/app/(user)/shopping-lists/[id]/components/items/shopping-list-items";
 import ShoppingListPriceHistory from "@/app/(user)/shopping-lists/[id]/components/shopping-list-price-history";
 import ShoppingListInfoTable from "@/app/(user)/shopping-lists/[id]/components/shopping-list-info-table";
+import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
 import { useShoppingListData } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-data";
 
 interface ShoppingListDetailClientProps {
@@ -18,11 +20,14 @@ interface ShoppingListDetailClientProps {
 export default function ShoppingListDetailClient({
   listId,
 }: ShoppingListDetailClientProps) {
+  const t = useTranslations("shoppingListDetail");
+
   // Use custom hooks for data and mutations
   const {
     shoppingList,
     isLoading,
     error,
+    listUpdatedAt,
     cheapestStores,
     averagePrices,
     storePrices,
@@ -42,14 +47,14 @@ export default function ShoppingListDetailClient({
       <div className="mx-auto">
         <div className="text-center py-12">
           <div className="text-red-700 mb-4">
-            <h3 className="text-lg font-semibold mb-2">Greška</h3>
-            <p>Popis za kupnju nije pronađen ili se dogodila greška.</p>
+            <h3 className="text-lg font-semibold mb-2">{t("errorTitle")}</h3>
+            <p>{t("errorText")}</p>
           </div>
 
           <Link href="/shopping-lists">
             <Button variant="ghost" size="icon">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Natrag na popise za kupnju
+              {t("backToLists")}
             </Button>
           </Link>
         </div>
@@ -62,6 +67,14 @@ export default function ShoppingListDetailClient({
       {/* Header Section */}
       <section>
         <ShoppingListHeader shoppingList={shoppingList} />
+
+        {listUpdatedAt > 0 && (
+          <LastSyncedLabel
+            updatedAt={listUpdatedAt}
+            prefix={t("listRefreshed")}
+            className="mt-1 block"
+          />
+        )}
       </section>
 
       {/* Info Display Section */}

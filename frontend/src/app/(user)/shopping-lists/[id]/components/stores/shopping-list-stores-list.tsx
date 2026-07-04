@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { ChevronDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import cijeneService from "@/lib/cijene-api";
@@ -34,6 +35,9 @@ export default function ShoppingListStoreSummary({
   shoppingList,
 }: ShoppingListStoreSummaryProps) {
   const { user } = useUser();
+  const t = useTranslations("shoppingListDetail");
+  const tCommon = useTranslations("common");
+  const tProduct = useTranslations("productDetail");
 
   const [isStoresOpen, setIsStoresOpen] = useState(() =>
     getShoppingListStoresOpen(shoppingList.id),
@@ -266,14 +270,14 @@ export default function ShoppingListStoreSummary({
         <button type="button" className="w-full text-left">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-lg font-semibold">
-              Cijene po lancima trgovina
+              {t("storeChainsHeading")}
             </h2>
 
             <Separator className="flex-1 my-2" />
 
             <div className="flex items-center gap-4">
               <p className="hidden sm:inline text-gray-700 text-sm">
-                {isStoresOpen ? "Sakrij" : "Prikaži"}
+                {isStoresOpen ? tCommon("hide") : tCommon("show")}
               </p>
 
               <ChevronDown
@@ -293,18 +297,13 @@ export default function ShoppingListStoreSummary({
             <BlockLoadingSpinner />
           </div>
         ) : !shoppingList.items || shoppingList.items.length === 0 ? (
-          <p className="p-2 text-gray-600 text-center">
-            Ovaj popis još ne sadrži proizvode. Probaj pretražiti proizvode pa
-            ih dodaj na ovaj popis.
-          </p>
+          <p className="p-2 text-gray-600 text-center">{t("emptyItems")}</p>
         ) : productsError ? (
           <p className="p-2 text-gray-600 text-center">
-            Greška pri učitavanju cijena. Pokušajte ponovno.
+            {tProduct("pricesError")}
           </p>
         ) : allChains.length === 0 ? (
-          <p className="p-2 text-gray-600 text-center">
-            Nema dostupnih cijena za stavke na popisu.
-          </p>
+          <p className="p-2 text-gray-600 text-center">{t("noStorePrices")}</p>
         ) : (
           <div className="space-y-4">
             {allChains

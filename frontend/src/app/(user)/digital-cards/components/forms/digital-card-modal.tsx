@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -51,6 +52,8 @@ export default function DigitalCardModal({
   digitalCard,
 }: IDigitalCardModalProps) {
   const queryClient = useQueryClient();
+  const t = useTranslations("pages.digitalCards.modal");
+  const tCommon = useTranslations("common");
 
   const createMutation = digitalCardService.useCreateDigitalCard();
   const updateMutation = digitalCardService.useUpdateDigitalCard();
@@ -73,7 +76,7 @@ export default function DigitalCardModal({
         { id: digitalCard.id, data },
         {
           onSuccess: async () => {
-            toast.success("Digitalna kartica je uspješno ažurirana!");
+            toast.success(t("updated"));
             await queryClient.invalidateQueries({
               queryKey: ["digitalCards"],
             });
@@ -84,8 +87,7 @@ export default function DigitalCardModal({
             const message =
               error instanceof Error ? error.message : String(error);
             form.setError("root", {
-              message:
-                message || "Došlo je do greške prilikom ažuriranja kartice",
+              message: message || t("updateError"),
             });
           },
         }
@@ -93,7 +95,7 @@ export default function DigitalCardModal({
     } else {
       createMutation.mutate(data, {
         onSuccess: async () => {
-          toast.success("Digitalna kartica je uspješno kreirana!");
+          toast.success(t("created"));
           await queryClient.invalidateQueries({
             queryKey: ["digitalCards"],
           });
@@ -104,7 +106,7 @@ export default function DigitalCardModal({
           const message =
             error instanceof Error ? error.message : String(error);
           form.setError("root", {
-            message: message || "Došlo je do greške prilikom kreiranja kartice",
+            message: message || t("createError"),
           });
         },
       });
@@ -123,7 +125,7 @@ export default function DigitalCardModal({
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-xl">
-            {digitalCard ? "Uredi digitalnu karticu" : "Nova digitalna kartica"}
+            {digitalCard ? t("editTitle") : t("createTitle")}
           </DialogTitle>
         </DialogHeader>
 
@@ -140,7 +142,7 @@ export default function DigitalCardModal({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Naziv kartice</FormLabel>
+                  <FormLabel>{t("titleLabel")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -154,7 +156,7 @@ export default function DigitalCardModal({
               name="value"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Vrijednost/Kod</FormLabel>
+                  <FormLabel>{t("valueLabel")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -169,22 +171,28 @@ export default function DigitalCardModal({
                 name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tip kartice</FormLabel>
+                    <FormLabel>{t("typeLabel")}</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Odaberite tip" />
+                          <SelectValue placeholder={t("typePlaceholder")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="loyalty">Loyalty kartica</SelectItem>
-                        <SelectItem value="discount">Popust kartica</SelectItem>
-                        <SelectItem value="membership">Članstvo</SelectItem>
-                        <SelectItem value="gift">Poklon kartica</SelectItem>
-                        <SelectItem value="other">Ostalo</SelectItem>
+                        <SelectItem value="loyalty">
+                          {t("typeLoyalty")}
+                        </SelectItem>
+                        <SelectItem value="discount">
+                          {t("typeDiscount")}
+                        </SelectItem>
+                        <SelectItem value="membership">
+                          {t("typeMembership")}
+                        </SelectItem>
+                        <SelectItem value="gift">{t("typeGift")}</SelectItem>
+                        <SelectItem value="other">{t("typeOther")}</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -197,21 +205,23 @@ export default function DigitalCardModal({
                 name="codeType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tip koda</FormLabel>
+                    <FormLabel>{t("codeTypeLabel")}</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Odaberite tip koda" />
+                          <SelectValue placeholder={t("codeTypePlaceholder")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="barcode">Barkod</SelectItem>
-                        <SelectItem value="qr">QR kod</SelectItem>
-                        <SelectItem value="number">Broj</SelectItem>
-                        <SelectItem value="text">Tekst</SelectItem>
+                        <SelectItem value="barcode">
+                          {t("codeBarcode")}
+                        </SelectItem>
+                        <SelectItem value="qr">{t("codeQr")}</SelectItem>
+                        <SelectItem value="number">{t("codeNumber")}</SelectItem>
+                        <SelectItem value="text">{t("codeText")}</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -225,7 +235,7 @@ export default function DigitalCardModal({
               name="color"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Boja kartice</FormLabel>
+                  <FormLabel>{t("colorLabel")}</FormLabel>
                   <FormControl>
                     <Input
                       type="color"
@@ -245,18 +255,19 @@ export default function DigitalCardModal({
               name="note"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Napomena</FormLabel>
+                  <FormLabel>{t("noteLabel")}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Unesite napomenu"
+                      placeholder={t("notePlaceholder")}
                       {...field}
                       value={field.value || ""}
                       maxLength={200}
                     />
                   </FormControl>
                   <FormDescription>
-                    Dodatne informacije o vašoj kartici ({" "}
-                    {200 - (field.value?.length || 0)} preostalo).
+                    {t("noteHint", {
+                      remaining: 200 - (field.value?.length || 0),
+                    })}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -271,7 +282,7 @@ export default function DigitalCardModal({
                 onClick={handleCancel}
                 disabled={isLoading}
               >
-                Odustani
+                {tCommon("cancel")}
               </Button>
 
               <Button
@@ -283,7 +294,7 @@ export default function DigitalCardModal({
                 disabled={isLoading}
                 loading={isLoading}
               >
-                {digitalCard ? "Ažuriraj" : "Stvori"}
+                {digitalCard ? tCommon("update") : tCommon("create")}
               </Button>
             </div>
           </form>

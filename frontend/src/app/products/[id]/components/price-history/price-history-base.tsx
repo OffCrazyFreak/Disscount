@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { ChevronDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
@@ -40,6 +41,8 @@ interface IPriceHistoryProps {
 
 export default function PriceHistory({ product }: IPriceHistoryProps) {
   const { user } = useUser();
+  const t = useTranslations("priceHistory");
+  const tCommon = useTranslations("common");
 
   const [chartPrefs, setChartPrefs] = useState<{
     period: PeriodOption;
@@ -142,13 +145,13 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
       <CollapsibleTrigger asChild className="py-2">
         <button type="button" className="w-full text-left">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-lg font-semibold">Povijest cijena</h2>
+            <h2 className="text-lg font-semibold">{t("heading")}</h2>
 
             <Separator className="flex-1 my-2" />
 
             <div className="flex items-center gap-4">
               <p className="hidden sm:inline text-gray-700 text-sm">
-                {isPriceHistoryOpen ? "Sakrij" : "Prikaži"}
+                {isPriceHistoryOpen ? tCommon("hide") : tCommon("show")}
               </p>
 
               <ChevronDown
@@ -192,9 +195,7 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
                   </div>
                 ) : priceHistoryData.length === 0 || historyError ? (
                   <div className="text-center py-8">
-                    <p className="text-gray-600">
-                      Nema dostupnih povijesnih podataka.
-                    </p>
+                    <p className="text-gray-600">{t("noData")}</p>
                   </div>
                 ) : (
                   <PriceHistoryChart

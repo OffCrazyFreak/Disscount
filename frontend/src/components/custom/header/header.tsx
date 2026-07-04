@@ -18,6 +18,9 @@ import { canAccessDashboard } from "@/lib/api/schemas/auth-user";
 import { userNavItems } from "@/constants/navigation";
 import { Badge } from "@/components/ui/badge";
 import { useNotifications } from "@/context/notifications-context";
+import { useTranslations } from "next-intl";
+import { useNavTranslation } from "@/hooks/use-nav-translation";
+import LanguageSwitcher from "@/components/custom/language-switcher";
 
 export default function Header(): JSX.Element {
   const [isScrolled, setIsScrolled] = useState(false); // Track if the page is scrolled for header opacity
@@ -29,6 +32,10 @@ export default function Header(): JSX.Element {
   const pathname = usePathname();
 
   const { notifications, hasNotifications } = useNotifications();
+
+  const tCommon = useTranslations("common");
+  const tAuth = useTranslations("auth");
+  const nav = useNavTranslation();
 
   const showDashboard = canAccessDashboard(user?.accountType);
 
@@ -61,7 +68,7 @@ export default function Header(): JSX.Element {
                   {/* App logo */}
                   <Image
                     src="/disscount-logo.png"
-                    alt="Disscount logo"
+                    alt={tCommon("logoAlt")}
                     width={128}
                     height={128}
                     className="size-8 sm:size-10"
@@ -90,7 +97,7 @@ export default function Header(): JSX.Element {
                         )}
                       />
                       <span className="group-hover:text-primary transition-colors">
-                        Nadzorna ploča
+                        {nav.label("dashboard")}
                       </span>
                     </Link>
                   </li>
@@ -100,7 +107,7 @@ export default function Header(): JSX.Element {
                     .map((item) => {
                       const Icon = item.icon;
                       const isActive = pathname.startsWith(item.href);
-                      const label = item.shortLabel ?? item.label;
+                      const label = nav.short(item.id);
 
                       // Coming-soon items are not navigable in the navbar; the
                       // USKORO badge sits on top, like the notification badge.
@@ -113,7 +120,7 @@ export default function Header(): JSX.Element {
                                 {label}
 
                                 <Badge className="absolute -top-3 -right-7 h-4 rounded-full px-1 py-0 text-[9px] leading-none">
-                                  USKORO
+                                  {tCommon("comingSoonBadge")}
                                 </Badge>
                               </span>
                             </span>
@@ -162,7 +169,7 @@ export default function Header(): JSX.Element {
                   fallback={<SearchBarSkeleton submitButtonLocation="none" />}
                 >
                   <SearchBar
-                    placeholder="Pretraži proizvode..."
+                    placeholder={tCommon("searchProducts")}
                     searchRoute="/products"
                     submitButtonLocation="none"
                     clearable={true}
@@ -171,29 +178,35 @@ export default function Header(): JSX.Element {
                 </Suspense>
               </div>
 
-              <div className="flex items-center justify-between gap-8">
+              <div className="flex items-center justify-between gap-4">
                 {isAuthenticated ? (
                   <div className="flex items-center gap-4">
                     <NotificationsDropdown />
                     <UserMenu />
                   </div>
                 ) : (
-                  <BgAnimateButton
-                    gradient={"forest"}
-                    rounded={"full"}
-                    animation="spin-slow"
-                    shadow="base"
-                    size={isMobile ? "sm" : "default"}
-                    className="cursor-pointer min-w-fit"
-                    onClick={() => {
-                      setIsAuthModalOpen(true);
-                    }}
-                  >
-                    <div className="flex items-center space-x-2 p-1">
-                      <LogIn className="w-5.5" />
-                      <span>Prijava</span>
-                    </div>
-                  </BgAnimateButton>
+                  <div className="flex items-center gap-4">
+                    {/* Guests switch language here on desktop; on mobile it lives in the
+                        sidebar. Signed-in users use the footer switcher. */}
+                    <LanguageSwitcher className="hidden md:flex" />
+
+                    <BgAnimateButton
+                      gradient={"forest"}
+                      rounded={"full"}
+                      animation="spin-slow"
+                      shadow="base"
+                      size={isMobile ? "sm" : "default"}
+                      className="cursor-pointer min-w-fit"
+                      onClick={() => {
+                        setIsAuthModalOpen(true);
+                      }}
+                    >
+                      <div className="flex items-center space-x-2 p-1">
+                        <LogIn className="w-5.5" />
+                        <span>{tAuth("signInCta")}</span>
+                      </div>
+                    </BgAnimateButton>
+                  </div>
                 )}
               </div>
             </div>

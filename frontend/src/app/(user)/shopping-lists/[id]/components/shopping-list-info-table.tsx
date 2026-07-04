@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { ShoppingListDto } from "@/lib/api/types";
 import { formatDate } from "@/utils/strings";
 import { calculateShoppingListStats } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
@@ -17,6 +18,8 @@ export default function ShoppingListInfoTable({
   averagePrices,
   isPricesLoading = false,
 }: IShoppingListInfoTableProps) {
+  const t = useTranslations("shoppingListDetail");
+
   const {
     minTotal,
     avgTotal,
@@ -49,18 +52,18 @@ export default function ShoppingListInfoTable({
         <tbody>
           <tr className="flex flex-col sm:table-row">
             <td className="p-2 whitespace-nowrap border-b sm:border-b-0 sm:border-r">
-              <span className="font-bold">Stvoreno: </span>
+              <span className="font-bold">{t("created")}: </span>
               {formatDate(shoppingList.createdAt)}
             </td>
             <td className="p-2">
-              <span className="font-bold">Ažurirano: </span>
+              <span className="font-bold">{t("updated")}: </span>
               {formatDate(shoppingList.updatedAt)}
             </td>
           </tr>
 
           <tr className="flex flex-col sm:table-row border-y">
             <td className="p-2 border-b sm:border-b-0 sm:border-r">
-              <span className="font-bold">Ukupno: </span>
+              <span className="font-bold">{t("total")}: </span>
               {isPricesLoading ? (
                 <BlockLoadingSpinner size={16} />
               ) : totalCount > 0 ? (
@@ -78,7 +81,7 @@ export default function ShoppingListInfoTable({
             </td>
 
             <td className="p-2">
-              <span className="font-bold">Preostalo: </span>
+              <span className="font-bold">{t("remaining")}: </span>
               {isPricesLoading ? (
                 <BlockLoadingSpinner size={16} />
               ) : totalCount > 0 ? (
@@ -99,7 +102,7 @@ export default function ShoppingListInfoTable({
           </tr>
           <tr className="flex flex-col sm:table-row">
             <td className="p-2 border-b sm:border-b-0 sm:border-r">
-              <span className="font-bold">Potrošeno: </span>
+              <span className="font-bold">{t("spent")}: </span>
               {checkedCount > 0 ? (
                 <span className={spentColor}>{moneySpent.toFixed(2)}€</span>
               ) : (
@@ -111,9 +114,9 @@ export default function ShoppingListInfoTable({
               <span className="font-bold">
                 {checkedCount > 0
                   ? savedAmount >= 0
-                    ? "Ušteđeno: "
-                    : "Preplaćeno: "
-                  : "Ušteđeno: "}
+                    ? `${t("saved")}: `
+                    : `${t("overpaid")}: `
+                  : `${t("saved")}: `}
               </span>
               {checkedCount > 0 ? (
                 <span

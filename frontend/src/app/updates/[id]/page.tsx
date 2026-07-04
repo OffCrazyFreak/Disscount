@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Calendar } from "lucide-react";
 
+import { getTranslations } from "next-intl/server";
+
 import { formatDate } from "@/utils/strings";
 import { getPostById } from "@/app/updates/posts";
 
@@ -16,16 +18,18 @@ export async function generateMetadata({
 }: IPageProps): Promise<Metadata> {
   const { id } = await params;
   const post = getPostById(id);
+  const t = await getTranslations("pages.postDetail");
 
   return {
-    title: post ? post.title : "Novosti",
-    description: post?.excerpt ?? "Detalji objave.",
+    title: post ? post.title : t("metaTitleFallback"),
+    description: post?.excerpt ?? t("metaDescriptionFallback"),
   };
 }
 
 export default async function PostDetailPage({ params }: IPageProps) {
   const { id } = await params;
   const post = getPostById(id);
+  const t = await getTranslations("pages.postDetail");
 
   if (!post) {
     notFound();
@@ -38,7 +42,7 @@ export default async function PostDetailPage({ params }: IPageProps) {
         className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary"
       >
         <ArrowLeft className="size-4" />
-        Natrag na novosti
+        {t("backToNews")}
       </Link>
 
       <article className="space-y-4">

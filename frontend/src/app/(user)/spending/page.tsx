@@ -1,19 +1,26 @@
 import { Metadata } from "next";
 import { Wallet } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 import ComingSoon from "@/components/custom/coming-soon";
 
-export const metadata: Metadata = {
-  title: "Potrošnja",
-  description: "Pregled i analiza vaše potrošnje.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("pages.spending");
 
-export default function SpendingPage() {
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
+
+export default async function SpendingPage() {
+  const t = await getTranslations("pages.spending");
+
   return (
     <ComingSoon
-      title="Potrošnja"
+      title={t("title")}
       icon={<Wallet className="size-12 text-primary" />}
-      description="Pregled i analiza vaše potrošnje uskoro će biti dostupni."
+      description={t("comingSoonDescription")}
     />
   );
 }

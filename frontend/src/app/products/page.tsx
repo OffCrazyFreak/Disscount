@@ -1,10 +1,15 @@
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import ProductsClient from "@/app/products/components/products-client";
 
-export const metadata: Metadata = {
-  title: "Proizvodi",
-  description: "Pregled dostupnih proizvoda.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("pages.products");
+
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
 
 interface IPageProps {
   searchParams?: Record<string, string | string[] | undefined>;

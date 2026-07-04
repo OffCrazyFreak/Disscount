@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Save } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -49,6 +50,8 @@ export default function AddToShoppingListForm({
   onOpenChange,
   product,
 }: IAddToShoppingListFormProps) {
+  const t = useTranslations("addToList");
+  const tCommon = useTranslations("common");
   const [customListTitle, setCustomListTitle] = useState("");
   const [storePrices, setStorePrices] = useState<Record<string, number>>({});
   const [averagePrice, setAveragePrice] = useState<number | null>(null);
@@ -220,9 +223,9 @@ export default function AddToShoppingListForm({
               data.shoppingListId === "new"
                 ? customListTitle
                 : sortedShoppingLists.find((list) => list.id === listId)
-                    ?.title || "popis";
+                    ?.title || t("fallbackListName");
 
-            toast.success(`Proizvod je dodan u "${listName}"`);
+            toast.success(t("addedToast", { name: listName }));
 
             // Reset form and close modal
             form.reset({
@@ -240,7 +243,7 @@ export default function AddToShoppingListForm({
             onOpenChange(false);
           },
           onError: (err) => {
-            toast.error("Greška pri dodavanju na popis: " + err.message);
+            toast.error(t("addError", { message: err.message }));
           },
         },
       );
@@ -255,11 +258,11 @@ export default function AddToShoppingListForm({
 
       createShoppingListMutation.mutate(createRequest, {
         onSuccess: (newList) => {
-          toast.success(`Popis za kupnju "${customListTitle}" je stvoren`);
+          toast.success(t("createdToast", { name: customListTitle }));
           proceedToAdd(newList.id);
         },
         onError: (err) => {
-          toast.error("Greška pri stvaranju popisa za kupnju: " + err.message);
+          toast.error(t("createError", { message: err.message }));
         },
       });
     } else {
@@ -284,9 +287,7 @@ export default function AddToShoppingListForm({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent aria-describedby="add-to-shopping-list-form">
         <DialogHeader>
-          <DialogTitle className="text-xl mb-2">
-            Dodaj proizvod u popis za kupnju
-          </DialogTitle>
+          <DialogTitle className="text-xl mb-2">{t("title")}</DialogTitle>
         </DialogHeader>
 
         {/* Product Information Display */}
@@ -306,8 +307,11 @@ export default function AddToShoppingListForm({
             {/* Warning for duplicate EAN */}
             {duplicateItem && (
               <FormWarning
-                title="Proizvod već u popisu za kupnju"
-                text={`Ovaj proizvod je već dodan u odabran popis za kupnju. Dodavanjem ovog proizvoda će se samo povećati njegova količina u popisu za kupnju sa ${duplicateItem.amount} na ${duplicateItem.amount + form.watch("amount")}.`}
+                title={t("duplicateTitle")}
+                text={t("duplicateText", {
+                  from: duplicateItem.amount,
+                  to: duplicateItem.amount + form.watch("amount"),
+                })}
               />
             )}
 
@@ -319,7 +323,7 @@ export default function AddToShoppingListForm({
 
             <Activity mode={isChecked && !duplicateItem ? "visible" : "hidden"}>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Trgovina</label>
+                <label className="text-sm font-medium">{t("storeLabel")}</label>
                 <StoreChainSelect
                   value={form.watch("chainCode") || ""}
                   onChange={(value) => form.setValue("chainCode", value)}
@@ -340,7 +344,7 @@ export default function AddToShoppingListForm({
                 onClick={handleCancel}
                 disabled={isSubmitting}
               >
-                Odustani
+                {tCommon("cancel")}
               </Button>
 
               <Button
@@ -350,9 +354,9 @@ export default function AddToShoppingListForm({
                 iconPlacement="right"
                 disabled={isSubmitting}
                 loading={isSubmitting}
-                loadingText="Dodavanje"
+                loadingText={t("adding")}
               >
-                Dodaj
+                {tCommon("add")}
               </Button>
             </div>
           </form>

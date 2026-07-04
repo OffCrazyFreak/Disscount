@@ -1,23 +1,52 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
+
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
+import { IntlClientProvider } from "@/i18n/intl-client-provider";
 
 import { AppSidebar } from "@/components/custom/app-sidebar";
 import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/footer";
 import OAuthErrorToast from "@/components/custom/oauth-error-toast";
+import InstallBanner from "@/components/custom/pwa/install-banner";
+import OfflineIndicator from "@/components/custom/offline/offline-indicator";
 import { Providers } from "@/app/providers/providers";
 import { ReactNode, Suspense } from "react";
 import { sairaStencil } from "@/app/fonts";
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://OffCrazyFreak.github.io/Disscount"),
-  title: {
-    default: "Disscount - Pronađi najbolje cijene u Hrvatskoj",
-    template: "Disscount - %s",
-  },
-  creator: "Jakov Jakovac",
-  keywords: [
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata");
+
+  return {
+    metadataBase: new URL(
+      process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+    ),
+    title: {
+      default: t("title"),
+      template: "Disscount - %s",
+    },
+    description: t("description"),
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "default",
+      title: "Disscount",
+    },
+    icons: {
+      icon: [
+        { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+        { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+      ],
+      apple: [
+        {
+          url: "/icons/apple-touch-icon-180.png",
+          sizes: "180x180",
+          type: "image/png",
+        },
+      ],
+    },
+    creator: "Jakov Jakovac",
+    keywords: [
     "disscount",
     "disscount app",
     "disscount hr",
@@ -38,22 +67,30 @@ export const metadata: Metadata = {
     "deal alerts",
     "barcode scanner",
     "ai suggestions",
-    "discounts",
-    "discount",
-  ],
-  robots: {
-    index: true,
-    follow: true,
-  },
+      "discounts",
+      "discount",
+    ],
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
+
+export const viewport: Viewport = {
+  themeColor: "#ffffff",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="hr" data-scroll-behavior="smooth">
+    <html lang={locale} data-scroll-behavior="smooth">
       {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
         <Script
           defer
@@ -65,7 +102,11 @@ export default function RootLayout({
       <body
         className={`${sairaStencil.variable} antialiased bg-zinc-50 relative`}
       >
-        <Providers>
+        <IntlClientProvider locale={locale} messages={messages}>
+          <Providers>
+          <OfflineIndicator />
+          <InstallBanner />
+
           <Suspense fallback={null}>
             <OAuthErrorToast />
           </Suspense>
@@ -93,6 +134,7 @@ export default function RootLayout({
             <Footer />
           </div>
         </Providers>
+        </IntlClientProvider>
       </body>
     </html>
   );

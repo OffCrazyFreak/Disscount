@@ -1,8 +1,11 @@
 import ActionEmail from "./components/action-email";
+import { getEmailTranslator } from "@/emails/email-translator";
+import { defaultLocale, type Locale } from "@/i18n/config";
 
 interface IChangeEmailConfirmationProps {
   confirmUrl: string;
   newEmail: string;
+  locale?: Locale;
 }
 
 // Sent to the user's CURRENT address to approve a change before it applies, so a hijacked
@@ -10,21 +13,25 @@ interface IChangeEmailConfirmationProps {
 export default function ChangeEmailConfirmation({
   confirmUrl,
   newEmail,
+  locale = defaultLocale,
 }: IChangeEmailConfirmationProps) {
+  const t = getEmailTranslator(locale);
+
   return (
     <ActionEmail
-      preview="Potvrdi promjenu email adrese"
-      heading="Potvrdi promjenu email adrese"
-      intro={
-        <>
-          Zatražena je promjena email adrese tvog Disscount računa na{" "}
-          <span className="font-semibold text-gray-800">{newEmail}</span>.
-          Klikni na gumb ispod kako bi potvrdio/la promjenu.
-        </>
-      }
-      buttonLabel="Potvrdi promjenu"
+      t={t}
+      locale={locale}
+      preview={t("changeEmail.preview")}
+      heading={t("changeEmail.heading")}
+      intro={t.rich("changeEmail.intro", {
+        newEmail,
+        b: (chunks) => (
+          <span className="font-semibold text-gray-800">{chunks}</span>
+        ),
+      })}
+      buttonLabel={t("changeEmail.button")}
       buttonUrl={confirmUrl}
-      footnote="Ako nisi ti zatražio/la ovu promjenu, odmah promijeni lozinku i javi nam se — tvoja adresa ostaje nepromijenjena dok ne potvrdiš."
+      footnote={t("changeEmail.footnote")}
     />
   );
 }

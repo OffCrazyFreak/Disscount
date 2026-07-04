@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { ShoppingListDto } from "@/lib/api/types";
 import { Card } from "@/components/ui/card";
 import {
@@ -19,6 +20,7 @@ interface IShoppingListListItemProps {
 export default function ShoppingListListItem({
   shoppingList,
 }: IShoppingListListItemProps) {
+  const t = useTranslations("pages.shoppingLists");
   const checkedCount = shoppingList.items.filter(
     (item) => item.isChecked,
   ).length;
@@ -46,7 +48,9 @@ export default function ShoppingListListItem({
             </TooltipTrigger>
 
             <TooltipContent sideOffset={4}>
-              {shoppingList.isPublic ? "Popis je javan" : "Popis je privatan"}
+              {shoppingList.isPublic
+                ? t("publicTooltip")
+                : t("privateTooltip")}
             </TooltipContent>
           </Tooltip>
         </div>

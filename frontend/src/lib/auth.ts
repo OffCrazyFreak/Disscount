@@ -9,6 +9,8 @@ import { db } from "../db";
 import { account } from "../db/auth-schema";
 import { requireEnv } from "@/lib/env";
 import { emailService } from "@/lib/email";
+import { getRequestLocale } from "@/i18n/get-request-locale";
+import type { Locale } from "@/i18n/config";
 
 const BETTER_AUTH_URL = requireEnv("BETTER_AUTH_URL");
 const BETTER_AUTH_SECRET = requireEnv("BETTER_AUTH_SECRET");
@@ -29,6 +31,7 @@ async function dispatchResetPasswordEmail(
   email: string,
   url: string,
   token: string,
+  locale: Locale,
 ) {
   const credential = await db
     .select({ id: account.id })
@@ -37,9 +40,9 @@ async function dispatchResetPasswordEmail(
     .limit(1);
 
   if (credential.length > 0) {
-    await emailService.sendPasswordReset({ to: email, url, token });
+    await emailService.sendPasswordReset({ to: email, url, token, locale });
   } else {
-    await emailService.sendSetPassword({ to: email, url, token });
+    await emailService.sendSetPassword({ to: email, url, token, locale });
   }
 }
 
@@ -87,12 +90,18 @@ export const auth = betterAuth({
     resetPasswordTokenExpiresIn: RESET_TOKEN_TTL_SECONDS,
     revokeSessionsOnPasswordReset: true,
     sendResetPassword: async ({ user, url, token }) => {
+      // Resolve the locale in the request context before the fire-and-forget task.
+      const locale = await getRequestLocale();
       // Fire-and-forget so the response time is identical whether or not the email exists
       // (no enumeration oracle). The DB lookup runs inside the un-awaited task; .catch keeps a
       // failed send from becoming an unhandled rejection.
-      void dispatchResetPasswordEmail(user.id, user.email, url, token).catch(
-        logEmailFailure("password-reset"),
-      );
+      void dispatchResetPasswordEmail(
+        user.id,
+        user.email,
+        url,
+        token,
+        locale,
+      ).catch(logEmailFailure("password-reset"));
     },
   },
 
@@ -100,8 +109,9 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url, token }) => {
+      const locale = await getRequestLocale();
       void emailService
-        .sendVerificationEmail({ to: user.email, url, token })
+        .sendVerificationEmail({ to: user.email, url, token, locale })
         .catch(logEmailFailure("verification"));
     },
   },
@@ -176,8 +186,15 @@ export const auth = betterAuth({
       enabled: true,
       // Sent to the CURRENT address to approve the change before it applies.
       sendChangeEmailConfirmation: async ({ user, newEmail, url, token }) => {
+        const locale = await getRequestLocale();
         void emailService
-          .sendChangeEmailConfirmation({ to: user.email, url, token, newEmail })
+          .sendChangeEmailConfirmation({
+            to: user.email,
+            url,
+            token,
+            newEmail,
+            locale,
+          })
           .catch(logEmailFailure("change-email confirmation"));
       },
     },

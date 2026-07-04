@@ -2,6 +2,7 @@
 
 import React, { memo } from "react";
 import { ChevronDown, Loader2, MapPin, Tag } from "lucide-react";
+import { useTranslations } from "next-intl";
 import StoreChainLogo from "@/components/custom/store-chain-logo";
 import {
   Collapsible,
@@ -18,7 +19,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { storeNamesMap, locationNamesMap } from "@/constants/name-mappings";
-import { pluralizeCroatian } from "@/utils/strings";
 import { cn } from "@/lib/utils";
 import cijeneService from "@/lib/cijene-api";
 import { ChainStats } from "@/lib/cijene-api/schemas";
@@ -33,6 +33,9 @@ interface IStoreItemProps {
 // Memoized component for individual chain items to prevent unnecessary re-renders
 export const StoreItem = memo(
   ({ stat, isExpanded, onToggle, isLast }: IStoreItemProps) => {
+    const t = useTranslations("pages.statistics");
+    const tCommon = useTranslations("common");
+
     // Fetch stores for this specific chain when the item is rendered
     const { data: storesData, isLoading: storesLoading } =
       cijeneService.useListStoresByChain(stat.chain_code);
@@ -59,22 +62,12 @@ export const StoreItem = memo(
                       <p className="text-sm text-gray-600 flex items-center gap-2 sm:gap-4 flex-wrap my-2">
                         <span className="flex items-center gap-2">
                           <MapPin className="size-5 mb-1" />
-                          {stat.store_count}{" "}
-                          {pluralizeCroatian(
-                            stat.store_count,
-                            "trgovina",
-                            "trgovine",
-                          )}
+                          {t("storeCount", { count: stat.store_count })}
                         </span>
                         <span className="hidden sm:inline">|</span>
                         <span className="flex items-center gap-2">
                           <Tag className="size-5 mb-1" />
-                          {stat.price_count}{" "}
-                          {pluralizeCroatian(
-                            stat.price_count,
-                            "cijena",
-                            "cijene",
-                          )}
+                          {t("priceCount", { count: stat.price_count })}
                         </span>
                       </p>
                     </div>
@@ -98,15 +91,17 @@ export const StoreItem = memo(
               {storesLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="size-6 animate-spin mr-2" />
-                  Učitavanje trgovina...
+                  {t("loadingStores")}
                 </div>
               ) : storesData?.stores && storesData.stores.length > 0 ? (
                 <div className="max-h-128 overflow-y-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="font-bold">Grad</TableHead>
-                        <TableHead className="font-bold">Adresa</TableHead>
+                        <TableHead className="font-bold">{t("city")}</TableHead>
+                        <TableHead className="font-bold">
+                          {t("address")}
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
 
@@ -128,10 +123,10 @@ export const StoreItem = memo(
                             <TableCell className="text-gray-700">
                               {store.city
                                 ? locationNamesMap[store.city] || store.city
-                                : "Nepoznato"}
+                                : tCommon("unknown")}
                             </TableCell>
                             <TableCell className="text-gray-700">
-                              {store.address || "Nepoznato"}
+                              {store.address || tCommon("unknown")}
                             </TableCell>
                           </TableRow>
                         ))}
@@ -140,7 +135,7 @@ export const StoreItem = memo(
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
-                  Nema podataka o trgovinama
+                  {t("noStores")}
                 </div>
               )}
             </div>

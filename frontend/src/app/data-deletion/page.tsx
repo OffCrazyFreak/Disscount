@@ -1,41 +1,46 @@
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import LegalPage, { LegalSection } from "@/components/custom/legal-page";
 
-export const metadata: Metadata = {
-  title: "Brisanje podataka",
-  description: "Kako obrisati svoj račun i podatke iz aplikacije Disscount.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("legal.dataDeletion");
 
-export default function DataDeletionPage() {
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
+
+export default async function DataDeletionPage() {
+  const t = await getTranslations("legal");
+
   return (
     <LegalPage
-      title="Brisanje podataka"
-      intro="Upute za brisanje tvog računa i povezanih podataka iz Disscounta."
-      lastUpdated="21. lipnja 2026."
+      title={t("dataDeletion.title")}
+      intro={t("dataDeletion.intro")}
+      lastUpdated={t("lastUpdated")}
     >
-      <LegalSection heading="Brisanje unutar aplikacije">
+      <LegalSection heading={t("dataDeletion.inAppHeading")}>
+        <p>{t("dataDeletion.inAppBody")}</p>
+      </LegalSection>
+
+      <LegalSection heading={t("dataDeletion.onRequestHeading")}>
         <p>
-          Prijavi se, otvori izbornik računa pa odaberi Sigurnost. Tamo možeš
-          obrisati svoj račun. Brisanjem se uklanja tvoj identitet za prijavu, a
-          osobni podaci (ime, email, profilna slika) trajno se uklanjaju.
+          {t.rich("dataDeletion.onRequestBody", {
+            mail: (chunks) => (
+              <a
+                className="text-primary underline"
+                href="mailto:info@disscount.me"
+              >
+                {chunks}
+              </a>
+            ),
+          })}
         </p>
       </LegalSection>
 
-      <LegalSection heading="Brisanje na zahtjev">
-        <p>
-          Ako ne možeš pristupiti računu, pošalji zahtjev za brisanje na{" "}
-          <a className="text-primary underline" href="mailto:info@disscount.me">
-            info@disscount.me
-          </a>{" "}
-          s email adresom povezanom s računom. Zahtjev obrađujemo u razumnom roku.
-        </p>
-      </LegalSection>
-
-      <LegalSection heading="Što se briše">
-        <p>
-          Uklanjamo tvoje osobne podatke i pristup računu. Pojedini anonimizirani
-          zapisi mogu se zadržati ako to zahtijeva zakon.
-        </p>
+      <LegalSection heading={t("dataDeletion.whatDeletedHeading")}>
+        <p>{t("dataDeletion.whatDeletedBody")}</p>
       </LegalSection>
     </LegalPage>
   );

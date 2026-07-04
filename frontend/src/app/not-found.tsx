@@ -10,13 +10,20 @@ import Link from "next/link";
 import NotFoundClient from "@/app/not-found/components/not-found-client";
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: "Stranica nije pronađena - 404",
-  description: "Stranica koju tražite ne postoji.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("pages.notFound");
 
-export default function NotFound() {
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
+
+export default async function NotFound() {
+  const t = await getTranslations("pages.notFound");
+
   return (
     <div className="m-2 flex items-center justify-center min-h-[70dvh]">
       <Card className="w-full max-w-md mx-auto">
@@ -24,27 +31,25 @@ export default function NotFound() {
           <CardTitle>
             <div className="text-6xl font-bold">404</div>
 
-            <div className="text-2xl">Hmm… ovo je neugodno. 😅</div>
+            <div className="text-2xl">{t("heading")}</div>
           </CardTitle>
 
           <CardDescription className="space-y-2">
             <div>
-              Čini se da stranica
+              {t("descriptionBefore")}
               <Suspense>
                 <NotFoundClient />
               </Suspense>
-              ne postoji.
+              {t("descriptionAfter")}
             </div>
 
-            <div className="text-gray-600">
-              Vratimo se skupa na početnu stranicu, ili prijavi grešku!
-            </div>
+            <div className="text-gray-600">{t("help")}</div>
           </CardDescription>
         </CardHeader>
 
         <CardContent className="text-center mt-2 flex flex-wrap gap-4 items-center justify-center">
           <Button variant={"outline"} effect={"shineHover"} asChild>
-            <Link href="/">Prijavi grešku</Link>
+            <Link href="/">{t("reportError")}</Link>
             {/* TODO: contact form */}
           </Button>
 
@@ -54,7 +59,7 @@ export default function NotFound() {
             className="text-pretty whitespace-wrap"
           >
             <Link href="/" className="text-pretty whitespace-wrap">
-              Povratak na početnu
+              {t("backHome")}
             </Link>
           </Button>
         </CardContent>

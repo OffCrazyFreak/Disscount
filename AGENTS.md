@@ -94,6 +94,15 @@ Never edit the package.json or package-lock.json files directly, but instead use
 
 If you need docs about a library, always fetch the most recent documentation from the official website or repository, instead of searching in node modules or other places.
 
+## Internationalization (i18n)
+
+The app uses `next-intl` (cookie-based locale, no URL routing). Locales: `hr` (default), `en`, `de`, `sl`; catalogs in `frontend/src/i18n/messages/<locale>.json`.
+
+- NEVER hardcode user-facing text. The `i18next/no-literal-string` ESLint rule (`pnpm lint`) fails on literal JSX text and on the `placeholder`, `alt`, `title`, `aria-label`, and `label` attributes.
+- Add every new key to ALL four catalogs (`hr` is the reference) and read it with `useTranslations` (client) / `getTranslations` (server). Use `t.rich` for embedded links/icons, ICU `{count, plural, …}` for counts, `useFormatter` for numbers/currency/dates. Emails are localized separately via `getEmailTranslator(locale)`.
+- Before committing run `pnpm i18n:check` (catalog parity) and `pnpm exec tsc --noEmit` (verifies every `t("key")` exists).
+- Never use em dashes in any copy.
+
 # Backend Development Guidelines
 
 NEVER run "mvn spring-boot:run" or any other development server command, because I always already have my dev server running. Also never run build commands.

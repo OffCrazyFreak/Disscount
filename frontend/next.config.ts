@@ -1,5 +1,22 @@
 import { withSentryConfig } from "@sentry/nextjs";
+import withSerwistInit from "@serwist/next";
+import createNextIntlPlugin from "next-intl/plugin";
+import { randomUUID } from "node:crypto";
 import type { NextConfig } from "next";
+
+// Points at the per-request locale + messages config (src/i18n/request.ts).
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
+const withSerwist = withSerwistInit({
+  swSrc: "src/app/sw.ts",
+  swDest: "public/sw.js",
+  // Service worker only runs in production builds; in dev it would fight
+  // Turbopack/HMR. The React Query persistence layer still works in dev.
+  disable: process.env.NODE_ENV === "development",
+  // Precache the offline fallback page so it's available with no connection.
+  additionalPrecacheEntries: [{ url: "/offline", revision: randomUUID() }],
+  reloadOnOnline: true,
+});
 
 const nextConfig: NextConfig = {
   // Emit a minimal self-contained server build (.next/standalone) for a lean Docker image.
@@ -60,7 +77,8 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
+export default withSerwist(
+  withSentryConfig(withNextIntl(nextConfig), {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
@@ -90,4 +108,5 @@ export default withSentryConfig(nextConfig, {
       removeDebugLogging: true,
     },
   },
-});
+  }),
+);

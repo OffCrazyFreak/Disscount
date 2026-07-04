@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +38,9 @@ export default function ShoppingListModal({
   onSuccess,
   shoppingList,
 }: IShoppingListModalProps) {
+  const t = useTranslations("pages.shoppingLists.modal");
+  const tCommon = useTranslations("common");
+
   const form = useForm<ShoppingListRequest>({
     resolver: zodResolver(shoppingListRequestSchema),
     defaultValues: {
@@ -68,7 +72,7 @@ export default function ShoppingListModal({
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-xl">
-            {shoppingList ? "Uredi popis za kupnju" : "Novi popis za kupnju"}
+            {shoppingList ? t("editTitle") : t("createTitle")}
           </DialogTitle>
         </DialogHeader>
 
@@ -85,11 +89,11 @@ export default function ShoppingListModal({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Naziv popisa</FormLabel>
+                  <FormLabel>{t("nameLabel")}</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      placeholder="Roštilj 01.05.2026."
+                      placeholder={t("namePlaceholder")}
                       autoFocus
                     />
                   </FormControl>
@@ -106,7 +110,7 @@ export default function ShoppingListModal({
                 onClick={handleCancel}
                 disabled={isLoading}
               >
-                Odustani
+                {tCommon("cancel")}
               </Button>
 
               <Button
@@ -118,7 +122,7 @@ export default function ShoppingListModal({
                 disabled={isLoading}
                 loading={isLoading}
               >
-                {shoppingList ? "Ažuriraj" : "Stvori"}
+                {shoppingList ? tCommon("update") : tCommon("create")}
               </Button>
             </div>
           </form>

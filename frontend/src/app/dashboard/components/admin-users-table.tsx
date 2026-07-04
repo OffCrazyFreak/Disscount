@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import {
   Table,
@@ -34,6 +35,8 @@ const ACCOUNT_TYPES = Object.keys(ACCOUNT_TYPE_LABELS) as AccountType[];
 
 export default function AdminUsersTable() {
   const { user: currentUser } = useUser();
+  const t = useTranslations("pages.dashboard");
+  const tTypes = useTranslations("accountTypes");
   const { data: users, isLoading, isError } = adminService.useGetAllUsers();
   const updateAccountType = adminService.useUpdateUserAccountType();
   const deleteUser = adminService.useDeleteUser();
@@ -47,8 +50,8 @@ export default function AdminUsersTable() {
     updateAccountType.mutate(
       { userId, accountType },
       {
-        onSuccess: () => toast.success("Tip računa ažuriran!"),
-        onError: () => toast.error("Greška pri promjeni tipa računa."),
+        onSuccess: () => toast.success(t("accountTypeUpdated")),
+        onError: () => toast.error(t("accountTypeError")),
         onSettled: () => setUpdatingId(null),
       }
     );
@@ -59,10 +62,10 @@ export default function AdminUsersTable() {
 
     deleteUser.mutate(deleteTarget.id, {
       onSuccess: () => {
-        toast.success("Račun je obrisan!");
+        toast.success(t("accountDeleted"));
         setDeleteTarget(null);
       },
-      onError: () => toast.error("Greška pri brisanju računa."),
+      onError: () => toast.error(t("deleteError")),
     });
   }
 
@@ -76,21 +79,19 @@ export default function AdminUsersTable() {
 
   if (isError) {
     return (
-      <p className="text-sm text-destructive">
-        Greška pri dohvaćanju korisnika.
-      </p>
+      <p className="text-sm text-destructive">{t("loadError")}</p>
     );
   }
 
   return (
     <>
-      <div className="rounded-lg border">
+      <div className="rounded-lg border bg-card shadow-sm">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Korisničko ime</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead className="w-48">Tip računa</TableHead>
+              <TableHead>{t("colUsername")}</TableHead>
+              <TableHead>{t("colEmail")}</TableHead>
+              <TableHead className="w-48">{t("colAccountType")}</TableHead>
               <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
@@ -105,7 +106,7 @@ export default function AdminUsersTable() {
                     {u.username || "—"}
                     {isSelf && (
                       <Badge variant="secondary" className="ml-2">
-                        Ti
+                        {t("you")}
                       </Badge>
                     )}
                   </TableCell>
@@ -126,7 +127,7 @@ export default function AdminUsersTable() {
                       <SelectContent>
                         {ACCOUNT_TYPES.map((type) => (
                           <SelectItem key={type} value={type}>
-                            {ACCOUNT_TYPE_LABELS[type]}
+                            {tTypes(type)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -137,7 +138,7 @@ export default function AdminUsersTable() {
                       type="button"
                       variant="outline"
                       size="icon"
-                      aria-label="Obriši račun"
+                      aria-label={t("deleteAccountAria")}
                       className="text-destructive hover:text-destructive"
                       disabled={isSelf}
                       onClick={() => setDeleteTarget(u)}
@@ -155,11 +156,11 @@ export default function AdminUsersTable() {
       <ConfirmDialog
         isOpen={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Brisanje računa"
-        description={`Jeste li sigurni da želite obrisati račun ${
-          deleteTarget?.username || deleteTarget?.email || ""
-        }? Ova akcija se ne može poništiti.`}
-        confirmLabel="Obriši račun"
+        title={t("deleteTitle")}
+        description={t("deleteConfirm", {
+          name: deleteTarget?.username || deleteTarget?.email || "",
+        })}
+        confirmLabel={t("confirmDelete")}
         variant="destructive"
         onConfirm={handleDelete}
         isLoading={deleteUser.isPending}

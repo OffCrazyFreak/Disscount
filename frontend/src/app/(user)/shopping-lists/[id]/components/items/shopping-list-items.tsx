@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
 import {
   Collapsible,
@@ -31,6 +32,9 @@ export default function ShoppingListItems({
   averagePrices,
   storePrices,
 }: ShoppingListItemsProps) {
+  const t = useTranslations("shoppingListDetail");
+  const tCommon = useTranslations("common");
+
   const { handleUpdateItem, handleDeleteItem, deletingItemId } =
     useShoppingListItemMutations(shoppingList.id, averagePrices, storePrices);
 
@@ -57,15 +61,18 @@ export default function ShoppingListItems({
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-lg font-semibold">
               {checkedCount > 0
-                ? `Proizvodi (${checkedCount}/${shoppingList.items.length} kupljeno)`
-                : `Proizvodi (${shoppingList.items.length})`}
+                ? t("productsHeadingChecked", {
+                    checked: checkedCount,
+                    total: shoppingList.items.length,
+                  })
+                : t("productsHeading", { count: shoppingList.items.length })}
             </h2>
 
             <Separator className="flex-1 my-2" />
 
             <div className="flex items-center gap-4">
               <p className="hidden sm:inline text-gray-700 text-sm">
-                {isItemsOpen ? "Sakrij" : "Prikaži"}
+                {isItemsOpen ? tCommon("hide") : tCommon("show")}
               </p>
 
               <ChevronDown
@@ -81,10 +88,7 @@ export default function ShoppingListItems({
 
       <CollapsibleContent>
         {shoppingList.items.length === 0 ? (
-          <p className="p-2 text-gray-600 text-center">
-            Ovaj popis još ne sadrži proizvode. Probaj pretražiti proizvode pa
-            ih dodaj na ovaj popis.
-          </p>
+          <p className="p-2 text-gray-600 text-center">{t("emptyItems")}</p>
         ) : (
           <Card className="p-4">
             <div className="space-y-1">
