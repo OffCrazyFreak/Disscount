@@ -1,7 +1,11 @@
 import { withSentryConfig } from "@sentry/nextjs";
 import withSerwistInit from "@serwist/next";
+import createNextIntlPlugin from "next-intl/plugin";
 import { randomUUID } from "node:crypto";
 import type { NextConfig } from "next";
+
+// Points at the per-request locale + messages config (src/i18n/request.ts).
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const withSerwist = withSerwistInit({
   swSrc: "src/app/sw.ts",
@@ -74,7 +78,7 @@ const nextConfig: NextConfig = {
 };
 
 export default withSerwist(
-  withSentryConfig(nextConfig, {
+  withSentryConfig(withNextIntl(nextConfig), {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 

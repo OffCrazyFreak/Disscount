@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,9 @@ interface ISignUpFormProps {
 }
 
 export function SignUpForm({ externalDisabled }: ISignUpFormProps) {
+  const t = useTranslations("auth.signup");
+  const tCommon = useTranslations("common");
+
   // Set once registration succeeds. Email verification is required, so we don't log in —
   // we show a "check your inbox" notice instead.
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
@@ -58,7 +62,7 @@ export function SignUpForm({ externalDisabled }: ISignUpFormProps) {
       if (!response.ok) {
         form.setError("root", {
           type: "server",
-          message: "Provjeri unesene podatke.",
+          message: t("checkInput"),
         });
         return;
       }
@@ -66,15 +70,15 @@ export function SignUpForm({ externalDisabled }: ISignUpFormProps) {
       setSubmittedEmail(data.email);
       form.reset();
     } catch {
-      toast.error("Greška pri registraciji. Pokušaj ponovo.");
+      toast.error(t("genericError"));
     }
   }
 
   if (submittedEmail) {
     return (
       <InboxNotice
-        title="Provjeri svoj inbox"
-        description="Poslali smo ti email s poveznicom za dovršetak registracije na:"
+        title={t("inboxTitle")}
+        description={t("inboxDescription")}
         email={submittedEmail}
       />
     );
@@ -94,11 +98,11 @@ export function SignUpForm({ externalDisabled }: ISignUpFormProps) {
         )}
 
         <div className="grid gap-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t("emailLabel")}</Label>
           <Input
             id="email"
             type="email"
-            placeholder="korisnik@example.com"
+            placeholder={tCommon("emailPlaceholder")}
             autoComplete="email"
             {...form.register("email")}
             className={cn(form.formState.errors.email && "border-red-700")}
@@ -115,7 +119,7 @@ export function SignUpForm({ externalDisabled }: ISignUpFormProps) {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Lozinka</FormLabel>
+              <FormLabel>{t("passwordLabel")}</FormLabel>
               <FormControl>
                 <PasswordInput
                   {...field}
@@ -136,7 +140,7 @@ export function SignUpForm({ externalDisabled }: ISignUpFormProps) {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Potvrdi lozinku</FormLabel>
+              <FormLabel>{t("confirmPasswordLabel")}</FormLabel>
               <FormControl>
                 <PasswordInput
                   {...field}
@@ -161,7 +165,7 @@ export function SignUpForm({ externalDisabled }: ISignUpFormProps) {
           {form.formState.isSubmitting ? (
             <Loader2 size={16} className="animate-spin" />
           ) : (
-            "Registriraj se"
+            t("submit")
           )}
         </Button>
       </form>

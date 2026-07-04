@@ -1,4 +1,5 @@
 import { Minus, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,20 +18,22 @@ interface IQuantityInputProps {
 }
 
 export default function QuantityInput({ formField }: IQuantityInputProps) {
+  const t = useTranslations("addToList");
+
   return (
     <FormField
       control={formField.control}
       name="amount"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Količina</FormLabel>
+          <FormLabel>{t("quantityLabel")}</FormLabel>
           <FormControl>
             <div className="flex items-center gap-4 mx-auto my-2">
               <Button
                 type="button"
                 size="sm"
                 variant="outline"
-                aria-label="Smanji količinu za 5"
+                aria-label={t("decreaseBy", { n: 5 })}
                 className="hidden sm:flex size-14 rounded-full shrink-0 text-lg font-bold"
                 onClick={() => field.onChange(Math.max(1, field.value - 5))}
                 disabled={field.value <= 5}
@@ -41,7 +44,7 @@ export default function QuantityInput({ formField }: IQuantityInputProps) {
               <Button
                 type="button"
                 size="icon"
-                aria-label="Smanji količinu za 2"
+                aria-label={t("decreaseBy", { n: 2 })}
                 className="size-13 rounded-full shrink-0 text-lg font-bold"
                 onClick={() => field.onChange(Math.max(1, field.value - 2))}
                 disabled={field.value <= 2}
@@ -71,7 +74,7 @@ export default function QuantityInput({ formField }: IQuantityInputProps) {
               <Button
                 type="button"
                 size="icon"
-                aria-label="Povećaj količinu za 2"
+                aria-label={t("increaseBy", { n: 2 })}
                 className="size-13 rounded-full shrink-0 text-lg font-bold"
                 onClick={() =>
                   field.onChange(
@@ -87,7 +90,7 @@ export default function QuantityInput({ formField }: IQuantityInputProps) {
                 type="button"
                 size="sm"
                 variant="outline"
-                aria-label="Povećaj količinu za 5"
+                aria-label={t("increaseBy", { n: 5 })}
                 className="hidden sm:flex size-14 rounded-full shrink-0 text-lg font-bold"
                 onClick={() =>
                   field.onChange(

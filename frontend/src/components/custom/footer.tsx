@@ -1,31 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 import { InstagramIcon } from "@/components/custom/icons/InstagramIcon";
 import { LinkedInIcon } from "@/components/custom/icons/LinkedinIcon";
 import { GithubIcon } from "@/components/custom/icons/GithubIcon";
 import { CopyrightIcon } from "@/components/custom/icons/CopyrightIcon";
+import LanguageSwitcher from "@/components/custom/language-switcher";
 
 export default function FooterSection() {
-  const pathname = usePathname();
-  const isEnglish = pathname.startsWith("/en");
+  const t = useTranslations("common");
 
   return (
     <footer className="mt-auto">
       <div className="m-4">
         <div className="bg-background/50 mx-auto max-w-5xl rounded-2xl border backdrop-blur-sm p-6  flex flex-wrap items-center justify-between gap-6">
           <div
-            aria-label="Copyright Jakov Jakovac 2025"
+            aria-label={t("copyrightAria", { year: new Date().getFullYear() })}
             className="text-muted-foreground text-sm flex-1 flex flex-wrap items-center gap-2"
           >
             <Link href="/" className="flex items-center space-x-2">
               {/* App logo */}
               <Image
                 src="/disscount-logo.png"
-                alt="Disscount logo"
+                alt={t("logoAlt")}
                 width={128}
                 height={128}
                 className="size-8"
@@ -43,22 +43,8 @@ export default function FooterSection() {
           </div>
 
           <div className="mx-auto flex items-center justify-center gap-4">
-            {/* Language Switcher */}
-            {/* <Link
-              href={isEnglish ? "/" : "/en"}
-              aria-label={
-                isEnglish ? "Switch to Croatian" : "Switch to English"
-              }
-              className="block hover:scale-110 transition-all"
-            >
-              <Image
-                src={isEnglish ? "/flags/cro.png" : "/flags/eng.png"}
-                alt={isEnglish ? "Croatian flag" : "English flag"}
-                width={32}
-                height={32}
-                className="size-6"
-              />
-            </Link> */}
+            {/* On mobile the language switcher lives in the sidebar instead. */}
+            <LanguageSwitcher className="hidden md:flex" />
 
             <Link
               href="https://github.com/OffCrazyFreak/Disscount"

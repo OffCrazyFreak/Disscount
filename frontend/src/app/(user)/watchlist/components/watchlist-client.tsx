@@ -4,6 +4,7 @@ import { Suspense, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useQueries } from "@tanstack/react-query";
 import { Search, Eye, ChevronDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import SearchBar from "@/components/custom/search-bar";
 import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
 import NoResults from "@/components/custom/no-results";
@@ -38,6 +39,7 @@ interface WatchlistSearchItem extends WatchlistItemWithProduct {
 }
 
 export default function WatchlistClient({ query }: { query: string }) {
+  const t = useTranslations("pages.watchlist");
   const pathname = usePathname();
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(true);
 
@@ -256,7 +258,7 @@ export default function WatchlistClient({ query }: { query: string }) {
     <div className="space-y-4">
       <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
         <SearchBar
-          placeholder="Pretraži popis za praćenje..."
+          placeholder={t("searchPlaceholder")}
           searchRoute={pathname}
           clearable={true}
           submitButtonLocation="none"
@@ -268,14 +270,19 @@ export default function WatchlistClient({ query }: { query: string }) {
         <div className="flex flex-col">
           <h3>
             {query.length > 0
-              ? `Rezultati pretrage za "${query}" (${filteredItems.length})`
-              : `Praćeni proizvodi${userLoading || watchlistLoading ? "" : ` (${filteredItems.length})`}`}
+              ? t("searchResults", { query, count: filteredItems.length })
+              : t("heading", {
+                  count:
+                    userLoading || watchlistLoading
+                      ? ""
+                      : ` (${filteredItems.length})`,
+                })}
           </h3>
 
           {pricesUpdatedAt > 0 && (
             <LastSyncedLabel
               updatedAt={pricesUpdatedAt}
-              prefix="Cijene osvježene"
+              prefix={t("pricesUpdated")}
             />
           )}
         </div>
@@ -305,13 +312,10 @@ export default function WatchlistClient({ query }: { query: string }) {
         <div className="text-center py-12">
           <Eye className="size-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Nema praćenih proizvoda
+            {t("emptyTitle")}
           </h3>
 
-          <p className="text-gray-600 mb-6">
-            Dodajte proizvode na popis za praćenje kako biste primali obavijesti
-            o popustima.
-          </p>
+          <p className="text-gray-600 mb-6">{t("emptyDescription")}</p>
         </div>
       )}
 
@@ -326,15 +330,16 @@ export default function WatchlistClient({ query }: { query: string }) {
               <button type="button" className="w-full text-left">
                 <div className="flex items-center justify-between gap-4">
                   <h2 className="text-lg font-semibold">
-                    Prijedlozi proizvoda za praćenje (
-                    {filteredSuggestionItems.length})
+                    {t("suggestionsHeading", {
+                      count: filteredSuggestionItems.length,
+                    })}
                   </h2>
 
                   <Separator className="flex-1 my-2" />
 
                   <div className="flex items-center gap-4">
                     <p className="hidden sm:inline text-gray-700 text-sm">
-                      {isSuggestionsOpen ? "Sakrij" : "Prikaži"}
+                      {isSuggestionsOpen ? t("hide") : t("show")}
                     </p>
 
                     <ChevronDown

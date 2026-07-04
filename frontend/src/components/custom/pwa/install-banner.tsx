@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { X, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { useInstallPrompt } from "./use-install-prompt";
@@ -15,6 +16,7 @@ import {
 // One-time dismissible banner inviting first-time visitors to add the app to
 // their home screen (only on browsers that support installation).
 export default function InstallBanner() {
+  const t = useTranslations("pwa");
   const { canShowInstallUI, canInstall, isIOS, promptInstall } =
     useInstallPrompt();
   const [dismissed, setDismissed] = useState(true);
@@ -55,14 +57,14 @@ export default function InstallBanner() {
             />
 
             <p className="min-w-0 flex-1 text-sm leading-tight">
-              Dodaj Disscount na početni zaslon za brži pristup.
+              {t("bannerText")}
             </p>
 
             <Button
               size="icon"
               variant="ghost"
               onClick={handleDismiss}
-              aria-label="Zatvori"
+              aria-label={t("close")}
               className="-mr-1 -mt-1 shrink-0"
             >
               <X className="size-4" />
@@ -71,7 +73,7 @@ export default function InstallBanner() {
 
           <Button size="sm" className="w-full" onClick={handleInstall}>
             <Plus className="size-4" />
-            Dodaj na početni zaslon
+            {t("addToHome")}
           </Button>
         </div>
       </div>

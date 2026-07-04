@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Loader2, HandCoins, Eye } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +25,7 @@ export default function NotificationsDropdown() {
     hasWatchlistItems,
   } = useNotifications();
   const router = useRouter();
+  const t = useTranslations("notifications");
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -51,12 +53,14 @@ export default function NotificationsDropdown() {
 
                 <div>
                   <div className="text-md text-green-700">
-                    Ukupna ušteda danas:
+                    {t("savingsToday")}
                   </div>
 
                   <div className="text-sm text-green-600">
-                    (≥ {summary.totalSavings.toFixed(2)}€ na {summary.itemCount}{" "}
-                    {summary.itemCount === 1 ? "proizvod" : "proizvoda"})
+                    {t("savingsDetail", {
+                      amount: summary.totalSavings.toFixed(2),
+                      count: summary.itemCount,
+                    })}
                   </div>
                 </div>
               </div>
@@ -72,14 +76,14 @@ export default function NotificationsDropdown() {
           {isLoading ? (
             <div className="p-6 flex items-center justify-center gap-2 text-muted-foreground">
               <Loader2 className="size-4 animate-spin" />
-              <span className="text-sm">Učitavanje...</span>
+              <span className="text-sm">{t("loading")}</span>
             </div>
           ) : notifications.length === 0 ? (
             <div className="p-2 space-y-4 text-center">
               <p className="text-sm text-muted-foreground text-pretty">
                 {hasWatchlistItems
-                  ? "Danas nema popusta na praćenim proizvodima."
-                  : "Dodaj proizvode na popis za praćenje kako bi te obavijestili kada proizvodi koje želiš budu na popustu u tvojim trgovinama!"}
+                  ? t("noDiscountsToday")
+                  : t("emptyPrompt")}
               </p>
 
               {!hasWatchlistItems && (
@@ -94,7 +98,7 @@ export default function NotificationsDropdown() {
                     router.push("/watchlist");
                   }}
                 >
-                  Dodaj proizvode
+                  {t("addProducts")}
                 </Button>
               )}
             </div>

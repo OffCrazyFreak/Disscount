@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { shoppingListService } from "@/lib/api";
 import type {
   ShoppingListDto as ShoppingList,
@@ -15,6 +16,8 @@ export function useShoppingListMutations(
 ) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const t = useTranslations("shoppingListDetail.toasts");
+  const tDetail = useTranslations("shoppingListDetail");
   const [isCopying, setIsCopying] = useState(false);
 
   const deleteShoppingListMutation =
@@ -40,13 +43,10 @@ export function useShoppingListMutations(
         if (previous) {
           queryClient.setQueryData(["shoppingLists", "me"], previous);
         }
-        toast.error(
-          error.message ||
-            "Greška pri brisanju popisa za kupnju. Pokušajte ponovno."
-        );
+        toast.error(error.message || t("deleteListError"));
       },
       onSuccess: () => {
-        toast.success("Popis za kupnju je uspješno obrisan!");
+        toast.success(t("listDeleted"));
         queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
         router.push("/shopping-lists");
       },
@@ -63,7 +63,7 @@ export function useShoppingListMutations(
     try {
       // Create new shopping list with copied title
       const newListData: ShoppingListRequest = {
-        title: `${shoppingList.title} (Kopija)`,
+        title: `${shoppingList.title} ${tDetail("copySuffix")}`,
         isPublic: false,
       };
 
@@ -101,13 +101,13 @@ export function useShoppingListMutations(
       });
 
       // Show success toast
-      toast.success("Popis za kupnju je uspješno kopiran!");
+      toast.success(t("listCopied"));
 
       // Navigate to new shopping list
       router.push(`/shopping-lists/${newList.id}`);
     } catch (error) {
       console.error("Error copying shopping list:", error);
-      toast.error("Greška pri kopiranju popisa za kupnju");
+      toast.error(t("copyListError"));
     } finally {
       setIsCopying(false);
     }

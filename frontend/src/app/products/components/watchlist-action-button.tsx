@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import {
@@ -18,8 +19,9 @@ export default function WatchlistActionButton({
   product,
   isInWatchlist,
 }: IWatchlistActionButtonProps) {
+  const t = useTranslations("productDetail");
   const [isWatchlistModalOpen, setIsWatchlistModalOpen] = useState(false);
-  const actionLabel = isInWatchlist ? "Ažuriraj praćenje" : "Prati proizvod";
+  const actionLabel = isInWatchlist ? t("updateWatch") : t("watchProduct");
 
   return (
     <>

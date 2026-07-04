@@ -1,4 +1,5 @@
 import { MailCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface IInboxNoticeProps {
   title: string;
@@ -14,6 +15,8 @@ export default function InboxNotice({
   description,
   email,
 }: IInboxNoticeProps) {
+  const t = useTranslations("auth");
+
   return (
     <div className="flex flex-col items-center gap-3 py-4 text-center">
       <div className="flex size-12 items-center justify-center rounded-full bg-green-100 text-primary">
@@ -26,9 +29,7 @@ export default function InboxNotice({
 
       {email && <p className="text-sm font-medium">{email}</p>}
 
-      <p className="text-xs text-muted-foreground">
-        Ne zaboravi provjeriti i spam / neželjenu poštu.
-      </p>
+      <p className="text-xs text-muted-foreground">{t("inboxSpamHint")}</p>
     </div>
   );
 }

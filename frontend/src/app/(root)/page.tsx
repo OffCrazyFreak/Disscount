@@ -4,12 +4,16 @@ import StoresSection from "@/app/(root)/components/sections/stores-section";
 import PricingSection from "@/app/(root)/components/sections/pricing-section";
 import StatsSection from "@/app/(root)/components/sections/stats-section";
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: "Pronađi najbolje cijene u Hrvatskoj",
-  description:
-    "App for shoppers in Croatia to compare store prices, create smart shopping lists, track loyalty cards, and get deal alerts with barcode scanning & AI suggestions.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("pages.home");
+
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
 
 export default function Home() {
   return (

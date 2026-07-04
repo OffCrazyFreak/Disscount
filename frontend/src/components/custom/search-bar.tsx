@@ -3,6 +3,7 @@
 import React, { useEffect, useCallback, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Search, ScanBarcode, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
@@ -20,16 +21,21 @@ interface ISearchBarProps {
 }
 
 export default function SearchBar({
-  placeholder = "Pretraži...",
+  placeholder,
   searchRoute,
   clearable = true,
   submitButtonLocation = "auto",
   autoSearch = false,
   allowScanning = false,
-  submitLabel = "Pretraži",
+  submitLabel,
 }: ISearchBarProps) {
+  const t = useTranslations("common");
   const searchParams = useSearchParams();
   const pathname = usePathname();
+
+  // Fall back to generic translated copy when the caller doesn't pass its own.
+  const resolvedPlaceholder = placeholder ?? t("searchPlaceholder");
+  const resolvedSubmitLabel = submitLabel ?? t("search");
 
   function decodeQuerySafely(rawQuery: string): string {
     try {
@@ -126,7 +132,7 @@ export default function SearchBar({
             }}
             {...registerProps}
             type="text"
-            placeholder={placeholder}
+            placeholder={resolvedPlaceholder}
             className="pl-10 pr-22 py-6 text-gray-500 focus:text-gray-700 bg-white"
             autoComplete="off"
           />
@@ -138,8 +144,8 @@ export default function SearchBar({
                 variant="ghost"
                 size="icon"
                 onClick={handleClear}
-                title="Clear search"
-                aria-label="Clear search"
+                title={t("clearSearch")}
+                aria-label={t("clearSearch")}
               >
                 <X className="size-5" />
               </Button>
@@ -151,8 +157,8 @@ export default function SearchBar({
                 variant="ghost"
                 size="icon"
                 onClick={() => openScanner(handleScan)}
-                title="Scan barcode"
-                aria-label="Scan barcode"
+                title={t("scanBarcode")}
+                aria-label={t("scanBarcode")}
               >
                 <ScanBarcode className="size-5" />
               </Button>
@@ -170,7 +176,7 @@ export default function SearchBar({
             disabled={!queryValue?.trim()}
           >
             <Search className="size-5 mr-2" />
-            {submitLabel}
+            {resolvedSubmitLabel}
           </Button>
         )}
       </form>

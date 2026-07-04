@@ -1,4 +1,5 @@
 import { Grid, List } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Tooltip,
   TooltipContent,
@@ -16,11 +17,13 @@ export default function ViewSwitcher({
   viewMode,
   setViewMode,
 }: IViewSwitcherProps) {
+  const t = useTranslations("common");
+
   return (
     <TooltipProvider>
       <div
         role="radiogroup"
-        aria-label="View mode"
+        aria-label={t("viewMode")}
         className="bg-muted inline-flex items-center rounded-lg p-1"
       >
         <Tooltip>
@@ -36,12 +39,12 @@ export default function ViewSwitcher({
                 value="grid"
                 checked={viewMode === "grid"}
                 onChange={() => setViewMode("grid")}
-                aria-label="Grid view"
+                aria-label={t("gridView")}
               />
               <Grid size={18} />
             </label>
           </TooltipTrigger>
-          <TooltipContent>Grid view</TooltipContent>
+          <TooltipContent>{t("gridView")}</TooltipContent>
         </Tooltip>
 
         <Tooltip>
@@ -57,12 +60,12 @@ export default function ViewSwitcher({
                 value="list"
                 checked={viewMode === "list"}
                 onChange={() => setViewMode("list")}
-                aria-label="List view"
+                aria-label={t("listView")}
               />
               <List size={18} />
             </label>
           </TooltipTrigger>
-          <TooltipContent>List view</TooltipContent>
+          <TooltipContent>{t("listView")}</TooltipContent>
         </Tooltip>
       </div>
     </TooltipProvider>

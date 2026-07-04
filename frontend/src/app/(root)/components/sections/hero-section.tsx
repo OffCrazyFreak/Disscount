@@ -1,29 +1,19 @@
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import HeroActions from "@/app/(root)/components/sections/hero-actions";
 
-const tagLines: string[] = [
-  "Usporedi trgovine i cijene!",
-  "Uštedi pri svakoj kupnji!",
-  "Nikad ne propusti akciju!",
-  "Zaboravi kartice - olakšaj novčanik!",
-  "Izradi i podijeli popis za kupnju!",
-  "Prati povijest cijena!",
-  "Skeniraj barkod i usporedi cijene!",
-  "Uživaj u pametnom kupovanju!",
-  "Pronađi najbolje ponude u Hrvatskoj!",
-  "Kupuj kvalitetno i jeftino!",
-  "Kupuj pametno, uštedi više!",
-  "Tvoj partner u pametnoj kupovini!",
-  "Zaboravi na kataloge i letke!",
-];
-
-function getTagLine(): string {
-  const randomIndex = Math.floor(Math.random() * tagLines.length);
-  return tagLines[randomIndex];
+function pickRandom(taglines: string[]): string {
+  const randomIndex = Math.floor(Math.random() * taglines.length);
+  return taglines[randomIndex];
 }
 
-export default function HeroSection() {
-  const tagLine: string = getTagLine();
+export default async function HeroSection() {
+  const t = await getTranslations("hero");
+  const tCommon = await getTranslations("common");
+
+  // `taglines` is an array message; `t.raw` returns it untransformed.
+  const taglines = t.raw("taglines") as string[];
+  const tagLine = pickRandom(taglines);
 
   return (
     <section className="min-h-[70dvh] relative grid items-center">
@@ -32,7 +22,7 @@ export default function HeroSection() {
           {/* App logo */}
           <Image
             src="/disscount-logo.png"
-            alt="Disscount logo"
+            alt={tCommon("logoAlt")}
             width={512}
             height={512}
             className="mx-auto w-32 sm:w-48"

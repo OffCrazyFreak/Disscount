@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import cijeneService from "@/lib/cijene-api";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
 import { StoreItem } from "@/app/products/[id]/components/store-item/store-item";
@@ -23,6 +24,8 @@ import {
 
 export default function ProductDetailClient({ ean }: { ean: string }) {
   const { user } = useUser();
+  const t = useTranslations("productDetail");
+  const tCommon = useTranslations("common");
   const [expandedStore, setExpandedStore] = useState<string | null>(null);
   const [isStoresOpen, setIsStoresOpen] = useState(() =>
     getProductStoresOpen(ean),
@@ -90,11 +93,9 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Proizvod nije pronađen
+            {t("notFoundTitle")}
           </h2>
-          <p className="text-gray-600">
-            Nije moguće učitati podatke za ovaj proizvod.
-          </p>
+          <p className="text-gray-600">{t("notFoundDescription")}</p>
         </div>
       </div>
     );
@@ -116,14 +117,14 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
             <button type="button" className="w-full text-left">
               <div className="flex items-center justify-between gap-4">
                 <h2 className="text-lg font-semibold">
-                  Cijene po lancima trgovina
+                  {t("storeChainsHeading")}
                 </h2>
 
                 <Separator className="flex-1 my-2" />
 
                 <div className="flex items-center gap-4">
                   <p className="hidden sm:inline text-gray-700 text-sm">
-                    {isStoresOpen ? "Sakrij" : "Prikaži"}
+                    {isStoresOpen ? tCommon("hide") : tCommon("show")}
                   </p>
 
                   <ChevronDown
@@ -141,7 +142,7 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
             {pricesUpdatedAt > 0 && (
               <LastSyncedLabel
                 updatedAt={pricesUpdatedAt}
-                prefix="Cijene osvježene"
+                prefix={t("pricesRefreshed")}
                 className="mb-3 block"
               />
             )}
@@ -151,13 +152,9 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
                 <BlockLoadingSpinner />
               </div>
             ) : pricesError ? (
-              <p className="p-2 text-gray-600 text-center">
-                Greška pri učitavanju cijena. Pokušajte ponovno.
-              </p>
+              <p className="p-2 text-gray-600 text-center">{t("pricesError")}</p>
             ) : product.chains.length === 0 ? (
-              <p className="p-2 text-gray-600 text-center">
-                Nema dostupnih cijena za ovaj proizvod.
-              </p>
+              <p className="p-2 text-gray-600 text-center">{t("noPrices")}</p>
             ) : (
               <div className="space-y-4">
                 {product.chains

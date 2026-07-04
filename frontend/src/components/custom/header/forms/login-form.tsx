@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleCheck, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +38,8 @@ export function LoginForm({
   externalDisabled,
 }: ILoginFormProps) {
   const { handleUserLogin } = useUser();
+  const t = useTranslations("auth.login");
+  const tCommon = useTranslations("common");
 
   const form = useForm<LoginRequest>({
     resolver: zodResolver(loginRequestSchema),
@@ -60,24 +63,23 @@ export function LoginForm({
         let message: string;
         if (status === 403) {
           // Email not verified — Better Auth re-sends the verification link on each attempt.
-          message =
-            "Tvoj email još nije potvrđen. Poslali smo ti novu poveznicu — provjeri inbox (i spam).";
+          message = t("emailNotVerified");
         } else if (status === 401 || status === 400) {
-          message = "Neispravni email ili lozinka";
+          message = t("invalidCredentials");
         } else {
-          message = result.error.message || "Provjeri unesene podatke.";
+          message = result.error.message || t("checkInput");
         }
         form.setError("root", { type: "server", message });
         return;
       }
 
       await handleUserLogin();
-      toast.success("Prijava uspješna!");
+      toast.success(t("success"));
       form.reset();
       setLastLoginMethod("email");
       onSuccess?.();
     } catch {
-      toast.error("Greška pri prijavi. Pokušaj ponovo.");
+      toast.error(t("genericError"));
     }
   }
 
@@ -95,11 +97,11 @@ export function LoginForm({
         )}
 
         <div className="grid gap-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t("emailLabel")}</Label>
           <Input
             id="email"
             type="email"
-            placeholder="korisnik@example.com"
+            placeholder={tCommon("emailPlaceholder")}
             autoComplete="email"
             {...form.register("email")}
             className={cn(form.formState.errors.email && "border-red-700")}
@@ -116,7 +118,7 @@ export function LoginForm({
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Lozinka</FormLabel>
+              <FormLabel>{t("passwordLabel")}</FormLabel>
               <FormControl>
                 <PasswordInput
                   {...field}
@@ -137,19 +139,19 @@ export function LoginForm({
           onClick={onForgotPassword}
           className="-mt-2 justify-self-end cursor-pointer text-sm text-primary underline hover:text-primary/80"
         >
-          Zaboravljena lozinka?
+          {t("forgotPassword")}
         </button>
 
         <Button type="submit" size="lg" className="w-full" disabled={form.formState.isSubmitting || externalDisabled}>
           {form.formState.isSubmitting ? (
             <Loader2 size={16} className="animate-spin" />
           ) : (
-            "Prijavi se"
+            t("submit")
           )}
           {isLastUsed && !form.formState.isSubmitting && !externalDisabled && (
             <span className="absolute right-3 inline-flex items-center gap-0.5 rounded-full bg-white px-1.5 py-0.5 text-[10px] font-medium text-primary">
               <CircleCheck size={9} />
-              Zadnja prijava
+              {t("lastUsed")}
             </span>
           )}
         </Button>

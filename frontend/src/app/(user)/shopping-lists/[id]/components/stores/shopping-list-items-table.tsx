@@ -8,6 +8,7 @@ import {
   ArrowBigDownDash,
   TriangleAlert,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -41,12 +42,11 @@ interface ShoppingListItemsTableProps {
 export const ShoppingListItemsTable = memo(
   ({ chain, shoppingList, productsData }: ShoppingListItemsTableProps) => {
     const isMobile = useIsMobile();
+    const t = useTranslations("shoppingListDetail");
 
     if (!shoppingList.items || shoppingList.items.length === 0) {
       return (
-        <div className="text-center py-8 text-gray-500">
-          Nema stavki na popisu za kupnju
-        </div>
+        <div className="text-center py-8 text-gray-500">{t("noItems")}</div>
       );
     }
 
@@ -55,10 +55,16 @@ export const ShoppingListItemsTable = memo(
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="font-bold">Proizvod</TableHead>
-              <TableHead className="font-bold text-center">Količina</TableHead>
-              <TableHead className="font-bold text-center">Cijena</TableHead>
-              <TableHead className="font-bold text-center">Ukupno</TableHead>
+              <TableHead className="font-bold">{t("colProduct")}</TableHead>
+              <TableHead className="font-bold text-center">
+                {t("colQuantity")}
+              </TableHead>
+              <TableHead className="font-bold text-center">
+                {t("colPrice")}
+              </TableHead>
+              <TableHead className="font-bold text-center">
+                {t("colTotal")}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -141,13 +147,13 @@ export const ShoppingListItemsTable = memo(
                                 className="bg-orange-100 text-orange-800 border-orange-200 ml-2"
                               >
                                 <TriangleAlert className="size-4 shrink-0 text-amber-600" />
-                                Proizvod nedostupan
+                                {t("unavailable")}
                               </Badge>
                             )}
                           </TooltipTrigger>
 
                           <TooltipContent className="px-2 py-1 text-xs">
-                            Proizvod nije dostupan u ovoj trgovini
+                            {t("unavailableTooltip")}
                           </TooltipContent>
                         </Tooltip>
                       )}
@@ -186,7 +192,9 @@ export const ShoppingListItemsTable = memo(
                                 className="size-5"
                                 aria-hidden="true"
                               />
-                              <span className="sr-only">najniža cijena</span>
+                              <span className="sr-only">
+                                {t("lowestPrice")}
+                              </span>
                             </>
                           )}
                           {isHighestPrice && (
@@ -195,7 +203,9 @@ export const ShoppingListItemsTable = memo(
                                 className="size-5"
                                 aria-hidden="true"
                               />
-                              <span className="sr-only">najviša cijena</span>
+                              <span className="sr-only">
+                                {t("highestPrice")}
+                              </span>
                             </>
                           )}
                         </span>

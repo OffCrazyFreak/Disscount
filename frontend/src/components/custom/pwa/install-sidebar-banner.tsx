@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { useInstallPrompt } from "./use-install-prompt";
@@ -12,6 +13,7 @@ import InstallInstructionsSheet from "./install-instructions-sheet";
 // the app isn't installed (on browsers that support it); uses the native
 // prompt when available and otherwise opens manual instructions.
 export default function InstallSidebarBanner() {
+  const t = useTranslations("pwa");
   const { canShowInstallUI, canInstall, isIOS, promptInstall } =
     useInstallPrompt();
   const [instructionsOpen, setInstructionsOpen] = useState(false);
@@ -40,13 +42,13 @@ export default function InstallSidebarBanner() {
           />
 
           <p className="min-w-0 flex-1 text-sm leading-tight text-muted-foreground">
-            Dodaj Disscount na početni zaslon za brži pristup.
+            {t("bannerText")}
           </p>
         </div>
 
         <Button size="sm" className="w-full" onClick={handleInstall}>
           <Plus className="size-4" />
-          Dodaj na početni zaslon
+          {t("addToHome")}
         </Button>
       </div>
 

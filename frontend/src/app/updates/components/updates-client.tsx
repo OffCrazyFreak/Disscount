@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { Plus, Search } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import SearchBar from "@/components/custom/search-bar";
 import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
@@ -17,6 +18,7 @@ import { isAdmin } from "@/lib/api/schemas/auth-user";
 import { filterByFields } from "@/utils/generic";
 
 export default function UpdatesClient({ query }: { query: string }) {
+  const t = useTranslations("pages.updates");
   const pathname = usePathname();
   const { user } = useUser();
 
@@ -32,7 +34,7 @@ export default function UpdatesClient({ query }: { query: string }) {
     <div className="space-y-4">
       <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
         <SearchBar
-          placeholder="Pretraži novosti..."
+          placeholder={t("searchPlaceholder")}
           searchRoute={pathname}
           clearable={true}
           submitButtonLocation="none"
@@ -43,8 +45,8 @@ export default function UpdatesClient({ query }: { query: string }) {
       <div className="flex items-center justify-between gap-4">
         <h3>
           {query.length > 0
-            ? `Rezultati pretrage za "${query}" (${matchingPosts.length})`
-            : `Novosti (${matchingPosts.length})`}
+            ? t("searchResults", { query, count: matchingPosts.length })
+            : t("heading", { count: matchingPosts.length })}
         </h3>
 
         {userIsAdmin && (
@@ -52,11 +54,9 @@ export default function UpdatesClient({ query }: { query: string }) {
             effect="shineHover"
             icon={Plus}
             iconPlacement="left"
-            onClick={() =>
-              toast.info("Stvaranje objava bit će uskoro dostupno.")
-            }
+            onClick={() => toast.info(t("newPostSoon"))}
           >
-            Nova objava
+            {t("newPost")}
           </Button>
         )}
       </div>

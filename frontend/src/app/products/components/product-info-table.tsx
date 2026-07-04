@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import {
   getAveragePrice,
@@ -17,6 +18,8 @@ interface IProductInfoTableProps {
 }
 
 export default function ProductInfoTable({ product }: IProductInfoTableProps) {
+  const t = useTranslations("productDetail");
+  const tCommon = useTranslations("common");
   const averagePrice = getAveragePrice(product);
   const minPrice = getMinPrice(product);
   const maxPrice = getMaxPrice(product);
@@ -31,23 +34,23 @@ export default function ProductInfoTable({ product }: IProductInfoTableProps) {
         <tbody>
           <tr className="flex flex-col sm:table-row">
             <td className="p-2 border-b sm:border-b-0 sm:border-r flex-1">
-              <span className="font-bold">Proizvođač: </span>
-              {product.brand || "Nepoznato"}
+              <span className="font-bold">{t("producer")}: </span>
+              {product.brand || tCommon("unknown")}
             </td>
             <td className="p-2 flex-1">
-              <span className="font-bold">Bar kod: </span>
-              {product.ean || "Nepoznato"}
+              <span className="font-bold">{t("barcode")}: </span>
+              {product.ean || tCommon("unknown")}
             </td>
           </tr>
 
           {product.quantity && product.unit && (
             <tr className="flex flex-col sm:table-row border-y">
               <td className="p-2 border-b sm:border-b-0 sm:border-r flex-1">
-                <span className="font-bold">Količina: </span>
+                <span className="font-bold">{t("quantity")}: </span>
                 {`${formatQuantity(product.quantity)} ${product.unit}`}
               </td>
               <td className="p-2 flex-1">
-                <span className="font-bold">Cijene: </span>
+                <span className="font-bold">{t("prices")}: </span>
                 {product.chains.length > 0 ? (
                   minPrice === maxPrice ? (
                     <span className="whitespace-nowrap text-gray-700">
@@ -68,7 +71,7 @@ export default function ProductInfoTable({ product }: IProductInfoTableProps) {
                     </span>
                   )
                 ) : (
-                  "Nepoznato"
+                  tCommon("unknown")
                 )}
               </td>
             </tr>
@@ -77,7 +80,7 @@ export default function ProductInfoTable({ product }: IProductInfoTableProps) {
           {product.chains.length > 0 && product.quantity && (
             <tr className="flex flex-col sm:table-row">
               <td className="p-2 flex-1">
-                <span className="font-bold">Jed. cijene: </span>
+                <span className="font-bold">{t("unitPrices")}: </span>
                 {minPricePerUnit === maxPricePerUnit ? (
                   <span className="whitespace-nowrap text-gray-700">
                     {minPricePerUnit?.toFixed(2)}€/{product.unit}

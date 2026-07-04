@@ -1,4 +1,5 @@
 import React, { memo } from "react";
+import { useTranslations } from "next-intl";
 import {
   Table,
   TableBody,
@@ -25,6 +26,8 @@ interface IStorePricesTableProps {
 export const StorePricesTable = memo(
   ({ storePrices, product }: IStorePricesTableProps) => {
     const { user } = useUser();
+    const t = useTranslations("productDetail");
+    const tCommon = useTranslations("common");
 
     const productMinPrice = getMinPrice(product);
     const productMaxPrice = getMaxPrice(product);
@@ -32,7 +35,7 @@ export const StorePricesTable = memo(
     if (storePrices.length === 0) {
       return (
         <div className="text-center py-8 text-gray-500">
-          Nema dostupnih cijena za ovaj lanac
+          {t("noChainPrices")}
         </div>
       );
     }
@@ -42,9 +45,11 @@ export const StorePricesTable = memo(
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="font-bold">Lokacija</TableHead>
-              <TableHead className="font-bold">Adresa</TableHead>
-              <TableHead className="font-bold text-center">Cijena</TableHead>
+              <TableHead className="font-bold">{t("location")}</TableHead>
+              <TableHead className="font-bold">{t("address")}</TableHead>
+              <TableHead className="font-bold text-center">
+                {t("price")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
@@ -125,10 +130,12 @@ export const StorePricesTable = memo(
                     <TableCell>
                       {price.store.city
                         ? locationNamesMap[price.store.city] || price.store.city
-                        : "Nepoznato"}
+                        : tCommon("unknown")}
                     </TableCell>
 
-                    <TableCell>{price.store.address || "Nepoznato"}</TableCell>
+                    <TableCell>
+                      {price.store.address || tCommon("unknown")}
+                    </TableCell>
 
                     <TableCell className="text-center">
                       {displayPrice != null ? (

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { shoppingListService } from "@/lib/api";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 
@@ -10,6 +11,7 @@ export function useShoppingListItemMutations(
   storePrices: Record<string, Record<string, number>>
 ) {
   const queryClient = useQueryClient();
+  const t = useTranslations("shoppingListDetail.toasts");
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
 
   const updateItemMutation = shoppingListService.useUpdateShoppingListItem();
@@ -98,9 +100,7 @@ export function useShoppingListItemMutations(
           if (previousData) {
             queryClient.setQueryData(["shoppingLists", listId], previousData);
           }
-          toast.error(
-            error.message || "Greška pri ažuriranju stavke. Pokušajte ponovno."
-          );
+          toast.error(error.message || t("updateItemError"));
         },
         onSettled: () => {
           queryClient.invalidateQueries({
@@ -141,12 +141,10 @@ export function useShoppingListItemMutations(
           if (previousData) {
             queryClient.setQueryData(["shoppingLists", listId], previousData);
           }
-          toast.error(
-            error.message || "Greška pri brisanju stavke. Pokušajte ponovno."
-          );
+          toast.error(error.message || t("deleteItemError"));
         },
         onSuccess: () => {
-          toast.success("Stavka je uspješno obrisana!");
+          toast.success(t("itemDeleted"));
         },
         onSettled: () => {
           setDeletingItemId(null);

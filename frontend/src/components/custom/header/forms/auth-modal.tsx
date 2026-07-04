@@ -4,6 +4,7 @@ import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { CircleCheck } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { signIn } from "@/lib/auth-client";
 
 import {
@@ -34,12 +35,6 @@ interface IAuthModalProps {
 
 type AuthMode = "login" | "signup" | "forgot";
 
-const TITLES: Record<AuthMode, string> = {
-  login: "Prijava",
-  signup: "Registracija",
-  forgot: "Zaboravljena lozinka",
-};
-
 // Re-read the badge when localStorage changes in another tab; same-tab writes happen right
 // before a redirect, so a no-op there is fine.
 function subscribeToStorage(callback: () => void) {
@@ -49,10 +44,19 @@ function subscribeToStorage(callback: () => void) {
 }
 
 export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
+  const t = useTranslations("auth.modal");
+  const tAuth = useTranslations("auth");
+
   const [authMode, setAuthMode] = useState<AuthMode>("login");
   const [socialPending, setSocialPending] = useState<
     "google" | "facebook" | null
   >(null);
+
+  const titles: Record<AuthMode, string> = {
+    login: t("loginTitle"),
+    signup: t("signupTitle"),
+    forgot: t("forgotTitle"),
+  };
 
   // The last-used method lives in localStorage (an external store); reading it via
   // useSyncExternalStore keeps the badge SSR-safe without a state-setting effect.
@@ -88,7 +92,7 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
       });
     } catch {
       const label = provider === "google" ? "Google" : "Facebook";
-      toast.error(`Greška pri ${label} prijavi. Pokušaj ponovo.`);
+      toast.error(tAuth("socialError", { provider: label }));
       setSocialPending(null);
     }
   }
@@ -98,7 +102,7 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-xl mb-2">
-            {TITLES[authMode]}
+            {titles[authMode]}
           </DialogTitle>
         </DialogHeader>
 
@@ -122,7 +126,7 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
 
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="bg-background px-4 text-muted-foreground">
-                  ili
+                  {t("or")}
                 </span>
               </div>
             </div>
@@ -137,11 +141,11 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
               icon={GoogleIcon}
               iconPlacement="left"
             >
-              Nastavi sa Google računom
+              {t("continueGoogle")}
               {lastLoginMethod === "google" && socialPending !== "google" && (
                 <span className="absolute right-3 inline-flex items-center gap-0.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-white">
                   <CircleCheck size={9} />
-                  Zadnja prijava
+                  {t("lastUsed")}
                 </span>
               )}
             </Button>
@@ -156,40 +160,45 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
               icon={FacebookIcon}
               iconPlacement="left"
             >
-              Nastavi sa Facebook računom
+              {t("continueFacebook")}
               {FACEBOOK_COMING_SOON ? (
-                <Badge className="absolute right-3 text-[10px]">USKORO</Badge>
+                <Badge className="absolute right-3 text-[10px]">
+                  {t("comingSoon")}
+                </Badge>
               ) : (
                 lastLoginMethod === "facebook" &&
                 socialPending !== "facebook" && (
                   <span className="absolute right-3 inline-flex items-center gap-0.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-white">
                     <CircleCheck size={9} />
-                    Zadnja prijava
+                    {t("lastUsed")}
                   </span>
                 )
               )}
             </Button>
 
             <p className="text-center text-xs text-muted-foreground text-balance">
-              Nastavkom prihvaćaš naše{" "}
-              <Link
-                href="/terms-of-service"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-primary"
-              >
-                Uvjete korištenja
-              </Link>{" "}
-              i{" "}
-              <Link
-                href="/privacy-policy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-primary"
-              >
-                Pravila privatnosti
-              </Link>
-              .
+              {t.rich("terms", {
+                terms: (chunks) => (
+                  <Link
+                    href="/terms-of-service"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:text-primary"
+                  >
+                    {chunks}
+                  </Link>
+                ),
+                privacy: (chunks) => (
+                  <Link
+                    href="/privacy-policy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:text-primary"
+                  >
+                    {chunks}
+                  </Link>
+                ),
+              })}
             </p>
           </div>
         )}
@@ -197,25 +206,25 @@ export function AuthModal({ isOpen, onOpenChange }: IAuthModalProps) {
         <DialogFooter className="text-xs text-gray-500 text-center my-2 block">
           {authMode === "login" && (
             <>
-              Još nemaš račun?{" "}
+              {t("noAccount")}{" "}
               <button
                 type="button"
                 onClick={() => setAuthMode("signup")}
                 className="cursor-pointer underline text-primary hover:text-primary/80"
               >
-                Registriraj se
+                {t("signUpLink")}
               </button>
             </>
           )}
           {authMode === "signup" && (
             <>
-              Već imaš račun?{" "}
+              {t("haveAccount")}{" "}
               <button
                 type="button"
                 onClick={() => setAuthMode("login")}
                 className="cursor-pointer underline text-primary hover:text-primary/80"
               >
-                Prijavi se
+                {t("signInLink")}
               </button>
             </>
           )}

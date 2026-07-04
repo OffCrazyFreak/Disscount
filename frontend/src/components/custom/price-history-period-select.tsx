@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PeriodOption } from "@/typings/history-period-options";
 
@@ -12,11 +13,13 @@ export default function PriceHistoryPeriodSelect({
   onChange,
   disabledPeriods = [],
 }: PriceHistoryPeriodSelectProps) {
+  const t = useTranslations("priceHistory");
+
   const periods: { value: PeriodOption; label: string }[] = [
-    { value: "1W", label: "1T" },
-    { value: "1M", label: "1M" },
-    { value: "1Y", label: "1G" },
-    { value: "ALL", label: "Sve" },
+    { value: "1W", label: t("period1W") },
+    { value: "1M", label: t("period1M") },
+    { value: "1Y", label: t("period1Y") },
+    { value: "ALL", label: t("periodAll") },
   ];
 
   return (

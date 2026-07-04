@@ -7,6 +7,7 @@ import {
   Share2,
   MoreVertical,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -45,6 +46,7 @@ export default function ShoppingListActionButtons({
   showShareButton = false,
 }: ShoppingListActionButtonsProps) {
   const queryClient = useQueryClient();
+  const t = useTranslations("shoppingListDetail");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
@@ -68,10 +70,10 @@ export default function ShoppingListActionButtons({
     try {
       const shareText = formatShoppingListForSharing(shoppingList);
       await navigator.clipboard.writeText(shareText);
-      toast.success("Popis je kopiran u međuspremnik!");
+      toast.success(t("toasts.shared"));
     } catch (error) {
       console.error("Error sharing shopping list:", error);
-      toast.error("Greška pri kopiranju popisa");
+      toast.error(t("toasts.shareError"));
     } finally {
       setIsSharing(false);
     }
@@ -101,7 +103,7 @@ export default function ShoppingListActionButtons({
             <TooltipTrigger asChild>
               <Button
                 size="icon"
-                aria-label="Podijeli popis"
+                aria-label={t("share")}
                 className="size-10 sm:size-12 shrink-0"
                 onClick={handleShare}
                 disabled={isSharing}
@@ -115,7 +117,7 @@ export default function ShoppingListActionButtons({
             </TooltipTrigger>
 
             <TooltipContent className="px-2 py-1 text-xs">
-              Podijeli popis
+              {t("share")}
             </TooltipContent>
           </Tooltip>
         )}
@@ -125,7 +127,7 @@ export default function ShoppingListActionButtons({
             <TooltipTrigger asChild>
               <Button
                 size="icon"
-                aria-label="Kopiraj popis"
+                aria-label={t("copy")}
                 className="size-10 sm:size-12 shrink-0"
                 onClick={() => {
                   handleCopy();
@@ -141,7 +143,7 @@ export default function ShoppingListActionButtons({
             </TooltipTrigger>
 
             <TooltipContent className="px-2 py-1 text-xs">
-              Kopiraj popis
+              {t("copy")}
             </TooltipContent>
           </Tooltip>
         )}
@@ -151,7 +153,7 @@ export default function ShoppingListActionButtons({
             <TooltipTrigger asChild>
               <Button
                 size="icon"
-                aria-label="Uredi popis"
+                aria-label={t("edit")}
                 className="size-10 sm:size-12 shrink-0"
                 onClick={() => {
                   setIsModalOpen(true);
@@ -162,7 +164,7 @@ export default function ShoppingListActionButtons({
             </TooltipTrigger>
 
             <TooltipContent className="px-2 py-1 text-xs">
-              Uredi popis
+              {t("edit")}
             </TooltipContent>
           </Tooltip>
         )}
@@ -172,7 +174,7 @@ export default function ShoppingListActionButtons({
             <TooltipTrigger asChild>
               <Button
                 size="icon"
-                aria-label="Obriši popis"
+                aria-label={t("deleteAction")}
                 className="size-10 sm:size-12 shrink-0 bg-red-600 hover:bg-red-700"
                 onClick={() => {
                   setIsDeleteDialogOpen(true);
@@ -188,7 +190,7 @@ export default function ShoppingListActionButtons({
             </TooltipTrigger>
 
             <TooltipContent className="px-2 py-1 text-xs">
-              Obriši popis
+              {t("deleteAction")}
             </TooltipContent>
           </Tooltip>
         )}
@@ -198,7 +200,7 @@ export default function ShoppingListActionButtons({
       <div className="flex sm:hidden">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button size="icon" aria-label="Dodatne opcije" variant="default">
+            <Button size="icon" aria-label={t("moreOptions")} variant="default">
               <MoreVertical className="size-6" />
             </Button>
           </DropdownMenuTrigger>
@@ -214,7 +216,7 @@ export default function ShoppingListActionButtons({
                 ) : (
                   <Share2 className="size-5" />
                 )}
-                <span>Podijeli popis</span>
+                <span>{t("share")}</span>
               </DropdownMenuItem>
             )}
 
@@ -231,7 +233,7 @@ export default function ShoppingListActionButtons({
                 ) : (
                   <Copy className="size-5" />
                 )}
-                <span>Kopiraj popis</span>
+                <span>{t("copy")}</span>
               </DropdownMenuItem>
             )}
 
@@ -243,7 +245,7 @@ export default function ShoppingListActionButtons({
                 className="cursor-pointer flex items-center gap-4"
               >
                 <LucideClipboardEdit className="size-5" />
-                <span>Uredi popis</span>
+                <span>{t("edit")}</span>
               </DropdownMenuItem>
             )}
 
@@ -260,7 +262,7 @@ export default function ShoppingListActionButtons({
                 ) : (
                   <Trash2 className="size-5 text-red-600" />
                 )}
-                <span>Obriši popis</span>
+                <span>{t("deleteAction")}</span>
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>

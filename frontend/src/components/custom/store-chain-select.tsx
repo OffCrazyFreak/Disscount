@@ -8,6 +8,7 @@ import {
 import { cn } from "@/lib/utils";
 import { storeNamesMap } from "@/constants/name-mappings";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 
 interface StoreChainSelectProps {
@@ -22,6 +23,18 @@ interface StoreChainSelectProps {
   classname?: string;
 }
 
+// Positive difference (more expensive than average) is red, negative (cheaper)
+// is green. Kept at module scope so the class names live in plain JS.
+function getDiffColorClass(difference: string | null): string {
+  if (difference === null) return "text-gray-500";
+
+  const value = parseFloat(difference);
+  if (value > 0) return "text-red-700";
+  if (value < 0) return "text-green-700";
+
+  return "text-gray-500";
+}
+
 export default function StoreChainSelect({
   value,
   onChange,
@@ -33,6 +46,7 @@ export default function StoreChainSelect({
   storePriceFromDb,
   classname,
 }: StoreChainSelectProps) {
+  const t = useTranslations("common");
   const [displayValue, setDisplayValue] = useState<string>(value || "");
 
   // If default value is provided and current value is null/undefined, use default
@@ -97,21 +111,15 @@ export default function StoreChainSelect({
       <SelectTrigger
         className={cn("min-w-0 h-9 text-xs sm:text-sm", classname)}
       >
-        <SelectValue placeholder="Trgovina" />
+        <SelectValue placeholder={t("storeChainPlaceholder")} />
       </SelectTrigger>
 
       <SelectContent>
         {availableChainCodes.map((chainCode) => {
           const priceDifference = getPriceDifference(chainCode);
-
-          // Determine color based on difference (positive = red, negative = green)
-          const diffColorClass = priceDifference
-            ? parseFloat(priceDifference.difference) > 0
-              ? "text-red-700"
-              : parseFloat(priceDifference.difference) < 0
-                ? "text-green-700"
-                : "text-gray-500"
-            : "text-gray-500";
+          const diffColorClass = getDiffColorClass(
+            priceDifference?.difference ?? null,
+          );
 
           return (
             <SelectItem key={chainCode} value={chainCode}>

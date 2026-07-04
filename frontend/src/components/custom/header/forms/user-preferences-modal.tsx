@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import {
   FormControl,
@@ -55,6 +56,8 @@ export default function UserPreferencesModal({
   onOpenChange,
 }: IUserPreferencesModalProps) {
   const { user, updatePinnedStores, updatePinnedPlaces } = useUser();
+  const t = useTranslations("settings.preferences");
+  const tCommon = useTranslations("common");
 
   const form = useForm<UserPreferencesFormType>({
     resolver: zodResolver(userPreferencesSchema),
@@ -145,9 +148,7 @@ export default function UserPreferencesModal({
               // Success handled after both calls complete
             },
             onError: (error) => {
-              toast.error(
-                error.message || "Greška pri spremanju preferenca trgovina",
-              );
+              toast.error(error.message || t("saveStoresError"));
             },
           },
         ),
@@ -165,9 +166,7 @@ export default function UserPreferencesModal({
               // Success handled after both calls complete
             },
             onError: (error) => {
-              toast.error(
-                error.message || "Greška pri spremanju preferenca lokacija",
-              );
+              toast.error(error.message || t("saveLocationsError"));
             },
           },
         ),
@@ -177,9 +176,9 @@ export default function UserPreferencesModal({
       updatePinnedStores(storesResponse);
       updatePinnedPlaces(placesResponse);
 
-      toast.success("Preference uspješno spremljene!");
+      toast.success(t("saveSuccess"));
     } catch {
-      toast.error("Greška pri spremanju preferenca");
+      toast.error(t("saveError"));
     }
   };
 
@@ -203,7 +202,7 @@ export default function UserPreferencesModal({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent aria-describedby="user-preferences-modal">
         <DialogHeader>
-          <DialogTitle className="text-xl">Preference</DialogTitle>
+          <DialogTitle className="text-xl">{t("title")}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -215,10 +214,8 @@ export default function UserPreferencesModal({
             )}
             <div className="space-y-8">
               <FormItem className="gap-0">
-                <FormLabel className="text-md">Trgovine</FormLabel>
-                <p className="text-sm text-gray-500 mb-4">
-                  Odaberi trgovine u tvojoj blizini.
-                </p>
+                <FormLabel className="text-md">{t("storesLabel")}</FormLabel>
+                <p className="text-sm text-gray-500 mb-4">{t("storesHint")}</p>
 
                 <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
                   {chainStats?.chain_stats
@@ -228,9 +225,10 @@ export default function UserPreferencesModal({
                       }),
                     )
                     .map((chain: ChainStats) => {
-                      const isSelected = form
-                        .watch("pinnedStores")
-                        .includes(chain.chain_code);
+                      const pinnedStores = form.watch("pinnedStores");
+                      const isSelected = pinnedStores.includes(
+                        chain.chain_code,
+                      );
                       return (
                         <div
                           key={chain.chain_code}
@@ -281,10 +279,10 @@ export default function UserPreferencesModal({
                         ev.stopPropagation();
                       }}
                     >
-                      Lokacije
+                      {t("locationsLabel")}
                     </FormLabel>
                     <p className="text-sm text-gray-500 mb-2">
-                      Odaberi lokacije u tvojoj blizini.
+                      {t("locationsHint")}
                     </p>
 
                     <MultiSelect
@@ -293,7 +291,9 @@ export default function UserPreferencesModal({
                     >
                       <FormControl>
                         <MultiSelectTrigger className="w-full">
-                          <MultiSelectValue placeholder="Odaberi lokacije..." />
+                          <MultiSelectValue
+                            placeholder={t("locationsPlaceholder")}
+                          />
                         </MultiSelectTrigger>
                       </FormControl>
                       <MultiSelectContent className=" bg-white">
@@ -329,7 +329,7 @@ export default function UserPreferencesModal({
                 variant="outline"
                 onClick={handleCancel}
               >
-                Odustani
+                {tCommon("cancel")}
               </Button>
               <Button
                 size="lg"
@@ -339,7 +339,7 @@ export default function UserPreferencesModal({
                 {isLoading ? (
                   <Loader2 size={16} className="animate-spin" />
                 ) : (
-                  "Spremi"
+                  tCommon("save")
                 )}
               </Button>
             </div>
@@ -347,7 +347,7 @@ export default function UserPreferencesModal({
         </Form>
 
         <DialogFooter className="text-xs text-gray-500 text-center my-2 block">
-          Ove preference možeš uvijek izmijeniti u postavkama računa.
+          {t("footer")}
         </DialogFooter>
       </DialogContent>
     </Dialog>

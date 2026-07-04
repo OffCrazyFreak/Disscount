@@ -1,11 +1,13 @@
 "use client";
 
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useTranslations } from "next-intl";
 
 import {
   Dialog,
@@ -27,17 +29,7 @@ import {
 import { passwordSchema } from "@/lib/api/schemas/auth-user";
 import { authClient } from "@/lib/auth-client";
 
-const resetPasswordSchema = z
-  .object({
-    password: passwordSchema,
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Lozinke se ne podudaraju",
-    path: ["confirmPassword"],
-  });
-
-type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
+type ResetPasswordForm = { password: string; confirmPassword: string };
 
 interface IResetPasswordModalProps {
   token: string;
@@ -51,6 +43,20 @@ export default function ResetPasswordModal({
   token,
 }: IResetPasswordModalProps) {
   const router = useRouter();
+  const t = useTranslations("pages.resetPassword");
+  const tv = useTranslations("validation");
+
+  // Built inside the component so the mismatch message is localized.
+  const resetPasswordSchema = useMemo(
+    () =>
+      z
+        .object({ password: passwordSchema, confirmPassword: z.string() })
+        .refine((data) => data.password === data.confirmPassword, {
+          message: tv("passwordsMismatch"),
+          path: ["confirmPassword"],
+        }),
+    [tv],
+  );
 
   const form = useForm<ResetPasswordForm>({
     resolver: zodResolver(resetPasswordSchema),
@@ -65,15 +71,15 @@ export default function ResetPasswordModal({
       });
 
       if (error) {
-        toast.error("Poveznica je nevažeća ili je istekla. Zatraži novu.");
+        toast.error(t("invalidLink"));
         return;
       }
     } catch {
-      toast.error("Greška pri postavljanju lozinke. Pokušaj ponovo.");
+      toast.error(t("error"));
       return;
     }
 
-    toast.success("Lozinka je postavljena. Sada se možeš prijaviti.");
+    toast.success(t("success"));
     router.push("/");
   }
 
@@ -86,17 +92,12 @@ export default function ResetPasswordModal({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-xl">Nova lozinka</DialogTitle>
-          <DialogDescription>
-            Postavi novu lozinku za svoj Disscount račun.
-          </DialogDescription>
+          <DialogTitle className="text-xl">{t("title")}</DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
 
         {!token ? (
-          <p className="text-sm text-red-700">
-            Nedostaje token. Zatraži novu poveznicu putem „Zaboravljena
-            lozinka?“ na prijavi.
-          </p>
+          <p className="text-sm text-red-700">{t("missingToken")}</p>
         ) : (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
@@ -105,7 +106,7 @@ export default function ResetPasswordModal({
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nova lozinka</FormLabel>
+                    <FormLabel>{t("newPasswordLabel")}</FormLabel>
                     <FormControl>
                       <PasswordInput
                         {...field}
@@ -123,7 +124,7 @@ export default function ResetPasswordModal({
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Potvrdi novu lozinku</FormLabel>
+                    <FormLabel>{t("confirmLabel")}</FormLabel>
                     <FormControl>
                       <PasswordInput
                         {...field}
@@ -145,7 +146,7 @@ export default function ResetPasswordModal({
                 {form.formState.isSubmitting ? (
                   <Loader2 size={16} className="animate-spin" />
                 ) : (
-                  "Postavi lozinku"
+                  t("submit")
                 )}
               </Button>
             </form>

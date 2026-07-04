@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Loader2, Plus, ChevronDown, ListChecks } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -52,6 +53,8 @@ export default function ShoppingListSelector({
   selectedList,
   disabled = false,
 }: IShoppingListSelectorProps) {
+  const t = useTranslations("addToList");
+  const tCommon = useTranslations("common");
   const [open, setOpen] = useState(false);
 
   return (
@@ -60,7 +63,7 @@ export default function ShoppingListSelector({
       name="shoppingListId"
       render={({ field }) => (
         <FormItem className="flex flex-col">
-          <FormLabel>Popis za kupnju</FormLabel>
+          <FormLabel>{t("listLabel")}</FormLabel>
 
           <Popover open={open} onOpenChange={setOpen} modal={true}>
             <PopoverTrigger asChild>
@@ -78,11 +81,11 @@ export default function ShoppingListSelector({
                     {isLoadingLists ? (
                       <div>
                         <Loader2 className="size-5 animate-spin" />
-                        <span className="sr-only">Učitavanje...</span>
+                        <span className="sr-only">{tCommon("loading")}</span>
                       </div>
                     ) : field.value === "new" && customListTitle.trim() ? (
                       <div className="truncate">
-                        {`Stvori novi popis "${customListTitle.trim()}"`}
+                        {t("createNewList", { title: customListTitle.trim() })}
                       </div>
                     ) : selectedList ? (
                       <div className="flex items-center gap-2">
@@ -103,7 +106,7 @@ export default function ShoppingListSelector({
                         </span>
                       </div>
                     ) : (
-                      "Odaberi popis..."
+                      t("selectPlaceholder")
                     )}
                   </div>
 
@@ -120,20 +123,17 @@ export default function ShoppingListSelector({
             <PopoverContent className="w-sm max-w-[75dvw]">
               <Command>
                 <CommandInput
-                  placeholder="Pretraži svoje popise ili stvori novi..."
+                  placeholder={t("searchPlaceholder")}
                   value={customListTitle}
                   onValueChange={setCustomListTitle}
                 />
                 <CommandList>
                   <CommandEmpty>
-                    <p>
-                      Počni upisivati naziv da stvoriš svoj prvi popis za kupnju
-                      direktno ovdje.
-                    </p>
+                    <p>{t("emptyHint")}</p>
                   </CommandEmpty>
 
                   {sortedShoppingLists.length > 0 && (
-                    <CommandGroup heading="Postojeći popisi">
+                    <CommandGroup heading={t("existingLists")}>
                       {sortedShoppingLists.map((list) => (
                         <CommandItem
                           key={list.id}
@@ -178,7 +178,7 @@ export default function ShoppingListSelector({
                   )}
 
                   {customListTitle.trim() && (
-                    <CommandGroup heading="Novi popis za kupnju">
+                    <CommandGroup heading={t("newListGroup")}>
                       <CommandItem
                         value={`new-${customListTitle}`}
                         onSelect={() => {
@@ -188,7 +188,7 @@ export default function ShoppingListSelector({
                         className="text-nowrap"
                       >
                         <Plus className="size-4" />
-                        Stvori &ldquo;
+                        {tCommon("create")} &ldquo;
                         <span className="truncate">
                           {customListTitle.trim()}
                         </span>

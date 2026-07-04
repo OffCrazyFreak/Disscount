@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Image, ListPlus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -28,6 +29,7 @@ export default function ProductActionButtons({
   showAddToWatchlist = true,
   className,
 }: IProductActionButtonsProps) {
+  const t = useTranslations("productDetail");
   const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
   const { data: currentUserWatchlist = [] } =
     watchlistService.useGetCurrentUserWatchlist();
@@ -50,7 +52,7 @@ export default function ProductActionButtons({
             <TooltipTrigger asChild>
               <Button
                 size="icon"
-                aria-label="Pretraži sliku proizvoda"
+                aria-label={t("searchImage")}
                 className="size-10 sm:size-12 shrink-0"
                 onClick={() => {
                   let searchQuery = `${product.name}`;
@@ -74,7 +76,7 @@ export default function ProductActionButtons({
             </TooltipTrigger>
 
             <TooltipContent className="px-2 py-1 text-xs">
-              Pretraži sliku proizvoda
+              {t("searchImage")}
             </TooltipContent>
           </Tooltip>
         )}
@@ -84,7 +86,7 @@ export default function ProductActionButtons({
             <TooltipTrigger asChild>
               <Button
                 size="icon"
-                aria-label="Dodaj na popis za kupnju"
+                aria-label={t("addToListAction")}
                 className="size-10 sm:size-12 shrink-0"
                 onClick={() => {
                   setIsAddToListModalOpen(true);
@@ -95,7 +97,7 @@ export default function ProductActionButtons({
             </TooltipTrigger>
 
             <TooltipContent className="px-2 py-1 text-xs">
-              Dodaj na popis za kupnju
+              {t("addToListAction")}
             </TooltipContent>
           </Tooltip>
         )}

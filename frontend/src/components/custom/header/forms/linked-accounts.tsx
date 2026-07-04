@@ -3,6 +3,7 @@
 import { useState, type ComponentType, type SVGProps } from "react";
 import { Loader2, Link2, Unlink } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -42,6 +43,9 @@ export default function LinkedAccounts({
   accounts,
   onChanged,
 }: ILinkedAccountsProps) {
+  const t = useTranslations("settings.linkedAccounts");
+  const tCommon = useTranslations("common");
+
   // Holds the provider currently being linked/unlinked, so only its row spins.
   const [pending, setPending] = useState<SocialProvider | null>(null);
 
@@ -60,7 +64,7 @@ export default function LinkedAccounts({
         errorCallbackURL: window.location.pathname,
       });
     } catch {
-      toast.error("Greška pri povezivanju računa.");
+      toast.error(t("linkError"));
       setPending(null);
     }
   }
@@ -73,9 +77,9 @@ export default function LinkedAccounts({
     });
 
     if (error) {
-      toast.error("Greška pri odspajanju računa.");
+      toast.error(t("unlinkError"));
     } else {
-      toast.success("Račun je odspojen.");
+      toast.success(t("unlinkSuccess"));
       onChanged();
     }
     setPending(null);
@@ -94,9 +98,9 @@ export default function LinkedAccounts({
             <div className="flex items-center gap-2">
               <Icon className="size-5" />
               <span className="text-sm">{label}</span>
-              {account && <Badge className="text-xs">Povezano</Badge>}
+              {account && <Badge className="text-xs">{t("connected")}</Badge>}
               {!account && comingSoon && (
-                <Badge className="text-xs">USKORO</Badge>
+                <Badge className="text-xs">{tCommon("comingSoonBadge")}</Badge>
               )}
             </div>
 
@@ -109,16 +113,12 @@ export default function LinkedAccounts({
                 iconPlacement="left"
                 disabled={pending !== null || !canUnlink}
                 onClick={() => handleUnlink(id, account.accountId)}
-                title={
-                  canUnlink
-                    ? undefined
-                    : "Ne možeš odspojiti jedini način prijave."
-                }
+                title={canUnlink ? undefined : t("cannotUnlinkOnly")}
               >
                 {isPending ? (
                   <Loader2 size={15} className="animate-spin" />
                 ) : (
-                  "Odspoji"
+                  t("unlink")
                 )}
               </Button>
             ) : (
@@ -134,7 +134,7 @@ export default function LinkedAccounts({
                 {isPending ? (
                   <Loader2 size={15} className="animate-spin" />
                 ) : (
-                  "Poveži"
+                  t("link")
                 )}
               </Button>
             )}

@@ -1,4 +1,5 @@
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,14 +25,16 @@ export default function DeleteListDialog({
   isDeleting,
   listTitle,
 }: DeleteListDialogProps) {
+  const t = useTranslations("pages.shoppingLists.deleteDialog");
+  const tCommon = useTranslations("common");
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Obriši popis za kupnju</DialogTitle>
+          <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription>
-            Jeste li sigurni da želite obrisati popis &quot;{listTitle}&quot;?
-            Ova akcija se ne može poništiti.
+            {t("description", { title: listTitle })}
           </DialogDescription>
         </DialogHeader>
 
@@ -42,7 +45,7 @@ export default function DeleteListDialog({
               size="lg"
               onClick={() => onOpenChange(false)}
             >
-              Odustani
+              {tCommon("cancel")}
             </Button>
 
             <Button
@@ -54,7 +57,7 @@ export default function DeleteListDialog({
               {isDeleting ? (
                 <Loader2 className="size-4 animate-spin mr-2" />
               ) : null}
-              Obriši
+              {tCommon("delete")}
             </Button>
           </div>
         </DialogFooter>

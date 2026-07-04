@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/utils/date";
 
@@ -13,9 +14,10 @@ interface LastSyncedLabelProps {
 
 export default function LastSyncedLabel({
   updatedAt,
-  prefix = "Osvježeno",
+  prefix,
   className,
 }: LastSyncedLabelProps) {
+  const t = useTranslations("offline");
   // Render only after mount (relative time depends on `Date.now()`, which would
   // otherwise mismatch between server and client) and re-render each minute so
   // the label stays current.
@@ -33,7 +35,7 @@ export default function LastSyncedLabel({
 
   return (
     <span className={cn("text-xs text-muted-foreground", className)}>
-      {prefix} {formatRelativeTime(updatedAt)}
+      {prefix ?? t("refreshed")} {formatRelativeTime(updatedAt)}
     </span>
   );
 }

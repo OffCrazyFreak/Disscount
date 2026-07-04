@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { useQueries } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import {
   ChartConfig,
@@ -58,6 +59,8 @@ export default function ShoppingListPriceHistory({
   shoppingList,
 }: ShoppingListPriceHistoryProps) {
   const { user } = useUser();
+  const t = useTranslations("priceHistory");
+  const tCommon = useTranslations("common");
   const { tooltipActive, touchHandlers } = useTouchTooltipDismiss();
   const [period, setPeriod] = useState<PeriodOption>(() =>
     getEnabledPeriod(getShoppingListPriceHistoryPeriod(shoppingList.id)),
@@ -355,13 +358,13 @@ export default function ShoppingListPriceHistory({
       <CollapsibleTrigger asChild className="py-2">
         <button type="button" className="w-full text-left">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-lg font-semibold">Povijest cijena</h2>
+            <h2 className="text-lg font-semibold">{t("heading")}</h2>
 
             <Separator className="flex-1 my-2" />
 
             <div className="flex items-center gap-4">
               <p className="hidden sm:inline text-gray-700 text-sm">
-                {isPriceHistoryOpen ? "Sakrij" : "Prikaži"}
+                {isPriceHistoryOpen ? tCommon("hide") : tCommon("show")}
               </p>
 
               <ChevronDown
@@ -405,9 +408,7 @@ export default function ShoppingListPriceHistory({
                   </div>
                 ) : chartData.length === 0 || hasError ? (
                   <div className="text-center py-8">
-                    <p className="text-gray-600">
-                      Nema dostupnih povijesnih podataka.
-                    </p>
+                    <p className="text-gray-600">{t("noData")}</p>
                   </div>
                 ) : (
                   <ChartContainer config={chartConfig} {...touchHandlers}>

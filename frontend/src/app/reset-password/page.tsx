@@ -1,11 +1,16 @@
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import ResetPasswordModal from "@/app/reset-password/reset-password-modal";
 
-export const metadata: Metadata = {
-  title: "Nova lozinka",
-  description: "Postavi novu lozinku za svoj Disscount račun.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("pages.resetPassword");
+
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
 
 interface IPageProps {
   searchParams?: Promise<{ token?: string | string[] }>;

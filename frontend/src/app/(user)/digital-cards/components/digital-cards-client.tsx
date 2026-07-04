@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { Search, Plus, Loader2, CreditCard } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/custom/search-bar";
 import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
@@ -21,6 +22,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 
 export default function DigitalCardsClient({ query }: { query: string }) {
+  const t = useTranslations("pages.digitalCards");
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -64,13 +66,13 @@ export default function DigitalCardsClient({ query }: { query: string }) {
       <FloatingActionButton
         onClick={() => setIsModalOpen(true)}
         icon={<Plus size={24} />}
-        label="Dodaj digitalnu karticu"
+        label={t("add")}
       />
 
       <div className="space-y-4">
         <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
           <SearchBar
-            placeholder="Pretraži digitalne kartice..."
+            placeholder={t("searchPlaceholder")}
             searchRoute={pathname}
             clearable={true}
             submitButtonLocation="none"
@@ -81,10 +83,15 @@ export default function DigitalCardsClient({ query }: { query: string }) {
         <div className="flex items-center justify-between gap-4">
           <h3>
             {query.length > 0
-              ? `Rezultati pretrage za "${query}" (${matchingDigitalCards.length})`
-              : `Moje digitalne kartice${
-                  isUserLoading ? "" : ` (${matchingDigitalCards.length})`
-                }`}
+              ? t("searchResults", {
+                  query,
+                  count: matchingDigitalCards.length,
+                })
+              : t("heading", {
+                  count: isUserLoading
+                    ? ""
+                    : ` (${matchingDigitalCards.length})`,
+                })}
           </h3>
 
           {/* <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} /> */}
@@ -119,12 +126,10 @@ export default function DigitalCardsClient({ query }: { query: string }) {
           <div className="text-center py-12">
             <CreditCard className="size-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Nema digitalnih kartica
+              {t("emptyTitle")}
             </h3>
 
-            <p className="text-gray-600 mb-6">
-              Stvorite svoju prvu digitalnu karticu…
-            </p>
+            <p className="text-gray-600 mb-6">{t("emptyDescription")}</p>
 
             <Button
               effect="shineHover"
@@ -132,7 +137,7 @@ export default function DigitalCardsClient({ query }: { query: string }) {
               iconPlacement="left"
               onClick={() => setIsModalOpen(true)}
             >
-              Dodaj digitalnu karticu
+              {t("add")}
             </Button>
           </div>
         )}

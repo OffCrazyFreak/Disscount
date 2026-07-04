@@ -23,6 +23,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import InstallSidebarBanner from "@/components/custom/pwa/install-sidebar-banner";
+import LanguageSwitcher from "@/components/custom/language-switcher";
 import {
   Collapsible,
   CollapsibleContent,
@@ -44,6 +45,8 @@ import { Badge } from "@/components/ui/badge";
 import { useNotifications } from "@/context/notifications-context";
 import { useUser } from "@/context/user-context";
 import { canAccessDashboard, isAdmin } from "@/lib/api/schemas/auth-user";
+import { useTranslations } from "next-intl";
+import { useNavTranslation } from "@/hooks/use-nav-translation";
 
 type OpenSection = "categories" | "stores" | "locations" | null;
 
@@ -55,6 +58,9 @@ export const AppSidebar = memo(function AppSidebar() {
   const searchParams = useSearchParams();
   const { notifications, hasNotifications } = useNotifications();
   const { user } = useUser();
+
+  const tCommon = useTranslations("common");
+  const nav = useNavTranslation();
 
   const showDashboard = canAccessDashboard(user?.accountType);
   const userIsAdmin = isAdmin(user?.accountType);
@@ -120,9 +126,9 @@ export const AppSidebar = memo(function AppSidebar() {
             <SidebarMenuButton asChild>
               <button type="button" className="cursor-pointer group">
                 <Icon />
-                <span>{item.label}</span>
+                <span>{nav.label(item.id)}</span>
                 <ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                <span className="sr-only">Toggle</span>
+                <span className="sr-only">{tCommon("toggle")}</span>
               </button>
             </SidebarMenuButton>
           </CollapsibleTrigger>
@@ -199,9 +205,11 @@ export const AppSidebar = memo(function AppSidebar() {
       return (
         <SidebarMenuButton type="button" disabled>
           <Icon />
-          <span>{item.label}</span>
+          <span>{nav.label(item.id)}</span>
 
-          <Badge className="ml-auto text-[10px]">USKORO</Badge>
+          <Badge className="ml-auto text-[10px]">
+            {tCommon("comingSoonBadge")}
+          </Badge>
         </SidebarMenuButton>
       );
     }
@@ -216,10 +224,12 @@ export const AppSidebar = memo(function AppSidebar() {
           )}
         >
           <Icon className={isActive ? "text-primary" : ""} />
-          <span>{item.label}</span>
+          <span>{nav.label(item.id)}</span>
 
           {item.comingSoon && (
-            <Badge className="ml-auto text-[10px]">USKORO</Badge>
+            <Badge className="ml-auto text-[10px]">
+            {tCommon("comingSoonBadge")}
+          </Badge>
           )}
         </Link>
       </SidebarMenuButton>
@@ -233,7 +243,7 @@ export const AppSidebar = memo(function AppSidebar() {
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/disscount-logo.png"
-              alt="Disscount logo"
+              alt={tCommon("logoAlt")}
               width={128}
               height={128}
               className="size-8 sm:size-10"
@@ -253,7 +263,7 @@ export const AppSidebar = memo(function AppSidebar() {
               fallback={<SearchBarSkeleton submitButtonLocation="block" />}
             >
               <SearchBar
-                placeholder="Pretraži proizvode..."
+                placeholder={tCommon("searchProducts")}
                 searchRoute="/products"
                 clearable={true}
                 allowScanning={true}
@@ -287,7 +297,7 @@ export const AppSidebar = memo(function AppSidebar() {
                         <LayoutDashboard
                           className={isDashboardActive ? "text-primary" : ""}
                         />
-                        <span>Nadzorna ploča</span>
+                        <span>{nav.label("dashboard")}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -319,9 +329,11 @@ export const AppSidebar = memo(function AppSidebar() {
                       {item.comingSoon && !userIsAdmin ? (
                         <SidebarMenuButton type="button" disabled>
                           <Icon />
-                          <span>{item.label}</span>
+                          <span>{nav.label(item.id)}</span>
 
-                          <Badge className="ml-auto text-[10px]">USKORO</Badge>
+                          <Badge className="ml-auto text-[10px]">
+            {tCommon("comingSoonBadge")}
+          </Badge>
                         </SidebarMenuButton>
                       ) : (
                         <SidebarMenuButton
@@ -336,7 +348,7 @@ export const AppSidebar = memo(function AppSidebar() {
                             )}
                           >
                             <Icon className={isActive ? "text-primary" : ""} />
-                            <span>{item.label}</span>
+                            <span>{nav.label(item.id)}</span>
 
                             {item.badge && hasNotifications && (
                               <Badge className="ml-auto h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
@@ -346,7 +358,7 @@ export const AppSidebar = memo(function AppSidebar() {
 
                             {item.comingSoon && (
                               <Badge className="ml-auto text-[10px]">
-                                USKORO
+                                {tCommon("comingSoonBadge")}
                               </Badge>
                             )}
                           </Link>
@@ -388,6 +400,13 @@ export const AppSidebar = memo(function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
+        {/* Language switcher lives here on mobile; desktop uses header/footer. */}
+        <SidebarMenu className="md:hidden">
+          <SidebarMenuItem>
+            <LanguageSwitcher variant="sidebar" />
+          </SidebarMenuItem>
+        </SidebarMenu>
+
         <InstallSidebarBanner />
       </SidebarFooter>
     </Sidebar>

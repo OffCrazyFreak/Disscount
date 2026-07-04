@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { X, Loader2, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -44,10 +45,12 @@ function WatchlistActionButton({
   onAdd,
   onRemove,
 }: WatchlistActionButtonProps) {
+  const t = useTranslations("pages.watchlist");
+
   return (
     <Button
       size="icon"
-      aria-label={isAddMode ? "Dodaj proizvod" : "Ukloni proizvod"}
+      aria-label={isAddMode ? t("addProductAria") : t("removeProductAria")}
       className={cn(
         visibilityClassName,
         isAddMode
@@ -83,6 +86,8 @@ export default function WatchlistItem({
   } = item;
   const queryClient = useQueryClient();
   const { user } = useUser();
+  const t = useTranslations("pages.watchlist");
+  const tCommon = useTranslations("common");
   const [isRemoving, setIsRemoving] = useState(false);
   const [isWatchlistModalOpen, setIsWatchlistModalOpen] = useState(false);
   const [selectedWatchType, setSelectedWatchType] = useState<WatchType>(
@@ -105,16 +110,14 @@ export default function WatchlistItem({
       ).length;
 
       if (failedRemovals === 0) {
-        toast.success("Proizvod uklonjen s popisa za praćenje");
+        toast.success(t("removed"));
       } else if (failedRemovals === watchlistItems.length) {
-        toast.error("Greška pri uklanjanju proizvoda");
+        toast.error(t("removeProductError"));
       } else {
-        toast.error(
-          `Djelomično uklanjanje: ${failedRemovals} stavki nije moguće ukloniti.`,
-        );
+        toast.error(t("partialRemove", { count: failedRemovals }));
       }
     } catch {
-      toast.error("Greška pri uklanjanju proizvoda");
+      toast.error(t("removeProductError"));
     } finally {
       await queryClient.invalidateQueries({
         queryKey: watchlistService.QUERY_KEYS.all,
@@ -125,7 +128,7 @@ export default function WatchlistItem({
   }
 
   // Display product name from API only (no fallback since productName removed from backend)
-  const productName = product?.name || "Učitavanje...";
+  const productName = product?.name || tCommon("loading");
   const productBrand = product?.brand || null;
   const formattedQuantity = formatQuantity(product?.quantity);
   const quantityWithUnit =

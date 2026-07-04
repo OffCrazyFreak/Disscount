@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,8 @@ export default function AccountCredentialsForm({
   onChanged,
 }: IAccountCredentialsFormProps) {
   const { user, refreshUser } = useUser();
+  const t = useTranslations("settings.credentials");
+  const tCommon = useTranslations("common");
   const currentEmail = user?.email ?? "";
 
   // "One email defines the user": the email is editable only with a password AND no social
@@ -58,7 +61,7 @@ export default function AccountCredentialsForm({
 
     if (canEditEmail && email !== currentEmail) {
       if (!z.email().safeParse(email).success) {
-        next.email = "Unesi važeći email";
+        next.email = t("invalidEmail");
       }
     }
 
@@ -71,7 +74,7 @@ export default function AccountCredentialsForm({
     }
 
     if (hasPassword && !currentPassword) {
-      next.currentPassword = "Unesi trenutnu lozinku";
+      next.currentPassword = t("enterCurrentPassword");
     }
 
     setErrors(next);
@@ -86,7 +89,7 @@ export default function AccountCredentialsForm({
     });
 
     if (!response.ok) {
-      setErrors({ newPassword: "Greška pri postavljanju lozinke." });
+      setErrors({ newPassword: t("setPasswordError") });
       return;
     }
 
@@ -94,7 +97,7 @@ export default function AccountCredentialsForm({
     await refreshUser();
     onChanged();
     setNewPassword("");
-    toast.success("Lozinka je postavljena! Sada se možeš prijaviti i emailom.");
+    toast.success(t("passwordSet"));
   }
 
   async function handleUpdateCredentials() {
@@ -102,7 +105,7 @@ export default function AccountCredentialsForm({
     const wantPasswordChange = newPassword.length > 0;
 
     if (!emailChanged && !wantPasswordChange) {
-      toast.info("Nema promjena za spremiti.");
+      toast.info(t("noChanges"));
       return;
     }
 
@@ -117,8 +120,8 @@ export default function AccountCredentialsForm({
         setErrors({
           currentPassword:
             error.status === 400
-              ? "Trenutna lozinka nije točna."
-              : (error.message ?? "Greška pri promjeni lozinke."),
+              ? t("wrongCurrentPassword")
+              : (error.message ?? t("changePasswordError")),
         });
         return;
       }
@@ -132,7 +135,7 @@ export default function AccountCredentialsForm({
         });
 
         if (passwordError) {
-          setErrors({ currentPassword: "Trenutna lozinka nije točna." });
+          setErrors({ currentPassword: t("wrongCurrentPassword") });
           return;
         }
       }
@@ -151,8 +154,8 @@ export default function AccountCredentialsForm({
         setErrors({
           email:
             data.error === "social_linked"
-              ? "Za promjenu emaila prvo odspoji povezane račune (Google, Facebook)."
-              : "Greška pri promjeni emaila.",
+              ? t("changeEmailSocialError")
+              : t("changeEmailError"),
         });
         return;
       }
@@ -169,11 +172,11 @@ export default function AccountCredentialsForm({
       setEmail(currentEmail);
       toast.success(
         wantPasswordChange
-          ? "Lozinka je promijenjena. Za promjenu emaila potvrdi poveznicu poslanu na tvoju trenutnu adresu."
-          : "Poslali smo poveznicu za potvrdu na tvoju trenutnu email adresu. Promjena emaila primijenit će se nakon potvrde.",
+          ? t("passwordChangedEmailPending")
+          : t("emailChangePending"),
       );
     } else {
-      toast.success("Lozinka je promijenjena.");
+      toast.success(t("passwordChanged"));
     }
   }
 
@@ -190,7 +193,7 @@ export default function AccountCredentialsForm({
         await handleSetPassword();
       }
     } catch {
-      setSubmitError("Nešto je pošlo po krivu. Pokušaj ponovo.");
+      setSubmitError(t("genericError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -203,7 +206,7 @@ export default function AccountCredentialsForm({
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="space-y-1.5">
-        <Label htmlFor="account-email">Email</Label>
+        <Label htmlFor="account-email">{t("emailLabel")}</Label>
         <Input
           id="account-email"
           type="email"
@@ -217,12 +220,12 @@ export default function AccountCredentialsForm({
         />
         {!hasPassword && (
           <p className="text-xs text-muted-foreground">
-            Postavi lozinku da bi mogao promijeniti email.
+            {t("setPasswordHint")}
           </p>
         )}
         {hasPassword && hasLinkedSocial && (
           <p className="text-xs text-muted-foreground">
-            Za promjenu emaila prvo odspoji povezane račune (Google, Facebook).
+            {t("socialLinkedHint")}
           </p>
         )}
         {errors.email && (
@@ -232,7 +235,7 @@ export default function AccountCredentialsForm({
 
       <div className="space-y-1.5">
         <Label htmlFor="account-new-password">
-          {hasPassword ? "Nova lozinka" : "Lozinka"}
+          {hasPassword ? t("newPasswordLabel") : t("passwordLabel")}
         </Label>
         <PasswordInput
           id="account-new-password"
@@ -245,7 +248,7 @@ export default function AccountCredentialsForm({
         />
         {hasPassword && (
           <p className="text-xs text-muted-foreground">
-            Ostavi prazno ako ne mijenjaš lozinku.
+            {t("leaveBlankHint")}
           </p>
         )}
         {errors.newPassword && (
@@ -255,7 +258,9 @@ export default function AccountCredentialsForm({
 
       {hasPassword && (
         <div className="space-y-1.5">
-          <Label htmlFor="account-current-password">Trenutna lozinka</Label>
+          <Label htmlFor="account-current-password">
+            {t("currentPasswordLabel")}
+          </Label>
           <PasswordInput
             id="account-current-password"
             autoComplete="current-password"
@@ -266,7 +271,7 @@ export default function AccountCredentialsForm({
             }}
           />
           <p className="text-xs text-muted-foreground">
-            Potrebna za promjenu emaila ili lozinke.
+            {t("currentPasswordHint")}
           </p>
           {errors.currentPassword && (
             <p className="text-xs text-destructive">{errors.currentPassword}</p>
@@ -286,7 +291,7 @@ export default function AccountCredentialsForm({
         {isSubmitting ? (
           <Loader2 size={16} className="animate-spin" />
         ) : (
-          "Spremi"
+          tCommon("save")
         )}
       </Button>
     </form>

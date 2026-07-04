@@ -1,7 +1,14 @@
 "use client";
 
-import { ReactNode } from "react";
-import { SquareArrowUp, Plus, EllipsisVertical, Download } from "lucide-react";
+import { ComponentType, ReactNode } from "react";
+import {
+  SquareArrowUp,
+  Plus,
+  EllipsisVertical,
+  Download,
+  type LucideProps,
+} from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import {
   Sheet,
@@ -21,6 +28,15 @@ interface Step {
   text: ReactNode;
 }
 
+// Renders a bold chunk and an inline icon inside a rich translation message.
+function bold(chunks: ReactNode) {
+  return <span className="font-medium">{chunks}</span>;
+}
+
+function inlineIcon(Icon: ComponentType<LucideProps>) {
+  return () => <Icon className="inline size-5 text-primary" />;
+}
+
 // Manual install steps for browsers without a usable install-prompt API:
 // iOS Safari uses Share -> Add to Home Screen; other browsers use their menu.
 export default function InstallInstructionsSheet({
@@ -28,67 +44,26 @@ export default function InstallInstructionsSheet({
   onOpenChange,
   isIOS,
 }: InstallInstructionsSheetProps) {
+  const t = useTranslations("pwa");
+
   const steps: Step[] = isIOS
     ? [
-        {
-          text: (
-            <>
-              Dodirni gumb <SquareArrowUp className="inline size-5 text-primary" />{" "}
-              <span className="font-medium">Podijeli</span> u Safariju.
-            </>
-          ),
-        },
-        {
-          text: (
-            <>
-              Odaberi <Plus className="inline size-5 text-primary" />{" "}
-              <span className="font-medium">Dodaj na početni zaslon</span>.
-            </>
-          ),
-        },
-        {
-          text: (
-            <>
-              Potvrdi s <span className="font-medium">Dodaj</span>.
-            </>
-          ),
-        },
+        { text: t.rich("iosStep1", { b: bold, icon: inlineIcon(SquareArrowUp) }) },
+        { text: t.rich("iosStep2", { b: bold, icon: inlineIcon(Plus) }) },
+        { text: t.rich("iosStep3", { b: bold }) },
       ]
     : [
-        {
-          text: (
-            <>
-              Otvori izbornik preglednika{" "}
-              <EllipsisVertical className="inline size-5 text-primary" />.
-            </>
-          ),
-        },
-        {
-          text: (
-            <>
-              Odaberi <Download className="inline size-5 text-primary" />{" "}
-              <span className="font-medium">Dodaj na početni zaslon</span> (ili{" "}
-              <span className="font-medium">Instaliraj aplikaciju</span>).
-            </>
-          ),
-        },
-        {
-          text: (
-            <>
-              Potvrdi odabir.
-            </>
-          ),
-        },
+        { text: t.rich("androidStep1", { icon: inlineIcon(EllipsisVertical) }) },
+        { text: t.rich("androidStep2", { b: bold, icon: inlineIcon(Download) }) },
+        { text: t("androidStep3") },
       ];
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="rounded-t-2xl">
         <SheetHeader>
-          <SheetTitle>Dodaj na početni zaslon</SheetTitle>
-          <SheetDescription>
-            Dodaj Disscount na početni zaslon u nekoliko koraka.
-          </SheetDescription>
+          <SheetTitle>{t("addToHome")}</SheetTitle>
+          <SheetDescription>{t("instructionsDescription")}</SheetDescription>
         </SheetHeader>
 
         <ol className="flex flex-col gap-4 px-4 pb-8">
