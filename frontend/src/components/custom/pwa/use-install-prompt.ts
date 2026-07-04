@@ -119,11 +119,12 @@ async function promptInstall() {
   const { deferredPrompt } = state;
   if (!deferredPrompt) return;
 
+  // The prompt is one-shot: clear it for all consumers before awaiting so a
+  // second banner can't call prompt() again on the same event.
+  setState({ deferredPrompt: null });
+
   await deferredPrompt.prompt();
   await deferredPrompt.userChoice;
-
-  // The prompt can only be used once; clear it for all consumers.
-  setState({ deferredPrompt: null });
 }
 
 export function useInstallPrompt() {

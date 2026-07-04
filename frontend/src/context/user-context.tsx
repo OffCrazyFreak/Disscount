@@ -64,19 +64,23 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     if (session?.user) {
       refreshUser();
     } else {
+      // No valid session (initial load, explicit logout, expiry, revoked
+      // cookie, or sign-out in another tab): wipe the persisted cache so a
+      // previous user's data and queued writes never linger on a shared device.
       clearAuthToken();
+      void purgeOfflineCache(queryClient);
       setUser(null);
       setIsLoading(false);
     }
-  }, [session?.user?.id, sessionPending, refreshUser]);
+  }, [session?.user?.id, sessionPending, refreshUser, queryClient]);
 
   const handleLogout = useCallback(async () => {
     try {
       await authClient.signOut();
     } finally {
       clearAuthToken();
-      await purgeOfflineCache(queryClient);
       setUser(null);
+      await purgeOfflineCache(queryClient);
     }
   }, [queryClient]);
 

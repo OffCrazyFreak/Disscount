@@ -18,7 +18,6 @@ const DIVISIONS: { amount: number; unit: Intl.RelativeTimeFormatUnit }[] = [
   { amount: 7, unit: "days" },
   { amount: 4.34524, unit: "weeks" },
   { amount: 12, unit: "months" },
-  { amount: Number.POSITIVE_INFINITY, unit: "years" },
 ];
 
 // Human-friendly relative time, e.g. "prije 2 sata". Accepts a Date or an

@@ -62,7 +62,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
   defineOfflineMutation(
     OFFLINE_MUTATION_KEYS.shoppingListDelete,
     (id: string) => deleteShoppingList(id),
-    () => [SHOPPING_LISTS_ME],
+    (id) => [["shoppingLists", id], SHOPPING_LISTS_ME],
   );
 
   defineOfflineMutation(
