@@ -10,6 +10,7 @@ import NoResults from "@/components/custom/no-results";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import WatchlistItem from "@/app/(user)/watchlist/components/watchlist-item";
 import CreateDiscountedListButton from "@/app/(user)/watchlist/components/create-discounted-list-button";
+import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
 import { shoppingListService, watchlistService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 import { getProductByEan } from "@/lib/cijene-api";
@@ -70,6 +71,16 @@ export default function WatchlistClient({ query }: { query: string }) {
   const productsLoading = productQueries.some(
     (query) => query.isLoading || query.isFetching,
   );
+
+  // Freshest successful price fetch across the tracked products, for the
+  // "last synced" label.
+  const pricesUpdatedAt = useMemo(() => {
+    const timestamps = productQueries
+      .map((query) => query.dataUpdatedAt)
+      .filter((timestamp) => timestamp > 0);
+
+    return timestamps.length > 0 ? Math.max(...timestamps) : 0;
+  }, [productQueries]);
 
   const enrichedItems = useMemo<WatchlistItemWithProduct[]>(() => {
     return groupedWatchlistItems.map((groupedItem, index) => {
@@ -254,11 +265,20 @@ export default function WatchlistClient({ query }: { query: string }) {
       </Suspense>
 
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <h3>
-          {query.length > 0
-            ? `Rezultati pretrage za "${query}" (${filteredItems.length})`
-            : `Praćeni proizvodi${userLoading || watchlistLoading ? "" : ` (${filteredItems.length})`}`}
-        </h3>
+        <div className="flex flex-col">
+          <h3>
+            {query.length > 0
+              ? `Rezultati pretrage za "${query}" (${filteredItems.length})`
+              : `Praćeni proizvodi${userLoading || watchlistLoading ? "" : ` (${filteredItems.length})`}`}
+          </h3>
+
+          {pricesUpdatedAt > 0 && (
+            <LastSyncedLabel
+              updatedAt={pricesUpdatedAt}
+              prefix="Cijene osvježene"
+            />
+          )}
+        </div>
 
         {!productsLoading && (
           <CreateDiscountedListButton discountedItems={discountedItems} />

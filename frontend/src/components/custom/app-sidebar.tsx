@@ -9,6 +9,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -21,6 +22,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
+import InstallSidebarBanner from "@/components/custom/pwa/install-sidebar-banner";
 import {
   Collapsible,
   CollapsibleContent,
@@ -385,9 +387,9 @@ export const AppSidebar = memo(function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* <SidebarFooter>
-        Za sve primjedbe i pohvale se javite na example@domain.com
-      </SidebarFooter> */}
+      <SidebarFooter>
+        <InstallSidebarBanner />
+      </SidebarFooter>
     </Sidebar>
   );
 });

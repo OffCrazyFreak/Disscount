@@ -8,6 +8,8 @@ import { UserContextProvider } from "@/app/providers/user-provider";
 import { ReactScan } from "@/app/providers/react-scan";
 import { CameraScannerProvider } from "@/context/scanner-context";
 import { NotificationsProvider } from "@/context/notifications-context";
+import RequestPersistentStorage from "@/components/custom/pwa/request-persistent-storage";
+import AppleSplashScreens from "@/components/custom/pwa/apple-splash-screens";
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
@@ -18,6 +20,8 @@ export function Providers({ children }: { children: ReactNode }) {
             <CameraScannerProvider>
               <ToasterProvider>
                 <ReactScan />
+                <RequestPersistentStorage />
+                <AppleSplashScreens />
 
                 {children}
               </ToasterProvider>

@@ -36,5 +36,6 @@ export interface AppData {
   productsPreferences?: ProductsPreferences;
   shoppingListsPreferences?: Record<string, ShoppingListsPreferences>; // Shopping list ID -> preferences
   lastLoginMethod?: LoginMethod;
+  installBannerDismissed?: boolean; // User dismissed the "install app" banner
   [key: string]: unknown;
 }

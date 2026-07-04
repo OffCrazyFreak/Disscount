@@ -104,7 +104,7 @@ flowchart LR
     F --> G[disscount.me updated]
 ```
 
-- **Autodeploy** is ON: pushing to a branch triggers Dokploy (via GitHub webhook) to **rebuild that environment on the VPS** (`pnpm install` + `next build` for the frontend, Maven for the backend).
+- **Autodeploy** is ON: pushing to a branch triggers Dokploy (via GitHub webhook) to **rebuild that environment on the VPS** (`pnpm install` + `next build --webpack` for the frontend, Maven for the backend). The frontend is pinned to **webpack on purpose** (see the [webpack gotcha](#13-gotchas--lessons-learned)); the Dockerfile runs `pnpm build`, so that flag flows into the production image.
 - Builds run **on the server** (~2-4 min, uses CPU + the 4 GB swap). This is fine for now; see [TODOs](#14-future-improvements--todos) for moving builds to CI later.
 - Each environment is **fully isolated:** its own containers **and its own database/volume**. Dev data never touches prod data.
 
@@ -316,7 +316,8 @@ These are the things that actually cost us time, worth remembering:
 | Gotcha | What happened / fix |
 |---|---|
 | **`NEXT_PUBLIC_*` is baked at build** | Changing it in env does nothing until a **redeploy**. |
-| **Hard-refresh after deploy** | Stale browser bundle causes `Failed to find Server Action`. Ctrl+Shift+R. |
+| **Hard-refresh after deploy** | Stale browser bundle causes `Failed to find Server Action`. Ctrl+Shift+R. A service-worker "update available" prompt (see [`PWA.md`](PWA.md) TODOs) would remove the need for this. |
+| **Frontend builds with `--webpack`** | Next.js 16 defaults `next build` to **Turbopack**, but Serwist (the PWA service worker) and Sentry's webpack options need webpack, so the frontend `build` script is `next build --webpack`. Do **not** revert it to plain `next build`, the service worker silently stops being generated. See [`PWA.md`](PWA.md). |
 | **Docker bypasses UFW** | Published container ports ignore UFW, so rely on the **Hetzner Cloud Firewall** to truly close ports. |
 | **Dokploy domain needs a redeploy** | Adding a domain to a Compose service only applies the Traefik labels on the **next deploy**. |
 | **kysely pin** | `@better-auth/kysely-adapter` imports a symbol removed in kysely 0.29, so we pin **`kysely@0.28.17`** (as a direct dep in `package.json`). |

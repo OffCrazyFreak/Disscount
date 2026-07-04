@@ -269,6 +269,20 @@ export function getProductStoresOpen(productEan: string): boolean {
 }
 
 /**
+ * Whether the user dismissed the "install app" banner (so we don't show it again).
+ */
+export function getInstallBannerDismissed(): boolean {
+  return getAppStorage().installBannerDismissed ?? false;
+}
+
+/**
+ * Persist that the user dismissed the "install app" banner.
+ */
+export function setInstallBannerDismissed(dismissed: boolean) {
+  setAppStorage({ installBannerDismissed: dismissed });
+}
+
+/**
  * Get the login method the user last used (email, google, or facebook).
  */
 export function getLastLoginMethod(): LoginMethod | null {
