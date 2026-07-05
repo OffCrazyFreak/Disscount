@@ -25,6 +25,7 @@ export function useShoppingListData(listId: string) {
     data: shoppingList,
     isLoading,
     error,
+    dataUpdatedAt: listUpdatedAt,
   } = shoppingListService.useGetShoppingListById(listId);
 
   // Compute cheapest stores for all items
@@ -131,6 +132,7 @@ export function useShoppingListData(listId: string) {
     shoppingList,
     isLoading,
     error,
+    listUpdatedAt,
     cheapestStores,
     averagePrices,
     storePrices,

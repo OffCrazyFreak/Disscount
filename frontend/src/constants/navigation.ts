@@ -70,14 +70,15 @@ export const userNavItems: NavigationItem[] = [
 ];
 
 export const productNavItems: NavigationItem[] = [
-  // {
-  //   id: "discounted",
-  //   href: "/products?discounted=true",
-  //   label: "Popusti",
-  //   icon: Percent,
+  {
+    id: "discounted",
+    href: "/products?discounted=true",
+    label: "Popusti",
+    icon: Percent,
+    comingSoon: true,
 
-  //   showInHeader: false,
-  // },
+    showInHeader: false,
+  },
   // {
   //   id: "categories",
   //   href: "#",

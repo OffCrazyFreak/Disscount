@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from "react";
 import { usePathname } from "next/navigation";
-import { Search, Plus, ShoppingCart } from "lucide-react";
+import { Search, Plus, ShoppingCart, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/custom/search-bar";
 import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
@@ -10,6 +10,7 @@ import ShoppingListModal from "@/app/(user)/shopping-lists/components/forms/shop
 import ShoppingListItem from "@/app/(user)/shopping-lists/components/shopping-list-item";
 import CreateShoppingListButton from "@/app/(user)/shopping-lists/components/create-shopping-list-button";
 import NoResults from "@/components/custom/no-results";
+import LoginRequired from "@/components/custom/login-required";
 import { filterByFields } from "@/utils/generic";
 import { shoppingListService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
@@ -21,13 +22,25 @@ export default function ShoppingListsClient({ query }: { query: string }) {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { isLoading: userLoading } = useUser();
+  const { isAuthenticated, isLoading: userLoading } = useUser();
   const { data: shoppingLists = [], isLoading } =
-    shoppingListService.useGetCurrentUserShoppingLists();
+    shoppingListService.useGetCurrentUserShoppingLists({
+      enabled: isAuthenticated,
+    });
 
   const isUserLoading = userLoading || isLoading;
 
   const matchingShoppingLists = filterByFields(shoppingLists, query, ["title"]);
+
+  if (!userLoading && !isAuthenticated) {
+    return (
+      <LoginRequired
+        title="Popisi za kupnju"
+        description="Popisi za kupnju ti omogućuju da organiziraš kupovinu i na jednom mjestu usporediš cijene po trgovinama."
+        icon={<ListChecks className="size-12 text-primary" />}
+      />
+    );
+  }
 
   return (
     <>

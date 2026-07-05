@@ -12,7 +12,7 @@ export default function StoresSection() {
             href="/products?discounted=true"
             className="block duration-150 hover:opacity-75"
           >
-            <span>Pogledaj akcije</span>
+            <span>Pogledaj popuste</span>
 
             <ChevronRight className="ml-1 inline-block" />
           </Link>

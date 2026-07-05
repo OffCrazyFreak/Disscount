@@ -6,7 +6,8 @@ import { JSX, Suspense, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import BgAnimateButton from "@/components/ui/bg-animate-button";
-import { AuthModal } from "@/components/custom/header/forms/auth-modal";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAuthModal } from "@/context/auth-modal-context";
 import { useUser } from "@/context/user-context";
 import UserMenu from "@/components/custom/header/user-menu";
 import NotificationsDropdown from "@/components/custom/header/notifications-dropdown";
@@ -22,8 +23,8 @@ import { useNotifications } from "@/context/notifications-context";
 export default function Header(): JSX.Element {
   const [isScrolled, setIsScrolled] = useState(false); // Track if the page is scrolled for header opacity
 
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const { isAuthenticated, user } = useUser();
+  const { isAuthenticated, isLoading, user } = useUser();
+  const { openAuthModal } = useAuthModal();
 
   const isMobile = useIsMobile();
   const pathname = usePathname();
@@ -42,8 +43,6 @@ export default function Header(): JSX.Element {
 
   return (
     <>
-      <AuthModal isOpen={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
-
       <header>
         <nav className="fixed z-20 inset-x-4 my-4">
           <div
@@ -64,7 +63,7 @@ export default function Header(): JSX.Element {
                     alt="Disscount logo"
                     width={128}
                     height={128}
-                    className="size-8 sm:size-10"
+                    className="hidden sm:block size-8 sm:size-10"
                   />
                   <span className="font-saira-stencil-semibold text-2xl sm:text-3xl text-primary">
                     disscount
@@ -172,22 +171,27 @@ export default function Header(): JSX.Element {
               </div>
 
               <div className="flex items-center justify-between gap-8">
-                {isAuthenticated ? (
+                {isLoading ? (
+                  <Skeleton
+                    className={cn(
+                      "rounded-full",
+                      isMobile ? "h-8 w-24" : "h-10 w-28",
+                    )}
+                  />
+                ) : isAuthenticated ? (
                   <div className="flex items-center gap-4">
                     <NotificationsDropdown />
                     <UserMenu />
                   </div>
                 ) : (
                   <BgAnimateButton
-                    gradient={"forest"}
+                    gradient={"primary"}
                     rounded={"full"}
                     animation="spin-slow"
                     shadow="base"
                     size={isMobile ? "sm" : "default"}
-                    className="cursor-pointer min-w-fit"
-                    onClick={() => {
-                      setIsAuthModalOpen(true);
-                    }}
+                    className="cursor-pointer min-w-fit p-[2px]"
+                    onClick={openAuthModal}
                   >
                     <div className="flex items-center space-x-2 p-1">
                       <LogIn className="w-5.5" />

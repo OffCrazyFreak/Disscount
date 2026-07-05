@@ -28,7 +28,7 @@ import {
   ProductResponse,
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
-import { sortShoppingListItemsByAvailabilityAndName } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
+import { sortShoppingListItemsByPurchaseAndSaving } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getPriceExtreme } from "@/app/products/utils/product-utils";
 
@@ -64,7 +64,7 @@ export const ShoppingListItemsTable = memo(
           <TableBody>
             {[...shoppingList.items]
               .sort((a, b) =>
-                sortShoppingListItemsByAvailabilityAndName(
+                sortShoppingListItemsByPurchaseAndSaving(
                   a,
                   b,
                   productsData,

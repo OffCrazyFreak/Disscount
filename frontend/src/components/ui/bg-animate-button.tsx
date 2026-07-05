@@ -47,6 +47,8 @@ const innerSpanVariants = cva(
           "bg-[conic-gradient(from_90deg_at_50%_50%,#ff9a9e_0%,#fad0c4_50%,#fad0c4_90%,#ff9a9e_100%)] ",
         forest:
           "bg-[conic-gradient(from_90deg_at_50%_50%,#85d797_0%,#1a806b_50%,#85d797_100%)] ",
+        primary:
+          "bg-[conic-gradient(from_90deg_at_50%_50%,oklch(0.72_0.23_141)_0%,oklch(0.88_0.14_141)_50%,oklch(0.72_0.23_141)_100%)] ",
         sunset:
           "bg-[conic-gradient(from_90deg_at_50%_50%,#fe5d75_0%,#f5af19_50%,#fe5d75_100%)] ",
         nebula:
@@ -94,6 +96,8 @@ const buttonVariants = cva(
         sunset: "text-black font-bold",
         nebula: "text-white font-bold",
         default: "text-white font-bold",
+        // Solid primary fill so the spinning gradient only shows as a thin ring
+        primary: "bg-primary text-primary-foreground font-medium",
       },
       rounded: {
         full: "rounded-full before:rounded-full",
@@ -129,7 +133,8 @@ export interface UnifiedButtonProps
     | "default"
     | "forest"
     | "sunset"
-    | "nebula";
+    | "nebula"
+    | "primary";
 }
 
 const BgAnimateButton = React.forwardRef<HTMLButtonElement, UnifiedButtonProps>(

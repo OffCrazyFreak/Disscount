@@ -7,9 +7,11 @@ import { Search, Eye, ChevronDown } from "lucide-react";
 import SearchBar from "@/components/custom/search-bar";
 import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
 import NoResults from "@/components/custom/no-results";
+import LoginRequired from "@/components/custom/login-required";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import WatchlistItem from "@/app/(user)/watchlist/components/watchlist-item";
 import CreateDiscountedListButton from "@/app/(user)/watchlist/components/create-discounted-list-button";
+import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
 import { shoppingListService, watchlistService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 import { getProductByEan } from "@/lib/cijene-api";
@@ -42,9 +44,11 @@ export default function WatchlistClient({ query }: { query: string }) {
 
   const { user, isAuthenticated, isLoading: userLoading } = useUser();
   const { data: watchlistItems = [], isLoading: watchlistLoading } =
-    watchlistService.useGetCurrentUserWatchlist();
+    watchlistService.useGetCurrentUserWatchlist({ enabled: isAuthenticated });
   const { data: shoppingListItems = [], isLoading: shoppingListItemsLoading } =
-    shoppingListService.useGetAllUserShoppingListItems();
+    shoppingListService.useGetAllUserShoppingListItems({
+      enabled: isAuthenticated,
+    });
 
   const groupedWatchlistItems = useMemo(
     () => groupWatchlistItemsByProduct(watchlistItems),
@@ -70,6 +74,16 @@ export default function WatchlistClient({ query }: { query: string }) {
   const productsLoading = productQueries.some(
     (query) => query.isLoading || query.isFetching,
   );
+
+  // Freshest successful price fetch across the tracked products, for the
+  // "last synced" label.
+  const pricesUpdatedAt = useMemo(() => {
+    const timestamps = productQueries
+      .map((query) => query.dataUpdatedAt)
+      .filter((timestamp) => timestamp > 0);
+
+    return timestamps.length > 0 ? Math.max(...timestamps) : 0;
+  }, [productQueries]);
 
   const enrichedItems = useMemo<WatchlistItemWithProduct[]>(() => {
     return groupedWatchlistItems.map((groupedItem, index) => {
@@ -241,6 +255,16 @@ export default function WatchlistClient({ query }: { query: string }) {
     hasPinnedStores,
   ]);
 
+  if (!userLoading && !isAuthenticated) {
+    return (
+      <LoginRequired
+        title="Praćeni proizvodi"
+        description="Praćenje ti omogućuje da pratiš proizvode tako da dobiješ obavijest čim im cijena padne."
+        icon={<Eye className="size-12 text-primary" />}
+      />
+    );
+  }
+
   return (
     <div className="space-y-4">
       <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
@@ -254,11 +278,20 @@ export default function WatchlistClient({ query }: { query: string }) {
       </Suspense>
 
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <h3>
-          {query.length > 0
-            ? `Rezultati pretrage za "${query}" (${filteredItems.length})`
-            : `Praćeni proizvodi${userLoading || watchlistLoading ? "" : ` (${filteredItems.length})`}`}
-        </h3>
+        <div className="flex flex-col">
+          <h3>
+            {query.length > 0
+              ? `Rezultati pretrage za "${query}" (${filteredItems.length})`
+              : `Praćeni proizvodi${userLoading || watchlistLoading ? "" : ` (${filteredItems.length})`}`}
+          </h3>
+
+          {pricesUpdatedAt > 0 && (
+            <LastSyncedLabel
+              updatedAt={pricesUpdatedAt}
+              prefix="Cijene osvježene"
+            />
+          )}
+        </div>
 
         {!productsLoading && (
           <CreateDiscountedListButton discountedItems={discountedItems} />
