@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/utils/date";
+import { useOnlineStatus } from "@/hooks/use-online-status";
 
 interface LastSyncedLabelProps {
   // React Query's `dataUpdatedAt` (epoch millis); 0 when there's no data yet.
@@ -22,6 +23,8 @@ export default function LastSyncedLabel({
   const [mounted, setMounted] = useState(false);
   const [, setTick] = useState(0);
 
+  const isOnline = useOnlineStatus();
+
   useEffect(() => {
     setMounted(true);
 
@@ -29,7 +32,8 @@ export default function LastSyncedLabel({
     return () => clearInterval(intervalId);
   }, []);
 
-  if (!mounted || !updatedAt) return null;
+  // Only meaningful while offline - when online the data is considered fresh.
+  if (!mounted || !updatedAt || isOnline) return null;
 
   return (
     <span className={cn("text-xs text-muted-foreground", className)}>

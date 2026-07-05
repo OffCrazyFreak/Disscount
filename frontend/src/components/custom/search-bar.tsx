@@ -148,7 +148,7 @@ export default function SearchBar({
             {allowScanning && (
               <Button
                 type="button"
-                variant="ghost"
+                variant="default"
                 size="icon"
                 onClick={() => openScanner(handleScan)}
                 title="Scan barcode"

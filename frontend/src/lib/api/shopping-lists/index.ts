@@ -189,10 +189,11 @@ export const useDeleteShoppingListItem = () => {
   });
 };
 
-export const useGetAllUserShoppingListItems = () => {
+export const useGetAllUserShoppingListItems = ({ enabled = true } = {}) => {
   return useQuery<ShoppingListItemDto[], Error>({
     queryKey: ["shoppingListItems", "me"],
     queryFn: getAllUserShoppingListItems,
+    enabled,
   });
 };
 

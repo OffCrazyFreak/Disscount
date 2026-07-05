@@ -7,6 +7,7 @@ import { Search, Eye, ChevronDown } from "lucide-react";
 import SearchBar from "@/components/custom/search-bar";
 import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
 import NoResults from "@/components/custom/no-results";
+import LoginRequired from "@/components/custom/login-required";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import WatchlistItem from "@/app/(user)/watchlist/components/watchlist-item";
 import CreateDiscountedListButton from "@/app/(user)/watchlist/components/create-discounted-list-button";
@@ -43,9 +44,11 @@ export default function WatchlistClient({ query }: { query: string }) {
 
   const { user, isAuthenticated, isLoading: userLoading } = useUser();
   const { data: watchlistItems = [], isLoading: watchlistLoading } =
-    watchlistService.useGetCurrentUserWatchlist();
+    watchlistService.useGetCurrentUserWatchlist({ enabled: isAuthenticated });
   const { data: shoppingListItems = [], isLoading: shoppingListItemsLoading } =
-    shoppingListService.useGetAllUserShoppingListItems();
+    shoppingListService.useGetAllUserShoppingListItems({
+      enabled: isAuthenticated,
+    });
 
   const groupedWatchlistItems = useMemo(
     () => groupWatchlistItemsByProduct(watchlistItems),
@@ -251,6 +254,16 @@ export default function WatchlistClient({ query }: { query: string }) {
     suggestionOccurrenceByProductApiId,
     hasPinnedStores,
   ]);
+
+  if (!userLoading && !isAuthenticated) {
+    return (
+      <LoginRequired
+        title="Praćeni proizvodi"
+        description="Praćenje ti omogućuje da pratiš proizvode tako da dobiješ obavijest čim im cijena padne."
+        icon={<Eye className="size-12 text-primary" />}
+      />
+    );
+  }
 
   return (
     <div className="space-y-4">

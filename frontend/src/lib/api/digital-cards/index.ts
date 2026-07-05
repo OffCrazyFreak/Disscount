@@ -76,10 +76,11 @@ export const useCreateDigitalCard = () => {
   });
 };
 
-export const useGetUserDigitalCards = () => {
+export const useGetUserDigitalCards = ({ enabled = true } = {}) => {
   return useQuery<DigitalCardDto[], Error>({
     queryKey: ["digitalCards", "me"],
     queryFn: getUserDigitalCards,
+    enabled,
   });
 };
 

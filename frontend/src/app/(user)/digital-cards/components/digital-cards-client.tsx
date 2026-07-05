@@ -9,6 +9,7 @@ import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
 import DigitalCardModal from "@/app/(user)/digital-cards/components/forms/digital-card-modal";
 import DigitalCardItem from "@/app/(user)/digital-cards/components/digital-card-item";
 import NoResults from "@/components/custom/no-results";
+import LoginRequired from "@/components/custom/login-required";
 import { FloatingActionButton } from "@/components/custom/floating-action-button";
 import { DigitalCardDto } from "@/lib/api/types";
 import { useViewMode } from "@/hooks/use-view-mode";
@@ -30,7 +31,7 @@ export default function DigitalCardsClient({ query }: { query: string }) {
 
   const { isAuthenticated, isLoading: userLoading } = useUser();
   const { data: digitalCards = [], isLoading } =
-    digitalCardService.useGetUserDigitalCards();
+    digitalCardService.useGetUserDigitalCards({ enabled: isAuthenticated });
 
   const isUserLoading = userLoading || isLoading;
 
@@ -44,6 +45,16 @@ export default function DigitalCardsClient({ query }: { query: string }) {
     "type",
     "note",
   ]);
+
+  if (!userLoading && !isAuthenticated) {
+    return (
+      <LoginRequired
+        title="Digitalne kartice"
+        description="Digitalne kartice ti omogućuju da sve svoje kartice vjernosti držiš na jednom mjestu, uvijek pri ruci."
+        icon={<CreditCard className="size-12 text-primary" />}
+      />
+    );
+  }
 
   return (
     <>

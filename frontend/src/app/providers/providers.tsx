@@ -8,6 +8,7 @@ import { UserContextProvider } from "@/app/providers/user-provider";
 import { ReactScan } from "@/app/providers/react-scan";
 import { CameraScannerProvider } from "@/context/scanner-context";
 import { NotificationsProvider } from "@/context/notifications-context";
+import { AuthModalProvider } from "@/context/auth-modal-context";
 import RequestPersistentStorage from "@/components/custom/pwa/request-persistent-storage";
 import AppleSplashScreens from "@/components/custom/pwa/apple-splash-screens";
 
@@ -19,11 +20,13 @@ export function Providers({ children }: { children: ReactNode }) {
           <SidebarProvider>
             <CameraScannerProvider>
               <ToasterProvider>
-                <ReactScan />
-                <RequestPersistentStorage />
-                <AppleSplashScreens />
+                <AuthModalProvider>
+                  <ReactScan />
+                  <RequestPersistentStorage />
+                  <AppleSplashScreens />
 
-                {children}
+                  {children}
+                </AuthModalProvider>
               </ToasterProvider>
             </CameraScannerProvider>
           </SidebarProvider>

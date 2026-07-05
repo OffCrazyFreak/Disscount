@@ -13,17 +13,31 @@ import {
   ProductResponse,
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
-import { compareStoreChains } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
+import {
+  compareStoreChains,
+  STORE_OPTIMIZE_MODES,
+  type StoreOptimizeMode,
+} from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   getShoppingListStoresOpen,
   setShoppingListStoresOpen,
+  getStoreOptimizeMode,
+  setStoreOptimizeMode,
 } from "@/utils/browser/local-storage";
 
 interface ShoppingListStoreSummaryProps {
@@ -38,6 +52,20 @@ export default function ShoppingListStoreSummary({
   const [isStoresOpen, setIsStoresOpen] = useState(() =>
     getShoppingListStoresOpen(shoppingList.id),
   );
+
+  const [optimizeBy, setOptimizeBy] = useState<StoreOptimizeMode>(() => {
+    const stored = getStoreOptimizeMode();
+
+    return stored && (STORE_OPTIMIZE_MODES as readonly string[]).includes(stored)
+      ? (stored as StoreOptimizeMode)
+      : "products";
+  });
+
+  const handleOptimizeChange = (value: string) => {
+    const mode = value as StoreOptimizeMode;
+    setOptimizeBy(mode);
+    setStoreOptimizeMode(mode);
+  };
 
   const handleToggleStores = (open: boolean) => {
     setIsStoresOpen(open);
@@ -173,35 +201,39 @@ export default function ShoppingListStoreSummary({
     return { bestStore, worstStore };
   }, [allChains, shoppingList.items]);
 
-  // Calculate which stores have at least one item with the lowest price
-  const storesWithLowestPriceItems = useMemo<Set<string>>(() => {
-    const lowestPriceStores = new Set<string>();
+  // Count, per chain, how many list products are cheapest (global minimum) at
+  // that chain. Drives the "total" (product-by-product) mode and the per-store
+  // lowest-price badge.
+  const cheapestCountByChain = useMemo<Map<string, number>>(() => {
+    const counts = new Map<string, number>();
 
-    // For each item in the shopping list
     shoppingList.items?.forEach((item) => {
       const product = productsData.find((p) => p?.ean === item.ean);
       if (!product || !product.chains || product.chains.length === 0) return;
 
-      // Find the minimum price for this item across all chains
-      const allChainPrices = product.chains
-        .map((c) => parseFloat(c.avg_price))
-        .filter((p) => !isNaN(p));
+      const chainPrices = product.chains
+        .map((chain) => parseFloat(chain.avg_price))
+        .filter((price) => !isNaN(price));
 
-      if (allChainPrices.length === 0) return;
+      if (chainPrices.length === 0) return;
 
-      const minPrice = Math.min(...allChainPrices);
+      const minPrice = Math.min(...chainPrices);
 
-      // Find which chains offer this minimum price
+      // Every chain offering this minimum price gets a point for this product
       product.chains.forEach((chain) => {
-        const chainPrice = parseFloat(chain.avg_price);
-        if (chainPrice === minPrice) {
-          lowestPriceStores.add(chain.chain);
+        if (parseFloat(chain.avg_price) === minPrice) {
+          counts.set(chain.chain, (counts.get(chain.chain) || 0) + 1);
         }
       });
     });
 
-    return lowestPriceStores;
+    return counts;
   }, [productsData, shoppingList.items]);
+
+  const storesWithLowestPriceItems = useMemo<Set<string>>(
+    () => new Set(cheapestCountByChain.keys()),
+    [cheapestCountByChain],
+  );
 
   // Calculate which stores have at least one item with the highest price
   const storesWithHighestPriceItems = useMemo<Set<string>>(() => {
@@ -260,6 +292,17 @@ export default function ShoppingListStoreSummary({
     };
   }, [allChains, shoppingList.items]);
 
+  // Sort a copy (never mutate the memoized allChains) by the chosen optimisation
+  // mode; pinned stores always stay on top inside compareStoreChains.
+  const sortedChains = useMemo(() => {
+    const pinnedStoreIds =
+      user?.pinnedStores?.map((store) => store.storeApiId) || [];
+
+    return [...allChains].sort((a, b) =>
+      compareStoreChains(a, b, pinnedStoreIds, optimizeBy, cheapestCountByChain),
+    );
+  }, [allChains, optimizeBy, user?.pinnedStores, cheapestCountByChain]);
+
   return (
     <Collapsible open={isStoresOpen} onOpenChange={handleToggleStores}>
       <CollapsibleTrigger asChild className="cursor-pointer py-2">
@@ -307,30 +350,45 @@ export default function ShoppingListStoreSummary({
           </p>
         ) : (
           <div className="space-y-4">
-            {allChains
-              .sort((a, b) => {
-                // Get user's pinned store IDs
-                const pinnedStoreIds =
-                  user?.pinnedStores?.map((store) => store.storeApiId) || [];
-                return compareStoreChains(a, b, pinnedStoreIds);
-              })
-              .map((chain) => (
-                <ShoppingListStoreItem
-                  key={chain.chain}
-                  chain={chain}
-                  shoppingList={shoppingList}
-                  absoluteMinPrice={absolutePrices.min}
-                  absoluteMaxPrice={absolutePrices.max}
-                  productsData={productsData}
-                  completeStoresAnalysis={completeStoresAnalysis}
-                  hasLowestPriceItem={storesWithLowestPriceItems.has(
-                    chain.chain,
-                  )}
-                  hasHighestPriceItem={storesWithHighestPriceItems.has(
-                    chain.chain,
-                  )}
-                />
-              ))}
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <span className="text-sm text-muted-foreground">
+                Optimiziraj po
+              </span>
+
+              <Select value={optimizeBy} onValueChange={handleOptimizeChange}>
+                <SelectTrigger className="w-full sm:w-60 bg-white" size="sm">
+                  <SelectValue />
+                </SelectTrigger>
+
+                <SelectContent>
+                  <SelectItem value="products">Broj proizvoda</SelectItem>
+                  <SelectItem value="basket">Najjeftinija košarica</SelectItem>
+                  <SelectItem value="total">Zasebnim proizvodima</SelectItem>
+                  <SelectItem value="distance" disabled>
+                    <span className="flex items-center gap-2">
+                      Udaljenost
+                      <Badge className="text-[10px]">USKORO</Badge>
+                    </span>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {sortedChains.map((chain) => (
+              <ShoppingListStoreItem
+                key={chain.chain}
+                chain={chain}
+                shoppingList={shoppingList}
+                absoluteMinPrice={absolutePrices.min}
+                absoluteMaxPrice={absolutePrices.max}
+                productsData={productsData}
+                completeStoresAnalysis={completeStoresAnalysis}
+                hasLowestPriceItem={storesWithLowestPriceItems.has(chain.chain)}
+                hasHighestPriceItem={storesWithHighestPriceItems.has(
+                  chain.chain,
+                )}
+              />
+            ))}
           </div>
         )}
       </CollapsibleContent>

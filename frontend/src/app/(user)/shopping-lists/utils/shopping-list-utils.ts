@@ -122,36 +122,66 @@ export async function findCheapestStoreForItem(
 }
 
 /**
- * Comparator function for sorting store chains by multiple criteria
+ * Modes for optimising the store list on a shopping list.
+ * "distance" is not selectable yet (coming soon) and falls back to "products".
+ * Kept as a const tuple so the type and localStorage validation share one source.
+ */
+export const STORE_OPTIMIZE_MODES = [
+  "products",
+  "basket",
+  "total",
+  "distance",
+] as const;
+
+export type StoreOptimizeMode = (typeof STORE_OPTIMIZE_MODES)[number];
+
+/**
+ * Comparator function for sorting store chains by the selected optimisation mode.
+ * Pinned stores always come first (user preference), then the chosen metric.
  * @param a First chain to compare
  * @param b Second chain to compare
  * @param pinnedStoreIds Array of pinned store IDs
+ * @param mode The optimisation metric to rank by (defaults to product count)
+ * @param cheapestCountByChain How many list products are cheapest at each chain
+ *        (only used by the "total" mode)
  * @returns Negative if a < b, positive if a > b, 0 if equal
  */
 export function compareStoreChains(
   a: ChainProductResponse & { itemCount: number },
   b: ChainProductResponse & { itemCount: number },
   pinnedStoreIds: string[],
+  mode: StoreOptimizeMode = "products",
+  cheapestCountByChain?: Map<string, number>,
 ): number {
-  // Check if chains are pinned
+  // 1. Pinned chains always come first, regardless of mode (user preference)
   const aIsPinned = pinnedStoreIds.includes(a.chain);
   const bIsPinned = pinnedStoreIds.includes(b.chain);
-
-  // 1. Pinned chains come first
   if (aIsPinned && !bIsPinned) return -1;
   if (!aIsPinned && bIsPinned) return 1;
 
-  // 2. If both are pinned or both are not pinned, sort by item count (highest first)
-  const aItemCount = a.itemCount;
-  const bItemCount = b.itemCount;
-  if (aItemCount !== bItemCount) return bItemCount - aItemCount;
-
-  // 3. If item counts are equal, sort by average price (lowest first)
   const aAvgPrice = parseFloat(a.avg_price);
   const bAvgPrice = parseFloat(b.avg_price);
-  if (aAvgPrice !== bAvgPrice) return aAvgPrice - bAvgPrice;
 
-  // If all criteria are equal, sort alphabetically
+  // 2. Primary metric depends on the selected mode
+  if (mode === "basket") {
+    // Cheapest basket that still has everything: complete baskets first (most
+    // products), then the cheapest within each completeness tier.
+    if (a.itemCount !== b.itemCount) return b.itemCount - a.itemCount;
+    if (aAvgPrice !== bAvgPrice) return aAvgPrice - bAvgPrice;
+  } else if (mode === "total") {
+    // Product-by-product: stores that are the absolute cheapest for the most
+    // products rank first, so a shopper hitting several stores grabs the most
+    // rock-bottom prices; cheaper overall basket breaks ties.
+    const aCount = cheapestCountByChain?.get(a.chain) ?? 0;
+    const bCount = cheapestCountByChain?.get(b.chain) ?? 0;
+    if (aCount !== bCount) return bCount - aCount;
+    if (aAvgPrice !== bAvgPrice) return aAvgPrice - bAvgPrice;
+  } else {
+    // "products" (default) and "distance" fallback: most products carried first
+    if (a.itemCount !== b.itemCount) return b.itemCount - a.itemCount;
+  }
+
+  // 3. Tie-breaker: alphabetical (Croatian locale)
   return a.chain.localeCompare(b.chain, "hr", {
     sensitivity: "base",
   });
