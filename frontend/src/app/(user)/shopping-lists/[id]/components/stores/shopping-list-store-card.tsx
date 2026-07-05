@@ -73,8 +73,10 @@ const ShoppingListStoreItemComponent = ({
   const storeAvgPrice = parseFloat(chain.avg_price);
   const storeMaxPrice = parseFloat(chain.max_price);
 
-  // Check if this store has all items from the shopping list
-  const totalItemsInList = shoppingList.items?.length || 0;
+  // Store metrics are computed over not-yet-bought items, so compare coverage
+  // against the count of items still to buy (checked-off items are excluded).
+  const totalItemsInList =
+    shoppingList.items?.filter((item) => !item.isChecked).length || 0;
   const hasAllItems = chain.itemCount === totalItemsInList;
 
   // Only color the totals when this store covers every item, so the comparison
@@ -134,8 +136,8 @@ const ShoppingListStoreItemComponent = ({
                           className="bg-orange-100 text-orange-800 border-orange-200"
                         >
                           <TriangleAlert className="size-4 mr-1" />
-                          Proizvodi nedostupni ({chain.itemCount}/
-                          {totalItemsInList})
+                          Dostupno proizvoda {chain.itemCount}/
+                          {totalItemsInList}
                         </Badge>
                       )}
 

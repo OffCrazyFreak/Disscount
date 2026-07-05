@@ -188,36 +188,52 @@ export function compareStoreChains(
 }
 
 /**
- * Comparator function for sorting shopping list items by availability and name.
- * Available items come first, then sorted alphabetically within each group.
+ * How much you save on an item by buying it at the given chain, as a percentage
+ * below the highest price for that product across all chains (so a bigger number
+ * means a bigger discount at this store). Returns -Infinity when the item is not
+ * sold at this chain, so unavailable items sort last.
  */
-export function sortShoppingListItemsByAvailabilityAndName(
+function getItemSavingPercentAtChain(
+  item: ShoppingListItemDto,
+  productsData: ProductResponse[],
+  chainCode: string,
+): number {
+  const product = productsData.find((p) => p?.ean === item.ean);
+  const chainData = product?.chains?.find((c) => c.chain === chainCode);
+  if (!chainData) return -Infinity;
+
+  const price = parseFloat(chainData.avg_price);
+
+  const prices =
+    product?.chains
+      ?.map((c) => parseFloat(c.avg_price))
+      .filter((p) => !isNaN(p)) ?? [];
+  const maxPrice = prices.length > 0 ? Math.max(...prices) : 0;
+
+  if (!maxPrice || isNaN(price)) return 0;
+
+  return ((maxPrice - price) / maxPrice) * 100;
+}
+
+/**
+ * Comparator for sorting a store's products: not-yet-bought items first, then by
+ * biggest saving at this store (the most-discounted product on top), then name.
+ */
+export function sortShoppingListItemsByPurchaseAndSaving(
   a: ShoppingListItemDto,
   b: ShoppingListItemDto,
   productsData: ProductResponse[],
   chain: ChainProductResponse,
 ): number {
-  // Find product data for both items
-  const productA = productsData.find((p) => p?.ean === a.ean);
-  const productB = productsData.find((p) => p?.ean === b.ean);
+  // 1. Not-yet-bought items come first
+  if (a.isChecked !== b.isChecked) return a.isChecked ? 1 : -1;
 
-  // Find chain data for both items
-  const chainDataA = productA?.chains?.find(
-    (c: ChainProductResponse) => c.chain === chain.chain,
-  );
-  const chainDataB = productB?.chains?.find(
-    (c: ChainProductResponse) => c.chain === chain.chain,
-  );
+  // 2. Bigger saving at this store first
+  const savingA = getItemSavingPercentAtChain(a, productsData, chain.chain);
+  const savingB = getItemSavingPercentAtChain(b, productsData, chain.chain);
+  if (savingA !== savingB) return savingB - savingA;
 
-  // Check availability
-  const isAvailableA = Boolean(chainDataA);
-  const isAvailableB = Boolean(chainDataB);
-
-  // Available items come first
-  if (isAvailableA && !isAvailableB) return -1;
-  if (!isAvailableA && isAvailableB) return 1;
-
-  // Within each group, sort alphabetically
+  // 3. Alphabetical (Croatian locale)
   return a.name.localeCompare(b.name, "hr", {
     sensitivity: "base",
   });

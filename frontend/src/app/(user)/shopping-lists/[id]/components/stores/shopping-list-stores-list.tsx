@@ -72,6 +72,13 @@ export default function ShoppingListStoreSummary({
     setShoppingListStoresOpen(shoppingList.id, open);
   };
 
+  // Optimise the store comparison over the products still to buy: items already
+  // ticked off as bought are excluded from every store metric below.
+  const activeItems = useMemo(
+    () => (shoppingList.items ?? []).filter((item) => !item.isChecked),
+    [shoppingList.items],
+  );
+
   // Get all EANs from shopping list items
   const eans = useMemo(() => {
     return (
@@ -117,8 +124,8 @@ export default function ShoppingListStoreSummary({
       if (!product) return;
 
       product.chains.forEach((chain) => {
-        // Find the corresponding shopping list item
-        const shoppingItem = shoppingList.items?.find(
+        // Find the corresponding not-yet-bought shopping list item
+        const shoppingItem = activeItems.find(
           (item) => item.ean === product.ean,
         );
         if (!shoppingItem) return;
@@ -164,18 +171,18 @@ export default function ShoppingListStoreSummary({
         itemCount: chainData.itemCount,
       }),
     );
-  }, [productsData, shoppingList.items]);
+  }, [productsData, activeItems]);
 
   // Calculate which stores have all items and find best/worst among them
   const completeStoresAnalysis = useMemo<{
     bestStore: (ChainProductResponse & { itemCount: number }) | null;
     worstStore: (ChainProductResponse & { itemCount: number }) | null;
   }>(() => {
-    if (!shoppingList.items || shoppingList.items.length === 0) {
+    if (activeItems.length === 0) {
       return { bestStore: null, worstStore: null };
     }
 
-    const totalItems = shoppingList.items.length;
+    const totalItems = activeItems.length;
     const completeStores = allChains.filter(
       (chain) => chain.itemCount === totalItems,
     );
@@ -199,7 +206,7 @@ export default function ShoppingListStoreSummary({
     });
 
     return { bestStore, worstStore };
-  }, [allChains, shoppingList.items]);
+  }, [allChains, activeItems]);
 
   // Count, per chain, how many list products are cheapest (global minimum) at
   // that chain. Drives the "total" (product-by-product) mode and the per-store
@@ -207,7 +214,7 @@ export default function ShoppingListStoreSummary({
   const cheapestCountByChain = useMemo<Map<string, number>>(() => {
     const counts = new Map<string, number>();
 
-    shoppingList.items?.forEach((item) => {
+    activeItems.forEach((item) => {
       const product = productsData.find((p) => p?.ean === item.ean);
       if (!product || !product.chains || product.chains.length === 0) return;
 
@@ -228,7 +235,7 @@ export default function ShoppingListStoreSummary({
     });
 
     return counts;
-  }, [productsData, shoppingList.items]);
+  }, [productsData, activeItems]);
 
   const storesWithLowestPriceItems = useMemo<Set<string>>(
     () => new Set(cheapestCountByChain.keys()),
@@ -239,8 +246,8 @@ export default function ShoppingListStoreSummary({
   const storesWithHighestPriceItems = useMemo<Set<string>>(() => {
     const highestPriceStores = new Set<string>();
 
-    // For each item in the shopping list
-    shoppingList.items?.forEach((item) => {
+    // For each not-yet-bought item in the shopping list
+    activeItems.forEach((item) => {
       const product = productsData.find((p) => p?.ean === item.ean);
       if (!product || !product.chains || product.chains.length === 0) return;
 
@@ -263,16 +270,16 @@ export default function ShoppingListStoreSummary({
     });
 
     return highestPriceStores;
-  }, [productsData, shoppingList.items]);
+  }, [productsData, activeItems]);
 
   // Calculate absolute global minimum and maximum across ALL price types
-  // Only consider stores that have ALL items from the shopping list
+  // Only consider stores that have every not-yet-bought item from the list
   const absolutePrices = useMemo<{ min: number; max: number }>(() => {
-    if (!shoppingList.items || shoppingList.items.length === 0) {
+    if (activeItems.length === 0) {
       return { min: 0, max: 0 };
     }
 
-    const totalItems = shoppingList.items.length;
+    const totalItems = activeItems.length;
     const completeChains = allChains.filter(
       (chain) => chain.itemCount === totalItems,
     );
@@ -290,7 +297,7 @@ export default function ShoppingListStoreSummary({
       min: Math.min(...allPrices),
       max: Math.max(...allPrices),
     };
-  }, [allChains, shoppingList.items]);
+  }, [allChains, activeItems]);
 
   // Sort a copy (never mutate the memoized allChains) by the chosen optimisation
   // mode; pinned stores always stay on top inside compareStoreChains.
@@ -339,6 +346,10 @@ export default function ShoppingListStoreSummary({
           <p className="p-2 text-gray-600 text-center">
             Ovaj popis još ne sadrži proizvode. Probaj pretražiti proizvode pa
             ih dodaj na ovaj popis.
+          </p>
+        ) : activeItems.length === 0 ? (
+          <p className="p-2 text-gray-600 text-center">
+            Svi proizvodi su označeni kao kupljeni.
           </p>
         ) : productsError ? (
           <p className="p-2 text-gray-600 text-center">
