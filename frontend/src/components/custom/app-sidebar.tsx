@@ -271,7 +271,13 @@ export const AppSidebar = memo(function AppSidebar() {
   }
 
   return (
-    <Sidebar variant="floating" className="mt-24 h-fit">
+    // h-fit keeps the floating panel hugging its content, so it needs an
+    // explicit cap (mt-24 + 1rem gap) or it overflows short viewports
+    // such as tablets in landscape.
+    <Sidebar
+      variant="floating"
+      className="mt-24 h-fit max-h-[calc(100dvh-7rem)]"
+    >
       <SidebarHeader>
         <div className="flex md:hidden items-center justify-between gap-2 mx-2 my-4">
           <Link href="/" className="flex items-center gap-2">
@@ -308,7 +314,7 @@ export const AppSidebar = memo(function AppSidebar() {
         </SidebarGroup>
       </SidebarHeader>
 
-      <SidebarContent className="max-h-[75dvh] min-h-0 overflow-y-auto">
+      <SidebarContent className="min-h-0 overflow-y-auto">
         {/* Dashboard sits in the desktop header, so it's only surfaced here on
             mobile, pinned above all other items and split off by a separator. */}
         {showDashboard && (
@@ -354,12 +360,7 @@ export const AppSidebar = memo(function AppSidebar() {
                   const isActive = pathname.startsWith(item.href);
 
                   return (
-                    <SidebarMenuItem
-                      key={item.id}
-                      className={cn(
-                        !showDashboard && item.showInHeader && "md:hidden",
-                      )}
-                    >
+                    <SidebarMenuItem key={item.id}>
                       {item.comingSoon && !userIsAdmin ? (
                         <SidebarMenuButton type="button" disabled>
                           <Icon />

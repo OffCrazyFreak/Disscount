@@ -252,10 +252,13 @@ function Sidebar({
         )}
         {...props}
       >
+        {/* Height comes from the flex stretch, not h-full: an explicit
+            percentage height would ignore a max-height cap on a content-sized
+            container (h-fit), letting the panel overflow short viewports. */}
         <div
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className="bg-sidebar group-data-[variant=floating]:border-sidebar-border flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm"
+          className="bg-sidebar group-data-[variant=floating]:border-sidebar-border flex min-h-0 w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm"
         >
           {children}
         </div>
