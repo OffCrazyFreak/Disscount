@@ -48,6 +48,7 @@ function DrawerOverlay({
 function DrawerContent({
   className,
   children,
+  onPointerDownOutside,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Content>) {
   return (
@@ -55,6 +56,16 @@ function DrawerContent({
       <DrawerOverlay />
       <DrawerPrimitive.Content
         data-slot="drawer-content"
+        onPointerDownOutside={(event) => {
+          onPointerDownOutside?.(event)
+
+          // Dropdowns and popovers are portalled outside the drawer, so
+          // dismissing one reads as an outside click. Keep the drawer open and
+          // let the layer above it close on its own.
+          if (document.querySelector("[data-radix-popper-content-wrapper]")) {
+            event.preventDefault()
+          }
+        }}
         className={cn(
           "group/drawer-content fixed z-50 flex h-auto flex-col bg-background",
           "data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=top]:rounded-b-lg data-[vaul-drawer-direction=top]:border-b",
