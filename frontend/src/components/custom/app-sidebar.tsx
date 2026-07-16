@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo, useState, Suspense, useEffect } from "react";
+import { memo, useMemo, useRef, useState, Suspense, useEffect } from "react";
 import { ChevronDown, LayoutDashboard } from "lucide-react";
 
 import Link from "next/link";
@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/sidebar";
 import InstallSidebarBanner from "@/components/custom/pwa/install-sidebar-banner";
 import SidebarUser from "@/components/custom/sidebar-user";
+import ScrollFade from "@/components/custom/scroll-fade";
 import {
   Collapsible,
   CollapsibleContent,
@@ -52,6 +53,7 @@ type OpenSection = "categories" | "stores" | "locations" | null;
 export const AppSidebar = memo(function AppSidebar() {
   const [categories, setCategories] = useState<string[]>(["First", "Second"]);
   const [openMenu, setOpenMenu] = useState<OpenSection>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const { setOpen, setOpenMobile } = useSidebar();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -86,23 +88,6 @@ export const AppSidebar = memo(function AppSidebar() {
     setOpen(false);
     setOpenMobile(false);
   }, [pathname]);
-
-  // Open the collapsible matching the active /products filter, preferring the
-  // one already open so switching values doesn't flip menus.
-  useEffect(() => {
-    if (!pathname.startsWith("/products")) return;
-
-    const hasChainFilter = Boolean(searchParams.get("chain"));
-    const hasLocationFilter = Boolean(searchParams.get("location"));
-
-    setOpenMenu((current) => {
-      if (current === "stores" && hasChainFilter) return current;
-      if (current === "locations" && hasLocationFilter) return current;
-      if (hasChainFilter) return "stores";
-      if (hasLocationFilter) return "locations";
-      return current;
-    });
-  }, [pathname, searchParams]);
 
   // Deep-link into /products with the given filter applied; when already
   // there, keep the current search + other filters and replace only this key.
@@ -315,7 +300,8 @@ export const AppSidebar = memo(function AppSidebar() {
         </SidebarGroup>
       </SidebarHeader>
 
-      <SidebarContent className="min-h-0 overflow-y-auto">
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <SidebarContent ref={contentRef} className="min-h-0 overflow-y-auto">
         {/* Dashboard sits in the desktop header, so it's only surfaced here on
             mobile, pinned above all other items and split off by a separator. */}
         {showDashboard && (
@@ -431,7 +417,10 @@ export const AppSidebar = memo(function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-      </SidebarContent>
+        </SidebarContent>
+
+        <ScrollFade targetRef={contentRef} className="from-sidebar" />
+      </div>
 
       <SidebarFooter>
         <InstallSidebarBanner />
