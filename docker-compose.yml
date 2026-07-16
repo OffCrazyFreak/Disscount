@@ -61,6 +61,8 @@ services:
       BETTER_AUTH_ISSUER: ${BETTER_AUTH_ISSUER}
       SENTRY_DSN: ${SENTRY_DSN}
       SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT}
+      # Verbose SDK init/transport logging for debugging; leave unset normally
+      SENTRY_DEBUG: ${SENTRY_DEBUG:-false}
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health || exit 1"]
       interval: 10s

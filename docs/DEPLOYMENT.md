@@ -218,6 +218,21 @@ docker exec pg-test psql -U postgres -d restoretest -c '\dt'   # verify
 
 - `/health` (frontend) is a lightweight liveness route; the backend also has `/actuator/health` (internal only, used by the container healthcheck).
 - Sentry `send-default-pii=false` (privacy). Source-map upload is **not** enabled yet (see TODOs).
+
+### Sentry env vars (production)
+
+Set in **Dokploy → service → Environment**, per environment. Both DSNs live in Sentry under **Project → Settings → Client Keys (DSN)**.
+
+| Var | Service | Kind | Value (prod) | Notes |
+|---|---|---|---|---|
+| `SENTRY_DSN` | backend | runtime | DSN of the `disscount-backend` project | **Empty/missing = SDK silently disabled** (`sentry.dsn=${SENTRY_DSN:}` in `application.properties`), so a forgotten var means zero events with no error anywhere. Takes effect on container **restart**. |
+| `SENTRY_ENVIRONMENT` | backend | runtime | `production` (dev env: `dev`) | Defaults to `local` when unset; drives the environment filter in the Sentry UI. |
+| `NEXT_PUBLIC_SENTRY_DSN` | frontend | build-time, baked | DSN of the `disscount-frontend` project | Public by design (ships in the JS bundle). Changing it requires a **redeploy**, not a restart. |
+| `SENTRY_AUTH_TOKEN` | frontend build | build-time | org auth token | Only for source-map upload; stored but **not wired into the build yet** (see TODOs). Secret — never commit. |
+
+- Backend tracing is sampled at **10%** (`sentry.traces-sample-rate=0.1` in `application.properties`), so the `disscount-backend` project should show transactions under any real traffic. **A project showing 0 transactions + 0 issues for days almost always means the DSN env var isn't reaching the container** — check Dokploy env, then restart the backend.
+- Quick verification: temporarily set `SENTRY_DEBUG=true` on the backend and check the container logs for the SDK init lines, or trigger any 5xx and watch the project's Issues feed.
+- The project's **Client Security → Allowed Domains** setting only restricts *browser* SDKs (`Origin`/`Referer` headers); it never blocks the backend SDK.
 - **Per-backup notifications are intentionally OFF** (Dokploy fires one on *every* backup = daily spam). Trade-off: no automatic alert if a backup **fails**. Catch it by glancing at the R2 bucket for a fresh nightly object, or add a **dead-man's switch** (e.g. healthchecks.io, where the backup pings a URL on success and no ping in 24 h triggers an alert). See [TODOs](#14-future-improvements--todos).
 
 ---
