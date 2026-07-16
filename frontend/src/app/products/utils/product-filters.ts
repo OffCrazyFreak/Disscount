@@ -1,9 +1,32 @@
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { normalizeForSearch } from "@/utils/strings";
 
-export interface IProductFilterOptions {
-  categories: string[];
-  brands: string[];
+export function normalizeChainCode(code: string): string {
+  return code.trim().toLowerCase();
+}
+
+/**
+ * Map selected values (possibly from a hand-edited URL: wrong casing,
+ * stray spaces) onto their canonical option value when one matches.
+ */
+export function canonicalizeSelection(
+  selected: string[],
+  options: string[]
+): string[] {
+  if (selected.length === 0) return selected;
+
+  const byNormalized = new Map(
+    options.map((option) => [normalizeForSearch(option), option])
+  );
+
+  return [
+    ...new Set(
+      selected.map((value) => {
+        const trimmed = value.trim();
+        return byNormalized.get(normalizeForSearch(trimmed)) ?? trimmed;
+      })
+    ),
+  ];
 }
 
 function addNormalized(map: Map<string, string>, value: string | null) {
@@ -46,43 +69,26 @@ export function getProductBrands(product: ProductResponse): string[] {
 }
 
 /**
- * Build the selectable category/brand option lists from the current
- * search results, sorted for Croatian locale.
- */
-export function deriveFilterOptions(
-  products: ProductResponse[]
-): IProductFilterOptions {
-  const categories = new Map<string, string>();
-  const brands = new Map<string, string>();
-
-  for (const product of products) {
-    for (const category of getProductCategories(product)) {
-      addNormalized(categories, category);
-    }
-    for (const brand of getProductBrands(product)) {
-      addNormalized(brands, brand);
-    }
-  }
-
-  const sortHr = (a: string, b: string) =>
-    a.localeCompare(b, "hr", { sensitivity: "base" });
-
-  return {
-    categories: [...categories.values()].sort(sortHr),
-    brands: [...brands.values()].sort(sortHr),
-  };
-}
-
-/**
- * Client-side visibility predicate for the category/brand filters.
- * Empty selections pass; otherwise the product must match ANY selected
- * category (on any of its chain entries) AND ANY selected brand.
+ * Client-side visibility predicate for the active filters. `allowedChains`
+ * is the resolved chain+location filter (null = unfiltered, empty = no
+ * overlap); empty category/brand selections pass, otherwise the product
+ * must match ANY selected value.
  */
 export function productMatchesFilters(
   product: ProductResponse,
+  allowedChains: string[] | null,
   selectedCategories: string[],
   selectedBrands: string[]
 ): boolean {
+  if (allowedChains !== null) {
+    const allowed = new Set(allowedChains.map(normalizeChainCode));
+    const hasAllowedChain = product.chains.some((chainProduct) =>
+      allowed.has(normalizeChainCode(chainProduct.chain))
+    );
+
+    if (!hasAllowedChain) return false;
+  }
+
   if (selectedCategories.length > 0) {
     const productCategories = new Set(
       getProductCategories(product).map(normalizeForSearch)

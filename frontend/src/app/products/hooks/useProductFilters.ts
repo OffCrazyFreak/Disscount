@@ -4,6 +4,11 @@ import { useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { parseListParam } from "@/utils/generic";
+import { normalizeForSearch } from "@/utils/strings";
+import {
+  canonicalizeSelection,
+  normalizeChainCode,
+} from "@/app/products/utils/product-filters";
 
 export type ProductFilterKey = "chain" | "location" | "category" | "brand";
 
@@ -22,10 +27,11 @@ export interface IUseProductFiltersResult {
   setFilter: (key: ProductFilterKey, values: string[]) => void;
   clearFilters: () => void;
   activeFilterCount: number;
-  /** Comma-separated chain codes for the API, undefined when unfiltered */
-  effectiveChains: string | undefined;
-  /** Chain/location filters resolve to an empty chain set: skip the API call */
-  isChainConflict: boolean;
+  /**
+   * Resolved chain+location filter for client-side matching:
+   * null = unfiltered, empty array = selections with no overlap
+   */
+  allowedChains: string[] | null;
   /** False only while a location filter is set and stores are still loading */
   locationsReady: boolean;
 }
@@ -43,12 +49,18 @@ export default function useProductFilters(): IUseProductFiltersResult {
   const { data: locations, isLoading: locationsLoading } = useAllLocations();
 
   const selectedChains = useMemo(
-    () => parseListParam(searchParams.get("chain")),
+    () => [
+      ...new Set(parseListParam(searchParams.get("chain")).map(normalizeChainCode)),
+    ],
     [searchParams],
   );
   const selectedLocations = useMemo(
-    () => parseListParam(searchParams.get("location")),
-    [searchParams],
+    () =>
+      canonicalizeSelection(
+        parseListParam(searchParams.get("location")),
+        locations.map((location) => location.name),
+      ),
+    [searchParams, locations],
   );
   const selectedCategories = useMemo(
     () => parseListParam(searchParams.get("category")),
@@ -61,41 +73,33 @@ export default function useProductFilters(): IUseProductFiltersResult {
 
   const locationsReady = selectedLocations.length === 0 || !locationsLoading;
 
-  const { effectiveChains, isChainConflict } = useMemo(() => {
+  const allowedChains = useMemo<string[] | null>(() => {
     if (selectedChains.length === 0 && selectedLocations.length === 0) {
-      return { effectiveChains: undefined, isChainConflict: false };
+      return null;
     }
 
-    if (selectedLocations.length === 0) {
-      return {
-        effectiveChains: selectedChains.join(","),
-        isChainConflict: false,
-      };
-    }
+    if (selectedLocations.length === 0) return selectedChains;
 
     // Location filter resolves via the city -> chains mapping; while stores
-    // are loading the search is held disabled through locationsReady instead.
-    if (locationsLoading) {
-      return { effectiveChains: undefined, isChainConflict: false };
-    }
+    // are loading the results are held back through locationsReady instead.
+    if (locationsLoading) return null;
 
+    const selectedLocationKeys = new Set(
+      selectedLocations.map(normalizeForSearch),
+    );
     const locationChains = new Set<string>();
     for (const location of locations) {
-      if (selectedLocations.includes(location.name)) {
-        location.chains.forEach((chain) => locationChains.add(chain));
+      if (selectedLocationKeys.has(normalizeForSearch(location.name))) {
+        location.chains.forEach((chain) =>
+          locationChains.add(normalizeChainCode(chain)),
+        );
       }
     }
 
-    const resolved =
-      selectedChains.length > 0
-        ? selectedChains.filter((chain) => locationChains.has(chain))
-        : [...locationChains];
-
-    if (resolved.length === 0) {
-      return { effectiveChains: undefined, isChainConflict: true };
-    }
-
-    return { effectiveChains: resolved.join(","), isChainConflict: false };
+    // Empty result = selections with no overlap -> matches nothing
+    return selectedChains.length > 0
+      ? selectedChains.filter((chain) => locationChains.has(chain))
+      : [...locationChains];
   }, [selectedChains, selectedLocations, locations, locationsLoading]);
 
   const replaceParams = useCallback(
@@ -144,8 +148,7 @@ export default function useProductFilters(): IUseProductFiltersResult {
     setFilter,
     clearFilters,
     activeFilterCount,
-    effectiveChains,
-    isChainConflict,
+    allowedChains,
     locationsReady,
   };
 }

@@ -7,10 +7,9 @@ import NoResults from "@/components/custom/no-results";
 import useInfiniteProducts from "@/app/products/hooks/useInfiniteProducts";
 import useProductFilters from "@/app/products/hooks/useProductFilters";
 import ProductFiltersBar from "@/app/products/components/product-filters-bar";
-import { deriveFilterOptions } from "@/app/products/utils/product-filters";
 import { ProductItem } from "@/app/products/components/product-item/product-item";
 import { Button } from "@/components/ui/button";
-import { Suspense, useMemo } from "react";
+import { Suspense } from "react";
 import ViewSwitcher from "@/components/custom/view-switcher";
 import SearchBar from "@/components/custom/search-bar";
 import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
@@ -26,36 +25,21 @@ export default function ProductsClient({ query }: { query: string }) {
   const {
     selectedCategories,
     selectedBrands,
-    effectiveChains,
-    isChainConflict,
+    allowedChains,
     locationsReady,
     activeFilterCount,
     clearFilters,
   } = filters;
 
-  const {
-    visibleProducts,
-    allProducts,
-    total,
-    hasMore,
-    loadMore,
-    isLoading,
-    error,
-  } = useInfiniteProducts(query, {
-    chains: effectiveChains,
-    enabled: !isChainConflict && locationsReady,
-    selectedCategories,
-    selectedBrands,
-  });
-
-  const { categories: categoryOptions, brands: brandOptions } = useMemo(
-    () => deriveFilterOptions(allProducts),
-    [allProducts],
-  );
+  const { visibleProducts, total, hasMore, loadMore, isLoading, error } =
+    useInfiniteProducts(query, {
+      allowedChains,
+      selectedCategories,
+      selectedBrands,
+    });
 
   // A location filter is set but the city -> chains mapping is still loading
   const waitingForLocations = Boolean(query) && !locationsReady;
-  const noFilteredResults = isChainConflict || total === 0;
 
   return (
     <div className="space-y-4">
@@ -68,17 +52,13 @@ export default function ProductsClient({ query }: { query: string }) {
         />
       </Suspense>
 
-      <ProductFiltersBar
-        filters={filters}
-        categoryOptions={categoryOptions}
-        brandOptions={brandOptions}
-      />
+      <ProductFiltersBar filters={filters} query={query} />
 
       <div className="flex items-center justify-between gap-4">
         <h3>
           {query.length > 0 &&
             `Rezultati pretrage za "${query}"${
-              isLoading || waitingForLocations || isChainConflict
+              isLoading || waitingForLocations
                 ? ""
                 : ` (${total}${total >= 100 ? "+" : ""})`
             }`}
@@ -101,7 +81,7 @@ export default function ProductsClient({ query }: { query: string }) {
             Došlo je do greške pri dohvaćanju podataka. Pokušajte ponovo.
           </p>
         </div>
-      ) : query && noFilteredResults && activeFilterCount > 0 ? (
+      ) : query && total === 0 && activeFilterCount > 0 ? (
         <div>
           <NoResults
             icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}

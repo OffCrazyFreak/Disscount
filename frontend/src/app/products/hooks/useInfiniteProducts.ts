@@ -6,10 +6,8 @@ import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { productMatchesFilters } from "@/app/products/utils/product-filters";
 
 interface IUseInfiniteProductsOptions {
-  /** Comma-separated chain codes forwarded to the API */
-  chains?: string;
-  /** Set false to hold the search (e.g. filters still resolving or conflicting) */
-  enabled?: boolean;
+  /** Resolved chain+location filter (null = unfiltered, empty = no overlap) */
+  allowedChains?: string[] | null;
   selectedCategories?: string[];
   selectedBrands?: string[];
   batchSize?: number;
@@ -17,8 +15,6 @@ interface IUseInfiniteProductsOptions {
 
 interface IUseInfiniteProductsResult {
   visibleProducts: ProductResponse[];
-  /** Unfiltered fetched result set (source for filter option lists) */
-  allProducts: ProductResponse[];
   total: number;
   hasMore: boolean;
   loadMore: () => void;
@@ -33,34 +29,39 @@ export default function useInfiniteProducts(
   options?: IUseInfiniteProductsOptions,
 ): IUseInfiniteProductsResult {
   const {
-    chains,
-    enabled = true,
+    allowedChains = null,
     selectedCategories = EMPTY_SELECTION,
     selectedBrands = EMPTY_SELECTION,
     batchSize = 50,
   } = options ?? {};
 
-  const { data, isLoading, error } = useGetProductByName(
-    {
-      q,
-      fuzzy: false,
-      limit: 100, // TODO: remove limit
-      ...(chains ? { chains } : {}),
-    },
-    { enabled },
-  );
+  // Single unfiltered request per query; all filters apply client-side over
+  // this same dataset the facet options are computed from, so option counts
+  // always match the visible results.
+  const { data, isLoading, error } = useGetProductByName({
+    q,
+    fuzzy: false,
+    limit: 100, // TODO: remove limit
+  });
 
   const allProducts = useMemo(() => data?.products || [], [data?.products]);
 
   const filteredProducts = useMemo(() => {
-    if (selectedCategories.length === 0 && selectedBrands.length === 0) {
-      return allProducts;
-    }
+    const unfiltered =
+      allowedChains === null &&
+      selectedCategories.length === 0 &&
+      selectedBrands.length === 0;
+    if (unfiltered) return allProducts;
 
     return allProducts.filter((product) =>
-      productMatchesFilters(product, selectedCategories, selectedBrands),
+      productMatchesFilters(
+        product,
+        allowedChains,
+        selectedCategories,
+        selectedBrands,
+      ),
     );
-  }, [allProducts, selectedCategories, selectedBrands]);
+  }, [allProducts, allowedChains, selectedCategories, selectedBrands]);
 
   const batchedProducts = useMemo(() => {
     const batches: ProductResponse[][] = [];
@@ -74,10 +75,10 @@ export default function useInfiniteProducts(
     batchedProducts.length > 0 ? 1 : 0,
   );
 
-  // Reset visible batches when query, server filter, or results change
+  // Reset visible batches when query, filters, or results change
   useEffect(() => {
     setBatchesToShow(batchedProducts.length > 0 ? 1 : 0);
-  }, [batchedProducts.length, q, chains]);
+  }, [batchedProducts.length, q, allowedChains]);
 
   // Load more when user scrolls near bottom of page
   useEffect(() => {
@@ -103,7 +104,6 @@ export default function useInfiniteProducts(
 
   return {
     visibleProducts,
-    allProducts,
     total: filteredProducts.length,
     hasMore: batchesToShow < batchedProducts.length,
     loadMore: () =>

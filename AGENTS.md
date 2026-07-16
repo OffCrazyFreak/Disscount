@@ -2,6 +2,10 @@ Make sure to always follow dry and clean code principles, with separation of con
 
 Make sure to always follow project structure and conventions, including file organization, naming conventions, and coding styles, but feel free to suggest improvements when appropriate.
 
+The files should aim to be 50-100ish lines long, so they are easy to read, parse, and maintain.
+
+If the code requires you to add multiple lines of comments to explain it, you probably did it incorrectly and should start again.
+
 After every code generation, ALWAYS provide a brief explanation of the code changes you made and why because I'm still learning and I want to become a better developer.
 
 Make sure to always fetch and follow proper and most recent documentation, especially for libraries.
