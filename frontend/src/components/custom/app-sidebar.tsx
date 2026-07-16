@@ -23,6 +23,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import InstallSidebarBanner from "@/components/custom/pwa/install-sidebar-banner";
+import SidebarUser from "@/components/custom/sidebar-user";
 import {
   Collapsible,
   CollapsibleContent,
@@ -434,6 +435,8 @@ export const AppSidebar = memo(function AppSidebar() {
 
       <SidebarFooter>
         <InstallSidebarBanner />
+
+        <SidebarUser />
       </SidebarFooter>
     </Sidebar>
   );

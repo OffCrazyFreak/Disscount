@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +16,13 @@ import { Badge } from "@/components/ui/badge";
 import { ACCOUNT_TYPE_LABELS } from "@/lib/api/schemas/auth-user";
 import { useUser } from "@/context/user-context";
 
-export default function UserMenu() {
+interface IUserMenuProps {
+  /** Replaces the avatar trigger (e.g. the sidebar's user row) */
+  trigger?: ReactNode;
+  side?: "top" | "right" | "bottom" | "left";
+}
+
+export default function UserMenu({ trigger, side }: IUserMenuProps = {}) {
   const { user, logout } = useUser();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSecurityOpen, setIsSecurityOpen] = useState(false);
@@ -32,14 +38,16 @@ export default function UserMenu() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <UserAvatar
-            className="font-bold text-sm cursor-pointer"
-            user={avatarUser}
-            aria-label="User menu"
-            size={"xl"}
-          />
+          {trigger ?? (
+            <UserAvatar
+              className="font-bold text-sm cursor-pointer"
+              user={avatarUser}
+              aria-label="User menu"
+              size={"xl"}
+            />
+          )}
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-max">
+        <DropdownMenuContent align="end" side={side} className="w-max">
           {/* User name and email */}
           <DropdownMenuLabel className="flex items-center justify-between gap-3">
             <UserAvatar

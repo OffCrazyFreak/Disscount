@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ProductFacetSelects from "@/app/products/components/product-facet-selects";
 import useProductFacets from "@/app/products/hooks/useProductFacets";
+import usePruneStaleFilters from "@/app/products/hooks/usePruneStaleFilters";
 import type { IUseProductFiltersResult } from "@/app/products/hooks/useProductFilters";
 
 interface IProductFiltersBarProps {
@@ -28,6 +29,8 @@ export default function ProductFiltersBar({
 }: IProductFiltersBarProps) {
   const facets = useProductFacets(query, filters);
   const isMobile = useIsMobile();
+
+  usePruneStaleFilters(query, filters);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   function renderClearFilters(
@@ -84,7 +87,7 @@ export default function ProductFiltersBar({
               <DrawerTitle className="text-lg">Filteri</DrawerTitle>
               <DrawerDescription className="sr-only">
                 Suzi rezultate pretrage po trgovinama, lokacijama, kategorijama
-                i brendovima.
+                i markama.
               </DrawerDescription>
 
               {renderClearFilters("shrink-0")}

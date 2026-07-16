@@ -45,10 +45,10 @@ const FACETS: IFacetConfig[] = [
   {
     key: "brands",
     filterKey: "brand",
-    label: "Brendovi",
-    placeholder: "Odaberi brendove...",
-    searchPlaceholder: "Pretraži brendove...",
-    emptyMessage: "Nema brendova",
+    label: "Marka",
+    placeholder: "Odaberi marku proizvoda...",
+    searchPlaceholder: "Pretraži marke...",
+    emptyMessage: "Nema marki",
   },
 ];
 
