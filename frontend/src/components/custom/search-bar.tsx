@@ -74,33 +74,49 @@ export default function SearchBar({
     }
   }, [initialQuery, setValue, getValues]);
 
+  // Build the target URL for a query, preserving other params (e.g. active
+  // filters) when already on the search route; fresh ?q= otherwise.
+  const buildSearchUrl = useCallback(
+    (query: string) => {
+      const params = matchesRoute
+        ? new URLSearchParams(searchParams.toString())
+        : new URLSearchParams();
+
+      if (query) {
+        params.set("q", query);
+      } else {
+        params.delete("q");
+      }
+
+      const queryString = params.toString();
+      return queryString ? `${searchRoute}?${queryString}` : searchRoute;
+    },
+    [matchesRoute, searchParams, searchRoute],
+  );
+
   // Auto search for pages that filter in state
   useEffect(() => {
     if (autoSearch) {
       const query = queryValue ?? "";
       // For auto search, update the URL with the original query (preserving user input)
       if (!query) {
-        router.push(searchRoute);
+        router.push(buildSearchUrl(""));
       } else {
-        router.replace(`${searchRoute}?q=${encodeURIComponent(query)}`);
+        router.replace(buildSearchUrl(query));
       }
     }
-  }, [queryValue, autoSearch, searchRoute, router]);
+  }, [queryValue, autoSearch, buildSearchUrl, router]);
 
   function submit(data: { query: string }) {
     const query = data.query?.trim() ?? "";
     setOpen(false);
 
-    if (!query) {
-      router.push(searchRoute);
-    } else {
-      router.push(`${searchRoute}?q=${encodeURIComponent(query)}`);
-    }
+    router.push(buildSearchUrl(query));
   }
 
   function handleClear() {
     reset({ query: "" });
-    router.push(searchRoute);
+    router.push(buildSearchUrl(""));
     inputRef.current?.focus();
   }
 

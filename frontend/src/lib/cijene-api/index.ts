@@ -218,11 +218,14 @@ export const useGetProductByEan = (params: GetProductParams) => {
 /**
  * Hook to search products
  */
-export const useGetProductByName = (params: SearchProductsParams) => {
+export const useGetProductByName = (
+  params: SearchProductsParams,
+  options?: { enabled?: boolean }
+) => {
   return useQuery<ProductSearchResponse, Error>({
     queryKey: ["cijene", "products", "search", JSON.stringify(params)],
     queryFn: () => getProductByName(params),
-    enabled: Boolean(params.q),
+    enabled: (options?.enabled ?? true) && Boolean(params.q),
     staleTime: 6 * 60 * 60 * 1000, // 6 hours
   });
 };

@@ -1,6 +1,24 @@
 import { normalizeForSearch } from "@/utils/strings";
 
 /**
+ * Parse a comma-separated URL query param into a deduped list of values.
+ *
+ * Example: parseListParam("konzum, lidl,konzum") -> ["konzum", "lidl"]
+ */
+export function parseListParam(value: string | null): string[] {
+  if (!value) return [];
+
+  return [
+    ...new Set(
+      value
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter(Boolean)
+    ),
+  ];
+}
+
+/**
  * Generic field-based filter helper.
  *
  * Example: filterByFields(products, q, ["name", "brand", "category"])

@@ -1,5 +1,8 @@
 import { Metadata } from "next";
+import { Suspense } from "react";
 import ProductsClient from "@/app/products/components/products-client";
+import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 
 export const metadata: Metadata = {
   title: "Proizvodi",
@@ -22,5 +25,20 @@ export default async function ProductsPage({ searchParams }: IPageProps) {
     query = rawQuery;
   }
 
-  return <ProductsClient query={query} />;
+  // ProductsClient reads filter params via useSearchParams, which requires a
+  // Suspense boundary during prerendering.
+  return (
+    <Suspense
+      fallback={
+        <div className="space-y-4">
+          <SearchBarSkeleton />
+          <div className="flex items-center justify-center py-12">
+            <BlockLoadingSpinner />
+          </div>
+        </div>
+      }
+    >
+      <ProductsClient query={query} />
+    </Suspense>
+  );
 }

@@ -13,6 +13,7 @@ interface StoreChainMultiSelectProps {
   selectedChains: string[];
   onChainsChange: (chains: string[]) => void;
   className?: string;
+  placeholder?: string;
 }
 
 export default function StoreChainMultiSelect({
@@ -20,11 +21,12 @@ export default function StoreChainMultiSelect({
   selectedChains,
   onChainsChange,
   className,
+  placeholder = "Odaberi trgovinske lance...",
 }: StoreChainMultiSelectProps) {
   return (
     <MultiSelect values={selectedChains} onValuesChange={onChainsChange}>
       <MultiSelectTrigger className={className || "w-full sm:w-sm"}>
-        <MultiSelectValue placeholder="Odaberi trgovinske lance..." />
+        <MultiSelectValue placeholder={placeholder} />
       </MultiSelectTrigger>
       <MultiSelectContent>
         <MultiSelectGroup>

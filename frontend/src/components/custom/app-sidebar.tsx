@@ -44,6 +44,7 @@ import { Badge } from "@/components/ui/badge";
 import { useNotifications } from "@/context/notifications-context";
 import { useUser } from "@/context/user-context";
 import { canAccessDashboard, isAdmin } from "@/lib/api/schemas/auth-user";
+import { parseListParam } from "@/utils/generic";
 
 type OpenSection = "categories" | "stores" | "locations" | null;
 
@@ -66,6 +67,14 @@ export const AppSidebar = memo(function AppSidebar() {
   const selectedCategory = searchParams.get("category");
   const isDiscountedFilterActive = searchParams.get("discounted") === "true";
 
+  const isOnProducts = pathname.startsWith("/products");
+  const selectedChainFilters = isOnProducts
+    ? parseListParam(searchParams.get("chain"))
+    : [];
+  const selectedLocationFilters = isOnProducts
+    ? parseListParam(searchParams.get("location"))
+    : [];
+
   const { data: chainStats, isLoading: chainStatsLoading } =
     cijeneService.useGetChainStats();
 
@@ -76,6 +85,37 @@ export const AppSidebar = memo(function AppSidebar() {
     setOpen(false);
     setOpenMobile(false);
   }, [pathname]);
+
+  // Open the collapsible matching the active /products filter, preferring the
+  // one already open so switching values doesn't flip menus.
+  useEffect(() => {
+    if (!pathname.startsWith("/products")) return;
+
+    const hasChainFilter = Boolean(searchParams.get("chain"));
+    const hasLocationFilter = Boolean(searchParams.get("location"));
+
+    setOpenMenu((current) => {
+      if (current === "stores" && hasChainFilter) return current;
+      if (current === "locations" && hasLocationFilter) return current;
+      if (hasChainFilter) return "stores";
+      if (hasLocationFilter) return "locations";
+      return current;
+    });
+  }, [pathname, searchParams]);
+
+  // Deep-link into /products with the given filter applied; when already
+  // there, keep the current search + other filters and replace only this key.
+  function buildProductsFilterHref(
+    key: "chain" | "location",
+    value: string,
+  ): string {
+    const params = pathname.startsWith("/products")
+      ? new URLSearchParams(searchParamsString)
+      : new URLSearchParams();
+
+    params.set(key, value);
+    return `/products?${params.toString()}`;
+  }
 
   const sortedChainStats = useMemo(() => {
     const list = chainStats?.chain_stats ?? [];
@@ -155,10 +195,12 @@ export const AppSidebar = memo(function AppSidebar() {
                     key={chain.chain_code}
                   >
                     <Link
-                      className="flex justify-between items-center"
-                      href={`/products?chain=${encodeURIComponent(
-                        chain.chain_code,
-                      )}`}
+                      className={cn(
+                        "flex justify-between items-center",
+                        selectedChainFilters.includes(chain.chain_code) &&
+                          "text-primary font-bold",
+                      )}
+                      href={buildProductsFilterHref("chain", chain.chain_code)}
                     >
                       <span>
                         {storeNamesMap[chain.chain_code] || chain.chain_code}
@@ -178,10 +220,12 @@ export const AppSidebar = memo(function AppSidebar() {
                     key={location.name}
                   >
                     <Link
-                      className="flex justify-between items-center"
-                      href={`/products?location=${encodeURIComponent(
-                        location.name,
-                      )}`}
+                      className={cn(
+                        "flex justify-between items-center",
+                        selectedLocationFilters.includes(location.name) &&
+                          "text-primary font-bold",
+                      )}
+                      href={buildProductsFilterHref("location", location.name)}
                     >
                       <span>{location.name}</span>
                       <span>{`(${location.storeCount})`}</span>
