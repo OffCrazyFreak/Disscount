@@ -8,6 +8,7 @@ import {
   MultiSelectTrigger,
   MultiSelectValue,
 } from "@/components/ui/multi-select";
+import { cn } from "@/lib/utils";
 import type { IFacetSelect } from "@/app/products/hooks/useProductFacets";
 
 interface IFacetMultiSelectProps {
@@ -17,6 +18,7 @@ interface IFacetMultiSelectProps {
   emptyMessage: string;
   onValuesChange: (values: string[]) => void;
   getLabel?: (value: string) => string;
+  className?: string;
 }
 
 /** One filter dropdown: searchable multi-select with optional option counts */
@@ -27,11 +29,12 @@ export default function FacetMultiSelect({
   emptyMessage,
   onValuesChange,
   getLabel,
+  className,
 }: IFacetMultiSelectProps) {
   return (
     <MultiSelect values={facet.selected} onValuesChange={onValuesChange}>
       <MultiSelectTrigger
-        className="shrink-0 max-w-64 bg-white"
+        className={cn("shrink-0 max-w-64 bg-white", className)}
         disabled={facet.disabled}
       >
         <MultiSelectValue placeholder={placeholder} />

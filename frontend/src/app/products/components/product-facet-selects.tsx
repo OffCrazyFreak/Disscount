@@ -1,0 +1,96 @@
+"use client";
+
+import FacetMultiSelect from "@/app/products/components/facet-multi-select";
+import { storeNamesMap } from "@/constants/name-mappings";
+import type { IProductFacetSelects } from "@/app/products/hooks/useProductFacets";
+import type {
+  IUseProductFiltersResult,
+  ProductFilterKey,
+} from "@/app/products/hooks/useProductFilters";
+
+interface IFacetConfig {
+  key: keyof IProductFacetSelects;
+  filterKey: ProductFilterKey;
+  label: string;
+  placeholder: string;
+  searchPlaceholder: string;
+  emptyMessage: string;
+}
+
+const FACETS: IFacetConfig[] = [
+  {
+    key: "chains",
+    filterKey: "chain",
+    label: "Trgovine",
+    placeholder: "Odaberi trgovine...",
+    searchPlaceholder: "Pretraži trgovine...",
+    emptyMessage: "Nema trgovina",
+  },
+  {
+    key: "locations",
+    filterKey: "location",
+    label: "Lokacije",
+    placeholder: "Odaberi lokacije...",
+    searchPlaceholder: "Pretraži lokacije...",
+    emptyMessage: "Nema lokacija",
+  },
+  {
+    key: "categories",
+    filterKey: "category",
+    label: "Kategorije",
+    placeholder: "Odaberi kategorije...",
+    searchPlaceholder: "Pretraži kategorije...",
+    emptyMessage: "Nema kategorija",
+  },
+  {
+    key: "brands",
+    filterKey: "brand",
+    label: "Brendovi",
+    placeholder: "Odaberi brendove...",
+    searchPlaceholder: "Pretraži brendove...",
+    emptyMessage: "Nema brendova",
+  },
+];
+
+interface IProductFacetSelectsProps {
+  facets: IProductFacetSelects;
+  filters: IUseProductFiltersResult;
+  /** "stack" = labelled full-width rows (mobile sheet), "row" = inline bar */
+  layout: "row" | "stack";
+}
+
+export default function ProductFacetSelects({
+  facets,
+  filters,
+  layout,
+}: IProductFacetSelectsProps) {
+  const isStack = layout === "stack";
+
+  return (
+    <>
+      {FACETS.map((facet) => (
+        <div key={facet.key} className={isStack ? "space-y-1.5" : undefined}>
+          {isStack && (
+            <p className="text-sm font-medium text-gray-700">{facet.label}</p>
+          )}
+
+          <FacetMultiSelect
+            facet={facets[facet.key]}
+            placeholder={facet.placeholder}
+            searchPlaceholder={facet.searchPlaceholder}
+            emptyMessage={facet.emptyMessage}
+            onValuesChange={(values) =>
+              filters.setFilter(facet.filterKey, values)
+            }
+            getLabel={
+              facet.key === "chains"
+                ? (code) => storeNamesMap[code] || code
+                : undefined
+            }
+            className={isStack ? "w-full max-w-none min-h-11" : undefined}
+          />
+        </div>
+      ))}
+    </>
+  );
+}

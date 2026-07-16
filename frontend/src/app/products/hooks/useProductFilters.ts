@@ -9,6 +9,7 @@ import {
   canonicalizeSelection,
   normalizeChainCode,
 } from "@/app/products/utils/product-filters";
+import useSeedPreferredFilters from "@/app/products/hooks/useSeedPreferredFilters";
 
 export type ProductFilterKey = "chain" | "location" | "category" | "brand";
 
@@ -47,6 +48,8 @@ export default function useProductFilters(): IUseProductFiltersResult {
   const router = useRouter();
 
   const { data: locations, isLoading: locationsLoading } = useAllLocations();
+
+  useSeedPreferredFilters();
 
   const selectedChains = useMemo(
     () => [
