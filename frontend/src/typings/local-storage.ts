@@ -38,5 +38,6 @@ export interface AppData {
   lastLoginMethod?: LoginMethod;
   installBannerDismissed?: boolean; // User dismissed the "install app" banner
   storeOptimizeMode?: string; // Preferred store-list sort, shared across all shopping lists
+  preferredCameraId?: string; // Manually chosen scanner camera; absent means auto-pick
   [key: string]: unknown;
 }

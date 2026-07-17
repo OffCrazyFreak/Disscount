@@ -7,6 +7,7 @@ import { ScanBarcode } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useCameraScanner } from "@/context/scanner-context";
+import { IScannedCode } from "@/typings/scanned-code";
 import SearchBar from "@/components/custom/search-bar";
 import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
 
@@ -15,10 +16,11 @@ export default function HeroActions() {
   const router = useRouter();
 
   const handleScan = useCallback(
-    (result: string) => {
-      const trimmedResult = result?.trim();
-      if (!trimmedResult) return;
-      router.push(`/products/${encodeURIComponent(trimmedResult)}`);
+    (code: IScannedCode) => {
+      const value = code.rawValue.trim();
+      if (!value) return;
+
+      router.push(`/products/${encodeURIComponent(value)}`);
     },
     [router],
   );
@@ -47,7 +49,7 @@ export default function HeroActions() {
 
         <div>
           <Button
-            onClick={() => openScanner(handleScan)}
+            onClick={() => openScanner({ onScan: handleScan })}
             variant="outline"
             size="lg"
             className="w-full text-lg"

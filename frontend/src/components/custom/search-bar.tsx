@@ -9,6 +9,7 @@ import SearchBarActions from "@/components/custom/search-bar-actions";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 import { useCameraScanner } from "@/context/scanner-context";
 import { useSidebar } from "@/components/ui/sidebar";
+import { IScannedCode } from "@/typings/scanned-code";
 
 interface ISearchBarProps {
   placeholder?: string;
@@ -78,9 +79,9 @@ export default function SearchBar({
   }
 
   const handleScan = useCallback(
-    (result: string) => {
+    (code: IScannedCode) => {
       setOpen(false);
-      openResult(result);
+      openResult(code.rawValue);
     },
     [openResult, setOpen],
   );
@@ -110,7 +111,7 @@ export default function SearchBar({
             showClear={Boolean(clearable && queryValue)}
             onClear={handleClear}
             allowScanning={allowScanning}
-            onScan={() => openScanner(handleScan)}
+            onScan={() => openScanner({ onScan: handleScan })}
           />
         </div>
 
