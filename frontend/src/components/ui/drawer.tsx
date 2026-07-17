@@ -45,6 +45,12 @@ function DrawerOverlay({
   )
 }
 
+function isInsidePopper(target: Node): boolean {
+  return Array.from(
+    document.querySelectorAll("[data-radix-popper-content-wrapper]")
+  ).some((popper) => popper.contains(target))
+}
+
 function DrawerContent({
   className,
   children,
@@ -62,7 +68,10 @@ function DrawerContent({
           // Dropdowns and popovers are portalled outside the drawer, so
           // dismissing one reads as an outside click. Keep the drawer open and
           // let the layer above it close on its own.
-          if (document.querySelector("[data-radix-popper-content-wrapper]")) {
+          if (
+            event.target instanceof Node &&
+            isInsidePopper(event.target)
+          ) {
             event.preventDefault()
           }
         }}
