@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   BarcodeScanner,
   type BarcodeScannerRef,
@@ -14,12 +14,40 @@ import { IScannerProps, LAB_PRIMARY } from "../types";
 
 export default function ModernScanner({ settings, onDetect }: IScannerProps) {
   const scannerRef = useRef<BarcodeScannerRef>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [cameraReady, setCameraReady] = useState(false);
 
   useEffect(() => {
     const scanner = scannerRef.current;
     scanner?.start();
 
     return () => scanner?.stop();
+  }, []);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let video: HTMLVideoElement | null = null;
+
+    function markReady() {
+      setCameraReady(true);
+    }
+
+    const interval = window.setInterval(() => {
+      video = container.querySelector("video");
+      if (!video) return;
+
+      window.clearInterval(interval);
+
+      if (video.readyState >= 2 && !video.paused) markReady();
+      else video.addEventListener("playing", markReady, { once: true });
+    }, 100);
+
+    return () => {
+      window.clearInterval(interval);
+      video?.removeEventListener("playing", markReady);
+    };
   }, []);
 
   function handleScan(result: ScanResult) {
@@ -30,8 +58,11 @@ export default function ModernScanner({ settings, onDetect }: IScannerProps) {
 
   return (
     <div className="space-y-3">
-      <div className="relative h-96 overflow-hidden rounded-xl bg-black">
-        <ScanOverlay />
+      <div
+        ref={containerRef}
+        className="relative h-96 overflow-hidden rounded-xl bg-black"
+      >
+        {cameraReady && <ScanOverlay />}
         <BarcodeScanner
           ref={scannerRef}
           onScan={handleScan}

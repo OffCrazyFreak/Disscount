@@ -120,7 +120,7 @@ export default function YudielScanner({ settings, onDetect }: IScannerProps) {
       )}
 
       <div className="relative overflow-hidden rounded-xl bg-black">
-        <ScanOverlay showScanLine dim />
+        <ScanOverlay showScanLine />
         <Scanner
           onScan={(codes) => {
             if (codes[0]) onDetect(codes[0].rawValue, codes[0].format);
