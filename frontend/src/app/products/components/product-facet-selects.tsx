@@ -46,7 +46,7 @@ const FACETS: IFacetConfig[] = [
     key: "brands",
     filterKey: "brand",
     label: "Marka",
-    placeholder: "Odaberi marku proizvoda...",
+    placeholder: "Odaberi marku...",
     searchPlaceholder: "Pretraži marke...",
     emptyMessage: "Nema marki",
   },
@@ -69,7 +69,12 @@ export default function ProductFacetSelects({
   return (
     <>
       {FACETS.map((facet) => (
-        <div key={facet.key} className={isStack ? "space-y-1.5" : undefined}>
+        <div
+          key={facet.key}
+          // In a row every filter shares the width evenly and may shrink, so
+          // the bar stays on one line however long the selected labels get.
+          className={isStack ? "space-y-1.5" : "min-w-0 flex-1 max-w-64"}
+        >
           {isStack && (
             <p className="text-sm font-medium text-gray-700">{facet.label}</p>
           )}
@@ -82,12 +87,8 @@ export default function ProductFacetSelects({
             onValuesChange={(values) =>
               filters.setFilter(facet.filterKey, values)
             }
-            getLabel={
-              facet.key === "chains"
-                ? getChainLabel
-                : undefined
-            }
-            className={isStack ? "w-full max-w-none min-h-11" : undefined}
+            getLabel={facet.key === "chains" ? getChainLabel : undefined}
+            className={isStack ? "max-w-none min-h-11" : undefined}
           />
         </div>
       ))}

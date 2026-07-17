@@ -4,18 +4,24 @@ import { useEffect, useState, type RefObject } from "react";
 import { cn } from "@/lib/utils";
 
 interface IScrollFadeProps {
-  /** Scroll container to watch; the fade hides once it is scrolled to the end */
+  /** Scroll container to watch; the fade hides once it is scrolled to that end */
   targetRef: RefObject<HTMLElement | null>;
+  /** Edge to fade against, defaulting to the bottom */
+  side?: "top" | "bottom";
   /** Override the gradient colour to match the surface, e.g. "from-sidebar" */
   className?: string;
 }
 
 /**
- * Gradient overlay hinting at content below the fold. Place it as the last
- * child of a `relative` wrapper around a scrollable element.
+ * Gradient overlay hinting at content past an edge. Place it as a child of a
+ * `relative` wrapper around a scrollable element.
  */
-export default function ScrollFade({ targetRef, className }: IScrollFadeProps) {
-  const [hasContentBelow, setHasContentBelow] = useState(false);
+export default function ScrollFade({
+  targetRef,
+  side = "bottom",
+  className,
+}: IScrollFadeProps) {
+  const [hasHiddenContent, setHasHiddenContent] = useState(false);
 
   useEffect(() => {
     const element = targetRef.current;
@@ -26,7 +32,8 @@ export default function ScrollFade({ targetRef, className }: IScrollFadeProps) {
 
       const scrolledToEnd =
         element.scrollTop + element.clientHeight >= element.scrollHeight - 1;
-      setHasContentBelow(!scrolledToEnd);
+
+      setHasHiddenContent(side === "top" ? element.scrollTop > 0 : !scrolledToEnd);
     }
 
     update();
@@ -41,14 +48,15 @@ export default function ScrollFade({ targetRef, className }: IScrollFadeProps) {
       element.removeEventListener("scroll", update);
       observer.disconnect();
     };
-  }, [targetRef]);
+  }, [targetRef, side]);
 
   return (
     <div
       aria-hidden
       className={cn(
-        "pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background to-transparent transition-opacity duration-200",
-        hasContentBelow ? "opacity-100" : "opacity-0",
+        "pointer-events-none absolute inset-x-0 z-10 h-20 from-background to-transparent transition-opacity duration-200",
+        side === "top" ? "top-0 bg-gradient-to-b" : "bottom-0 bg-gradient-to-t",
+        hasHiddenContent ? "opacity-100" : "opacity-0",
         className,
       )}
     />

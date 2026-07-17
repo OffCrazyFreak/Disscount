@@ -34,7 +34,7 @@ export default function FacetMultiSelect({
   return (
     <MultiSelect values={facet.selected} onValuesChange={onValuesChange}>
       <MultiSelectTrigger
-        className={cn("shrink-0 max-w-64 bg-white", className)}
+        className={cn("w-full bg-white", className)}
         disabled={facet.disabled}
       >
         <MultiSelectValue placeholder={placeholder} />
