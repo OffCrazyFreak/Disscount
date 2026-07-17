@@ -2,14 +2,7 @@
 
 import { AlertTriangle, LogOut, Loader2 } from "lucide-react";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { ModalShell } from "@/components/ui/modal-shell";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -39,29 +32,28 @@ export function ConfirmDialog({
   const Icon = variant === "destructive" ? AlertTriangle : LogOut;
 
   return (
-    <Dialog open={isOpen} onOpenChange={isLoading ? undefined : onOpenChange}>
-      <DialogContent showCloseButton={!isLoading} className="max-w-sm">
-        <DialogHeader className="items-center text-center gap-3">
-          <div
-            className={cn(
-              "flex size-11 shrink-0 items-center justify-center rounded-full",
-              variant === "destructive"
-                ? "bg-destructive/10 text-destructive"
-                : "bg-amber-50 text-amber-600"
-            )}
-          >
-            <Icon size={20} strokeWidth={2} />
-          </div>
-
-          <div className="space-y-1">
-            <DialogTitle className="text-base leading-snug">{title}</DialogTitle>
-            <DialogDescription className="text-sm leading-relaxed">
-              {description}
-            </DialogDescription>
-          </div>
-        </DialogHeader>
-
-        <DialogFooter className="flex-row gap-2 pt-1">
+    <ModalShell
+      open={isOpen}
+      onOpenChange={onOpenChange}
+      size="sm"
+      centered
+      preventClose={isLoading}
+      title={title}
+      description={description}
+      hero={
+        <div
+          className={cn(
+            "flex size-11 shrink-0 items-center justify-center rounded-full",
+            variant === "destructive"
+              ? "bg-destructive/10 text-destructive"
+              : "bg-amber-50 text-amber-600"
+          )}
+        >
+          <Icon size={20} strokeWidth={2} />
+        </div>
+      }
+      footer={
+        <div className="flex gap-2 px-6 pb-6 pt-2">
           <Button
             variant="outline"
             className="flex-1"
@@ -77,10 +69,14 @@ export function ConfirmDialog({
             onClick={onConfirm}
             disabled={isLoading}
           >
-            {isLoading ? <Loader2 size={15} className="animate-spin" /> : confirmLabel}
+            {isLoading ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : (
+              confirmLabel
+            )}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      }
+    />
   );
 }

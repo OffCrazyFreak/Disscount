@@ -23,7 +23,7 @@ import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import ShoppingListModal from "@/app/(user)/shopping-lists/components/forms/shopping-list-modal";
-import DeleteListDialog from "@/app/(user)/shopping-lists/components/forms/delete-shopping-list-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useShoppingListMutations } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-mutations";
 import { toast } from "sonner";
 import { formatShoppingListForSharing } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
@@ -86,12 +86,15 @@ export default function ShoppingListActionButtons({
         shoppingList={shoppingList}
       />
 
-      <DeleteListDialog
+      <ConfirmDialog
         isOpen={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
+        title="Obriši popis za kupnju"
+        description={`Jesi li siguran da želiš obrisati popis "${shoppingList.title}"? Ova akcija se ne može poništiti.`}
+        confirmLabel="Obriši"
+        variant="destructive"
         onConfirm={handleConfirmDelete}
-        isDeleting={deleteShoppingListMutation.isPending}
-        listTitle={shoppingList.title}
+        isLoading={deleteShoppingListMutation.isPending}
       />
 
       {/* Desktop View - Show all buttons */}

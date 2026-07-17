@@ -4,12 +4,12 @@ import { ReactNode } from "react";
 import { SquareArrowUp, Plus, EllipsisVertical, Download } from "lucide-react";
 
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+} from "@/components/ui/drawer";
 
 interface InstallInstructionsSheetProps {
   open: boolean;
@@ -82,14 +82,14 @@ export default function InstallInstructionsSheet({
       ];
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="rounded-t-2xl">
-        <SheetHeader>
-          <SheetTitle>Dodaj na početni zaslon</SheetTitle>
-          <SheetDescription>
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>Dodaj na početni zaslon</DrawerTitle>
+          <DrawerDescription>
             Dodaj Disscount na početni zaslon u nekoliko koraka.
-          </SheetDescription>
-        </SheetHeader>
+          </DrawerDescription>
+        </DrawerHeader>
 
         <ol className="flex flex-col gap-4 px-4 pb-8">
           {steps.map((step, index) => (
@@ -101,7 +101,7 @@ export default function InstallInstructionsSheet({
             </li>
           ))}
         </ol>
-      </SheetContent>
-    </Sheet>
+      </DrawerContent>
+    </Drawer>
   );
 }
