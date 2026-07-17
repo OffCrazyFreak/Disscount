@@ -53,6 +53,14 @@ public class User {
     @Column(name = "image", columnDefinition = "TEXT")
     private String image;
 
+    // Stamped when the onboarding wizard ends, however it ends; null = wizard auto-opens on load.
+    @Column(name = "onboarding_completed_at")
+    private LocalDateTime onboardingCompletedAt;
+
+    // How onboarding ended: "completed" or "skipped:<step>" (step index where the user bailed).
+    @Column(name = "onboarding_outcome")
+    private String onboardingOutcome;
+
     // Set on first login: ADMIN if no users exist yet, otherwise CONSUMER.
     // Elevated to ENTERPRISE / PUBLIC_SECTOR manually via the admin dashboard.
     @Enumerated(EnumType.STRING)

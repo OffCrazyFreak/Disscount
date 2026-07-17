@@ -41,6 +41,10 @@ import {
   ACQUISITION_CHANNEL_LABELS,
 } from "@/lib/api/schemas/auth-user";
 import { userService } from "@/lib/api";
+import {
+  applyProblemToForm,
+  problemMessage,
+} from "@/lib/api/problem-details";
 import { fileToBase64 } from "@/utils/browser/file";
 import { useUser } from "@/context/user-context";
 
@@ -132,25 +136,12 @@ export default function ProfileModal({
           onOpenChange(false);
         },
         onError: (error: unknown) => {
-          let status = 0;
-          let serverMessage: string | undefined;
-
-          if (isAxiosError(error)) {
-            status = error.response?.status ?? 0;
-            serverMessage =
-              (error.response?.data as { message?: string })?.message ||
-              error.message;
-          } else {
-            serverMessage = (error as Error)?.message || "Unknown error";
-          }
+          const status = isAxiosError(error) ? (error.response?.status ?? 0) : 0;
 
           if (status >= 400 && status < 500) {
-            form.setError("root", {
-              type: "server",
-              message: serverMessage || "Provjeri unesene podatke.",
-            });
+            applyProblemToForm(error, form.setError);
           } else {
-            toast.error(serverMessage || "Greška pri spremanju profila");
+            toast.error(problemMessage(error, "Greška pri spremanju profila"));
           }
         },
       }

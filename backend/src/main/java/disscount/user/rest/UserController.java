@@ -36,16 +36,7 @@ public class UserController {
     @PatchMapping("/me")
     public ResponseEntity<UserDto> updateCurrentUser(@Valid @RequestBody UserRequest request) {
         UUID authenticatedUserId = SecurityUtils.getCurrentUserId();
-        UserDto updatedUser = userService.updateProfile(
-                authenticatedUserId,
-                request.getUsername(),
-                request.getNotificationsPush(),
-                request.getNotificationsEmail(),
-                request.getNewsletter(),
-                request.getFeedbackContact(),
-                request.getAcquisitionChannel(),
-                request.getImage()
-        );
+        UserDto updatedUser = userService.updateProfile(authenticatedUserId, request);
         return ResponseEntity.ok(updatedUser);
     }
 

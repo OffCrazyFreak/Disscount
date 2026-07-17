@@ -1,5 +1,6 @@
 package disscount.user.dto;
 
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -7,6 +8,7 @@ import disscount.user.domain.enums.AcquisitionChannel;
 
 @Data
 public class UserRequest {
+    @Size(min = 2, max = 40, message = "Korisničko ime mora imati između 2 i 40 znakova")
     private String username;
     // Each toggle: null = leave unchanged, true = enable, false = disable.
     private Boolean notificationsPush;
@@ -18,4 +20,7 @@ public class UserRequest {
     // Base64 data URI; ~1.4 MB cap matches the 1 MB raw-image limit enforced on the client
     @Size(max = 2_000_000, message = "Slika je prevelika")
     private String image;
+
+    @Pattern(regexp = "completed|skipped:\\d+", message = "Neispravan ishod vodiča")
+    private String onboardingOutcome;
 }

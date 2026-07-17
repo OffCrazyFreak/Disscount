@@ -60,6 +60,8 @@ export const userRequestSchema = z.object({
   feedbackContact: z.boolean().optional(),
   acquisitionChannel: acquisitionChannelSchema.nullable().optional(),
   image: z.string().nullable().optional(),
+  // "completed" or "skipped:<step>"; sent only when the onboarding wizard ends
+  onboardingOutcome: z.string().optional(),
 });
 
 export const userDtoSchema = userRequestSchema
@@ -79,6 +81,9 @@ export const userDtoSchema = userRequestSchema
     notificationsEmailEnabledAt: z.string().nullable().optional(),
     newsletterEnabledAt: z.string().nullable().optional(),
     feedbackContactEnabledAt: z.string().nullable().optional(),
+    // null = onboarding wizard has never ended for this user -> auto-open it
+    onboardingCompletedAt: z.string().nullable().optional(),
+    onboardingOutcome: z.string().nullable().optional(),
     createdAt: z.string(),
   pinnedStores: z
     .array(

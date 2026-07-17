@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import AccountCredentialsForm from "@/components/custom/header/forms/account-credentials-form";
 import LinkedAccounts from "@/components/custom/header/forms/linked-accounts";
 import { userService } from "@/lib/api";
+import { problemMessage } from "@/lib/api/problem-details";
 import { authClient } from "@/lib/auth-client";
 import { clearAuthToken } from "@/lib/api/api-base";
 import { useUser } from "@/context/user-context";
@@ -143,15 +144,13 @@ export default function SecurityModal({
     } catch (error) {
       if (isAxiosError(error)) {
         const status = error.response?.status ?? 0;
-        const serverMessage = (error.response?.data as { message?: string })
-          ?.message;
 
         if (status === 404) {
           toast.error("Korisnički račun nije pronađen.");
         } else if (status >= 500) {
           toast.error("Serverska greška. Pokušaj ponovo.");
         } else {
-          toast.error(serverMessage || "Greška pri brisanju računa.");
+          toast.error(problemMessage(error, "Greška pri brisanju računa."));
         }
       } else {
         toast.error("Greška pri brisanju računa. Provjeri internetsku vezu.");
