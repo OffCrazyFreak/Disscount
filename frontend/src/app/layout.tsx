@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import "./globals.css";
+import "@/app/globals.css";
 
 import { AppSidebar } from "@/components/custom/app-sidebar";
 import Header from "@/components/custom/header/header";

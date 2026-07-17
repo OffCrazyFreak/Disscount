@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import ShoppingListItem from "./shopping-list-item";
+import ShoppingListItem from "@/app/(user)/shopping-lists/[id]/components/items/shopping-list-item";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import { useShoppingListItemMutations } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-item-mutations";
 import {

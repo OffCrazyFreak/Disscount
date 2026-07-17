@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import apiClient from "../api-base";
-import { UserDto, AccountType } from "../types";
+import apiClient from "@/lib/api/api-base";
+import { UserDto, AccountType } from "@/lib/api/types";
 
 const ADMIN_BASE_PATH = "/api/admin";
 

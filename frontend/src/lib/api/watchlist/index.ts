@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import apiClient from "../api-base";
+import apiClient from "@/lib/api/api-base";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
-import { WatchlistItemRequest, WatchlistItemDto } from "../types";
+import { WatchlistItemRequest, WatchlistItemDto } from "@/lib/api/types";
 
 // Query key constants
 export const WATCHLIST_QUERY_KEYS = {

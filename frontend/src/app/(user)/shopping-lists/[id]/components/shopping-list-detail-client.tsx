@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
-import ShoppingListStoreSummary from "./stores/shopping-list-stores-list";
+import ShoppingListStoreSummary from "@/app/(user)/shopping-lists/[id]/components/stores/shopping-list-stores-list";
 import ShoppingListHeader from "@/app/(user)/shopping-lists/[id]/components/shopping-list-header";
 import ShoppingListItems from "@/app/(user)/shopping-lists/[id]/components/items/shopping-list-items";
 import ShoppingListPriceHistory from "@/app/(user)/shopping-lists/[id]/components/shopping-list-price-history";

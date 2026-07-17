@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import apiClient from "../api-base";
+import apiClient from "@/lib/api/api-base";
 import {
   BulkPinnedPlaceRequest,
   BulkPinnedStoreRequest,
   PinnedPlaceDto,
   PinnedStoreDto,
-} from "../types";
+} from "@/lib/api/types";
 
 /**
  * Get current user's pinned stores

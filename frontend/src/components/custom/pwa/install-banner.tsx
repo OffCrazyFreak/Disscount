@@ -5,8 +5,8 @@ import Image from "next/image";
 import { X, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { useInstallPrompt } from "./use-install-prompt";
-import InstallInstructionsSheet from "./install-instructions-sheet";
+import { useInstallPrompt } from "@/components/custom/pwa/use-install-prompt";
+import InstallInstructionsSheet from "@/components/custom/pwa/install-instructions-sheet";
 import {
   getInstallBannerDismissed,
   setInstallBannerDismissed,

@@ -3,8 +3,8 @@
 import "server-only";
 
 import { requireEnv } from "@/lib/env";
-import { EmailService } from "./email-service";
-import { ResendProvider } from "./resend-provider";
+import { EmailService } from "@/lib/email/email-service";
+import { ResendProvider } from "@/lib/email/resend-provider";
 
 // The only place Resend is wired in. To migrate (e.g. an InfobipProvider implementing
 // EmailProvider), swap this line — EmailService and all templates stay unchanged.

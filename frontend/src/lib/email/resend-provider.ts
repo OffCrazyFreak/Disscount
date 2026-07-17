@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-import { EmailMessage, EmailProvider, EmailResult } from "./provider";
+import { EmailMessage, EmailProvider, EmailResult } from "@/lib/email/provider";
 
 // Resend implementation of EmailProvider. The `from` address must exactly match a verified
 // Resend domain or the API returns 403.

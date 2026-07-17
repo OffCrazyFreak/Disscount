@@ -5,8 +5,8 @@ import { nextCookies } from "better-auth/next-js";
 import { APIError } from "better-auth/api";
 import { and, eq, ne } from "drizzle-orm";
 
-import { db } from "../db";
-import { account } from "../db/auth-schema";
+import { db } from "@/db";
+import { account } from "@/db/auth-schema";
 import { requireEnv } from "@/lib/env";
 import { emailService } from "@/lib/email";
 

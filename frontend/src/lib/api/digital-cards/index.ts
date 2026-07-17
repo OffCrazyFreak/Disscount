@@ -1,11 +1,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import apiClient from "../api-base";
+import apiClient from "@/lib/api/api-base";
 import {
   DigitalCardRequest,
   DigitalCardDto,
   digitalCardRequestSchema,
   digitalCardDtoSchema,
-} from "../types";
+} from "@/lib/api/types";
 
 /**
  * Create a new digital card

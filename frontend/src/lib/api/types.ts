@@ -1,1 +1,1 @@
-export * from "./schemas";
+export * from "@/lib/api/schemas";

@@ -16,9 +16,9 @@ import {
 } from "@/utils/browser/local-storage";
 import { describeScannerError, pickBackCamera } from "@/utils/browser/camera";
 import { IScannedCode, ScanPreset } from "@/typings/scanned-code";
-import CameraView from "./camera-view";
-import CameraSelect from "./camera-select";
-import ScanImageButton from "./scan-image";
+import CameraView from "@/components/scanner/camera-view";
+import CameraSelect from "@/components/scanner/camera-select";
+import ScanImageButton from "@/components/scanner/scan-image";
 
 interface ICameraScannerProps {
   isOpen: boolean;

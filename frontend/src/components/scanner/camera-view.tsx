@@ -4,8 +4,8 @@ import { useMemo } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import { SCAN_FORMATS_BY_PRESET } from "@/constants/scanner";
 import { IScannedCode, ScanPreset } from "@/typings/scanned-code";
-import ScanOverlay from "./scan-overlay";
-import "./scanner.css";
+import ScanOverlay from "@/components/scanner/scan-overlay";
+import "@/components/scanner/scanner.css";
 
 interface ICameraViewProps {
   preset: ScanPreset;

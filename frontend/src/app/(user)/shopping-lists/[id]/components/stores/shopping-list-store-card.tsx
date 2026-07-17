@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 import { ShoppingListDto } from "@/lib/api/types";
 import { useUser } from "@/context/user-context";
 import { formatDate } from "@/utils/strings";
-import { ShoppingListItemsTable } from "./shopping-list-items-table";
+import { ShoppingListItemsTable } from "@/app/(user)/shopping-lists/[id]/components/stores/shopping-list-items-table";
 import {
   ProductResponse,
   ChainProductResponse,

@@ -1,4 +1,4 @@
-import { EmailProvider } from "./provider";
+import { EmailProvider } from "@/lib/email/provider";
 import VerificationEmail from "@/emails/verification-email";
 import PasswordResetEmail from "@/emails/password-reset-email";
 import SetPasswordEmail from "@/emails/set-password-email";
