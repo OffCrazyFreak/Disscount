@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Scanner,
   useDevices,
@@ -24,9 +24,7 @@ import {
   setPreferredCamera,
 } from "../camera-prefs";
 import ScanOverlay from "../scan-overlay";
-import ZoomSlider from "../zoom-slider";
 import { pickBackCamera } from "../pick-back-camera";
-import { useVideoTrack } from "../use-video-track";
 import { IScannerProps } from "../types";
 import "./yudiel-finder.css";
 
@@ -49,8 +47,6 @@ export default function YudielScanner({ settings, onDetect }: IScannerProps) {
   );
   const [tracker, setTracker] = useState<TrackerKey>("outline");
   const [error, setError] = useState<string | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const track = useVideoTrack(containerRef);
 
   const autoPick = useMemo(() => pickBackCamera(devices), [devices]);
   const activeDeviceId = deviceId ?? autoPick ?? undefined;
@@ -131,12 +127,8 @@ export default function YudielScanner({ settings, onDetect }: IScannerProps) {
         </p>
       )}
 
-      <div
-        ref={containerRef}
-        className="yudiel-finder-recolor relative overflow-hidden rounded-xl bg-black"
-      >
+      <div className="yudiel-finder-recolor relative overflow-hidden rounded-xl bg-black">
         <ScanOverlay showScanLine showFrame={false} />
-        <ZoomSlider track={track} />
         <Scanner
           onScan={(codes) => {
             if (codes[0]) onDetect(codes[0].rawValue, codes[0].format);
@@ -167,7 +159,7 @@ export default function YudielScanner({ settings, onDetect }: IScannerProps) {
           sound={settings.sound}
           components={{
             torch: true,
-            zoom: false,
+            zoom: true,
             finder: true,
             onOff: true,
             tracker: tracker === "none" ? undefined : TRACKERS[tracker],
