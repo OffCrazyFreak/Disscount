@@ -96,16 +96,20 @@ export default function SearchBar({
 
   // Auto search for pages that filter in state
   useEffect(() => {
-    if (autoSearch) {
-      const query = queryValue ?? "";
-      // For auto search, update the URL with the original query (preserving user input)
-      if (!query) {
-        router.push(buildSearchUrl(""));
-      } else {
-        router.replace(buildSearchUrl(query));
-      }
+    if (!autoSearch) return;
+
+    const query = queryValue ?? "";
+
+    // Navigating re-creates searchParams, which re-runs this effect, so bail
+    // out once the URL already carries the query the input holds.
+    if (matchesRoute && (searchParams.get("q") ?? "") === query) return;
+
+    if (!query) {
+      router.push(buildSearchUrl(""));
+    } else {
+      router.replace(buildSearchUrl(query));
     }
-  }, [queryValue, autoSearch, buildSearchUrl, router]);
+  }, [queryValue, autoSearch, matchesRoute, searchParams, buildSearchUrl, router]);
 
   function submit(data: { query: string }) {
     const query = data.query?.trim() ?? "";
