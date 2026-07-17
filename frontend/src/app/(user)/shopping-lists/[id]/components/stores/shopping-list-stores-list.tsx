@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
-import { ChevronDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import cijeneService from "@/lib/cijene-api";
@@ -18,12 +17,7 @@ import {
   STORE_OPTIMIZE_MODES,
   type StoreOptimizeMode,
 } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { Separator } from "@/components/ui/separator";
+import CollapsibleSection from "@/components/custom/collapsible-section";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -32,7 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
 import {
   getShoppingListStoresOpen,
   setShoppingListStoresOpen,
@@ -311,33 +304,12 @@ export default function ShoppingListStoreSummary({
   }, [allChains, optimizeBy, user?.pinnedStores, cheapestCountByChain]);
 
   return (
-    <Collapsible open={isStoresOpen} onOpenChange={handleToggleStores}>
-      <CollapsibleTrigger asChild className="cursor-pointer py-2">
-        <button type="button" className="w-full text-left">
-          <div className="flex items-center justify-between gap-4">
-            <h2 className="text-lg font-semibold">
-              Cijene po lancima trgovina
-            </h2>
-
-            <Separator className="flex-1 my-2" />
-
-            <div className="flex items-center gap-4">
-              <p className="hidden sm:inline text-gray-700 text-sm">
-                {isStoresOpen ? "Sakrij" : "Prikaži"}
-              </p>
-
-              <ChevronDown
-                className={cn(
-                  "size-8 text-gray-500 transition-transform flex-shrink-0",
-                  isStoresOpen && "rotate-180",
-                )}
-              />
-            </div>
-          </div>
-        </button>
-      </CollapsibleTrigger>
-
-      <CollapsibleContent>
+    <CollapsibleSection
+      title="Cijene po lancima trgovina"
+      open={isStoresOpen}
+      onOpenChange={handleToggleStores}
+    >
+      <>
         {productsLoading ? (
           <div className="grid place-items-center">
             <BlockLoadingSpinner />
@@ -402,7 +374,7 @@ export default function ShoppingListStoreSummary({
             ))}
           </div>
         )}
-      </CollapsibleContent>
-    </Collapsible>
+      </>
+    </CollapsibleSection>
   );
 }
