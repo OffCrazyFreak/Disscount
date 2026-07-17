@@ -1,4 +1,20 @@
-import { normalizeForSearch } from "@/utils/strings";
+import { decodeQuerySafely, normalizeForSearch } from "@/utils/strings";
+
+/**
+ * Read one decoded value out of a page's resolved searchParams, keeping the
+ * first entry when a param is repeated.
+ *
+ * Example: readSearchParam({ q: ["mlijeko", "kruh"] }) -> "mlijeko"
+ */
+export function readSearchParam(
+  searchParams: Record<string, string | string[] | undefined>,
+  key = "q"
+): string {
+  const value = searchParams[key];
+  const rawValue = (Array.isArray(value) ? value[0] : value) || "";
+
+  return decodeQuerySafely(rawValue);
+}
 
 /**
  * Parse a comma-separated URL query param into a deduped list of values.

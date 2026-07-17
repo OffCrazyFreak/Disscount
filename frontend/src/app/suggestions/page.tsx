@@ -1,27 +1,17 @@
 import { Metadata } from "next";
 
 import SuggestionsClient from "@/app/suggestions/components/suggestions-client";
+import { readSearchParam } from "@/utils/generic";
 
 export const metadata: Metadata = {
   title: "Ideje i prijedlozi",
   description: "Predloži nove značajke i glasaj za one koje želiš vidjeti.",
 };
 
-interface IPageProps {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
-}
-
-export default async function SuggestionsPage({ searchParams }: IPageProps) {
-  const searchParameters = await searchParams;
-  const qParam = searchParameters?.q;
-  const rawQuery = (Array.isArray(qParam) ? qParam[0] : qParam) || "";
-  let query = rawQuery;
-
-  try {
-    query = decodeURIComponent(rawQuery) || rawQuery;
-  } catch {
-    query = rawQuery;
-  }
+export default async function SuggestionsPage(
+  props: PageProps<"/suggestions">
+) {
+  const query = readSearchParam(await props.searchParams);
 
   return <SuggestionsClient query={query} />;
 }

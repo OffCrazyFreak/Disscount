@@ -1,27 +1,15 @@
 import { Metadata } from "next";
 
 import MapClient from "@/app/map/components/map-client";
+import { readSearchParam } from "@/utils/generic";
 
 export const metadata: Metadata = {
   title: "Karta i radno vrijeme trgovina",
   description: "Pregled trgovina i njihovog radnog vremena na karti.",
 };
 
-interface IPageProps {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
-}
-
-export default async function MapPage({ searchParams }: IPageProps) {
-  const searchParameters = await searchParams;
-  const qParam = searchParameters?.q;
-  const rawQuery = (Array.isArray(qParam) ? qParam[0] : qParam) || "";
-  let query = rawQuery;
-
-  try {
-    query = decodeURIComponent(rawQuery) || rawQuery;
-  } catch {
-    query = rawQuery;
-  }
+export default async function MapPage(props: PageProps<"/map">) {
+  const query = readSearchParam(await props.searchParams);
 
   return <MapClient query={query} />;
 }

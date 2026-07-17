@@ -7,16 +7,15 @@ export const metadata: Metadata = {
   description: "Postavi novu lozinku za svoj Disscount račun.",
 };
 
-interface IPageProps {
-  searchParams?: Promise<{ token?: string | string[] }>;
-}
-
 // The reset/set-password email link lands here as /reset-password?token=... (Better Auth
 // appends the token). The modal is rendered over the app, matching the auth dialogs.
-export default async function ResetPasswordPage({ searchParams }: IPageProps) {
-  const params = await searchParams;
+export default async function ResetPasswordPage(
+  props: PageProps<"/reset-password">
+) {
+  const searchParams = await props.searchParams;
   // Next can hand a repeated query param as an array — take the first value.
-  const rawToken = params?.token;
+  // The token is used verbatim, so it is deliberately not decoded.
+  const rawToken = searchParams.token;
   const token = Array.isArray(rawToken) ? (rawToken[0] ?? "") : (rawToken ?? "");
 
   return <ResetPasswordModal token={token} />;
