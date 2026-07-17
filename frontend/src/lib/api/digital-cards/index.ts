@@ -35,17 +35,6 @@ export async function getUserDigitalCards(): Promise<DigitalCardDto[]> {
 }
 
 /**
- * Get digital card by ID
- */
-export async function getDigitalCardById(id: string): Promise<DigitalCardDto> {
-  const response = await apiClient.get<DigitalCardDto>(
-    `/api/digital-cards/${id}`
-  );
-
-  return digitalCardDtoSchema.parse(response.data);
-}
-
-/**
  * Update digital card
  */
 export async function updateDigitalCard(
@@ -84,14 +73,6 @@ export const useGetUserDigitalCards = ({ enabled = true } = {}) => {
   });
 };
 
-export const useGetDigitalCardById = (id: string) => {
-  return useQuery<DigitalCardDto, Error>({
-    queryKey: ["digitalCards", id],
-    queryFn: () => getDigitalCardById(id),
-    enabled: !!id,
-  });
-};
-
 export const useUpdateDigitalCard = () => {
   return useMutation<
     DigitalCardDto,
@@ -111,13 +92,11 @@ export const useDeleteDigitalCard = () => {
 const digitalCardService = {
   createDigitalCard,
   getUserDigitalCards,
-  getDigitalCardById,
   updateDigitalCard,
   deleteDigitalCard,
   // React Query hooks
   useCreateDigitalCard,
   useGetUserDigitalCards,
-  useGetDigitalCardById,
   useUpdateDigitalCard,
   useDeleteDigitalCard,
 };

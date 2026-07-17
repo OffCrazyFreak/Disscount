@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import apiClient from "../api-base";
 import { UserDto, UserRequest } from "../types";
 
@@ -18,22 +18,9 @@ export async function deleteCurrentUser(): Promise<void> {
   await apiClient.delete(`${USERS_BASE_PATH}/me`);
 }
 
-export function useGetCurrentUser() {
-  return useQuery<UserDto, Error>({
-    queryKey: ["users", "me"],
-    queryFn: getCurrentUser,
-  });
-}
-
 export function useUpdateCurrentUser() {
   return useMutation<UserDto, Error, UserRequest>({
     mutationFn: updateCurrentUser,
-  });
-}
-
-export function useDeleteCurrentUser() {
-  return useMutation<void, Error>({
-    mutationFn: deleteCurrentUser,
   });
 }
 
@@ -41,9 +28,7 @@ const userService = {
   getCurrentUser,
   updateCurrentUser,
   deleteCurrentUser,
-  useGetCurrentUser,
   useUpdateCurrentUser,
-  useDeleteCurrentUser,
 };
 
 export default userService;

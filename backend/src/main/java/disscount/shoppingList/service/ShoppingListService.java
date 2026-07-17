@@ -94,13 +94,6 @@ public class ShoppingListService {
         shoppingListRepository.save(shoppingList);
     }
 
-    public List<ShoppingListDto> getPublicShoppingLists() {
-        return shoppingListRepository.findActivePublicLists()
-                .stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
-
     private ShoppingListDto convertToDto(ShoppingList shoppingList) {
         List<ShoppingListItemDto> itemDtos = shoppingList.getItems().stream()
                 .filter(item -> item.getDeletedAt() == null)

@@ -7,7 +7,6 @@ import {
   ProductSearchResponse,
   StorePricesResponse,
   ChainStatsResponse,
-  ListArchivesResponse,
   HealthCheckResponse,
   GetProductParams,
   SearchProductsParams,
@@ -19,7 +18,6 @@ import {
   productSearchResponseSchema,
   storePricesResponseSchema,
   chainStatsResponseSchema,
-  listArchivesResponseSchema,
   healthCheckResponseSchema,
   getProductParamsSchema,
   searchProductsParamsSchema,
@@ -28,14 +26,6 @@ import {
 } from "@/lib/cijene-api/schemas";
 
 // API Functions
-
-/**
- * List available ZIP archives
- */
-export async function listArchives(): Promise<ListArchivesResponse> {
-  const response = await axios.get("/api/cijene/archives");
-  return listArchivesResponseSchema.parse(response.data);
-}
 
 /**
  * List all retail chains
@@ -153,17 +143,6 @@ export async function healthCheck(): Promise<HealthCheckResponse> {
 // React Query Hooks
 
 /**
- * Hook to list archives
- */
-export const useListArchives = () => {
-  return useQuery<ListArchivesResponse, Error>({
-    queryKey: ["cijene", "archives"],
-    queryFn: listArchives,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-};
-
-/**
  * Hook to list chains
  */
 export const useListChains = () => {
@@ -265,8 +244,6 @@ export const useHealthCheck = () => {
 // Service object with all functions and hooks
 const cijeneService = {
   // API functions
-  listArchives,
-
   listChains,
   listStoresByChain,
   searchStores,
@@ -278,8 +255,6 @@ const cijeneService = {
   healthCheck,
 
   // React Query hooks
-  useListArchives,
-
   useListChains,
   useListStoresByChain,
   useSearchStores,
