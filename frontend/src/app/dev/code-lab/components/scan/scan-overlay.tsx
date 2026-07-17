@@ -11,22 +11,27 @@ const CORNERS = [
 
 interface IScanOverlayProps {
   showScanLine?: boolean;
+  showFrame?: boolean;
 }
 
 export default function ScanOverlay({
   showScanLine = false,
+  showFrame = true,
 }: IScanOverlayProps) {
   return (
     <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
       <div className="relative aspect-square w-[70%]">
-        <div className="absolute inset-0 border-2 border-dashed border-primary/40" />
+        {showFrame && (
+          <div className="absolute inset-0 border-2 border-dashed border-primary/40" />
+        )}
 
-        {CORNERS.map((corner) => (
-          <span
-            key={corner}
-            className={`absolute h-[15%] w-[15%] border-primary ${corner}`}
-          />
-        ))}
+        {showFrame &&
+          CORNERS.map((corner) => (
+            <span
+              key={corner}
+              className={`absolute h-[15%] w-[15%] border-primary ${corner}`}
+            />
+          ))}
 
         {showScanLine && (
           <motion.div

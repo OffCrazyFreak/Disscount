@@ -13,12 +13,10 @@ import {
   IScannerSettings,
   SCAN_ENGINES,
   ScanEngine,
+  isEanFamily,
 } from "./types";
 
 const ModernScanner = dynamic(() => import("./scanners/modern-scanner"), {
-  ssr: false,
-});
-const Html5Scanner = dynamic(() => import("./scanners/html5-scanner"), {
   ssr: false,
 });
 
@@ -30,6 +28,7 @@ export default function ScannerPanel() {
     allowMultiple: true,
     sound: false,
     vibration: true,
+    eanOnly: false,
   });
 
   const mountedAtRef = useRef(0);
@@ -46,6 +45,8 @@ export default function ScannerPanel() {
   }
 
   function handleDetect(value: string, format: string) {
+    if (settings.eanOnly && !isEanFamily(format)) return;
+
     const now = Date.now();
     const last = lastScanRef.current;
     if (last && last.value === value && now - last.at < 2000) return;
@@ -76,7 +77,7 @@ export default function ScannerPanel() {
 
   return (
     <section className="space-y-4">
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div className="grid gap-2 sm:grid-cols-2">
         {SCAN_ENGINES.map((e) => (
           <Button
             key={e.id}
@@ -113,9 +114,6 @@ export default function ScannerPanel() {
       )}
       {engine === "modern" && (
         <ModernScanner settings={settings} onDetect={handleDetect} />
-      )}
-      {engine === "html5" && (
-        <Html5Scanner settings={settings} onDetect={handleDetect} />
       )}
 
       <ScanLog entries={entries} onClear={() => setEntries([])} />

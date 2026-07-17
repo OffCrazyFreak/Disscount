@@ -24,11 +24,13 @@ import {
   setPreferredCamera,
 } from "../camera-prefs";
 import ScanOverlay from "../scan-overlay";
+import { pickBackCamera } from "../pick-back-camera";
 import { IScannerProps } from "../types";
+import "./yudiel-finder.css";
 
 const TRACKERS = { outline, boundingBox, centerText };
 
-type TrackerKey = keyof typeof TRACKERS;
+type TrackerKey = keyof typeof TRACKERS | "none";
 
 function describeError(err: unknown): string {
   if (err && typeof err === "object" && "kind" in err) {
@@ -46,9 +48,15 @@ export default function YudielScanner({ settings, onDetect }: IScannerProps) {
   const [tracker, setTracker] = useState<TrackerKey>("outline");
   const [error, setError] = useState<string | null>(null);
 
+  const autoPick = useMemo(() => pickBackCamera(devices), [devices]);
+  const activeDeviceId = deviceId ?? autoPick ?? undefined;
+
   const constraints = useMemo(
-    () => (deviceId ? { deviceId } : { facingMode: "environment" as const }),
-    [deviceId],
+    () =>
+      activeDeviceId
+        ? { deviceId: activeDeviceId }
+        : { facingMode: "environment" as const },
+    [activeDeviceId],
   );
 
   function handleDeviceChange(id: string) {
@@ -68,7 +76,7 @@ export default function YudielScanner({ settings, onDetect }: IScannerProps) {
       <div className="flex items-end gap-2">
         <div className="min-w-0 flex-1 space-y-1.5">
           <Label>Camera</Label>
-          <Select value={deviceId ?? ""} onValueChange={handleDeviceChange}>
+          <Select value={activeDeviceId ?? ""} onValueChange={handleDeviceChange}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Auto (rear camera)" />
             </SelectTrigger>
@@ -92,7 +100,7 @@ export default function YudielScanner({ settings, onDetect }: IScannerProps) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {Object.keys(TRACKERS).map((t) => (
+              {[...Object.keys(TRACKERS), "none"].map((t) => (
                 <SelectItem key={t} value={t}>
                   {t}
                 </SelectItem>
@@ -119,28 +127,32 @@ export default function YudielScanner({ settings, onDetect }: IScannerProps) {
         </p>
       )}
 
-      <div className="relative overflow-hidden rounded-xl bg-black">
-        <ScanOverlay showScanLine />
+      <div className="yudiel-finder-recolor relative overflow-hidden rounded-xl bg-black">
+        <ScanOverlay showScanLine showFrame={false} />
         <Scanner
           onScan={(codes) => {
             if (codes[0]) onDetect(codes[0].rawValue, codes[0].format);
           }}
           onError={(err) => setError(describeError(err))}
-          formats={[
-            "qr_code",
-            "aztec",
-            "codabar",
-            "code_39",
-            "code_93",
-            "code_128",
-            "data_matrix",
-            "ean_8",
-            "ean_13",
-            "itf",
-            "pdf417",
-            "upc_a",
-            "upc_e",
-          ]}
+          formats={
+            settings.eanOnly
+              ? ["ean_8", "ean_13", "upc_a", "upc_e"]
+              : [
+                  "qr_code",
+                  "aztec",
+                  "codabar",
+                  "code_39",
+                  "code_93",
+                  "code_128",
+                  "data_matrix",
+                  "ean_8",
+                  "ean_13",
+                  "itf",
+                  "pdf417",
+                  "upc_a",
+                  "upc_e",
+                ]
+          }
           constraints={constraints}
           scanDelay={settings.scanDelay}
           allowMultiple={settings.allowMultiple}
@@ -148,9 +160,9 @@ export default function YudielScanner({ settings, onDetect }: IScannerProps) {
           components={{
             torch: true,
             zoom: true,
-            finder: false,
+            finder: true,
             onOff: true,
-            tracker: TRACKERS[tracker],
+            tracker: tracker === "none" ? undefined : TRACKERS[tracker],
           }}
         />
       </div>

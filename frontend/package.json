@@ -42,7 +42,6 @@
     "cmdk": "^1.1.1",
     "disscount": "link:",
     "drizzle-orm": "0.45.2",
-    "html5-qrcode": "^2.3.8",
     "idb-keyval": "^6.2.5",
     "kysely": "0.28.17",
     "lucide-react": "^0.561.0",

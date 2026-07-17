@@ -73,6 +73,14 @@ export default function ScanSettings({
         />
         Vibration
       </label>
+
+      <label className="flex items-center gap-2 pb-2 text-sm">
+        <Switch
+          checked={settings.eanOnly}
+          onCheckedChange={(v) => set("eanOnly", v)}
+        />
+        EAN only
+      </label>
     </div>
   );
 }

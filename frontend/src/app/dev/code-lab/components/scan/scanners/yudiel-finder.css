@@ -1,0 +1,12 @@
+/* Recolor the library's built-in finder (hardcoded red inline styles) to the
+   app primary. Attribute selectors match the serialized inline style, and
+   !important is required to beat inline declarations. */
+
+.yudiel-finder-recolor div[style*="dashed"] {
+  border-color: color-mix(in oklab, var(--primary) 40%, transparent) !important;
+}
+
+.yudiel-finder-recolor div[style*="239, 68, 68"]:not([style*="dashed"]),
+.yudiel-finder-recolor div[style*="#ef4444"]:not([style*="dashed"]) {
+  border-color: var(--primary) !important;
+}
