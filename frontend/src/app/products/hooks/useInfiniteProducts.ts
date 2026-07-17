@@ -75,10 +75,11 @@ export default function useInfiniteProducts(
     batchedProducts.length > 0 ? 1 : 0,
   );
 
-  // Reset visible batches when query, filters, or results change
+  // Depends on the batches rather than their count, so a filter change that
+  // happens to yield the same number of batches still resets the depth.
   useEffect(() => {
     setBatchesToShow(batchedProducts.length > 0 ? 1 : 0);
-  }, [batchedProducts.length, q, allowedChains]);
+  }, [batchedProducts, q]);
 
   // Load more when user scrolls near bottom of page
   useEffect(() => {

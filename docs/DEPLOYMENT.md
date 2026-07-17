@@ -227,6 +227,7 @@ Set in **Dokploy → service → Environment**, per environment. Both DSNs live 
 |---|---|---|---|---|
 | `SENTRY_DSN` | backend | runtime | DSN of the `disscount-backend` project | **Empty/missing = SDK silently disabled** (`sentry.dsn=${SENTRY_DSN:}` in `application.properties`), so a forgotten var means zero events with no error anywhere. Takes effect on container **restart**. |
 | `SENTRY_ENVIRONMENT` | backend | runtime | `production` (dev env: `dev`) | Defaults to `local` when unset; drives the environment filter in the Sentry UI. |
+| `SENTRY_DEBUG` | backend | runtime | `false` | Defaults to `false` (`sentry.debug=${SENTRY_DEBUG:false}` in `application.properties`). Set `true` only to confirm the SDK is initialising (see the verification bullet below), then set it back: it logs on every event. Takes effect on container **restart**. |
 | `NEXT_PUBLIC_SENTRY_DSN` | frontend | build-time, baked | DSN of the `disscount-frontend` project | Public by design (ships in the JS bundle). Changing it requires a **redeploy**, not a restart. |
 | `SENTRY_AUTH_TOKEN` | frontend build | build-time | org auth token | Only for source-map upload; stored but **not wired into the build yet** (see TODOs). Secret — never commit. |
 

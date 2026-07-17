@@ -13,6 +13,8 @@ import type { IFacetSelect } from "@/app/products/hooks/useProductFacets";
 
 interface IFacetMultiSelectProps {
   facet: IFacetSelect;
+  /** Names the control for screen readers, e.g. "Trgovine" */
+  label: string;
   placeholder: string;
   searchPlaceholder: string;
   emptyMessage: string;
@@ -24,6 +26,7 @@ interface IFacetMultiSelectProps {
 /** One filter dropdown: searchable multi-select with optional option counts */
 export default function FacetMultiSelect({
   facet,
+  label,
   placeholder,
   searchPlaceholder,
   emptyMessage,
@@ -34,6 +37,7 @@ export default function FacetMultiSelect({
   return (
     <MultiSelect values={facet.selected} onValuesChange={onValuesChange}>
       <MultiSelectTrigger
+        aria-label={label}
         className={cn("w-full bg-white", className)}
         disabled={facet.disabled}
       >
@@ -45,12 +49,16 @@ export default function FacetMultiSelect({
       >
         <MultiSelectGroup>
           {facet.options.map((value) => {
-            const label = getLabel?.(value) ?? value;
+            const optionLabel = getLabel?.(value) ?? value;
 
             return (
-              <MultiSelectItem key={value} value={value} badgeLabel={label}>
+              <MultiSelectItem
+                key={value}
+                value={value}
+                badgeLabel={optionLabel}
+              >
                 <span className="flex w-full items-center justify-between gap-2">
-                  <span>{label}</span>
+                  <span>{optionLabel}</span>
                   {facet.counts?.[value] !== undefined && (
                     <span className="text-muted-foreground">
                       ({facet.counts[value]})

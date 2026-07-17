@@ -81,6 +81,7 @@ export default function ProductFacetSelects({
 
           <FacetMultiSelect
             facet={facets[facet.key]}
+            label={facet.label}
             placeholder={facet.placeholder}
             searchPlaceholder={facet.searchPlaceholder}
             emptyMessage={facet.emptyMessage}

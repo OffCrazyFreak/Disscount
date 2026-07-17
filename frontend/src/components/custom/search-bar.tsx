@@ -55,8 +55,16 @@ export default function SearchBar({
   }, [routeQuery, setValue, getValues]);
 
   useEffect(() => {
-    if (autoSearch) syncQuery(queryValue ?? "");
-  }, [autoSearch, queryValue, syncQuery]);
+    if (!autoSearch) return;
+
+    const query = queryValue ?? "";
+
+    // An empty input over an empty URL has nothing to mirror. Skipping it also
+    // keeps a bar mounted off its own route from redirecting there on mount.
+    if (!query && !routeQuery) return;
+
+    syncQuery(query);
+  }, [autoSearch, queryValue, routeQuery, syncQuery]);
 
   function submit(data: { query: string }) {
     setOpen(false);

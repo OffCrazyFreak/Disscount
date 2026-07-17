@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState, type ReactElement } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,8 +17,9 @@ import { ACCOUNT_TYPE_LABELS } from "@/lib/api/schemas/auth-user";
 import { useUser } from "@/context/user-context";
 
 interface IUserMenuProps {
-  /** Replaces the avatar trigger (e.g. the sidebar's user row) */
-  trigger?: ReactNode;
+  /** Replaces the avatar trigger (e.g. the sidebar's user row). Must be a
+   *  single element, since `asChild` clones it to attach props and a ref. */
+  trigger?: ReactElement;
   side?: "top" | "right" | "bottom" | "left";
 }
 
