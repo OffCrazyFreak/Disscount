@@ -1,14 +1,5 @@
 // Utility helpers used across the app
 
-/** Decodes a query param, falling back to the raw value on malformed input */
-export function decodeQuerySafely(rawQuery: string): string {
-  try {
-    return decodeURIComponent(rawQuery);
-  } catch {
-    return rawQuery;
-  }
-}
-
 /**
  * Normalize strings for search: remove diacritics and apply language-specific replacements.
  * Works well for Croatian and German diacritics.

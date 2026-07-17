@@ -2,7 +2,6 @@
 
 import { useCallback } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { decodeQuerySafely } from "@/utils/strings";
 
 export interface IUseSearchNavigationResult {
   /** The `q` param, empty unless the search route is the current page */
@@ -28,9 +27,7 @@ export function useSearchNavigation(
   const router = useRouter();
 
   const isOnRoute = normalizePath(pathname) === normalizePath(searchRoute);
-  const routeQuery = isOnRoute
-    ? decodeQuerySafely(searchParams.get("q") || "")
-    : "";
+  const routeQuery = isOnRoute ? (searchParams.get("q") ?? "") : "";
 
   // Other params (e.g. active filters) survive a search from the route itself,
   // while searching from elsewhere starts clean.

@@ -1,8 +1,8 @@
-import { decodeQuerySafely, normalizeForSearch } from "@/utils/strings";
+import { normalizeForSearch } from "@/utils/strings";
 
 /**
- * Read one decoded value out of a page's resolved searchParams, keeping the
- * first entry when a param is repeated.
+ * Read one value out of a page's resolved searchParams, keeping the first
+ * entry when a param is repeated. Next decodes these before handing them over.
  *
  * Example: readSearchParam({ q: ["mlijeko", "kruh"] }) -> "mlijeko"
  */
@@ -11,9 +11,8 @@ export function readSearchParam(
   key = "q"
 ): string {
   const value = searchParams[key];
-  const rawValue = (Array.isArray(value) ? value[0] : value) || "";
 
-  return decodeQuerySafely(rawValue);
+  return (Array.isArray(value) ? value[0] : value) || "";
 }
 
 /**
