@@ -7,7 +7,10 @@ import {
   type ScanResult,
 } from "modern-barcode-scanner";
 import "modern-barcode-scanner/styles.css";
-import { IScannerProps } from "../types";
+import { SwitchCamera } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import ScanOverlay from "../scan-overlay";
+import { IScannerProps, LAB_PRIMARY } from "../types";
 
 export default function ModernScanner({ settings, onDetect }: IScannerProps) {
   const scannerRef = useRef<BarcodeScannerRef>(null);
@@ -26,16 +29,37 @@ export default function ModernScanner({ settings, onDetect }: IScannerProps) {
   }
 
   return (
-    <div className="relative h-96 overflow-hidden rounded-xl bg-black">
-      <BarcodeScanner
-        ref={scannerRef}
-        onScan={handleScan}
-        themeColor="#16a34a"
-        scanInterval={Math.max(settings.scanDelay, 100)}
-        enableVibration={false}
-        enableSound={settings.sound}
-        initialFacingMode="environment"
-      />
+    <div className="space-y-3">
+      <div className="relative h-96 overflow-hidden rounded-xl bg-black">
+        <ScanOverlay />
+        <BarcodeScanner
+          ref={scannerRef}
+          onScan={handleScan}
+          themeColor={LAB_PRIMARY}
+          scanInterval={Math.max(settings.scanDelay, 100)}
+          enableVibration={false}
+          enableSound={settings.sound}
+          initialFacingMode="environment"
+          showScanLine
+          showTorchButton
+          showCameraSwitch
+        />
+      </div>
+
+      <div className="flex items-center gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => scannerRef.current?.switchCamera()}
+        >
+          <SwitchCamera /> Flip camera
+        </Button>
+        <p className="text-xs text-muted-foreground">
+          This library only flips front/back; it cannot pick a specific camera
+          device.
+        </p>
+      </div>
     </div>
   );
 }

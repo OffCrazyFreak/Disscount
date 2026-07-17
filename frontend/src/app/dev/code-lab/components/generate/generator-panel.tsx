@@ -8,19 +8,10 @@ import { Label } from "@/components/ui/label";
 import { detectSymbology, ean13CheckDigit } from "./smart-value";
 import { findSymbology } from "./symbologies";
 import BwipGenerator from "./bwip-generator";
-import StyledQrGenerator from "./styled-qr-generator";
 import TestSheet from "./test-sheet";
-
-const ENGINES = [
-  { id: "bwip", label: "bwip-js" },
-  { id: "styled", label: "qr-code-styling" },
-] as const;
-
-type GeneratorEngine = (typeof ENGINES)[number]["id"];
 
 export default function GeneratorPanel() {
   const [value, setValue] = useState("4006381333931");
-  const [engine, setEngine] = useState<GeneratorEngine>("bwip");
 
   const detected = findSymbology(detectSymbology(value));
   const checkDigit = ean13CheckDigit(value);
@@ -53,33 +44,14 @@ export default function GeneratorPanel() {
               + append EAN-13 check digit ({checkDigit})
             </Button>
           )}
+
+          <span className="ml-auto">
+            <TestSheet value={value} />
+          </span>
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex gap-1 rounded-lg bg-muted p-1">
-          {ENGINES.map((e) => (
-            <Button
-              key={e.id}
-              type="button"
-              size="sm"
-              variant={engine === e.id ? "default" : "ghost"}
-              onClick={() => setEngine(e.id)}
-              className="font-mono text-xs"
-            >
-              {e.label}
-            </Button>
-          ))}
-        </div>
-
-        <TestSheet value={value} />
-      </div>
-
-      {engine === "bwip" ? (
-        <BwipGenerator value={value} />
-      ) : (
-        <StyledQrGenerator value={value} />
-      )}
+      <BwipGenerator value={value} />
     </section>
   );
 }

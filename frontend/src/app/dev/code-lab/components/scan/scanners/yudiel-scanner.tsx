@@ -23,6 +23,7 @@ import {
   getPreferredCamera,
   setPreferredCamera,
 } from "../camera-prefs";
+import ScanOverlay from "../scan-overlay";
 import { IScannerProps } from "../types";
 
 const TRACKERS = { outline, boundingBox, centerText };
@@ -118,7 +119,8 @@ export default function YudielScanner({ settings, onDetect }: IScannerProps) {
         </p>
       )}
 
-      <div className="overflow-hidden rounded-xl bg-black">
+      <div className="relative overflow-hidden rounded-xl bg-black">
+        <ScanOverlay showScanLine dim />
         <Scanner
           onScan={(codes) => {
             if (codes[0]) onDetect(codes[0].rawValue, codes[0].format);
@@ -146,7 +148,7 @@ export default function YudielScanner({ settings, onDetect }: IScannerProps) {
           components={{
             torch: true,
             zoom: true,
-            finder: true,
+            finder: false,
             onOff: true,
             tracker: TRACKERS[tracker],
           }}

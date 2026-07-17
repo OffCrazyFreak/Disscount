@@ -1,5 +1,7 @@
 export type ScanEngine = "yudiel" | "modern" | "html5";
 
+export const LAB_PRIMARY = "#2ec50c";
+
 export interface IScanEntry {
   id: string;
   engine: ScanEngine;
