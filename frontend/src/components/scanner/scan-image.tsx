@@ -21,9 +21,10 @@ export default function ScanImageButton({
 
   async function handleFile(file: File) {
     setBusy(true);
+    let bitmap: ImageBitmap | undefined;
 
     try {
-      const bitmap = await createImageBitmap(file);
+      bitmap = await createImageBitmap(file);
       const { BarcodeDetector } = await import("barcode-detector/ponyfill");
       const detector = new BarcodeDetector({ formats: ALL_SCAN_FORMATS });
       const detected = await detector.detect(bitmap);
@@ -45,6 +46,7 @@ export default function ScanImageButton({
     } catch {
       toast.error("Sliku nije moguće učitati.");
     } finally {
+      bitmap?.close();
       setBusy(false);
       if (inputRef.current) inputRef.current.value = "";
     }
