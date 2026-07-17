@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -10,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { formatCameraLabels } from "@/utils/browser/camera";
 
 interface ICameraSelectProps {
   devices: MediaDeviceInfo[];
@@ -26,6 +28,8 @@ export default function CameraSelect({
   onSelect,
   onReset,
 }: ICameraSelectProps) {
+  const namedCameras = useMemo(() => formatCameraLabels(devices), [devices]);
+
   return (
     <div className="flex items-end gap-2">
       <div className="min-w-0 flex-1 space-y-1.5">
@@ -35,9 +39,13 @@ export default function CameraSelect({
             <SelectValue placeholder="Automatski (stražnja kamera)" />
           </SelectTrigger>
           <SelectContent>
-            {devices.map((device, index) => (
-              <SelectItem key={device.deviceId} value={device.deviceId}>
-                {device.label || `Kamera ${index + 1}`}
+            {namedCameras.map((camera, index) => (
+              <SelectItem
+                key={camera.deviceId}
+                value={camera.deviceId}
+                title={devices[index].label}
+              >
+                {camera.label}
               </SelectItem>
             ))}
           </SelectContent>

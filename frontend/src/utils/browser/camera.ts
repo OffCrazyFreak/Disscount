@@ -25,6 +25,58 @@ export function pickBackCamera(devices: MediaDeviceInfo[]): string | null {
   return scored[0]?.deviceId ?? null;
 }
 
+interface INamedCamera {
+  deviceId: string;
+  label: string;
+}
+
+function baseCameraName(label: string): string {
+  const name = label.toLowerCase();
+
+  const facing = /front|user|selfie|prednja/.test(name)
+    ? "Prednja kamera"
+    : /back|rear|environment|stražnja/.test(name)
+      ? "Stražnja kamera"
+      : "Kamera";
+
+  const lens = /ultra/.test(name)
+    ? " (ultraširoka)"
+    : /tele|zoom/.test(name)
+      ? " (telefoto)"
+      : /macro|makro/.test(name)
+        ? " (makro)"
+        : "";
+
+  return facing + lens;
+}
+
+/**
+ * Map raw OS camera labels ("camera2 0, facing back"...) to friendly Croatian
+ * names, numbering duplicates in device order.
+ */
+export function formatCameraLabels(devices: MediaDeviceInfo[]): INamedCamera[] {
+  const named = devices.map((device) => ({
+    deviceId: device.deviceId,
+    label: baseCameraName(device.label),
+  }));
+
+  const totals = new Map<string, number>();
+  named.forEach((camera) => {
+    totals.set(camera.label, (totals.get(camera.label) ?? 0) + 1);
+  });
+
+  const seen = new Map<string, number>();
+
+  return named.map((camera) => {
+    if ((totals.get(camera.label) ?? 0) < 2) return camera;
+
+    const ordinal = (seen.get(camera.label) ?? 0) + 1;
+    seen.set(camera.label, ordinal);
+
+    return { ...camera, label: `${camera.label} ${ordinal}` };
+  });
+}
+
 export function describeScannerError(error: unknown): string {
   const kind =
     error && typeof error === "object" && "kind" in error
