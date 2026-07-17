@@ -28,6 +28,13 @@ export function pickBackCamera(devices: MediaDeviceInfo[]): string | null {
 interface INamedCamera {
   deviceId: string;
   label: string;
+  rawLabel: string;
+}
+
+function nativeCameraIndex(label: string, fallback: number): number {
+  const match = label.toLowerCase().match(/camera2?\s+(\d+)/);
+
+  return match ? Number(match[1]) : fallback;
 }
 
 function baseCameraName(label: string): string {
@@ -50,15 +57,30 @@ function baseCameraName(label: string): string {
   return facing + lens;
 }
 
+function facingRank(label: string): number {
+  if (label.startsWith("Stražnja")) return 0;
+  if (label.startsWith("Prednja")) return 1;
+
+  return 2;
+}
+
 /**
  * Map raw OS camera labels ("camera2 0, facing back"...) to friendly Croatian
- * names, numbering duplicates in device order.
+ * names: back cameras first, then front, each ordered and numbered by the
+ * native camera index (camera 0 is usually the main sensor).
  */
 export function formatCameraLabels(devices: MediaDeviceInfo[]): INamedCamera[] {
-  const named = devices.map((device) => ({
-    deviceId: device.deviceId,
-    label: baseCameraName(device.label),
-  }));
+  const named = devices
+    .map((device, index) => ({
+      deviceId: device.deviceId,
+      rawLabel: device.label,
+      label: baseCameraName(device.label),
+      order: nativeCameraIndex(device.label, index),
+    }))
+    .sort(
+      (a, b) =>
+        facingRank(a.label) - facingRank(b.label) || a.order - b.order,
+    );
 
   const totals = new Map<string, number>();
   named.forEach((camera) => {
@@ -67,7 +89,7 @@ export function formatCameraLabels(devices: MediaDeviceInfo[]): INamedCamera[] {
 
   const seen = new Map<string, number>();
 
-  return named.map((camera) => {
+  return named.map(({ order: _order, ...camera }) => {
     if ((totals.get(camera.label) ?? 0) < 2) return camera;
 
     const ordinal = (seen.get(camera.label) ?? 0) + 1;

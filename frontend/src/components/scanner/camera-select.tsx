@@ -39,11 +39,11 @@ export default function CameraSelect({
             <SelectValue placeholder="Automatski (stražnja kamera)" />
           </SelectTrigger>
           <SelectContent>
-            {namedCameras.map((camera, index) => (
+            {namedCameras.map((camera) => (
               <SelectItem
                 key={camera.deviceId}
                 value={camera.deviceId}
-                title={devices[index].label}
+                title={camera.rawLabel}
               >
                 {camera.label}
               </SelectItem>
