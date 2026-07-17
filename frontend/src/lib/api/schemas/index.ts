@@ -1,8 +1,8 @@
 // Schema exports
-export * from "./auth-user";
-export * from "./digital-card";
-export * from "./shopping-list";
-export * from "./shopping-list-item";
-export * from "./preferences";
-export * from "./notifications";
-export * from "./watchlist";
+export * from "@/lib/api/schemas/auth-user";
+export * from "@/lib/api/schemas/digital-card";
+export * from "@/lib/api/schemas/shopping-list";
+export * from "@/lib/api/schemas/shopping-list-item";
+export * from "@/lib/api/schemas/preferences";
+export * from "@/lib/api/schemas/notifications";
+export * from "@/lib/api/schemas/watchlist";

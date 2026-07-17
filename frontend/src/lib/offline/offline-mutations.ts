@@ -14,7 +14,7 @@ import type {
   ShoppingListItemRequest,
   WatchlistItemRequest,
 } from "@/lib/api/types";
-import { OFFLINE_MUTATION_KEYS } from "./offline-mutation-keys";
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 
 const SHOPPING_LISTS_ME: QueryKey = ["shoppingLists", "me"];
 

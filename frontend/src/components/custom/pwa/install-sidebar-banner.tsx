@@ -5,8 +5,8 @@ import Image from "next/image";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { useInstallPrompt } from "./use-install-prompt";
-import InstallInstructionsSheet from "./install-instructions-sheet";
+import { useInstallPrompt } from "@/components/custom/pwa/use-install-prompt";
+import InstallInstructionsSheet from "@/components/custom/pwa/install-instructions-sheet";
 
 // Persistent banner pinned to the bottom of the sidebar. Stays visible while
 // the app isn't installed (on browsers that support it); uses the native

@@ -4,16 +4,20 @@ import {
   createContext,
   useCallback,
   useContext,
-  useState,
   useMemo,
   useRef,
+  useState,
 } from "react";
-import CameraScanner from "@/components/custom/camera-scanner";
+import CameraScanner from "@/components/scanner/camera-scanner";
+import { IScannedCode, ScanPreset } from "@/typings/scanned-code";
 
-type CameraScannerCallback = (result: string) => void;
+interface IOpenScannerOptions {
+  onScan: (code: IScannedCode) => void;
+  preset?: ScanPreset;
+}
 
 interface ICameraScannerContext {
-  openScanner: (cb?: CameraScannerCallback) => void;
+  openScanner: (options: IOpenScannerOptions) => void;
   closeScanner: () => void;
 }
 
@@ -25,36 +29,44 @@ export function CameraScannerProvider({
   children: React.ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const cbRef = useRef<CameraScannerCallback | undefined>(undefined);
+  const [preset, setPreset] = useState<ScanPreset>("product");
+  const onScanRef = useRef<IOpenScannerOptions["onScan"] | undefined>(
+    undefined,
+  );
 
-  const openScanner = useCallback((callback?: CameraScannerCallback) => {
-    cbRef.current = callback;
+  const openScanner = useCallback((options: IOpenScannerOptions) => {
+    onScanRef.current = options.onScan;
+    setPreset(options.preset ?? "product");
     setIsOpen(true);
   }, []);
 
   const closeScanner = useCallback(() => {
     setIsOpen(false);
-    cbRef.current = undefined;
+    onScanRef.current = undefined;
   }, []);
 
   const handleScan = useCallback(
-    (result: string) => {
-      const cb = cbRef.current;
-      if (cb) cb(result);
+    (code: IScannedCode) => {
+      if (!code.rawValue?.trim()) return;
+
+      navigator.vibrate?.(80);
+      onScanRef.current?.(code);
       closeScanner();
     },
-    [closeScanner]
+    [closeScanner],
   );
 
   const value = useMemo(
     () => ({ openScanner, closeScanner }),
-    [openScanner, closeScanner]
+    [openScanner, closeScanner],
   );
+
   return (
     <CameraScannerContext.Provider value={value}>
       {children}
       <CameraScanner
         isOpen={isOpen}
+        preset={preset}
         onClose={closeScanner}
         onScan={handleScan}
       />
@@ -64,9 +76,11 @@ export function CameraScannerProvider({
 
 export function useCameraScanner() {
   const ctx = useContext(CameraScannerContext);
-  if (!ctx)
+  if (!ctx) {
     throw new Error(
-      "useCameraScanner must be used within CameraScannerProvider"
+      "useCameraScanner must be used within CameraScannerProvider",
     );
+  }
+
   return ctx;
 }

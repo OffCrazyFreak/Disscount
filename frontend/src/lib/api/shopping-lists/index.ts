@@ -1,12 +1,12 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import apiClient from "../api-base";
+import apiClient from "@/lib/api/api-base";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 import {
   ShoppingListRequest,
   ShoppingListDto,
   ShoppingListItemRequest,
   ShoppingListItemDto,
-} from "../types";
+} from "@/lib/api/types";
 
 /**
  * Create a new shopping list

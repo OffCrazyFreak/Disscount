@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import apiClient from "../api-base";
-import { UserDto, UserRequest } from "../types";
+import apiClient from "@/lib/api/api-base";
+import { UserDto, UserRequest } from "@/lib/api/types";
 
 const USERS_BASE_PATH = "/api/users";
 

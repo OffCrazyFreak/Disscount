@@ -6,8 +6,8 @@ import {
 import type { PersistQueryClientOptions } from "@tanstack/react-query-persist-client";
 import { get, set, del } from "idb-keyval";
 
-import { shouldPersistQuery } from "./cached-query-keys";
-import { shouldPersistMutation } from "./offline-mutation-keys";
+import { shouldPersistQuery } from "@/lib/offline/cached-query-keys";
+import { shouldPersistMutation } from "@/lib/offline/offline-mutation-keys";
 
 const IDB_CACHE_KEY = "disscount-react-query-cache";
 

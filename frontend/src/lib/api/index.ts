@@ -1,12 +1,12 @@
-import apiClient from "./api-base";
-import userService from "./users";
-import preferencesService from "./preferences";
-import shoppingListService from "./shopping-lists";
-import digitalCardService from "./digital-cards";
-import watchlistService from "./watchlist";
-import adminService from "./admin";
+import apiClient from "@/lib/api/api-base";
+import userService from "@/lib/api/users";
+import preferencesService from "@/lib/api/preferences";
+import shoppingListService from "@/lib/api/shopping-lists";
+import digitalCardService from "@/lib/api/digital-cards";
+import watchlistService from "@/lib/api/watchlist";
+import adminService from "@/lib/api/admin";
 
-export { WatchType } from "./schemas/watchlist";
+export { WatchType } from "@/lib/api/schemas/watchlist";
 
 export {
   apiClient,
