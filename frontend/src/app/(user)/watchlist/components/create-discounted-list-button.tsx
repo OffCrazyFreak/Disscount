@@ -3,27 +3,34 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FloatingActionButton } from "@/components/custom/floating-action-button";
+import PageFab from "@/components/custom/fab/page-fab";
 import { shoppingListService } from "@/lib/api";
 import { WatchlistItemWithProduct } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { formatDate } from "@/utils/strings";
 
 interface CreateDiscountedListButtonProps {
   discountedItems: WatchlistItemWithProduct[];
+  /** Prices are still resolving, so the discounted set is not final yet */
+  isLoading?: boolean;
 }
 
 export default function CreateDiscountedListButton({
   discountedItems,
+  isLoading = false,
 }: CreateDiscountedListButtonProps) {
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
 
-  const buttonText = `Stvori popis sniženih proizvoda (${discountedItems.length})`;
+  // The count belongs in the visible text only: as an accessible name it would
+  // re-announce the button every time a price moves.
+  const actionLabel = "Stvori popis sniženih proizvoda";
+  const buttonText = `${actionLabel} (${discountedItems.length})`;
+  const isDisabled = isCreating || isLoading || discountedItems.length === 0;
 
   async function handleCreateDiscountedList() {
-    if (isCreating || discountedItems.length === 0) {
+    if (isDisabled) {
       return;
     }
 
@@ -97,7 +104,7 @@ export default function CreateDiscountedListButton({
         onClick={handleCreateDiscountedList}
         icon={Sparkles}
         iconPlacement="left"
-        disabled={isCreating || discountedItems.length === 0}
+        disabled={isDisabled}
         loading={isCreating}
         loadingText="Stvaranje popisa..."
         className="hidden sm:inline-flex"
@@ -105,18 +112,14 @@ export default function CreateDiscountedListButton({
         {buttonText}
       </Button>
 
-      <FloatingActionButton
-        onClick={handleCreateDiscountedList}
-        icon={
-          isCreating ? (
-            <Loader2 className="size-6 animate-spin" />
-          ) : (
-            <Sparkles size={24} />
-          )
-        }
-        label={buttonText}
-        className="sm:hidden"
-        disabled={isCreating || discountedItems.length === 0}
+      <PageFab
+        primary={{
+          icon: Sparkles,
+          label: actionLabel,
+          onClick: handleCreateDiscountedList,
+          disabled: isDisabled,
+          loading: isCreating,
+        }}
       />
     </>
   );

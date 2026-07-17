@@ -4,14 +4,14 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageFab from "@/components/custom/fab/page-fab";
 
-interface CreateShoppingListButtonProps {
+interface ICreateDigitalCardButtonProps {
   onCreateClick: () => void;
 }
 
-export default function CreateShoppingListButton({
+export default function CreateDigitalCardButton({
   onCreateClick,
-}: CreateShoppingListButtonProps) {
-  const buttonText = "Stvori popis za kupnju";
+}: ICreateDigitalCardButtonProps) {
+  const buttonText = "Dodaj digitalnu karticu";
 
   return (
     <>
