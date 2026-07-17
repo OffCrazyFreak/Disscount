@@ -9,12 +9,10 @@ export const metadata: Metadata = {
   description: "Detalji prijedloga i komentari zajednice.",
 };
 
-interface IPageProps {
-  params: Promise<{ id: string }>;
-}
-
-export default async function SuggestionDetailPage({ params }: IPageProps) {
-  const { id } = await params;
+export default async function SuggestionDetailPage(
+  props: PageProps<"/suggestions/[id]">
+) {
+  const { id } = await props.params;
   const suggestion = getSuggestionById(id);
 
   if (!suggestion) {

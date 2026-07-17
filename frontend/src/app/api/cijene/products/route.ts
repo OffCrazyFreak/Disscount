@@ -1,81 +1,43 @@
 import { NextRequest } from "next/server";
-import { cijeneApiV1Client, CijeneApiError } from "@/lib/cijene-api/client";
-import {
-  searchProductsParamsSchema,
-  productSearchResponseSchema,
-} from "@/lib/cijene-api/schemas";
-import {
-  createApiResponse,
-  createApiError,
-} from "@/lib/cijene-api/utils/response-utils";
 import { z } from "zod";
+import { cijeneApiV1Client } from "@/lib/cijene-api/client";
+import {
+  productSearchResponseSchema,
+  searchProductsParamsSchema,
+} from "@/lib/cijene-api/schemas";
+import { createApiError } from "@/lib/cijene-api/utils/response-utils";
+import { withCijeneRoute } from "@/lib/cijene-api/utils/with-cijene-route";
+import { buildQueryString } from "@/utils/generic";
+
+function parseBooleanParam(value: string | null): boolean | undefined {
+  if (value === "true") return true;
+  if (value === "false") return false;
+
+  return undefined;
+}
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
+  const limit = searchParams.get("limit");
 
-  // Validate query params (convert null to undefined for optional fields)
-  const params = {
+  const parsed = searchProductsParamsSchema.safeParse({
     q: searchParams.get("q")?.trim(),
     date: searchParams.get("date") || undefined,
     chains: searchParams.get("chains") || undefined,
-    fuzzy:
-      searchParams.get("fuzzy") === "true"
-        ? true
-        : searchParams.get("fuzzy") === "false"
-        ? false
-        : undefined,
-    limit: searchParams.get("limit")
-      ? parseInt(searchParams.get("limit")!)
-      : undefined,
-  };
-  const parsed = searchProductsParamsSchema.safeParse(params);
+    fuzzy: parseBooleanParam(searchParams.get("fuzzy")),
+    limit: limit ? parseInt(limit) : undefined,
+  });
+
   if (!parsed.success) {
-    return createApiError("Invalid params", {
+    return createApiError("Invalid parameters for products", {
       status: 400,
       details: z.treeifyError(parsed.error),
     });
   }
-  const validatedParams = parsed.data;
 
-  // Build search string from validated params
-  const searchParamsObj = new URLSearchParams();
-  searchParamsObj.append("q", validatedParams.q);
-  if (validatedParams.date)
-    searchParamsObj.append("date", validatedParams.date);
-  if (validatedParams.chains)
-    searchParamsObj.append("chains", validatedParams.chains);
-  if (validatedParams.fuzzy !== undefined)
-    searchParamsObj.append("fuzzy", validatedParams.fuzzy.toString());
-  if (validatedParams.limit !== undefined)
-    searchParamsObj.append("limit", validatedParams.limit.toString());
-  const searchString = searchParamsObj.toString();
+  const queryString = buildQueryString(parsed.data);
 
-  try {
-    const response = await cijeneApiV1Client.get(`/products?${searchString}`);
-
-    // Validate response
-    const parsedResponse = productSearchResponseSchema.safeParse(response.data);
-    if (!parsedResponse.success) {
-      return createApiError("Invalid response from external API", {
-        status: 500,
-        details: z.treeifyError(parsedResponse.error),
-      });
-    }
-    const validatedData = parsedResponse.data;
-
-    // Return response (security via middleware)
-    return createApiResponse(validatedData);
-  } catch (error) {
-    if (error instanceof CijeneApiError) {
-      return createApiError(error.message, {
-        status: error.status >= 400 ? error.status : 500,
-        // avoid leaking headers or internal metadata
-        details: error.response,
-      });
-    }
-
-    return createApiError("Failed to fetch products from upstream", {
-      status: 502,
-    });
-  }
+  return withCijeneRoute("products", productSearchResponseSchema, () =>
+    cijeneApiV1Client.get(`/products?${queryString}`)
+  );
 }

@@ -6,13 +6,10 @@ export const metadata: Metadata = {
   description: "Pregled i upravljanje stavkama na popisu za kupnju.",
 };
 
-interface IPageProps {
-  params: { id: string };
-}
-
-export default async function ShoppingListDetailPage({ params }: IPageProps) {
-  const urlParameters = await params;
-  const listId = urlParameters?.id;
+export default async function ShoppingListDetailPage(
+  props: PageProps<"/shopping-lists/[id]">
+) {
+  const { id: listId } = await props.params;
 
   return <ShoppingListDetailClient listId={listId} />;
 }

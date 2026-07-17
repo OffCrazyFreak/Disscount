@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { useForm } from "react-hook-form";
-import { Search, ScanBarcode, X } from "lucide-react";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import SearchBarActions from "@/components/custom/search-bar-actions";
+import { useSearchNavigation } from "@/hooks/use-search-navigation";
 import { useCameraScanner } from "@/context/scanner-context";
 import { useSidebar } from "@/components/ui/sidebar";
 
@@ -28,89 +29,62 @@ export default function SearchBar({
   allowScanning = false,
   submitLabel = "Pretraži",
 }: ISearchBarProps) {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-
-  function decodeQuerySafely(rawQuery: string): string {
-    try {
-      return decodeURIComponent(rawQuery);
-    } catch {
-      return rawQuery;
-    }
-  }
-
-  // Only get initial query if current pathname matches searchRoute
-  // Decode the URL parameter to get the original user input
-  const matchesRoute =
-    pathname.replace(/\/$/, "") === searchRoute.replace(/\/$/, "");
-  const initialQuery = matchesRoute
-    ? decodeQuerySafely(searchParams.get("q") || "")
-    : "";
-
+  const { routeQuery, search, syncQuery, openResult } =
+    useSearchNavigation(searchRoute);
   const { openScanner } = useCameraScanner();
   const { setOpen } = useSidebar();
-
-  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { register, handleSubmit, watch, reset, setValue, getValues } =
-    useForm<{
-      query: string;
-    }>({
-      defaultValues: { query: initialQuery },
-    });
+  const { register, handleSubmit, watch, reset, setValue, getValues } = useForm<{
+    query: string;
+  }>({
+    defaultValues: { query: routeQuery },
+  });
 
   const queryValue = watch("query");
-
   const { ref: registerRef, ...registerProps } = register("query");
 
   useEffect(() => {
-    if (getValues("query") !== initialQuery) {
-      setValue("query", initialQuery, {
+    if (getValues("query") !== routeQuery) {
+      setValue("query", routeQuery, {
         shouldDirty: false,
         shouldTouch: false,
         shouldValidate: false,
       });
     }
-  }, [initialQuery, setValue, getValues]);
+  }, [routeQuery, setValue, getValues]);
 
-  // Auto search for pages that filter in state
   useEffect(() => {
-    if (autoSearch) {
-      const query = queryValue ?? "";
-      // For auto search, update the URL with the original query (preserving user input)
-      if (!query) {
-        router.push(searchRoute);
-      } else {
-        router.replace(`${searchRoute}?q=${encodeURIComponent(query)}`);
-      }
-    }
-  }, [queryValue, autoSearch, searchRoute, router]);
+    if (!autoSearch) return;
+
+    const query = queryValue ?? "";
+
+    // An empty input over an empty URL has nothing to mirror. Skipping it also
+    // keeps a bar mounted off its own route from redirecting there on mount.
+    if (!query && !routeQuery) return;
+
+    syncQuery(query);
+  }, [autoSearch, queryValue, routeQuery, syncQuery]);
 
   function submit(data: { query: string }) {
-    const query = data.query?.trim() ?? "";
     setOpen(false);
-
-    if (!query) {
-      router.push(searchRoute);
-    } else {
-      router.push(`${searchRoute}?q=${encodeURIComponent(query)}`);
-    }
+    search(data.query?.trim() ?? "");
   }
 
   function handleClear() {
     reset({ query: "" });
-    router.push(searchRoute);
+    search("");
     inputRef.current?.focus();
   }
 
   const handleScan = useCallback(
     (result: string) => {
-      router.push(`${searchRoute}/${encodeURIComponent(result)}`);
       setOpen(false);
+      openResult(result);
     },
-    [searchRoute, router, setOpen],
+    [openResult, setOpen],
   );
+
   return (
     <div>
       <form
@@ -119,6 +93,7 @@ export default function SearchBar({
       >
         <div className="relative grow-100">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 size-5" />
+
           <Input
             ref={(el) => {
               inputRef.current = el;
@@ -131,33 +106,12 @@ export default function SearchBar({
             autoComplete="off"
           />
 
-          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
-            {clearable && queryValue && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={handleClear}
-                title="Clear search"
-                aria-label="Clear search"
-              >
-                <X className="size-5" />
-              </Button>
-            )}
-
-            {allowScanning && (
-              <Button
-                type="button"
-                variant="default"
-                size="icon"
-                onClick={() => openScanner(handleScan)}
-                title="Scan barcode"
-                aria-label="Scan barcode"
-              >
-                <ScanBarcode className="size-5" />
-              </Button>
-            )}
-          </div>
+          <SearchBarActions
+            showClear={Boolean(clearable && queryValue)}
+            onClear={handleClear}
+            allowScanning={allowScanning}
+            onScan={() => openScanner(handleScan)}
+          />
         </div>
 
         {submitButtonLocation !== "none" && (

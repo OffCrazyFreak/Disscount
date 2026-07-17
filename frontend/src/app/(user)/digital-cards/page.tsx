@@ -1,26 +1,16 @@
 import { Metadata } from "next";
 import DigitalCardsClient from "@/app/(user)/digital-cards/components/digital-cards-client";
+import { readSearchParam } from "@/utils/generic";
 
 export const metadata: Metadata = {
   title: "Moje digitalne kartice",
   description: "Pregled i upravljanje digitalnim karticama.",
 };
 
-interface IPageProps {
-  searchParams?: Record<string, string | string[] | undefined>;
-}
-
-export default async function DigitalCardsPage({ searchParams }: IPageProps) {
-  const searchParameters = await searchParams;
-  const qParam = searchParameters?.q;
-  const rawQuery = (Array.isArray(qParam) ? qParam[0] : qParam) || "";
-  let query = rawQuery;
-
-  try {
-    query = decodeURIComponent(rawQuery) || rawQuery;
-  } catch {
-    query = rawQuery;
-  }
+export default async function DigitalCardsPage(
+  props: PageProps<"/digital-cards">
+) {
+  const query = readSearchParam(await props.searchParams);
 
   return <DigitalCardsClient query={query} />;
 }

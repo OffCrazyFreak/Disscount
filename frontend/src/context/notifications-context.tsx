@@ -14,7 +14,7 @@ import {
   isDiscountValueAboveThreshold,
   isWatchThresholdReached,
 } from "@/app/(user)/watchlist/utils/watchlist-utils";
-import { storeNamesMap } from "@/constants/name-mappings";
+import { getChainLabel } from "@/utils/labels";
 import { toPascalCase } from "@/utils/strings";
 
 export interface NotificationStore {
@@ -140,7 +140,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
           ),
         )
         .map((store) => ({
-          chainName: storeNamesMap[store.chain.chain] || store.chain.chain,
+          chainName: getChainLabel(store.chain.chain),
           currentPrice: store.currentPrice,
           discountAmount: store.discountAmount,
           discountPercentage: store.discountPercentage,

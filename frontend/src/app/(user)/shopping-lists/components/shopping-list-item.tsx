@@ -25,18 +25,22 @@ export default function ShoppingListListItem({
   const totalCount = shoppingList.items.length;
 
   return (
-    <Card className="p-4 hover:shadow-md transition-shadow">
-      {/* Overlay link to make whole card clickable */}
+    <Card className="relative p-4 hover:shadow-md transition-shadow">
+      {/* Overlay link keeps the card clickable; interactive children stack
+          above it rather than nesting inside the anchor */}
       <Link
         href={`/shopping-lists/${shoppingList.id}`}
-        className="flex items-stretch sm:items-center justify-between gap-4 flex-col sm:flex-row"
-      >
+        aria-label={shoppingList.title}
+        className="absolute inset-0 rounded-[inherit]"
+      />
+
+      <div className="flex items-stretch sm:items-center justify-between gap-4 flex-col sm:flex-row">
         <div className="flex items-center justify-between gap-4 min-w-0 flex-1">
           {/* Title */}
           <h3 className="font-bold text-lg truncate">{shoppingList.title}</h3>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex-shrink-0" tabIndex={0}>
+              <div className="relative z-10 flex-shrink-0" tabIndex={0}>
                 {shoppingList.isPublic ? (
                   <Globe className="size-5 text-primary" />
                 ) : (
@@ -66,13 +70,7 @@ export default function ShoppingListListItem({
             </span>
           </div>
 
-          <div
-            className="hidden sm:flex items-center gap-2"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          >
+          <div className="relative z-10 hidden sm:flex items-center gap-2">
             <ShoppingListActionButtons
               shoppingList={shoppingList}
               showEditButton={true}
@@ -80,7 +78,7 @@ export default function ShoppingListListItem({
             />
           </div>
         </div>
-      </Link>
+      </div>
     </Card>
   );
 }

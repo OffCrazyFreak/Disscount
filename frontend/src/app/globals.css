@@ -76,6 +76,36 @@
   --color-destructive-foreground: var(--destructive-foreground);
 }
 
+@theme {
+  --animate-shine: shine 3s ease-out infinite;
+  --animate-gradient-flow: gradientFlow 10s ease 0s infinite normal none running;
+
+  /* Positions track the two background layers the shine effect declares */
+  @keyframes shine {
+    0% {
+      background-position: 200% 0, 0 0;
+    }
+    25% {
+      background-position: -200% 0, 0 0;
+    }
+    100% {
+      background-position: -200% 0, 0 0;
+    }
+  }
+
+  @keyframes gradientFlow {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+}
+
 :root {
   --radius: 0.75rem;
   --background: oklch(0.9821 0 0);
@@ -109,6 +139,10 @@
   --chart-11: oklch(0.646 0.222 41.116);
   --chart-12: oklch(72.927% 0.1747 42.563);
   --chart-13: oklch(79.444% 0.17083 71.184);
+  --gradient-lime: var(--chart-2);
+  --gradient-ocean: var(--chart-4);
+  --gradient-wine: var(--chart-9);
+  --gradient-rust: var(--chart-11);
   --sidebar: oklch(0.9911 0 0);
   --sidebar-foreground: oklch(0.5452 0 0);
   --sidebar-primary: oklch(0.742 0.244 141.3909);

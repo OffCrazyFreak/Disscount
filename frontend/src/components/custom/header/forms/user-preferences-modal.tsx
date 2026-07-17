@@ -43,7 +43,6 @@ import { useUser } from "@/context/user-context";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
 import cijeneService from "@/lib/cijene-api";
 import { ChainStats } from "@/lib/cijene-api/schemas";
-import { storeNamesMap } from "@/constants/name-mappings";
 
 interface IUserPreferencesModalProps {
   isOpen: boolean;
@@ -252,12 +251,6 @@ export default function UserPreferencesModal({
                                 isSelected && "opacity-100",
                               )}
                             />
-
-                            {/* {!isSelected && (
-                              <span className="hidden sm:text-xs font-bold text-center z-10 p-1 break-all">
-                                {storeNamesMap[chain.chain_code] || chain.chain_code}
-                              </span>
-                            )} */}
                           </div>
                           {isSelected && (
                             <div className="absolute top-2 right-2 w-5 h-5 bg-secondary rounded-full flex items-center justify-center">

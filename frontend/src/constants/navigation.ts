@@ -3,7 +3,6 @@ import {
   Eye,
   CreditCard,
   Percent,
-  List,
   Store,
   MapPin,
   Map as MapIcon,
@@ -11,6 +10,7 @@ import {
   Megaphone,
   Lightbulb,
   ChartNoAxesCombined,
+  LayoutDashboard,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -26,6 +26,16 @@ export interface NavigationItem {
   isCollapsible?: boolean; // Has sub-menu (Kategorije, Trgovine, Lokacije)
   children?: NavigationItem[]; // Nested items shown indented under this one
 }
+
+// Lives in the desktop header, so the sidebar only surfaces it on mobile
+export const dashboardNavItem: NavigationItem = {
+  id: "dashboard",
+  href: "/dashboard",
+  label: "Nadzorna ploča",
+  icon: LayoutDashboard,
+
+  showInHeader: false,
+};
 
 // Primary navigation items (shown in header on desktop, top of sidebar on mobile)
 export const userNavItems: NavigationItem[] = [

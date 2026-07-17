@@ -1,54 +1,29 @@
-import { NextRequest } from "next/server";
-import { cijeneApiV1Client, CijeneApiError } from "@/lib/cijene-api/client";
+import { z } from "zod";
+import { cijeneApiV1Client } from "@/lib/cijene-api/client";
 import { listStoresResponseSchema } from "@/lib/cijene-api/schemas";
-import {
-  createApiResponse,
-  createApiError,
-} from "@/lib/cijene-api/utils/response-utils";
+import { createApiError } from "@/lib/cijene-api/utils/response-utils";
+import { withCijeneRoute } from "@/lib/cijene-api/utils/with-cijene-route";
 
-type Params = {
-  chainCode: string;
-};
+const chainCodeParamSchema = z.object({
+  chainCode: z.string().trim().min(1, "Chain code is required"),
+});
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: Params }
+  request: Request,
+  context: RouteContext<"/api/cijene/stores/[chainCode]">
 ) {
-  const { chainCode } = await params;
-  const code = chainCode?.trim();
+  const parsed = chainCodeParamSchema.safeParse(await context.params);
 
-  // Validate chain code parameter
-  if (!code || typeof code !== "string") {
-    return createApiError("Chain code is required", { status: 400 });
-  }
-
-  try {
-    const response = await cijeneApiV1Client.get(`/${code}/stores/`);
-
-    // Validate response
-    const parsed = listStoresResponseSchema.safeParse(response.data);
-    if (!parsed.success) {
-      return createApiError("Invalid response from external API", {
-        status: 500,
-      });
-    }
-    const validatedData = parsed.data;
-
-    // Create response (security headers via next.config.ts headers())
-    return createApiResponse(validatedData);
-  } catch (error) {
-    // Handle CijeneApiError with proper status codes
-    if (error instanceof CijeneApiError) {
-      return createApiError(error.message, {
-        status: error.status >= 400 ? error.status : 500,
-        // avoid leaking headers or internal metadata
-        details: error.response,
-      });
-    }
-
-    // Handle other errors
-    return createApiError("Failed to fetch stores for chain from upstream", {
-      status: 502,
+  if (!parsed.success) {
+    return createApiError("Invalid parameters for chain stores", {
+      status: 400,
+      details: z.treeifyError(parsed.error),
     });
   }
+
+  const { chainCode } = parsed.data;
+
+  return withCijeneRoute("stores for chain", listStoresResponseSchema, () =>
+    cijeneApiV1Client.get(`/${encodeURIComponent(chainCode)}/stores/`)
+  );
 }

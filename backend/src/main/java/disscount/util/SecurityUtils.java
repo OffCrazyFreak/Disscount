@@ -25,12 +25,4 @@ public class SecurityUtils {
             throw new IllegalStateException("Invalid user ID format in authentication context");
         }
     }
-
-    /**
-     * Check if there's an authenticated user
-     * @return true if user is authenticated, false otherwise
-     */
-    public static boolean isAuthenticated() {
-        return getCurrentUserId() != null;
-    }
 }

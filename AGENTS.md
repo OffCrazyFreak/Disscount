@@ -2,6 +2,10 @@ Make sure to always follow dry and clean code principles, with separation of con
 
 Make sure to always follow project structure and conventions, including file organization, naming conventions, and coding styles, but feel free to suggest improvements when appropriate.
 
+The files should aim to be 50-100ish lines long, so they are easy to read, parse, and maintain.
+
+If the code requires you to add multiple lines of comments to explain it, you probably did it incorrectly and should start again.
+
 After every code generation, ALWAYS provide a brief explanation of the code changes you made and why because I'm still learning and I want to become a better developer.
 
 Make sure to always fetch and follow proper and most recent documentation, especially for libraries.
@@ -77,7 +81,7 @@ NEVER use ":any" as a type in typescript code. Check the types and define proper
 ALWAYS check if all typescript types are correct and there are no type errors by using "pnpm exec tsc --noEmit" before providing the final code.
 ALWAYS use frontend design skill when generating frontend code.
 
-If you are asked to generate code that involves API calls, check if the API endpoints exist in the file disscount-api-docs.json and cijene-api-docs.json or the backend codebase. If they do not exist, inform me that the endpoints do not exist and ask for further instructions.
+If you are asked to generate code that involves API calls, check if the API endpoints exist in the repo https://github.com/senko/cijene-api/ or the backend codebase. If they do not exist, inform me that the endpoints do not exist and ask for further instructions.
 
 If you need to import some hooks or components from react library, ALWAYS import them by "import { x } from 'react';" instead of React.x or other ways.
 

@@ -9,7 +9,6 @@ import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.watchlistItem.dao.WatchlistItemRepository;
 import disscount.watchlistItem.domain.WatchlistItem;
-import disscount.watchlistItem.domain.WatchType;
 import disscount.watchlistItem.dto.WatchlistItemDto;
 import disscount.watchlistItem.dto.WatchlistItemRequest;
 

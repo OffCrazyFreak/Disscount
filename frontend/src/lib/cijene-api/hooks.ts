@@ -6,7 +6,7 @@ import {
   ChainProductResponse,
 } from "./schemas";
 import { useMemo } from "react";
-import { locationNamesMap } from "@/constants/name-mappings";
+import { getLocationLabel } from "@/utils/labels";
 import { StoreLocation } from "@/typings/store-location";
 
 /**
@@ -41,8 +41,7 @@ export function useAllLocations() {
       const city = store.city.trim();
       if (!city) return;
 
-      // Use locationNamesMap to get standardized location name, fallback to original
-      const standardizedLocationName = locationNamesMap[city] || city;
+      const standardizedLocationName = getLocationLabel(city);
 
       if (!cityMap.has(standardizedLocationName)) {
         cityMap.set(standardizedLocationName, {

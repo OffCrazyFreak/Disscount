@@ -1,26 +1,14 @@
 import { Metadata } from "next";
 import WatchlistClient from "@/app/(user)/watchlist/components/watchlist-client";
+import { readSearchParam } from "@/utils/generic";
 
 export const metadata: Metadata = {
   title: "Popis za praćenje",
   description: "Prati cijene proizvoda i primi obavijesti o popustima.",
 };
 
-interface IPageProps {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
-}
-
-export default async function WatchlistPage({ searchParams }: IPageProps) {
-  const searchParameters = await searchParams;
-  const qParam = searchParameters?.q;
-  const rawQuery = (Array.isArray(qParam) ? qParam[0] : qParam) || "";
-  let query = rawQuery;
-
-  try {
-    query = decodeURIComponent(rawQuery) || rawQuery;
-  } catch {
-    query = rawQuery;
-  }
+export default async function WatchlistPage(props: PageProps<"/watchlist">) {
+  const query = readSearchParam(await props.searchParams);
 
   return <WatchlistClient query={query} />;
 }

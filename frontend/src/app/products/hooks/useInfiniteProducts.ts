@@ -3,6 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { useGetProductByName } from "@/lib/cijene-api";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
+import { productMatchesFilters } from "@/app/products/utils/product-filters";
+
+interface IUseInfiniteProductsOptions {
+  /** Resolved chain+location filter (null = unfiltered, empty = no overlap) */
+  allowedChains?: string[] | null;
+  selectedCategories?: string[];
+  selectedBrands?: string[];
+  batchSize?: number;
+}
 
 interface IUseInfiniteProductsResult {
   visibleProducts: ProductResponse[];
@@ -13,10 +22,22 @@ interface IUseInfiniteProductsResult {
   error: unknown;
 }
 
+const EMPTY_SELECTION: string[] = [];
+
 export default function useInfiniteProducts(
   q: string,
-  batchSize = 50,
+  options?: IUseInfiniteProductsOptions,
 ): IUseInfiniteProductsResult {
+  const {
+    allowedChains = null,
+    selectedCategories = EMPTY_SELECTION,
+    selectedBrands = EMPTY_SELECTION,
+    batchSize = 50,
+  } = options ?? {};
+
+  // Single unfiltered request per query; all filters apply client-side over
+  // this same dataset the facet options are computed from, so option counts
+  // always match the visible results.
   const { data, isLoading, error } = useGetProductByName({
     q,
     fuzzy: false,
@@ -25,22 +46,40 @@ export default function useInfiniteProducts(
 
   const allProducts = useMemo(() => data?.products || [], [data?.products]);
 
+  const filteredProducts = useMemo(() => {
+    const unfiltered =
+      allowedChains === null &&
+      selectedCategories.length === 0 &&
+      selectedBrands.length === 0;
+    if (unfiltered) return allProducts;
+
+    return allProducts.filter((product) =>
+      productMatchesFilters(
+        product,
+        allowedChains,
+        selectedCategories,
+        selectedBrands,
+      ),
+    );
+  }, [allProducts, allowedChains, selectedCategories, selectedBrands]);
+
   const batchedProducts = useMemo(() => {
     const batches: ProductResponse[][] = [];
-    for (let i = 0; i < allProducts.length; i += batchSize) {
-      batches.push(allProducts.slice(i, i + batchSize));
+    for (let i = 0; i < filteredProducts.length; i += batchSize) {
+      batches.push(filteredProducts.slice(i, i + batchSize));
     }
     return batches;
-  }, [allProducts, batchSize]);
+  }, [filteredProducts, batchSize]);
 
   const [batchesToShow, setBatchesToShow] = useState<number>(
     batchedProducts.length > 0 ? 1 : 0,
   );
 
-  // Reset visible batches when query or results change
+  // Depends on the batches rather than their count, so a filter change that
+  // happens to yield the same number of batches still resets the depth.
   useEffect(() => {
     setBatchesToShow(batchedProducts.length > 0 ? 1 : 0);
-  }, [batchedProducts.length, q]);
+  }, [batchedProducts, q]);
 
   // Load more when user scrolls near bottom of page
   useEffect(() => {
@@ -66,7 +105,7 @@ export default function useInfiniteProducts(
 
   return {
     visibleProducts,
-    total: allProducts.length,
+    total: filteredProducts.length,
     hasMore: batchesToShow < batchedProducts.length,
     loadMore: () =>
       setBatchesToShow((p) => Math.min(p + 1, batchedProducts.length)),

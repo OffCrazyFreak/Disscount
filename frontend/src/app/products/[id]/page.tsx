@@ -6,13 +6,10 @@ export const metadata: Metadata = {
   description: "Usporedba cijena proizvoda.",
 };
 
-interface IPageProps {
-  params: { id: string };
-}
-
-export default async function ProductDetailsPage({ params }: IPageProps) {
-  const urlParameters = await params;
-  const ean = urlParameters?.id;
+export default async function ProductDetailsPage(
+  props: PageProps<"/products/[id]">
+) {
+  const { id: ean } = await props.params;
 
   return <ProductDetailClient ean={ean} />;
 }

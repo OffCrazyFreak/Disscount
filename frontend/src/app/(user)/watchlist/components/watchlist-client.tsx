@@ -293,9 +293,12 @@ export default function WatchlistClient({ query }: { query: string }) {
           )}
         </div>
 
-        {!productsLoading && (
-          <CreateDiscountedListButton discountedItems={discountedItems} />
-        )}
+        {/* Stays mounted through a background price refetch, which would
+            otherwise pop the button off screen and back. */}
+        <CreateDiscountedListButton
+          discountedItems={discountedItems}
+          isLoading={productsLoading}
+        />
       </div>
 
       {userLoading || watchlistLoading ? (

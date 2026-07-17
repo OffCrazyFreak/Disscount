@@ -6,7 +6,7 @@ import {
   ProductResponse,
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
-import { storeNamesMap } from "@/constants/name-mappings";
+import { getChainLabel } from "@/utils/labels";
 import { formatDate } from "@/utils/strings";
 
 /**
@@ -386,7 +386,7 @@ export function formatShoppingListForSharing(
 
     // Get store name from chainCode
     const storeName = item.chainCode
-      ? storeNamesMap[item.chainCode] || item.chainCode
+      ? getChainLabel(item.chainCode)
       : "";
     const store = storeName ? ` - ${storeName}` : "";
 

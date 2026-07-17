@@ -2,7 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FloatingActionButton } from "@/components/custom/floating-action-button";
+import PageFab from "@/components/custom/fab/page-fab";
 
 interface CreateShoppingListButtonProps {
   onCreateClick: () => void;
@@ -26,11 +26,8 @@ export default function CreateShoppingListButton({
         {buttonText}
       </Button>
 
-      <FloatingActionButton
-        onClick={onCreateClick}
-        icon={<Plus size={24} />}
-        label={buttonText}
-        className="sm:hidden"
+      <PageFab
+        primary={{ icon: Plus, label: buttonText, onClick: onCreateClick }}
       />
     </>
   );

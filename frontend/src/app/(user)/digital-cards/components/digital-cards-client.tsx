@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from "react";
 import { usePathname } from "next/navigation";
-import { Search, Plus, Loader2, CreditCard } from "lucide-react";
+import { Search, Plus, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/custom/search-bar";
 import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
@@ -10,13 +10,12 @@ import DigitalCardModal from "@/app/(user)/digital-cards/components/forms/digita
 import DigitalCardItem from "@/app/(user)/digital-cards/components/digital-card-item";
 import NoResults from "@/components/custom/no-results";
 import LoginRequired from "@/components/custom/login-required";
-import { FloatingActionButton } from "@/components/custom/floating-action-button";
+import CreateDigitalCardButton from "@/app/(user)/digital-cards/components/create-digital-card-button";
 import { DigitalCardDto } from "@/lib/api/types";
 import { useViewMode } from "@/hooks/use-view-mode";
 import { filterByFields } from "@/utils/generic";
 import { digitalCardService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
-import ViewSwitcher from "@/components/custom/view-switcher";
 import { AnimatedGroup } from "@/components/ui/animated-group";
 import { useQueryClient } from "@tanstack/react-query";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
@@ -27,7 +26,7 @@ export default function DigitalCardsClient({ query }: { query: string }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDigitalCard, setSelectedDigitalCard] =
     useState<DigitalCardDto | null>(null);
-  const [viewMode, setViewMode] = useViewMode(pathname, "grid");
+  const [viewMode] = useViewMode(pathname, "grid");
 
   const { isAuthenticated, isLoading: userLoading } = useUser();
   const { data: digitalCards = [], isLoading } =
@@ -72,12 +71,6 @@ export default function DigitalCardsClient({ query }: { query: string }) {
         digitalCard={selectedDigitalCard}
       />
 
-      <FloatingActionButton
-        onClick={() => setIsModalOpen(true)}
-        icon={<Plus size={24} />}
-        label="Dodaj digitalnu karticu"
-      />
-
       <div className="space-y-4">
         <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
           <SearchBar
@@ -98,7 +91,7 @@ export default function DigitalCardsClient({ query }: { query: string }) {
                 }`}
           </h3>
 
-          {/* <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} /> */}
+          <CreateDigitalCardButton onCreateClick={() => setIsModalOpen(true)} />
         </div>
 
         {isUserLoading ? (

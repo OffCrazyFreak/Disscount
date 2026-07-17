@@ -1,7 +1,10 @@
 allowBuilds:
-  '@openapitools/openapi-generator-cli': set this to true or false
-  '@sentry/cli': set this to true or false
-  core-js: set this to true or false
-  esbuild: set this to true or false
-  sharp: set this to true or false
-  unrs-resolver: set this to true or false
+  # Native binaries these packages cannot work without
+  sharp: true
+  esbuild: true
+  unrs-resolver: true
+  # Downloads the CLI used to upload source maps during a release build
+  '@sentry/cli': true
+  # Postinstall only prints a funding notice
+  core-js: false
+  '@openapitools/openapi-generator-cli': false

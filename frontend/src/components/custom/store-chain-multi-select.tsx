@@ -6,13 +6,15 @@ import {
   MultiSelectTrigger,
   MultiSelectValue,
 } from "@/components/ui/multi-select";
-import { storeNamesMap } from "@/constants/name-mappings";
+import { getChainLabel } from "@/utils/labels";
+import { compareHr } from "@/utils/strings";
 
 interface StoreChainMultiSelectProps {
   chains: string[];
   selectedChains: string[];
   onChainsChange: (chains: string[]) => void;
   className?: string;
+  placeholder?: string;
 }
 
 export default function StoreChainMultiSelect({
@@ -20,23 +22,20 @@ export default function StoreChainMultiSelect({
   selectedChains,
   onChainsChange,
   className,
+  placeholder = "Odaberi trgovinske lance...",
 }: StoreChainMultiSelectProps) {
   return (
     <MultiSelect values={selectedChains} onValuesChange={onChainsChange}>
       <MultiSelectTrigger className={className || "w-full sm:w-sm"}>
-        <MultiSelectValue placeholder="Odaberi trgovinske lance..." />
+        <MultiSelectValue placeholder={placeholder} />
       </MultiSelectTrigger>
       <MultiSelectContent>
         <MultiSelectGroup>
-          {chains
-            .sort((a, b) => {
-              const aName = storeNamesMap[a] || a;
-              const bName = storeNamesMap[b] || b;
-              return aName.localeCompare(bName);
-            })
+          {[...chains]
+            .sort((a, b) => compareHr(getChainLabel(a), getChainLabel(b)))
             .map((chainCode) => (
               <MultiSelectItem key={chainCode} value={chainCode}>
-                {storeNamesMap[chainCode] || chainCode}
+                {getChainLabel(chainCode)}
               </MultiSelectItem>
             ))}
         </MultiSelectGroup>

@@ -8,7 +8,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { storeNamesMap } from "@/constants/name-mappings";
+import { getChainLabel } from "@/utils/labels";
 import { useUser } from "@/context/user-context";
 import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";
 import { ChartDataPoint } from "@/typings/chart-data";
@@ -88,7 +88,7 @@ const PriceHistoryChart = React.memo(function PriceHistoryChart({
   const chartConfig = useMemo(() => {
     const cfg: ChartConfig = {};
     priceHistoryChains.forEach((chain) => {
-      cfg[chain] = { label: storeNamesMap[chain] || chain };
+      cfg[chain] = { label: getChainLabel(chain) };
     });
     cfg["_average"] = { label: "Prosjek" };
     return cfg;

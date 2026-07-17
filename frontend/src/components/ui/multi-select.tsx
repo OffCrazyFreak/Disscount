@@ -17,6 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import ScrollFade from "@/components/custom/scroll-fade";
 import {
   createContext,
   useCallback,
@@ -227,7 +228,7 @@ export function MultiSelectValue({
           >
             {items.get(value)}
             {clickToRemove && (
-              <XIcon className="size-2 text-muted-foreground group-hover:text-destructive" />
+              <XIcon className="size-3.5 shrink-0 text-muted-foreground group-hover:text-destructive" />
             )}
           </Badge>
         ))}
@@ -253,6 +254,7 @@ export function MultiSelectContent({
   children: ReactNode;
 } & Omit<ComponentPropsWithoutRef<typeof Command>, "children">) {
   const canSearch = typeof search === "object" ? true : search;
+  const listRef = useRef<HTMLDivElement>(null);
 
   return (
     <>
@@ -272,14 +274,30 @@ export function MultiSelectContent({
           ) : (
             <button autoFocus className="sr-only" />
           )}
-          <CommandList>
-            {canSearch && (
-              <CommandEmpty>
-                {typeof search === "object" ? search.emptyMessage : undefined}
-              </CommandEmpty>
-            )}
-            {children}
-          </CommandList>
+
+          {/* Wraps only the list, so the top fade sits under the search box
+              rather than over it */}
+          <div className="relative">
+            <ScrollFade
+              targetRef={listRef}
+              side="top"
+              className="from-popover h-10"
+            />
+
+            <CommandList ref={listRef}>
+              {canSearch && (
+                <CommandEmpty>
+                  {typeof search === "object" ? search.emptyMessage : undefined}
+                </CommandEmpty>
+              )}
+              {children}
+            </CommandList>
+
+            <ScrollFade
+              targetRef={listRef}
+              className="from-popover h-10 rounded-b-md"
+            />
+          </div>
         </Command>
       </PopoverContent>
     </>

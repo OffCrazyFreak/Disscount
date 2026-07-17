@@ -7,14 +7,10 @@ import { ArrowLeft, Calendar } from "lucide-react";
 import { formatDate } from "@/utils/strings";
 import { getPostById } from "@/app/updates/posts";
 
-interface IPageProps {
-  params: Promise<{ id: string }>;
-}
-
-export async function generateMetadata({
-  params,
-}: IPageProps): Promise<Metadata> {
-  const { id } = await params;
+export async function generateMetadata(
+  props: PageProps<"/updates/[id]">
+): Promise<Metadata> {
+  const { id } = await props.params;
   const post = getPostById(id);
 
   return {
@@ -23,8 +19,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function PostDetailPage({ params }: IPageProps) {
-  const { id } = await params;
+export default async function PostDetailPage(props: PageProps<"/updates/[id]">) {
+  const { id } = await props.params;
   const post = getPostById(id);
 
   if (!post) {

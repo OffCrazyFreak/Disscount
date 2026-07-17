@@ -152,45 +152,6 @@ export function getAveragePricePerUnit(
   return undefined;
 }
 
-/**
- * Check if product has multiple chains
- */
-export function hasMultipleChains(product: ProductResponse): boolean {
-  return (product.chains?.length ?? 0) > 1;
-}
-
-/**
- * Get the lowest price chain for a product
- */
-export function getLowestPriceChain(product: ProductResponse) {
-  const cheapestChain = getCheapestChainByMinPrice(product.chains || []);
-
-  return cheapestChain?.chain;
-}
-
-/**
- * Get the highest price chain for a product
- */
-export function getHighestPriceChain(product: ProductResponse) {
-  if (!product.chains || product.chains.length === 0) {
-    return undefined;
-  }
-
-  const validChains = product.chains.filter((c) =>
-    Number.isFinite(parseFloat(c.max_price)),
-  );
-
-  if (validChains.length === 0) {
-    return undefined;
-  }
-
-  return validChains.reduce((highest, current) => {
-    const currentPrice = parseFloat(current.max_price);
-    const highestPrice = parseFloat(highest.max_price);
-    return currentPrice > highestPrice ? current : highest;
-  });
-}
-
 export type PriceExtreme = "min" | "max" | null;
 
 /**
