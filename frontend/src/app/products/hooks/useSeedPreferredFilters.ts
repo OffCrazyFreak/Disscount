@@ -33,20 +33,15 @@ export default function useSeedPreferredFilters(): void {
       .map((store) => store.storeApiId)
       .filter(Boolean);
     const pinnedPlaces = (user.pinnedPlaces ?? [])
-      .map((place) => place.placeName || place.placeApiId)
+      .map((place) => place.placeName)
       .filter(Boolean);
 
     if (pinnedChains.length === 0 && pinnedPlaces.length === 0) return;
 
     const params = new URLSearchParams(searchParams.toString());
 
-    if (pinnedChains.length > 0) {
-      params.set("chain", pinnedChains.join(","));
-    }
-
-    if (pinnedPlaces.length > 0) {
-      params.set("location", pinnedPlaces.join(","));
-    }
+    pinnedChains.forEach((chain) => params.append("chain", chain));
+    pinnedPlaces.forEach((place) => params.append("location", place));
 
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [user, searchParams, pathname, router]);

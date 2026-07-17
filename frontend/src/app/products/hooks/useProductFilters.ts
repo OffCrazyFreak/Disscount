@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
-import { parseListParam } from "@/utils/generic";
+import { readListParam } from "@/utils/generic";
 import {
   canonicalizeSelection,
   normalizeChainCode,
@@ -40,10 +40,15 @@ export default function useProductFilters(): IUseProductFiltersResult {
 
   useSeedPreferredFilters();
 
+  // Chains and locations accept a legacy comma-joined value, so links shared
+  // before the move to repeated params still resolve. Categories and brands
+  // come from product data and may contain a comma, so they never split.
   const selectedChains = useMemo(
     () => [
       ...new Set(
-        parseListParam(searchParams.get("chain")).map(normalizeChainCode),
+        readListParam(searchParams, "chain", { legacyCsv: true }).map(
+          normalizeChainCode,
+        ),
       ),
     ],
     [searchParams],
@@ -52,19 +57,19 @@ export default function useProductFilters(): IUseProductFiltersResult {
   const selectedLocations = useMemo(
     () =>
       canonicalizeSelection(
-        parseListParam(searchParams.get("location")),
+        readListParam(searchParams, "location", { legacyCsv: true }),
         locations.map((location) => location.name),
       ),
     [searchParams, locations],
   );
 
   const selectedCategories = useMemo(
-    () => parseListParam(searchParams.get("category")),
+    () => readListParam(searchParams, "category"),
     [searchParams],
   );
 
   const selectedBrands = useMemo(
-    () => parseListParam(searchParams.get("brand")),
+    () => readListParam(searchParams, "brand"),
     [searchParams],
   );
 

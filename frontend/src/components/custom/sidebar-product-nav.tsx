@@ -16,7 +16,7 @@ import { useSidebarFilterOptions } from "@/hooks/use-sidebar-filter-options";
 import { productNavItems, type NavigationItem } from "@/constants/navigation";
 import { useUser } from "@/context/user-context";
 import { isAdmin } from "@/lib/api/schemas/auth-user";
-import { parseListParam } from "@/utils/generic";
+import { readListParam } from "@/utils/generic";
 
 type OpenSection = "stores" | "locations" | null;
 
@@ -53,7 +53,9 @@ export default function SidebarProductNav() {
         options={isStores ? chains : cities}
         selected={
           isOnProducts
-            ? parseListParam(searchParams.get(isStores ? "chain" : "location"))
+            ? readListParam(searchParams, isStores ? "chain" : "location", {
+                legacyCsv: true,
+              })
             : []
         }
         isOpen={openMenu === child.id}

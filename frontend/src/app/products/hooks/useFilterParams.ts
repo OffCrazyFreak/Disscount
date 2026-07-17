@@ -42,11 +42,10 @@ export default function useFilterParams(): IFilterParamsResult {
     (updates: Partial<Record<ProductFilterKey, string[]>>) => {
       replaceParams((params) => {
         for (const [key, values] of Object.entries(updates)) {
-          if (values && values.length > 0) {
-            params.set(key, values.join(","));
-          } else {
-            params.delete(key);
-          }
+          // One param per value, since a category or brand may itself contain
+          // a comma and would otherwise read back as two filters.
+          params.delete(key);
+          values?.forEach((value) => params.append(key, value));
         }
       });
     },

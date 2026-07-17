@@ -35,22 +35,35 @@ export function buildQueryString(
   return queryParams.toString();
 }
 
-/**
- * Parse a comma-separated URL query param into a deduped list of values.
- *
- * Example: parseListParam("konzum, lidl,konzum") -> ["konzum", "lidl"]
- */
-export function parseListParam(value: string | null): string[] {
-  if (!value) return [];
+/** Structural shape of both URLSearchParams and Next's read-only version */
+interface IReadableParams {
+  getAll(name: string): string[];
+}
 
-  return [
-    ...new Set(
-      value
-        .split(",")
-        .map((entry) => entry.trim())
-        .filter(Boolean)
-    ),
-  ];
+function dedupeTrimmed(values: string[]): string[] {
+  return [...new Set(values.map((entry) => entry.trim()).filter(Boolean))];
+}
+
+/**
+ * Read a repeated URL query param into a deduped list of values.
+ *
+ * Example: readListParam(params, "brand") on "?brand=Zvijezda&brand=Vindija"
+ *          -> ["Zvijezda", "Vindija"]
+ *
+ * `legacyCsv` also splits a comma-joined value, so links shared before the app
+ * repeated its params keep working. Pass it only for a controlled vocabulary
+ * such as chain codes, where a single value can never itself contain a comma.
+ */
+export function readListParam(
+  params: IReadableParams,
+  key: string,
+  { legacyCsv = false } = {}
+): string[] {
+  const values = params.getAll(key);
+
+  return dedupeTrimmed(
+    legacyCsv ? values.flatMap((value) => value.split(",")) : values
+  );
 }
 
 /**
