@@ -7,13 +7,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { ModalShell } from "@/components/ui/modal-shell";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
 import {
@@ -78,21 +72,15 @@ export default function ResetPasswordModal({
   }
 
   return (
-    <Dialog
+    <ModalShell
       open
       onOpenChange={(open) => {
         if (!open) router.push("/");
       }}
+      title="Nova lozinka"
+      description="Postavi novu lozinku za svoj Disscount račun."
     >
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="text-xl">Nova lozinka</DialogTitle>
-          <DialogDescription>
-            Postavi novu lozinku za svoj Disscount račun.
-          </DialogDescription>
-        </DialogHeader>
-
-        {!token ? (
+      {!token ? (
           <p className="text-sm text-red-700">
             Nedostaje token. Zatraži novu poveznicu putem „Zaboravljena
             lozinka?“ na prijavi.
@@ -149,9 +137,8 @@ export default function ResetPasswordModal({
                 )}
               </Button>
             </form>
-          </Form>
-        )}
-      </DialogContent>
-    </Dialog>
+        </Form>
+      )}
+    </ModalShell>
   );
 }

@@ -6,6 +6,7 @@ import { AppSidebar } from "@/components/custom/app-sidebar";
 import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/footer";
 import OAuthErrorToast from "@/components/custom/oauth-error-toast";
+import ModalRouter from "@/components/custom/modal-router/modal-router";
 import InstallBanner from "@/components/custom/pwa/install-banner";
 import OfflineIndicator from "@/components/custom/offline/offline-indicator";
 import { Providers } from "@/app/providers/providers";
@@ -97,6 +98,10 @@ export default function RootLayout({
 
           <Suspense fallback={null}>
             <OAuthErrorToast />
+          </Suspense>
+
+          <Suspense fallback={null}>
+            <ModalRouter />
           </Suspense>
 
           <div className="min-h-screen flex flex-col w-full">

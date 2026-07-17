@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import BgAnimateButton from "@/components/ui/bg-animate-button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAuthModal } from "@/context/auth-modal-context";
+import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { useUser } from "@/context/user-context";
 import UserMenu from "@/components/custom/header/user-menu";
 import NotificationsDropdown from "@/components/custom/header/notifications-dropdown";
@@ -24,7 +24,6 @@ export default function Header(): JSX.Element {
   const [isScrolled, setIsScrolled] = useState(false); // Track if the page is scrolled for header opacity
 
   const { isAuthenticated, isLoading, user } = useUser();
-  const { openAuthModal } = useAuthModal();
 
   const isMobile = useIsMobile();
   const pathname = usePathname();
@@ -191,7 +190,7 @@ export default function Header(): JSX.Element {
                     shadow="base"
                     size={isMobile ? "sm" : "default"}
                     className="cursor-pointer min-w-fit p-[2px]"
-                    onClick={openAuthModal}
+                    onClick={() => openModalUrl({ name: "login" })}
                   >
                     <div className="flex items-center space-x-2 p-1">
                       <LogIn className="w-5.5" />

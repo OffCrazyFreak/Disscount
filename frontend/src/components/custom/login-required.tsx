@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import { LogIn, Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { useAuthModal } from "@/context/auth-modal-context";
+import { openModalUrl } from "@/lib/modal/modal-navigation";
 
 interface ILoginRequiredProps {
   title?: string;
@@ -21,8 +21,6 @@ export default function LoginRequired({
   description = "Za korištenje ove značajke potrebna je prijava.",
   icon,
 }: ILoginRequiredProps) {
-  const { openAuthModal } = useAuthModal();
-
   return (
     <div className="space-y-6">
       {title && <h1 className="text-3xl font-bold">{title}</h1>}
@@ -38,7 +36,7 @@ export default function LoginRequired({
           effect="shineHover"
           icon={LogIn}
           iconPlacement="left"
-          onClick={openAuthModal}
+          onClick={() => openModalUrl({ name: "login" })}
         >
           Prijavi se
         </Button>
