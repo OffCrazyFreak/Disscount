@@ -15,6 +15,7 @@ import SearchBar from "@/components/custom/search-bar";
 import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
+import BackToTopButton from "@/components/custom/back-to-top-button";
 
 export default function ProductsClient({ query }: { query: string }) {
   const isMobile = useIsMobile();
@@ -117,6 +118,8 @@ export default function ProductsClient({ query }: { query: string }) {
               </div>
             ))}
           </div>
+
+          <BackToTopButton />
         </>
       ) : activeFilterCount > 0 ? (
         <div className="text-center py-12">

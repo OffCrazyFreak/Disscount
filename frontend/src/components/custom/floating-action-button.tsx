@@ -1,17 +1,21 @@
 "use client";
 
-import { ReactNode } from "react";
+import { type ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Button, type ButtonProps } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-interface IFloatingActionButtonProps {
-  onClick: () => void;
+interface IFloatingActionButtonProps extends ButtonProps {
   icon: ReactNode;
+  /** Names the button and doubles as its tooltip */
   label: string;
-  className?: string;
-  disabled?: boolean;
   position?: "bottom-right" | "bottom-left" | "top-right" | "top-left";
+  /** Overrides the fixed placement, e.g. to sit closer to the viewport edge */
+  containerClassName?: string;
 }
 
 const positionClasses = {
@@ -22,28 +26,39 @@ const positionClasses = {
 };
 
 export function FloatingActionButton({
-  onClick,
   icon,
   label,
   className,
-  disabled = false,
   position = "bottom-right",
+  containerClassName,
+  ...props
 }: IFloatingActionButtonProps) {
   return (
-    <div className={`fixed ${positionClasses[position]} z-50`}>
+    // The wrapper tracks the button's size, so it stays click-through to keep
+    // a hidden or disabled button from leaving a dead zone over the page.
+    <div
+      className={cn(
+        "pointer-events-none fixed z-50",
+        positionClasses[position],
+        containerClassName,
+      )}
+    >
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
             type="button"
             size="icon"
-            onClick={onClick}
-            disabled={disabled}
             aria-label={label}
-            className={cn("size-16 rounded-full shadow-lg", className)}
+            className={cn(
+              "pointer-events-auto size-16 rounded-full shadow-lg",
+              className,
+            )}
+            {...props}
           >
             {icon}
           </Button>
         </TooltipTrigger>
+
         <TooltipContent side="left">{label}</TooltipContent>
       </Tooltip>
     </div>
