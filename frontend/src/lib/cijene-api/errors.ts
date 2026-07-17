@@ -42,8 +42,10 @@ export function toCijeneApiError(error: AxiosError): CijeneApiError {
     return new CijeneApiError(response.status, message, response.data);
   }
 
+  // Our proxy gave up waiting on upstream, which is a gateway timeout rather
+  // than the caller being slow.
   if (error.code === "ECONNABORTED") {
-    return new CijeneApiError(408, "Request timeout", null);
+    return new CijeneApiError(504, "Upstream request timeout", null);
   }
 
   if (error.code === "ENOTFOUND" || error.code === "ECONNREFUSED") {
