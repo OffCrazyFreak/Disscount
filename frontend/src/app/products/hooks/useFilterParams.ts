@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export type ProductFilterKey = "chain" | "location" | "category" | "brand";
 
-const FILTER_KEYS: ProductFilterKey[] = [
+export const FILTER_KEYS: ProductFilterKey[] = [
   "chain",
   "location",
   "category",

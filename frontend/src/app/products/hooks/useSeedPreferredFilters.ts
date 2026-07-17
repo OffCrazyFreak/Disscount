@@ -3,11 +3,15 @@
 import { useEffect, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useUser } from "@/context/user-context";
+import { FILTER_KEYS } from "@/app/products/hooks/useFilterParams";
 
 /**
- * Prepopulate the chain/location filters from the user's pinned stores and
- * places whenever the URL carries no explicit choice for them. Seeds once
- * per mount so clearing a filter sticks while the user stays on the page.
+ * Prepopulate the chain and location filters from the user's pinned stores and
+ * places, but only for an unfiltered view. A URL that already carries any
+ * filter is a deliberate choice, whether shared as a link or picked here, so
+ * it is left alone rather than mixed with preferences that could contradict it.
+ *
+ * Seeds once per mount, so clearing a filter sticks while the user stays.
  */
 export default function useSeedPreferredFilters(): void {
   const searchParams = useSearchParams();
@@ -17,7 +21,13 @@ export default function useSeedPreferredFilters(): void {
   const hasSeeded = useRef(false);
 
   useEffect(() => {
+    // The profile arrives after the first render, so this runs once it lands
+    // rather than on mount.
     if (hasSeeded.current || !user) return;
+
+    hasSeeded.current = true;
+
+    if (FILTER_KEYS.some((key) => searchParams.has(key))) return;
 
     const pinnedChains = (user.pinnedStores ?? [])
       .map((store) => store.storeApiId)
@@ -28,22 +38,15 @@ export default function useSeedPreferredFilters(): void {
 
     if (pinnedChains.length === 0 && pinnedPlaces.length === 0) return;
 
-    hasSeeded.current = true;
-
     const params = new URLSearchParams(searchParams.toString());
-    let seeded = false;
 
-    if (!params.has("chain") && pinnedChains.length > 0) {
+    if (pinnedChains.length > 0) {
       params.set("chain", pinnedChains.join(","));
-      seeded = true;
     }
 
-    if (!params.has("location") && pinnedPlaces.length > 0) {
+    if (pinnedPlaces.length > 0) {
       params.set("location", pinnedPlaces.join(","));
-      seeded = true;
     }
-
-    if (!seeded) return;
 
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [user, searchParams, pathname, router]);

@@ -228,7 +228,7 @@ export function MultiSelectValue({
           >
             {items.get(value)}
             {clickToRemove && (
-              <XIcon className="size-2 text-muted-foreground group-hover:text-destructive" />
+              <XIcon className="size-3.5 shrink-0 text-muted-foreground group-hover:text-destructive" />
             )}
           </Badge>
         ))}
