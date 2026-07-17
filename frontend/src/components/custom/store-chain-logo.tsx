@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Store } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { storeNamesMap } from "@/constants/name-mappings";
+import { getChainLabel } from "@/utils/labels";
 
 interface StoreChainLogoProps {
   chain: string;
@@ -30,7 +30,7 @@ export default function StoreChainLogo({
 }: StoreChainLogoProps) {
   const [hasError, setHasError] = useState(false);
 
-  const label = storeNamesMap[chain] || chain;
+  const label = getChainLabel(chain);
 
   if (hasError) {
     return (

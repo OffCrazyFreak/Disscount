@@ -6,7 +6,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { storeNamesMap } from "@/constants/name-mappings";
+import { getChainLabel } from "@/utils/labels";
+import { compareHr } from "@/utils/strings";
 import { useEffect, useState } from "react";
 import { ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 
@@ -86,11 +87,7 @@ export default function StoreChainSelect({
       : Array.from(
           new Set([...Object.keys(storePrices), ...(value ? [value] : [])]),
         )
-  ).sort((a, b) =>
-    (storeNamesMap[a] || a).localeCompare(storeNamesMap[b] || b, "hr", {
-      sensitivity: "base",
-    }),
-  );
+  ).sort((a, b) => compareHr(getChainLabel(a), getChainLabel(b)));
 
   return (
     <Select value={displayValue} onValueChange={onChange} disabled={disabled}>
@@ -116,7 +113,7 @@ export default function StoreChainSelect({
           return (
             <SelectItem key={chainCode} value={chainCode}>
               <div className="flex items-center gap-2 w-full">
-                <span>{storeNamesMap[chainCode] || chainCode}</span>
+                <span>{getChainLabel(chainCode)}</span>
 
                 {priceDifference && (
                   <span

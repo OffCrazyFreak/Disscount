@@ -1,41 +1,9 @@
-import { NextRequest } from "next/server";
-import { cijeneApiV1Client, CijeneApiError } from "@/lib/cijene-api/client";
+import { cijeneApiV1Client } from "@/lib/cijene-api/client";
 import { listChainsResponseSchema } from "@/lib/cijene-api/schemas";
-import {
-  createApiResponse,
-  createApiError,
-} from "@/lib/cijene-api/utils/response-utils";
-import { z } from "zod";
+import { withCijeneRoute } from "@/lib/cijene-api/utils/with-cijene-route";
 
-export async function GET(request: NextRequest) {
-  try {
-    const response = await cijeneApiV1Client.get("/chains/");
-
-    // Validate response
-    const parsed = listChainsResponseSchema.safeParse(response.data);
-    if (!parsed.success) {
-      return createApiError("Invalid response from external API", {
-        status: 500,
-        details: z.treeifyError(parsed.error),
-      });
-    }
-    const validatedData = parsed.data;
-
-    // Create response (security headers via next.config.ts headers())
-    return createApiResponse(validatedData);
-  } catch (error) {
-    // Handle CijeneApiError with proper status codes
-    if (error instanceof CijeneApiError) {
-      return createApiError(error.message, {
-        status: error.status >= 400 ? error.status : 500,
-        // avoid leaking headers or internal metadata
-        details: error.response,
-      });
-    }
-
-    // Handle other errors
-    return createApiError("Failed to fetch chains list from upstream", {
-      status: 502,
-    });
-  }
+export async function GET() {
+  return withCijeneRoute("chains list", listChainsResponseSchema, () =>
+    cijeneApiV1Client.get("/chains/")
+  );
 }

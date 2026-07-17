@@ -17,6 +17,26 @@ export function readSearchParam(
 }
 
 /**
+ * Serialize params into a query string, dropping the ones left undefined.
+ *
+ * Example: buildQueryString({ q: "mlijeko", limit: 10, date: undefined })
+ *          -> "q=mlijeko&limit=10"
+ */
+export function buildQueryString(
+  params: Record<string, string | number | boolean | undefined>
+): string {
+  const queryParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined) {
+      queryParams.set(key, String(value));
+    }
+  });
+
+  return queryParams.toString();
+}
+
+/**
  * Parse a comma-separated URL query param into a deduped list of values.
  *
  * Example: parseListParam("konzum, lidl,konzum") -> ["konzum", "lidl"]

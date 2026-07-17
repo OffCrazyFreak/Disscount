@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { storeNamesMap } from "@/constants/name-mappings";
+import { getChainLabel } from "@/utils/labels";
 import { cn } from "@/lib/utils";
 import {
   ChainProductResponse,
@@ -94,7 +94,7 @@ export const StoreItem = memo(
                     {/* Chain Name and Badge */}
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-semibold text-gray-900">
-                        {storeNamesMap[store.chain] || store.chain}
+                        {getChainLabel(store.chain)}
                       </h3>
 
                       <div className="flex items-center gap-3">

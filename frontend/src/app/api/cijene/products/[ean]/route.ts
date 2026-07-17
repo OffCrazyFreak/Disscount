@@ -1,70 +1,42 @@
 import { NextRequest } from "next/server";
-import { cijeneApiV1Client, CijeneApiError } from "@/lib/cijene-api/client";
+import { z } from "zod";
+import { cijeneApiV1Client } from "@/lib/cijene-api/client";
 import {
-  productResponseSchema,
   getProductParamsSchema,
+  productResponseSchema,
 } from "@/lib/cijene-api/schemas";
-import {
-  createApiResponse,
-  createApiError,
-} from "@/lib/cijene-api/utils/response-utils";
-
-type Params = {
-  ean: string;
-};
+import { createApiError } from "@/lib/cijene-api/utils/response-utils";
+import { withCijeneRoute } from "@/lib/cijene-api/utils/with-cijene-route";
+import { buildQueryString } from "@/utils/generic";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Params }
+  context: RouteContext<"/api/cijene/products/[ean]">
 ) {
-  const { ean } = await params;
+  const { ean } = await context.params;
   const { searchParams } = new URL(request.url);
 
-  // Validate params
-  const raw = {
+  const parsed = getProductParamsSchema.safeParse({
     ean: ean.trim(),
     date: searchParams.get("date") || undefined,
     chains: searchParams.get("chains") || undefined,
-  };
-  const validated = getProductParamsSchema.safeParse(raw);
-  if (!validated.success) {
-    return createApiError("Invalid parameters", {
+  });
+
+  if (!parsed.success) {
+    return createApiError("Invalid parameters for product", {
       status: 400,
-      details: validated.error,
+      details: z.treeifyError(parsed.error),
     });
   }
 
-  try {
-    const { ean: validEan, date, chains } = validated.data;
-    const qs = new URLSearchParams();
-    if (date) qs.append("date", date);
-    if (chains) qs.append("chains", chains);
+  const { ean: validEan, ...filters } = parsed.data;
+  const queryString = buildQueryString(filters);
 
-    const response = await cijeneApiV1Client.get(
+  return withCijeneRoute("product", productResponseSchema, () =>
+    cijeneApiV1Client.get(
       `/products/${encodeURIComponent(validEan)}${
-        qs.toString() ? `?${qs}` : ""
+        queryString && `?${queryString}`
       }`
-    );
-
-    const parsed = productResponseSchema.safeParse(response.data);
-    if (!parsed.success) {
-      return createApiError("Invalid response from external API", {
-        status: 500,
-      });
-    }
-    const data = parsed.data;
-    return createApiResponse(data);
-  } catch (error) {
-    if (error instanceof CijeneApiError) {
-      return createApiError(error.message, {
-        status: error.status >= 400 ? error.status : 500,
-        // avoid leaking headers or internal metadata
-        details: error.response,
-      });
-    }
-
-    return createApiError("Failed to fetch product from upstream", {
-      status: 502,
-    });
-  }
+    )
+  );
 }

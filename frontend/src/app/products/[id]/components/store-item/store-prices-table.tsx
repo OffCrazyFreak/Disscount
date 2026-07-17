@@ -15,7 +15,8 @@ import {
   getPriceExtreme,
 } from "@/app/products/utils/product-utils";
 import { useUser } from "@/context/user-context";
-import { locationNamesMap } from "@/constants/name-mappings";
+import { getLocationLabel } from "@/utils/labels";
+import { compareHr } from "@/utils/strings";
 
 interface IStorePricesTableProps {
   storePrices: StorePrice[];
@@ -28,6 +29,11 @@ export const StorePricesTable = memo(
 
     const productMinPrice = getMinPrice(product);
     const productMaxPrice = getMaxPrice(product);
+
+    // Pinned places are stored under the standardized city name, so the
+    // display label doubles as the lookup key.
+    const preferredPlaceIds =
+      user?.pinnedPlaces?.map((place) => place.placeApiId) || [];
 
     if (storePrices.length === 0) {
       return (
@@ -49,43 +55,20 @@ export const StorePricesTable = memo(
           </TableHeader>
 
           <TableBody>
-            {storePrices
+            {[...storePrices]
               .sort((a, b) => {
-                // Get user's preferred place IDs
-                const preferredPlaceIds =
-                  user?.pinnedPlaces?.map((place) => place.placeApiId) || [];
+                const aCity = getLocationLabel(a.store.city);
+                const bCity = getLocationLabel(b.store.city);
 
-                // Check if locations are preferred (using standardized location names)
-                const aStandardizedCity = a.store.city
-                  ? locationNamesMap[a.store.city] || a.store.city
-                  : "";
-                const bStandardizedCity = b.store.city
-                  ? locationNamesMap[b.store.city] || b.store.city
-                  : "";
-                const aIsPreferred =
-                  preferredPlaceIds.includes(aStandardizedCity);
-                const bIsPreferred =
-                  preferredPlaceIds.includes(bStandardizedCity);
+                // Pinned locations come first, then city, then address
+                const aIsPreferred = preferredPlaceIds.includes(aCity);
+                const bIsPreferred = preferredPlaceIds.includes(bCity);
 
-                // Preferred locations come first
-                if (aIsPreferred && !bIsPreferred) return -1;
-                if (!aIsPreferred && bIsPreferred) return 1;
+                if (aIsPreferred !== bIsPreferred) return aIsPreferred ? -1 : 1;
 
-                // If both are preferred or both are not, sort by city first, then by address
-                const aCityName = a.store.city
-                  ? locationNamesMap[a.store.city] || a.store.city
-                  : "";
-                const bCityName = b.store.city
-                  ? locationNamesMap[b.store.city] || b.store.city
-                  : "";
-                const cityCompare = aCityName.localeCompare(bCityName, "hr", {
-                  sensitivity: "base",
-                });
-                if (cityCompare !== 0) return cityCompare;
-                return (a.store.address || "").localeCompare(
-                  b.store.address || "",
-                  "hr",
-                  { sensitivity: "base" },
+                return (
+                  compareHr(aCity, bCity) ||
+                  compareHr(a.store.address || "", b.store.address || "")
                 );
               })
               .map((price, index) => {
@@ -96,14 +79,9 @@ export const StorePricesTable = memo(
                     ? parseFloat(price.regular_price)
                     : null;
 
-                // Check if this location is preferred (using standardized location names)
-                const standardizedCity = price.store.city
-                  ? locationNamesMap[price.store.city] || price.store.city
-                  : "";
-                const isLocationPreferred =
-                  user?.pinnedPlaces?.some(
-                    (place) => place.placeApiId === standardizedCity,
-                  ) || false;
+                const isLocationPreferred = preferredPlaceIds.includes(
+                  getLocationLabel(price.store.city),
+                );
 
                 const priceExtreme =
                   displayPrice != null
@@ -123,9 +101,7 @@ export const StorePricesTable = memo(
                     )}
                   >
                     <TableCell>
-                      {price.store.city
-                        ? locationNamesMap[price.store.city] || price.store.city
-                        : "Nepoznato"}
+                      {getLocationLabel(price.store.city, "Nepoznato")}
                     </TableCell>
 
                     <TableCell>{price.store.address || "Nepoznato"}</TableCell>

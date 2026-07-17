@@ -102,3 +102,12 @@ export function pluralizeCroatian(
     return plural;
   return singular;
 }
+
+/**
+ * Compare two strings for display order in Croatian, where Č, Ć, Đ, Š and Ž
+ * have their own places in the alphabet rather than collating next to C, D,
+ * S and Z. Use this for every user-facing sort so lists agree with each other.
+ */
+export function compareHr(a: string, b: string): number {
+  return a.localeCompare(b, "hr", { sensitivity: "base" });
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import FacetMultiSelect from "@/app/products/components/facet-multi-select";
-import { storeNamesMap } from "@/constants/name-mappings";
+import { getChainLabel } from "@/utils/labels";
 import type { IProductFacetSelects } from "@/app/products/hooks/useProductFacets";
 import type {
   IUseProductFiltersResult,
@@ -84,7 +84,7 @@ export default function ProductFacetSelects({
             }
             getLabel={
               facet.key === "chains"
-                ? (code) => storeNamesMap[code] || code
+                ? getChainLabel
                 : undefined
             }
             className={isStack ? "w-full max-w-none min-h-11" : undefined}

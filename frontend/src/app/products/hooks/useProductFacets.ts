@@ -3,7 +3,8 @@
 import { useMemo } from "react";
 import { useGetProductByName, useListChains } from "@/lib/cijene-api";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
-import { storeNamesMap } from "@/constants/name-mappings";
+import { getChainLabel } from "@/utils/labels";
+import { compareHr } from "@/utils/strings";
 import { canonicalizeSelection } from "@/app/products/utils/product-filters";
 import {
   computeProductFacets,
@@ -83,7 +84,7 @@ export default function useProductFacets(
         : null;
 
     const allLocations = [...(locations ?? [])].sort((a, b) =>
-      a.name.localeCompare(b.name, "hr", { sensitivity: "base" }),
+      compareHr(a.name, b.name),
     );
 
     const chains = toFacetSelect(
@@ -92,9 +93,7 @@ export default function useProductFacets(
       filters.selectedChains,
     );
     chains.options = [...chains.options].sort((a, b) =>
-      (storeNamesMap[a] || a).localeCompare(storeNamesMap[b] || b, "hr", {
-        sensitivity: "base",
-      }),
+      compareHr(getChainLabel(a), getChainLabel(b)),
     );
 
     return {

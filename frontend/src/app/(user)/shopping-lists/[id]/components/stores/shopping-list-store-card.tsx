@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { storeNamesMap } from "@/constants/name-mappings";
+import { getChainLabel } from "@/utils/labels";
 import { cn } from "@/lib/utils";
 import { ShoppingListDto } from "@/lib/api/types";
 import { useUser } from "@/context/user-context";
@@ -126,7 +126,7 @@ const ShoppingListStoreItemComponent = ({
                     )}
 
                     <h3 className="font-semibold text-gray-900">
-                      {storeNamesMap[chain.chain] || chain.chain}
+                      {getChainLabel(chain.chain)}
                     </h3>
 
                     <div className="flex items-center gap-3">

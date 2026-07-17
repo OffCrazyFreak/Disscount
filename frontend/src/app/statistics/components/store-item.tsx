@@ -17,8 +17,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { storeNamesMap, locationNamesMap } from "@/constants/name-mappings";
-import { pluralizeCroatian } from "@/utils/strings";
+import { getChainLabel, getLocationLabel } from "@/utils/labels";
+import { compareHr, pluralizeCroatian } from "@/utils/strings";
 import { cn } from "@/lib/utils";
 import cijeneService from "@/lib/cijene-api";
 import { ChainStats } from "@/lib/cijene-api/schemas";
@@ -53,7 +53,7 @@ export const StoreItem = memo(
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-semibold text-gray-900">
-                        {storeNamesMap[stat.chain_code] || stat.chain_code}
+                        {getChainLabel(stat.chain_code)}
                       </h3>
 
                       <p className="text-sm text-gray-600 flex items-center gap-2 sm:gap-4 flex-wrap my-2">
@@ -111,24 +111,17 @@ export const StoreItem = memo(
                     </TableHeader>
 
                     <TableBody>
-                      {storesData.stores
-                        .sort((a, b) => {
-                          const aCityName = a.city
-                            ? locationNamesMap[a.city] || a.city
-                            : "";
-                          const bCityName = b.city
-                            ? locationNamesMap[b.city] || b.city
-                            : "";
-                          return aCityName.localeCompare(bCityName, "hr", {
-                            sensitivity: "base",
-                          });
-                        })
+                      {[...storesData.stores]
+                        .sort((a, b) =>
+                          compareHr(
+                            getLocationLabel(a.city),
+                            getLocationLabel(b.city),
+                          ),
+                        )
                         .map((store) => (
                           <TableRow key={store.address}>
                             <TableCell className="text-gray-700">
-                              {store.city
-                                ? locationNamesMap[store.city] || store.city
-                                : "Nepoznato"}
+                              {getLocationLabel(store.city, "Nepoznato")}
                             </TableCell>
                             <TableCell className="text-gray-700">
                               {store.address || "Nepoznato"}
