@@ -1,31 +1,15 @@
 "use client";
 
-import { useState, MouseEvent } from "react";
 import Link from "next/link";
-import { X, Eye } from "lucide-react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Skeleton } from "@/components/ui/skeleton";
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
-import { watchlistService } from "@/lib/api";
-import { useQueryClient } from "@tanstack/react-query";
-import {
-  isWatchThresholdReached,
-  WatchlistItemWithProduct,
-} from "@/app/(user)/watchlist/utils/watchlist-utils";
-import { useUser } from "@/context/user-context";
+import { WatchlistItemWithProduct } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { cn } from "@/lib/utils";
 import WatchlistItemDiscountInfo from "@/app/(user)/watchlist/components/watchlist-item-discount-info";
-import { openModalUrl } from "@/lib/modal/modal-navigation";
+import WatchlistActionButton from "@/app/(user)/watchlist/components/watchlist-action-button";
+import { useWatchlistItem } from "@/app/(user)/watchlist/components/use-watchlist-item";
 import { WatchType } from "@/lib/api";
-import { formatQuantity } from "@/utils/strings";
 
 interface IWatchlistItemProps {
   item: WatchlistItemWithProduct;
@@ -33,168 +17,26 @@ interface IWatchlistItemProps {
   showThresholdBadges?: boolean;
 }
 
-interface IWatchlistActionButtonProps {
-  visibilityClassName: string;
-  isAddMode: boolean;
-  isRemoving: boolean;
-  hasProduct: boolean;
-  onAdd: () => void;
-  onRemove: () => void;
-}
-
-function WatchlistActionButton({
-  visibilityClassName,
-  isAddMode,
-  isRemoving,
-  hasProduct,
-  onAdd,
-  onRemove,
-}: IWatchlistActionButtonProps) {
-  const label = isAddMode ? "Prati proizvod" : "Makni proizvod";
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          size="icon"
-          aria-label={label}
-          className={cn(
-            visibilityClassName,
-            isAddMode
-              ? "bg-primary hover:bg-primary/90"
-              : "bg-red-600 hover:bg-red-700",
-          )}
-          onClick={isAddMode ? onAdd : onRemove}
-          disabled={isAddMode ? !hasProduct : isRemoving}
-        >
-          {isAddMode ? (
-            <Eye className="size-5 sm:size-6" />
-          ) : isRemoving ? (
-            <BlockLoadingSpinner size={22} className="text-inherit" />
-          ) : (
-            <X className="size-5 sm:size-6" />
-          )}
-        </Button>
-      </TooltipTrigger>
-
-      <TooltipContent
-        variant={isAddMode ? "default" : "destructive"}
-        className="px-2 py-1 text-xs"
-      >
-        {label}
-      </TooltipContent>
-    </Tooltip>
-  );
-}
-
 export default function WatchlistItem({
   item,
   actionMode = "remove",
   showThresholdBadges = true,
 }: IWatchlistItemProps) {
-  const {
-    watchlistItems,
-    productApiId,
-    product,
-    discountInfo,
-    isLoading,
-    error,
-  } = item;
-  const queryClient = useQueryClient();
-  const { user } = useUser();
-  const [isRemoving, setIsRemoving] = useState(false);
+  const { watchlistItems, productApiId, product, discountInfo, isLoading, error } =
+    item;
   const isAddMode = actionMode === "add";
 
-  async function handleRemove() {
-    setIsRemoving(true);
-
-    try {
-      const removeResults = await Promise.allSettled(
-        watchlistItems.map((watchlistItem) =>
-          watchlistService.removeFromWatchlist(watchlistItem.id),
-        ),
-      );
-
-      const failedRemovals = removeResults.filter(
-        (result) => result.status === "rejected",
-      ).length;
-
-      if (failedRemovals === 0) {
-        toast.success("Proizvod uklonjen s popisa za praćenje");
-      } else if (failedRemovals === watchlistItems.length) {
-        toast.error("Greška pri uklanjanju proizvoda");
-      } else {
-        toast.error(
-          `Djelomično uklanjanje: ${failedRemovals} stavki nije moguće ukloniti.`,
-        );
-      }
-    } catch {
-      toast.error("Greška pri uklanjanju proizvoda");
-    } finally {
-      await queryClient.invalidateQueries({
-        queryKey: watchlistService.QUERY_KEYS.all,
-      });
-
-      setIsRemoving(false);
-    }
-  }
-
-  // Display product name from API only (no fallback since productName removed from backend)
-  const productName = product?.name || "Učitavanje...";
-  const productBrand = product?.brand || null;
-  const formattedQuantity = formatQuantity(product?.quantity);
-  const quantityWithUnit =
-    formattedQuantity && product?.unit
-      ? `${formattedQuantity}${product.unit}`
-      : null;
-
-  const hasPinnedStores = (user?.pinnedStores?.length || 0) > 0;
-
-  function isWatchRequirementAchieved(
-    thresholdValue: number,
-    watchType: WatchType,
-  ): boolean {
-    if (!discountInfo) {
-      return false;
-    }
-
-    return isWatchThresholdReached(
-      discountInfo,
-      watchType,
-      thresholdValue,
-      hasPinnedStores,
-    );
-  }
-
-  function openWatchlistModal(watchType: WatchType) {
-    openModalUrl({
-      name: "watchlist",
-      ean: productApiId,
-      watchType: watchType === WatchType.absolute ? "absolute" : "percentage",
-    });
-  }
-
-  function handleBadgeClick(
-    event: MouseEvent<HTMLButtonElement>,
-    watchType: WatchType,
-  ) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (!product) {
-      return;
-    }
-
-    openWatchlistModal(watchType);
-  }
-
-  function handleOpenWatchlistModal() {
-    if (!product) {
-      return;
-    }
-
-    openWatchlistModal(WatchType.percentage);
-  }
+  const {
+    isRemoving,
+    handleRemove,
+    productName,
+    productBrand,
+    quantityWithUnit,
+    hasPinnedStores,
+    isWatchRequirementAchieved,
+    handleBadgeClick,
+    handleOpenWatchlistModal,
+  } = useWatchlistItem(item);
 
   return (
     <Card className="hover:shadow-md transition-shadow">

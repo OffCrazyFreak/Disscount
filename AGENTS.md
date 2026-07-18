@@ -78,6 +78,10 @@ If you need to add env variables, first notify the user and then update both the
 NEVER run "pnpm run dev" or any other development server command, because I always already have my dev server running. Also never run build commands.
 NEVER use ":any" as a type in typescript code. Check the types and define proper interfaces or types when necessary.
 
+Use I-prefix for interfaces, and use default exports wherever possible.
+
+Always use kebab-case naming of files if you can.
+
 ALWAYS check if all typescript types are correct and there are no type errors by using "pnpm exec tsc --noEmit" before providing the final code.
 ALWAYS use frontend design skill when generating frontend code.
 

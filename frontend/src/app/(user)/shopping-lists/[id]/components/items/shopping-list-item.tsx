@@ -1,69 +1,18 @@
 import Link from "next/link";
-import { Minus, Plus, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 import StoreChainSelect from "@/components/custom/store-chain-select";
 
 import type { ShoppingListItemDto } from "@/lib/api/types";
-import { formatQuantity } from "@/utils/strings";
-import { cn } from "@/lib/utils";
-
-interface IRemoveItemButtonProps {
-  visibilityClassName: string;
-  onDelete: () => void;
-  isDeleting: boolean;
-}
-
-// Red X that drops the item from the list. Rendered twice (mobile row and
-// desktop row), so the tooltip and styling live in one place.
-function RemoveItemButton({
-  visibilityClassName,
-  onDelete,
-  isDeleting,
-}: IRemoveItemButtonProps) {
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          size="icon"
-          aria-label="Makni proizvod"
-          className={cn(
-            "size-8 sm:size-10 shrink-0 bg-red-600 hover:bg-red-700",
-            visibilityClassName,
-          )}
-          onClick={onDelete}
-          disabled={isDeleting}
-        >
-          {isDeleting ? (
-            <BlockLoadingSpinner size={22} className="text-inherit" />
-          ) : (
-            <X className="size-5 sm:size-6" />
-          )}
-        </Button>
-      </TooltipTrigger>
-
-      <TooltipContent variant="destructive" className="px-2 py-1 text-xs">
-        Makni proizvod
-      </TooltipContent>
-    </Tooltip>
-  );
-}
+import RemoveItemButton from "./remove-item-button";
+import ItemAmountControls from "./item-amount-controls";
+import ItemPriceDisplay from "./item-price-display";
+import type { IShoppingListItemUpdate } from "./shopping-list-item-types";
 
 interface IShoppingListItemProps {
   item: ShoppingListItemDto;
-  onUpdate: (updatedItem: {
-    isChecked: boolean;
-    amount: number;
-    chainCode: string | null;
-  }) => void;
+  onUpdate: (updatedItem: IShoppingListItemUpdate) => void;
   onDelete: () => void;
   isDeleting: boolean;
   cheapestStore?: string;
@@ -82,15 +31,6 @@ export default function ShoppingListItem({
   storePrices,
   showSeparator,
 }: IShoppingListItemProps) {
-  // Average price - from DB for checked items, from API for unchecked items
-  const displayPrice = item.isChecked ? item.avgPrice : averagePrice;
-
-  // Calculate average price per unit
-  const avgPricePerUnit =
-    displayPrice && item.quantity
-      ? displayPrice / parseFloat(item.quantity)
-      : undefined;
-
   return (
     <>
       <div className="flex items-center justify-between py-1 flex-wrap sm:flex-nowrap gap-6">
@@ -134,64 +74,9 @@ export default function ShoppingListItem({
         <div className="flex flex-shrink-0 items-center justify-between gap-8 w-full sm:w-auto">
           <div className="flex sm:items-center justify-between gap-4 flex-col sm:flex-row w-full">
             <div className="flex items-center justify-between gap-6">
-              {item.quantity && item.unit ? (
-                <div className="text-nowrap">
-                  <div className="flex flex-shrink-0 items-center gap-2 text-gray-700 text-right text-sm sm:text-md">
-                    <span className="">
-                      {`${formatQuantity(item.quantity)} ${item.unit}`}
-                    </span>
+              <ItemPriceDisplay item={item} averagePrice={averagePrice} />
 
-                    <span>~ {displayPrice?.toFixed(2)}€</span>
-                  </div>
-
-                  <Separator className="mb-1" />
-
-                  <div className="text-xs sm:text-sm font-medium text-gray-700 text-center">
-                    {avgPricePerUnit?.toFixed(2)}€/{item.unit}
-                  </div>
-                </div>
-              ) : (
-                <div className="flex-shrink-0 text-sm font-medium text-gray-700">
-                  <span>~ {displayPrice?.toFixed(2)}€</span>
-                </div>
-              )}
-
-              {/* Amount controls */}
-              <div className="flex items-center gap-2">
-                <Button
-                  size="icon"
-                  aria-label="Povećaj količinu za 1"
-                  className="size-8 sm:size-10 shrink-0"
-                  onClick={() =>
-                    onUpdate({
-                      isChecked: item.isChecked,
-                      amount: (item.amount || 1) - 1,
-                      chainCode: item.chainCode!,
-                    })
-                  }
-                  disabled={(item.amount || 1) <= 1 || item.isChecked}
-                >
-                  <Minus className="size-4 sm:size-5" />
-                </Button>
-
-                <span className="text-center min-w-8">{item.amount}</span>
-
-                <Button
-                  size="icon"
-                  aria-label="Povećaj količinu za 1"
-                  className="size-8 sm:size-10 shrink-0"
-                  onClick={() =>
-                    onUpdate({
-                      isChecked: item.isChecked,
-                      amount: (item.amount || 1) + 1,
-                      chainCode: item.chainCode!,
-                    })
-                  }
-                  disabled={item.isChecked}
-                >
-                  <Plus className="size-4 sm:size-5" />
-                </Button>
-              </div>
+              <ItemAmountControls item={item} onUpdate={onUpdate} />
             </div>
 
             {/* Store Chain Select */}
