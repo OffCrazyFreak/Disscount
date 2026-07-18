@@ -31,7 +31,7 @@ export function NotificationSwitchRow({
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem className="space-y-0">
+        <FormItem className="space-y-0 py-2">
           <SettingRow
             label={label}
             description={description}

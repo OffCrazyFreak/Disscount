@@ -28,17 +28,30 @@ export function SigurnostTab() {
 
       {status === "success" && (
         <>
-          <SettingsSection icon={ShieldCheck} label="Prijava i sigurnost">
+          <SettingsSection
+            icon={ShieldCheck}
+            label="Prijava i sigurnost"
+            hint="Upravljaj emailom i lozinkom svog računa."
+          >
             <AccountCredentialsForm />
           </SettingsSection>
 
-          <SettingsSection icon={Link2} label="Povezani računi">
+          <SettingsSection
+            icon={Link2}
+            label="Povezani računi"
+            hint="Poveži društvene račune za bržu prijavu."
+          >
             <LinkedAccounts accounts={accounts} onChanged={reload} />
           </SettingsSection>
         </>
       )}
 
-      <SettingsSection icon={TriangleAlert} label="Opasna zona" destructive>
+      <SettingsSection
+        icon={TriangleAlert}
+        label="Opasna zona"
+        hint="Nepovratne radnje. Budi oprezan prije nego nastaviš."
+        destructive
+      >
         <DangerZone />
       </SettingsSection>
     </StaggerChildren>
