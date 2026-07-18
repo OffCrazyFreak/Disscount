@@ -10,7 +10,6 @@ import { GoogleIcon } from "@/components/icons/google-icon";
 import { FacebookIcon } from "@/components/icons/facebook-icon";
 import { authClient } from "@/lib/auth-client";
 import { FACEBOOK_COMING_SOON } from "@/constants/auth";
-import { SettingRow } from "@/components/custom/settings/ui/setting-row";
 
 interface LinkedAccount {
   providerId: string;
@@ -83,7 +82,7 @@ export default function LinkedAccounts({
   }
 
   return (
-    <div className="divide-y">
+    <div className="space-y-2.5">
       {PROVIDERS.map(({ id, label, icon: Icon, comingSoon }) => {
         const account = accounts.find((a) => a.providerId === id);
         // Never let the user unlink their only remaining sign-in method.
@@ -91,59 +90,76 @@ export default function LinkedAccounts({
         const isPending = pending === id;
 
         return (
-          <SettingRow
+          <div
             key={id}
-            label={
-              <span className="flex items-center gap-2">
+            className="flex items-center justify-between gap-3 rounded-xl border bg-card p-3"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border bg-background">
                 <Icon className="size-5" />
-                {label}
-                {account && <Badge className="text-xs">Povezano</Badge>}
-                {!account && comingSoon && (
-                  <Badge className="text-xs">USKORO</Badge>
+              </div>
+
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">{label}</span>
+                  {account && (
+                    <Badge className="h-5 bg-primary/10 px-1.5 text-[10px] font-medium text-primary hover:bg-primary/10">
+                      Povezano
+                    </Badge>
+                  )}
+                  {!account && comingSoon && (
+                    <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
+                      Uskoro
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {account
+                    ? "Prijava ovim računom je omogućena."
+                    : comingSoon
+                      ? "Uskoro dostupno."
+                      : "Poveži za bržu prijavu."}
+                </p>
+              </div>
+            </div>
+
+            {account ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                icon={Unlink}
+                iconPlacement="left"
+                disabled={pending !== null || !canUnlink}
+                onClick={() => handleUnlink(id, account.accountId)}
+                title={
+                  canUnlink ? undefined : "Ne možeš odspojiti jedini način prijave."
+                }
+              >
+                {isPending ? (
+                  <Loader2 size={15} className="animate-spin" />
+                ) : (
+                  "Odspoji"
                 )}
-              </span>
-            }
-            control={
-              account ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  icon={Unlink}
-                  iconPlacement="left"
-                  disabled={pending !== null || !canUnlink}
-                  onClick={() => handleUnlink(id, account.accountId)}
-                  title={
-                    canUnlink
-                      ? undefined
-                      : "Ne možeš odspojiti jedini način prijave."
-                  }
-                >
-                  {isPending ? (
-                    <Loader2 size={15} className="animate-spin" />
-                  ) : (
-                    "Odspoji"
-                  )}
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  icon={Link2}
-                  iconPlacement="left"
-                  disabled={pending !== null || comingSoon}
-                  onClick={() => handleLink(id)}
-                >
-                  {isPending ? (
-                    <Loader2 size={15} className="animate-spin" />
-                  ) : (
-                    "Poveži"
-                  )}
-                </Button>
-              )
-            }
-          />
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                icon={Link2}
+                iconPlacement="left"
+                disabled={pending !== null || comingSoon}
+                onClick={() => handleLink(id)}
+              >
+                {isPending ? (
+                  <Loader2 size={15} className="animate-spin" />
+                ) : (
+                  "Poveži"
+                )}
+              </Button>
+            )}
+          </div>
         );
       })}
     </div>

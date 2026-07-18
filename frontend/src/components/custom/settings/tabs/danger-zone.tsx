@@ -14,7 +14,7 @@ import { authClient } from "@/lib/auth-client";
 import { clearAuthToken } from "@/lib/api/api-base";
 import { useUser } from "@/context/user-context";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
-import { SettingRow } from "@/components/custom/settings/ui/setting-row";
+import { Separator } from "@/components/ui/separator";
 
 export function DangerZone() {
   const { setUser } = useUser();
@@ -89,11 +89,15 @@ export function DangerZone() {
 
   return (
     <>
-      <div className="divide-y">
-        <SettingRow
-          label="Odjava sa svih uređaja"
-          description="Odjavi se sa svih ostalih uređaja osim ovog."
-          control={
+      <div className="rounded-xl border border-destructive/30 bg-destructive/5">
+        <div className="flex items-center justify-between gap-4 p-4">
+          <div className="space-y-0.5">
+            <p className="text-sm font-medium">Odjava sa svih uređaja</p>
+            <p className="text-xs text-muted-foreground">
+              Odjavi se sa svih ostalih uređaja osim ovog.
+            </p>
+          </div>
+
           <Button
             type="button"
             onClick={() => setShowLogoutAllConfirm(true)}
@@ -106,14 +110,18 @@ export function DangerZone() {
           >
             Odjava
           </Button>
-        }
-      />
+        </div>
 
-      <SettingRow
-        label="Obriši račun"
-        description="Trajno obriši svoj račun i sve podatke."
-        destructive
-        control={
+        <Separator className="bg-destructive/20" />
+
+        <div className="flex items-center justify-between gap-4 p-4">
+          <div className="space-y-0.5">
+            <p className="text-sm font-medium text-destructive">Obriši račun</p>
+            <p className="text-xs text-muted-foreground">
+              Trajno obriši svoj račun i sve podatke.
+            </p>
+          </div>
+
           <Button
             type="button"
             onClick={() => setShowDeleteConfirm(true)}
@@ -126,8 +134,7 @@ export function DangerZone() {
           >
             Obriši
           </Button>
-        }
-      />
+        </div>
       </div>
 
       <ConfirmDialog

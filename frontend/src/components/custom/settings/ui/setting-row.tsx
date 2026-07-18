@@ -24,11 +24,11 @@ export function SettingRow({
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-6 py-4 first:pt-0 last:pb-0",
+        "flex items-center justify-between gap-6 py-5 first:pt-0 last:pb-0",
         className
       )}
     >
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         <p
           className={cn(
             "text-sm font-medium",
