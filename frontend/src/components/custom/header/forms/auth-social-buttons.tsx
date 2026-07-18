@@ -32,7 +32,7 @@ interface AuthSocialButtonsProps {
 
 function LastLoginBadge() {
   return (
-    <span className="absolute right-3 inline-flex items-center gap-0.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-white">
+    <span className="absolute -top-2 right-3 inline-flex items-center gap-0.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-white shadow-sm">
       <CircleCheck size={9} />
       Zadnja prijava
     </span>
@@ -76,7 +76,7 @@ export function AuthSocialButtons({
       <Button
         variant="outline"
         size="lg"
-        className="w-full gap-4"
+        className="relative w-full gap-4"
         onClick={() => handleSocialSignIn("google")}
         disabled={socialPending !== null}
         loading={socialPending === "google"}
@@ -92,7 +92,7 @@ export function AuthSocialButtons({
       <Button
         variant="outline"
         size="lg"
-        className="w-full gap-4"
+        className="relative w-full gap-4"
         onClick={() => handleSocialSignIn("facebook")}
         disabled={socialPending !== null || FACEBOOK_COMING_SOON}
         loading={socialPending === "facebook"}
@@ -101,7 +101,9 @@ export function AuthSocialButtons({
       >
         Nastavi sa Facebook računom
         {FACEBOOK_COMING_SOON ? (
-          <Badge className="absolute right-3 text-[10px]">USKORO</Badge>
+          <Badge className="absolute -top-2 right-3 text-[10px] shadow-sm">
+            USKORO
+          </Badge>
         ) : (
           lastLoginMethod === "facebook" &&
           socialPending !== "facebook" && <LastLoginBadge />

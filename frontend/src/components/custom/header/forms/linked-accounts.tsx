@@ -94,28 +94,11 @@ export default function LinkedAccounts({
             <div className="flex items-center gap-3">
               <Icon className="size-5 shrink-0" />
 
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">{label}</span>
-                  {account && (
-                    <Badge className="h-5 bg-primary/10 px-1.5 text-[10px] font-medium text-primary hover:bg-primary/10">
-                      Povezano
-                    </Badge>
-                  )}
-                  {!account && comingSoon && (
-                    <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
-                      Uskoro
-                    </Badge>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {account
-                    ? "Prijava ovim računom je omogućena."
-                    : comingSoon
-                      ? "Uskoro dostupno."
-                      : "Poveži za bržu prijavu."}
-                </p>
-              </div>
+              <span className="text-sm font-medium">{label}</span>
+
+              {!account && comingSoon && (
+                <Badge className="text-xs">USKORO</Badge>
+              )}
             </div>
 
             {account ? (
@@ -140,7 +123,6 @@ export default function LinkedAccounts({
             ) : (
               <Button
                 type="button"
-                variant="outline"
                 size="sm"
                 icon={Link2}
                 iconPlacement="left"
