@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo } from "react";
+import { memo } from "react";
 import { ChevronDown, MapPin, Tag } from "lucide-react";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import StoreChainLogo from "@/components/custom/store-chain-logo";

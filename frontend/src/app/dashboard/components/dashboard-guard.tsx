@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
@@ -10,7 +10,7 @@ import { canAccessDashboard } from "@/lib/api/schemas/auth-user";
 export default function DashboardGuard({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const router = useRouter();
   const { user, isLoading } = useUser();

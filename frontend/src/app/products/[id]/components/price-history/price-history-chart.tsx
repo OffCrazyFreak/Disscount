@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import { useMemo, memo } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import {
   ChartConfig,
@@ -20,7 +20,7 @@ interface IPriceHistoryChartProps {
   selectedChains: string[];
 }
 
-const PriceHistoryChart = React.memo(function PriceHistoryChart({
+const PriceHistoryChart = memo(function PriceHistoryChart({
   priceHistoryData,
   priceHistoryChains,
   selectedChains,

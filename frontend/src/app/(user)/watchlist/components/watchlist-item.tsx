@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, MouseEvent } from "react";
 import Link from "next/link";
 import { X, Eye } from "lucide-react";
 import { toast } from "sonner";
@@ -175,7 +175,7 @@ export default function WatchlistItem({
   }
 
   function handleBadgeClick(
-    event: React.MouseEvent<HTMLButtonElement>,
+    event: MouseEvent<HTMLButtonElement>,
     watchType: WatchType,
   ) {
     event.preventDefault();

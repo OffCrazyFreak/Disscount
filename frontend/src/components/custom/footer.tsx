@@ -4,10 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 
-import { InstagramIcon } from "@/components/custom/icons/InstagramIcon";
-import { LinkedInIcon } from "@/components/custom/icons/LinkedinIcon";
-import { GithubIcon } from "@/components/custom/icons/GithubIcon";
-import { CopyrightIcon } from "@/components/custom/icons/CopyrightIcon";
+import InstagramIcon from "@/components/icons/instagram-icon";
+import LinkedInIcon from "@/components/icons/linkedin-icon";
+import GithubIcon from "@/components/icons/github-icon";
+import CopyrightIcon from "@/components/icons/copyright-icon";
 
 export default function FooterSection() {
   const pathname = usePathname();

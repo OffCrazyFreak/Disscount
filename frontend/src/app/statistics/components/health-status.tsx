@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import cijeneService from "@/lib/cijene-api";
 

@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
-import { BellRingIcon } from "@/components/custom/icons/BellRingIcon";
+import BellRingIcon from "@/components/icons/bell-ring-icon";
 import { useNotifications } from "@/context/notifications-context";
 import { formatQuantity } from "@/utils/strings";
 import { useRouter } from "next/navigation";
