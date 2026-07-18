@@ -57,6 +57,15 @@ export function SettingsModal({ open, tab }: SettingsModalProps) {
       srOnlyDescription
       size="lg"
       cancelLabel={isActionTab ? "Zatvori" : "Odustani"}
+      caption={
+        <button
+          type="button"
+          onClick={() => swapModalUrl({ name: "onboarding" })}
+          className="cursor-pointer underline hover:text-primary"
+        >
+          Pokreni vodič ponovno
+        </button>
+      }
       {...(!isActionTab && {
         formId: "settings-form",
         submitLabel: "Spremi",

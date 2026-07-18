@@ -17,6 +17,7 @@ import { useSettingsDefaults } from "@/components/custom/settings/use-settings-d
 import { useSettingsSave } from "@/components/custom/settings/use-settings-save";
 import { SettingsUiProvider } from "@/components/custom/settings/settings-context";
 import { SettingsModal } from "@/components/custom/settings/settings-modal";
+import { OnboardingWizard } from "@/components/custom/settings/onboarding/onboarding-wizard";
 
 interface AvatarState {
   initialized: boolean;
@@ -108,6 +109,12 @@ export default function SettingsModalHost() {
         }}
       >
         <SettingsModal open={open} tab={lastTab} />
+
+        <OnboardingWizard
+          open={target?.name === "onboarding"}
+          save={save}
+          saving={saving}
+        />
       </SettingsUiProvider>
     </FormProvider>
   );

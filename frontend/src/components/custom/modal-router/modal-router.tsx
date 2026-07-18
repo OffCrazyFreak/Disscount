@@ -5,6 +5,7 @@ import EntityModalOutlet, {
   isEntityTarget,
 } from "@/components/custom/modal-router/entity-modal-outlet";
 import SettingsModalHost from "@/components/custom/settings/settings-modal-host";
+import { OnboardingGate } from "@/components/custom/settings/onboarding/onboarding-gate";
 import { AUTH_MODAL_NAMES } from "@/lib/modal/modal-registry";
 import { useModalUrl } from "@/lib/modal/use-modal-url";
 import { useUser } from "@/context/user-context";
@@ -55,6 +56,7 @@ export default function ModalRouter() {
 
       {isAuthenticated && (
         <>
+          <OnboardingGate />
           <SettingsModalHost />
           <EntityModalOutlet target={isEntityTarget(target) ? target : null} />
         </>
