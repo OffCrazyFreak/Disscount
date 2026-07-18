@@ -4,17 +4,17 @@ import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { Search, Plus, ShoppingCart, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import SearchBar from "@/components/custom/search-bar";
-import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
+import SearchBar from "@/components/custom/search/search-bar";
+import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import ShoppingListItem from "@/app/(user)/shopping-lists/components/shopping-list-item";
 import CreateShoppingListButton from "@/app/(user)/shopping-lists/components/create-shopping-list-button";
-import NoResults from "@/components/custom/no-results";
-import LoginRequired from "@/components/custom/login-required";
+import NoResults from "@/components/custom/common/no-results";
+import LoginRequired from "@/components/custom/common/login-required";
 import { filterByFields } from "@/utils/generic";
 import { shoppingListService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 
 export default function ShoppingListsClient({ query }: { query: string }) {
   const pathname = usePathname();

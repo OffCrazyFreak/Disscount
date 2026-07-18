@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 
 import {
   Table,

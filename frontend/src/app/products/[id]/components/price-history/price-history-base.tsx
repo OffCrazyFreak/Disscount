@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { useUser } from "@/context/user-context";
 import {
@@ -20,9 +20,9 @@ import {
 } from "@/utils/browser/local-storage";
 import { usePriceHistory } from "@/lib/cijene-api/hooks";
 import PriceHistoryChart from "@/app/products/[id]/components/price-history/price-history-chart";
-import PriceHistoryPeriodSelect from "@/components/custom/price-history-period-select";
-import StoreChainMultiSelect from "@/components/custom/store-chain-multi-select";
-import PriceChangeDisplay from "@/components/custom/price-change-display";
+import PriceHistoryPeriodSelect from "@/components/custom/price/price-history-period-select";
+import StoreChainMultiSelect from "@/components/custom/store-chain/store-chain-multi-select";
+import PriceChangeDisplay from "@/components/custom/price/price-change-display";
 import { PeriodOption } from "@/typings/history-period-options";
 import {
   periodOptions,

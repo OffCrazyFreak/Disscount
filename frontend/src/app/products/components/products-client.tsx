@@ -3,18 +3,18 @@
 import { usePathname } from "next/navigation";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { useViewMode } from "@/hooks/use-view-mode";
-import NoResults from "@/components/custom/no-results";
+import NoResults from "@/components/custom/common/no-results";
 import useInfiniteProducts from "@/app/products/hooks/useInfiniteProducts";
 import useProductFilters from "@/app/products/hooks/useProductFilters";
 import ProductFiltersBar from "@/app/products/components/product-filters-bar";
 import ProductItem from "@/app/products/components/product-item/product-item";
 import { Button } from "@/components/ui/button";
 import { Suspense } from "react";
-import ViewSwitcher from "@/components/custom/view-switcher";
-import SearchBar from "@/components/custom/search-bar";
-import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
+import ViewSwitcher from "@/app/products/components/view-switcher";
+import SearchBar from "@/components/custom/search/search-bar";
+import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import PageFab from "@/components/custom/fab/page-fab";
 
 export default function ProductsClient({ query }: { query: string }) {

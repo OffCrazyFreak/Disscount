@@ -10,8 +10,8 @@ import {
   SidebarMenuItem,
   SidebarMenuSub,
 } from "@/components/ui/sidebar";
-import SidebarNavItem from "@/components/custom/sidebar-nav-item";
-import SidebarFilterMenu from "@/components/custom/sidebar-filter-menu";
+import SidebarNavItem from "@/components/custom/sidebar/sidebar-nav-item";
+import SidebarFilterMenu from "@/components/custom/sidebar/sidebar-filter-menu";
 import { useSidebarFilterOptions } from "@/hooks/use-sidebar-filter-options";
 import { productNavItems, type NavigationItem } from "@/constants/navigation";
 import { useUser } from "@/context/user-context";

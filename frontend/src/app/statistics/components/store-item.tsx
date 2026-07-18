@@ -2,8 +2,8 @@
 
 import { memo } from "react";
 import { ChevronDown, MapPin, Tag } from "lucide-react";
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
-import StoreChainLogo from "@/components/custom/store-chain-logo";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import {
   Collapsible,
   CollapsibleContent,

@@ -3,7 +3,7 @@
 import { useFormContext } from "react-hook-form";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import StoreChainLogo from "@/components/custom/store-chain-logo";
+import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import cijeneService from "@/lib/cijene-api";
 import { cn } from "@/lib/utils";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";

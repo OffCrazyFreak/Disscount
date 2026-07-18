@@ -8,8 +8,8 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useCameraScanner } from "@/context/scanner-context";
 import { IScannedCode } from "@/typings/scanned-code";
-import SearchBar from "@/components/custom/search-bar";
-import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
+import SearchBar from "@/components/custom/search/search-bar";
+import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 
 export default function HeroActions() {
   const { openScanner } = useCameraScanner();

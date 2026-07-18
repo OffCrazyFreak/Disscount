@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import { Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 
-import SearchBar from "@/components/custom/search-bar";
-import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
-import NoResults from "@/components/custom/no-results";
+import SearchBar from "@/components/custom/search/search-bar";
+import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
+import NoResults from "@/components/custom/common/no-results";
 import { Button } from "@/components/ui/button";
 import { AnimatedGroup } from "@/components/ui/animated-group";
 import PostCard from "@/app/updates/components/post-card";

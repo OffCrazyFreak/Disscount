@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import BellRingIcon from "@/components/icons/bell-ring-icon";
 import { useNotifications } from "@/context/notifications-context";
 import { formatQuantity } from "@/utils/strings";

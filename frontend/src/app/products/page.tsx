@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
 import ProductsClient from "@/app/products/components/products-client";
-import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
+import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import { readSearchParam } from "@/utils/generic";
 
 export const metadata: Metadata = {

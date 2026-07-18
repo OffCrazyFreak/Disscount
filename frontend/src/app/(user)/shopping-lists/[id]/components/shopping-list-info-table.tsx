@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { ShoppingListDto } from "@/lib/api/types";
 import { formatDate } from "@/utils/strings";
 import { calculateShoppingListStats } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 
 interface IShoppingListInfoTableProps {
   shoppingList: ShoppingListDto;

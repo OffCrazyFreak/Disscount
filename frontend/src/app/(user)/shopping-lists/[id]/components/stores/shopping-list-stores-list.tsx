@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import { ShoppingListDto } from "@/lib/api/types";
 import ShoppingListStoreItem from "@/app/(user)/shopping-lists/[id]/components/stores/shopping-list-store-card";
 import { useUser } from "@/context/user-context";
@@ -9,7 +9,7 @@ import {
   STORE_OPTIMIZE_MODES,
   type StoreOptimizeMode,
 } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
-import CollapsibleSection from "@/components/custom/collapsible-section";
+import CollapsibleSection from "@/components/custom/common/collapsible-section";
 import {
   getShoppingListStoresOpen,
   setShoppingListStoresOpen,

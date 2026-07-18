@@ -3,7 +3,7 @@
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
 import PriceHistory from "@/app/products/[id]/components/price-history/price-history-base";
 import ProductChainsSection from "@/app/products/[id]/components/product-chains-section";
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import { useProductDetail } from "@/app/products/[id]/hooks/use-product-detail";
 
 export default function ProductDetailClient({ ean }: { ean: string }) {

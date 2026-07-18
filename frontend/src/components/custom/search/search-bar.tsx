@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import SearchBarActions from "@/components/custom/search-bar-actions";
+import SearchBarActions from "@/components/custom/search/search-bar-actions";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 import { useCameraScanner } from "@/context/scanner-context";
 import { useSidebar } from "@/components/ui/sidebar";

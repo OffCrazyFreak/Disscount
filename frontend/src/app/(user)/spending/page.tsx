@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { Wallet } from "lucide-react";
 
-import ComingSoon from "@/components/custom/coming-soon";
+import ComingSoon from "@/components/custom/common/coming-soon";
 
 export const metadata: Metadata = {
   title: "Potrošnja",

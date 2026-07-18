@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 
-import StoreChainSelect from "@/components/custom/store-chain-select";
+import StoreChainSelect from "@/components/custom/store-chain/store-chain-select";
 
 import type { ShoppingListItemDto } from "@/lib/api/types";
 import RemoveItemButton from "./remove-item-button";

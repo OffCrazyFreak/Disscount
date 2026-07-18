@@ -8,7 +8,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import SidebarNavItem from "@/components/custom/sidebar-nav-item";
+import SidebarNavItem from "@/components/custom/sidebar/sidebar-nav-item";
 import { dashboardNavItem, userNavItems } from "@/constants/navigation";
 import { useNotifications } from "@/context/notifications-context";
 import { useUser } from "@/context/user-context";

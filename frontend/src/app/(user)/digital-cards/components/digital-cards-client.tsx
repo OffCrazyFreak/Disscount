@@ -4,11 +4,11 @@ import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { Search, Plus, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import SearchBar from "@/components/custom/search-bar";
-import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
+import SearchBar from "@/components/custom/search/search-bar";
+import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import DigitalCardItem from "@/app/(user)/digital-cards/components/digital-card-item";
-import NoResults from "@/components/custom/no-results";
-import LoginRequired from "@/components/custom/login-required";
+import NoResults from "@/components/custom/common/no-results";
+import LoginRequired from "@/components/custom/common/login-required";
 import CreateDigitalCardButton from "@/app/(user)/digital-cards/components/create-digital-card-button";
 import { DigitalCardDto } from "@/lib/api/types";
 import { useViewMode } from "@/hooks/use-view-mode";
@@ -17,7 +17,7 @@ import { digitalCardService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 import { AnimatedGroup } from "@/components/ui/animated-group";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 
 export default function DigitalCardsClient({ query }: { query: string }) {
   const pathname = usePathname();

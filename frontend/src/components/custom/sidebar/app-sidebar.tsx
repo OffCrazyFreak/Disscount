@@ -16,12 +16,12 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import InstallSidebarBanner from "@/components/custom/pwa/install-sidebar-banner";
-import SidebarUser from "@/components/custom/sidebar-user";
-import SidebarMainNav from "@/components/custom/sidebar-main-nav";
-import SidebarProductNav from "@/components/custom/sidebar-product-nav";
-import ScrollFade from "@/components/custom/scroll-fade";
-import SearchBar from "@/components/custom/search-bar";
-import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
+import SidebarUser from "@/components/custom/sidebar/sidebar-user";
+import SidebarMainNav from "@/components/custom/sidebar/sidebar-main-nav";
+import SidebarProductNav from "@/components/custom/sidebar/sidebar-product-nav";
+import ScrollFade from "@/components/custom/common/scroll-fade";
+import SearchBar from "@/components/custom/search/search-bar";
+import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 
 export default function AppSidebar() {
   const contentRef = useRef<HTMLDivElement>(null);

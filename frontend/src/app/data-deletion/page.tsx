@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-import LegalPage from "@/components/custom/legal-page";
-import LegalSection from "@/components/custom/legal-section";
+import LegalPage from "@/components/custom/legal/legal-page";
+import LegalSection from "@/components/custom/legal/legal-section";
 
 export const metadata: Metadata = {
   title: "Brisanje podataka",

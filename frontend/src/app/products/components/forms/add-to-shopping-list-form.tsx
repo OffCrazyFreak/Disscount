@@ -8,7 +8,7 @@ import { Form } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
 import { RemoveIconButton } from "@/components/ui/remove-icon-button";
-import FormWarning from "@/components/custom/form-warning";
+import FormWarning from "@/app/products/components/forms/form-warning";
 import ShoppingListSelector from "@/app/products/components/forms/shopping-list-selector";
 import QuantityInput from "@/app/products/components/forms/quantity-input";
 import MarkAsCheckedCheckbox from "@/app/products/components/forms/mark-as-checked-checkbox";

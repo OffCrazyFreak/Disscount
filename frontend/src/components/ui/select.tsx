@@ -6,7 +6,7 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { CheckIcon, ChevronDownIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import ScrollFade from "@/components/custom/scroll-fade";
+import ScrollFade from "@/components/custom/common/scroll-fade";
 
 function Select({
   ...props

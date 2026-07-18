@@ -3,7 +3,7 @@
 import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import {
   Tooltip,
   TooltipContent,

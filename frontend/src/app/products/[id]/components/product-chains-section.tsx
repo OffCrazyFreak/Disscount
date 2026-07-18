@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
-import CollapsibleSection from "@/components/custom/collapsible-section";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import CollapsibleSection from "@/components/custom/common/collapsible-section";
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
 import StoreItem from "@/app/products/[id]/components/store-item/store-item";
 import ProductChainSortSelect from "@/app/products/[id]/components/product-chain-sort-select";

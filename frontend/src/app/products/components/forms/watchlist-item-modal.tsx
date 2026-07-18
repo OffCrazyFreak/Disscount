@@ -12,7 +12,7 @@ import cijeneService from "@/lib/cijene-api";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import type { WatchTypeParam } from "@/lib/modal/modal-registry";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
-import FormWarning from "@/components/custom/form-warning";
+import FormWarning from "@/app/products/components/forms/form-warning";
 import {
   getAveragePrice,
   getMinPrice,

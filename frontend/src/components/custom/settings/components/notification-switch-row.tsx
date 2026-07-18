@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { FormControl, FormField, FormItem } from "@/components/ui/form";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
 import SettingRow from "@/components/custom/settings/ui/setting-row";
-import ComingSoonBadge from "@/components/custom/coming-soon-badge";
+import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
 
 type SwitchFieldName =
   | "notificationsPush"

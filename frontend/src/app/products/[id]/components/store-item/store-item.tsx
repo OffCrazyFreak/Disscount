@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { ChevronDown, TriangleAlert } from "lucide-react";
-import StoreChainLogo from "@/components/custom/store-chain-logo";
+import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import {
   Collapsible,
   CollapsibleContent,

@@ -1,6 +1,6 @@
 "use client";
 
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import cijeneService from "@/lib/cijene-api";
 
 export default function HealthStatus() {

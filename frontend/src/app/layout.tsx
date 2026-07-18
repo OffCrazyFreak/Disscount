@@ -2,10 +2,10 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "@/app/globals.css";
 
-import AppSidebar from "@/components/custom/app-sidebar";
+import AppSidebar from "@/components/custom/sidebar/app-sidebar";
 import Header from "@/components/custom/header/header";
-import Footer from "@/components/custom/footer";
-import OAuthErrorToast from "@/components/custom/oauth-error-toast";
+import Footer from "@/components/custom/common/footer";
+import OAuthErrorToast from "@/components/custom/common/oauth-error-toast";
 import ModalRouter from "@/components/custom/modal-router/modal-router";
 import InstallBanner from "@/components/custom/pwa/install-banner";
 import OfflineIndicator from "@/components/custom/offline/offline-indicator";

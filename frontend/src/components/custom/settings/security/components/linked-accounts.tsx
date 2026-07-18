@@ -5,7 +5,7 @@ import { Link2, Unlink } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import ComingSoonBadge from "@/components/custom/coming-soon-badge";
+import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
 import SettingsSection from "@/components/custom/settings/ui/settings-section";
 import SettingRow from "@/components/custom/settings/ui/setting-row";
 import GoogleIcon from "@/components/icons/google-icon";

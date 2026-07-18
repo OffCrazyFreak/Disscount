@@ -17,7 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import ScrollFade from "@/components/custom/scroll-fade";
+import ScrollFade from "@/components/custom/common/scroll-fade";
 import {
   createContext,
   useCallback,
