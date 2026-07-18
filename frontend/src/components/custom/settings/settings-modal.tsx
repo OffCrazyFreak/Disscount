@@ -120,20 +120,29 @@ export function SettingsModal({ open, tab }: SettingsModalProps) {
             void save();
           })}
         >
-          <TabsContent value="profil">
+          <TabsContent value="profil" className="animate-in fade-in-0 duration-200">
             <ProfilTab />
           </TabsContent>
-          <TabsContent value="obavijesti">
+          <TabsContent
+            value="obavijesti"
+            className="animate-in fade-in-0 duration-200"
+          >
             <ObavijestiTab />
           </TabsContent>
-          <TabsContent value="preference">
+          <TabsContent
+            value="preference"
+            className="animate-in fade-in-0 duration-200"
+          >
             <PreferenceTab />
           </TabsContent>
         </form>
 
         {/* Sigurnost lives OUTSIDE the settings <form>: it hosts its own forms
             (nested <form> elements are invalid HTML) and saves immediately. */}
-        <TabsContent value="sigurnost">
+        <TabsContent
+          value="sigurnost"
+          className="animate-in fade-in-0 duration-200"
+        >
           <SigurnostTab active={open && isActionTab} />
         </TabsContent>
       </Tabs>

@@ -1,5 +1,6 @@
 "use client";
 
+import { StaggerChildren } from "@/components/ui/stagger-children";
 import { NotificationSwitchRow } from "@/components/custom/settings/tabs/notification-switch-row";
 
 const SWITCHES = [
@@ -29,10 +30,10 @@ const SWITCHES = [
 
 export function ObavijestiTab() {
   return (
-    <div className="space-y-4">
+    <StaggerChildren className="space-y-4">
       {SWITCHES.map((props) => (
         <NotificationSwitchRow key={props.name} {...props} />
       ))}
-    </div>
+    </StaggerChildren>
   );
 }

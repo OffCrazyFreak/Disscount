@@ -2,6 +2,8 @@
 
 import { PiggyBank, Bell, Store, LucideIcon } from "lucide-react";
 
+import { StaggerChildren } from "@/components/ui/stagger-children";
+
 const HIGHLIGHTS: { icon: LucideIcon; title: string; text: string }[] = [
   {
     icon: Store,
@@ -28,7 +30,7 @@ export function WelcomeStep() {
         tebi. Svaki korak možeš preskočiti i kasnije urediti u postavkama.
       </p>
 
-      <div className="space-y-4">
+      <StaggerChildren className="space-y-4">
         {HIGHLIGHTS.map(({ icon: Icon, title, text }) => (
           <div key={title} className="flex items-start gap-3">
             <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -40,7 +42,7 @@ export function WelcomeStep() {
             </div>
           </div>
         ))}
-      </div>
+      </StaggerChildren>
     </div>
   );
 }
