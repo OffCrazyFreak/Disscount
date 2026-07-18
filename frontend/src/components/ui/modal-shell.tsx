@@ -14,6 +14,7 @@ import {
   ModalShellFooterProps,
 } from "@/components/ui/modal-shell-footer";
 import { UnsavedIndicator } from "@/components/ui/unsaved-indicator";
+import { StaggerChildren } from "@/components/ui/stagger-children";
 import { cn } from "@/lib/utils";
 
 // TODO(responsive-drawer): add a `presentation?: "dialog" | "auto"` prop that renders
@@ -74,6 +75,9 @@ export function ModalShell({
       <DialogContent
         className={cn(
           "flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0",
+          // Gentle spring: an overshoot easing on the open zoom for a touch of
+          // character (motion-safe; the close keeps the default ease).
+          "data-[state=open]:duration-300 data-[state=open]:ease-[cubic-bezier(0.34,1.5,0.64,1)]",
           SIZE_CLASSES[size]
         )}
         showCloseButton={!preventClose}
@@ -111,7 +115,9 @@ export function ModalShell({
 
         {children && (
           <div className={cn("min-h-0 overflow-y-auto px-6 py-4", bodyClassName)}>
-            {children}
+            {/* Centralized reveal: the body cascades in on every open (Radix
+                remounts the content), so modals don't animate themselves. */}
+            <StaggerChildren>{children}</StaggerChildren>
           </div>
         )}
 

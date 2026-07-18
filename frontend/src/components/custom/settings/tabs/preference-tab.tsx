@@ -1,13 +1,30 @@
 "use client";
 
+import { Store, MapPin } from "lucide-react";
+
+import { StaggerChildren } from "@/components/ui/stagger-children";
+import { SettingsSection } from "@/components/custom/settings/ui/settings-section";
 import { PinnedStoresGrid } from "@/components/custom/settings/tabs/pinned-stores-grid";
 import { PinnedPlacesSelect } from "@/components/custom/settings/tabs/pinned-places-select";
 
 export function PreferenceTab() {
   return (
-    <div className="space-y-8">
-      <PinnedStoresGrid />
-      <PinnedPlacesSelect />
-    </div>
+    <StaggerChildren className="space-y-8">
+      <SettingsSection
+        icon={Store}
+        label="Trgovine"
+        hint="Odaberi trgovine u tvojoj blizini."
+      >
+        <PinnedStoresGrid />
+      </SettingsSection>
+
+      <SettingsSection
+        icon={MapPin}
+        label="Lokacije"
+        hint="Odaberi lokacije u tvojoj blizini."
+      >
+        <PinnedPlacesSelect />
+      </SettingsSection>
+    </StaggerChildren>
   );
 }

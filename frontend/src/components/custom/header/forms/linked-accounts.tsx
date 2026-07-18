@@ -10,6 +10,7 @@ import { GoogleIcon } from "@/components/icons/google-icon";
 import { FacebookIcon } from "@/components/icons/facebook-icon";
 import { authClient } from "@/lib/auth-client";
 import { FACEBOOK_COMING_SOON } from "@/constants/auth";
+import { SettingRow } from "@/components/custom/settings/ui/setting-row";
 
 interface LinkedAccount {
   providerId: string;
@@ -82,7 +83,7 @@ export default function LinkedAccounts({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="divide-y">
       {PROVIDERS.map(({ id, label, icon: Icon, comingSoon }) => {
         const account = accounts.find((a) => a.providerId === id);
         // Never let the user unlink their only remaining sign-in method.
@@ -90,55 +91,59 @@ export default function LinkedAccounts({
         const isPending = pending === id;
 
         return (
-          <div key={id} className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <Icon className="size-5" />
-              <span className="text-sm">{label}</span>
-              {account && <Badge className="text-xs">Povezano</Badge>}
-              {!account && comingSoon && (
-                <Badge className="text-xs">USKORO</Badge>
-              )}
-            </div>
-
-            {account ? (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                icon={Unlink}
-                iconPlacement="left"
-                disabled={pending !== null || !canUnlink}
-                onClick={() => handleUnlink(id, account.accountId)}
-                title={
-                  canUnlink
-                    ? undefined
-                    : "Ne možeš odspojiti jedini način prijave."
-                }
-              >
-                {isPending ? (
-                  <Loader2 size={15} className="animate-spin" />
-                ) : (
-                  "Odspoji"
+          <SettingRow
+            key={id}
+            label={
+              <span className="flex items-center gap-2">
+                <Icon className="size-5" />
+                {label}
+                {account && <Badge className="text-xs">Povezano</Badge>}
+                {!account && comingSoon && (
+                  <Badge className="text-xs">USKORO</Badge>
                 )}
-              </Button>
-            ) : (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                icon={Link2}
-                iconPlacement="left"
-                disabled={pending !== null || comingSoon}
-                onClick={() => handleLink(id)}
-              >
-                {isPending ? (
-                  <Loader2 size={15} className="animate-spin" />
-                ) : (
-                  "Poveži"
-                )}
-              </Button>
-            )}
-          </div>
+              </span>
+            }
+            control={
+              account ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  icon={Unlink}
+                  iconPlacement="left"
+                  disabled={pending !== null || !canUnlink}
+                  onClick={() => handleUnlink(id, account.accountId)}
+                  title={
+                    canUnlink
+                      ? undefined
+                      : "Ne možeš odspojiti jedini način prijave."
+                  }
+                >
+                  {isPending ? (
+                    <Loader2 size={15} className="animate-spin" />
+                  ) : (
+                    "Odspoji"
+                  )}
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  icon={Link2}
+                  iconPlacement="left"
+                  disabled={pending !== null || comingSoon}
+                  onClick={() => handleLink(id)}
+                >
+                  {isPending ? (
+                    <Loader2 size={15} className="animate-spin" />
+                  ) : (
+                    "Poveži"
+                  )}
+                </Button>
+              )
+            }
+          />
         );
       })}
     </div>

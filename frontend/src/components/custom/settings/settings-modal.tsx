@@ -93,7 +93,7 @@ export function SettingsModal({ open, tab }: SettingsModalProps) {
       {...(isSecurityTab ? securityFooter : settingsFooter)}
     >
       {form.formState.errors.root && (
-        <div className="mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
+        <div className="mb-4 rounded-md border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
           {form.formState.errors.root.message}
         </div>
       )}
@@ -125,29 +125,20 @@ export function SettingsModal({ open, tab }: SettingsModalProps) {
             void save();
           })}
         >
-          <TabsContent value="profil" className="animate-in fade-in-0 duration-200">
+          <TabsContent value="profil">
             <ProfilTab />
           </TabsContent>
-          <TabsContent
-            value="obavijesti"
-            className="animate-in fade-in-0 duration-200"
-          >
+          <TabsContent value="obavijesti">
             <ObavijestiTab />
           </TabsContent>
-          <TabsContent
-            value="preference"
-            className="animate-in fade-in-0 duration-200"
-          >
+          <TabsContent value="preference">
             <PreferenceTab />
           </TabsContent>
         </form>
 
         {/* Sigurnost's credentials form lives in SigurnostTab (via the security
             context) and is submitted by the shared footer through its formId. */}
-        <TabsContent
-          value="sigurnost"
-          className="animate-in fade-in-0 duration-200"
-        >
+        <TabsContent value="sigurnost">
           <SigurnostTab />
         </TabsContent>
       </Tabs>

@@ -1,11 +1,9 @@
 "use client";
 
-import { CloudUpload, X } from "lucide-react";
+import { Camera } from "lucide-react";
 import { toast } from "sonner";
 import { UserAvatar } from "@daveyplate/better-auth-ui";
 
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { fileToBase64 } from "@/utils/browser/file";
 import { useUser } from "@/context/user-context";
 import { useSettingsUi } from "@/components/custom/settings/settings-context";
@@ -35,12 +33,10 @@ export function AvatarField() {
   }
 
   return (
-    <div className="space-y-3">
-      <Label>Avatar (opcionalno)</Label>
-
-      <div className="flex items-center gap-4">
+    <div className="flex flex-col items-center gap-2">
+      <div className="relative">
         <UserAvatar
-          className="size-16 text-lg font-bold"
+          className="size-24 text-2xl font-bold"
           user={{
             name: user?.username || "",
             email: user?.email || "",
@@ -49,38 +45,33 @@ export function AvatarField() {
           size="xl"
         />
 
-        <div className="flex flex-col gap-2">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleAvatarChange}
-            className="hidden"
-            id="avatar-upload"
-          />
-          <label
-            htmlFor="avatar-upload"
-            className="inline-flex items-center gap-2 px-3 py-2 text-sm border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-          >
-            <CloudUpload className="w-4 h-4" />
-            Učitaj sliku
-          </label>
-
-          {avatarPreview && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="justify-start text-destructive hover:text-destructive"
-              onClick={() => updateAvatar(null)}
-            >
-              <X className="w-4 h-4" />
-              Ukloni
-            </Button>
-          )}
-        </div>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleAvatarChange}
+          className="hidden"
+          id="avatar-upload"
+        />
+        <label
+          htmlFor="avatar-upload"
+          aria-label="Promijeni sliku"
+          className="absolute -bottom-1 -right-1 flex size-8 cursor-pointer items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+        >
+          <Camera className="size-4" />
+        </label>
       </div>
 
-      <p className="text-xs text-gray-500">PNG, JPG ili GIF (do 1 MB).</p>
+      {avatarPreview && (
+        <button
+          type="button"
+          onClick={() => updateAvatar(null)}
+          className="cursor-pointer text-xs text-muted-foreground underline underline-offset-2 hover:text-destructive"
+        >
+          Ukloni sliku
+        </button>
+      )}
+
+      <p className="text-xs text-muted-foreground">PNG, JPG ili GIF (do 1 MB).</p>
     </div>
   );
 }

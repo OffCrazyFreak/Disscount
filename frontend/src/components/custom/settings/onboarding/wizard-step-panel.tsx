@@ -25,7 +25,11 @@ export function WizardStepPanel({
         initial={{ opacity: 0, x: offset }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -offset }}
-        transition={{ duration: 0.22, ease: "easeOut" }}
+        transition={
+          reduceMotion
+            ? { duration: 0.18 }
+            : { type: "spring", stiffness: 320, damping: 30 }
+        }
       >
         {children}
       </motion.div>

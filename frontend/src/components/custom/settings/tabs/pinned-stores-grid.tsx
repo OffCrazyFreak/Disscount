@@ -2,7 +2,6 @@
 
 import { useFormContext } from "react-hook-form";
 
-import { FormItem, FormLabel } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
 import StoreChainLogo from "@/components/custom/store-chain-logo";
 import cijeneService from "@/lib/cijene-api";
@@ -23,12 +22,7 @@ export function PinnedStoresGrid() {
   }
 
   return (
-    <FormItem className="gap-0">
-      <FormLabel className="text-md">Trgovine</FormLabel>
-      <p className="text-sm text-gray-500 mb-4">
-        Odaberi trgovine u tvojoj blizini.
-      </p>
-
+    <>
       {isLoading ? (
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
           {Array.from({ length: 12 }).map((_, i) => (
@@ -78,6 +72,6 @@ export function PinnedStoresGrid() {
             })}
         </div>
       )}
-    </FormItem>
+    </>
   );
 }

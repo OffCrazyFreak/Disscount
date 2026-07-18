@@ -6,7 +6,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import {
@@ -30,11 +29,6 @@ export function PinnedPlacesSelect() {
       name="pinnedPlaces"
       render={({ field }) => (
         <FormItem className="gap-0">
-          <FormLabel className="text-md w-max">Lokacije</FormLabel>
-          <p className="text-sm text-gray-500 mb-2">
-            Odaberi lokacije u tvojoj blizini.
-          </p>
-
           <MultiSelect onValuesChange={field.onChange} values={field.value}>
             <FormControl>
               <MultiSelectTrigger className="w-full">

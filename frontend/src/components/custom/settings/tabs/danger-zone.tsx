@@ -14,6 +14,7 @@ import { authClient } from "@/lib/auth-client";
 import { clearAuthToken } from "@/lib/api/api-base";
 import { useUser } from "@/context/user-context";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
+import { SettingRow } from "@/components/custom/settings/ui/setting-row";
 
 export function DangerZone() {
   const { setUser } = useUser();
@@ -87,51 +88,46 @@ export function DangerZone() {
   const isLoading = isRevoking || isDeleting;
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
-        <div className="space-y-0.5">
-          <p className="text-sm font-medium">Odjava sa svih uređaja</p>
-          <p className="text-xs text-muted-foreground">
-            Odjavi se sa svih ostalih uređaja osim ovog.
-          </p>
-        </div>
+    <>
+      <div className="divide-y">
+        <SettingRow
+          label="Odjava sa svih uređaja"
+          description="Odjavi se sa svih ostalih uređaja osim ovog."
+          control={
+          <Button
+            type="button"
+            onClick={() => setShowLogoutAllConfirm(true)}
+            variant="outline"
+            size="sm"
+            icon={LogOut}
+            iconPlacement="left"
+            loading={isRevoking}
+            disabled={isLoading}
+          >
+            Odjava
+          </Button>
+        }
+      />
 
-        <Button
-          type="button"
-          onClick={() => setShowLogoutAllConfirm(true)}
-          variant="outline"
-          size="sm"
-          icon={LogOut}
-          iconPlacement="left"
-          loading={isRevoking}
-          disabled={isLoading}
-          className="shrink-0"
-        >
-          Odjava
-        </Button>
-      </div>
-
-      <div className="flex items-center justify-between gap-4">
-        <div className="space-y-0.5">
-          <p className="text-sm font-medium">Obriši račun</p>
-          <p className="text-xs text-muted-foreground">
-            Trajno obriši svoj račun i sve podatke.
-          </p>
-        </div>
-
-        <Button
-          type="button"
-          onClick={() => setShowDeleteConfirm(true)}
-          variant="destructive"
-          size="sm"
-          icon={Trash2}
-          iconPlacement="left"
-          loading={isDeleting}
-          disabled={isLoading}
-          className="shrink-0"
-        >
-          Obriši
-        </Button>
+      <SettingRow
+        label="Obriši račun"
+        description="Trajno obriši svoj račun i sve podatke."
+        destructive
+        control={
+          <Button
+            type="button"
+            onClick={() => setShowDeleteConfirm(true)}
+            variant="destructive"
+            size="sm"
+            icon={Trash2}
+            iconPlacement="left"
+            loading={isDeleting}
+            disabled={isLoading}
+          >
+            Obriši
+          </Button>
+        }
+      />
       </div>
 
       <ConfirmDialog
@@ -156,6 +152,6 @@ export function DangerZone() {
         onConfirm={handleDeleteUser}
         isLoading={isDeleting}
       />
-    </div>
+    </>
   );
 }

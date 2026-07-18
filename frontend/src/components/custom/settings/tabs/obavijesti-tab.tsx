@@ -1,6 +1,9 @@
 "use client";
 
+import { Bell } from "lucide-react";
+
 import { StaggerChildren } from "@/components/ui/stagger-children";
+import { SettingsSection } from "@/components/custom/settings/ui/settings-section";
 import { NotificationSwitchRow } from "@/components/custom/settings/tabs/notification-switch-row";
 
 const SWITCHES = [
@@ -30,10 +33,16 @@ const SWITCHES = [
 
 export function ObavijestiTab() {
   return (
-    <StaggerChildren className="space-y-4">
-      {SWITCHES.map((props) => (
-        <NotificationSwitchRow key={props.name} {...props} />
-      ))}
-    </StaggerChildren>
+    <SettingsSection
+      icon={Bell}
+      label="Obavijesti"
+      hint="Odaberi kako, o čemu i kada želiš biti obaviješten o akcijama i novostima."
+    >
+      <StaggerChildren className="divide-y">
+        {SWITCHES.map((props) => (
+          <NotificationSwitchRow key={props.name} {...props} />
+        ))}
+      </StaggerChildren>
+    </SettingsSection>
   );
 }
