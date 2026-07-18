@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { Search, Plus, ShoppingCart, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/custom/search-bar";
 import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
-import ShoppingListModal from "@/app/(user)/shopping-lists/components/forms/shopping-list-modal";
 import ShoppingListItem from "@/app/(user)/shopping-lists/components/shopping-list-item";
 import CreateShoppingListButton from "@/app/(user)/shopping-lists/components/create-shopping-list-button";
 import NoResults from "@/components/custom/no-results";
@@ -14,13 +13,11 @@ import LoginRequired from "@/components/custom/login-required";
 import { filterByFields } from "@/utils/generic";
 import { shoppingListService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
-import { useQueryClient } from "@tanstack/react-query";
+import { openModalUrl } from "@/lib/modal/modal-navigation";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 
 export default function ShoppingListsClient({ query }: { query: string }) {
   const pathname = usePathname();
-  const queryClient = useQueryClient();
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { isAuthenticated, isLoading: userLoading } = useUser();
   const { data: shoppingLists = [], isLoading } =
@@ -44,19 +41,6 @@ export default function ShoppingListsClient({ query }: { query: string }) {
 
   return (
     <>
-      <ShoppingListModal
-        isOpen={isModalOpen}
-        onOpenChange={(open: boolean) => {
-          setIsModalOpen(open);
-        }}
-        onSuccess={() =>
-          queryClient.invalidateQueries({
-            queryKey: ["shoppingLists", "me"],
-          })
-        }
-        shoppingList={null}
-      />
-
       <div className="space-y-4">
         <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
           <SearchBar
@@ -78,7 +62,9 @@ export default function ShoppingListsClient({ query }: { query: string }) {
           </h3>
 
           <CreateShoppingListButton
-            onCreateClick={() => setIsModalOpen(true)}
+            onCreateClick={() =>
+              openModalUrl({ name: "shopping-list", action: "new" })
+            }
           />
         </div>
 
@@ -112,7 +98,9 @@ export default function ShoppingListsClient({ query }: { query: string }) {
               effect="shineHover"
               icon={Plus}
               iconPlacement="left"
-              onClick={() => setIsModalOpen(true)}
+              onClick={() =>
+                openModalUrl({ name: "shopping-list", action: "new" })
+              }
             >
               Stvori popis za kupnju
             </Button>

@@ -1,294 +1,144 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Save } from "lucide-react";
+
+import { ModalShell } from "@/components/ui/modal-shell";
+import { Form } from "@/components/ui/form";
+import { DraftRestoredChip } from "@/components/custom/modal-router/draft-restored-chip";
+import { DigitalCardFields } from "@/app/(user)/digital-cards/components/forms/digital-card-fields";
+import { useDigitalCardModal } from "@/app/(user)/digital-cards/components/forms/use-digital-card-modal";
+import { digitalCardService } from "@/lib/api";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  FormDescription,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  DigitalCardDto,
   DigitalCardRequest,
   digitalCardRequestSchema,
 } from "@/lib/api/types";
-import { digitalCardService } from "@/lib/api";
-import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
+import { applyProblemToForm } from "@/lib/api/problem-details";
+import { closeModalUrl } from "@/lib/modal/modal-navigation";
+import { takeModalError } from "@/lib/modal/modal-error-bus";
+import { useFormDraft } from "@/hooks/use-form-draft";
 
-interface IDigitalCardModalProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSuccess?: () => void | Promise<void>;
-  digitalCard?: DigitalCardDto | null;
+interface DigitalCardModalProps {
+  open: boolean;
+  action: "new" | "edit";
+  id?: string;
 }
 
-export default function DigitalCardModal({
-  isOpen,
-  onOpenChange,
-  onSuccess,
-  digitalCard,
-}: IDigitalCardModalProps) {
-  const queryClient = useQueryClient();
+const EMPTY_VALUES: DigitalCardRequest = {
+  title: "",
+  value: "",
+  type: "loyalty",
+  codeType: "barcode",
+  color: undefined,
+  note: undefined,
+};
 
-  const createMutation = digitalCardService.useCreateDigitalCard();
-  const updateMutation = digitalCardService.useUpdateDigitalCard();
+export default function DigitalCardModal({
+  open,
+  action,
+  id,
+}: DigitalCardModalProps) {
+  const isEdit = action === "edit" && !!id;
+
+  // Cards have no by-id endpoint; the user's list query covers cold deep links.
+  const cardsQuery = digitalCardService.useGetUserDigitalCards({
+    enabled: isEdit,
+  });
+  const digitalCard = isEdit
+    ? (cardsQuery.data?.find((card) => card.id === id) ?? null)
+    : null;
+
+  const draftKey = isEdit ? `digital-card.edit.${id}` : "digital-card.new";
+  const isReady = !isEdit || !!digitalCard;
 
   const form = useForm<DigitalCardRequest>({
     resolver: zodResolver(digitalCardRequestSchema),
-    defaultValues: {
-      title: digitalCard?.title || "",
-      value: digitalCard?.value || "",
-      type: digitalCard?.type || "loyalty",
-      codeType: digitalCard?.codeType || "barcode",
-      color: digitalCard?.color,
-      note: digitalCard?.note,
-    },
+    defaultValues: EMPTY_VALUES,
   });
 
-  function onSubmit(data: DigitalCardRequest) {
-    if (digitalCard) {
-      updateMutation.mutate(
-        { id: digitalCard.id, data },
-        {
-          onSuccess: async () => {
-            toast.success("Digitalna kartica je uspješno ažurirana!");
-            await queryClient.invalidateQueries({
-              queryKey: ["digitalCards"],
-            });
-            await onSuccess?.();
-            onOpenChange(false);
-          },
-          onError: (error: unknown) => {
-            const message =
-              error instanceof Error ? error.message : String(error);
-            form.setError("root", {
-              message:
-                message || "Došlo je do greške prilikom ažuriranja kartice",
-            });
-          },
-        }
-      );
-    } else {
-      createMutation.mutate(data, {
-        onSuccess: async () => {
-          toast.success("Digitalna kartica je uspješno kreirana!");
-          await queryClient.invalidateQueries({
-            queryKey: ["digitalCards"],
-          });
-          await onSuccess?.();
-          onOpenChange(false);
-        },
-        onError: (error: unknown) => {
-          const message =
-            error instanceof Error ? error.message : String(error);
-          form.setError("root", {
-            message: message || "Došlo je do greške prilikom kreiranja kartice",
-          });
-        },
-      });
-    }
+  useEffect(() => {
+    if (!digitalCard) return;
+    form.reset({
+      title: digitalCard.title,
+      value: digitalCard.value,
+      type: digitalCard.type,
+      codeType: digitalCard.codeType,
+      color: digitalCard.color,
+      note: digitalCard.note,
+    });
+  }, [digitalCard, form]);
+
+  const { restored, clearDraft, flushDraft } = useFormDraft({
+    draftKey,
+    form,
+    enabled: open && isReady,
+  });
+
+  // A failed optimistic save reopened this modal: surface the server error.
+  useEffect(() => {
+    if (!open) return;
+    const error = takeModalError(draftKey);
+    if (error) applyProblemToForm(error, form.setError);
+  }, [open, draftKey, form]);
+
+  const { onSubmit, isLoading } = useDigitalCardModal({ digitalCard, draftKey });
+
+  function handleSubmit(data: DigitalCardRequest) {
+    flushDraft();
+    onSubmit(data);
   }
 
-  const handleCancel = () => {
-    form.reset();
-    onOpenChange(false);
-  };
-
-  const isLoading = createMutation.isPending || updateMutation.isPending;
+  const notFound = isEdit && !digitalCard && !cardsQuery.isLoading;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="text-xl">
-            {digitalCard ? "Uredi digitalnu karticu" : "Nova digitalna kartica"}
-          </DialogTitle>
-        </DialogHeader>
-
-        {form.formState.errors.root && (
-          <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
-            {form.formState.errors.root.message}
-          </div>
-        )}
-
+    <ModalShell
+      open={open}
+      onOpenChange={(isOpen) => !isOpen && closeModalUrl()}
+      title={isEdit ? "Uredi digitalnu karticu" : "Nova digitalna kartica"}
+      description="Spremi karticu vjernosti i imaj je uvijek pri ruci."
+      srOnlyDescription
+      formId="digital-card-form"
+      submitLabel={isEdit ? "Ažuriraj" : "Stvori"}
+      submitLoading={isLoading}
+      submitDisabled={!form.formState.isDirty || notFound}
+      cancelLabel="Odustani"
+      footerStart={restored ? <DraftRestoredChip /> : undefined}
+    >
+      {notFound ? (
+        <p className="text-sm text-muted-foreground">
+          Kartica nije pronađena. Možda je obrisana.
+        </p>
+      ) : (
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Naziv kartice</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form
+            id="digital-card-form"
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-5"
+          >
+            {form.formState.errors.root && (
+              <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
+                {form.formState.errors.root.message}
+              </div>
+            )}
 
-            <FormField
-              control={form.control}
-              name="value"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Vrijednost/Kod</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <DigitalCardFields />
 
-            <div className="space-y-6">
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tip kartice</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Odaberite tip" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="loyalty">Loyalty kartica</SelectItem>
-                        <SelectItem value="discount">Popust kartica</SelectItem>
-                        <SelectItem value="membership">Članstvo</SelectItem>
-                        <SelectItem value="gift">Poklon kartica</SelectItem>
-                        <SelectItem value="other">Ostalo</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="codeType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tip koda</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Odaberite tip koda" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="barcode">Barkod</SelectItem>
-                        <SelectItem value="qr">QR kod</SelectItem>
-                        <SelectItem value="number">Broj</SelectItem>
-                        <SelectItem value="text">Tekst</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="color"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Boja kartice</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="color"
-                      placeholder="#ffffff"
-                      {...field}
-                      value={field.value || "#ffffff"}
-                      className="h-16"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="note"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Napomena</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Unesite napomenu"
-                      {...field}
-                      value={field.value || ""}
-                      maxLength={200}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Dodatne informacije o vašoj kartici ({" "}
-                    {200 - (field.value?.length || 0)} preostalo).
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex justify-between pt-4">
-              <Button
+            {restored && (
+              <button
                 type="button"
-                variant="outline"
-                effect="ringHover"
-                onClick={handleCancel}
-                disabled={isLoading}
+                onClick={() => {
+                  clearDraft();
+                  form.reset();
+                }}
+                className="cursor-pointer text-xs text-muted-foreground underline hover:text-primary"
               >
-                Odustani
-              </Button>
-
-              <Button
-                type="submit"
-                variant="default"
-                effect="expandIcon"
-                icon={Save}
-                iconPlacement="right"
-                disabled={isLoading}
-                loading={isLoading}
-              >
-                {digitalCard ? "Ažuriraj" : "Stvori"}
-              </Button>
-            </div>
+                Odbaci izmjene i vrati spremljene vrijednosti
+              </button>
+            )}
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      )}
+    </ModalShell>
   );
 }

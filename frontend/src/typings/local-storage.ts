@@ -30,6 +30,13 @@ export interface ShoppingListsPreferences {
   [key: string]: unknown;
 }
 
+// Unsaved modal-form values so users can close a modal and resume later.
+// Never contains passwords or base64 images (see useFormDraft's exclude).
+export interface FormDraft {
+  savedAt: number;
+  values: Record<string, unknown>;
+}
+
 // Main app data structure based on real localStorage example
 export interface AppData {
   viewModes?: Record<string, ViewMode>;
@@ -39,5 +46,6 @@ export interface AppData {
   installBannerDismissed?: boolean; // User dismissed the "install app" banner
   storeOptimizeMode?: string; // Preferred store-list sort, shared across all shopping lists
   preferredCameraId?: string; // Manually chosen scanner camera; absent means auto-pick
+  formDrafts?: Record<string, FormDraft>; // Unsaved modal-form drafts keyed per modal
   [key: string]: unknown;
 }

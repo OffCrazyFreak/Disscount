@@ -1,6 +1,9 @@
 "use client";
 
 import { AuthModal, AuthMode } from "@/components/custom/header/forms/auth-modal";
+import EntityModalOutlet, {
+  isEntityTarget,
+} from "@/components/custom/modal-router/entity-modal-outlet";
 import { AUTH_MODAL_NAMES } from "@/lib/modal/modal-registry";
 import { useModalUrl } from "@/lib/modal/use-modal-url";
 import { useUser } from "@/context/user-context";
@@ -41,11 +44,17 @@ export default function ModalRouter() {
     (target && AUTH_MODE_BY_NAME[target.name]) ?? "login";
 
   return (
-    <AuthModal
-      open={showAuthModal}
-      mode={authMode}
-      onOpenChange={(open) => !open && closeModal()}
-      onModeChange={(mode) => swapModal({ name: MODE_TO_TARGET_NAME[mode] })}
-    />
+    <>
+      <AuthModal
+        open={showAuthModal}
+        mode={authMode}
+        onOpenChange={(open) => !open && closeModal()}
+        onModeChange={(mode) => swapModal({ name: MODE_TO_TARGET_NAME[mode] })}
+      />
+
+      {isAuthenticated && (
+        <EntityModalOutlet target={isEntityTarget(target) ? target : null} />
+      )}
+    </>
   );
 }

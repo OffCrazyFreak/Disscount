@@ -7,3 +7,4 @@ export * from "@/utils/browser/storage/shopping-lists";
 export * from "@/utils/browser/storage/auth";
 export * from "@/utils/browser/storage/scanner";
 export * from "@/utils/browser/storage/pwa";
+export * from "@/utils/browser/storage/drafts";

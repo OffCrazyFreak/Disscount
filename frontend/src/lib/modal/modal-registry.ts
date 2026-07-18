@@ -7,6 +7,10 @@ export const SETTINGS_TABS = [
 
 export type SettingsTab = (typeof SETTINGS_TABS)[number];
 
+export const WATCH_TYPE_PARAMS = ["percentage", "absolute"] as const;
+
+export type WatchTypeParam = (typeof WATCH_TYPE_PARAMS)[number];
+
 export type ModalTarget =
   | { name: "login" }
   | { name: "signup" }
@@ -18,7 +22,7 @@ export type ModalTarget =
   | { name: "digital-card"; action: "new" }
   | { name: "digital-card"; action: "edit"; id: string }
   | { name: "add-to-list"; ean: string }
-  | { name: "watchlist"; ean: string };
+  | { name: "watchlist"; ean: string; watchType?: WatchTypeParam };
 
 export const AUTH_MODAL_NAMES = ["login", "signup", "forgot-password"] as const;
 
@@ -50,8 +54,17 @@ export function parseModalParam(
       if (sub === "edit" && id) return { name, action: "edit", id };
       return null;
     case "add-to-list":
-    case "watchlist":
       return ean ? { name, ean } : null;
+    case "watchlist": {
+      if (!ean) return null;
+      const type = searchParams.get("type");
+      const watchType = (WATCH_TYPE_PARAMS as readonly string[]).includes(
+        type ?? ""
+      )
+        ? (type as WatchTypeParam)
+        : undefined;
+      return { name, ean, watchType };
+    }
     default:
       return null;
   }
@@ -77,10 +90,13 @@ export function buildModalSearch(
   params.delete("modal");
   params.delete("id");
   params.delete("ean");
+  params.delete("type");
 
   params.set("modal", modalParamValue(target));
   if ("id" in target) params.set("id", target.id);
   if ("ean" in target) params.set("ean", target.ean);
+  if ("watchType" in target && target.watchType)
+    params.set("type", target.watchType);
 
   // URLSearchParams percent-encodes "/", which is legal but ugly in the address
   // bar; decode it back so links read ?modal=settings/profil.
@@ -92,6 +108,7 @@ export function stripModalSearch(current: URLSearchParams): string {
   params.delete("modal");
   params.delete("id");
   params.delete("ean");
+  params.delete("type");
 
   const query = params.toString().replace(/%2F/g, "/");
   return query ? `?${query}` : "";

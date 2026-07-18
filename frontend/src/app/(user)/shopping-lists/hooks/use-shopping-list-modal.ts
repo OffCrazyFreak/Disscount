@@ -1,97 +1,62 @@
 import { onlineManager, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+
 import { shoppingListService } from "@/lib/api";
 import type { ShoppingListDto, ShoppingListRequest } from "@/lib/api/types";
-import type { UseFormSetError } from "react-hook-form";
+import { stashModalError } from "@/lib/modal/modal-error-bus";
+import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
+import { removeFormDraft } from "@/utils/browser/local-storage";
 
 interface UseShoppingListModalProps {
   shoppingList?: ShoppingListDto | null;
-  onSuccess?: () => void;
-  onOpenChange: (open: boolean) => void;
-  setError: UseFormSetError<ShoppingListRequest>;
-  reset: (values?: ShoppingListRequest) => void;
+  draftKey: string;
 }
 
 export function useShoppingListModal({
   shoppingList,
-  onSuccess,
-  onOpenChange,
-  setError,
-  reset,
+  draftKey,
 }: UseShoppingListModalProps) {
   const queryClient = useQueryClient();
 
   const createMutation = shoppingListService.useCreateShoppingList();
   const updateMutation = shoppingListService.useUpdateShoppingList();
 
-  function onSubmit(data: ShoppingListRequest) {
-    // Offline, the mutation is paused and replays on reconnect, so its
-    // onSuccess (which closes the modal) won't run for a while. Close the modal
-    // now and tell the user instead of leaving the submit button spinning.
-    const isOffline = !onlineManager.isOnline();
+  // Optimistic close: the modal closes immediately and reopens (with the draft
+  // still holding the values) only if the request fails.
+  async function onSubmit(data: ShoppingListRequest) {
+    closeModalUrl();
 
-    if (shoppingList) {
-      updateMutation.mutate(
-        { id: shoppingList.id, data },
-        {
-          onSuccess: async () => {
-            toast.success("Popis za kupnju je uspješno ažuriran!");
-            await queryClient.invalidateQueries({
-              queryKey: ["shoppingLists"],
-            });
-            await onSuccess?.();
-            onOpenChange(false);
-          },
-          onError: (error: unknown) => {
-            const message =
-              error instanceof Error ? error.message : String(error);
-            setError("root", {
-              message:
-                message || "Došlo je do greške prilikom ažuriranja popisa",
-            });
-          },
-        }
-      );
-    } else {
-      createMutation.mutate(data, {
-        onSuccess: async () => {
-          toast.success("Popis za kupnju je uspješno kreiran!");
-          await queryClient.invalidateQueries({
-            queryKey: ["shoppingLists"],
-          });
-          await onSuccess?.();
-          onOpenChange(false);
-          reset();
-        },
-        onError: (error: unknown) => {
-          const message =
-            error instanceof Error ? error.message : String(error);
-          setError("root", {
-            message: message || "Došlo je do greške prilikom kreiranja popisa",
-          });
-        },
-      });
-    }
-
-    if (isOffline) {
+    // Offline, the mutation is paused and replays on reconnect, so the await
+    // below resolves only once the sync happens; tell the user right away.
+    if (!onlineManager.isOnline()) {
       toast.info(
-        "Izvan ste mreže — promjena će se sinkronizirati kad se vratite na mrežu.",
+        "Izvan ste mreže — promjena će se sinkronizirati kad se vratite na mrežu."
       );
-      onOpenChange(false);
-      if (!shoppingList) reset();
+    }
+
+    try {
+      if (shoppingList) {
+        await updateMutation.mutateAsync({ id: shoppingList.id, data });
+        toast.success("Popis za kupnju je uspješno ažuriran!");
+      } else {
+        await createMutation.mutateAsync(data);
+        toast.success("Popis za kupnju je uspješno kreiran!");
+      }
+
+      removeFormDraft(draftKey);
+      await queryClient.invalidateQueries({ queryKey: ["shoppingLists"] });
+    } catch (error) {
+      stashModalError(draftKey, error);
+      openModalUrl(
+        shoppingList
+          ? { name: "shopping-list", action: "edit", id: shoppingList.id }
+          : { name: "shopping-list", action: "new" }
+      );
     }
   }
-
-  function handleCancel() {
-    reset();
-    onOpenChange(false);
-  }
-
-  const isLoading = createMutation.isPending || updateMutation.isPending;
 
   return {
     onSubmit,
-    handleCancel,
-    isLoading,
+    isLoading: createMutation.isPending || updateMutation.isPending,
   };
 }

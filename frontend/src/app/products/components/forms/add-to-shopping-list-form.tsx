@@ -4,21 +4,16 @@ import { useState, useEffect, Activity } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Save } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+
+import { ModalShell } from "@/components/ui/modal-shell";
 import { Form } from "@/components/ui/form";
+import { Skeleton } from "@/components/ui/skeleton";
 import { shoppingListService } from "@/lib/api";
-import { ShoppingListRequest } from "@/lib/api/schemas/shopping-list";
+import cijeneService from "@/lib/cijene-api";
 import {
   ShoppingListItemDto,
   ShoppingListItemRequest,
 } from "@/lib/api/schemas/shopping-list-item";
-import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   AddToListFormData,
@@ -29,36 +24,36 @@ import FormWarning from "@/components/custom/form-warning";
 import ShoppingListSelector from "@/app/products/components/forms/shopping-list-selector";
 import QuantityInput from "@/app/products/components/forms/quantity-input";
 import MarkAsCheckedCheckbox from "@/app/products/components/forms/mark-as-checked-checkbox";
-import { Button } from "@/components/ui/button";
-import { useUser } from "@/context/user-context";
 import StoreChainSelect from "@/components/custom/store-chain-select";
-import {
-  getAveragePriceForItem,
-  getStorePricesForItem,
-  findCheapestStoreForItem,
-} from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
+import { useUser } from "@/context/user-context";
+import { useAddToListPrices } from "@/app/products/hooks/use-add-to-list-prices";
+import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
+import { stashModalError, takeModalError } from "@/lib/modal/modal-error-bus";
+import { applyProblemToForm } from "@/lib/api/problem-details";
+import { removeFormDraft } from "@/utils/browser/local-storage";
 
-interface IAddToShoppingListFormProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  product: ProductResponse;
+interface AddToShoppingListFormProps {
+  open: boolean;
+  ean: string;
 }
 
 export default function AddToShoppingListForm({
-  isOpen,
-  onOpenChange,
-  product,
-}: IAddToShoppingListFormProps) {
+  open,
+  ean,
+}: AddToShoppingListFormProps) {
   const [customListTitle, setCustomListTitle] = useState("");
-  const [storePrices, setStorePrices] = useState<Record<string, number>>({});
-  const [averagePrice, setAveragePrice] = useState<number | null>(null);
-  const [cheapestStore, setCheapestStore] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
   const { user } = useUser();
+  const draftKey = `add-to-list.${ean}`;
+
+  // Same query key/staleTime as the product page, so this is a cache hit
+  // everywhere except cold deep links.
+  const productQuery = cijeneService.useGetProductByEan({ ean });
+  const product = productQuery.data;
 
   const { data: shoppingLists = [], isLoading: isLoadingLists } =
-    shoppingListService.useGetCurrentUserShoppingLists({ enabled: isOpen && !!user });
+    shoppingListService.useGetCurrentUserShoppingLists({ enabled: !!user });
 
   const createShoppingListMutation =
     shoppingListService.useCreateShoppingList();
@@ -74,35 +69,35 @@ export default function AddToShoppingListForm({
     },
   });
 
+  const { storePrices, averagePrice, cheapestStore } = useAddToListPrices(
+    product,
+    user?.pinnedStores ?? undefined,
+    form
+  );
+
   // Get selected shopping list details to check for duplicates
   const selectedListId = form.watch("shoppingListId");
   const { data: selectedShoppingList } =
     shoppingListService.useGetShoppingListById(selectedListId);
 
-  // Check for duplicate EAN in selected list
   const duplicateItem: ShoppingListItemDto | undefined =
     selectedShoppingList?.items?.find((item) => item.ean === product?.ean);
 
-  // Sort shopping lists by updatedAt (newest first) and set default selection
   const sortedShoppingLists = shoppingLists
     .slice()
     .sort(
       (a, b) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     );
 
-  // Set default selection when lists are loaded or when modal opens
+  // Default to the most recently updated list once lists load
   useEffect(() => {
-    if (
-      isOpen &&
-      sortedShoppingLists.length > 0 &&
-      !form.getValues("shoppingListId")
-    ) {
+    if (sortedShoppingLists.length > 0 && !form.getValues("shoppingListId")) {
       form.setValue("shoppingListId", sortedShoppingLists[0].id);
     }
-  }, [isOpen, sortedShoppingLists, form]);
+  }, [sortedShoppingLists, form]);
 
-  // Reset selectedListId if the selected list was deleted
+  // Reset selection if the selected list was deleted
   useEffect(() => {
     const currentSelectedId = form.getValues("shoppingListId");
     if (
@@ -110,79 +105,43 @@ export default function AddToShoppingListForm({
       currentSelectedId !== "new" &&
       !sortedShoppingLists.find((list) => list.id === currentSelectedId)
     ) {
-      // The selected list was deleted, reset to empty or first available
-      if (sortedShoppingLists.length > 0) {
-        form.setValue("shoppingListId", sortedShoppingLists[0].id);
-      } else {
-        form.setValue("shoppingListId", "");
-      }
+      form.setValue(
+        "shoppingListId",
+        sortedShoppingLists.length > 0 ? sortedShoppingLists[0].id : ""
+      );
     }
   }, [sortedShoppingLists, form]);
 
-  // Watch isChecked to toggle visibility
+  // A failed optimistic save reopened this modal: surface the server error.
+  useEffect(() => {
+    if (!open) return;
+    const error = takeModalError(draftKey);
+    if (error) applyProblemToForm(error, form.setError);
+  }, [open, draftKey, form]);
+
   const isChecked = form.watch("isChecked");
 
-  // Fetch store prices once when form opens
-  useEffect(() => {
-    if (isOpen && product) {
-      const fetchPrices = async () => {
-        try {
-          const tempItem = {
-            id: "",
-            shoppingListId: "",
-            ean: product.ean,
-            name: product.name || "",
-            brand: product.brand || undefined,
-            quantity: product.quantity || undefined,
-            unit: product.unit || undefined,
-            amount: 1,
-            isChecked: false,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            updatedByUserId: null,
-            avgPrice: null,
-            storePrice: null,
-            chainCode: null,
-          };
-
-          const [avgPrice, prices, cheapest] = await Promise.all([
-            getAveragePriceForItem(tempItem),
-            getStorePricesForItem(tempItem),
-            findCheapestStoreForItem(tempItem, user?.pinnedStores || undefined),
-          ]);
-
-          setAveragePrice(avgPrice);
-          setStorePrices(prices);
-          setCheapestStore(cheapest);
-
-          // Set default chain code to cheapest store
-          if (cheapest && !form.getValues("chainCode")) {
-            form.setValue("chainCode", cheapest);
-          }
-        } catch (error) {
-          console.error("Error fetching prices:", error);
-        }
-      };
-
-      fetchPrices();
-    }
-  }, [isOpen, product, user?.pinnedStores, form]);
-
-  // Clear cached price/store state when the modal closes, so reopening it for a
-  // different product can't prefill the previous product's chain and price
-  // (which StoreChainSelect would auto-commit) before the new fetch resolves.
-  useEffect(() => {
-    if (!isOpen) {
-      setStorePrices({});
-      setAveragePrice(null);
-      setCheapestStore(null);
-    }
-  }, [isOpen]);
-
+  // Optimistic close: the modal closes immediately and reopens only on failure.
   async function onSubmit(data: AddToListFormData) {
     if (!product) return;
+    closeModalUrl();
 
-    const proceedToAdd = async (listId: string) => {
+    try {
+      let listId = data.shoppingListId;
+      let listName =
+        sortedShoppingLists.find((list) => list.id === listId)?.title ||
+        "popis";
+
+      if (data.shoppingListId === "new" && customListTitle) {
+        const newList = await createShoppingListMutation.mutateAsync({
+          title: customListTitle,
+          isPublic: false,
+        });
+        toast.success(`Popis za kupnju "${customListTitle}" je stvoren`);
+        listId = newList.id;
+        listName = customListTitle;
+      }
+
       const itemRequest: ShoppingListItemRequest = {
         ean: product.ean,
         name: product.name || "",
@@ -193,171 +152,112 @@ export default function AddToShoppingListForm({
         isChecked: data.isChecked,
       };
 
-      // If the item is marked as checked, include price information and store
+      // Only checked items carry price/store info
       if (data.isChecked) {
-        // Use the selected chainCode, or fall back to cheapest store
         const selectedChainCode = data.chainCode || cheapestStore;
-
         if (selectedChainCode) {
           itemRequest.chainCode = selectedChainCode;
           itemRequest.avgPrice = averagePrice || undefined;
           itemRequest.storePrice = storePrices[selectedChainCode];
         }
       }
-      // If unchecked, explicitly don't send chainCode, avgPrice, or storePrice
 
-      addItemMutation.mutate(
-        {
-          listId,
-          data: itemRequest,
-        },
-        {
-          onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["shoppingLists"] });
-            queryClient.invalidateQueries({ queryKey: ["shoppingListItems"] });
+      await addItemMutation.mutateAsync({ listId, data: itemRequest });
 
-            const listName =
-              data.shoppingListId === "new"
-                ? customListTitle
-                : sortedShoppingLists.find((list) => list.id === listId)
-                    ?.title || "popis";
-
-            toast.success(`Proizvod je dodan u "${listName}"`);
-
-            // Reset form and close modal
-            form.reset({
-              shoppingListId:
-                sortedShoppingLists.length > 0 ? sortedShoppingLists[0].id : "",
-              amount: 1,
-              isChecked: false,
-              chainCode: null,
-            });
-            setCustomListTitle("");
-            setStorePrices({});
-            setAveragePrice(null);
-            setCheapestStore(null);
-
-            onOpenChange(false);
-          },
-          onError: (err) => {
-            toast.error("Greška pri dodavanju na popis: " + err.message);
-          },
-        },
-      );
-    };
-
-    // If creating a new list, create it first, then add the item in onSuccess
-    if (data.shoppingListId === "new" && customListTitle) {
-      const createRequest: ShoppingListRequest = {
-        title: customListTitle,
-        isPublic: false,
-      };
-
-      createShoppingListMutation.mutate(createRequest, {
-        onSuccess: (newList) => {
-          toast.success(`Popis za kupnju "${customListTitle}" je stvoren`);
-          proceedToAdd(newList.id);
-        },
-        onError: (err) => {
-          toast.error("Greška pri stvaranju popisa za kupnju: " + err.message);
-        },
-      });
-    } else {
-      proceedToAdd(data.shoppingListId);
+      queryClient.invalidateQueries({ queryKey: ["shoppingLists"] });
+      queryClient.invalidateQueries({ queryKey: ["shoppingListItems"] });
+      removeFormDraft(draftKey);
+      toast.success(`Proizvod je dodan u "${listName}"`);
+    } catch (error) {
+      stashModalError(draftKey, error);
+      openModalUrl({ name: "add-to-list", ean });
     }
   }
 
-  function handleCancel() {
-    form.reset();
-    setCustomListTitle("");
-    onOpenChange(false);
-  }
-
   const selectedList = sortedShoppingLists.find(
-    (list) => list.id === form.watch("shoppingListId"),
+    (list) => list.id === selectedListId
   );
 
   const isSubmitting =
     createShoppingListMutation.isPending || addItemMutation.isPending;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent aria-describedby="add-to-shopping-list-form">
-        <DialogHeader>
-          <DialogTitle className="text-xl mb-2">
-            Dodaj proizvod u popis za kupnju
-          </DialogTitle>
-        </DialogHeader>
+    <ModalShell
+      open={open}
+      onOpenChange={(isOpen) => !isOpen && closeModalUrl()}
+      title="Dodaj proizvod u popis za kupnju"
+      description="Odaberi popis, količinu i trgovinu."
+      srOnlyDescription
+      formId="add-to-list-form"
+      submitLabel="Dodaj"
+      submitLoading={isSubmitting}
+      submitDisabled={!product}
+      cancelLabel="Odustani"
+    >
+      {productQuery.isLoading ? (
+        <Skeleton className="h-24 w-full" />
+      ) : !product ? (
+        <p className="text-sm text-muted-foreground">
+          Proizvod nije pronađen.
+        </p>
+      ) : (
+        <div className="space-y-4">
+          <ProductInfoDisplay product={product} enableActionButtons={false} />
 
-        {/* Product Information Display */}
-        <ProductInfoDisplay product={product} enableActionButtons={false} />
+          <Form {...form}>
+            <form
+              id="add-to-list-form"
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4"
+            >
+              {form.formState.errors.root && (
+                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
+                  {form.formState.errors.root.message}
+                </div>
+              )}
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <ShoppingListSelector
-              formField={form}
-              isLoadingLists={isLoadingLists}
-              sortedShoppingLists={sortedShoppingLists}
-              customListTitle={customListTitle}
-              setCustomListTitle={setCustomListTitle}
-              selectedList={selectedList}
-            />
-
-            {/* Warning for duplicate EAN */}
-            {duplicateItem && (
-              <FormWarning
-                title="Proizvod već u popisu za kupnju"
-                text={`Ovaj proizvod je već dodan u odabran popis za kupnju. Dodavanjem ovog proizvoda će se samo povećati njegova količina u popisu za kupnju sa ${duplicateItem.amount} na ${duplicateItem.amount + form.watch("amount")}.`}
+              <ShoppingListSelector
+                formField={form}
+                isLoadingLists={isLoadingLists}
+                sortedShoppingLists={sortedShoppingLists}
+                customListTitle={customListTitle}
+                setCustomListTitle={setCustomListTitle}
+                selectedList={selectedList}
               />
-            )}
 
-            <QuantityInput formField={form} />
-
-            <Activity mode={duplicateItem ? "hidden" : "visible"}>
-              <MarkAsCheckedCheckbox formField={form} />
-            </Activity>
-
-            <Activity mode={isChecked && !duplicateItem ? "visible" : "hidden"}>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Trgovina</label>
-                <StoreChainSelect
-                  value={form.watch("chainCode") || ""}
-                  onChange={(value) => form.setValue("chainCode", value)}
-                  defaultValue={cheapestStore}
-                  storePrices={storePrices}
-                  averagePrice={averagePrice || undefined}
-                  isChecked={false}
-                  classname="w-full"
+              {duplicateItem && (
+                <FormWarning
+                  title="Proizvod već u popisu za kupnju"
+                  text={`Ovaj proizvod je već dodan u odabran popis za kupnju. Dodavanjem ovog proizvoda će se samo povećati njegova količina u popisu za kupnju sa ${duplicateItem.amount} na ${duplicateItem.amount + form.watch("amount")}.`}
                 />
-              </div>
-            </Activity>
+              )}
 
-            <div className="flex justify-between pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                effect="ringHover"
-                onClick={handleCancel}
-                disabled={isSubmitting}
-              >
-                Odustani
-              </Button>
+              <QuantityInput formField={form} />
 
-              <Button
-                type="submit"
-                effect="expandIcon"
-                icon={Save}
-                iconPlacement="right"
-                disabled={isSubmitting}
-                loading={isSubmitting}
-                loadingText="Dodavanje"
+              <Activity mode={duplicateItem ? "hidden" : "visible"}>
+                <MarkAsCheckedCheckbox formField={form} />
+              </Activity>
+
+              <Activity
+                mode={isChecked && !duplicateItem ? "visible" : "hidden"}
               >
-                Dodaj
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Trgovina</label>
+                  <StoreChainSelect
+                    value={form.watch("chainCode") || ""}
+                    onChange={(value) => form.setValue("chainCode", value)}
+                    defaultValue={cheapestStore}
+                    storePrices={storePrices}
+                    averagePrice={averagePrice || undefined}
+                    isChecked={false}
+                    classname="w-full"
+                  />
+                </div>
+              </Activity>
+            </form>
+          </Form>
+        </div>
+      )}
+    </ModalShell>
   );
 }

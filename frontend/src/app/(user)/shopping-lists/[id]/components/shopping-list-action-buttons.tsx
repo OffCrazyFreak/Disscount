@@ -21,9 +21,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
-import { useQueryClient } from "@tanstack/react-query";
-import ShoppingListModal from "@/app/(user)/shopping-lists/components/forms/shopping-list-modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { useShoppingListMutations } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-mutations";
 import { toast } from "sonner";
 import { formatShoppingListForSharing } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
@@ -44,8 +43,6 @@ export default function ShoppingListActionButtons({
   showDeleteButton = false,
   showShareButton = false,
 }: ShoppingListActionButtonsProps) {
-  const queryClient = useQueryClient();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
 
@@ -57,10 +54,8 @@ export default function ShoppingListActionButtons({
     setIsDeleteDialogOpen(false);
   }
 
-  async function handleModalSuccess() {
-    await queryClient.invalidateQueries({
-      queryKey: ["shoppingLists", shoppingList.id],
-    });
+  function handleEdit() {
+    openModalUrl({ name: "shopping-list", action: "edit", id: shoppingList.id });
   }
 
   async function handleShare() {
@@ -79,13 +74,6 @@ export default function ShoppingListActionButtons({
 
   return (
     <>
-      <ShoppingListModal
-        isOpen={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        onSuccess={handleModalSuccess}
-        shoppingList={shoppingList}
-      />
-
       <ConfirmDialog
         isOpen={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
@@ -156,9 +144,7 @@ export default function ShoppingListActionButtons({
                 size="icon"
                 aria-label="Uredi popis"
                 className="size-10 sm:size-12 shrink-0"
-                onClick={() => {
-                  setIsModalOpen(true);
-                }}
+                onClick={handleEdit}
               >
                 <LucideClipboardEdit className="size-6 sm:size-7" />
               </Button>
@@ -240,9 +226,7 @@ export default function ShoppingListActionButtons({
 
             {showEditButton && (
               <DropdownMenuItem
-                onSelect={() => {
-                  setIsModalOpen(true);
-                }}
+                onSelect={handleEdit}
                 className="cursor-pointer flex items-center gap-4"
               >
                 <LucideClipboardEdit className="size-5" />

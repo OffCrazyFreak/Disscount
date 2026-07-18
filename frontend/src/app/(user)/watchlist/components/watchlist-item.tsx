@@ -17,7 +17,7 @@ import {
 import { useUser } from "@/context/user-context";
 import { cn } from "@/lib/utils";
 import WatchlistItemDiscountInfo from "@/app/(user)/watchlist/components/watchlist-item-discount-info";
-import WatchlistItemModal from "@/app/products/components/forms/watchlist-item-modal";
+import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { WatchType } from "@/lib/api";
 import { formatQuantity } from "@/utils/strings";
 
@@ -84,10 +84,6 @@ export default function WatchlistItem({
   const queryClient = useQueryClient();
   const { user } = useUser();
   const [isRemoving, setIsRemoving] = useState(false);
-  const [isWatchlistModalOpen, setIsWatchlistModalOpen] = useState(false);
-  const [selectedWatchType, setSelectedWatchType] = useState<WatchType>(
-    WatchType.percentage,
-  );
   const isAddMode = actionMode === "add";
 
   async function handleRemove() {
@@ -151,6 +147,14 @@ export default function WatchlistItem({
     );
   }
 
+  function openWatchlistModal(watchType: WatchType) {
+    openModalUrl({
+      name: "watchlist",
+      ean: productApiId,
+      watchType: watchType === WatchType.absolute ? "absolute" : "percentage",
+    });
+  }
+
   function handleBadgeClick(
     event: React.MouseEvent<HTMLButtonElement>,
     watchType: WatchType,
@@ -162,8 +166,7 @@ export default function WatchlistItem({
       return;
     }
 
-    setSelectedWatchType(watchType);
-    setIsWatchlistModalOpen(true);
+    openWatchlistModal(watchType);
   }
 
   function handleOpenWatchlistModal() {
@@ -171,21 +174,11 @@ export default function WatchlistItem({
       return;
     }
 
-    setSelectedWatchType(WatchType.percentage);
-    setIsWatchlistModalOpen(true);
+    openWatchlistModal(WatchType.percentage);
   }
 
   return (
     <Card className="hover:shadow-md transition-shadow">
-      {product && (
-        <WatchlistItemModal
-          isOpen={isWatchlistModalOpen}
-          onOpenChange={setIsWatchlistModalOpen}
-          product={product}
-          initialWatchType={selectedWatchType}
-        />
-      )}
-
       <CardContent className="p-4">
         {/* First row: Product name, brand, and remove button */}
         <div className="flex  justify-between gap-4 sm:flex-row flex-col">

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Image, ListPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,7 +7,7 @@ import {
 } from "@/components/ui/tooltip";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { cn } from "@/lib/utils";
-import AddToShoppingListForm from "@/app/products/components/forms/add-to-shopping-list-form";
+import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { formatQuantity } from "@/utils/strings";
 import WatchlistActionButton from "@/app/products/components/watchlist-action-button";
 import { watchlistService } from "@/lib/api";
@@ -28,7 +27,6 @@ export default function ProductActionButtons({
   showAddToWatchlist = true,
   className,
 }: IProductActionButtonsProps) {
-  const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
   const { data: currentUserWatchlist = [] } =
     watchlistService.useGetCurrentUserWatchlist();
 
@@ -38,12 +36,6 @@ export default function ProductActionButtons({
 
   return (
     <>
-      <AddToShoppingListForm
-        isOpen={isAddToListModalOpen}
-        onOpenChange={setIsAddToListModalOpen}
-        product={product}
-      />
-
       <div className={cn("flex items-center gap-1 sm:gap-2", className)}>
         {showSearchImage && (
           <Tooltip>
@@ -86,9 +78,9 @@ export default function ProductActionButtons({
                 size="icon"
                 aria-label="Dodaj na popis za kupnju"
                 className="size-10 sm:size-12 shrink-0"
-                onClick={() => {
-                  setIsAddToListModalOpen(true);
-                }}
+                onClick={() =>
+                  openModalUrl({ name: "add-to-list", ean: product.ean })
+                }
               >
                 <ListPlus className="size-6 sm:size-7" />
               </Button>

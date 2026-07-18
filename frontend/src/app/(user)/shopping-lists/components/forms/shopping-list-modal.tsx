@@ -3,14 +3,9 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Save } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { useQueryClient } from "@tanstack/react-query";
+
+import { ModalShell } from "@/components/ui/modal-shell";
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -20,66 +15,117 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { DraftRestoredChip } from "@/components/custom/modal-router/draft-restored-chip";
 import type { ShoppingListDto, ShoppingListRequest } from "@/lib/api/types";
 import { shoppingListRequestSchema } from "@/lib/api/types";
+import { shoppingListService } from "@/lib/api";
+import { applyProblemToForm } from "@/lib/api/problem-details";
+import { closeModalUrl } from "@/lib/modal/modal-navigation";
+import { takeModalError } from "@/lib/modal/modal-error-bus";
+import { useFormDraft } from "@/hooks/use-form-draft";
 import { useShoppingListModal } from "@/app/(user)/shopping-lists/hooks/use-shopping-list-modal";
 
-interface IShoppingListModalProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSuccess?: () => void;
-  shoppingList?: ShoppingListDto | null;
+interface ShoppingListModalProps {
+  open: boolean;
+  action: "new" | "edit";
+  id?: string;
 }
 
 export default function ShoppingListModal({
-  isOpen,
-  onOpenChange,
-  onSuccess,
-  shoppingList,
-}: IShoppingListModalProps) {
+  open,
+  action,
+  id,
+}: ShoppingListModalProps) {
+  const queryClient = useQueryClient();
+  const isEdit = action === "edit" && !!id;
+
+  // Cache-first: the lists page almost always has the list already; the by-id
+  // query only fires on cold deep links.
+  const cachedList = queryClient
+    .getQueryData<ShoppingListDto[]>(["shoppingLists", "me"])
+    ?.find((list) => list.id === id);
+  const byIdQuery = shoppingListService.useGetShoppingListById(
+    isEdit && !cachedList ? (id as string) : ""
+  );
+  const shoppingList = isEdit ? (cachedList ?? byIdQuery.data ?? null) : null;
+
+  const draftKey = isEdit ? `shopping-list.edit.${id}` : "shopping-list.new";
+  const isReady = !isEdit || !!shoppingList;
+
   const form = useForm<ShoppingListRequest>({
     resolver: zodResolver(shoppingListRequestSchema),
-    defaultValues: {
-      title: shoppingList?.title || "",
-      isPublic: shoppingList?.isPublic || false,
-    },
+    defaultValues: { title: "", isPublic: false },
   });
 
-  const { onSubmit, handleCancel, isLoading } = useShoppingListModal({
-    shoppingList,
-    onSuccess,
-    onOpenChange,
-    setError: form.setError,
-    reset: form.reset,
-  });
-
-  // Reset form when shopping list changes
   useEffect(() => {
-    if (isOpen) {
-      form.reset({
-        title: shoppingList?.title || "",
-        isPublic: shoppingList?.isPublic || false,
-      });
-    }
-  }, [isOpen, shoppingList, form]);
+    if (!shoppingList) return;
+    form.reset({
+      title: shoppingList.title,
+      isPublic: shoppingList.isPublic ?? false,
+    });
+  }, [shoppingList, form]);
+
+  const { restored, clearDraft, flushDraft } = useFormDraft({
+    draftKey,
+    form,
+    enabled: open && isReady,
+  });
+
+  // A failed optimistic save reopened this modal: surface the server error.
+  useEffect(() => {
+    if (!open) return;
+    const error = takeModalError(draftKey);
+    if (error) applyProblemToForm(error, form.setError);
+  }, [open, draftKey, form]);
+
+  const { onSubmit, isLoading } = useShoppingListModal({
+    shoppingList,
+    draftKey,
+  });
+
+  function handleSubmit(data: ShoppingListRequest) {
+    flushDraft();
+    onSubmit(data);
+  }
+
+  function handleReset() {
+    clearDraft();
+    form.reset();
+  }
+
+  const notFound = isEdit && !shoppingList && byIdQuery.isError;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="text-xl">
-            {shoppingList ? "Uredi popis za kupnju" : "Novi popis za kupnju"}
-          </DialogTitle>
-        </DialogHeader>
-
-        {form.formState.errors.root && (
-          <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
-            {form.formState.errors.root.message}
-          </div>
-        )}
-
+    <ModalShell
+      open={open}
+      onOpenChange={(isOpen) => !isOpen && closeModalUrl()}
+      title={isEdit ? "Uredi popis za kupnju" : "Novi popis za kupnju"}
+      description="Popis možeš dijeliti i uspoređivati cijene po trgovinama."
+      srOnlyDescription
+      formId="shopping-list-form"
+      submitLabel={isEdit ? "Ažuriraj" : "Stvori"}
+      submitLoading={isLoading}
+      submitDisabled={!form.formState.isDirty || notFound}
+      cancelLabel="Odustani"
+      footerStart={restored ? <DraftRestoredChip /> : undefined}
+    >
+      {notFound ? (
+        <p className="text-sm text-muted-foreground">
+          Popis nije pronađen. Možda je obrisan ili nemaš pristup.
+        </p>
+      ) : (
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form
+            id="shopping-list-form"
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
+            {form.formState.errors.root && (
+              <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
+                {form.formState.errors.root.message}
+              </div>
+            )}
+
             <FormField
               control={form.control}
               name="title"
@@ -98,32 +144,18 @@ export default function ShoppingListModal({
               )}
             />
 
-            <div className="flex justify-between pt-4">
-              <Button
+            {restored && (
+              <button
                 type="button"
-                variant="outline"
-                effect="ringHover"
-                onClick={handleCancel}
-                disabled={isLoading}
+                onClick={handleReset}
+                className="cursor-pointer text-xs text-muted-foreground underline hover:text-primary"
               >
-                Odustani
-              </Button>
-
-              <Button
-                type="submit"
-                variant="default"
-                effect="expandIcon"
-                icon={Save}
-                iconPlacement="right"
-                disabled={isLoading}
-                loading={isLoading}
-              >
-                {shoppingList ? "Ažuriraj" : "Stvori"}
-              </Button>
-            </div>
+                Odbaci izmjene i vrati spremljene vrijednosti
+              </button>
+            )}
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      )}
+    </ModalShell>
   );
 }
