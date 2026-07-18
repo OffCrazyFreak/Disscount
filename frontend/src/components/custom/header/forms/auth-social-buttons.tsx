@@ -64,26 +64,19 @@ export function AuthSocialButtons({
   }
 
   return (
-    <>
-      <div className="relative">
-        <Separator />
-
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="bg-background px-4 text-muted-foreground">ili</span>
-        </div>
-      </div>
-
+    <div className="space-y-4">
       <Button
         variant="outline"
         size="lg"
-        className="relative w-full gap-4"
+        className="relative w-full gap-2"
         onClick={() => handleSocialSignIn("google")}
         disabled={socialPending !== null}
         loading={socialPending === "google"}
         icon={GoogleIcon}
         iconPlacement="left"
       >
-        Nastavi sa Google računom
+        <span className="sm:hidden">Google</span>
+        <span className="hidden sm:inline">Nastavi sa Google računom</span>
         {lastLoginMethod === "google" && socialPending !== "google" && (
           <LastLoginBadge />
         )}
@@ -92,14 +85,15 @@ export function AuthSocialButtons({
       <Button
         variant="outline"
         size="lg"
-        className="relative w-full gap-4"
+        className="relative w-full gap-2"
         onClick={() => handleSocialSignIn("facebook")}
         disabled={socialPending !== null || FACEBOOK_COMING_SOON}
         loading={socialPending === "facebook"}
         icon={FacebookIcon}
         iconPlacement="left"
       >
-        Nastavi sa Facebook računom
+        <span className="sm:hidden">Facebook</span>
+        <span className="hidden sm:inline">Nastavi sa Facebook računom</span>
         {FACEBOOK_COMING_SOON ? (
           <Badge className="absolute -top-2 right-3 text-[10px] shadow-sm">
             USKORO
@@ -109,28 +103,6 @@ export function AuthSocialButtons({
           socialPending !== "facebook" && <LastLoginBadge />
         )}
       </Button>
-
-      <p className="text-center text-xs text-muted-foreground text-balance">
-        Nastavkom prihvaćaš naše{" "}
-        <Link
-          href="/terms-of-service"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline hover:text-primary"
-        >
-          Uvjete korištenja
-        </Link>{" "}
-        i{" "}
-        <Link
-          href="/privacy-policy"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline hover:text-primary"
-        >
-          Pravila privatnosti
-        </Link>
-        .
-      </p>
-    </>
+    </div>
   );
 }

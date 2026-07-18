@@ -2,6 +2,7 @@
 
 import { useState, useSyncExternalStore } from "react";
 import { CircleAlert } from "lucide-react";
+import Link from "next/link";
 
 import { ModalShell } from "@/components/ui/modal-shell";
 import { LoginForm } from "@/components/custom/header/forms/login-form";
@@ -10,6 +11,7 @@ import { ForgotPasswordForm } from "@/components/custom/header/forms/forgot-pass
 import { AuthSocialButtons } from "@/components/custom/header/forms/auth-social-buttons";
 import { AuthModeSwitch } from "@/components/custom/header/forms/auth-mode-switch";
 import { getLastLoginMethod } from "@/utils/browser/local-storage";
+import { Separator } from "@/components/ui/separator";
 
 export type AuthMode = "login" | "signup" | "forgot";
 
@@ -59,7 +61,7 @@ export function AuthModal({
   const lastLoginMethod = useSyncExternalStore(
     subscribeToStorage,
     () => getLastLoginMethod(),
-    () => null
+    () => null,
   );
 
   // OAuth failures are surfaced by the app-wide <OAuthErrorToast />, not here - account-linking
@@ -96,11 +98,43 @@ export function AuthModal({
             <SignUpForm externalDisabled={socialPending !== null} />
           )}
 
+          <div className="relative">
+            <Separator />
+
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="bg-background px-4 text-muted-foreground">
+                ili
+              </span>
+            </div>
+          </div>
+
           <AuthSocialButtons
             lastLoginMethod={lastLoginMethod}
             socialPending={socialPending}
             onPendingChange={setSocialPending}
           />
+
+          <p className="text-center text-xs text-muted-foreground text-balance">
+            Nastavkom prihvaćaš naše{" "}
+            <Link
+              href="/terms-of-service"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-primary"
+            >
+              Uvjete korištenja
+            </Link>{" "}
+            i{" "}
+            <Link
+              href="/privacy-policy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-primary"
+            >
+              Pravila privatnosti
+            </Link>
+            .
+          </p>
         </div>
       )}
     </ModalShell>
