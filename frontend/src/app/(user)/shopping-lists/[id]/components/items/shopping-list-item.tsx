@@ -33,7 +33,7 @@ function RemoveItemButton({
       <TooltipTrigger asChild>
         <Button
           size="icon"
-          aria-label="Makni proizvod s popisa"
+          aria-label="Makni proizvod"
           className={cn(
             "size-8 sm:size-10 shrink-0 bg-red-600 hover:bg-red-700",
             visibilityClassName,
@@ -50,7 +50,7 @@ function RemoveItemButton({
       </TooltipTrigger>
 
       <TooltipContent variant="destructive" className="px-2 py-1 text-xs">
-        Makni proizvod s popisa
+        Makni proizvod
       </TooltipContent>
     </Tooltip>
   );

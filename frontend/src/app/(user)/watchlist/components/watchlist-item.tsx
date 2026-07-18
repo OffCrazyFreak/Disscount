@@ -49,7 +49,7 @@ function WatchlistActionButton({
   onAdd,
   onRemove,
 }: IWatchlistActionButtonProps) {
-  const label = isAddMode ? "Prati proizvod" : "Makni proizvod s praćenja";
+  const label = isAddMode ? "Prati proizvod" : "Makni proizvod";
 
   return (
     <Tooltip>
