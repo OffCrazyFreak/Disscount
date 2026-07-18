@@ -4,12 +4,12 @@ import { motion, useReducedMotion } from "motion/react";
 
 import { cn } from "@/lib/utils";
 
-interface WizardProgressDotsProps {
+interface IWizardProgressDotsProps {
   count: number;
   current: number;
 }
 
-export function WizardProgressDots({ count, current }: WizardProgressDotsProps) {
+export function WizardProgressDots({ count, current }: IWizardProgressDotsProps) {
   const reduceMotion = useReducedMotion();
 
   return (

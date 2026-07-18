@@ -1,7 +1,7 @@
 import { ArrowBigDownDash, ArrowBigUpDash } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface PriceChangeDisplayProps {
+interface IPriceChangeDisplayProps {
   priceChange: {
     difference: number;
     percentage: number;
@@ -10,7 +10,7 @@ interface PriceChangeDisplayProps {
 
 export default function PriceChangeDisplay({
   priceChange,
-}: PriceChangeDisplayProps) {
+}: IPriceChangeDisplayProps) {
   if (!priceChange) return null;
 
   return (

@@ -14,7 +14,7 @@ type SwitchFieldName =
   | "newsletter"
   | "feedbackContact";
 
-interface NotificationSwitchRowProps {
+interface INotificationSwitchRowProps {
   name: SwitchFieldName;
   label: string;
   description: string;
@@ -26,7 +26,7 @@ export function NotificationSwitchRow({
   label,
   description,
   comingSoon = false,
-}: NotificationSwitchRowProps) {
+}: INotificationSwitchRowProps) {
   const form = useFormContext<SettingsFormValues>();
 
   return (

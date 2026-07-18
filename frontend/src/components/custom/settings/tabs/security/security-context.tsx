@@ -6,12 +6,12 @@ import type { SecuritySettings } from "@/components/custom/settings/tabs/securit
 
 const SecurityContext = createContext<SecuritySettings | null>(null);
 
-interface SecurityProviderProps {
+interface ISecurityProviderProps {
   value: SecuritySettings;
   children: ReactNode;
 }
 
-export function SecurityProvider({ value, children }: SecurityProviderProps) {
+export function SecurityProvider({ value, children }: ISecurityProviderProps) {
   return (
     <SecurityContext.Provider value={value}>
       {children}

@@ -24,7 +24,7 @@ function currentReturnUrl(): string {
 
 type SocialProvider = "google" | "facebook";
 
-interface AuthSocialButtonsProps {
+interface IAuthSocialButtonsProps {
   lastLoginMethod: string | null;
   socialPending: SocialProvider | null;
   onPendingChange: (provider: SocialProvider | null) => void;
@@ -43,7 +43,7 @@ export function AuthSocialButtons({
   lastLoginMethod,
   socialPending,
   onPendingChange,
-}: AuthSocialButtonsProps) {
+}: IAuthSocialButtonsProps) {
   async function handleSocialSignIn(provider: SocialProvider) {
     if (socialPending) return;
 

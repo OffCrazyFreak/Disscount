@@ -22,7 +22,7 @@ import { takeModalError } from "@/lib/modal/modal-error-bus";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import { getFormDraft } from "@/utils/browser/local-storage";
 
-interface DigitalCardModalProps {
+interface IDigitalCardModalProps {
   open: boolean;
   action: "new" | "edit";
   id?: string;
@@ -41,7 +41,7 @@ export default function DigitalCardModal({
   open,
   action,
   id,
-}: DigitalCardModalProps) {
+}: IDigitalCardModalProps) {
   const isEdit = action === "edit" && !!id;
 
   // Cards have no by-id endpoint; the user's list query covers cold deep links.

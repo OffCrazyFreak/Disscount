@@ -7,6 +7,11 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Skeleton } from "@/components/ui/skeleton";
 import { watchlistService } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
@@ -21,13 +26,13 @@ import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { WatchType } from "@/lib/api";
 import { formatQuantity } from "@/utils/strings";
 
-interface WatchlistItemProps {
+interface IWatchlistItemProps {
   item: WatchlistItemWithProduct;
   actionMode?: "remove" | "add";
   showThresholdBadges?: boolean;
 }
 
-interface WatchlistActionButtonProps {
+interface IWatchlistActionButtonProps {
   visibilityClassName: string;
   isAddMode: boolean;
   isRemoving: boolean;
@@ -43,28 +48,41 @@ function WatchlistActionButton({
   hasProduct,
   onAdd,
   onRemove,
-}: WatchlistActionButtonProps) {
+}: IWatchlistActionButtonProps) {
+  const label = isAddMode ? "Prati proizvod" : "Makni proizvod s praćenja";
+
   return (
-    <Button
-      size="icon"
-      aria-label={isAddMode ? "Dodaj proizvod" : "Ukloni proizvod"}
-      className={cn(
-        visibilityClassName,
-        isAddMode
-          ? "bg-primary hover:bg-primary/90"
-          : "bg-red-600 hover:bg-red-700",
-      )}
-      onClick={isAddMode ? onAdd : onRemove}
-      disabled={isAddMode ? !hasProduct : isRemoving}
-    >
-      {isAddMode ? (
-        <Eye className="size-5 sm:size-6" />
-      ) : isRemoving ? (
-        <Loader2 className="size-5 sm:size-6 animate-spin" />
-      ) : (
-        <X className="size-5 sm:size-6" />
-      )}
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          size="icon"
+          aria-label={label}
+          className={cn(
+            visibilityClassName,
+            isAddMode
+              ? "bg-primary hover:bg-primary/90"
+              : "bg-red-600 hover:bg-red-700",
+          )}
+          onClick={isAddMode ? onAdd : onRemove}
+          disabled={isAddMode ? !hasProduct : isRemoving}
+        >
+          {isAddMode ? (
+            <Eye className="size-5 sm:size-6" />
+          ) : isRemoving ? (
+            <Loader2 className="size-5 sm:size-6 animate-spin" />
+          ) : (
+            <X className="size-5 sm:size-6" />
+          )}
+        </Button>
+      </TooltipTrigger>
+
+      <TooltipContent
+        variant={isAddMode ? "default" : "destructive"}
+        className="px-2 py-1 text-xs"
+      >
+        {label}
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -72,7 +90,7 @@ export default function WatchlistItem({
   item,
   actionMode = "remove",
   showThresholdBadges = true,
-}: WatchlistItemProps) {
+}: IWatchlistItemProps) {
   const {
     watchlistItems,
     productApiId,

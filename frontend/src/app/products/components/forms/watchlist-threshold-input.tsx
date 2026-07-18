@@ -24,7 +24,7 @@ function thresholdSteps(watchType: WatchType, minPrice: number) {
   return { primary: 2, secondary: 5 };
 }
 
-interface WatchlistThresholdInputProps {
+interface IWatchlistThresholdInputProps {
   minPrice: number;
   existingItemForType?: WatchlistItemDto;
 }
@@ -32,7 +32,7 @@ interface WatchlistThresholdInputProps {
 export function WatchlistThresholdInput({
   minPrice,
   existingItemForType,
-}: WatchlistThresholdInputProps) {
+}: IWatchlistThresholdInputProps) {
   const form = useFormContext<WatchlistFormData>();
   const watchType = form.watch("watchType");
   const rawValue = form.watch("thresholdValue");

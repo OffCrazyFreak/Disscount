@@ -7,7 +7,7 @@ import { stashModalError } from "@/lib/modal/modal-error-bus";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import { removeFormDraft } from "@/utils/browser/local-storage";
 
-interface UseShoppingListModalProps {
+interface IUseShoppingListModalProps {
   shoppingList?: ShoppingListDto | null;
   draftKey: string;
 }
@@ -15,7 +15,7 @@ interface UseShoppingListModalProps {
 export function useShoppingListModal({
   shoppingList,
   draftKey,
-}: UseShoppingListModalProps) {
+}: IUseShoppingListModalProps) {
   const queryClient = useQueryClient();
 
   const createMutation = shoppingListService.useCreateShoppingList();

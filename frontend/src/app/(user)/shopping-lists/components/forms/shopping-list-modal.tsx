@@ -27,7 +27,7 @@ import { useFormDraft } from "@/hooks/use-form-draft";
 import { getFormDraft } from "@/utils/browser/local-storage";
 import { useShoppingListModal } from "@/app/(user)/shopping-lists/hooks/use-shopping-list-modal";
 
-interface ShoppingListModalProps {
+interface IShoppingListModalProps {
   open: boolean;
   action: "new" | "edit";
   id?: string;
@@ -37,7 +37,7 @@ export default function ShoppingListModal({
   open,
   action,
   id,
-}: ShoppingListModalProps) {
+}: IShoppingListModalProps) {
   const queryClient = useQueryClient();
   const isEdit = action === "edit" && !!id;
 

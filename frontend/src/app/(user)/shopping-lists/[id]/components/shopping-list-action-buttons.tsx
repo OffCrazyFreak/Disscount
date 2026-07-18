@@ -27,7 +27,7 @@ import { useShoppingListMutations } from "@/app/(user)/shopping-lists/[id]/hooks
 import { toast } from "sonner";
 import { formatShoppingListForSharing } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
 
-interface ShoppingListActionButtonsProps {
+interface IShoppingListActionButtonsProps {
   shoppingList: ShoppingList;
   showCopyButton?: boolean;
   showEditButton?: boolean;
@@ -42,7 +42,7 @@ export default function ShoppingListActionButtons({
   showEditButton = false,
   showDeleteButton = false,
   showShareButton = false,
-}: ShoppingListActionButtonsProps) {
+}: IShoppingListActionButtonsProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
 

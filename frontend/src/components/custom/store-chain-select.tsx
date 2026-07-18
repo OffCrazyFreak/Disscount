@@ -11,7 +11,7 @@ import { compareHr } from "@/utils/strings";
 import { useEffect, useState } from "react";
 import { ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 
-interface StoreChainSelectProps {
+interface IStoreChainSelectProps {
   value: string | null | undefined;
   onChange: (value: string) => void;
   disabled?: boolean;
@@ -33,7 +33,7 @@ export default function StoreChainSelect({
   isChecked = false,
   storePriceFromDb,
   classname,
-}: StoreChainSelectProps) {
+}: IStoreChainSelectProps) {
   const [displayValue, setDisplayValue] = useState<string>(value || "");
 
   // If default value is provided and current value is null/undefined, use default

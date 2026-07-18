@@ -10,12 +10,12 @@ export interface LinkedInIconHandle {
 	stopAnimation: () => void;
 }
 
-interface LinkedInIconProps extends HTMLMotionProps<"div"> {
+interface ILinkedInIconProps extends HTMLMotionProps<"div"> {
 	size?: number;
 	duration?: number;
 }
 
-const LinkedInIcon = forwardRef<LinkedInIconHandle, LinkedInIconProps>(
+const LinkedInIcon = forwardRef<LinkedInIconHandle, ILinkedInIconProps>(
 	(
 		{
 			onMouseEnter,

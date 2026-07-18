@@ -45,7 +45,7 @@ import {
   setShoppingListPriceHistoryChains,
 } from "@/utils/browser/local-storage";
 
-interface ShoppingListPriceHistoryProps {
+interface IShoppingListPriceHistoryProps {
   shoppingList: ShoppingListDto;
 }
 
@@ -56,7 +56,7 @@ interface ChartDataPoint {
 
 export default function ShoppingListPriceHistory({
   shoppingList,
-}: ShoppingListPriceHistoryProps) {
+}: IShoppingListPriceHistoryProps) {
   const { user } = useUser();
   const { tooltipActive, touchHandlers } = useTouchTooltipDismiss();
   const [period, setPeriod] = useState<PeriodOption>(() =>

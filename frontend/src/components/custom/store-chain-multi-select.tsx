@@ -9,7 +9,7 @@ import {
 import { getChainLabel } from "@/utils/labels";
 import { compareHr } from "@/utils/strings";
 
-interface StoreChainMultiSelectProps {
+interface IStoreChainMultiSelectProps {
   chains: string[];
   selectedChains: string[];
   onChainsChange: (chains: string[]) => void;
@@ -23,7 +23,7 @@ export default function StoreChainMultiSelect({
   onChainsChange,
   className,
   placeholder = "Odaberi trgovinske lance...",
-}: StoreChainMultiSelectProps) {
+}: IStoreChainMultiSelectProps) {
   return (
     <MultiSelect values={selectedChains} onValuesChange={onChainsChange}>
       <MultiSelectTrigger className={className || "w-full sm:w-sm"}>

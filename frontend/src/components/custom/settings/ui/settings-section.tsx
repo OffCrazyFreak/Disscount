@@ -5,7 +5,7 @@ import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-interface SettingsSectionProps {
+interface ISettingsSectionProps {
   icon: LucideIcon;
   label: string;
   hint?: string;
@@ -21,7 +21,7 @@ export function SettingsSection({
   hint,
   destructive = false,
   children,
-}: SettingsSectionProps) {
+}: ISettingsSectionProps) {
   return (
     <section className="space-y-2 pb-6">
       <div className="space-y-1">

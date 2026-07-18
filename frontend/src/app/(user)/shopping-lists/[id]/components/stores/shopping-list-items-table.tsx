@@ -32,14 +32,14 @@ import { sortShoppingListItemsByPurchaseAndSaving } from "@/app/(user)/shopping-
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getPriceExtreme } from "@/app/products/utils/product-utils";
 
-interface ShoppingListItemsTableProps {
+interface IShoppingListItemsTableProps {
   chain: ChainProductResponse;
   shoppingList: ShoppingListDto;
   productsData: ProductResponse[];
 }
 
 export const ShoppingListItemsTable = memo(
-  ({ chain, shoppingList, productsData }: ShoppingListItemsTableProps) => {
+  ({ chain, shoppingList, productsData }: IShoppingListItemsTableProps) => {
     const isMobile = useIsMobile();
 
     if (!shoppingList.items || shoppingList.items.length === 0) {

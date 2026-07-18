@@ -34,7 +34,7 @@ import { stashModalError, takeModalError } from "@/lib/modal/modal-error-bus";
 import { applyProblemToForm } from "@/lib/api/problem-details";
 import { useFormDraft } from "@/hooks/use-form-draft";
 
-interface AddToShoppingListFormProps {
+interface IAddToShoppingListFormProps {
   open: boolean;
   ean: string;
 }
@@ -42,7 +42,7 @@ interface AddToShoppingListFormProps {
 export default function AddToShoppingListForm({
   open,
   ean,
-}: AddToShoppingListFormProps) {
+}: IAddToShoppingListFormProps) {
   const [customListTitle, setCustomListTitle] = useState("");
 
   const queryClient = useQueryClient();

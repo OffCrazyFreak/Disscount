@@ -1,5 +1,6 @@
 "use client";
 
+import { ChangeEvent } from "react";
 import { Camera } from "lucide-react";
 import { toast } from "sonner";
 import { UserAvatar } from "@daveyplate/better-auth-ui";
@@ -21,7 +22,7 @@ export function AvatarField() {
   const { user } = useUser();
   const { avatarPreview, updateAvatar } = useSettingsUi();
 
-  async function handleAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
 

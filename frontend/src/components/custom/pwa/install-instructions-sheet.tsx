@@ -11,7 +11,7 @@ import {
   DrawerDescription,
 } from "@/components/ui/drawer";
 
-interface InstallInstructionsSheetProps {
+interface IInstallInstructionsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isIOS: boolean;
@@ -27,7 +27,7 @@ export default function InstallInstructionsSheet({
   open,
   onOpenChange,
   isIOS,
-}: InstallInstructionsSheetProps) {
+}: IInstallInstructionsSheetProps) {
   const steps: Step[] = isIOS
     ? [
         {

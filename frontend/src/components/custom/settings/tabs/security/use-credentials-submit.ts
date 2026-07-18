@@ -8,7 +8,7 @@ import { resetAuthToken } from "@/lib/api/api-base";
 import { useUser } from "@/context/user-context";
 import type { CredentialsFormValues } from "@/components/custom/settings/tabs/security/credentials-schema";
 
-interface UseCredentialsSubmitProps {
+interface IUseCredentialsSubmitProps {
   hasPassword: boolean;
   currentEmail: string;
   form: UseFormReturn<CredentialsFormValues>;
@@ -20,7 +20,7 @@ export function useCredentialsSubmit({
   currentEmail,
   form,
   onChanged,
-}: UseCredentialsSubmitProps) {
+}: IUseCredentialsSubmitProps) {
   const { refreshUser } = useUser();
 
   async function setInitialPassword(data: CredentialsFormValues) {

@@ -10,12 +10,12 @@ export interface InstagramIconHandle {
 	stopAnimation: () => void;
 }
 
-interface InstagramIconProps extends HTMLMotionProps<"div"> {
+interface IInstagramIconProps extends HTMLMotionProps<"div"> {
 	size?: number;
 	duration?: number;
 }
 
-const InstagramIcon = forwardRef<InstagramIconHandle, InstagramIconProps>(
+const InstagramIcon = forwardRef<InstagramIconHandle, IInstagramIconProps>(
 	(
 		{
 			onMouseEnter,

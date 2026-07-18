@@ -30,12 +30,12 @@ const TAB_CONFIG: { value: SettingsTab; label: string; icon: LucideIcon }[] = [
   { value: "sigurnost", label: "Sigurnost", icon: ShieldCheck },
 ];
 
-interface SettingsModalProps {
+interface ISettingsModalProps {
   open: boolean;
   tab: SettingsTab;
 }
 
-export function SettingsModal({ open, tab }: SettingsModalProps) {
+export function SettingsModal({ open, tab }: ISettingsModalProps) {
   const form = useFormContext<SettingsFormValues>();
   const { isReady, saving, avatarTouched, save, resetToDefaults } =
     useSettingsUi();

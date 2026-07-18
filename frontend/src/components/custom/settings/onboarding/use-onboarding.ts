@@ -14,12 +14,12 @@ import {
 } from "@/components/custom/settings/settings-schema";
 import { ONBOARDING_STEPS } from "@/components/custom/settings/onboarding/onboarding-steps";
 
-interface UseOnboardingProps {
+interface IUseOnboardingProps {
   open: boolean;
   save: (extraUserPatch?: Partial<UserRequest>) => Promise<boolean>;
 }
 
-export function useOnboarding({ open, save }: UseOnboardingProps) {
+export function useOnboarding({ open, save }: IUseOnboardingProps) {
   const form = useFormContext<SettingsFormValues>();
   const { setUser } = useUser();
   const userMutation = userService.useUpdateCurrentUser();

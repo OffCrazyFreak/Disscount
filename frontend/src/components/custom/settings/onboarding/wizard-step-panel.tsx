@@ -3,7 +3,7 @@
 import { ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
-interface WizardStepPanelProps {
+interface IWizardStepPanelProps {
   stepId: string;
   direction: 1 | -1;
   children: ReactNode;
@@ -14,7 +14,7 @@ export function WizardStepPanel({
   stepId,
   direction,
   children,
-}: WizardStepPanelProps) {
+}: IWizardStepPanelProps) {
   const reduceMotion = useReducedMotion();
   const offset = reduceMotion ? 0 : direction * 40;
 

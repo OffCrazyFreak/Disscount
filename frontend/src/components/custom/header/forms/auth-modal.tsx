@@ -27,7 +27,7 @@ const DESCRIPTIONS: Record<AuthMode, string> = {
   forgot: "Poslat ćemo ti poveznicu za ponovno postavljanje lozinke.",
 };
 
-interface AuthModalProps {
+interface IAuthModalProps {
   open: boolean;
   mode: AuthMode;
   // Contextual reason shown when the modal was opened by an auth gate, e.g.
@@ -51,7 +51,7 @@ export function AuthModal({
   message,
   onOpenChange,
   onModeChange,
-}: AuthModalProps) {
+}: IAuthModalProps) {
   const [socialPending, setSocialPending] = useState<
     "google" | "facebook" | null
   >(null);

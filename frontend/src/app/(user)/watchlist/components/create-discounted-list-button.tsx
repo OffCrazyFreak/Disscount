@@ -10,7 +10,7 @@ import { shoppingListService } from "@/lib/api";
 import { WatchlistItemWithProduct } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { formatDate } from "@/utils/strings";
 
-interface CreateDiscountedListButtonProps {
+interface ICreateDiscountedListButtonProps {
   discountedItems: WatchlistItemWithProduct[];
   /** Prices are still resolving, so the discounted set is not final yet */
   isLoading?: boolean;
@@ -19,7 +19,7 @@ interface CreateDiscountedListButtonProps {
 export default function CreateDiscountedListButton({
   discountedItems,
   isLoading = false,
-}: CreateDiscountedListButtonProps) {
+}: ICreateDiscountedListButtonProps) {
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
 

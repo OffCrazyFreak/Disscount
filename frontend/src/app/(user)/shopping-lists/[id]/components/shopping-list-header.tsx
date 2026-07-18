@@ -9,13 +9,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-interface ShoppingListHeaderProps {
+interface IShoppingListHeaderProps {
   shoppingList: ShoppingList;
 }
 
 export default function ShoppingListHeader({
   shoppingList,
-}: ShoppingListHeaderProps) {
+}: IShoppingListHeaderProps) {
   return (
     <div className="mb-6 space-y-4">
       <div className="flex items-center gap-4">

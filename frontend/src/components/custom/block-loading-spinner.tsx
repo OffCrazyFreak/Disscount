@@ -1,10 +1,10 @@
-interface BlockLoadingSpinnerProps {
+interface IBlockLoadingSpinnerProps {
   size?: number;
 }
 
 export default function BlockLoadingSpinner({
   size = 64,
-}: BlockLoadingSpinnerProps) {
+}: IBlockLoadingSpinnerProps) {
   return (
     <div className="px-1 inline-block">
       <svg

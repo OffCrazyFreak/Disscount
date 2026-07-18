@@ -15,7 +15,7 @@ import {
 } from "@/components/custom/settings/settings-schema";
 import { dirtySections } from "@/components/custom/settings/settings-dirty";
 
-interface UseSettingsSaveProps {
+interface IUseSettingsSaveProps {
   form: UseFormReturn<SettingsFormValues>;
   avatarPreview: string | null;
   avatarTouched: boolean;
@@ -31,7 +31,7 @@ export function useSettingsSave({
   avatarTouched,
   onSaved,
   clearDraft,
-}: UseSettingsSaveProps) {
+}: IUseSettingsSaveProps) {
   const { setUser, updatePinnedStores, updatePinnedPlaces } = useUser();
 
   const userMutation = userService.useUpdateCurrentUser();

@@ -5,7 +5,7 @@ import { DiscountInfo } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { cn } from "@/lib/utils";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 
-interface WatchlistItemDiscountInfoProps {
+interface IWatchlistItemDiscountInfoProps {
   discountInfo: DiscountInfo | null;
   hasPinnedStores: boolean;
   isLoading: boolean;
@@ -17,7 +17,7 @@ export default function WatchlistItemDiscountInfo({
   hasPinnedStores,
   isLoading,
   error,
-}: WatchlistItemDiscountInfoProps) {
+}: IWatchlistItemDiscountInfoProps) {
   if (isLoading) {
     return (
       <div className="space-y-2">

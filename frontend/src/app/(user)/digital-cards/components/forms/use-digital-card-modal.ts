@@ -7,7 +7,7 @@ import { stashModalError } from "@/lib/modal/modal-error-bus";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import { removeFormDraft } from "@/utils/browser/local-storage";
 
-interface UseDigitalCardModalProps {
+interface IUseDigitalCardModalProps {
   digitalCard?: DigitalCardDto | null;
   draftKey: string;
 }
@@ -15,7 +15,7 @@ interface UseDigitalCardModalProps {
 export function useDigitalCardModal({
   digitalCard,
   draftKey,
-}: UseDigitalCardModalProps) {
+}: IUseDigitalCardModalProps) {
   const queryClient = useQueryClient();
 
   const createMutation = digitalCardService.useCreateDigitalCard();

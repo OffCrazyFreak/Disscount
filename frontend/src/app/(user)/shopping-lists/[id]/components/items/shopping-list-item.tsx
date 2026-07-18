@@ -3,13 +3,60 @@ import { Minus, Plus, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import StoreChainSelect from "@/components/custom/store-chain-select";
 
 import type { ShoppingListItemDto } from "@/lib/api/types";
 import { formatQuantity } from "@/utils/strings";
+import { cn } from "@/lib/utils";
 
-interface ShoppingListItemProps {
+interface IRemoveItemButtonProps {
+  visibilityClassName: string;
+  onDelete: () => void;
+  isDeleting: boolean;
+}
+
+// Red X that drops the item from the list. Rendered twice (mobile row and
+// desktop row), so the tooltip and styling live in one place.
+function RemoveItemButton({
+  visibilityClassName,
+  onDelete,
+  isDeleting,
+}: IRemoveItemButtonProps) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          size="icon"
+          aria-label="Makni proizvod s popisa"
+          className={cn(
+            "size-8 sm:size-10 shrink-0 bg-red-600 hover:bg-red-700",
+            visibilityClassName,
+          )}
+          onClick={onDelete}
+          disabled={isDeleting}
+        >
+          {isDeleting ? (
+            <Loader2 className="size-5 sm:size-6 animate-spin" />
+          ) : (
+            <X className="size-5 sm:size-6" />
+          )}
+        </Button>
+      </TooltipTrigger>
+
+      <TooltipContent variant="destructive" className="px-2 py-1 text-xs">
+        Makni proizvod s popisa
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+interface IShoppingListItemProps {
   item: ShoppingListItemDto;
   onUpdate: (updatedItem: {
     isChecked: boolean;
@@ -33,7 +80,7 @@ export default function ShoppingListItem({
   averagePrice,
   storePrices,
   showSeparator,
-}: ShoppingListItemProps) {
+}: IShoppingListItemProps) {
   // Average price - from DB for checked items, from API for unchecked items
   const displayPrice = item.isChecked ? item.avgPrice : averagePrice;
 
@@ -75,19 +122,11 @@ export default function ShoppingListItem({
           </div>
 
           {/* Delete button - shown on mobile in same row as item name */}
-          <Button
-            size="icon"
-            aria-label="Ukloni proizvod"
-            className="sm:hidden size-8 sm:size-10 shrink-0 bg-red-600 hover:bg-red-700"
-            onClick={onDelete}
-            disabled={isDeleting}
-          >
-            {isDeleting ? (
-              <Loader2 className="size-5 sm:size-6 animate-spin" />
-            ) : (
-              <X className="size-5 sm:size-6" />
-            )}
-          </Button>
+          <RemoveItemButton
+            visibilityClassName="sm:hidden"
+            onDelete={onDelete}
+            isDeleting={isDeleting}
+          />
         </div>
 
         {/* Right side: Amount controls, price, and remove button */}
@@ -175,20 +214,11 @@ export default function ShoppingListItem({
           </div>
 
           {/* Remove button - hidden on mobile, shown on larger screens */}
-
-          <Button
-            size="icon"
-            aria-label="Ukloni proizvod"
-            className="hidden sm:flex size-8 sm:size-10 shrink-0 bg-red-600 hover:bg-red-700"
-            onClick={onDelete}
-            disabled={isDeleting}
-          >
-            {isDeleting ? (
-              <Loader2 className="size-5 sm:size-6 animate-spin" />
-            ) : (
-              <X className="size-5 sm:size-6" />
-            )}
-          </Button>
+          <RemoveItemButton
+            visibilityClassName="hidden sm:flex"
+            onDelete={onDelete}
+            isDeleting={isDeleting}
+          />
         </div>
       </div>
 

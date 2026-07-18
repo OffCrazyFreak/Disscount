@@ -10,12 +10,12 @@ export interface GithubIconHandle {
 	stopAnimation: () => void;
 }
 
-interface GithubIconProps extends HTMLMotionProps<"div"> {
+interface IGithubIconProps extends HTMLMotionProps<"div"> {
 	size?: number;
 	duration?: number;
 }
 
-const GithubIcon = forwardRef<GithubIconHandle, GithubIconProps>(
+const GithubIcon = forwardRef<GithubIconHandle, IGithubIconProps>(
 	(
 		{
 			onMouseEnter,

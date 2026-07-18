@@ -33,13 +33,13 @@ import {
   setStoreOptimizeMode,
 } from "@/utils/browser/local-storage";
 
-interface ShoppingListStoreSummaryProps {
+interface IShoppingListStoreSummaryProps {
   shoppingList: ShoppingListDto;
 }
 
 export default function ShoppingListStoreSummary({
   shoppingList,
-}: ShoppingListStoreSummaryProps) {
+}: IShoppingListStoreSummaryProps) {
   const { user } = useUser();
 
   const [isStoresOpen, setIsStoresOpen] = useState(() =>

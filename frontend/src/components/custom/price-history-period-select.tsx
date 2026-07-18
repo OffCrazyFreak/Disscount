@@ -1,7 +1,7 @@
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PeriodOption } from "@/typings/history-period-options";
 
-interface PriceHistoryPeriodSelectProps {
+interface IPriceHistoryPeriodSelectProps {
   value: string;
   onChange: (value: string) => void;
   disabledPeriods?: PeriodOption[];
@@ -11,7 +11,7 @@ export default function PriceHistoryPeriodSelect({
   value,
   onChange,
   disabledPeriods = [],
-}: PriceHistoryPeriodSelectProps) {
+}: IPriceHistoryPeriodSelectProps) {
   const periods: { value: PeriodOption; label: string }[] = [
     { value: "1W", label: "1T" },
     { value: "1M", label: "1M" },

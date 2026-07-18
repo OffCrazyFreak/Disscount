@@ -23,7 +23,7 @@ import { useWatchlistItemForm } from "@/app/products/hooks/use-watchlist-item-fo
 import { useFormDraft } from "@/hooks/use-form-draft";
 import type { WatchlistItemDto } from "@/lib/api/schemas/watchlist";
 
-interface WatchlistItemModalProps {
+interface IWatchlistItemModalProps {
   open: boolean;
   ean: string;
   watchType?: WatchTypeParam;
@@ -56,7 +56,7 @@ export default function WatchlistItemModal({
   open,
   ean,
   watchType,
-}: WatchlistItemModalProps) {
+}: IWatchlistItemModalProps) {
   const productQuery = cijeneService.useGetProductByEan({ ean });
   const product = productQuery.data;
 

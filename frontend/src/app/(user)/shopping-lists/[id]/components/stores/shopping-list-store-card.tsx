@@ -27,7 +27,7 @@ import {
 } from "@/lib/cijene-api/schemas";
 import { getPriceExtreme } from "@/app/products/utils/product-utils";
 
-interface ShoppingListStoreItemProps {
+interface IShoppingListStoreItemProps {
   chain: ChainProductResponse & { itemCount: number };
   shoppingList: ShoppingListDto;
   absoluteMinPrice: number;
@@ -50,7 +50,7 @@ const ShoppingListStoreItemComponent = ({
   completeStoresAnalysis,
   hasLowestPriceItem,
   hasHighestPriceItem,
-}: ShoppingListStoreItemProps) => {
+}: IShoppingListStoreItemProps) => {
   const { user } = useUser();
   const [expandedStore, setExpandedStore] = useState<string | null>(null);
 

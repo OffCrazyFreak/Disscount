@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
-interface SearchBarSkeletonProps {
+interface ISearchBarSkeletonProps {
   submitButtonLocation?: "none" | "auto" | "block";
   className?: string;
 }
@@ -9,7 +9,7 @@ interface SearchBarSkeletonProps {
 export default function SearchBarSkeleton({
   submitButtonLocation = "auto",
   className,
-}: SearchBarSkeletonProps) {
+}: ISearchBarSkeletonProps) {
   const shouldShowButton = submitButtonLocation !== "none";
   const isBlockButton = submitButtonLocation === "block";
 

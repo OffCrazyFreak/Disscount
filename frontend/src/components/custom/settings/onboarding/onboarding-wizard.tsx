@@ -10,13 +10,13 @@ import { WizardProgressDots } from "@/components/custom/settings/onboarding/wiza
 import { WizardStepPanel } from "@/components/custom/settings/onboarding/wizard-step-panel";
 import { useOnboarding } from "@/components/custom/settings/onboarding/use-onboarding";
 
-interface OnboardingWizardProps {
+interface IOnboardingWizardProps {
   open: boolean;
   save: (extraUserPatch?: Partial<UserRequest>) => Promise<boolean>;
   saving: boolean;
 }
 
-export function OnboardingWizard({ open, save, saving }: OnboardingWizardProps) {
+export function OnboardingWizard({ open, save, saving }: IOnboardingWizardProps) {
   const {
     step,
     direction,

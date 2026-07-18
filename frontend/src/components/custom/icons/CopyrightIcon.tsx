@@ -10,12 +10,12 @@ export interface CopyrightIconHandle {
   stopAnimation: () => void;
 }
 
-interface CopyrightIconProps extends HTMLMotionProps<"div"> {
+interface ICopyrightIconProps extends HTMLMotionProps<"div"> {
   size?: number;
   duration?: number;
 }
 
-const CopyrightIcon = forwardRef<CopyrightIconHandle, CopyrightIconProps>(
+const CopyrightIcon = forwardRef<CopyrightIconHandle, ICopyrightIconProps>(
   (
     {
       onMouseEnter,

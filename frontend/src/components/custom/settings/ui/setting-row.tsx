@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-interface SettingRowProps {
+interface ISettingRowProps {
   label: ReactNode;
   description?: ReactNode;
   control: ReactNode;
@@ -20,7 +20,7 @@ export function SettingRow({
   control,
   destructive = false,
   className,
-}: SettingRowProps) {
+}: ISettingRowProps) {
   return (
     <div className={cn("flex items-center justify-between gap-2", className)}>
       <div className="space-y-1">

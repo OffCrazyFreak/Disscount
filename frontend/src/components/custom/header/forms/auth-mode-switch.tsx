@@ -2,12 +2,12 @@
 
 import type { AuthMode } from "@/components/custom/header/forms/auth-modal";
 
-interface AuthModeSwitchProps {
+interface IAuthModeSwitchProps {
   mode: AuthMode;
   onModeChange: (mode: AuthMode) => void;
 }
 
-export function AuthModeSwitch({ mode, onModeChange }: AuthModeSwitchProps) {
+export function AuthModeSwitch({ mode, onModeChange }: IAuthModeSwitchProps) {
   if (mode === "forgot") return null;
 
   return (

@@ -10,12 +10,12 @@ export interface BellRingIconHandle {
 	stopAnimation: () => void;
 }
 
-interface BellRingIconProps extends HTMLMotionProps<"div"> {
+interface IBellRingIconProps extends HTMLMotionProps<"div"> {
 	size?: number;
 	duration?: number;
 }
 
-const BellRingIcon = forwardRef<BellRingIconHandle, BellRingIconProps>(
+const BellRingIcon = forwardRef<BellRingIconHandle, IBellRingIconProps>(
 	(
 		{
 			onMouseEnter,

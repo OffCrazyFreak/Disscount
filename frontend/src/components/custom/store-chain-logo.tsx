@@ -6,7 +6,7 @@ import { Store } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getChainLabel } from "@/utils/labels";
 
-interface StoreChainLogoProps {
+interface IStoreChainLogoProps {
   chain: string;
   className?: string;
   width?: number;
@@ -27,7 +27,7 @@ export default function StoreChainLogo({
   height = 256,
   fill = false,
   sizes,
-}: StoreChainLogoProps) {
+}: IStoreChainLogoProps) {
   const [hasError, setHasError] = useState(false);
 
   const label = getChainLabel(chain);
