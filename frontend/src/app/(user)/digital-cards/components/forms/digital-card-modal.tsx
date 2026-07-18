@@ -105,12 +105,13 @@ export default function DigitalCardModal({
       srOnlyDescription
       dirty={form.formState.isDirty}
       formId="digital-card-form"
-      submitLabel={isEdit ? "Ažuriraj" : "Stvori"}
+      submitLabel={isEdit ? "Spremi" : "Stvori"}
       submitIcon={Save}
       submitLoading={isLoading}
       submitDisabled={!form.formState.isDirty || !form.formState.isValid || notFound}
       cancelLabel="Odustani"
-      resetLabel={restored ? "Resetiraj" : undefined}
+      resetLabel="Resetiraj"
+      resetDisabled={!form.formState.isDirty && !restored}
       onReset={() => {
         clearDraft();
         form.reset();

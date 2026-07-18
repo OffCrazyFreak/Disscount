@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye, Save } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { ModalShell } from "@/components/ui/modal-shell";
 import { Form } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RemoveIconButton } from "@/components/ui/remove-icon-button";
 import { WatchType } from "@/lib/api";
 import cijeneService from "@/lib/cijene-api";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
@@ -103,23 +103,11 @@ export default function WatchlistItemModal({
       srOnlyDescription
       dirty={form.formState.isDirty}
       formId="watchlist-form"
-      submitLabel={existingItemForType ? "Ažuriraj" : "Dodaj"}
-      submitIcon={Eye}
+      submitLabel={existingItemForType ? "Spremi" : "Prati"}
+      submitIcon={existingItemForType ? Save : Eye}
       submitLoading={isSaving}
       submitDisabled={isCheckingWatchlist || !product || !form.formState.isValid}
       cancelLabel="Odustani"
-      footerStart={
-        <Button
-          type="button"
-          variant="outline"
-          icon={Trash2}
-          iconPlacement="left"
-          onClick={onRemove}
-          disabled={!existingItemForType || isRemoving || isCheckingWatchlist}
-        >
-          Ukloni
-        </Button>
-      }
     >
       {productQuery.isLoading ? (
         <Skeleton className="h-24 w-full" />
@@ -127,7 +115,20 @@ export default function WatchlistItemModal({
         <p className="text-sm text-muted-foreground">Proizvod nije pronađen.</p>
       ) : (
         <div className="space-y-6">
-          <ProductInfoDisplay product={product} enableActionButtons={false} />
+          <ProductInfoDisplay
+            product={product}
+            enableActionButtons={false}
+            action={
+              existingItemForType ? (
+                <RemoveIconButton
+                  label="Ukloni s popisa za praćenje"
+                  onClick={onRemove}
+                  loading={isRemoving}
+                  disabled={isCheckingWatchlist}
+                />
+              ) : undefined
+            }
+          />
 
           <Form {...form}>
             <form

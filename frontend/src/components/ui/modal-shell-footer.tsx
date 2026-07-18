@@ -2,9 +2,9 @@
 
 import { ReactNode } from "react";
 import { RotateCcw, Save, X, type LucideIcon } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export interface ModalShellFooterProps {
   cancelLabel?: string;
@@ -42,7 +42,6 @@ export function ModalShellFooter({
   footerStart,
   caption,
 }: ModalShellFooterProps) {
-  const reduceMotion = useReducedMotion();
   const hasButtons = !!cancelLabel || !!submitLabel || !!footerStart;
 
   if (!hasButtons && !caption) return null;
@@ -84,17 +83,9 @@ export function ModalShellFooter({
             )}
 
             {submitLabel && (
-              <motion.div
-                // A single gentle pulse each time the button becomes clickable,
-                // nudging the user toward saving their changes.
-                key={String(submitEnabled)}
-                animate={
-                  submitEnabled && !reduceMotion
-                    ? { scale: [1, 1.06, 1] }
-                    : undefined
-                }
-                transition={{ duration: 0.45, delay: 0.15, ease: "easeInOut" }}
-              >
+              // A brief nudge once every 10s (CSS keyframe) while there is
+              // something to save, drawing the eye without being distracting.
+              <div className={cn(submitEnabled && "animate-submit-nudge")}>
                 <Button
                   type={formId ? "submit" : "button"}
                   form={formId}
@@ -108,7 +99,7 @@ export function ModalShellFooter({
                 >
                   {submitLabel}
                 </Button>
-              </motion.div>
+              </div>
             )}
           </div>
         </div>

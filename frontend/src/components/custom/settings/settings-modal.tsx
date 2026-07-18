@@ -57,7 +57,8 @@ export function SettingsModal({ open, tab }: SettingsModalProps) {
     submitLoading: security.form.formState.isSubmitting,
     submitDisabled:
       !security.form.formState.isDirty || !security.form.formState.isValid,
-    resetLabel: security.form.formState.isDirty ? "Resetiraj" : undefined,
+    resetLabel: "Resetiraj",
+    resetDisabled: !security.form.formState.isDirty,
     onReset: () => security.form.reset(),
   };
 
@@ -67,7 +68,8 @@ export function SettingsModal({ open, tab }: SettingsModalProps) {
     submitLabel: "Spremi",
     submitLoading: saving,
     submitDisabled: !anyDirty || !isReady,
-    resetLabel: anyDirty ? "Resetiraj" : undefined,
+    resetLabel: "Resetiraj",
+    resetDisabled: !anyDirty,
     onReset: resetToDefaults,
   };
 

@@ -106,12 +106,13 @@ export default function ShoppingListModal({
       srOnlyDescription
       dirty={form.formState.isDirty}
       formId="shopping-list-form"
-      submitLabel={isEdit ? "Ažuriraj" : "Stvori"}
+      submitLabel={isEdit ? "Spremi" : "Stvori"}
       submitIcon={Save}
       submitLoading={isLoading}
       submitDisabled={!form.formState.isDirty || !form.formState.isValid || notFound}
       cancelLabel="Odustani"
-      resetLabel={restored ? "Resetiraj" : undefined}
+      resetLabel="Resetiraj"
+      resetDisabled={!form.formState.isDirty && !restored}
       onReset={() => {
         clearDraft();
         form.reset();

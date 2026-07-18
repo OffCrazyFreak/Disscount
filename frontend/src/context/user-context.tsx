@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { authClient, useSession } from "@/lib/auth-client";
@@ -8,6 +9,7 @@ import { clearAuthToken, resetAuthToken } from "@/lib/api/api-base";
 import { purgeOfflineCache } from "@/lib/offline/purge";
 import { userService, preferencesService } from "@/lib/api";
 import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
+import { isProtectedRoute } from "@/constants/protected-routes";
 
 interface IUserContext {
   user: UserDto | null;
@@ -28,6 +30,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const pathname = usePathname();
   const { data: session, isPending: sessionPending } = useSession();
 
   const refreshUser = useCallback(async () => {
@@ -81,8 +85,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       clearAuthToken();
       setUser(null);
       await purgeOfflineCache(queryClient);
+      // Leaving a user-only page (e.g. shopping lists) signed out would show a
+      // login gate; send the user home instead.
+      if (isProtectedRoute(pathname)) router.push("/");
     }
-  }, [queryClient]);
+  }, [queryClient, router, pathname]);
 
   // Called by login/signup forms after signIn/signUp succeeds to eagerly load the profile
   const handleUserLogin = useCallback(async () => {

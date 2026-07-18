@@ -21,6 +21,7 @@ import {
   addToListFormSchema,
 } from "@/app/products/typings/add-to-list";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
+import { RemoveIconButton } from "@/components/ui/remove-icon-button";
 import FormWarning from "@/components/custom/form-warning";
 import ShoppingListSelector from "@/app/products/components/forms/shopping-list-selector";
 import QuantityInput from "@/app/products/components/forms/quantity-input";
@@ -59,6 +60,7 @@ export default function AddToShoppingListForm({
   const createShoppingListMutation =
     shoppingListService.useCreateShoppingList();
   const addItemMutation = shoppingListService.useAddItemToShoppingList();
+  const removeItemMutation = shoppingListService.useDeleteShoppingListItem();
 
   const form = useForm<AddToListFormData>({
     resolver: zodResolver(addToListFormSchema),
@@ -131,6 +133,23 @@ export default function AddToShoppingListForm({
   }, [open, draftKey, form]);
 
   const isChecked = form.watch("isChecked");
+
+  // Remove the product from the selected list (the red X shown when it's
+  // already there); stays in the modal so the user can re-add or pick another list.
+  async function handleRemoveFromList() {
+    if (!duplicateItem || !selectedListId) return;
+    try {
+      await removeItemMutation.mutateAsync({
+        listId: selectedListId,
+        itemId: duplicateItem.id,
+      });
+      queryClient.invalidateQueries({ queryKey: ["shoppingLists"] });
+      queryClient.invalidateQueries({ queryKey: ["shoppingListItems"] });
+      toast.success("Proizvod je uklonjen s popisa.");
+    } catch {
+      toast.error("Greška pri uklanjanju proizvoda.");
+    }
+  }
 
   // Optimistic close: the modal closes immediately and reopens only on failure.
   async function onSubmit(data: AddToListFormData) {
@@ -206,7 +225,8 @@ export default function AddToShoppingListForm({
       submitLoading={isSubmitting}
       submitDisabled={!product || !form.formState.isValid}
       cancelLabel="Odustani"
-      resetLabel={restored ? "Resetiraj" : undefined}
+      resetLabel="Resetiraj"
+      resetDisabled={!form.formState.isDirty && !restored}
       onReset={() => {
         clearDraft();
         form.reset();
@@ -220,7 +240,19 @@ export default function AddToShoppingListForm({
         </p>
       ) : (
         <div className="space-y-4">
-          <ProductInfoDisplay product={product} enableActionButtons={false} />
+          <ProductInfoDisplay
+            product={product}
+            enableActionButtons={false}
+            action={
+              duplicateItem ? (
+                <RemoveIconButton
+                  label="Ukloni s ovog popisa"
+                  onClick={handleRemoveFromList}
+                  loading={removeItemMutation.isPending}
+                />
+              ) : undefined
+            }
+          />
 
           <Form {...form}>
             <form

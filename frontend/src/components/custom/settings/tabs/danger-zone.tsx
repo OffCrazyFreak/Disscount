@@ -150,7 +150,7 @@ export function DangerZone() {
         isOpen={showDeleteConfirm}
         onOpenChange={setShowDeleteConfirm}
         title="Brisanje računa"
-        description="Ova akcija se ne može poništiti. Svi tvoji podaci bit će trajno obrisani."
+        description="Tvoj račun će biti trajno obrisan. Ova akcija se ne može poništiti."
         confirmLabel="Obriši račun"
         variant="destructive"
         onConfirm={handleDeleteUser}

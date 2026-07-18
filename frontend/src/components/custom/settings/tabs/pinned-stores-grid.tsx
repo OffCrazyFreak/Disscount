@@ -30,13 +30,13 @@ export function PinnedStoresGrid() {
       </p>
 
       {isLoading ? (
-        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} className="size-16 sm:size-20 rounded-lg" />
+        <div className="grid grid-cols-5 gap-2 sm:grid-cols-6 sm:gap-3">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <Skeleton key={i} className="aspect-square w-full rounded-lg" />
           ))}
         </div>
       ) : (
-        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
+        <div className="grid grid-cols-5 gap-2 sm:grid-cols-6 sm:gap-3">
           {chainStats?.chain_stats
             .slice()
             .sort((a, b) =>
@@ -57,11 +57,11 @@ export function PinnedStoresGrid() {
                   )}
                   onClick={() => toggleStore(chain.chain_code)}
                 >
-                  <div className="size-16 sm:size-20 grid place-items-center relative transition-all">
+                  <div className="aspect-square w-full grid place-items-center relative transition-all">
                     <StoreChainLogo
                       chain={chain.chain_code}
                       fill
-                      sizes="128px"
+                      sizes="96px"
                       className={cn(
                         "opacity-40 object-contain",
                         isSelected && "opacity-100"
@@ -69,8 +69,8 @@ export function PinnedStoresGrid() {
                     />
                   </div>
                   {isSelected && (
-                    <div className="absolute top-2 right-2 w-5 h-5 bg-secondary rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs">✓</span>
+                    <div className="absolute top-1 right-1 size-4 bg-secondary rounded-full flex items-center justify-center">
+                      <span className="text-white text-[10px]">✓</span>
                     </div>
                   )}
                 </div>

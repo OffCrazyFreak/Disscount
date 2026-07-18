@@ -12,6 +12,15 @@ import { GoogleIcon } from "@/components/icons/google-icon";
 import { FacebookIcon } from "@/components/icons/facebook-icon";
 import { FACEBOOK_COMING_SOON } from "@/constants/auth";
 import { setLastLoginMethod } from "@/utils/browser/local-storage";
+import { stripModalSearch } from "@/lib/modal/modal-registry";
+
+// After the OAuth round-trip, return to the page the user started on (minus the
+// auth modal param) instead of always bouncing to the homepage.
+function currentReturnUrl(): string {
+  if (typeof window === "undefined") return "/";
+  const search = stripModalSearch(new URLSearchParams(window.location.search));
+  return window.location.pathname + search;
+}
 
 type SocialProvider = "google" | "facebook";
 
@@ -41,10 +50,11 @@ export function AuthSocialButtons({
     onPendingChange(provider);
     try {
       setLastLoginMethod(provider);
+      const returnUrl = currentReturnUrl();
       await signIn.social({
         provider,
-        callbackURL: "/",
-        errorCallbackURL: "/",
+        callbackURL: returnUrl,
+        errorCallbackURL: returnUrl,
       });
     } catch {
       const label = provider === "google" ? "Google" : "Facebook";

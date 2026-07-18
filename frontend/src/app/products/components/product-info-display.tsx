@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import ProductActionButtons from "@/app/products/components/product-action-buttons";
@@ -10,11 +10,14 @@ import { useRouter } from "next/navigation";
 interface IProductInfoDisplayProps {
   product: ProductResponse;
   enableActionButtons?: boolean;
+  // Rendered on the right of the name row (e.g. a remove button inside modals).
+  action?: ReactNode;
 }
 
 export default function ProductInfoDisplay({
   product,
   enableActionButtons = true,
+  action,
 }: IProductInfoDisplayProps) {
   const router = useRouter();
 
@@ -77,14 +80,16 @@ export default function ProductInfoDisplay({
           </div>
         </div>
 
-        {/* Right side - Action buttons */}
-        {enableActionButtons && (
+        {/* Right side - action buttons on the product page, or a modal action */}
+        {enableActionButtons ? (
           <ProductActionButtons
             product={product}
             showSearchImage={true}
             showAddToList={true}
             showAddToWatchlist={true}
           />
+        ) : (
+          action
         )}
       </div>
 

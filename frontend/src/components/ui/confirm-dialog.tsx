@@ -6,6 +6,7 @@ import {
   Loader2,
   Check,
   Trash2,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
@@ -85,10 +86,11 @@ export function ConfirmDialog({
         </motion.div>
       }
       footer={
-        <div className="flex gap-2 px-6 pb-6 pt-3">
+        <div className="flex items-center justify-between gap-2 px-6 pb-6 pt-3">
           <Button
             variant="outline"
-            className="flex-1"
+            icon={X}
+            iconPlacement="left"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
           >
@@ -99,7 +101,6 @@ export function ConfirmDialog({
             variant={variant}
             icon={ConfirmIcon}
             iconPlacement="left"
-            className="flex-1"
             onClick={onConfirm}
             disabled={isLoading}
           >

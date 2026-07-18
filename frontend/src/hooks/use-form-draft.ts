@@ -20,10 +20,10 @@ interface UseFormDraftOptions<T extends FieldValues> {
 }
 
 /**
- * Persists a modal form's dirty values to localStorage (24h TTL, handled by the
- * storage layer) so users can close a modal and resume later. Restores once via
- * form.reset with keepDefaultValues, so restored values register as dirty and
- * light up dirty indicators / enable the save button automatically.
+ * Persists a modal form's changed values to localStorage (24h TTL) so users can
+ * close a modal and resume later. "Changed" is computed by comparing current
+ * values against the form's default values (not RHF's dirtyFields, whose proxy
+ * can read empty inside a callback), which makes persistence reliable.
  */
 export function useFormDraft<T extends FieldValues>({
   draftKey,
@@ -31,15 +31,17 @@ export function useFormDraft<T extends FieldValues>({
   enabled = true,
   exclude = [],
 }: UseFormDraftOptions<T>) {
-  // The chip derives from "a draft existed when this modal mounted" so the
-  // restore effect never has to set state synchronously.
   const [hadDraft] = useState(() => !!getFormDraft(draftKey));
   const [dismissed, setDismissed] = useState(false);
   const restoredOnceRef = useRef(false);
-  const excludeRef = useRef(exclude);
+
+  // Read defaults during render so RHF's formState proxy keeps them computed,
+  // then mirror into a ref the (stable) flush callback can read.
+  const defaultValues = form.formState.defaultValues;
+  const stateRef = useRef({ exclude, defaultValues });
 
   useEffect(() => {
-    excludeRef.current = exclude;
+    stateRef.current = { exclude, defaultValues };
   });
 
   useEffect(() => {
@@ -53,8 +55,18 @@ export function useFormDraft<T extends FieldValues>({
     let changed = false;
 
     for (const [field, value] of Object.entries(draft.values)) {
-      if (excludeRef.current.includes(field as Path<T>)) continue;
-      if (JSON.stringify(values[field]) === JSON.stringify(value)) continue;
+      if (stateRef.current.exclude.includes(field as Path<T>)) continue;
+      const current = values[field];
+      // Ignore drafts written under an older schema (e.g. a number where the
+      // field is now a string) so they can't poison validation.
+      if (
+        current !== undefined &&
+        value !== undefined &&
+        typeof current !== typeof value
+      ) {
+        continue;
+      }
+      if (JSON.stringify(current) === JSON.stringify(value)) continue;
       values[field] = value;
       changed = true;
     }
@@ -65,11 +77,14 @@ export function useFormDraft<T extends FieldValues>({
 
   const flushDraft = useCallback(() => {
     const values = form.getValues() as Record<string, unknown>;
+    const { exclude: excluded, defaultValues: defaults } = stateRef.current;
     const payload: Record<string, unknown> = {};
 
-    for (const field of Object.keys(form.formState.dirtyFields)) {
-      if (excludeRef.current.includes(field as Path<T>)) continue;
-      payload[field] = values[field];
+    for (const [field, value] of Object.entries(values)) {
+      if (excluded.includes(field as Path<T>)) continue;
+      const base = (defaults as Record<string, unknown> | undefined)?.[field];
+      if (JSON.stringify(value) === JSON.stringify(base)) continue;
+      payload[field] = value;
     }
 
     if (Object.keys(payload).length === 0) removeFormDraft(draftKey);
@@ -89,8 +104,7 @@ export function useFormDraft<T extends FieldValues>({
       clearTimeout(timer);
       subscription.unsubscribe();
       // Closing mid-debounce would lose the last keystrokes; flush them unless
-      // the user submitted (submit handlers flush themselves, and flushing here
-      // would race the async save's removeFormDraft on success).
+      // the user submitted (submit handlers clear the draft on success).
       if (!form.formState.isSubmitted) flushDraft();
     };
   }, [enabled, draftKey, form, flushDraft]);

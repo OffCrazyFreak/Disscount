@@ -16,9 +16,9 @@ export function UnsavedIndicator() {
       <TooltipTrigger asChild>
         <span
           aria-label="Nespremljene izmjene"
-          className="inline-flex size-5 items-center justify-center rounded-full bg-amber-100 text-amber-600"
+          className="inline-flex size-7 items-center justify-center rounded-full bg-amber-100 text-amber-600"
         >
-          <PencilLine className="size-3" />
+          <PencilLine className="size-4" />
         </span>
       </TooltipTrigger>
       <TooltipContent className="max-w-56 text-xs">
