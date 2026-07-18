@@ -1,8 +1,9 @@
 "use client";
 
-import { X, Loader2 } from "lucide-react";
+import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import {
   Tooltip,
   TooltipContent,
@@ -34,7 +35,7 @@ export function RemoveIconButton({
           disabled={loading || disabled}
         >
           {loading ? (
-            <Loader2 className="size-5 animate-spin" />
+            <BlockLoadingSpinner size={20} className="text-inherit" />
           ) : (
             <X className="size-5" />
           )}

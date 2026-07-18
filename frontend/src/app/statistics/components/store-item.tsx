@@ -1,7 +1,8 @@
 "use client";
 
 import React, { memo } from "react";
-import { ChevronDown, Loader2, MapPin, Tag } from "lucide-react";
+import { ChevronDown, MapPin, Tag } from "lucide-react";
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import StoreChainLogo from "@/components/custom/store-chain-logo";
 import {
   Collapsible,
@@ -97,7 +98,7 @@ const StoreItem = memo(
             <div className="mt-4">
               {storesLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 className="size-6 animate-spin mr-2" />
+                  <BlockLoadingSpinner size={24} className="mr-2" />
                   Učitavanje trgovina...
                 </div>
               ) : storesData?.stores && storesData.stores.length > 0 ? (

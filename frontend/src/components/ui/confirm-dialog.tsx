@@ -3,7 +3,6 @@
 import {
   AlertTriangle,
   LogOut,
-  Loader2,
   Check,
   Trash2,
   X,
@@ -101,10 +100,11 @@ export function ConfirmDialog({
             variant={variant}
             icon={ConfirmIcon}
             iconPlacement="left"
+            loading={isLoading}
+            loadingIconPlacement="left"
             onClick={onConfirm}
-            disabled={isLoading}
           >
-            {isLoading ? <Loader2 size={15} className="animate-spin" /> : confirmLabel}
+            {confirmLabel}
           </Button>
         </div>
       }

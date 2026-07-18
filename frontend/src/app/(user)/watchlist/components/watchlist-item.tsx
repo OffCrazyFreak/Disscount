@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { X, Loader2, Eye } from "lucide-react";
+import { X, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +13,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Skeleton } from "@/components/ui/skeleton";
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import { watchlistService } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -69,7 +70,7 @@ function WatchlistActionButton({
           {isAddMode ? (
             <Eye className="size-5 sm:size-6" />
           ) : isRemoving ? (
-            <Loader2 className="size-5 sm:size-6 animate-spin" />
+            <BlockLoadingSpinner size={22} className="text-inherit" />
           ) : (
             <X className="size-5 sm:size-6" />
           )}

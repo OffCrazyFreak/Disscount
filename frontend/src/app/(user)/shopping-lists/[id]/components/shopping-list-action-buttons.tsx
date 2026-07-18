@@ -2,12 +2,12 @@ import React, { MouseEvent, useState } from "react";
 import {
   LucideClipboardEdit,
   Trash2,
-  Loader2,
   Copy,
   Share2,
   MoreVertical,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import {
   Tooltip,
   TooltipContent,
@@ -98,7 +98,7 @@ export default function ShoppingListActionButtons({
                 disabled={isSharing}
               >
                 {isSharing ? (
-                  <Loader2 className="size-6 sm:size-7 animate-spin" />
+                  <BlockLoadingSpinner size={26} className="text-inherit" />
                 ) : (
                   <Share2 className="size-6 sm:size-7" />
                 )}
@@ -124,7 +124,7 @@ export default function ShoppingListActionButtons({
                 disabled={isCopying}
               >
                 {isCopying ? (
-                  <Loader2 className="size-6 sm:size-7 animate-spin" />
+                  <BlockLoadingSpinner size={26} className="text-inherit" />
                 ) : (
                   <Copy className="size-6 sm:size-7" />
                 )}
@@ -169,7 +169,7 @@ export default function ShoppingListActionButtons({
                 disabled={deleteShoppingListMutation.isPending}
               >
                 {deleteShoppingListMutation.isPending ? (
-                  <Loader2 className="size-6 sm:size-7 animate-spin" />
+                  <BlockLoadingSpinner size={26} className="text-inherit" />
                 ) : (
                   <Trash2 className="size-6 sm:size-7" />
                 )}
@@ -199,7 +199,7 @@ export default function ShoppingListActionButtons({
                 disabled={isSharing}
               >
                 {isSharing ? (
-                  <Loader2 className="size-5 animate-spin" />
+                  <BlockLoadingSpinner size={20} className="text-inherit" />
                 ) : (
                   <Share2 className="size-5" />
                 )}
@@ -216,7 +216,7 @@ export default function ShoppingListActionButtons({
                 disabled={isCopying}
               >
                 {isCopying ? (
-                  <Loader2 className="size-5 animate-spin" />
+                  <BlockLoadingSpinner size={20} className="text-inherit" />
                 ) : (
                   <Copy className="size-5" />
                 )}
@@ -243,7 +243,7 @@ export default function ShoppingListActionButtons({
                 disabled={deleteShoppingListMutation.isPending}
               >
                 {deleteShoppingListMutation.isPending ? (
-                  <Loader2 className="size-5 animate-spin" />
+                  <BlockLoadingSpinner size={20} className="text-inherit" />
                 ) : (
                   <Trash2 className="size-5 text-red-600" />
                 )}

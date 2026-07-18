@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Loader2 } from "lucide-react";
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import cijeneService from "@/lib/cijene-api";
 
 export default function HealthStatus() {
@@ -14,7 +14,7 @@ export default function HealthStatus() {
   if (healthLoading) {
     return (
       <div className="flex items-center gap-2">
-        <Loader2 className="size-4 animate-spin" />
+        <BlockLoadingSpinner size={16} />
         Provjera stanja...
       </div>
     );

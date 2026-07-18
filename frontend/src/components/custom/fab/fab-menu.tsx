@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Loader2, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import type { IFabAction } from "@/components/custom/fab/fab-action";
 
 interface IFabMenuProps {
@@ -99,7 +100,7 @@ export default function FabMenu({
                   className="size-12 rounded-full shadow-lg"
                 >
                   {action.loading ? (
-                    <Loader2 className="size-5 animate-spin" />
+                    <BlockLoadingSpinner size={20} className="text-inherit" />
                   ) : (
                     <action.icon className="size-5" />
                   )}

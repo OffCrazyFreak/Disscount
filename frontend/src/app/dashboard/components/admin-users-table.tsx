@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
+
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 
 import {
   Table,
@@ -69,7 +71,7 @@ export default function AdminUsersTable() {
   if (isLoading) {
     return (
       <div className="flex justify-center py-12">
-        <Loader2 className="size-6 animate-spin text-primary" />
+        <BlockLoadingSpinner size={24} />
       </div>
     );
   }

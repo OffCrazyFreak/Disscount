@@ -2,7 +2,7 @@ import * as React from "react";
 import { Slot, Slottable } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
-import { Spinner } from "@/components/ui/spinner";
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
@@ -95,7 +95,7 @@ const Button = React.forwardRef<
       loading,
       loadingText,
       loadingIconPlacement = "right",
-      hideIconOnLoading = false,
+      hideIconOnLoading = true,
       asChild = false,
       ...props
     },
@@ -113,7 +113,7 @@ const Button = React.forwardRef<
         {...props}
       >
         {loading && loadingIconPlacement === "left" && (
-          <Spinner variant={variant || "default"} />
+          <BlockLoadingSpinner size={18} className="text-inherit" />
         )}
 
         {Icon &&
@@ -130,10 +130,7 @@ const Button = React.forwardRef<
         <Slottable>{loading ? loadingText : props.children}</Slottable>
 
         {loading && loadingIconPlacement === "right" && (
-          <Spinner
-            variant={variant || "default"}
-            className="ml-2 animate-spin"
-          />
+          <BlockLoadingSpinner size={18} className="ml-2 text-inherit" />
         )}
 
         {Icon &&

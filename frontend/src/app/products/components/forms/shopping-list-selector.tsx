@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Loader2, Plus, ChevronDown, ListChecks } from "lucide-react";
+import { Plus, ChevronDown, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import {
   Tooltip,
   TooltipContent,
@@ -77,7 +78,7 @@ export default function ShoppingListSelector({
                   <div className="flex-1 text-left w-0">
                     {isLoadingLists ? (
                       <div>
-                        <Loader2 className="size-5 animate-spin" />
+                        <BlockLoadingSpinner size={20} />
                         <span className="sr-only">Učitavanje...</span>
                       </div>
                     ) : field.value === "new" && customListTitle.trim() ? (

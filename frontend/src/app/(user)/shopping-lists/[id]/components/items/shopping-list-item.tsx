@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Minus, Plus, X, Loader2 } from "lucide-react";
+import { Minus, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -42,7 +43,7 @@ function RemoveItemButton({
           disabled={isDeleting}
         >
           {isDeleting ? (
-            <Loader2 className="size-5 sm:size-6 animate-spin" />
+            <BlockLoadingSpinner size={22} className="text-inherit" />
           ) : (
             <X className="size-5 sm:size-6" />
           )}

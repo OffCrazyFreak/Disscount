@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
 
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import { useUser } from "@/context/user-context";
 import { canAccessDashboard } from "@/lib/api/schemas/auth-user";
 
@@ -26,7 +26,7 @@ export default function DashboardGuard({
   if (isLoading || !allowed) {
     return (
       <div className="flex justify-center py-24">
-        <Loader2 className="size-6 animate-spin text-primary" />
+        <BlockLoadingSpinner size={24} />
       </div>
     );
   }

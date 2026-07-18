@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Loader2, HandCoins, Eye } from "lucide-react";
+import { HandCoins, Eye } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import { BellRingIcon } from "@/components/custom/icons/BellRingIcon";
 import { useNotifications } from "@/context/notifications-context";
 import { formatQuantity } from "@/utils/strings";
@@ -71,7 +72,7 @@ export default function NotificationsDropdown() {
         <div className="max-h-128 overflow-y-auto">
           {isLoading ? (
             <div className="p-6 flex items-center justify-center gap-2 text-muted-foreground">
-              <Loader2 className="size-4 animate-spin" />
+              <BlockLoadingSpinner size={16} />
               <span className="text-sm">Učitavanje...</span>
             </div>
           ) : notifications.length === 0 ? (
