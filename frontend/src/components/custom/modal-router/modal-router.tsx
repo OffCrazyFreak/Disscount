@@ -6,7 +6,12 @@ import EntityModalOutlet, {
 } from "@/components/custom/modal-router/entity-modal-outlet";
 import SettingsModalHost from "@/components/custom/settings/settings-modal-host";
 import { OnboardingGate } from "@/components/custom/settings/onboarding/onboarding-gate";
-import { AUTH_MODAL_NAMES } from "@/lib/modal/modal-registry";
+import { ResetPasswordModal } from "@/components/custom/header/forms/reset-password-modal";
+import { AuthStatusModal } from "@/components/custom/header/forms/auth-status-modal";
+import {
+  AUTH_MODAL_NAMES,
+  PUBLIC_MODAL_NAMES,
+} from "@/lib/modal/modal-registry";
 import { useModalUrl } from "@/lib/modal/use-modal-url";
 import { useUser } from "@/context/user-context";
 
@@ -43,11 +48,18 @@ export default function ModalRouter() {
 
   const isAuthTarget =
     !!target && (AUTH_MODAL_NAMES as readonly string[]).includes(target.name);
+  const isPublicTarget =
+    !!target && (PUBLIC_MODAL_NAMES as readonly string[]).includes(target.name);
 
   // Protected modals opened while logged out show the login modal instead; the
   // modal param stays in the URL, so the intended modal appears after login.
+  // Public modals (reset-password, email confirmations) are never gated.
   const needsAuthGate =
-    !!target && !isAuthTarget && !isAuthenticated && !isLoading;
+    !!target &&
+    !isAuthTarget &&
+    !isPublicTarget &&
+    !isAuthenticated &&
+    !isLoading;
 
   const showAuthModal =
     (isAuthTarget && !isAuthenticated && !isLoading) || needsAuthGate;
@@ -65,6 +77,16 @@ export default function ModalRouter() {
         message={gateMessage}
         onOpenChange={(open) => !open && closeModal()}
         onModeChange={(mode) => swapModal({ name: MODE_TO_TARGET_NAME[mode] })}
+      />
+
+      <ResetPasswordModal open={target?.name === "reset-password"} />
+      <AuthStatusModal
+        open={target?.name === "email-verified"}
+        kind="email-verified"
+      />
+      <AuthStatusModal
+        open={target?.name === "email-changed"}
+        kind="email-changed"
       />
 
       {isAuthenticated && (

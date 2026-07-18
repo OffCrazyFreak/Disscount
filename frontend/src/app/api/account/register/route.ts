@@ -57,6 +57,9 @@ export async function POST(request: Request) {
           email,
           password: parsed.data.password,
           name: email.split("@")[0],
+          // After the user clicks the verification link they land back on the
+          // homepage with a success modal (Better Auth signs them in en route).
+          callbackURL: "/?modal=email-verified",
         },
       });
     }

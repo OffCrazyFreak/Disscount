@@ -15,6 +15,9 @@ export type ModalTarget =
   | { name: "login" }
   | { name: "signup" }
   | { name: "forgot-password" }
+  | { name: "reset-password" }
+  | { name: "email-verified" }
+  | { name: "email-changed" }
   | { name: "onboarding" }
   | { name: "settings"; tab: SettingsTab }
   | { name: "shopping-list"; action: "new" }
@@ -24,7 +27,15 @@ export type ModalTarget =
   | { name: "add-to-list"; ean: string }
   | { name: "watchlist"; ean: string; watchType?: WatchTypeParam };
 
+// Login-style modals shown to logged-out users when a protected modal is opened.
 export const AUTH_MODAL_NAMES = ["login", "signup", "forgot-password"] as const;
+
+// Modals reachable by anyone (from email links); never auth-gated.
+export const PUBLIC_MODAL_NAMES = [
+  "reset-password",
+  "email-verified",
+  "email-changed",
+] as const;
 
 function isSettingsTab(value: string): value is SettingsTab {
   return (SETTINGS_TABS as readonly string[]).includes(value);
@@ -44,6 +55,9 @@ export function parseModalParam(
     case "login":
     case "signup":
     case "forgot-password":
+    case "reset-password":
+    case "email-verified":
+    case "email-changed":
     case "onboarding":
       return { name };
     case "settings":

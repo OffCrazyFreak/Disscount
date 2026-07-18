@@ -26,7 +26,7 @@ export default function AccountCredentialsForm() {
       <form
         id={CREDENTIALS_FORM_ID}
         onSubmit={form.handleSubmit(submit)}
-        className="space-y-4"
+        className="space-y-6"
       >
         <FormField
           control={form.control}

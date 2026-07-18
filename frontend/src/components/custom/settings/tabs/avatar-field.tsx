@@ -4,6 +4,11 @@ import { Camera } from "lucide-react";
 import { toast } from "sonner";
 import { UserAvatar } from "@daveyplate/better-auth-ui";
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { fileToBase64 } from "@/utils/browser/file";
 import { useUser } from "@/context/user-context";
 import { useSettingsUi } from "@/components/custom/settings/settings-context";
@@ -34,32 +39,40 @@ export function AvatarField() {
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className="relative">
-        <UserAvatar
-          className="size-24 text-2xl font-bold"
-          user={{
-            name: user?.username || "",
-            email: user?.email || "",
-            image: avatarPreview,
-          }}
-          size="xl"
-        />
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleAvatarChange}
+        className="hidden"
+        id="avatar-upload"
+      />
 
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleAvatarChange}
-          className="hidden"
-          id="avatar-upload"
-        />
-        <label
-          htmlFor="avatar-upload"
-          aria-label="Promijeni sliku"
-          className="absolute -bottom-1 -right-1 flex size-8 cursor-pointer items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
-        >
-          <Camera className="size-4" />
-        </label>
-      </div>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <label
+            htmlFor="avatar-upload"
+            aria-label="Promijeni sliku"
+            className="relative block size-24 cursor-pointer overflow-hidden rounded-full"
+          >
+            <UserAvatar
+              className="size-24 text-2xl font-bold"
+              user={{
+                name: user?.username || "",
+                email: user?.email || "",
+                image: avatarPreview,
+              }}
+              size="xl"
+            />
+
+            <span className="absolute inset-x-0 bottom-0 flex h-[30%] items-center justify-center bg-black/45 text-white">
+              <Camera className="size-4" />
+            </span>
+          </label>
+        </TooltipTrigger>
+        <TooltipContent className="px-2 py-1 text-xs">
+          Promijeni sliku
+        </TooltipContent>
+      </Tooltip>
 
       {avatarPreview && (
         <button

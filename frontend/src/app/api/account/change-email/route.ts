@@ -49,8 +49,12 @@ export async function POST(request: Request) {
 
   try {
     // Sends a confirmation to the CURRENT address; the change applies only after it's clicked.
+    // The confirmation link returns to the homepage with a success modal.
     await auth.api.changeEmail({
-      body: { newEmail: parsed.data.newEmail.toLowerCase() },
+      body: {
+        newEmail: parsed.data.newEmail.toLowerCase(),
+        callbackURL: "/?modal=email-changed",
+      },
       headers: requestHeaders,
     });
   } catch {
