@@ -40,7 +40,9 @@ export function RemoveIconButton({
           )}
         </Button>
       </TooltipTrigger>
-      <TooltipContent className="px-2 py-1 text-xs">{label}</TooltipContent>
+      <TooltipContent variant="destructive" className="px-2 py-1 text-xs">
+        {label}
+      </TooltipContent>
     </Tooltip>
   );
 }

@@ -176,7 +176,7 @@ export default function ShoppingListActionButtons({
               </Button>
             </TooltipTrigger>
 
-            <TooltipContent className="px-2 py-1 text-xs">
+            <TooltipContent variant="destructive" className="px-2 py-1 text-xs">
               Obriši popis
             </TooltipContent>
           </Tooltip>
