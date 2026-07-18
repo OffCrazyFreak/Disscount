@@ -15,6 +15,16 @@ export interface OpenModalOptions {
 // and its Suspense boundary. Shallow pushState/replaceState leave the page
 // untouched (no RSC refetch, no scroll reset) while Next syncs useSearchParams,
 // which re-renders the ModalRouter.
+//
+// IMPORTANT: never pass window.history.state through to pushState/replaceState.
+// Next's patched history methods treat any state carrying its internal __NA
+// flag as one of its OWN navigations and skip the router sync entirely, so
+// useSearchParams would never update. Passing only our marker lets Next's
+// copyNextJsInternalHistoryState re-attach its internals AND fire the sync.
+
+function hasModalMarker(): boolean {
+  return !!window.history.state?.__disscountModal;
+}
 
 export function openModalUrl(
   target: ModalTarget,
@@ -24,28 +34,26 @@ export function openModalUrl(
   const url = window.location.pathname + buildModalSearch(current, target);
 
   if (options?.replace) {
-    window.history.replaceState(window.history.state, "", url);
+    // Keep the marker if this entry was pushed by us (tab/mode swaps).
+    const state = hasModalMarker() ? { __disscountModal: true } : {};
+    window.history.replaceState(state, "", url);
   } else {
     // The marker records that we pushed this entry ourselves, letting
     // closeModalUrl use history.back() so the browser back button and the
     // X button behave identically.
-    window.history.pushState(
-      { ...window.history.state, __disscountModal: true },
-      "",
-      url
-    );
+    window.history.pushState({ __disscountModal: true }, "", url);
   }
 }
 
 export function closeModalUrl(): void {
-  if (window.history.state?.__disscountModal) {
+  if (hasModalMarker()) {
     window.history.back();
   } else {
     // Deep link or hard refresh landed directly on ?modal=...: there is no
     // history entry of ours to pop, so strip the params in place instead.
     const current = new URLSearchParams(window.location.search);
     const url = window.location.pathname + stripModalSearch(current);
-    window.history.replaceState(window.history.state, "", url);
+    window.history.replaceState({}, "", url);
   }
 }
 
