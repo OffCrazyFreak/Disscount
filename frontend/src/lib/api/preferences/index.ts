@@ -54,10 +54,11 @@ export async function updatePinnedPlaces(
 }
 
 // React Query hooks
-export const useGetPinnedStores = () => {
+export const useGetPinnedStores = ({ enabled = true } = {}) => {
   return useQuery<PinnedStoreDto[], Error>({
     queryKey: ["pinnedStores"],
     queryFn: getPinnedStores,
+    enabled,
   });
 };
 
@@ -72,10 +73,11 @@ export const useUpdatePinnedStores = () => {
   });
 };
 
-export const useGetPinnedPlaces = () => {
+export const useGetPinnedPlaces = ({ enabled = true } = {}) => {
   return useQuery<PinnedPlaceDto[], Error>({
     queryKey: ["pinnedPlaces"],
     queryFn: getPinnedPlaces,
+    enabled,
   });
 };
 

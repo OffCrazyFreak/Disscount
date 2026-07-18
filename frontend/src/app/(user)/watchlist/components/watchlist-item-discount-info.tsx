@@ -3,8 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { DiscountInfo } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { cn } from "@/lib/utils";
-import UserPreferencesModal from "@/components/custom/header/forms/user-preferences-modal";
-import { useState } from "react";
+import { openModalUrl } from "@/lib/modal/modal-navigation";
 
 interface WatchlistItemDiscountInfoProps {
   discountInfo: DiscountInfo | null;
@@ -19,8 +18,6 @@ export default function WatchlistItemDiscountInfo({
   isLoading,
   error,
 }: WatchlistItemDiscountInfoProps) {
-  const [isPreferencesModalOpen, setIsPreferencesModalOpen] = useState(false);
-
   if (isLoading) {
     return (
       <div className="space-y-2">
@@ -41,11 +38,6 @@ export default function WatchlistItemDiscountInfo({
 
   return (
     <>
-      <UserPreferencesModal
-        isOpen={isPreferencesModalOpen}
-        onOpenChange={setIsPreferencesModalOpen}
-      />
-
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-start gap-2">
           <Star
@@ -73,7 +65,9 @@ export default function WatchlistItemDiscountInfo({
             <button
               type="button"
               className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer italic"
-              onClick={() => setIsPreferencesModalOpen(true)}
+              onClick={() =>
+                openModalUrl({ name: "settings", tab: "preference" })
+              }
             >
               Postavi preference
             </button>
