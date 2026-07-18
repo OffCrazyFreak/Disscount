@@ -28,7 +28,7 @@ export function SettingsSection({
         <div
           className={cn(
             "flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide",
-            destructive ? "text-destructive" : "text-muted-foreground"
+            destructive ? "text-destructive" : "text-muted-foreground",
           )}
         >
           <Icon className="size-3.5" />

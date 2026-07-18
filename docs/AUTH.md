@@ -83,6 +83,8 @@ flowchart TD
 
 **Verification is a hard gate.** `emailAndPassword.requireEmailVerification: true` blocks email/password login until the address is verified. An unverified login attempt returns `403`, and the login form shows a "we re-sent the link" message. Once the user clicks the verification link, `autoSignInAfterVerification` logs them in automatically. OAuth logins are not affected by this gate (their email is marked verified on creation, see next section).
 
+The register endpoint passes `callbackURL: "/?modal=email-verified"` to `signUpEmail`, so after verifying the user lands on the homepage with a small "Email potvrđen" success modal (they are already signed in by then). See [Section 8](#8-password-reset-set-password-and-change-email) for how the whole reset/verify/change flow lives in the URL-modal system.
+
 ## 5. Account linking (one email, one account)
 
 If someone signs in with Google, then later with Facebook (or registers a password) using the same email, they must land on the **same** account rather than a duplicate.
@@ -131,13 +133,29 @@ All three reuse Better Auth's token machinery but are worded and gated for their
 
 | Flow | Trigger | Endpoint / hook | Notes |
 |---|---|---|---|
-| Forgot password | "Zaboravljena lozinka?" in the login modal | `authClient.requestPasswordReset` then `emailAndPassword.sendResetPassword` | Same neutral notice whether or not the account exists. Token lives 30 minutes; all sessions are revoked on reset. |
+| Forgot password | "Zaboravljena lozinka?" in the login modal | `authClient.requestPasswordReset` then `emailAndPassword.sendResetPassword` | `redirectTo` is `/reset-password` (no query, so Better Auth can append `?token=` cleanly). Same neutral notice whether or not the account exists. Token lives 30 minutes; all sessions are revoked on reset. |
 | Set vs reset wording | Any reset email | `dispatchResetPasswordEmail` in `auth.ts` | Checks for an existing `credential` account: none means "set your password" (OAuth-only user), otherwise "reset your password". |
-| Reset page | Clicking the email link | `/reset-password` page then `ResetPasswordModal` | Rendered as a modal over the app; sets the password and sends the user to log in. **No auto-login and no email in the URL** (PII avoidance). |
+| Reset / set password (from email) | Clicking the email link | `/reset-password` page redirects to `?modal=reset-password&token=...`, rendered by `ResetPasswordModal` | Modal over the homepage. Sets the password and sends the user to log in. **No auto-login and no email in the URL** (PII avoidance). |
 | Set password (logged in) | Security settings, OAuth-only account | `POST /api/account/set-password` then `auth.api.setPassword` | Adds a `credential` to an account that only had social login. |
-| Change email | Security settings | `POST /api/account/change-email` then `user.changeEmail.sendChangeEmailConfirmation` | Confirmation is sent to the **current** address; the change applies only after it is clicked. |
+| Change email | Security settings | `POST /api/account/change-email` then `user.changeEmail.sendChangeEmailConfirmation` | `callbackURL: "/?modal=email-changed"`. Confirmation is sent to the **current** address; the change applies only after it is clicked. |
 
-**The single-email invariant.** You cannot change your account email while any social provider is linked, because a provider login would then carry an email different from the account. This is enforced three ways: the Security modal disables the email field when a social account is linked, `POST /api/account/change-email` returns `409 social_linked` if one exists, and `databaseHooks.user.update.before` re-checks at confirmation time to close the race where a provider is linked between the request and the click.
+**The single-email invariant.** You cannot change your account email while any social provider is linked, because a provider login would then carry an email different from the account. This is enforced three ways: the Security tab disables the email field when a social account is linked, `POST /api/account/change-email` returns `409 social_linked` if one exists, and `databaseHooks.user.update.before` re-checks at confirmation time to close the race where a provider is linked between the request and the click.
+
+### 8.1 The whole auth flow lives in URL modals
+
+Every auth surface is a modal addressed by a `?modal=` query param over the homepage, not a dedicated page. A single `ModalRouter` (mounted once in `app/layout.tsx` under `Suspense`) reads the param and renders the matching modal. Login, signup, and forgot-password were already modals; reset-password and the two email-confirmation screens now join them.
+
+| `?modal=` value | Modal | Who can open it |
+|---|---|---|
+| `login`, `signup`, `forgot-password` | `auth-modal.tsx` (one modal, three modes) | Anyone; also shown as a gate when a logged-out user opens a protected modal. |
+| `reset-password&token=...` | `reset-password-modal.tsx` | Anyone (public). Reached from the reset/set-password email link. |
+| `email-verified` | `auth-status-modal.tsx` | Anyone (public). Reached from the verification link. |
+| `email-changed` | `auth-status-modal.tsx` | Anyone (public). Reached from the change-email confirmation link. |
+
+Two implementation points that matter for safety and correctness:
+
+- **The reset token is stripped from the URL on arrival.** Email links land on `/reset-password?token=...`; the page server-redirects to `/?modal=reset-password&token=...`, and `ResetPasswordModal` captures the token into component state on the first open, then `history.replaceState`s it out of the address bar. This keeps the token from lingering in history or leaking via the Referer header once the page has other content on it. The email link URL itself is unchanged, so no Better Auth email construction had to move.
+- **Public modals are never auth-gated.** `PUBLIC_MODAL_NAMES` (in `modal-registry.ts`) lists `reset-password`, `email-verified`, and `email-changed`; `ModalRouter` renders these regardless of session and excludes them from the "log in first" gate. A logged-out user resetting a password must not be bounced to the login modal.
 
 ## 9. Config, env vars, and feature flags
 
@@ -199,9 +217,12 @@ Backend (`backend/.env`, referenced in `application.properties`):
 | `frontend/src/app/api/account/register/route.ts` | Anti-enumeration registration (new vs existing branch, identical response). |
 | `frontend/src/app/api/account/change-email/route.ts` | Change-email with the single-email `409 social_linked` guard. |
 | `frontend/src/app/api/account/set-password/route.ts` | Adds a password to a logged-in OAuth-only account. |
-| `frontend/src/app/reset-password/{page.tsx, reset-password-modal.tsx}` | The reset/set-password landing (modal over a route). |
+| `frontend/src/app/reset-password/page.tsx` | Thin server redirect from the email link to `/?modal=reset-password&token=...`. |
+| `frontend/src/lib/modal/{modal-registry.ts, modal-navigation.ts, use-modal-url.ts}` | The `?modal=` grammar, the open/close/swap helpers, and the reactive `target` hook. `PUBLIC_MODAL_NAMES` lives here. |
+| `frontend/src/components/custom/modal-router/modal-router.tsx` | Mounted once in `app/layout.tsx`; reads the param and renders the matching modal (auth, public, settings, entity). |
 | `frontend/src/components/custom/oauth-error-toast.tsx` | App-wide OAuth/linking error toast. |
-| `frontend/src/components/custom/header/forms/*` | The auth UI: `auth-modal`, `login-form`, `signup-form`, `forgot-password-form`, `inbox-notice`, `linked-accounts`, `account-credentials-form`, `security-modal`. |
+| `frontend/src/components/custom/header/forms/*` | The auth UI: `auth-modal`, `login-form`, `signup-form`, `forgot-password-form`, `inbox-notice`, `reset-password-modal`, `auth-status-modal` (email-verified / email-changed), `linked-accounts`, `account-credentials-form`. |
+| `frontend/src/components/custom/settings/tabs/{sigurnost-tab, danger-zone}.tsx` | The Sigurnost settings tab (credentials, linked accounts, danger zone), replacing the old standalone security modal. |
 | `frontend/src/lib/email/*` | The email layer: `provider.ts` (interface), `resend-provider.ts`, `email-service.ts` (typed sends), `index.ts` (the one Resend wiring point, `server-only`). |
 | `frontend/src/emails/*` | React Email templates plus `components/{email-layout, action-email}.tsx`. |
 | `frontend/src/lib/env.ts` | Shared `requireEnv`. |
@@ -237,6 +258,8 @@ Backend: Spring Boot `3.1.0` on Java `21`, using `spring-boot-starter-oauth2-res
 - **Resend only delivers from a verified domain.** The sandbox sender only reaches your own Resend account address; `disscount.me` is verified so real sends work. The `EMAIL_FROM` domain must match a verified domain exactly.
 - **Read OAuth `?error=` via `useSearchParams`, and mount the toast globally.** See [Section 6](#6-the-oauth-error-toast) for why both matter.
 - **Email hooks are fire-and-forget (`void`) on purpose.** Awaiting them would make the response time reveal whether an email exists (a timing oracle). Each has a non-PII `.catch` so a failed send is logged, not lost.
+- **Keep the reset `redirectTo` query-free.** Better Auth appends `?token=...` to `redirectTo`, so it must not already contain a query. This is why the reset link points at `/reset-password` (which then forwards to `/?modal=reset-password&token=...`) rather than at `/?modal=reset-password` directly, which would produce a broken double-`?` URL. The verification and change-email `callbackURL`s are fine with a query because Better Auth passes them through its redirect handling, not naive string concatenation.
+- **The reset modal strips its token from the URL.** `ResetPasswordModal` captures the token on first open and `replaceState`s it out of the address bar, so it does not sit in browser history or leak via Referer once the homepage loads its usual content.
 - **`app_user.username` uniqueness was dropped in the entity and the local DB, but `ddl-auto=update` never drops constraints.** The production database still needs a manual `ALTER TABLE app_user DROP CONSTRAINT ...`.
 
 ## 14. Future improvements and TODOs
