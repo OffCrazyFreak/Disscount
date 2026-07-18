@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Construction } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
+import { ComingSoonBadge } from "@/components/custom/coming-soon-badge";
 
 interface IComingSoonProps {
   title?: string;
@@ -21,7 +21,7 @@ export default function ComingSoon({
       <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed py-16 px-6 text-center">
         {icon ?? <Construction className="size-12 text-primary" />}
 
-        <Badge className="text-xs">USKORO</Badge>
+        <ComingSoonBadge className="text-xs" />
 
         <p className="max-w-md text-pretty text-muted-foreground">
           {description}

@@ -36,14 +36,17 @@ export default function ProductFiltersBar({
   function renderClearFilters(
     className?: string,
     size: ComponentProps<typeof Button>["size"] = "sm",
+    alwaysShow = false,
   ) {
-    if (filters.activeFilterCount === 0) return null;
+    const hasFilters = filters.activeFilterCount > 0;
+    if (!hasFilters && !alwaysShow) return null;
 
     return (
       <Button
         type="button"
         variant="ghost"
         size={size}
+        disabled={!hasFilters}
         className={cn("text-muted-foreground", className)}
         onClick={filters.clearFilters}
       >
@@ -113,10 +116,10 @@ export default function ProductFiltersBar({
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex w-full items-center gap-2">
       <ProductFacetSelects facets={facets} filters={filters} layout="row" />
 
-      {renderClearFilters("shrink-0")}
+      {renderClearFilters("shrink-0", "sm", true)}
     </div>
   );
 }

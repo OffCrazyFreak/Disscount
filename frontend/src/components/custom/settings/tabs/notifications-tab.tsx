@@ -12,17 +12,20 @@ const SWITCHES = [
     label: "Dopusti obavijesti aplikacije",
     description:
       "Na mobilnu aplikaciju ćeš dobiti obavijesti za akcije o proizvodima koje odabereš.",
+    comingSoon: true,
   },
   {
     name: "notificationsEmail",
     label: "Dopusti email obavijesti",
     description:
       "Na email ćeš dobiti obavijesti za akcije o proizvodima koje odabereš.",
+    comingSoon: true,
   },
   {
     name: "newsletter",
     label: "Novosti i ažuriranja",
     description: "Povremene novosti o Disscountu na tvoj email.",
+    comingSoon: true,
   },
   {
     name: "feedbackContact",

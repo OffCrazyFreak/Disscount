@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { FormControl, FormField, FormItem } from "@/components/ui/form";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
 import { SettingRow } from "@/components/custom/settings/ui/setting-row";
+import { ComingSoonBadge } from "@/components/custom/coming-soon-badge";
 
 type SwitchFieldName =
   | "notificationsPush"
@@ -17,12 +18,14 @@ interface NotificationSwitchRowProps {
   name: SwitchFieldName;
   label: string;
   description: string;
+  comingSoon?: boolean;
 }
 
 export function NotificationSwitchRow({
   name,
   label,
   description,
+  comingSoon = false,
 }: NotificationSwitchRowProps) {
   const form = useFormContext<SettingsFormValues>();
 
@@ -33,13 +36,19 @@ export function NotificationSwitchRow({
       render={({ field }) => (
         <FormItem className="space-y-0 py-2">
           <SettingRow
-            label={label}
+            label={
+              <span className="flex items-center gap-2">
+                {label}
+                {comingSoon && <ComingSoonBadge />}
+              </span>
+            }
             description={description}
             control={
               <FormControl>
                 <Switch
                   checked={field.value}
                   onCheckedChange={field.onChange}
+                  disabled={comingSoon}
                 />
               </FormControl>
             }
