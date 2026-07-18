@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { resetAuthToken } from "@/lib/api/api-base";
 import { useUser } from "@/context/user-context";
-import type { CredentialsFormValues } from "./credentials-schema";
+import type { CredentialsFormValues } from "@/components/custom/settings/tabs/security/credentials-schema";
 
 interface UseCredentialsSubmitProps {
   hasPassword: boolean;

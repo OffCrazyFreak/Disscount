@@ -2,7 +2,7 @@
 
 import { createContext, useContext, type ReactNode } from "react";
 
-import type { SecuritySettings } from "./use-security-settings";
+import type { SecuritySettings } from "@/components/custom/settings/tabs/security/use-security-settings";
 
 const SecurityContext = createContext<SecuritySettings | null>(null);
 

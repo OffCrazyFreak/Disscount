@@ -23,7 +23,7 @@ export function SettingsSection({
   children,
 }: SettingsSectionProps) {
   return (
-    <section className="space-y-3">
+    <section className="space-y-2 pb-6">
       <div className="space-y-1">
         <div
           className={cn(
@@ -31,7 +31,7 @@ export function SettingsSection({
             destructive ? "text-destructive" : "text-muted-foreground",
           )}
         >
-          <Icon className="size-3.5" />
+          <Icon className="size-5" />
           {label}
         </div>
         {hint && <p className="text-xs text-muted-foreground">{hint}</p>}

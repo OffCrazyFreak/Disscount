@@ -1,18 +1,16 @@
 "use client";
 
 import { StaggerChildren } from "@/components/ui/stagger-children";
-import { CredentialsForm } from "./credentials-form";
-import { LinkedAccounts } from "./linked-accounts";
-import { SessionsSection } from "./sessions-section";
-import { DangerZone } from "./danger-zone";
+import { CredentialsForm } from "@/components/custom/settings/tabs/security/credentials-form";
+import { LinkedAccounts } from "@/components/custom/settings/tabs/security/linked-accounts";
+import { AccountActions } from "@/components/custom/settings/tabs/security/account-actions";
 
 export function SecurityTab() {
   return (
-    <StaggerChildren className="space-y-8">
+    <StaggerChildren className="">
       <CredentialsForm />
       <LinkedAccounts />
-      <SessionsSection />
-      <DangerZone />
+      <AccountActions />
     </StaggerChildren>
   );
 }
