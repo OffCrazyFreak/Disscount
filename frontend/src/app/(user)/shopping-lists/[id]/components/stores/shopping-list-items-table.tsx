@@ -146,7 +146,10 @@ export const ShoppingListItemsTable = memo(
                             )}
                           </TooltipTrigger>
 
-                          <TooltipContent className="px-2 py-1 text-xs">
+                          <TooltipContent
+                            variant="warning"
+                            className="px-2 py-1 text-xs"
+                          >
                             Proizvod nije dostupan u ovoj trgovini
                           </TooltipContent>
                         </Tooltip>

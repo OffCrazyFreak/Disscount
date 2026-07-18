@@ -21,7 +21,7 @@ export function UnsavedIndicator() {
           <PencilLine className="size-4" />
         </span>
       </TooltipTrigger>
-      <TooltipContent className="max-w-56 text-xs">
+      <TooltipContent variant="warning" className="max-w-56 text-xs">
         Imaš nespremljene izmjene. Klikni Spremi da ih sačuvaš ili Resetiraj da
         ih poništiš.
       </TooltipContent>

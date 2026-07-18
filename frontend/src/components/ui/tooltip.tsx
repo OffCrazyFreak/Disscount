@@ -15,6 +15,7 @@ const tooltipContentVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground",
         destructive: "bg-red-600 text-white",
+        warning: "bg-amber-500 text-amber-950",
       },
     },
     defaultVariants: { variant: "default" },
@@ -28,6 +29,7 @@ const tooltipArrowVariants = cva(
       variant: {
         default: "bg-primary fill-primary",
         destructive: "bg-red-600 fill-red-600",
+        warning: "bg-amber-500 fill-amber-500",
       },
     },
     defaultVariants: { variant: "default" },
