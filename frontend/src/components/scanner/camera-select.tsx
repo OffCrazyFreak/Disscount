@@ -11,6 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { formatCameraLabels } from "@/utils/browser/camera";
 
 interface ICameraSelectProps {
@@ -53,15 +58,23 @@ export default function CameraSelect({
       </div>
 
       {hasManualChoice && (
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          onClick={onReset}
-          title="Vrati na automatski odabir kamere"
-        >
-          <RotateCcw />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={onReset}
+              aria-label="Vrati na automatski odabir kamere"
+            >
+              <RotateCcw />
+            </Button>
+          </TooltipTrigger>
+
+          <TooltipContent className="px-2 py-1 text-xs">
+            Vrati na automatski odabir kamere
+          </TooltipContent>
+        </Tooltip>
       )}
     </div>
   );

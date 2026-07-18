@@ -40,18 +40,21 @@ export default function ShoppingListHeader({
         </div>
 
         <div className="flex items-center gap-2 ml-auto">
-          <div
-            title={
-              shoppingList.isPublic ? "Popis je javan" : "Popis je privatan"
-            }
-            className="mr-2"
-          >
-            {shoppingList.isPublic ? (
-              <Globe className="h-5 w-5 text-green-600" />
-            ) : (
-              <Lock className="h-5 w-5 text-gray-400" />
-            )}
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="mr-2" tabIndex={0}>
+                {shoppingList.isPublic ? (
+                  <Globe className="h-5 w-5 text-green-600" />
+                ) : (
+                  <Lock className="h-5 w-5 text-gray-400" />
+                )}
+              </div>
+            </TooltipTrigger>
+
+            <TooltipContent>
+              {shoppingList.isPublic ? "Popis je javan" : "Popis je privatan"}
+            </TooltipContent>
+          </Tooltip>
           <ShoppingListActionButtons
             shoppingList={shoppingList}
             showCopyButton={true}

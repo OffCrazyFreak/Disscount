@@ -2,6 +2,11 @@
 
 import { ScanBarcode, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ISearchBarActionsProps {
   showClear: boolean;
@@ -20,29 +25,43 @@ export default function SearchBarActions({
   return (
     <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
       {showClear && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={onClear}
-          title="Clear search"
-          aria-label="Clear search"
-        >
-          <X className="size-5" />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={onClear}
+              aria-label="Očisti pretragu"
+            >
+              <X className="size-5" />
+            </Button>
+          </TooltipTrigger>
+
+          <TooltipContent className="px-2 py-1 text-xs">
+            Očisti pretragu
+          </TooltipContent>
+        </Tooltip>
       )}
 
       {allowScanning && (
-        <Button
-          type="button"
-          variant="default"
-          size="icon"
-          onClick={onScan}
-          title="Scan barcode"
-          aria-label="Scan barcode"
-        >
-          <ScanBarcode className="size-5" />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              type="button"
+              variant="default"
+              size="icon"
+              onClick={onScan}
+              aria-label="Skeniraj barkod"
+            >
+              <ScanBarcode className="size-5" />
+            </Button>
+          </TooltipTrigger>
+
+          <TooltipContent className="px-2 py-1 text-xs">
+            Skeniraj barkod
+          </TooltipContent>
+        </Tooltip>
       )}
     </div>
   );
