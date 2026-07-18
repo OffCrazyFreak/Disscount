@@ -5,13 +5,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 
+import { authClient } from "@/lib/auth-client";
+import { useUser } from "@/context/user-context";
 import {
   buildCredentialsSchema,
   CredentialsFormValues,
-} from "@/lib/api/schemas/auth-user";
-import { authClient } from "@/lib/auth-client";
-import { useUser } from "@/context/user-context";
-import { useCredentialsSubmit } from "@/components/custom/header/forms/use-credentials-submit";
+} from "./credentials-schema";
+import { useCredentialsSubmit } from "./use-credentials-submit";
 
 interface LinkedAccount {
   providerId: string;

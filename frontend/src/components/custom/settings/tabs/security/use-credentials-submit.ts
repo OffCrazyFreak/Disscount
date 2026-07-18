@@ -3,10 +3,10 @@
 import type { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 
-import type { CredentialsFormValues } from "@/lib/api/schemas/auth-user";
 import { authClient } from "@/lib/auth-client";
 import { resetAuthToken } from "@/lib/api/api-base";
 import { useUser } from "@/context/user-context";
+import type { CredentialsFormValues } from "./credentials-schema";
 
 interface UseCredentialsSubmitProps {
   hasPassword: boolean;
@@ -86,7 +86,7 @@ export function useCredentialsSubmit({
         }
       }
 
-      // Goes through the guarded endpoint, which enforces "no social linked" server-side.
+      // Guarded endpoint that enforces "no social linked" server-side.
       const response = await fetch("/api/account/change-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
