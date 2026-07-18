@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import SettingsSection from "@/components/custom/settings/ui/settings-section";
-import { useSecurity } from "@/components/custom/settings/tabs/security/security-context";
+import { useSecurity } from "@/components/custom/settings/security/security-context";
 
 export const CREDENTIALS_FORM_ID = "credentials-form";
 

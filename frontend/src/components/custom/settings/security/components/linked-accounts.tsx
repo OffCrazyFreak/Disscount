@@ -12,7 +12,7 @@ import GoogleIcon from "@/components/icons/google-icon";
 import FacebookIcon from "@/components/icons/facebook-icon";
 import { authClient } from "@/lib/auth-client";
 import { FACEBOOK_COMING_SOON } from "@/constants/auth";
-import { useSecurity } from "@/components/custom/settings/tabs/security/security-context";
+import { useSecurity } from "@/components/custom/settings/security/security-context";
 
 type SocialProvider = "google" | "facebook";
 

@@ -10,8 +10,8 @@ import { useUser } from "@/context/user-context";
 import {
   buildCredentialsSchema,
   CredentialsFormValues,
-} from "@/components/custom/settings/tabs/security/credentials-schema";
-import { useCredentialsSubmit } from "@/components/custom/settings/tabs/security/use-credentials-submit";
+} from "@/components/custom/settings/security/credentials-schema";
+import { useCredentialsSubmit } from "@/components/custom/settings/security/hooks/use-credentials-submit";
 
 interface LinkedAccount {
   providerId: string;

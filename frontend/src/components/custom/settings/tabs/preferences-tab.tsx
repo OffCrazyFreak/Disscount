@@ -4,8 +4,8 @@ import { Store, MapPin } from "lucide-react";
 
 import { StaggerChildren } from "@/components/ui/stagger-children";
 import SettingsSection from "@/components/custom/settings/ui/settings-section";
-import PinnedStoresGrid from "@/components/custom/settings/tabs/pinned-stores-grid";
-import PinnedPlacesSelect from "@/components/custom/settings/tabs/pinned-places-select";
+import PinnedStoresGrid from "@/components/custom/settings/components/pinned-stores-grid";
+import PinnedPlacesSelect from "@/components/custom/settings/components/pinned-places-select";
 
 export default function PreferencesTab() {
   return (

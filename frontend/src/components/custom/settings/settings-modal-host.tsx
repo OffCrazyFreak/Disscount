@@ -13,13 +13,13 @@ import {
   SettingsFormValues,
   settingsFormSchema,
 } from "@/components/custom/settings/settings-schema";
-import { useSettingsDefaults } from "@/components/custom/settings/use-settings-defaults";
-import { useSettingsSave } from "@/components/custom/settings/use-settings-save";
+import { useSettingsDefaults } from "@/components/custom/settings/hooks/use-settings-defaults";
+import { useSettingsSave } from "@/components/custom/settings/hooks/use-settings-save";
 import SettingsUiProvider from "@/components/custom/settings/settings-context";
 import SettingsModal from "@/components/custom/settings/settings-modal";
 import OnboardingWizard from "@/components/custom/settings/onboarding/onboarding-wizard";
-import { useSecuritySettings } from "@/components/custom/settings/tabs/security/use-security-settings";
-import SecurityProvider from "@/components/custom/settings/tabs/security/security-context";
+import { useSecuritySettings } from "@/components/custom/settings/security/hooks/use-security-settings";
+import SecurityProvider from "@/components/custom/settings/security/security-context";
 
 interface AvatarState {
   initialized: boolean;
