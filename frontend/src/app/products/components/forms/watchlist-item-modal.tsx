@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { Eye, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ModalShell } from "@/components/ui/modal-shell";
@@ -100,15 +101,19 @@ export default function WatchlistItemModal({
       title="Dodaj na popis za praćenje"
       description="Postavi prag sniženja i javit ćemo ti kad se dosegne."
       srOnlyDescription
+      dirty={form.formState.isDirty}
       formId="watchlist-form"
       submitLabel={existingItemForType ? "Ažuriraj" : "Dodaj"}
+      submitIcon={Eye}
       submitLoading={isSaving}
-      submitDisabled={isCheckingWatchlist || !product}
+      submitDisabled={isCheckingWatchlist || !product || !form.formState.isValid}
       cancelLabel="Odustani"
       footerStart={
         <Button
           type="button"
           variant="outline"
+          icon={Trash2}
+          iconPlacement="left"
           onClick={onRemove}
           disabled={!existingItemForType || isRemoving || isCheckingWatchlist}
         >

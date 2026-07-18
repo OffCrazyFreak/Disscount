@@ -7,18 +7,12 @@ import {
   Loader2,
   type LucideIcon,
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 
 import AccountCredentialsForm from "@/components/custom/header/forms/account-credentials-form";
 import LinkedAccounts from "@/components/custom/header/forms/linked-accounts";
-import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { DangerZone } from "@/components/custom/settings/tabs/danger-zone";
-
-interface LinkedAccount {
-  providerId: string;
-  accountId: string;
-}
+import { useSecurity } from "@/components/custom/settings/tabs/security-context";
 
 function SectionLabel({
   icon: Icon,
@@ -42,57 +36,33 @@ function SectionLabel({
   );
 }
 
-export function SigurnostTab({ active }: { active: boolean }) {
-  const {
-    data: accounts = [],
-    status: accountsStatus,
-    refetch: reloadAccounts,
-  } = useQuery({
-    queryKey: ["linked-accounts"],
-    enabled: active,
-    queryFn: async (): Promise<LinkedAccount[]> => {
-      const { data, error } = await authClient.listAccounts();
-      if (error || !data) {
-        throw new Error("Failed to load accounts");
-      }
-      return data.map((a) => ({
-        providerId: a.providerId,
-        accountId: a.accountId,
-      }));
-    },
-  });
-
-  const hasPassword = accounts.some((a) => a.providerId === "credential");
-  const hasLinkedSocial = accounts.some((a) => a.providerId !== "credential");
+export function SigurnostTab() {
+  const { status, accounts, reload } = useSecurity();
 
   return (
     <div className="flex flex-col gap-6">
-      {accountsStatus === "pending" && (
+      {status === "pending" && (
         <div className="flex justify-center py-6">
           <Loader2 className="size-5 animate-spin text-primary" />
         </div>
       )}
 
-      {accountsStatus === "error" && (
+      {status === "error" && (
         <p className="text-sm text-destructive">
           Greška pri dohvaćanju podataka o računu. Pokušaj ponovo.
         </p>
       )}
 
-      {accountsStatus === "success" && (
+      {status === "success" && (
         <>
           <section className="space-y-3">
             <SectionLabel icon={ShieldCheck}>Prijava i sigurnost</SectionLabel>
-            <AccountCredentialsForm
-              hasPassword={hasPassword}
-              hasLinkedSocial={hasLinkedSocial}
-              onChanged={reloadAccounts}
-            />
+            <AccountCredentialsForm />
           </section>
 
           <section className="space-y-3">
             <SectionLabel icon={Link2}>Povezani računi</SectionLabel>
-            <LinkedAccounts accounts={accounts} onChanged={reloadAccounts} />
+            <LinkedAccounts accounts={accounts} onChanged={reload} />
           </section>
         </>
       )}

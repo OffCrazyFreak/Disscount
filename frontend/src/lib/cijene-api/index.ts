@@ -183,6 +183,15 @@ export const useSearchStores = (params?: SearchStoresParams) =>
   });
 
 /**
+ * Cache key for a single product by EAN. Shared so callers that already hold a
+ * product (e.g. product cards) can seed the cache under the exact same key that
+ * useGetProductByEan reads, making a URL-driven modal open instantly.
+ */
+export function productByEanQueryKey(ean: string) {
+  return ["cijene", "product", "ean", JSON.stringify({ ean })];
+}
+
+/**
  * Hook to get product by EAN
  */
 export const useGetProductByEan = (params: GetProductParams) => {

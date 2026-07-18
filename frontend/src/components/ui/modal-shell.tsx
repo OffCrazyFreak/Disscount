@@ -13,6 +13,7 @@ import {
   ModalShellFooter,
   ModalShellFooterProps,
 } from "@/components/ui/modal-shell-footer";
+import { UnsavedIndicator } from "@/components/ui/unsaved-indicator";
 import { cn } from "@/lib/utils";
 
 // TODO(responsive-drawer): add a `presentation?: "dialog" | "auto"` prop that renders
@@ -37,6 +38,8 @@ export interface ModalShellProps extends ModalShellFooterProps {
   // Rendered above the title (e.g. a confirm dialog's icon badge).
   hero?: ReactNode;
   centered?: boolean;
+  // Shows the amber "unsaved changes" marker next to the title.
+  dirty?: boolean;
   headerExtra?: ReactNode;
   // Replaces the composed footer entirely when the slot props don't fit.
   footer?: ReactNode;
@@ -54,6 +57,7 @@ export function ModalShell({
   preventClose = false,
   hero,
   centered = false,
+  dirty = false,
   headerExtra,
   footer,
   bodyClassName,
@@ -89,7 +93,10 @@ export function ModalShell({
           )}
         >
           {hero}
-          <DialogTitle className="text-xl">{title}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2 text-xl">
+            {title}
+            {dirty && <UnsavedIndicator />}
+          </DialogTitle>
           {description && (
             <DialogDescription className={cn(srOnlyDescription && "sr-only")}>
               {description}

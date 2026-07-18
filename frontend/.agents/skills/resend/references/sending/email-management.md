@@ -2,7 +2,7 @@
 
 ## Overview
 
-After sending, emails can be retrieved, listed, rescheduled, or cancelled. Updates are limited to `scheduled_at` only — content cannot be changed after creation.
+After sending, emails can be retrieved, listed, rescheduled, or cancelled. Updates are limited to `scheduled_at` only - content cannot be changed after creation.
 
 ## SDK Methods
 
@@ -12,7 +12,7 @@ After sending, emails can be retrieved, listed, rescheduled, or cancelled. Updat
 |-----------|--------|-------|
 | Get | `resend.emails.get(id)` | Returns full email details and status |
 | List | `resend.emails.list({ limit, offset })` | Paginated list of sent emails |
-| Update | `resend.emails.update({ id, scheduledAt })` | Reschedule only — no content changes |
+| Update | `resend.emails.update({ id, scheduledAt })` | Reschedule only - no content changes |
 | Cancel | `resend.emails.cancel(id)` | Cancel a scheduled email before it sends |
 
 ### Python
@@ -21,7 +21,7 @@ After sending, emails can be retrieved, listed, rescheduled, or cancelled. Updat
 |-----------|--------|
 | Get | `resend.Emails.get(id)` |
 | List | `resend.Emails.list(params)` |
-| Update | `resend.Emails.update(params)` — params: `{ "id": ..., "scheduled_at": ... }` |
+| Update | `resend.Emails.update(params)` - params: `{ "id": ..., "scheduled_at": ... }` |
 | Cancel | `resend.Emails.cancel(id)` |
 
 ## Examples
@@ -29,7 +29,7 @@ After sending, emails can be retrieved, listed, rescheduled, or cancelled. Updat
 ### Get Email
 
 ```typescript
-// Node.js — always destructure { data, error }
+// Node.js - always destructure { data, error }
 const { data, error } = await resend.emails.get('email_abc123');
 if (error) {
   console.error(error);
@@ -39,7 +39,7 @@ console.log(data.status); // 'delivered', 'bounced', 'scheduled', etc.
 ```
 
 ```python
-# Python — returns data directly
+# Python - returns data directly
 email = resend.Emails.get("email_abc123")
 print(email["status"])
 ```
@@ -128,8 +128,8 @@ const buffer = await response.arrayBuffer();
 
 | Mistake | Fix |
 |---------|-----|
-| Trying to update `subject`, `html`, or `to` | Only `scheduledAt` can be updated — cancel and resend for content changes |
+| Trying to update `subject`, `html`, or `to` | Only `scheduledAt` can be updated - cancel and resend for content changes |
 | Cancelling an already-sent email | Cancel only works on emails with `scheduled` status |
-| Cancelling too late | Cancel before the `scheduled_at` time — there's a brief processing window before send |
-| Not checking `error` in Node.js | SDK returns `{ data, error }`, does not throw — always destructure and check |
+| Cancelling too late | Cancel before the `scheduled_at` time - there's a brief processing window before send |
+| Not checking `error` in Node.js | SDK returns `{ data, error }`, does not throw - always destructure and check |
 | Using `.list()` without pagination | Pass `limit` and `offset` to paginate through results |

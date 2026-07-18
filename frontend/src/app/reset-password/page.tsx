@@ -13,7 +13,7 @@ export default async function ResetPasswordPage(
   props: PageProps<"/reset-password">
 ) {
   const searchParams = await props.searchParams;
-  // Next can hand a repeated query param as an array — take the first value.
+  // Next can hand a repeated query param as an array - take the first value.
   // The token is used verbatim, so it is deliberately not decoded.
   const rawToken = searchParams.token;
   const token = Array.isArray(rawToken) ? (rawToken[0] ?? "") : (rawToken ?? "");

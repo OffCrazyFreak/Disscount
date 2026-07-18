@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ interface ISignUpFormProps {
 }
 
 export function SignUpForm({ externalDisabled }: ISignUpFormProps) {
-  // Set once registration succeeds. Email verification is required, so we don't log in —
+  // Set once registration succeeds. Email verification is required, so we don't log in -
   // we show a "check your inbox" notice instead.
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
@@ -156,13 +156,14 @@ export function SignUpForm({ externalDisabled }: ISignUpFormProps) {
           type="submit"
           size="lg"
           className="w-full"
+          icon={UserPlus}
+          iconPlacement="left"
+          loading={form.formState.isSubmitting}
+          loadingText="Registracija..."
+          loadingIconPlacement="left"
           disabled={form.formState.isSubmitting || externalDisabled}
         >
-          {form.formState.isSubmitting ? (
-            <Loader2 size={16} className="animate-spin" />
-          ) : (
-            "Registriraj se"
-          )}
+          Registriraj se
         </Button>
       </form>
     </Form>

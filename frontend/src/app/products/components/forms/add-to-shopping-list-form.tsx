@@ -4,6 +4,7 @@ import { useState, useEffect, Activity } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { ListPlus } from "lucide-react";
 
 import { ModalShell } from "@/components/ui/modal-shell";
 import { Form } from "@/components/ui/form";
@@ -30,7 +31,7 @@ import { useAddToListPrices } from "@/app/products/hooks/use-add-to-list-prices"
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import { stashModalError, takeModalError } from "@/lib/modal/modal-error-bus";
 import { applyProblemToForm } from "@/lib/api/problem-details";
-import { removeFormDraft } from "@/utils/browser/local-storage";
+import { useFormDraft } from "@/hooks/use-form-draft";
 
 interface AddToShoppingListFormProps {
   open: boolean;
@@ -61,12 +62,22 @@ export default function AddToShoppingListForm({
 
   const form = useForm<AddToListFormData>({
     resolver: zodResolver(addToListFormSchema),
+    mode: "onChange",
     defaultValues: {
       shoppingListId: "",
-      amount: 1,
+      amount: "1",
       isChecked: false,
       chainCode: null,
     },
+  });
+
+  // Persist the user's choices (list, amount, store) so closing and reopening
+  // resumes where they left off; gated until lists load so the auto-selected
+  // default doesn't count as a change.
+  const { restored, clearDraft } = useFormDraft({
+    draftKey,
+    form,
+    enabled: open && !isLoadingLists,
   });
 
   const { storePrices, averagePrice, cheapestStore } = useAddToListPrices(
@@ -148,7 +159,7 @@ export default function AddToShoppingListForm({
         brand: product.brand || undefined,
         quantity: product.quantity || undefined,
         unit: product.unit || undefined,
-        amount: data.amount,
+        amount: Number.parseInt(data.amount, 10),
         isChecked: data.isChecked,
       };
 
@@ -166,7 +177,7 @@ export default function AddToShoppingListForm({
 
       queryClient.invalidateQueries({ queryKey: ["shoppingLists"] });
       queryClient.invalidateQueries({ queryKey: ["shoppingListItems"] });
-      removeFormDraft(draftKey);
+      clearDraft();
       toast.success(`Proizvod je dodan u "${listName}"`);
     } catch (error) {
       stashModalError(draftKey, error);
@@ -188,11 +199,18 @@ export default function AddToShoppingListForm({
       title="Dodaj proizvod u popis za kupnju"
       description="Odaberi popis, količinu i trgovinu."
       srOnlyDescription
+      dirty={form.formState.isDirty}
       formId="add-to-list-form"
       submitLabel="Dodaj"
+      submitIcon={ListPlus}
       submitLoading={isSubmitting}
-      submitDisabled={!product}
+      submitDisabled={!product || !form.formState.isValid}
       cancelLabel="Odustani"
+      resetLabel={restored ? "Resetiraj" : undefined}
+      onReset={() => {
+        clearDraft();
+        form.reset();
+      }}
     >
       {productQuery.isLoading ? (
         <Skeleton className="h-24 w-full" />
@@ -228,7 +246,7 @@ export default function AddToShoppingListForm({
               {duplicateItem && (
                 <FormWarning
                   title="Proizvod već u popisu za kupnju"
-                  text={`Ovaj proizvod je već dodan u odabran popis za kupnju. Dodavanjem ovog proizvoda će se samo povećati njegova količina u popisu za kupnju sa ${duplicateItem.amount} na ${duplicateItem.amount + form.watch("amount")}.`}
+                  text={`Ovaj proizvod je već dodan u odabran popis za kupnju. Dodavanjem ovog proizvoda će se samo povećati njegova količina u popisu za kupnju sa ${duplicateItem.amount} na ${duplicateItem.amount + (Number.parseInt(form.watch("amount"), 10) || 0)}.`}
                 />
               )}
 

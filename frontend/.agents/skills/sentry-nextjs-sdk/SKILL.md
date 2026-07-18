@@ -74,26 +74,26 @@ cat ../go.mod ../requirements.txt ../Gemfile 2>/dev/null | head -3
 
 ## Phase 2: Recommend
 
-Present a concrete recommendation based on what you found. Don't ask open-ended questions — lead with a proposal:
+Present a concrete recommendation based on what you found. Don't ask open-ended questions - lead with a proposal:
 
 **Recommended (core coverage):**
-- ✅ **Error Monitoring** — always; captures server errors, client errors, server actions, and unhandled promise rejections
-- ✅ **Tracing** — server-side request tracing + client-side navigation spans across all runtimes
-- ✅ **Session Replay** — recommended for user-facing apps; records sessions around errors
+- ✅ **Error Monitoring** - always; captures server errors, client errors, server actions, and unhandled promise rejections
+- ✅ **Tracing** - server-side request tracing + client-side navigation spans across all runtimes
+- ✅ **Session Replay** - recommended for user-facing apps; records sessions around errors
 
 **Optional (enhanced observability):**
-- ⚡ **Logging** — structured logs via `Sentry.logger.*`; recommend when `pino`/`winston` or log search is needed
-- ⚡ **Profiling** — continuous profiling; requires `Document-Policy: js-profiling` header
-- ⚡ **AI Monitoring** — OpenAI, Vercel AI SDK, Anthropic; recommend when AI/LLM calls detected
-- ⚡ **Crons** — detect missed/failed scheduled jobs; recommend when cron patterns detected
-- ⚡ **Metrics** — custom metrics via `Sentry.metrics.*`; recommend when custom KPIs or business metrics needed
+- ⚡ **Logging** - structured logs via `Sentry.logger.*`; recommend when `pino`/`winston` or log search is needed
+- ⚡ **Profiling** - continuous profiling; requires `Document-Policy: js-profiling` header
+- ⚡ **AI Monitoring** - OpenAI, Vercel AI SDK, Anthropic; recommend when AI/LLM calls detected
+- ⚡ **Crons** - detect missed/failed scheduled jobs; recommend when cron patterns detected
+- ⚡ **Metrics** - custom metrics via `Sentry.metrics.*`; recommend when custom KPIs or business metrics needed
 
 **Recommendation logic:**
 
 | Feature | Recommend when... |
 |---------|------------------|
-| Error Monitoring | **Always** — non-negotiable baseline |
-| Tracing | **Always for Next.js** — server route tracing + client navigation are high-value |
+| Error Monitoring | **Always** - non-negotiable baseline |
+| Tracing | **Always for Next.js** - server route tracing + client navigation are high-value |
 | Session Replay | User-facing app, login flows, or checkout pages |
 | Logging | App uses structured logging or needs log-to-trace correlation |
 | Profiling | Performance-critical app; client sets `Document-Policy: js-profiling` |
@@ -109,7 +109,7 @@ Propose: *"I recommend setting up Error Monitoring + Tracing + Session Replay. W
 
 ### Option 1: Wizard (Recommended)
 
-> **You need to run this yourself** — the wizard opens a browser for login and requires interactive input that the agent can't handle. Copy-paste into your terminal:
+> **You need to run this yourself** - the wizard opens a browser for login and requires interactive input that the agent can't handle. Copy-paste into your terminal:
 >
 > ```
 > npx @sentry/wizard@latest -i nextjs
@@ -131,9 +131,9 @@ If the user skips the wizard, proceed with Option 2 (Manual Setup) below.
 npm install @sentry/nextjs --save
 ```
 
-#### Create `instrumentation-client.ts` — Browser / Client Runtime
+#### Create `instrumentation-client.ts` - Browser / Client Runtime
 
-> Older docs used `sentry.client.config.ts` — the current pattern is `instrumentation-client.ts`.
+> Older docs used `sentry.client.config.ts` - the current pattern is `instrumentation-client.ts`.
 
 ```typescript
 import * as Sentry from "@sentry/nextjs";
@@ -163,7 +163,7 @@ Sentry.init({
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
 ```
 
-#### Create `sentry.server.config.ts` — Node.js Server Runtime
+#### Create `sentry.server.config.ts` - Node.js Server Runtime
 
 ```typescript
 import * as Sentry from "@sentry/nextjs";
@@ -181,7 +181,7 @@ Sentry.init({
 });
 ```
 
-#### Create `sentry.edge.config.ts` — Edge Runtime
+#### Create `sentry.edge.config.ts` - Edge Runtime
 
 ```typescript
 import * as Sentry from "@sentry/nextjs";
@@ -196,7 +196,7 @@ Sentry.init({
 });
 ```
 
-#### Create `instrumentation.ts` — Server-Side Registration Hook
+#### Create `instrumentation.ts` - Server-Side Registration Hook
 
 > Requires `experimental.instrumentationHook: true` in `next.config` for Next.js < 14.0.4. It's stable in 14.0.4+.
 
@@ -321,7 +321,7 @@ export const config = {
 
 ### Source Maps Setup
 
-Source maps make production stack traces readable — without them, you see minified code. This is non-negotiable for production apps.
+Source maps make production stack traces readable - without them, you see minified code. This is non-negotiable for production apps.
 
 **Step 1: Generate a Sentry auth token**
 
@@ -369,7 +369,7 @@ Load the corresponding reference file and follow its steps:
 
 | Feature | Reference file | Load when... |
 |---------|---------------|-------------|
-| Error Monitoring | `references/error-monitoring.md` | Always (baseline) — App Router error boundaries, Pages Router `_error.tsx`, server action wrapping |
+| Error Monitoring | `references/error-monitoring.md` | Always (baseline) - App Router error boundaries, Pages Router `_error.tsx`, server action wrapping |
 | Tracing | `references/tracing.md` | Server-side request tracing, client navigation, distributed tracing, `tracePropagationTargets` |
 | Session Replay | `references/session-replay.md` | User-facing app; privacy masking, canvas recording, network capture |
 | Logging | `references/logging.md` | Structured logs, `Sentry.logger.*`, log-to-trace correlation |
@@ -388,8 +388,8 @@ For each feature: read the reference file, follow its steps exactly, and verify 
 
 | Option | Type | Default | Notes |
 |--------|------|---------|-------|
-| `dsn` | `string` | — | Required. Use `NEXT_PUBLIC_SENTRY_DSN` for client, `SENTRY_DSN` for server |
-| `tracesSampleRate` | `number` | — | 0–1; 1.0 in dev, 0.1 in prod recommended |
+| `dsn` | `string` | - | Required. Use `NEXT_PUBLIC_SENTRY_DSN` for client, `SENTRY_DSN` for server |
+| `tracesSampleRate` | `number` | - | 0-1; 1.0 in dev, 0.1 in prod recommended |
 | `replaysSessionSampleRate` | `number` | `0.1` | Fraction of all sessions recorded |
 | `replaysOnErrorSampleRate` | `number` | `1.0` | Fraction of error sessions recorded |
 | `sendDefaultPii` | `boolean` | `false` | Include IP, request headers in events |
@@ -433,12 +433,12 @@ After wizard or manual setup, verify Sentry is working:
 // Add temporarily to a server action or API route, then remove
 import * as Sentry from "@sentry/nextjs";
 
-throw new Error("Sentry test error — delete me");
+throw new Error("Sentry test error - delete me");
 // or
-Sentry.captureException(new Error("Sentry test error — delete me"));
+Sentry.captureException(new Error("Sentry test error - delete me"));
 ```
 
-Then check your [Sentry Issues dashboard](https://sentry.io/issues/) — the error should appear within ~30 seconds.
+Then check your [Sentry Issues dashboard](https://sentry.io/issues/) - the error should appear within ~30 seconds.
 
 **Verification checklist:**
 
@@ -475,9 +475,9 @@ If a backend is found, suggest the matching SDK skill:
 | Python (`requirements.txt`, `pyproject.toml`) | `sentry-python-sdk` |
 | Ruby (`Gemfile`) | `sentry-ruby-sdk` |
 | Java/Kotlin (`pom.xml`, `build.gradle`) | See [docs.sentry.io/platforms/java/](https://docs.sentry.io/platforms/java/) |
-| Node.js (Express, Fastify, Hapi) | `@sentry/node` — see [docs.sentry.io/platforms/javascript/guides/express/](https://docs.sentry.io/platforms/javascript/guides/express/) |
+| Node.js (Express, Fastify, Hapi) | `@sentry/node` - see [docs.sentry.io/platforms/javascript/guides/express/](https://docs.sentry.io/platforms/javascript/guides/express/) |
 
-Connecting frontend and backend with the same DSN or linked projects enables **distributed tracing** — stack traces that span your browser, Next.js server, and backend API in a single trace view.
+Connecting frontend and backend with the same DSN or linked projects enables **distributed tracing** - stack traces that span your browser, Next.js server, and backend API in a single trace view.
 
 ---
 

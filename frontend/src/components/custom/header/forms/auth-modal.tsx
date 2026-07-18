@@ -57,7 +57,7 @@ export function AuthModal({
     () => null
   );
 
-  // OAuth failures are surfaced by the app-wide <OAuthErrorToast />, not here — account-linking
+  // OAuth failures are surfaced by the app-wide <OAuthErrorToast />, not here - account-linking
   // errors happen while logged in, when this modal isn't mounted.
 
   return (

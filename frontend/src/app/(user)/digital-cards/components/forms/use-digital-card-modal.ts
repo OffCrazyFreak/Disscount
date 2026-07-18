@@ -28,7 +28,7 @@ export function useDigitalCardModal({
 
     if (!onlineManager.isOnline()) {
       toast.info(
-        "Izvan ste mreže — promjena će se sinkronizirati kad se vratite na mrežu."
+        "Izvan ste mreže - promjena će se sinkronizirati kad se vratite na mrežu."
       );
     }
 

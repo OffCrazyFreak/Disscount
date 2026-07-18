@@ -24,7 +24,7 @@ export default function ChangeEmailConfirmation({
       }
       buttonLabel="Potvrdi promjenu"
       buttonUrl={confirmUrl}
-      footnote="Ako nisi ti zatražio/la ovu promjenu, odmah promijeni lozinku i javi nam se — tvoja adresa ostaje nepromijenjena dok ne potvrdiš."
+      footnote="Ako nisi ti zatražio/la ovu promjenu, odmah promijeni lozinku i javi nam se - tvoja adresa ostaje nepromijenjena dok ne potvrdiš."
     />
   );
 }

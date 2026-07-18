@@ -32,14 +32,14 @@ Receive real-time notifications when email events occur (delivered, bounced, ope
 |-------|---------|----------|
 | `email.received` | Email received at your inbound domain | Process incoming email, auto-reply, forward |
 
-The `email.received` payload contains metadata only (sender, recipient, subject, attachment list) — not the email body. Call `resend.emails.receiving.get()` to retrieve the body content. See [receiving.md](receiving.md) for full details.
+The `email.received` payload contains metadata only (sender, recipient, subject, attachment list) - not the email body. Call `resend.emails.receiving.get()` to retrieve the body content. See [receiving.md](receiving.md) for full details.
 
 ### Bounce Types
 
 | Type | Event | Action |
 |------|-------|--------|
-| **Hard bounce (Permanent)** | `email.bounced` | Remove address immediately — never retry |
-| **Soft bounce (Transient)** | `email.delivery_delayed` | Monitor — Resend retries automatically |
+| **Hard bounce (Permanent)** | `email.bounced` | Remove address immediately - never retry |
+| **Soft bounce (Transient)** | `email.delivery_delayed` | Monitor - Resend retries automatically |
 | **Undetermined** | `email.bounced` | Treat as hard bounce if repeated |
 
 **Hard bounces** (`email.bounced`) are permanent failures. The address is invalid and will never accept mail. Continuing to send to hard-bounced addresses destroys your sender reputation.
@@ -68,10 +68,10 @@ The `email.received` payload contains metadata only (sender, recipient, subject,
 
 ## Setup
 
-1. **Create endpoint** — POST endpoint that returns HTTP 200
-2. **Add webhook** — In Resend dashboard (resend.com/webhooks), add your URL and select events
-3. **Verify signatures** — **REQUIRED** — See [Signature Verification](#signature-verification)
-4. **Test locally** — Use ngrok, Tailscale Funnel, or similar for local development
+1. **Create endpoint** - POST endpoint that returns HTTP 200
+2. **Add webhook** - In Resend dashboard (resend.com/webhooks), add your URL and select events
+3. **Verify signatures** - **REQUIRED** - See [Signature Verification](#signature-verification)
+4. **Test locally** - Use ngrok, Tailscale Funnel, or similar for local development
 
 ### Create Webhook via API
 
@@ -94,7 +94,7 @@ if (error) {
   throw error;
 }
 
-// IMPORTANT: Store the signing secret — you need it to verify incoming webhooks
+// IMPORTANT: Store the signing secret - you need it to verify incoming webhooks
 console.log('Webhook created:', data.id);
 console.log('Signing secret:', data.signing_secret); // whsec_xxxxxxxxxx
 ```
@@ -142,7 +142,7 @@ The `signing_secret` is only returned once when you create the webhook. Store it
 |-----------|---------|--------|
 | List | `resend.webhooks.list()` | `resend.Webhooks.list()` |
 | Get | `resend.webhooks.get(id)` | `resend.Webhooks.get(id)` |
-| Update | `resend.webhooks.update(id, params)` | `resend.Webhooks.update(params)` — `webhook_id` inside params |
+| Update | `resend.webhooks.update(id, params)` | `resend.Webhooks.update(params)` - `webhook_id` inside params |
 | Delete | `resend.webhooks.remove(id)` | `resend.Webhooks.remove(id)` |
 
 ```typescript
@@ -163,8 +163,8 @@ const { data: deleted, error: deleteError } = await resend.webhooks.remove('4dd3
 ```
 
 **Key gotchas:**
-- `signing_secret` is only in the create response — `get` does not return it
-- Update can change `endpoint` and `events` — partial updates supported
+- `signing_secret` is only in the create response - `get` does not return it
+- Update can change `endpoint` and `events` - partial updates supported
 - Use `.remove()` not `.delete()` in the Node.js SDK
 
 ## Signature Verification
@@ -228,13 +228,13 @@ export async function POST(req: NextRequest) {
         // Update database with delivery status
         break;
       case 'email.bounced':
-        // Hard bounce — remove from mailing list immediately
+        // Hard bounce - remove from mailing list immediately
         break;
       case 'email.complained':
-        // Spam complaint — unsubscribe and flag
+        // Spam complaint - unsubscribe and flag
         break;
       case 'email.received':
-        // Inbound email — retrieve body and process
+        // Inbound email - retrieve body and process
         const { data: email } = await resend.emails.receiving.get(event.data.email_id);
         break;
       default:
@@ -253,8 +253,8 @@ export async function POST(req: NextRequest) {
 
 | Mistake | Fix |
 |---------|-----|
-| Not verifying signatures | **Always verify** — unverified webhooks can't be trusted |
-| Using parsed JSON body | Use raw request body — JSON parsing breaks signature |
+| Not verifying signatures | **Always verify** - unverified webhooks can't be trusted |
+| Using parsed JSON body | Use raw request body - JSON parsing breaks signature |
 | Using `express.json()` middleware | Use `express.raw()` for webhook routes |
 | Hardcoding webhook secret | Store in environment variable |
 | Returning non-200 status for valid webhooks | Return 200 OK to acknowledge receipt |
@@ -293,7 +293,7 @@ IPv6: `2600:1f24:64:8000::/52`
 Use tunneling tools to test webhooks locally:
 
 ```bash
-# Tailscale Funnel (recommended — permanent URL)
+# Tailscale Funnel (recommended - permanent URL)
 sudo tailscale funnel 3000
 
 # ngrok

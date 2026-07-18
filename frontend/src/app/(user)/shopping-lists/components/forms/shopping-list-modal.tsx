@@ -4,9 +4,11 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
+import { Save } from "lucide-react";
 
 import { ModalShell } from "@/components/ui/modal-shell";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Form,
   FormControl,
@@ -15,7 +17,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { DraftRestoredChip } from "@/components/custom/modal-router/draft-restored-chip";
 import type { ShoppingListDto, ShoppingListRequest } from "@/lib/api/types";
 import { shoppingListRequestSchema } from "@/lib/api/types";
 import { shoppingListService } from "@/lib/api";
@@ -39,26 +40,31 @@ export default function ShoppingListModal({
   const queryClient = useQueryClient();
   const isEdit = action === "edit" && !!id;
 
-  // Cache-first: the lists page almost always has the list already; the by-id
-  // query only fires on cold deep links.
+  // The by-id query is reactive and always the freshest source (it refetches
+  // after an edit invalidates ["shoppingLists"]). The index cache only seeds an
+  // instant value while that query settles, so a just-saved title never shows stale.
   const cachedList = queryClient
     .getQueryData<ShoppingListDto[]>(["shoppingLists", "me"])
     ?.find((list) => list.id === id);
   const byIdQuery = shoppingListService.useGetShoppingListById(
-    isEdit && !cachedList ? (id as string) : ""
+    isEdit ? (id as string) : ""
   );
-  const shoppingList = isEdit ? (cachedList ?? byIdQuery.data ?? null) : null;
+  const shoppingList = isEdit
+    ? (byIdQuery.data ?? cachedList ?? null)
+    : null;
 
   const draftKey = isEdit ? `shopping-list.edit.${id}` : "shopping-list.new";
   const isReady = !isEdit || !!shoppingList;
 
   const form = useForm<ShoppingListRequest>({
     resolver: zodResolver(shoppingListRequestSchema),
+    mode: "onChange",
     defaultValues: { title: "", isPublic: false },
   });
 
+  // Populate from the loaded list, but never clobber values the user is editing.
   useEffect(() => {
-    if (!shoppingList) return;
+    if (!shoppingList || form.formState.isDirty) return;
     form.reset({
       title: shoppingList.title,
       isPublic: shoppingList.isPublic ?? false,
@@ -88,12 +94,8 @@ export default function ShoppingListModal({
     onSubmit(data);
   }
 
-  function handleReset() {
-    clearDraft();
-    form.reset();
-  }
-
-  const notFound = isEdit && !shoppingList && byIdQuery.isError;
+  const loading = isEdit && !shoppingList && byIdQuery.isLoading;
+  const notFound = isEdit && !shoppingList && !byIdQuery.isLoading;
 
   return (
     <ModalShell
@@ -102,14 +104,22 @@ export default function ShoppingListModal({
       title={isEdit ? "Uredi popis za kupnju" : "Novi popis za kupnju"}
       description="Popis možeš dijeliti i uspoređivati cijene po trgovinama."
       srOnlyDescription
+      dirty={form.formState.isDirty}
       formId="shopping-list-form"
       submitLabel={isEdit ? "Ažuriraj" : "Stvori"}
+      submitIcon={Save}
       submitLoading={isLoading}
-      submitDisabled={!form.formState.isDirty || notFound}
+      submitDisabled={!form.formState.isDirty || !form.formState.isValid || notFound}
       cancelLabel="Odustani"
-      footerStart={restored ? <DraftRestoredChip /> : undefined}
+      resetLabel={restored ? "Resetiraj" : undefined}
+      onReset={() => {
+        clearDraft();
+        form.reset();
+      }}
     >
-      {notFound ? (
+      {loading ? (
+        <Skeleton className="h-10 w-full" />
+      ) : notFound ? (
         <p className="text-sm text-muted-foreground">
           Popis nije pronađen. Možda je obrisan ili nemaš pristup.
         </p>
@@ -133,26 +143,12 @@ export default function ShoppingListModal({
                 <FormItem>
                   <FormLabel>Naziv popisa</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Roštilj 01.05.2026."
-                      autoFocus
-                    />
+                    <Input {...field} placeholder="Roštilj 01.05.2026." autoFocus />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            {restored && (
-              <button
-                type="button"
-                onClick={handleReset}
-                className="cursor-pointer text-xs text-muted-foreground underline hover:text-primary"
-              >
-                Odbaci izmjene i vrati spremljene vrijednosti
-              </button>
-            )}
           </form>
         </Form>
       )}

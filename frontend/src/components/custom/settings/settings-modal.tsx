@@ -10,14 +10,14 @@ import {
 } from "lucide-react";
 
 import { ModalShell } from "@/components/ui/modal-shell";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DraftRestoredChip } from "@/components/custom/modal-router/draft-restored-chip";
 import { closeModalUrl, swapModalUrl } from "@/lib/modal/modal-navigation";
 import type { SettingsTab } from "@/lib/modal/modal-registry";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
 import { dirtySections } from "@/components/custom/settings/settings-dirty";
 import { useSettingsUi } from "@/components/custom/settings/settings-context";
+import { useSecurity } from "@/components/custom/settings/tabs/security-context";
+import { CREDENTIALS_FORM_ID } from "@/components/custom/header/forms/account-credentials-form";
 import { ProfilTab } from "@/components/custom/settings/tabs/profil-tab";
 import { ObavijestiTab } from "@/components/custom/settings/tabs/obavijesti-tab";
 import { PreferenceTab } from "@/components/custom/settings/tabs/preference-tab";
@@ -37,8 +37,9 @@ interface SettingsModalProps {
 
 export function SettingsModal({ open, tab }: SettingsModalProps) {
   const form = useFormContext<SettingsFormValues>();
-  const { isReady, saving, restored, avatarTouched, save, resetToDefaults } =
+  const { isReady, saving, avatarTouched, save, resetToDefaults } =
     useSettingsUi();
+  const security = useSecurity();
 
   const values = form.watch();
   const defaults = (form.formState.defaultValues ??
@@ -46,7 +47,29 @@ export function SettingsModal({ open, tab }: SettingsModalProps) {
   const dirty = dirtySections(values, defaults, avatarTouched);
   const anyDirty = dirty.size > 0;
 
-  const isActionTab = tab === "sigurnost";
+  const isSecurityTab = tab === "sigurnost";
+
+  // The security tab drives its own credentials form through the shared footer.
+  const securityFooter = {
+    dirty: security.form.formState.isDirty,
+    formId: CREDENTIALS_FORM_ID,
+    submitLabel: "Spremi",
+    submitLoading: security.form.formState.isSubmitting,
+    submitDisabled:
+      !security.form.formState.isDirty || !security.form.formState.isValid,
+    resetLabel: security.form.formState.isDirty ? "Resetiraj" : undefined,
+    onReset: () => security.form.reset(),
+  };
+
+  const settingsFooter = {
+    dirty: anyDirty,
+    formId: "settings-form",
+    submitLabel: "Spremi",
+    submitLoading: saving,
+    submitDisabled: !anyDirty || !isReady,
+    resetLabel: anyDirty ? "Resetiraj" : undefined,
+    onReset: resetToDefaults,
+  };
 
   return (
     <ModalShell
@@ -55,8 +78,7 @@ export function SettingsModal({ open, tab }: SettingsModalProps) {
       title="Postavke"
       description="Upravljaj profilom, obavijestima, preferencama i sigurnošću."
       srOnlyDescription
-      size="lg"
-      cancelLabel={isActionTab ? "Zatvori" : "Odustani"}
+      cancelLabel="Odustani"
       caption={
         <button
           type="button"
@@ -66,26 +88,7 @@ export function SettingsModal({ open, tab }: SettingsModalProps) {
           Pokreni vodič ponovno
         </button>
       }
-      {...(!isActionTab && {
-        formId: "settings-form",
-        submitLabel: "Spremi",
-        submitLoading: saving,
-        submitDisabled: !anyDirty || !isReady,
-        footerStart: (
-          <>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={resetToDefaults}
-              disabled={!anyDirty && !restored}
-            >
-              Resetiraj
-            </Button>
-            {restored && <DraftRestoredChip />}
-          </>
-        ),
-      })}
+      {...(isSecurityTab ? securityFooter : settingsFooter)}
     >
       {form.formState.errors.root && (
         <div className="mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
@@ -102,7 +105,7 @@ export function SettingsModal({ open, tab }: SettingsModalProps) {
         <TabsList className="w-full mb-4">
           {TAB_CONFIG.map(({ value, label, icon: Icon }) => (
             <TabsTrigger key={value} value={value} className="relative gap-1.5">
-              <Icon className="size-4" />
+              <Icon className="size-5" />
               <span className="hidden sm:inline">{label}</span>
               {value !== "sigurnost" && dirty.has(value) && (
                 <span
@@ -137,13 +140,13 @@ export function SettingsModal({ open, tab }: SettingsModalProps) {
           </TabsContent>
         </form>
 
-        {/* Sigurnost lives OUTSIDE the settings <form>: it hosts its own forms
-            (nested <form> elements are invalid HTML) and saves immediately. */}
+        {/* Sigurnost's credentials form lives in SigurnostTab (via the security
+            context) and is submitted by the shared footer through its formId. */}
         <TabsContent
           value="sigurnost"
           className="animate-in fade-in-0 duration-200"
         >
-          <SigurnostTab active={open && isActionTab} />
+          <SigurnostTab />
         </TabsContent>
       </Tabs>
     </ModalShell>

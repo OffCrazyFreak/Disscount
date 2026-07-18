@@ -81,7 +81,7 @@ public class UserService {
                         .notificationsEmailEnabledAt(now)
                         .build());
             } catch (DataIntegrityViolationException ignored) {
-                // Concurrent first-login race: the other request won — profile already exists
+                // Concurrent first-login race: the other request won - profile already exists
             }
         }
     }
@@ -213,8 +213,8 @@ public class UserService {
     }
 
     /**
-     * Fully removes another user (admin action): deletes the better-auth identity — which
-     * cascades its sessions/accounts — then anonymizes and soft-deletes the profile row so
+     * Fully removes another user (admin action): deletes the better-auth identity - which
+     * cascades its sessions/accounts - then anonymizes and soft-deletes the profile row so
      * business data stays intact. better-auth shares this database, so the identity is removed
      * directly via a native delete.
      */

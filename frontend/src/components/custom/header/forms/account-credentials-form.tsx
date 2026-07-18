@@ -1,11 +1,5 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Save } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import {
@@ -17,66 +11,23 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  buildCredentialsSchema,
-  CredentialsFormValues,
-} from "@/lib/api/schemas/auth-user";
-import { useUser } from "@/context/user-context";
-import { useCredentialsSubmit } from "@/components/custom/header/forms/use-credentials-submit";
+import { useSecurity } from "@/components/custom/settings/tabs/security-context";
 
-interface IAccountCredentialsFormProps {
-  hasPassword: boolean;
-  hasLinkedSocial: boolean;
-  onChanged: () => void;
-}
+export const CREDENTIALS_FORM_ID = "credentials-form";
 
-export default function AccountCredentialsForm({
-  hasPassword,
-  hasLinkedSocial,
-  onChanged,
-}: IAccountCredentialsFormProps) {
-  const { user } = useUser();
-  const currentEmail = user?.email ?? "";
-
-  // "One email defines the user": the email is editable only with a password AND no social
-  // account linked, so a provider login can never carry a different email than the account.
-  const canEditEmail = hasPassword && !hasLinkedSocial;
-
-  const schema = useMemo(() => buildCredentialsSchema(hasPassword), [hasPassword]);
-
-  const form = useForm<CredentialsFormValues>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      email: currentEmail,
-      newPassword: "",
-      currentPassword: "",
-    },
-  });
-
-  // Re-sync the email field when the loaded account email changes (unless the
-  // user is mid-edit on it).
-  useEffect(() => {
-    if (!form.formState.dirtyFields.email) {
-      form.resetField("email", { defaultValue: currentEmail });
-    }
-  }, [currentEmail, form]);
-
-  const { submit } = useCredentialsSubmit({
-    hasPassword,
-    currentEmail,
-    form,
-    onChanged,
-  });
-
-  const newPassword = form.watch("newPassword");
-  const currentPassword = form.watch("currentPassword");
-  const saveDisabled =
-    form.formState.isSubmitting ||
-    (hasPassword ? currentPassword.trim() === "" : newPassword.trim() === "");
+// Presentational: the form, submit and account state live in the security
+// context so the shared modal footer can drive them (see useSecuritySettings).
+export default function AccountCredentialsForm() {
+  const { form, submit, hasPassword, hasLinkedSocial, canEditEmail } =
+    useSecurity();
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(submit)} className="space-y-4">
+      <form
+        id={CREDENTIALS_FORM_ID}
+        onSubmit={form.handleSubmit(submit)}
+        className="space-y-4"
+      >
         <FormField
           control={form.control}
           name="email"
@@ -150,17 +101,6 @@ export default function AccountCredentialsForm({
             {form.formState.errors.root.message}
           </p>
         )}
-
-        <Button
-          type="submit"
-          icon={Save}
-          iconPlacement="left"
-          disabled={saveDisabled}
-          loading={form.formState.isSubmitting}
-          className="w-full"
-        >
-          Spremi
-        </Button>
       </form>
     </Form>
   );

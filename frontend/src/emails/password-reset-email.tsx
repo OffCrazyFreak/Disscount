@@ -14,7 +14,7 @@ export default function PasswordResetEmail({
       intro="Zatražio/la si ponovno postavljanje lozinke. Klikni na gumb ispod kako bi postavio/la novu lozinku. Poveznica vrijedi ograničeno vrijeme."
       buttonLabel="Postavi novu lozinku"
       buttonUrl={resetUrl}
-      footnote="Ako nisi ti zatražio/la ovu promjenu, zanemari ovaj email — tvoja lozinka ostaje nepromijenjena."
+      footnote="Ako nisi ti zatražio/la ovu promjenu, zanemari ovaj email - tvoja lozinka ostaje nepromijenjena."
     />
   );
 }

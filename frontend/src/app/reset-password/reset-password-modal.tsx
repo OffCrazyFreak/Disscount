@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -39,7 +39,7 @@ interface IResetPasswordModalProps {
 
 // Opened from the password-reset / set-password email link. Setting the password also creates
 // the credential for OAuth-only users (that's how social accounts gain email login). On success
-// the user is sent to log in — we deliberately don't auto-login, so no email/PII is carried in
+// the user is sent to log in - we deliberately don't auto-login, so no email/PII is carried in
 // the reset URL.
 export default function ResetPasswordModal({
   token,
@@ -128,13 +128,13 @@ export default function ResetPasswordModal({
                 type="submit"
                 size="lg"
                 className="w-full"
-                disabled={form.formState.isSubmitting}
+                icon={KeyRound}
+                iconPlacement="left"
+                loading={form.formState.isSubmitting}
+                loadingText="Spremanje..."
+                loadingIconPlacement="left"
               >
-                {form.formState.isSubmitting ? (
-                  <Loader2 size={16} className="animate-spin" />
-                ) : (
-                  "Postavi lozinku"
-                )}
+                Postavi lozinku
               </Button>
             </form>
         </Form>

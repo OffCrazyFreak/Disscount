@@ -61,7 +61,7 @@ Guidance for building deliverable, compliant, user-friendly emails.
 Start with the [Catalog](./references/transactional-email-catalog.md) to plan which emails your app needs (password reset, verification, etc.), then set up [Deliverability](./references/deliverability.md) (DNS authentication) before sending your first email.
 
 **Spam issues?**
-Check [Deliverability](./references/deliverability.md) first—authentication problems are the most common cause. Gmail/Yahoo reject unauthenticated emails.
+Check [Deliverability](./references/deliverability.md) first-authentication problems are the most common cause. Gmail/Yahoo reject unauthenticated emails.
 
 **Marketing emails?**
 Follow this path: [Email Capture](./references/email-capture.md) (collect consent) → [Compliance](./references/compliance.md) (legal requirements) → [Marketing Emails](./references/marketing-emails.md) (best practices).

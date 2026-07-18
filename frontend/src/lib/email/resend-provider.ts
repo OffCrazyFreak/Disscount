@@ -38,7 +38,7 @@ export class ResendProvider implements EmailProvider {
 
       return { id: data?.id ?? null, error: null };
     } catch (error) {
-      // It can still THROW on transport/network failures — normalize those into an EmailResult
+      // It can still THROW on transport/network failures - normalize those into an EmailResult
       // so fire-and-forget callers never produce an unhandled rejection.
       return {
         id: null,

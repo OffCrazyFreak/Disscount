@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CircleCheck, Loader2 } from "lucide-react";
+import { CircleCheck, LogIn } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -59,9 +59,9 @@ export function LoginForm({
         const status = result.error.status ?? 0;
         let message: string;
         if (status === 403) {
-          // Email not verified — Better Auth re-sends the verification link on each attempt.
+          // Email not verified - Better Auth re-sends the verification link on each attempt.
           message =
-            "Tvoj email još nije potvrđen. Poslali smo ti novu poveznicu — provjeri inbox (i spam).";
+            "Tvoj email još nije potvrđen. Poslali smo ti novu poveznicu - provjeri inbox (i spam).";
         } else if (status === 401 || status === 400) {
           message = "Neispravni email ili lozinka";
         } else {
@@ -140,12 +140,18 @@ export function LoginForm({
           Zaboravljena lozinka?
         </button>
 
-        <Button type="submit" size="lg" className="w-full" disabled={form.formState.isSubmitting || externalDisabled}>
-          {form.formState.isSubmitting ? (
-            <Loader2 size={16} className="animate-spin" />
-          ) : (
-            "Prijavi se"
-          )}
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full"
+          icon={LogIn}
+          iconPlacement="left"
+          loading={form.formState.isSubmitting}
+          loadingText="Prijava..."
+          loadingIconPlacement="left"
+          disabled={form.formState.isSubmitting || externalDisabled}
+        >
+          Prijavi se
           {isLastUsed && !form.formState.isSubmitting && !externalDisabled && (
             <span className="absolute right-3 inline-flex items-center gap-0.5 rounded-full bg-white px-1.5 py-0.5 text-[10px] font-medium text-primary">
               <CircleCheck size={9} />

@@ -30,7 +30,7 @@ export function useShoppingListModal({
     // below resolves only once the sync happens; tell the user right away.
     if (!onlineManager.isOnline()) {
       toast.info(
-        "Izvan ste mreže — promjena će se sinkronizirati kad se vratite na mrežu."
+        "Izvan ste mreže - promjena će se sinkronizirati kad se vratite na mrežu."
       );
     }
 

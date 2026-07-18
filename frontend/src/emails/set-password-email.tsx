@@ -17,7 +17,7 @@ export default function SetPasswordEmail({
       intro="Za ovu email adresu već postoji Disscount račun (prijava putem Googlea ili Facebooka). Klikni na gumb ispod kako bi postavio/la lozinku i ubuduće se mogao/la prijaviti i emailom. Poveznica vrijedi ograničeno vrijeme."
       buttonLabel="Postavi lozinku"
       buttonUrl={setPasswordUrl}
-      footnote="Ako nisi ti zatražio/la ovo, zanemari ovaj email — tvoj račun ostaje nepromijenjen."
+      footnote="Ako nisi ti zatražio/la ovo, zanemari ovaj email - tvoj račun ostaje nepromijenjen."
     />
   );
 }

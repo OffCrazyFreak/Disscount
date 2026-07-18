@@ -62,7 +62,7 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     // Swallow to keep the response identical regardless of branch/outcome (anti-enumeration).
-    // Log only the error name/type — never the raw error, which can carry the email/password.
+    // Log only the error name/type - never the raw error, which can carry the email/password.
     console.error(
       "Registration handler failed:",
       error instanceof Error ? error.name : typeof error,

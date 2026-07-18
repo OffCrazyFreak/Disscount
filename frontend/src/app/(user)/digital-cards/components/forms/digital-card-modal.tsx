@@ -4,9 +4,11 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { Save } from "lucide-react";
+
 import { ModalShell } from "@/components/ui/modal-shell";
 import { Form } from "@/components/ui/form";
-import { DraftRestoredChip } from "@/components/custom/modal-router/draft-restored-chip";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DigitalCardFields } from "@/app/(user)/digital-cards/components/forms/digital-card-fields";
 import { useDigitalCardModal } from "@/app/(user)/digital-cards/components/forms/use-digital-card-modal";
 import { digitalCardService } from "@/lib/api";
@@ -54,11 +56,13 @@ export default function DigitalCardModal({
 
   const form = useForm<DigitalCardRequest>({
     resolver: zodResolver(digitalCardRequestSchema),
+    mode: "onChange",
     defaultValues: EMPTY_VALUES,
   });
 
+  // Populate from the loaded card, but never clobber values the user is editing.
   useEffect(() => {
-    if (!digitalCard) return;
+    if (!digitalCard || form.formState.isDirty) return;
     form.reset({
       title: digitalCard.title,
       value: digitalCard.value,
@@ -89,6 +93,7 @@ export default function DigitalCardModal({
     onSubmit(data);
   }
 
+  const loading = isEdit && !digitalCard && cardsQuery.isLoading;
   const notFound = isEdit && !digitalCard && !cardsQuery.isLoading;
 
   return (
@@ -98,14 +103,22 @@ export default function DigitalCardModal({
       title={isEdit ? "Uredi digitalnu karticu" : "Nova digitalna kartica"}
       description="Spremi karticu vjernosti i imaj je uvijek pri ruci."
       srOnlyDescription
+      dirty={form.formState.isDirty}
       formId="digital-card-form"
       submitLabel={isEdit ? "Ažuriraj" : "Stvori"}
+      submitIcon={Save}
       submitLoading={isLoading}
-      submitDisabled={!form.formState.isDirty || notFound}
+      submitDisabled={!form.formState.isDirty || !form.formState.isValid || notFound}
       cancelLabel="Odustani"
-      footerStart={restored ? <DraftRestoredChip /> : undefined}
+      resetLabel={restored ? "Resetiraj" : undefined}
+      onReset={() => {
+        clearDraft();
+        form.reset();
+      }}
     >
-      {notFound ? (
+      {loading ? (
+        <Skeleton className="h-64 w-full" />
+      ) : notFound ? (
         <p className="text-sm text-muted-foreground">
           Kartica nije pronađena. Možda je obrisana.
         </p>
@@ -123,19 +136,6 @@ export default function DigitalCardModal({
             )}
 
             <DigitalCardFields />
-
-            {restored && (
-              <button
-                type="button"
-                onClick={() => {
-                  clearDraft();
-                  form.reset();
-                }}
-                className="cursor-pointer text-xs text-muted-foreground underline hover:text-primary"
-              >
-                Odbaci izmjene i vrati spremljene vrijednosti
-              </button>
-            )}
           </form>
         </Form>
       )}

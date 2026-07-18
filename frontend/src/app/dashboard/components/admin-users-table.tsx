@@ -102,7 +102,7 @@ export default function AdminUsersTable() {
               return (
                 <TableRow key={u.id}>
                   <TableCell className="font-medium">
-                    {u.username || "—"}
+                    {u.username || "-"}
                     {isSelf && (
                       <Badge variant="secondary" className="ml-2">
                         Ti
@@ -110,7 +110,7 @@ export default function AdminUsersTable() {
                     )}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {u.email || "—"}
+                    {u.email || "-"}
                   </TableCell>
                   <TableCell>
                     <Select

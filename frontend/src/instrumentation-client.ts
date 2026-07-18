@@ -16,7 +16,7 @@ Sentry.init({
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
 
-  // App is privacy-conscious (EU/DE) — keep IPs/headers/user data out of events by default.
+  // App is privacy-conscious (EU/DE) - keep IPs/headers/user data out of events by default.
   sendDefaultPii: false,
 });
 

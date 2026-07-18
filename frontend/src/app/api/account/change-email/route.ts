@@ -11,7 +11,7 @@ const bodySchema = z.object({ newEmail: z.email() });
 
 // Server-side guard for the "one email defines the user" invariant. Changing the account email
 // while a social provider is linked would let a provider login carry a different email than the
-// account — so we block the change until every social account is unlinked, leaving only the
+// account - so we block the change until every social account is unlinked, leaving only the
 // password (credential). This holds regardless of which UI calls it.
 export async function POST(request: Request) {
   let body: unknown;

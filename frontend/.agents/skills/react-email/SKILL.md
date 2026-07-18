@@ -36,7 +36,7 @@ npm install
 npm run dev
 ```
 
-This works with any package manager (npm, yarn, pnpm, bun) — substitute accordingly.
+This works with any package manager (npm, yarn, pnpm, bun) - substitute accordingly.
 
 The dev server runs at localhost:3000 with a preview interface for templates in the `emails` folder.
 
@@ -231,11 +231,11 @@ See [references/STYLING.md](references/STYLING.md) for comprehensive styling doc
 ### Key Rules
 
 - Use `Tailwind` with `pixelBasedPreset` (email clients don't support `rem`). Import `pixelBasedPreset` from `react-email`.
-- Never use flexbox or grid — use `Row`/`Column` components or tables for layouts.
-- Avoid CSS/Tailwind media queries (`sm:`, `md:`, `lg:`, `xl:`) — limited email client support.
-- Never use theme selectors (`dark:`, `light:`) — not supported.
-- Never use SVG or WEBP images — warn users about rendering issues.
-- Always specify border type (`border-solid`, `border-dashed`, etc.) — email clients don't inherit it.
+- Never use flexbox or grid - use `Row`/`Column` components or tables for layouts.
+- Avoid CSS/Tailwind media queries (`sm:`, `md:`, `lg:`, `xl:`) - limited email client support.
+- Never use theme selectors (`dark:`, `light:`) - not supported.
+- Never use SVG or WEBP images - warn users about rendering issues.
+- Always specify border type (`border-solid`, `border-dashed`, etc.) - email clients don't inherit it.
 - For single-side borders, reset others first (`border-none border-l border-solid`).
 
 ### Required Classes
@@ -315,11 +315,11 @@ See [references/I18N.md](references/I18N.md) for complete i18n documentation. Re
 React Email includes a visual editor (`@react-email/editor`) that can be embedded in your app. It's built on TipTap/ProseMirror and produces email-ready HTML.
 
 See [references/EDITOR.md](references/EDITOR.md) for complete documentation including:
-- `EmailEditor` — batteries-included component with bubble menus, slash commands, and theming
-- `StarterKit` — 35+ email-aware extensions (headings, lists, tables, columns, buttons, etc.)
-- `Inspector` — contextual sidebar for editing styles
-- `EmailTheming` — built-in themes (`basic`, `minimal`) with customizable CSS properties
-- `composeReactEmail` — export editor content to email-ready HTML and plain text
+- `EmailEditor` - batteries-included component with bubble menus, slash commands, and theming
+- `StarterKit` - 35+ email-aware extensions (headings, lists, tables, columns, buttons, etc.)
+- `Inspector` - contextual sidebar for editing styles
+- `EmailTheming` - built-in themes (`basic`, `minimal`) with customizable CSS properties
+- `composeReactEmail` - export editor content to email-ready HTML and plain text
 - Custom extensions via `EmailNode` and `EmailMark`
 
 Quick example:

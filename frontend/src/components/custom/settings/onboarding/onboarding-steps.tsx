@@ -15,7 +15,7 @@ export interface OnboardingStep {
   component: ComponentType;
 }
 
-// The middle steps ARE the settings tabs — same components, same form context.
+// The middle steps ARE the settings tabs - same components, same form context.
 export const ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: "welcome",
@@ -25,13 +25,14 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: "profil",
     title: "Tvoj profil",
-    description: "Predstavi se — sve možeš kasnije promijeniti u postavkama.",
+    description: "Predstavi se - sve možeš kasnije promijeniti u postavkama.",
     component: ProfilTab,
   },
   {
     id: "obavijesti",
     title: "Obavijesti",
-    description: "Odaberi koje obavijesti želiš primati.",
+    description:
+      "Odaberi kako, o čemu i kada želiš biti obaviješten o akcijama i novostima.",
     component: ObavijestiTab,
   },
   {

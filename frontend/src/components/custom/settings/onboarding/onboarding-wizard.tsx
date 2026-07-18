@@ -43,7 +43,7 @@ export function OnboardingWizard({ open, save, saving }: OnboardingWizardProps) 
       title={currentStep.title}
       description={
         currentStep.description ??
-        "Kratko postavljanje računa — sve se kasnije može promijeniti."
+        "Kratko postavljanje računa, sve se kasnije može promijeniti."
       }
       srOnlyDescription={!currentStep.description}
       preventClose={busy}
@@ -57,19 +57,6 @@ export function OnboardingWizard({ open, save, saving }: OnboardingWizardProps) 
       }
       footer={
         <div className="flex items-center gap-2 px-6 pb-6 pt-4">
-          {!isLast && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => void skip()}
-              disabled={busy}
-              className="text-muted-foreground"
-            >
-              Preskoči
-            </Button>
-          )}
-
           <div className="ml-auto flex items-center gap-2">
             {!isFirst && (
               <Button

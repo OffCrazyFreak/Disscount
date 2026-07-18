@@ -14,7 +14,7 @@ export const settingsFormSchema = z.object({
   notificationsEmail: z.boolean(),
   newsletter: z.boolean(),
   feedbackContact: z.boolean(),
-  // Chain codes (storeApiId), NOT display names — the save path always sent
+  // Chain codes (storeApiId), NOT display names - the save path always sent
   // codes, so the load path must map codes too.
   pinnedStores: z.array(z.string()),
   // Place names double as their API ids.

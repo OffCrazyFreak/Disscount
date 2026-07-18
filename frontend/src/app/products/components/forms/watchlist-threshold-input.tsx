@@ -2,8 +2,6 @@
 
 import { useFormContext } from "react-hook-form";
 
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   FormControl,
   FormDescription,
@@ -12,6 +10,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { StepperNumberInput } from "@/components/ui/stepper-number-input";
 import { WatchType } from "@/lib/api";
 import type { WatchlistItemDto } from "@/lib/api/schemas/watchlist";
 import {
@@ -40,46 +39,7 @@ export function WatchlistThresholdInput({
 
   const { min, max } = watchlistLimits(watchType);
   const steps = thresholdSteps(watchType, minPrice);
-
-  const parsed = Number.parseFloat(rawValue);
-  const currentValue = Number.isFinite(parsed)
-    ? parsed
-    : watchType === WatchType.percentage
-      ? 10
-      : 0;
-
-  function updateBy(delta: number) {
-    const nextValue = Math.min(max, Math.max(min, currentValue + delta));
-    const formatted =
-      watchType === WatchType.percentage
-        ? `${Math.round(nextValue)}`
-        : nextValue.toFixed(2);
-    form.setValue("thresholdValue", formatted, { shouldDirty: true });
-  }
-
-  function StepButton({ step, sign }: { step: number; sign: 1 | -1 }) {
-    const isSecondary = step === steps.secondary;
-    const next = currentValue + sign * step;
-
-    return (
-      <Button
-        type="button"
-        size={isSecondary ? "sm" : "icon"}
-        variant={isSecondary ? "outline" : "default"}
-        aria-label={`${sign > 0 ? "Povećaj" : "Smanji"} prag za ${step}`}
-        className={
-          isSecondary
-            ? "hidden sm:flex size-14 rounded-full shrink-0 text-lg font-bold"
-            : "size-13 rounded-full shrink-0 text-lg font-bold"
-        }
-        onClick={() => updateBy(sign * step)}
-        disabled={sign > 0 ? next > max : next < min}
-      >
-        {sign > 0 ? "+" : "-"}
-        {step}
-      </Button>
-    );
-  }
+  const current = Number.parseFloat(rawValue);
 
   return (
     <FormField
@@ -93,29 +53,22 @@ export function WatchlistThresholdInput({
           </FormLabel>
 
           <FormControl>
-            <div className="flex items-center gap-4 mx-auto my-2">
-              <StepButton step={steps.secondary} sign={-1} />
-              <StepButton step={steps.primary} sign={-1} />
-
-              <Input
-                {...field}
-                type="number"
-                step={watchType === WatchType.absolute ? 0.5 : 5}
-                min={min}
-                max={max}
-                placeholder={
-                  watchType === WatchType.absolute ? "Npr. 12€" : "Npr. 15%"
-                }
-                className="text-center w-20 sm:w-40"
-              />
-
-              <StepButton step={steps.primary} sign={1} />
-              <StepButton step={steps.secondary} sign={1} />
-            </div>
+            <StepperNumberInput
+              value={field.value}
+              onChange={field.onChange}
+              steps={steps}
+              min={min}
+              max={max}
+              integer={watchType === WatchType.percentage}
+              placeholder={
+                watchType === WatchType.absolute ? "Npr. 12" : "Npr. 15"
+              }
+              ariaLabel="Prag sniženja"
+            />
           </FormControl>
 
           {existingItemForType &&
-            existingItemForType.thresholdValue !== currentValue && (
+            existingItemForType.thresholdValue !== current && (
               <FormDescription className="text-xs">
                 Minimalan prag će biti ažuriran s{" "}
                 {existingItemForType.thresholdValue} na {rawValue}.

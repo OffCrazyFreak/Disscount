@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Send } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -48,7 +48,7 @@ export function ForgotPasswordForm({ onBackToLogin }: IForgotPasswordFormProps) 
       return;
     }
 
-    // Same notice regardless of whether the account exists — no enumeration.
+    // Same notice regardless of whether the account exists - no enumeration.
     setSubmittedEmail(data.email);
   }
 
@@ -90,13 +90,13 @@ export function ForgotPasswordForm({ onBackToLogin }: IForgotPasswordFormProps) 
         type="submit"
         size="lg"
         className="w-full"
-        disabled={form.formState.isSubmitting}
+        icon={Send}
+        iconPlacement="left"
+        loading={form.formState.isSubmitting}
+        loadingText="Slanje..."
+        loadingIconPlacement="left"
       >
-        {form.formState.isSubmitting ? (
-          <Loader2 size={16} className="animate-spin" />
-        ) : (
-          "Pošalji poveznicu"
-        )}
+        Pošalji poveznicu
       </Button>
 
       <button

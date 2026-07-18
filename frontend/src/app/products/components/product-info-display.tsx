@@ -58,9 +58,12 @@ export default function ProductInfoDisplay({
       <div className="flex items-center justify-between gap-4">
         {/* Left side - Image and product info */}
         <div className="flex-1 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={handleBackClick}>
-            <ChevronLeft className="size-6 sm:size-7" />
-          </Button>
+          {/* Back button only on the standalone product page, not inside modals */}
+          {enableActionButtons && (
+            <Button variant="ghost" size="icon" onClick={handleBackClick}>
+              <ChevronLeft className="size-6 sm:size-7" />
+            </Button>
+          )}
 
           {/* TODO: Product Image */}
           {/* <div className="hidden sm:grid place-items-center size-16 bg-gray-100 shadow-sm rounded-lg">

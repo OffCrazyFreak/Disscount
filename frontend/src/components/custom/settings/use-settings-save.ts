@@ -56,7 +56,7 @@ export function useSettingsSave({
 
     if (!onlineManager.isOnline()) {
       toast.info(
-        "Izvan ste mreže — promjene će se sinkronizirati kad se vratite na mrežu."
+        "Izvan ste mreže - promjene će se sinkronizirati kad se vratite na mrežu."
       );
     }
 

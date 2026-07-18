@@ -18,6 +18,8 @@ import { useSettingsSave } from "@/components/custom/settings/use-settings-save"
 import { SettingsUiProvider } from "@/components/custom/settings/settings-context";
 import { SettingsModal } from "@/components/custom/settings/settings-modal";
 import { OnboardingWizard } from "@/components/custom/settings/onboarding/onboarding-wizard";
+import { useSecuritySettings } from "@/components/custom/settings/tabs/use-security-settings";
+import { SecurityProvider } from "@/components/custom/settings/tabs/security-context";
 
 interface AvatarState {
   initialized: boolean;
@@ -91,6 +93,9 @@ export default function SettingsModalHost() {
     setLastTab(target.tab);
   }
 
+  // The security tab's form/data lives here so the shared footer can drive it.
+  const security = useSecuritySettings(open && lastTab === "sigurnost");
+
   return (
     <FormProvider {...form}>
       <SettingsUiProvider
@@ -108,7 +113,9 @@ export default function SettingsModalHost() {
           resetToDefaults,
         }}
       >
-        <SettingsModal open={open} tab={lastTab} />
+        <SecurityProvider value={security}>
+          <SettingsModal open={open} tab={lastTab} />
+        </SecurityProvider>
 
         <OnboardingWizard
           open={target?.name === "onboarding"}

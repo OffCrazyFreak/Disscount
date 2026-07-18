@@ -141,6 +141,7 @@ export function DangerZone() {
         description="Jesi li siguran da se želiš odjaviti sa svih ostalih uređaja? Ova sesija ostaje aktivna."
         confirmLabel="Odjava"
         variant="default"
+        confirmIcon={LogOut}
         onConfirm={handleLogoutAll}
         isLoading={isRevoking}
       />

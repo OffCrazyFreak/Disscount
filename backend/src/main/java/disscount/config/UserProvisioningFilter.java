@@ -41,7 +41,7 @@ public class UserProvisioningFilter extends OncePerRequestFilter {
             try {
                 userService.ensureActiveProfile(UUID.fromString(sub), email, name, image);
             } catch (IllegalArgumentException ignored) {
-                // sub is not a UUID — token not issued by our better-auth instance
+                // sub is not a UUID - token not issued by our better-auth instance
             } catch (Exception e) {
                 log.error("User provisioning failed for sub={}: {}", sub, e.getMessage(), e);
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Service unavailable");

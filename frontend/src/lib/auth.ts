@@ -134,7 +134,7 @@ export const auth = betterAuth({
     account: {
       create: {
         // Positive OAuth signal: when a social account is created (sign-up or linking), mark the
-        // user's email verified — the provider owns the email. Credential accounts are skipped,
+        // user's email verified - the provider owns the email. Credential accounts are skipped,
         // so email/password sign-ups keep requireEmailVerification's gate. Google already arrives
         // verified; this is what makes Facebook (which returns no verified claim) work without
         // the deprecated requireLocalEmailVerified flag, and it can't accidentally verify a

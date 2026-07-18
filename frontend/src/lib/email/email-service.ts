@@ -16,7 +16,7 @@ interface ChangeEmailArgs extends TokenEmailArgs {
 }
 
 // Provider-agnostic email use cases. Call sites (Better Auth hooks, the register endpoint)
-// depend on this class, not on Resend — switching providers only touches ./index.
+// depend on this class, not on Resend - switching providers only touches ./index.
 export class EmailService {
   constructor(private readonly provider: EmailProvider) {}
 

@@ -1,4 +1,6 @@
 import { Image, ListPlus } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -11,6 +13,7 @@ import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { formatQuantity } from "@/utils/strings";
 import WatchlistActionButton from "@/app/products/components/watchlist-action-button";
 import { watchlistService } from "@/lib/api";
+import { productByEanQueryKey } from "@/lib/cijene-api";
 
 interface IProductActionButtonsProps {
   product: ProductResponse;
@@ -27,12 +30,21 @@ export default function ProductActionButtons({
   showAddToWatchlist = true,
   className,
 }: IProductActionButtonsProps) {
+  const queryClient = useQueryClient();
   const { data: currentUserWatchlist = [] } =
     watchlistService.useGetCurrentUserWatchlist();
 
   const isInWatchlist = currentUserWatchlist.some(
     (watchlistItem) => watchlistItem.productApiId === product.ean,
   );
+
+  // We already hold the full product here, so seed the by-ean cache under the
+  // exact key useGetProductByEan reads. The modal then shows it instantly
+  // instead of waiting on its own fetch (the URL-driven modal has no props).
+  function openAddToList() {
+    queryClient.setQueryData(productByEanQueryKey(product.ean), product);
+    openModalUrl({ name: "add-to-list", ean: product.ean });
+  }
 
   return (
     <>
@@ -78,9 +90,7 @@ export default function ProductActionButtons({
                 size="icon"
                 aria-label="Dodaj na popis za kupnju"
                 className="size-10 sm:size-12 shrink-0"
-                onClick={() =>
-                  openModalUrl({ name: "add-to-list", ean: product.ean })
-                }
+                onClick={openAddToList}
               >
                 <ListPlus className="size-6 sm:size-7" />
               </Button>

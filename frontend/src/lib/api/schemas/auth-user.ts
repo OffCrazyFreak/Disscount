@@ -30,7 +30,7 @@ export const registerRequestSchema = z
     path: ["confirmPassword"],
   });
 
-// Mirrors the backend AcquisitionChannel enum — granular per platform so marketing
+// Mirrors the backend AcquisitionChannel enum - granular per platform so marketing
 // attribution can distinguish Instagram vs Facebook vs TikTok, etc.
 export const acquisitionChannelSchema = z.enum([
   "GOOGLE_SEARCH",

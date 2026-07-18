@@ -1,6 +1,6 @@
 # Segments
 
-Group contacts for broadcast targeting. Segments replaced legacy "audiences" — use `segmentId` not `audienceId` everywhere.
+Group contacts for broadcast targeting. Segments replaced legacy "audiences" - use `segmentId` not `audienceId` everywhere.
 
 ## SDK Methods
 
@@ -11,9 +11,9 @@ Group contacts for broadcast targeting. Segments replaced legacy "audiences" —
 | Create | `resend.segments.create(params)` |
 | Get | `resend.segments.get(id)` |
 | List | `resend.segments.list(params?)` |
-| Delete | `resend.segments.remove(id)` — not `.delete()` |
+| Delete | `resend.segments.remove(id)` - not `.delete()` |
 
-No update endpoint — delete and recreate to rename a segment.
+No update endpoint - delete and recreate to rename a segment.
 
 ### Python
 
@@ -71,7 +71,7 @@ await resend.broadcasts.create({
 
 | Mistake | Fix |
 |---------|-----|
-| Using `audienceId` | Audiences are deprecated — use `segmentId` |
-| Calling `.update()` | No update endpoint — `.remove()` then `.create()` to rename |
+| Using `audienceId` | Audiences are deprecated - use `segmentId` |
+| Calling `.update()` | No update endpoint - `.remove()` then `.create()` to rename |
 | Calling `.delete()` | SDK method is `.remove()` |
 | Expecting contacts auto-added | Contacts must be explicitly added via `contacts.segments.add()` |

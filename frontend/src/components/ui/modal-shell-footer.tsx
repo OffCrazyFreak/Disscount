@@ -1,7 +1,8 @@
 "use client";
 
 import { ReactNode } from "react";
-import { Loader2 } from "lucide-react";
+import { RotateCcw, Save, X, type LucideIcon } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
 
 import { Button } from "@/components/ui/button";
 
@@ -12,10 +13,15 @@ export interface ModalShellFooterProps {
   submitDisabled?: boolean;
   submitLoading?: boolean;
   submitVariant?: "default" | "destructive";
+  submitIcon?: LucideIcon;
   onSubmit?: () => void;
-  // When set, the submit button submits the <form id={formId}> living in the body,
-  // so forms don't need to wrap the footer to get native submit behavior.
+  // When set, the submit button submits the <form id={formId}> living in the
+  // body; the reset button becomes a native type="reset" for the same form.
   formId?: string;
+  resetLabel?: string;
+  onReset?: () => void;
+  resetDisabled?: boolean;
+  // Extra actions rendered next to Odustani (e.g. a destructive "Ukloni").
   footerStart?: ReactNode;
   caption?: ReactNode;
 }
@@ -27,46 +33,82 @@ export function ModalShellFooter({
   submitDisabled,
   submitLoading,
   submitVariant = "default",
+  submitIcon = Save,
   onSubmit,
   formId,
+  resetLabel,
+  onReset,
+  resetDisabled,
   footerStart,
   caption,
 }: ModalShellFooterProps) {
+  const reduceMotion = useReducedMotion();
   const hasButtons = !!cancelLabel || !!submitLabel || !!footerStart;
 
   if (!hasButtons && !caption) return null;
+
+  const submitEnabled = !submitDisabled && !submitLoading;
 
   return (
     <div className="flex flex-col gap-2 px-6 pb-6 pt-4">
       {hasButtons && (
         <div className="flex items-center gap-2">
-          {footerStart && (
-            <div className="flex min-w-0 items-center gap-2">{footerStart}</div>
+          {cancelLabel && (
+            <Button
+              type="button"
+              variant="outline"
+              icon={X}
+              iconPlacement="left"
+              onClick={onCancel}
+              disabled={submitLoading}
+            >
+              {cancelLabel}
+            </Button>
           )}
 
+          {footerStart}
+
           <div className="ml-auto flex shrink-0 items-center gap-2">
-            {cancelLabel && (
+            {resetLabel && (
               <Button
-                type="button"
+                type={formId && !onReset ? "reset" : "button"}
+                form={formId && !onReset ? formId : undefined}
                 variant="outline"
-                onClick={onCancel}
-                disabled={submitLoading}
+                icon={RotateCcw}
+                iconPlacement="left"
+                onClick={onReset}
+                disabled={resetDisabled || submitLoading}
               >
-                {cancelLabel}
+                {resetLabel}
               </Button>
             )}
 
             {submitLabel && (
-              <Button
-                type={formId ? "submit" : "button"}
-                form={formId}
-                variant={submitVariant}
-                onClick={formId ? undefined : onSubmit}
-                disabled={submitDisabled || submitLoading}
+              <motion.div
+                // A single gentle pulse each time the button becomes clickable,
+                // nudging the user toward saving their changes.
+                key={String(submitEnabled)}
+                animate={
+                  submitEnabled && !reduceMotion
+                    ? { scale: [1, 1.06, 1] }
+                    : undefined
+                }
+                transition={{ duration: 0.45, delay: 0.15, ease: "easeInOut" }}
               >
-                {submitLoading && <Loader2 className="animate-spin" />}
-                {submitLabel}
-              </Button>
+                <Button
+                  type={formId ? "submit" : "button"}
+                  form={formId}
+                  variant={submitVariant}
+                  icon={submitIcon}
+                  iconPlacement="left"
+                  onClick={formId ? undefined : onSubmit}
+                  disabled={submitDisabled}
+                  loading={submitLoading}
+                  loadingIconPlacement="left"
+                >
+                  {submitLabel}
+                </Button>
+              </motion.div>
             )}
           </div>
         </div>

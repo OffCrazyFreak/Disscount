@@ -17,7 +17,7 @@ Create, list, and delete API keys programmatically. No get or update endpoints e
 **Optional:** `permission`, `domainId`
 
 - `permission`: `"full_access"` (default) or `"sending_access"`
-- `domainId`: only applies when `permission` is `"sending_access"` — scopes the key to a single domain
+- `domainId`: only applies when `permission` is `"sending_access"` - scopes the key to a single domain
 - `name`: max 50 characters
 
 ## Examples
@@ -79,11 +79,11 @@ resend.ApiKeys.remove("api_key_id")
 
 | Mistake | Fix |
 |---------|-----|
-| Not storing the token on create | The token is returned **once** — store it immediately |
-| Expecting a get or update endpoint | Neither exists — list returns metadata only (no tokens) |
+| Not storing the token on create | The token is returned **once** - store it immediately |
+| Expecting a get or update endpoint | Neither exists - list returns metadata only (no tokens) |
 | Setting `domainId` with `full_access` | `domainId` only applies to `sending_access` keys |
 | Calling `.delete()` instead of `.remove()` | Node.js SDK uses `.remove()` for all delete operations |
-| Ignoring `error` return | Node.js SDK returns `{ data, error }` — always check `error` |
+| Ignoring `error` return | Node.js SDK returns `{ data, error }` - always check `error` |
 | Name over 50 characters | `name` has a 50-character limit |
 
 ## Response Fields

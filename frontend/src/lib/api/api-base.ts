@@ -18,7 +18,7 @@ const apiClient: AxiosInstance = axios.create({
 // before it expires instead of waiting for a 401 round-trip.
 const TOKEN_REFRESH_SKEW_SECONDS = 30;
 
-// Cooldown after a failed fetch — avoids hammering /api/auth/token when logged out
+// Cooldown after a failed fetch - avoids hammering /api/auth/token when logged out
 const RETRY_COOLDOWN_MS = 2_000;
 
 const MAX_RETRIES = 3;
