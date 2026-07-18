@@ -7,7 +7,7 @@ import { SettingsSection } from "@/components/custom/settings/ui/settings-sectio
 import { PinnedStoresGrid } from "@/components/custom/settings/tabs/pinned-stores-grid";
 import { PinnedPlacesSelect } from "@/components/custom/settings/tabs/pinned-places-select";
 
-export function PreferenceTab() {
+export function PreferencesTab() {
   return (
     <StaggerChildren className="space-y-8">
       <SettingsSection

@@ -11,6 +11,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { StaggerChildren } from "@/components/ui/stagger-children";
 import { useSecurity } from "@/components/custom/settings/tabs/security-context";
 
 export const CREDENTIALS_FORM_ID = "credentials-form";
@@ -23,84 +24,84 @@ export default function AccountCredentialsForm() {
 
   return (
     <Form {...form}>
-      <form
-        id={CREDENTIALS_FORM_ID}
-        onSubmit={form.handleSubmit(submit)}
-        className="space-y-6"
-      >
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  type="email"
-                  autoComplete="email"
-                  disabled={!canEditEmail}
-                />
-              </FormControl>
-              {!hasPassword && (
-                <FormDescription>
-                  Postavi lozinku da bi mogao promijeniti email.
-                </FormDescription>
-              )}
-              {hasPassword && hasLinkedSocial && (
-                <FormDescription>
-                  Za promjenu emaila prvo odspoji povezane račune (Google,
-                  Facebook).
-                </FormDescription>
-              )}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="newPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{hasPassword ? "Nova lozinka" : "Lozinka"}</FormLabel>
-              <FormControl>
-                <PasswordInput {...field} autoComplete="new-password" />
-              </FormControl>
-              {hasPassword && (
-                <FormDescription>
-                  Ostavi prazno ako ne mijenjaš lozinku.
-                </FormDescription>
-              )}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {hasPassword && (
+      <form id={CREDENTIALS_FORM_ID} onSubmit={form.handleSubmit(submit)}>
+        <StaggerChildren className="space-y-6">
           <FormField
             control={form.control}
-            name="currentPassword"
+            name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Trenutna lozinka</FormLabel>
+                <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <PasswordInput {...field} autoComplete="current-password" />
+                  <Input
+                    {...field}
+                    type="email"
+                    autoComplete="email"
+                    disabled={!canEditEmail}
+                  />
                 </FormControl>
-                <FormDescription>
-                  Potrebna za promjenu emaila ili lozinke.
-                </FormDescription>
+                {!hasPassword && (
+                  <FormDescription>
+                    Postavi lozinku da bi mogao promijeniti email.
+                  </FormDescription>
+                )}
+                {hasPassword && hasLinkedSocial && (
+                  <FormDescription>
+                    Za promjenu emaila prvo odspoji povezane račune (Google,
+                    Facebook).
+                  </FormDescription>
+                )}
                 <FormMessage />
               </FormItem>
             )}
           />
-        )}
 
-        {form.formState.errors.root && (
-          <p className="text-xs text-destructive">
-            {form.formState.errors.root.message}
-          </p>
-        )}
+          <FormField
+            control={form.control}
+            name="newPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {hasPassword ? "Nova lozinka" : "Lozinka"}
+                </FormLabel>
+                <FormControl>
+                  <PasswordInput {...field} autoComplete="new-password" />
+                </FormControl>
+                {hasPassword && (
+                  <FormDescription>
+                    Ostavi prazno ako ne mijenjaš lozinku.
+                  </FormDescription>
+                )}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {hasPassword && (
+            <FormField
+              control={form.control}
+              name="currentPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Trenutna lozinka</FormLabel>
+                  <FormControl>
+                    <PasswordInput {...field} autoComplete="current-password" />
+                  </FormControl>
+                  <FormDescription>
+                    Potrebna za promjenu emaila ili lozinke.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {form.formState.errors.root && (
+            <p className="text-xs text-destructive">
+              {form.formState.errors.root.message}
+            </p>
+          )}
+        </StaggerChildren>
       </form>
     </Form>
   );

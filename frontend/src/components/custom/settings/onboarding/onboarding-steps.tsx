@@ -2,9 +2,9 @@
 
 import { ComponentType } from "react";
 
-import { ProfilTab } from "@/components/custom/settings/tabs/profil-tab";
-import { ObavijestiTab } from "@/components/custom/settings/tabs/obavijesti-tab";
-import { PreferenceTab } from "@/components/custom/settings/tabs/preference-tab";
+import { ProfileTab } from "@/components/custom/settings/tabs/profile-tab";
+import { NotificationsTab } from "@/components/custom/settings/tabs/notifications-tab";
+import { PreferencesTab } from "@/components/custom/settings/tabs/preferences-tab";
 import { WelcomeStep } from "@/components/custom/settings/onboarding/welcome-step";
 import { DoneStep } from "@/components/custom/settings/onboarding/done-step";
 
@@ -26,21 +26,21 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
     id: "profil",
     title: "Tvoj profil",
     description: "Predstavi se - sve možeš kasnije promijeniti u postavkama.",
-    component: ProfilTab,
+    component: ProfileTab,
   },
   {
     id: "obavijesti",
     title: "Obavijesti",
     description:
       "Odaberi kako, o čemu i kada želiš biti obaviješten o akcijama i novostima.",
-    component: ObavijestiTab,
+    component: NotificationsTab,
   },
   {
     id: "preference",
     title: "Tvoje trgovine i lokacije",
     description:
       "Označi trgovine i mjesta u svojoj blizini za točnije usporedbe cijena.",
-    component: PreferenceTab,
+    component: PreferencesTab,
   },
   {
     id: "done",

@@ -31,7 +31,7 @@ const SWITCHES = [
   },
 ] as const;
 
-export function ObavijestiTab() {
+export function NotificationsTab() {
   return (
     <SettingsSection
       icon={Bell}

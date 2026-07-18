@@ -18,10 +18,10 @@ import { dirtySections } from "@/components/custom/settings/settings-dirty";
 import { useSettingsUi } from "@/components/custom/settings/settings-context";
 import { useSecurity } from "@/components/custom/settings/tabs/security-context";
 import { CREDENTIALS_FORM_ID } from "@/components/custom/header/forms/account-credentials-form";
-import { ProfilTab } from "@/components/custom/settings/tabs/profil-tab";
-import { ObavijestiTab } from "@/components/custom/settings/tabs/obavijesti-tab";
-import { PreferenceTab } from "@/components/custom/settings/tabs/preference-tab";
-import { SigurnostTab } from "@/components/custom/settings/tabs/sigurnost-tab";
+import { ProfileTab } from "@/components/custom/settings/tabs/profile-tab";
+import { NotificationsTab } from "@/components/custom/settings/tabs/notifications-tab";
+import { PreferencesTab } from "@/components/custom/settings/tabs/preferences-tab";
+import { SecurityTab } from "@/components/custom/settings/tabs/security-tab";
 
 const TAB_CONFIG: { value: SettingsTab; label: string; icon: LucideIcon }[] = [
   { value: "profil", label: "Profil", icon: UserRound },
@@ -126,20 +126,20 @@ export function SettingsModal({ open, tab }: SettingsModalProps) {
           })}
         >
           <TabsContent value="profil">
-            <ProfilTab />
+            <ProfileTab />
           </TabsContent>
           <TabsContent value="obavijesti">
-            <ObavijestiTab />
+            <NotificationsTab />
           </TabsContent>
           <TabsContent value="preference">
-            <PreferenceTab />
+            <PreferencesTab />
           </TabsContent>
         </form>
 
-        {/* Sigurnost's credentials form lives in SigurnostTab (via the security
+        {/* Sigurnost's credentials form lives in SecurityTab (via the security
             context) and is submitted by the shared footer through its formId. */}
         <TabsContent value="sigurnost">
-          <SigurnostTab />
+          <SecurityTab />
         </TabsContent>
       </Tabs>
     </ModalShell>

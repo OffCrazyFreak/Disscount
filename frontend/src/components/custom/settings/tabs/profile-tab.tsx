@@ -25,7 +25,7 @@ import { SettingsFormValues } from "@/components/custom/settings/settings-schema
 import { SettingsSection } from "@/components/custom/settings/ui/settings-section";
 import { AvatarField } from "@/components/custom/settings/tabs/avatar-field";
 
-export function ProfilTab() {
+export function ProfileTab() {
   const form = useFormContext<SettingsFormValues>();
 
   return (

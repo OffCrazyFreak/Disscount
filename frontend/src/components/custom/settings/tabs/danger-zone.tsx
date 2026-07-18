@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { SettingRow } from "@/components/custom/settings/ui/setting-row";
 import { userService } from "@/lib/api";
 import { problemMessage } from "@/lib/api/problem-details";
 import { authClient } from "@/lib/auth-client";
@@ -88,50 +89,45 @@ export function DangerZone() {
 
   return (
     <>
-      <div className="space-y-4">
-        <div className="flex items-center justify-between gap-4">
-          <div className="space-y-0.5">
-            <p className="text-sm font-medium">Odjava sa svih uređaja</p>
-            <p className="text-xs text-muted-foreground">
-              Odjavi se sa svih ostalih uređaja osim ovog.
-            </p>
-          </div>
+      <div className="divide-y">
+        <SettingRow
+          label="Odjava sa svih uređaja"
+          description="Odjavi se sa svih ostalih uređaja osim ovog."
+          control={
+            <Button
+              type="button"
+              onClick={() => setShowLogoutAllConfirm(true)}
+              variant="outline"
+              size="sm"
+              icon={LogOut}
+              iconPlacement="left"
+              loading={isRevoking}
+              disabled={isLoading}
+            >
+              Odjava
+            </Button>
+          }
+        />
 
-          <Button
-            type="button"
-            onClick={() => setShowLogoutAllConfirm(true)}
-            variant="outline"
-            size="sm"
-            icon={LogOut}
-            iconPlacement="left"
-            loading={isRevoking}
-            disabled={isLoading}
-          >
-            Odjava
-          </Button>
-        </div>
-
-        <div className="flex items-center justify-between gap-4">
-          <div className="space-y-0.5">
-            <p className="text-sm font-medium text-destructive">Obriši račun</p>
-            <p className="text-xs text-muted-foreground">
-              Trajno obriši svoj račun i sve podatke.
-            </p>
-          </div>
-
-          <Button
-            type="button"
-            onClick={() => setShowDeleteConfirm(true)}
-            variant="destructive"
-            size="sm"
-            icon={Trash2}
-            iconPlacement="left"
-            loading={isDeleting}
-            disabled={isLoading}
-          >
-            Obriši
-          </Button>
-        </div>
+        <SettingRow
+          label="Obriši račun"
+          description="Trajno obriši svoj račun i sve podatke."
+          destructive
+          control={
+            <Button
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              variant="destructive"
+              size="sm"
+              icon={Trash2}
+              iconPlacement="left"
+              loading={isDeleting}
+              disabled={isLoading}
+            >
+              Obriši
+            </Button>
+          }
+        />
       </div>
 
       <ConfirmDialog

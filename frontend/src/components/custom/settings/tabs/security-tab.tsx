@@ -9,7 +9,7 @@ import { SettingsSection } from "@/components/custom/settings/ui/settings-sectio
 import { StaggerChildren } from "@/components/ui/stagger-children";
 import { useSecurity } from "@/components/custom/settings/tabs/security-context";
 
-export function SigurnostTab() {
+export function SecurityTab() {
   const { status, accounts, reload } = useSecurity();
 
   return (
