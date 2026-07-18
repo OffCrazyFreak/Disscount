@@ -56,21 +56,23 @@ export function OnboardingWizard({ open, save, saving }: OnboardingWizardProps) 
         </div>
       }
       footer={
+        // Same left/right split as ModalShellFooter: back on the left, the
+        // primary next/finish action pushed to the right with ml-auto.
         <div className="flex items-center gap-2 px-6 pb-6 pt-4">
-          <div className="ml-auto flex items-center gap-2">
-            {!isFirst && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={back}
-                disabled={busy}
-                icon={ArrowLeft}
-                iconPlacement="left"
-              >
-                Natrag
-              </Button>
-            )}
+          {!isFirst && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={back}
+              disabled={busy}
+              icon={ArrowLeft}
+              iconPlacement="left"
+            >
+              Natrag
+            </Button>
+          )}
 
+          <div className="ml-auto">
             {isLast ? (
               <Button
                 type="button"

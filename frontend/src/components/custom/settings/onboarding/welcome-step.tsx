@@ -17,8 +17,8 @@ const HIGHLIGHTS: { icon: LucideIcon; title: string; text: string }[] = [
   },
   {
     icon: Bell,
-    title: "Obavijesti o akcijama",
-    text: "Prati proizvode i saznaj čim padnu ispod tvog praga.",
+    title: "Obavijesti - bez spama",
+    text: "Odaberi kako, o čemu, i kada želiš dobiti obavijesti o akcijama i novostima.",
   },
 ];
 
