@@ -30,13 +30,13 @@ export function PinnedStoresGrid() {
       </p>
 
       {isLoading ? (
-        <div className="grid grid-cols-5 gap-2 sm:grid-cols-6 sm:gap-3">
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
           {Array.from({ length: 12 }).map((_, i) => (
-            <Skeleton key={i} className="aspect-square w-full rounded-lg" />
+            <Skeleton key={i} className="size-14 rounded-lg sm:size-16" />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-5 gap-2 sm:grid-cols-6 sm:gap-3">
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
           {chainStats?.chain_stats
             .slice()
             .sort((a, b) =>
@@ -57,7 +57,7 @@ export function PinnedStoresGrid() {
                   )}
                   onClick={() => toggleStore(chain.chain_code)}
                 >
-                  <div className="aspect-square w-full grid place-items-center relative transition-all">
+                  <div className="size-14 sm:size-16 grid place-items-center relative transition-all">
                     <StoreChainLogo
                       chain={chain.chain_code}
                       fill

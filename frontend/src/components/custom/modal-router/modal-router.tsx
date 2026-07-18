@@ -22,6 +22,16 @@ const MODE_TO_TARGET_NAME = {
   forgot: "forgot-password",
 } as const;
 
+// Shown in the login modal when a logged-out user tries to open a gated modal.
+const GATE_MESSAGES: Record<string, string> = {
+  "add-to-list": "Prijavi se kako bi dodao proizvod na popis za kupnju.",
+  watchlist: "Prijavi se kako bi pratio sniženja ovog proizvoda.",
+  "shopping-list": "Prijavi se kako bi upravljao popisima za kupnju.",
+  "digital-card": "Prijavi se kako bi upravljao digitalnim karticama.",
+  settings: "Prijavi se kako bi otvorio postavke.",
+  onboarding: "Prijavi se kako bi započeo.",
+};
+
 /**
  * The single global mount point for URL-driven modals (?modal=...). Rendered
  * once in the root layout under Suspense; every modal it owns exists exactly
@@ -45,11 +55,14 @@ export default function ModalRouter() {
   const authMode: AuthMode =
     (target && AUTH_MODE_BY_NAME[target.name]) ?? "login";
 
+  const gateMessage = needsAuthGate ? GATE_MESSAGES[target.name] : undefined;
+
   return (
     <>
       <AuthModal
         open={showAuthModal}
         mode={authMode}
+        message={gateMessage}
         onOpenChange={(open) => !open && closeModal()}
         onModeChange={(mode) => swapModal({ name: MODE_TO_TARGET_NAME[mode] })}
       />

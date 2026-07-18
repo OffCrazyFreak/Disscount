@@ -20,6 +20,7 @@ import { applyProblemToForm } from "@/lib/api/problem-details";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { takeModalError } from "@/lib/modal/modal-error-bus";
 import { useFormDraft } from "@/hooks/use-form-draft";
+import { getFormDraft } from "@/utils/browser/local-storage";
 
 interface DigitalCardModalProps {
   open: boolean;
@@ -60,23 +61,34 @@ export default function DigitalCardModal({
     defaultValues: EMPTY_VALUES,
   });
 
-  // Populate from the loaded card, but never clobber values the user is editing.
+  // Populate from the loaded card, then merge any saved draft on top (draft
+  // wins and shows as unsaved). Never clobbers values the user is editing.
   useEffect(() => {
     if (!digitalCard || form.formState.isDirty) return;
-    form.reset({
+
+    const base: DigitalCardRequest = {
       title: digitalCard.title,
       value: digitalCard.value,
       type: digitalCard.type,
       codeType: digitalCard.codeType,
       color: digitalCard.color,
       note: digitalCard.note,
-    });
-  }, [digitalCard, form]);
+    };
+    form.reset(base);
+
+    const draft = getFormDraft(draftKey)?.values as
+      | Partial<DigitalCardRequest>
+      | undefined;
+    if (draft && Object.keys(draft).length > 0) {
+      form.reset({ ...base, ...draft }, { keepDefaultValues: true });
+    }
+  }, [digitalCard, draftKey, form]);
 
   const { restored, clearDraft, flushDraft } = useFormDraft({
     draftKey,
     form,
     enabled: open && isReady,
+    restore: false,
   });
 
   // A failed optimistic save reopened this modal: surface the server error.

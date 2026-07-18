@@ -98,18 +98,19 @@ export function useWatchlistItemForm(
     }
   }
 
+  // Remove the current tab's entry if it exists, otherwise the product's other
+  // tracked entry, so the red X works no matter which tab is open.
   async function onRemove() {
-    if (!existingItemForType) return;
+    const target = existingItemForType ?? existingItems[0];
+    if (!target) return;
     closeModalUrl();
 
     try {
-      await removeMutation.mutateAsync(existingItemForType.id);
+      await removeMutation.mutateAsync(target.id);
       removeFormDraft(draftKey);
       toast.success(
         `Za proizvod se više ne prati ${
-          existingItemForType.watchType === WatchType.percentage
-            ? "postotak"
-            : "cijena"
+          target.watchType === WatchType.percentage ? "postotak" : "cijena"
         }`
       );
     } catch {

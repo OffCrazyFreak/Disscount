@@ -80,7 +80,11 @@ export default function WatchlistItemModal({
     watchType === "absolute" ? WatchType.absolute : WatchType.percentage
   );
 
-  useFormDraft({ draftKey, form, enabled: open && !isCheckingWatchlist });
+  const { restored, clearDraft } = useFormDraft({
+    draftKey,
+    form,
+    enabled: open && !isCheckingWatchlist,
+  });
 
   // The badge that opened the modal picks the initial type via the URL; the
   // component stays mounted between opens, so sync it on change too.
@@ -108,6 +112,12 @@ export default function WatchlistItemModal({
       submitLoading={isSaving}
       submitDisabled={isCheckingWatchlist || !product || !form.formState.isValid}
       cancelLabel="Odustani"
+      resetLabel="Resetiraj"
+      resetDisabled={!form.formState.isDirty && !restored}
+      onReset={() => {
+        clearDraft();
+        form.reset();
+      }}
     >
       {productQuery.isLoading ? (
         <Skeleton className="h-24 w-full" />
@@ -119,7 +129,7 @@ export default function WatchlistItemModal({
             product={product}
             enableActionButtons={false}
             action={
-              existingItemForType ? (
+              existingItems.length > 0 ? (
                 <RemoveIconButton
                   label="Ukloni s popisa za praćenje"
                   onClick={onRemove}

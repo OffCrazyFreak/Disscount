@@ -15,6 +15,9 @@ interface UseFormDraftOptions<T extends FieldValues> {
   // Gate restoring until server defaults are loaded into the form, otherwise
   // the draft would diff against empty defaults and mark everything dirty.
   enabled?: boolean;
+  // Set false when the modal applies the draft itself (edit modals merge it over
+  // freshly loaded data). The hook then only persists and exposes getDraft/clear.
+  restore?: boolean;
   // Fields that must never touch localStorage (passwords, base64 images).
   exclude?: Path<T>[];
 }
@@ -29,6 +32,7 @@ export function useFormDraft<T extends FieldValues>({
   draftKey,
   form,
   enabled = true,
+  restore = true,
   exclude = [],
 }: UseFormDraftOptions<T>) {
   const [hadDraft] = useState(() => !!getFormDraft(draftKey));
@@ -45,7 +49,7 @@ export function useFormDraft<T extends FieldValues>({
   });
 
   useEffect(() => {
-    if (!enabled || restoredOnceRef.current) return;
+    if (!enabled || !restore || restoredOnceRef.current) return;
     restoredOnceRef.current = true;
 
     const draft = getFormDraft(draftKey);
@@ -73,7 +77,7 @@ export function useFormDraft<T extends FieldValues>({
 
     if (!changed) return;
     form.reset(values as T, { keepDefaultValues: true });
-  }, [enabled, draftKey, form]);
+  }, [enabled, restore, draftKey, form]);
 
   const flushDraft = useCallback(() => {
     const values = form.getValues() as Record<string, unknown>;

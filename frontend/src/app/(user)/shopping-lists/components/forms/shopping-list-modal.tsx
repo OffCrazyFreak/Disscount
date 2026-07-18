@@ -24,6 +24,7 @@ import { applyProblemToForm } from "@/lib/api/problem-details";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { takeModalError } from "@/lib/modal/modal-error-bus";
 import { useFormDraft } from "@/hooks/use-form-draft";
+import { getFormDraft } from "@/utils/browser/local-storage";
 import { useShoppingListModal } from "@/app/(user)/shopping-lists/hooks/use-shopping-list-modal";
 
 interface ShoppingListModalProps {
@@ -62,19 +63,30 @@ export default function ShoppingListModal({
     defaultValues: { title: "", isPublic: false },
   });
 
-  // Populate from the loaded list, but never clobber values the user is editing.
+  // Populate from the loaded list, then merge any saved draft on top (draft
+  // wins and shows as unsaved). Never clobbers values the user is editing.
   useEffect(() => {
     if (!shoppingList || form.formState.isDirty) return;
-    form.reset({
+
+    const base = {
       title: shoppingList.title,
       isPublic: shoppingList.isPublic ?? false,
-    });
-  }, [shoppingList, form]);
+    };
+    form.reset(base);
+
+    const draft = getFormDraft(draftKey)?.values as
+      | Partial<ShoppingListRequest>
+      | undefined;
+    if (draft && Object.keys(draft).length > 0) {
+      form.reset({ ...base, ...draft }, { keepDefaultValues: true });
+    }
+  }, [shoppingList, draftKey, form]);
 
   const { restored, clearDraft, flushDraft } = useFormDraft({
     draftKey,
     form,
     enabled: open && isReady,
+    restore: false,
   });
 
   // A failed optimistic save reopened this modal: surface the server error.
