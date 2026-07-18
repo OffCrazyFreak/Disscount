@@ -3,8 +3,8 @@
 import { Bell } from "lucide-react";
 
 import { StaggerChildren } from "@/components/ui/stagger-children";
-import { SettingsSection } from "@/components/custom/settings/ui/settings-section";
-import { NotificationSwitchRow } from "@/components/custom/settings/tabs/notification-switch-row";
+import SettingsSection from "@/components/custom/settings/ui/settings-section";
+import NotificationSwitchRow from "@/components/custom/settings/tabs/notification-switch-row";
 
 const SWITCHES = [
   {
@@ -34,7 +34,7 @@ const SWITCHES = [
   },
 ] as const;
 
-export function NotificationsTab() {
+export default function NotificationsTab() {
   return (
     <SettingsSection
       icon={Bell}

@@ -29,7 +29,7 @@ interface ISignUpFormProps {
   externalDisabled?: boolean;
 }
 
-export function SignUpForm({ externalDisabled }: ISignUpFormProps) {
+export default function SignUpForm({ externalDisabled }: ISignUpFormProps) {
   // Set once registration succeeds. Email verification is required, so we don't log in -
   // we show a "check your inbox" notice instead.
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);

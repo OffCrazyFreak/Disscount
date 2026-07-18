@@ -8,7 +8,7 @@ import cijeneService from "@/lib/cijene-api";
 import { cn } from "@/lib/utils";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
 
-export function PinnedStoresGrid() {
+export default function PinnedStoresGrid() {
   const form = useFormContext<SettingsFormValues>();
   const { data: chainStats, isLoading } = cijeneService.useGetChainStats();
 

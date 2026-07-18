@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, TrendingUp } from "lucide-react";
 import cijeneService from "@/lib/cijene-api";
-import { StoreItem } from "@/app/statistics/components/store-item";
+import StoreItem from "@/app/statistics/components/store-item";
 
 export default function ChainList() {
   const [expandedChain, setExpandedChain] = useState<string | null>(null);

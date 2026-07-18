@@ -3,11 +3,11 @@
 import { Store, MapPin } from "lucide-react";
 
 import { StaggerChildren } from "@/components/ui/stagger-children";
-import { SettingsSection } from "@/components/custom/settings/ui/settings-section";
-import { PinnedStoresGrid } from "@/components/custom/settings/tabs/pinned-stores-grid";
-import { PinnedPlacesSelect } from "@/components/custom/settings/tabs/pinned-places-select";
+import SettingsSection from "@/components/custom/settings/ui/settings-section";
+import PinnedStoresGrid from "@/components/custom/settings/tabs/pinned-stores-grid";
+import PinnedPlacesSelect from "@/components/custom/settings/tabs/pinned-places-select";
 
-export function PreferencesTab() {
+export default function PreferencesTab() {
   return (
     <StaggerChildren className="space-y-8">
       <SettingsSection

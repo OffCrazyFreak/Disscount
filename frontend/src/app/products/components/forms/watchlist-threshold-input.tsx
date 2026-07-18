@@ -29,7 +29,7 @@ interface IWatchlistThresholdInputProps {
   existingItemForType?: WatchlistItemDto;
 }
 
-export function WatchlistThresholdInput({
+export default function WatchlistThresholdInput({
   minPrice,
   existingItemForType,
 }: IWatchlistThresholdInputProps) {

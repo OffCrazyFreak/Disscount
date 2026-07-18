@@ -3,7 +3,7 @@
 import { CircleCheck } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 
-export function DoneStep() {
+export default function DoneStep() {
   const reduceMotion = useReducedMotion();
 
   return (

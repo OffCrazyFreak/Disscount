@@ -8,8 +8,8 @@ import { signIn } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { GoogleIcon } from "@/components/icons/google-icon";
-import { FacebookIcon } from "@/components/icons/facebook-icon";
+import GoogleIcon from "@/components/icons/google-icon";
+import FacebookIcon from "@/components/icons/facebook-icon";
 import { FACEBOOK_COMING_SOON } from "@/constants/auth";
 import { setLastLoginMethod } from "@/utils/browser/local-storage";
 import { stripModalSearch } from "@/lib/modal/modal-registry";
@@ -39,7 +39,7 @@ function LastLoginBadge() {
   );
 }
 
-export function AuthSocialButtons({
+export default function AuthSocialButtons({
   lastLoginMethod,
   socialPending,
   onPendingChange,

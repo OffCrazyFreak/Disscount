@@ -18,7 +18,7 @@ const MAX_AVATAR_BYTES = 1024 * 1024;
 
 // Lives outside react-hook-form and outside drafts on purpose: base64 images
 // would blow the localStorage quota and don't belong in dirty tracking.
-export function AvatarField() {
+export default function AvatarField() {
   const { user } = useUser();
   const { avatarPreview, updateAvatar } = useSettingsUi();
 

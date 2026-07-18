@@ -33,7 +33,7 @@ type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 // The token is captured into state and immediately stripped from the URL so it
 // can't linger in history or leak via the Referer header. On success the user is
 // sent to log in (we never auto-login, so no PII rides along).
-export function ResetPasswordModal({ open }: { open: boolean }) {
+export default function ResetPasswordModal({ open }: { open: boolean }) {
   // Capture the token the first render the modal is open (adjust-during-render,
   // so it works when `open` flips true), then strip it from the URL in an effect.
   const [captured, setCaptured] = useState<{ token: string | null } | null>(

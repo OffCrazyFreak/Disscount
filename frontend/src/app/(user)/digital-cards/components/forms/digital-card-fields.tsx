@@ -77,7 +77,7 @@ function SelectField({
   );
 }
 
-export function DigitalCardFields() {
+export default function DigitalCardFields() {
   const form = useFormContext<DigitalCardRequest>();
 
   return (

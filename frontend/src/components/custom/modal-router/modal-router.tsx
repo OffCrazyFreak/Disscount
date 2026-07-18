@@ -1,13 +1,13 @@
 "use client";
 
-import { AuthModal, AuthMode } from "@/components/custom/header/forms/auth-modal";
+import AuthModal, { AuthMode } from "@/components/custom/header/forms/auth-modal";
 import EntityModalOutlet, {
   isEntityTarget,
 } from "@/components/custom/modal-router/entity-modal-outlet";
 import SettingsModalHost from "@/components/custom/settings/settings-modal-host";
-import { OnboardingGate } from "@/components/custom/settings/onboarding/onboarding-gate";
-import { ResetPasswordModal } from "@/components/custom/header/forms/reset-password-modal";
-import { AuthStatusModal } from "@/components/custom/header/forms/auth-status-modal";
+import OnboardingGate from "@/components/custom/settings/onboarding/onboarding-gate";
+import ResetPasswordModal from "@/components/custom/header/forms/reset-password-modal";
+import AuthStatusModal from "@/components/custom/header/forms/auth-status-modal";
 import {
   AUTH_MODAL_NAMES,
   PUBLIC_MODAL_NAMES,

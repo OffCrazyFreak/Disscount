@@ -11,7 +11,7 @@ import {
 } from "@/lib/offline/persister";
 import { registerOfflineMutationDefaults } from "@/lib/offline/offline-mutations";
 
-export function ReactQueryProviderWrapper({
+export default function ReactQueryProviderWrapper({
   children,
 }: {
   children: ReactNode;

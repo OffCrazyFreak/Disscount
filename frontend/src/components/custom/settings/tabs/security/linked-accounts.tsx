@@ -5,11 +5,11 @@ import { Link2, Unlink } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { ComingSoonBadge } from "@/components/custom/coming-soon-badge";
-import { SettingsSection } from "@/components/custom/settings/ui/settings-section";
-import { SettingRow } from "@/components/custom/settings/ui/setting-row";
-import { GoogleIcon } from "@/components/icons/google-icon";
-import { FacebookIcon } from "@/components/icons/facebook-icon";
+import ComingSoonBadge from "@/components/custom/coming-soon-badge";
+import SettingsSection from "@/components/custom/settings/ui/settings-section";
+import SettingRow from "@/components/custom/settings/ui/setting-row";
+import GoogleIcon from "@/components/icons/google-icon";
+import FacebookIcon from "@/components/icons/facebook-icon";
 import { authClient } from "@/lib/auth-client";
 import { FACEBOOK_COMING_SOON } from "@/constants/auth";
 import { useSecurity } from "@/components/custom/settings/tabs/security/security-context";
@@ -25,7 +25,7 @@ const PROVIDERS: {
   { id: "facebook", label: "Facebook", Icon: FacebookIcon },
 ];
 
-export function LinkedAccounts() {
+export default function LinkedAccounts() {
   const { accounts, hasPassword, reload } = useSecurity();
   const [pending, setPending] = useState<SocialProvider | null>(null);
 

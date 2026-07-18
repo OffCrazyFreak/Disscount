@@ -31,7 +31,7 @@ interface IStoreItemProps {
 }
 
 // Memoized component for individual chain items to prevent unnecessary re-renders
-export const StoreItem = memo(
+const StoreItem = memo(
   ({ stat, isExpanded, onToggle, isLast }: IStoreItemProps) => {
     // Fetch stores for this specific chain when the item is rendered
     const { data: storesData, isLoading: storesLoading } =
@@ -147,3 +147,5 @@ export const StoreItem = memo(
 );
 
 StoreItem.displayName = "StoreItem";
+
+export default StoreItem;

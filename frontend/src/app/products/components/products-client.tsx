@@ -7,7 +7,7 @@ import NoResults from "@/components/custom/no-results";
 import useInfiniteProducts from "@/app/products/hooks/useInfiniteProducts";
 import useProductFilters from "@/app/products/hooks/useProductFilters";
 import ProductFiltersBar from "@/app/products/components/product-filters-bar";
-import { ProductItem } from "@/app/products/components/product-item/product-item";
+import ProductItem from "@/app/products/components/product-item/product-item";
 import { Button } from "@/components/ui/button";
 import { Suspense } from "react";
 import ViewSwitcher from "@/components/custom/view-switcher";

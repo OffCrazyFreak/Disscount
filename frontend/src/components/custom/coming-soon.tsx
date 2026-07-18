@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Construction } from "lucide-react";
 
-import { ComingSoonBadge } from "@/components/custom/coming-soon-badge";
+import ComingSoonBadge from "@/components/custom/coming-soon-badge";
 
 interface IComingSoonProps {
   title?: string;

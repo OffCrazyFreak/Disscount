@@ -18,10 +18,10 @@ import { dirtySections } from "@/components/custom/settings/settings-dirty";
 import { useSettingsUi } from "@/components/custom/settings/settings-context";
 import { useSecurity } from "@/components/custom/settings/tabs/security/security-context";
 import { CREDENTIALS_FORM_ID } from "@/components/custom/settings/tabs/security/credentials-form";
-import { ProfileTab } from "@/components/custom/settings/tabs/profile-tab";
-import { NotificationsTab } from "@/components/custom/settings/tabs/notifications-tab";
-import { PreferencesTab } from "@/components/custom/settings/tabs/preferences-tab";
-import { SecurityTab } from "@/components/custom/settings/tabs/security/security-tab";
+import ProfileTab from "@/components/custom/settings/tabs/profile-tab";
+import NotificationsTab from "@/components/custom/settings/tabs/notifications-tab";
+import PreferencesTab from "@/components/custom/settings/tabs/preferences-tab";
+import SecurityTab from "@/components/custom/settings/tabs/security/security-tab";
 
 const TAB_CONFIG: { value: SettingsTab; label: string; icon: LucideIcon }[] = [
   { value: "profil", label: "Profil", icon: UserRound },
@@ -35,7 +35,7 @@ interface ISettingsModalProps {
   tab: SettingsTab;
 }
 
-export function SettingsModal({ open, tab }: ISettingsModalProps) {
+export default function SettingsModal({ open, tab }: ISettingsModalProps) {
   const form = useFormContext<SettingsFormValues>();
   const { isReady, saving, avatarTouched, save, resetToDefaults } =
     useSettingsUi();

@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import cijeneService from "@/lib/cijene-api";
 import { ShoppingListDto } from "@/lib/api/types";
-import { ShoppingListStoreItem } from "@/app/(user)/shopping-lists/[id]/components/stores/shopping-list-store-card";
+import ShoppingListStoreItem from "@/app/(user)/shopping-lists/[id]/components/stores/shopping-list-store-card";
 import { useUser } from "@/context/user-context";
 import {
   ProductResponse,

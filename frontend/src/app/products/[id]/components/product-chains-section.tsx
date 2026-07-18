@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
 import CollapsibleSection from "@/components/custom/collapsible-section";
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
-import { StoreItem } from "@/app/products/[id]/components/store-item/store-item";
+import StoreItem from "@/app/products/[id]/components/store-item/store-item";
 import ProductChainSortSelect from "@/app/products/[id]/components/product-chain-sort-select";
 import type { useProductDetail } from "@/app/products/[id]/hooks/use-product-detail";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";

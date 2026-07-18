@@ -2,11 +2,11 @@
 
 import { ComponentType } from "react";
 
-import { ProfileTab } from "@/components/custom/settings/tabs/profile-tab";
-import { NotificationsTab } from "@/components/custom/settings/tabs/notifications-tab";
-import { PreferencesTab } from "@/components/custom/settings/tabs/preferences-tab";
-import { WelcomeStep } from "@/components/custom/settings/onboarding/welcome-step";
-import { DoneStep } from "@/components/custom/settings/onboarding/done-step";
+import ProfileTab from "@/components/custom/settings/tabs/profile-tab";
+import NotificationsTab from "@/components/custom/settings/tabs/notifications-tab";
+import PreferencesTab from "@/components/custom/settings/tabs/preferences-tab";
+import WelcomeStep from "@/components/custom/settings/onboarding/welcome-step";
+import DoneStep from "@/components/custom/settings/onboarding/done-step";
 
 export interface OnboardingStep {
   id: string;

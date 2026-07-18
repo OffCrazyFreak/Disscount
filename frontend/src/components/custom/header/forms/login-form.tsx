@@ -30,7 +30,7 @@ interface ILoginFormProps {
   externalDisabled?: boolean;
 }
 
-export function LoginForm({
+export default function LoginForm({
   onSuccess,
   onForgotPassword,
   isLastUsed,

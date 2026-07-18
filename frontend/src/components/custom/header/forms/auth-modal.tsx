@@ -5,11 +5,11 @@ import { CircleAlert } from "lucide-react";
 import Link from "next/link";
 
 import { ModalShell } from "@/components/ui/modal-shell";
-import { LoginForm } from "@/components/custom/header/forms/login-form";
-import { SignUpForm } from "@/components/custom/header/forms/signup-form";
-import { ForgotPasswordForm } from "@/components/custom/header/forms/forgot-password-form";
-import { AuthSocialButtons } from "@/components/custom/header/forms/auth-social-buttons";
-import { AuthModeSwitch } from "@/components/custom/header/forms/auth-mode-switch";
+import LoginForm from "@/components/custom/header/forms/login-form";
+import SignUpForm from "@/components/custom/header/forms/signup-form";
+import ForgotPasswordForm from "@/components/custom/header/forms/forgot-password-form";
+import AuthSocialButtons from "@/components/custom/header/forms/auth-social-buttons";
+import AuthModeSwitch from "@/components/custom/header/forms/auth-mode-switch";
 import { getLastLoginMethod } from "@/utils/browser/local-storage";
 import { Separator } from "@/components/ui/separator";
 
@@ -45,7 +45,7 @@ function subscribeToStorage(callback: () => void) {
   return () => window.removeEventListener("storage", callback);
 }
 
-export function AuthModal({
+export default function AuthModal({
   open,
   mode,
   message,

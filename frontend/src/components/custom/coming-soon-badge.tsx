@@ -5,6 +5,6 @@ interface IComingSoonBadgeProps {
   className?: string;
 }
 
-export function ComingSoonBadge({ className }: IComingSoonBadgeProps) {
+export default function ComingSoonBadge({ className }: IComingSoonBadgeProps) {
   return <Badge className={cn("text-[10px]", className)}>USKORO</Badge>;
 }

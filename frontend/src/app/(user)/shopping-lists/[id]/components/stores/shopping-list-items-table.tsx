@@ -38,7 +38,7 @@ interface IShoppingListItemsTableProps {
   productsData: ProductResponse[];
 }
 
-export const ShoppingListItemsTable = memo(
+const ShoppingListItemsTable = memo(
   ({ chain, shoppingList, productsData }: IShoppingListItemsTableProps) => {
     const isMobile = useIsMobile();
 
@@ -236,3 +236,5 @@ export const ShoppingListItemsTable = memo(
 );
 
 ShoppingListItemsTable.displayName = "ShoppingListItemsTable";
+
+export default ShoppingListItemsTable;

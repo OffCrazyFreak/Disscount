@@ -9,7 +9,7 @@ interface IWizardProgressDotsProps {
   current: number;
 }
 
-export function WizardProgressDots({ count, current }: IWizardProgressDotsProps) {
+export default function WizardProgressDots({ count, current }: IWizardProgressDotsProps) {
   const reduceMotion = useReducedMotion();
 
   return (

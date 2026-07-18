@@ -2,7 +2,7 @@
 
 import { ChevronsUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { FloatingActionButton } from "@/components/custom/floating-action-button";
+import FloatingActionButton from "@/components/custom/floating-action-button";
 import { useScrolledPast } from "@/hooks/use-scrolled-past";
 import { scrollToTop } from "@/utils/scroll";
 

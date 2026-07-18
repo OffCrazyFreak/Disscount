@@ -15,7 +15,7 @@ interface ISettingsSectionProps {
 
 // The one section pattern shared by every settings tab: an uppercase icon label,
 // an optional one-line hint, then flat content sitting on the modal background.
-export function SettingsSection({
+export default function SettingsSection({
   icon: Icon,
   label,
   hint,

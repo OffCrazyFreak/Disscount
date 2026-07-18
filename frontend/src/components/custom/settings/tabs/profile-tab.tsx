@@ -22,10 +22,10 @@ import {
 import { ACQUISITION_CHANNEL_LABELS } from "@/lib/api/schemas/auth-user";
 import { StaggerChildren } from "@/components/ui/stagger-children";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
-import { SettingsSection } from "@/components/custom/settings/ui/settings-section";
-import { AvatarField } from "@/components/custom/settings/tabs/avatar-field";
+import SettingsSection from "@/components/custom/settings/ui/settings-section";
+import AvatarField from "@/components/custom/settings/tabs/avatar-field";
 
-export function ProfileTab() {
+export default function ProfileTab() {
   const form = useFormContext<SettingsFormValues>();
 
   return (

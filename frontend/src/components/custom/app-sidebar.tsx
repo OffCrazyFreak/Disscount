@@ -23,7 +23,7 @@ import ScrollFade from "@/components/custom/scroll-fade";
 import SearchBar from "@/components/custom/search-bar";
 import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
 
-export function AppSidebar() {
+export default function AppSidebar() {
   const contentRef = useRef<HTMLDivElement>(null);
   const { setOpen, setOpenMobile } = useSidebar();
   const pathname = usePathname();

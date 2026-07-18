@@ -17,8 +17,8 @@ import {
   getAveragePrice,
   getMinPrice,
 } from "@/app/products/utils/product-utils";
-import { WatchlistTypePicker } from "@/app/products/components/forms/watchlist-type-picker";
-import { WatchlistThresholdInput } from "@/app/products/components/forms/watchlist-threshold-input";
+import WatchlistTypePicker from "@/app/products/components/forms/watchlist-type-picker";
+import WatchlistThresholdInput from "@/app/products/components/forms/watchlist-threshold-input";
 import { useWatchlistItemForm } from "@/app/products/hooks/use-watchlist-item-form";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import type { WatchlistItemDto } from "@/lib/api/schemas/watchlist";

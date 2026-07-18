@@ -11,7 +11,7 @@ import { useUser } from "@/context/user-context";
  * never finished (or skipped) it. The skip/finish stamp on the user record
  * prevents it forever after.
  */
-export function OnboardingGate() {
+export default function OnboardingGate() {
   const { target } = useModalUrl();
   const { user, isAuthenticated } = useUser();
   const firedRef = useRef(false);

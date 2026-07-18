@@ -24,7 +24,7 @@ import {
 } from "@/app/products/utils/product-utils";
 import { formatDate } from "@/utils/strings";
 import { useUser } from "@/context/user-context";
-import { StorePricesTable } from "@/app/products/[id]/components/store-item/store-prices-table";
+import StorePricesTable from "@/app/products/[id]/components/store-item/store-prices-table";
 
 interface IStoreItemProps {
   store: ChainProductResponse;
@@ -34,7 +34,7 @@ interface IStoreItemProps {
   onToggle?: () => void;
 }
 
-export const StoreItem = memo(
+const StoreItem = memo(
   ({ isExpanded, onToggle, store, storePrices, product }: IStoreItemProps) => {
     const { user } = useUser();
 
@@ -179,3 +179,5 @@ export const StoreItem = memo(
 );
 
 StoreItem.displayName = "StoreItem";
+
+export default StoreItem;

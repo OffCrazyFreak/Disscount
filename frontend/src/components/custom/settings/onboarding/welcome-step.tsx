@@ -22,7 +22,7 @@ const HIGHLIGHTS: { icon: LucideIcon; title: string; text: string }[] = [
   },
 ];
 
-export function WelcomeStep() {
+export default function WelcomeStep() {
   return (
     <div className="space-y-6 py-2">
       <p className="text-sm text-muted-foreground text-pretty">

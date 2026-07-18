@@ -5,8 +5,8 @@ import { useFormContext } from "react-hook-form";
 import { Switch } from "@/components/ui/switch";
 import { FormControl, FormField, FormItem } from "@/components/ui/form";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
-import { SettingRow } from "@/components/custom/settings/ui/setting-row";
-import { ComingSoonBadge } from "@/components/custom/coming-soon-badge";
+import SettingRow from "@/components/custom/settings/ui/setting-row";
+import ComingSoonBadge from "@/components/custom/coming-soon-badge";
 
 type SwitchFieldName =
   | "notificationsPush"
@@ -21,7 +21,7 @@ interface INotificationSwitchRowProps {
   comingSoon?: boolean;
 }
 
-export function NotificationSwitchRow({
+export default function NotificationSwitchRow({
   name,
   label,
   description,

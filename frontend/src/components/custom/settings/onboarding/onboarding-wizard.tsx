@@ -6,8 +6,8 @@ import { ModalShell } from "@/components/ui/modal-shell";
 import { Button } from "@/components/ui/button";
 import type { UserRequest } from "@/lib/api/schemas/auth-user";
 import { ONBOARDING_STEPS } from "@/components/custom/settings/onboarding/onboarding-steps";
-import { WizardProgressDots } from "@/components/custom/settings/onboarding/wizard-progress-dots";
-import { WizardStepPanel } from "@/components/custom/settings/onboarding/wizard-step-panel";
+import WizardProgressDots from "@/components/custom/settings/onboarding/wizard-progress-dots";
+import WizardStepPanel from "@/components/custom/settings/onboarding/wizard-step-panel";
 import { useOnboarding } from "@/components/custom/settings/onboarding/use-onboarding";
 
 interface IOnboardingWizardProps {
@@ -16,7 +16,7 @@ interface IOnboardingWizardProps {
   saving: boolean;
 }
 
-export function OnboardingWizard({ open, save, saving }: IOnboardingWizardProps) {
+export default function OnboardingWizard({ open, save, saving }: IOnboardingWizardProps) {
   const {
     step,
     direction,

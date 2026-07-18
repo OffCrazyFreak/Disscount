@@ -19,7 +19,7 @@ import {
 import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
 
-export function PinnedPlacesSelect() {
+export default function PinnedPlacesSelect() {
   const form = useFormContext<SettingsFormValues>();
   const { data: locations } = useAllLocations();
 

@@ -33,7 +33,7 @@ const OPTIONS: {
   },
 ];
 
-export function WatchlistTypePicker() {
+export default function WatchlistTypePicker() {
   const form = useFormContext<WatchlistFormData>();
 
   return (

@@ -9,7 +9,7 @@ import { Save } from "lucide-react";
 import { ModalShell } from "@/components/ui/modal-shell";
 import { Form } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DigitalCardFields } from "@/app/(user)/digital-cards/components/forms/digital-card-fields";
+import DigitalCardFields from "@/app/(user)/digital-cards/components/forms/digital-card-fields";
 import { useDigitalCardModal } from "@/app/(user)/digital-cards/components/forms/use-digital-card-modal";
 import { digitalCardService } from "@/lib/api";
 import {

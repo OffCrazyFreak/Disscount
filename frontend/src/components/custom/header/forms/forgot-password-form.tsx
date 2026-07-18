@@ -24,7 +24,7 @@ interface IForgotPasswordFormProps {
   onBackToLogin: () => void;
 }
 
-export function ForgotPasswordForm({ onBackToLogin }: IForgotPasswordFormProps) {
+export default function ForgotPasswordForm({ onBackToLogin }: IForgotPasswordFormProps) {
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
   const form = useForm<ForgotPasswordForm>({

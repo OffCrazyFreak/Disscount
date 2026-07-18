@@ -29,7 +29,7 @@ const positionClasses = {
   "top-left": "top-4 left-4 sm:top-6 sm:left-6",
 };
 
-export function FloatingActionButton({
+export default function FloatingActionButton({
   icon,
   label,
   className,

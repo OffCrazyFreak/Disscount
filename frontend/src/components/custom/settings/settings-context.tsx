@@ -15,7 +15,7 @@ export interface SettingsUiContextValue {
 
 const SettingsUiContext = createContext<SettingsUiContextValue | null>(null);
 
-export const SettingsUiProvider = SettingsUiContext.Provider;
+const SettingsUiProvider = SettingsUiContext.Provider;
 
 export function useSettingsUi(): SettingsUiContextValue {
   const context = useContext(SettingsUiContext);
@@ -24,3 +24,5 @@ export function useSettingsUi(): SettingsUiContextValue {
   }
   return context;
 }
+
+export default SettingsUiProvider;

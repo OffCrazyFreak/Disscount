@@ -5,10 +5,10 @@ import { LogOut, MonitorSmartphone, Trash2, TriangleAlert } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { SettingRow } from "@/components/custom/settings/ui/setting-row";
+import SettingRow from "@/components/custom/settings/ui/setting-row";
 import { useSecurityActions } from "@/components/custom/settings/tabs/security/security-actions";
 
-export function AccountActions() {
+export default function AccountActions() {
   const { revokeOtherSessions, deleteAccount, revoking, deleting } =
     useSecurityActions();
   const [revokeOpen, setRevokeOpen] = useState(false);

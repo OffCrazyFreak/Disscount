@@ -13,12 +13,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { SettingsSection } from "@/components/custom/settings/ui/settings-section";
+import SettingsSection from "@/components/custom/settings/ui/settings-section";
 import { useSecurity } from "@/components/custom/settings/tabs/security/security-context";
 
 export const CREDENTIALS_FORM_ID = "credentials-form";
 
-export function CredentialsForm() {
+export default function CredentialsForm() {
   const { form, submit, hasPassword, canEditEmail } = useSecurity();
 
   return (

@@ -4,8 +4,8 @@ import { memo, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
-import { ProductInfo } from "@/app/products/components/product-item/product-info";
-import { ProductUnitPriceDetails } from "@/app/products/components/product-item/product-price";
+import ProductInfo from "@/app/products/components/product-item/product-info";
+import ProductUnitPriceDetails from "@/app/products/components/product-item/product-price";
 import { ViewMode } from "@/typings/view-mode";
 import { useQueryClient } from "@tanstack/react-query";
 import ProductActionButtons from "@/app/products/components/product-action-buttons";
@@ -15,7 +15,7 @@ interface IProductItemProps {
   viewMode: ViewMode;
 }
 
-export const ProductItem = memo<IProductItemProps>(({ product, viewMode }) => {
+const ProductItem = memo<IProductItemProps>(({ product, viewMode }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -97,3 +97,5 @@ export const ProductItem = memo<IProductItemProps>(({ product, viewMode }) => {
     </Card>
   );
 });
+
+export default ProductItem;

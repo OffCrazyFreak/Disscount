@@ -10,7 +10,7 @@ interface IWizardStepPanelProps {
 }
 
 // Directional slide between wizard steps; plain crossfade under reduced motion.
-export function WizardStepPanel({
+export default function WizardStepPanel({
   stepId,
   direction,
   children,

@@ -23,7 +23,7 @@ interface IStorePricesTableProps {
   product: ProductResponse;
 }
 
-export const StorePricesTable = memo(
+const StorePricesTable = memo(
   ({ storePrices, product }: IStorePricesTableProps) => {
     const { user } = useUser();
 
@@ -139,3 +139,5 @@ export const StorePricesTable = memo(
 );
 
 StorePricesTable.displayName = "StorePricesTable";
+
+export default StorePricesTable;
