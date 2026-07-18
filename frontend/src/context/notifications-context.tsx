@@ -3,7 +3,7 @@
 import { createContext, useContext, useMemo, ReactNode } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { watchlistService } from "@/lib/api";
-import { getProductByEan } from "@/lib/cijene-api";
+import { getProductByEan, productByEanQueryKey } from "@/lib/cijene-api";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { useUser } from "@/context/user-context";
 import {
@@ -79,7 +79,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   // Progressive loading: fetch product data per grouped product
   const productQueries = useQueries({
     queries: groupedWatchlistItems.map((item) => ({
-      queryKey: ["cijene", "product", "ean", item.productApiId],
+      queryKey: productByEanQueryKey(item.productApiId),
       queryFn: () => getProductByEan({ ean: item.productApiId }),
       enabled: !!item.productApiId && isAuthenticated,
       staleTime: 6 * 60 * 60 * 1000, // 6 hours

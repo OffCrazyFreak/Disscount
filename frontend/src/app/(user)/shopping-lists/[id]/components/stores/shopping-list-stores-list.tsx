@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
-import cijeneService from "@/lib/cijene-api";
+import cijeneService, { productByEanQueryKey } from "@/lib/cijene-api";
 import { ShoppingListDto } from "@/lib/api/types";
 import ShoppingListStoreItem from "@/app/(user)/shopping-lists/[id]/components/stores/shopping-list-store-card";
 import { useUser } from "@/context/user-context";
@@ -83,7 +83,7 @@ export default function ShoppingListStoreSummary({
   // Fetch product data for all EANs
   const productQueries = useQueries({
     queries: eans.map((ean) => ({
-      queryKey: ["cijene", "product", "ean", ean],
+      queryKey: productByEanQueryKey(ean),
       queryFn: () => cijeneService.getProductByEan({ ean }),
       enabled: Boolean(ean),
       staleTime: 6 * 60 * 60 * 1000, // 6 hours

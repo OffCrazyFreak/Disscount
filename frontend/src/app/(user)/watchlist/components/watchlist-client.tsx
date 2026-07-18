@@ -14,7 +14,7 @@ import CreateDiscountedListButton from "@/app/(user)/watchlist/components/create
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
 import { shoppingListService, watchlistService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
-import { getProductByEan } from "@/lib/cijene-api";
+import { getProductByEan, productByEanQueryKey } from "@/lib/cijene-api";
 import { filterByFields } from "@/utils/generic";
 import { cn } from "@/lib/utils";
 import {
@@ -64,7 +64,9 @@ export default function WatchlistClient({ query }: { query: string }) {
 
   const productQueries = useQueries({
     queries: groupedWatchlistItems.map((item) => ({
-      queryKey: ["cijene", "product", "ean", item.productApiId],
+      // Same key the modal's useGetProductByEan reads, so opening the watchlist
+      // modal is a cache hit instead of a refetch behind a skeleton.
+      queryKey: productByEanQueryKey(item.productApiId),
       queryFn: () => getProductByEan({ ean: item.productApiId }),
       enabled: Boolean(item.productApiId) && isAuthenticated,
       staleTime: 6 * 60 * 60 * 1000,

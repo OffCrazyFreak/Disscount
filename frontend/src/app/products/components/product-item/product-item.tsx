@@ -4,6 +4,7 @@ import { memo, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
+import { productByEanQueryKey } from "@/lib/cijene-api";
 import ProductInfo from "@/app/products/components/product-item/product-info";
 import ProductUnitPriceDetails from "@/app/products/components/product-item/product-price";
 import { ViewMode } from "@/typings/view-mode";
@@ -49,10 +50,7 @@ const ProductItem = memo<IProductItemProps>(({ product, viewMode }) => {
 
   const handleProductClick = () => {
     // Pre-populate the React Query cache with the product data
-    queryClient.setQueryData(
-      ["cijene", "product", "ean", JSON.stringify({ ean: product.ean })],
-      product,
-    );
+    queryClient.setQueryData(productByEanQueryKey(product.ean), product);
 
     // Navigate to the product details page
     router.push(`/products/${product.ean}`);
