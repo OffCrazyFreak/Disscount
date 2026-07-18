@@ -69,6 +69,7 @@ export function ModalShellFooter({
 
           <div className="ml-auto flex shrink-0 items-center gap-2">
             {resetLabel && (
+              // Hidden on mobile: not enough horizontal room next to cancel + submit.
               <Button
                 type={formId && !onReset ? "reset" : "button"}
                 form={formId && !onReset ? formId : undefined}
@@ -77,6 +78,7 @@ export function ModalShellFooter({
                 iconPlacement="left"
                 onClick={onReset}
                 disabled={resetDisabled || submitLoading}
+                className="hidden sm:inline-flex"
               >
                 {resetLabel}
               </Button>

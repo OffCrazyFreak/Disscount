@@ -42,7 +42,7 @@ export function PinnedStoresGrid() {
             .sort((a, b) =>
               a.chain_code.localeCompare(b.chain_code, "hr", {
                 sensitivity: "base",
-              })
+              }),
             )
             .map((chain) => {
               const isSelected = selected.includes(chain.chain_code);
@@ -53,18 +53,18 @@ export function PinnedStoresGrid() {
                     "relative shadow-sm border-2 rounded-lg cursor-pointer transition-all overflow-hidden",
                     isSelected
                       ? "border-primary bg-green-100"
-                      : "border-gray-200 hover:border-gray-400"
+                      : "border-gray-200 hover:border-gray-400",
                   )}
                   onClick={() => toggleStore(chain.chain_code)}
                 >
-                  <div className="size-14 sm:size-16 grid place-items-center relative transition-all">
+                  <div className="size-14 sm:size-20 grid place-items-center relative transition-all">
                     <StoreChainLogo
                       chain={chain.chain_code}
                       fill
                       sizes="96px"
                       className={cn(
                         "opacity-40 object-contain",
-                        isSelected && "opacity-100"
+                        isSelected && "opacity-100",
                       )}
                     />
                   </div>
