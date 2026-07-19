@@ -35,7 +35,6 @@ function ShoppingListStoreItemComponent({
   absoluteMinPrice,
   absoluteMaxPrice,
   productsData,
-  completeStoresAnalysis,
   hasLowestPriceItem,
   hasHighestPriceItem,
 }: IShoppingListStoreItemProps) {

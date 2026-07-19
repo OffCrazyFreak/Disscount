@@ -1,4 +1,4 @@
-import { ArrowLeft, Calendar, ChevronLeft, Globe, Lock } from "lucide-react";
+import { ChevronLeft, Globe, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";

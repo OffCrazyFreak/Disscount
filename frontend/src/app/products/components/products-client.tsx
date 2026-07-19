@@ -10,7 +10,6 @@ import ProductFiltersBar from "@/app/products/components/product-filters-bar";
 import ProductItem from "@/app/products/components/product-item/product-item";
 import { Button } from "@/components/ui/button";
 import { Suspense } from "react";
-import ViewSwitcher from "@/app/products/components/view-switcher";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -20,7 +19,7 @@ import PageFab from "@/components/custom/fab/page-fab";
 export default function ProductsClient({ query }: { query: string }) {
   const isMobile = useIsMobile();
   const pathname = usePathname();
-  const [viewMode, setViewMode] = useViewMode(pathname);
+  const [viewMode] = useViewMode(pathname);
 
   const filters = useProductFilters();
   const {
@@ -32,7 +31,7 @@ export default function ProductsClient({ query }: { query: string }) {
     clearFilters,
   } = filters;
 
-  const { visibleProducts, total, hasMore, loadMore, isLoading, error } =
+  const { visibleProducts, total, isLoading, error } =
     useInfiniteProducts(query, {
       allowedChains,
       selectedCategories,

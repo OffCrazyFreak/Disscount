@@ -1,13 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { CircleCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { signIn } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import GoogleIcon from "@/components/icons/google-icon";
 import FacebookIcon from "@/components/icons/facebook-icon";
 import { FACEBOOK_COMING_SOON } from "@/constants/auth";

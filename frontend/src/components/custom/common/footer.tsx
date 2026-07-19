@@ -1,17 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import Image from "next/image";
 
-import InstagramIcon from "@/components/icons/instagram-icon";
 import LinkedInIcon from "@/components/icons/linkedin-icon";
 import GithubIcon from "@/components/icons/github-icon";
 import CopyrightIcon from "@/components/icons/copyright-icon";
 
 export default function FooterSection() {
-  const pathname = usePathname();
-  const isEnglish = pathname.startsWith("/en");
 
   return (
     <footer className="mt-auto">

@@ -1,9 +1,7 @@
 import * as cijeneService from "@/lib/cijene-api/index";
 import {
   ProductResponse,
-  StorePrice,
   StoreResponse,
-  ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
 import { useMemo } from "react";
 import { getLocationLabel } from "@/utils/labels";

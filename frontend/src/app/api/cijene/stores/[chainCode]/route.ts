@@ -9,7 +9,7 @@ const chainCodeParamSchema = z.object({
 });
 
 export async function GET(
-  request: Request,
+  _request: Request,
   context: RouteContext<"/api/cijene/stores/[chainCode]">
 ) {
   const parsed = chainCodeParamSchema.safeParse(await context.params);

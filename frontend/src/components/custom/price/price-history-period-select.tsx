@@ -8,8 +8,6 @@ interface IPriceHistoryPeriodSelectProps {
 }
 
 export default function PriceHistoryPeriodSelect({
-  value,
-  onChange,
   disabledPeriods = [],
 }: IPriceHistoryPeriodSelectProps) {
   const periods: { value: PeriodOption; label: string }[] = [
