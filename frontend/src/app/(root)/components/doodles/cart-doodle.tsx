@@ -15,7 +15,11 @@ interface ICartDoodleProps {
 // Static version for logo/icon use: components/icons/doodle-cart-icon.tsx.
 export default function CartDoodle({ className }: ICartDoodleProps) {
   return (
-    <DoodleCanvas viewBox={DOODLE_CART.viewBox} className={className}>
+    <DoodleCanvas
+      viewBox={DOODLE_CART.viewBox}
+      strokeWidth={4}
+      className={className}
+    >
       <motion.path d={DOODLE_CART.body} variants={drawVariants()} />
 
       {DOODLE_CART.wheels.map((wheel, index) => (

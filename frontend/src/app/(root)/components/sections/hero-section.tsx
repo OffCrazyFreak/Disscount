@@ -1,9 +1,9 @@
-import Image from "next/image";
 import HeroActions from "@/app/(root)/components/sections/hero-actions";
 import HeroTagline from "@/app/(root)/components/sections/hero-tagline";
 import SquiggleUnderline from "@/app/(root)/components/doodles/squiggle-underline";
 import SparkleDoodle from "@/app/(root)/components/doodles/sparkle-doodle";
 import { StaggerChildren } from "@/components/ui/stagger-children";
+import DoodleCartHappyIcon from "@/components/icons/doodle-cart-happy-icon";
 
 export default function HeroSection() {
   return (
@@ -24,14 +24,7 @@ export default function HeroSection() {
         stagger={0.12}
       >
         <div className="space-y-6">
-          <Image
-            src="/disscount-logo.png"
-            alt="Disscount logo"
-            width={512}
-            height={512}
-            priority
-            className="mx-auto w-32 sm:w-44"
-          />
+          <DoodleCartHappyIcon className="mx-auto w-32 sm:w-44 h-auto text-primary" />
 
           <p className="text-5xl sm:text-7xl text-primary font-saira-stencil-semibold">
             disscount

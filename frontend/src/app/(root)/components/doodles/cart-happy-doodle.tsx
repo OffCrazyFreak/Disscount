@@ -15,7 +15,11 @@ interface ICartHappyDoodleProps {
 // Static version for logo/icon use: components/icons/doodle-cart-happy-icon.tsx.
 export default function CartHappyDoodle({ className }: ICartHappyDoodleProps) {
   return (
-    <DoodleCanvas viewBox={DOODLE_CART_HAPPY.viewBox} className={className}>
+    <DoodleCanvas
+      viewBox={DOODLE_CART_HAPPY.viewBox}
+      strokeWidth={4}
+      className={className}
+    >
       <g transform={DOODLE_CART_HAPPY.tilt}>
         <motion.path d={DOODLE_CART_HAPPY.body} variants={drawVariants()} />
 
