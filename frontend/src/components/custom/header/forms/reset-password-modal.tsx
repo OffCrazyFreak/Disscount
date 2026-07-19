@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { passwordSchema } from "@/lib/api/schemas/auth-user";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/client";
 import { closeModalUrl, swapModalUrl } from "@/lib/modal/modal-navigation";
 
 const resetPasswordSchema = z

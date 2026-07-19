@@ -4,7 +4,7 @@ import Link from "next/link";
 import { CircleCheck } from "lucide-react";
 import { toast } from "sonner";
 
-import { signIn } from "@/lib/auth-client";
+import { signIn } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";

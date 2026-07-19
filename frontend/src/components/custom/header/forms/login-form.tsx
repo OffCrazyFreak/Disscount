@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginRequestSchema, LoginRequest } from "@/lib/api/schemas/auth-user";
 import { cn } from "@/lib/utils";
-import { signIn } from "@/lib/auth-client";
+import { signIn } from "@/lib/auth/client";
 import { useUser } from "@/context/user-context";
 import { setLastLoginMethod } from "@/utils/browser/local-storage";
 import {

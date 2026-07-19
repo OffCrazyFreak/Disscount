@@ -10,7 +10,7 @@ import SettingsSection from "@/components/custom/settings/ui/settings-section";
 import SettingRow from "@/components/custom/settings/ui/setting-row";
 import GoogleIcon from "@/components/icons/google-icon";
 import FacebookIcon from "@/components/icons/facebook-icon";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/client";
 import { FACEBOOK_COMING_SOON } from "@/constants/auth";
 import { useSecurity } from "@/components/custom/settings/security/security-context";
 

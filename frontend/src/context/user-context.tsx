@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState, useCallback, ReactNode 
 import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { authClient, useSession } from "@/lib/auth-client";
+import { authClient, useSession } from "@/lib/auth/client";
 import { clearAuthToken, resetAuthToken } from "@/lib/api/api-base";
 import { purgeOfflineCache } from "@/lib/offline/purge";
 import { userService, preferencesService } from "@/lib/api";

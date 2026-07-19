@@ -3,12 +3,15 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { jwt } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { APIError } from "better-auth/api";
-import { and, eq, ne } from "drizzle-orm";
 
 import { db } from "@/db";
-import { account } from "@/db/auth-schema";
 import { requireEnv } from "@/lib/env";
 import { emailService } from "@/lib/email";
+import {
+  dispatchResetPasswordEmail,
+  hasLinkedSocialAccount,
+  logEmailFailure,
+} from "@/lib/auth/callbacks";
 
 const BETTER_AUTH_URL = requireEnv("BETTER_AUTH_URL");
 const BETTER_AUTH_SECRET = requireEnv("BETTER_AUTH_SECRET");
@@ -18,53 +21,6 @@ const FACEBOOK_CLIENT_ID = requireEnv("FACEBOOK_CLIENT_ID");
 const FACEBOOK_CLIENT_SECRET = requireEnv("FACEBOOK_CLIENT_SECRET");
 
 const RESET_TOKEN_TTL_SECONDS = 60 * 30; // 30 minutes
-
-// The reset flow is reused for two cases that read very differently to the user:
-//   - an OAuth-only account adding a password for the first time  -> "set your password"
-//   - an account that already has a password resetting it          -> "reset your password"
-// We pick the wording by checking whether a credential account already exists, so the same
-// secure token mechanism serves both the forgot-password and register-existing-email flows.
-async function dispatchResetPasswordEmail(
-  userId: string,
-  email: string,
-  url: string,
-  token: string,
-) {
-  const credential = await db
-    .select({ id: account.id })
-    .from(account)
-    .where(and(eq(account.userId, userId), eq(account.providerId, "credential")))
-    .limit(1);
-
-  if (credential.length > 0) {
-    await emailService.sendPasswordReset({ to: email, url, token });
-  } else {
-    await emailService.sendSetPassword({ to: email, url, token });
-  }
-}
-
-// Returns whether the user has any non-credential (social) account linked. Used to enforce the
-// "one email defines the user" invariant.
-async function hasLinkedSocialAccount(userId: string): Promise<boolean> {
-  const rows = await db
-    .select({ id: account.id })
-    .from(account)
-    .where(and(eq(account.userId, userId), ne(account.providerId, "credential")))
-    .limit(1);
-
-  return rows.length > 0;
-}
-
-// Non-PII rejection handler for the fire-and-forget email sends, so a failed dispatch surfaces
-// in logs instead of becoming an unhandled rejection (without logging recipient addresses).
-function logEmailFailure(kind: string) {
-  return (error: unknown) => {
-    console.error(
-      `Failed to send ${kind} email:`,
-      error instanceof Error ? error.name : typeof error,
-    );
-  };
-}
 
 export const auth = betterAuth({
   baseURL: BETTER_AUTH_URL,
