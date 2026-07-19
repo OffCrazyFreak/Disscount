@@ -11,6 +11,8 @@ import {
   Lightbulb,
   ChartNoAxesCombined,
   LayoutDashboard,
+  Bug,
+  Mail,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -148,11 +150,34 @@ export const productNavItems: NavigationItem[] = [
 
     showInHeader: false,
   },
+];
+
+// Ways to reach feedback: the ideas board, bug reports and contact.
+// Kontakt and Prijavi grešku stay coming-soon until their modals ship.
+export const supportNavItems: NavigationItem[] = [
   {
     id: "suggestions",
     href: "/suggestions",
     label: "Ideje i prijedlozi",
     icon: Lightbulb,
+    comingSoon: true,
+
+    showInHeader: false,
+  },
+  {
+    id: "bug-report",
+    href: "#",
+    label: "Prijavi grešku",
+    icon: Bug,
+    comingSoon: true,
+
+    showInHeader: false,
+  },
+  {
+    id: "contact",
+    href: "#",
+    label: "Kontakt",
+    icon: Mail,
     comingSoon: true,
 
     showInHeader: false,

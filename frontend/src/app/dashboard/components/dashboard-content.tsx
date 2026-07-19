@@ -1,9 +1,12 @@
 "use client";
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUser } from "@/context/user-context";
 import { isAdmin } from "@/lib/api/schemas/auth-user";
 import AdminUsersTable from "@/app/dashboard/components/admin-users-table";
 
+// Feature plans (Kontakt, Bug reports, Ideje) each add their own
+// <TabsTrigger> + <TabsContent> alongside the Korisnici tab.
 export default function DashboardContent() {
   const { user } = useUser();
   const userIsAdmin = isAdmin(user?.accountType);
@@ -15,10 +18,15 @@ export default function DashboardContent() {
       </h1>
 
       {userIsAdmin ? (
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold">Upravljanje korisnicima</h2>
-          <AdminUsersTable />
-        </div>
+        <Tabs defaultValue="users">
+          <TabsList>
+            <TabsTrigger value="users">Korisnici</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="users" className="space-y-3">
+            <AdminUsersTable />
+          </TabsContent>
+        </Tabs>
       ) : (
         <p className="text-muted-foreground">
           Ovdje će uskoro biti dostupni podaci i alati.

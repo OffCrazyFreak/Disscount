@@ -19,6 +19,7 @@ import InstallSidebarBanner from "@/components/custom/pwa/install-sidebar-banner
 import SidebarUser from "@/components/custom/sidebar/sidebar-user";
 import SidebarMainNav from "@/components/custom/sidebar/sidebar-main-nav";
 import SidebarProductNav from "@/components/custom/sidebar/sidebar-product-nav";
+import SidebarSupportNav from "@/components/custom/sidebar/sidebar-support-nav";
 import ScrollFade from "@/components/custom/common/scroll-fade";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
@@ -90,6 +91,8 @@ export default function AppSidebar() {
           <SidebarMainNav />
 
           <SidebarProductNav />
+
+          <SidebarSupportNav />
         </SidebarContent>
 
         <ScrollFade targetRef={contentRef} className="from-sidebar" />
