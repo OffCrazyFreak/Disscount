@@ -41,9 +41,9 @@ export default function HeroActions() {
         <div className="relative">
           <Separator />
           <div className="absolute inset-0 flex items-center justify-center">
-            <h2 className="bg-background text-lg px-2 text-muted-foreground">
+            <span className="bg-background text-lg px-2 text-muted-foreground">
               ili
-            </h2>
+            </span>
           </div>
         </div>
 

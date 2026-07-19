@@ -4,14 +4,39 @@
 
 Web and mobile (PWA) application for comparing product prices in Croatian stores, creating shopping lists, storing digital loyalty cards, and getting deal alerts with barcode scanning and AI suggestions.
 
+Since May 15th 2025, Croatian retail chains are legally required to publicly publish their product prices. Disscount turns that raw public data (via the open [Cijene API](https://github.com/senko/cijene-api/)) into clear comparisons, price history and shopping decisions.
+
+## Features
+
+**Live:**
+
+- Product search across 29 Croatian retail chains (with barcode scanning)
+- Price comparison per store and price history charts ("is the discount real?")
+- Smart shopping lists with per-store basket totals
+- Product watchlist
+- Installable PWA that works offline (IndexedDB reads, background-sync writes)
+- Google + email/password auth with account linking
+
+**Coming soon (marked with an USKORO badge in the app):**
+
+- Price-drop notifications
+- Digital loyalty cards
+- Store map with working hours
+- Spending analysis and market statistics
+- Shopping list sharing
+
 ## Link
 
 Deployed and available on: _[disscount.me](https://disscount.me/)_
 
 ## Visuals
 
+Landing page ([full-page screenshot](docs/screenshots/landing-full.png)):
+
 <p align="center">
-  <img width="90%" src="https://github.com/user-attachments/assets/5567a6ee-1c9c-40cb-86eb-58b94e010ed5" alt="Disscount - Home page"/>
+  <img width="90%" src="docs/screenshots/landing-hero.png" alt="Disscount - Landing page hero"/>
+
+  <img width="45%" src="docs/screenshots/landing-mobile.png" alt="Disscount - Landing page on mobile"/>
   
   <img width="45%" src="https://github.com/user-attachments/assets/5f87935e-f803-4c8e-813a-82c1513d911d" alt="Disscount - Search products"/>
   

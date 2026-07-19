@@ -1,55 +1,26 @@
-import { AnimatedGroup } from "@/components/ui/animated-group";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import SectionHeading from "@/app/(root)/components/sections/section-heading";
+import FeatureCard from "@/app/(root)/components/sections/feature-card";
+import { featureItems } from "@/app/(root)/components/data/features";
 
-export default function HeroSection() {
+export default function FeaturesSection() {
   return (
     <section>
-      <AnimatedGroup
-        preset="fade"
-        className="grid grid-cols-1 md:grid-cols-3 gap-6 w-sm md:w-auto mx-auto text-center"
+      <SectionHeading
+        title="Sve za pametnu kupovinu"
+        subtitle="Ono što radi već danas - i ono što uskoro stiže. Značajke s naljepnicom USKORO su u izradi."
+      />
+
+      <ScrollReveal
+        preset="rise"
+        stagger={0.06}
+        amount={0.15}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
       >
-        <Card className="gap-4">
-          <CardHeader>
-            <CardTitle className="text-2xl">💰</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <CardTitle className="text-lg">Najveća ušteda</CardTitle>
-            <CardDescription className="text-gray-600 text-pretty">
-              Usporedi cijene najvećih trgovina u Hrvatskoj
-            </CardDescription>
-          </CardContent>
-        </Card>
-
-        <Card className="gap-4">
-          <CardHeader>
-            <CardTitle className="text-2xl">📋</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <CardTitle className="text-lg">Pametni popisi</CardTitle>
-            <CardDescription className="text-gray-600 text-pretty">
-              Kreiraj i dijeli popise za kupnju s obitelji
-            </CardDescription>
-          </CardContent>
-        </Card>
-
-        <Card className="gap-4">
-          <CardHeader>
-            <CardTitle className="text-2xl">📈</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <CardTitle className="text-lg">Povijest cijena</CardTitle>
-            <CardDescription className="text-gray-600 text-pretty">
-              Prati povijest cijena i dobivaj obavijesti
-            </CardDescription>
-          </CardContent>
-        </Card>
-      </AnimatedGroup>
+        {featureItems.map((feature) => (
+          <FeatureCard key={feature.title} feature={feature} />
+        ))}
+      </ScrollReveal>
     </section>
   );
 }

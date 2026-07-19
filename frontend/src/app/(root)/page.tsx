@@ -1,29 +1,37 @@
-import HeroSection from "@/app/(root)/components/sections/hero-section";
-import FeaturesSection from "@/app/(root)/components/sections/features-section";
-import StoresSection from "@/app/(root)/components/sections/stores-section";
-import PricingSection from "@/app/(root)/components/sections/pricing-section";
-import StatsSection from "@/app/(root)/components/sections/stats-section";
 import { Metadata } from "next";
+import LandingJsonLd from "@/app/(root)/components/json-ld";
+import HeroSection from "@/app/(root)/components/sections/hero-section";
+import StatsBand from "@/app/(root)/components/sections/stats-band";
+import HowItWorksSection from "@/app/(root)/components/sections/how-it-works-section";
+import FeaturesSection from "@/app/(root)/components/sections/features-section";
+import PriceHistorySection from "@/app/(root)/components/sections/price-history-section";
+import StoresSection from "@/app/(root)/components/sections/stores-section";
+import PwaSection from "@/app/(root)/components/sections/pwa-section";
+import PricingSection from "@/app/(root)/components/sections/pricing-section";
+import TrustSection from "@/app/(root)/components/sections/trust-section";
+import FinalCtaSection from "@/app/(root)/components/sections/final-cta-section";
 
 export const metadata: Metadata = {
   title: "Pronađi najbolje cijene u Hrvatskoj",
   description:
-    "App for shoppers in Croatia to compare store prices, create smart shopping lists, track loyalty cards, and get deal alerts with barcode scanning & AI suggestions.",
+    "Usporedi cijene proizvoda u 29 trgovačkih lanaca u Hrvatskoj, prati povijest cijena, izradi pametne popise za kupnju i uštedi pri svakoj kupnji. Besplatno.",
 };
 
 export default function Home() {
   return (
-    <>
-      <div className="space-y-48">
-        <HeroSection />
-        {/* <ImagesSection /> */}
-        {/* <FeaturesSection /> */}
+    <div className="space-y-24 sm:space-y-32 pb-16">
+      <LandingJsonLd />
 
-        {/* <StoresSection /> */}
-        {/* <StatsSection /> */}
-        {/* <PricingSection /> */}
-        {/* <TestimonialsSection /> */}
-      </div>
-    </>
+      <HeroSection />
+      <StatsBand />
+      <HowItWorksSection />
+      <FeaturesSection />
+      <PriceHistorySection />
+      <StoresSection />
+      <PwaSection />
+      <PricingSection />
+      <TrustSection />
+      <FinalCtaSection />
+    </div>
   );
 }

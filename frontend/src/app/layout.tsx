@@ -11,7 +11,7 @@ import InstallBanner from "@/components/custom/pwa/install-banner";
 import OfflineIndicator from "@/components/custom/offline/offline-indicator";
 import Providers from "@/app/providers/providers";
 import { ReactNode, Suspense } from "react";
-import { sairaStencil } from "@/app/fonts";
+import { huninn, sairaStencil } from "@/app/fonts";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -20,6 +20,23 @@ export const metadata: Metadata = {
   title: {
     default: "Disscount - Pronađi najbolje cijene u Hrvatskoj",
     template: "Disscount - %s",
+  },
+  description:
+    "Usporedi cijene proizvoda u 29 trgovačkih lanaca u Hrvatskoj, prati povijest cijena, izradi pametne popise za kupnju i uštedi pri svakoj kupnji. Besplatno.",
+  openGraph: {
+    type: "website",
+    locale: "hr_HR",
+    url: "/",
+    siteName: "Disscount",
+    title: "Disscount - Pronađi najbolje cijene u Hrvatskoj",
+    description:
+      "Usporedi cijene proizvoda u 29 trgovačkih lanaca u Hrvatskoj, prati povijest cijena, izradi pametne popise za kupnju i uštedi pri svakoj kupnji. Besplatno.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Disscount - Pronađi najbolje cijene u Hrvatskoj",
+    description:
+      "Usporedi cijene proizvoda u 29 trgovačkih lanaca u Hrvatskoj, prati povijest cijena i uštedi pri svakoj kupnji. Besplatno.",
   },
   appleWebApp: {
     capable: true,
@@ -90,7 +107,7 @@ export default function RootLayout({
         />
       )}
       <body
-        className={`${sairaStencil.variable} antialiased bg-zinc-50 relative`}
+        className={`${sairaStencil.variable} ${huninn.variable} antialiased bg-zinc-50 relative`}
       >
         <Providers>
           <OfflineIndicator />

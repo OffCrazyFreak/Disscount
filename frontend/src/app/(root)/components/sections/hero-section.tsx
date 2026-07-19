@@ -1,54 +1,58 @@
 import Image from "next/image";
 import HeroActions from "@/app/(root)/components/sections/hero-actions";
-
-const tagLines: string[] = [
-  "Usporedi trgovine i cijene!",
-  "Uštedi pri svakoj kupnji!",
-  "Nikad ne propusti akciju!",
-  "Zaboravi kartice - olakšaj novčanik!",
-  "Izradi i podijeli popis za kupnju!",
-  "Prati povijest cijena!",
-  "Skeniraj barkod i usporedi cijene!",
-  "Uživaj u pametnom kupovanju!",
-  "Pronađi najbolje ponude u Hrvatskoj!",
-  "Kupuj kvalitetno i jeftino!",
-  "Kupuj pametno, uštedi više!",
-  "Tvoj partner u pametnoj kupovini!",
-  "Zaboravi na kataloge i letke!",
-];
-
-function getTagLine(): string {
-  const randomIndex = Math.floor(Math.random() * tagLines.length);
-  return tagLines[randomIndex];
-}
+import HeroTagline from "@/app/(root)/components/sections/hero-tagline";
+import SquiggleUnderline from "@/app/(root)/components/doodles/squiggle-underline";
+import SparkleDoodle from "@/app/(root)/components/doodles/sparkle-doodle";
+import { StaggerChildren } from "@/components/ui/stagger-children";
 
 export default function HeroSection() {
-  const tagLine: string = getTagLine();
-
   return (
     <section className="min-h-[70dvh] relative grid items-center">
-      <div className="text-center space-y-12 sm:space-y-24">
+      <SparkleDoodle className="absolute top-[8%] left-[12%] w-6 text-primary" />
+      <SparkleDoodle
+        className="absolute top-[16%] right-[10%] w-8 text-secondary"
+        delay={0.8}
+      />
+      <SparkleDoodle
+        className="absolute bottom-[14%] left-[6%] w-5 text-secondary"
+        delay={1.5}
+      />
+
+      <StaggerChildren
+        className="text-center space-y-12 sm:space-y-20"
+        distance={16}
+        stagger={0.12}
+      >
         <div className="space-y-6">
-          {/* App logo */}
           <Image
             src="/disscount-logo.png"
             alt="Disscount logo"
             width={512}
             height={512}
-            className="mx-auto w-32 sm:w-48"
+            priority
+            className="mx-auto w-32 sm:w-44"
           />
 
-          <h1 className="text-5xl sm:text-7xl text-primary font-saira-stencil-semibold">
+          <p className="text-5xl sm:text-7xl text-primary font-saira-stencil-semibold">
             disscount
+          </p>
+
+          <h1 className="text-2xl sm:text-3xl font-bold text-balance max-w-2xl mx-auto">
+            Pronađi{" "}
+            <span className="relative inline-block">
+              najbolje cijene
+              <SquiggleUnderline className="absolute -bottom-2 left-0 w-full h-3 text-primary" />
+            </span>{" "}
+            u Hrvatskoj
           </h1>
 
-          <p className="uppercase max-w-md mx-auto text-pretty text-md sm:text-lg">
-            {tagLine}
+          <p className="uppercase max-w-md mx-auto text-pretty text-md sm:text-lg text-muted-foreground">
+            <HeroTagline />
           </p>
         </div>
 
         <HeroActions />
-      </div>
+      </StaggerChildren>
     </section>
   );
 }

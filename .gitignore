@@ -69,3 +69,5 @@ frontend/yarn.lock
 desktop.ini
 
 docs/disscount_*
+# Playwright MCP session artifacts
+.playwright-mcp/

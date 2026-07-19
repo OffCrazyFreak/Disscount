@@ -1,7 +1,8 @@
 "use client";
 
 import { Children, ReactNode } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
+import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 
 interface StaggerChildrenProps {
   children: ReactNode;
@@ -14,7 +15,8 @@ interface StaggerChildrenProps {
 }
 
 // Staggered fade + rise reveal for modal/section content; no-op under reduced
-// motion. Accepts a single child or an array (falsy children are dropped).
+// motion (hydration-safe: the plain-div branch only activates after mount).
+// Accepts a single child or an array (falsy children are dropped).
 export function StaggerChildren({
   children,
   className,
@@ -22,7 +24,7 @@ export function StaggerChildren({
   stagger = 0.05,
   duration = 0.25,
 }: StaggerChildrenProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReducedMotionSafe();
   const items = Children.toArray(children);
 
   if (reduceMotion) return <div className={className}>{children}</div>;
