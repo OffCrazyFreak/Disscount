@@ -11,10 +11,10 @@ export default function SquiggleUnderline({
 }: ISquiggleUnderlineProps) {
   return (
     <svg
-      viewBox="0 0 200 16"
+      viewBox="0 0 200 18"
       fill="none"
       aria-hidden="true"
-      className={cn("pointer-events-none", className)}
+      className={cn("pointer-events-none overflow-visible", className)}
       preserveAspectRatio="none"
     >
       <path

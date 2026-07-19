@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import CartDoodle from "@/app/(root)/components/doodles/cart-doodle";
+import CartHappyDoodle from "@/app/(root)/components/doodles/cart-happy-doodle";
 import SparkleDoodle from "@/app/(root)/components/doodles/sparkle-doodle";
 
 export default function FinalCtaSection() {
@@ -13,7 +13,7 @@ export default function FinalCtaSection() {
           className="absolute top-10 right-12 w-5 text-primary-foreground/50"
           delay={0.9}
         />
-        <CartDoodle className="absolute -bottom-3 -right-4 w-28 sm:w-36 text-primary-foreground/25 rotate-[-8deg]" />
+        <CartHappyDoodle className="absolute -bottom-3 -right-4 w-28 sm:w-36 text-primary-foreground/25" />
 
         <ScrollReveal preset="pop" className="relative space-y-6">
           <h2 className="text-4xl sm:text-5xl font-saira-stencil-semibold text-balance">

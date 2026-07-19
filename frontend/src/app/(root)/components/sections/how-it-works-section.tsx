@@ -2,13 +2,13 @@ import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import SectionHeading from "@/app/(root)/components/sections/section-heading";
 import BarcodeDoodle from "@/app/(root)/components/doodles/barcode-doodle";
 import PriceTagDoodle from "@/app/(root)/components/doodles/price-tag-doodle";
-import CartDoodle from "@/app/(root)/components/doodles/cart-doodle";
+import CartHappyDoodle from "@/app/(root)/components/doodles/cart-happy-doodle";
 import { howItWorksSteps } from "@/app/(root)/components/data/landing";
 
 const stepDoodles = [
   <BarcodeDoodle key="barcode" className="w-24 h-16 text-primary" />,
   <PriceTagDoodle key="tag" className="w-20 h-20 text-primary" />,
-  <CartDoodle key="cart" className="w-24 h-20 text-primary" />,
+  <CartHappyDoodle key="cart" className="w-24 h-20 text-primary" />,
 ];
 
 export default function HowItWorksSection() {
