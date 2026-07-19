@@ -5,8 +5,7 @@ import { useUser } from "@/context/user-context";
 import { isAdmin } from "@/lib/api/schemas/auth-user";
 import AdminUsersTable from "@/app/dashboard/components/admin-users-table";
 
-// Feature plans (Kontakt, Bug reports, Ideje) each add their own
-// <TabsTrigger> + <TabsContent> alongside the Korisnici tab.
+// Feature plans add their own tab (Kontakt, Bug reports, Ideje) beside Korisnici.
 export default function DashboardContent() {
   const { user } = useUser();
   const userIsAdmin = isAdmin(user?.accountType);

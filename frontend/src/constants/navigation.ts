@@ -152,8 +152,7 @@ export const productNavItems: NavigationItem[] = [
   },
 ];
 
-// Ways to reach feedback: the ideas board, bug reports and contact.
-// Kontakt and Prijavi grešku stay coming-soon until their modals ship.
+// Feedback entry points, shared with the footer; coming-soon until their pages/modals ship.
 export const supportNavItems: NavigationItem[] = [
   {
     id: "suggestions",
