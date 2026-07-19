@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
-import DoodleCartHappyIcon from "@/components/icons/doodle-cart-happy-icon";
+import CartLogo from "@/components/icons/cart-logo";
 import { usePathname } from "next/navigation";
 
 import {
@@ -48,7 +48,7 @@ export default function AppSidebar() {
       <SidebarHeader>
         <div className="flex md:hidden items-center justify-between gap-2 mx-2 my-4">
           <Link href="/" className="flex items-center gap-2">
-            <DoodleCartHappyIcon className="size-8 sm:size-10 text-primary" />
+            <CartLogo className="size-10 sm:size-12 text-primary" />
 
             <span className="font-saira-stencil-semibold text-2xl sm:text-3xl text-primary">
               disscount

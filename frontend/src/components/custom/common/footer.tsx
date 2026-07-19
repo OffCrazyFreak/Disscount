@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import DoodleCartHappyIcon from "@/components/icons/doodle-cart-happy-icon";
+import CartLogo from "@/components/icons/cart-logo";
 import FooterSupportIcons from "@/components/custom/common/footer-support-icons";
 
 import LinkedInIcon from "@/components/icons/linkedin-icon";
@@ -20,7 +20,7 @@ export default function FooterSection() {
           >
             <Link href="/" className="flex items-center space-x-2">
               {/* App logo */}
-              <DoodleCartHappyIcon className="size-6 sm:size-8 text-primary" />
+              <CartLogo className="size-8 sm:size-10 text-primary" />
 
               <span className="font-saira-stencil-semibold text-primary text-md sm:text-lg">
                 disscount

@@ -1,4 +1,4 @@
-import DoodleCartHappyIcon from "@/components/icons/doodle-cart-happy-icon";
+import CartLogo from "@/components/icons/cart-logo";
 import HealthStatus from "@/app/statistics/components/health-status";
 import ChainList from "@/app/statistics/components/stores-list";
 import { Metadata } from "next";
@@ -14,7 +14,7 @@ export default function StatisticsPage() {
       <div className="text-center mb-8 space-y-4">
         <div className="flex items-center justify-center space-x-4">
           {/* App logo */}
-          <DoodleCartHappyIcon className="size-16 text-primary" />
+          <CartLogo className="size-20 text-primary" />
           <h1 className="text-3xl font-bold">
             <span className="text-primary">Disscount</span> Statistika
           </h1>

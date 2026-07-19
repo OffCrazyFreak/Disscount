@@ -2,13 +2,13 @@ import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import SectionHeading from "@/app/(root)/components/sections/section-heading";
 import BarcodeDoodle from "@/app/(root)/components/doodles/barcode-doodle";
 import PriceTagDoodle from "@/app/(root)/components/doodles/price-tag-doodle";
-import CartHappyDoodle from "@/app/(root)/components/doodles/cart-happy-doodle";
+import CartLogo from "@/components/icons/cart-logo";
 import { howItWorksSteps } from "@/app/(root)/components/data/landing";
 
 const stepDoodles = [
   <BarcodeDoodle key="barcode" className="w-24 h-16 text-primary" />,
   <PriceTagDoodle key="tag" className="w-20 h-20 text-primary" />,
-  <CartHappyDoodle key="cart" className="w-24 h-20 text-primary" />,
+  <CartLogo key="cart" className="w-28 h-auto text-primary" />,
 ];
 
 export default function HowItWorksSection() {
@@ -33,7 +33,7 @@ export default function HowItWorksSection() {
               {index + 1}
             </span>
 
-            <div className="grid place-items-center h-20">
+            <div className="grid place-items-center h-24">
               {stepDoodles[index]}
             </div>
 

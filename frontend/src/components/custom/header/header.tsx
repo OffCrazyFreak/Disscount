@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import DoodleCartHappyIcon from "@/components/icons/doodle-cart-happy-icon";
+import CartLogo from "@/components/icons/cart-logo";
 import { LogIn, LayoutDashboard } from "lucide-react";
 import { JSX, Suspense, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -57,7 +57,7 @@ export default function Header(): JSX.Element {
 
                 <Link href="/" className="flex items-center space-x-2">
                   {/* App logo */}
-                  <DoodleCartHappyIcon className="hidden sm:block size-8 sm:size-10 text-primary" />
+                  <CartLogo className="hidden sm:block size-10 sm:size-12 text-primary" />
                   <span className="font-saira-stencil-semibold text-2xl sm:text-3xl text-primary">
                     disscount
                   </span>
