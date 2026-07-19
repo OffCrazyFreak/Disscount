@@ -14,9 +14,9 @@ import {
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ProductFacetSelects from "@/app/products/components/product-facet-selects";
-import useProductFacets from "@/app/products/hooks/useProductFacets";
-import usePruneStaleFilters from "@/app/products/hooks/usePruneStaleFilters";
-import type { IUseProductFiltersResult } from "@/app/products/hooks/useProductFilters";
+import useProductFacets from "@/app/products/hooks/use-product-facets";
+import usePruneStaleFilters from "@/app/products/hooks/use-prune-stale-filters";
+import type { IUseProductFiltersResult } from "@/app/products/hooks/use-product-filters";
 
 interface IProductFiltersBarProps {
   filters: IUseProductFiltersResult;

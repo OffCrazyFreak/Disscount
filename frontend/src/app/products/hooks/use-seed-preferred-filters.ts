@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useUser } from "@/context/user-context";
-import { FILTER_KEYS } from "@/app/products/hooks/useFilterParams";
+import { FILTER_KEYS } from "@/app/products/hooks/use-filter-params";
 
 /**
  * Prepopulate the chain and location filters from the user's pinned stores and

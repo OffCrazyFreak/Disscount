@@ -9,7 +9,7 @@ import {
   MultiSelectValue,
 } from "@/components/ui/multi-select";
 import { cn } from "@/lib/utils";
-import type { IFacetSelect } from "@/app/products/hooks/useProductFacets";
+import type { IFacetSelect } from "@/app/products/hooks/use-product-facets";
 
 interface IFacetMultiSelectProps {
   facet: IFacetSelect;

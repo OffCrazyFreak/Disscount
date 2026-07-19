@@ -11,10 +11,10 @@ import {
 import { resolveAllowedChains } from "@/app/products/utils/allowed-chains";
 import useFilterParams, {
   type IFilterParamsResult,
-} from "@/app/products/hooks/useFilterParams";
-import useSeedPreferredFilters from "@/app/products/hooks/useSeedPreferredFilters";
+} from "@/app/products/hooks/use-filter-params";
+import useSeedPreferredFilters from "@/app/products/hooks/use-seed-preferred-filters";
 
-export type { ProductFilterKey } from "@/app/products/hooks/useFilterParams";
+export type { ProductFilterKey } from "@/app/products/hooks/use-filter-params";
 
 export interface IUseProductFiltersResult extends IFilterParamsResult {
   selectedChains: string[];

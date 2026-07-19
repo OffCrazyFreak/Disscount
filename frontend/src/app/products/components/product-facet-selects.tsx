@@ -2,11 +2,11 @@
 
 import FacetMultiSelect from "@/app/products/components/facet-multi-select";
 import { getChainLabel } from "@/utils/labels";
-import type { IProductFacetSelects } from "@/app/products/hooks/useProductFacets";
+import type { IProductFacetSelects } from "@/app/products/hooks/use-product-facets";
 import type {
   IUseProductFiltersResult,
   ProductFilterKey,
-} from "@/app/products/hooks/useProductFilters";
+} from "@/app/products/hooks/use-product-filters";
 
 interface IFacetConfig {
   key: keyof IProductFacetSelects;

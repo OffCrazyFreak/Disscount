@@ -10,7 +10,7 @@ import {
   computeProductFacets,
   type IFacetOption,
 } from "@/app/products/utils/product-facets";
-import type { IUseProductFiltersResult } from "@/app/products/hooks/useProductFilters";
+import type { IUseProductFiltersResult } from "@/app/products/hooks/use-product-filters";
 
 export interface IFacetSelect {
   options: string[];

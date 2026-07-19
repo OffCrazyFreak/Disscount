@@ -8,7 +8,7 @@ import {
 } from "@/app/products/utils/product-filters";
 import { normalizeForSearch } from "@/utils/strings";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
-import type { IUseProductFiltersResult } from "@/app/products/hooks/useProductFilters";
+import type { IUseProductFiltersResult } from "@/app/products/hooks/use-product-filters";
 
 function collectValues(
   products: ProductResponse[],
