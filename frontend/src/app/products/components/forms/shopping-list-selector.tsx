@@ -1,13 +1,4 @@
 import { useState } from "react";
-import { Plus, ChevronDown, ListChecks } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import {
   FormControl,
   FormField,
@@ -20,7 +11,6 @@ import {
   CommandEmpty,
   CommandGroup,
   CommandInput,
-  CommandItem,
   CommandList,
 } from "@/components/ui/command";
 import {
@@ -28,11 +18,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { formatDate } from "@/utils/strings";
 import { ShoppingListDto } from "@/lib/api/types";
 import { UseFormReturn } from "react-hook-form";
 import { AddToListFormData } from "@/app/products/typings/add-to-list";
+import ShoppingListTrigger from "@/app/products/components/forms/shopping-list-trigger";
+import ShoppingListOption from "@/app/products/components/forms/shopping-list-option";
+import CreateListOption from "@/app/products/components/forms/create-list-option";
 
 interface IShoppingListSelectorProps {
   formField: UseFormReturn<AddToListFormData>;
@@ -66,55 +57,14 @@ export default function ShoppingListSelector({
           <Popover open={open} onOpenChange={setOpen} modal={true}>
             <PopoverTrigger asChild>
               <FormControl>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  size="default"
-                  aria-expanded={open}
-                  aria-haspopup="listbox"
-                  className="flex items-center justify-between gap-2 outline-none"
-                  disabled={isLoadingLists || disabled}
-                >
-                  <div className="flex-1 text-left w-0">
-                    {isLoadingLists ? (
-                      <div>
-                        <BlockLoadingSpinner size={20} />
-                        <span className="sr-only">Učitavanje...</span>
-                      </div>
-                    ) : field.value === "new" && customListTitle.trim() ? (
-                      <div className="truncate">
-                        {`Stvori novi popis "${customListTitle.trim()}"`}
-                      </div>
-                    ) : selectedList ? (
-                      <div className="flex items-center gap-2">
-                        <span className="truncate">{selectedList.title}</span>
-
-                        {selectedList.updatedAt && (
-                          <span className="text-gray-500 text-xs whitespace-nowrap">
-                            ({formatDate(selectedList.updatedAt)})
-                          </span>
-                        )}
-
-                        <span className="ml-auto text-xs text-gray-500">
-                          {selectedList.items?.reduce(
-                            (sum, item) => (item.isChecked ? sum + 1 : sum),
-                            0,
-                          ) ?? 0}
-                          /{selectedList.items?.length ?? 0}
-                        </span>
-                      </div>
-                    ) : (
-                      "Odaberi popis..."
-                    )}
-                  </div>
-
-                  <ChevronDown
-                    className={cn(
-                      "size-6 flex-shrink-0 transition-transform",
-                      open && "rotate-180",
-                    )}
-                  />
-                </Button>
+                <ShoppingListTrigger
+                  open={open}
+                  isLoadingLists={isLoadingLists}
+                  disabled={disabled}
+                  isNewList={field.value === "new"}
+                  customListTitle={customListTitle}
+                  selectedList={selectedList}
+                />
               </FormControl>
             </PopoverTrigger>
 
@@ -136,65 +86,28 @@ export default function ShoppingListSelector({
                   {sortedShoppingLists.length > 0 && (
                     <CommandGroup heading="Postojeći popisi">
                       {sortedShoppingLists.map((list) => (
-                        <CommandItem
+                        <ShoppingListOption
                           key={list.id}
-                          value={list.id}
+                          list={list}
+                          isSelected={selectedList?.id === list.id}
                           onSelect={() => {
                             field.onChange(list.id);
                             setOpen(false);
                           }}
-                        >
-                          <ListChecks
-                            className={cn(
-                              "size-4",
-                              selectedList?.id === list.id && "text-primary",
-                            )}
-                          />
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="truncate">{list.title}</span>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>{list.title}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                          {list.updatedAt && (
-                            <span className="text-gray-500 text-xs">
-                              ({formatDate(list.updatedAt)})
-                            </span>
-                          )}
-
-                          <span className="ml-auto text-xs text-gray-500">
-                            {list.items?.reduce(
-                              (sum, item) => (item.isChecked ? sum + 1 : sum),
-                              0,
-                            ) ?? 0}
-                            /{list.items?.length ?? 0}
-                          </span>
-                        </CommandItem>
+                        />
                       ))}
                     </CommandGroup>
                   )}
 
                   {customListTitle.trim() && (
                     <CommandGroup heading="Novi popis za kupnju">
-                      <CommandItem
-                        value={`new-${customListTitle}`}
+                      <CreateListOption
+                        customListTitle={customListTitle}
                         onSelect={() => {
                           field.onChange("new");
                           setOpen(false);
                         }}
-                        className="text-nowrap"
-                      >
-                        <Plus className="size-4" />
-                        Stvori &ldquo;
-                        <span className="truncate">
-                          {customListTitle.trim()}
-                        </span>
-                        &rdquo;
-                      </CommandItem>
+                      />
                     </CommandGroup>
                   )}
                 </CommandList>
