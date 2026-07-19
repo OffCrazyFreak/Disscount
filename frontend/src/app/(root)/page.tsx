@@ -9,6 +9,7 @@ import StoresSection from "@/app/(root)/components/sections/stores-section";
 import PwaSection from "@/app/(root)/components/sections/pwa-section";
 import PricingSection from "@/app/(root)/components/sections/pricing-section";
 import TrustSection from "@/app/(root)/components/sections/trust-section";
+import FaqSection from "@/app/(root)/components/sections/faq-section";
 import FinalCtaSection from "@/app/(root)/components/sections/final-cta-section";
 
 export const metadata: Metadata = {
@@ -31,6 +32,7 @@ export default function Home() {
       <PwaSection />
       <PricingSection />
       <TrustSection />
+      <FaqSection />
       <FinalCtaSection />
     </div>
   );

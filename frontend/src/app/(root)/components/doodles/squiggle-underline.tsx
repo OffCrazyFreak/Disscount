@@ -1,3 +1,4 @@
+import { CSSProperties } from "react";
 import { cn } from "@/lib/utils";
 
 interface ISquiggleUnderlineProps {
@@ -22,7 +23,7 @@ export default function SquiggleUnderline({
         strokeWidth="4.5"
         strokeLinecap="round"
         className="animate-dis-draw"
-        style={{ "--dis-dash": 240 } as React.CSSProperties}
+        style={{ "--dis-dash": 240 } as CSSProperties}
       />
     </svg>
   );

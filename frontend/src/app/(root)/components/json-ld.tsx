@@ -1,3 +1,5 @@
+import { faqItems } from "@/app/(root)/components/data/faq";
+
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 const graph = {
@@ -41,6 +43,16 @@ const graph = {
         `${baseUrl}/screenshots/screenshot-wide.png`,
       ],
       author: { "@id": `${baseUrl}/#organization` },
+    },
+    {
+      "@type": "FAQPage",
+      "@id": `${baseUrl}/#faq`,
+      inLanguage: "hr",
+      mainEntity: faqItems.map((item) => ({
+        "@type": "Question",
+        name: item.question,
+        acceptedAnswer: { "@type": "Answer", text: item.answer },
+      })),
     },
   ],
 };

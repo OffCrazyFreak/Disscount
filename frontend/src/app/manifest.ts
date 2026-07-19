@@ -58,7 +58,7 @@ export default function manifest(): WebAppManifest {
     screenshots: [
       {
         src: "/screenshots/screenshot-narrow.png",
-        sizes: "1080x1920",
+        sizes: "390x844",
         type: "image/png",
         form_factor: "narrow",
       },
