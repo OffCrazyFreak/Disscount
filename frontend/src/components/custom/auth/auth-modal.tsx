@@ -30,7 +30,7 @@ interface IAuthModalProps {
   open: boolean;
   mode: AuthMode;
   // Contextual reason shown when the modal was opened by an auth gate, e.g.
-  // "Prijavi se kako bi dodao proizvod na popis za kupnju."
+  // "Prijavi se za dodavanje proizvoda na popis za kupnju."
   message?: string;
   onOpenChange: (open: boolean) => void;
   onModeChange: (mode: AuthMode) => void;

@@ -32,7 +32,7 @@ export default function TermsOfServicePage() {
 
       <LegalSection heading="Računi">
         <p>
-          Odgovoran si za aktivnosti na svom računu. Račun možeš obrisati u bilo
+          Za aktivnosti na svom računu odgovaraš ti. Račun možeš obrisati u bilo
           kojem trenutku unutar aplikacije.
         </p>
       </LegalSection>

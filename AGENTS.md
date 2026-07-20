@@ -102,6 +102,10 @@ Never edit the package.json or package-lock.json files directly, but instead use
 
 If you need docs about a library, always fetch the most recent documentation from the official website or repository, instead of searching in node modules or other places.
 
+In Croatian wording, always use drugo lice ("ti"), nikad treće lice ("vi").
+Also always use ungerened forms.
+Leave the company voice ("mi") intact.
+
 # Project structure (frontend/src)
 
 - `app/` - Next.js routes. A feature folder uses `components/` + `hooks/` + `utils/` + `typings/` (add only what it needs).
@@ -110,6 +114,7 @@ If you need docs about a library, always fetch the most recent documentation fro
 - Root: `hooks/` (shared hooks), `context/`, `utils/` (shared helpers), `constants/`, `typings/` (shared types), `emails/`, `db/`.
 
 Where things go:
+
 - Types: API/domain -> `lib/api/schemas/*` (zod `*Dto`/`*Response`); external price API -> `lib/cijene-api/schemas.ts`; shared UI/util -> `@/typings`; feature-only -> colocated `*-types.ts`.
 - React Query hooks: colocate with their service under `lib/api/<domain>/`; feature-specific composition hooks go in the feature `hooks/`.
 - One component per file (default export); its `I`-prefixed Props interface stays in the same file.

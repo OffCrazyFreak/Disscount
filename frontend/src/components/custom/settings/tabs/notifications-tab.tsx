@@ -39,7 +39,7 @@ export default function NotificationsTab() {
     <SettingsSection
       icon={Bell}
       label="Obavijesti"
-      hint="Odaberi kako, o čemu i kada želiš biti obaviješten o akcijama i novostima."
+      hint="Odaberi kako, o čemu i kada želiš primati obavijesti o akcijama i novostima."
     >
       <StaggerChildren className="divide-y">
         {SWITCHES.map((props) => (

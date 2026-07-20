@@ -24,7 +24,7 @@ export default function FinalCtaSection() {
 
         <ScrollReveal preset="pop" className="relative space-y-6">
           <h2 className="text-4xl sm:text-5xl font-saira-stencil-semibold text-balance">
-            Spreman uštedjeti?
+            Želiš uštedjeti?
           </h2>
 
           <p className="max-w-md mx-auto text-primary-foreground/90 text-pretty">

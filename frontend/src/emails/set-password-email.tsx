@@ -14,10 +14,10 @@ export default function SetPasswordEmail({
     <ActionEmail
       preview="Postavi lozinku za svoj Disscount račun"
       heading="Postavi lozinku za svoj račun"
-      intro="Za ovu email adresu već postoji Disscount račun (prijava putem Googlea ili Facebooka). Klikni na gumb ispod kako bi postavio/la lozinku i ubuduće se mogao/la prijaviti i emailom. Poveznica vrijedi ograničeno vrijeme."
+      intro="Za ovu email adresu već postoji Disscount račun (prijava putem Googlea ili Facebooka). Klikni na gumb ispod za postavljanje lozinke i prijavu emailom ubuduće. Poveznica vrijedi ograničeno vrijeme."
       buttonLabel="Postavi lozinku"
       buttonUrl={setPasswordUrl}
-      footnote="Ako nisi ti zatražio/la ovo, zanemari ovaj email - tvoj račun ostaje nepromijenjen."
+      footnote="Ako ovaj zahtjev ne dolazi od tebe, zanemari ovaj email - tvoj račun ostaje nepromijenjen."
     />
   );
 }

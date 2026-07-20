@@ -30,12 +30,12 @@ const MODE_TO_TARGET_NAME = {
 
 // Shown in the login modal when a logged-out user tries to open a gated modal.
 const GATE_MESSAGES: Record<string, string> = {
-  "add-to-list": "Prijavi se kako bi dodao proizvod na popis za kupnju.",
-  watchlist: "Prijavi se kako bi pratio sniženja ovog proizvoda.",
-  "shopping-list": "Prijavi se kako bi upravljao popisima za kupnju.",
-  "digital-card": "Prijavi se kako bi upravljao digitalnim karticama.",
-  settings: "Prijavi se kako bi otvorio postavke.",
-  onboarding: "Prijavi se kako bi započeo.",
+  "add-to-list": "Prijavi se za dodavanje proizvoda na popis za kupnju.",
+  watchlist: "Prijavi se za praćenje sniženja ovog proizvoda.",
+  "shopping-list": "Prijavi se za upravljanje popisima za kupnju.",
+  "digital-card": "Prijavi se za upravljanje digitalnim karticama.",
+  settings: "Prijavi se za otvaranje postavki.",
+  onboarding: "Prijavi se za početak.",
 };
 
 /**

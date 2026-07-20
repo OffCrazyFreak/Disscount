@@ -32,7 +32,7 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
     id: "obavijesti",
     title: "Obavijesti",
     description:
-      "Odaberi kako, o čemu i kada želiš biti obaviješten o akcijama i novostima.",
+      "Odaberi kako, o čemu i kada želiš primati obavijesti o akcijama i novostima.",
     component: NotificationsTab,
   },
   {
