@@ -18,7 +18,6 @@ public class ContactMessageDto {
     private String message;
     private String sourcePath;
     private LocalDateTime readAt;
-    private LocalDateTime archivedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;

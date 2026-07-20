@@ -71,14 +71,6 @@ public class ContactMessageService {
         return mutate(id, msg -> msg.setReadAt(null));
     }
 
-    public ContactMessageDto archive(UUID id) {
-        return mutate(id, msg -> msg.setArchivedAt(LocalDateTime.now()));
-    }
-
-    public ContactMessageDto unarchive(UUID id) {
-        return mutate(id, msg -> msg.setArchivedAt(null));
-    }
-
     public ContactMessageDto softDelete(UUID id) {
         return mutate(id, msg -> msg.setDeletedAt(LocalDateTime.now()));
     }
@@ -113,7 +105,6 @@ public class ContactMessageService {
                 .message(message.getMessage())
                 .sourcePath(message.getSourcePath())
                 .readAt(message.getReadAt())
-                .archivedAt(message.getArchivedAt())
                 .createdAt(message.getCreatedAt())
                 .updatedAt(message.getUpdatedAt())
                 .deletedAt(message.getDeletedAt())

@@ -50,7 +50,4 @@ public class ContactMessage extends BaseEntity {
 
     @Column(name = "read_at")
     private LocalDateTime readAt;
-
-    @Column(name = "archived_at")
-    private LocalDateTime archivedAt;
 }

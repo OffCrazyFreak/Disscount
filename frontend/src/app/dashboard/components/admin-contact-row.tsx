@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Archive,
-  ArchiveRestore,
-  Copy,
-  Mail,
-  MailOpen,
-  RotateCcw,
-  Trash2,
-} from "lucide-react";
+import { Copy, Mail, MailOpen, RotateCcw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +13,6 @@ interface IAdminContactRowProps {
   message: ContactMessageDto;
   onOpen: (m: ContactMessageDto) => void;
   onToggleRead: (m: ContactMessageDto) => void;
-  onToggleArchive: (m: ContactMessageDto) => void;
   onDelete: (m: ContactMessageDto) => void;
   onRestore: (m: ContactMessageDto) => void;
 }
@@ -30,7 +21,6 @@ export default function AdminContactRow({
   message,
   onOpen,
   onToggleRead,
-  onToggleArchive,
   onDelete,
   onRestore,
 }: IAdminContactRowProps) {
@@ -78,10 +68,7 @@ export default function AdminContactRow({
       </TableCell>
 
       <TableCell>
-        <div className="flex flex-wrap gap-1">
-          {message.archivedAt && <Badge variant="primary">Arhivirano</Badge>}
-          {isDeleted && <Badge variant="destructive">Obrisano</Badge>}
-        </div>
+        {isDeleted && <Badge variant="destructive">Obrisano</Badge>}
       </TableCell>
 
       <TableCell>
@@ -97,20 +84,6 @@ export default function AdminContactRow({
               <MailOpen className="size-4" />
             ) : (
               <Mail className="size-4" />
-            )}
-          </Button>
-
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            aria-label={message.archivedAt ? "Vrati iz arhive" : "Arhiviraj"}
-            onClick={() => onToggleArchive(message)}
-          >
-            {message.archivedAt ? (
-              <ArchiveRestore className="size-4" />
-            ) : (
-              <Archive className="size-4" />
             )}
           </Button>
 

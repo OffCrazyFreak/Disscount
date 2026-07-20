@@ -50,18 +50,6 @@ public class AdminContactController {
         return ResponseEntity.ok(contactMessageService.markUnread(id));
     }
 
-    @Operation(summary = "Archive (admin only)")
-    @PatchMapping("/{id}/archive")
-    public ResponseEntity<ContactMessageDto> archive(@PathVariable UUID id) {
-        return ResponseEntity.ok(contactMessageService.archive(id));
-    }
-
-    @Operation(summary = "Unarchive (admin only)")
-    @PatchMapping("/{id}/unarchive")
-    public ResponseEntity<ContactMessageDto> unarchive(@PathVariable UUID id) {
-        return ResponseEntity.ok(contactMessageService.unarchive(id));
-    }
-
     @Operation(summary = "Soft delete (admin only)")
     @DeleteMapping("/{id}")
     public ResponseEntity<ContactMessageDto> softDelete(@PathVariable UUID id) {

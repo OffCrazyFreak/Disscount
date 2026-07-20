@@ -26,19 +26,15 @@ import { contactService } from "@/lib/api";
 import { ContactMessageDto } from "@/lib/api/types";
 import { filterByFields } from "@/utils/generic";
 
-type InboxView = "all" | "unread" | "active" | "archived";
+type InboxView = "all" | "unread";
 
 const VIEW_LABELS: Record<InboxView, string> = {
   all: "Sve",
   unread: "Nepročitane",
-  active: "Aktivne",
-  archived: "Arhivirane",
 };
 
 function matchesView(message: ContactMessageDto, view: InboxView): boolean {
   if (view === "unread") return !message.readAt;
-  if (view === "active") return !message.archivedAt && !message.deletedAt;
-  if (view === "archived") return !!message.archivedAt;
   return true;
 }
 
@@ -123,7 +119,6 @@ export default function AdminContactTable() {
                 message={message}
                 onOpen={setDetail}
                 onToggleRead={inbox.toggleRead}
-                onToggleArchive={inbox.toggleArchive}
                 onDelete={inbox.remove}
                 onRestore={inbox.restore}
               />

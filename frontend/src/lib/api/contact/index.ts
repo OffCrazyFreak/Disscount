@@ -105,10 +105,6 @@ export const useMarkRead = () =>
   useContactAction((id) => patchContactAction(id, "read"));
 export const useMarkUnread = () =>
   useContactAction((id) => patchContactAction(id, "unread"));
-export const useArchive = () =>
-  useContactAction((id) => patchContactAction(id, "archive"));
-export const useUnarchive = () =>
-  useContactAction((id) => patchContactAction(id, "unarchive"));
 export const useSoftDelete = () => useContactAction(softDeleteContactMessage);
 export const useRestore = () =>
   useContactAction((id) => patchContactAction(id, "restore"));
@@ -122,8 +118,6 @@ const contactService = {
   useGetContactMessage,
   useMarkRead,
   useMarkUnread,
-  useArchive,
-  useUnarchive,
   useSoftDelete,
   useRestore,
 };
