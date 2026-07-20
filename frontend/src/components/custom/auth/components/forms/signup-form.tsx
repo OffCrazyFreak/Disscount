@@ -56,6 +56,7 @@ export default function SignUpForm({ externalDisabled }: ISignUpFormProps) {
         <Button
           type="submit"
           size="lg"
+          effect="gradientSlideShow"
           className="w-full"
           icon={UserPlus}
           iconPlacement="left"

@@ -1,10 +1,10 @@
 "use client";
 
 import type { ElementType } from "react";
-import { CircleCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import LastLoginBadge from "@/components/custom/auth/components/last-login-badge";
 
 export type SocialProvider = "google" | "facebook";
 
@@ -17,15 +17,6 @@ interface IAuthSocialButtonProps {
   socialPending: SocialProvider | null;
   comingSoon?: boolean;
   onSignIn: (provider: SocialProvider) => void;
-}
-
-function LastLoginBadge() {
-  return (
-    <span className="absolute -top-2 right-3 inline-flex items-center gap-0.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-white shadow-sm">
-      <CircleCheck size={9} />
-      Zadnja prijava
-    </span>
-  );
 }
 
 export default function AuthSocialButton({
@@ -52,9 +43,7 @@ export default function AuthSocialButton({
       <span className="sm:hidden">{shortLabel}</span>
       <span className="hidden sm:inline">{fullLabel}</span>
       {comingSoon ? (
-        <Badge className="absolute -top-2 right-3 text-[10px] shadow-sm">
-          USKORO
-        </Badge>
+        <Badge className="absolute -top-3.5 right-4 shadow-sm">USKORO</Badge>
       ) : (
         lastLoginMethod === provider &&
         socialPending !== provider && <LastLoginBadge />

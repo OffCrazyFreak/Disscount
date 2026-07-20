@@ -1,6 +1,6 @@
 import { LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
-import BgAnimateButton from "@/components/ui/bg-animate-button";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { useUser } from "@/context/user-context";
@@ -25,20 +25,17 @@ export default function HeaderActions() {
           <UserMenu />
         </div>
       ) : (
-        <BgAnimateButton
-          gradient={"primary"}
-          rounded={"full"}
-          animation="spin-slow"
-          shadow="base"
-          size={isMobile ? "sm" : "default"}
-          className="cursor-pointer min-w-fit p-[2px]"
+        <Button
+          variant="primary"
+          effect="gradientSlideShow"
+          size={isMobile ? "default" : "lg"}
+          icon={LogIn}
+          iconPlacement="left"
+          className="min-w-fit rounded-full"
           onClick={() => openModalUrl({ name: "login" })}
         >
-          <div className="flex items-center space-x-2 p-1">
-            <LogIn className="w-5.5" />
-            <span>Prijava</span>
-          </div>
-        </BgAnimateButton>
+          Prijava
+        </Button>
       )}
     </div>
   );

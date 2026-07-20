@@ -5,10 +5,10 @@ import { cn } from "@/lib/utils";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 
 const buttonVariants = cva(
-  // Disabled state fades via filters (desaturate + slight brighten) instead of
-  // opacity, so the button stays fully opaque and never lets a busy background
-  // bleed through - and it reads the same across every colour variant.
-  "cursor-pointer disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:saturate-40 disabled:brightness-140 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  // Disabled state swaps in opaque muted tokens (fill + text) instead of
+  // opacity, so the button never lets a busy background bleed through, its
+  // label fades too, and every colour variant collapses to the same look.
+  "cursor-pointer disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:saturate-40 disabled:brightness-140 disabled:text-brightness-140 disabled:border-transparent disabled:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -52,7 +52,7 @@ const buttonVariants = cva(
         hoverUnderline:
           "relative !no-underline after:absolute after:bg-primary after:bottom-2 after:h-[1px] after:w-2/3 after:origin-bottom-right after:scale-x-0 hover:after:origin-bottom-left hover:after:scale-x-100 after:transition-transform after:ease-in-out after:duration-300",
         gradientSlideShow:
-          "bg-[size:400%] bg-[linear-gradient(-45deg,var(--gradient-lime),var(--gradient-ocean),var(--gradient-wine),var(--gradient-rust))] animate-gradient-flow",
+          "bg-[size:400%] bg-[linear-gradient(-45deg,var(--chart-1),oklch(0.86_0.14_142),var(--primary),var(--secondary))] animate-gradient-flow",
       },
       size: {
         default: "h-10 px-4 py-2",

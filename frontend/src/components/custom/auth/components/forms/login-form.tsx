@@ -1,12 +1,13 @@
 "use client";
 
-import { CircleCheck, LogIn } from "lucide-react";
+import { LogIn } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import EmailField from "@/components/custom/auth/components/fields/email-field";
 import PasswordField from "@/components/custom/auth/components/fields/password-field";
 import FormRootError from "@/components/custom/auth/components/fields/form-root-error";
+import LastLoginBadge from "@/components/custom/auth/components/last-login-badge";
 import { useLoginForm } from "@/components/custom/auth/hooks/use-login-form";
 
 interface ILoginFormProps {
@@ -53,6 +54,7 @@ export default function LoginForm({
         <Button
           type="submit"
           size="lg"
+          effect="gradientSlideShow"
           className="w-full"
           icon={LogIn}
           iconPlacement="left"
@@ -63,10 +65,7 @@ export default function LoginForm({
         >
           Prijavi se
           {isLastUsed && !form.formState.isSubmitting && !externalDisabled && (
-            <span className="absolute right-3 inline-flex items-center gap-0.5 rounded-full bg-white px-1.5 py-0.5 text-[10px] font-medium text-primary">
-              <CircleCheck size={9} />
-              Zadnja prijava
-            </span>
+            <LastLoginBadge variant="inverse" />
           )}
         </Button>
       </form>
