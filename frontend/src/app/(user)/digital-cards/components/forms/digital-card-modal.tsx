@@ -12,10 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import DigitalCardFields from "@/app/(user)/digital-cards/components/forms/digital-card-fields";
 import { useDigitalCardModal } from "@/app/(user)/digital-cards/components/forms/use-digital-card-modal";
 import { digitalCardService } from "@/lib/api";
-import {
-  DigitalCardRequest,
-  digitalCardRequestSchema,
-} from "@/lib/api/types";
+import { DigitalCardRequest, digitalCardRequestSchema } from "@/lib/api/types";
 import { applyProblemToForm } from "@/lib/api/problem-details";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { takeModalError } from "@/lib/modal/modal-error-bus";
@@ -77,8 +74,7 @@ export default function DigitalCardModal({
     form.reset(base);
 
     const draft = getFormDraft(draftKey)?.values as
-      | Partial<DigitalCardRequest>
-      | undefined;
+      Partial<DigitalCardRequest> | undefined;
     if (draft && Object.keys(draft).length > 0) {
       form.reset({ ...base, ...draft }, { keepDefaultValues: true });
     }
@@ -98,7 +94,10 @@ export default function DigitalCardModal({
     if (error) applyProblemToForm(error, form.setError);
   }, [open, draftKey, form]);
 
-  const { onSubmit, isLoading } = useDigitalCardModal({ digitalCard, draftKey });
+  const { onSubmit, isLoading } = useDigitalCardModal({
+    digitalCard,
+    draftKey,
+  });
 
   function handleSubmit(data: DigitalCardRequest) {
     flushDraft();
@@ -120,7 +119,9 @@ export default function DigitalCardModal({
       submitLabel={isEdit ? "Spremi" : "Stvori"}
       submitIcon={Save}
       submitLoading={isLoading}
-      submitDisabled={!form.formState.isDirty || !form.formState.isValid || notFound}
+      submitDisabled={
+        !form.formState.isDirty || !form.formState.isValid || notFound
+      }
       cancelLabel="Odustani"
       resetLabel="Resetiraj"
       resetDisabled={!form.formState.isDirty && !restored}

@@ -19,7 +19,7 @@ export function useWatchlistItemForm(
   open: boolean,
   ean: string,
   avgPrice: number,
-  initialWatchType?: WatchType
+  initialWatchType?: WatchType,
 ) {
   const draftKey = `watchlist.${ean}`;
 
@@ -39,7 +39,7 @@ export function useWatchlistItemForm(
 
   const watchType = form.watch("watchType");
   const existingItemForType = existingItems.find(
-    (item) => item.watchType === watchType
+    (item) => item.watchType === watchType,
   );
 
   // Prefill the threshold with the tracked value (or a sensible default) when
@@ -50,13 +50,17 @@ export function useWatchlistItemForm(
     if (existingItemForType) {
       form.setValue(
         "thresholdValue",
-        existingItemForType.thresholdValue.toString()
+        existingItemForType.thresholdValue.toString(),
       );
     } else if (watchType === WatchType.percentage) {
       form.setValue("thresholdValue", "10");
     } else {
-      const suggested = avgPrice > 0 ? Math.round(avgPrice * 0.1 * 100) / 100 : 0;
-      form.setValue("thresholdValue", suggested > 0 ? suggested.toString() : "");
+      const suggested =
+        avgPrice > 0 ? Math.round(avgPrice * 0.1 * 100) / 100 : 0;
+      form.setValue(
+        "thresholdValue",
+        suggested > 0 ? suggested.toString() : "",
+      );
     }
   }, [watchType, existingItemForType, avgPrice, form]);
 
@@ -85,7 +89,7 @@ export function useWatchlistItemForm(
       toast.success(
         isUpdate
           ? `Prag ažuriran s ${oldValue} na ${Number.parseFloat(data.thresholdValue)}`
-          : "Proizvod dodan na popis za praćenje"
+          : "Proizvod dodan na popis za praćenje",
       );
     } catch (error) {
       stashModalError(draftKey, error);
@@ -111,7 +115,7 @@ export function useWatchlistItemForm(
       toast.success(
         `Za proizvod se više ne prati ${
           target.watchType === WatchType.percentage ? "postotak" : "cijena"
-        }`
+        }`,
       );
     } catch {
       toast.error("Greška pri uklanjanju");

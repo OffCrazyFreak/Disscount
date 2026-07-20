@@ -18,7 +18,10 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
   }
 
   const parsed = bodySchema.safeParse(body);
@@ -58,7 +61,10 @@ export async function POST(request: Request) {
       headers: requestHeaders,
     });
   } catch {
-    return NextResponse.json({ error: "Failed to change email" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to change email" },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ status: true });

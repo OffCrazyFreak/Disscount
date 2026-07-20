@@ -56,7 +56,7 @@ export function useSettingsSave({
 
     if (!onlineManager.isOnline()) {
       toast.info(
-        "Izvan ste mreže - promjene će se sinkronizirati kad se vratite na mrežu."
+        "Izvan ste mreže - promjene će se sinkronizirati kad se vratite na mrežu.",
       );
     }
 
@@ -67,7 +67,10 @@ export function useSettingsSave({
 
     if (userDirty) {
       const patch: UserRequest = { ...extraUserPatch };
-      for (const field of [...SECTION_FIELDS.profil, ...SECTION_FIELDS.obavijesti]) {
+      for (const field of [
+        ...SECTION_FIELDS.profil,
+        ...SECTION_FIELDS.obavijesti,
+      ]) {
         if (JSON.stringify(values[field]) !== JSON.stringify(defaults[field])) {
           Object.assign(patch, { [field]: values[field] });
         }
@@ -158,11 +161,16 @@ export function useSettingsSave({
     for (const [index, job] of jobs.entries()) {
       const result = results[index];
       if (result.status === "rejected") {
-        applyProblemToForm(result.reason, form.setError, undefined, {
-          user: "Greška pri spremanju profila.",
-          stores: "Greška pri spremanju trgovina.",
-          places: "Greška pri spremanju lokacija.",
-        }[job.key]);
+        applyProblemToForm(
+          result.reason,
+          form.setError,
+          undefined,
+          {
+            user: "Greška pri spremanju profila.",
+            stores: "Greška pri spremanju trgovina.",
+            places: "Greška pri spremanju lokacija.",
+          }[job.key],
+        );
       }
     }
 

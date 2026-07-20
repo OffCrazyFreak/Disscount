@@ -48,11 +48,9 @@ export default function ShoppingListModal({
     .getQueryData<ShoppingListDto[]>(["shoppingLists", "me"])
     ?.find((list) => list.id === id);
   const byIdQuery = shoppingListService.useGetShoppingListById(
-    isEdit ? (id as string) : ""
+    isEdit ? (id as string) : "",
   );
-  const shoppingList = isEdit
-    ? (byIdQuery.data ?? cachedList ?? null)
-    : null;
+  const shoppingList = isEdit ? (byIdQuery.data ?? cachedList ?? null) : null;
 
   const draftKey = isEdit ? `shopping-list.edit.${id}` : "shopping-list.new";
   const isReady = !isEdit || !!shoppingList;
@@ -75,8 +73,7 @@ export default function ShoppingListModal({
     form.reset(base);
 
     const draft = getFormDraft(draftKey)?.values as
-      | Partial<ShoppingListRequest>
-      | undefined;
+      Partial<ShoppingListRequest> | undefined;
     if (draft && Object.keys(draft).length > 0) {
       form.reset({ ...base, ...draft }, { keepDefaultValues: true });
     }
@@ -121,7 +118,9 @@ export default function ShoppingListModal({
       submitLabel={isEdit ? "Spremi" : "Stvori"}
       submitIcon={Save}
       submitLoading={isLoading}
-      submitDisabled={!form.formState.isDirty || !form.formState.isValid || notFound}
+      submitDisabled={
+        !form.formState.isDirty || !form.formState.isValid || notFound
+      }
       cancelLabel="Odustani"
       resetLabel="Resetiraj"
       resetDisabled={!form.formState.isDirty && !restored}
@@ -156,7 +155,11 @@ export default function ShoppingListModal({
                 <FormItem>
                   <FormLabel>Naziv popisa</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Roštilj 01.05.2026." autoFocus />
+                    <Input
+                      {...field}
+                      placeholder="Roštilj 01.05.2026."
+                      autoFocus
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

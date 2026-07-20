@@ -40,7 +40,7 @@ export default function PinnedPlacesSelect() {
                 {locations
                   .slice()
                   .sort((a, b) =>
-                    a.name.localeCompare(b.name, "hr", { sensitivity: "base" })
+                    a.name.localeCompare(b.name, "hr", { sensitivity: "base" }),
                   )
                   .map((location) => (
                     <MultiSelectItem key={location.name} value={location.name}>

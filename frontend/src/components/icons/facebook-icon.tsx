@@ -1,6 +1,9 @@
 import type { SVGProps } from "react";
 
-export default function FacebookIcon({ className, ...props }: SVGProps<SVGSVGElement>) {
+export default function FacebookIcon({
+  className,
+  ...props
+}: SVGProps<SVGSVGElement>) {
   return (
     <svg
       viewBox="0 0 24 24"

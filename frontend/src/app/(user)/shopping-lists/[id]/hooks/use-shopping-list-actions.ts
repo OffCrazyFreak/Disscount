@@ -32,7 +32,11 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
   }
 
   function handleEdit() {
-    openModalUrl({ name: "shopping-list", action: "edit", id: shoppingList.id });
+    openModalUrl({
+      name: "shopping-list",
+      action: "edit",
+      id: shoppingList.id,
+    });
   }
 
   async function handleShare() {

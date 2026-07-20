@@ -68,7 +68,7 @@ const innerSpanVariants = cva(
       animation: "spin",
       gradient: "forest",
     },
-  }
+  },
 );
 
 const buttonVariants = cva(
@@ -114,11 +114,10 @@ const buttonVariants = cva(
       shadow: "base",
       rounded: "xl",
     },
-  }
+  },
 );
 
-export interface UnifiedButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface UnifiedButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "success" | "secondary" | "destructive" | "ghost";
   size?: "sm" | "lg" | "default";
   shadow?: "flat" | "soft" | "base" | "deep" | "deeper";
@@ -151,7 +150,7 @@ const BgAnimateButton = React.forwardRef<HTMLButtonElement, UnifiedButtonProps>(
       asChild = false,
       ...props
     },
-    ref
+    ref,
   ) => {
     const Comp = asChild ? Slot : "button";
 
@@ -172,7 +171,7 @@ const BgAnimateButton = React.forwardRef<HTMLButtonElement, UnifiedButtonProps>(
         </div>
       </Comp>
     );
-  }
+  },
 );
 
 BgAnimateButton.displayName = "BgAnimateButton";

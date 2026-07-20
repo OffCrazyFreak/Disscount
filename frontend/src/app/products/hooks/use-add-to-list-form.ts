@@ -66,7 +66,7 @@ export function useAddToListForm(open: boolean, ean: string) {
   const { storePrices, averagePrice, cheapestStore } = useAddToListPrices(
     product,
     user?.pinnedStores ?? undefined,
-    form
+    form,
   );
 
   // Get selected shopping list details to check for duplicates
@@ -81,7 +81,7 @@ export function useAddToListForm(open: boolean, ean: string) {
     .slice()
     .sort(
       (a, b) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
     );
 
   // Default to the most recently updated list once lists load
@@ -101,7 +101,7 @@ export function useAddToListForm(open: boolean, ean: string) {
     ) {
       form.setValue(
         "shoppingListId",
-        sortedShoppingLists.length > 0 ? sortedShoppingLists[0].id : ""
+        sortedShoppingLists.length > 0 ? sortedShoppingLists[0].id : "",
       );
     }
   }, [sortedShoppingLists, form]);
@@ -186,7 +186,7 @@ export function useAddToListForm(open: boolean, ean: string) {
   }
 
   const selectedList = sortedShoppingLists.find(
-    (list) => list.id === selectedListId
+    (list) => list.id === selectedListId,
   );
 
   const isSubmitting =

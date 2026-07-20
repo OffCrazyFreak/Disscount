@@ -39,11 +39,12 @@ export function useSettingsDefaults() {
       pinnedPlaces: pinnedPlaces.map((place) => place.placeName),
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [user, storesQuery.data, placesQuery.data]
+    [user, storesQuery.data, placesQuery.data],
   );
 
   const isReady =
-    !!user && (!needsPins || (!storesQuery.isLoading && !placesQuery.isLoading));
+    !!user &&
+    (!needsPins || (!storesQuery.isLoading && !placesQuery.isLoading));
 
   return { defaults, isReady };
 }

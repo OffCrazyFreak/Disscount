@@ -42,7 +42,8 @@ export class ResendProvider implements EmailProvider {
       // so fire-and-forget callers never produce an unhandled rejection.
       return {
         id: null,
-        error: error instanceof Error ? error.message : "Email transport failed",
+        error:
+          error instanceof Error ? error.message : "Email transport failed",
       };
     }
   }

@@ -101,7 +101,11 @@ export function useWatchlistSuggestions({
         error: queryError instanceof Error ? queryError : null,
       };
     });
-  }, [suggestionProductApiIds, suggestionProductQueries, pinnedStoreChainCodes]);
+  }, [
+    suggestionProductApiIds,
+    suggestionProductQueries,
+    pinnedStoreChainCodes,
+  ]);
 
   const filteredSuggestionItems = useMemo<WatchlistSearchItem[]>(() => {
     const searchableItems = suggestionItems.map((item) => ({

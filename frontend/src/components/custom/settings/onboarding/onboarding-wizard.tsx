@@ -16,7 +16,11 @@ interface IOnboardingWizardProps {
   saving: boolean;
 }
 
-export default function OnboardingWizard({ open, save, saving }: IOnboardingWizardProps) {
+export default function OnboardingWizard({
+  open,
+  save,
+  saving,
+}: IOnboardingWizardProps) {
   const {
     step,
     direction,
@@ -49,10 +53,7 @@ export default function OnboardingWizard({ open, save, saving }: IOnboardingWiza
       preventClose={busy}
       headerExtra={
         <div className="pt-2">
-          <WizardProgressDots
-            count={ONBOARDING_STEPS.length}
-            current={step}
-          />
+          <WizardProgressDots count={ONBOARDING_STEPS.length} current={step} />
         </div>
       }
       footer={

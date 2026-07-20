@@ -9,7 +9,10 @@ export async function POST(request: Request) {
   try {
     ({ newPassword } = (await request.json()) as { newPassword?: unknown });
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
   }
 
   const parsed = passwordSchema.safeParse(newPassword);
@@ -28,7 +31,7 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json(
       { error: "Failed to set password" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

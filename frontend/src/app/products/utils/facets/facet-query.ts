@@ -20,7 +20,9 @@ function toDisplayMap(values: string[]): Map<string, string> {
 function indexProduct(product: ProductResponse): IIndexedProduct {
   return {
     chainCodes: new Set(
-      product.chains.map((chainProduct) => normalizeChainCode(chainProduct.chain)),
+      product.chains.map((chainProduct) =>
+        normalizeChainCode(chainProduct.chain),
+      ),
     ),
     categories: toDisplayMap(getProductCategories(product)),
     brands: toDisplayMap(getProductBrands(product)),
@@ -43,7 +45,9 @@ function resolveLocationChains(
 
   return new Set(
     locations
-      .filter((location) => selectedNames.has(normalizeForSearch(location.name)))
+      .filter((location) =>
+        selectedNames.has(normalizeForSearch(location.name)),
+      )
       .flatMap((location) => [...location.chains]),
   );
 }

@@ -67,9 +67,7 @@ export function formatShoppingListForSharing(
     const amount = item.amount > 1 ? ` x${item.amount}` : "";
 
     // Get store name from chainCode
-    const storeName = item.chainCode
-      ? getChainLabel(item.chainCode)
-      : "";
+    const storeName = item.chainCode ? getChainLabel(item.chainCode) : "";
     const store = storeName ? ` - ${storeName}` : "";
 
     shareText += `${number}. ${checkbox} ${name}${brand}${unitAndQuantity}${amount}${store}\n`;

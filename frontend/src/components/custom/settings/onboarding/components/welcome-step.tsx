@@ -26,8 +26,8 @@ export default function WelcomeStep() {
   return (
     <div className="space-y-6 py-2">
       <p className="text-sm text-muted-foreground text-pretty">
-        Provedimo te kroz nekoliko kratkih koraka da Disscount prilagodimo
-        tebi. Sve možeš kasnije urediti u postavkama.
+        Provedimo te kroz nekoliko kratkih koraka da Disscount prilagodimo tebi.
+        Sve možeš kasnije urediti u postavkama.
       </p>
 
       <StaggerChildren className="space-y-5">

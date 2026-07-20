@@ -1,4 +1,8 @@
-import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from "axios";
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  InternalAxiosRequestConfig,
+} from "axios";
 
 import { authClient } from "@/lib/auth/client";
 
@@ -37,7 +41,9 @@ function parseTokenExp(token: string): number | null {
   if (!payloadSegment) return null;
 
   try {
-    const payload = JSON.parse(decodeBase64Url(payloadSegment)) as { exp?: number };
+    const payload = JSON.parse(decodeBase64Url(payloadSegment)) as {
+      exp?: number;
+    };
     return payload.exp ?? null;
   } catch {
     return null;
@@ -107,15 +113,17 @@ export function resetAuthToken() {
   lastFailedAttemptAt = 0;
 }
 
-apiClient.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
-  if (config.headers) {
-    const token = await getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+apiClient.interceptors.request.use(
+  async (config: InternalAxiosRequestConfig) => {
+    if (config.headers) {
+      const token = await getToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
-  }
-  return config;
-});
+    return config;
+  },
+);
 
 // On a 401, refresh the token once and replay the request. All other failures
 // (5xx, network) bubble up so React Query's retry policy owns retries - one

@@ -89,8 +89,12 @@ const PriceHistoryChart = memo(function PriceHistoryChart({
         .map(([, v]) => (typeof v === "number" ? v : 0)),
     );
     const hasValues = chartData.length > 0 && chainsToDisplay.length > 0;
-    const paddedMin = hasValues ? Math.min(...selectedValues) * (1 - padding) : 0;
-    const paddedMax = hasValues ? Math.max(...selectedValues) * (1 + padding) : 1;
+    const paddedMin = hasValues
+      ? Math.min(...selectedValues) * (1 - padding)
+      : 0;
+    const paddedMax = hasValues
+      ? Math.max(...selectedValues) * (1 + padding)
+      : 1;
 
     const ticks = [];
     const step = 0.25;

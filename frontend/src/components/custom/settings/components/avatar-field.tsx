@@ -85,7 +85,9 @@ export default function AvatarField() {
         </button>
       )}
 
-      <p className="text-xs text-muted-foreground">PNG, JPG ili GIF (do 1 MB).</p>
+      <p className="text-xs text-muted-foreground">
+        PNG, JPG ili GIF (do 1 MB).
+      </p>
     </div>
   );
 }

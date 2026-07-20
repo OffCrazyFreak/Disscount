@@ -17,7 +17,7 @@ export function getChainLabel(chainCode: string): string {
  */
 export function getLocationLabel(
   city: string | null | undefined,
-  fallback = ""
+  fallback = "",
 ): string {
   if (!city) return fallback;
 

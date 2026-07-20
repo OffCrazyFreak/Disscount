@@ -54,7 +54,7 @@ export default function WatchlistTypePicker() {
                     "flex flex-col items-center justify-between rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors",
                     field.value === value
                       ? "border-primary bg-primary/5"
-                      : "border-muted"
+                      : "border-muted",
                   )}
                 >
                   <Icon className="mb-3 size-6" />

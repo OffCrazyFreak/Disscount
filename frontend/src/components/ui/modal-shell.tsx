@@ -78,7 +78,7 @@ export function ModalShell({
           // Gentle spring: an overshoot easing on the open zoom for a touch of
           // character (motion-safe; the close keeps the default ease).
           "data-[state=open]:duration-300 data-[state=open]:ease-[cubic-bezier(0.34,1.5,0.64,1)]",
-          SIZE_CLASSES[size]
+          SIZE_CLASSES[size],
         )}
         showCloseButton={!preventClose}
         // Radix warns when a dialog has no description; explicitly passing
@@ -97,7 +97,7 @@ export function ModalShell({
         <DialogHeader
           className={cn(
             "gap-1.5 px-6 pt-6",
-            centered && "items-center text-center sm:text-center"
+            centered && "items-center text-center sm:text-center",
           )}
         >
           {hero}
@@ -114,7 +114,9 @@ export function ModalShell({
         </DialogHeader>
 
         {children && (
-          <div className={cn("min-h-0 overflow-y-auto px-6 py-4", bodyClassName)}>
+          <div
+            className={cn("min-h-0 overflow-y-auto px-6 py-4", bodyClassName)}
+          >
             {/* Centralized reveal: the body cascades in on every open (Radix
                 remounts the content), so modals don't animate themselves. */}
             <StaggerChildren>{children}</StaggerChildren>

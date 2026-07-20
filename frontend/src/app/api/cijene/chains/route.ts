@@ -4,6 +4,6 @@ import { withCijeneRoute } from "@/lib/cijene-api/utils/with-cijene-route";
 
 export async function GET() {
   return withCijeneRoute("chains list", listChainsResponseSchema, () =>
-    cijeneApiV1Client.get("/chains/")
+    cijeneApiV1Client.get("/chains/"),
   );
 }

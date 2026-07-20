@@ -34,8 +34,8 @@ export default function CameraScanner({
   onScan,
 }: ICameraScannerProps) {
   const devices = useDevices();
-  const [manualDeviceId, setManualDeviceId] = useState<string | undefined>(
-    () => getPreferredCamera(),
+  const [manualDeviceId, setManualDeviceId] = useState<string | undefined>(() =>
+    getPreferredCamera(),
   );
   const [error, setError] = useState<string | null>(null);
 

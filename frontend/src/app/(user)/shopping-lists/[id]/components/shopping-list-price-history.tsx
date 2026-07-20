@@ -3,10 +3,7 @@
 import { useCallback, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import {
-  Collapsible,
-  CollapsibleContent,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import StoreChainMultiSelect from "@/components/custom/store-chain/store-chain-multi-select";
 import PriceHistoryPeriodSelect from "@/components/custom/price/price-history-period-select";
 import PriceChangeDisplay from "@/components/custom/price/price-change-display";

@@ -24,9 +24,9 @@ export default function TermsOfServicePage() {
 
       <LegalSection heading="Korištenje usluge">
         <p>
-          Disscount služi za usporedbu cijena i organizaciju kupnje. Slažeš se da
-          aplikaciju nećeš koristiti u nezakonite svrhe ni na način koji ometa
-          njezin rad.
+          Disscount služi za usporedbu cijena i organizaciju kupnje. Slažeš se
+          da aplikaciju nećeš koristiti u nezakonite svrhe ni na način koji
+          ometa njezin rad.
         </p>
       </LegalSection>
 
@@ -46,15 +46,18 @@ export default function TermsOfServicePage() {
 
       <LegalSection heading="Izmjene">
         <p>
-          Ove uvjete možemo povremeno ažurirati. Nastavak korištenja nakon izmjena
-          znači prihvaćanje novih uvjeta.
+          Ove uvjete možemo povremeno ažurirati. Nastavak korištenja nakon
+          izmjena znači prihvaćanje novih uvjeta.
         </p>
       </LegalSection>
 
       <LegalSection heading="Kontakt">
         <p>
           Za pitanja o uvjetima javi se na{" "}
-          <a className="text-primary underline" href={`mailto:${CONTACT_EMAIL}`}>
+          <a
+            className="text-primary underline"
+            href={`mailto:${CONTACT_EMAIL}`}
+          >
             {CONTACT_EMAIL}
           </a>
           .

@@ -1,8 +1,5 @@
 import * as cijeneService from "@/lib/cijene-api/index";
-import {
-  ProductResponse,
-  StoreResponse,
-} from "@/lib/cijene-api/schemas";
+import { ProductResponse, StoreResponse } from "@/lib/cijene-api/schemas";
 import { useMemo } from "react";
 import { getLocationLabel } from "@/utils/labels";
 import { StoreLocation } from "@/typings/store-location";

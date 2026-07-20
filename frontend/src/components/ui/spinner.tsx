@@ -27,7 +27,8 @@ const variantToBackgroundMap = {
 } as const;
 
 export interface SpinnerProps
-  extends React.HTMLAttributes<HTMLSpanElement>,
+  extends
+    React.HTMLAttributes<HTMLSpanElement>,
     VariantProps<typeof spinnerVariants> {
   loading?: boolean;
   asChild?: boolean;
@@ -37,7 +38,7 @@ export interface SpinnerProps
 const Spinner = React.forwardRef<HTMLSpanElement, SpinnerProps>(
   (
     { className, size, loading = true, asChild = false, variant, ...props },
-    ref
+    ref,
   ) => {
     const Comp = asChild ? Slot : "span";
 
@@ -85,7 +86,7 @@ const Spinner = React.forwardRef<HTMLSpanElement, SpinnerProps>(
         ))}
       </Comp>
     );
-  }
+  },
 );
 
 Spinner.displayName = "Spinner";

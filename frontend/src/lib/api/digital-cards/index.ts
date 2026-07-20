@@ -11,13 +11,13 @@ import {
  * Create a new digital card
  */
 export async function createDigitalCard(
-  data: DigitalCardRequest
+  data: DigitalCardRequest,
 ): Promise<DigitalCardDto> {
   const validatedData = digitalCardRequestSchema.parse(data);
 
   const response = await apiClient.post<DigitalCardDto>(
     "/api/digital-cards",
-    validatedData
+    validatedData,
   );
 
   return digitalCardDtoSchema.parse(response.data);
@@ -28,7 +28,7 @@ export async function createDigitalCard(
  */
 export async function getUserDigitalCards(): Promise<DigitalCardDto[]> {
   const response = await apiClient.get<DigitalCardDto[]>(
-    "/api/digital-cards/me"
+    "/api/digital-cards/me",
   );
 
   return response.data.map((item) => digitalCardDtoSchema.parse(item));
@@ -39,13 +39,13 @@ export async function getUserDigitalCards(): Promise<DigitalCardDto[]> {
  */
 export async function updateDigitalCard(
   id: string,
-  data: DigitalCardRequest
+  data: DigitalCardRequest,
 ): Promise<DigitalCardDto> {
   const validatedData = digitalCardRequestSchema.parse(data);
 
   const response = await apiClient.put<DigitalCardDto>(
     `/api/digital-cards/${id}`,
-    validatedData
+    validatedData,
   );
 
   return digitalCardDtoSchema.parse(response.data);

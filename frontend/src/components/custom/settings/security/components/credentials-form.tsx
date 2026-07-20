@@ -63,7 +63,9 @@ export default function CredentialsForm() {
             name="newPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{hasPassword ? "Nova lozinka" : "Lozinka"}</FormLabel>
+                <FormLabel>
+                  {hasPassword ? "Nova lozinka" : "Lozinka"}
+                </FormLabel>
                 <FormControl>
                   <PasswordInput
                     autoComplete="new-password"

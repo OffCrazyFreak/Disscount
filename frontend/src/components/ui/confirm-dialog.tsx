@@ -66,19 +66,19 @@ export function ConfirmDialog({
           <span
             className={cn(
               "absolute inset-0 rounded-full",
-              isDestructive ? "bg-destructive/10" : "bg-amber-500/10"
+              isDestructive ? "bg-destructive/10" : "bg-amber-500/10",
             )}
           />
           <span
             className={cn(
               "absolute inset-1.5 rounded-full",
-              isDestructive ? "bg-destructive/15" : "bg-amber-500/15"
+              isDestructive ? "bg-destructive/15" : "bg-amber-500/15",
             )}
           />
           <Icon
             className={cn(
               "relative size-6",
-              isDestructive ? "text-destructive" : "text-amber-600"
+              isDestructive ? "text-destructive" : "text-amber-600",
             )}
             strokeWidth={2.2}
           />

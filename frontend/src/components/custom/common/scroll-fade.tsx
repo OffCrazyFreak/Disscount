@@ -33,7 +33,9 @@ export default function ScrollFade({
       const scrolledToEnd =
         element.scrollTop + element.clientHeight >= element.scrollHeight - 1;
 
-      setHasHiddenContent(side === "top" ? element.scrollTop > 0 : !scrolledToEnd);
+      setHasHiddenContent(
+        side === "top" ? element.scrollTop > 0 : !scrolledToEnd,
+      );
     }
 
     update();

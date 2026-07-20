@@ -19,7 +19,7 @@ import {
 export function useAddToListPrices(
   product: ProductResponse | null | undefined,
   pinnedStores: PinnedStoreDto[] | undefined,
-  form: UseFormReturn<AddToListFormData>
+  form: UseFormReturn<AddToListFormData>,
 ) {
   const [storePrices, setStorePrices] = useState<Record<string, number>>({});
   const [averagePrice, setAveragePrice] = useState<number | null>(null);

@@ -117,11 +117,15 @@ function AnimatedGroup({
 
   const MotionComponent = React.useMemo(() => {
     // motion.create typings are loose across versions; cast to proper React component type
-    return motion.create(as as React.ElementType) as React.ComponentType<React.ComponentProps<typeof as>>;
+    return motion.create(as as React.ElementType) as React.ComponentType<
+      React.ComponentProps<typeof as>
+    >;
   }, [as]);
 
   const MotionChild = React.useMemo(() => {
-    return motion.create(asChild as React.ElementType) as React.ComponentType<React.ComponentProps<typeof asChild>>;
+    return motion.create(asChild as React.ElementType) as React.ComponentType<
+      React.ComponentProps<typeof asChild>
+    >;
   }, [asChild]);
 
   return (

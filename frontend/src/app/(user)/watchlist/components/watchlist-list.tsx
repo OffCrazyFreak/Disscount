@@ -52,8 +52,7 @@ export default function WatchlistList({
       </h3>
 
       <p className="text-gray-600 mb-6">
-        Dodaj proizvode na popis za praćenje i primaj obavijesti o
-        popustima.
+        Dodaj proizvode na popis za praćenje i primaj obavijesti o popustima.
       </p>
     </div>
   );

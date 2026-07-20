@@ -6,7 +6,10 @@ interface ILegalSectionProps {
 }
 
 // A titled section within a legal page, kept consistent across all three pages.
-export default function LegalSection({ heading, children }: ILegalSectionProps) {
+export default function LegalSection({
+  heading,
+  children,
+}: ILegalSectionProps) {
   return (
     <section className="space-y-2">
       <h2 className="text-lg font-semibold tracking-tight">{heading}</h2>

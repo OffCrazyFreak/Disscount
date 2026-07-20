@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
 
   const parsed = searchStoresParamsSchema.safeParse(
-    parseStoreFilterParams(searchParams)
+    parseStoreFilterParams(searchParams),
   );
 
   if (!parsed.success) {
@@ -27,6 +27,6 @@ export async function GET(request: NextRequest) {
   const queryString = buildQueryString(parsed.data);
 
   return withCijeneRoute("stores", listStoresResponseSchema, () =>
-    cijeneApiV1Client.get(`/stores${queryString && `?${queryString}`}`)
+    cijeneApiV1Client.get(`/stores${queryString && `?${queryString}`}`),
   );
 }

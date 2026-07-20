@@ -1,5 +1,9 @@
 import { defaultCache } from "@serwist/next/worker";
-import type { PrecacheEntry, RuntimeCaching, SerwistGlobalConfig } from "serwist";
+import type {
+  PrecacheEntry,
+  RuntimeCaching,
+  SerwistGlobalConfig,
+} from "serwist";
 import {
   CacheableResponsePlugin,
   ExpirationPlugin,

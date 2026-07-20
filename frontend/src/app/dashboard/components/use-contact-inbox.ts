@@ -27,7 +27,8 @@ export function useContactInbox() {
       m.readAt
         ? run(markUnread, m.id, "Označeno kao nepročitano.")
         : run(markRead, m.id, "Označeno kao pročitano."),
-    remove: (m: ContactMessageDto) => run(softDelete, m.id, "Poruka je obrisana."),
+    remove: (m: ContactMessageDto) =>
+      run(softDelete, m.id, "Poruka je obrisana."),
     restore: (m: ContactMessageDto) => run(restore, m.id, "Poruka je vraćena."),
   };
 }

@@ -10,7 +10,7 @@ export function createApiResponse<T>(
     status?: number;
     cacheControl?: string;
     additionalHeaders?: Record<string, string>;
-  } = {}
+  } = {},
 ) {
   const {
     status = 200,
@@ -50,7 +50,7 @@ export function createApiError<T = unknown>(
     status?: number;
     details?: T;
     additionalHeaders?: Record<string, string>;
-  } = {}
+  } = {},
 ) {
   const { status = 500, details, additionalHeaders = {} } = options;
 

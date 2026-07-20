@@ -8,7 +8,10 @@ import {
   isWatchThresholdReached,
 } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { getChainLabel } from "@/utils/labels";
-import { NotificationsSummary, WatchlistNotification } from "@/context/notifications-types";
+import {
+  NotificationsSummary,
+  WatchlistNotification,
+} from "@/context/notifications-types";
 
 interface IBuildNotificationsResult {
   notifications: WatchlistNotification[];

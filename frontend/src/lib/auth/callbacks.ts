@@ -18,7 +18,9 @@ export async function dispatchResetPasswordEmail(
   const credential = await db
     .select({ id: account.id })
     .from(account)
-    .where(and(eq(account.userId, userId), eq(account.providerId, "credential")))
+    .where(
+      and(eq(account.userId, userId), eq(account.providerId, "credential")),
+    )
     .limit(1);
 
   if (credential.length > 0) {
@@ -34,7 +36,9 @@ export async function hasLinkedSocialAccount(userId: string): Promise<boolean> {
   const rows = await db
     .select({ id: account.id })
     .from(account)
-    .where(and(eq(account.userId, userId), ne(account.providerId, "credential")))
+    .where(
+      and(eq(account.userId, userId), ne(account.providerId, "credential")),
+    )
     .limit(1);
 
   return rows.length > 0;

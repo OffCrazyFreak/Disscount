@@ -119,7 +119,7 @@ export function useCredentialsSubmit({
       toast.success(
         wantPasswordChange
           ? "Lozinka je promijenjena. Za promjenu emaila potvrdi poveznicu poslanu na tvoju trenutnu adresu."
-          : "Poslali smo poveznicu za potvrdu na tvoju trenutnu email adresu. Promjena emaila primijenit će se nakon potvrde."
+          : "Poslali smo poveznicu za potvrdu na tvoju trenutnu email adresu. Promjena emaila primijenit će se nakon potvrde.",
       );
     } else {
       toast.success("Lozinka je promijenjena.");

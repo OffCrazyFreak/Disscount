@@ -54,24 +54,22 @@ export function buildChainAggregates(
     });
   });
 
-  return Array.from(chainMap.values()).map(
-    (chainData): ChainSummary => ({
-      chain: chainData.chain,
-      code: "",
-      name: "",
-      brand: null,
-      category: null,
-      unit: null,
-      quantity: null,
-      min_price: chainData.totalMin.toFixed(2),
-      avg_price: chainData.totalAvg.toFixed(2),
-      max_price: chainData.totalMax.toFixed(2),
-      price_date: new Date()
-        .toISOString()
-        .split("T")[0] as `${number}-${number}-${number}`,
-      itemCount: chainData.itemCount,
-    }),
-  );
+  return Array.from(chainMap.values()).map((chainData): ChainSummary => ({
+    chain: chainData.chain,
+    code: "",
+    name: "",
+    brand: null,
+    category: null,
+    unit: null,
+    quantity: null,
+    min_price: chainData.totalMin.toFixed(2),
+    avg_price: chainData.totalAvg.toFixed(2),
+    max_price: chainData.totalMax.toFixed(2),
+    price_date: new Date()
+      .toISOString()
+      .split("T")[0] as `${number}-${number}-${number}`,
+    itemCount: chainData.itemCount,
+  }));
 }
 
 // Among stores that carry every not-yet-bought item, find the cheapest and

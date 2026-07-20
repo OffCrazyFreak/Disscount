@@ -7,7 +7,7 @@ import {
 function fieldChanged(
   values: SettingsFormValues,
   defaults: Partial<SettingsFormValues>,
-  field: keyof SettingsFormValues
+  field: keyof SettingsFormValues,
 ): boolean {
   return JSON.stringify(values[field]) !== JSON.stringify(defaults[field]);
 }
@@ -17,7 +17,7 @@ function fieldChanged(
 export function dirtySections(
   values: SettingsFormValues,
   defaults: Partial<SettingsFormValues>,
-  avatarTouched: boolean
+  avatarTouched: boolean,
 ): Set<SettingsSection> {
   const sections = new Set<SettingsSection>();
 

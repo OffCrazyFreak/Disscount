@@ -71,9 +71,7 @@ export default function AddToShoppingListForm({
       {productQuery.isLoading ? (
         <Skeleton className="h-24 w-full" />
       ) : !product ? (
-        <p className="text-sm text-muted-foreground">
-          Proizvod nije pronađen.
-        </p>
+        <p className="text-sm text-muted-foreground">Proizvod nije pronađen.</p>
       ) : (
         <div className="space-y-4">
           <ProductInfoDisplay

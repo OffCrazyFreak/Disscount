@@ -7,7 +7,10 @@ interface IAuthModeSwitchProps {
   onModeChange: (mode: AuthMode) => void;
 }
 
-export default function AuthModeSwitch({ mode, onModeChange }: IAuthModeSwitchProps) {
+export default function AuthModeSwitch({
+  mode,
+  onModeChange,
+}: IAuthModeSwitchProps) {
   if (mode === "forgot") return null;
 
   return (

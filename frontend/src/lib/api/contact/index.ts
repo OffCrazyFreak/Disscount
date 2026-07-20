@@ -18,19 +18,19 @@ const CONTACT_QUERY_KEYS = {
 
 // Public: submit a contact message (no auth header sent when logged out).
 export async function createContactMessage(
-  data: ContactMessageRequest
+  data: ContactMessageRequest,
 ): Promise<ContactMessageDto> {
   const validated = contactMessageRequestSchema.parse(data);
   const response = await apiClient.post<ContactMessageDto>(
     "/api/contact",
-    validated
+    validated,
   );
   return contactMessageDtoSchema.parse(response.data);
 }
 
 // Admin reads
 export async function getContactMessages(
-  includeDeleted = false
+  includeDeleted = false,
 ): Promise<ContactMessageDto[]> {
   const response = await apiClient.get<ContactMessageDto[]>(ADMIN_BASE_PATH, {
     params: { includeDeleted },
@@ -38,9 +38,11 @@ export async function getContactMessages(
   return response.data.map((item) => contactMessageDtoSchema.parse(item));
 }
 
-export async function getContactMessage(id: string): Promise<ContactMessageDto> {
+export async function getContactMessage(
+  id: string,
+): Promise<ContactMessageDto> {
   const response = await apiClient.get<ContactMessageDto>(
-    `${ADMIN_BASE_PATH}/${id}`
+    `${ADMIN_BASE_PATH}/${id}`,
   );
   return contactMessageDtoSchema.parse(response.data);
 }
@@ -48,19 +50,19 @@ export async function getContactMessage(id: string): Promise<ContactMessageDto> 
 // Admin state changes: read/unread, archive/unarchive, restore share the patch shape.
 async function patchContactAction(
   id: string,
-  action: string
+  action: string,
 ): Promise<ContactMessageDto> {
   const response = await apiClient.patch<ContactMessageDto>(
-    `${ADMIN_BASE_PATH}/${id}/${action}`
+    `${ADMIN_BASE_PATH}/${id}/${action}`,
   );
   return contactMessageDtoSchema.parse(response.data);
 }
 
 export async function softDeleteContactMessage(
-  id: string
+  id: string,
 ): Promise<ContactMessageDto> {
   const response = await apiClient.delete<ContactMessageDto>(
-    `${ADMIN_BASE_PATH}/${id}`
+    `${ADMIN_BASE_PATH}/${id}`,
   );
   return contactMessageDtoSchema.parse(response.data);
 }
@@ -74,7 +76,7 @@ export function useCreateContactMessage() {
 
 export function useGetContactMessages(
   includeDeleted = false,
-  { enabled = true } = {}
+  { enabled = true } = {},
 ) {
   return useQuery<ContactMessageDto[], Error>({
     queryKey: CONTACT_QUERY_KEYS.list(includeDeleted),

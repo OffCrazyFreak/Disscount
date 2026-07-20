@@ -57,7 +57,11 @@ export default function PriceHistoryChartShell({
           ticks={yAxisTicks}
         />
 
-        <ChartTooltip active={tooltipActive} cursor={true} content={tooltipContent} />
+        <ChartTooltip
+          active={tooltipActive}
+          cursor={true}
+          content={tooltipContent}
+        />
 
         {children}
       </LineChart>

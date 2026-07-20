@@ -10,7 +10,10 @@ export async function getCurrentUser(): Promise<UserDto> {
 }
 
 export async function updateCurrentUser(data: UserRequest): Promise<UserDto> {
-  const response = await apiClient.patch<UserDto>(`${USERS_BASE_PATH}/me`, data);
+  const response = await apiClient.patch<UserDto>(
+    `${USERS_BASE_PATH}/me`,
+    data,
+  );
   return response.data;
 }
 

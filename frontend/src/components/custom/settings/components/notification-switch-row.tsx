@@ -9,10 +9,7 @@ import SettingRow from "@/components/custom/settings/ui/setting-row";
 import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
 
 type SwitchFieldName =
-  | "notificationsPush"
-  | "notificationsEmail"
-  | "newsletter"
-  | "feedbackContact";
+  "notificationsPush" | "notificationsEmail" | "newsletter" | "feedbackContact";
 
 interface INotificationSwitchRowProps {
   name: SwitchFieldName;

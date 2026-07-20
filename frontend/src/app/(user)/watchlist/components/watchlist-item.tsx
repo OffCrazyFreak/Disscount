@@ -22,8 +22,14 @@ export default function WatchlistItem({
   actionMode = "remove",
   showThresholdBadges = true,
 }: IWatchlistItemProps) {
-  const { watchlistItems, productApiId, product, discountInfo, isLoading, error } =
-    item;
+  const {
+    watchlistItems,
+    productApiId,
+    product,
+    discountInfo,
+    isLoading,
+    error,
+  } = item;
   const isAddMode = actionMode === "add";
 
   const {

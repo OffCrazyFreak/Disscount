@@ -5,14 +5,16 @@ const PASSWORD_ERROR =
 
 // Shared rules for any newly created password (signup, set/change password).
 // Not used for login, where any existing password must be accepted.
-export const passwordSchema = z.string().refine(
-  (value) =>
-    value.length >= 12 &&
-    /[A-Z]/.test(value) &&
-    /[a-z]/.test(value) &&
-    /[0-9]/.test(value),
-  { message: PASSWORD_ERROR }
-);
+export const passwordSchema = z
+  .string()
+  .refine(
+    (value) =>
+      value.length >= 12 &&
+      /[A-Z]/.test(value) &&
+      /[a-z]/.test(value) &&
+      /[0-9]/.test(value),
+    { message: PASSWORD_ERROR },
+  );
 
 export const loginRequestSchema = z.object({
   email: z.email("Unesi važeći email"),
@@ -85,29 +87,29 @@ export const userDtoSchema = userRequestSchema
     onboardingCompletedAt: z.string().nullable().optional(),
     onboardingOutcome: z.string().nullable().optional(),
     createdAt: z.string(),
-  pinnedStores: z
-    .array(
-      z.object({
-        id: z.string(),
-        userId: z.string(),
-        storeApiId: z.string(),
-        storeName: z.string(),
-      })
-    )
-    .nullable()
-    .optional(),
-  pinnedPlaces: z
-    .array(
-      z.object({
-        id: z.string(),
-        userId: z.string(),
-        placeApiId: z.string(),
-        placeName: z.string(),
-      })
-    )
-    .nullable()
-    .optional(),
-});
+    pinnedStores: z
+      .array(
+        z.object({
+          id: z.string(),
+          userId: z.string(),
+          storeApiId: z.string(),
+          storeName: z.string(),
+        }),
+      )
+      .nullable()
+      .optional(),
+    pinnedPlaces: z
+      .array(
+        z.object({
+          id: z.string(),
+          userId: z.string(),
+          placeApiId: z.string(),
+          placeName: z.string(),
+        }),
+      )
+      .nullable()
+      .optional(),
+  });
 
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
 export type RegisterRequest = z.infer<typeof registerRequestSchema>;

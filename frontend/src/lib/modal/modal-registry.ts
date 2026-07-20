@@ -44,7 +44,7 @@ function isSettingsTab(value: string): value is SettingsTab {
 }
 
 export function parseModalParam(
-  searchParams: URLSearchParams
+  searchParams: URLSearchParams,
 ): ModalTarget | null {
   const modal = searchParams.get("modal");
   if (!modal) return null;
@@ -76,7 +76,7 @@ export function parseModalParam(
       if (!ean) return null;
       const type = searchParams.get("type");
       const watchType = (WATCH_TYPE_PARAMS as readonly string[]).includes(
-        type ?? ""
+        type ?? "",
       )
         ? (type as WatchTypeParam)
         : undefined;
@@ -101,7 +101,7 @@ function modalParamValue(target: ModalTarget): string {
 
 export function buildModalSearch(
   current: URLSearchParams,
-  target: ModalTarget
+  target: ModalTarget,
 ): string {
   const params = new URLSearchParams(current);
   params.delete("modal");

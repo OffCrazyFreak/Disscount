@@ -30,7 +30,8 @@ const SWITCHES = [
   {
     name: "feedbackContact",
     label: "Kontakt za povratne informacije",
-    description: "Dopusti da ti se javimo za povratne informacije o aplikaciji.",
+    description:
+      "Dopusti da ti se javimo za povratne informacije o aplikaciji.",
   },
 ] as const;
 

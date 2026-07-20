@@ -37,7 +37,12 @@ export default function CopyrightIcon({
   };
 
   const c: Variants = {
-    normal: { pathLength: 1, opacity: 1, scale: 1, transition: { duration: 0 } },
+    normal: {
+      pathLength: 1,
+      opacity: 1,
+      scale: 1,
+      transition: { duration: 0 },
+    },
     animate: {
       pathLength: [1, 0, 1],
       opacity: [1, 0.3, 1],

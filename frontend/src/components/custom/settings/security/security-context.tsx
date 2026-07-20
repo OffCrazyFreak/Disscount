@@ -11,7 +11,10 @@ interface ISecurityProviderProps {
   children: ReactNode;
 }
 
-export default function SecurityProvider({ value, children }: ISecurityProviderProps) {
+export default function SecurityProvider({
+  value,
+  children,
+}: ISecurityProviderProps) {
   return (
     <SecurityContext.Provider value={value}>
       {children}

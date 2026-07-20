@@ -10,7 +10,7 @@ import { normalizeChainCode } from "@/app/products/utils/product-filters";
 export function resolveAllowedChains(
   selectedChains: string[],
   selectedLocations: string[],
-  locations: StoreLocation[]
+  locations: StoreLocation[],
 ): string[] | null {
   if (selectedChains.length === 0 && selectedLocations.length === 0) {
     return null;
@@ -18,14 +18,16 @@ export function resolveAllowedChains(
 
   if (selectedLocations.length === 0) return selectedChains;
 
-  const selectedLocationKeys = new Set(selectedLocations.map(normalizeForSearch));
+  const selectedLocationKeys = new Set(
+    selectedLocations.map(normalizeForSearch),
+  );
   const locationChains = new Set<string>();
 
   for (const location of locations) {
     if (!selectedLocationKeys.has(normalizeForSearch(location.name))) continue;
 
     location.chains.forEach((chain) =>
-      locationChains.add(normalizeChainCode(chain))
+      locationChains.add(normalizeChainCode(chain)),
     );
   }
 

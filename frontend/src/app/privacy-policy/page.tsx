@@ -48,7 +48,10 @@ export default function PrivacyPolicyPage() {
       <LegalSection heading="Kontakt">
         <p>
           Za pitanja o privatnosti javi se na{" "}
-          <a className="text-primary underline" href={`mailto:${CONTACT_EMAIL}`}>
+          <a
+            className="text-primary underline"
+            href={`mailto:${CONTACT_EMAIL}`}
+          >
             {CONTACT_EMAIL}
           </a>
           .

@@ -26,17 +26,21 @@ export default function DataDeletionPage() {
       <LegalSection heading="Brisanje na zahtjev">
         <p>
           Ako ne možeš pristupiti računu, pošalji zahtjev za brisanje na{" "}
-          <a className="text-primary underline" href={`mailto:${CONTACT_EMAIL}`}>
+          <a
+            className="text-primary underline"
+            href={`mailto:${CONTACT_EMAIL}`}
+          >
             {CONTACT_EMAIL}
           </a>{" "}
-          s email adresom povezanom s računom. Zahtjev obrađujemo u razumnom roku.
+          s email adresom povezanom s računom. Zahtjev obrađujemo u razumnom
+          roku.
         </p>
       </LegalSection>
 
       <LegalSection heading="Što se briše">
         <p>
-          Uklanjamo tvoje osobne podatke i pristup računu. Pojedini anonimizirani
-          zapisi mogu se zadržati ako to zahtijeva zakon.
+          Uklanjamo tvoje osobne podatke i pristup računu. Pojedini
+          anonimizirani zapisi mogu se zadržati ako to zahtijeva zakon.
         </p>
       </LegalSection>
     </LegalPage>

@@ -69,7 +69,7 @@ export default function ProfileTab() {
                       <SelectItem key={value} value={value}>
                         {label}
                       </SelectItem>
-                    )
+                    ),
                   )}
                 </SelectContent>
               </Select>

@@ -41,12 +41,19 @@ export function useSecuritySettings(active: boolean) {
   const hasPassword = accounts.some((a) => a.providerId === "credential");
   const hasLinkedSocial = accounts.some((a) => a.providerId !== "credential");
 
-  const schema = useMemo(() => buildCredentialsSchema(hasPassword), [hasPassword]);
+  const schema = useMemo(
+    () => buildCredentialsSchema(hasPassword),
+    [hasPassword],
+  );
 
   const form = useForm<CredentialsFormValues>({
     resolver: zodResolver(schema),
     mode: "onChange",
-    defaultValues: { email: currentEmail, newPassword: "", currentPassword: "" },
+    defaultValues: {
+      email: currentEmail,
+      newPassword: "",
+      currentPassword: "",
+    },
   });
 
   // Keep the email field in sync with the loaded account unless mid-edit.

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SuggestionsPage(
-  props: PageProps<"/suggestions">
+  props: PageProps<"/suggestions">,
 ) {
   const query = readSearchParam(await props.searchParams);
 

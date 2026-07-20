@@ -50,7 +50,11 @@ export default function SettingsModalHost() {
 
   // Adjust-during-render: seed the avatar from the loaded user exactly once.
   if (isReady && !avatar.initialized) {
-    setAvatar({ initialized: true, preview: user?.image ?? null, touched: false });
+    setAvatar({
+      initialized: true,
+      preview: user?.image ?? null,
+      touched: false,
+    });
   }
 
   const initializedRef = useRef(false);

@@ -5,11 +5,13 @@ import { redirect } from "next/navigation";
 // there, so the whole auth flow lives in one place (?modal=reset-password). The
 // modal captures the token and strips it from the URL on arrival.
 export default async function ResetPasswordPage(
-  props: PageProps<"/reset-password">
+  props: PageProps<"/reset-password">,
 ) {
   const searchParams = await props.searchParams;
   const rawToken = searchParams.token;
-  const token = Array.isArray(rawToken) ? (rawToken[0] ?? "") : (rawToken ?? "");
+  const token = Array.isArray(rawToken)
+    ? (rawToken[0] ?? "")
+    : (rawToken ?? "");
 
   const query = token
     ? `?modal=reset-password&token=${encodeURIComponent(token)}`

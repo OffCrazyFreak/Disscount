@@ -16,9 +16,7 @@ interface IProductItemProps {
   viewMode: ViewMode;
 }
 
-const ProductItem = memo(function ProductItem({
-  product,
-}: IProductItemProps) {
+const ProductItem = memo(function ProductItem({ product }: IProductItemProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
 

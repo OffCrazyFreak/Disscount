@@ -9,7 +9,10 @@ interface IWizardProgressDotsProps {
   current: number;
 }
 
-export default function WizardProgressDots({ count, current }: IWizardProgressDotsProps) {
+export default function WizardProgressDots({
+  count,
+  current,
+}: IWizardProgressDotsProps) {
   const reduceMotion = useReducedMotion();
 
   return (
@@ -30,7 +33,7 @@ export default function WizardProgressDots({ count, current }: IWizardProgressDo
             className={cn(
               "h-1.5 rounded-full transition-colors",
               isActive ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30",
-              index < current && "bg-primary/50"
+              index < current && "bg-primary/50",
             )}
           />
         );

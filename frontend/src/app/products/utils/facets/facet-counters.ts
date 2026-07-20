@@ -24,7 +24,10 @@ function toSortedOptions(counts: CountsByKey): IFacetOption[] {
   return [...counts.values()].sort((a, b) => compareHr(a.value, b.value));
 }
 
-export function countChains(query: IFacetQuery, restrict: boolean): IFacetOption[] {
+export function countChains(
+  query: IFacetQuery,
+  restrict: boolean,
+): IFacetOption[] {
   const counts: CountsByKey = new Map();
   const { selectedLocationChains } = query;
 
@@ -37,7 +40,11 @@ export function countChains(query: IFacetQuery, restrict: boolean): IFacetOption
     if (restrict && !matchesOthers) continue;
 
     for (const code of product.chainCodes) {
-      if (restrict && selectedLocationChains && !selectedLocationChains.has(code)) {
+      if (
+        restrict &&
+        selectedLocationChains &&
+        !selectedLocationChains.has(code)
+      ) {
         continue;
       }
 

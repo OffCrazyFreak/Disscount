@@ -11,6 +11,6 @@ export const PROTECTED_ROUTE_PREFIXES = [
 
 export function isProtectedRoute(pathname: string): boolean {
   return PROTECTED_ROUTE_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 }

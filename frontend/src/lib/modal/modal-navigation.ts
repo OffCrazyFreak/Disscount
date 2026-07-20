@@ -28,7 +28,7 @@ function hasModalMarker(): boolean {
 
 export function openModalUrl(
   target: ModalTarget,
-  options?: OpenModalOptions
+  options?: OpenModalOptions,
 ): void {
   const current = new URLSearchParams(window.location.search);
   const url = window.location.pathname + buildModalSearch(current, target);

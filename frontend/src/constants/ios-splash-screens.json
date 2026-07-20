@@ -1,19 +1,64 @@
 [
-  { "device": "iPhone SE / 8 / 7 / 6s", "width": 375, "height": 667, "ratio": 2 },
+  {
+    "device": "iPhone SE / 8 / 7 / 6s",
+    "width": 375,
+    "height": 667,
+    "ratio": 2
+  },
   { "device": "iPhone 8/7/6s Plus", "width": 414, "height": 736, "ratio": 3 },
-  { "device": "iPhone X / XS / 11 Pro", "width": 375, "height": 812, "ratio": 3 },
+  {
+    "device": "iPhone X / XS / 11 Pro",
+    "width": 375,
+    "height": 812,
+    "ratio": 3
+  },
   { "device": "iPhone XR / 11", "width": 414, "height": 896, "ratio": 2 },
-  { "device": "iPhone XS Max / 11 Pro Max", "width": 414, "height": 896, "ratio": 3 },
-  { "device": "iPhone 12 mini / 13 mini", "width": 360, "height": 780, "ratio": 3 },
+  {
+    "device": "iPhone XS Max / 11 Pro Max",
+    "width": 414,
+    "height": 896,
+    "ratio": 3
+  },
+  {
+    "device": "iPhone 12 mini / 13 mini",
+    "width": 360,
+    "height": 780,
+    "ratio": 3
+  },
   { "device": "iPhone 12 / 13 / 14", "width": 390, "height": 844, "ratio": 3 },
-  { "device": "iPhone 12/13 Pro Max / 14 Plus", "width": 428, "height": 926, "ratio": 3 },
-  { "device": "iPhone 14 Pro / 15 / 16", "width": 393, "height": 852, "ratio": 3 },
-  { "device": "iPhone 14 Pro Max / 15 Plus / 16 Plus", "width": 430, "height": 932, "ratio": 3 },
+  {
+    "device": "iPhone 12/13 Pro Max / 14 Plus",
+    "width": 428,
+    "height": 926,
+    "ratio": 3
+  },
+  {
+    "device": "iPhone 14 Pro / 15 / 16",
+    "width": 393,
+    "height": 852,
+    "ratio": 3
+  },
+  {
+    "device": "iPhone 14 Pro Max / 15 Plus / 16 Plus",
+    "width": 430,
+    "height": 932,
+    "ratio": 3
+  },
   { "device": "iPhone 16 Pro", "width": 402, "height": 874, "ratio": 3 },
   { "device": "iPhone 16 Pro Max", "width": 440, "height": 956, "ratio": 3 },
-  { "device": "iPad 9.7 / mini / Air", "width": 768, "height": 1024, "ratio": 2 },
+  {
+    "device": "iPad 9.7 / mini / Air",
+    "width": 768,
+    "height": 1024,
+    "ratio": 2
+  },
   { "device": "iPad 10.2", "width": 810, "height": 1080, "ratio": 2 },
-  { "device": "iPad Air 10.5 / Pro 10.5", "width": 834, "height": 1112, "ratio": 2 },
+  {
+    "device": "iPad Air 10.5 / Pro 10.5",
+    "width": 834,
+    "height": 1112,
+    "ratio": 2
+  },
   { "device": "iPad Air 10.9 / 11", "width": 820, "height": 1180, "ratio": 2 },
   { "device": "iPad Pro 11", "width": 834, "height": 1194, "ratio": 2 },
   { "device": "iPad Pro 12.9", "width": 1024, "height": 1366, "ratio": 2 }

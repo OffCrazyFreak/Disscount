@@ -14,7 +14,9 @@ export const addToListFormSchema = z.object({
         parsed <= MAX_SHOPPING_LIST_ITEM_AMOUNT
       );
     },
-    { message: `Količina mora biti između 1 i ${MAX_SHOPPING_LIST_ITEM_AMOUNT}` }
+    {
+      message: `Količina mora biti između 1 i ${MAX_SHOPPING_LIST_ITEM_AMOUNT}`,
+    },
   ),
   isChecked: z.boolean(),
   chainCode: z.string().nullable().optional(),

@@ -8,7 +8,11 @@ import CartLogo from "@/components/icons/cart-logo";
 export default function HeroSection() {
   return (
     <section className="min-h-[70dvh] relative grid items-center">
-      <SparkleField count={9} seed="hero-sparkles" className="absolute inset-0" />
+      <SparkleField
+        count={9}
+        seed="hero-sparkles"
+        className="absolute inset-0"
+      />
 
       <StaggerChildren
         className="text-center space-y-12 sm:space-y-20"

@@ -94,7 +94,13 @@ export function useStoreChainAnalysis({
     const pinnedStoreIds = pinnedStores?.map((store) => store.storeApiId) || [];
 
     return [...allChains].sort((a, b) =>
-      compareStoreChains(a, b, pinnedStoreIds, optimizeBy, cheapestCountByChain),
+      compareStoreChains(
+        a,
+        b,
+        pinnedStoreIds,
+        optimizeBy,
+        cheapestCountByChain,
+      ),
     );
   }, [allChains, optimizeBy, pinnedStores, cheapestCountByChain]);
 

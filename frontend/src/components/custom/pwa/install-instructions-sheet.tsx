@@ -33,7 +33,8 @@ export default function InstallInstructionsSheet({
         {
           text: (
             <>
-              Dodirni gumb <SquareArrowUp className="inline size-5 text-primary" />{" "}
+              Dodirni gumb{" "}
+              <SquareArrowUp className="inline size-5 text-primary" />{" "}
               <span className="font-medium">Podijeli</span> u Safariju.
             </>
           ),
@@ -73,11 +74,7 @@ export default function InstallInstructionsSheet({
           ),
         },
         {
-          text: (
-            <>
-              Potvrdi odabir.
-            </>
-          ),
+          text: <>Potvrdi odabir.</>,
         },
       ];
 

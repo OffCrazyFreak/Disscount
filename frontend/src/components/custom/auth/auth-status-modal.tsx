@@ -8,16 +8,17 @@ import { useUser } from "@/context/user-context";
 
 type StatusKind = "email-verified" | "email-changed";
 
-const STATUS_COPY: Record<StatusKind, { title: string; description: string }> = {
-  "email-verified": {
-    title: "Email potvrđen",
-    description: "Tvoja email adresa je potvrđena. Dobrodošao u Disscount!",
-  },
-  "email-changed": {
-    title: "Email promijenjen",
-    description: "Tvoja nova email adresa je potvrđena i sada je aktivna.",
-  },
-};
+const STATUS_COPY: Record<StatusKind, { title: string; description: string }> =
+  {
+    "email-verified": {
+      title: "Email potvrđen",
+      description: "Tvoja email adresa je potvrđena. Dobrodošao u Disscount!",
+    },
+    "email-changed": {
+      title: "Email promijenjen",
+      description: "Tvoja nova email adresa je potvrđena i sada je aktivna.",
+    },
+  };
 
 // Shown after the user returns from a verification / email-change link
 // (?modal=email-verified | email-changed). Better Auth signs them in on the way

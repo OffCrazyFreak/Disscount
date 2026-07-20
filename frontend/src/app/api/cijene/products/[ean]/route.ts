@@ -11,7 +11,7 @@ import { buildQueryString } from "@/utils/generic";
 
 export async function GET(
   request: NextRequest,
-  context: RouteContext<"/api/cijene/products/[ean]">
+  context: RouteContext<"/api/cijene/products/[ean]">,
 ) {
   const { ean } = await context.params;
   const { searchParams } = new URL(request.url);
@@ -36,7 +36,7 @@ export async function GET(
     cijeneApiV1Client.get(
       `/products/${encodeURIComponent(validEan)}${
         queryString && `?${queryString}`
-      }`
-    )
+      }`,
+    ),
   );
 }

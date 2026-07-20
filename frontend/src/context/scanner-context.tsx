@@ -24,11 +24,7 @@ interface ICameraScannerContext {
 
 const CameraScannerContext = createContext<ICameraScannerContext | null>(null);
 
-export function CameraScannerProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export function CameraScannerProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [preset, setPreset] = useState<ScanPreset>("product");
   const onScanRef = useRef<IOpenScannerOptions["onScan"] | undefined>(

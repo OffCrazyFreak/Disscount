@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SuggestionDetailPage(
-  props: PageProps<"/suggestions/[id]">
+  props: PageProps<"/suggestions/[id]">,
 ) {
   const { id } = await props.params;
   const suggestion = getSuggestionById(id);

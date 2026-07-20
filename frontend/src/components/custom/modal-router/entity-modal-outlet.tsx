@@ -8,19 +8,20 @@ import type { ModalTarget } from "@/lib/modal/modal-registry";
 const ShoppingListModal = dynamic(
   () =>
     import("@/app/(user)/shopping-lists/components/forms/shopping-list-modal"),
-  { ssr: false }
+  { ssr: false },
 );
 const DigitalCardModal = dynamic(
-  () => import("@/app/(user)/digital-cards/components/forms/digital-card-modal"),
-  { ssr: false }
+  () =>
+    import("@/app/(user)/digital-cards/components/forms/digital-card-modal"),
+  { ssr: false },
 );
 const AddToShoppingListModal = dynamic(
   () => import("@/app/products/components/forms/add-to-shopping-list-form"),
-  { ssr: false }
+  { ssr: false },
 );
 const WatchlistItemModal = dynamic(
   () => import("@/app/products/components/forms/watchlist-item-modal"),
-  { ssr: false }
+  { ssr: false },
 );
 
 const ENTITY_NAMES = [
@@ -36,11 +37,9 @@ export type EntityTarget = Extract<
 >;
 
 export function isEntityTarget(
-  target: ModalTarget | null
+  target: ModalTarget | null,
 ): target is EntityTarget {
-  return (
-    !!target && (ENTITY_NAMES as readonly string[]).includes(target.name)
-  );
+  return !!target && (ENTITY_NAMES as readonly string[]).includes(target.name);
 }
 
 // Keeps the last target mounted briefly after close so the dialog's exit
@@ -75,7 +74,9 @@ export default function EntityModalOutlet({
     case "shopping-list":
     case "digital-card": {
       const Modal =
-        rendered.name === "shopping-list" ? ShoppingListModal : DigitalCardModal;
+        rendered.name === "shopping-list"
+          ? ShoppingListModal
+          : DigitalCardModal;
       return (
         <Modal
           open={open}

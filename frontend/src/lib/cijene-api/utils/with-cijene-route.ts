@@ -18,7 +18,7 @@ import {
 export async function withCijeneRoute<TSchema extends z.ZodType>(
   resource: string,
   schema: TSchema,
-  fetcher: () => Promise<{ data: unknown }>
+  fetcher: () => Promise<{ data: unknown }>,
 ) {
   try {
     const response = await fetcher();

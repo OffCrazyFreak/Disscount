@@ -34,7 +34,7 @@ export function applyProblemToForm<T extends FieldValues>(
   error: unknown,
   setError: UseFormSetError<T>,
   fieldMap?: Partial<Record<string, Path<T>>>,
-  fallbackMessage = "Provjeri unesene podatke."
+  fallbackMessage = "Provjeri unesene podatke.",
 ): boolean {
   const problem = parseProblem(error);
   let matchedField = false;

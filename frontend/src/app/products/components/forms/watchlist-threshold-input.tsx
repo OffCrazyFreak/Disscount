@@ -48,8 +48,8 @@ export default function WatchlistThresholdInput({
       render={({ field }) => (
         <FormItem>
           <FormLabel>
-            Minimalno sniženje {watchType === WatchType.absolute ? "(€)" : "(%)"}
-            :
+            Minimalno sniženje{" "}
+            {watchType === WatchType.absolute ? "(€)" : "(%)"}:
           </FormLabel>
 
           <FormControl>

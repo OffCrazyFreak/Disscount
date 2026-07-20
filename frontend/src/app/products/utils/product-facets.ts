@@ -55,7 +55,8 @@ export function computeProductFacets(
         query,
         (product) => product.categories,
         (product) =>
-          matchesChainAndLocation(query, product) && matchesBrands(query, product),
+          matchesChainAndLocation(query, product) &&
+          matchesBrands(query, product),
         restrict,
       ),
     ),
