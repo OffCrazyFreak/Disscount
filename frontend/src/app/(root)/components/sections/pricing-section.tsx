@@ -55,7 +55,7 @@ export default function PricingSection() {
         </div>
 
         <div className="relative bg-muted/50 border border-dashed rounded-2xl p-6 pb-14 space-y-4">
-          <ComingSoonBadge className="absolute -top-2.5 right-4 rotate-6 shadow-sm" />
+          <ComingSoonBadge className="absolute -top-2.5 right-4 rotate-6" />
           <ReceiptDoodle className="absolute bottom-2 right-5 w-10 rotate-6 text-muted-foreground/30" />
 
           <div className="space-y-1">

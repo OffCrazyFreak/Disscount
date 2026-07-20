@@ -17,7 +17,7 @@ export default function FeatureCard({ feature }: IFeatureCardProps) {
       )}
     >
       {feature.comingSoon && (
-        <ComingSoonBadge className="absolute -top-2.5 -right-2 rotate-6 shadow-sm" />
+        <ComingSoonBadge className="absolute -top-2.5 -right-2 rotate-6" />
       )}
 
       <div className="flex items-center gap-3">

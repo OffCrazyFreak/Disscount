@@ -3,7 +3,7 @@
 import type { ElementType } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
 import LastLoginBadge from "@/components/custom/auth/components/last-login-badge";
 
 export type SocialProvider = "google" | "facebook";
@@ -43,7 +43,7 @@ export default function AuthSocialButton({
       <span className="sm:hidden">{shortLabel}</span>
       <span className="hidden sm:inline">{fullLabel}</span>
       {comingSoon ? (
-        <Badge className="absolute -top-3.5 right-4 shadow-sm">USKORO</Badge>
+        <ComingSoonBadge className="absolute -top-2.5 sm:-top-3.5 right-1 sm:right-4 shadow-xs" />
       ) : (
         lastLoginMethod === provider &&
         socialPending !== provider && <LastLoginBadge />

@@ -15,12 +15,12 @@ const variantStyles: Record<LastLoginVariant, string> = {
 };
 
 export default function LastLoginBadge({
-  variant = "inverse",
+  variant = "solid",
 }: ILastLoginBadgeProps) {
   return (
     <Badge
       className={cn(
-        "absolute -top-3 sm:-top-3.5 right-1 sm:right-4 shadow-xs sm:shadow-sm text-[10px] sm:text-xs",
+        "absolute -top-2.5 sm:-top-3.5 right-1 sm:right-4 shadow-xs sm:shadow-sm text-[10px] sm:text-xs",
         variantStyles[variant],
       )}
     >

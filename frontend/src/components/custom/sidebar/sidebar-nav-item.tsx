@@ -52,9 +52,7 @@ export default function SidebarNavItem({
       )}
 
       {showComingSoon && (
-        <SidebarMenuBadge className={cn(BADGE_CLASS, "text-[10px]")}>
-          USKORO
-        </SidebarMenuBadge>
+        <SidebarMenuBadge className={BADGE_CLASS}>USKORO</SidebarMenuBadge>
       )}
 
       {showCount && (

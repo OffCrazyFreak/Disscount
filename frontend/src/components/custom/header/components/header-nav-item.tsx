@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
 import type { NavigationItem } from "@/constants/navigation";
 
 interface IHeaderNavItemProps {
@@ -30,9 +31,7 @@ export default function HeaderNavItem({
           <span className="relative">
             {label}
 
-            <Badge className="absolute -top-3 -right-7 h-4 rounded-full px-1 py-0 text-[9px] leading-none">
-              USKORO
-            </Badge>
+            <ComingSoonBadge className="absolute -top-3 -right-7 h-4 rounded-full px-1 py-0 text-[9px] sm:text-[9px] leading-none" />
           </span>
         </span>
       </li>
@@ -63,7 +62,7 @@ export default function HeaderNavItem({
           {label}
 
           {item.badge && hasNotifications && (
-            <Badge className="absolute -top-2 -right-3.5 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+            <Badge className="absolute -top-2 -right-3.5 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] sm:text-xs sm:shadow-sm">
               {notificationCount}
             </Badge>
           )}

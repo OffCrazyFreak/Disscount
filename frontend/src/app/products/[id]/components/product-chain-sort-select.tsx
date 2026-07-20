@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -8,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
 import type { ProductChainSortMode } from "@/app/products/utils/product-chain-sort";
 
 interface IProductChainSortSelectProps {
@@ -38,7 +38,7 @@ export default function ProductChainSortSelect({
           <SelectItem value="distance" disabled>
             <span className="flex items-center gap-2">
               Udaljenosti
-              <Badge className="text-[10px]">USKORO</Badge>
+              <ComingSoonBadge />
             </span>
           </SelectItem>
         </SelectContent>

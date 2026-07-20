@@ -6,5 +6,9 @@ interface IComingSoonBadgeProps {
 }
 
 export default function ComingSoonBadge({ className }: IComingSoonBadgeProps) {
-  return <Badge className={cn("text-[10px]", className)}>USKORO</Badge>;
+  return (
+    <Badge className={cn("sm:shadow-sm text-[10px] sm:text-xs", className)}>
+      USKORO
+    </Badge>
+  );
 }

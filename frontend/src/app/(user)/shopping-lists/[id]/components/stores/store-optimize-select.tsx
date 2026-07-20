@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -6,6 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
 
 interface IStoreOptimizeSelectProps {
   value: string;
@@ -32,7 +32,7 @@ export default function StoreOptimizeSelect({
           <SelectItem value="distance" disabled>
             <span className="flex items-center gap-2">
               Udaljenost
-              <Badge className="text-[10px]">USKORO</Badge>
+              <ComingSoonBadge />
             </span>
           </SelectItem>
         </SelectContent>
