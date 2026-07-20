@@ -1,6 +1,6 @@
 "use client";
 
-import type { AuthMode } from "@/components/custom/header/forms/auth-modal";
+import type { AuthMode } from "@/components/custom/auth/auth-modal";
 
 interface IAuthModeSwitchProps {
   mode: AuthMode;
