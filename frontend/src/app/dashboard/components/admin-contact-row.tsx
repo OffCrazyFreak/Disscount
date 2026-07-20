@@ -79,7 +79,7 @@ export default function AdminContactRow({
 
       <TableCell>
         <div className="flex flex-wrap gap-1">
-          {message.archivedAt && <Badge variant="secondary">Arhivirano</Badge>}
+          {message.archivedAt && <Badge variant="default">Arhivirano</Badge>}
           {isDeleted && <Badge variant="destructive">Obrisano</Badge>}
         </div>
       </TableCell>
