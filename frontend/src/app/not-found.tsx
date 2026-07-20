@@ -13,7 +13,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Stranica nije pronađena - 404",
-  description: "Stranica koju tražite ne postoji.",
+  description: "Stranica koju tražiš ne postoji.",
 };
 
 export default function NotFound() {

@@ -27,7 +27,6 @@ export const contactMessageDtoSchema = contactMessageRequestSchema.extend({
   fullName: z.string().nullable().optional(),
   sourcePath: z.string().nullable().optional(),
   readAt: z.string().nullable(),
-  archivedAt: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
   deletedAt: z.string().nullable(),

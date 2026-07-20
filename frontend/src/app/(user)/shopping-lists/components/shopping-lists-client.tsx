@@ -92,7 +92,7 @@ export default function ShoppingListsClient({ query }: { query: string }) {
               Nema popisa za kupnju
             </h3>
             <p className="text-gray-600 mb-6">
-              Stvorite svoj prvi popis za kupnju…
+              Stvori svoj prvi popis za kupnju…
             </p>
             <Button
               effect="shineHover"

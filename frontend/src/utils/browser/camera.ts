@@ -110,7 +110,7 @@ export function describeScannerError(error: unknown): string {
     case "no-camera":
       return "Kamera nije pronađena na ovom uređaju.";
     case "in-use":
-      return "Kameru trenutno koristi druga aplikacija. Zatvorite je pa pokušaj ponovno.";
+      return "Kameru trenutno koristi druga aplikacija. Zatvori je pa pokušaj ponovno.";
     case "overconstrained":
       return "Odabrana kamera nije dostupna. Vratite odabir kamere na automatski.";
     case "insecure-context":

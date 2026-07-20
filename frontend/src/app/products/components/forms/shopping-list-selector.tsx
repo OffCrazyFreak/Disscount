@@ -78,8 +78,8 @@ export default function ShoppingListSelector({
                 <CommandList>
                   <CommandEmpty>
                     <p>
-                      Počni upisivati naziv da stvoriš svoj prvi popis za kupnju
-                      direktno ovdje.
+                      Upiši naziv da stvoriš svoj prvi popis za kupnju direktno
+                      ovdje.
                     </p>
                   </CommandEmpty>
 

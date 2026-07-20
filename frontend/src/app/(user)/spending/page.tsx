@@ -5,7 +5,7 @@ import ComingSoon from "@/components/custom/common/coming-soon";
 
 export const metadata: Metadata = {
   title: "Potrošnja",
-  description: "Pregled i analiza vaše potrošnje.",
+  description: "Pregled i analiza tvoje potrošnje.",
 };
 
 export default function SpendingPage() {
@@ -13,7 +13,7 @@ export default function SpendingPage() {
     <ComingSoon
       title="Potrošnja"
       icon={<Wallet className="size-12 text-primary" />}
-      description="Pregled i analiza vaše potrošnje uskoro će biti dostupni."
+      description="Pregled i analiza tvoje potrošnje uskoro će biti dostupni."
     />
   );
 }

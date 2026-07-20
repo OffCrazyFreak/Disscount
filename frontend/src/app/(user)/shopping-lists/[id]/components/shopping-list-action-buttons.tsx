@@ -52,7 +52,7 @@ export default function ShoppingListActionButtons({
         isOpen={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         title="Obriši popis za kupnju"
-        description={`Jesi li siguran da želiš obrisati popis "${shoppingList.title}"? Ova akcija se ne može poništiti.`}
+        description={`Sigurno želiš obrisati popis "${shoppingList.title}"? Ova akcija se ne može poništiti.`}
         confirmLabel="Obriši"
         variant="destructive"
         onConfirm={handleConfirmDelete}

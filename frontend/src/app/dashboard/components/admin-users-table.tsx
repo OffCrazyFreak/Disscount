@@ -158,7 +158,7 @@ export default function AdminUsersTable() {
         isOpen={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title="Brisanje računa"
-        description={`Jeste li sigurni da želite obrisati račun ${
+        description={`Sigurno želiš obrisati račun ${
           deleteTarget?.username || deleteTarget?.email || ""
         }? Ova akcija se ne može poništiti.`}
         confirmLabel="Obriši račun"

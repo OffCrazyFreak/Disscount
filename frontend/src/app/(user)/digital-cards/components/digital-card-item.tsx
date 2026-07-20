@@ -29,7 +29,7 @@ export default function DigitalCardItem({
   const deleteDigitalCardMutation = digitalCardService.useDeleteDigitalCard();
 
   async function handleDelete(d: DigitalCardDto) {
-    if (confirm(`Jeste li sigurni da želite obrisati karticu "${d.title}"?`)) {
+    if (confirm(`Sigurno želiš obrisati karticu "${d.title}"?`)) {
       deleteDigitalCardMutation.mutate(d.id, {
         onSuccess: async () => {
           toast.success("Kartica obrisana.");

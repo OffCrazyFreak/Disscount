@@ -111,7 +111,7 @@ export default function DigitalCardsClient({ query }: { query: string }) {
             </h3>
 
             <p className="text-gray-600 mb-6">
-              Stvorite svoju prvu digitalnu karticu…
+              Stvori svoju prvu digitalnu karticu…
             </p>
 
             <Button

@@ -113,14 +113,14 @@ export default function DigitalCardFields() {
       <SelectField
         name="type"
         label="Tip kartice"
-        placeholder="Odaberite tip"
+        placeholder="Odaberi tip"
         options={CARD_TYPES}
       />
 
       <SelectField
         name="codeType"
         label="Tip koda"
-        placeholder="Odaberite tip koda"
+        placeholder="Odaberi tip koda"
         options={CODE_TYPES}
       />
 
