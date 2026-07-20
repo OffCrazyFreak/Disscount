@@ -43,7 +43,7 @@ export interface AppData {
   productsPreferences?: ProductsPreferences;
   shoppingListsPreferences?: Record<string, ShoppingListsPreferences>; // Shopping list ID -> preferences
   lastLoginMethod?: LoginMethod;
-  installBannerDismissed?: boolean; // User dismissed the "install app" banner
+  installBannerDismissedAt?: number; // Epoch ms of last "install app" banner dismissal; re-shown after the snooze window
   storeOptimizeMode?: string; // Preferred store-list sort, shared across all shopping lists
   preferredCameraId?: string; // Manually chosen scanner camera; absent means auto-pick
   formDrafts?: Record<string, FormDraft>; // Unsaved modal-form drafts keyed per modal
