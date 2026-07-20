@@ -15,7 +15,7 @@ import {
 } from "@/lib/cijene-api/schemas";
 import { sortShoppingListItemsByPurchaseAndSaving } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import ShoppingListItemRow from "./shopping-list-item-row";
+import ShoppingListItemRow from "@/app/(user)/shopping-lists/[id]/components/stores/shopping-list-item-row";
 
 interface IShoppingListItemsTableProps {
   chain: ChainProductResponse;

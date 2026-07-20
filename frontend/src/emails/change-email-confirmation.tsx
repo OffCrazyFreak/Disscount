@@ -1,4 +1,4 @@
-import ActionEmail from "./components/action-email";
+import ActionEmail from "@/emails/components/action-email";
 
 interface IChangeEmailConfirmationProps {
   confirmUrl: string;

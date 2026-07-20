@@ -1,13 +1,13 @@
 "use client";
 
 import { createContext, useContext, ReactNode } from "react";
-import { useWatchlistNotifications } from "./use-watchlist-notifications";
-import { INotificationsContext } from "./notifications-types";
+import { useWatchlistNotifications } from "@/context/use-watchlist-notifications";
+import { INotificationsContext } from "@/context/notifications-types";
 
 export type {
   NotificationStore,
   WatchlistNotification,
-} from "./notifications-types";
+} from "@/context/notifications-types";
 
 const NotificationsContext = createContext<INotificationsContext | undefined>(
   undefined,

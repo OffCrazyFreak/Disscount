@@ -7,8 +7,8 @@ import {
   extractPinnedStoreChainCodes,
   groupWatchlistItemsByProduct,
 } from "@/app/(user)/watchlist/utils/watchlist-utils";
-import { buildWatchlistNotifications } from "./build-watchlist-notifications";
-import { INotificationsContext } from "./notifications-types";
+import { buildWatchlistNotifications } from "@/context/build-watchlist-notifications";
+import { INotificationsContext } from "@/context/notifications-types";
 
 export function useWatchlistNotifications(): INotificationsContext {
   const { user, isAuthenticated } = useUser();

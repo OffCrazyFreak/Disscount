@@ -5,10 +5,10 @@ import { Separator } from "@/components/ui/separator";
 import StoreChainSelect from "@/components/custom/store-chain/store-chain-select";
 
 import type { ShoppingListItemDto } from "@/lib/api/types";
-import RemoveItemButton from "./remove-item-button";
-import ItemAmountControls from "./item-amount-controls";
-import ItemPriceDisplay from "./item-price-display";
-import type { IShoppingListItemUpdate } from "./shopping-list-item-types";
+import RemoveItemButton from "@/app/(user)/shopping-lists/[id]/components/items/remove-item-button";
+import ItemAmountControls from "@/app/(user)/shopping-lists/[id]/components/items/item-amount-controls";
+import ItemPriceDisplay from "@/app/(user)/shopping-lists/[id]/components/items/item-price-display";
+import type { IShoppingListItemUpdate } from "@/app/(user)/shopping-lists/[id]/components/items/shopping-list-item-types";
 
 interface IShoppingListItemProps {
   item: ShoppingListItemDto;

@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Button, Link, Section, Text } from "react-email";
 
-import EmailLayout from "./email-layout";
+import EmailLayout from "@/emails/components/email-layout";
 
 interface IActionEmailProps {
   preview: string;

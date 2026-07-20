@@ -1,7 +1,7 @@
 import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ShoppingListItemDto } from "@/lib/api/types";
-import type { IShoppingListItemUpdate } from "./shopping-list-item-types";
+import type { IShoppingListItemUpdate } from "@/app/(user)/shopping-lists/[id]/components/items/shopping-list-item-types";
 
 interface IItemAmountControlsProps {
   item: ShoppingListItemDto;
