@@ -21,7 +21,7 @@ export default function ComingSoon({
       <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed py-16 px-6 text-center">
         {icon ?? <Construction className="size-12 text-primary" />}
 
-        <ComingSoonBadge className="text-xs" />
+        <ComingSoonBadge />
 
         <p className="max-w-md text-pretty text-muted-foreground">
           {description}

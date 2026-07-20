@@ -71,9 +71,7 @@ export default function ProductFiltersBar({
             <SlidersHorizontal className="size-4" />
             Filteri
             {filters.activeFilterCount > 0 && (
-              <Badge className="ml-1 size-5 justify-center rounded-full p-0 text-xs">
-                {filters.activeFilterCount}
-              </Badge>
+              <Badge>{filters.activeFilterCount}</Badge>
             )}
           </Button>
 

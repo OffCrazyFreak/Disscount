@@ -89,7 +89,7 @@ export default function FabMenu({
                     : (actions.length - 1 - index) * 0.04,
                 }}
               >
-                <Badge className="shadow-md">{action.label}</Badge>
+                <Badge>{action.label}</Badge>
 
                 <Button
                   type="button"

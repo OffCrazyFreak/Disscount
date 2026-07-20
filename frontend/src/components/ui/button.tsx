@@ -8,7 +8,7 @@ const buttonVariants = cva(
   // Disabled state swaps in opaque muted tokens (fill + text) instead of
   // opacity, so the button never lets a busy background bleed through, its
   // label fades too, and every colour variant collapses to the same look.
-  "cursor-pointer disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:saturate-40 disabled:brightness-140 disabled:text-brightness-140 disabled:border-transparent disabled:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "cursor-pointer disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-disabled disabled:opacity-70 disabled:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {

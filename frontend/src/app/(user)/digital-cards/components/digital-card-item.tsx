@@ -50,12 +50,8 @@ export default function DigitalCardItem({
         <div className="flex-1">
           <h3 className="font-semibold text-lg">{digitalCard.title}</h3>
           <div className="flex items-center gap-2 mt-1">
-            <Badge variant="primary" className="text-xs">
-              {digitalCard.type}
-            </Badge>
-            <Badge variant="outline" className="text-xs">
-              {digitalCard.codeType}
-            </Badge>
+            <Badge variant="primary">{digitalCard.type}</Badge>
+            <Badge variant="outline">{digitalCard.codeType}</Badge>
           </div>
         </div>
 

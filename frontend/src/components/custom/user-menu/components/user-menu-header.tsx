@@ -20,9 +20,7 @@ export default function UserMenuHeader({
         <div className="font-bold">{user?.username}</div>
         <div className="text-xs text-gray-400">{user?.email}</div>
         {user?.accountType && user.accountType !== "CONSUMER" && (
-          <Badge className="text-xs">
-            {ACCOUNT_TYPE_LABELS[user.accountType]}
-          </Badge>
+          <Badge>{ACCOUNT_TYPE_LABELS[user.accountType]}</Badge>
         )}
       </div>
     </DropdownMenuLabel>

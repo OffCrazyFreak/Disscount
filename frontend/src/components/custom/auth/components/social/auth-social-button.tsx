@@ -43,7 +43,7 @@ export default function AuthSocialButton({
       <span className="sm:hidden">{shortLabel}</span>
       <span className="hidden sm:inline">{fullLabel}</span>
       {comingSoon ? (
-        <ComingSoonBadge className="absolute -top-2.5 sm:-top-3.5 right-1 sm:right-4 shadow-xs" />
+        <ComingSoonBadge className="absolute -top-2.5 sm:-top-3.5 right-1 sm:right-4" />
       ) : (
         lastLoginMethod === provider &&
         socialPending !== provider && <LastLoginBadge />

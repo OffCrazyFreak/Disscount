@@ -20,7 +20,7 @@ export default function LastLoginBadge({
   return (
     <Badge
       className={cn(
-        "absolute -top-2.5 sm:-top-3.5 right-1 sm:right-4 shadow-xs sm:shadow-sm text-[10px] sm:text-xs",
+        "absolute -top-2.5 sm:-top-3.5 right-1 sm:right-4",
         variantStyles[variant],
       )}
     >

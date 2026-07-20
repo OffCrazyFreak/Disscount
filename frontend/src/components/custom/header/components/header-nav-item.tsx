@@ -31,7 +31,7 @@ export default function HeaderNavItem({
           <span className="relative">
             {label}
 
-            <ComingSoonBadge className="absolute -top-3 -right-7 h-4 rounded-full px-1 py-0 text-[9px] sm:text-[9px] leading-none" />
+            <ComingSoonBadge className="absolute -top-4.5 -right-7 rotate-6" />
           </span>
         </span>
       </li>
@@ -62,7 +62,7 @@ export default function HeaderNavItem({
           {label}
 
           {item.badge && hasNotifications && (
-            <Badge className="absolute -top-2 -right-3.5 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] sm:text-xs sm:shadow-sm">
+            <Badge className="absolute -top-2 -right-3.5">
               {notificationCount}
             </Badge>
           )}
