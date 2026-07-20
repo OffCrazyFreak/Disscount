@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import LegalPage from "@/components/custom/legal/legal-page";
 import LegalSection from "@/components/custom/legal/legal-section";
+import { CONTACT_EMAIL } from "@/constants/contact";
 
 export const metadata: Metadata = {
   title: "Brisanje podataka",
@@ -25,8 +26,8 @@ export default function DataDeletionPage() {
       <LegalSection heading="Brisanje na zahtjev">
         <p>
           Ako ne možeš pristupiti računu, pošalji zahtjev za brisanje na{" "}
-          <a className="text-primary underline" href="mailto:info@disscount.me">
-            info@disscount.me
+          <a className="text-primary underline" href={`mailto:${CONTACT_EMAIL}`}>
+            {CONTACT_EMAIL}
           </a>{" "}
           s email adresom povezanom s računom. Zahtjev obrađujemo u razumnom roku.
         </p>

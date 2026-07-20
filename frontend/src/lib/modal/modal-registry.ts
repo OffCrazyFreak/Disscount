@@ -18,6 +18,7 @@ export type ModalTarget =
   | { name: "reset-password" }
   | { name: "email-verified" }
   | { name: "email-changed" }
+  | { name: "contact" }
   | { name: "onboarding" }
   | { name: "settings"; tab: SettingsTab }
   | { name: "shopping-list"; action: "new" }
@@ -35,6 +36,7 @@ export const PUBLIC_MODAL_NAMES = [
   "reset-password",
   "email-verified",
   "email-changed",
+  "contact",
 ] as const;
 
 function isSettingsTab(value: string): value is SettingsTab {
@@ -58,6 +60,7 @@ export function parseModalParam(
     case "reset-password":
     case "email-verified":
     case "email-changed":
+    case "contact":
     case "onboarding":
       return { name };
     case "settings":

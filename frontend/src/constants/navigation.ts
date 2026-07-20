@@ -174,10 +174,9 @@ export const supportNavItems: NavigationItem[] = [
   },
   {
     id: "contact",
-    href: "#",
+    href: "?modal=contact",
     label: "Kontakt",
     icon: Mail,
-    comingSoon: true,
 
     showInHeader: false,
   },

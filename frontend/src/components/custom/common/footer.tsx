@@ -8,6 +8,7 @@ import FooterSupportIcons from "@/components/custom/common/footer-support-icons"
 import LinkedInIcon from "@/components/icons/linkedin-icon";
 import GithubIcon from "@/components/icons/github-icon";
 import CopyrightIcon from "@/components/icons/copyright-icon";
+import { GITHUB_REPO_URL, LINKEDIN_URL } from "@/constants/contact";
 
 export default function FooterSection() {
   return (
@@ -59,7 +60,7 @@ export default function FooterSection() {
               </Link> */}
 
               <Link
-                href="https://github.com/OffCrazyFreak/Disscount"
+                href={GITHUB_REPO_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
@@ -69,7 +70,7 @@ export default function FooterSection() {
               </Link>
 
               <Link
-                href="https://www.linkedin.com/in/jakov-jakovac/"
+                href={LINKEDIN_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"

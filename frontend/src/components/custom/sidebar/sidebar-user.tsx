@@ -7,8 +7,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import UserMenu from "@/components/custom/header/user-menu";
-import NotificationsDropdown from "@/components/custom/header/notifications-dropdown";
+import UserMenu from "@/components/custom/user-menu/user-menu";
+import NotificationsDropdown from "@/components/custom/notifications/notifications-dropdown";
 import { useUser } from "@/context/user-context";
 
 /**

@@ -102,6 +102,11 @@ const Button = React.forwardRef<
     ref,
   ) => {
     const Comp = asChild ? Slot : "button";
+
+    // Outline buttons have a light fill, so the blocks read best in brand green;
+    // filled variants (default/destructive) inherit their white foreground.
+    const spinnerColor = variant === "outline" ? "" : "text-inherit";
+
     return (
       <Comp
         className={cn(
@@ -113,7 +118,7 @@ const Button = React.forwardRef<
         {...props}
       >
         {loading && loadingIconPlacement === "left" && (
-          <BlockLoadingSpinner size={18} className="text-inherit" />
+          <BlockLoadingSpinner size={18} className={spinnerColor} />
         )}
 
         {Icon &&
@@ -130,7 +135,7 @@ const Button = React.forwardRef<
         <Slottable>{loading ? loadingText : props.children}</Slottable>
 
         {loading && loadingIconPlacement === "right" && (
-          <BlockLoadingSpinner size={18} className="ml-2 text-inherit" />
+          <BlockLoadingSpinner size={18} className={cn("ml-2", spinnerColor)} />
         )}
 
         {Icon &&

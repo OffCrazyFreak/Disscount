@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import LegalPage from "@/components/custom/legal/legal-page";
 import LegalSection from "@/components/custom/legal/legal-section";
+import { CONTACT_EMAIL } from "@/constants/contact";
 
 export const metadata: Metadata = {
   title: "Uvjeti korištenja",
@@ -53,8 +54,8 @@ export default function TermsOfServicePage() {
       <LegalSection heading="Kontakt">
         <p>
           Za pitanja o uvjetima javi se na{" "}
-          <a className="text-primary underline" href="mailto:info@disscount.me">
-            info@disscount.me
+          <a className="text-primary underline" href={`mailto:${CONTACT_EMAIL}`}>
+            {CONTACT_EMAIL}
           </a>
           .
         </p>
