@@ -82,7 +82,7 @@ Use I-prefix for interfaces, and use default exports wherever possible.
 
 Always use kebab-case naming of files if you can.
 
-ALWAYS check if all typescript types are correct and there are no type errors by using "pnpm exec tsc --noEmit" before providing the final code.
+ALWAYS check if all typescript types are correct and there are no type errors by first formatting "pnpm exec prettier" and then using "pnpm exec tsc --noEmit" before providing the final code.
 ALWAYS use frontend design skill when generating frontend code.
 
 If you are asked to generate code that involves API calls, check if the API endpoints exist in the repo https://github.com/senko/cijene-api/ or the backend codebase. If they do not exist, inform me that the endpoints do not exist and ask for further instructions.
