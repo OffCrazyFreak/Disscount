@@ -27,6 +27,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Generate route types
+        run: pnpm exec next typegen
+
       - name: Typecheck
         run: pnpm exec tsc --noEmit
 
