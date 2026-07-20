@@ -53,7 +53,7 @@ export default function WatchlistActionButton({
       </TooltipTrigger>
 
       <TooltipContent
-        variant={isAddMode ? "default" : "destructive"}
+        variant={isAddMode ? "primary" : "destructive"}
         className="px-2 py-1 text-xs"
       >
         {label}

@@ -1,9 +1,5 @@
 import Link from "next/link";
-import {
-  ArrowBigUpDash,
-  ArrowBigDownDash,
-  TriangleAlert,
-} from "lucide-react";
+import { ArrowBigUpDash, ArrowBigDownDash, TriangleAlert } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
 import {
@@ -32,14 +28,8 @@ export default function ShoppingListItemRow({
   productsData,
   isMobile,
 }: IShoppingListItemRowProps) {
-  const {
-    isAvailable,
-    price,
-    quantity,
-    total,
-    isLowestPrice,
-    isHighestPrice,
-  } = getChainItemPriceInfo(item, productsData, chain);
+  const { isAvailable, price, quantity, total, isLowestPrice, isHighestPrice } =
+    getChainItemPriceInfo(item, productsData, chain);
 
   return (
     <TableRow className={cn("text-pretty [&>*]:whitespace-normal")}>
@@ -61,17 +51,14 @@ export default function ShoppingListItemRow({
               {isMobile ? (
                 <TriangleAlert className="size-4 shrink-0 text-amber-600 inline ml-2" />
               ) : (
-                <Badge
-                  variant="secondary"
-                  className="bg-orange-100 text-orange-800 border-orange-200 ml-2"
-                >
-                  <TriangleAlert className="size-4 shrink-0 text-amber-600" />
+                <Badge variant="primary">
+                  <TriangleAlert className="size-4 shrink-0" />
                   Proizvod nedostupan
                 </Badge>
               )}
             </TooltipTrigger>
 
-            <TooltipContent variant="warning" className="px-2 py-1 text-xs">
+            <TooltipContent variant="warningSoft" className="px-2 py-1 text-xs">
               Proizvod nije dostupan u ovoj trgovini
             </TooltipContent>
           </Tooltip>

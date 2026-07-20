@@ -52,7 +52,7 @@ export default function AdminUsersTable() {
         onSuccess: () => toast.success("Tip računa ažuriran!"),
         onError: () => toast.error("Greška pri promjeni tipa računa."),
         onSettled: () => setUpdatingId(null),
-      }
+      },
     );
   }
 
@@ -106,7 +106,7 @@ export default function AdminUsersTable() {
                   <TableCell className="font-medium">
                     {u.username || "-"}
                     {isSelf && (
-                      <Badge variant="secondary" className="ml-2">
+                      <Badge variant="primary" className="ml-2">
                         Ti
                       </Badge>
                     )}

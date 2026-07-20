@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 
+import { CircleAlert } from "lucide-react";
+
 import { ModalShell } from "@/components/ui/modal-shell";
+import { Banner } from "@/components/ui/banner";
 import ForgotPasswordForm from "@/components/custom/auth/components/forms/forgot-password-form";
 import AuthModeSwitch from "@/components/custom/auth/components/auth-mode-switch";
 import AuthCredentialsPanel from "@/components/custom/auth/components/forms/auth-credentials-panel";
-import AuthMessageNotice from "@/components/custom/auth/components/auth-message-notice";
 import { useLastLoginMethod } from "@/components/custom/auth/hooks/use-last-login-method";
 import type { SocialProvider } from "@/components/custom/auth/components/social/auth-social-button";
 
@@ -59,7 +61,11 @@ export default function AuthModal({
       srOnlyDescription
       caption={<AuthModeSwitch mode={mode} onModeChange={onModeChange} />}
     >
-      {message && mode !== "forgot" && <AuthMessageNotice message={message} />}
+      {message && mode !== "forgot" && (
+        <Banner variant="primarySoft" size="md" icon={CircleAlert}>
+          {message}
+        </Banner>
+      )}
 
       {mode === "forgot" ? (
         <ForgotPasswordForm onBackToLogin={() => onModeChange("login")} />

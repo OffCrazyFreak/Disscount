@@ -1,14 +1,14 @@
 "use client";
 
 import { Activity } from "react";
-import { ListPlus } from "lucide-react";
+import { ListPlus, TriangleAlert } from "lucide-react";
 
 import { ModalShell } from "@/components/ui/modal-shell";
 import { Form } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
 import { RemoveIconButton } from "@/components/ui/remove-icon-button";
-import FormWarning from "@/app/products/components/forms/form-warning";
+import { Banner } from "@/components/ui/banner";
 import ShoppingListSelector from "@/app/products/components/forms/shopping-list-selector";
 import QuantityInput from "@/app/products/components/forms/quantity-input";
 import MarkAsCheckedCheckbox from "@/app/products/components/forms/mark-as-checked-checkbox";
@@ -112,7 +112,10 @@ export default function AddToShoppingListForm({
               />
 
               {duplicateItem && (
-                <FormWarning
+                <Banner
+                  variant="warningSoft"
+                  size="lg"
+                  icon={TriangleAlert}
                   title="Proizvod već u popisu za kupnju"
                   text={`Ovaj proizvod je već dodan u odabran popis za kupnju. Dodavanjem ovog proizvoda će se samo povećati njegova količina u popisu za kupnju sa ${duplicateItem.amount} na ${duplicateItem.amount + (Number.parseInt(form.watch("amount"), 10) || 0)}.`}
                 />

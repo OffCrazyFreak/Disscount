@@ -50,7 +50,7 @@ export default function DigitalCardItem({
         <div className="flex-1">
           <h3 className="font-semibold text-lg">{digitalCard.title}</h3>
           <div className="flex items-center gap-2 mt-1">
-            <Badge variant="default" className="text-xs">
+            <Badge variant="primary" className="text-xs">
               {digitalCard.type}
             </Badge>
             <Badge variant="outline" className="text-xs">

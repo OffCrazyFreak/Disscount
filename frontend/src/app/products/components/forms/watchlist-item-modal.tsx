@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Eye, Save } from "lucide-react";
+import { Eye, Save, TriangleAlert } from "lucide-react";
 
 import { ModalShell } from "@/components/ui/modal-shell";
 import { Form } from "@/components/ui/form";
@@ -12,7 +12,7 @@ import cijeneService from "@/lib/cijene-api";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import type { WatchTypeParam } from "@/lib/modal/modal-registry";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
-import FormWarning from "@/app/products/components/forms/form-warning";
+import { Banner } from "@/components/ui/banner";
 import {
   getAveragePrice,
   getMinPrice,
@@ -34,22 +34,20 @@ function buildAlertMessage(items: WatchlistItemDto[]): string | null {
 
   const parts: string[] = [];
   const percentageItem = items.find(
-    (item) => item.watchType === WatchType.percentage
+    (item) => item.watchType === WatchType.percentage,
   );
   const absoluteItem = items.find(
-    (item) => item.watchType === WatchType.absolute
+    (item) => item.watchType === WatchType.absolute,
   );
 
   if (percentageItem) {
-    parts.push(
-      `minimalnim pragom postotka od ${Math.round(percentageItem.thresholdValue)}%`
-    );
+    parts.push(`postotka od ${Math.round(percentageItem.thresholdValue)}%`);
   }
   if (absoluteItem) {
-    parts.push(`minimalnim pragom popusta od ${absoluteItem.thresholdValue}€`);
+    parts.push(`popusta od ${absoluteItem.thresholdValue}€`);
   }
 
-  return `Ovaj proizvod je već na popisu za praćenje s ${parts.join(" te ")}.`;
+  return `Ovaj proizvod je već na popisu za praćenje s minimalnim pragom ${parts.join(" te ")}.`;
 }
 
 export default function WatchlistItemModal({
@@ -77,7 +75,7 @@ export default function WatchlistItemModal({
     open,
     ean,
     avgPrice,
-    watchType === "absolute" ? WatchType.absolute : WatchType.percentage
+    watchType === "absolute" ? WatchType.absolute : WatchType.percentage,
   );
 
   const { restored, clearDraft } = useFormDraft({
@@ -92,7 +90,7 @@ export default function WatchlistItemModal({
     if (!open || !watchType) return;
     form.setValue(
       "watchType",
-      watchType === "absolute" ? WatchType.absolute : WatchType.percentage
+      watchType === "absolute" ? WatchType.absolute : WatchType.percentage,
     );
   }, [open, watchType, form]);
 
@@ -110,7 +108,9 @@ export default function WatchlistItemModal({
       submitLabel={existingItemForType ? "Spremi" : "Prati"}
       submitIcon={existingItemForType ? Save : Eye}
       submitLoading={isSaving}
-      submitDisabled={isCheckingWatchlist || !product || !form.formState.isValid}
+      submitDisabled={
+        isCheckingWatchlist || !product || !form.formState.isValid
+      }
       cancelLabel="Odustani"
       resetLabel="Resetiraj"
       resetDisabled={!form.formState.isDirty && !restored}
@@ -149,7 +149,10 @@ export default function WatchlistItemModal({
               <WatchlistTypePicker />
 
               {alertMessage && !isCheckingWatchlist && (
-                <FormWarning
+                <Banner
+                  variant="warningSoft"
+                  size="lg"
+                  icon={TriangleAlert}
                   title="Proizvod već na popisu za praćenje"
                   text={alertMessage}
                 />

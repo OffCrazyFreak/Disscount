@@ -99,10 +99,7 @@ const StoreItem = memo(
 
                       <div className="flex items-center gap-3">
                         {!isDataFromToday && (
-                          <Badge
-                            variant="secondary"
-                            className="bg-amber-100 text-amber-800 border-amber-200"
-                          >
+                          <Badge variant="warningSoft">
                             <TriangleAlert className="size-4 mr-1" />
                             Podaci od {formatDate(store.price_date)}
                           </Badge>
