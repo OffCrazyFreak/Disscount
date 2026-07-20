@@ -22,8 +22,7 @@ export interface IHowItWorksStep {
 export const howItWorksSteps: IHowItWorksStep[] = [
   {
     title: "Pretraži ili skeniraj",
-    description:
-      "Upiši naziv proizvoda ili skeniraj barkod kamerom - bez registracije.",
+    description: "Upiši naziv proizvoda ili skeniraj barkod kamerom.",
   },
   {
     title: "Usporedi cijene",

@@ -6,7 +6,7 @@ import { faqItems } from "@/app/(root)/components/data/faq";
 
 export default function FaqSection() {
   return (
-    <section>
+    <section id="faq" className="scroll-mt-24">
       <SectionHeading
         title="Česta pitanja"
         subtitle="Sve što te zanima prije prve kupnje s Disscountom."

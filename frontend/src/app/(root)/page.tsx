@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <div className="space-y-24 sm:space-y-32 pb-16">
+    <div className="space-y-14 sm:space-y-20 pb-16">
       <LandingJsonLd />
 
       <HeroSection />

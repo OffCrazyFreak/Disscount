@@ -1,17 +1,24 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import SparkleDoodle from "@/app/(root)/components/doodles/sparkle-doodle";
+import SparkleField from "@/app/(root)/components/doodles/sparkle-field";
 import CartLogo from "@/components/icons/cart-logo";
+
+const ctaPalette = [
+  "text-primary-foreground/60",
+  "text-primary-foreground/40",
+  "text-primary-foreground/25",
+];
 
 export default function FinalCtaSection() {
   return (
     <section>
       <div className="relative overflow-hidden rounded-3xl bg-primary text-primary-foreground px-6 py-14 sm:py-16 text-center shadow-lg">
-        <SparkleDoodle className="absolute top-6 left-8 w-6 text-primary-foreground/60" />
-        <SparkleDoodle
-          className="absolute top-10 right-12 w-5 text-primary-foreground/50"
-          delay={0.9}
+        <SparkleField
+          count={6}
+          seed="cta-sparkles"
+          palette={ctaPalette}
+          className="absolute inset-0"
         />
         <CartLogo className="absolute -bottom-3 -right-4 w-32 sm:w-44 h-auto text-primary-foreground/25" />
 

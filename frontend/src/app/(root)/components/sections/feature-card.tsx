@@ -20,18 +20,20 @@ export default function FeatureCard({ feature }: IFeatureCardProps) {
         <ComingSoonBadge className="absolute -top-2.5 -right-2 rotate-6 shadow-sm" />
       )}
 
-      <div
-        className={cn(
-          "size-11 grid place-items-center rounded-xl",
-          feature.comingSoon
-            ? "bg-muted text-muted-foreground"
-            : "bg-primary/10 text-primary",
-        )}
-      >
-        <Icon className="size-6" />
-      </div>
+      <div className="flex items-center gap-3">
+        <div
+          className={cn(
+            "size-11 shrink-0 grid place-items-center rounded-xl",
+            feature.comingSoon
+              ? "bg-muted text-muted-foreground"
+              : "bg-primary/10 text-primary",
+          )}
+        >
+          <Icon className="size-6" />
+        </div>
 
-      <h3 className="font-semibold">{feature.title}</h3>
+        <h3 className="font-semibold">{feature.title}</h3>
+      </div>
 
       <p className="text-sm text-muted-foreground text-pretty">
         {feature.description}

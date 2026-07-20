@@ -1,6 +1,12 @@
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import SparkleDoodle from "@/app/(root)/components/doodles/sparkle-doodle";
+import SparkleField from "@/app/(root)/components/doodles/sparkle-field";
 import { statItems } from "@/app/(root)/components/data/landing";
+
+const bandPalette = [
+  "text-primary-foreground/60",
+  "text-primary-foreground/40",
+  "text-primary-foreground/25",
+];
 
 export default function StatsBand() {
   return (
@@ -8,18 +14,19 @@ export default function StatsBand() {
       <h2 className="sr-only">Disscount u brojkama</h2>
 
       <div className="relative overflow-hidden rounded-3xl bg-primary text-primary-foreground px-6 py-10 sm:py-12 shadow-lg">
-        <SparkleDoodle className="absolute top-4 left-6 w-5 text-primary-foreground/60" />
-        <SparkleDoodle
-          className="absolute bottom-5 right-8 w-7 text-primary-foreground/50"
-          delay={1.1}
+        <SparkleField
+          count={6}
+          seed="stats-sparkles"
+          palette={bandPalette}
+          className="absolute inset-0"
         />
 
         <ScrollReveal
           preset="pop"
-          className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center"
+          className="grid grid-cols-1 sm:grid-cols-3 text-center divide-y-2 divide-dashed divide-primary-foreground/40 sm:divide-y-0 sm:divide-x-2"
         >
           {statItems.map((stat) => (
-            <div key={stat.label} className="space-y-1">
+            <div key={stat.label} className="space-y-1 py-7 sm:px-6">
               <div className="text-4xl sm:text-5xl font-saira-stencil-semibold">
                 {stat.value}
               </div>

@@ -1,22 +1,14 @@
 import HeroActions from "@/app/(root)/components/sections/hero-actions";
 import HeroTagline from "@/app/(root)/components/sections/hero-tagline";
 import SquiggleUnderline from "@/app/(root)/components/doodles/squiggle-underline";
-import SparkleDoodle from "@/app/(root)/components/doodles/sparkle-doodle";
+import SparkleField from "@/app/(root)/components/doodles/sparkle-field";
 import { StaggerChildren } from "@/components/ui/stagger-children";
 import CartLogo from "@/components/icons/cart-logo";
 
 export default function HeroSection() {
   return (
     <section className="min-h-[70dvh] relative grid items-center">
-      <SparkleDoodle className="absolute top-[8%] left-[12%] w-6 text-primary" />
-      <SparkleDoodle
-        className="absolute top-[16%] right-[10%] w-8 text-secondary"
-        delay={0.8}
-      />
-      <SparkleDoodle
-        className="absolute bottom-[14%] left-[6%] w-5 text-secondary"
-        delay={1.5}
-      />
+      <SparkleField count={9} seed="hero-sparkles" className="absolute inset-0" />
 
       <StaggerChildren
         className="text-center space-y-12 sm:space-y-20"

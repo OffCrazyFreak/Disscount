@@ -11,7 +11,6 @@ import {
   MapPin,
   PiggyBank,
   Share2,
-  ChartColumn,
 } from "lucide-react";
 
 export interface IFeatureItem {
@@ -35,7 +34,7 @@ export const featureItems: IFeatureItem[] = [
     icon: ChartLine,
   },
   {
-    title: "Pametni popisi za kupnju",
+    title: "Popisi za kupnju",
     description:
       "Složi popis i saznaj u kojoj trgovini je ukupna košarica najpovoljnija.",
     icon: ListChecks,
@@ -53,20 +52,20 @@ export const featureItems: IFeatureItem[] = [
     icon: ScanBarcode,
   },
   {
-    title: "Radi i bez interneta",
+    title: "Bez interneta",
     description:
       "Instaliraj kao aplikaciju - popisi i proizvodi dostupni i offline.",
     icon: WifiOff,
   },
   {
-    title: "Obavijesti o padu cijena",
+    title: "Pametne obavijesti",
     description:
       "Postavi željenu cijenu i javit ćemo ti kad proizvod pojeftini.",
     icon: BellRing,
     comingSoon: true,
   },
   {
-    title: "Digitalne kartice vjernosti",
+    title: "Digitalne kartice",
     description:
       "Sve kartice trgovina u mobitelu - novčanik konačno na dijeti.",
     icon: WalletCards,
@@ -91,13 +90,6 @@ export const featureItems: IFeatureItem[] = [
     description:
       "Pregled koliko trošiš i koliko si uštedio iz mjeseca u mjesec.",
     icon: PiggyBank,
-    comingSoon: true,
-  },
-  {
-    title: "Statistike tržišta",
-    description:
-      "Kretanje cijena po lancima i kategorijama na jednom mjestu.",
-    icon: ChartColumn,
     comingSoon: true,
   },
 ];
