@@ -36,11 +36,12 @@ export default function SearchBar({
   const { setOpen } = useSidebar();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { register, handleSubmit, watch, reset, setValue, getValues } = useForm<{
-    query: string;
-  }>({
-    defaultValues: { query: routeQuery },
-  });
+  const { register, handleSubmit, watch, reset, setValue, getValues } =
+    useForm<{
+      query: string;
+    }>({
+      defaultValues: { query: routeQuery },
+    });
 
   const queryValue = watch("query");
   const { ref: registerRef, ...registerProps } = register("query");
@@ -119,6 +120,7 @@ export default function SearchBar({
           <Button
             type="submit"
             size="lg"
+            effect="shineHover"
             className={`text-lg p-6 bg-primary hover:bg-secondary grow ${
               submitButtonLocation === "block" && "w-full"
             }`}

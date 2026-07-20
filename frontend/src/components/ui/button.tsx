@@ -5,7 +5,10 @@ import { cn } from "@/lib/utils";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  // Disabled state fades via filters (desaturate + slight brighten) instead of
+  // opacity, so the button stays fully opaque and never lets a busy background
+  // bleed through - and it reads the same across every colour variant.
+  "cursor-pointer disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:saturate-40 disabled:brightness-140 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -18,8 +21,7 @@ const buttonVariants = cva(
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-xs",
         destructiveSoft:
           "border border-red-200 bg-red-50 text-red-600 hover:bg-red-100",
-        warning:
-          "bg-amber-200 text-amber-700 hover:bg-amber-300 shadow-xs",
+        warning: "bg-amber-200 text-amber-700 hover:bg-amber-300 shadow-xs",
         warningSoft:
           "border border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100",
         info: "bg-blue-500 text-white hover:bg-blue-500/90 shadow-xs",
@@ -123,7 +125,7 @@ const Button = React.forwardRef<
     return (
       <Comp
         className={cn(
-          "cursor-pointer relative",
+          "relative",
           buttonVariants({ variant, effect, size, className }),
         )}
         disabled={loading}

@@ -51,6 +51,7 @@ export default function HeroActions() {
           <Button
             onClick={() => openScanner({ onScan: handleScan })}
             variant="outline"
+            effect="shine"
             size="lg"
             className="w-full text-lg"
           >
