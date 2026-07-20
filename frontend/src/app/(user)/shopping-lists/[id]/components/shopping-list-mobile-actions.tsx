@@ -32,7 +32,7 @@ export default function ShoppingListMobileActions({
     <div className="flex sm:hidden">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button size="icon" aria-label="Dodatne opcije" variant="default">
+          <Button size="icon" aria-label="Dodatne opcije" variant="primary">
             <MoreVertical className="size-6" />
           </Button>
         </DropdownMenuTrigger>

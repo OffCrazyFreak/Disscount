@@ -12,7 +12,7 @@ interface INoResultsProps {
 export default function NoResults({
   icon,
   title = "Nema rezultata",
-  description = "Probajte s drugim pojmom za pretraživanje",
+  description = "Probaj s drugim pojmom za pretraživanje",
   className = "",
 }: INoResultsProps) {
   return (

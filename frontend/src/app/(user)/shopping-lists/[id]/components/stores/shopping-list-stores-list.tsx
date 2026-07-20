@@ -35,7 +35,8 @@ export default function ShoppingListStoreSummary({
   const [optimizeBy, setOptimizeBy] = useState<StoreOptimizeMode>(() => {
     const stored = getStoreOptimizeMode();
 
-    return stored && (STORE_OPTIMIZE_MODES as readonly string[]).includes(stored)
+    return stored &&
+      (STORE_OPTIMIZE_MODES as readonly string[]).includes(stored)
       ? (stored as StoreOptimizeMode)
       : "products";
   });
@@ -90,7 +91,7 @@ export default function ShoppingListStoreSummary({
           </p>
         ) : productsError ? (
           <p className="p-2 text-gray-600 text-center">
-            Greška pri učitavanju cijena. Pokušajte ponovno.
+            Greška pri učitavanju cijena. Pokušaj ponovno.
           </p>
         ) : allChains.length === 0 ? (
           <p className="p-2 text-gray-600 text-center">

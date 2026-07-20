@@ -151,7 +151,7 @@ export default function DigitalCardFields() {
             <FormLabel>Napomena</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Unesite napomenu"
+                placeholder="Unesi napomenu"
                 {...field}
                 value={field.value || ""}
                 maxLength={200}

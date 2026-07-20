@@ -21,7 +21,7 @@ interface ConfirmDialogProps {
   description: string;
   confirmLabel?: string;
   cancelLabel?: string;
-  variant?: "default" | "destructive";
+  variant?: "primary" | "destructive";
   icon?: LucideIcon;
   confirmIcon?: LucideIcon;
   onConfirm: () => void;
@@ -35,7 +35,7 @@ export function ConfirmDialog({
   description,
   confirmLabel = "Potvrdi",
   cancelLabel = "Odustani",
-  variant = "default",
+  variant = "primary",
   icon,
   confirmIcon,
   onConfirm,

@@ -11,7 +11,7 @@ import type {
 
 export function useShoppingListMutations(
   listId: string,
-  shoppingList?: ShoppingList
+  shoppingList?: ShoppingList,
 ) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -30,7 +30,7 @@ export function useShoppingListMutations(
     queryClient.setQueryData<ShoppingList[] | undefined>(
       ["shoppingLists", "me"],
       (old: ShoppingList[] | undefined) =>
-        old ? old.filter((l) => l.id !== listId) : []
+        old ? old.filter((l) => l.id !== listId) : [],
     );
 
     // Fire the delete request
@@ -42,7 +42,7 @@ export function useShoppingListMutations(
         }
         toast.error(
           error.message ||
-            "Greška pri brisanju popisa za kupnju. Pokušajte ponovno."
+            "Greška pri brisanju popisa za kupnju. Pokušaj ponovno.",
         );
       },
       onSuccess: () => {
@@ -88,7 +88,7 @@ export function useShoppingListMutations(
 
           return shoppingListService.addItemToShoppingList(
             newList.id,
-            newItemData
+            newItemData,
           );
         });
 

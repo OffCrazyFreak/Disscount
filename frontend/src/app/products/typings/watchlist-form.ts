@@ -22,7 +22,7 @@ export const watchlistFormSchema = z
       ctx.addIssue({
         code: "custom",
         path: ["thresholdValue"],
-        message: "Unesite valjanu vrijednost",
+        message: "Unesi valjanu vrijednost",
       });
       return;
     }

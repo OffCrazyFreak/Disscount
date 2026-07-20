@@ -12,7 +12,7 @@ export interface ModalShellFooterProps {
   submitLabel?: string;
   submitDisabled?: boolean;
   submitLoading?: boolean;
-  submitVariant?: "default" | "destructive";
+  submitVariant?: "primary" | "destructive";
   submitIcon?: LucideIcon;
   onSubmit?: () => void;
   // When set, the submit button submits the <form id={formId}> living in the
@@ -32,7 +32,7 @@ export function ModalShellFooter({
   submitLabel,
   submitDisabled,
   submitLoading,
-  submitVariant = "default",
+  submitVariant = "primary",
   submitIcon = Save,
   onSubmit,
   formId,

@@ -51,7 +51,7 @@ export function StepperNumberInput({
       <Button
         type="button"
         size={isSecondary ? "sm" : "icon"}
-        variant={isSecondary ? "outline" : "default"}
+        variant={isSecondary ? "outline" : "primary"}
         aria-label={`${sign > 0 ? "Povećaj" : "Smanji"} za ${amount}`}
         className={cn(
           "shrink-0 rounded-full text-lg font-bold",

@@ -49,7 +49,7 @@ export default function SearchBarActions({
           <TooltipTrigger asChild>
             <Button
               type="button"
-              variant="default"
+              variant="primary"
               size="icon"
               onClick={onScan}
               aria-label="Skeniraj barkod"

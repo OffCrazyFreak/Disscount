@@ -7,7 +7,7 @@ import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 export function useShoppingListItemMutations(
   listId: string,
   averagePrices: Record<string, number>,
-  storePrices: Record<string, Record<string, number>>
+  storePrices: Record<string, Record<string, number>>,
 ) {
   const queryClient = useQueryClient();
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
@@ -21,7 +21,7 @@ export function useShoppingListItemMutations(
       isChecked: boolean;
       amount: number;
       chainCode: string | null;
-    }
+    },
   ) => {
     const shoppingList = queryClient.getQueryData<ShoppingList>([
       "shoppingLists",
@@ -62,7 +62,7 @@ export function useShoppingListItemMutations(
             return i;
           }),
         };
-      }
+      },
     );
 
     // Prepare update data
@@ -99,7 +99,7 @@ export function useShoppingListItemMutations(
             queryClient.setQueryData(["shoppingLists", listId], previousData);
           }
           toast.error(
-            error.message || "Greška pri ažuriranju stavke. Pokušajte ponovno."
+            error.message || "Greška pri ažuriranju stavke. Pokušaj ponovno.",
           );
         },
         onSettled: () => {
@@ -108,7 +108,7 @@ export function useShoppingListItemMutations(
           });
           queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
         },
-      }
+      },
     );
   };
 
@@ -130,7 +130,7 @@ export function useShoppingListItemMutations(
           ...old,
           items: old.items?.filter((i) => i.id !== itemId),
         };
-      }
+      },
     );
 
     // Delete the item
@@ -142,7 +142,7 @@ export function useShoppingListItemMutations(
             queryClient.setQueryData(["shoppingLists", listId], previousData);
           }
           toast.error(
-            error.message || "Greška pri brisanju stavke. Pokušajte ponovno."
+            error.message || "Greška pri brisanju stavke. Pokušaj ponovno.",
           );
         },
         onSuccess: () => {
@@ -155,7 +155,7 @@ export function useShoppingListItemMutations(
           });
           queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
         },
-      }
+      },
     );
   };
 

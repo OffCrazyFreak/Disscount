@@ -31,12 +31,14 @@ export default function ProductsClient({ query }: { query: string }) {
     clearFilters,
   } = filters;
 
-  const { visibleProducts, total, isLoading, error } =
-    useInfiniteProducts(query, {
+  const { visibleProducts, total, isLoading, error } = useInfiniteProducts(
+    query,
+    {
       allowedChains,
       selectedCategories,
       selectedBrands,
-    });
+    },
+  );
 
   // A location filter is set but the city -> chains mapping is still loading
   const waitingForLocations = Boolean(query) && !locationsReady;
@@ -78,7 +80,7 @@ export default function ProductsClient({ query }: { query: string }) {
             Greška pri pretraživanju
           </h3>
           <p className="text-gray-600 mb-6">
-            Došlo je do greške pri dohvaćanju podataka. Pokušajte ponovo.
+            Došlo je do greške pri dohvaćanju podataka. Pokušaj ponovo.
           </p>
         </div>
       ) : query && total === 0 && activeFilterCount > 0 ? (
@@ -124,7 +126,7 @@ export default function ProductsClient({ query }: { query: string }) {
         <div className="text-center py-12">
           <SlidersHorizontal className="size-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Unesite pojam za pretragu
+            Unesi pojam za pretragu
           </h3>
           <p className="text-gray-600 mb-6">
             Filteri su postavljeni, rezultati će se prikazati nakon pretrage
@@ -137,7 +139,7 @@ export default function ProductsClient({ query }: { query: string }) {
             Počnite pretraživanje
           </h3>
           <p className="text-gray-600 mb-6">
-            Unesite naziv proizvoda koji tražite
+            Unesi naziv proizvoda koji tražite
           </p>
         </div>
       )}

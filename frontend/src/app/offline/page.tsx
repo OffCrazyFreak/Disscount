@@ -29,7 +29,7 @@ export default function OfflinePage() {
             </div>
 
             <div className="text-gray-600">
-              Provjerite vezu pa pokušajte ponovno.
+              Provjerite vezu pa pokušaj ponovno.
             </div>
           </CardDescription>
         </CardHeader>

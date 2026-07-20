@@ -9,12 +9,25 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default:
+        // Semantic colours mirror badge/banner/tooltip (primary + soft, etc.).
+        primary:
           "bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs",
+        primarySoft:
+          "border border-primary/40 bg-primary/10 text-primary hover:bg-primary/15",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-xs",
+        destructiveSoft:
+          "border border-red-200 bg-red-50 text-red-600 hover:bg-red-100",
+        warning:
+          "bg-amber-200 text-amber-700 hover:bg-amber-300 shadow-xs",
+        warningSoft:
+          "border border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100",
+        info: "bg-blue-500 text-white hover:bg-blue-500/90 shadow-xs",
+        infoSoft:
+          "border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100",
         outline:
           "outline-2 -outline-offset-2 hover:outline-secondary hover:bg-green-50 hover:text-accent-foreground shadow-sm",
+        // Functional-only variants with no colour-scheme equivalent.
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-xs",
         ghost: "hover:bg-accent/70 hover:text-accent-foreground",
@@ -47,7 +60,7 @@ const buttonVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "primary",
       size: "default",
     },
   },

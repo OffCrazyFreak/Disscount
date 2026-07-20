@@ -41,14 +41,12 @@ export const featureItems: IFeatureItem[] = [
   },
   {
     title: "Praćenje proizvoda",
-    description:
-      "Dodaj proizvode koje kupuješ i drži njihove cijene na oku.",
+    description: "Dodaj proizvode koje kupuješ i drži njihove cijene na oku.",
     icon: Eye,
   },
   {
     title: "Skeniranje barkoda",
-    description:
-      "Uperi kameru u proizvod i cijene su pred tobom u sekundi.",
+    description: "Uperi kameru u proizvod i cijene su pred tobom u sekundi.",
     icon: ScanBarcode,
   },
   {
@@ -73,15 +71,13 @@ export const featureItems: IFeatureItem[] = [
   },
   {
     title: "Karta trgovina",
-    description:
-      "Pronađi najbližu otvorenu trgovinu i njeno radno vrijeme.",
+    description: "Pronađi najbližu otvorenu trgovinu i njeno radno vrijeme.",
     icon: MapPin,
     comingSoon: true,
   },
   {
     title: "Dijeljenje popisa",
-    description:
-      "Podijeli popis s obitelji pa kupujte zajedno bez dupliciranja.",
+    description: "Podijeli popis s obitelji pa kupuj zajedno bez dupliciranja.",
     icon: Share2,
     comingSoon: true,
   },

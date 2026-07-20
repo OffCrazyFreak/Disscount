@@ -29,9 +29,7 @@ export default function ProductChainsSection({
   const [expandedChain, setExpandedChain] = useState<string | null>(null);
 
   const toggleChain = useCallback((chainCode: string) => {
-    setExpandedChain((previous) =>
-      previous === chainCode ? null : chainCode,
-    );
+    setExpandedChain((previous) => (previous === chainCode ? null : chainCode));
   }, []);
 
   function handleToggleSection(open: boolean) {
@@ -59,7 +57,7 @@ export default function ProductChainsSection({
         </div>
       ) : detail.pricesError ? (
         <p className="p-2 text-gray-600 text-center">
-          Greška pri učitavanju cijena. Pokušajte ponovno.
+          Greška pri učitavanju cijena. Pokušaj ponovno.
         </p>
       ) : detail.sortedChains.length === 0 ? (
         <p className="p-2 text-gray-600 text-center">

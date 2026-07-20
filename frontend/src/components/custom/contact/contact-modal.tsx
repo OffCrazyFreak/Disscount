@@ -59,7 +59,7 @@ export default function ContactModal({ open }: { open: boolean }) {
       toast.success(
         data.email
           ? "Poruka je poslana. Hvala na javljanju! Po potrebi ćemo ti se javiti na uneseni e-mail."
-          : "Poruka je poslana. Hvala na javljanju!"
+          : "Poruka je poslana. Hvala na javljanju!",
       );
       form.reset(EMPTY_VALUES);
       closeModalUrl();
@@ -109,7 +109,7 @@ export default function ContactModal({ open }: { open: boolean }) {
           rel="noopener noreferrer"
           className="text-primary hover:underline"
         >
-          Pogledajte projekt na GitHubu
+          Pogledaj projekt na GitHubu
         </a>
         .
       </p>
