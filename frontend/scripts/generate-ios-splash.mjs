@@ -7,13 +7,10 @@
 import sharp from "sharp";
 import { readFile, mkdir } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { renderCart, ROOT, WHITE as BACKGROUND } from "./lib/cart-source.mjs";
 
-const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const SRC_LOGO = path.join(ROOT, "public/disscount-logo.png");
 const OUT = path.join(ROOT, "public/splash");
 
-const BACKGROUND = { r: 255, g: 255, b: 255, alpha: 1 };
 const LOGO_RATIO = 0.35; // logo occupies ~35% of the shorter edge
 
 const devices = JSON.parse(
@@ -27,13 +24,7 @@ for (const device of devices) {
   const pxHeight = device.height * device.ratio;
   const logoSize = Math.round(Math.min(pxWidth, pxHeight) * LOGO_RATIO);
 
-  const logo = await sharp(SRC_LOGO)
-    .resize(logoSize, logoSize, {
-      fit: "contain",
-      background: { r: 0, g: 0, b: 0, alpha: 0 },
-    })
-    .png()
-    .toBuffer();
+  const logo = await renderCart(logoSize);
 
   await sharp({
     create: { width: pxWidth, height: pxHeight, channels: 4, background: BACKGROUND },
