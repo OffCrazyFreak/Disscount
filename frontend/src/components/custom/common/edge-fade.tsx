@@ -13,7 +13,10 @@ interface IEdgeFadeProps {
  * wrapper, or `fixed` to the viewport) and override `from-*` to match the
  * surface it fades into.
  */
-export default function EdgeFade({ side = "bottom", className }: IEdgeFadeProps) {
+export default function EdgeFade({
+  side = "bottom",
+  className,
+}: IEdgeFadeProps) {
   return (
     <div
       aria-hidden

@@ -26,7 +26,7 @@ const graph = {
       "@id": `${baseUrl}/#organization`,
       name: "Disscount",
       url: `${baseUrl}/`,
-      logo: `${baseUrl}/doodle-cart-happy.svg`,
+      logo: `${baseUrl}/brand/logo/cart/cart-rgb.svg`,
     },
     {
       "@type": "SoftwareApplication",

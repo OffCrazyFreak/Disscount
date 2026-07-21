@@ -32,7 +32,7 @@ export default function InstallSidebarBanner() {
       <div className="flex flex-col gap-3 rounded-lg border bg-card p-3">
         <div className="flex items-center gap-3">
           <Image
-            src="/icons/icon-192.png"
+            src="/brand/icons/icon-192.png"
             alt="Disscount"
             width={40}
             height={40}

@@ -6,8 +6,8 @@ interface ICartLogoProps {
 
 // The animated cart brand mark, inlined so it server-renders everywhere and
 // every instance replays its draw-on animation (see .dis-cart-* in
-// globals.css). Keep geometry in sync with public/doodle-cart-happy.svg,
-// which exists for PNG exports and JSON-LD.
+// globals.css). Keep geometry in sync with
+// public/brand/logo/cart/cart-rgb-animated.svg, which exists for PNG exports.
 export default function CartLogo({ className }: ICartLogoProps) {
   return (
     <svg

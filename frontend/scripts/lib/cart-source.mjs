@@ -6,8 +6,12 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const SRC = path.join(ROOT, "public/doodle-cart-happy.svg");
+const ROOT = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "..",
+);
+const SRC = path.join(ROOT, "public/brand/logo/cart/cart-rgb.svg");
 
 // viewBox is "-1 6 68 50.5", so the art is 68 x 50.5 units (wider than tall).
 const ASPECT = 50.5 / 68;
@@ -29,7 +33,9 @@ async function frozenCart(width) {
 
 // The green cart on a transparent canvas, fitted to a given width.
 export async function renderCart(width) {
-  return sharp(Buffer.from(await frozenCart(width))).png().toBuffer();
+  return sharp(Buffer.from(await frozenCart(width)))
+    .png()
+    .toBuffer();
 }
 
 // The cart centered on a solid square, occupying `ratio` of the square's width.

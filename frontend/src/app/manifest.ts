@@ -31,24 +31,26 @@ export default function manifest(): WebAppManifest {
     orientation: "portrait",
     lang: "hr",
     dir: "ltr",
-    background_color: "#fafafa",
+    // White splash background to match the iOS launch screens (cart + wordmark
+    // on white). Chrome composes the PWA splash from this + the 512 icon + name.
+    background_color: "#ffffff",
     theme_color: "#ffffff",
     categories: ["shopping", "lifestyle"],
     icons: [
       {
-        src: "/icons/icon-192.png",
+        src: "/brand/icons/icon-192.png",
         sizes: "192x192",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/icons/icon-512.png",
+        src: "/brand/icons/icon-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/icons/icon-maskable-512.png",
+        src: "/brand/icons/icon-maskable-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",

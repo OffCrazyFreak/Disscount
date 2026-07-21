@@ -89,7 +89,11 @@ export default function AppSidebar() {
           <SidebarSupportNav />
         </SidebarContent>
 
-        <ScrollFade targetRef={contentRef} side="top" className="from-sidebar" />
+        <ScrollFade
+          targetRef={contentRef}
+          side="top"
+          className="from-sidebar"
+        />
 
         <ScrollFade targetRef={contentRef} className="from-sidebar" />
       </div>

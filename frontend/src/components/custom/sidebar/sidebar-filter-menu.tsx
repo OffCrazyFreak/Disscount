@@ -83,10 +83,7 @@ export default function SidebarFilterMenu({
               className="from-sidebar"
             />
 
-            <SidebarMenuSub
-              ref={listRef}
-              className="max-h-80 overflow-y-auto"
-            >
+            <SidebarMenuSub ref={listRef} className="max-h-80 overflow-y-auto">
               {options.map((option) => (
                 <SidebarMenuSubItem key={option.value}>
                   <SidebarMenuSubButton

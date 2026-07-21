@@ -47,7 +47,7 @@ export default function InstallBanner() {
         <div className="flex flex-col gap-3 rounded-xl border bg-card p-3 shadow-lg">
           <div className="flex items-center gap-3">
             <Image
-              src="/icons/icon-192.png"
+              src="/brand/icons/icon-192.png"
               alt="Disscount"
               width={48}
               height={48}

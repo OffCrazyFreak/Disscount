@@ -115,7 +115,7 @@ A Next.js dynamic manifest (a function returning `MetadataRoute.Manifest`) serve
 | `screenshots`      | one `narrow` + one `wide`                             | Chrome's richer, app-store-like install dialog                                                           |
 | `launch_handler`   | `{ client_mode: "focus-existing" }`                   | reuse an open window instead of spawning a duplicate when launched from a shortcut or notification       |
 
-Icons are generated from `public/disscount-logo.png` by `scripts/generate-pwa-icons.mjs` (uses `sharp`), into `public/icons`.
+Icons are generated from the happy-cart source (`public/brand/logo/cart/cart-rgb.svg`) by `scripts/generate-pwa-icons.mjs` (uses `sharp`), into `public/brand/icons` (plus the legacy `src/app/favicon.ico`). See `docs/BRAND.md` for the full asset map.
 
 ### The install UX (`src/components/custom/pwa/`)
 
