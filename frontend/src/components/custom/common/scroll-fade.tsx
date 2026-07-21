@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type RefObject } from "react";
 import { cn } from "@/lib/utils";
+import EdgeFade from "@/components/custom/common/edge-fade";
 
 interface IScrollFadeProps {
   /** Scroll container to watch; the fade hides once it is scrolled to that end */
@@ -53,11 +54,10 @@ export default function ScrollFade({
   }, [targetRef, side]);
 
   return (
-    <div
-      aria-hidden
+    <EdgeFade
+      side={side}
       className={cn(
-        "pointer-events-none absolute inset-x-0 z-10 h-20 from-background to-transparent transition-opacity duration-200",
-        side === "top" ? "top-0 bg-gradient-to-b" : "bottom-0 bg-gradient-to-t",
+        "absolute transition-opacity duration-200",
         hasHiddenContent ? "opacity-100" : "opacity-0",
         className,
       )}
