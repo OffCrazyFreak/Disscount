@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import WindowScrollFade from "@/components/custom/common/window-scroll-fade";
 import LandingJsonLd from "@/app/(root)/components/json-ld";
 import HeroSection from "@/app/(root)/components/sections/hero-section";
 import StatsBand from "@/app/(root)/components/sections/stats-band";
@@ -33,8 +32,6 @@ export default function Home() {
       <PricingSection />
       <FaqSection />
       <FinalCtaSection />
-
-      <WindowScrollFade className="z-40 h-28 via-background/70" />
     </div>
   );
 }

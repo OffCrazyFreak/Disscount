@@ -7,7 +7,7 @@ import EdgeFade from "@/components/custom/common/edge-fade";
 interface IWindowScrollFadeProps {
   /** Edge to fade against, defaulting to the bottom */
   side?: "top" | "bottom";
-  /** Positioning + colour overrides, e.g. "z-40 from-background" */
+  /** Overrides the default z-index, height and colour classes */
   className?: string;
 }
 
@@ -51,7 +51,7 @@ export default function WindowScrollFade({
     <EdgeFade
       side={side}
       className={cn(
-        "fixed transition-opacity duration-200",
+        "fixed z-40 h-28 via-background/70 transition-opacity duration-200",
         hasHiddenContent ? "opacity-100" : "opacity-0",
         className,
       )}
