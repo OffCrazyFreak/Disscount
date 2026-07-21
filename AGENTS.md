@@ -1,159 +1,34 @@
-Make sure to always follow dry and clean code principles, with separation of concerns, modularity, and reusability in mind.
+# General
 
-Make sure to always follow project structure and conventions, including file organization, naming conventions, and coding styles, but feel free to suggest improvements when appropriate.
+These principles apply across the whole repo (frontend and backend).
 
-The files should aim to be 50-100ish lines long, so they are easy to read, parse, and maintain.
+- Always follow DRY and clean code principles, with separation of concerns, modularity, and reusability in mind.
 
-If the code requires you to add multiple lines of comments to explain it, you probably did it incorrectly and should start again.
+- Always follow project structure and conventions, including file organization, naming conventions, and coding styles, but feel free to suggest improvements when appropriate.
 
-After every code generation, ALWAYS provide a brief explanation of the code changes you made and why because I'm still learning and I want to become a better developer.
+- The files should aim to be 50-100ish lines long, so they are easy to read, parse, and maintain.
 
-Make sure to always fetch and follow proper and most recent documentation, especially for libraries.
+- Write self-explanatory code. Use comments only for genuinely complex logic or decisions; if you need multiple lines of comments to explain something, you probably did it wrong and should rewrite it.
 
-Do not prematurely optimize code. Focus on clarity and correctness first. Especially for frontend now that react compiler optimizations are very good.
+- After every code generation, ALWAYS provide a brief explanation of the code changes you made and why because I'm still learning and I want to become a better developer.
 
-Don't overuse comments. Write self-explanatory code and use comments only when necessary to explain complex logic or decisions.
+- Always fetch and follow proper and most recent documentation, especially for libraries. Fetch it from the official website or repository, instead of searching in node modules or other places.
 
-If you need to add env variables, first notify the user and then update both the .env file and the example.env file. Always make sure they are in sync.
+- Do not prematurely optimize code. Focus on clarity and correctness first. Especially for frontend now that react compiler optimizations are very good.
 
-# Frontend Development Guidelines
+- If you need to add env variables, first notify the user and then update both the .env file and the example.env file. Always make sure they are in sync.
 
-## Technology Stack Versions
+- Always use kebab-case naming of files if you can.
 
-**Core Framework & Runtime:**
+- Before writing any function or component, ALWAYS check the codebase (especially utils/ and hooks/ folders) for a similar one and reuse it. If I ask you to refactor something out and nothing similar exists, create it in a new separate file instead of inline.
 
-- Next.js: `16.2.9`
-- React: `19.2.4`
-- React DOM: `19.2.4`
+- Feature-specific code goes in feature folders (products/, shopping-lists/), shared/generic code stays in central locations (utils/, lib/, constants/).
 
-**Authentication:**
+- Add empty rows for better readability between logical blocks of code, my prettier will take care of the rest.
 
-- better-auth: `1.6.14`
-- @daveyplate/better-auth-ui: `^3.2.13`
+## Commit message requirement
 
-**Database (frontend, better-auth identity store):**
-
-- drizzle-orm: `0.45.2`
-- drizzle-kit: `^0.31.10`
-- pg: `8.21.0`
-- kysely: `0.28.17` (pinned on purpose: better-auth's kysely-adapter breaks on 0.29)
-
-**Key Libraries:**
-
-- React Query (@tanstack/react-query): `^5.90.12`
-- React Virtual (@tanstack/react-virtual): `^3.13.13`
-- React Hook Form: `^7.68.0` (with @hookform/resolvers `^5.2.2`)
-- Recharts: `3.9.0`
-- Zod: `^4.1.13`
-- Axios: `^1.13.2`
-- Sonner (Toast): `^2.0.7`
-- Lucide React (Icons): `^0.561.0`
-- Tailwind CSS: `^4`
-- Radix UI: `radix-ui` `^1.4.3` (plus individual `@radix-ui/react-*` components)
-- Motion (Animations): `^12.23.26`
-- QR/barcode scanning (@yudiel/react-qr-scanner): `^2.4.1`
-- Email (Resend `^6.14.0` + react-email `^6.6.3`)
-- Error tracking (@sentry/nextjs): `^10.62.0`
-- UI utilities: class-variance-authority `^0.7.1`, clsx `^2.1.1`, tailwind-merge `^3.4.0`, cmdk `^1.1.1`
-
-**Development Tools:**
-
-- ESLint: `^9` (eslint-config-next `16.2.2`)
-- TypeScript: `^5.7`
-- Tailwind CSS with PostCSS (@tailwindcss/postcss): `^4`
-- react-scan: `^0.4.3` (render profiling)
-- OpenAPI client generator (@openapitools/openapi-generator-cli): `^2.25.2`
-
-**Deployment & Infrastructure:**
-
-- Docker + Docker Compose (multi-stage builds; `docker-compose.prod.yml` is what Dokploy deploys)
-- Dokploy on a Hetzner VPS (self-hosted PaaS), with Traefik reverse proxy + Let's Encrypt TLS
-- Cloudflare: DNS, CDN, proxy, SSL (Full strict)
-- PostgreSQL: `17` (self-hosted container, one shared app database)
-- Cloudflare R2: off-site database and Dokploy config backups
-- Sentry (error tracking) + UptimeRobot (uptime monitoring)
-
-## Guidelines
-
-NEVER run "pnpm run dev" or any other development server command, because I always already have my dev server running. Also never run build commands.
-NEVER use ":any" as a type in typescript code. Check the types and define proper interfaces or types when necessary.
-
-Use I-prefix for interfaces, and use default exports wherever possible.
-
-Always use kebab-case naming of files if you can.
-
-ALWAYS check if all typescript types are correct and there are no type errors by first formatting "pnpm exec prettier" and then using "pnpm exec tsc --noEmit" before providing the final code.
-ALWAYS use frontend design skill when generating frontend code.
-
-If you are asked to generate code that involves API calls, check if the API endpoints exist in the repo https://github.com/senko/cijene-api/ or the backend codebase. If they do not exist, inform me that the endpoints do not exist and ask for further instructions.
-
-If you need to import some hooks or components from react library, ALWAYS import them by "import { x } from 'react';" instead of React.x or other ways.
-
-Write all function with syntax "function functionName() {}" instead of arrow functions like "const functionName = () => {}" unless it's a small inline function.
-WHen writing function ALWAYS check there already exists similar function in the codebase and reuse it instead of writing a new one, especially in all utils/ folders.
-
-Feature-specific code goes in feature folders (products/, shopping-lists/), shared/generic code stays in central locations (utils/, lib/, constants/).
-
-Add empty rows for better readability between logical blocks of code, my prettier will take care of the rest.
-
-If I tell you to refactor something into a separate component or function, make sure to check if there already exists a similar component or function in the codebase and reuse it instead of writing a new one. If there is no similar component or function, then create a new one in a separate file, instead of writing it in the same file.
-
-Never edit the package.json or package-lock.json files directly, but instead use "pnpm add package-name@version" or "pnpm remove package-name" to manage dependencies.
-
-If you need docs about a library, always fetch the most recent documentation from the official website or repository, instead of searching in node modules or other places.
-
-In Croatian wording, always use drugo lice ("ti"), nikad treće lice ("vi").
-Also always use ungerened forms.
-Leave the company voice ("mi") intact.
-
-# Project structure (frontend/src)
-
-- `app/` - Next.js routes. A feature folder uses `components/` + `hooks/` + `utils/` + `typings/` (add only what it needs).
-- `components/ui/` - shadcn primitives, do not hand-edit. `components/custom/` - our components, grouped into concern folders (`header/`, `sidebar/`, `search/`, `store-chain/`, `price/`, `common/`, ...). `settings/` is the reference sub-feature layout: `components/ hooks/ tabs/ ui/` plus nested `security/` and `onboarding/`.
-- `lib/` - data & infra: `api/` (internal service layer + `schemas/` zod models), `cijene-api/` (external price API), `modal/`, `offline/`, `email/`, `auth*`.
-- Root: `hooks/` (shared hooks), `context/`, `utils/` (shared helpers), `constants/`, `typings/` (shared types), `emails/`, `db/`.
-
-Where things go:
-
-- Types: API/domain -> `lib/api/schemas/*` (zod `*Dto`/`*Response`); external price API -> `lib/cijene-api/schemas.ts`; shared UI/util -> `@/typings`; feature-only -> colocated `*-types.ts`.
-- React Query hooks: colocate with their service under `lib/api/<domain>/`; feature-specific composition hooks go in the feature `hooks/`.
-- One component per file (default export); its `I`-prefixed Props interface stays in the same file.
-
-# Backend Development Guidelines
-
-NEVER run "mvn spring-boot:run" or any other development server command, because I always already have my dev server running. Also never run build commands.
-
-## Technology Stack Versions
-
-**Core:**
-
-- Spring Boot: `3.1.0` (spring-boot-starter-parent)
-- Java: `21`
-- Maven: `3.9+`
-- PostgreSQL JDBC driver (org.postgresql): version managed by the Spring Boot parent
-
-**Spring starters:** data-jpa, web, validation, security, oauth2-resource-server (validates better-auth ES256 JWTs via JWKS), mail, actuator.
-
-**Other libraries:**
-
-- springdoc-openapi (Swagger UI at `/api-docs`): `2.1.0`
-- sentry-spring-boot-starter-jakarta: `8.16.0`
-- Lombok: `1.18.30`
-- spring-dotenv (me.paulschwarz): `3.0.0`
-
-# Deployment Guidelines
-
-The app is self-hosted on a Hetzner VPS via Dokploy (Docker Compose). See docs/DEPLOYMENT.md for the full infrastructure reference (architecture, env vars, DNS/SSL, backups, monitoring).
-
-NEVER run deployment, Docker, or Dokploy commands (deploy, build, push images, prune, server restarts) unless I explicitly ask, since deploys happen automatically on push.
-
-Environment variables live in Dokploy, set per environment, NOT in committed files. Remember `NEXT_PUBLIC_*` vars are baked at build time, so changing them needs a redeploy, not just a restart.
-
-The repository is PUBLIC. NEVER commit secrets, credentials, the server IP, or the SSH user; use placeholders in any committed docs.
-
-# Commit message requirement
-
-At the end of every response that includes code changes, include a suggested Git commit message. To make sure you don't miss any changes, first check with git status and git diff what are the changes made, and then using this info and your converstation history in this chat, make a message.
+At the end of every response that includes code changes, include a suggested Git commit message. To make sure you don't miss any changes, first check with git status and git diff what are the changes made, and then using this info and your conversation history in this chat, make a message.
 
 Use this format:
 
@@ -170,3 +45,98 @@ Brief explanation of why the change was needed.
 Notes:
 - Optional important detail for reviewers or future maintenance
 ```
+
+# Next.js (frontend)
+
+## Tech stack
+
+Versions live in `frontend/package.json` (the source of truth) - read them there instead of duplicating them. Non-obvious choices:
+
+- Several core deps (`next`, `react`, `better-auth`, `drizzle-orm`, `kysely`, `pg`, `recharts`) are pinned exactly (no `^`) on purpose - keep them that way.
+- `kysely` is held at `0.28.17` because better-auth's kysely-adapter breaks on `0.29`.
+
+Installed libs - reach for these instead of reinventing them (names only, versions in `package.json`):
+
+- Core: next, react, react-dom
+- Auth: better-auth, @daveyplate/better-auth-ui
+- DB: drizzle-orm, drizzle-kit, pg, kysely
+- Data & state: @tanstack/react-query (+ devtools, persist-client, query-async-storage-persister), @tanstack/react-virtual
+- Forms & validation: react-hook-form, @hookform/resolvers, zod
+- HTTP: axios
+- UI: radix-ui (+ individual @radix-ui/react-\*), lucide-react, sonner, cmdk, vaul, class-variance-authority, clsx, tailwind-merge, tailwindcss, tw-animate-css
+- Charts: recharts
+- Animation: motion
+- PWA & offline: @serwist/next, serwist, idb-keyval
+- Scanning: @yudiel/react-qr-scanner, barcode-detector
+- Email: resend, react-email
+- Images: sharp
+- Monitoring: @sentry/nextjs
+- Tooling: eslint, eslint-config-next, prettier, typescript, react-scan, @openapitools/openapi-generator-cli
+
+## Guidelines
+
+NEVER run "pnpm run dev" or any other development server command, because I always already have my dev server running. Also never run build commands.
+
+NEVER use ":any" as a type in typescript code. Check the types and define proper interfaces or types when necessary.
+
+Use I-prefix for interfaces, and use default exports wherever possible.
+
+If you need to import some hooks or components from react library, ALWAYS import them by "import { x } from 'react';" instead of React.x or other ways.
+
+Write all functions with syntax "function functionName() {}" instead of arrow functions like "const functionName = () => {}" unless it's a small inline function.
+
+ALWAYS check if all typescript types are correct and there are no type errors by first formatting "pnpm exec prettier" and then using "pnpm exec tsc --noEmit" before providing the final code.
+
+ALWAYS use frontend design skill when generating frontend code.
+
+Never edit the package.json or package-lock.json files directly, but instead use "pnpm add package-name@version" or "pnpm remove package-name" to manage dependencies.
+
+If you are asked to generate code that involves API calls, check if the API endpoints exist in the repo https://github.com/senko/cijene-api/ or the backend codebase. If they do not exist, inform me that the endpoints do not exist and ask for further instructions.
+
+In Croatian wording, always use drugo lice ("ti"), nikad treće lice ("vi").
+Also always use ungendered forms.
+Leave the company voice ("mi") intact.
+
+## Project structure (frontend/src)
+
+- `app/` - Next.js routes. A feature folder uses `components/` + `hooks/` + `utils/` + `typings/` (add only what it needs).
+- `components/ui/` - shadcn primitives, do not hand-edit. `components/custom/` - our components, grouped into concern folders (`header/`, `sidebar/`, `search/`, `store-chain/`, `price/`, `common/`, ...). `settings/` is the reference sub-feature layout: `components/ hooks/ tabs/ ui/` plus nested `security/` and `onboarding/`.
+- `lib/` - data & infra: `api/` (internal service layer + `schemas/` zod models), `cijene-api/` (external price API), `modal/`, `offline/`, `email/`, `auth*`.
+- Root: `hooks/` (shared hooks), `context/`, `utils/` (shared helpers), `constants/`, `typings/` (shared types), `emails/`, `db/`.
+
+Where things go:
+
+- Types: API/domain -> `lib/api/schemas/*` (zod `*Dto`/`*Response`); external price API -> `lib/cijene-api/schemas.ts`; shared UI/util -> `@/typings`; feature-only -> colocated `*-types.ts`.
+- React Query hooks: colocate with their service under `lib/api/<domain>/`; feature-specific composition hooks go in the feature `hooks/`.
+- One component per file (default export); its `I`-prefixed Props interface stays in the same file.
+
+# Spring (backend)
+
+NEVER run "mvn spring-boot:run" or any other development server command, because I always already have my dev server running. Also never run build commands.
+
+## Tech stack
+
+Versions are managed by the Spring Boot parent (`3.1.0`) in `backend/pom.xml` - read them there. Non-obvious notes:
+
+- Java 21; the app is a resource server - `oauth2-resource-server` validates better-auth's ES256 JWTs via JWKS.
+- Tests run against H2.
+
+Installed libs - reach for these instead of reinventing them (versions in `pom.xml`):
+
+- Spring Boot starters: data-jpa, web, validation, security, oauth2-resource-server, mail, actuator
+- DB driver: postgresql
+- API docs: springdoc-openapi (Swagger UI at `/api-docs`)
+- Monitoring: sentry-spring-boot-starter-jakarta
+- Boilerplate: lombok
+- Config: spring-dotenv (me.paulschwarz)
+- Testing: spring-boot-starter-test, spring-security-test, h2
+
+# Deployment
+
+The app is self-hosted on a Hetzner VPS via Dokploy (Docker Compose). See docs/DEPLOYMENT.md for the full infrastructure reference (architecture, env vars, DNS/SSL, backups, monitoring).
+
+NEVER run deployment, Docker, or Dokploy commands (deploy, build, push images, prune, server restarts) unless I explicitly ask, since deploys happen automatically on push.
+
+Environment variables live in Dokploy, set per environment, NOT in committed files. Remember `NEXT_PUBLIC_*` vars are baked at build time, so changing them needs a redeploy, not just a restart.
+
+The repository is PUBLIC. NEVER commit secrets, credentials, the server IP, or the SSH user; use placeholders in any committed docs.
