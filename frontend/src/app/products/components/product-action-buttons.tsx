@@ -1,4 +1,4 @@
-import { Image, ListPlus } from "lucide-react";
+import { Image as ImageIcon, ListPlus } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
@@ -73,7 +73,7 @@ export default function ProductActionButtons({
                   window.open(googleShoppingUrl, "_blank");
                 }}
               >
-                <Image className="size-6 sm:size-7" />
+                <ImageIcon className="size-6 sm:size-7" />
               </Button>
             </TooltipTrigger>
 

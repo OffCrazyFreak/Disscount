@@ -55,6 +55,9 @@ export function useWatchlistNotifications(): INotificationsContext {
         pinnedStoreChainCodes,
         hasPinnedStores,
       ),
+    // productQueriesStateKey serializes productQueries so the memo stays stable
+    // across the new array reference React Query returns each render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       groupedWatchlistItems,
       pinnedStoreChainCodes,
