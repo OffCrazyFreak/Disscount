@@ -353,7 +353,7 @@ These are the things that actually cost us time, worth remembering:
 
 **Reliability / ops**
 - [ ] **Hetzner snapshots** (whole-VM image) in addition to DB backups.
-- [ ] Move builds to **GitHub Actions CI** (build image, push to registry, Dokploy pulls) to take build CPU off the VPS, especially once preview/dev deploys are frequent.
+- [ ] Move builds to **GitHub Actions CI** (build image, push to registry, Dokploy pulls) to take build CPU off the VPS, especially once preview/dev deploys are frequent. (A `.github/workflows/ci.yml` quality gate already runs typecheck + lint + format on push; this item is specifically about moving the Docker *image build/deploy* off the VPS.)
 - [ ] Consider **Flyway/Liquibase** instead of Hibernate `ddl-auto=update` for safer prod schema changes.
 - [ ] **Cloudflare DNS-01 challenge** in Traefik (a Cloudflare API token) so certs renew without relying on inbound HTTP through the proxy, more robust now that all domains are proxied.
 - [ ] **Backup-failure alerting** (dead-man's switch, e.g. healthchecks.io), since per-backup notifications are off to avoid spam.

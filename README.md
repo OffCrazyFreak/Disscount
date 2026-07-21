@@ -1,10 +1,14 @@
-# Disscount (WIP)
+# Disscount
+
+**Find the cheapest groceries in Croatia.** Disscount compares product prices across every major retail chain, shows real price history so you can tell whether a discount is genuine, and turns shopping lists into per-store basket totals.
+
+[![Live](https://img.shields.io/badge/live-disscount.me-06b6d4)](https://disscount.me) [![License: BUSL 1.1](https://img.shields.io/badge/License-BUSL%201.1-cyan.svg)](https://spdx.org/licenses/BUSL-1.1.html) ![Next.js](https://img.shields.io/badge/Next.js-16-black) ![React](https://img.shields.io/badge/React-19-149eca) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-6DB33F) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1)
 
 ## Description
 
-Web and mobile (PWA) application for comparing product prices in Croatian stores, creating shopping lists, storing digital loyalty cards, and getting deal alerts with barcode scanning and AI suggestions.
+Since May 15th 2025, Croatian retail chains are legally required to publish their product prices publicly. Disscount turns that raw open data (via the [Cijene API](https://github.com/senko/cijene-api/)) into clear comparisons, real price history and better shopping decisions. It runs in any browser and installs as an offline-capable PWA, so your lists and recently viewed prices keep working even with no signal in the store.
 
-Since May 15th 2025, Croatian retail chains are legally required to publicly publish their product prices. Disscount turns that raw public data (via the open [Cijene API](https://github.com/senko/cijene-api/)) into clear comparisons, price history and shopping decisions.
+Under the hood it is a full production stack: a Next.js frontend that also acts as the identity provider (better-auth), a Spring Boot API that owns user data, and a shared PostgreSQL database, self-hosted on a Hetzner VPS via Dokploy behind Cloudflare. The codebase is open and documented (see [docs/](docs/)), and contributions are welcome.
 
 ## Features
 
@@ -24,6 +28,16 @@ Since May 15th 2025, Croatian retail chains are legally required to publicly pub
 - Store map with working hours
 - Spending analysis and market statistics
 - Shopping list sharing
+
+## Tech stack
+
+- **Frontend:** Next.js 16, React 19, TypeScript, Tailwind CSS 4, shadcn-style UI, TanStack Query, React Hook Form + Zod, Motion
+- **Backend:** Spring Boot 3 (Java 21), PostgreSQL 17, JPA / Hibernate
+- **Auth:** better-auth (in Next.js) issues ES256 JWTs, validated by Spring as an OAuth2 resource server via JWKS
+- **PWA & offline:** Serwist service worker, IndexedDB-backed React Query cache, offline reads and queued writes
+- **Infra:** Docker Compose, Dokploy on a Hetzner VPS, Traefik, Cloudflare, Sentry, Umami
+
+Deeper references live in [docs/](docs/): [authentication](docs/AUTH.md), [PWA & offline](docs/PWA.md), and [deployment](docs/DEPLOYMENT.md).
 
 ## Link
 
