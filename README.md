@@ -8,7 +8,7 @@
 
 Since May 15th 2025, Croatian retail chains are legally required to publish their product prices publicly. Disscount turns that raw open data (via the [Cijene API](https://github.com/senko/cijene-api/)) into clear comparisons, real price history and better shopping decisions. It runs in any browser and installs as an offline-capable PWA, so your lists and recently viewed prices keep working even with no signal in the store.
 
-Under the hood it is a full production stack: a Next.js frontend that also acts as the identity provider (better-auth), a Spring Boot API that owns user data, and a shared PostgreSQL database, self-hosted on a Hetzner VPS via Dokploy behind Cloudflare. The codebase is open and documented (see [docs/](docs/)), and contributions are welcome.
+Under the hood it is a full production stack: a Next.js frontend that also acts as the identity provider (better-auth), a Spring Boot API that owns user data, and a shared PostgreSQL database, self-hosted on a Hetzner VPS via Dokploy behind Cloudflare. The codebase is source-available under BUSL-1.1 and documented (see [docs/](docs/)), and contributions are welcome.
 
 ## Features
 
@@ -51,25 +51,25 @@ Landing page ([full-page screenshot](docs/screenshots/landing-full.png)):
   <img width="90%" src="docs/screenshots/landing-hero.png" alt="Disscount - Landing page hero"/>
 
   <img width="45%" src="docs/screenshots/landing-mobile.png" alt="Disscount - Landing page on mobile"/>
-  
+
   <img width="45%" src="https://github.com/user-attachments/assets/5f87935e-f803-4c8e-813a-82c1513d911d" alt="Disscount - Search products"/>
-  
+
   <img width="45%" src="https://github.com/user-attachments/assets/c9e460f0-f880-44ea-ade7-95627118434f" alt="Disscount - Product details 1"/>
-  
+
   <img width="45%" src="https://github.com/user-attachments/assets/dc08334f-e48b-48a8-adbe-5df8b3091991" alt="Disscount - Product details 2"/>
 
   <img width="45%" src="https://github.com/user-attachments/assets/cdd9688a-2c3b-45e1-9ddf-073cd8eff603" alt="Disscount - Prefrences"/>
-  
+
   <img width="45%" src="https://github.com/user-attachments/assets/68e51d74-b348-4295-8506-277ed0719eba" alt="Disscount - Shopping lists"/>
-  
+
   <img width="45%" src="https://github.com/user-attachments/assets/3d200d85-cfea-4f25-9341-a96ee60da4a7" alt="Disscount - Shopping list details"/>
-  
+
   <img width="45%" src="https://github.com/user-attachments/assets/fc6e93d7-ed97-43ec-b157-b5f111564972" alt="Disscount - Digital cards"/>
-  
+
   <!--<img width="45%" src="https://pic.pnnet.dev/960x540" alt="Disscount - Digital card details"/>-->
-  
+
   <img width="45%" src="https://github.com/user-attachments/assets/20698d06-50ed-4d1c-ad6f-8cdd9c0d4cc8" alt="Disscount - Statistics"/>
-  
+
 </p>
 
 ## Attribution
@@ -90,7 +90,7 @@ License parameters used in this repository:
 
 - Licensor: Jakov Jakovac
 - Additional Use Grant: None
-- Change Date: Five (5) years from the date the Licensed Work is published
+- Change Date: Four (4) years from the date the Licensed Work is published
 - Change License: GPL-3.0-or-later
 
 Under BUSL-1.1 terms, each version converts on the Change Date or on the fourth anniversary of first publicly available distribution of that version, whichever comes first.
@@ -180,13 +180,13 @@ The frontend runs on http://localhost:3000
 
 The repo ships pre-configured MCP servers so an AI editor picks them up on clone, one file per tool (same servers): `.mcp.json` (Claude Code), `.cursor/mcp.json` (Cursor), `.vscode/mcp.json` (VS Code).
 
-| Server            | Purpose                            |
-| ----------------- | ---------------------------------- |
-| `playwright`      | Browser automation / E2E           |
-| `context7`        | Up-to-date library docs            |
-| `supabase`        | Supabase project access            |
-| `chrome-devtools` | Chrome DevTools debugging          |
-| `sentry`          | Error tracking (Disscount)         |
+| Server            | Purpose                    |
+| ----------------- | -------------------------- |
+| `playwright`      | Browser automation / E2E   |
+| `context7`        | Up-to-date library docs    |
+| `supabase`        | Supabase project access    |
+| `chrome-devtools` | Chrome DevTools debugging  |
+| `sentry`          | Error tracking (Disscount) |
 
 No secrets are committed: `supabase` and `sentry` authenticate via browser OAuth on first use, and `context7` runs keyless (set `CONTEXT7_API_KEY` in your environment to raise rate limits). Never put keys in these files - use env vars or your editor's secret store.
 
