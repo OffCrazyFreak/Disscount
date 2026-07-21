@@ -27,6 +27,10 @@ const graph = {
       name: "Disscount",
       url: `${baseUrl}/`,
       logo: `${baseUrl}/brand/logo/cart/cart-rgb.svg`,
+      sameAs: [
+        "https://x.com/disscountme",
+        "https://www.linkedin.com/company/disscountme",
+      ],
     },
     {
       "@type": "SoftwareApplication",

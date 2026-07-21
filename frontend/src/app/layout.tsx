@@ -14,6 +14,11 @@ import Providers from "@/app/providers/providers";
 import { ReactNode, Suspense } from "react";
 import { huninn, sairaStencil } from "@/app/fonts";
 
+// Shorter than the meta description on purpose: social previews truncate around
+// 125 chars, while the full description below stays fine for search results.
+const socialDescription =
+  "Usporedi cijene proizvoda u 29 trgovačkih lanaca u Hrvatskoj, prati povijest cijena i uštedi pri svakoj kupnji. Besplatno.";
+
 export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
@@ -30,14 +35,14 @@ export const metadata: Metadata = {
     url: "/",
     siteName: "Disscount",
     title: "Disscount - Pronađi najbolje cijene u Hrvatskoj",
-    description:
-      "Usporedi cijene proizvoda u 29 trgovačkih lanaca u Hrvatskoj, prati povijest cijena, izradi pametne popise za kupnju i uštedi pri svakoj kupnji. Besplatno.",
+    description: socialDescription,
   },
   twitter: {
     card: "summary_large_image",
+    site: "@disscountme",
+    creator: "@disscountme",
     title: "Disscount - Pronađi najbolje cijene u Hrvatskoj",
-    description:
-      "Usporedi cijene proizvoda u 29 trgovačkih lanaca u Hrvatskoj, prati povijest cijena i uštedi pri svakoj kupnji. Besplatno.",
+    description: socialDescription,
   },
   appleWebApp: {
     capable: true,
