@@ -162,6 +162,22 @@ pnpm dev
 
 The frontend runs on http://localhost:3000
 
+### MCP servers (optional, for AI editors)
+
+The repo ships pre-configured MCP servers so an AI editor picks them up on clone, one file per tool (same servers): `.mcp.json` (Claude Code), `.cursor/mcp.json` (Cursor), `.vscode/mcp.json` (VS Code).
+
+| Server            | Purpose                            |
+| ----------------- | ---------------------------------- |
+| `playwright`      | Browser automation / E2E           |
+| `context7`        | Up-to-date library docs            |
+| `supabase`        | Supabase project access            |
+| `chrome-devtools` | Chrome DevTools debugging          |
+| `sentry`          | Error tracking (Disscount)         |
+
+No secrets are committed: `supabase` and `sentry` authenticate via browser OAuth on first use, and `context7` runs keyless (set `CONTEXT7_API_KEY` in your environment to raise rate limits). Never put keys in these files - use env vars or your editor's secret store.
+
+`playwright` needs a browser at runtime: run `npx playwright install chromium` once per machine, or point it at an existing browser via `PLAYWRIGHT_MCP_EXECUTABLE_PATH` (e.g. `/opt/helium/chrome`). Both are machine-local, so keep the browser path out of the committed config.
+
 ## Deployment
 
 Disscount is self-hosted on a Hetzner VPS using [Dokploy](https://dokploy.com) (Docker Compose), with Traefik for routing and automatic Let's Encrypt TLS, and Cloudflare in front for DNS, CDN, and proxying. Production deploys automatically from the `master` branch, and a staging environment deploys from the `dev` branch, on every push.
