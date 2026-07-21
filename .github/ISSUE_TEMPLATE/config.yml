@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/OffCrazyFreak/Disscount/security/advisories/new
+    about: Please report security issues privately, not as a public issue.
+  - name: Disscount app
+    url: https://disscount.me
+    about: Try the live app.
