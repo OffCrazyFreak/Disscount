@@ -1,0 +1,20 @@
+# Prettier ignores for repo-root runs.
+# The frontend has its own .prettierrc + .prettierignore and is checked separately in CI.
+
+# Dependencies & build output
+**/node_modules
+**/.next
+**/target
+
+# Lockfiles
+**/pnpm-lock.yaml
+
+# Binary assets
+**/*.png
+**/*.webp
+**/*.gif
+**/*.ico
+
+# Private, secret-containing docs (also gitignored) and generated HTML
+docs/disscount_*
+docs/*.html

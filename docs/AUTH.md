@@ -52,11 +52,11 @@ Key facts:
 
 ## 3. Sign-in methods
 
-| Method | Status | Notes |
-|---|---|---|
-| **Google** | Live | Email arrives already verified from Google. |
-| **Facebook** | Wired but **disabled** | Fully implemented, but hidden as "uskoro" behind the `FACEBOOK_COMING_SOON` flag pending Meta Business Verification. See [Section 9](#9-config-env-vars-and-feature-flags). |
-| **Email + password** | Live | Minimum 12 characters (`passwordSchema`); login blocked until the email is verified. |
+| Method               | Status                 | Notes                                                                                                                                                                       |
+| -------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Google**           | Live                   | Email arrives already verified from Google.                                                                                                                                 |
+| **Facebook**         | Wired but **disabled** | Fully implemented, but hidden as "uskoro" behind the `FACEBOOK_COMING_SOON` flag pending Meta Business Verification. See [Section 9](#9-config-env-vars-and-feature-flags). |
+| **Email + password** | Live                   | Minimum 12 characters (`passwordSchema`); login blocked until the email is verified.                                                                                        |
 
 **Email is a hard invariant.** Better Auth requires an email to create a user, and the whole model keys off a unique verified email. A Facebook login that returns no email is rejected and surfaced to the user as a toast (`?error=email_not_found`). No-email or profile-less users are intentionally not supported.
 
@@ -131,13 +131,13 @@ Mapped codes: `email_not_found`, `email_doesn't_match`, `account_already_linked_
 
 All three reuse Better Auth's token machinery but are worded and gated for their case.
 
-| Flow | Trigger | Endpoint / hook | Notes |
-|---|---|---|---|
-| Forgot password | "Zaboravljena lozinka?" in the login modal | `authClient.requestPasswordReset` then `emailAndPassword.sendResetPassword` | `redirectTo` is `/reset-password` (no query, so Better Auth can append `?token=` cleanly). Same neutral notice whether or not the account exists. Token lives 30 minutes; all sessions are revoked on reset. |
-| Set vs reset wording | Any reset email | `dispatchResetPasswordEmail` in `auth.ts` | Checks for an existing `credential` account: none means "set your password" (OAuth-only user), otherwise "reset your password". |
-| Reset / set password (from email) | Clicking the email link | `/reset-password` page redirects to `?modal=reset-password&token=...`, rendered by `ResetPasswordModal` | Modal over the homepage. Sets the password and sends the user to log in. **No auto-login and no email in the URL** (PII avoidance). |
-| Set password (logged in) | Security settings, OAuth-only account | `POST /api/account/set-password` then `auth.api.setPassword` | Adds a `credential` to an account that only had social login. |
-| Change email | Security settings | `POST /api/account/change-email` then `user.changeEmail.sendChangeEmailConfirmation` | `callbackURL: "/?modal=email-changed"`. Confirmation is sent to the **current** address; the change applies only after it is clicked. |
+| Flow                              | Trigger                                    | Endpoint / hook                                                                                         | Notes                                                                                                                                                                                                        |
+| --------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Forgot password                   | "Zaboravljena lozinka?" in the login modal | `authClient.requestPasswordReset` then `emailAndPassword.sendResetPassword`                             | `redirectTo` is `/reset-password` (no query, so Better Auth can append `?token=` cleanly). Same neutral notice whether or not the account exists. Token lives 30 minutes; all sessions are revoked on reset. |
+| Set vs reset wording              | Any reset email                            | `dispatchResetPasswordEmail` in `auth.ts`                                                               | Checks for an existing `credential` account: none means "set your password" (OAuth-only user), otherwise "reset your password".                                                                              |
+| Reset / set password (from email) | Clicking the email link                    | `/reset-password` page redirects to `?modal=reset-password&token=...`, rendered by `ResetPasswordModal` | Modal over the homepage. Sets the password and sends the user to log in. **No auto-login and no email in the URL** (PII avoidance).                                                                          |
+| Set password (logged in)          | Security settings, OAuth-only account      | `POST /api/account/set-password` then `auth.api.setPassword`                                            | Adds a `credential` to an account that only had social login.                                                                                                                                                |
+| Change email                      | Security settings                          | `POST /api/account/change-email` then `user.changeEmail.sendChangeEmailConfirmation`                    | `callbackURL: "/?modal=email-changed"`. Confirmation is sent to the **current** address; the change applies only after it is clicked.                                                                        |
 
 **The single-email invariant.** You cannot change your account email while any social provider is linked, because a provider login would then carry an email different from the account. This is enforced three ways: the Security tab disables the email field when a social account is linked, `POST /api/account/change-email` returns `409 social_linked` if one exists, and `databaseHooks.user.update.before` re-checks at confirmation time to close the race where a provider is linked between the request and the click.
 
@@ -145,12 +145,12 @@ All three reuse Better Auth's token machinery but are worded and gated for their
 
 Every auth surface is a modal addressed by a `?modal=` query param over the homepage, not a dedicated page. A single `ModalRouter` (mounted once in `app/layout.tsx` under `Suspense`) reads the param and renders the matching modal. Login, signup, and forgot-password were already modals; reset-password and the two email-confirmation screens now join them.
 
-| `?modal=` value | Modal | Who can open it |
-|---|---|---|
+| `?modal=` value                      | Modal                                     | Who can open it                                                              |
+| ------------------------------------ | ----------------------------------------- | ---------------------------------------------------------------------------- |
 | `login`, `signup`, `forgot-password` | `auth-modal.tsx` (one modal, three modes) | Anyone; also shown as a gate when a logged-out user opens a protected modal. |
-| `reset-password&token=...` | `reset-password-modal.tsx` | Anyone (public). Reached from the reset/set-password email link. |
-| `email-verified` | `auth-status-modal.tsx` | Anyone (public). Reached from the verification link. |
-| `email-changed` | `auth-status-modal.tsx` | Anyone (public). Reached from the change-email confirmation link. |
+| `reset-password&token=...`           | `reset-password-modal.tsx`                | Anyone (public). Reached from the reset/set-password email link.             |
+| `email-verified`                     | `auth-status-modal.tsx`                   | Anyone (public). Reached from the verification link.                         |
+| `email-changed`                      | `auth-status-modal.tsx`                   | Anyone (public). Reached from the change-email confirmation link.            |
 
 Two implementation points that matter for safety and correctness:
 
@@ -173,78 +173,78 @@ While `true`, Facebook is shown as "uskoro" and disabled in the login modal and 
 
 Frontend (`frontend/.env.local`, mirrored in `.env.local.example`). The app calls `requireEnv` at module load, so a missing value fails the boot rather than a request:
 
-| Variable | Purpose |
-|---|---|
-| `BETTER_AUTH_URL` | Base URL Better Auth builds links and callbacks from. |
-| `BETTER_AUTH_SECRET` | Signs Better Auth internals. Keep secret; 32+ chars. |
-| `NEXT_PUBLIC_APP_URL` | Public app origin, used for email links and trusted origins. |
-| `DATABASE_URL` | Shared Postgres, used by Better Auth via Drizzle. |
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth app. |
-| `FACEBOOK_CLIENT_ID` / `FACEBOOK_CLIENT_SECRET` | Meta app (server only, no `NEXT_PUBLIC_`). |
-| `RESEND_API_KEY` | Resend API key for sending email. |
-| `EMAIL_FROM` | Sender, must exactly match a verified Resend domain, e.g. `Disscount <noreply@disscount.me>`. |
+| Variable                                                | Purpose                                                                                       |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `BETTER_AUTH_URL`                                       | Base URL Better Auth builds links and callbacks from.                                         |
+| `BETTER_AUTH_SECRET`                                    | Signs Better Auth internals. Keep secret; 32+ chars.                                          |
+| `NEXT_PUBLIC_APP_URL`                                   | Public app origin, used for email links and trusted origins.                                  |
+| `DATABASE_URL`                                          | Shared Postgres, used by Better Auth via Drizzle.                                             |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth app.                                                                             |
+| `FACEBOOK_CLIENT_ID` / `FACEBOOK_CLIENT_SECRET`         | Meta app (server only, no `NEXT_PUBLIC_`).                                                    |
+| `RESEND_API_KEY`                                        | Resend API key for sending email.                                                             |
+| `EMAIL_FROM`                                            | Sender, must exactly match a verified Resend domain, e.g. `Disscount <noreply@disscount.me>`. |
 
 Backend (`backend/.env`, referenced in `application.properties`):
 
-| Variable | Purpose |
-|---|---|
-| `BETTER_AUTH_JWKS_URI` | Where Spring fetches Better Auth's public keys, e.g. `http://localhost:3000/api/auth/jwks` (internal Docker URL in prod). |
-| `BETTER_AUTH_ISSUER` | Expected `iss` claim the decoder validates. |
-| `SPRING_DATASOURCE_URL` / `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD` | The shared Postgres. |
+| Variable                                                                              | Purpose                                                                                                                   |
+| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `BETTER_AUTH_JWKS_URI`                                                                | Where Spring fetches Better Auth's public keys, e.g. `http://localhost:3000/api/auth/jwks` (internal Docker URL in prod). |
+| `BETTER_AUTH_ISSUER`                                                                  | Expected `iss` claim the decoder validates.                                                                               |
+| `SPRING_DATASOURCE_URL` / `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD` | The shared Postgres.                                                                                                      |
 
 ## 10. Automatic vs manual
 
-| Concern | Automatic | Needs manual work |
-|---|---|---|
-| Auth schema (`user`, `session`, `account`, `verification`, `jwks`) | Managed by Drizzle | Regenerate/migrate when Better Auth config that changes tables is added |
-| JWT signing keys | Better Auth generates and rotates into `jwks` | None |
-| OAuth email verified for linking | `databaseHooks.account.create.after` | None |
-| Email verification on signup | Sent automatically (`sendOnSignUp`) | None |
-| Sending real email | Resend, once `RESEND_API_KEY` + `EMAIL_FROM` are set | Verify the sending domain in Resend (done for `disscount.me`) |
-| Facebook availability | Gated by a constant | Flip `FACEBOOK_COMING_SOON` after Meta verification |
-| `app_user.username` uniqueness dropped | In the entity + local DB | **Apply the constraint drop on the prod DB manually** (Hibernate `ddl-auto=update` never drops) |
-| New auth config taking effect | Not automatic in dev | **Restart the dev server after editing `auth.ts`** (see gotchas) |
+| Concern                                                            | Automatic                                            | Needs manual work                                                                               |
+| ------------------------------------------------------------------ | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Auth schema (`user`, `session`, `account`, `verification`, `jwks`) | Managed by Drizzle                                   | Regenerate/migrate when Better Auth config that changes tables is added                         |
+| JWT signing keys                                                   | Better Auth generates and rotates into `jwks`        | None                                                                                            |
+| OAuth email verified for linking                                   | `databaseHooks.account.create.after`                 | None                                                                                            |
+| Email verification on signup                                       | Sent automatically (`sendOnSignUp`)                  | None                                                                                            |
+| Sending real email                                                 | Resend, once `RESEND_API_KEY` + `EMAIL_FROM` are set | Verify the sending domain in Resend (done for `disscount.me`)                                   |
+| Facebook availability                                              | Gated by a constant                                  | Flip `FACEBOOK_COMING_SOON` after Meta verification                                             |
+| `app_user.username` uniqueness dropped                             | In the entity + local DB                             | **Apply the constraint drop on the prod DB manually** (Hibernate `ddl-auto=update` never drops) |
+| New auth config taking effect                                      | Not automatic in dev                                 | **Restart the dev server after editing `auth.ts`** (see gotchas)                                |
 
 ## 11. Key files
 
-| Path | Role |
-|---|---|
-| `frontend/src/lib/auth.ts` | The Better Auth server config: providers, verification gate, reset/change-email hooks, the two `databaseHooks`, JWT plugin. The heart of auth. |
-| `frontend/src/lib/auth-client.ts` | Browser client (`createAuthClient` + `jwtClient`); exports `signIn`, `signUp`, `signOut`, `useSession`. |
-| `frontend/src/app/api/auth/[...all]/route.ts` | Catch-all that mounts Better Auth's HTTP handlers (`toNextJsHandler`). |
-| `frontend/src/db/auth-schema.ts` | Drizzle definitions of the five auth tables. |
-| `frontend/src/constants/auth.ts` | The `FACEBOOK_COMING_SOON` flag. |
-| `frontend/src/app/api/account/register/route.ts` | Anti-enumeration registration (new vs existing branch, identical response). |
-| `frontend/src/app/api/account/change-email/route.ts` | Change-email with the single-email `409 social_linked` guard. |
-| `frontend/src/app/api/account/set-password/route.ts` | Adds a password to a logged-in OAuth-only account. |
-| `frontend/src/app/reset-password/page.tsx` | Thin server redirect from the email link to `/?modal=reset-password&token=...`. |
-| `frontend/src/lib/modal/{modal-registry.ts, modal-navigation.ts, use-modal-url.ts}` | The `?modal=` grammar, the open/close/swap helpers, and the reactive `target` hook. `PUBLIC_MODAL_NAMES` lives here. |
-| `frontend/src/components/custom/modal-router/modal-router.tsx` | Mounted once in `app/layout.tsx`; reads the param and renders the matching modal (auth, public, settings, entity). |
-| `frontend/src/components/custom/oauth-error-toast.tsx` | App-wide OAuth/linking error toast. |
-| `frontend/src/components/custom/header/forms/*` | The auth UI: `auth-modal`, `login-form`, `signup-form`, `forgot-password-form`, `inbox-notice`, `reset-password-modal`, `auth-status-modal` (email-verified / email-changed), `linked-accounts`, `account-credentials-form`. |
-| `frontend/src/components/custom/settings/tabs/{sigurnost-tab, danger-zone}.tsx` | The Sigurnost settings tab (credentials, linked accounts, danger zone), replacing the old standalone security modal. |
-| `frontend/src/lib/email/*` | The email layer: `provider.ts` (interface), `resend-provider.ts`, `email-service.ts` (typed sends), `index.ts` (the one Resend wiring point, `server-only`). |
-| `frontend/src/emails/*` | React Email templates plus `components/{email-layout, action-email}.tsx`. |
-| `frontend/src/lib/env.ts` | Shared `requireEnv`. |
-| `backend/src/main/java/disscount/config/SecurityConfig.java` | Resource-server config (Nimbus ES256 decoder, JWKS, issuer, stateless). |
-| `backend/src/main/java/disscount/config/UserProvisioningFilter.java` | Lazily upserts the `app_user` profile from the JWT. |
-| `backend/src/main/java/disscount/user/service/UserService.java` | `ensureActiveProfile` + `seedUsername`. |
-| `backend/src/main/resources/application.properties` | `jwk-set-uri`, `jws-algorithms=ES256`, issuer. |
+| Path                                                                                | Role                                                                                                                                                                                                                         |
+| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `frontend/src/lib/auth.ts`                                                          | The Better Auth server config: providers, verification gate, reset/change-email hooks, the two `databaseHooks`, JWT plugin. The heart of auth.                                                                               |
+| `frontend/src/lib/auth-client.ts`                                                   | Browser client (`createAuthClient` + `jwtClient`); exports `signIn`, `signUp`, `signOut`, `useSession`.                                                                                                                      |
+| `frontend/src/app/api/auth/[...all]/route.ts`                                       | Catch-all that mounts Better Auth's HTTP handlers (`toNextJsHandler`).                                                                                                                                                       |
+| `frontend/src/db/auth-schema.ts`                                                    | Drizzle definitions of the five auth tables.                                                                                                                                                                                 |
+| `frontend/src/constants/auth.ts`                                                    | The `FACEBOOK_COMING_SOON` flag.                                                                                                                                                                                             |
+| `frontend/src/app/api/account/register/route.ts`                                    | Anti-enumeration registration (new vs existing branch, identical response).                                                                                                                                                  |
+| `frontend/src/app/api/account/change-email/route.ts`                                | Change-email with the single-email `409 social_linked` guard.                                                                                                                                                                |
+| `frontend/src/app/api/account/set-password/route.ts`                                | Adds a password to a logged-in OAuth-only account.                                                                                                                                                                           |
+| `frontend/src/app/reset-password/page.tsx`                                          | Thin server redirect from the email link to `/?modal=reset-password&token=...`.                                                                                                                                              |
+| `frontend/src/lib/modal/{modal-registry.ts, modal-navigation.ts, use-modal-url.ts}` | The `?modal=` grammar, the open/close/swap helpers, and the reactive `target` hook. `PUBLIC_MODAL_NAMES` lives here.                                                                                                         |
+| `frontend/src/components/custom/modal-router/modal-router.tsx`                      | Mounted once in `app/layout.tsx`; reads the param and renders the matching modal (auth, public, settings, entity).                                                                                                           |
+| `frontend/src/components/custom/oauth-error-toast.tsx`                              | App-wide OAuth/linking error toast.                                                                                                                                                                                          |
+| `frontend/src/components/custom/header/forms/*`                                     | The auth UI: `auth-modal`, `login-form`, `signup-form`, `forgot-password-form`, `inbox-notice`, `reset-password-modal`, `auth-status-modal` (email-verified / email-changed), `linked-accounts`, `account-credentials-form`. |
+| `frontend/src/components/custom/settings/tabs/{sigurnost-tab, danger-zone}.tsx`     | The Sigurnost settings tab (credentials, linked accounts, danger zone), replacing the old standalone security modal.                                                                                                         |
+| `frontend/src/lib/email/*`                                                          | The email layer: `provider.ts` (interface), `resend-provider.ts`, `email-service.ts` (typed sends), `index.ts` (the one Resend wiring point, `server-only`).                                                                 |
+| `frontend/src/emails/*`                                                             | React Email templates plus `components/{email-layout, action-email}.tsx`.                                                                                                                                                    |
+| `frontend/src/lib/env.ts`                                                           | Shared `requireEnv`.                                                                                                                                                                                                         |
+| `backend/src/main/java/disscount/config/SecurityConfig.java`                        | Resource-server config (Nimbus ES256 decoder, JWKS, issuer, stateless).                                                                                                                                                      |
+| `backend/src/main/java/disscount/config/UserProvisioningFilter.java`                | Lazily upserts the `app_user` profile from the JWT.                                                                                                                                                                          |
+| `backend/src/main/java/disscount/user/service/UserService.java`                     | `ensureActiveProfile` + `seedUsername`.                                                                                                                                                                                      |
+| `backend/src/main/resources/application.properties`                                 | `jwk-set-uri`, `jws-algorithms=ES256`, issuer.                                                                                                                                                                               |
 
 ## 12. Libraries
 
 Frontend (versions from `frontend/package.json`):
 
-| Library | Version | Role |
-|---|---|---|
-| `better-auth` | `1.6.14` | Identity provider (auth logic, OAuth, JWT). |
-| `@daveyplate/better-auth-ui` | `^3.2.13` | Only used for `UserAvatar`. |
-| `drizzle-orm` / `drizzle-kit` | `0.45.2` / `^0.31.10` | Owns the auth tables. |
-| `pg` | `8.21.0` | Postgres driver. |
-| `resend` | `^6.14.0` | Transactional email API. |
-| `react-email` | `^6.6.3` | Email templates (v6 imports everything from `react-email`). |
-| `server-only` | `^0.0.1` | Build-time guard so the Resend key cannot reach the client. |
-| `zod` | `^4.1.13` | Request/schema validation. |
+| Library                       | Version               | Role                                                        |
+| ----------------------------- | --------------------- | ----------------------------------------------------------- |
+| `better-auth`                 | `1.6.14`              | Identity provider (auth logic, OAuth, JWT).                 |
+| `@daveyplate/better-auth-ui`  | `^3.2.13`             | Only used for `UserAvatar`.                                 |
+| `drizzle-orm` / `drizzle-kit` | `0.45.2` / `^0.31.10` | Owns the auth tables.                                       |
+| `pg`                          | `8.21.0`              | Postgres driver.                                            |
+| `resend`                      | `^6.14.0`             | Transactional email API.                                    |
+| `react-email`                 | `^6.6.3`              | Email templates (v6 imports everything from `react-email`). |
+| `server-only`                 | `^0.0.1`              | Build-time guard so the Resend key cannot reach the client. |
+| `zod`                         | `^4.1.13`             | Request/schema validation.                                  |
 
 Backend: Spring Boot `3.1.0` on Java `21`, using `spring-boot-starter-oauth2-resource-server` (which brings in the Nimbus JOSE JWT library).
 
