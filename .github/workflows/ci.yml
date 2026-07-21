@@ -41,3 +41,37 @@ jobs:
 
       - name: Format check (docs & root markdown)
         run: pnpm exec prettier --check --ignore-path ../.prettierignore "../README.md" "../AGENTS.md" "../CLAUDE.md" "../docs/**/*.md" "../.github/**/*.md" "../.claude/**/*.md"
+
+      - name: Production build
+        run: pnpm build
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+          BETTER_AUTH_URL: http://localhost:3000
+          BETTER_AUTH_SECRET: ci-dummy-secret-not-used-at-runtime
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+          NEXT_PUBLIC_API_URL: http://localhost:8080
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ci-dummy
+          GOOGLE_CLIENT_SECRET: ci-dummy
+          FACEBOOK_CLIENT_ID: ci-dummy
+          FACEBOOK_CLIENT_SECRET: ci-dummy
+          RESEND_API_KEY: re_ci_dummy
+          EMAIL_FROM: ci@example.com
+          CIJENE_API_URL: http://localhost:9999
+          CIJENE_API_TOKEN: ci-dummy
+
+  backend:
+    name: Backend compile
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - run: mvn -B verify
