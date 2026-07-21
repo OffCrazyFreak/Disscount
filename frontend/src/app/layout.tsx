@@ -56,6 +56,9 @@ export const metadata: Metadata = {
         type: "image/png",
       },
     ],
+    other: [
+      { rel: "mask-icon", url: "/brand/icons/mask-icon.svg", color: "#2ec50d" },
+    ],
   },
   creator: "Jakov Jakovac",
   keywords: [
@@ -89,7 +92,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#121212" },
+  ],
 };
 
 export default function RootLayout({

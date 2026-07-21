@@ -6,6 +6,8 @@ _Last verified end-to-end on 2026-07-21: all generators run clean, every raster 
 
 > **Mental model in one sentence:** every brand image in the app is **generated from three hand-drawn source files** by three small Node scripts, so the mark, its green, and its shape stay pixel-identical everywhere, and changing the cart once and re-running the scripts propagates the change to the favicon, the PWA icons, the splash screens, and the downloadable logo pack all at once.
 
+> **Usage & licensing:** this repository is **public**, so these files are visible to anyone, but the Disscount name and the happy-cart logo are **brand marks, not part of the code licence**. Do not reuse them to represent another product or to imply affiliation with or endorsement by Disscount. Referencing the project (for example linking to it, or writing about it) is fine.
+
 ---
 
 ## Table of contents
@@ -102,7 +104,8 @@ frontend/public/brand/
 │   ├── lockup-horizontal/     # 10 files: cart + wordmark side by side
 │   └── lockup-vertical/       # 10 files: cart above wordmark
 ├── icons/                     # favicon + PWA / home-screen icons (auto-wired)
-│   ├── icon.svg
+│   ├── icon.svg               # primary favicon, adapts to dark mode
+│   ├── mask-icon.svg          # Safari pinned-tab silhouette (tinted brand green)
 │   ├── icon-192.png
 │   ├── icon-512.png
 │   ├── icon-maskable-512.png
@@ -111,7 +114,8 @@ frontend/public/brand/
 
 frontend/public/splash/        # 18 iOS launch screens (auto-wired)
 frontend/src/app/favicon.ico   # legacy favicon fallback (Next.js file convention)
-frontend/src/app/opengraph-image.png, twitter-image.png   # link-preview images
+frontend/src/app/opengraph-image.png, twitter-image.png       # link-preview images
+frontend/src/app/opengraph-image.alt.txt, twitter-image.alt.txt  # their alt text
 ```
 
 Each logo mark lives in its own subfolder so the pack stays browsable, and filenames keep the full mark prefix (`cart/cart-rgb.svg`, not `cart/rgb.svg`) so a file stays self-descriptive once someone downloads and copies it around.
@@ -168,11 +172,14 @@ These need no manual upload; the app references them directly.
 
 **Favicon** is declared in `src/app/layout.tsx` `metadata.icons` as three layers, on purpose:
 
-| Layer    | File                                   | Why it exists                                                                  |
-| -------- | -------------------------------------- | ------------------------------------------------------------------------------ |
-| Primary  | `brand/icons/icon.svg`                 | Crisp at any size; used by Chrome, Edge, Firefox                               |
-| Fallback | `src/app/favicon.ico`                  | Safari before v26, Google's crawler, and email/RSS clients ignore SVG favicons |
-| Apple    | `brand/icons/apple-touch-icon-180.png` | iOS home-screen icon                                                           |
+| Layer      | File                                   | Why it exists                                                                                                                               |
+| ---------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary    | `brand/icons/icon.svg`                 | Crisp at any size; used by Chrome, Edge, Firefox. Has an inline `prefers-color-scheme` style so its plate turns dark on dark browser themes |
+| Fallback   | `src/app/favicon.ico`                  | Safari before v26, Google's crawler, and email/RSS clients ignore SVG favicons                                                              |
+| Apple      | `brand/icons/apple-touch-icon-180.png` | iOS home-screen icon                                                                                                                        |
+| Safari tab | `brand/icons/mask-icon.svg`            | Monochrome cart silhouette for macOS Safari pinned tabs; Safari tints it with the `color` in the `<link>` (brand green)                     |
+
+The theme colour is set in `layout.tsx` `viewport.themeColor` as a light/dark pair (`#ffffff` / `#121212`) so the mobile browser chrome matches the page. Both `opengraph-image.png` and `twitter-image.png` carry alt text via sibling `*.alt.txt` files (a Next.js convention).
 
 **PWA icons** are declared in `src/app/manifest.ts`: `icon-192`, `icon-512` (both `purpose: "any"`), and `icon-maskable-512` (`purpose: "maskable"`, a tighter crop so Android's circle/squircle mask never clips the cart). The install banners (`install-banner.tsx`, `install-sidebar-banner.tsx`) reuse `icon-192.png`.
 
