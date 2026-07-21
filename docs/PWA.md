@@ -39,7 +39,7 @@ _Last verified on branch `feat/pwa`, 2026-07-04: installable on Android/iOS, off
 | Build command                | `next build --webpack` (Serwist needs webpack; dev stays on Turbopack)                                                    |
 | Status-bar / theme color     | `#ffffff` (neutral white, set in both `manifest.ts` and the `viewport` export)                                            |
 | Install UX                   | floating dismissible banner + persistent sidebar banner + iOS/Android instructions sheet                                  |
-| Icons / splash / screenshots | `public/icons` (4), `public/splash` (18 iOS sizes), `public/screenshots` (2)                                              |
+| Icons / splash / screenshots | `public/brand/icons`, `public/splash` (18 iOS sizes), `public/screenshots` (2); see `docs/BRAND.md`                       |
 | What is NOT built yet        | push notifications, app badging, service-worker update prompt, wake lock (see [TODOs](#14-future-improvements-and-todos)) |
 
 **The one rule that explains most decisions:** public data may be cached by the service worker; **private (authenticated) data is never written to the HTTP Cache Storage**, it lives only in the React Query IndexedDB cache and is wiped on logout.
@@ -104,16 +104,17 @@ Disscount ships a Web App Manifest and a registered service worker, which togeth
 
 A Next.js dynamic manifest (a function returning `MetadataRoute.Manifest`) served at `/manifest.webmanifest`. Key fields:
 
-| Field              | Value                                                 | Why                                                                                                      |
-| ------------------ | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `display`          | `standalone`                                          | opens without browser chrome, like an app                                                                |
-| `orientation`      | `portrait`                                            | shopping is a phone-in-hand, portrait activity (also means we only need portrait splash screens)         |
-| `background_color` | `#fafafa`                                             | the splash background while the app boots                                                                |
-| `theme_color`      | `#ffffff`                                             | neutral title bar (was brand green, changed to a default look)                                           |
-| `icons`            | 192, 512, and a 512 **maskable**                      | maskable avoids the icon being clipped by the OS circle/squircle                                         |
-| `shortcuts`        | derived from `userNavItems` filtered by `!comingSoon` | long-press the icon to jump to Shopping lists / Watchlist; the list grows automatically as features ship |
-| `screenshots`      | one `narrow` + one `wide`                             | Chrome's richer, app-store-like install dialog                                                           |
-| `launch_handler`   | `{ client_mode: "focus-existing" }`                   | reuse an open window instead of spawning a duplicate when launched from a shortcut or notification       |
+| Field              | Value                                                 | Why                                                                                                                |
+| ------------------ | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `display`          | `standalone`                                          | opens without browser chrome, like an app                                                                          |
+| `orientation`      | `portrait`                                            | shopping is a phone-in-hand, portrait activity (also means we only need portrait splash screens)                   |
+| `background_color` | `#ffffff`                                             | the splash background while the app boots (white, to match the iOS launch screens)                                 |
+| `theme_color`      | `#ffffff`                                             | neutral title bar (the light/dark pair is set in `layout.tsx` `viewport.themeColor`)                               |
+| `icons`            | 192, 512, and a 512 **maskable**                      | maskable avoids the icon being clipped by the OS circle/squircle                                                   |
+| `shortcuts`        | derived from `userNavItems` filtered by `!comingSoon` | long-press the icon to jump to Shopping lists / Watchlist; the list grows automatically as features ship           |
+| `screenshots`      | one `narrow` + one `wide` (each `label`ed)            | Chrome's richer, app-store-like install dialog                                                                     |
+| `share_target`     | GET to `/share-target`                                | registers Disscount in the system share sheet; the route handler funnels shared text/title/url into `/products?q=` |
+| `launch_handler`   | `{ client_mode: "focus-existing" }`                   | reuse an open window instead of spawning a duplicate when launched from a shortcut or notification                 |
 
 Icons are generated from the happy-cart source (`public/brand/logo/cart/cart-rgb.svg`) by `scripts/generate-pwa-icons.mjs` (uses `sharp`), into `public/brand/icons` (plus the legacy `src/app/favicon.ico`). See `docs/BRAND.md` for the full asset map.
 
@@ -221,7 +222,7 @@ Three pieces make replay-after-reload correct:
 | **iOS splash screens**   | `constants/ios-splash-screens.json` (18 portrait device sizes) + `scripts/generate-ios-splash.mjs` (writes `public/splash/*`) + `apple-splash-screens.tsx` (emits `apple-touch-startup-image` links) | iOS ignores the manifest for launch screens, so without these the installed app opens to a white flash             |
 | **Persistent storage**   | `request-persistent-storage.tsx` calls `navigator.storage.persist()` once on load                                                                                                                    | asks the browser not to evict the IndexedDB offline cache under storage pressure or after disuse (notably on iOS)  |
 | **Manifest screenshots** | `public/screenshots/screenshot-narrow.png` + `screenshot-wide.png`                                                                                                                                   | Chrome's richer install dialog; currently branded placeholder cards to be swapped for real captures                |
-| **Icons**                | `public/icons/*` from `scripts/generate-pwa-icons.mjs`                                                                                                                                               | 192, 512, maskable 512, apple-touch 180                                                                            |
+| **Icons**                | `public/brand/icons/*` from `scripts/generate-pwa-icons.mjs` (plus hand-authored `icon.svg` + `mask-icon.svg`)                                                                                       | 192, 512, maskable 512, apple-touch 180, favicon SVG, Safari mask-icon                                             |
 
 Splash and persistent-storage components are mounted inside `providers.tsx`. This matters for the splash links specifically: because Next.js server-renders the provider tree, React hoists the `apple-touch-startup-image` links into the initial HTML `<head>`, so iOS sees them at launch time (not only after hydration).
 

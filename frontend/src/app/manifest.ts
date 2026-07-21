@@ -1,9 +1,15 @@
 import type { MetadataRoute } from "next";
 import { userNavItems } from "@/constants/navigation";
 
-// `launch_handler` isn't in Next's manifest type yet, so extend it here.
+// `launch_handler` and `share_target` aren't in Next's manifest type yet, so
+// extend it here.
 type WebAppManifest = MetadataRoute.Manifest & {
   launch_handler?: { client_mode?: string | string[] };
+  share_target?: {
+    action: string;
+    method?: "GET" | "POST";
+    params: { title?: string; text?: string; url?: string };
+  };
 };
 
 // Web App Manifest (served at /manifest.webmanifest). Next.js injects the
@@ -63,15 +69,24 @@ export default function manifest(): WebAppManifest {
         sizes: "390x844",
         type: "image/png",
         form_factor: "narrow",
+        label: "Usporedba cijena na mobitelu",
       },
       {
         src: "/screenshots/screenshot-wide.png",
         sizes: "1920x1080",
         type: "image/png",
         form_factor: "wide",
+        label: "Usporedba cijena na računalu",
       },
     ],
     shortcuts,
+    // Register as a system share target: text/title/url shared from another app
+    // is funneled into product search by the /share-target route handler.
+    share_target: {
+      action: "/share-target",
+      method: "GET",
+      params: { title: "title", text: "text", url: "url" },
+    },
     // Reuse an already-open window instead of spawning a new one when launched
     // from a shortcut or notification.
     launch_handler: { client_mode: "focus-existing" },
