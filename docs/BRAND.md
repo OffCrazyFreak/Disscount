@@ -104,7 +104,7 @@ frontend/public/brand/
 │   ├── lockup-horizontal/     # 10 files: cart + wordmark side by side
 │   └── lockup-vertical/       # 10 files: cart above wordmark
 ├── icons/                     # favicon + PWA / home-screen icons (auto-wired)
-│   ├── icon.svg               # primary favicon, adapts to dark mode
+│   ├── icon.svg               # primary favicon (white plate + green cart)
 │   ├── mask-icon.svg          # Safari pinned-tab silhouette (tinted brand green)
 │   ├── icon-192.png
 │   ├── icon-512.png
@@ -172,14 +172,14 @@ These need no manual upload; the app references them directly.
 
 **Favicon** is declared in `src/app/layout.tsx` `metadata.icons` as three layers, on purpose:
 
-| Layer      | File                                   | Why it exists                                                                                                                               |
-| ---------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Primary    | `brand/icons/icon.svg`                 | Crisp at any size; used by Chrome, Edge, Firefox. Has an inline `prefers-color-scheme` style so its plate turns dark on dark browser themes |
-| Fallback   | `src/app/favicon.ico`                  | Safari before v26, Google's crawler, and email/RSS clients ignore SVG favicons                                                              |
-| Apple      | `brand/icons/apple-touch-icon-180.png` | iOS home-screen icon                                                                                                                        |
-| Safari tab | `brand/icons/mask-icon.svg`            | Monochrome cart silhouette for macOS Safari pinned tabs; Safari tints it with the `color` in the `<link>` (brand green)                     |
+| Layer      | File                                   | Why it exists                                                                                                                                         |
+| ---------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary    | `brand/icons/icon.svg`                 | Crisp at any size; used by Chrome, Edge, Firefox. Always a white rounded plate with the green cart (kept consistent across light/dark browser themes) |
+| Fallback   | `src/app/favicon.ico`                  | Safari before v26, Google's crawler, and email/RSS clients ignore SVG favicons                                                                        |
+| Apple      | `brand/icons/apple-touch-icon-180.png` | iOS home-screen icon                                                                                                                                  |
+| Safari tab | `brand/icons/mask-icon.svg`            | Monochrome cart silhouette for macOS Safari pinned tabs; Safari tints it with the `color` in the `<link>` (brand green)                               |
 
-The theme colour is set in `layout.tsx` `viewport.themeColor` as a light/dark pair (`#ffffff` / `#121212`) so the mobile browser chrome matches the page. Both `opengraph-image.png` and `twitter-image.png` carry alt text via sibling `*.alt.txt` files (a Next.js convention).
+The theme colour is set in `layout.tsx` `viewport.themeColor` as a light/dark pair (`#ffffff` / `#121212`) so the mobile browser chrome matches the page. The OG and Twitter link-preview images are generated dynamically (see section 8), and their alt text is exported from the same modules.
 
 **PWA icons** are declared in `src/app/manifest.ts`: `icon-192`, `icon-512` (both `purpose: "any"`), and `icon-maskable-512` (`purpose: "maskable"`, a tighter crop so Android's circle/squircle mask never clips the cart). The install banners (`install-banner.tsx`, `install-sidebar-banner.tsx`) reuse `icon-192.png`.
 
