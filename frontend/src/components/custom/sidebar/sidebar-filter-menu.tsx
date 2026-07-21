@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import {
@@ -14,6 +15,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import ScrollFade from "@/components/custom/common/scroll-fade";
 import type { NavigationItem } from "@/constants/navigation";
 
 export interface ISidebarFilterOption {
@@ -42,6 +44,7 @@ export default function SidebarFilterMenu({
 }: ISidebarFilterMenuProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const listRef = useRef<HTMLUListElement>(null);
   const Icon = item.icon;
 
   // Deep-links into /products; from the products page itself the search and
@@ -73,24 +76,37 @@ export default function SidebarFilterMenu({
         </CollapsibleTrigger>
 
         <CollapsibleContent>
-          <SidebarMenuSub className="max-h-80 overflow-y-auto">
-            {options.map((option) => (
-              <SidebarMenuSubItem key={option.value}>
-                <SidebarMenuSubButton
-                  asChild
-                  isActive={selected.includes(option.value)}
-                >
-                  <Link
-                    href={buildHref(option.value)}
-                    className="flex justify-between"
+          <div className="relative">
+            <ScrollFade
+              targetRef={listRef}
+              side="top"
+              className="from-sidebar"
+            />
+
+            <SidebarMenuSub
+              ref={listRef}
+              className="max-h-80 overflow-y-auto"
+            >
+              {options.map((option) => (
+                <SidebarMenuSubItem key={option.value}>
+                  <SidebarMenuSubButton
+                    asChild
+                    isActive={selected.includes(option.value)}
                   >
-                    <span>{option.label}</span>
-                    <span>{`(${option.count})`}</span>
-                  </Link>
-                </SidebarMenuSubButton>
-              </SidebarMenuSubItem>
-            ))}
-          </SidebarMenuSub>
+                    <Link
+                      href={buildHref(option.value)}
+                      className="flex justify-between"
+                    >
+                      <span>{option.label}</span>
+                      <span>{`(${option.count})`}</span>
+                    </Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              ))}
+            </SidebarMenuSub>
+
+            <ScrollFade targetRef={listRef} className="from-sidebar" />
+          </div>
         </CollapsibleContent>
       </SidebarMenuSubItem>
     </Collapsible>
