@@ -27,7 +27,7 @@ come back here for the contribution workflow.
 
 ## Pull request workflow
 
-1. **Fork** the repo and create a branch from `main`:
+1. **Fork** the repo and create a branch from `dev`:
    - `feat/add-search-by-barcode`, `fix/shopping-list-null-pointer`,
      `docs/update-readme`.
 2. **Match the existing style.** Conventions live in
@@ -40,7 +40,7 @@ come back here for the contribution workflow.
    - Backend: `cd backend && mvn clean install`
 4. **Write clear commits** in imperative mood and reference related issue
    numbers.
-5. **Open a PR against `main`** and include:
+5. **Open a PR against `dev`** and include:
    - A summary of what changed and why, plus any migration steps.
    - Screenshots or short recordings for UI changes.
    - A link to the related issue.
