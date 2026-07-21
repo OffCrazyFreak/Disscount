@@ -53,6 +53,9 @@ come back here for the contribution workflow.
 
 ## Review process
 
+- **CI runs on every PR** (`.github/workflows/ci.yml`): frontend typecheck, lint,
+  Prettier, and a production build, plus a backend build. Please make sure it
+  is green before requesting review.
 - Maintainers review PRs, may request changes, and merge when ready.
 - [CodeRabbit](https://coderabbit.ai) runs automated review on every PR. Please
   address its suggestions before requesting final review, or explain in the PR

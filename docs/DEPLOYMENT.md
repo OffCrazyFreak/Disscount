@@ -109,6 +109,7 @@ flowchart LR
 - **Autodeploy** is ON: pushing to a branch triggers Dokploy (via GitHub webhook) to **rebuild that environment on the VPS** (`pnpm install` + `next build --webpack` for the frontend, Maven for the backend). The frontend is pinned to **webpack on purpose** (see the [webpack gotcha](#13-gotchas--lessons-learned)); the Dockerfile runs `pnpm build`, so that flag flows into the production image.
 - Builds run **on the server** (~2-4 min, uses CPU + the 4 GB swap). This is fine for now; see [TODOs](#14-future-improvements--todos) for moving builds to CI later.
 - Each environment is **fully isolated:** its own containers **and its own database/volume**. Dev data never touches prod data.
+- **CI gate before merge:** every push and PR runs `.github/workflows/ci.yml` (frontend typecheck + lint + format + a real `next build`, plus a backend `mvn -B verify`, which currently compiles and packages since there are no backend tests yet). `main` is branch-protected, so a PR into `main` cannot merge until **Frontend checks** and **Backend checks** pass. This is a separate quality gate from the Dokploy build above, which is what actually ships the image.
 
 > ⚠️ **After any deploy, hard-refresh the browser** (Ctrl/Cmd+Shift+R). Otherwise you may see Next.js `Failed to find Server Action ...`, which is just your old cached page hitting the new build.
 
@@ -244,21 +245,22 @@ Set in **Dokploy → service → Environment**, per environment. Both DSNs live 
 
 ## 10. What's automatic vs manual
 
-| Task                                       | Automatic? | Notes                                                                    |
-| ------------------------------------------ | ---------- | ------------------------------------------------------------------------ |
-| Build & deploy on `git push`               | ✅ auto    | Dokploy autodeploy (per branch)                                          |
-| HTTPS certificate issuance + renewal       | ✅ auto    | Traefik + Let's Encrypt                                                  |
-| HTTP to HTTPS redirect                     | ✅ auto    | Cloudflare                                                               |
-| DB migrations (auth tables + app tables)   | ✅ auto    | `migrate` service (drizzle) + Hibernate `ddl-auto=update` on each deploy |
-| Nightly DB backups (R2 + local) + rotation | ✅ auto    | Dokploy Backups + Schedule                                               |
-| OS security updates                        | ✅ auto    | unattended-upgrades                                                      |
-| Uptime checks                              | ✅ auto    | UptimeRobot                                                              |
-| **Adding/Changing a `NEXT_PUBLIC_*` var**  | ❌ manual  | edit in Dokploy env **+ redeploy**                                       |
-| **Adding a new domain/subdomain**          | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                |
-| **New OAuth provider redirect URIs**       | ❌ manual  | add in Google/Meta consoles                                              |
-| **Hard-refresh after deploy**              | ❌ manual  | avoids stale-bundle errors                                               |
-| **Restoring a backup**                     | ❌ manual  | see [§8](#8-backups--restore)                                            |
-| **Rotating secrets / tokens**              | ❌ manual  | as needed                                                                |
+| Task                                                       | Automatic? | Notes                                                                      |
+| ---------------------------------------------------------- | ---------- | -------------------------------------------------------------------------- |
+| Build & deploy on `git push`                               | ✅ auto    | Dokploy autodeploy (per branch)                                            |
+| CI checks (typecheck, lint, format, build, backend verify) | ✅ auto    | `.github/workflows/ci.yml` on every push + PR; required to merge to `main` |
+| HTTPS certificate issuance + renewal                       | ✅ auto    | Traefik + Let's Encrypt                                                    |
+| HTTP to HTTPS redirect                                     | ✅ auto    | Cloudflare                                                                 |
+| DB migrations (auth tables + app tables)                   | ✅ auto    | `migrate` service (drizzle) + Hibernate `ddl-auto=update` on each deploy   |
+| Nightly DB backups (R2 + local) + rotation                 | ✅ auto    | Dokploy Backups + Schedule                                                 |
+| OS security updates                                        | ✅ auto    | unattended-upgrades                                                        |
+| Uptime checks                                              | ✅ auto    | UptimeRobot                                                                |
+| **Adding/Changing a `NEXT_PUBLIC_*` var**                  | ❌ manual  | edit in Dokploy env **+ redeploy**                                         |
+| **Adding a new domain/subdomain**                          | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                  |
+| **New OAuth provider redirect URIs**                       | ❌ manual  | add in Google/Meta consoles                                                |
+| **Hard-refresh after deploy**                              | ❌ manual  | avoids stale-bundle errors                                                 |
+| **Restoring a backup**                                     | ❌ manual  | see [§8](#8-backups--restore)                                              |
+| **Rotating secrets / tokens**                              | ❌ manual  | as needed                                                                  |
 
 ---
 
@@ -365,7 +367,7 @@ These are the things that actually cost us time, worth remembering:
 **Reliability / ops**
 
 - [ ] **Hetzner snapshots** (whole-VM image) in addition to DB backups.
-- [ ] Move builds to **GitHub Actions CI** (build image, push to registry, Dokploy pulls) to take build CPU off the VPS, especially once preview/dev deploys are frequent. (A `.github/workflows/ci.yml` quality gate already runs typecheck + lint + format on push; this item is specifically about moving the Docker _image build/deploy_ off the VPS.)
+- [ ] Move builds to **GitHub Actions CI** (build image, push to registry, Dokploy pulls) to take build CPU off the VPS, especially once preview/dev deploys are frequent. (A `.github/workflows/ci.yml` quality gate already runs the frontend typecheck + lint + format + production build and a backend `mvn -B verify` on every push and PR, with both required before merging to `main`; this item is specifically about moving the Docker _image build/deploy_ off the VPS.)
 - [ ] Consider **Flyway/Liquibase** instead of Hibernate `ddl-auto=update` for safer prod schema changes.
 - [ ] **Cloudflare DNS-01 challenge** in Traefik (a Cloudflare API token) so certs renew without relying on inbound HTTP through the proxy, more robust now that all domains are proxied.
 - [ ] **Backup-failure alerting** (dead-man's switch, e.g. healthchecks.io), since per-backup notifications are off to avoid spam.

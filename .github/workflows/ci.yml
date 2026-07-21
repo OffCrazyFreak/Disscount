@@ -60,7 +60,7 @@ jobs:
           CIJENE_API_TOKEN: ci-dummy
 
   backend:
-    name: Backend compile
+    name: Backend checks
     runs-on: ubuntu-latest
     defaults:
       run:
