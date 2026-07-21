@@ -194,7 +194,7 @@ No secrets are committed: `supabase` and `sentry` authenticate via browser OAuth
 
 ## Deployment
 
-Disscount is self-hosted on a Hetzner VPS using [Dokploy](https://dokploy.com) (Docker Compose), with Traefik for routing and automatic Let's Encrypt TLS, and Cloudflare in front for DNS, CDN, and proxying. Production deploys automatically from the `master` branch, and a staging environment deploys from the `dev` branch, on every push.
+Disscount is self-hosted on a Hetzner VPS using [Dokploy](https://dokploy.com) (Docker Compose), with Traefik for routing and automatic Let's Encrypt TLS, and Cloudflare in front for DNS, CDN, and proxying. Production deploys automatically from the `main` branch, and a staging environment deploys from the `dev` branch, on every push.
 
 See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the full infrastructure reference: architecture, environment variables, DNS and SSL, security, backups and restore, monitoring, and how to add more apps to the server.
 

@@ -36,10 +36,10 @@ _Last verified end-to-end on 2026-06-28: prod + dev healthy, redirects and certs
 | Dokploy panel    | `https://dokploy.disscount.me`                                                        |
 | VPS              | Hetzner **CX33** (4 vCPU / 8 GB / 80 GB), Ubuntu, Helsinki, IP **YOUR_VPS_IP**        |
 | SSH              | `ssh YOUR_USER@YOUR_VPS_IP` (key-only; root + password login disabled)                |
-| Repo             | `OffCrazyFreak/Disscount` (**public**), prod from `master`, dev from `dev`            |
+| Repo             | `OffCrazyFreak/Disscount` (**public**), prod from `main`, dev from `dev`            |
 | Cost             | ~**€10.61/mo** VPS (fixed) + free tiers (Cloudflare, R2, Sentry, UptimeRobot, Resend) |
 
-**Daily workflow:** push to `dev`, test on `dev.disscount.me`, open PR `dev` to `master`, merge, production auto-deploys.
+**Daily workflow:** push to `dev`, test on `dev.disscount.me`, open PR `dev` to `main`, merge, production auto-deploys.
 
 > 🔒 _This doc lives in a **public** repo, so the server IP and SSH user are shown as `YOUR_VPS_IP` / `YOUR_USER` placeholders. Keep the real values in your password manager, never commit them here._
 
@@ -100,9 +100,9 @@ flowchart LR
 flowchart LR
     A[Push to dev] --> B[Dokploy auto-builds dev]
     B --> C[dev.disscount.me updated]
-    C --> D[Open PR dev to master]
-    D --> E[Merge to master]
-    E --> F[Dokploy auto-builds master]
+    C --> D[Open PR dev to main]
+    D --> E[Merge to main]
+    E --> F[Dokploy auto-builds main]
     F --> G[disscount.me updated]
 ```
 
@@ -266,7 +266,7 @@ Set in **Dokploy → service → Environment**, per environment. Both DSNs live 
 
 | I want to                     | Do this                                                                                                     |
 | ----------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| **Deploy a change**           | push to `dev` (test), PR `dev` to `master`, merge (autodeploys)                                             |
+| **Deploy a change**           | push to `dev` (test), PR `dev` to `main`, merge (autodeploys)                                             |
 | **Force a redeploy**          | Dokploy, service, **Redeploy**                                                                              |
 | **Roll back**                 | Dokploy, service, **Deployments**, redeploy a previous successful build (or revert the git commit and push) |
 | **See logs**                  | Dokploy, service, **Logs**; or `ssh YOUR_USER@YOUR_VPS_IP` then `docker logs <container>`                   |

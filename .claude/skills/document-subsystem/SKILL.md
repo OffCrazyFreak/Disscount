@@ -29,4 +29,4 @@ Assume the reader is still learning, so explain the concepts clearly. Use tables
 - Do not hard-wrap Markdown; write one physical line per paragraph and per bullet, and let the editor wrap.
 - Match the structure and tone of `docs/DEPLOYMENT.md`.
 
-Do one subsystem per run so the exploration stays focused. The finished file is added to a PR into `dev`, then `master`.
+Do one subsystem per run so the exploration stays focused. The finished file is added to a PR into `dev`, then `main`.
