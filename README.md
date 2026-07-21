@@ -78,6 +78,12 @@ Landing page ([full-page screenshot](docs/screenshots/landing-full.png)):
 
 Big thanks to _[Cijene API](https://github.com/senko/cijene-api/)_ for providing access to their API for data about products and store chains :)
 
+## Support
+
+If Disscount saves you money or you would like to support its development, you can buy me a coffee. Every bit helps keep the project going and hosted.
+
+[![Support me on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/disscount)
+
 ## License [![BUSL 1.1][busl-shield]][busl]
 
 [busl]: https://spdx.org/licenses/BUSL-1.1.html
