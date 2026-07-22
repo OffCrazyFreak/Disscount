@@ -27,14 +27,14 @@ _Last audited end-to-end on 2026-07-22: every user-facing input and form account
 
 ## 1. Quick reference
 
-| Thing                         | Value                                                                                          |
-| ----------------------------- | ---------------------------------------------------------------------------------------------- |
-| URL state                     | search query `?q=`, product filters (repeated params), open modal `?modal=`                     |
-| localStorage key              | a single JSON object under `Disscount_app`                                                      |
-| localStorage holds            | modal-form drafts (24h TTL) + device preferences (view mode, chart periods, camera, banners)    |
-| Draft engine                  | `useFormDraft` (auto-save changed values on a 500ms debounce, restore on reopen)                |
-| Offline data store            | persisted React Query cache in IndexedDB (see [PWA.md](PWA.md))                                  |
-| Never persisted               | passwords, the avatar base64 image, admin dashboard filters                                      |
+| Thing              | Value                                                                                        |
+| ------------------ | -------------------------------------------------------------------------------------------- |
+| URL state          | search query `?q=`, product filters (repeated params), open modal `?modal=`                  |
+| localStorage key   | a single JSON object under `Disscount_app`                                                   |
+| localStorage holds | modal-form drafts (24h TTL) + device preferences (view mode, chart periods, camera, banners) |
+| Draft engine       | `useFormDraft` (auto-save changed values on a 500ms debounce, restore on reopen)             |
+| Offline data store | persisted React Query cache in IndexedDB (see [PWA.md](PWA.md))                              |
+| Never persisted    | passwords, the avatar base64 image, admin dashboard filters                                  |
 
 **The one rule that explains most decisions:** state is placed by intent. Shareable or navigable state goes in the URL, personal per-device state goes in localStorage, and cached server data goes in IndexedDB.
 
@@ -68,11 +68,11 @@ flowchart TD
     IDB -->|reload / offline| Restore3["cached data"]
 ```
 
-| Layer            | Backed by                          | Holds                                                       | Survives                               | Scope        |
-| ---------------- | ---------------------------------- | ---------------------------------------------------------- | -------------------------------------- | ------------ |
-| **URL**          | query string + route               | search query, active filters, which modal is open          | reload, share, back/forward, bookmark  | the link     |
-| **localStorage** | one `Disscount_app` JSON object    | per-device preferences + unsaved modal-form drafts (24h)   | reload, browser restart                | the device   |
-| **IndexedDB**    | persisted React Query cache        | offline data cache (lists, watchlist, viewed products)     | reload, offline; wiped on logout       | the session  |
+| Layer            | Backed by                       | Holds                                                    | Survives                              | Scope       |
+| ---------------- | ------------------------------- | -------------------------------------------------------- | ------------------------------------- | ----------- |
+| **URL**          | query string + route            | search query, active filters, which modal is open        | reload, share, back/forward, bookmark | the link    |
+| **localStorage** | one `Disscount_app` JSON object | per-device preferences + unsaved modal-form drafts (24h) | reload, browser restart               | the device  |
+| **IndexedDB**    | persisted React Query cache     | offline data cache (lists, watchlist, viewed products)   | reload, offline; wiped on logout      | the session |
 
 ---
 
@@ -120,28 +120,28 @@ sequenceDiagram
 
 Forms wired to drafts:
 
-| Form                        | File                          | Notes                                          |
-| --------------------------- | ----------------------------- | ---------------------------------------------- |
-| Watchlist item modal        | `watchlist-item-modal.tsx`    | restore handled by the hook                     |
-| Add to shopping list        | `use-add-to-list-form.ts`     | restore handled by the hook                     |
-| Shopping list create/edit   | `shopping-list-modal.tsx`     | prefill-then-merge (`restore: false`)           |
-| Digital card create/edit    | `digital-card-modal.tsx`      | prefill-then-merge; also feeds scan-to-fill     |
-| Settings (profile, etc.)    | `settings-modal-host.tsx`     | one draft across the tabbed form                |
-| Contact                     | `contact-modal.tsx`           | prefill from profile, then merge draft on top   |
+| Form                      | File                       | Notes                                         |
+| ------------------------- | -------------------------- | --------------------------------------------- |
+| Watchlist item modal      | `watchlist-item-modal.tsx` | restore handled by the hook                   |
+| Add to shopping list      | `use-add-to-list-form.ts`  | restore handled by the hook                   |
+| Shopping list create/edit | `shopping-list-modal.tsx`  | prefill-then-merge (`restore: false`)         |
+| Digital card create/edit  | `digital-card-modal.tsx`   | prefill-then-merge; also feeds scan-to-fill   |
+| Settings (profile, etc.)  | `settings-modal-host.tsx`  | one draft across the tabbed form              |
+| Contact                   | `contact-modal.tsx`        | prefill from profile, then merge draft on top |
 
 ### 4b. Device preferences
 
 Written by the small domain helpers in `utils/browser/storage/*`, each of which reads, merges its own field, and writes back through the core wrapper.
 
-| Field                      | Meaning                                                       | Helper              |
-| -------------------------- | ------------------------------------------------------------ | ------------------- |
-| `viewModes`                | grid/list toggle, per list key                                | `view-mode.ts`      |
-| `productsPreferences`      | price-history period + chains + open state, per product EAN   | `products.ts`       |
-| `shoppingListsPreferences` | section open states + price-history prefs, per list           | `shopping-lists.ts` |
-| `storeOptimizeMode`        | preferred store-list sort, shared across all lists            | `shopping-lists.ts` |
-| `preferredCameraId`        | manually chosen scanner camera (absent means auto-pick)       | `scanner.ts`        |
-| `installBannerDismissedAt` | "install app" banner snooze (7 days)                          | `pwa.ts`            |
-| `lastLoginMethod`          | drives the "last used" sign-in badge                          | `auth.ts`           |
+| Field                      | Meaning                                                     | Helper              |
+| -------------------------- | ----------------------------------------------------------- | ------------------- |
+| `viewModes`                | grid/list toggle, per list key                              | `view-mode.ts`      |
+| `productsPreferences`      | price-history period + chains + open state, per product EAN | `products.ts`       |
+| `shoppingListsPreferences` | section open states + price-history prefs, per list         | `shopping-lists.ts` |
+| `storeOptimizeMode`        | preferred store-list sort, shared across all lists          | `shopping-lists.ts` |
+| `preferredCameraId`        | manually chosen scanner camera (absent means auto-pick)     | `scanner.ts`        |
+| `installBannerDismissedAt` | "install app" banner snooze (7 days)                        | `pwa.ts`            |
+| `lastLoginMethod`          | drives the "last used" sign-in badge                        | `auth.ts`           |
 
 The shape of the whole object is declared in `typings/local-storage.ts` (`AppData`).
 
@@ -165,59 +165,59 @@ Not everything should be remembered. These are intentionally **not** persisted, 
 
 ## 7. Coverage matrix (every input and form)
 
-| Input / form                        | Persisted?     | Where                        |
-| ----------------------------------- | -------------- | ---------------------------- |
-| Global search                       | Yes            | URL `?q=`                    |
-| Product filters                     | Yes            | URL repeated params          |
-| Open modal                          | Yes            | URL `?modal=`                |
-| Watchlist item modal                | Yes            | localStorage draft           |
-| Add-to-list form                    | Yes            | localStorage draft           |
-| Shopping list modal                 | Yes            | localStorage draft           |
-| Digital card modal                  | Yes            | localStorage draft           |
-| Settings modal                      | Yes            | localStorage draft           |
-| Contact modal                       | Yes            | localStorage draft           |
-| View mode / sort / camera / periods | Yes            | localStorage preferences     |
-| Auth + security forms               | No, by design  | passwords, never stored      |
-| Avatar upload                       | No, by design  | base64, quota-excluded       |
-| Admin dashboard filters             | No, by design  | session `useState`           |
+| Input / form                        | Persisted?    | Where                    |
+| ----------------------------------- | ------------- | ------------------------ |
+| Global search                       | Yes           | URL `?q=`                |
+| Product filters                     | Yes           | URL repeated params      |
+| Open modal                          | Yes           | URL `?modal=`            |
+| Watchlist item modal                | Yes           | localStorage draft       |
+| Add-to-list form                    | Yes           | localStorage draft       |
+| Shopping list modal                 | Yes           | localStorage draft       |
+| Digital card modal                  | Yes           | localStorage draft       |
+| Settings modal                      | Yes           | localStorage draft       |
+| Contact modal                       | Yes           | localStorage draft       |
+| View mode / sort / camera / periods | Yes           | localStorage preferences |
+| Auth + security forms               | No, by design | passwords, never stored  |
+| Avatar upload                       | No, by design | base64, quota-excluded   |
+| Admin dashboard filters             | No, by design | session `useState`       |
 
 ---
 
 ## 8. What's automatic vs manual
 
-| Thing                                          | Auto / manual | Notes                                                                                  |
-| ---------------------------------------------- | ------------- | -------------------------------------------------------------------------------------- |
-| Saving a modal draft while typing              | Auto          | `useFormDraft` watches the form and debounces writes                                    |
-| Restoring a draft on reopen                    | Auto          | hook restores, or the modal merges it (`restore: false`)                                |
-| Expiring stale drafts (24h)                    | Auto          | dropped on read                                                                         |
-| Clearing a draft after a successful submit     | Auto          | submit handlers call `clearDraft()` / the mutation clears it                            |
-| Keeping search + filters in the URL            | Auto          | the search and filter hooks own it                                                      |
-| Persisting a preference (view mode, camera...) | Auto          | the relevant `storage/*` helper writes on change                                        |
-| Adding a NEW modal form to the draft system    | Manual        | call `useFormDraft` with a unique `draftKey`; pick `restore` and `exclude`              |
-| Adding a NEW preference                        | Manual        | add the field to `AppData` and a helper in `utils/browser/storage/`                     |
-| Excluding a sensitive field from a draft       | Manual        | pass it in `exclude` (do this for passwords and base64 images)                          |
+| Thing                                          | Auto / manual | Notes                                                                      |
+| ---------------------------------------------- | ------------- | -------------------------------------------------------------------------- |
+| Saving a modal draft while typing              | Auto          | `useFormDraft` watches the form and debounces writes                       |
+| Restoring a draft on reopen                    | Auto          | hook restores, or the modal merges it (`restore: false`)                   |
+| Expiring stale drafts (24h)                    | Auto          | dropped on read                                                            |
+| Clearing a draft after a successful submit     | Auto          | submit handlers call `clearDraft()` / the mutation clears it               |
+| Keeping search + filters in the URL            | Auto          | the search and filter hooks own it                                         |
+| Persisting a preference (view mode, camera...) | Auto          | the relevant `storage/*` helper writes on change                           |
+| Adding a NEW modal form to the draft system    | Manual        | call `useFormDraft` with a unique `draftKey`; pick `restore` and `exclude` |
+| Adding a NEW preference                        | Manual        | add the field to `AppData` and a helper in `utils/browser/storage/`        |
+| Excluding a sensitive field from a draft       | Manual        | pass it in `exclude` (do this for passwords and base64 images)             |
 
 ---
 
 ## 9. Key files
 
-| File                                                    | Role                                                            |
-| ------------------------------------------------------- | --------------------------------------------------------------- |
-| `frontend/src/hooks/use-form-draft.ts`                  | modal-form draft save/restore engine (24h TTL, diff-vs-defaults) |
-| `frontend/src/utils/browser/storage/core.ts`            | single-key `Disscount_app` localStorage read/merge/write         |
-| `frontend/src/utils/browser/storage/drafts.ts`          | draft read/write/expiry helpers                                  |
-| `frontend/src/utils/browser/local-storage.ts`           | barrel re-exporting the storage helpers                          |
-| `frontend/src/typings/local-storage.ts`                 | `AppData` shape (drafts + all preferences)                       |
-| `frontend/src/utils/browser/storage/products.ts`        | per-EAN price-history preferences                                |
-| `frontend/src/utils/browser/storage/shopping-lists.ts`  | per-list section + sort preferences                             |
-| `frontend/src/utils/browser/storage/view-mode.ts`       | grid/list toggle preference                                     |
-| `frontend/src/utils/browser/storage/scanner.ts`         | preferred scanner camera                                        |
-| `frontend/src/utils/browser/storage/pwa.ts`             | install-banner snooze                                           |
-| `frontend/src/utils/browser/storage/auth.ts`            | last-used sign-in method                                         |
-| `frontend/src/hooks/use-search-navigation.ts`           | reads/writes the `?q=` search param                             |
-| `frontend/src/app/products/hooks/use-filter-params.ts`  | writes product filters to the query string                     |
-| `frontend/src/app/products/hooks/use-product-filters.ts`| reads filters back and resolves them                            |
-| `frontend/src/lib/modal/use-modal-url.ts`               | reads the `?modal=` target                                      |
+| File                                                     | Role                                                             |
+| -------------------------------------------------------- | ---------------------------------------------------------------- |
+| `frontend/src/hooks/use-form-draft.ts`                   | modal-form draft save/restore engine (24h TTL, diff-vs-defaults) |
+| `frontend/src/utils/browser/storage/core.ts`             | single-key `Disscount_app` localStorage read/merge/write         |
+| `frontend/src/utils/browser/storage/drafts.ts`           | draft read/write/expiry helpers                                  |
+| `frontend/src/utils/browser/local-storage.ts`            | barrel re-exporting the storage helpers                          |
+| `frontend/src/typings/local-storage.ts`                  | `AppData` shape (drafts + all preferences)                       |
+| `frontend/src/utils/browser/storage/products.ts`         | per-EAN price-history preferences                                |
+| `frontend/src/utils/browser/storage/shopping-lists.ts`   | per-list section + sort preferences                              |
+| `frontend/src/utils/browser/storage/view-mode.ts`        | grid/list toggle preference                                      |
+| `frontend/src/utils/browser/storage/scanner.ts`          | preferred scanner camera                                         |
+| `frontend/src/utils/browser/storage/pwa.ts`              | install-banner snooze                                            |
+| `frontend/src/utils/browser/storage/auth.ts`             | last-used sign-in method                                         |
+| `frontend/src/hooks/use-search-navigation.ts`            | reads/writes the `?q=` search param                              |
+| `frontend/src/app/products/hooks/use-filter-params.ts`   | writes product filters to the query string                       |
+| `frontend/src/app/products/hooks/use-product-filters.ts` | reads filters back and resolves them                             |
+| `frontend/src/lib/modal/use-modal-url.ts`                | reads the `?modal=` target                                       |
 
 ---
 
@@ -230,14 +230,14 @@ There are no environment variables or feature flags specific to this subsystem. 
 
 Libraries (versions read from `frontend/package.json`):
 
-| Library                   | Version    | Role here                                                          |
-| ------------------------- | ---------- | ----------------------------------------------------------------- |
-| `react-hook-form`         | `^7.68.0`  | owns every form's values, dirty state, and the `watch` drafts hook |
-| `@hookform/resolvers`     | `^5.2.2`   | bridges Zod schemas into the forms                                 |
-| `zod`                     | `^4.1.13`  | validates form values                                             |
-| `next`                    | `16.2.9`   | `useSearchParams` / `useRouter` power all URL state               |
-| `@tanstack/react-query`   | `^5.90.12` | the offline data cache (layer 3, see PWA.md)                       |
-| `idb-keyval`              | `^6.2.5`   | IndexedDB backing store for the persisted cache (layer 3)          |
+| Library                 | Version    | Role here                                                          |
+| ----------------------- | ---------- | ------------------------------------------------------------------ |
+| `react-hook-form`       | `^7.68.0`  | owns every form's values, dirty state, and the `watch` drafts hook |
+| `@hookform/resolvers`   | `^5.2.2`   | bridges Zod schemas into the forms                                 |
+| `zod`                   | `^4.1.13`  | validates form values                                              |
+| `next`                  | `16.2.9`   | `useSearchParams` / `useRouter` power all URL state                |
+| `@tanstack/react-query` | `^5.90.12` | the offline data cache (layer 3, see PWA.md)                       |
+| `idb-keyval`            | `^6.2.5`   | IndexedDB backing store for the persisted cache (layer 3)          |
 
 The URL and localStorage layers use only browser-native APIs; there is no extra dependency for them.
 

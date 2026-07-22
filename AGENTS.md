@@ -26,6 +26,8 @@ These principles apply across the whole repo (frontend and backend).
 
 - Add empty rows for better readability between logical blocks of code, my prettier will take care of the rest.
 
+- After editing any repo markdown (README, AGENTS, CLAUDE, `docs/`, `.github/`, `.claude/`), run `pnpm exec prettier --write --ignore-path ../.prettierignore "../<file-or-glob>"` from `frontend/` before committing, since CI format-checks those too.
+
 ## Commit message requirement
 
 At the end of every response that includes code changes, include a suggested Git commit message. To make sure you don't miss any changes, first check with git status and git diff what are the changes made, and then using this info and your conversation history in this chat, make a message.
