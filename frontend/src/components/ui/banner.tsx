@@ -76,7 +76,7 @@ function Banner({
       className={cn(bannerVariants({ variant, size }), className)}
       {...props}
     >
-      {Icon && <Icon />}
+      {Icon && <Icon aria-hidden="true" />}
 
       <div className="min-w-0 space-y-0.5">
         {title && <h4 className="font-bold">{title}</h4>}

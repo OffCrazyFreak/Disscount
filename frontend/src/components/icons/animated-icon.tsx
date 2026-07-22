@@ -42,6 +42,7 @@ export default function AnimatedIcon({
         animate={controls}
         initial="normal"
         variants={svgVariants}
+        aria-hidden="true"
       >
         {children}
       </motion.svg>

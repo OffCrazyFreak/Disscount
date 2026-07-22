@@ -39,6 +39,7 @@ export default function WatchlistSuggestions({
               </p>
 
               <ChevronDown
+                aria-hidden="true"
                 className={cn(
                   "size-8 text-gray-500 transition-transform flex-shrink-0",
                   isSuggestionsOpen && "rotate-180",
