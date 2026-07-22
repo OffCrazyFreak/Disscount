@@ -34,10 +34,16 @@ export default function LinkedAccounts() {
 
   async function link(provider: SocialProvider) {
     setPending(provider);
-    await authClient.linkSocial({
+    const { error } = await authClient.linkSocial({
       provider,
       callbackURL: "/?modal=settings/sigurnost",
     });
+
+    // Success redirects to the provider; we only reach here on failure, so release the lock.
+    if (error) {
+      setPending(null);
+      toast.error("Greška pri povezivanju računa.");
+    }
   }
 
   async function unlink(providerId: SocialProvider, accountId: string) {
