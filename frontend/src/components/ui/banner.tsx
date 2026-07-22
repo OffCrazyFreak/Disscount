@@ -13,11 +13,14 @@ const bannerVariants = cva(
         primary: "border-transparent bg-primary text-white",
         primarySoft: "border-primary/40 bg-primary/10 text-primary",
         destructive: "border-transparent bg-destructive text-white",
-        destructiveSoft: "border-red-200 bg-red-50 text-red-600",
+        destructiveSoft:
+          "border-red-200 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950 dark:text-red-300",
         warning: "border-transparent bg-amber-200 text-amber-700",
-        warningSoft: "border-amber-200 bg-amber-50 text-amber-600",
+        warningSoft:
+          "border-amber-200 bg-amber-50 text-amber-600 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300",
         info: "border-transparent bg-blue-500 text-white",
-        infoSoft: "border-blue-200 bg-blue-50 text-blue-700",
+        infoSoft:
+          "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300",
         outline: "text-foreground",
       },
       size: {
@@ -42,11 +45,11 @@ const BANNER_TEXT_COLORS: Record<
   primary: "text-white/90",
   primarySoft: "text-primary/90",
   destructive: "text-white/90",
-  destructiveSoft: "text-red-700",
+  destructiveSoft: "text-red-700 dark:text-red-300/90",
   warning: "text-amber-800",
-  warningSoft: "text-amber-900",
+  warningSoft: "text-amber-900 dark:text-amber-200/90",
   info: "text-white/90",
-  infoSoft: "text-blue-800",
+  infoSoft: "text-blue-800 dark:text-blue-300/90",
   outline: "text-muted-foreground",
 };
 

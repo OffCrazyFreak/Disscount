@@ -20,13 +20,13 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-xs",
         destructiveSoft:
-          "border border-red-200 bg-red-50 text-red-600 hover:bg-red-100",
+          "border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 dark:border-red-900 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900",
         warning: "bg-amber-200 text-amber-700 hover:bg-amber-300 shadow-xs",
         warningSoft:
-          "border border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100",
+          "border border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300 dark:hover:bg-amber-900",
         info: "bg-blue-500 text-white hover:bg-blue-500/90 shadow-xs",
         infoSoft:
-          "border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100",
+          "border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900",
         outline:
           "outline-2 -outline-offset-2 hover:outline-secondary hover:bg-green-50 hover:text-accent-foreground shadow-sm",
         // Functional-only variants with no colour-scheme equivalent.
