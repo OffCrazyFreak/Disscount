@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronsUpDown } from "lucide-react";
-import { UserAvatar } from "@daveyplate/better-auth-ui";
+import UserAvatar from "@/components/custom/common/user-avatar";
 import {
   SidebarMenu,
   SidebarMenuButton,

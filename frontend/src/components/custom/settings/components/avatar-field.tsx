@@ -3,7 +3,7 @@
 import { ChangeEvent } from "react";
 import { Camera } from "lucide-react";
 import { toast } from "sonner";
-import { UserAvatar } from "@daveyplate/better-auth-ui";
+import UserAvatar from "@/components/custom/common/user-avatar";
 
 import {
   Tooltip,

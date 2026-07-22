@@ -1,5 +1,5 @@
 import { DropdownMenuLabel } from "@/components/ui/dropdown-menu";
-import { UserAvatar } from "@daveyplate/better-auth-ui";
+import UserAvatar from "@/components/custom/common/user-avatar";
 import { Badge } from "@/components/ui/badge";
 import { ACCOUNT_TYPE_LABELS } from "@/lib/api/schemas/auth-user";
 import type { UserDto } from "@/lib/api/types";
