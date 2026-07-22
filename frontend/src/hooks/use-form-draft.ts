@@ -37,7 +37,7 @@ export function useFormDraft<T extends FieldValues>({
 }: UseFormDraftOptions<T>) {
   const [hadDraft] = useState(() => !!getFormDraft(draftKey));
   const [dismissed, setDismissed] = useState(false);
-  const restoredOnceRef = useRef(false);
+  const restoredKeyRef = useRef<string | null>(null);
 
   // Read defaults during render so RHF's formState proxy keeps them computed,
   // then mirror into a ref the (stable) flush callback can read.
@@ -49,8 +49,8 @@ export function useFormDraft<T extends FieldValues>({
   });
 
   useEffect(() => {
-    if (!enabled || !restore || restoredOnceRef.current) return;
-    restoredOnceRef.current = true;
+    if (!enabled || !restore || restoredKeyRef.current === draftKey) return;
+    restoredKeyRef.current = draftKey;
 
     const draft = getFormDraft(draftKey);
     if (!draft) return;

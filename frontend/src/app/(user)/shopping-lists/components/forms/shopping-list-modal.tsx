@@ -83,7 +83,8 @@ export default function ShoppingListModal({
     draftKey,
     form,
     enabled: open && isReady,
-    restore: false,
+    // New lists auto-restore via the engine; edit modals merge the draft themselves below.
+    restore: !isEdit,
   });
 
   // A failed optimistic save reopened this modal: surface the server error.
