@@ -8,7 +8,7 @@ import {
 import { cn } from "@/lib/utils";
 import { getChainLabel } from "@/utils/labels";
 import { compareHr } from "@/utils/strings";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 
 interface IStoreChainSelectProps {
@@ -35,10 +35,18 @@ export default function StoreChainSelect({
   classname,
 }: IStoreChainSelectProps) {
   const [displayValue, setDisplayValue] = useState<string>(value || "");
+  const autoSelectedForRef = useRef<string | null>(null);
 
-  // If default value is provided and current value is null/undefined, use default
+  // Auto-select the default once per default value. The guard stops a mutation-rollback
+  // re-render (value reverts to empty) from re-firing onChange in a request/toast storm.
   useEffect(() => {
-    if (!value && defaultValue && !disabled) {
+    if (
+      !value &&
+      defaultValue &&
+      !disabled &&
+      autoSelectedForRef.current !== defaultValue
+    ) {
+      autoSelectedForRef.current = defaultValue;
       setDisplayValue(defaultValue);
       onChange(defaultValue);
     } else if (value) {
