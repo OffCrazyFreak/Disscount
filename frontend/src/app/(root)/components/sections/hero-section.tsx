@@ -1,9 +1,9 @@
 import HeroActions from "@/app/(root)/components/sections/hero-actions";
+import HeroCart from "@/app/(root)/components/sections/hero-cart";
 import HeroTagline from "@/app/(root)/components/sections/hero-tagline";
 import SquiggleUnderline from "@/app/(root)/components/doodles/squiggle-underline";
 import SparkleField from "@/app/(root)/components/doodles/sparkle-field";
 import { StaggerChildren } from "@/components/ui/stagger-children";
-import CartLogo from "@/components/icons/cart-logo";
 
 export default function HeroSection() {
   return (
@@ -20,7 +20,7 @@ export default function HeroSection() {
         stagger={0.12}
       >
         <div className="space-y-6">
-          <CartLogo className="mx-auto w-40 sm:w-52 h-auto text-primary" />
+          <HeroCart />
 
           <p className="text-5xl sm:text-7xl text-primary font-saira-stencil-semibold text-pretty">
             disscount

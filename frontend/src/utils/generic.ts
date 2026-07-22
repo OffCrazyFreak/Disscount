@@ -95,3 +95,8 @@ export function filterByFields<T extends Record<string, unknown>>(
     return false;
   });
 }
+
+/** Constrain a number to the inclusive [min, max] range. */
+export function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
