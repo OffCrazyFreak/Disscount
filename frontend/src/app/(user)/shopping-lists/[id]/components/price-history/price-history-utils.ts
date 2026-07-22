@@ -5,6 +5,14 @@ import { ShoppingListItemDto } from "@/lib/api/types";
 import { formatDate } from "@/utils/strings";
 import { calculatePriceChange } from "@/app/products/utils/product-utils";
 
+// Format as YYYY-MM-DD in local time; toISOString would shift a day near midnight.
+function toLocalDateString(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export function getPriceHistoryDates(daysToShow: number): string[] {
   const arr: string[] = [];
   const today = new Date();
@@ -24,7 +32,7 @@ export function getPriceHistoryDates(daysToShow: number): string[] {
   for (let i = 0; i < cappedDays; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
-    arr.push(d.toISOString().slice(0, 10));
+    arr.push(toLocalDateString(d));
   }
 
   return arr.reverse();
