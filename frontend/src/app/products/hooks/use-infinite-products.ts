@@ -35,6 +35,10 @@ export default function useInfiniteProducts(
     batchSize = 50,
   } = options ?? {};
 
+  // Guard a 0/NaN size, which would make the batching loop never advance.
+  const safeBatchSize =
+    Number.isInteger(batchSize) && batchSize > 0 ? batchSize : 50;
+
   // Single unfiltered request per query; all filters apply client-side over
   // this same dataset the facet options are computed from, so option counts
   // always match the visible results.
@@ -65,11 +69,11 @@ export default function useInfiniteProducts(
 
   const batchedProducts = useMemo(() => {
     const batches: ProductResponse[][] = [];
-    for (let i = 0; i < filteredProducts.length; i += batchSize) {
-      batches.push(filteredProducts.slice(i, i + batchSize));
+    for (let i = 0; i < filteredProducts.length; i += safeBatchSize) {
+      batches.push(filteredProducts.slice(i, i + safeBatchSize));
     }
     return batches;
-  }, [filteredProducts, batchSize]);
+  }, [filteredProducts, safeBatchSize]);
 
   const [batchesToShow, setBatchesToShow] = useState<number>(
     batchedProducts.length > 0 ? 1 : 0,
