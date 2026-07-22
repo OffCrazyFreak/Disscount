@@ -31,7 +31,10 @@ export function openModalUrl(
   options?: OpenModalOptions,
 ): void {
   const current = new URLSearchParams(window.location.search);
-  const url = window.location.pathname + buildModalSearch(current, target);
+  const url =
+    window.location.pathname +
+    buildModalSearch(current, target) +
+    window.location.hash;
 
   if (options?.replace) {
     // Keep the marker if this entry was pushed by us (tab/mode swaps).
@@ -52,7 +55,10 @@ export function closeModalUrl(): void {
     // Deep link or hard refresh landed directly on ?modal=...: there is no
     // history entry of ours to pop, so strip the params in place instead.
     const current = new URLSearchParams(window.location.search);
-    const url = window.location.pathname + stripModalSearch(current);
+    const url =
+      window.location.pathname +
+      stripModalSearch(current) +
+      window.location.hash;
     window.history.replaceState({}, "", url);
   }
 }
