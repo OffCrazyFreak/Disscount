@@ -51,7 +51,12 @@ export default function NotificationsDropdown({
   return (
     <DropdownMenu open={isOpen} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative"
+          aria-label="Obavijesti"
+        >
           <BellRingIcon size={18} />
 
           {hasNotifications && (
