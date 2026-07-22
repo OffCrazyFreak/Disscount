@@ -45,31 +45,58 @@ Deployed and available on: _[disscount.me](https://disscount.me/)_
 
 ## Visuals
 
-Landing page ([full-page screenshot](docs/screenshots/landing-full.png)):
+<!--
+TODO: Record a short demo video / GIF (under 20s) and embed it at the very top of this Visuals section, above the landing screenshots.
+Keep it fast: no typing, no form-filling, just quick cuts through pre-seeded screens that show off the core value.
+Use the seeded jjakovac account so the lists, watchlist and cards are already full, and land on URLs directly so nothing has to be typed on camera.
+
+Recommended flow (quick cuts, ~1-1.5s each, ends around 18-19s):
+  1. (0-3s)   Landing hero: brand + tagline, one small scroll to hint at the sections below.
+  2. (3-7s)   Search results, land straight on /products?q=nutella (no typing): the same product priced across chains, cursor gliding to the cheapest.
+  3. (7-12s)  Open that product: the price-per-chain list plus the price-history chart drawing in. This is the hero shot, the "is the discount real?" moment.
+  4. (12-16s) A shopping list detail: items with per-store basket totals, briefly highlighting the cheapest store's total.
+  5. (16-19s) Quick flash: the watchlist with a price-drop target, then the installed PWA on a phone. End on the logo / disscount.me.
+
+Capture the desktop cuts at 1440x900, the phone flash on the mobile PWA. Export as an optimized looping GIF, or a muted autoplay MP4/<video> for smaller size and better quality.
+-->
+
+Landing page ([full-page screenshot](docs/screenshots/desktop/pages/landing.png)):
 
 <p align="center">
-  <img width="90%" src="docs/screenshots/landing-hero.png" alt="Disscount - Landing page hero"/>
+  <img width="62%" src="docs/screenshots/desktop/pages/landing-hero.png" alt="Disscount - Landing page"/>
+  <img width="20%" src="docs/screenshots/mobile/pages/landing.png" alt="Disscount - Landing page on mobile"/>
+</p>
 
-  <img width="45%" src="docs/screenshots/landing-mobile.png" alt="Disscount - Landing page on mobile"/>
+### Features
 
-  <img width="45%" src="https://github.com/user-attachments/assets/5f87935e-f803-4c8e-813a-82c1513d911d" alt="Disscount - Search products"/>
+<p align="center">
+  <img width="45%" src="docs/screenshots/desktop/pages/search.png" alt="Disscount - Product search across 29 chains"/>
+  <img width="45%" src="docs/screenshots/desktop/pages/product-detail.png" alt="Disscount - Product details with price history"/>
+</p>
 
-  <img width="45%" src="https://github.com/user-attachments/assets/c9e460f0-f880-44ea-ade7-95627118434f" alt="Disscount - Product details 1"/>
+<p align="center">
+  <img width="45%" src="docs/screenshots/desktop/pages/shopping-lists.png" alt="Disscount - Shopping lists"/>
+  <img width="45%" src="docs/screenshots/desktop/pages/shopping-list-detail.png" alt="Disscount - Shopping list with per-store basket totals"/>
+</p>
 
-  <img width="45%" src="https://github.com/user-attachments/assets/dc08334f-e48b-48a8-adbe-5df8b3091991" alt="Disscount - Product details 2"/>
+<p align="center">
+  <img width="45%" src="docs/screenshots/desktop/pages/watchlist.png" alt="Disscount - Product watchlist with price-drop targets"/>
+  <img width="45%" src="docs/screenshots/desktop/pages/digital-cards.png" alt="Disscount - Digital loyalty cards"/>
+</p>
 
-  <img width="45%" src="https://github.com/user-attachments/assets/cdd9688a-2c3b-45e1-9ddf-073cd8eff603" alt="Disscount - Prefrences"/>
+<p align="center">
+  <img width="45%" src="docs/screenshots/desktop/settings/preference.png" alt="Disscount - Preferences (nearby stores and locations)"/>
+  <img width="45%" src="docs/screenshots/desktop/pages/statistics.png" alt="Disscount - Market statistics per chain"/>
+</p>
 
-  <img width="45%" src="https://github.com/user-attachments/assets/68e51d74-b348-4295-8506-277ed0719eba" alt="Disscount - Shopping lists"/>
+### On your phone
 
-  <img width="45%" src="https://github.com/user-attachments/assets/3d200d85-cfea-4f25-9341-a96ee60da4a7" alt="Disscount - Shopping list details"/>
-
-  <img width="45%" src="https://github.com/user-attachments/assets/fc6e93d7-ed97-43ec-b157-b5f111564972" alt="Disscount - Digital cards"/>
-
-  <!--<img width="45%" src="https://pic.pnnet.dev/960x540" alt="Disscount - Digital card details"/>-->
-
-  <img width="45%" src="https://github.com/user-attachments/assets/20698d06-50ed-4d1c-ad6f-8cdd9c0d4cc8" alt="Disscount - Statistics"/>
-
+<p align="center">
+  <img width="19%" src="docs/screenshots/mobile/pages/search.png" alt="Disscount - Product search on mobile"/>
+  <img width="19%" src="docs/screenshots/mobile/pages/product-detail.png" alt="Disscount - Price history on mobile"/>
+  <img width="19%" src="docs/screenshots/mobile/pages/shopping-list-detail.png" alt="Disscount - Shopping list on mobile"/>
+  <img width="19%" src="docs/screenshots/mobile/pages/watchlist.png" alt="Disscount - Watchlist on mobile"/>
+  <img width="19%" src="docs/screenshots/mobile/pages/digital-cards.png" alt="Disscount - Digital cards on mobile"/>
 </p>
 
 ## Attribution
