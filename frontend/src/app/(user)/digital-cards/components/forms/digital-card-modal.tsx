@@ -86,6 +86,8 @@ export default function DigitalCardModal({
     enabled: open && isReady,
     // New cards auto-restore via the engine; edit modals merge the draft themselves below.
     restore: !isEdit,
+    // The card code is sensitive; never persist it to localStorage.
+    exclude: ["value"],
   });
 
   // A failed optimistic save reopened this modal: surface the server error.
