@@ -38,11 +38,12 @@ export default function AuthSocialButtons({
     try {
       setLastLoginMethod(provider);
       const returnUrl = currentReturnUrl();
-      await signIn.social({
+      const { error } = await signIn.social({
         provider,
         callbackURL: returnUrl,
         errorCallbackURL: returnUrl,
       });
+      if (error) throw error;
     } catch {
       const label = provider === "google" ? "Google" : "Facebook";
       toast.error(`Greška pri ${label} prijavi. Pokušaj ponovo.`);
