@@ -37,7 +37,7 @@ Under the hood it is a full production stack: a Next.js frontend that also acts 
 - **PWA & offline:** Serwist service worker, IndexedDB-backed React Query cache, offline reads and queued writes
 - **Infra:** Docker Compose, Dokploy on a Hetzner VPS, Traefik, Cloudflare, Sentry, Umami
 
-Deeper references live in [docs/](docs/): [authentication](docs/AUTH.md), [PWA & offline](docs/PWA.md), and [deployment](docs/DEPLOYMENT.md).
+Deeper references live in [docs/](docs/): [authentication](docs/AUTH.md), [PWA & offline](docs/PWA.md), [state persistence](docs/STATE-PERSISTENCE.md), and [deployment](docs/DEPLOYMENT.md).
 
 ## Link
 
