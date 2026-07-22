@@ -24,6 +24,7 @@ export default function ShoppingListTrigger({
 }: IShoppingListTriggerProps) {
   return (
     <Button
+      type="button"
       variant="outline"
       role="combobox"
       size="default"

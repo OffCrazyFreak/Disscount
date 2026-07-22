@@ -28,6 +28,7 @@ export function RemoveIconButton({
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
+          type="button"
           size="icon"
           aria-label={label}
           className="size-9 shrink-0 bg-red-600 hover:bg-red-700"
