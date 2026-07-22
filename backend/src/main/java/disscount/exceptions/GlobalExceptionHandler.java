@@ -2,6 +2,7 @@ package disscount.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -48,14 +49,22 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> fieldErrors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            fieldErrors.put(fieldName, error.getDefaultMessage());
+            String key = (error instanceof FieldError fieldError)
+                    ? fieldError.getField()
+                    : error.getObjectName();
+            fieldErrors.put(key, error.getDefaultMessage());
         });
 
         ProblemDetail problemDetail =
                 problem(HttpStatus.BAD_REQUEST, "validation", "Neispravni podaci", "Invalid input data");
         problemDetail.setProperty("fieldErrors", fieldErrors);
         return problemDetail;
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ProblemDetail handleNotReadable(HttpMessageNotReadableException ex) {
+        return problem(HttpStatus.BAD_REQUEST, "malformed-request", "Neispravan zahtjev",
+                "Malformed request body");
     }
 
     @ExceptionHandler(Exception.class)
