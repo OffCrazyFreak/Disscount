@@ -8,7 +8,7 @@ export default function FeaturesSection() {
     <section>
       <SectionHeading
         title="Sve za pametnu kupovinu"
-        subtitle="Ono što radi već danas - i ono što uskoro stiže. Značajke s naljepnicom USKORO su u izradi."
+        subtitle="Ono što radi već danas - i ono što uskoro stiže."
       />
 
       <ScrollReveal

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { MonitorSmartphone, CloudOff, RefreshCw } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import TextGlow from "@/components/custom/common/text-glow";
 
 const perks = [
   {
@@ -47,25 +48,29 @@ export default function PwaSection() {
           />
         </div>
 
-        <div className="space-y-6">
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-balance">
-            Aplikacija koja radi i bez interneta
-          </h2>
+        <div className="relative isolate">
+          <TextGlow className="-inset-6" />
 
-          <div className="space-y-5">
-            {perks.map((perk) => (
-              <div key={perk.title} className="flex gap-4">
-                <div className="size-11 shrink-0 grid place-items-center rounded-xl bg-primary/10 text-primary">
-                  <perk.icon className="size-6" />
+          <div className="space-y-6">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-balance">
+              Aplikacija koja radi i bez interneta
+            </h2>
+
+            <div className="space-y-5">
+              {perks.map((perk) => (
+                <div key={perk.title} className="flex gap-4">
+                  <div className="size-11 shrink-0 grid place-items-center rounded-xl bg-primary/10 text-primary">
+                    <perk.icon className="size-6" />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="font-semibold">{perk.title}</h3>
+                    <p className="text-sm text-muted-foreground text-pretty">
+                      {perk.description}
+                    </p>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <h3 className="font-semibold">{perk.title}</h3>
-                  <p className="text-sm text-muted-foreground text-pretty">
-                    {perk.description}
-                  </p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </ScrollReveal>

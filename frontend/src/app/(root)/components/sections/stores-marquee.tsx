@@ -14,7 +14,7 @@ function LogoRow({ ariaHidden = false }: { ariaHidden?: boolean }) {
           key={chain}
           className="size-16 sm:size-20 shrink-0 grid place-items-center bg-white border rounded-2xl shadow-sm p-2.5"
         >
-          <StoreChainLogo chain={chain} className="object-contain" />
+          <StoreChainLogo chain={chain} className="object-contain rounded-lg" />
         </li>
       ))}
     </ul>
