@@ -18,6 +18,8 @@ import {
 } from "@/lib/api/types";
 import { applyProblemToForm } from "@/lib/api/problem-details";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
+import { useFormDraft } from "@/hooks/use-form-draft";
+import { getFormDraft } from "@/utils/browser/local-storage";
 import { useUser } from "@/context/user-context";
 import { GITHUB_REPO_URL } from "@/constants/contact";
 
@@ -30,6 +32,8 @@ const EMPTY_VALUES: ContactMessageRequest = {
   honeypot: "",
 };
 
+const DRAFT_KEY = "contact";
+
 export default function ContactModal({ open }: { open: boolean }) {
   const pathname = usePathname();
   const { user } = useUser();
@@ -41,15 +45,35 @@ export default function ContactModal({ open }: { open: boolean }) {
     defaultValues: EMPTY_VALUES,
   });
 
-  // Prefill from the signed-in profile on open, unless the user is mid-edit.
+  const profileBase = {
+    ...EMPTY_VALUES,
+    email: user?.email ?? "",
+    fullName: user?.name ?? "",
+  };
+
+  // Prefill from the signed-in profile on open, then merge any saved draft on
+  // top (draft wins and shows as unsaved). Skips while the user is mid-edit.
   useEffect(() => {
     if (!open || form.formState.isDirty) return;
-    form.reset({
-      ...EMPTY_VALUES,
-      email: user?.email ?? "",
-      fullName: user?.name ?? "",
-    });
+
+    form.reset(profileBase);
+
+    const draft = getFormDraft(DRAFT_KEY)?.values as
+      Partial<ContactMessageRequest> | undefined;
+    if (draft && Object.keys(draft).length > 0) {
+      form.reset({ ...profileBase, ...draft }, { keepDefaultValues: true });
+    }
   }, [open, user, form]);
+
+  // sourcePath is stamped at submit time and honeypot is a bot trap; neither is
+  // user content, so keep them out of localStorage.
+  const { restored, clearDraft } = useFormDraft({
+    draftKey: DRAFT_KEY,
+    form,
+    enabled: open,
+    restore: false,
+    exclude: ["sourcePath", "honeypot"],
+  });
 
   async function handleSubmit(data: ContactMessageRequest) {
     if (data.honeypot) return;
@@ -61,6 +85,7 @@ export default function ContactModal({ open }: { open: boolean }) {
           ? "Poruka je poslana. Hvala na javljanju! Po potrebi ćemo ti se javiti na uneseni e-mail."
           : "Poruka je poslana. Hvala na javljanju!",
       );
+      clearDraft();
       form.reset(EMPTY_VALUES);
       closeModalUrl();
     } catch (error) {
@@ -82,6 +107,12 @@ export default function ContactModal({ open }: { open: boolean }) {
       submitLoading={createMessage.isPending}
       submitDisabled={!form.formState.isValid}
       cancelLabel="Odustani"
+      resetLabel="Resetiraj"
+      resetDisabled={!form.formState.isDirty && !restored}
+      onReset={() => {
+        clearDraft();
+        form.reset(profileBase);
+      }}
     >
       <ContactChannels />
 
