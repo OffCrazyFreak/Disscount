@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { watchlistService, WatchType } from "@/lib/api";
 import {
+  extractPinnedStoreChainCodes,
   isWatchThresholdReached,
   WatchlistItemWithProduct,
 } from "@/app/(user)/watchlist/utils/watchlist-utils";
@@ -59,7 +60,8 @@ export function useWatchlistItem(item: WatchlistItemWithProduct) {
       ? `${formattedQuantity}${product.unit}`
       : null;
 
-  const hasPinnedStores = (user?.pinnedStores?.length || 0) > 0;
+  const hasPinnedStores =
+    extractPinnedStoreChainCodes(user?.pinnedStores).length > 0;
 
   function isWatchRequirementAchieved(
     thresholdValue: number,
