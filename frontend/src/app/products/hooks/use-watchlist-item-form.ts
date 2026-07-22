@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -42,10 +42,15 @@ export function useWatchlistItemForm(
     (item) => item.watchType === watchType,
   );
 
-  // Prefill the threshold with the tracked value (or a sensible default) when
-  // the type changes; user-typed (dirty) values are never overwritten.
+  const prevWatchTypeRef = useRef(watchType);
+
+  // Prefill the threshold when the type changes. A mode switch always reloads (the value's
+  // meaning changed); otherwise a user-typed or restored value is kept.
   useEffect(() => {
-    if (form.formState.dirtyFields.thresholdValue) return;
+    const watchTypeChanged = prevWatchTypeRef.current !== watchType;
+    prevWatchTypeRef.current = watchType;
+
+    if (!watchTypeChanged && form.formState.dirtyFields.thresholdValue) return;
 
     if (existingItemForType) {
       form.setValue(
