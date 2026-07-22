@@ -21,7 +21,7 @@ export default function HeaderActions() {
         />
       ) : isAuthenticated ? (
         <div className="flex items-center gap-4">
-          <NotificationsDropdown />
+          <NotificationsDropdown openViaContext />
           <UserMenu />
         </div>
       ) : (

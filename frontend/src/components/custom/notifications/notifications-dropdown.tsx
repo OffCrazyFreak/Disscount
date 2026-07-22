@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
@@ -13,7 +14,18 @@ import { useNotifications } from "@/context/notifications-context";
 import NotificationSummary from "@/components/custom/notifications/components/notification-summary";
 import NotificationsList from "@/components/custom/notifications/components/notifications-list";
 
-export default function NotificationsDropdown() {
+interface INotificationsDropdownProps {
+  /**
+   * Bind open state to the notifications context so external UI (e.g. the
+   * landing CTA) can open this instance. Only ONE mounted dropdown should
+   * opt in, otherwise they all open together; the rest stay on local state.
+   */
+  openViaContext?: boolean;
+}
+
+export default function NotificationsDropdown({
+  openViaContext = false,
+}: INotificationsDropdownProps) {
   const {
     notifications,
     summary,
@@ -25,14 +37,19 @@ export default function NotificationsDropdown() {
   } = useNotifications();
   const router = useRouter();
 
+  const [isLocalOpen, setLocalOpen] = useState(false);
+
+  const isOpen = openViaContext ? isMenuOpen : isLocalOpen;
+  const setOpen = openViaContext ? setMenuOpen : setLocalOpen;
+
   function handleAddProducts() {
-    setMenuOpen(false);
+    setOpen(false);
 
     router.push("/watchlist");
   }
 
   return (
-    <DropdownMenu open={isMenuOpen} onOpenChange={setMenuOpen}>
+    <DropdownMenu open={isOpen} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <BellRingIcon size={18} />
@@ -53,7 +70,7 @@ export default function NotificationsDropdown() {
           notifications={notifications}
           isLoading={isLoading}
           hasWatchlistItems={hasWatchlistItems}
-          onSelect={() => setMenuOpen(false)}
+          onSelect={() => setOpen(false)}
           onAddProducts={handleAddProducts}
         />
       </DropdownMenuContent>
