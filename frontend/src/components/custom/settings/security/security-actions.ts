@@ -31,11 +31,12 @@ export function useSecurityActions() {
   async function deleteAccount() {
     setDeleting(true);
     try {
+      // Backend profile first: deleting auth first would orphan the row and lock the user out.
+      await userService.deleteCurrentUser();
+
       const { error } = await authClient.deleteUser();
       if (error) throw new Error(error.message ?? "delete failed");
 
-      // Remove the backend profile, then clear session/token/offline cache.
-      await userService.deleteCurrentUser();
       await logout();
       router.replace("/");
       toast.success("Tvoj račun je obrisan.");
