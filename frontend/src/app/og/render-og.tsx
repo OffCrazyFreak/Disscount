@@ -9,7 +9,7 @@ import { join } from "node:path";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export const alt =
-  "Disscount - usporedba cijena proizvoda u 29 trgovačkih lanaca u Hrvatskoj.";
+  "Disscount - usporedba cijena proizvoda u 25+ trgovačkih lanaca u Hrvatskoj.";
 
 const BRAND = "#2ec50d";
 const INK = "#252525";

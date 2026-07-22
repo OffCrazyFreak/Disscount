@@ -6,7 +6,7 @@ export default function StoresSection() {
     <section>
       <SectionHeading
         title="Svi veliki lanci na jednom mjestu"
-        subtitle="Od Konzuma i Lidla do kvartovskih trgovina - cijene iz 29 trgovačkih lanaca diljem Hrvatske."
+        subtitle="Od Konzuma i Lidla do kvartovskih trgovina - cijene iz 25+ trgovačkih lanaca diljem Hrvatske."
       />
 
       <StoresMarquee />

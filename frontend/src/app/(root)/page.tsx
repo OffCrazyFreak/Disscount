@@ -14,7 +14,7 @@ import FinalCtaSection from "@/app/(root)/components/sections/final-cta-section"
 export const metadata: Metadata = {
   title: "Pronađi najbolje cijene u Hrvatskoj",
   description:
-    "Usporedi cijene proizvoda u 29 trgovačkih lanaca u Hrvatskoj, prati povijest cijena, izradi pametne popise za kupnju i uštedi pri svakoj kupnji. Besplatno.",
+    "Usporedi cijene proizvoda u 25+ trgovačkih lanaca u Hrvatskoj, prati povijest cijena, izradi pametne popise za kupnju i uštedi pri svakoj kupnji. Besplatno.",
 };
 
 export default function Home() {

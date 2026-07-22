@@ -42,7 +42,7 @@ export interface IStatItem {
 }
 
 export const statItems: IStatItem[] = [
-  { value: "29", label: "trgovačkih lanaca" },
+  { value: "25+", label: "trgovačkih lanaca" },
   { value: "100 %", label: "besplatno, zauvijek" },
   { value: "0", label: "kataloga za listanje" },
 ];
