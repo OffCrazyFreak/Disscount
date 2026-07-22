@@ -10,6 +10,9 @@ const PUBLIC_QUERY_ROOT = "cijene";
 // Clears user-specific queries (and queued writes) from memory and disk on
 // logout, but preserves the public "cijene" cache so non-user pages stay fast.
 export async function purgeOfflineCache(queryClient: QueryClient) {
+  // Cancel in-flight work first so a late-resolving request can't repopulate what we clear.
+  await queryClient.cancelQueries();
+
   queryClient.removeQueries({
     predicate: (query) => query.queryKey[0] !== PUBLIC_QUERY_ROOT,
   });
