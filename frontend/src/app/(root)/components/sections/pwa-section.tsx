@@ -31,20 +31,20 @@ export default function PwaSection() {
         preset="rise"
         className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center"
       >
-        <div className="relative mx-auto order-last ml-2">
+        <div className="relative mx-auto order-last w-full sm:w-auto sm:ml-2">
           <Image
             src="/screenshots/screenshot-narrow.png"
             alt="Disscount aplikacija na mobitelu"
             width={380}
             height={760}
-            className="relative z-10 w-36 sm:w-64 rounded-lg sm:rounded-3xl border-4 border-foreground/80 shadow-xl -rotate-2"
+            className="relative z-10 ml-[6%] w-[46%] sm:ml-0 sm:w-64 rounded-lg sm:rounded-3xl border-4 border-foreground/80 shadow-xl -rotate-2"
           />
           <Image
             src="/screenshots/screenshot-wide.png"
             alt="Disscount aplikacija na računalu"
             width={640}
             height={400}
-            className="absolute top-1/2 left-[30%] sm:left-[35%] -translate-y-1/2 z-10 md:z-0 w-52 sm:w-84 rotate-6 rounded-xl border shadow-xl"
+            className="absolute top-1/2 left-[28%] sm:left-[35%] -translate-y-1/2 z-10 md:z-0 w-[66%] sm:w-84 rotate-6 rounded-xl border shadow-xl"
           />
         </div>
 
