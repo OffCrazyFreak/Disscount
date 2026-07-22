@@ -68,7 +68,7 @@ export function useWatchlistItemForm(
   useEffect(() => {
     if (!open) return;
     const error = takeModalError(draftKey);
-    if (error) applyProblemToForm(error, form.setError);
+    if (error) applyProblemToForm(error, form);
   }, [open, draftKey, form]);
 
   // Optimistic close: the modal closes immediately and reopens only on failure.

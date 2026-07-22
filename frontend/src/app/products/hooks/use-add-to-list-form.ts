@@ -110,7 +110,7 @@ export function useAddToListForm(open: boolean, ean: string) {
   useEffect(() => {
     if (!open) return;
     const error = takeModalError(draftKey);
-    if (error) applyProblemToForm(error, form.setError);
+    if (error) applyProblemToForm(error, form);
   }, [open, draftKey, form]);
 
   const isChecked = form.watch("isChecked");

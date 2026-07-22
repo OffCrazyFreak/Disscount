@@ -91,7 +91,7 @@ export default function DigitalCardModal({
   useEffect(() => {
     if (!open) return;
     const error = takeModalError(draftKey);
-    if (error) applyProblemToForm(error, form.setError);
+    if (error) applyProblemToForm(error, form);
   }, [open, draftKey, form]);
 
   const { onSubmit, isLoading } = useDigitalCardModal({

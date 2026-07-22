@@ -163,7 +163,7 @@ export function useSettingsSave({
       if (result.status === "rejected") {
         applyProblemToForm(
           result.reason,
-          form.setError,
+          form,
           undefined,
           {
             user: "Greška pri spremanju profila.",

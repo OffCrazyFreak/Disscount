@@ -89,7 +89,7 @@ export default function ContactModal({ open }: { open: boolean }) {
       form.reset(EMPTY_VALUES);
       closeModalUrl();
     } catch (error) {
-      applyProblemToForm(error, form.setError);
+      applyProblemToForm(error, form);
     }
   }
 
