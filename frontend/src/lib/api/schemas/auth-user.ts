@@ -63,7 +63,9 @@ export const userRequestSchema = z.object({
   acquisitionChannel: acquisitionChannelSchema.nullable().optional(),
   image: z.string().nullable().optional(),
   // "completed" or "skipped:<step>"; sent only when the onboarding wizard ends
-  onboardingOutcome: z.string().optional(),
+  onboardingOutcome: z
+    .union([z.literal("completed"), z.string().regex(/^skipped:\d+$/)])
+    .optional(),
 });
 
 export const userDtoSchema = userRequestSchema

@@ -64,7 +64,7 @@ export function useOnboarding({ open, save }: IUseOnboardingProps) {
 
   // Skipping (button or X) stamps where the user bailed and closes for good.
   async function skip() {
-    closeModalUrl();
+    // Persist the outcome before closing; closing first can unmount mid-flight and drop the write.
     try {
       const updated = await userMutation.mutateAsync({
         onboardingOutcome: `skipped:${step}`,
@@ -72,6 +72,8 @@ export function useOnboarding({ open, save }: IUseOnboardingProps) {
       setUser(updated);
     } catch {
       // Non-critical: the session gate still prevents re-pestering this tab.
+    } finally {
+      closeModalUrl();
     }
   }
 
