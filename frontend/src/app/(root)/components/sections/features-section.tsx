@@ -15,7 +15,7 @@ export default function FeaturesSection() {
         preset="rise"
         stagger={0.06}
         amount={0.15}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+        className="flex flex-wrap justify-center gap-5 [&>*]:w-full sm:[&>*]:w-[calc(50%-10px)] lg:[&>*]:w-[calc(33.333%-14px)]"
       >
         {featureItems.map((feature) => (
           <FeatureCard key={feature.title} feature={feature} />
