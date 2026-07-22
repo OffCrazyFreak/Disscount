@@ -26,6 +26,7 @@ flowchart TD
   Page --> Cta[FinalCtaSection]
 
   Hero -.client island.-> HeroActions["HeroActions + SearchBar + scanner"]
+  Hero -.client island.-> HeroCart["HeroCart (cursor pose + CartChaser)"]
   Feat -.client island.-> FCA["FeatureCardAction (scanner / notifications)"]
   Stores -.client island.-> Marquee["StoreChainLogo (CSS marquee)"]
   Page -.client island.-> Reveal["ScrollReveal / StaggerChildren (motion)"]
@@ -36,18 +37,18 @@ flowchart TD
 
 `page.tsx` renders these sections top to bottom inside a `space-y-14 sm:space-y-20 pb-16` wrapper. Each has its own file under `app/(root)/components/sections/`.
 
-| #   | Section       | File                        | Purpose                                                  | Client islands inside                           |
-| --- | ------------- | --------------------------- | -------------------------------------------------------- | ----------------------------------------------- |
-| 1   | Hero          | `hero-section.tsx`          | Logo, wordmark, rotating tagline, search + scan card     | `HeroActions`, `HeroTagline`, `StaggerChildren` |
-| 2   | Stats band    | `stats-band.tsx`            | Green band with real numbers (29 lanaca, 100% besplatno) | `ScrollReveal`                                  |
-| 3   | How it works  | `how-it-works-section.tsx`  | Three steps with animated doodles                        | `ScrollReveal`, doodles                         |
-| 4   | Features      | `features-section.tsx`      | Grid of feature cards, live and USKORO                   | `ScrollReveal`, `FeatureCardAction`             |
-| 5   | Price history | `price-history-section.tsx` | "Is the discount real?" with a chart doodle              | `ScrollReveal`, `PriceLineDoodle`               |
-| 6   | Stores        | `stores-section.tsx`        | Marquee of 29 real chain logos, link to discounts        | `StoresMarquee`                                 |
-| 7   | PWA           | `pwa-section.tsx`           | Install + offline perks, phone + desktop screenshots     | `ScrollReveal`                                  |
-| 8   | Pricing       | `pricing-section.tsx`       | Two receipt cards (free + premium USKORO)                | `ScrollReveal`                                  |
-| 9   | FAQ           | `faq-section.tsx`           | Native `<details>` accordion, `FAQPage` schema source    | `ScrollReveal`                                  |
-| 10  | Final CTA     | `final-cta-section.tsx`     | Green block, two CTA buttons                             | `ScrollReveal`                                  |
+| #   | Section       | File                        | Purpose                                                  | Client islands inside                                       |
+| --- | ------------- | --------------------------- | -------------------------------------------------------- | ----------------------------------------------------------- |
+| 1   | Hero          | `hero-section.tsx`          | Logo, wordmark, rotating tagline, search + scan card     | `HeroActions`, `HeroTagline`, `HeroCart`, `StaggerChildren` |
+| 2   | Stats band    | `stats-band.tsx`            | Green band with real numbers (29 lanaca, 100% besplatno) | `ScrollReveal`                                              |
+| 3   | How it works  | `how-it-works-section.tsx`  | Three steps with animated doodles                        | `ScrollReveal`, doodles                                     |
+| 4   | Features      | `features-section.tsx`      | Grid of feature cards, live and USKORO                   | `ScrollReveal`, `FeatureCardAction`                         |
+| 5   | Price history | `price-history-section.tsx` | "Is the discount real?" with a chart doodle              | `ScrollReveal`, `PriceLineDoodle`                           |
+| 6   | Stores        | `stores-section.tsx`        | Marquee of 29 real chain logos, link to discounts        | `StoresMarquee`                                             |
+| 7   | PWA           | `pwa-section.tsx`           | Install + offline perks, phone + desktop screenshots     | `ScrollReveal`                                              |
+| 8   | Pricing       | `pricing-section.tsx`       | Two receipt cards (free + premium USKORO)                | `ScrollReveal`                                              |
+| 9   | FAQ           | `faq-section.tsx`           | Native `<details>` accordion, `FAQPage` schema source    | `ScrollReveal`                                              |
+| 10  | Final CTA     | `final-cta-section.tsx`     | Green block, two CTA buttons                             | `ScrollReveal`                                              |
 
 `SectionHeading` (`section-heading.tsx`) is the shared title + subtitle block used by the How it works, Features, Stores, Pricing, and FAQ sections. It also carries the white `TextGlow` behind the heading, so adding the glow in one place covers every heading. The Stats band and the Final CTA style their own headings instead, and the Stats band's `<h2>` is `sr-only` (visually the numbers are the heading), which keeps the one-`<h2>`-per-section rule intact for crawlers.
 
@@ -61,6 +62,7 @@ The rule is: sections are Server Components, and interactivity is pushed into th
 | Scroll-in reveals            | Client (`ScrollReveal`, `StaggerChildren`) | Needs `whileInView` from the `motion` library   |
 | Hand-drawn doodle animations | Client (`DoodleCanvas` + doodles)          | Needs `motion` path-draw                        |
 | Search + scan in the hero    | Client (`HeroActions`)                     | Uses router, react-hook-form, camera scanner    |
+| Cursor-aware hero cart       | Client (`HeroCart`, `CartChaser`)          | Pointer tracking, motion springs, body portal   |
 | Feature card actions         | Client (`FeatureCardAction`)               | Opens scanner / notifications; router           |
 | Store logo marquee           | Client leaf (`StoreChainLogo`)             | Image error fallback uses `useState`            |
 | Bottom page fade             | Client (`WindowScrollFade`)                | Reads window scroll                             |
@@ -83,6 +85,26 @@ Coming-soon cards keep their `href` commented out in `features.ts` so they rende
 The notifications action needs the header dropdown to open from elsewhere on the page, so the dropdown's open state was lifted into the notifications context: `INotificationsContext` exposes `isMenuOpen` and `setMenuOpen`, `useWatchlistNotifications` owns the `useState`, and `NotificationsDropdown` is now controlled by that shared state. `FeatureCardAction` calls `setMenuOpen(true)` for a logged-in user, or opens the login modal (`openModalUrl({ name: "login" })`) for a guest, because the dropdown only mounts when authenticated.
 
 Store logos in the marquee are `<Link>`s to `/products?chain=<chain>`, matching the exact URL param the products page and the sidebar filter already use. The duplicated (aria-hidden) marquee row uses `tabIndex={-1}` so keyboard users do not tab through the logos twice.
+
+## The cursor-aware hero cart
+
+The hero `CartLogo` behaves like a small pet on desktop: it watches the cursor, and once you scroll it jumps out of the hero and chases it. `HeroCart` (`sections/hero-cart.tsx`) is the client island that replaced the bare `CartLogo` in `hero-section.tsx`; because client components still SSR their HTML, the SVG stays in the initial payload and the section itself remains a Server Component.
+
+Everything is gated by `interactive = useFinePointer() && !useReducedMotionSafe()`. `useFinePointer` (shared, `hooks/use-fine-pointer.ts`) is a `useSyncExternalStore` matchMedia hook on `(hover: hover) and (pointer: fine)` with a `false` server snapshot, so touch devices, reduced-motion users, the server render, and the first client render all get the plain static cart with no hydration mismatch.
+
+Three behaviours, in escalating order:
+
+| Behaviour   | Where                                              | What happens                                                                                       |
+| ----------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Idle spin   | `HeroCart`                                         | A subtle full `rotateY` turn (with `transformPerspective`) every 10s, like the search button shine |
+| Cursor pose | `use-cursor-pose.ts`                               | Flips (`scaleX`) toward the cursor's half of the viewport and tilts (`rotate`) up/down at it       |
+| Chaser      | `doodles/cart-chaser.tsx` + `use-cursor-follow.ts` | After 10px of scroll the hero cart shrinks away and a mini cart trails the cursor                  |
+
+The pose hook writes raw pointer-derived values into `useMotionValue`s that feed `useSpring`s, so the motion is fully fluid; routing it through React state would quantize it into visible steps. It stays neutral (and lets the idle spin run) while the cursor is over the hero copy: the copy block's vertical band, narrowed horizontally to the h1's rect, plus a 32px buffer, so the cart does not fidget while the visitor reads. Pointer listeners are window-level, passive, and rAF-throttled.
+
+The chaser activates once `useScrolledPast(10)` trips. `useCursorFollow` `.jump()`s its springs to the hero cart's current center (so it visibly escapes from the hero), then lazily trails the pointer with a soft spring, always aiming `STOP_DISTANCE_PX` (64px) short of the cursor along the approach direction so it never sits under it. It re-orients on both pointer moves and its own position changes, flipping only outside a 12px horizontal deadzone so it does not flap on near-vertical approaches. Visually it is a `pointer-events-none aria-hidden` fixed element at `z-30` (under the FAB backdrop at `z-40` and the header/FAB at `z-50`), portaled to `document.body`, with a masked `backdrop-blur` disc plus a `TextGlow` behind the SVG so the green cart stays readable over the green stats band. Scrolling back to the top exits the chaser (`AnimatePresence`) and restores the hero cart.
+
+`cursorTiltDeg` (`app/(root)/utils/cursor.ts`) holds the one non-obvious bit of math: with `scaleX(-1)` applied before `rotate(r)`, the rendered rotation is mirrored to `-r`, so tilt is computed as `atan2(dy, |dx|)`; the same value then aims the nose at the cursor under both facings. It clamps via the shared `clamp` in `utils/generic.ts`.
 
 ## Shared visual primitives
 
@@ -149,13 +171,13 @@ The latin-ext subset is what makes Croatian diacritics (č, ć, đ, š, ž) rend
 
 Landing animation is split between the `motion` library (scroll reveals, doodle path-draws) and pure CSS keyframes in `globals.css`.
 
-| Keyframe / utility                | Used by                                                            |
-| --------------------------------- | ------------------------------------------------------------------ |
-| `dis-draw`                        | `squiggle-underline` self-drawing stroke                           |
-| `dis-twinkle`                     | `sparkle-doodle`                                                   |
-| `dis-marquee`                     | `stores-marquee` infinite scroll (pauses on `group/marquee` hover) |
-| `dis-scanline`                    | `barcode-doodle` red scanline                                      |
-| `.faq-item` + `::details-content` | FAQ accordion open/close (`interpolate-size: allow-keywords`)      |
+| Keyframe / utility                | Used by                                                                                                                                                    |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dis-draw`                        | `squiggle-underline` self-drawing stroke                                                                                                                   |
+| `dis-twinkle`                     | `sparkle-doodle`                                                                                                                                           |
+| `dis-marquee`                     | `stores-marquee` infinite scroll (pauses on `group/marquee` hover); each row's trailing `pr-*` must equal its `gap-*` so the loop seam stays evenly spaced |
+| `dis-scanline`                    | `barcode-doodle` red scanline                                                                                                                              |
+| `.faq-item` + `::details-content` | FAQ accordion open/close (`interpolate-size: allow-keywords`)                                                                                              |
 
 Every CSS animation is disabled under `@media (prefers-reduced-motion: reduce)`, and the `motion`-based components use the hydration-safe `useReducedMotionSafe` hook so they render the static branch identically on the server and first client render.
 
@@ -179,6 +201,10 @@ Every CSS animation is disabled under `@media (prefers-reduced-motion: reduce)`,
 | `app/(root)/components/sections/section-heading.tsx`                                    | Shared heading + `TextGlow`                               |
 | `app/(root)/components/sections/feature-card.tsx`                                       | Server card; chooses `<Link>` / action / div              |
 | `app/(root)/components/sections/feature-card-action.tsx`                                | Client action island (scanner / notifications)            |
+| `app/(root)/components/sections/hero-cart.tsx`                                          | Client island: cursor-aware hero cart + mounts the chaser |
+| `app/(root)/components/doodles/cart-chaser.tsx`                                         | Mini cart that trails the cursor after scroll             |
+| `app/(root)/hooks/{use-cursor-pose,use-cursor-follow}.ts`                               | Pose (flip/tilt) and lazy-follow motion values            |
+| `app/(root)/utils/cursor.ts`, `hooks/use-fine-pointer.ts`                               | Mirror-safe tilt math; desktop-pointer matchMedia hook    |
 | `app/(root)/data/*`                                                                     | Copy: landing, features, faq                              |
 | `app/(root)/components/doodles/*`                                                       | Hand-drawn animated SVGs + `DoodleCanvas`, `SparkleField` |
 | `app/(root)/components/json-ld.tsx`                                                     | Structured data `@graph`                                  |
@@ -220,13 +246,21 @@ The Tailwind spacing scale is rescaled. `globals.css` sets `--spacing: 0.2rem` (
 
 A `drop-shadow` filter on the same element as a `clip-path` gets clipped away, because the browser applies `filter` before `clip-path`. The pricing receipt's torn (zigzag) bottom needs its shadow on the outer wrapper, not on the clipped element, or the tear is invisible on the white card.
 
-`Math.random()` at render time breaks SSR determinism (hydration mismatch). The sparkle scatter uses a seeded PRNG (`SparkleField`), and the hero tagline renders `tagLines[0]` deterministically on the server and only starts rotating after mount.
+`Math.random()` at render time breaks SSR determinism (hydration mismatch). The sparkle scatter uses a seeded PRNG (`SparkleField`), and the hero tagline renders `tagLines[0]` deterministically on the server and only starts rotating after mount. Reduced-motion users skip the rotation but still get variety: the mount effect picks one random tagline per load instead (safe because it runs post-hydration).
 
 Filled and outline buttons look different sizes when only the outline one has a border. Give the filled button a matching `border-2 border-transparent` so both share the same box model. This also fixes the submit-vs-outline size mismatch in modals.
 
 Opening notifications from the landing only does something when authenticated, because `NotificationsDropdown` mounts only for logged-in users. Guests are sent to the login modal instead.
 
 `TextGlow` and the section glows depend on their `relative isolate` wrapper. Without `isolate`, the `-z-10` glow can escape its section and render behind the page background layers.
+
+CSS transform order mirrors rotation. With `scaleX(-1)` before `rotate(r)`, the element visually rotates by `-r`, so a tilt computed naively flips sign whenever the cart flips. Compute the tilt from `atan2(dy, |dx|)` (see `cursorTiltDeg`) and one value is correct for both facings.
+
+`position: fixed` breaks inside a transformed ancestor: any ancestor with a transform (here, `StaggerChildren` animating the hero) becomes the containing block, so a "fixed" chaser would move with the hero instead of the viewport. That is why `CartChaser` portals to `document.body`. It can do so safely only because it never renders on the server (`HeroCart` mounts it behind the `interactive` flag, which is `false` until after hydration).
+
+Mixing an `animate` prop with `style` MotionValues on one element makes them fight over the same transforms. `HeroCart` and `CartChaser` both nest two `motion.div`s instead: the outer one owns `animate` (opacity/scale/rotateY enter-exit states), the inner one owns the continuous `style` springs (`scaleX`, `rotate`).
+
+Decorative overflow becomes a horizontal scrollbar unless it is clipped. `TextGlow` is positioned with negative insets (`-inset-6`/`-inset-8`) so its halo intentionally sits ~25px outside its text box; on a narrow viewport a near-full-width heading pushes that transparent overhang past the right edge (~13px at 390px). The doodle glows do the same to a smaller degree. This surfaces as a scrollbar because of a CSS rule: when one overflow axis is `hidden` (not `visible`/`clip`), the other axis computes to `auto`. `<main>` in `app/layout.tsx` therefore uses `overflow-clip` (both axes clip, no scroll container) rather than `overflow-y-hidden`, which had silently made the x-axis scrollable. `overflow-clip` clips the transparent glow edge with zero visible loss and does not affect page (body) vertical scroll. Prefer `overflow-*-clip` over `overflow-*-hidden` for containing decorative bleed.
 
 ## Future improvements and TODOs
 
