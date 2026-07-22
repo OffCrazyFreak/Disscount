@@ -4,7 +4,14 @@ allowBuilds:
   esbuild: true
   unrs-resolver: true
   # Downloads the CLI used to upload source maps during a release build
-  '@sentry/cli': true
+  "@sentry/cli": true
   # Postinstall only prints a funding notice
   core-js: false
-  '@openapitools/openapi-generator-cli': false
+  "@openapitools/openapi-generator-cli": false
+
+# Force patched versions of vulnerable transitive deps (Dependabot #1-3).
+# Range selectors bump only the vulnerable copies; already-safe copies stay put.
+overrides:
+  "shell-quote@<1.8.5": "^1.8.5"
+  "postcss@<8.5.10": "^8.5.10"
+  "esbuild@<0.25.0": "^0.25.0"
