@@ -40,9 +40,12 @@ const ShoppingListTrigger = forwardRef<
       size="default"
       aria-expanded={open}
       aria-haspopup="listbox"
-      className="flex items-center justify-between gap-2 outline-none"
       disabled={isLoadingLists || disabled}
       {...props}
+      className={cn(
+        "flex items-center justify-between gap-2 outline-none",
+        props.className,
+      )}
     >
       <div className="flex-1 text-left w-0">
         {isLoadingLists ? (
