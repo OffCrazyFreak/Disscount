@@ -35,7 +35,7 @@ export default function HeroSection() {
             u Hrvatskoj
           </h1>
 
-          <p className="uppercase max-w-md mx-auto text-pretty text-md sm:text-lg text-muted-foreground">
+          <p className="uppercase max-w-md mx-auto text-pretty text-base sm:text-lg text-muted-foreground">
             <HeroTagline />
           </p>
         </div>

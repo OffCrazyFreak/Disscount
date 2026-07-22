@@ -30,14 +30,14 @@ export default function HeroTagline() {
 
   if (reduced) {
     return (
-      <span className="relative block h-6 sm:h-7 overflow-hidden">
+      <span className="relative block h-7 sm:h-8 leading-tight overflow-hidden">
         <span className="block">{tagLines[index]}</span>
       </span>
     );
   }
 
   return (
-    <span className="relative block h-6 sm:h-7 overflow-hidden">
+    <span className="relative block h-7 sm:h-8 leading-tight overflow-hidden">
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.span
           key={index}
