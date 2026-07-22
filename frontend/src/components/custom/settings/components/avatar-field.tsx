@@ -10,11 +10,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { fileToBase64 } from "@/utils/browser/file";
+import resizeImageToWebp from "@/utils/browser/image";
 import { useUser } from "@/context/user-context";
 import { useSettingsUi } from "@/components/custom/settings/settings-context";
 
-const MAX_AVATAR_BYTES = 1024 * 1024;
+// Guards against decoding an absurdly large source; the stored size is set by
+// the WebP re-encode below, not the raw file, so this can be generous.
+const MAX_AVATAR_BYTES = 15 * 1024 * 1024;
 
 // Lives outside react-hook-form and outside drafts on purpose: base64 images
 // would blow the localStorage quota and don't belong in dirty tracking.
@@ -27,14 +29,14 @@ export default function AvatarField() {
     if (!file) return;
 
     if (file.size > MAX_AVATAR_BYTES) {
-      toast.error("Slika je prevelika. Maksimalna veličina je 1 MB.");
+      toast.error("Slika je prevelika. Maksimalna veličina je 15 MB.");
       return;
     }
 
     try {
-      updateAvatar(await fileToBase64(file));
+      updateAvatar(await resizeImageToWebp(file));
     } catch {
-      toast.error("Greška pri učitavanju slike.");
+      toast.error("Sliku nije moguće učitati, probaj JPG ili PNG.");
     }
   }
 
@@ -86,7 +88,7 @@ export default function AvatarField() {
       )}
 
       <p className="text-xs text-muted-foreground">
-        PNG, JPG ili GIF (do 1 MB).
+        PNG, JPG, WebP ili GIF (sprema se kao WebP).
       </p>
     </div>
   );

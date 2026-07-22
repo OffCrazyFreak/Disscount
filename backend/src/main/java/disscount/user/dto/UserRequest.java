@@ -17,8 +17,9 @@ public class UserRequest {
     private Boolean feedbackContact;
     private AcquisitionChannel acquisitionChannel;
 
-    // Base64 data URI; ~1.4 MB cap matches the 1 MB raw-image limit enforced on the client
-    @Size(max = 2_000_000, message = "Slika je prevelika")
+    // Base64 data URI; the client downscales avatars to a 256px WebP (~15-30 KB
+    // encoded), so this is a generous abuse backstop rather than the real limit.
+    @Size(max = 400_000, message = "Slika je prevelika")
     private String image;
 
     @Pattern(regexp = "completed|skipped:\\d+", message = "Neispravan ishod vodiča")
