@@ -30,12 +30,17 @@ export default function UserMenu({ trigger, side }: IUserMenuProps = {}) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         {trigger ?? (
-          <UserAvatar
-            className="font-bold text-sm cursor-pointer"
-            user={avatarUser}
-            aria-label="User menu"
-            size={"xl"}
-          />
+          <button
+            type="button"
+            aria-label="Korisnički izbornik"
+            className="cursor-pointer rounded-full"
+          >
+            <UserAvatar
+              className="font-bold text-sm"
+              user={avatarUser}
+              size={"xl"}
+            />
+          </button>
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" side={side} className="w-max">
