@@ -19,7 +19,7 @@ export interface OnboardingStep {
 export const ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: "welcome",
-    title: "Dobrodošli u Disscount",
+    title: "Drago nam je što si tu",
     component: WelcomeStep,
   },
   {

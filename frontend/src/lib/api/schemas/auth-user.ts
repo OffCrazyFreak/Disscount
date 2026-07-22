@@ -130,7 +130,7 @@ export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   PUBLIC_SECTOR: "Javni sektor",
 };
 
-// Croatian display labels for the "Kako si saznao za Disscount?" dropdown
+// Croatian display labels for the "Odakle znaš za Disscount?" dropdown
 export const ACQUISITION_CHANNEL_LABELS: Record<AcquisitionChannel, string> = {
   GOOGLE_SEARCH: "Google pretraga",
   INSTAGRAM: "Instagram",

@@ -12,7 +12,7 @@ const STATUS_COPY: Record<StatusKind, { title: string; description: string }> =
   {
     "email-verified": {
       title: "Email potvrđen",
-      description: "Tvoja email adresa je potvrđena. Dobrodošao u Disscount!",
+      description: "Tvoja email adresa je potvrđena. Drago nam je što si tu!",
     },
     "email-changed": {
       title: "Email promijenjen",

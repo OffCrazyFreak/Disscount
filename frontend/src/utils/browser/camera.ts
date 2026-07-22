@@ -106,7 +106,7 @@ export function describeScannerError(error: unknown): string {
 
   switch (kind) {
     case "permission-denied":
-      return "Pristup kameri je odbijen. Omogućite kameru u postavkama preglednika pa pokušaj ponovno.";
+      return "Pristup kameri je odbijen. Omogući kameru u postavkama preglednika pa pokušaj ponovno.";
     case "no-camera":
       return "Kamera nije pronađena na ovom uređaju.";
     case "in-use":

@@ -53,7 +53,7 @@ export default function ProfileTab() {
           name="acquisitionChannel"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Kako si saznao za Disscount?</FormLabel>
+              <FormLabel>Odakle znaš za Disscount?</FormLabel>
               <Select
                 value={field.value ?? undefined}
                 onValueChange={field.onChange}
