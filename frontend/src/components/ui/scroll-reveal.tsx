@@ -13,6 +13,9 @@ interface IScrollRevealProps {
   preset?: RevealPreset;
   stagger?: number;
   amount?: number;
+  // Wrapper + per-item element, so this stays valid inside a <ul>/<tbody>.
+  as?: "div" | "ul" | "ol" | "section";
+  itemAs?: "div" | "li";
 }
 
 const spring = { type: "spring", stiffness: 300, damping: 18 } as const;
@@ -40,14 +43,22 @@ export function ScrollReveal({
   preset = "rise",
   stagger = 0.1,
   amount = 0.3,
+  as = "div",
+  itemAs = "div",
 }: IScrollRevealProps) {
   const reduceMotion = useReducedMotionSafe();
   const items = Children.toArray(children);
 
-  if (reduceMotion) return <div className={className}>{children}</div>;
+  if (reduceMotion) {
+    const Fallback = as;
+    return <Fallback className={className}>{children}</Fallback>;
+  }
+
+  const Container = motion[as] as typeof motion.div;
+  const Item = motion[itemAs] as typeof motion.div;
 
   return (
-    <motion.div
+    <Container
       className={className}
       initial="hidden"
       whileInView="visible"
@@ -55,10 +66,10 @@ export function ScrollReveal({
       variants={{ visible: { transition: { staggerChildren: stagger } } }}
     >
       {items.map((child, index) => (
-        <motion.div key={index} variants={presets[preset]}>
+        <Item key={index} variants={presets[preset]}>
           {child}
-        </motion.div>
+        </Item>
       ))}
-    </motion.div>
+    </Container>
   );
 }

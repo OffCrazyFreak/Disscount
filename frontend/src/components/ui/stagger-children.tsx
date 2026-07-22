@@ -12,10 +12,13 @@ interface StaggerChildrenProps {
   // Delay between consecutive items.
   stagger?: number;
   duration?: number;
+  // Wrapper + per-item element, so this stays valid inside a <ul>/<tbody>.
+  as?: "div" | "ul" | "ol" | "section";
+  itemAs?: "div" | "li";
 }
 
 // Staggered fade + rise reveal for modal/section content; no-op under reduced
-// motion (hydration-safe: the plain-div branch only activates after mount).
+// motion (hydration-safe: the plain-element branch only activates after mount).
 // Accepts a single child or an array (falsy children are dropped).
 export function StaggerChildren({
   children,
@@ -23,21 +26,29 @@ export function StaggerChildren({
   distance = 8,
   stagger = 0.05,
   duration = 0.25,
+  as = "div",
+  itemAs = "div",
 }: StaggerChildrenProps) {
   const reduceMotion = useReducedMotionSafe();
   const items = Children.toArray(children);
 
-  if (reduceMotion) return <div className={className}>{children}</div>;
+  if (reduceMotion) {
+    const Fallback = as;
+    return <Fallback className={className}>{children}</Fallback>;
+  }
+
+  const Container = motion[as] as typeof motion.div;
+  const Item = motion[itemAs] as typeof motion.div;
 
   return (
-    <motion.div
+    <Container
       className={className}
       initial="hidden"
       animate="visible"
       variants={{ visible: { transition: { staggerChildren: stagger } } }}
     >
       {items.map((child, index) => (
-        <motion.div
+        <Item
           key={index}
           variants={{
             hidden: { opacity: 0, y: distance },
@@ -49,8 +60,8 @@ export function StaggerChildren({
           }}
         >
           {child}
-        </motion.div>
+        </Item>
       ))}
-    </motion.div>
+    </Container>
   );
 }
