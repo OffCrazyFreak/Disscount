@@ -136,13 +136,14 @@ There are **two kinds** of env vars, and mixing them up causes the most confusin
 
 **DNS lives in Cloudflare.** Records pointing at the VPS:
 
-| Record                             | Type | Value             | Cloudflare proxy | Purpose                                            |
-| ---------------------------------- | ---- | ----------------- | ---------------- | -------------------------------------------------- |
-| `disscount.me`                     | A    | `YOUR_VPS_IP`     | 🟠 Proxied       | production app                                     |
-| `www` / `app`                      | A    | `YOUR_VPS_IP`     | 🟠 Proxied       | aliases, **301 redirect** to apex (Redirect Rules) |
-| `dev`                              | A    | `YOUR_VPS_IP`     | 🟠 Proxied       | staging                                            |
-| `dokploy`                          | A    | `YOUR_VPS_IP`     | 🟠 Proxied       | Dokploy admin panel                                |
-| MX / TXT (`_domainkey`, SPF, etc.) | n/a  | Cloudflare/Resend | n/a              | **email, leave untouched**                         |
+| Record                             | Type  | Value             | Cloudflare proxy | Purpose                                            |
+| ---------------------------------- | ----- | ----------------- | ---------------- | -------------------------------------------------- |
+| `disscount.me`                     | A     | `YOUR_VPS_IP`     | 🟠 Proxied       | production app                                     |
+| `www` / `app`                      | A     | `YOUR_VPS_IP`     | 🟠 Proxied       | aliases, **301 redirect** to apex (Redirect Rules) |
+| `dev`                              | A     | `YOUR_VPS_IP`     | 🟠 Proxied       | staging                                            |
+| `dokploy`                          | A     | `YOUR_VPS_IP`     | 🟠 Proxied       | Dokploy admin panel                                |
+| `get`/`waitlist`/`zelim`/`želim`   | CNAME | Netlify (retired) | 🟠 Proxied       | old waitlist, **301 redirect** to apex (see below) |
+| MX / TXT (`_domainkey`, SPF, etc.) | n/a   | Cloudflare/Resend | n/a              | **email, leave untouched**                         |
 
 **Two SSL layers** (this confuses people):
 
@@ -155,6 +156,16 @@ There are **two kinds** of env vars, and mixing them up causes the most confusin
 **Adding a domain to a service:** done in **Dokploy, service, Domains** (Host + Service + Container Port + HTTPS/Let's Encrypt). ⚠️ For **Compose** services you must **redeploy once** afterward so the Traefik routing labels actually attach to the container.
 
 **HTTP to HTTPS** redirect is automatic (Cloudflare). No config needed.
+
+**Retired waitlist subdomains:** `get` / `waitlist` / `zelim` / `želim` (the last is an IDN stored as an `xn--…` name) were CNAMEs to a Netlify waitlist site. They now **301-redirect to `https://disscount.me/`** via a Cloudflare **Redirect Rule** (Rules, Redirect Rules) whose expression is:
+
+```
+(http.host in {"get.disscount.me" "waitlist.disscount.me" "zelim.disscount.me"}) or (starts_with(http.host, "xn--") and ends_with(http.host, ".disscount.me"))
+```
+
+Keep the CNAMEs **Proxied** so Cloudflare answers for the names and the rule fires at the edge (before Netlify is reached). This fixed a Google Search Console _"Duplicate without user-selected canonical"_ flag caused by one page served under four hostnames. The Netlify project can be deleted.
+
+**Email anti-spoofing (SPF/DKIM/DMARC):** SPF + DKIM already exist (Resend, Cloudflare, SES on `send.`). DMARC is set as a `_dmarc` TXT record: `v=DMARC1; p=none; rua=mailto:dmarc@disscount.me; fo=1`. It starts in **monitor mode** (`p=none`, aggregate reports forwarded via Email Routing to the owner's inbox); tighten to `p=quarantine` then `p=reject` once reports confirm legitimate senders pass alignment.
 
 ---
 

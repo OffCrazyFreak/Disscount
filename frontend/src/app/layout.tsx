@@ -29,6 +29,9 @@ export const metadata: Metadata = {
   },
   description:
     "Usporedi cijene proizvoda u 29 trgovačkih lanaca u Hrvatskoj, prati povijest cijena, izradi pametne popise za kupnju i uštedi pri svakoj kupnji. Besplatno.",
+  alternates: {
+    canonical: "./",
+  },
   openGraph: {
     type: "website",
     locale: "hr_HR",

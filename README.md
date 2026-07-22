@@ -60,43 +60,43 @@ Recommended flow (quick cuts, ~1-1.5s each, ends around 18-19s):
 Capture the desktop cuts at 1440x900, the phone flash on the mobile PWA. Export as an optimized looping GIF, or a muted autoplay MP4/<video> for smaller size and better quality.
 -->
 
-Landing page ([full-page screenshot](docs/screenshots/desktop/pages/landing.png)):
+Landing page ([full-page screenshot](docs/screenshots/desktop/pages/landing.webp)):
 
 <p align="center">
-  <img width="62%" src="docs/screenshots/desktop/pages/landing-hero.png" alt="Disscount - Landing page"/>
-  <img width="20%" src="docs/screenshots/mobile/pages/landing.png" alt="Disscount - Landing page on mobile"/>
+  <img width="62%" src="docs/screenshots/desktop/pages/landing-hero.webp" alt="Disscount - Landing page"/>
+  <img width="20%" src="docs/screenshots/mobile/pages/landing.webp" alt="Disscount - Landing page on mobile"/>
 </p>
 
 ### Features
 
 <p align="center">
-  <img width="45%" src="docs/screenshots/desktop/pages/search.png" alt="Disscount - Product search across 29 chains"/>
-  <img width="45%" src="docs/screenshots/desktop/pages/product-detail.png" alt="Disscount - Product details with price history"/>
+  <img width="45%" src="docs/screenshots/desktop/pages/search.webp" alt="Disscount - Product search across 29 chains"/>
+  <img width="45%" src="docs/screenshots/desktop/pages/product-detail.webp" alt="Disscount - Product details with price history"/>
 </p>
 
 <p align="center">
-  <img width="45%" src="docs/screenshots/desktop/pages/shopping-lists.png" alt="Disscount - Shopping lists"/>
-  <img width="45%" src="docs/screenshots/desktop/pages/shopping-list-detail.png" alt="Disscount - Shopping list with per-store basket totals"/>
+  <img width="45%" src="docs/screenshots/desktop/pages/shopping-lists.webp" alt="Disscount - Shopping lists"/>
+  <img width="45%" src="docs/screenshots/desktop/pages/shopping-list-detail.webp" alt="Disscount - Shopping list with per-store basket totals"/>
 </p>
 
 <p align="center">
-  <img width="45%" src="docs/screenshots/desktop/pages/watchlist.png" alt="Disscount - Product watchlist with price-drop targets"/>
-  <img width="45%" src="docs/screenshots/desktop/pages/digital-cards.png" alt="Disscount - Digital loyalty cards"/>
+  <img width="45%" src="docs/screenshots/desktop/pages/watchlist.webp" alt="Disscount - Product watchlist with price-drop targets"/>
+  <img width="45%" src="docs/screenshots/desktop/pages/digital-cards.webp" alt="Disscount - Digital loyalty cards"/>
 </p>
 
 <p align="center">
-  <img width="45%" src="docs/screenshots/desktop/settings/preference.png" alt="Disscount - Preferences (nearby stores and locations)"/>
-  <img width="45%" src="docs/screenshots/desktop/pages/statistics.png" alt="Disscount - Market statistics per chain"/>
+  <img width="45%" src="docs/screenshots/desktop/settings/preference.webp" alt="Disscount - Preferences (nearby stores and locations)"/>
+  <img width="45%" src="docs/screenshots/desktop/pages/statistics.webp" alt="Disscount - Market statistics per chain"/>
 </p>
 
 ### On your phone
 
 <p align="center">
-  <img width="19%" src="docs/screenshots/mobile/pages/search.png" alt="Disscount - Product search on mobile"/>
-  <img width="19%" src="docs/screenshots/mobile/pages/product-detail.png" alt="Disscount - Price history on mobile"/>
-  <img width="19%" src="docs/screenshots/mobile/pages/shopping-list-detail.png" alt="Disscount - Shopping list on mobile"/>
-  <img width="19%" src="docs/screenshots/mobile/pages/watchlist.png" alt="Disscount - Watchlist on mobile"/>
-  <img width="19%" src="docs/screenshots/mobile/pages/digital-cards.png" alt="Disscount - Digital cards on mobile"/>
+  <img width="19%" src="docs/screenshots/mobile/pages/search.webp" alt="Disscount - Product search on mobile"/>
+  <img width="19%" src="docs/screenshots/mobile/pages/product-detail.webp" alt="Disscount - Price history on mobile"/>
+  <img width="19%" src="docs/screenshots/mobile/pages/shopping-list-detail.webp" alt="Disscount - Shopping list on mobile"/>
+  <img width="19%" src="docs/screenshots/mobile/pages/watchlist.webp" alt="Disscount - Watchlist on mobile"/>
+  <img width="19%" src="docs/screenshots/mobile/pages/digital-cards.webp" alt="Disscount - Digital cards on mobile"/>
 </p>
 
 ## Attribution
