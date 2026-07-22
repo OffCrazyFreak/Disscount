@@ -16,7 +16,8 @@ export const contactMessageRequestSchema = z.object({
     .min(1, "Poruka je obavezna")
     .max(5000, "Poruka može imati najviše 5000 znakova"),
   sourcePath: z.string().optional(),
-  honeypot: z.string().optional(),
+  // Honeypot must stay empty; reject a filled value (backend also drops it server-side).
+  honeypot: z.string().max(0).optional(),
 });
 
 // What the admin inbox reads back. Optional inputs relax to nullable.
