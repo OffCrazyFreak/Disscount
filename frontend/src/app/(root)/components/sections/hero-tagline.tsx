@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
+import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 import { tagLines } from "@/app/(root)/data/landing";
 
 const ROTATE_INTERVAL_MS = 4000;
@@ -10,7 +11,7 @@ const ROTATE_INTERVAL_MS = 4000;
 // mismatch); after mount the rest cross-fade through on an interval.
 export default function HeroTagline() {
   const [index, setIndex] = useState(0);
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotionSafe();
 
   useEffect(() => {
     // Reduced-motion users get a random tagline per load instead of the
@@ -26,6 +27,14 @@ export default function HeroTagline() {
 
     return () => clearInterval(id);
   }, [reduced]);
+
+  if (reduced) {
+    return (
+      <span className="relative block h-6 sm:h-7 overflow-hidden">
+        <span className="block">{tagLines[index]}</span>
+      </span>
+    );
+  }
 
   return (
     <span className="relative block h-6 sm:h-7 overflow-hidden">
