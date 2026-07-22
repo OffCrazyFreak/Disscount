@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 import {
   ShoppingListRequest,
@@ -18,10 +18,15 @@ import {
   getAllUserShoppingListItems,
 } from "@/lib/api/shopping-lists/queries";
 
+const LISTS_KEY = ["shoppingLists"];
+const LIST_ITEMS_KEY = ["shoppingListItems"];
+
 export function useCreateShoppingList() {
+  const queryClient = useQueryClient();
   return useMutation<ShoppingListDto, Error, ShoppingListRequest>({
     mutationKey: OFFLINE_MUTATION_KEYS.shoppingListCreate,
     mutationFn: createShoppingList,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: LISTS_KEY }),
   });
 }
 
@@ -44,6 +49,7 @@ export function useGetShoppingListById(id: string) {
 }
 
 export function useUpdateShoppingList() {
+  const queryClient = useQueryClient();
   return useMutation<
     ShoppingListDto,
     Error,
@@ -51,17 +57,29 @@ export function useUpdateShoppingList() {
   >({
     mutationKey: OFFLINE_MUTATION_KEYS.shoppingListUpdate,
     mutationFn: ({ id, data }) => updateShoppingList(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: LISTS_KEY }),
   });
 }
 
 export function useDeleteShoppingList() {
+  const queryClient = useQueryClient();
   return useMutation<void, Error, string>({
     mutationKey: OFFLINE_MUTATION_KEYS.shoppingListDelete,
     mutationFn: deleteShoppingList,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: LISTS_KEY }),
   });
 }
 
+function useInvalidateListsAndItems() {
+  const queryClient = useQueryClient();
+  return () => {
+    queryClient.invalidateQueries({ queryKey: LISTS_KEY });
+    queryClient.invalidateQueries({ queryKey: LIST_ITEMS_KEY });
+  };
+}
+
 export function useAddItemToShoppingList() {
+  const invalidate = useInvalidateListsAndItems();
   return useMutation<
     ShoppingListItemDto,
     Error,
@@ -69,10 +87,12 @@ export function useAddItemToShoppingList() {
   >({
     mutationKey: OFFLINE_MUTATION_KEYS.shoppingListItemAdd,
     mutationFn: ({ listId, data }) => addItemToShoppingList(listId, data),
+    onSuccess: invalidate,
   });
 }
 
 export function useUpdateShoppingListItem() {
+  const invalidate = useInvalidateListsAndItems();
   return useMutation<
     ShoppingListItemDto,
     Error,
@@ -81,13 +101,16 @@ export function useUpdateShoppingListItem() {
     mutationKey: OFFLINE_MUTATION_KEYS.shoppingListItemUpdate,
     mutationFn: ({ listId, itemId, data }) =>
       updateShoppingListItem(listId, itemId, data),
+    onSuccess: invalidate,
   });
 }
 
 export function useDeleteShoppingListItem() {
+  const invalidate = useInvalidateListsAndItems();
   return useMutation<void, Error, { listId: string; itemId: string }>({
     mutationKey: OFFLINE_MUTATION_KEYS.shoppingListItemDelete,
     mutationFn: ({ listId, itemId }) => deleteShoppingListItem(listId, itemId),
+    onSuccess: invalidate,
   });
 }
 
