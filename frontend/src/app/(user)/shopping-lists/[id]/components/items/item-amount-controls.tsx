@@ -16,7 +16,7 @@ export default function ItemAmountControls({
     <div className="flex items-center gap-2">
       <Button
         size="icon"
-        aria-label="Povećaj količinu za 1"
+        aria-label="Smanji količinu za 1"
         className="size-8 sm:size-10 shrink-0"
         onClick={() =>
           onUpdate({
