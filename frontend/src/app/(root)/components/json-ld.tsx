@@ -66,7 +66,9 @@ export default function LandingJsonLd() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(graph) }}
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(graph).replace(/</g, "\\u003c"),
+      }}
     />
   );
 }
