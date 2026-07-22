@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { Eye, Save, TriangleAlert } from "lucide-react";
 
-import { ModalShell } from "@/components/ui/modal-shell";
+import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RemoveIconButton } from "@/components/ui/remove-icon-button";

@@ -1,5 +1,5 @@
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import { useShoppingListActions } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-actions";
 import ShoppingListDesktopActions from "@/app/(user)/shopping-lists/[id]/components/shopping-list-desktop-actions";
 import ShoppingListMobileActions from "@/app/(user)/shopping-lists/[id]/components/shopping-list-mobile-actions";

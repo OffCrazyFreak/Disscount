@@ -12,8 +12,8 @@ import {
 import {
   ModalShellFooter,
   ModalShellFooterProps,
-} from "@/components/ui/modal-shell-footer";
-import { UnsavedIndicator } from "@/components/ui/unsaved-indicator";
+} from "@/components/custom/modal/modal-shell-footer";
+import { UnsavedIndicator } from "@/components/custom/modal/unsaved-indicator";
 import { StaggerChildren } from "@/components/ui/stagger-children";
 import { cn } from "@/lib/utils";
 

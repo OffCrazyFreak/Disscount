@@ -2,7 +2,7 @@
 
 import { CircleCheck } from "lucide-react";
 
-import { ModalShell } from "@/components/ui/modal-shell";
+import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useUser } from "@/context/user-context";
 

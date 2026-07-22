@@ -3,7 +3,7 @@
 import { Activity } from "react";
 import { ListPlus, TriangleAlert } from "lucide-react";
 
-import { ModalShell } from "@/components/ui/modal-shell";
+import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";

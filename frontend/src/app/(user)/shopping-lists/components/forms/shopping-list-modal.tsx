@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { Save } from "lucide-react";
 
-import { ModalShell } from "@/components/ui/modal-shell";
+import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {

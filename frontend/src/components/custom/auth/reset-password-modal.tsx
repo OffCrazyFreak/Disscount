@@ -1,6 +1,6 @@
 "use client";
 
-import { ModalShell } from "@/components/ui/modal-shell";
+import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
 import PasswordField from "@/components/custom/auth/components/fields/password-field";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";

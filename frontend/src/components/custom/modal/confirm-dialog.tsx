@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 
-import { ModalShell } from "@/components/ui/modal-shell";
+import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 

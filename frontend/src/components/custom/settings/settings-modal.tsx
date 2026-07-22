@@ -9,7 +9,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import { ModalShell } from "@/components/ui/modal-shell";
+import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { closeModalUrl, swapModalUrl } from "@/lib/modal/modal-navigation";
 import type { SettingsTab } from "@/lib/modal/modal-registry";

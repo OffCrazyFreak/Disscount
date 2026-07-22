@@ -2,7 +2,7 @@
 
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 
-import { ModalShell } from "@/components/ui/modal-shell";
+import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Button } from "@/components/ui/button";
 import type { UserRequest } from "@/lib/api/schemas/auth-user";
 import { ONBOARDING_STEPS } from "@/components/custom/settings/onboarding/onboarding-steps";
