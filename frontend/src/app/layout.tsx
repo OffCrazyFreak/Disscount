@@ -13,6 +13,7 @@ import OfflineIndicator from "@/components/custom/offline/offline-indicator";
 import Providers from "@/app/providers/providers";
 import { ReactNode, Suspense } from "react";
 import { huninn, sairaStencil } from "@/app/fonts";
+import { appUrl } from "@/lib/env";
 
 // Shorter than the meta description on purpose: social previews truncate around
 // 125 chars, while the full description below stays fine for search results.
@@ -20,9 +21,7 @@ const socialDescription =
   "Usporedi cijene proizvoda u 29 trgovačkih lanaca u Hrvatskoj, prati povijest cijena i uštedi pri svakoj kupnji. Besplatno.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-  ),
+  metadataBase: new URL(appUrl()),
   title: {
     default: "Disscount - Pronađi najbolje cijene u Hrvatskoj",
     template: "Disscount - %s",
