@@ -86,10 +86,13 @@ export function ModalShell({
         {...(description ? {} : { "aria-describedby": undefined })}
         onEscapeKeyDown={(e) => preventClose && e.preventDefault()}
         onInteractOutside={(e) => preventClose && e.preventDefault()}
-        // Don't auto-focus the first control on open: it would pop that
-        // control's tooltip immediately. Inputs with autoFocus still focus
-        // themselves via the DOM.
-        onOpenAutoFocus={(e) => e.preventDefault()}
+        // Focus the dialog container, not the first control (which would pop its
+        // tooltip), so keyboard and screen-reader users still land inside the modal.
+        // Inputs with autoFocus still focus themselves via the DOM.
+        onOpenAutoFocus={(e) => {
+          e.preventDefault();
+          (e.currentTarget as HTMLElement | null)?.focus();
+        }}
         // URL-mounted dialogs have no trigger element to return focus to; letting
         // Radix fall back to document.body causes a scroll jump on close.
         onCloseAutoFocus={(e) => e.preventDefault()}
