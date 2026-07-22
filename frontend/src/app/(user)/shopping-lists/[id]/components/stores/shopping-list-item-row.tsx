@@ -51,7 +51,7 @@ export default function ShoppingListItemRow({
               {isMobile ? (
                 <TriangleAlert className="size-4 shrink-0 text-amber-600 inline ml-2" />
               ) : (
-                <Badge variant="primary">
+                <Badge variant="warningSoft">
                   <TriangleAlert className="size-4 shrink-0" />
                   Proizvod nedostupan
                 </Badge>
