@@ -46,9 +46,7 @@ export function useWatchlistData(query: string) {
     })),
   });
 
-  const productsLoading = productQueries.some(
-    (query) => query.isLoading || query.isFetching,
-  );
+  const productsLoading = productQueries.some((query) => query.isLoading);
 
   // Freshest successful price fetch across the tracked products, for the
   // "last synced" label.
@@ -63,9 +61,7 @@ export function useWatchlistData(query: string) {
   const enrichedItems = useMemo<WatchlistItemWithProduct[]>(() => {
     return groupedWatchlistItems.map((groupedItem, index) => {
       const productQuery = productQueries[index];
-      const isProductLoading = Boolean(
-        productQuery?.isLoading || productQuery?.isFetching,
-      );
+      const isProductLoading = Boolean(productQuery?.isLoading);
       const product = isProductLoading ? undefined : productQuery?.data;
       const queryError = productQuery?.error;
 
