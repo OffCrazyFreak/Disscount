@@ -52,18 +52,18 @@ export default function PwaSection() {
           <TextGlow className="-inset-6" />
 
           <div className="space-y-6">
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-balance">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-pretty">
               Aplikacija koja radi i bez interneta
             </h2>
 
             <div className="space-y-5">
               {perks.map((perk) => (
-                <div key={perk.title} className="flex gap-4">
-                  <div className="size-11 shrink-0 grid place-items-center rounded-xl bg-primary/10 text-primary">
-                    <perk.icon className="size-6" />
+                <div key={perk.title} className="flex items-center gap-4">
+                  <div className="size-11 md:size-16 shrink-0 grid place-items-center rounded-xl bg-primary/10 text-primary">
+                    <perk.icon className="size-6 md:size-8" />
                   </div>
                   <div className="space-y-1">
-                    <h3 className="font-semibold">{perk.title}</h3>
+                    <h3 className="font-semibold text-pretty">{perk.title}</h3>
                     <p className="text-sm text-muted-foreground text-pretty">
                       {perk.description}
                     </p>

@@ -1,5 +1,7 @@
+import Link from "next/link";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import { storeNamesMap } from "@/constants/name-mappings";
+import { getChainLabel } from "@/utils/labels";
 
 const chains = Object.keys(storeNamesMap);
 
@@ -10,11 +12,18 @@ function LogoRow({ ariaHidden = false }: { ariaHidden?: boolean }) {
       className="flex shrink-0 items-center gap-8 pr-8"
     >
       {chains.map((chain) => (
-        <li
-          key={chain}
-          className="size-16 sm:size-20 shrink-0 grid place-items-center bg-white border rounded-2xl shadow-sm p-2.5"
-        >
-          <StoreChainLogo chain={chain} className="object-contain rounded-lg" />
+        <li key={chain} className="shrink-0">
+          <Link
+            href={`/products?chain=${chain}`}
+            aria-label={`Pogledaj cijene - ${getChainLabel(chain)}`}
+            tabIndex={ariaHidden ? -1 : undefined}
+            className="grid size-16 sm:size-20 cursor-pointer place-items-center rounded-2xl border bg-white p-2.5 shadow-sm transition-transform hover:scale-105"
+          >
+            <StoreChainLogo
+              chain={chain}
+              className="object-contain rounded-lg"
+            />
+          </Link>
         </li>
       ))}
     </ul>

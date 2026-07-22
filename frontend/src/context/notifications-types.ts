@@ -32,4 +32,7 @@ export interface INotificationsContext {
   isLoading: boolean;
   hasNotifications: boolean;
   hasWatchlistItems: boolean;
+  /** Header dropdown open state, lifted so other UI can open it (e.g. a CTA) */
+  isMenuOpen: boolean;
+  setMenuOpen: (open: boolean) => void;
 }

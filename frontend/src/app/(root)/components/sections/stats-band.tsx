@@ -27,10 +27,10 @@ export default function StatsBand() {
         >
           {statItems.map((stat) => (
             <div key={stat.label} className="space-y-1 py-7 sm:px-6">
-              <div className="text-4xl sm:text-5xl font-saira-stencil-semibold">
+              <div className="text-4xl sm:text-5xl font-saira-stencil-semibold text-pretty">
                 {stat.value}
               </div>
-              <p className="text-sm uppercase tracking-wider text-primary-foreground/85">
+              <p className="text-sm uppercase tracking-wider text-primary-foreground/85 text-pretty">
                 {stat.label}
               </p>
             </div>

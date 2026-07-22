@@ -18,7 +18,7 @@ export default function SectionHeading({
       <TextGlow />
 
       <div className="text-center space-y-3">
-        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-balance">
+        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-pretty">
           {title}
         </h2>
 

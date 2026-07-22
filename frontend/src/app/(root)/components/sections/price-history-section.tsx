@@ -21,7 +21,7 @@ export default function PriceHistorySection() {
         <div className="relative isolate space-y-5">
           <TextGlow className="-inset-8" />
 
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-balance">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-pretty">
             Je li akcija stvarno akcija?
           </h2>
 
@@ -33,7 +33,10 @@ export default function PriceHistorySection() {
 
           <ul className="space-y-2.5">
             {checks.map((check) => (
-              <li key={check} className="flex items-start gap-2.5 text-sm">
+              <li
+                key={check}
+                className="flex items-start gap-2.5 text-sm text-pretty"
+              >
                 <Check className="size-4 mt-0.5 shrink-0 text-primary" />
                 {check}
               </li>
@@ -47,7 +50,7 @@ export default function PriceHistorySection() {
 
         <div className="relative bg-card border rounded-3xl p-8 shadow-sm">
           <PriceLineDoodle className="w-full h-auto text-primary" />
-          <p className="mt-4 text-center text-xs uppercase tracking-wider text-muted-foreground">
+          <p className="mt-4 text-center text-xs uppercase tracking-wider text-muted-foreground text-pretty">
             Cijena kroz vrijeme
           </p>
         </div>

@@ -23,7 +23,7 @@ export default function FinalCtaSection() {
         <CartLogo className="absolute -bottom-3 -right-4 w-32 sm:w-44 h-auto text-primary-foreground/25" />
 
         <ScrollReveal preset="pop" className="relative space-y-6">
-          <h2 className="text-4xl sm:text-5xl font-saira-stencil-semibold text-balance">
+          <h2 className="text-4xl sm:text-5xl font-saira-stencil-semibold text-pretty">
             Želiš uštedjeti?
           </h2>
 
@@ -32,12 +32,12 @@ export default function FinalCtaSection() {
             poželiš spremati popise i pratiti proizvode.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="mx-auto flex max-w-md flex-col justify-center gap-3 sm:flex-row">
             <Button
               asChild
               size="lg"
-              variant="secondary"
-              className="bg-white text-primary hover:bg-white/90 font-semibold"
+              variant="ghost"
+              className="w-full border-2 border-white/70 font-semibold text-white hover:bg-white/15 hover:text-white sm:flex-1"
             >
               <Link href="/products">Kreni s pretragom</Link>
             </Button>
@@ -45,8 +45,8 @@ export default function FinalCtaSection() {
             <Button
               asChild
               size="lg"
-              variant="outline"
-              className="border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+              variant="secondary"
+              className="w-full border-2 border-transparent bg-white font-semibold text-primary hover:bg-white/90 sm:flex-1"
             >
               <Link href="/?modal=signup">Stvori besplatni račun</Link>
             </Button>

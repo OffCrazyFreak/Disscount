@@ -22,11 +22,11 @@ export default function HeroSection() {
         <div className="space-y-6">
           <CartLogo className="mx-auto w-40 sm:w-52 h-auto text-primary" />
 
-          <p className="text-5xl sm:text-7xl text-primary font-saira-stencil-semibold">
+          <p className="text-5xl sm:text-7xl text-primary font-saira-stencil-semibold text-pretty">
             disscount
           </p>
 
-          <h1 className="text-2xl sm:text-3xl font-bold text-balance max-w-2xl mx-auto">
+          <h1 className="text-2xl sm:text-3xl font-bold text-pretty max-w-2xl mx-auto">
             Pronađi{" "}
             <span className="relative inline-block">
               najbolje cijene

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
@@ -21,25 +20,25 @@ export default function NotificationsDropdown() {
     isLoading,
     hasNotifications,
     hasWatchlistItems,
+    isMenuOpen,
+    setMenuOpen,
   } = useNotifications();
   const router = useRouter();
 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
   function handleAddProducts() {
-    setIsDropdownOpen(false);
+    setMenuOpen(false);
 
     router.push("/watchlist");
   }
 
   return (
-    <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+    <DropdownMenu open={isMenuOpen} onOpenChange={setMenuOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <BellRingIcon size={18} />
 
           {hasNotifications && (
-            <Badge className="absolute -top-1 -right-0.5">
+            <Badge className="absolute -top-2 -right-1">
               {notifications.length}
             </Badge>
           )}
@@ -54,7 +53,7 @@ export default function NotificationsDropdown() {
           notifications={notifications}
           isLoading={isLoading}
           hasWatchlistItems={hasWatchlistItems}
-          onSelect={() => setIsDropdownOpen(false)}
+          onSelect={() => setMenuOpen(false)}
           onAddProducts={handleAddProducts}
         />
       </DropdownMenuContent>

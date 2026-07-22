@@ -6,7 +6,7 @@ import {
   Store,
   MapPin,
   Map as MapIcon,
-  Wallet,
+  PiggyBank,
   Megaphone,
   Lightbulb,
   ChartNoAxesCombined,
@@ -74,7 +74,7 @@ export const userNavItems: NavigationItem[] = [
     id: "spending",
     href: "/spending",
     label: "Potrošnja",
-    icon: Wallet,
+    icon: PiggyBank,
     comingSoon: true,
 
     showInHeader: false,

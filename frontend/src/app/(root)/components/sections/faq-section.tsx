@@ -25,7 +25,7 @@ export default function FaqSection() {
             className="faq-item group bg-card border rounded-2xl shadow-sm open:border-primary/40 open:shadow-md"
           >
             <summary className="flex items-center justify-between gap-4 p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-              <h3 className="font-semibold text-base">
+              <h3 className="font-semibold text-base text-pretty">
                 <span className="relative">
                   {item.question}
                   <SquiggleUnderline className="absolute -bottom-1.5 left-0 w-full h-2 text-primary hidden group-open:block" />

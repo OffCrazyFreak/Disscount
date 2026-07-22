@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { watchlistService } from "@/lib/api";
 import { getProductByEan, productByEanQueryKey } from "@/lib/cijene-api";
@@ -12,6 +12,7 @@ import { INotificationsContext } from "@/context/notifications-types";
 
 export function useWatchlistNotifications(): INotificationsContext {
   const { user, isAuthenticated } = useUser();
+  const [isMenuOpen, setMenuOpen] = useState(false);
 
   // Gate the watchlist query - avoids hitting /api/watchlist/me (and /api/auth/token) when logged out
   const { data: watchlistItems = [], isLoading: watchlistLoading } =
@@ -74,5 +75,7 @@ export function useWatchlistNotifications(): INotificationsContext {
     isLoading,
     hasNotifications: notifications.length > 0,
     hasWatchlistItems: watchlistItems.length > 0,
+    isMenuOpen,
+    setMenuOpen,
   };
 }

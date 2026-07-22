@@ -21,9 +21,9 @@ const receiptClip =
 function ReceiptRow({ label, price }: { label: string; price: string }) {
   return (
     <li className="flex items-baseline gap-2 text-sm">
-      <span>{label}</span>
+      <span className="text-pretty">{label}</span>
       <span className="flex-1 border-b border-dotted border-muted-foreground/40" />
-      <span className="font-mono">{price}</span>
+      <span className="font-mono text-pretty">{price}</span>
     </li>
   );
 }
@@ -47,10 +47,10 @@ export default function PricingReceipt({
         )}
       >
         <div className="text-center space-y-1 pb-4 border-b border-dashed">
-          <h3 className="font-saira-stencil-semibold text-2xl text-primary">
+          <h3 className="font-saira-stencil-semibold text-2xl text-primary text-pretty">
             {name}
           </h3>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground text-pretty">
             {subtitle}
           </p>
         </div>
@@ -62,9 +62,9 @@ export default function PricingReceipt({
         </ul>
 
         <div className="pt-3 pb-6 border-t border-dashed flex items-baseline gap-2 font-semibold">
-          <span>UKUPNO</span>
+          <span className="text-pretty">UKUPNO</span>
           <span className="flex-1 border-b border-dotted border-muted-foreground/40" />
-          <span className="font-mono">{total}</span>
+          <span className="font-mono text-pretty">{total}</span>
         </div>
 
         <EdgeFade
