@@ -59,7 +59,11 @@ export default function AddToShoppingListForm({
       submitLabel="Dodaj"
       submitIcon={ListPlus}
       submitLoading={isSubmitting}
-      submitDisabled={!product || !form.formState.isValid}
+      submitDisabled={
+        !product ||
+        !form.formState.isValid ||
+        (form.watch("shoppingListId") === "new" && !customListTitle.trim())
+      }
       cancelLabel="Odustani"
       resetLabel="Resetiraj"
       resetDisabled={!form.formState.isDirty && !restored}
