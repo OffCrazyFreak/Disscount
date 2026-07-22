@@ -139,6 +139,17 @@ export function buildChartConfig(
   return cfg;
 }
 
+// Round a target step up to a "nice" 1/2/5 x 10^n value, aiming for ~6 ticks.
+function niceAxisStep(range: number): number {
+  if (range <= 0) return 1;
+  const target = range / 6;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(target)));
+  const normalized = target / magnitude;
+  const nice =
+    normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
+  return nice * magnitude;
+}
+
 export function calculateYAxisTicks(chartData: ChartDataPoint[]): number[] {
   const padding = 0.05;
 
@@ -156,7 +167,7 @@ export function calculateYAxisTicks(chartData: ChartDataPoint[]): number[] {
   const paddedMax = Math.max(...allPrices) * (1 + padding);
 
   const ticks = [];
-  const step = 1;
+  const step = niceAxisStep(paddedMax - paddedMin);
   const start = Math.floor(paddedMin / step) * step;
   const end = Math.ceil(paddedMax / step) * step;
 
