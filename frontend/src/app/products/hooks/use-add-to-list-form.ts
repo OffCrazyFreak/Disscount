@@ -87,7 +87,9 @@ export function useAddToListForm(open: boolean, ean: string) {
   // Default to the most recently updated list once lists load
   useEffect(() => {
     if (sortedShoppingLists.length > 0 && !form.getValues("shoppingListId")) {
-      form.setValue("shoppingListId", sortedShoppingLists[0].id);
+      form.setValue("shoppingListId", sortedShoppingLists[0].id, {
+        shouldValidate: true,
+      });
     }
   }, [sortedShoppingLists, form]);
 
@@ -102,6 +104,7 @@ export function useAddToListForm(open: boolean, ean: string) {
       form.setValue(
         "shoppingListId",
         sortedShoppingLists.length > 0 ? sortedShoppingLists[0].id : "",
+        { shouldValidate: true },
       );
     }
   }, [sortedShoppingLists, form]);

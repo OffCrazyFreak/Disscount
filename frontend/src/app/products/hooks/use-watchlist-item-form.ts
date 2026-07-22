@@ -51,15 +51,19 @@ export function useWatchlistItemForm(
       form.setValue(
         "thresholdValue",
         existingItemForType.thresholdValue.toString(),
+        { shouldValidate: true },
       );
     } else if (watchType === WatchType.percentage) {
-      form.setValue("thresholdValue", "10");
+      form.setValue("thresholdValue", "10", { shouldValidate: true });
     } else {
       const suggested =
         avgPrice > 0 ? Math.round(avgPrice * 0.1 * 100) / 100 : 0;
       form.setValue(
         "thresholdValue",
         suggested > 0 ? suggested.toString() : "",
+        {
+          shouldValidate: true,
+        },
       );
     }
   }, [watchType, existingItemForType, avgPrice, form]);
