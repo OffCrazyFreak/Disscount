@@ -42,11 +42,21 @@ export default function ShoppingListHeader({
         <div className="flex items-center gap-2 ml-auto">
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="mr-2" tabIndex={0}>
+              <div
+                className="mr-2"
+                tabIndex={0}
+                role="img"
+                aria-label={
+                  shoppingList.isPublic ? "Popis je javan" : "Popis je privatan"
+                }
+              >
                 {shoppingList.isPublic ? (
-                  <Globe className="h-5 w-5 text-green-600" />
+                  <Globe
+                    className="h-5 w-5 text-green-600"
+                    aria-hidden="true"
+                  />
                 ) : (
-                  <Lock className="h-5 w-5 text-gray-400" />
+                  <Lock className="h-5 w-5 text-gray-400" aria-hidden="true" />
                 )}
               </div>
             </TooltipTrigger>
