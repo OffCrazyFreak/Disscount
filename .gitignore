@@ -71,3 +71,6 @@ desktop.ini
 docs/disscount_*
 # Playwright MCP session artifacts
 .playwright-mcp/
+
+# Local code-review triage output (not committed)
+reviews/
