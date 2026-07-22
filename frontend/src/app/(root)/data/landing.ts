@@ -49,7 +49,6 @@ export const statItems: IStatItem[] = [
 
 export interface IPricingRow {
   label: string;
-  comingSoon?: boolean;
 }
 
 export const freePlanRows: IPricingRow[] = [
@@ -61,7 +60,7 @@ export const freePlanRows: IPricingRow[] = [
 ];
 
 export const proPlanRows: IPricingRow[] = [
-  { label: "Obavijesti o padu cijena", comingSoon: true },
-  { label: "Napredna analiza potrošnje", comingSoon: true },
-  { label: "AI prijedlozi za jeftiniju košaricu", comingSoon: true },
+  { label: "Obavijesti o padu cijena" },
+  { label: "Napredna analiza potrošnje" },
+  { label: "AI prijedlozi za jeftiniju košaricu" },
 ];
