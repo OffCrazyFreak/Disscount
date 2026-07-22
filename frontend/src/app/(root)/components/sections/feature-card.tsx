@@ -2,7 +2,7 @@ import Link from "next/link";
 import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
 import FeatureCardAction from "@/app/(root)/components/sections/feature-card-action";
 import { cn } from "@/lib/utils";
-import type { IFeatureItem } from "@/app/(root)/components/data/features";
+import type { IFeatureItem } from "@/app/(root)/data/features";
 
 interface IFeatureCardProps {
   feature: IFeatureItem;

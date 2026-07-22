@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import EdgeFade from "@/components/custom/common/edge-fade";
-import type { IPricingRow } from "@/app/(root)/components/data/landing";
+import type { IPricingRow } from "@/app/(root)/data/landing";
 
 interface IPricingReceiptProps {
   name: string;

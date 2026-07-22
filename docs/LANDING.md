@@ -105,7 +105,7 @@ The doodles (`barcode`, `price-tag`, `cart`, `receipt`, `price-line`, `scale`) a
 
 ## Data files
 
-Copy is centralised so a non-developer can edit text without touching JSX.
+Copy is centralised in `app/(root)/data/` so a non-developer can edit text without touching JSX.
 
 | File               | Exports                                                                   | Used by                                         |
 | ------------------ | ------------------------------------------------------------------------- | ----------------------------------------------- |
@@ -129,6 +129,8 @@ The landing is the app's most SEO-sensitive surface, so several layers work toge
 | Social images            | `app/opengraph-image.tsx`, `app/twitter-image.tsx` | Generated with `next/og` (see the OG-image work)                                        |
 
 The JSON-LD `@graph` contains a `WebSite` node with a `SearchAction` (`/products?q={search_term_string}`), an `Organization` node (logo, `sameAs` socials), a `SoftwareApplication` node (category `ShoppingApplication`, a free `Offer`, screenshots), and a `FAQPage` node built from `faqItems`. Heading semantics matter: the hero `<h1>` carries the keyword copy ("Pronađi najbolje cijene u Hrvatskoj"), the wordmark is a styled `<p>`, and each section contributes exactly one `<h2>`.
+
+Temper FAQ expectations: since 2023 Google shows FAQ rich results almost exclusively for government and health sites. Keep the `FAQPage` schema anyway (it costs nothing, and other engines and LLMs consume it), just do not expect visible rich snippets from it.
 
 The page is also fully static: neither `page.tsx` nor `app/layout.tsx` touches request-time APIs (`cookies()`, `headers()`, `searchParams`), so Next prerenders `/` to static HTML at build time. Crawlers and users get the finished page with zero server work per request. Keep it that way: adding a request-time API anywhere in the root layout would silently turn every page dynamic (the production build output marks static routes with a circle, dynamic with an f).
 
@@ -177,7 +179,7 @@ Every CSS animation is disabled under `@media (prefers-reduced-motion: reduce)`,
 | `app/(root)/components/sections/section-heading.tsx`                                    | Shared heading + `TextGlow`                               |
 | `app/(root)/components/sections/feature-card.tsx`                                       | Server card; chooses `<Link>` / action / div              |
 | `app/(root)/components/sections/feature-card-action.tsx`                                | Client action island (scanner / notifications)            |
-| `app/(root)/components/data/*`                                                          | Copy: landing, features, faq                              |
+| `app/(root)/data/*`                                                                     | Copy: landing, features, faq                              |
 | `app/(root)/components/doodles/*`                                                       | Hand-drawn animated SVGs + `DoodleCanvas`, `SparkleField` |
 | `app/(root)/components/json-ld.tsx`                                                     | Structured data `@graph`                                  |
 | `components/custom/common/{edge-fade,scroll-fade,window-scroll-fade,text-glow}.tsx`     | Shared fade/glow primitives                               |

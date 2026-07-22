@@ -3,7 +3,7 @@ import SectionHeading from "@/app/(root)/components/sections/section-heading";
 import BarcodeDoodle from "@/app/(root)/components/doodles/barcode-doodle";
 import ScaleDoodle from "@/app/(root)/components/doodles/scale-doodle";
 import CartLogo from "@/components/icons/cart-logo";
-import { howItWorksSteps } from "@/app/(root)/components/data/landing";
+import { howItWorksSteps } from "@/app/(root)/data/landing";
 
 const stepDoodles = [
   <BarcodeDoodle key="barcode" className="w-24 h-16 text-primary" />,

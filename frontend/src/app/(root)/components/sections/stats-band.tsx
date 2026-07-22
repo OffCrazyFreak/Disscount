@@ -1,6 +1,6 @@
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import SparkleField from "@/app/(root)/components/doodles/sparkle-field";
-import { statItems } from "@/app/(root)/components/data/landing";
+import { statItems } from "@/app/(root)/data/landing";
 
 const bandPalette = [
   "text-primary-foreground/60",

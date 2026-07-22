@@ -2,10 +2,7 @@ import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
 import SectionHeading from "@/app/(root)/components/sections/section-heading";
 import PricingReceipt from "@/app/(root)/components/sections/pricing-receipt";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import {
-  freePlanRows,
-  proPlanRows,
-} from "@/app/(root)/components/data/landing";
+import { freePlanRows, proPlanRows } from "@/app/(root)/data/landing";
 
 export default function PricingSection() {
   return (

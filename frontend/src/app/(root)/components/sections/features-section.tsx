@@ -1,7 +1,7 @@
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import SectionHeading from "@/app/(root)/components/sections/section-heading";
 import FeatureCard from "@/app/(root)/components/sections/feature-card";
-import { featureItems } from "@/app/(root)/components/data/features";
+import { featureItems } from "@/app/(root)/data/features";
 
 export default function FeaturesSection() {
   return (
