@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { tagLines } from "@/app/(root)/components/data/landing";
+import { tagLines } from "@/app/(root)/data/landing";
 
 const ROTATE_INTERVAL_MS = 4000;
 
@@ -13,7 +13,12 @@ export default function HeroTagline() {
   const reduced = useReducedMotion();
 
   useEffect(() => {
-    if (reduced) return;
+    // Reduced-motion users get a random tagline per load instead of the
+    // rotation, so they still see variety without any animation.
+    if (reduced) {
+      setIndex(Math.floor(Math.random() * tagLines.length));
+      return;
+    }
 
     const id = setInterval(() => {
       setIndex((current) => (current + 1) % tagLines.length);
