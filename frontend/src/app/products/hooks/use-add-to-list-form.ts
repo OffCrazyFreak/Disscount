@@ -143,14 +143,27 @@ export function useAddToListForm(open: boolean, ean: string) {
         sortedShoppingLists.find((list) => list.id === listId)?.title ||
         "popis";
 
-      if (data.shoppingListId === "new" && customListTitle) {
-        const newList = await createShoppingListMutation.mutateAsync({
-          title: customListTitle,
-          isPublic: false,
-        });
-        toast.success(`Popis za kupnju "${customListTitle}" je stvoren`);
-        listId = newList.id;
-        listName = customListTitle;
+      if (data.shoppingListId === "new") {
+        if (customListTitle) {
+          const newList = await createShoppingListMutation.mutateAsync({
+            title: customListTitle,
+            isPublic: false,
+          });
+          toast.success(`Popis za kupnju "${customListTitle}" je stvoren`);
+          listId = newList.id;
+          listName = customListTitle;
+        } else {
+          // A restored draft can keep the "new" placeholder without its (un-persisted) title;
+          // fall back to the latest list so we never send "new" as a real id.
+          const fallback = sortedShoppingLists[0];
+          if (!fallback) {
+            toast.error("Odaberi ili stvori popis za kupnju.");
+            openModalUrl({ name: "add-to-list", ean });
+            return;
+          }
+          listId = fallback.id;
+          listName = fallback.title;
+        }
       }
 
       const itemRequest: ShoppingListItemRequest = {
