@@ -103,6 +103,15 @@ export function useCredentialsSubmit({
               ? "Za promjenu emaila prvo odspoji povezane račune (Google, Facebook)."
               : "Greška pri promjeni emaila.",
         });
+
+        // Password already committed above; confirm it and clear its fields so a retry only re-does email.
+        if (wantPasswordChange) {
+          resetAuthToken();
+          await refreshUser();
+          form.resetField("newPassword");
+          form.resetField("currentPassword");
+          toast.success("Lozinka je promijenjena.");
+        }
         return;
       }
     }
