@@ -1,3 +1,4 @@
+import { ComponentPropsWithoutRef, forwardRef } from "react";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
@@ -5,25 +6,34 @@ import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/strings";
 import { ShoppingListDto } from "@/lib/api/types";
 
-interface IShoppingListTriggerProps {
+interface IShoppingListTriggerProps extends ComponentPropsWithoutRef<"button"> {
   open: boolean;
   isLoadingLists: boolean;
-  disabled: boolean;
   isNewList: boolean;
   customListTitle: string;
   selectedList: ShoppingListDto | undefined;
 }
 
-export default function ShoppingListTrigger({
-  open,
-  isLoadingLists,
-  disabled,
-  isNewList,
-  customListTitle,
-  selectedList,
-}: IShoppingListTriggerProps) {
+// forwardRef + prop spread so the Popover/FormControl asChild wiring
+// (onClick to open, aria/data-state, positioning ref) reaches the Button.
+const ShoppingListTrigger = forwardRef<
+  HTMLButtonElement,
+  IShoppingListTriggerProps
+>(function ShoppingListTrigger(
+  {
+    open,
+    isLoadingLists,
+    disabled,
+    isNewList,
+    customListTitle,
+    selectedList,
+    ...props
+  },
+  ref,
+) {
   return (
     <Button
+      ref={ref}
       type="button"
       variant="outline"
       role="combobox"
@@ -32,6 +42,7 @@ export default function ShoppingListTrigger({
       aria-haspopup="listbox"
       className="flex items-center justify-between gap-2 outline-none"
       disabled={isLoadingLists || disabled}
+      {...props}
     >
       <div className="flex-1 text-left w-0">
         {isLoadingLists ? (
@@ -74,4 +85,6 @@ export default function ShoppingListTrigger({
       />
     </Button>
   );
-}
+});
+
+export default ShoppingListTrigger;
