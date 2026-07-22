@@ -108,7 +108,9 @@ export default function DigitalCardModal({
   }
 
   const loading = isEdit && !digitalCard && cardsQuery.isLoading;
-  const notFound = isEdit && !digitalCard && !cardsQuery.isLoading;
+  const loadError = isEdit && !digitalCard && cardsQuery.isError;
+  const notFound =
+    isEdit && !digitalCard && !cardsQuery.isLoading && !cardsQuery.isError;
 
   return (
     <ModalShell
@@ -123,7 +125,10 @@ export default function DigitalCardModal({
       submitIcon={Save}
       submitLoading={isLoading}
       submitDisabled={
-        !form.formState.isDirty || !form.formState.isValid || notFound
+        !form.formState.isDirty ||
+        !form.formState.isValid ||
+        notFound ||
+        loadError
       }
       cancelLabel="Odustani"
       resetLabel="Resetiraj"
@@ -135,6 +140,10 @@ export default function DigitalCardModal({
     >
       {loading ? (
         <Skeleton className="h-64 w-full" />
+      ) : loadError ? (
+        <p className="text-sm text-muted-foreground">
+          Greška pri učitavanju kartice. Pokušaj ponovo.
+        </p>
       ) : notFound ? (
         <p className="text-sm text-muted-foreground">
           Kartica nije pronađena. Možda je obrisana.

@@ -105,7 +105,9 @@ export default function ShoppingListModal({
   }
 
   const loading = isEdit && !shoppingList && byIdQuery.isLoading;
-  const notFound = isEdit && !shoppingList && !byIdQuery.isLoading;
+  const loadError = isEdit && !shoppingList && byIdQuery.isError;
+  const notFound =
+    isEdit && !shoppingList && !byIdQuery.isLoading && !byIdQuery.isError;
 
   return (
     <ModalShell
@@ -120,7 +122,10 @@ export default function ShoppingListModal({
       submitIcon={Save}
       submitLoading={isLoading}
       submitDisabled={
-        !form.formState.isDirty || !form.formState.isValid || notFound
+        !form.formState.isDirty ||
+        !form.formState.isValid ||
+        notFound ||
+        loadError
       }
       cancelLabel="Odustani"
       resetLabel="Resetiraj"
@@ -132,6 +137,10 @@ export default function ShoppingListModal({
     >
       {loading ? (
         <Skeleton className="h-10 w-full" />
+      ) : loadError ? (
+        <p className="text-sm text-muted-foreground">
+          Greška pri učitavanju popisa. Pokušaj ponovo.
+        </p>
       ) : notFound ? (
         <p className="text-sm text-muted-foreground">
           Popis nije pronađen. Možda je obrisan ili nemaš pristup.
