@@ -37,7 +37,7 @@ export default function PriceHistorySection() {
             ))}
           </ul>
 
-          <Button asChild variant="outline">
+          <Button asChild variant="primary">
             <Link href="/products">Provjeri svoj proizvod</Link>
           </Button>
         </div>

@@ -25,25 +25,25 @@ const perks = [
 
 export default function PwaSection() {
   return (
-    <section>
+    <section className="overflow-x-clip">
       <ScrollReveal
         preset="rise"
         className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center"
       >
-        <div className="relative mx-auto order-last md:order-first">
+        <div className="relative mx-auto order-last ml-2">
           <Image
             src="/screenshots/screenshot-narrow.png"
             alt="Disscount aplikacija na mobitelu"
             width={380}
             height={760}
-            className="w-52 sm:w-64 rounded-3xl border-4 border-foreground/80 shadow-xl"
+            className="relative z-10 w-36 sm:w-64 rounded-lg sm:rounded-3xl border-4 border-foreground/80 shadow-xl -rotate-2"
           />
           <Image
             src="/screenshots/screenshot-wide.png"
             alt="Disscount aplikacija na računalu"
             width={640}
             height={400}
-            className="hidden sm:block absolute -right-24 bottom-6 w-56 rounded-xl border shadow-lg rotate-3"
+            className="absolute top-1/2 left-[30%] sm:left-[35%] -translate-y-1/2 z-10 md:z-0 w-52 sm:w-84 rotate-6 rounded-xl border shadow-xl"
           />
         </div>
 

@@ -15,7 +15,7 @@ export default function StoresSection() {
       <StoresMarquee />
 
       <div className="mt-8 text-center">
-        <Button asChild variant="link" className="text-base">
+        <Button asChild variant="link" effect="underline" className="text-base">
           <Link href="/products?discounted=true">
             Pogledaj sve popuste
             <ChevronRight className="size-4" />
