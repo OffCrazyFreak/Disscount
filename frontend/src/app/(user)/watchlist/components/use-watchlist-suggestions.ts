@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { shoppingListService } from "@/lib/api";
-import { getProductByEan } from "@/lib/cijene-api";
+import { getProductByEan, productByEanQueryKey } from "@/lib/cijene-api";
 import { filterByFields } from "@/utils/generic";
 import {
   calculateDiscountInfo,
@@ -71,13 +71,8 @@ export function useWatchlistSuggestions({
 
   const suggestionProductQueries = useQueries({
     queries: suggestionProductApiIds.map((productApiId) => ({
-      queryKey: [
-        "cijene",
-        "product",
-        "ean",
-        "watchlist-suggestion",
-        productApiId,
-      ],
+      // Shared key with the product page/modal, so a suggestion is a cache hit, not a refetch.
+      queryKey: productByEanQueryKey(productApiId),
       queryFn: () => getProductByEan({ ean: productApiId }),
       enabled: Boolean(productApiId) && isAuthenticated,
       staleTime: 6 * 60 * 60 * 1000,
