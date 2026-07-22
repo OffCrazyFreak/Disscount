@@ -107,9 +107,13 @@ export function useFormDraft<T extends FieldValues>({
     return () => {
       clearTimeout(timer);
       subscription.unsubscribe();
-      // Closing mid-debounce would lose the last keystrokes; flush them unless
-      // the user submitted (submit handlers clear the draft on success).
-      if (!form.formState.isSubmitted) flushDraft();
+      // Closing mid-debounce would lose the last keystrokes; flush them unless the user
+      // submitted. isSubmitting covers the optimistic-close pattern, where the modal unmounts
+      // before the mutation resolves and clearDraft runs, so a late flush can't rewrite a
+      // just-cleared draft.
+      if (!form.formState.isSubmitted && !form.formState.isSubmitting) {
+        flushDraft();
+      }
     };
   }, [enabled, draftKey, form, flushDraft]);
 
