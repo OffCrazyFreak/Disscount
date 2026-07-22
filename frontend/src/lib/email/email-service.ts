@@ -1,4 +1,4 @@
-import { EmailProvider } from "@/lib/email/provider";
+import { EmailMessage, EmailProvider } from "@/lib/email/provider";
 import VerificationEmail from "@/emails/verification-email";
 import PasswordResetEmail from "@/emails/password-reset-email";
 import SetPasswordEmail from "@/emails/set-password-email";
@@ -20,8 +20,14 @@ interface ChangeEmailArgs extends TokenEmailArgs {
 export class EmailService {
   constructor(private readonly provider: EmailProvider) {}
 
+  // Provider returns { error } instead of throwing; surface it so .catch(logEmailFailure) fires.
+  private async send(message: EmailMessage): Promise<void> {
+    const { error } = await this.provider.send(message);
+    if (error) throw new Error(error);
+  }
+
   sendVerificationEmail({ to, url, token }: TokenEmailArgs) {
-    return this.provider.send({
+    return this.send({
       to,
       subject: "Potvrdi svoju email adresu",
       react: VerificationEmail({ verificationUrl: url }),
@@ -30,7 +36,7 @@ export class EmailService {
   }
 
   sendPasswordReset({ to, url, token }: TokenEmailArgs) {
-    return this.provider.send({
+    return this.send({
       to,
       subject: "Ponovno postavljanje lozinke",
       react: PasswordResetEmail({ resetUrl: url }),
@@ -40,7 +46,7 @@ export class EmailService {
 
   // Same underlying reset token, different wording: for OAuth-only accounts adding a password.
   sendSetPassword({ to, url, token }: TokenEmailArgs) {
-    return this.provider.send({
+    return this.send({
       to,
       subject: "Postavi lozinku za svoj račun",
       react: SetPasswordEmail({ setPasswordUrl: url }),
@@ -49,7 +55,7 @@ export class EmailService {
   }
 
   sendChangeEmailConfirmation({ to, url, token, newEmail }: ChangeEmailArgs) {
-    return this.provider.send({
+    return this.send({
       to,
       subject: "Potvrdi promjenu email adrese",
       react: ChangeEmailConfirmation({ confirmUrl: url, newEmail }),
