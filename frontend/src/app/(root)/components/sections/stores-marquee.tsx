@@ -9,7 +9,7 @@ function LogoRow({ ariaHidden = false }: { ariaHidden?: boolean }) {
   return (
     <ul
       aria-hidden={ariaHidden || undefined}
-      className="flex shrink-0 items-center gap-8 pr-8"
+      className="flex shrink-0 items-center gap-4 pr-4"
     >
       {chains.map((chain) => (
         <li key={chain} className="shrink-0">

@@ -153,7 +153,7 @@ export default function RootLayout({
               </Suspense>
             </aside>
 
-            <main className="max-w-4xl mx-auto p-4 mt-24 w-full overflow-y-hidden">
+            <main className="max-w-4xl mx-auto p-4 mt-24 w-full overflow-clip">
               {children}
             </main>
 
