@@ -21,6 +21,7 @@ export function buildChainAggregates(
       totalAvg: number;
       totalMax: number;
       itemCount: number;
+      priceDate: string;
     }
   >();
 
@@ -42,6 +43,9 @@ export function buildChainAggregates(
         existing.totalAvg += avgPrice;
         existing.totalMax += maxPrice;
         existing.itemCount += 1;
+        if (chain.price_date > existing.priceDate) {
+          existing.priceDate = chain.price_date;
+        }
       } else {
         chainMap.set(chain.chain, {
           chain: chain.chain,
@@ -49,6 +53,7 @@ export function buildChainAggregates(
           totalAvg: avgPrice,
           totalMax: maxPrice,
           itemCount: 1,
+          priceDate: chain.price_date,
         });
       }
     });
@@ -65,9 +70,7 @@ export function buildChainAggregates(
     min_price: chainData.totalMin.toFixed(2),
     avg_price: chainData.totalAvg.toFixed(2),
     max_price: chainData.totalMax.toFixed(2),
-    price_date: new Date()
-      .toISOString()
-      .split("T")[0] as `${number}-${number}-${number}`,
+    price_date: chainData.priceDate as `${number}-${number}-${number}`,
     itemCount: chainData.itemCount,
   }));
 }
