@@ -29,7 +29,7 @@ export function useSearchNavigation(
   const isOnRoute = normalizePath(pathname) === normalizePath(searchRoute);
   const routeQuery = isOnRoute ? (searchParams.get("q") ?? "") : "";
 
-  // Filters survive a search from the route itself; from elsewhere it starts clean.
+  // Existing query params survive a search from the route itself; from elsewhere it starts clean.
   const buildSearchUrl = useCallback(
     (query: string) => {
       const params = new URLSearchParams(

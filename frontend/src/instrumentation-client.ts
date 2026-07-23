@@ -1,4 +1,5 @@
-// The public DSN is set per environment and no-ops cleanly when unset.
+// The public DSN is baked in at build time per environment (changing it needs a
+// redeploy) and no-ops cleanly when unset.
 import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
