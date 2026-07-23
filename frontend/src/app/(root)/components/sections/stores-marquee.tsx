@@ -5,7 +5,11 @@ import { getChainLabel } from "@/utils/labels";
 
 const chains = Object.keys(storeNamesMap);
 
-function LogoRow({ ariaHidden = false }: { ariaHidden?: boolean }) {
+interface ILogoRowProps {
+  ariaHidden?: boolean;
+}
+
+function LogoRow({ ariaHidden = false }: ILogoRowProps) {
   return (
     <ul
       aria-hidden={ariaHidden || undefined}
@@ -30,8 +34,8 @@ function LogoRow({ ariaHidden = false }: { ariaHidden?: boolean }) {
   );
 }
 
-// Pure-CSS infinite marquee: the track holds two identical rows and slides by
-// -50%; pauses on hover (group/marquee) and stops under reduced motion.
+// Two identical rows sliding by -50% make the CSS loop seamless; it pauses on
+// hover and stops under prefers-reduced-motion, both defined in globals.css.
 export default function StoresMarquee() {
   return (
     <div className="group/marquee relative overflow-x-clip">

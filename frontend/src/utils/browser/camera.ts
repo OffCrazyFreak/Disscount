@@ -11,8 +11,7 @@ function scoreCamera(label: string, index: number): number {
   return score - index * 0.1;
 }
 
-// Best-effort pick of the primary back lens; labels exist only after the
-// camera permission is granted, so callers must tolerate a null result.
+// Labels exist only after permission is granted, so this can return null.
 export function pickBackCamera(devices: MediaDeviceInfo[]): string | null {
   const scored = devices
     .filter((device) => device.label)

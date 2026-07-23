@@ -47,14 +47,11 @@ export function compareStoreChains(
 
   // 2. Primary metric depends on the selected mode
   if (mode === "basket") {
-    // Cheapest basket that still has everything: complete baskets first (most
-    // products), then the cheapest within each completeness tier.
+    // Completeness first, then price within each tier.
     if (a.itemCount !== b.itemCount) return b.itemCount - a.itemCount;
     if (aAvgPrice !== bAvgPrice) return aAvgPrice - bAvgPrice;
   } else if (mode === "total") {
-    // Product-by-product: stores that are the absolute cheapest for the most
-    // products rank first, so a shopper hitting several stores grabs the most
-    // rock-bottom prices; cheaper overall basket breaks ties.
+    // Most rock-bottom prices first, for a shopper willing to hit several stores.
     const aCount = cheapestCountByChain?.get(a.chain) ?? 0;
     const bCount = cheapestCountByChain?.get(b.chain) ?? 0;
     if (aCount !== bCount) return bCount - aCount;

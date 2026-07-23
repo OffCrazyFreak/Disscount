@@ -47,8 +47,7 @@ export default function SidebarFilterMenu({
   const listRef = useRef<HTMLUListElement>(null);
   const Icon = item.icon;
 
-  // Deep-links into /products; from the products page itself the search and
-  // any other filters survive, and only this key is replaced.
+  // From /products itself, other filters survive and only this key is replaced.
   function buildHref(value: string): string {
     const params = new URLSearchParams(
       pathname.startsWith("/products") ? searchParams.toString() : "",

@@ -41,9 +41,8 @@ export default function ShoppingListModal({
   const queryClient = useQueryClient();
   const isEdit = action === "edit" && !!id;
 
-  // The by-id query is reactive and always the freshest source (it refetches
-  // after an edit invalidates ["shoppingLists"]). The index cache only seeds an
-  // instant value while that query settles, so a just-saved title never shows stale.
+  // Only seeds an instant value while the reactive by-id query settles; by-id wins
+  // once loaded, since edits invalidate ["shoppingLists"] and refetch it.
   const cachedList = queryClient
     .getQueryData<ShoppingListDto[]>(["shoppingLists", "me"])
     ?.find((list) => list.id === id);
@@ -62,8 +61,7 @@ export default function ShoppingListModal({
     defaultValues: { title: "", isPublic: false },
   });
 
-  // Populate from the loaded list, then merge any saved draft on top (draft
-  // wins and shows as unsaved). Never clobbers values the user is editing.
+  // Draft wins over the loaded list, so an in-progress edit is never clobbered.
   useEffect(() => {
     if (!shoppingList || form.formState.isDirty) return;
 

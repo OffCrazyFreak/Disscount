@@ -2,7 +2,7 @@ import { WatchType } from "@/lib/api/types";
 import {
   IDiscountInfo,
   IWatchlistItemWithProduct,
-} from "@/app/(user)/watchlist/utils/watchlist-types";
+} from "@/app/(user)/watchlist/typings/watchlist-types";
 
 export function isWatchThresholdReached(
   discountInfo: IDiscountInfo,

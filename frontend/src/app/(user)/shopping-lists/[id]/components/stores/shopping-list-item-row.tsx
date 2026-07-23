@@ -13,7 +13,7 @@ import {
   ProductResponse,
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
-import { getChainItemPriceInfo } from "@/app/(user)/shopping-lists/[id]/components/stores/shopping-list-items-table-utils";
+import { getChainItemPriceInfo } from "@/app/(user)/shopping-lists/[id]/utils/shopping-list-items-table-utils";
 
 interface IShoppingListItemRowProps {
   item: ShoppingListItemDto;
@@ -109,7 +109,7 @@ export default function ShoppingListItemRow({
                 ? "font-medium text-green-600"
                 : isHighestPrice
                   ? "font-medium text-red-700"
-                  : "font-medium text-gray-900",
+                  : "font-medium text-foreground",
             )}
           >
             {total.toFixed(2)}€

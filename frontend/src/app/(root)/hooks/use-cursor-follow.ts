@@ -7,8 +7,7 @@ import { cursorTiltDeg } from "@/app/(root)/utils/cursor";
 
 const STOP_DISTANCE_PX = 64;
 const MAX_TILT_DEG = 30;
-// Ignore near-vertical approaches when picking a facing, so the cart does not
-// flap left/right while hovering around the cursor.
+// Ignores near-vertical approaches, so the cart never flaps left and right.
 const FLIP_DEADZONE_PX = 12;
 const LAZY_SPRING = { stiffness: 50, damping: 14, mass: 1.2 };
 const TURN_SPRING = { stiffness: 160, damping: 18 };
@@ -67,8 +66,7 @@ export function useCursorFollow(
       cursorY = event.clientY;
       hasCursor = true;
 
-      // Aim STOP_DISTANCE_PX short of the cursor along the approach direction,
-      // so the cart trails the pointer but never sits under it.
+      // Stops short along the approach, so the cart never sits under the pointer.
       const dx = cursorX - x.get();
       const dy = cursorY - y.get();
       const distance = Math.hypot(dx, dy);

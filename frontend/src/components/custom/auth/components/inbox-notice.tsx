@@ -6,9 +6,7 @@ interface IInboxNoticeProps {
   email?: string;
 }
 
-// Neutral "go check your inbox" panel shown after any action that sends an email
-// (signup verification, password reset request). Worded so it never reveals whether the
-// address has an account.
+// Worded so it never reveals whether the address has an account.
 export default function InboxNotice({
   title,
   description,

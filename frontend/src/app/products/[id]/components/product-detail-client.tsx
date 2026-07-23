@@ -6,7 +6,13 @@ import ProductChainsSection from "@/app/products/[id]/components/product-chains-
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import { useProductDetail } from "@/app/products/[id]/hooks/use-product-detail";
 
-export default function ProductDetailClient({ ean }: { ean: string }) {
+interface IProductDetailClientProps {
+  ean: string;
+}
+
+export default function ProductDetailClient({
+  ean,
+}: IProductDetailClientProps) {
   const detail = useProductDetail(ean);
   const { product, productLoading, productError } = detail;
 
@@ -22,7 +28,7 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          <h2 className="text-xl font-semibold text-foreground mb-2">
             Proizvod nije pronađen
           </h2>
 
@@ -41,7 +47,7 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
       </section>
 
       <section>
-        <PriceHistory product={product} />
+        <PriceHistory key={product.ean} product={product} />
       </section>
 
       <section>

@@ -1,5 +1,4 @@
-// Single-key localStorage wrapper: all app data lives under "Disscount_app"
-// and domain helpers read/merge specific fields so unrelated settings survive.
+// Domain helpers merge specific fields, so unrelated settings survive a normal update.
 import { IAppData } from "@/typings/local-storage";
 
 const APP_KEY = "Disscount_app";

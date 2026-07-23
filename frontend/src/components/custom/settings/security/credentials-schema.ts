@@ -2,9 +2,7 @@ import { z } from "zod";
 
 import { passwordSchema } from "@/lib/api/schemas/auth-user";
 
-// Credentials form (Sigurnost tab): the rules depend on whether the account
-// already has a password, so the schema is built per state and reuses the
-// shared passwordSchema (>=12 chars, upper/lower/digit).
+// The rules depend on whether a password exists, so the schema is built per state.
 export function buildCredentialsSchema(hasPassword: boolean) {
   return z
     .object({

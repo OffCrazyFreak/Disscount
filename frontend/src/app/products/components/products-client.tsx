@@ -16,7 +16,11 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import PageFab from "@/components/custom/fab/page-fab";
 
-export default function ProductsClient({ query }: { query: string }) {
+interface IProductsClientProps {
+  query: string;
+}
+
+export default function ProductsClient({ query }: IProductsClientProps) {
   const isMobile = useIsMobile();
   const pathname = usePathname();
   const [viewMode] = useViewMode(pathname);
@@ -31,14 +35,12 @@ export default function ProductsClient({ query }: { query: string }) {
     clearFilters,
   } = filters;
 
-  const { visibleProducts, total, isLoading, error } = useInfiniteProducts(
-    query,
-    {
+  const { visibleProducts, total, isTruncated, isLoading, error } =
+    useInfiniteProducts(query, {
       allowedChains,
       selectedCategories,
       selectedBrands,
-    },
-  );
+    });
 
   // A location filter is set but the city -> chains mapping is still loading
   const waitingForLocations = Boolean(query) && !locationsReady;
@@ -62,7 +64,7 @@ export default function ProductsClient({ query }: { query: string }) {
             `Rezultati pretrage za "${query}"${
               isLoading || waitingForLocations
                 ? ""
-                : ` (${total}${total >= 100 ? "+" : ""})`
+                : ` (${total}${isTruncated ? "+" : ""})`
             }`}
         </h3>
 
@@ -77,7 +79,7 @@ export default function ProductsClient({ query }: { query: string }) {
       ) : error ? (
         <div className="text-center py-12">
           <Search className="size-12 text-red-700 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-lg font-semibold text-foreground mb-2">
             Greška pri pretraživanju
           </h3>
           <p className="text-gray-600 mb-6">
@@ -126,7 +128,7 @@ export default function ProductsClient({ query }: { query: string }) {
       ) : activeFilterCount > 0 ? (
         <div className="text-center py-12">
           <SlidersHorizontal className="size-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-lg font-semibold text-foreground mb-2">
             Unesi pojam za pretragu
           </h3>
           <p className="text-gray-600 mb-6">
@@ -136,7 +138,7 @@ export default function ProductsClient({ query }: { query: string }) {
       ) : (
         <div className="text-center py-12">
           <Search className="size-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-lg font-semibold text-foreground mb-2">
             Pretraži proizvode
           </h3>
           <p className="text-gray-600 mb-6">

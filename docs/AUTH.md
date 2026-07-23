@@ -251,7 +251,7 @@ Backend: Spring Boot `3.1.0` on Java `21`, using `spring-boot-starter-oauth2-res
 ## 13. Gotchas and lessons
 
 - **Better Auth is a module singleton; Next.js HMR does not recreate it.** After editing `auth.ts` you must restart the dev server, or the new config silently does not apply. This was the single biggest time sink during development ("verification email not sent", "linking not working" were all stale config).
-- **`requireEnv` fails the boot, not the request.** If any auth env var is missing (including `RESEND_API_KEY`, `EMAIL_FROM`, and the `FACEBOOK_*` pair), the app throws at module load. Production (Netlify/Dokploy) needs all of them set or it will not start.
+- **`requireEnv` fails the boot, not the request.** If any auth env var is missing (including `RESEND_API_KEY`, `EMAIL_FROM`, and the `FACEBOOK_*` pair), the app throws at module load. Every environment that builds or runs the app needs all of them set or it will not start: Dokploy for `dev` and production, and Netlify for branch previews.
 - **The correct change-email key is `sendChangeEmailConfirmation`, not `...Verification`.** Better Auth silently ignores unknown option keys, so a typo fails quietly; rely on `tsc` to catch it.
 - **React Email 6 changed imports.** Import components, `render`, and `pixelBasedPreset` from the single `react-email` package, not `@react-email/components`.
 - **The Resend SDK returns `{ data, error }` and does not throw for API errors, but it can still throw on transport failures.** `resend-provider.ts` normalizes both into an `EmailResult`, and `EmailService` then throws when `result.error` is set, so the fire-and-forget `.catch(logEmailFailure)` handlers actually log a failed send instead of it resolving as if it succeeded.

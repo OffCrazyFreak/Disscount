@@ -16,7 +16,7 @@ import {
   getStoreOptimizeMode,
   setStoreOptimizeMode,
 } from "@/utils/browser/local-storage";
-import { useStoreChainAnalysis } from "@/app/(user)/shopping-lists/[id]/components/stores/use-store-chain-analysis";
+import { useStoreChainAnalysis } from "@/app/(user)/shopping-lists/[id]/hooks/use-store-chain-analysis";
 import StoreOptimizeSelect from "@/app/(user)/shopping-lists/[id]/components/stores/store-optimize-select";
 
 interface IShoppingListStoreSummaryProps {

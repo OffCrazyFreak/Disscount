@@ -12,14 +12,27 @@ import {
 interface IUseFormDraftOptions<T extends FieldValues> {
   draftKey: string;
   form: UseFormReturn<T>;
-  // Gate restoring until server defaults are loaded into the form, otherwise
-  // the draft would diff against empty defaults and mark everything dirty.
+  // Until defaults load, a draft would diff against empty and read as all-dirty.
   enabled?: boolean;
-  // Set false when the modal applies the draft itself (edit modals merge it over
-  // freshly loaded data). The hook then only persists and exposes getDraft/clear.
+  // False when the modal merges the draft itself over freshly loaded data.
   restore?: boolean;
   // Fields that must never touch localStorage (passwords, base64 images).
   exclude?: Path<T>[];
+}
+
+function typeChanged(current: unknown, draftValue: unknown): boolean {
+  return (
+    current !== undefined &&
+    draftValue !== undefined &&
+    typeof current !== typeof draftValue
+  );
+}
+
+// isSubmitting covers optimistic close, where the modal unmounts before clearDraft runs.
+function isClosingWithoutSubmit<T extends FieldValues>(
+  form: UseFormReturn<T>,
+): boolean {
+  return !form.formState.isSubmitted && !form.formState.isSubmitting;
 }
 
 /**
@@ -39,8 +52,7 @@ export function useFormDraft<T extends FieldValues>({
   const [dismissed, setDismissed] = useState(false);
   const restoredKeyRef = useRef<string | null>(null);
 
-  // Read defaults during render so RHF's formState proxy keeps them computed,
-  // then mirror into a ref the (stable) flush callback can read.
+  // Read during render, or RHF's formState proxy stops computing them.
   const defaultValues = form.formState.defaultValues;
   const stateRef = useRef({ exclude, defaultValues });
 
@@ -61,15 +73,7 @@ export function useFormDraft<T extends FieldValues>({
     for (const [field, value] of Object.entries(draft.values)) {
       if (stateRef.current.exclude.includes(field as Path<T>)) continue;
       const current = values[field];
-      // Ignore drafts written under an older schema (e.g. a number where the
-      // field is now a string) so they can't poison validation.
-      if (
-        current !== undefined &&
-        value !== undefined &&
-        typeof current !== typeof value
-      ) {
-        continue;
-      }
+      if (typeChanged(current, value)) continue;
       if (JSON.stringify(current) === JSON.stringify(value)) continue;
       values[field] = value;
       changed = true;
@@ -107,13 +111,7 @@ export function useFormDraft<T extends FieldValues>({
     return () => {
       clearTimeout(timer);
       subscription.unsubscribe();
-      // Closing mid-debounce would lose the last keystrokes; flush them unless the user
-      // submitted. isSubmitting covers the optimistic-close pattern, where the modal unmounts
-      // before the mutation resolves and clearDraft runs, so a late flush can't rewrite a
-      // just-cleared draft.
-      if (!form.formState.isSubmitted && !form.formState.isSubmitting) {
-        flushDraft();
-      }
+      if (isClosingWithoutSubmit(form)) flushDraft();
     };
   }, [enabled, draftKey, form, flushDraft]);
 

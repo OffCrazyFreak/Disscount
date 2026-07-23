@@ -42,8 +42,7 @@ export function useProductDetail(ean: string) {
     [user?.pinnedStores],
   );
 
-  // Copies first: product.chains is React Query's cached array, so sorting it
-  // in place would reorder the cache from inside a render.
+  // Copy first: product.chains is the cached array, and sort mutates.
   const sortedChains = useMemo(
     () =>
       [...(product?.chains ?? [])].sort((a, b) =>

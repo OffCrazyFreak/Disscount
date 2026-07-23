@@ -38,9 +38,7 @@ export default function ProductActionButtons({
     (watchlistItem) => watchlistItem.productApiId === product.ean,
   );
 
-  // We already hold the full product here, so seed the by-ean cache under the
-  // exact key useGetProductByEan reads. The modal then shows it instantly
-  // instead of waiting on its own fetch (the URL-driven modal has no props).
+  // Seeds the by-ean cache, since the URL-driven modal takes no props.
   function openAddToList() {
     queryClient.setQueryData(productByEanQueryKey(product.ean), product);
     openModalUrl({ name: "add-to-list", ean: product.ean });

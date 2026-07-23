@@ -34,10 +34,8 @@ const defaultPalette = [
   "text-primary/40",
 ];
 
-// Scatters sparkles with a seeded PRNG so positions, sizes, tilts and blink
-// rhythms look random yet render identically on server and client (SSR-safe).
-// Horizontal placement is stratified (one band per sparkle, jittered inside
-// it) so small counts spread across the full width instead of clustering.
+// A seeded PRNG keeps positions identical across SSR; horizontal placement is
+// stratified into one band per index so small counts spread out instead of clustering.
 export default function SparkleField({
   count,
   seed,

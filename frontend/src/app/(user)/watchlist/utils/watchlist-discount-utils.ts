@@ -7,7 +7,7 @@ import {
 import {
   IDiscountInfo,
   IScopedDiscountedStore,
-} from "@/app/(user)/watchlist/utils/watchlist-types";
+} from "@/app/(user)/watchlist/typings/watchlist-types";
 import {
   calculatePriceComparison,
   isPreferredChain,

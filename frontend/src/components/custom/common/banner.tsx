@@ -3,8 +3,8 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-// Variants stay in sync with badgeVariants (same colour families). size scales
-// padding/text/icon: lg = icon+title+text, md = icon+title, sm = text only.
+// Variants track badgeVariants; size scales padding/text/icon and sets the intended
+// content: lg = icon+title+text, md = icon+title, sm = text only.
 const bannerVariants = cva(
   "flex items-center rounded-lg border [&>svg]:shrink-0 mb-4",
   {
@@ -36,8 +36,7 @@ const bannerVariants = cva(
   },
 );
 
-// The title inherits the variant's accent colour above; the paragraph gets a
-// darker/muted tone per variant so callers never style the body themselves.
+// Per-variant body tone, so callers never style the paragraph themselves.
 const BANNER_TEXT_COLORS: Record<
   NonNullable<VariantProps<typeof bannerVariants>["variant"]>,
   string

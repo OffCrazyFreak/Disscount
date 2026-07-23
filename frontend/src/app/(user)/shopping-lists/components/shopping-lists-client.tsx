@@ -16,7 +16,13 @@ import { useUser } from "@/context/user-context";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 
-export default function ShoppingListsClient({ query }: { query: string }) {
+interface IShoppingListsClientProps {
+  query: string;
+}
+
+export default function ShoppingListsClient({
+  query,
+}: IShoppingListsClientProps) {
   const pathname = usePathname();
 
   const { isAuthenticated, isLoading: userLoading } = useUser();
@@ -88,7 +94,7 @@ export default function ShoppingListsClient({ query }: { query: string }) {
         ) : (
           <div className="text-center py-12">
             <ShoppingCart className="size-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-foreground mb-2">
               Nema popisa za kupnju
             </h3>
             <p className="text-gray-600 mb-6">

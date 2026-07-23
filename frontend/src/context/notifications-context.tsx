@@ -13,7 +13,13 @@ const NotificationsContext = createContext<INotificationsContext | undefined>(
   undefined,
 );
 
-export function NotificationsProvider({ children }: { children: ReactNode }) {
+interface INotificationsProviderProps {
+  children: ReactNode;
+}
+
+export function NotificationsProvider({
+  children,
+}: INotificationsProviderProps) {
   const value = useWatchlistNotifications();
 
   return (

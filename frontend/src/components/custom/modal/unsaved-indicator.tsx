@@ -8,8 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-// Amber "unsaved changes" marker shown next to a modal title. "Unsaved changes"
-// is the widely-understood wording; a plain dot is too easy to misread.
+// Spelled out, since a plain dot is too easy to misread.
 export function UnsavedIndicator() {
   return (
     <Tooltip>

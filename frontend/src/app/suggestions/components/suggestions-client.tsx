@@ -12,7 +12,11 @@ import SuggestionCard from "@/app/suggestions/components/suggestion-card";
 import { templateSuggestions } from "@/app/suggestions/suggestions";
 import { filterByFields } from "@/utils/generic";
 
-export default function SuggestionsClient({ query }: { query: string }) {
+interface ISuggestionsClientProps {
+  query: string;
+}
+
+export default function SuggestionsClient({ query }: ISuggestionsClientProps) {
   const pathname = usePathname();
 
   const matchingSuggestions = filterByFields(templateSuggestions, query, [

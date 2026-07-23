@@ -36,17 +36,14 @@ const CODE_TYPES = [
   { value: "text", label: "Tekst" },
 ];
 
-function SelectField({
-  name,
-  label,
-  placeholder,
-  options,
-}: {
+interface ISelectFieldProps {
   name: "type" | "codeType";
   label: string;
   placeholder: string;
   options: { value: string; label: string }[];
-}) {
+}
+
+function SelectField({ name, label, placeholder, options }: ISelectFieldProps) {
   const form = useFormContext<DigitalCardRequest>();
 
   return (

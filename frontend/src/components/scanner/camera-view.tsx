@@ -46,8 +46,7 @@ export default function CameraView({
     [deviceId],
   );
 
-  // Some devices remember the torch state across streams; force it off on
-  // every camera start so the flash never comes on by itself.
+  // Some devices remember the torch across streams, so force it off on start.
   useEffect(() => {
     const container = containerRef.current;
 

@@ -9,8 +9,7 @@ interface IScaleDoodleProps {
   className?: string;
 }
 
-// Balance scale matching the "Usporedba cijena" feature icon (lucide Scale);
-// its paths draw on when scrolled into view, like the other how-it-works steps.
+// Matches the "Usporedba cijena" feature icon (lucide Scale).
 export default function ScaleDoodle({ className }: IScaleDoodleProps) {
   return (
     <DoodleCanvas viewBox="0 0 24 24" strokeWidth={2} className={className}>

@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/utils/date";
 import { useOnlineStatus } from "@/hooks/use-online-status";
+import { useMinuteTick } from "@/hooks/use-minute-tick";
 
 interface ILastSyncedLabelProps {
   // React Query's `dataUpdatedAt` (epoch millis); 0 when there's no data yet.
@@ -17,20 +17,8 @@ export default function LastSyncedLabel({
   prefix = "Osvježeno",
   className,
 }: ILastSyncedLabelProps) {
-  // Render only after mount (relative time depends on `Date.now()`, which would
-  // otherwise mismatch between server and client) and re-render each minute so
-  // the label stays current.
-  const [mounted, setMounted] = useState(false);
-  const [, setTick] = useState(0);
-
+  const mounted = useMinuteTick();
   const isOnline = useOnlineStatus();
-
-  useEffect(() => {
-    setMounted(true);
-
-    const intervalId = setInterval(() => setTick((tick) => tick + 1), 60_000);
-    return () => clearInterval(intervalId);
-  }, []);
 
   // Only meaningful while offline - when online the data is considered fresh.
   if (!mounted || !updatedAt || isOnline) return null;

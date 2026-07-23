@@ -26,10 +26,7 @@ function listAndItemsKeys(listId: string): QueryKey[] {
   ];
 }
 
-// Registers default mutation functions + cache invalidation for offline-capable
-// writes, keyed by mutationKey. These run when a paused mutation is replayed
-// after a reload, since the original inline mutationFn/callbacks are gone by
-// then. Must be called once, before the persisted client is restored.
+// A reload loses the inline mutationFn, so replays need these defaults registered first.
 export function registerOfflineMutationDefaults(queryClient: QueryClient) {
   function defineOfflineMutation<TVariables, TData>(
     mutationKey: QueryKey,

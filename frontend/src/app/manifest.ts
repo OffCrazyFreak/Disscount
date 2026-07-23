@@ -1,8 +1,7 @@
 import type { MetadataRoute } from "next";
 import { userNavItems } from "@/constants/navigation";
 
-// `launch_handler` and `share_target` aren't in Next's manifest type yet, so
-// extend it here.
+// Neither key is in Next's manifest type yet.
 type WebAppManifest = MetadataRoute.Manifest & {
   launch_handler?: { client_mode?: string | string[] };
   share_target?: {
@@ -12,11 +11,9 @@ type WebAppManifest = MetadataRoute.Manifest & {
   };
 };
 
-// Web App Manifest (served at /manifest.webmanifest). Next.js injects the
-// <link rel="manifest"> automatically when this file exists.
+// Next injects <link rel="manifest"> automatically when this file exists.
 export default function manifest(): WebAppManifest {
-  // App shortcuts (long-press the installed icon) mirror the live user nav
-  // items, skipping ones that aren't released yet so the list stays accurate.
+  // Long-press shortcuts mirror the nav, minus anything not yet released.
   const shortcuts = userNavItems
     .filter((item) => !item.comingSoon)
     .map((item) => ({
@@ -37,8 +34,7 @@ export default function manifest(): WebAppManifest {
     orientation: "portrait",
     lang: "hr",
     dir: "ltr",
-    // White splash background to match the iOS launch screens (cart + wordmark
-    // on white). Chrome composes the PWA splash from this + the 512 icon + name.
+    // White matches the iOS launch screens; Chrome generates its own splash from these fields.
     background_color: "#ffffff",
     theme_color: "#ffffff",
     categories: ["shopping", "lifestyle"],
@@ -80,15 +76,13 @@ export default function manifest(): WebAppManifest {
       },
     ],
     shortcuts,
-    // Register as a system share target: text/title/url shared from another app
-    // is funneled into product search by the /share-target route handler.
+    // Shares from other apps land in /share-target and become a product search.
     share_target: {
       action: "/share-target",
       method: "GET",
       params: { title: "title", text: "text", url: "url" },
     },
-    // Reuse an already-open window instead of spawning a new one when launched
-    // from a shortcut or notification.
+    // Reuse an open window rather than spawning one per shortcut launch.
     launch_handler: { client_mode: "focus-existing" },
   };
 }

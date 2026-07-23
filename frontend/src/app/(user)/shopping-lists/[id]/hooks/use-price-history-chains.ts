@@ -8,11 +8,13 @@ export function usePriceHistoryChains(
   shoppingListId: string,
   availableChains: string[],
   pinnedStoreIds: string[],
+  areChainsReady: boolean,
 ) {
   const [selectedChains, setSelectedChains] = useState<string[]>([]);
 
+  // A partial list would persist a wrong fallback and drop not-yet-loaded saved chains.
   useEffect(() => {
-    if (availableChains.length === 0) return;
+    if (!areChainsReady || availableChains.length === 0) return;
 
     const savedChains = getShoppingListPriceHistoryChains(shoppingListId);
 
@@ -35,7 +37,7 @@ export function usePriceHistoryChains(
     setSelectedChains(chainsToSet);
     setShoppingListPriceHistoryChains(shoppingListId, chainsToSet);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableChains.join(","), shoppingListId]);
+  }, [availableChains.join(","), shoppingListId, areChainsReady]);
 
   const handleChainsChange = useCallback(
     (chains: string[]) => {

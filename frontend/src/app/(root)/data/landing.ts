@@ -55,12 +55,12 @@ export const freePlanRows: IPricingRow[] = [
   { label: "Usporedba cijena i povijest cijena" },
   { label: "Neograničeni popisi za kupnju" },
   { label: "Praćenje proizvoda" },
+  { label: "Obavijesti o padu cijena" },
   { label: "Skeniranje barkoda" },
   { label: "Instalacija kao aplikacija (PWA)" },
 ];
 
 export const proPlanRows: IPricingRow[] = [
-  { label: "Obavijesti o padu cijena" },
   { label: "Napredna analiza potrošnje" },
   { label: "AI prijedlozi za jeftiniju košaricu" },
 ];

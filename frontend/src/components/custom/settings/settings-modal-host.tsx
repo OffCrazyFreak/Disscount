@@ -90,8 +90,7 @@ export default function SettingsModalHost() {
 
   const open = target?.name === "settings";
 
-  // Keep the last tab rendered while closing so the exit animation doesn't
-  // flash a different tab's content.
+  // Keeps the exit animation from flashing a different tab's content.
   const [lastTab, setLastTab] = useState<SettingsTab>("profil");
   if (target?.name === "settings" && target.tab !== lastTab) {
     setLastTab(target.tab);

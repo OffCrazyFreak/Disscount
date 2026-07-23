@@ -61,7 +61,7 @@ export default function CameraScanner({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent>
-        <DialogHeader>
+        <DialogHeader className="text-left">
           <DialogTitle className="flex items-center gap-2">
             <ScanBarcode className="size-6" />
             Skeniraj kod

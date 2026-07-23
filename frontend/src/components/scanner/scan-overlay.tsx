@@ -2,9 +2,7 @@
 
 import { motion } from "motion/react";
 
-// Replica of the library finder (centered square at 70% width, dashed box +
-// L-shaped corner brackets) in the app primary color, plus an animated scan
-// line. The native frame is hidden via scanner.css.
+// Replaces the library's own finder, which scanner.css hides.
 const CORNERS = [
   "top-0 left-0 border-t-4 border-l-4 rounded-tl-2xl",
   "top-0 right-0 border-t-4 border-r-4 rounded-tr-2xl",

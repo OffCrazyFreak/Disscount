@@ -39,8 +39,7 @@ const presets: Record<RevealPreset, Variants> = {
   },
 };
 
-// Scroll-triggered staggered reveal: copy stays server-rendered because it
-// crosses this client boundary as children. No-op under reduced motion.
+// Children cross the client boundary, so the copy stays server-rendered.
 export function ScrollReveal({
   children,
   className,

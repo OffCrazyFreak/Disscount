@@ -11,14 +11,12 @@ import { shouldPersistMutation } from "@/lib/offline/offline-mutation-keys";
 
 const IDB_CACHE_KEY = "disscount-react-query-cache";
 
-// Bump when the cached data shape changes in a breaking way so stale persisted
-// caches are discarded on the next load.
+// Bump on a breaking cache-shape change to discard stale persisted data.
 const CACHE_BUSTER = "1";
 
 export const OFFLINE_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-// Async storage over IndexedDB (idb-keyval) - larger and safer than
-// localStorage for cached application data.
+// IndexedDB over localStorage: larger, and safer for cached application data.
 const indexedDbStorage = {
   getItem: async (key: string) => (await get<string>(key)) ?? null,
   setItem: (key: string, value: string) => set(key, value),
@@ -38,8 +36,7 @@ export const persistOptions: Omit<PersistQueryClientOptions, "queryClient"> = {
     // Persist only successful queries that are on the offline whitelist.
     shouldDehydrateQuery: (query) =>
       defaultShouldDehydrateQuery(query) && shouldPersistQuery(query.queryKey),
-    // Persist only paused (offline) mutations on the offline allowlist, so they
-    // can be replayed on reconnect.
+    // Only allowlisted paused mutations persist, so only they replay on reconnect.
     shouldDehydrateMutation: (mutation) =>
       defaultShouldDehydrateMutation(mutation) &&
       shouldPersistMutation(mutation),

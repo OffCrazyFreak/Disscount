@@ -27,8 +27,7 @@ const PriceHistoryChart = memo(function PriceHistoryChart({
     [user?.pinnedStores],
   );
 
-  // Filter chains to display based on user selection, falling back to all
-  // available chains when the selection is empty.
+  // An empty selection falls back to every available chain.
   const chainsToDisplay = useMemo(() => {
     const intersection = priceHistoryChains.filter((chain) =>
       selectedChains.includes(chain),
@@ -41,8 +40,7 @@ const PriceHistoryChart = memo(function PriceHistoryChart({
     return intersection;
   }, [priceHistoryChains, selectedChains]);
 
-  // Convert HistoryDataPoint[] to chart rows, adding a per-row average of the
-  // selected chains under the "_average" key.
+  // Adds a per-row average of the selected chains under "_average".
   const chartData = useMemo(() => {
     return priceHistoryData.map((dataPoint): ChartDataPoint => {
       const chartPoint: ChartDataPoint = { date: dataPoint.date };

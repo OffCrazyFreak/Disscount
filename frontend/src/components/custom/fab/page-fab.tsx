@@ -28,9 +28,7 @@ export default function PageFab({ primary, threshold = 600 }: IPageFabProps) {
     return <BackToTopButton threshold={threshold} />;
   }
 
-  // Back-to-top joins the menu only once there is somewhere to go back to, and
-  // sits furthest from the trigger, leaving the primary action the shorter
-  // reach of the two.
+  // Back-to-top joins once scrolled, sitting furthest out so primary keeps the shorter reach.
   const actions: IFabAction[] = isScrolled
     ? [
         { icon: ChevronsUp, label: "Natrag na vrh", onClick: scrollToTop },
@@ -38,8 +36,7 @@ export default function PageFab({ primary, threshold = 600 }: IPageFabProps) {
       ]
     : [primary];
 
-  // Both render a fixed container and nothing else. Wrapping either in a plain
-  // div would add an in-flow child to whichever row the page mounts this in.
+  // Both render only a fixed container, so a wrapper div would add an in-flow child.
   return (
     <>
       <FabMenu actions={actions} className="sm:hidden" />

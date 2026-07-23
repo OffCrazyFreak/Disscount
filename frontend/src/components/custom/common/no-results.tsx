@@ -18,7 +18,9 @@ export default function NoResults({
   return (
     <div className={`text-center py-12 ${className}`}>
       {icon}
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
+      <h3 className="text-lg font-semibold text-foreground mb-2 text-pretty">
+        {title}
+      </h3>
       <p className="text-gray-600">{description}</p>
     </div>
   );

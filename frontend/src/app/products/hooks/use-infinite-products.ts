@@ -17,8 +17,8 @@ interface IUseInfiniteProductsOptions {
 interface IUseInfiniteProductsResult {
   visibleProducts: ProductResponse[];
   total: number;
-  hasMore: boolean;
-  loadMore: () => void;
+  /** The search filled the API's result cap, so further matches may exist */
+  isTruncated: boolean;
   isLoading: boolean;
   error: unknown;
 }
@@ -40,16 +40,16 @@ export default function useInfiniteProducts(
   const safeBatchSize =
     Number.isInteger(batchSize) && batchSize > 0 ? batchSize : 50;
 
-  // Single unfiltered request per query; all filters apply client-side over
-  // this same dataset the facet options are computed from, so option counts
-  // always match the visible results.
+  // One unfiltered request, filtered client-side, so facet counts match results.
   const { data, isLoading, error } = useGetProductByName({
     q,
     fuzzy: false,
-    limit: PRODUCT_SEARCH_LIMIT, // TODO: remove limit
+    limit: PRODUCT_SEARCH_LIMIT, // Raising this needs paging upstream: >100 is a 422.
   });
 
   const allProducts = useMemo(() => data?.products || [], [data?.products]);
+
+  const isTruncated = allProducts.length >= PRODUCT_SEARCH_LIMIT;
 
   const filteredProducts = useMemo(() => {
     const unfiltered =
@@ -80,8 +80,7 @@ export default function useInfiniteProducts(
     batchedProducts.length > 0 ? 1 : 0,
   );
 
-  // Depends on the batches rather than their count, so a filter change that
-  // happens to yield the same number of batches still resets the depth.
+  // Keyed on the batches, not their count, so an equal-length change still resets.
   useEffect(() => {
     setBatchesToShow(batchedProducts.length > 0 ? 1 : 0);
   }, [batchedProducts, q]);
@@ -111,9 +110,7 @@ export default function useInfiniteProducts(
   return {
     visibleProducts,
     total: filteredProducts.length,
-    hasMore: batchesToShow < batchedProducts.length,
-    loadMore: () =>
-      setBatchesToShow((p) => Math.min(p + 1, batchedProducts.length)),
+    isTruncated,
     isLoading,
     error,
   };

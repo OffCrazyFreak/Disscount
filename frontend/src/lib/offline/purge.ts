@@ -2,13 +2,10 @@ import type { Query, QueryClient } from "@tanstack/react-query";
 
 import { offlinePersister } from "@/lib/offline/persister";
 
-// Public data (product prices, chains, stores) lives under the "cijene" query
-// key and is the same whether or not you are logged in. Keeping it cached across
-// logout/login avoids a slow refetch of pages the user was just looking at.
+// Public data is identical logged in or out, so it survives logout.
 const PUBLIC_QUERY_ROOT = "cijene";
 
-// Clears user-specific queries (and queued writes) from memory and disk on
-// logout, but preserves the public "cijene" cache so non-user pages stay fast.
+// Everything outside the public root is user-specific and gets purged.
 function isUserSpecific(query: Query): boolean {
   return query.queryKey[0] !== PUBLIC_QUERY_ROOT;
 }
@@ -21,8 +18,7 @@ export async function purgeOfflineCache(queryClient: QueryClient) {
   queryClient.getMutationCache().clear();
 
   try {
-    // Wipe the persisted snapshot so no authed data lingers on disk; the
-    // remaining public cache is re-persisted on the next throttled save.
+    // Wipe the snapshot so no authed data lingers; public data re-persists on next save.
     await offlinePersister.removeClient();
   } catch (error) {
     // Never let a failed IndexedDB purge block logout / auth-loss handling.

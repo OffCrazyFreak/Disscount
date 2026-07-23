@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { MAX_SHOPPING_LIST_ITEM_AMOUNT } from "@/constants/shopping-list";
 
-// amount is kept as a string so the input can be emptied and free-typed; the
-// refine validates the range (and blocks submit while empty/invalid).
+// amount is a string so the input can be emptied and free-typed; refine ranges it.
 export const addToListFormSchema = z.object({
   shoppingListId: z.string().min(1, "Popis za kupnju je obavezan"),
   amount: z.string().refine(
@@ -21,3 +20,9 @@ export const addToListFormSchema = z.object({
 });
 
 export type AddToListFormData = z.infer<typeof addToListFormSchema>;
+
+export interface IProductPricing {
+  storePrices: Record<string, number>;
+  averagePrice: number | null;
+  cheapestStore: string | null;
+}

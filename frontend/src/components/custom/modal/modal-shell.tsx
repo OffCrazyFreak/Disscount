@@ -17,8 +17,7 @@ import { UnsavedIndicator } from "@/components/custom/modal/unsaved-indicator";
 import { StaggerChildren } from "@/components/custom/animation/stagger-children";
 import { cn } from "@/lib/utils";
 
-// TODO(responsive-drawer): add a `presentation?: "dialog" | "auto"` prop that renders
-// a vaul Drawer below the md breakpoint instead of a centered dialog.
+// TODO(responsive-drawer): a `presentation` prop rendering a vaul Drawer below md.
 
 const SIZE_CLASSES = {
   sm: "sm:max-w-sm",
@@ -75,32 +74,28 @@ export function ModalShell({
       <DialogContent
         className={cn(
           "flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0",
-          // Gentle spring: an overshoot easing on the open zoom for a touch of
-          // character (motion-safe; the close keeps the default ease).
+          // Overshoot easing on open only; the close keeps the default ease.
           "data-[state=open]:duration-300 data-[state=open]:ease-[cubic-bezier(0.34,1.5,0.64,1)]",
           SIZE_CLASSES[size],
         )}
         showCloseButton={!preventClose}
-        // Radix warns when a dialog has no description; explicitly passing
-        // undefined is its documented opt-out for description-less dialogs.
+        // Radix's documented opt-out for a dialog with no description.
         {...(description ? {} : { "aria-describedby": undefined })}
         onEscapeKeyDown={(e) => preventClose && e.preventDefault()}
         onInteractOutside={(e) => preventClose && e.preventDefault()}
-        // Focus the dialog container, not the first control (which would pop its
-        // tooltip), so keyboard and screen-reader users still land inside the modal.
+        // Focus the container, not the first control, which would pop its tooltip.
         // Inputs with autoFocus still focus themselves via the DOM.
         onOpenAutoFocus={(e) => {
           e.preventDefault();
           (e.currentTarget as HTMLElement | null)?.focus();
         }}
-        // URL-mounted dialogs have no trigger element to return focus to; letting
-        // Radix fall back to document.body causes a scroll jump on close.
+        // No trigger to restore focus to, and Radix's body fallback jumps the scroll.
         onCloseAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader
           className={cn(
             "gap-1.5 px-6 pt-6",
-            centered && "items-center text-center sm:text-center",
+            centered ? "items-center text-center sm:text-center" : "text-left",
           )}
         >
           {hero}

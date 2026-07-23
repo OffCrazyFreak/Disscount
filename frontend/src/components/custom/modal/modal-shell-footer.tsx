@@ -15,8 +15,7 @@ export interface IModalShellFooterProps {
   submitVariant?: "primary" | "destructive";
   submitIcon?: LucideIcon;
   onSubmit?: () => void;
-  // When set, the submit button submits the <form id={formId}> living in the
-  // body; the reset button becomes a native type="reset" for the same form.
+  // Submit targets the <form id={formId}> in the body; reset only does too when no onReset.
   formId?: string;
   resetLabel?: string;
   onReset?: () => void;
@@ -52,7 +51,7 @@ export function ModalShellFooter({
   return (
     <div className="flex flex-col gap-2 px-6 pb-6 pt-4">
       {hasButtons && (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {cancelLabel && (
             <Button
               type="button"
@@ -70,24 +69,25 @@ export function ModalShellFooter({
 
           <div className="ml-auto flex shrink-0 items-center gap-2">
             {resetLabel && (
-              // Hidden on mobile: not enough horizontal room next to cancel + submit.
+              // Icon-only on mobile so it fits next to cancel + submit; labelled from sm up.
               <Button
                 type={formId && !onReset ? "reset" : "button"}
                 form={formId && !onReset ? formId : undefined}
                 variant="outline"
+                size="icon"
                 icon={RotateCcw}
                 iconPlacement="left"
                 onClick={onReset}
                 disabled={resetDisabled || submitLoading}
-                className="hidden sm:inline-flex"
+                aria-label={resetLabel}
+                className="sm:w-auto sm:px-4"
               >
-                {resetLabel}
+                <span className="hidden sm:inline">{resetLabel}</span>
               </Button>
             )}
 
             {submitLabel && (
-              // A brief nudge once every 10s (CSS keyframe) while there is
-              // something to save, drawing the eye without being distracting.
+              // A brief nudge every 10s while there is something to save.
               <div className={cn(submitEnabled && "animate-submit-nudge")}>
                 <Button
                   type={formId ? "submit" : "button"}

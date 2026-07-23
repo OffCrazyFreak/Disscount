@@ -19,7 +19,13 @@ import { AnimatedGroup } from "@/components/custom/animation/animated-group";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 
-export default function DigitalCardsClient({ query }: { query: string }) {
+interface IDigitalCardsClientProps {
+  query: string;
+}
+
+export default function DigitalCardsClient({
+  query,
+}: IDigitalCardsClientProps) {
   const pathname = usePathname();
   const [viewMode] = useViewMode(pathname, "grid");
 
@@ -106,7 +112,7 @@ export default function DigitalCardsClient({ query }: { query: string }) {
         ) : (
           <div className="text-center py-12">
             <CreditCard className="size-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-foreground mb-2">
               Nema digitalnih kartica
             </h3>
 

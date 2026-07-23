@@ -6,8 +6,7 @@ interface ISparkleDoodleProps {
   duration?: number;
 }
 
-// Four-point sparkle that twinkles forever; stagger siblings via delay and
-// vary their rhythm via duration (both in seconds).
+// Stagger siblings via delay, vary their rhythm via duration, both in seconds.
 export default function SparkleDoodle({
   className,
   delay = 0,

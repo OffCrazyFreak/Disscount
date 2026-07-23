@@ -1,6 +1,4 @@
-// Read-once stash for the optimistic-close save pattern: entity modals unmount
-// when they close, so a failed mutation stashes its error here, reopens the
-// modal via URL, and the remounted form picks the error up exactly once.
+// A closed modal unmounts, so a failed save parks its error here for the remount.
 const STASH_TTL_MS = 60_000;
 
 interface IStashedError {

@@ -34,7 +34,11 @@ const EMPTY_VALUES: ContactMessageRequest = {
 
 const DRAFT_KEY = "contact";
 
-export default function ContactModal({ open }: { open: boolean }) {
+interface IContactModalProps {
+  open: boolean;
+}
+
+export default function ContactModal({ open }: IContactModalProps) {
   const pathname = usePathname();
   const { user } = useUser();
   const createMessage = contactService.useCreateContactMessage();
@@ -51,8 +55,7 @@ export default function ContactModal({ open }: { open: boolean }) {
     fullName: user?.name ?? "",
   };
 
-  // Prefill from the signed-in profile on open, then merge any saved draft on
-  // top (draft wins and shows as unsaved). Skips while the user is mid-edit.
+  // Draft wins over the profile prefill, and neither runs mid-edit.
   useEffect(() => {
     if (!open || form.formState.isDirty) return;
 
@@ -65,8 +68,7 @@ export default function ContactModal({ open }: { open: boolean }) {
     }
   }, [open, user, form]);
 
-  // sourcePath is stamped at submit time and honeypot is a bot trap; neither is
-  // user content, so keep them out of localStorage.
+  // Neither is user content, so keep them out of localStorage.
   const { restored, clearDraft } = useFormDraft({
     draftKey: DRAFT_KEY,
     form,

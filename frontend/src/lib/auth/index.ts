@@ -37,15 +37,12 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 12,
-    // Hard gate: email/password login is blocked until the address is verified. OAuth logins
-    // are unaffected (their email is marked verified on creation, see databaseHooks below).
+    // Gates credential login only; OAuth emails are verified on creation below.
     requireEmailVerification: true,
     resetPasswordTokenExpiresIn: RESET_TOKEN_TTL_SECONDS,
     revokeSessionsOnPasswordReset: true,
     sendResetPassword: async ({ user, url, token }) => {
-      // Fire-and-forget so the response time is identical whether or not the email exists
-      // (no enumeration oracle). The DB lookup runs inside the un-awaited task; .catch keeps a
-      // failed send from becoming an unhandled rejection.
+      // Fire-and-forget, so response time is no email-enumeration oracle.
       void dispatchResetPasswordEmail(user.id, user.email, url, token).catch(
         logEmailFailure("password-reset"),
       );
@@ -70,17 +67,16 @@ export const auth = betterAuth({
     facebook: {
       clientId: FACEBOOK_CLIENT_ID,
       clientSecret: FACEBOOK_CLIENT_SECRET,
-      // Defaults to scopes ["email", "public_profile"] and includes the "picture" field.
-      // Email is required: a login that returns none fails and is surfaced to the user.
+      // Defaults to scopes ["email", "public_profile"] plus the "picture" field.
+      // Email is required: a login returning none fails and surfaces to the user.
     },
   },
 
   account: {
     accountLinking: {
       enabled: true,
-      // Auto-link any of these providers that share an email into one account. The link gate
-      // also requires the EXISTING local account to be verified; we satisfy that by marking
-      // OAuth emails verified on creation (databaseHooks below) rather than the deprecated
+      // Auto-links by shared email; the gate requires the EXISTING account verified,
+      // satisfied by marking OAuth emails verified below rather than the deprecated
       // requireLocalEmailVerified flag.
       trustedProviders: ["google", "facebook"],
     },
@@ -89,12 +85,8 @@ export const auth = betterAuth({
   databaseHooks: {
     account: {
       create: {
-        // Positive OAuth signal: when a social account is created (sign-up or linking), mark the
-        // user's email verified - the provider owns the email. Credential accounts are skipped,
-        // so email/password sign-ups keep requireEmailVerification's gate. Google already arrives
-        // verified; this is what makes Facebook (which returns no verified claim) work without
-        // the deprecated requireLocalEmailVerified flag, and it can't accidentally verify a
-        // credential signup (unlike a path-based check).
+        // The provider owns the email, so verify it on OAuth account creation. Checking
+        // providerId here (not the request path) can't accidentally verify a credential signup.
         after: async (createdAccount, ctx) => {
           if (!ctx || createdAccount.providerId === "credential") return;
 
@@ -106,10 +98,8 @@ export const auth = betterAuth({
     },
     user: {
       update: {
-        // Defense-in-depth for the single-email invariant. The /api/account/change-email POST
-        // guard runs at request time; this re-checks when the change is actually applied (the
-        // confirmation-link click is an update op whose ctx carries the session), closing the
-        // race where a social account is linked between request and confirmation.
+        // Re-checks at apply time (the /api/account/change-email POST guard only checks
+        // at request time), closing the link-during-confirmation race.
         before: async (userData, ctx) => {
           const changingEmail = typeof userData.email === "string";
           const userId = ctx?.context.session?.user.id;

@@ -122,8 +122,8 @@ export function useCredentialsSubmit({
     form.resetField("currentPassword");
 
     if (emailChanged) {
-      // changeEmail sends a confirmation to the CURRENT address; the new email applies only
-      // after that link is clicked, so revert the field and don't claim it's active yet.
+      // The confirmation goes to the CURRENT address and the new email applies only
+      // once its link is clicked, so revert the field instead of showing it as active.
       form.resetField("email", { defaultValue: currentEmail });
       toast.success(
         wantPasswordChange

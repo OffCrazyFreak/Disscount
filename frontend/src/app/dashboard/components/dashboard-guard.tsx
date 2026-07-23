@@ -7,7 +7,11 @@ import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinne
 import { useUser } from "@/context/user-context";
 import { canAccessDashboard } from "@/lib/api/schemas/auth-user";
 
-export default function DashboardGuard({ children }: { children: ReactNode }) {
+interface IDashboardGuardProps {
+  children: ReactNode;
+}
+
+export default function DashboardGuard({ children }: IDashboardGuardProps) {
   const router = useRouter();
   const { user, isLoading } = useUser();
 

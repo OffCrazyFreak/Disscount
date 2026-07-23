@@ -37,11 +37,9 @@ interface IDoodleCanvasProps {
   children: ReactNode;
 }
 
-// Scroll-triggered shell for hand-drawn SVG doodles: children are motion
-// elements whose variants ("hidden"/"visible") inherit from this svg. The
-// one-time draw is decorative dash/opacity motion, kept identical for SSR
-// hydration; continuous CSS doodle animations are the ones reduced motion
-// disables (see globals.css).
+// Children are motion elements inheriting this svg's hidden/visible variants.
+// This one-time draw ignores reduced motion; globals.css only disables the
+// continuous CSS doodle animations.
 export default function DoodleCanvas({
   viewBox,
   className,

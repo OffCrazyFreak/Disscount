@@ -12,8 +12,7 @@ interface ISettingRowProps {
   className?: string;
 }
 
-// A flat two-column row: label + description on the left, a control on the
-// right. Group several under `divide-y` for the "occasional divider" look.
+// Group several under `divide-y` for the occasional-divider look.
 export default function SettingRow({
   label,
   description,

@@ -56,8 +56,7 @@ export default function ProductFiltersBar({
     );
   }
 
-  // Mobile: one full-width trigger opening a swipeable drawer, so the filters
-  // don't eat the viewport or hide in a horizontal scroll strip.
+  // A drawer on mobile, so filters neither eat the viewport nor hide in a strip.
   if (isMobile) {
     return (
       <>

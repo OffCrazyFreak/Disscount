@@ -8,8 +8,7 @@ export function watchlistLimits(watchType: WatchType) {
     : { min: 1, max: 99, unit: "%" };
 }
 
-// thresholdValue stays a string in form state (it feeds a free-typing number
-// input and the +/- steppers); the schema owns parsing and range rules.
+// A string in form state for free typing; the schema owns parsing and range.
 export const watchlistFormSchema = z
   .object({
     watchType: z.enum(WatchType),

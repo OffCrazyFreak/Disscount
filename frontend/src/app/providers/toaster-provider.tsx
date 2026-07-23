@@ -3,7 +3,11 @@
 import { Toaster } from "sonner";
 import type { ReactNode } from "react";
 
-export default function ToasterProvider({ children }: { children: ReactNode }) {
+interface IToasterProviderProps {
+  children: ReactNode;
+}
+
+export default function ToasterProvider({ children }: IToasterProviderProps) {
   return (
     <>
       {children}

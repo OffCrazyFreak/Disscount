@@ -10,13 +10,15 @@ import {
   compareStoreChains,
   type StoreOptimizeMode,
 } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
+import { buildChainAggregates } from "@/app/(user)/shopping-lists/[id]/utils/store-chain-aggregate";
 import {
-  buildChainAggregates,
   findCompleteStoresAnalysis,
+  computeAbsolutePrices,
+} from "@/app/(user)/shopping-lists/[id]/utils/store-chain-completeness";
+import {
   countCheapestByChain,
   findHighestPriceStores,
-  computeAbsolutePrices,
-} from "@/app/(user)/shopping-lists/[id]/components/stores/store-chain-analysis-utils";
+} from "@/app/(user)/shopping-lists/[id]/utils/store-chain-extremes";
 
 interface IUseStoreChainAnalysisParams {
   shoppingList: ShoppingListDto;
@@ -29,8 +31,6 @@ export function useStoreChainAnalysis({
   pinnedStores,
   optimizeBy,
 }: IUseStoreChainAnalysisParams) {
-  // Optimise the store comparison over the products still to buy: items already
-  // ticked off as bought are excluded from every store metric below.
   const activeItems = useMemo(
     () => (shoppingList.items ?? []).filter((item) => !item.isChecked),
     [shoppingList.items],
@@ -88,8 +88,8 @@ export function useStoreChainAnalysis({
     [allChains, activeItems],
   );
 
-  // Sort a copy (never mutate the memoized allChains) by the chosen optimisation
-  // mode; pinned stores always stay on top inside compareStoreChains.
+  // Sort a copy, since Array.sort mutates and allChains is memoized; pinned stores
+  // always stay on top inside compareStoreChains.
   const sortedChains = useMemo(() => {
     const pinnedStoreIds = pinnedStores?.map((store) => store.storeApiId) || [];
 

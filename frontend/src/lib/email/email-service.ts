@@ -15,8 +15,7 @@ interface IChangeEmailArgs extends ITokenEmailArgs {
   newEmail: string;
 }
 
-// Provider-agnostic email use cases. Call sites (Better Auth hooks, the register endpoint)
-// depend on this class, not on Resend - switching providers only touches ./index.
+// Call sites depend on this, not on Resend, so a provider swap touches only ./index.
 export class EmailService {
   constructor(private readonly provider: IEmailProvider) {}
 

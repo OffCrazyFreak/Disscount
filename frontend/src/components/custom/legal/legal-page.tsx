@@ -8,8 +8,7 @@ interface ILegalPageProps {
   children: ReactNode;
 }
 
-// Shared wrapper for the static legal pages (terms, privacy, data deletion).
-// Refined, on-brand layout using the app's design tokens.
+// Shared by terms, privacy and data deletion.
 export default function LegalPage({
   title,
   intro,
@@ -23,7 +22,7 @@ export default function LegalPage({
           Pravni dokumenti
         </p>
 
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl text-pretty">
           <span className="text-primary">{title}</span>
         </h1>
 
