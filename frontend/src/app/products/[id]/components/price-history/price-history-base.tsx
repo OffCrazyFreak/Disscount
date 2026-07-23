@@ -44,8 +44,6 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
           <CardContent className="p-6">
             <Tabs value={chartPrefs.period} onValueChange={handlePeriodChange}>
               <PriceHistoryControls
-                period={chartPrefs.period}
-                onPeriodChange={handlePeriodChange}
                 priceChange={priceChange}
                 chains={priceHistoryChains}
                 selectedChains={chartPrefs.chains}
