@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 
-// Best-effort and silent: the granting policy varies by browser, notably iOS.
+// Keeps the IndexedDB React Query cache from being evicted under storage pressure
+// or disuse. Best-effort and silent: the granting policy varies by browser, notably iOS.
 export default function RequestPersistentStorage() {
   useEffect(() => {
     if (!navigator.storage?.persist || !navigator.storage.persisted) return;

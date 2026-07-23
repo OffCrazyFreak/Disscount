@@ -14,6 +14,7 @@ const BRAND = "#2ec50d";
 const INK = "#252525";
 
 // Satori can't read woff2, so these are .ttf and .woff builds of the app fonts.
+// Reading them from src/ is safe because both OG routes are statically generated.
 async function loadFonts() {
   const dir = join(process.cwd(), "src", "app", "fonts");
 

@@ -23,7 +23,8 @@ export class ResendProvider implements IEmailProvider {
     idempotencyKey,
   }: IEmailMessage): Promise<IEmailResult> {
     try {
-      // The SDK returns { data, error } rather than throwing on API-level errors.
+      // The SDK returns { data, error } for API-level errors rather than throwing,
+      // and renders the React Email template (plus plain text) from `react` automatically.
       const { data, error } = await this.client.emails.send(
         {
           from: this.from,

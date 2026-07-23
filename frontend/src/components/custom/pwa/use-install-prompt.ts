@@ -41,6 +41,7 @@ function detectIOSInstallCapable(): boolean {
 }
 
 // Module scope, so both banners share one prompt and consuming it clears both.
+// ready stays false until client detection runs, so SSR and first paint never flash install UI.
 interface IInstallState {
   deferredPrompt: IBeforeInstallPromptEvent | null;
   isStandalone: boolean;
