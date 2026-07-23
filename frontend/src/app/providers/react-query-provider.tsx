@@ -11,11 +11,13 @@ import {
 } from "@/lib/offline/persister";
 import { registerOfflineMutationDefaults } from "@/lib/offline/offline-mutations";
 
+interface IReactQueryProviderWrapperProps {
+  children: ReactNode;
+}
+
 export default function ReactQueryProviderWrapper({
   children,
-}: {
-  children: ReactNode;
-}) {
+}: IReactQueryProviderWrapperProps) {
   // keep QueryClient stable across re-renders
   const [queryClient] = useState(() => {
     const client = new QueryClient({

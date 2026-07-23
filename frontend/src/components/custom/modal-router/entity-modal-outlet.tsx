@@ -60,11 +60,11 @@ function useLingeringTarget(target: EntityTarget | null) {
   return target ?? lingering;
 }
 
-export default function EntityModalOutlet({
-  target,
-}: {
+interface IEntityModalOutletProps {
   target: EntityTarget | null;
-}) {
+}
+
+export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
   const rendered = useLingeringTarget(target);
   if (!rendered) return null;
 

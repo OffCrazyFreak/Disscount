@@ -6,7 +6,11 @@ import { Card } from "@/components/ui/card";
 import { formatDate } from "@/utils/strings";
 import { Post } from "@/app/updates/posts";
 
-export default function PostCard({ post }: { post: Post }) {
+interface IPostCardProps {
+  post: Post;
+}
+
+export default function PostCard({ post }: IPostCardProps) {
   return (
     <Card className="h-40 overflow-hidden p-0 transition-shadow hover:shadow-md">
       <Link href={`/updates/${post.id}`} className="flex h-full">

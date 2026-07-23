@@ -32,7 +32,11 @@ interface IUserContext {
 
 const UserContext = createContext<IUserContext | undefined>(undefined);
 
-export function UserProvider({ children }: { children: ReactNode }) {
+interface IUserProviderProps {
+  children: ReactNode;
+}
+
+export function UserProvider({ children }: IUserProviderProps) {
   const [user, setUser] = useState<UserDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 

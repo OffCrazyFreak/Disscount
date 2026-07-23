@@ -5,7 +5,11 @@ import { getChainLabel } from "@/utils/labels";
 
 const chains = Object.keys(storeNamesMap);
 
-function LogoRow({ ariaHidden = false }: { ariaHidden?: boolean }) {
+interface ILogoRowProps {
+  ariaHidden?: boolean;
+}
+
+function LogoRow({ ariaHidden = false }: ILogoRowProps) {
   return (
     <ul
       aria-hidden={ariaHidden || undefined}

@@ -34,7 +34,11 @@ const EMPTY_VALUES: ContactMessageRequest = {
 
 const DRAFT_KEY = "contact";
 
-export default function ContactModal({ open }: { open: boolean }) {
+interface IContactModalProps {
+  open: boolean;
+}
+
+export default function ContactModal({ open }: IContactModalProps) {
   const pathname = usePathname();
   const { user } = useUser();
   const createMessage = contactService.useCreateContactMessage();

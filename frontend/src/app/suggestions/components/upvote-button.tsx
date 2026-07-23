@@ -5,14 +5,16 @@ import { ChevronUp } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+interface IUpvoteButtonProps {
+  initialUpvotes: number;
+  className?: string;
+}
+
 // Local-only upvote toggle for the template suggestions (no backend yet).
 export default function UpvoteButton({
   initialUpvotes,
   className,
-}: {
-  initialUpvotes: number;
-  className?: string;
-}) {
+}: IUpvoteButtonProps) {
   const [hasVoted, setHasVoted] = useState(false);
 
   const upvotes = initialUpvotes + (hasVoted ? 1 : 0);

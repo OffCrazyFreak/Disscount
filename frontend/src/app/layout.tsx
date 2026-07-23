@@ -106,11 +106,11 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+interface IRootLayoutProps {
   children: ReactNode;
-}>) {
+}
+
+export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
   return (
     <html lang="hr" data-scroll-behavior="smooth">
       {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (

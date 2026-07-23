@@ -8,11 +8,13 @@ import UpvoteButton from "@/app/suggestions/components/upvote-button";
 import { formatDate } from "@/utils/strings";
 import { Suggestion } from "@/app/suggestions/suggestions";
 
+interface ISuggestionDetailsClientProps {
+  suggestion: Suggestion;
+}
+
 export default function SuggestionDetailsClient({
   suggestion,
-}: {
-  suggestion: Suggestion;
-}) {
+}: ISuggestionDetailsClientProps) {
   return (
     <div className="space-y-6">
       <Link

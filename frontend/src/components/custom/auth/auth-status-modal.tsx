@@ -20,16 +20,15 @@ const STATUS_COPY: Record<StatusKind, { title: string; description: string }> =
     },
   };
 
+interface IAuthStatusModalProps {
+  open: boolean;
+  kind: StatusKind;
+}
+
 // Shown after the user returns from a verification / email-change link
 // (?modal=email-verified | email-changed). Better Auth signs them in on the way
 // back, so this is just a friendly confirmation with a single continue action.
-export default function AuthStatusModal({
-  open,
-  kind,
-}: {
-  open: boolean;
-  kind: StatusKind;
-}) {
+export default function AuthStatusModal({ open, kind }: IAuthStatusModalProps) {
   const { refreshUser } = useUser();
   const copy = STATUS_COPY[kind];
 

@@ -32,12 +32,14 @@ async function loadFonts() {
   ];
 }
 
-function Sparkle(props: {
+interface ISparkleProps {
   left: number;
   top: number;
   size: number;
   opacity: number;
-}) {
+}
+
+function Sparkle(props: ISparkleProps) {
   return (
     <svg
       width={props.size}
