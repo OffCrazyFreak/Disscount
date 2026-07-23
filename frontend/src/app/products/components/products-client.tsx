@@ -66,6 +66,7 @@ export default function ProductsClient({ query }: { query: string }) {
             }`}
         </h3>
 
+        {/* TODO: re-enable with personalisable list views (see view-switcher.tsx) */}
         {/* <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} /> */}
       </div>
 
