@@ -33,5 +33,15 @@ echo
 echo "=== Remote branches ==="
 git branch -r --format='  %(refname:short)' | grep -v 'HEAD' || echo "  (none)"
 echo
-echo "Pick the branch UNDER REVIEW (ahead, has the changes) and the BASE."
+echo "=== Open pull requests (each reviewable as head vs base) ==="
+if command -v gh >/dev/null 2>&1; then
+  gh pr list --state open --json number,title,headRefName,baseRefName \
+    --template '{{range .}}  #{{.number}} {{.headRefName}} -> {{.baseRefName}}  {{.title}}{{"\n"}}{{end}}' 2>/dev/null |
+    grep . || echo "  (none)"
+else
+  echo "  (gh not installed)"
+fi
+echo
+echo "A review target is EITHER a branch pair OR an open PR (its head vs base)."
+echo "Offer these as concrete options; do not ask the user to type a target."
 echo "Sanity-check ordering with: git rev-list --left-right --count <base>...<target>"

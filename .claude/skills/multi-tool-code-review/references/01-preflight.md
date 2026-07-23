@@ -6,7 +6,7 @@ as possible up front. Do this in order, then ask Batch A (below) as one `AskUser
 ## Contents
 
 - Detect the engines and usage
-- Choose the branch pair (with an ordering sanity check)
+- Choose what to review (branch pair or open PR, with an ordering sanity check)
 - Choose the scope
 - Choose the models and effort (ask every run, recommend from a fresh online check)
 - Choose the output format
@@ -20,9 +20,12 @@ Run `scripts/preflight.sh`. It prints which CLIs are installed and runnable (`co
 - Usage and quota mostly cannot be checked headlessly (CodeRabbit's 3-per-hour limit, Cursor's free quota, Codex token metering are not queryable from the CLI). For those, ask the user whether they still have usage before committing to a split, and design the folder batching to fit the free-tier limits (fewer folders to the scarce engines).
 - The Claude reviewer (subagents) has no external CLI and no rate limit; it is always available and seeds the doc first.
 
-## Choose the branch pair (ordering sanity check)
+## Choose what to review (branch pair or open PR)
 
-Always ask which branch is under review (the target, the one that is ahead with the new work) and which branch it is reviewed against (the base). Offer the detected local and remote branches from `preflight.sh` so the user picks from real names, not guesses.
+A review target is EITHER a branch pair OR an open PR. Always offer both as concrete `AskUserQuestion` options built from what `preflight.sh` detected; never ask the user to type a target in free text, and never assume the current branch.
+
+- **A branch pair**: the branch under review (the target, the one that is ahead with the new work) versus a base (for example a full `dev` vs `main` sweep). Build the options from the detected local and remote branches.
+- **An open PR**: reviewed as its head versus its base (`gh pr view <n> --json headRefName,baseRefName`). Offer each open PR from the `gh pr list` output as its own option, since a PR that was never reviewed is a common reason to run the skill.
 
 Before accepting the pair, validate the ordering:
 
@@ -48,4 +51,4 @@ Ask whether the consolidated review should be a Markdown doc, a polished standal
 
 ## Batch A: the one setup question
 
-Fold the branch pair, scope, models and effort, and output format into a single `AskUserQuestion` so the user answers once. Which reviewers run is already decided by detection; only confirm that if it is ambiguous. Record every answer before launching Stage 1.
+Fold the review target (branch pair or PR), scope, models and effort, and output format into a single `AskUserQuestion` so the user answers once. Every option is a concrete choice built from detection, not a free-text prompt. Which reviewers run is already decided by detection; only confirm that if it is ambiguous. Record every answer before launching Stage 1.

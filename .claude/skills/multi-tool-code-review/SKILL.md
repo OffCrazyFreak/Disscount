@@ -9,35 +9,44 @@ Reviews a git branch with several independent reviewers, consolidates their find
 
 The reference files are numbered in run order: `01-preflight.md`, `02-review-pipeline.md`, `03-triage-doc-format.md`, `04-fix-protocol.md`. Read each when you reach its stage.
 
-## Start here: detect where you are
+## Start here: detect state, then confirm intent
 
-This cycle spans hours and often several sessions, because the external reviewers are rate-limited. **State lives on disk, not in the conversation.** On every invocation, detect the current stage first and resume from there. Never assume in-memory state.
+This cycle spans hours and often several sessions, because the external reviewers are rate-limited. **State lives on disk, not in the conversation.** On every invocation, detect what is on disk first; never assume in-memory state.
 
-From the repo root, check:
+From the repo root, check both the review artifacts and the reviewable targets:
 
 ```bash
 ls reviews/_review-run/*/_STATUS.txt 2>/dev/null                     # runner status files
 grep -l "run FINISHED" reviews/_review-run/*/_STATUS.txt 2>/dev/null  # which reviewers finished
 ls reviews/REVIEW-*-BY-AREA.md 2>/dev/null                           # consolidated triage doc
-git branch --list 'fix/*review*'                                     # fix branch
+git branch --list 'fix/*review*'                                     # fix branch(es)
+bash .claude/skills/multi-tool-code-review/scripts/preflight.sh      # engines, branches, open PRs
 ```
 
-Route by what exists:
+Then **confirm intent with `AskUserQuestion` before doing anything**, unless the user's request already made it explicit (for example "review PR #38" or "resume the review"). Disk state alone cannot tell you whether the user wants to resume an interrupted cycle or start a brand new review, so ask, with options built from what you detected:
 
-| State on disk                                          | Go to                                                       |
+- **Resume** the in-progress cycle, if one exists. Describe it in the option, for example "resume monitoring the runners", "triage the finished doc", or "keep fixing on `fix/...` and finish PR #NN".
+- **Start a new review.** Preflight (Batch A) then has them pick the target: a branch pair, or one of the open PRs.
+
+A finished or near-finished PR from a previous cycle is NOT automatically the thing to resume. Users routinely re-invoke the skill to review something else: a fresh full sweep of a branch, or an open PR that was never reviewed. Never silently jump to Stage 3, or to any resume, just because a fix branch or PR exists on disk. When in doubt, ask.
+
+Once the user chooses to resume, this is what each detected state resumes into:
+
+| Detected state                                         | Resume into                                                 |
 | ------------------------------------------------------ | ----------------------------------------------------------- |
-| No review artifacts                                    | Stage 1 (fresh review), starting with preflight             |
 | Runners started, not all reviewers show `run FINISHED` | Stage 1, resume monitoring (re-run the scripts; idempotent) |
 | Triage doc exists, no fix branch                       | Checkpoint 1 (present doc, ask Batch B)                     |
 | Fix branch exists with commits, no PR                  | Stage 2 (resume fixes) then Stage 3                         |
 | PR exists                                              | Stage 3 (monitor CI, recap)                                 |
+
+If no review artifacts exist at all, skip the resume-versus-new question and go straight to Stage 1 (new review), starting with preflight.
 
 ## Stage 1: Review
 
 Goal: produce the consolidated review in the format the user chose.
 
 1. **Preflight** per `01-preflight.md`: run `scripts/preflight.sh` to detect the installed engines and the branches. Never assume all reviewers exist; divide a missing engine's folders across the rest.
-2. **Batch A (one `AskUserQuestion`)**: the branch pair under review + base (validate the ordering, see below), the scope, the model and effort for each available engine and for the consolidation pass, and the output format (Markdown / HTML / both). Do a fresh web search for the current model lineup and recommended effort before recommending; do not hardcode any model.
+2. **Batch A (one `AskUserQuestion`)**: what to review (a branch pair, or one of the open PRs, with options built from the detected branches and `gh pr list`, and the ordering validated, see below), the scope, the model and effort for each available engine and for the consolidation pass, and the output format (Markdown / HTML / both). Build the options from what preflight detected; never ask the user to type a target in free text. Do a fresh web search for the current model lineup and recommended effort before recommending; do not hardcode any model.
 3. **Run the sweep** per `02-review-pipeline.md`: launch the detached runners in `scripts/` (zero Claude budget) and drive the Claude reviewers yourself in parallel, nudging each engine to fan out into its own subagents where it helps. Monitor with `watch-all.sh` (15-minute heartbeat by default).
 4. **Consolidate** once every present reviewer finished: one pass at the user's chosen model into the format(s) from `03-triage-doc-format.md`.
 
