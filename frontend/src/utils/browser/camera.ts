@@ -112,7 +112,7 @@ export function describeScannerError(error: unknown): string {
     case "in-use":
       return "Kameru trenutno koristi druga aplikacija. Zatvori je pa pokušaj ponovno.";
     case "overconstrained":
-      return "Odabrana kamera nije dostupna. Vratite odabir kamere na automatski.";
+      return "Odabrana kamera nije dostupna. Vrati odabir kamere na automatski.";
     case "insecure-context":
       return "Skeniranje radi samo preko sigurne (HTTPS) veze.";
     default:
