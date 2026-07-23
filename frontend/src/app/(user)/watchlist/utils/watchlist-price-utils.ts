@@ -34,9 +34,10 @@ export function isPreferredChain(
     return false;
   }
 
-  const chainCode = normalizeForSearch(chain.code);
+  // chain.chain is the chain identifier; chain.code is the product code within it.
+  const chainName = normalizeForSearch(chain.chain);
 
-  return pinnedStoreChainCodes.some(
-    (preferredCode) => normalizeForSearch(preferredCode) === chainCode,
+  return pinnedStoreChainCodes.some((preferredCode) =>
+    chainName.includes(normalizeForSearch(preferredCode)),
   );
 }
