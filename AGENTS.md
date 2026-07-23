@@ -8,7 +8,7 @@ These principles apply across the whole repo (frontend and backend).
 
 - The files should aim to be 50-100ish lines long, so they are easy to read, parse, and maintain.
 
-- Write self-explanatory code. Use comments only for genuinely complex logic or decisions; if you need multiple lines of comments to explain something, you probably did it wrong and should rewrite it.
+- Write self-explanatory code. Use comments only for genuinely complex logic or decisions. NEVER USE multiple lines of comments to explain something, if you think you should you probably did it wrong and should rewrite it and all the connected code so you don't need it. So don't simply remove comments, but refractor everything conected so it doesn't need a comment anymore.
 
 - After every code generation, ALWAYS provide a brief explanation of the code changes you made and why because I'm still learning and I want to become a better developer.
 
