@@ -113,6 +113,29 @@ flowchart LR
 
 > ⚠️ **After any deploy, hard-refresh the browser** (Ctrl/Cmd+Shift+R). Otherwise you may see Next.js `Failed to find Server Action ...`, which is just your old cached page hitting the new build.
 
+### Netlify branch previews
+
+**Dokploy owns `main` and `dev`. Netlify previews every other branch.** The old Netlify waitlist site is retired, but the project itself is kept and repurposed as a throwaway preview environment for feature branches, so you can share a URL before opening a PR.
+
+The split is enforced in the repo, not in the dashboard, by `frontend/netlify.toml`:
+
+```toml
+[build]
+  ignore = 'case "$BRANCH" in main|dev) exit 0 ;; *) exit 1 ;; esac'
+```
+
+| Detail                               | Why it is like that                                                                                                                                                              |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `build.ignore`, not a UI branch list | Netlify **always** builds its production branch, so there is no dashboard toggle for "production branch, but do not build it". The ignore command is the only supported opt-out. |
+| Exit `0` skips, exit `1` builds      | Inverted from normal shell convention. This is the usual trap when editing the rule.                                                                                             |
+| File lives in `frontend/`            | Netlify's **base directory** is `frontend`, and it looks for `netlify.toml` there. Paths inside `ignore` also resolve from the base directory.                                   |
+| **Branch deploys** is set to `All`   | The toml is the single source of truth for exclusions. A dashboard branch list would be a second, competing one, and it silently misses prefixes such as `refactor/`.            |
+| Deploy previews skip too             | On a deploy preview `$BRANCH` is the PR's **head** branch, so a `dev` to `main` PR is skipped, while a `fix/x` into `dev` PR still previews.                                     |
+
+Skipped builds still appear in Netlify's deploy list, marked **Canceled**, with the ignore command in the log. That is the expected result, not a failure.
+
+> ⚠️ **Netlify has its own environment variables, and it cannot see Dokploy's.** Previews are built from the same code, so `requireEnv` still throws at module load if anything is missing (see [§5](#5-environment-variables-the-1-gotcha)), and `NEXT_PUBLIC_*` is still baked at build time. A preview with an incomplete env either fails the build or quietly ships a bundle pointing at the wrong API. Keep Netlify's env in sync with Dokploy's **dev** values.
+
 ---
 
 ## 5. Environment variables (the #1 gotcha)
@@ -163,7 +186,9 @@ There are **two kinds** of env vars, and mixing them up causes the most confusin
 (http.host in {"get.disscount.me" "waitlist.disscount.me" "zelim.disscount.me"}) or (starts_with(http.host, "xn--") and ends_with(http.host, ".disscount.me"))
 ```
 
-Keep the CNAMEs **Proxied** so Cloudflare answers for the names and the rule fires at the edge (before Netlify is reached). This fixed a Google Search Console _"Duplicate without user-selected canonical"_ flag caused by one page served under four hostnames. The Netlify project can be deleted.
+Keep the CNAMEs **Proxied** so Cloudflare answers for the names and the rule fires at the edge (before Netlify is reached). This fixed a Google Search Console _"Duplicate without user-selected canonical"_ flag caused by one page served under four hostnames.
+
+> The waitlist **site** is retired, but do **not** delete the Netlify project: it now builds branch previews for every branch except `main` and `dev`. See [Netlify branch previews](#netlify-branch-previews).
 
 **Email anti-spoofing (SPF/DKIM/DMARC):** SPF + DKIM already exist (Resend, Cloudflare, SES on `send.`). DMARC is set as a `_dmarc` TXT record: `v=DMARC1; p=none; rua=mailto:dmarc@disscount.me; fo=1`. It starts in **monitor mode** (`p=none`, aggregate reports forwarded via Email Routing to the owner's inbox); tighten to `p=quarantine` then `p=reject` once reports confirm legitimate senders pass alignment.
 
@@ -256,22 +281,23 @@ Set in **Dokploy → service → Environment**, per environment. Both DSNs live 
 
 ## 10. What's automatic vs manual
 
-| Task                                                       | Automatic? | Notes                                                                      |
-| ---------------------------------------------------------- | ---------- | -------------------------------------------------------------------------- |
-| Build & deploy on `git push`                               | ✅ auto    | Dokploy autodeploy (per branch)                                            |
-| CI checks (typecheck, lint, format, build, backend verify) | ✅ auto    | `.github/workflows/ci.yml` on every push + PR; required to merge to `main` |
-| HTTPS certificate issuance + renewal                       | ✅ auto    | Traefik + Let's Encrypt                                                    |
-| HTTP to HTTPS redirect                                     | ✅ auto    | Cloudflare                                                                 |
-| DB migrations (auth tables + app tables)                   | ✅ auto    | `migrate` service (drizzle) + Hibernate `ddl-auto=update` on each deploy   |
-| Nightly DB backups (R2 + local) + rotation                 | ✅ auto    | Dokploy Backups + Schedule                                                 |
-| OS security updates                                        | ✅ auto    | unattended-upgrades                                                        |
-| Uptime checks                                              | ✅ auto    | UptimeRobot                                                                |
-| **Adding/Changing a `NEXT_PUBLIC_*` var**                  | ❌ manual  | edit in Dokploy env **+ redeploy**                                         |
-| **Adding a new domain/subdomain**                          | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                  |
-| **New OAuth provider redirect URIs**                       | ❌ manual  | add in Google/Meta consoles                                                |
-| **Hard-refresh after deploy**                              | ❌ manual  | avoids stale-bundle errors                                                 |
-| **Restoring a backup**                                     | ❌ manual  | see [§8](#8-backups--restore)                                              |
-| **Rotating secrets / tokens**                              | ❌ manual  | as needed                                                                  |
+| Task                                                       | Automatic? | Notes                                                                          |
+| ---------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------ |
+| Build & deploy on `git push`                               | ✅ auto    | Dokploy autodeploy (per branch)                                                |
+| CI checks (typecheck, lint, format, build, backend verify) | ✅ auto    | `.github/workflows/ci.yml` on every push + PR; required to merge to `main`     |
+| Branch previews (every branch except `main`/`dev`)         | ✅ auto    | Netlify, gated by `frontend/netlify.toml` (see [§4](#netlify-branch-previews)) |
+| HTTPS certificate issuance + renewal                       | ✅ auto    | Traefik + Let's Encrypt                                                        |
+| HTTP to HTTPS redirect                                     | ✅ auto    | Cloudflare                                                                     |
+| DB migrations (auth tables + app tables)                   | ✅ auto    | `migrate` service (drizzle) + Hibernate `ddl-auto=update` on each deploy       |
+| Nightly DB backups (R2 + local) + rotation                 | ✅ auto    | Dokploy Backups + Schedule                                                     |
+| OS security updates                                        | ✅ auto    | unattended-upgrades                                                            |
+| Uptime checks                                              | ✅ auto    | UptimeRobot                                                                    |
+| **Adding/Changing a `NEXT_PUBLIC_*` var**                  | ❌ manual  | edit in Dokploy env **+ redeploy**                                             |
+| **Adding a new domain/subdomain**                          | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                      |
+| **New OAuth provider redirect URIs**                       | ❌ manual  | add in Google/Meta consoles                                                    |
+| **Hard-refresh after deploy**                              | ❌ manual  | avoids stale-bundle errors                                                     |
+| **Restoring a backup**                                     | ❌ manual  | see [§8](#8-backups--restore)                                                  |
+| **Rotating secrets / tokens**                              | ❌ manual  | as needed                                                                      |
 
 ---
 
