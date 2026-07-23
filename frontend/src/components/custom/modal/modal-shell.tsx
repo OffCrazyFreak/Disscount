@@ -95,7 +95,7 @@ export function ModalShell({
         <DialogHeader
           className={cn(
             "gap-1.5 px-6 pt-6",
-            centered && "items-center text-center sm:text-center",
+            centered ? "items-center text-center sm:text-center" : "text-left",
           )}
         >
           {hero}
