@@ -101,7 +101,20 @@ After a batch, check whether it changed a behavior or invariant that the repo do
 
 ## GitHub issues for the rest
 
-For every finding the user excluded (and anything you deferred), file a detailed GitHub issue with `gh`: title, where (`file:line`), current vs expected, how to test, and the finding number. Apply labels (create `security` / `tech-debt` / `accessibility` if missing). Group tiny leftovers into one checklist issue. Do not file issues for things that are intentional by design.
+For every finding the user excluded (and anything you deferred), file a detailed GitHub issue with `gh`. Do not file issues for things that are intentional by design.
+
+**Use the repo's own issue templates when they exist.** Check `.github/ISSUE_TEMPLATE/` first and pick the template matching the finding (bug, enhancement, tech-debt, and so on). Read that template and compose a `--body-file` that fills every field it asks for instead of inventing your own format, since `gh issue create --template` can drop into an interactive prompt. If the repo has no templates, use the structure below anyway and keep it consistent across the batch.
+
+Write each issue so it is **self-contained**: a maintainer should understand the problem and its current status from the issue alone without opening the codebase, and another agent should be able to pick it up and start work without redoing the analysis. That means:
+
+- **What and where**: `file:line`, with the relevant snippet quoted inline so nobody has to go hunt for it.
+- **Current vs expected** behavior, concretely: what happens now, what should happen instead.
+- **Why it matters**: the user-visible consequence or risk, not just the rule it breaks.
+- **How to test**: the exact before/after check that proves it is fixed.
+- **Status and why it is still open**: excluded by the user, deferred as high-risk churn, blocked on an external API, and so on. This is what lets a maintainer triage at a glance.
+- **Trail**: the review finding number, plus links to the PR or commits that touched the area.
+
+Apply labels (create `security` / `tech-debt` / `accessibility` if missing). Group tiny leftovers into one checklist issue, but keep each checklist line specific enough to act on by itself.
 
 ## Open the PR
 
