@@ -56,7 +56,8 @@ export function useOnboarding({ open, save }: IUseOnboardingProps) {
     setStep(step - 1);
   }
 
-  // Stamps the outcome into the same PATCH as the settings save-all.
+  // Stamps the outcome into the same PATCH as the settings save-all; the ignored
+  // result is safe because save reopens the failed settings tab on error.
   async function finish() {
     await save({ onboardingOutcome: "completed" });
   }
