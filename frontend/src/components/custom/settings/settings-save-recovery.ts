@@ -23,7 +23,7 @@ const JOB_ERRORS: Record<SaveJobKey, string> = {
   places: "Greška pri spremanju lokacija.",
 };
 
-// So a partial save only shows the user what actually failed.
+// Re-baselines the sections that saved, so only the failed ones stay dirty.
 export function rebaselineSavedSections(
   form: UseFormReturn<SettingsFormValues>,
   jobs: ISaveJob[],

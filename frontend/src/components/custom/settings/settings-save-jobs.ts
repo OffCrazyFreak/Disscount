@@ -42,7 +42,7 @@ export function buildUserPatch(
   return patch;
 }
 
-// One job per dirty section, so a failure in any one leaves the others saved.
+// One job per persistence target, so a failure in one still leaves the others saved.
 export function buildSaveJobs(
   values: SettingsFormValues,
   defaults: Partial<SettingsFormValues>,

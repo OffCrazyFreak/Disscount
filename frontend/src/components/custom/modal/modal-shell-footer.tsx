@@ -15,7 +15,7 @@ export interface IModalShellFooterProps {
   submitVariant?: "primary" | "destructive";
   submitIcon?: LucideIcon;
   onSubmit?: () => void;
-  // When set, both buttons target the <form id={formId}> living in the body.
+  // Submit targets the <form id={formId}> in the body; reset only does too when no onReset.
   formId?: string;
   resetLabel?: string;
   onReset?: () => void;
