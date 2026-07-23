@@ -3,48 +3,12 @@ import { ChartDataPoint } from "@/typings/chart-data";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { ShoppingListItemDto } from "@/lib/api/types";
 import { formatDate } from "@/utils/strings";
+import { buildDateWindow } from "@/utils/date";
+import { PRICE_ARCHIVE_START } from "@/constants/price-history";
 import { calculatePriceChange } from "@/app/products/utils/product-utils";
 
-// Format as YYYY-MM-DD in local time; toISOString would shift a day near midnight.
-function toLocalDateString(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-function fromLocalDateString(value: string): Date {
-  const [year, month, day] = value.split("-").map(Number);
-  return new Date(year, month - 1, day);
-}
-
-const PRICE_ARCHIVE_START = "2025-05-16";
-
 export function getPriceHistoryDates(daysToShow: number): string[] {
-  const arr: string[] = [];
-  const today = new Date();
-  const startDate = fromLocalDateString(PRICE_ARCHIVE_START);
-  const millisecondsPerDay = 1000 * 60 * 60 * 24;
-  const maxDaysFromCap = Math.max(
-    0,
-    Math.floor((today.getTime() - startDate.getTime()) / millisecondsPerDay) +
-      1,
-  );
-
-  let cappedDays: number;
-  if (daysToShow === -1) {
-    cappedDays = maxDaysFromCap;
-  } else {
-    cappedDays = Math.min(daysToShow, maxDaysFromCap);
-  }
-
-  for (let i = 0; i < cappedDays; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    arr.push(toLocalDateString(d));
-  }
-
-  return arr.reverse();
+  return buildDateWindow(daysToShow, PRICE_ARCHIVE_START);
 }
 
 export function groupPriceHistoriesByEan(
