@@ -10,10 +10,7 @@ function preventActivation(event: React.MouseEvent<HTMLElement>) {
 }
 
 const buttonVariants = cva(
-  // Disabled state swaps in opaque muted tokens (fill + text) instead of
-  // opacity, so the button never lets a busy background bleed through, its
-  // label fades too, and every colour variant collapses to the same look.
-  "cursor-pointer disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-70 disabled:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "cursor-pointer disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -172,7 +169,7 @@ const Button = React.forwardRef<
       <Comp
         className={cn(
           "relative",
-          inertAsChild && "pointer-events-none opacity-70",
+          inertAsChild && "pointer-events-none opacity-50",
           buttonVariants({
             variant,
             effect,
