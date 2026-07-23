@@ -21,7 +21,8 @@ interface IStepperNumberInputProps {
   className?: string;
 }
 
-// Buttons clamp to min/max, typing does not: the owning form's zod schema ranges it.
+// Buttons clamp to min/max; typing may be empty or out of range, and the owning
+// form's zod schema ranges it and blocks an invalid submission.
 export function StepperNumberInput({
   value,
   onChange,

@@ -61,7 +61,8 @@ export default function SearchBar({
 
     const query = queryValue ?? "";
 
-    // Also stops a bar mounted off its own route from redirecting there.
+    // An empty input over an empty URL has nothing to mirror; this also stops a
+    // bar mounted off its own route from redirecting there.
     if (!query && !routeQuery) return;
 
     syncQuery(query);

@@ -3,7 +3,8 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-// Variants track badgeVariants; size scales padding, text and icon together.
+// Variants track badgeVariants; size scales padding/text/icon and sets the intended
+// content: lg = icon+title+text, md = icon+title, sm = text only.
 const bannerVariants = cva(
   "flex items-center rounded-lg border [&>svg]:shrink-0 mb-4",
   {

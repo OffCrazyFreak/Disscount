@@ -1,4 +1,4 @@
-// Domain helpers merge specific fields, so unrelated settings always survive.
+// Domain helpers merge specific fields, so unrelated settings survive a normal update.
 import { IAppData } from "@/typings/local-storage";
 
 const APP_KEY = "Disscount_app";

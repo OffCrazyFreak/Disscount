@@ -82,6 +82,7 @@ export default function StoreChainSelect({
   };
 
   // Built from live price data, so even chains we have not mapped stay selectable.
+  // When checked, only the chosen store is offered; otherwise all priced stores plus the current selection.
   const availableChainCodes = (
     isChecked
       ? value
