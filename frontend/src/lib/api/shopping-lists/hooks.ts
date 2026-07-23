@@ -72,10 +72,11 @@ export function useDeleteShoppingList() {
 
 function useInvalidateListsAndItems() {
   const queryClient = useQueryClient();
-  return () => {
-    queryClient.invalidateQueries({ queryKey: LISTS_KEY });
-    queryClient.invalidateQueries({ queryKey: LIST_ITEMS_KEY });
-  };
+  return () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: LISTS_KEY }),
+      queryClient.invalidateQueries({ queryKey: LIST_ITEMS_KEY }),
+    ]);
 }
 
 export function useAddItemToShoppingList() {
