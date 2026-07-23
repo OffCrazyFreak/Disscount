@@ -34,7 +34,7 @@ export default function InstallInstructionsSheet({
             <>
               Dodirni gumb{" "}
               <SquareArrowUp className="inline size-5 text-primary" />{" "}
-              <span className="font-medium">Podijeli</span> u Safariju.
+              <span className="font-medium">Podijeli</span> u pregledniku.
             </>
           ),
         },

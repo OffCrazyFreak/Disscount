@@ -31,16 +31,13 @@ function detectIOS(): boolean {
   return isIPhoneLike || isIPadOS;
 }
 
-// Other iOS browsers and in-app webviews use WebKit but cannot install.
-function detectIOSSafari(): boolean {
+// Since iOS 16.4 any eligible browser can add to the home screen; webviews still cannot.
+function detectIOSInstallCapable(): boolean {
   if (!detectIOS()) return false;
 
-  const ua = window.navigator.userAgent;
-  const isOtheriOSBrowser = /CriOS|FxiOS|EdgiOS|OPiOS|GSA/i.test(ua);
-  const isInAppBrowser =
-    /FBAN|FBAV|FB_IAB|Instagram|Line|Twitter|TikTok|Snapchat/i.test(ua);
-
-  return !isOtheriOSBrowser && !isInAppBrowser;
+  return !/FBAN|FBAV|FB_IAB|Instagram|Line|Twitter|TikTok|Snapchat/i.test(
+    window.navigator.userAgent,
+  );
 }
 
 // Module scope, so both banners share one prompt and consuming it clears both.
@@ -48,7 +45,7 @@ interface IInstallState {
   deferredPrompt: IBeforeInstallPromptEvent | null;
   isStandalone: boolean;
   isIOS: boolean;
-  isIOSSafari: boolean;
+  isIOSInstallCapable: boolean;
   ready: boolean;
 }
 
@@ -56,7 +53,7 @@ const SERVER_STATE: IInstallState = {
   deferredPrompt: null,
   isStandalone: false,
   isIOS: false,
-  isIOSSafari: false,
+  isIOSInstallCapable: false,
   ready: false,
 };
 
@@ -86,7 +83,7 @@ function init() {
   setState({
     isStandalone: detectStandalone(),
     isIOS: detectIOS(),
-    isIOSSafari: detectIOSSafari(),
+    isIOSInstallCapable: detectIOSInstallCapable(),
     ready: true,
   });
 }
@@ -120,13 +117,13 @@ async function promptInstall() {
 }
 
 export function useInstallPrompt() {
-  const { deferredPrompt, isStandalone, isIOS, isIOSSafari, ready } =
+  const { deferredPrompt, isStandalone, isIOS, isIOSInstallCapable, ready } =
     useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   // Only show install UI where installing can actually work.
   const canInstall = deferredPrompt !== null;
   const canShowInstallUI =
-    ready && !isStandalone && (canInstall || isIOSSafari);
+    ready && !isStandalone && (canInstall || isIOSInstallCapable);
 
   return { canInstall, canShowInstallUI, isIOS, isStandalone, promptInstall };
 }
