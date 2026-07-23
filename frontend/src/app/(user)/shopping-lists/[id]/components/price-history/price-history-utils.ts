@@ -13,13 +13,22 @@ function toLocalDateString(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+function fromLocalDateString(value: string): Date {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+const PRICE_ARCHIVE_START = "2025-05-16";
+
 export function getPriceHistoryDates(daysToShow: number): string[] {
   const arr: string[] = [];
   const today = new Date();
-  const START_DATE = new Date("2025-05-16");
+  const startDate = fromLocalDateString(PRICE_ARCHIVE_START);
+  const millisecondsPerDay = 1000 * 60 * 60 * 24;
   const maxDaysFromCap = Math.max(
     0,
-    Math.ceil((today.getTime() - START_DATE.getTime()) / (1000 * 60 * 60 * 24)),
+    Math.floor((today.getTime() - startDate.getTime()) / millisecondsPerDay) +
+      1,
   );
 
   let cappedDays: number;
