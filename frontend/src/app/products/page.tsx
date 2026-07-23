@@ -13,8 +13,7 @@ export const metadata: Metadata = {
 export default async function ProductsPage(props: PageProps<"/products">) {
   const query = readSearchParam(await props.searchParams);
 
-  // ProductsClient reads filter params via useSearchParams, which requires a
-  // Suspense boundary during prerendering.
+  // ProductsClient's useSearchParams needs a Suspense boundary when prerendering.
   return (
     <Suspense
       fallback={

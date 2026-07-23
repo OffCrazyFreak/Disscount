@@ -85,8 +85,7 @@ export default function WatchlistItemModal({
     enabled: open && !isCheckingWatchlist,
   });
 
-  // The badge that opened the modal picks the initial type via the URL; the
-  // component stays mounted between opens, so sync it on change too.
+  // Stays mounted between opens, so the URL's type must sync on change too.
   useEffect(() => {
     if (!open || !watchType) return;
     form.setValue(

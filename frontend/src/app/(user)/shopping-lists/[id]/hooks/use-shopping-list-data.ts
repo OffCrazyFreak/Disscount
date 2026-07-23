@@ -84,8 +84,7 @@ export function useShoppingListData(listId: string) {
       const prices: Record<string, number> = {};
       const stores: Record<string, Record<string, number>> = {};
 
-      // Fetch price data for ALL items, regardless of checked status
-      // This ensures data is always available when toggling items
+      // All items, checked or not, so toggling one never waits on a fetch.
       for (const item of shoppingList.items) {
         const avgPrice = await getAveragePriceForItem(item);
         const itemStorePrices = await getStorePricesForItem(item);

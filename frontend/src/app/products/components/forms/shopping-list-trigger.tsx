@@ -14,8 +14,7 @@ interface IShoppingListTriggerProps extends ComponentPropsWithoutRef<"button"> {
   selectedList: ShoppingListDto | undefined;
 }
 
-// forwardRef + prop spread so the Popover/FormControl asChild wiring
-// (onClick to open, aria/data-state, positioning ref) reaches the Button.
+// forwardRef and prop spread, so the asChild wiring reaches the Button.
 const ShoppingListTrigger = forwardRef<
   HTMLButtonElement,
   IShoppingListTriggerProps

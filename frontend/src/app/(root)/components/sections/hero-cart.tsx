@@ -20,9 +20,7 @@ const IDLE_SPIN = {
   repeatDelay: IDLE_SPIN_EVERY_S,
 } as const;
 
-// Client island around the hero cart: on cursor devices it flips and tilts
-// toward the cursor and hands off to CartChaser once the page scrolls. The
-// SVG itself still server-renders inside this island.
+// A client island whose SVG still server-renders inside it.
 export default function HeroCart() {
   const anchorRef = useRef<HTMLDivElement>(null);
 

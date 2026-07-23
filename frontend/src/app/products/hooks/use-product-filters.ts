@@ -40,9 +40,7 @@ export default function useProductFilters(): IUseProductFiltersResult {
 
   useSeedPreferredFilters();
 
-  // Chains and locations accept a legacy comma-joined value, so links shared
-  // before the move to repeated params still resolve. Categories and brands
-  // come from product data and may contain a comma, so they never split.
+  // Only these two split on commas, so old shared links still resolve.
   const selectedChains = useMemo(
     () => [
       ...new Set(
@@ -73,8 +71,7 @@ export default function useProductFilters(): IUseProductFiltersResult {
     [searchParams],
   );
 
-  // Results are held back through locationsReady while stores load, so an
-  // unresolved location filter stays unfiltered instead of matching nothing.
+  // An unresolved location filter stays unfiltered rather than matching nothing.
   const allowedChains = useMemo(
     () =>
       selectedLocations.length > 0 && locationsLoading

@@ -14,8 +14,7 @@ interface IRemoveItemButtonProps {
   isDeleting: boolean;
 }
 
-// Red X that drops the item from the list. Rendered twice (mobile row and
-// desktop row), so the tooltip and styling live in one place.
+// Rendered in both the mobile and desktop rows, so styling lives in one place.
 export default function RemoveItemButton({
   visibilityClassName,
   onDelete,

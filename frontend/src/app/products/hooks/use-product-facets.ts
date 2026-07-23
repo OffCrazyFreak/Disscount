@@ -65,8 +65,7 @@ export default function useProductFacets(
   const { data: chainsData } = useListChains();
   const { data: locations } = useAllLocations();
 
-  // Same request as the results list (shared React Query cache entry):
-  // facets and visible products always derive from one dataset.
+  // Same request as the results list, so both derive from one cache entry.
   const { data: facetData } = useGetProductByName({
     q: query,
     fuzzy: false,

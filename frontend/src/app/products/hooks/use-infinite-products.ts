@@ -40,9 +40,7 @@ export default function useInfiniteProducts(
   const safeBatchSize =
     Number.isInteger(batchSize) && batchSize > 0 ? batchSize : 50;
 
-  // Single unfiltered request per query; all filters apply client-side over
-  // this same dataset the facet options are computed from, so option counts
-  // always match the visible results.
+  // One unfiltered request, filtered client-side, so facet counts match results.
   const { data, isLoading, error } = useGetProductByName({
     q,
     fuzzy: false,
@@ -80,8 +78,7 @@ export default function useInfiniteProducts(
     batchedProducts.length > 0 ? 1 : 0,
   );
 
-  // Depends on the batches rather than their count, so a filter change that
-  // happens to yield the same number of batches still resets the depth.
+  // Keyed on the batches, not their count, so an equal-length change still resets.
   useEffect(() => {
     setBatchesToShow(batchedProducts.length > 0 ? 1 : 0);
   }, [batchedProducts, q]);

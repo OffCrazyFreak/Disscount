@@ -7,15 +7,13 @@ import { tagLines } from "@/app/(root)/data/landing";
 
 const ROTATE_INTERVAL_MS = 4000;
 
-// SSR always renders the first tagline (deterministic HTML, no hydration
-// mismatch); after mount the rest cross-fade through on an interval.
+// SSR always renders the first tagline, so the HTML stays deterministic.
 export default function HeroTagline() {
   const [index, setIndex] = useState(0);
   const reduced = useReducedMotionSafe();
 
   useEffect(() => {
-    // Reduced-motion users get a random tagline per load instead of the
-    // rotation, so they still see variety without any animation.
+    // Variety without animation: one random tagline per load.
     if (reduced) {
       setIndex(Math.floor(Math.random() * tagLines.length));
       return;

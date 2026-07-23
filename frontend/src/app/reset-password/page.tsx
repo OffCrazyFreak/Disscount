@@ -1,9 +1,6 @@
 import { redirect } from "next/navigation";
 
-// Better Auth's reset/set-password email links land here as
-// /reset-password?token=... We forward to the homepage and open the reset modal
-// there, so the whole auth flow lives in one place (?modal=reset-password). The
-// modal captures the token and strips it from the URL on arrival.
+// Forwards the email link to ?modal=reset-password, keeping auth in one place.
 export default async function ResetPasswordPage(
   props: PageProps<"/reset-password">,
 ) {

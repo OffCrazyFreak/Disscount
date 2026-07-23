@@ -27,8 +27,7 @@ export default function CreateDiscountedListButton({
     .filter((item) => item.product)
     .map((item) => item.product!);
 
-  // The count belongs in the visible text only: as an accessible name it would
-  // re-announce the button every time a price moves.
+  // Visible text only: in the accessible name it would re-announce on every move.
   const actionLabel = "Stvori popis sniženih proizvoda";
   const buttonText = `${actionLabel} (${addableProducts.length})`;
   const isDisabled = isCreating || isLoading || addableProducts.length === 0;
