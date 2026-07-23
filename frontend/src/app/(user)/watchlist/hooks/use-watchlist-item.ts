@@ -12,7 +12,8 @@ import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { formatQuantity } from "@/utils/strings";
 
 export function useWatchlistItem(item: IWatchlistItemWithProduct) {
-  const { watchlistItems, productApiId, product, discountInfo } = item;
+  const { watchlistItems, productApiId, product, discountInfo, isLoading } =
+    item;
   const queryClient = useQueryClient();
   const { user } = useUser();
   const [isRemoving, setIsRemoving] = useState(false);
@@ -51,8 +52,8 @@ export function useWatchlistItem(item: IWatchlistItemWithProduct) {
     }
   }
 
-  // Display product name from API only (no fallback since productName removed from backend)
-  const productName = product?.name || "Učitavanje...";
+  const productName =
+    product?.name || (isLoading ? "Učitavanje..." : "Proizvod nije dostupan");
   const productBrand = product?.brand || null;
   const formattedQuantity = formatQuantity(product?.quantity);
   const quantityWithUnit =
