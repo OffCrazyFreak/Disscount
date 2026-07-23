@@ -10,7 +10,7 @@ interface IResetPasswordModalProps {
   open: boolean;
 }
 
-// The token is stripped from the URL on capture, so it can't leak via history or Referer.
+// The token is captured then removed from the URL via replaceState, so it can't leak via history or Referer.
 export default function ResetPasswordModal({ open }: IResetPasswordModalProps) {
   const { form, token, ready, onSubmit } = useResetPasswordForm(open);
 

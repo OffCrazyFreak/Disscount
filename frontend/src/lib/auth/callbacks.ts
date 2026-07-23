@@ -26,7 +26,7 @@ export async function dispatchResetPasswordEmail(
   }
 }
 
-// Enforces the "one email defines the user" invariant.
+// Reports a linked non-credential account so callers can enforce "one email defines the user".
 export async function hasLinkedSocialAccount(userId: string): Promise<boolean> {
   const rows = await db
     .select({ id: account.id })
