@@ -1,6 +1,7 @@
 import type { Mutation, MutationKey } from "@tanstack/react-query";
 
-// Write-side counterpart to cached-query-keys.ts; replays live in offline-mutations.ts.
+// Write-side counterpart to cached-query-keys.ts. Each key must also be attached to
+// its mutation hook and registered with a replay function in offline-mutations.ts.
 export const OFFLINE_MUTATION_KEYS = {
   shoppingListCreate: ["shoppingLists", "create"],
   shoppingListUpdate: ["shoppingLists", "update"],

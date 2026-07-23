@@ -1,6 +1,8 @@
 import type { QueryKey } from "@tanstack/react-query";
 
-// Single source of truth: anything not listed here is never written to disk.
+// Query-key prefixes whose data is persisted to disk; keep in sync with the keys
+// in lib/cijene-api and lib/api/*. Gates query dehydration only, not the offline
+// mutations persisted separately in persister.ts.
 const PERSISTED_QUERY_KEY_PREFIXES = [
   "cijene", // public product / price / store data
   "shoppingLists",

@@ -8,7 +8,9 @@ interface ICartLogoProps {
 export const CART_VIEW_BOX = "-1 6 68 50.5";
 export const CART_ASPECT_RATIO = 68 / 50.5;
 
-// Inlined so it server-renders and every instance replays its draw-on animation.
+// Inlined so it server-renders and every instance replays its draw-on animation
+// (see .dis-cart-* in globals.css); keep geometry in sync with
+// public/brand/logo/cart/cart-rgb-animated.svg, which exists for PNG exports.
 export default function CartLogo({ className }: ICartLogoProps) {
   return (
     <svg
