@@ -3,6 +3,11 @@
 import { Children, ReactNode } from "react";
 import { motion } from "motion/react";
 import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
+import {
+  itemTagFor,
+  type RevealContainerTag,
+  type RevealItemTag,
+} from "@/components/ui/reveal-elements";
 
 interface StaggerChildrenProps {
   children: ReactNode;
@@ -12,9 +17,8 @@ interface StaggerChildrenProps {
   // Delay between consecutive items.
   stagger?: number;
   duration?: number;
-  // Wrapper + per-item element, so this stays valid inside a <ul>/<tbody>.
-  as?: "div" | "ul" | "ol" | "section";
-  itemAs?: "div" | "li";
+  as?: RevealContainerTag;
+  itemAs?: RevealItemTag;
 }
 
 // Staggered fade + rise reveal for modal/section content; no-op under reduced
@@ -27,18 +31,27 @@ export function StaggerChildren({
   stagger = 0.05,
   duration = 0.25,
   as = "div",
-  itemAs = "div",
+  itemAs,
 }: StaggerChildrenProps) {
   const reduceMotion = useReducedMotionSafe();
   const items = Children.toArray(children);
+  const itemTag = itemTagFor(as, itemAs);
 
   if (reduceMotion) {
     const Fallback = as;
-    return <Fallback className={className}>{children}</Fallback>;
+    const FallbackItem = itemTag;
+
+    return (
+      <Fallback className={className}>
+        {items.map((child, index) => (
+          <FallbackItem key={index}>{child}</FallbackItem>
+        ))}
+      </Fallback>
+    );
   }
 
   const Container = motion[as] as typeof motion.div;
-  const Item = motion[itemAs] as typeof motion.div;
+  const Item = motion[itemTag] as typeof motion.div;
 
   return (
     <Container
