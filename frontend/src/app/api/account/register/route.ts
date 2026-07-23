@@ -13,12 +13,7 @@ const registerSchema = z.object({
   password: passwordSchema,
 });
 
-// Email+password registration that also works when the email already has a social account.
-// It branches server-side and ALWAYS responds the same way, so account existence never leaks:
-//   - new email       -> normal sign-up, which sends the verification email
-//   - existing account -> a reset link (which links a credential for password-less OAuth users),
-//                         worded as "set" or "reset" depending on the account state.
-// Either way the client just shows a neutral "check your inbox" notice.
+// Branches server-side but always responds identically, so existence never leaks.
 export async function POST(request: Request) {
   let body: unknown;
   try {
@@ -49,8 +44,7 @@ export async function POST(request: Request) {
       await auth.api.requestPasswordReset({
         body: {
           email,
-          // No email in the URL (it would leak via history/Referer/logs); the reset page
-          // works off the token alone and the user logs in after setting the password.
+          // No email in the URL: it would leak via history, Referer and logs.
           redirectTo: `${requireEnv("BETTER_AUTH_URL")}/reset-password`,
         },
       });
@@ -60,15 +54,13 @@ export async function POST(request: Request) {
           email,
           password: parsed.data.password,
           name: email.split("@")[0],
-          // After the user clicks the verification link they land back on the
-          // homepage with a success modal (Better Auth signs them in en route).
+          // Better Auth signs them in en route to this success modal.
           callbackURL: "/?modal=email-verified",
         },
       });
     }
   } catch (error) {
-    // Swallow to keep the response identical regardless of branch/outcome (anti-enumeration).
-    // Log only the error name/type - never the raw error, which can carry the email/password.
+    // Swallowed for anti-enumeration; the raw error could carry email or password.
     console.error(
       "Registration handler failed:",
       error instanceof Error ? error.name : typeof error,

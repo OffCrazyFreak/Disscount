@@ -1,9 +1,6 @@
 import { fileToBase64 } from "@/utils/browser/file";
 
-// Downscales an image to fit within maxSize (preserving aspect ratio, never
-// enlarging) and re-encodes it as WebP, returning a base64 data URI. Any format
-// the browser can decode is accepted; undecodable input (e.g. HEIC on Chrome)
-// rejects so the caller can show a friendly message.
+// Rejects on input the browser can't decode, so callers can explain why.
 export default async function resizeImageToWebp(
   file: File,
   maxSize = 256,

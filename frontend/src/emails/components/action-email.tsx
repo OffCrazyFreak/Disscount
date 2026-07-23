@@ -12,9 +12,7 @@ interface IActionEmailProps {
   footnote: string;
 }
 
-// Shared layout for the single-call-to-action transactional emails (verification, password
-// reset, set password, change-email confirmation): a heading, intro copy, one branded button,
-// a plain-text fallback link, and a closing footnote.
+// Shared by every single-call-to-action transactional email.
 export default function ActionEmail({
   preview,
   heading,

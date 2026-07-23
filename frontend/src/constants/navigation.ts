@@ -91,15 +91,6 @@ export const productNavItems: INavigationItem[] = [
 
     showInHeader: false,
   },
-  // {
-  //   id: "categories",
-  //   href: "#",
-  //   label: "Kategorije",
-  //   icon: List,
-
-  //   showInHeader: false,
-  //   isCollapsible: true,
-  // },
   {
     id: "map",
     href: "/map",

@@ -1,8 +1,7 @@
 import { ViewMode } from "@/typings/view-mode";
 import { PeriodOption } from "@/typings/history-period-options";
 
-// Sign-in methods the user can use, persisted to show a "last used" badge.
-// Single source of truth so the type and runtime validation can't drift.
+// One source for the type and its runtime validation, so they can't drift.
 export const LOGIN_METHODS = ["email", "google", "facebook"] as const;
 export type LoginMethod = (typeof LOGIN_METHODS)[number];
 
@@ -30,8 +29,7 @@ export interface IShoppingListsPreferences {
   [key: string]: unknown;
 }
 
-// Unsaved modal-form values so users can close a modal and resume later.
-// Never contains passwords or base64 images (see useFormDraft's exclude).
+// Never holds passwords or base64 images; see useFormDraft's exclude.
 export interface IFormDraft {
   savedAt: number;
   values: Record<string, unknown>;

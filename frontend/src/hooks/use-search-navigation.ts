@@ -29,8 +29,7 @@ export function useSearchNavigation(
   const isOnRoute = normalizePath(pathname) === normalizePath(searchRoute);
   const routeQuery = isOnRoute ? (searchParams.get("q") ?? "") : "";
 
-  // Other params (e.g. active filters) survive a search from the route itself,
-  // while searching from elsewhere starts clean.
+  // Filters survive a search from the route itself; from elsewhere it starts clean.
   const buildSearchUrl = useCallback(
     (query: string) => {
       const params = new URLSearchParams(
@@ -56,8 +55,7 @@ export function useSearchNavigation(
 
   const syncQuery = useCallback(
     (query: string) => {
-      // Navigating re-creates searchParams, which re-runs the caller's effect,
-      // so bail out once the URL already carries what the input holds.
+      // Navigating re-runs the caller's effect, so bail once the URL already matches.
       if (isOnRoute && routeQuery === query) return;
 
       if (query) {

@@ -5,8 +5,7 @@ interface IChangeEmailConfirmationProps {
   newEmail: string;
 }
 
-// Sent to the user's CURRENT address to approve a change before it applies, so a hijacked
-// session can't silently move the account to an attacker's email.
+// Goes to the CURRENT address, so a hijacked session can't move the account.
 export default function ChangeEmailConfirmation({
   confirmUrl,
   newEmail,

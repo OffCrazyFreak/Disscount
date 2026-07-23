@@ -1,5 +1,4 @@
-// Sentry browser/client init. DSN comes from the public env var so it can be set
-// per-environment (build arg in Docker) and no-ops cleanly when unset.
+// The public DSN is set per environment and no-ops cleanly when unset.
 import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({

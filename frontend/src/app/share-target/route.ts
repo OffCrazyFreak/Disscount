@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// PWA share target (see manifest.ts `share_target`). When a user shares text, a
-// title, or a URL from another app into Disscount, funnel the shared string into
-// product search so it becomes the query.
+// Turns anything shared into Disscount (see manifest.ts) into a product search.
 export function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
 

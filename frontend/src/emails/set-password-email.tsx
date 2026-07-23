@@ -4,9 +4,7 @@ interface ISetPasswordEmailProps {
   setPasswordUrl: string;
 }
 
-// Sent when someone registers with an email that already has an OAuth-only account
-// (Google/Facebook) but no password. Wording reads as "finish setting up" rather than
-// "reset", since they are adding email/password login for the first time.
+// For an OAuth-only account adding a password, so it reads "set", not "reset".
 export default function SetPasswordEmail({
   setPasswordUrl,
 }: ISetPasswordEmailProps) {
