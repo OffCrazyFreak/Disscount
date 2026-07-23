@@ -1,6 +1,6 @@
 import { PinnedStoreDto, WatchlistItemDto } from "@/lib/api/types";
 import { normalizeForSearch } from "@/utils/strings";
-import { IGroupedWatchlistItems } from "@/app/(user)/watchlist/utils/watchlist-types";
+import { IGroupedWatchlistItems } from "@/app/(user)/watchlist/typings/watchlist-types";
 
 export function extractPinnedStoreChainCodes(
   pinnedStores: PinnedStoreDto[] | null | undefined,

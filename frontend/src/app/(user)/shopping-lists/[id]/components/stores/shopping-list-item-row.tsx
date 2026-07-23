@@ -13,7 +13,7 @@ import {
   ProductResponse,
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
-import { getChainItemPriceInfo } from "@/app/(user)/shopping-lists/[id]/components/stores/shopping-list-items-table-utils";
+import { getChainItemPriceInfo } from "@/app/(user)/shopping-lists/[id]/utils/shopping-list-items-table-utils";
 
 interface IShoppingListItemRowProps {
   item: ShoppingListItemDto;

@@ -14,8 +14,8 @@ import { ProductResponse } from "@/lib/cijene-api/schemas";
 import {
   ChainSummary,
   ICompleteStoresAnalysis,
-} from "@/app/(user)/shopping-lists/[id]/components/stores/store-chain-types";
-import { getStoreCardMetrics } from "@/app/(user)/shopping-lists/[id]/components/stores/store-card-utils";
+} from "@/app/(user)/shopping-lists/[id]/typings/store-chain-types";
+import { getStoreCardMetrics } from "@/app/(user)/shopping-lists/[id]/utils/store-card-utils";
 import StoreCardHeader from "@/app/(user)/shopping-lists/[id]/components/stores/store-card-header";
 
 interface IShoppingListStoreItemProps {

@@ -4,7 +4,7 @@ import {
   SettingsSection,
 } from "@/components/custom/settings/settings-schema";
 
-function fieldChanged(
+export function fieldChanged(
   values: SettingsFormValues,
   defaults: Partial<SettingsFormValues>,
   field: keyof SettingsFormValues,

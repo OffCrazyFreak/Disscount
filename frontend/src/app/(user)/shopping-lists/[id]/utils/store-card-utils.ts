@@ -4,7 +4,7 @@ import {
   getPriceExtreme,
   PriceExtreme,
 } from "@/app/products/utils/product-utils";
-import { ChainSummary } from "@/app/(user)/shopping-lists/[id]/components/stores/store-chain-types";
+import { ChainSummary } from "@/app/(user)/shopping-lists/[id]/typings/store-chain-types";
 
 interface IStoreCardMetricsParams {
   chain: ChainSummary;

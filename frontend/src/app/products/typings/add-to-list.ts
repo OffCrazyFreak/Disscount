@@ -21,3 +21,9 @@ export const addToListFormSchema = z.object({
 });
 
 export type AddToListFormData = z.infer<typeof addToListFormSchema>;
+
+export interface IProductPricing {
+  storePrices: Record<string, number>;
+  averagePrice: number | null;
+  cheapestStore: string | null;
+}

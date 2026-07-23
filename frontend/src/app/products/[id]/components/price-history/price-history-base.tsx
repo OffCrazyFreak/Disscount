@@ -11,7 +11,7 @@ import { ProductResponse } from "@/lib/cijene-api/schemas";
 import PriceHistoryHeader from "@/app/products/[id]/components/price-history/price-history-header";
 import PriceHistoryControls from "@/app/products/[id]/components/price-history/price-history-controls";
 import PriceHistoryPanel from "@/app/products/[id]/components/price-history/price-history-panel";
-import { usePriceHistoryChart } from "@/app/products/[id]/components/price-history/use-price-history-chart";
+import { usePriceHistoryChart } from "@/app/products/[id]/hooks/use-price-history-chart";
 
 interface IPriceHistoryProps {
   product: ProductResponse;

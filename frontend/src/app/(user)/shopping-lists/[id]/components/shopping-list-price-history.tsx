@@ -17,7 +17,7 @@ import {
   getShoppingListPriceHistoryPeriod,
   setShoppingListPriceHistoryPeriod,
 } from "@/utils/browser/local-storage";
-import { useShoppingListPriceHistory } from "@/app/(user)/shopping-lists/[id]/components/price-history/use-shopping-list-price-history";
+import { useShoppingListPriceHistory } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-price-history";
 import ShoppingListPriceHistoryChart from "@/app/(user)/shopping-lists/[id]/components/price-history/shopping-list-price-history-chart";
 import PriceHistoryToggleHeader from "@/app/(user)/shopping-lists/[id]/components/price-history/price-history-toggle-header";
 

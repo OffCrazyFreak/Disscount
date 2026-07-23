@@ -10,7 +10,7 @@ import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
 import DigitalCardFields from "@/app/(user)/digital-cards/components/forms/digital-card-fields";
-import { useDigitalCardModal } from "@/app/(user)/digital-cards/components/forms/use-digital-card-modal";
+import { useDigitalCardModal } from "@/app/(user)/digital-cards/hooks/use-digital-card-modal";
 import { digitalCardService } from "@/lib/api";
 import { DigitalCardRequest, digitalCardRequestSchema } from "@/lib/api/types";
 import { applyProblemToForm } from "@/lib/api/problem-details";

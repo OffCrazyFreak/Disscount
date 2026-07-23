@@ -10,13 +10,15 @@ import {
   compareStoreChains,
   type StoreOptimizeMode,
 } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
+import { buildChainAggregates } from "@/app/(user)/shopping-lists/[id]/utils/store-chain-aggregate";
 import {
-  buildChainAggregates,
   findCompleteStoresAnalysis,
+  computeAbsolutePrices,
+} from "@/app/(user)/shopping-lists/[id]/utils/store-chain-completeness";
+import {
   countCheapestByChain,
   findHighestPriceStores,
-  computeAbsolutePrices,
-} from "@/app/(user)/shopping-lists/[id]/components/stores/store-chain-analysis-utils";
+} from "@/app/(user)/shopping-lists/[id]/utils/store-chain-extremes";
 
 interface IUseStoreChainAnalysisParams {
   shoppingList: ShoppingListDto;
