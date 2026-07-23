@@ -70,12 +70,7 @@ export function useAllLocations() {
 import { useQueries } from "@tanstack/react-query";
 import { formatDate } from "@/utils/strings";
 import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";
-
-interface IUsePriceHistoryArgs {
-  ean: string;
-  /** Number of days back INCLUDING today. Pass -1 for all available history, capped to not go earlier than 2025-05-16. */
-  days?: number;
-}
+import type { IUsePriceHistoryArgs } from "@/lib/cijene-api/hooks-types";
 
 /**
  * Fetch product price snapshots for the last N days in parallel
