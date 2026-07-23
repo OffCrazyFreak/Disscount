@@ -17,8 +17,8 @@ interface IUseInfiniteProductsOptions {
 interface IUseInfiniteProductsResult {
   visibleProducts: ProductResponse[];
   total: number;
-  hasMore: boolean;
-  loadMore: () => void;
+  /** The search filled the API's result cap, so further matches may exist */
+  isTruncated: boolean;
   isLoading: boolean;
   error: unknown;
 }
@@ -44,10 +44,12 @@ export default function useInfiniteProducts(
   const { data, isLoading, error } = useGetProductByName({
     q,
     fuzzy: false,
-    limit: PRODUCT_SEARCH_LIMIT, // TODO: remove limit
+    limit: PRODUCT_SEARCH_LIMIT, // Raising this needs paging upstream: >100 is a 422.
   });
 
   const allProducts = useMemo(() => data?.products || [], [data?.products]);
+
+  const isTruncated = allProducts.length >= PRODUCT_SEARCH_LIMIT;
 
   const filteredProducts = useMemo(() => {
     const unfiltered =
@@ -108,9 +110,7 @@ export default function useInfiniteProducts(
   return {
     visibleProducts,
     total: filteredProducts.length,
-    hasMore: batchesToShow < batchedProducts.length,
-    loadMore: () =>
-      setBatchesToShow((p) => Math.min(p + 1, batchedProducts.length)),
+    isTruncated,
     isLoading,
     error,
   };

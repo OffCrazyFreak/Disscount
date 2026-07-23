@@ -35,14 +35,12 @@ export default function ProductsClient({ query }: IProductsClientProps) {
     clearFilters,
   } = filters;
 
-  const { visibleProducts, total, isLoading, error } = useInfiniteProducts(
-    query,
-    {
+  const { visibleProducts, total, isTruncated, isLoading, error } =
+    useInfiniteProducts(query, {
       allowedChains,
       selectedCategories,
       selectedBrands,
-    },
-  );
+    });
 
   // A location filter is set but the city -> chains mapping is still loading
   const waitingForLocations = Boolean(query) && !locationsReady;
@@ -66,7 +64,7 @@ export default function ProductsClient({ query }: IProductsClientProps) {
             `Rezultati pretrage za "${query}"${
               isLoading || waitingForLocations
                 ? ""
-                : ` (${total}${total >= 100 ? "+" : ""})`
+                : ` (${total}${isTruncated ? "+" : ""})`
             }`}
         </h3>
 

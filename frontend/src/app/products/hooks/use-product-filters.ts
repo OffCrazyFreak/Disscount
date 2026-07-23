@@ -30,8 +30,8 @@ export interface IUseProductFiltersResult extends IFilterParamsResult {
 
 /**
  * URL-backed filter state for the products page: shareable and
- * back/forward-safe. All four filters apply client-side, since the cijene
- * search endpoint only accepts `q`.
+ * back/forward-safe. All four filters apply client-side: the endpoint's
+ * `chains` filter runs after its limit, so it would starve the facets.
  */
 export default function useProductFilters(): IUseProductFiltersResult {
   const searchParams = useSearchParams();
