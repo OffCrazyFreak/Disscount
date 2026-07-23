@@ -50,7 +50,8 @@ export default function ShoppingListModal({
   const byIdQuery = shoppingListService.useGetShoppingListById(
     isEdit ? (id as string) : "",
   );
-  const shoppingList = isEdit ? (byIdQuery.data ?? cachedList ?? null) : null;
+  const seededList = byIdQuery.isLoading ? cachedList : undefined;
+  const shoppingList = isEdit ? (byIdQuery.data ?? seededList ?? null) : null;
 
   const draftKey = isEdit ? `shopping-list.edit.${id}` : "shopping-list.new";
   const isReady = !isEdit || !!shoppingList;
