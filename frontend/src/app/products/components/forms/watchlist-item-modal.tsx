@@ -18,6 +18,7 @@ import {
   getMinPrice,
 } from "@/app/products/utils/product-utils";
 import WatchlistTypePicker from "@/app/products/components/forms/watchlist-type-picker";
+import FormRootError from "@/components/custom/common/form-root-error";
 import WatchlistThresholdInput from "@/app/products/components/forms/watchlist-threshold-input";
 import { useWatchlistItemForm } from "@/app/products/hooks/use-watchlist-item-form";
 import { useFormDraft } from "@/hooks/use-form-draft";
@@ -146,11 +147,7 @@ export default function WatchlistItemModal({
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-6"
             >
-              {form.formState.errors.root && (
-                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
-                  {form.formState.errors.root.message}
-                </div>
-              )}
+              <FormRootError message={form.formState.errors.root?.message} />
 
               <WatchlistTypePicker />
 
