@@ -82,13 +82,19 @@ export default function ModalRouter() {
     else swapModal({ name: MODE_TO_TARGET_NAME[mode] });
   }
 
+  function handleAuthOpenChange(open: boolean) {
+    if (open) return;
+    setGateMode("login");
+    closeModal();
+  }
+
   return (
     <>
       <AuthModal
         open={showAuthModal}
         mode={authMode}
         message={gateMessage}
-        onOpenChange={(open) => !open && closeModal()}
+        onOpenChange={handleAuthOpenChange}
         onModeChange={handleModeChange}
       />
 
