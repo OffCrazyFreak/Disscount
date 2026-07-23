@@ -67,6 +67,7 @@ export const auth = betterAuth({
     facebook: {
       clientId: FACEBOOK_CLIENT_ID,
       clientSecret: FACEBOOK_CLIENT_SECRET,
+      // Defaults to scopes ["email", "public_profile"] plus the "picture" field.
       // Email is required: a login returning none fails and surfaces to the user.
     },
   },
@@ -74,7 +75,9 @@ export const auth = betterAuth({
   account: {
     accountLinking: {
       enabled: true,
-      // Auto-links by shared email; the gate's verified requirement is met below.
+      // Auto-links by shared email; the gate requires the EXISTING account verified,
+      // satisfied by marking OAuth emails verified below rather than the deprecated
+      // requireLocalEmailVerified flag.
       trustedProviders: ["google", "facebook"],
     },
   },
@@ -82,7 +85,8 @@ export const auth = betterAuth({
   databaseHooks: {
     account: {
       create: {
-        // The provider owns the email, so verify it; credential signups keep their gate.
+        // The provider owns the email, so verify it on OAuth account creation. Checking
+        // providerId here (not the request path) can't accidentally verify a credential signup.
         after: async (createdAccount, ctx) => {
           if (!ctx || createdAccount.providerId === "credential") return;
 
@@ -94,7 +98,8 @@ export const auth = betterAuth({
     },
     user: {
       update: {
-        // Re-checks at apply time, closing the link-during-confirmation race.
+        // Re-checks at apply time (the /api/account/change-email POST guard only checks
+        // at request time), closing the link-during-confirmation race.
         before: async (userData, ctx) => {
           const changingEmail = typeof userData.email === "string";
           const userId = ctx?.context.session?.user.id;

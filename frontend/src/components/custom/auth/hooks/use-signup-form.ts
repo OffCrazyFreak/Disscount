@@ -25,7 +25,7 @@ export function useSignupForm() {
     form.clearErrors("root");
 
     try {
-      // The endpoint responds identically either way, so it can't enumerate accounts.
+      // Identical response for new and existing accounts (verification vs reset link), so no enumeration.
       const response = await fetch("/api/account/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

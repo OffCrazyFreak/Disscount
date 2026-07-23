@@ -9,7 +9,8 @@ import { account } from "@/db/auth-schema";
 
 const bodySchema = z.object({ newEmail: z.email() });
 
-// Blocks the change while any social account is linked, whatever UI calls it.
+// Enforces the single-email identity invariant: block the change while a social
+// account is linked, so provider login can't later carry a different email.
 export async function POST(request: Request) {
   let body: unknown;
   try {

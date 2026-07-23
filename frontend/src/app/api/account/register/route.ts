@@ -15,7 +15,9 @@ const registerSchema = z.object({
   password: passwordSchema,
 });
 
-// Branches server-side but always responds identically, so existence never leaks.
+// Always responds identically so existence never leaks: a new email gets a normal
+// sign-up (and verification email), an existing account gets a reset link (which also
+// links a credential for OAuth-only users). The client only ever sees a neutral notice.
 export async function POST(request: Request) {
   let body: unknown;
   try {
