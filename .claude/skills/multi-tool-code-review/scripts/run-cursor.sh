@@ -2,23 +2,20 @@
 # Detached, resumable Cursor runner. Free tier, scarce quota; auto-resumes.
 # --force bypasses the workspace-trust prompt in non-interactive mode.
 set -u
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$(git rev-parse --show-toplevel)" || exit 1
 export PATH="$HOME/.cursor/bin:$HOME/.local/bin:$PATH"
+source "$SCRIPT_DIR/_common.sh"
 
 BASE="${REVIEW_BASE:-main}"
+TARGET="${REVIEW_TARGET:-HEAD}"
 OUT="reviews/_review-run/cursor"
 STATUS="$OUT/_STATUS.txt"
 mkdir -p "$OUT"
 
-# Fewer folders than CodeRabbit; Cursor's free quota is scarce.
-DIRS=(
-  "frontend/src/app/(root)"
-  "frontend/src/app/products"
-  "frontend/src/app/(user)/shopping-lists"
-  "frontend/src/components/custom"
-  "frontend/src/lib"
-  "backend/src/main/java"
-)
+# Cursor's free quota is scarce, so keep the folder count small with a lower
+# REVIEW_MAX_DIRS when launching this runner. Folders auto-detect from the diff.
+mapfile -t DIRS < <(review_dirs "$BASE" "$TARGET")
 
 echo "=== Cursor run started $(date) ===" >>"$STATUS"
 for dir in "${DIRS[@]}"; do

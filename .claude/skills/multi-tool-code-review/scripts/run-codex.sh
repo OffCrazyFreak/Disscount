@@ -2,25 +2,23 @@
 # Detached, resumable Codex runner (ChatGPT Plus). Read-only verifier on the
 # high-risk folders. Feeds Codex a unified diff on stdin so it never edits.
 set -u
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$(git rev-parse --show-toplevel)" || exit 1
 # Codex ships next to node under nvm; adjust if installed elsewhere.
 for d in "$HOME"/.local/share/nvm/*/bin; do [ -d "$d" ] && PATH="$d:$PATH"; done
 export PATH="$HOME/.local/bin:$PATH"
+source "$SCRIPT_DIR/_common.sh"
 
 BASE="${REVIEW_BASE:-main}"
+TARGET="${REVIEW_TARGET:-HEAD}"
+EFFORT="${REVIEW_CODEX_EFFORT:-medium}"
 OUT="reviews/_review-run/codex"
 STATUS="$OUT/_STATUS.txt"
 mkdir -p "$OUT"
 
-# The riskiest logic only; Codex is the verifier, not the broad sweep.
-DIRS=(
-  "frontend/src/hooks"
-  "frontend/src/lib/modal"
-  "frontend/src/lib/api"
-  "frontend/src/app/products/hooks"
-  "frontend/src/components/custom/settings"
-  "backend/src/main/java"
-)
+# Codex is the verifier on the riskiest logic, not the broad sweep. Point it at
+# fewer, higher-risk folders via REVIEW_DIRS; otherwise it auto-detects busiest.
+mapfile -t DIRS < <(review_dirs "$BASE" "$TARGET")
 
 echo "=== Codex run started $(date) ===" >>"$STATUS"
 for dir in "${DIRS[@]}"; do
@@ -32,7 +30,7 @@ for dir in "${DIRS[@]}"; do
     echo "[$(date +%H:%M)] SKIP done: $dir" >>"$STATUS"
     continue
   }
-  git diff "$BASE"...HEAD -- "$dir" >"$dfile"
+  git diff "$BASE"..."$TARGET" -- "$dir" >"$dfile"
   [ -s "$dfile" ] || {
     touch "$done_marker"
     echo "[$(date +%H:%M)] EMPTY diff, skip: $dir" >>"$STATUS"
@@ -42,7 +40,7 @@ for dir in "${DIRS[@]}"; do
   waits=0
   while :; do
     echo "[$(date +%H:%M)] REVIEW dir=$dir" >>"$STATUS"
-    timeout 900 codex exec -s read-only -c model_reasoning_effort="medium" -o "$out" "$prompt" <"$dfile" >"$out.log" 2>&1
+    timeout 900 codex exec -s read-only -c model_reasoning_effort="$EFFORT" -o "$out" "$prompt" <"$dfile" >"$out.log" 2>&1
     if grep -qE '^SEVERITY:|CLEAN' "$out" 2>/dev/null; then
       touch "$done_marker"
       echo "         OK" >>"$STATUS"

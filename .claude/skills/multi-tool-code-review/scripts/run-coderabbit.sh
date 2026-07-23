@@ -4,27 +4,20 @@
 # Success is detected by the completion marker only, never by grepping the
 # review text (which echoes code that can contain "quota"/"429"/hashes).
 set -u
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$(git rev-parse --show-toplevel)" || exit 1
 export PATH="$HOME/.local/bin:$HOME/.cursor/bin:$PATH"
+source "$SCRIPT_DIR/_common.sh"
 
 BASE="${REVIEW_BASE:-main}"
+TARGET="${REVIEW_TARGET:-HEAD}"
 OUT="reviews/_review-run/cr"
 STATUS="$OUT/_STATUS.txt"
 mkdir -p "$OUT"
 
-# High-value folders only. Edit per app / per review scope.
-DIRS=(
-  "frontend/src/app/(root)"
-  "frontend/src/app/products"
-  "frontend/src/app/(user)/shopping-lists"
-  "frontend/src/app/(user)/watchlist"
-  "frontend/src/app/(user)/digital-cards"
-  "frontend/src/components/custom"
-  "frontend/src/components/ui"
-  "frontend/src/lib"
-  "frontend/src/hooks"
-  "backend/src/main/java"
-)
+# Folders are auto-detected from the diff (or REVIEW_DIRS). CodeRabbit reviews
+# the checked-out branch versus BASE, so check out the target branch first.
+mapfile -t DIRS < <(review_dirs "$BASE" "$TARGET")
 
 echo "=== CR run started $(date) ===" >>"$STATUS"
 for dir in "${DIRS[@]}"; do
