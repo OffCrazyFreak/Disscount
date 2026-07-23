@@ -69,7 +69,7 @@ public class UserService {
                     ? AccountType.ADMIN
                     : AccountType.CONSUMER;
             String username = seedUsername(name, email);
-            // Service notifications default ON; marketing consents (newsletter/feedback) stay OFF.
+            // Every switch starts ON; the stamped timestamp is what the settings form reads back.
             LocalDateTime now = LocalDateTime.now();
             try {
                 userRepository.save(User.builder()
@@ -79,6 +79,8 @@ public class UserService {
                         .accountType(accountType)
                         .notificationsPushEnabledAt(now)
                         .notificationsEmailEnabledAt(now)
+                        .newsletterEnabledAt(now)
+                        .feedbackContactEnabledAt(now)
                         .build());
             } catch (DataIntegrityViolationException ignored) {
                 // Concurrent first-login race: the other request won - profile already exists

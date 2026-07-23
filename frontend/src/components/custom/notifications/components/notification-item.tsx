@@ -27,7 +27,7 @@ export default function NotificationItem({
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-2">
           <div>
-            <h4 className="text-sm text text-pretty hover:text-primary transition-colors text-gray-900">
+            <h4 className="text-sm text-pretty hover:text-primary transition-colors text-foreground">
               {notification.productName}
               {quantityWithUnit ? ` (${quantityWithUnit})` : ""}
             </h4>

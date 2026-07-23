@@ -48,7 +48,9 @@ export default function DigitalCardItem({
     <Card className="p-4 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
-          <h3 className="font-semibold text-lg">{digitalCard.title}</h3>
+          <h3 className="font-semibold text-lg text-pretty">
+            {digitalCard.title}
+          </h3>
           <div className="flex items-center gap-2 mt-1">
             <Badge variant="primary">{digitalCard.type}</Badge>
             <Badge variant="outline">{digitalCard.codeType}</Badge>

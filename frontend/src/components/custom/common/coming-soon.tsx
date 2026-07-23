@@ -16,7 +16,7 @@ export default function ComingSoon({
 }: IComingSoonProps) {
   return (
     <div className="space-y-6">
-      {title && <h1 className="text-3xl font-bold">{title}</h1>}
+      {title && <h1 className="text-3xl font-bold text-pretty">{title}</h1>}
 
       <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed py-16 px-6 text-center">
         {icon ?? <Construction className="size-12 text-primary" />}

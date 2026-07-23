@@ -22,7 +22,7 @@ export default function LegalPage({
           Pravni dokumenti
         </p>
 
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl text-pretty">
           <span className="text-primary">{title}</span>
         </h1>
 

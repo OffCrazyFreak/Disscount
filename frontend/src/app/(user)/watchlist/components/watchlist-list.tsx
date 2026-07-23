@@ -47,7 +47,7 @@ export default function WatchlistList({
   return (
     <div className="text-center py-12">
       <Eye className="size-12 text-gray-400 mx-auto mb-4" />
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+      <h3 className="text-lg font-semibold text-foreground mb-2">
         Nema praćenih proizvoda
       </h3>
 

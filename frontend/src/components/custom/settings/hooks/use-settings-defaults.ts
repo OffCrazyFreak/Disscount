@@ -29,10 +29,9 @@ export function useSettingsDefaults() {
     () => ({
       username: user?.username ?? "",
       acquisitionChannel: user?.acquisitionChannel ?? null,
-      // Coming-soon and disabled, so these show a fixed default, not the stored flag.
-      notificationsPush: true,
-      notificationsEmail: false,
-      newsletter: true,
+      notificationsPush: !!user?.notificationsPushEnabledAt,
+      notificationsEmail: !!user?.notificationsEmailEnabledAt,
+      newsletter: !!user?.newsletterEnabledAt,
       feedbackContact: !!user?.feedbackContactEnabledAt,
       pinnedStores: pinnedStores.map((store) => store.storeApiId),
       pinnedPlaces: pinnedPlaces.map((place) => place.placeName),

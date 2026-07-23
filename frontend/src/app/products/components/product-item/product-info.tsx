@@ -19,7 +19,7 @@ const ProductInfo = memo(function ProductInfo({
         <div className="text-xs sm:text-sm text-gray-500">{category}</div>
       )}
 
-      <h3 className="font-bold text-sm sm:text-md">
+      <h3 className="font-bold text-sm sm:text-base text-pretty">
         {name || "Unknown product name"}
       </h3>
 

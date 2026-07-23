@@ -12,7 +12,9 @@ export default function LegalSection({
 }: ILegalSectionProps) {
   return (
     <section className="space-y-2">
-      <h2 className="text-lg font-semibold tracking-tight">{heading}</h2>
+      <h2 className="text-lg font-semibold tracking-tight text-pretty">
+        {heading}
+      </h2>
       <div className="space-y-2 text-pretty leading-relaxed text-muted-foreground">
         {children}
       </div>
