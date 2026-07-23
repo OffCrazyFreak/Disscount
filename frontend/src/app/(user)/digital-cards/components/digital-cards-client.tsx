@@ -106,7 +106,7 @@ export default function DigitalCardsClient({ query }: { query: string }) {
         ) : (
           <div className="text-center py-12">
             <CreditCard className="size-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-foreground mb-2">
               Nema digitalnih kartica
             </h3>
 

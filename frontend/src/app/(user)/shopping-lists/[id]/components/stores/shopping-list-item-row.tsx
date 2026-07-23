@@ -109,7 +109,7 @@ export default function ShoppingListItemRow({
                 ? "font-medium text-green-600"
                 : isHighestPrice
                   ? "font-medium text-red-700"
-                  : "font-medium text-gray-900",
+                  : "font-medium text-foreground",
             )}
           >
             {total.toFixed(2)}€

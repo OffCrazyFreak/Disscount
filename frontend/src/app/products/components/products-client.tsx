@@ -77,7 +77,7 @@ export default function ProductsClient({ query }: { query: string }) {
       ) : error ? (
         <div className="text-center py-12">
           <Search className="size-12 text-red-700 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-lg font-semibold text-foreground mb-2">
             Greška pri pretraživanju
           </h3>
           <p className="text-gray-600 mb-6">
@@ -126,7 +126,7 @@ export default function ProductsClient({ query }: { query: string }) {
       ) : activeFilterCount > 0 ? (
         <div className="text-center py-12">
           <SlidersHorizontal className="size-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-lg font-semibold text-foreground mb-2">
             Unesi pojam za pretragu
           </h3>
           <p className="text-gray-600 mb-6">
@@ -136,7 +136,7 @@ export default function ProductsClient({ query }: { query: string }) {
       ) : (
         <div className="text-center py-12">
           <Search className="size-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-lg font-semibold text-foreground mb-2">
             Pretraži proizvode
           </h3>
           <p className="text-gray-600 mb-6">

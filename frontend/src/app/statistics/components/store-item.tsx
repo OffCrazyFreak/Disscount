@@ -53,7 +53,7 @@ const StoreItem = memo(
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-semibold text-gray-900">
+                      <h3 className="font-semibold text-foreground">
                         {getChainLabel(stat.chain_code)}
                       </h3>
 

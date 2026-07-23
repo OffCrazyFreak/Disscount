@@ -60,7 +60,7 @@ export default function StoreCardHeader({
               <ArrowBigUpDash className="size-5 text-red-700 flex-shrink-0" />
             )}
 
-            <h3 className="font-semibold text-gray-900">
+            <h3 className="font-semibold text-foreground">
               {getChainLabel(chain.chain)}
             </h3>
 

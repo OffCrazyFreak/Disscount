@@ -22,7 +22,7 @@ export default function ProductDetailClient({ ean }: { ean: string }) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          <h2 className="text-xl font-semibold text-foreground mb-2">
             Proizvod nije pronađen
           </h2>
 

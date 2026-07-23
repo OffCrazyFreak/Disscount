@@ -28,7 +28,7 @@ export default function ShoppingListHeader({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <h1 className="text- sm:text-2xl font-bold truncate min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold truncate min-w-0">
                 {shoppingList.title}
               </h1>
             </TooltipTrigger>
