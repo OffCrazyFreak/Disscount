@@ -565,6 +565,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .spinner_9y7u {
+    animation: none;
+  }
   .animate-dis-draw {
     stroke-dasharray: none;
     stroke-dashoffset: 0;
