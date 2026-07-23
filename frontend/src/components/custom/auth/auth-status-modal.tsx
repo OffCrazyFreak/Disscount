@@ -25,7 +25,8 @@ interface IAuthStatusModalProps {
   kind: StatusKind;
 }
 
-// Better Auth already signed them in on the way back, so this only confirms.
+// Reached via ?modal=email-verified|email-changed after the redirect; Better Auth
+// already signed them in on the way back, so this only confirms.
 export default function AuthStatusModal({ open, kind }: IAuthStatusModalProps) {
   const { refreshUser } = useUser();
   const copy = STATUS_COPY[kind];

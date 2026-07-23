@@ -84,6 +84,7 @@ export function ModalShell({
         onEscapeKeyDown={(e) => preventClose && e.preventDefault()}
         onInteractOutside={(e) => preventClose && e.preventDefault()}
         // Focus the container, not the first control, which would pop its tooltip.
+        // Inputs with autoFocus still focus themselves via the DOM.
         onOpenAutoFocus={(e) => {
           e.preventDefault();
           (e.currentTarget as HTMLElement | null)?.focus();

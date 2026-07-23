@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
-// Forwards the email link to ?modal=reset-password, keeping auth in one place.
+// Forwards the email link to ?modal=reset-password; the modal there captures the
+// token and strips it from the URL, so it never lingers in history.
 export default async function ResetPasswordPage(
   props: PageProps<"/reset-password">,
 ) {

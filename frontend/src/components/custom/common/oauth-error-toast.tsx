@@ -24,6 +24,8 @@ const ERROR_MESSAGES: Record<string, string> = {
 const DEFAULT_MESSAGE = "Došlo je do greške pri prijavi. Pokušaj ponovo.";
 
 // Mounted app-wide, since linking errors happen while the auth modal is unmounted.
+// Reads ?error= via useSearchParams, not window.location, which loses a race with
+// the URL rewrite during session load.
 export default function OAuthErrorToast() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
