@@ -32,17 +32,21 @@ export default function LinkedAccounts() {
   const linkedSocials = accounts.filter((a) => a.providerId !== "credential");
   const signInMethods = (hasPassword ? 1 : 0) + linkedSocials.length;
 
+  function reportLinkFailure() {
+    setPending(null);
+    toast.error("Greška pri povezivanju računa.");
+  }
+
   async function link(provider: SocialProvider) {
     setPending(provider);
-    const { error } = await authClient.linkSocial({
-      provider,
-      callbackURL: "/?modal=settings/sigurnost",
-    });
-
-    // Success redirects to the provider; we only reach here on failure, so release the lock.
-    if (error) {
-      setPending(null);
-      toast.error("Greška pri povezivanju računa.");
+    try {
+      const { error } = await authClient.linkSocial({
+        provider,
+        callbackURL: "/?modal=settings/sigurnost",
+      });
+      if (error) throw error;
+    } catch {
+      reportLinkFailure();
     }
   }
 
