@@ -5,12 +5,12 @@ export const contactMessageRequestSchema = z.object({
   email: z.email("Neispravan e-mail").or(z.literal("")).optional(),
   fullName: z
     .string()
-    .max(100, "Ime može imati najviše 100 znakova")
+    .max(255, "Ime može imati najviše 255 znakova")
     .optional(),
   subject: z
     .string()
     .min(1, "Naslov je obavezan")
-    .max(150, "Naslov može imati najviše 150 znakova"),
+    .max(255, "Naslov može imati najviše 255 znakova"),
   message: z
     .string()
     .min(1, "Poruka je obavezna")
