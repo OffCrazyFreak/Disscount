@@ -87,10 +87,31 @@ export const productNavItems: INavigationItem[] = [
     href: "/products?discounted=true",
     label: "Popusti",
     icon: Percent,
+    // TODO(#83): the price API cannot filter by discount yet.
     comingSoon: true,
 
     showInHeader: false,
   },
+  // TODO(#82): parked until the price API exposes a category taxonomy.
+  // {
+  //   id: "categories",
+  //   href: "#",
+  //   label: "Kategorije",
+  //   icon: List,
+
+  //   showInHeader: false,
+  //   isCollapsible: true,
+  // },
+  // TODO(#84): parked until the price API can list and filter by brand.
+  // {
+  //   id: "brands",
+  //   href: "#",
+  //   label: "Marke",
+  //   icon: Tag,
+
+  //   showInHeader: false,
+  //   isCollapsible: true,
+  // },
   {
     id: "map",
     href: "/map",
