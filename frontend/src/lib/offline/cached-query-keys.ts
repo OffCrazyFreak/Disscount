@@ -1,9 +1,6 @@
 import type { QueryKey } from "@tanstack/react-query";
 
-// Top-level query-key prefixes whose data we persist to IndexedDB for offline
-// use. Single source of truth - keep in sync with the query keys defined in
-// lib/cijene-api and lib/api/*. Anything not listed here is never written to
-// disk (e.g. admin data).
+// Single source of truth: anything not listed here is never written to disk.
 const PERSISTED_QUERY_KEY_PREFIXES = [
   "cijene", // public product / price / store data
   "shoppingLists",
@@ -13,8 +10,7 @@ const PERSISTED_QUERY_KEY_PREFIXES = [
   "pinnedStores",
   "pinnedPlaces",
   "users", // current user profile (["users", "me"])
-  // TODO(offline): add keys for coming-soon features when they ship -
-  //   potrošnja (/spending), novosti (/updates), karta (/map).
+  // TODO(offline): add /spending, /updates and /map keys when those ship.
 ] as const;
 
 type PersistedQueryKeyPrefix = (typeof PERSISTED_QUERY_KEY_PREFIXES)[number];

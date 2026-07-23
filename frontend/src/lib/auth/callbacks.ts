@@ -4,11 +4,7 @@ import { db } from "@/db";
 import { account } from "@/db/auth-schema";
 import { emailService } from "@/lib/email";
 
-// The reset flow is reused for two cases that read very differently to the user:
-//   - an OAuth-only account adding a password for the first time  -> "set your password"
-//   - an account that already has a password resetting it          -> "reset your password"
-// We pick the wording by checking whether a credential account already exists, so the same
-// secure token mechanism serves both the forgot-password and register-existing-email flows.
+// One token mechanism, two wordings: "set" for OAuth-only accounts, "reset" otherwise.
 export async function dispatchResetPasswordEmail(
   userId: string,
   email: string,
@@ -30,8 +26,7 @@ export async function dispatchResetPasswordEmail(
   }
 }
 
-// Returns whether the user has any non-credential (social) account linked. Used to enforce the
-// "one email defines the user" invariant.
+// Enforces the "one email defines the user" invariant.
 export async function hasLinkedSocialAccount(userId: string): Promise<boolean> {
   const rows = await db
     .select({ id: account.id })
@@ -44,8 +39,7 @@ export async function hasLinkedSocialAccount(userId: string): Promise<boolean> {
   return rows.length > 0;
 }
 
-// Non-PII rejection handler for the fire-and-forget email sends, so a failed dispatch surfaces
-// in logs instead of becoming an unhandled rejection (without logging recipient addresses).
+// Logs a failed fire-and-forget send without ever logging the recipient address.
 export function logEmailFailure(kind: string) {
   return (error: unknown) => {
     console.error(

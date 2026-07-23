@@ -13,8 +13,7 @@ export interface IEmailResult {
   error: string | null;
 }
 
-// Provider-agnostic email transport. The email service and templates depend only on this
-// interface, so swapping the sender (Resend now, Infobip later) touches a single file.
+// Service and templates depend only on this, so the sender swaps in one file.
 export interface IEmailProvider {
   send(message: IEmailMessage): Promise<IEmailResult>;
 }

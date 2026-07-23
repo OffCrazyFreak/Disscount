@@ -1,5 +1,4 @@
-// Reads a required server env var, throwing at module load if it's missing so a
-// misconfigured deploy fails fast on boot instead of silently at request time.
+// Throws at module load, so a misconfigured deploy fails on boot, not per request.
 export function requireEnv(name: string): string {
   const value = process.env[name];
 
