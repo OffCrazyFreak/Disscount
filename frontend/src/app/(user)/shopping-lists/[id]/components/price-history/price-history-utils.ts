@@ -146,6 +146,9 @@ export function buildChartConfig(
   return cfg;
 }
 
+const AXIS_DECIMALS = 2;
+const AXIS_MIN_STEP = 10 ** -AXIS_DECIMALS;
+
 // Round a target step up to a "nice" 1/2/5 x 10^n value, aiming for ~6 ticks.
 function niceAxisStep(range: number): number {
   if (range <= 0) return 1;
@@ -154,7 +157,7 @@ function niceAxisStep(range: number): number {
   const normalized = target / magnitude;
   const nice =
     normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
-  return nice * magnitude;
+  return Math.max(nice * magnitude, AXIS_MIN_STEP);
 }
 
 export function calculateYAxisTicks(chartData: ChartDataPoint[]): number[] {
@@ -179,7 +182,7 @@ export function calculateYAxisTicks(chartData: ChartDataPoint[]): number[] {
   const end = Math.ceil(paddedMax / step) * step;
 
   for (let i = start; i <= end; i += step) {
-    ticks.push(parseFloat(i.toFixed(2)));
+    ticks.push(parseFloat(i.toFixed(AXIS_DECIMALS)));
   }
 
   return ticks;
