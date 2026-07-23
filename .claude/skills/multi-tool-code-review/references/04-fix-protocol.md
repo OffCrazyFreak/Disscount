@@ -15,6 +15,7 @@ How to implement the findings the user selected. The goal is a clean, reviewable
 - Honesty rules (do not fabricate or silently skip)
 - Docs sync (via the document-subsystem skill)
 - GitHub issues for the rest
+- Closing an issue the fix pass resolved
 - Open the PR
 
 ## Plan mode first
@@ -58,8 +59,12 @@ Changes:
 Brief reason.
 
 Notes:
-- Review finding #<n>
+- Review finding <n> (reviews/REVIEW-<date>-BY-AREA.md)
 ```
+
+**Never write a review-finding number as `#<n>`.** GitHub auto-links a bare `#12` in a commit message to _issue_ 12 and posts a cross-reference on it, so citing review-doc row numbers that way spams unrelated issues with false backlinks. Write the number plain and name the doc. Use `#<n>` only for a real issue or PR number.
+
+Also note that `Closes #<n>` only auto-closes when the commit lands on the repository's **default** branch. When the PR targets an integration branch (`dev`), the keyword stays inert until that branch merges up, so close the issue manually instead (see below) rather than assuming GitHub did it.
 
 Two findings that are literally the same edit share one commit and cite both IDs. Everything else is its own commit. This is an auto-commit workflow (a standing "never commit unless asked" rule is intentionally suspended for the fix phase, because the user asked for per-finding commits). No `Co-Authored-By` trailer. No em dashes.
 
@@ -115,6 +120,16 @@ Write each issue so it is **self-contained**: a maintainer should understand the
 - **Trail**: the review finding number, plus links to the PR or commits that touched the area.
 
 Apply labels (create `security` / `tech-debt` / `accessibility` if missing). Group tiny leftovers into one checklist issue, but keep each checklist line specific enough to act on by itself.
+
+## Closing an issue the fix pass resolved
+
+Because `Closes #<n>` does not fire from an integration branch, close it yourself and leave a comment that stands on its own:
+
+- The **full 40-character SHA** (short hashes go stale after a rebase) plus the branch and PR it landed in.
+- What actually changed structurally: new helpers, where they now live, what got deduplicated.
+- **Anything extra you discovered while fixing it** that the issue did not mention. This is the highest-value part; it turns the issue into the record of what was really wrong, not just what was reported.
+
+Cross-link both directions: the issue names the commit, the commit names the finding and the doc.
 
 ## Open the PR
 
