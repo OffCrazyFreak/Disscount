@@ -88,6 +88,11 @@ export default function ModalRouter() {
     closeModal();
   }
 
+  function handleAuthSuccess() {
+    setGateMode("login");
+    if (!needsAuthGate) closeModal();
+  }
+
   return (
     <>
       <AuthModal
@@ -96,6 +101,7 @@ export default function ModalRouter() {
         message={gateMessage}
         onOpenChange={handleAuthOpenChange}
         onModeChange={handleModeChange}
+        onSuccess={handleAuthSuccess}
       />
 
       <ResetPasswordModal open={target?.name === "reset-password"} />

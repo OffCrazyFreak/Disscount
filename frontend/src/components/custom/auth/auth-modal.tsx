@@ -34,6 +34,7 @@ interface IAuthModalProps {
   message?: string;
   onOpenChange: (open: boolean) => void;
   onModeChange: (mode: AuthMode) => void;
+  onSuccess: () => void;
 }
 
 export default function AuthModal({
@@ -42,6 +43,7 @@ export default function AuthModal({
   message,
   onOpenChange,
   onModeChange,
+  onSuccess,
 }: IAuthModalProps) {
   const [socialPending, setSocialPending] = useState<SocialProvider | null>(
     null,
@@ -75,7 +77,7 @@ export default function AuthModal({
           lastLoginMethod={lastLoginMethod}
           socialPending={socialPending}
           onPendingChange={setSocialPending}
-          onSuccess={() => onOpenChange(false)}
+          onSuccess={onSuccess}
           onForgotPassword={() => onModeChange("forgot")}
         />
       )}
