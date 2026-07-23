@@ -1,9 +1,8 @@
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PeriodOption } from "@/typings/history-period-options";
 
+// Selection lives in the parent Radix Tabs context; each trigger carries its value.
 interface IPriceHistoryPeriodSelectProps {
-  value: string;
-  onChange: (value: string) => void;
   disabledPeriods?: PeriodOption[];
 }
 

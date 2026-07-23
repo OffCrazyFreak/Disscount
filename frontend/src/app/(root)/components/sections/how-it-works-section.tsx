@@ -1,4 +1,4 @@
-import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import { ScrollReveal } from "@/components/custom/animation/scroll-reveal";
 import SectionHeading from "@/app/(root)/components/sections/section-heading";
 import BarcodeDoodle from "@/app/(root)/components/doodles/barcode-doodle";
 import ScaleDoodle from "@/app/(root)/components/doodles/scale-doodle";

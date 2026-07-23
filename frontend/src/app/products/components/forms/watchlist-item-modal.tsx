@@ -3,21 +3,22 @@
 import { useEffect } from "react";
 import { Eye, Save, TriangleAlert } from "lucide-react";
 
-import { ModalShell } from "@/components/ui/modal-shell";
+import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
-import { RemoveIconButton } from "@/components/ui/remove-icon-button";
+import { RemoveIconButton } from "@/components/custom/common/remove-icon-button";
 import { WatchType } from "@/lib/api";
 import cijeneService from "@/lib/cijene-api";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import type { WatchTypeParam } from "@/lib/modal/modal-registry";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
-import { Banner } from "@/components/ui/banner";
+import { Banner } from "@/components/custom/common/banner";
 import {
   getAveragePrice,
   getMinPrice,
 } from "@/app/products/utils/product-utils";
 import WatchlistTypePicker from "@/app/products/components/forms/watchlist-type-picker";
+import FormRootError from "@/components/custom/common/form-root-error";
 import WatchlistThresholdInput from "@/app/products/components/forms/watchlist-threshold-input";
 import { useWatchlistItemForm } from "@/app/products/hooks/use-watchlist-item-form";
 import { useFormDraft } from "@/hooks/use-form-draft";
@@ -146,6 +147,8 @@ export default function WatchlistItemModal({
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-6"
             >
+              <FormRootError message={form.formState.errors.root?.message} />
+
               <WatchlistTypePicker />
 
               {alertMessage && !isCheckingWatchlist && (

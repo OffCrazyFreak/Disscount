@@ -11,12 +11,14 @@ import CopyrightIcon from "@/components/icons/copyright-icon";
 import { GITHUB_REPO_URL, LINKEDIN_URL } from "@/constants/contact";
 
 export default function FooterSection() {
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="mt-auto">
       <div className="m-4">
         <div className="bg-background/50 mx-auto max-w-5xl rounded-2xl border backdrop-blur-sm p-6 flex flex-col items-center gap-4 sm:flex-row sm:flex-wrap sm:justify-between sm:gap-2">
           <div
-            aria-label="Copyright Jakov Jakovac 2025"
+            aria-label={`Copyright Jakov Jakovac ${currentYear}`}
             className="text-muted-foreground text-xs sm:text-sm flex items-center justify-center sm:justify-start gap-2"
           >
             <Link href="/" className="flex items-center space-x-2">
@@ -31,7 +33,7 @@ export default function FooterSection() {
             <CopyrightIcon size={14} />
 
             <span className="whitespace-nowrap">
-              Jakov Jakovac {new Date().getFullYear()}
+              Jakov Jakovac {currentYear}
             </span>
           </div>
 

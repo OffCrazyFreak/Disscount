@@ -1,9 +1,9 @@
 import { getAppStorage, setAppStorage } from "@/utils/browser/storage/core";
-import type { FormDraft } from "@/typings/local-storage";
+import type { IFormDraft } from "@/typings/local-storage";
 
 const DRAFT_TTL_MS = 24 * 60 * 60 * 1000;
 
-export function getFormDraft(key: string): FormDraft | null {
+export function getFormDraft(key: string): IFormDraft | null {
   const draft = getAppStorage().formDrafts?.[key];
   if (!draft) return null;
 

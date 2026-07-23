@@ -5,7 +5,7 @@ import { Search } from "lucide-react";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import NoResults from "@/components/custom/common/no-results";
-import { AnimatedGroup } from "@/components/ui/animated-group";
+import { AnimatedGroup } from "@/components/custom/animation/animated-group";
 import PostCard from "@/app/updates/components/post-card";
 import NewPostButton from "@/app/updates/components/new-post-button";
 import { templatePosts } from "@/app/updates/posts";

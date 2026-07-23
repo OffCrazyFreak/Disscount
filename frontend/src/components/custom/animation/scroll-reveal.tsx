@@ -4,6 +4,11 @@ import { Children, ReactNode } from "react";
 import { motion } from "motion/react";
 import type { Variants } from "motion/react";
 import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
+import {
+  itemTagFor,
+  type RevealContainerTag,
+  type RevealItemTag,
+} from "@/components/custom/animation/reveal-elements";
 
 type RevealPreset = "rise" | "pop" | "swing";
 
@@ -13,6 +18,8 @@ interface IScrollRevealProps {
   preset?: RevealPreset;
   stagger?: number;
   amount?: number;
+  as?: RevealContainerTag;
+  itemAs?: RevealItemTag;
 }
 
 const spring = { type: "spring", stiffness: 300, damping: 18 } as const;
@@ -40,14 +47,31 @@ export function ScrollReveal({
   preset = "rise",
   stagger = 0.1,
   amount = 0.3,
+  as = "div",
+  itemAs,
 }: IScrollRevealProps) {
   const reduceMotion = useReducedMotionSafe();
   const items = Children.toArray(children);
+  const itemTag = itemTagFor(as, itemAs);
 
-  if (reduceMotion) return <div className={className}>{children}</div>;
+  if (reduceMotion) {
+    const Fallback = as;
+    const FallbackItem = itemTag;
+
+    return (
+      <Fallback className={className}>
+        {items.map((child, index) => (
+          <FallbackItem key={index}>{child}</FallbackItem>
+        ))}
+      </Fallback>
+    );
+  }
+
+  const Container = motion[as] as typeof motion.div;
+  const Item = motion[itemTag] as typeof motion.div;
 
   return (
-    <motion.div
+    <Container
       className={className}
       initial="hidden"
       whileInView="visible"
@@ -55,10 +79,10 @@ export function ScrollReveal({
       variants={{ visible: { transition: { staggerChildren: stagger } } }}
     >
       {items.map((child, index) => (
-        <motion.div key={index} variants={presets[preset]}>
+        <Item key={index} variants={presets[preset]}>
           {child}
-        </motion.div>
+        </Item>
       ))}
-    </motion.div>
+    </Container>
   );
 }

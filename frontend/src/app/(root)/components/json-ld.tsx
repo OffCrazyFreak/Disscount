@@ -1,6 +1,7 @@
 import { faqItems } from "@/app/(root)/data/faq";
+import { appUrl } from "@/lib/env";
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const baseUrl = appUrl();
 
 const graph = {
   "@context": "https://schema.org",
@@ -65,7 +66,9 @@ export default function LandingJsonLd() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(graph) }}
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(graph).replace(/</g, "\\u003c"),
+      }}
     />
   );
 }

@@ -61,8 +61,7 @@ export const featureItems: IFeatureItem[] = [
   },
   {
     title: "Analiza potrošnje",
-    description:
-      "Pregled koliko trošiš i koliko si uštedio iz mjeseca u mjesec.",
+    description: "Pregled koliko trošiš i koliko štediš iz mjeseca u mjesec.",
     icon: PiggyBank,
     comingSoon: true,
     // href: "/spending",

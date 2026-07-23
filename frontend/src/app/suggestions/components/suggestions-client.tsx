@@ -7,7 +7,7 @@ import { Search } from "lucide-react";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import NoResults from "@/components/custom/common/no-results";
-import { AnimatedGroup } from "@/components/ui/animated-group";
+import { AnimatedGroup } from "@/components/custom/animation/animated-group";
 import SuggestionCard from "@/app/suggestions/components/suggestion-card";
 import { templateSuggestions } from "@/app/suggestions/suggestions";
 import { filterByFields } from "@/utils/generic";

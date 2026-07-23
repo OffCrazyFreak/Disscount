@@ -7,11 +7,11 @@ import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageFab from "@/components/custom/fab/page-fab";
 import { shoppingListService } from "@/lib/api";
-import { WatchlistItemWithProduct } from "@/app/(user)/watchlist/utils/watchlist-utils";
+import { IWatchlistItemWithProduct } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { formatDate } from "@/utils/strings";
 
 interface ICreateDiscountedListButtonProps {
-  discountedItems: WatchlistItemWithProduct[];
+  discountedItems: IWatchlistItemWithProduct[];
   /** Prices are still resolving, so the discounted set is not final yet */
   isLoading?: boolean;
 }
@@ -23,11 +23,15 @@ export default function CreateDiscountedListButton({
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
 
+  const addableProducts = discountedItems
+    .filter((item) => item.product)
+    .map((item) => item.product!);
+
   // The count belongs in the visible text only: as an accessible name it would
   // re-announce the button every time a price moves.
   const actionLabel = "Stvori popis sniženih proizvoda";
-  const buttonText = `${actionLabel} (${discountedItems.length})`;
-  const isDisabled = isCreating || isLoading || discountedItems.length === 0;
+  const buttonText = `${actionLabel} (${addableProducts.length})`;
+  const isDisabled = isCreating || isLoading || addableProducts.length === 0;
 
   async function handleCreateDiscountedList() {
     if (isDisabled) {
@@ -44,12 +48,8 @@ export default function CreateDiscountedListButton({
         isPublic: false,
       });
 
-      const itemsToAdd = discountedItems
-        .filter((item) => item.product)
-        .map((item) => item.product!);
-
       const createItemResults = await Promise.allSettled(
-        itemsToAdd.map((product) =>
+        addableProducts.map((product) =>
           shoppingListService.addItemToShoppingList(createdList.id, {
             ean: product.ean,
             name: product.name || product.ean,

@@ -7,7 +7,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { PasswordInput } from "@/components/ui/password-input";
+import { PasswordInput } from "@/components/custom/form/password-input";
 import { cn } from "@/lib/utils";
 
 interface IPasswordFieldProps<T extends FieldValues> {

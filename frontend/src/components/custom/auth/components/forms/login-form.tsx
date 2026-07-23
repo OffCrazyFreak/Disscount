@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import EmailField from "@/components/custom/auth/components/fields/email-field";
 import PasswordField from "@/components/custom/auth/components/fields/password-field";
-import FormRootError from "@/components/custom/auth/components/fields/form-root-error";
+import FormRootError from "@/components/custom/common/form-root-error";
 import LastLoginBadge from "@/components/custom/auth/components/last-login-badge";
 import { useLoginForm } from "@/components/custom/auth/hooks/use-login-form";
 

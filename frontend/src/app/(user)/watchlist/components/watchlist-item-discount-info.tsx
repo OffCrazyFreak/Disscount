@@ -1,12 +1,12 @@
 import { Star, Store } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { DiscountInfo } from "@/app/(user)/watchlist/utils/watchlist-utils";
+import { IDiscountInfo } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { cn } from "@/lib/utils";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 
 interface IWatchlistItemDiscountInfoProps {
-  discountInfo: DiscountInfo | null;
+  discountInfo: IDiscountInfo | null;
   hasPinnedStores: boolean;
   isLoading: boolean;
   error: Error | null;

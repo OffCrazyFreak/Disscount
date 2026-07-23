@@ -3,12 +3,12 @@
 import { Activity } from "react";
 import { ListPlus, TriangleAlert } from "lucide-react";
 
-import { ModalShell } from "@/components/ui/modal-shell";
+import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
-import { RemoveIconButton } from "@/components/ui/remove-icon-button";
-import { Banner } from "@/components/ui/banner";
+import { RemoveIconButton } from "@/components/custom/common/remove-icon-button";
+import { Banner } from "@/components/custom/common/banner";
 import ShoppingListSelector from "@/app/products/components/forms/shopping-list-selector";
 import QuantityInput from "@/app/products/components/forms/quantity-input";
 import MarkAsCheckedCheckbox from "@/app/products/components/forms/mark-as-checked-checkbox";
@@ -59,7 +59,11 @@ export default function AddToShoppingListForm({
       submitLabel="Dodaj"
       submitIcon={ListPlus}
       submitLoading={isSubmitting}
-      submitDisabled={!product || !form.formState.isValid}
+      submitDisabled={
+        !product ||
+        !form.formState.isValid ||
+        (form.watch("shoppingListId") === "new" && !customListTitle.trim())
+      }
       cancelLabel="Odustani"
       resetLabel="Resetiraj"
       resetDisabled={!form.formState.isDirty && !restored}

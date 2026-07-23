@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { SidebarMenuBadge, SidebarMenuButton } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import type { NavigationItem } from "@/constants/navigation";
+import type { INavigationItem } from "@/constants/navigation";
 
 // Badges keep their own fill, so they opt out of the peer rules that would
 // otherwise recolour their text to follow an active or hovered item.
@@ -11,7 +11,7 @@ const BADGE_CLASS =
   "bg-primary text-primary-foreground peer-hover/menu-button:text-primary-foreground peer-data-[active=true]/menu-button:text-primary-foreground";
 
 interface ISidebarNavItemProps {
-  item: NavigationItem;
+  item: INavigationItem;
   isActive?: boolean;
   /** Coming-soon items are disabled for everyone but admins */
   isLocked?: boolean;

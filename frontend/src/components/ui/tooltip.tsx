@@ -15,9 +15,11 @@ const tooltipContentVariants = cva(
       variant: {
         primary: "bg-primary text-primary-foreground",
         destructive: "bg-red-600 text-white",
-        destructiveSoft: "bg-red-50 text-red-600",
+        destructiveSoft:
+          "bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-300",
         warning: "bg-amber-200 text-amber-700",
-        warningSoft: "bg-amber-50 text-amber-600",
+        warningSoft:
+          "bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-300",
       },
     },
     defaultVariants: { variant: "primary" },
@@ -31,9 +33,11 @@ const tooltipArrowVariants = cva(
       variant: {
         primary: "bg-primary fill-primary",
         destructive: "bg-red-600 fill-red-600",
-        destructiveSoft: "bg-red-50 fill-red-50 text-red-600",
+        destructiveSoft:
+          "bg-red-50 fill-red-50 text-red-600 dark:bg-red-950 dark:fill-red-950 dark:text-red-300",
         warning: "bg-amber-200 fill-amber-200 text-amber-700",
-        warningSoft: "bg-amber-50 fill-amber-50 text-amber-600",
+        warningSoft:
+          "bg-amber-50 fill-amber-50 text-amber-600 dark:bg-amber-950 dark:fill-amber-950 dark:text-amber-300",
       },
     },
     defaultVariants: { variant: "primary" },

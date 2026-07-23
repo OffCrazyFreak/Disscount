@@ -5,6 +5,7 @@ import { useFormContext } from "react-hook-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import cijeneService from "@/lib/cijene-api";
+import { getChainLabel } from "@/utils/labels";
 import { cn } from "@/lib/utils";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
 
@@ -41,10 +42,13 @@ export default function PinnedStoresGrid() {
             .map((chain) => {
               const isSelected = selected.includes(chain.chain_code);
               return (
-                <div
+                <button
+                  type="button"
                   key={chain.chain_code}
+                  aria-pressed={isSelected}
+                  aria-label={getChainLabel(chain.chain_code)}
                   className={cn(
-                    "relative shadow-sm border-2 rounded-lg cursor-pointer transition-all overflow-hidden",
+                    "relative shadow-sm border-2 rounded-lg cursor-pointer transition-all overflow-hidden bg-transparent p-0",
                     isSelected
                       ? "border-primary bg-green-100"
                       : "border-gray-200 hover:border-gray-400",
@@ -67,7 +71,7 @@ export default function PinnedStoresGrid() {
                       <span className="text-white text-[10px]">✓</span>
                     </div>
                   )}
-                </div>
+                </button>
               );
             })}
         </div>

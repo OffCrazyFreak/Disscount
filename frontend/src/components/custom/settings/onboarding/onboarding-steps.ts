@@ -8,7 +8,7 @@ import PreferencesTab from "@/components/custom/settings/tabs/preferences-tab";
 import WelcomeStep from "@/components/custom/settings/onboarding/components/welcome-step";
 import DoneStep from "@/components/custom/settings/onboarding/components/done-step";
 
-export interface OnboardingStep {
+export interface IOnboardingStep {
   id: string;
   title: string;
   description?: string;
@@ -16,10 +16,10 @@ export interface OnboardingStep {
 }
 
 // The middle steps ARE the settings tabs - same components, same form context.
-export const ONBOARDING_STEPS: OnboardingStep[] = [
+export const ONBOARDING_STEPS: IOnboardingStep[] = [
   {
     id: "welcome",
-    title: "Dobrodošli u Disscount",
+    title: "Drago nam je što si tu",
     component: WelcomeStep,
   },
   {

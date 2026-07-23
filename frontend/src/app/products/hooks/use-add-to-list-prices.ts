@@ -27,6 +27,12 @@ export function useAddToListPrices(
 
   useEffect(() => {
     if (!product) return;
+    let ignore = false;
+
+    // Drop the previous product's prices so switching products can't submit stale data mid-fetch.
+    setStorePrices({});
+    setAveragePrice(null);
+    setCheapestStore(null);
 
     async function fetchPrices() {
       if (!product) return;
@@ -55,6 +61,8 @@ export function useAddToListPrices(
           findCheapestStoreForItem(tempItem, pinnedStores),
         ]);
 
+        if (ignore) return;
+
         setAveragePrice(avgPrice);
         setStorePrices(prices);
         setCheapestStore(cheapest);
@@ -63,11 +71,15 @@ export function useAddToListPrices(
           form.setValue("chainCode", cheapest);
         }
       } catch (error) {
-        console.error("Error fetching prices:", error);
+        if (!ignore) console.error("Error fetching prices:", error);
       }
     }
 
     fetchPrices();
+
+    return () => {
+      ignore = true;
+    };
   }, [product, pinnedStores, form]);
 
   return { storePrices, averagePrice, cheapestStore };

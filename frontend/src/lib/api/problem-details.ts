@@ -1,5 +1,5 @@
 import { isAxiosError } from "axios";
-import type { FieldValues, Path, UseFormSetError } from "react-hook-form";
+import type { FieldValues, Path, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
 // RFC 9457 Problem Details as emitted by the backend GlobalExceptionHandler.
@@ -26,29 +26,42 @@ export function problemMessage(error: unknown, fallback: string): string {
 }
 
 /**
- * Maps a Problem Details error onto react-hook-form: fieldErrors land on their
- * matching fields (optionally renamed via fieldMap), everything else becomes a
- * root error. Returns true when at least one field-level error was applied.
+ * Maps a Problem Details error onto react-hook-form: a fieldError lands on its field
+ * only when that field is registered (or renamed via fieldMap); anything unknown, and
+ * the case of no field match at all, becomes a root error so it stays visible. Returns
+ * true when at least one field-level error was applied.
  */
 export function applyProblemToForm<T extends FieldValues>(
   error: unknown,
-  setError: UseFormSetError<T>,
+  form: UseFormReturn<T>,
   fieldMap?: Partial<Record<string, Path<T>>>,
   fallbackMessage = "Provjeri unesene podatke.",
 ): boolean {
   const problem = parseProblem(error);
+  const knownFields = new Set(Object.keys(form.getValues()));
+  const undisplayableMessages: string[] = [];
   let matchedField = false;
 
   for (const [field, message] of Object.entries(problem?.fieldErrors ?? {})) {
-    const target = fieldMap?.[field] ?? (field as Path<T>);
-    setError(target, { type: "server", message });
+    const mapped = fieldMap?.[field];
+
+    if (!mapped && !knownFields.has(field)) {
+      undisplayableMessages.push(message);
+      continue;
+    }
+
+    form.setError(mapped ?? (field as Path<T>), { type: "server", message });
     matchedField = true;
   }
 
-  if (!matchedField) {
-    setError("root", {
+  if (undisplayableMessages.length > 0 || !matchedField) {
+    form.setError("root", {
       type: "server",
-      message: problem?.detail || problem?.title || fallbackMessage,
+      message:
+        undisplayableMessages.join(" ") ||
+        problem?.detail ||
+        problem?.title ||
+        fallbackMessage,
     });
   }
 

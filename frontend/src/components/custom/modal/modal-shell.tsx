@@ -11,10 +11,10 @@ import {
 } from "@/components/ui/dialog";
 import {
   ModalShellFooter,
-  ModalShellFooterProps,
-} from "@/components/ui/modal-shell-footer";
-import { UnsavedIndicator } from "@/components/ui/unsaved-indicator";
-import { StaggerChildren } from "@/components/ui/stagger-children";
+  IModalShellFooterProps,
+} from "@/components/custom/modal/modal-shell-footer";
+import { UnsavedIndicator } from "@/components/custom/modal/unsaved-indicator";
+import { StaggerChildren } from "@/components/custom/animation/stagger-children";
 import { cn } from "@/lib/utils";
 
 // TODO(responsive-drawer): add a `presentation?: "dialog" | "auto"` prop that renders
@@ -27,7 +27,7 @@ const SIZE_CLASSES = {
   xl: "sm:max-w-4xl",
 } as const;
 
-export interface ModalShellProps extends ModalShellFooterProps {
+export interface IModalShellProps extends IModalShellFooterProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: ReactNode;
@@ -64,7 +64,7 @@ export function ModalShell({
   bodyClassName,
   children,
   ...footerProps
-}: ModalShellProps) {
+}: IModalShellProps) {
   function handleOpenChange(nextOpen: boolean) {
     if (preventClose && !nextOpen) return;
     onOpenChange(nextOpen);
@@ -86,10 +86,13 @@ export function ModalShell({
         {...(description ? {} : { "aria-describedby": undefined })}
         onEscapeKeyDown={(e) => preventClose && e.preventDefault()}
         onInteractOutside={(e) => preventClose && e.preventDefault()}
-        // Don't auto-focus the first control on open: it would pop that
-        // control's tooltip immediately. Inputs with autoFocus still focus
-        // themselves via the DOM.
-        onOpenAutoFocus={(e) => e.preventDefault()}
+        // Focus the dialog container, not the first control (which would pop its
+        // tooltip), so keyboard and screen-reader users still land inside the modal.
+        // Inputs with autoFocus still focus themselves via the DOM.
+        onOpenAutoFocus={(e) => {
+          e.preventDefault();
+          (e.currentTarget as HTMLElement | null)?.focus();
+        }}
         // URL-mounted dialogs have no trigger element to return focus to; letting
         // Radix fall back to document.body causes a scroll jump on close.
         onCloseAutoFocus={(e) => e.preventDefault()}

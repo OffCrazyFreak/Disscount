@@ -4,8 +4,8 @@ import { useState } from "react";
 
 import { CircleAlert } from "lucide-react";
 
-import { ModalShell } from "@/components/ui/modal-shell";
-import { Banner } from "@/components/ui/banner";
+import { ModalShell } from "@/components/custom/modal/modal-shell";
+import { Banner } from "@/components/custom/common/banner";
 import ForgotPasswordForm from "@/components/custom/auth/components/forms/forgot-password-form";
 import AuthModeSwitch from "@/components/custom/auth/components/auth-mode-switch";
 import AuthCredentialsPanel from "@/components/custom/auth/components/forms/auth-credentials-panel";
@@ -34,6 +34,7 @@ interface IAuthModalProps {
   message?: string;
   onOpenChange: (open: boolean) => void;
   onModeChange: (mode: AuthMode) => void;
+  onSuccess: () => void;
 }
 
 export default function AuthModal({
@@ -42,6 +43,7 @@ export default function AuthModal({
   message,
   onOpenChange,
   onModeChange,
+  onSuccess,
 }: IAuthModalProps) {
   const [socialPending, setSocialPending] = useState<SocialProvider | null>(
     null,
@@ -75,7 +77,7 @@ export default function AuthModal({
           lastLoginMethod={lastLoginMethod}
           socialPending={socialPending}
           onPendingChange={setSocialPending}
-          onSuccess={() => onOpenChange(false)}
+          onSuccess={onSuccess}
           onForgotPassword={() => onModeChange("forgot")}
         />
       )}

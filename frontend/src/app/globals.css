@@ -124,7 +124,7 @@
   --secondary: oklch(0.7671 0.1872 140.1916);
   --secondary-foreground: oklch(0.3211 0 0);
   --muted: oklch(0.9461 0 0);
-  --muted-foreground: oklch(47.836% 0.00005 271.152);
+  --muted-foreground: oklch(0.478 0 0);
   --accent: oklch(0.8975 0 0);
   --accent-foreground: oklch(0.252 0 0);
   --destructive: oklch(0.5523 0.1927 32.7272);
@@ -326,6 +326,48 @@
   }
 }
 
+/* Block loading spinner squares (hoisted from a per-instance <style> in the component). */
+.spinner_9y7u {
+  animation: spinner_fUkk 2.4s linear infinite;
+  animation-delay: -2.4s;
+}
+.spinner_DF2s {
+  animation-delay: -1.6s;
+}
+.spinner_q27e {
+  animation-delay: -0.8s;
+}
+@keyframes spinner_fUkk {
+  8.33% {
+    x: 13px;
+    y: 1px;
+  }
+  25% {
+    x: 13px;
+    y: 1px;
+  }
+  33.3% {
+    x: 13px;
+    y: 13px;
+  }
+  50% {
+    x: 13px;
+    y: 13px;
+  }
+  58.33% {
+    x: 1px;
+    y: 13px;
+  }
+  75% {
+    x: 1px;
+    y: 13px;
+  }
+  83.33% {
+    x: 1px;
+    y: 1px;
+  }
+}
+
 /* Landing doodle animations: draw-on strokes, twinkling accents, logo marquee
    and a barcode scanline. All disabled under prefers-reduced-motion. */
 @keyframes dis-draw {
@@ -523,6 +565,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .spinner_9y7u {
+    animation: none;
+  }
   .animate-dis-draw {
     stroke-dasharray: none;
     stroke-dashoffset: 0;

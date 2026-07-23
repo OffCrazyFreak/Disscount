@@ -1,18 +1,18 @@
-export interface NotificationStore {
+export interface INotificationStore {
   chainName: string;
   currentPrice: number;
   discountAmount: number;
   discountPercentage: number;
 }
 
-export interface WatchlistNotification {
+export interface IWatchlistNotification {
   id: string;
   productApiId: string;
   productName: string;
   productBrand: string | null;
   productQuantity: string | null;
   productUnit: string | null;
-  discountedStores: NotificationStore[];
+  discountedStores: INotificationStore[];
   bestDiscountAmount: number;
   bestDiscountPercentage: number;
   bestCurrentPrice: number;
@@ -20,15 +20,15 @@ export interface WatchlistNotification {
   isNew: boolean;
 }
 
-export interface NotificationsSummary {
+export interface INotificationsSummary {
   totalSavings: number;
   totalSavingsPercentage: number;
   itemCount: number;
 }
 
 export interface INotificationsContext {
-  notifications: WatchlistNotification[];
-  summary: NotificationsSummary;
+  notifications: IWatchlistNotification[];
+  summary: INotificationsSummary;
   isLoading: boolean;
   hasNotifications: boolean;
   hasWatchlistItems: boolean;

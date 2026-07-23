@@ -1,14 +1,14 @@
 import { useMemo } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { shoppingListService } from "@/lib/api";
-import { getProductByEan } from "@/lib/cijene-api";
+import { getProductByEan, productByEanQueryKey } from "@/lib/cijene-api";
 import { filterByFields } from "@/utils/generic";
 import {
   calculateDiscountInfo,
   getMaxDiscountPercentage,
-  WatchlistItemWithProduct,
+  IWatchlistItemWithProduct,
 } from "@/app/(user)/watchlist/utils/watchlist-utils";
-import type { WatchlistSearchItem } from "@/app/(user)/watchlist/components/use-watchlist-data";
+import type { IWatchlistSearchItem } from "@/app/(user)/watchlist/utils/watchlist-types";
 
 interface IUseWatchlistSuggestionsParams {
   query: string;
@@ -71,20 +71,15 @@ export function useWatchlistSuggestions({
 
   const suggestionProductQueries = useQueries({
     queries: suggestionProductApiIds.map((productApiId) => ({
-      queryKey: [
-        "cijene",
-        "product",
-        "ean",
-        "watchlist-suggestion",
-        productApiId,
-      ],
+      // Shared key with the product page/modal, so a suggestion is a cache hit, not a refetch.
+      queryKey: productByEanQueryKey(productApiId),
       queryFn: () => getProductByEan({ ean: productApiId }),
       enabled: Boolean(productApiId) && isAuthenticated,
       staleTime: 6 * 60 * 60 * 1000,
     })),
   });
 
-  const suggestionItems = useMemo<WatchlistItemWithProduct[]>(() => {
+  const suggestionItems = useMemo<IWatchlistItemWithProduct[]>(() => {
     return suggestionProductApiIds.map((productApiId, index) => {
       const productQuery = suggestionProductQueries[index];
       const product = productQuery?.data;
@@ -107,7 +102,7 @@ export function useWatchlistSuggestions({
     pinnedStoreChainCodes,
   ]);
 
-  const filteredSuggestionItems = useMemo<WatchlistSearchItem[]>(() => {
+  const filteredSuggestionItems = useMemo<IWatchlistSearchItem[]>(() => {
     const searchableItems = suggestionItems.map((item) => ({
       ...item,
       productName: item.product?.name || "",

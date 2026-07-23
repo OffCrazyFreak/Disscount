@@ -10,7 +10,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { StepperNumberInput } from "@/components/ui/stepper-number-input";
+import { StepperNumberInput } from "@/components/custom/form/stepper-number-input";
 import { WatchType } from "@/lib/api";
 import type { WatchlistItemDto } from "@/lib/api/schemas/watchlist";
 import {

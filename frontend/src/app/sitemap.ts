@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { templatePosts } from "@/app/updates/posts";
+import { appUrl } from "@/lib/env";
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const baseUrl = appUrl();
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [

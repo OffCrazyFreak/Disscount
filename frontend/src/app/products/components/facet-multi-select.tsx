@@ -7,7 +7,7 @@ import {
   MultiSelectItem,
   MultiSelectTrigger,
   MultiSelectValue,
-} from "@/components/ui/multi-select";
+} from "@/components/custom/form/multi-select";
 import { cn } from "@/lib/utils";
 import type { IFacetSelect } from "@/app/products/hooks/use-product-facets";
 

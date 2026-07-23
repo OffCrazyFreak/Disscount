@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Send } from "lucide-react";
 
-import { ModalShell } from "@/components/ui/modal-shell";
+import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
 import ContactChannels from "@/components/custom/contact/contact-channels";
 import ContactFormFields from "@/components/custom/contact/contact-form-fields";
@@ -89,7 +89,7 @@ export default function ContactModal({ open }: { open: boolean }) {
       form.reset(EMPTY_VALUES);
       closeModalUrl();
     } catch (error) {
-      applyProblemToForm(error, form.setError);
+      applyProblemToForm(error, form);
     }
   }
 

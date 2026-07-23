@@ -10,7 +10,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-interface RemoveIconButtonProps {
+interface IRemoveIconButtonProps {
   onClick: () => void;
   label: string;
   loading?: boolean;
@@ -23,7 +23,7 @@ export function RemoveIconButton({
   label,
   loading = false,
   disabled = false,
-}: RemoveIconButtonProps) {
+}: IRemoveIconButtonProps) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>

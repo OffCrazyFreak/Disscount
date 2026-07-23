@@ -15,7 +15,7 @@ import { useViewMode } from "@/hooks/use-view-mode";
 import { filterByFields } from "@/utils/generic";
 import { digitalCardService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
-import { AnimatedGroup } from "@/components/ui/animated-group";
+import { AnimatedGroup } from "@/components/custom/animation/animated-group";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 

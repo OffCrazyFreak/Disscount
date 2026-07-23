@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useGetProductByName } from "@/lib/cijene-api";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { productMatchesFilters } from "@/app/products/utils/product-filters";
+import { PRODUCT_SEARCH_LIMIT } from "@/constants/products";
 
 interface IUseInfiniteProductsOptions {
   /** Resolved chain+location filter (null = unfiltered, empty = no overlap) */
@@ -35,13 +36,17 @@ export default function useInfiniteProducts(
     batchSize = 50,
   } = options ?? {};
 
+  // Guard a 0/NaN size, which would make the batching loop never advance.
+  const safeBatchSize =
+    Number.isInteger(batchSize) && batchSize > 0 ? batchSize : 50;
+
   // Single unfiltered request per query; all filters apply client-side over
   // this same dataset the facet options are computed from, so option counts
   // always match the visible results.
   const { data, isLoading, error } = useGetProductByName({
     q,
     fuzzy: false,
-    limit: 100, // TODO: remove limit
+    limit: PRODUCT_SEARCH_LIMIT, // TODO: remove limit
   });
 
   const allProducts = useMemo(() => data?.products || [], [data?.products]);
@@ -65,11 +70,11 @@ export default function useInfiniteProducts(
 
   const batchedProducts = useMemo(() => {
     const batches: ProductResponse[][] = [];
-    for (let i = 0; i < filteredProducts.length; i += batchSize) {
-      batches.push(filteredProducts.slice(i, i + batchSize));
+    for (let i = 0; i < filteredProducts.length; i += safeBatchSize) {
+      batches.push(filteredProducts.slice(i, i + safeBatchSize));
     }
     return batches;
-  }, [filteredProducts, batchSize]);
+  }, [filteredProducts, safeBatchSize]);
 
   const [batchesToShow, setBatchesToShow] = useState<number>(
     batchedProducts.length > 0 ? 1 : 0,

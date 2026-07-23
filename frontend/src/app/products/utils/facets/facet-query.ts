@@ -1,5 +1,5 @@
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
-import type { StoreLocation } from "@/typings/store-location";
+import type { IStoreLocation } from "@/typings/store-location";
 import { normalizeForSearch } from "@/utils/strings";
 import {
   getProductBrands,
@@ -29,7 +29,7 @@ function indexProduct(product: ProductResponse): IIndexedProduct {
   };
 }
 
-function toLocationChains(locations: StoreLocation[]): ILocationChains[] {
+function toLocationChains(locations: IStoreLocation[]): ILocationChains[] {
   return locations.map((location) => ({
     name: location.name,
     chains: new Set(location.chains.map(normalizeChainCode)),
@@ -55,7 +55,7 @@ function resolveLocationChains(
 /** Normalizes products and selections once, up front, for the counters to use */
 export function buildFacetQuery(
   products: ProductResponse[],
-  locations: StoreLocation[],
+  locations: IStoreLocation[],
   selections: IFacetSelections,
 ): IFacetQuery {
   const locationChains = toLocationChains(locations);

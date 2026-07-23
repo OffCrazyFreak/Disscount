@@ -36,12 +36,12 @@ export default function GithubIcon({
   };
 
   const handWave: Variants = {
-    initial: { rotate: 0, originX: 0.9, originY: 0.5 },
+    normal: { rotate: 0, originX: 0.9, originY: 0.5 },
     animate: {
       rotate: [0, 20, -15, 0],
       originX: 0.9,
       originY: 0.5,
-      transition: { duration: 1 * duration, repeat: Infinity },
+      transition: { duration: 1 * duration },
     },
   };
 
@@ -61,12 +61,7 @@ export default function GithubIcon({
            -.17.6-.22 1.23-.15 1.85v4"
         variants={body}
       />
-      <motion.path
-        d="M9 18c-4.51 2-5-2-7-2"
-        variants={handWave}
-        initial="initial"
-        animate="animate"
-      />
+      <motion.path d="M9 18c-4.51 2-5-2-7-2" variants={handWave} />
     </AnimatedIcon>
   );
 }

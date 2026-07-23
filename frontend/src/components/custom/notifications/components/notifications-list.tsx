@@ -1,10 +1,10 @@
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-import type { WatchlistNotification } from "@/context/notifications-types";
+import type { IWatchlistNotification } from "@/context/notifications-types";
 import NotificationItem from "@/components/custom/notifications/components/notification-item";
 import NotificationsEmptyState from "@/components/custom/notifications/components/notifications-empty-state";
 
 interface INotificationsListProps {
-  notifications: WatchlistNotification[];
+  notifications: IWatchlistNotification[];
   isLoading: boolean;
   hasWatchlistItems: boolean;
   onSelect: () => void;

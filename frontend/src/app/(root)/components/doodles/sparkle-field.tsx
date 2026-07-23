@@ -44,6 +44,8 @@ export default function SparkleField({
   className,
   palette = defaultPalette,
 }: ISparkleFieldProps) {
+  if (count <= 0) return null;
+
   const random = mulberry32(hashSeed(seed));
 
   const sparkles = Array.from({ length: count }, (_, index) => ({

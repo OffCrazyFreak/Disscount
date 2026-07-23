@@ -2,7 +2,7 @@
 
 import { Bell } from "lucide-react";
 
-import { StaggerChildren } from "@/components/ui/stagger-children";
+import { StaggerChildren } from "@/components/custom/animation/stagger-children";
 import SettingsSection from "@/components/custom/settings/ui/settings-section";
 import NotificationSwitchRow from "@/components/custom/settings/components/notification-switch-row";
 

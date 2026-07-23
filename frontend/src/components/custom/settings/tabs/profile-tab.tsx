@@ -20,7 +20,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { ACQUISITION_CHANNEL_LABELS } from "@/lib/api/schemas/auth-user";
-import { StaggerChildren } from "@/components/ui/stagger-children";
+import { StaggerChildren } from "@/components/custom/animation/stagger-children";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
 import SettingsSection from "@/components/custom/settings/ui/settings-section";
 import AvatarField from "@/components/custom/settings/components/avatar-field";
@@ -53,7 +53,7 @@ export default function ProfileTab() {
           name="acquisitionChannel"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Kako si saznao za Disscount?</FormLabel>
+              <FormLabel>Odakle znaš za Disscount?</FormLabel>
               <Select
                 value={field.value ?? undefined}
                 onValueChange={field.onChange}

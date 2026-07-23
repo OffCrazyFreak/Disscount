@@ -12,6 +12,7 @@ Thumbs.db
 .history/
 .env
 .env.*
+!.env.example
 
 # --- Java/Spring Boot Backend ---
 backend/target/
@@ -71,3 +72,6 @@ desktop.ini
 docs/disscount_*
 # Playwright MCP session artifacts
 .playwright-mcp/
+
+# Local code-review triage output (not committed)
+reviews/

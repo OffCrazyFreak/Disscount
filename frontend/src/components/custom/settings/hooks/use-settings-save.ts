@@ -56,7 +56,7 @@ export function useSettingsSave({
 
     if (!onlineManager.isOnline()) {
       toast.info(
-        "Izvan ste mreže - promjene će se sinkronizirati kad se vratite na mrežu.",
+        "Izvan si mreže - promjene će se sinkronizirati kad se vratiš na mrežu.",
       );
     }
 
@@ -163,7 +163,7 @@ export function useSettingsSave({
       if (result.status === "rejected") {
         applyProblemToForm(
           result.reason,
-          form.setError,
+          form,
           undefined,
           {
             user: "Greška pri spremanju profila.",

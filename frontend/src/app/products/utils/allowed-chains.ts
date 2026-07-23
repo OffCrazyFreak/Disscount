@@ -1,4 +1,4 @@
-import type { StoreLocation } from "@/typings/store-location";
+import type { IStoreLocation } from "@/typings/store-location";
 import { normalizeForSearch } from "@/utils/strings";
 import { normalizeChainCode } from "@/app/products/utils/product-filters";
 
@@ -10,7 +10,7 @@ import { normalizeChainCode } from "@/app/products/utils/product-filters";
 export function resolveAllowedChains(
   selectedChains: string[],
   selectedLocations: string[],
-  locations: StoreLocation[],
+  locations: IStoreLocation[],
 ): string[] | null {
   if (selectedChains.length === 0 && selectedLocations.length === 0) {
     return null;

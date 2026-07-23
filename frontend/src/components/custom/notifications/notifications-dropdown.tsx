@@ -51,11 +51,20 @@ export default function NotificationsDropdown({
   return (
     <DropdownMenu open={isOpen} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative"
+          aria-label={
+            hasNotifications
+              ? `Obavijesti (${notifications.length})`
+              : "Obavijesti"
+          }
+        >
           <BellRingIcon size={18} />
 
           {hasNotifications && (
-            <Badge className="absolute -top-2 -right-1">
+            <Badge size="count" className="absolute -top-2 -right-1">
               {notifications.length}
             </Badge>
           )}

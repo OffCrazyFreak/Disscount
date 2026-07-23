@@ -9,7 +9,7 @@ import {
   setFormDraft,
 } from "@/utils/browser/local-storage";
 
-interface UseFormDraftOptions<T extends FieldValues> {
+interface IUseFormDraftOptions<T extends FieldValues> {
   draftKey: string;
   form: UseFormReturn<T>;
   // Gate restoring until server defaults are loaded into the form, otherwise
@@ -34,10 +34,10 @@ export function useFormDraft<T extends FieldValues>({
   enabled = true,
   restore = true,
   exclude = [],
-}: UseFormDraftOptions<T>) {
+}: IUseFormDraftOptions<T>) {
   const [hadDraft] = useState(() => !!getFormDraft(draftKey));
   const [dismissed, setDismissed] = useState(false);
-  const restoredOnceRef = useRef(false);
+  const restoredKeyRef = useRef<string | null>(null);
 
   // Read defaults during render so RHF's formState proxy keeps them computed,
   // then mirror into a ref the (stable) flush callback can read.
@@ -49,8 +49,8 @@ export function useFormDraft<T extends FieldValues>({
   });
 
   useEffect(() => {
-    if (!enabled || !restore || restoredOnceRef.current) return;
-    restoredOnceRef.current = true;
+    if (!enabled || !restore || restoredKeyRef.current === draftKey) return;
+    restoredKeyRef.current = draftKey;
 
     const draft = getFormDraft(draftKey);
     if (!draft) return;
@@ -107,9 +107,13 @@ export function useFormDraft<T extends FieldValues>({
     return () => {
       clearTimeout(timer);
       subscription.unsubscribe();
-      // Closing mid-debounce would lose the last keystrokes; flush them unless
-      // the user submitted (submit handlers clear the draft on success).
-      if (!form.formState.isSubmitted) flushDraft();
+      // Closing mid-debounce would lose the last keystrokes; flush them unless the user
+      // submitted. isSubmitting covers the optimistic-close pattern, where the modal unmounts
+      // before the mutation resolves and clearDraft runs, so a late flush can't rewrite a
+      // just-cleared draft.
+      if (!form.formState.isSubmitted && !form.formState.isSubmitting) {
+        flushDraft();
+      }
     };
   }, [enabled, draftKey, form, flushDraft]);
 

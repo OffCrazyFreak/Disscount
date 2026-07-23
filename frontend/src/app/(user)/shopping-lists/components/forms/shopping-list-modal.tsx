@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { Save } from "lucide-react";
 
-import { ModalShell } from "@/components/ui/modal-shell";
+import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -50,7 +50,8 @@ export default function ShoppingListModal({
   const byIdQuery = shoppingListService.useGetShoppingListById(
     isEdit ? (id as string) : "",
   );
-  const shoppingList = isEdit ? (byIdQuery.data ?? cachedList ?? null) : null;
+  const seededList = byIdQuery.isLoading ? cachedList : undefined;
+  const shoppingList = isEdit ? (byIdQuery.data ?? seededList ?? null) : null;
 
   const draftKey = isEdit ? `shopping-list.edit.${id}` : "shopping-list.new";
   const isReady = !isEdit || !!shoppingList;
@@ -83,14 +84,15 @@ export default function ShoppingListModal({
     draftKey,
     form,
     enabled: open && isReady,
-    restore: false,
+    // New lists auto-restore via the engine; edit modals merge the draft themselves below.
+    restore: !isEdit,
   });
 
   // A failed optimistic save reopened this modal: surface the server error.
   useEffect(() => {
     if (!open) return;
     const error = takeModalError(draftKey);
-    if (error) applyProblemToForm(error, form.setError);
+    if (error) applyProblemToForm(error, form);
   }, [open, draftKey, form]);
 
   const { onSubmit, isLoading } = useShoppingListModal({
@@ -104,7 +106,9 @@ export default function ShoppingListModal({
   }
 
   const loading = isEdit && !shoppingList && byIdQuery.isLoading;
-  const notFound = isEdit && !shoppingList && !byIdQuery.isLoading;
+  const loadError = isEdit && !shoppingList && byIdQuery.isError;
+  const notFound =
+    isEdit && !shoppingList && !byIdQuery.isLoading && !byIdQuery.isError;
 
   return (
     <ModalShell
@@ -119,7 +123,10 @@ export default function ShoppingListModal({
       submitIcon={Save}
       submitLoading={isLoading}
       submitDisabled={
-        !form.formState.isDirty || !form.formState.isValid || notFound
+        !form.formState.isDirty ||
+        !form.formState.isValid ||
+        notFound ||
+        loadError
       }
       cancelLabel="Odustani"
       resetLabel="Resetiraj"
@@ -131,6 +138,10 @@ export default function ShoppingListModal({
     >
       {loading ? (
         <Skeleton className="h-10 w-full" />
+      ) : loadError ? (
+        <p className="text-sm text-muted-foreground">
+          Greška pri učitavanju popisa. Pokušaj ponovo.
+        </p>
       ) : notFound ? (
         <p className="text-sm text-muted-foreground">
           Popis nije pronađen. Možda je obrisan ili nemaš pristup.

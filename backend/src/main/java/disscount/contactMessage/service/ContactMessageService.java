@@ -10,6 +10,8 @@ import disscount.user.domain.User;
 import disscount.user.service.UserService;
 import disscount.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -27,6 +29,9 @@ public class ContactMessageService {
     private final ContactMessageRepository contactMessageRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+
+    // Bounds the admin list query; a full paginated UI is a possible follow-up.
+    private static final int MAX_ADMIN_MESSAGES = 500;
 
     /** Public: create a message. Silently drops honeypot-filled bot submissions. */
     public ContactMessageDto create(ContactMessageRequest request) {
@@ -52,9 +57,10 @@ public class ContactMessageService {
 
     public List<ContactMessageDto> list(boolean includeDeleted) {
         requireAdmin();
+        Pageable pageable = PageRequest.of(0, MAX_ADMIN_MESSAGES);
         List<ContactMessage> messages = includeDeleted
-                ? contactMessageRepository.findAllByOrderByCreatedAtDesc()
-                : contactMessageRepository.findByDeletedAtIsNullOrderByCreatedAtDesc();
+                ? contactMessageRepository.findAllByOrderByCreatedAtDesc(pageable)
+                : contactMessageRepository.findByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
         return messages.stream().map(this::convertToDto).toList();
     }
 

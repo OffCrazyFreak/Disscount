@@ -10,11 +10,11 @@ import {
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 
-import { ModalShell } from "@/components/ui/modal-shell";
+import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-interface ConfirmDialogProps {
+interface IConfirmDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
@@ -40,7 +40,7 @@ export function ConfirmDialog({
   confirmIcon,
   onConfirm,
   isLoading = false,
-}: ConfirmDialogProps) {
+}: IConfirmDialogProps) {
   const reduceMotion = useReducedMotion();
   const isDestructive = variant === "destructive";
   const Icon = icon ?? (isDestructive ? AlertTriangle : LogOut);

@@ -1,3 +1,5 @@
+// TODO: parked, not dead. Bring back when list views become personalisable per
+// user; the call site is commented out in products-client.tsx.
 import { Grid, List } from "lucide-react";
 import {
   Tooltip,

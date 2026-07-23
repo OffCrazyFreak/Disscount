@@ -28,7 +28,7 @@ export default function StoreChainField({
         storePrices={storePrices}
         averagePrice={averagePrice || undefined}
         isChecked={false}
-        classname="w-full"
+        className="w-full"
       />
     </div>
   );

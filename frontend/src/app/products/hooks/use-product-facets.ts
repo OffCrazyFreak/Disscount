@@ -6,6 +6,7 @@ import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { getChainLabel } from "@/utils/labels";
 import { compareHr } from "@/utils/strings";
 import { canonicalizeSelection } from "@/app/products/utils/product-filters";
+import { PRODUCT_SEARCH_LIMIT } from "@/constants/products";
 import {
   computeProductFacets,
   type IFacetOption,
@@ -69,7 +70,7 @@ export default function useProductFacets(
   const { data: facetData } = useGetProductByName({
     q: query,
     fuzzy: false,
-    limit: 100,
+    limit: PRODUCT_SEARCH_LIMIT,
   });
 
   return useMemo(() => {

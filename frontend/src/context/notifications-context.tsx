@@ -5,8 +5,8 @@ import { useWatchlistNotifications } from "@/context/use-watchlist-notifications
 import { INotificationsContext } from "@/context/notifications-types";
 
 export type {
-  NotificationStore,
-  WatchlistNotification,
+  INotificationStore,
+  IWatchlistNotification,
 } from "@/context/notifications-types";
 
 const NotificationsContext = createContext<INotificationsContext | undefined>(

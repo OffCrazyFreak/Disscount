@@ -6,7 +6,7 @@ import { RotateCcw, Save, X, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export interface ModalShellFooterProps {
+export interface IModalShellFooterProps {
   cancelLabel?: string;
   onCancel?: () => void;
   submitLabel?: string;
@@ -41,8 +41,9 @@ export function ModalShellFooter({
   resetDisabled,
   footerStart,
   caption,
-}: ModalShellFooterProps) {
-  const hasButtons = !!cancelLabel || !!submitLabel || !!footerStart;
+}: IModalShellFooterProps) {
+  const hasButtons =
+    !!cancelLabel || !!resetLabel || !!submitLabel || !!footerStart;
 
   if (!hasButtons && !caption) return null;
 

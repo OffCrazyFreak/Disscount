@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
+import { appUrl } from "@/lib/env";
+import { PROTECTED_ROUTE_PREFIXES } from "@/constants/protected-routes";
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const baseUrl = appUrl();
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -8,12 +10,8 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
       disallow: [
+        ...PROTECTED_ROUTE_PREFIXES,
         "/api/",
-        "/dashboard",
-        "/shopping-lists",
-        "/watchlist",
-        "/digital-cards",
-        "/spending",
         "/reset-password",
         "/offline",
       ],

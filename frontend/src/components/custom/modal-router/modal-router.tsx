@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import AuthModal, { AuthMode } from "@/components/custom/auth/auth-modal";
 import EntityModalOutlet, {
   isEntityTarget,
@@ -65,10 +67,31 @@ export default function ModalRouter() {
   const showAuthModal =
     (isAuthTarget && !isAuthenticated && !isLoading) || needsAuthGate;
 
-  const authMode: AuthMode =
-    (target && AUTH_MODE_BY_NAME[target.name]) ?? "login";
+  // While gating, the URL still holds the intended target (add-to-list, ...), so the
+  // login/signup switch is tracked locally instead of overwriting that target.
+  const [gateMode, setGateMode] = useState<AuthMode>("login");
+
+  const authMode: AuthMode = needsAuthGate
+    ? gateMode
+    : ((target && AUTH_MODE_BY_NAME[target.name]) ?? "login");
 
   const gateMessage = needsAuthGate ? GATE_MESSAGES[target.name] : undefined;
+
+  function handleModeChange(mode: AuthMode) {
+    if (needsAuthGate) setGateMode(mode);
+    else swapModal({ name: MODE_TO_TARGET_NAME[mode] });
+  }
+
+  function handleAuthOpenChange(open: boolean) {
+    if (open) return;
+    setGateMode("login");
+    closeModal();
+  }
+
+  function handleAuthSuccess() {
+    setGateMode("login");
+    if (!needsAuthGate) closeModal();
+  }
 
   return (
     <>
@@ -76,8 +99,9 @@ export default function ModalRouter() {
         open={showAuthModal}
         mode={authMode}
         message={gateMessage}
-        onOpenChange={(open) => !open && closeModal()}
-        onModeChange={(mode) => swapModal({ name: MODE_TO_TARGET_NAME[mode] })}
+        onOpenChange={handleAuthOpenChange}
+        onModeChange={handleModeChange}
+        onSuccess={handleAuthSuccess}
       />
 
       <ResetPasswordModal open={target?.name === "reset-password"} />

@@ -10,7 +10,7 @@ import OfflineRetryButton from "@/app/offline/components/offline-retry-button";
 
 export const metadata: Metadata = {
   title: "Nema veze s internetom",
-  description: "Trenutno ste izvan mreže.",
+  description: "Trenutno si izvan mreže.",
 };
 
 export default function OfflinePage() {
@@ -24,7 +24,7 @@ export default function OfflinePage() {
 
           <CardDescription className="space-y-2">
             <div>
-              Trenutno ste izvan mreže. Spremljeni popisi, praćeni proizvodi i
+              Trenutno si izvan mreže. Spremljeni popisi, praćeni proizvodi i
               nedavno pregledani proizvodi i dalje su dostupni.
             </div>
 

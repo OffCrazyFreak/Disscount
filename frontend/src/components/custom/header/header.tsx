@@ -1,13 +1,13 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { useHeaderScrolled } from "@/components/custom/header/hooks/use-header-scrolled";
+import { useScrolledPast } from "@/hooks/use-scrolled-past";
 import HeaderBrand from "@/components/custom/header/components/header-brand";
 import HeaderNav from "@/components/custom/header/components/header-nav";
 import HeaderSearch from "@/components/custom/header/components/header-search";
 import HeaderActions from "@/components/custom/header/components/header-actions";
 
 export default function Header() {
-  const isScrolled = useHeaderScrolled();
+  const isScrolled = useScrolledPast(50);
 
   return (
     <>

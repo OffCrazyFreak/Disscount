@@ -7,17 +7,28 @@ import GoogleIcon from "@/components/icons/google-icon";
 import FacebookIcon from "@/components/icons/facebook-icon";
 import { FACEBOOK_COMING_SOON } from "@/constants/auth";
 import { setLastLoginMethod } from "@/utils/browser/local-storage";
-import { stripModalSearch } from "@/lib/modal/modal-registry";
+import {
+  AUTH_MODAL_NAMES,
+  parseModalParam,
+  stripModalSearch,
+} from "@/lib/modal/modal-registry";
 import AuthSocialButton, {
   type SocialProvider,
 } from "@/components/custom/auth/components/social/auth-social-button";
 
-// After the OAuth round-trip, return to the page the user started on (minus the
-// auth modal param) instead of always bouncing to the homepage.
-function currentReturnUrl(): string {
+function oauthReturnUrl(): string {
   if (typeof window === "undefined") return "/";
-  const search = stripModalSearch(new URLSearchParams(window.location.search));
-  return window.location.pathname + search;
+
+  const params = new URLSearchParams(window.location.search);
+  const target = parseModalParam(params);
+  const isAuthModalTarget =
+    !!target && (AUTH_MODAL_NAMES as readonly string[]).includes(target.name);
+
+  const searchWithGatedTargetKept = isAuthModalTarget
+    ? stripModalSearch(params)
+    : window.location.search;
+
+  return window.location.pathname + searchWithGatedTargetKept;
 }
 
 interface IAuthSocialButtonsProps {
@@ -37,12 +48,13 @@ export default function AuthSocialButtons({
     onPendingChange(provider);
     try {
       setLastLoginMethod(provider);
-      const returnUrl = currentReturnUrl();
-      await signIn.social({
+      const returnUrl = oauthReturnUrl();
+      const { error } = await signIn.social({
         provider,
         callbackURL: returnUrl,
         errorCallbackURL: returnUrl,
       });
+      if (error) throw error;
     } catch {
       const label = provider === "google" ? "Google" : "Facebook";
       toast.error(`Greška pri ${label} prijavi. Pokušaj ponovo.`);

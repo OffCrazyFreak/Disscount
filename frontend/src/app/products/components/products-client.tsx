@@ -66,6 +66,7 @@ export default function ProductsClient({ query }: { query: string }) {
             }`}
         </h3>
 
+        {/* TODO: re-enable with personalisable list views (see view-switcher.tsx) */}
         {/* <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} /> */}
       </div>
 
@@ -115,7 +116,7 @@ export default function ProductsClient({ query }: { query: string }) {
                   viewMode !== "grid" || isMobile ? "w-full" : "w-76"
                 }`}
               >
-                <ProductItem product={product} viewMode={viewMode} />
+                <ProductItem product={product} />
               </div>
             ))}
           </div>

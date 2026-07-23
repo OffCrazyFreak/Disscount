@@ -17,7 +17,7 @@ export const faqItems: IFaqItem[] = [
   {
     question: "Koje trgovine mogu usporediti?",
     answer:
-      "Disscount pokriva 29 trgovačkih lanaca diljem Hrvatske - među njima Konzum, Lidl, Plodine, Spar, Kaufland, Tommy, Studenac, Eurospin i dm.",
+      "Disscount pokriva 25+ trgovačkih lanaca diljem Hrvatske - među njima Konzum, Lidl, Plodine, Spar, Kaufland, Tommy, Studenac, Eurospin i dm.",
   },
   {
     question: "Trebam li napraviti račun?",

@@ -7,13 +7,11 @@ import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { productByEanQueryKey } from "@/lib/cijene-api";
 import ProductInfo from "@/app/products/components/product-item/product-info";
 import ProductUnitPriceDetails from "@/app/products/components/product-item/product-price";
-import { ViewMode } from "@/typings/view-mode";
 import { useQueryClient } from "@tanstack/react-query";
 import ProductActionButtons from "@/app/products/components/product-action-buttons";
 
 interface IProductItemProps {
   product: ProductResponse;
-  viewMode: ViewMode;
 }
 
 const ProductItem = memo(function ProductItem({ product }: IProductItemProps) {

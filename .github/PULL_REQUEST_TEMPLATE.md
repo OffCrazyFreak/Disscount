@@ -6,7 +6,10 @@
 
 ## Related issue
 
-<!-- e.g. Closes #123 -->
+<!-- e.g. Closes #123
+     Closing keywords only fire when the PR merges into the default branch, so a
+     PR targeting `dev` links the issue but does not close it. Close those by hand,
+     referencing the commit SHA. -->
 
 ## Type of change
 
@@ -25,4 +28,5 @@
 - [ ] Code builds and any tests pass locally.
 - [ ] Formatting and linting applied (Prettier / lint for frontend, Maven build for backend).
 - [ ] No secrets, credentials, or personal data included.
+- [ ] The linked issue's "Done when" checklist is ticked off, or says what is left.
 - [ ] I have read the [Contributing guide](CONTRIBUTING.md).

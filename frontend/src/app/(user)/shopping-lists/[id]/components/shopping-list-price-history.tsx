@@ -79,8 +79,6 @@ export default function ShoppingListPriceHistory({
               <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
                 <div className="flex items-center justify-between w-full gap-2">
                   <PriceHistoryPeriodSelect
-                    value={period}
-                    onChange={handlePeriodChange}
                     disabledPeriods={DISABLED_PERIODS}
                   />
 

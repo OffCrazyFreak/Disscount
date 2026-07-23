@@ -95,7 +95,7 @@ export default function ShoppingListItem({
               averagePrice={averagePrice}
               isChecked={item.isChecked}
               storePriceFromDb={item.storePrice || undefined}
-              classname="w-full sm:w-72 sm:flex-none"
+              className="w-full sm:w-72 sm:flex-none"
             />
           </div>
 

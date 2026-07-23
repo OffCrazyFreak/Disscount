@@ -9,7 +9,7 @@ interface StepPair {
   secondary: number;
 }
 
-interface StepperNumberInputProps {
+interface IStepperNumberInputProps {
   value: string;
   onChange: (value: string) => void;
   steps: StepPair;
@@ -35,7 +35,7 @@ export function StepperNumberInput({
   placeholder,
   ariaLabel,
   className,
-}: StepperNumberInputProps) {
+}: IStepperNumberInputProps) {
   const parsed = Number.parseFloat(value);
   const current = Number.isFinite(parsed) ? parsed : 0;
 

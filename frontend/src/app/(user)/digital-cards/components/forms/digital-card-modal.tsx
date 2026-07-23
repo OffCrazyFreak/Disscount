@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Save } from "lucide-react";
 
-import { ModalShell } from "@/components/ui/modal-shell";
+import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
 import DigitalCardFields from "@/app/(user)/digital-cards/components/forms/digital-card-fields";
@@ -84,14 +84,17 @@ export default function DigitalCardModal({
     draftKey,
     form,
     enabled: open && isReady,
-    restore: false,
+    // New cards auto-restore via the engine; edit modals merge the draft themselves below.
+    restore: !isEdit,
+    // The card code is sensitive; never persist it to localStorage.
+    exclude: ["value"],
   });
 
   // A failed optimistic save reopened this modal: surface the server error.
   useEffect(() => {
     if (!open) return;
     const error = takeModalError(draftKey);
-    if (error) applyProblemToForm(error, form.setError);
+    if (error) applyProblemToForm(error, form);
   }, [open, draftKey, form]);
 
   const { onSubmit, isLoading } = useDigitalCardModal({
@@ -105,7 +108,9 @@ export default function DigitalCardModal({
   }
 
   const loading = isEdit && !digitalCard && cardsQuery.isLoading;
-  const notFound = isEdit && !digitalCard && !cardsQuery.isLoading;
+  const loadError = isEdit && !digitalCard && cardsQuery.isError;
+  const notFound =
+    isEdit && !digitalCard && !cardsQuery.isLoading && !cardsQuery.isError;
 
   return (
     <ModalShell
@@ -120,7 +125,10 @@ export default function DigitalCardModal({
       submitIcon={Save}
       submitLoading={isLoading}
       submitDisabled={
-        !form.formState.isDirty || !form.formState.isValid || notFound
+        !form.formState.isDirty ||
+        !form.formState.isValid ||
+        notFound ||
+        loadError
       }
       cancelLabel="Odustani"
       resetLabel="Resetiraj"
@@ -132,6 +140,10 @@ export default function DigitalCardModal({
     >
       {loading ? (
         <Skeleton className="h-64 w-full" />
+      ) : loadError ? (
+        <p className="text-sm text-muted-foreground">
+          Greška pri učitavanju kartice. Pokušaj ponovo.
+        </p>
       ) : notFound ? (
         <p className="text-sm text-muted-foreground">
           Kartica nije pronađena. Možda je obrisana.

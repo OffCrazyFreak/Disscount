@@ -2,7 +2,7 @@
  * Location/City data for sidebar
  */
 
-export interface StoreLocation {
+export interface IStoreLocation {
   name: string;
   storeCount: number;
   chains: string[];

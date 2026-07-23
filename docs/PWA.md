@@ -168,13 +168,13 @@ flowchart LR
     P -->|get/set/del| K["idb-keyval"]
     K --> IDB[("IndexedDB: disscount-react-query-cache")]
     IDB -->|restore on load| Q
-    Logout["Logout"] -->|purgeOfflineCache| Clear["queryClient.clear() + persister.removeClient()"]
+    Logout["Logout"] -->|purgeOfflineCache| Clear["remove user-specific queries + persister.removeClient()"]
 ```
 
 - `react-query-provider.tsx` uses `PersistQueryClientProvider`. The `QueryClient` sets a default `gcTime` equal to the persister `maxAge` (7 days), so entries are not garbage-collected out of memory before they can be restored from disk.
 - `persister.ts` builds a `createAsyncStoragePersister` backed by `idb-keyval` (IndexedDB, larger and safer than localStorage). `maxAge` 7 days, `buster` `"1"` (bump to invalidate all persisted caches after a breaking data-shape change).
 - `cached-query-keys.ts` is the **whitelist**: only queries whose top-level key is in `cijene`, `shoppingLists`, `shoppingListItems`, `watchlist`, `digitalCards`, `pinnedStores`, `pinnedPlaces`, or `users` are persisted, and only when successful. Everything else (for example admin data) is never written to disk. Coming-soon features carry `TODO(offline)` markers here to be added when they ship.
-- `purge.ts` (`purgeOfflineCache`) clears both the in-memory and IndexedDB caches, guarded so a failed IndexedDB clear never blocks logout. `user-context.tsx` calls it on **any transition to unauthenticated** (explicit logout, session expiry, revoked cookie, or sign-out in another tab), not just explicit logout, so a previous user's data and queued writes never linger on a shared device.
+- `purge.ts` (`purgeOfflineCache`) removes the user-specific queries from both the in-memory and IndexedDB caches, guarded so a failed IndexedDB clear never blocks logout. The public `cijene` cache is deliberately kept so public pages stay fast across a logout, and the in-flight cancellation is scoped by the same predicate, so logging out mid-request cannot abort a public price fetch. `user-context.tsx` calls it on **any transition to unauthenticated** (explicit logout, session expiry, revoked cookie, or sign-out in another tab), not just explicit logout, so a previous user's data and queued writes never linger on a shared device.
 
 ### 5c. Offline UX
 

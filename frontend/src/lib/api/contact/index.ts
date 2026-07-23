@@ -103,13 +103,21 @@ function useContactAction(action: (id: string) => Promise<ContactMessageDto>) {
   });
 }
 
-export const useMarkRead = () =>
-  useContactAction((id) => patchContactAction(id, "read"));
-export const useMarkUnread = () =>
-  useContactAction((id) => patchContactAction(id, "unread"));
-export const useSoftDelete = () => useContactAction(softDeleteContactMessage);
-export const useRestore = () =>
-  useContactAction((id) => patchContactAction(id, "restore"));
+export function useMarkRead() {
+  return useContactAction((id) => patchContactAction(id, "read"));
+}
+
+export function useMarkUnread() {
+  return useContactAction((id) => patchContactAction(id, "unread"));
+}
+
+export function useSoftDelete() {
+  return useContactAction(softDeleteContactMessage);
+}
+
+export function useRestore() {
+  return useContactAction((id) => patchContactAction(id, "restore"));
+}
 
 const contactService = {
   createContactMessage,

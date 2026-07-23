@@ -1,7 +1,7 @@
 import { ChainProductResponse } from "@/lib/cijene-api/schemas";
 import { normalizeForSearch } from "@/utils/strings";
 
-export interface PriceComparison {
+export interface IPriceComparison {
   difference: number;
   percentage: number;
   discountValue: number;
@@ -11,7 +11,7 @@ export interface PriceComparison {
 export function calculatePriceComparison(
   baselinePrice: number,
   candidatePrice: number,
-): PriceComparison {
+): IPriceComparison {
   const difference = Number((candidatePrice - baselinePrice).toFixed(2));
   const percentage =
     baselinePrice > 0
@@ -34,17 +34,9 @@ export function isPreferredChain(
     return false;
   }
 
-  const chainCode = normalizeForSearch(chain.code);
-  const chainName = normalizeForSearch(chain.chain);
-  const normalizedPinnedStoreChainCodes = pinnedStoreChainCodes.map(
-    (preferredCode) => normalizeForSearch(preferredCode),
-  );
+  const chainIdentifier = normalizeForSearch(chain.chain);
 
-  return normalizedPinnedStoreChainCodes.some((normalizedPreferredCode) => {
-    return (
-      normalizedPreferredCode === chainCode ||
-      chainCode.includes(normalizedPreferredCode) ||
-      chainName.includes(normalizedPreferredCode)
-    );
-  });
+  return pinnedStoreChainCodes.some((preferredCode) =>
+    chainIdentifier.includes(normalizeForSearch(preferredCode)),
+  );
 }

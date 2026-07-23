@@ -5,18 +5,19 @@ export const contactMessageRequestSchema = z.object({
   email: z.email("Neispravan e-mail").or(z.literal("")).optional(),
   fullName: z
     .string()
-    .max(100, "Ime može imati najviše 100 znakova")
+    .max(255, "Ime može imati najviše 255 znakova")
     .optional(),
   subject: z
     .string()
     .min(1, "Naslov je obavezan")
-    .max(150, "Naslov može imati najviše 150 znakova"),
+    .max(255, "Naslov može imati najviše 255 znakova"),
   message: z
     .string()
     .min(1, "Poruka je obavezna")
     .max(5000, "Poruka može imati najviše 5000 znakova"),
   sourcePath: z.string().optional(),
-  honeypot: z.string().optional(),
+  // Honeypot must stay empty; reject a filled value (backend also drops it server-side).
+  honeypot: z.string().max(0).optional(),
 });
 
 // What the admin inbox reads back. Optional inputs relax to nullable.

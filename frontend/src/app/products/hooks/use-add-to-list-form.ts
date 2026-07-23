@@ -87,7 +87,9 @@ export function useAddToListForm(open: boolean, ean: string) {
   // Default to the most recently updated list once lists load
   useEffect(() => {
     if (sortedShoppingLists.length > 0 && !form.getValues("shoppingListId")) {
-      form.setValue("shoppingListId", sortedShoppingLists[0].id);
+      form.setValue("shoppingListId", sortedShoppingLists[0].id, {
+        shouldValidate: true,
+      });
     }
   }, [sortedShoppingLists, form]);
 
@@ -102,6 +104,7 @@ export function useAddToListForm(open: boolean, ean: string) {
       form.setValue(
         "shoppingListId",
         sortedShoppingLists.length > 0 ? sortedShoppingLists[0].id : "",
+        { shouldValidate: true },
       );
     }
   }, [sortedShoppingLists, form]);
@@ -110,7 +113,7 @@ export function useAddToListForm(open: boolean, ean: string) {
   useEffect(() => {
     if (!open) return;
     const error = takeModalError(draftKey);
-    if (error) applyProblemToForm(error, form.setError);
+    if (error) applyProblemToForm(error, form);
   }, [open, draftKey, form]);
 
   const isChecked = form.watch("isChecked");
@@ -143,14 +146,29 @@ export function useAddToListForm(open: boolean, ean: string) {
         sortedShoppingLists.find((list) => list.id === listId)?.title ||
         "popis";
 
-      if (data.shoppingListId === "new" && customListTitle) {
-        const newList = await createShoppingListMutation.mutateAsync({
-          title: customListTitle,
-          isPublic: false,
-        });
-        toast.success(`Popis za kupnju "${customListTitle}" je stvoren`);
-        listId = newList.id;
-        listName = customListTitle;
+      if (data.shoppingListId === "new") {
+        const title = customListTitle.trim();
+
+        if (title) {
+          const newList = await createShoppingListMutation.mutateAsync({
+            title,
+            isPublic: false,
+          });
+          toast.success(`Popis za kupnju "${title}" je stvoren`);
+          listId = newList.id;
+          listName = title;
+        } else {
+          // A restored draft can keep the "new" placeholder without its (un-persisted) title;
+          // fall back to the latest list so we never send "new" as a real id.
+          const fallback = sortedShoppingLists[0];
+          if (!fallback) {
+            toast.error("Odaberi ili stvori popis za kupnju.");
+            openModalUrl({ name: "add-to-list", ean });
+            return;
+          }
+          listId = fallback.id;
+          listName = fallback.title;
+        }
       }
 
       const itemRequest: ShoppingListItemRequest = {

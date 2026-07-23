@@ -13,7 +13,7 @@ import {
 import SidebarNavItem from "@/components/custom/sidebar/sidebar-nav-item";
 import SidebarFilterMenu from "@/components/custom/sidebar/sidebar-filter-menu";
 import { useSidebarFilterOptions } from "@/hooks/use-sidebar-filter-options";
-import { productNavItems, type NavigationItem } from "@/constants/navigation";
+import { productNavItems, type INavigationItem } from "@/constants/navigation";
 import { useUser } from "@/context/user-context";
 import { isAdmin } from "@/lib/api/schemas/auth-user";
 import { readListParam } from "@/utils/generic";
@@ -34,7 +34,7 @@ export default function SidebarProductNav() {
   const searchParamsString = searchParams.toString();
   const fullPath = `${pathname}${searchParamsString ? `?${searchParamsString}` : ""}`;
 
-  function isItemActive(item: NavigationItem): boolean {
+  function isItemActive(item: INavigationItem): boolean {
     if (item.id === "discounted") {
       return isOnProducts && searchParams.get("discounted") === "true";
     }
@@ -42,7 +42,7 @@ export default function SidebarProductNav() {
     return item.href !== "#" && fullPath.startsWith(item.href);
   }
 
-  function renderFilterMenu(child: NavigationItem) {
+  function renderFilterMenu(child: INavigationItem) {
     const isStores = child.id === "stores";
 
     return (

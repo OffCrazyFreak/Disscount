@@ -9,14 +9,12 @@ import {
   extractPinnedStoreChainCodes,
   groupWatchlistItemsByProduct,
   isWatchThresholdReached,
-  WatchlistItemWithProduct,
 } from "@/app/(user)/watchlist/utils/watchlist-utils";
-import { useWatchlistSuggestions } from "@/app/(user)/watchlist/components/use-watchlist-suggestions";
-
-export interface WatchlistSearchItem extends WatchlistItemWithProduct {
-  productName: string;
-  brand: string;
-}
+import type {
+  IWatchlistItemWithProduct,
+  IWatchlistSearchItem,
+} from "@/app/(user)/watchlist/utils/watchlist-types";
+import { useWatchlistSuggestions } from "@/app/(user)/watchlist/hooks/use-watchlist-suggestions";
 
 export function useWatchlistData(query: string) {
   const { user, isAuthenticated, isLoading: userLoading } = useUser();
@@ -46,9 +44,7 @@ export function useWatchlistData(query: string) {
     })),
   });
 
-  const productsLoading = productQueries.some(
-    (query) => query.isLoading || query.isFetching,
-  );
+  const productsLoading = productQueries.some((query) => query.isLoading);
 
   // Freshest successful price fetch across the tracked products, for the
   // "last synced" label.
@@ -60,12 +56,10 @@ export function useWatchlistData(query: string) {
     return timestamps.length > 0 ? Math.max(...timestamps) : 0;
   }, [productQueries]);
 
-  const enrichedItems = useMemo<WatchlistItemWithProduct[]>(() => {
+  const enrichedItems = useMemo<IWatchlistItemWithProduct[]>(() => {
     return groupedWatchlistItems.map((groupedItem, index) => {
       const productQuery = productQueries[index];
-      const isProductLoading = Boolean(
-        productQuery?.isLoading || productQuery?.isFetching,
-      );
+      const isProductLoading = Boolean(productQuery?.isLoading);
       const product = isProductLoading ? undefined : productQuery?.data;
       const queryError = productQuery?.error;
 
@@ -82,7 +76,7 @@ export function useWatchlistData(query: string) {
     });
   }, [groupedWatchlistItems, productQueries, pinnedStoreChainCodes]);
 
-  const filteredItems = useMemo<WatchlistSearchItem[]>(() => {
+  const filteredItems = useMemo<IWatchlistSearchItem[]>(() => {
     const searchableItems = enrichedItems.map((item) => ({
       ...item,
       productName: item.product?.name || "",
@@ -92,7 +86,7 @@ export function useWatchlistData(query: string) {
     return filterByFields(searchableItems, query, ["productName", "brand"]);
   }, [enrichedItems, query]);
 
-  const discountedItems = useMemo<WatchlistItemWithProduct[]>(() => {
+  const discountedItems = useMemo<IWatchlistItemWithProduct[]>(() => {
     if (productsLoading) {
       return [];
     }

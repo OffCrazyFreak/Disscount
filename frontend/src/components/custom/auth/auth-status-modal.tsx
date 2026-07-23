@@ -2,7 +2,7 @@
 
 import { CircleCheck } from "lucide-react";
 
-import { ModalShell } from "@/components/ui/modal-shell";
+import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useUser } from "@/context/user-context";
 
@@ -12,7 +12,7 @@ const STATUS_COPY: Record<StatusKind, { title: string; description: string }> =
   {
     "email-verified": {
       title: "Email potvrđen",
-      description: "Tvoja email adresa je potvrđena. Dobrodošao u Disscount!",
+      description: "Tvoja email adresa je potvrđena. Drago nam je što si tu!",
     },
     "email-changed": {
       title: "Email promijenjen",

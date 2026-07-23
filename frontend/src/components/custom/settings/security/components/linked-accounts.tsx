@@ -32,12 +32,22 @@ export default function LinkedAccounts() {
   const linkedSocials = accounts.filter((a) => a.providerId !== "credential");
   const signInMethods = (hasPassword ? 1 : 0) + linkedSocials.length;
 
+  function reportLinkFailure() {
+    setPending(null);
+    toast.error("Greška pri povezivanju računa.");
+  }
+
   async function link(provider: SocialProvider) {
     setPending(provider);
-    await authClient.linkSocial({
-      provider,
-      callbackURL: "/?modal=settings/sigurnost",
-    });
+    try {
+      const { error } = await authClient.linkSocial({
+        provider,
+        callbackURL: "/?modal=settings/sigurnost",
+      });
+      if (error) throw error;
+    } catch {
+      reportLinkFailure();
+    }
   }
 
   async function unlink(providerId: SocialProvider, accountId: string) {

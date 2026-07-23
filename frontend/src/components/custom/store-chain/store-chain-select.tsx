@@ -8,7 +8,7 @@ import {
 import { cn } from "@/lib/utils";
 import { getChainLabel } from "@/utils/labels";
 import { compareHr } from "@/utils/strings";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 
 interface IStoreChainSelectProps {
@@ -20,7 +20,17 @@ interface IStoreChainSelectProps {
   averagePrice?: number;
   isChecked?: boolean; // Whether the item is checked
   storePriceFromDb?: number; // Store price from database when item is checked
-  classname?: string;
+  className?: string;
+}
+
+function computePriceDifference(storePrice: number, averagePrice: number) {
+  const difference = storePrice - averagePrice;
+  const percentage = Math.abs((difference / averagePrice) * 100);
+
+  return {
+    percentage: Math.round(percentage).toString(),
+    difference: difference.toFixed(2),
+  };
 }
 
 export default function StoreChainSelect({
@@ -32,17 +42,27 @@ export default function StoreChainSelect({
   averagePrice,
   isChecked = false,
   storePriceFromDb,
-  classname,
+  className,
 }: IStoreChainSelectProps) {
   const [displayValue, setDisplayValue] = useState<string>(value || "");
+  const autoSelectedForRef = useRef<string | null>(null);
 
-  // If default value is provided and current value is null/undefined, use default
+  // Auto-select the default once per default value. The guard stops a mutation-rollback
+  // re-render (value reverts to empty) from re-firing onChange in a request/toast storm.
   useEffect(() => {
-    if (!value && defaultValue && !disabled) {
+    if (
+      !value &&
+      defaultValue &&
+      !disabled &&
+      autoSelectedForRef.current !== defaultValue
+    ) {
+      autoSelectedForRef.current = defaultValue;
       setDisplayValue(defaultValue);
       onChange(defaultValue);
     } else if (value) {
       setDisplayValue(value);
+    } else {
+      setDisplayValue("");
     }
   }, [value, defaultValue, onChange, disabled]);
 
@@ -53,26 +73,13 @@ export default function StoreChainSelect({
       if (!averagePrice || !storePriceFromDb) return null;
       if (chainCode !== value) return null; // Only show difference for selected store when checked
 
-      const difference = storePriceFromDb - averagePrice;
-      const percentage = Math.abs((difference / averagePrice) * 100);
-
-      return {
-        percentage: Math.round(percentage).toString(),
-        difference: difference.toFixed(2),
-      };
+      return computePriceDifference(storePriceFromDb, averagePrice);
     }
 
     // When item is unchecked, use API prices
     if (!averagePrice || !storePrices[chainCode]) return null;
 
-    const storePrice = storePrices[chainCode];
-    const difference = storePrice - averagePrice;
-    const percentage = Math.abs((difference / averagePrice) * 100);
-
-    return {
-      percentage: Math.round(percentage).toString(),
-      difference: difference.toFixed(2),
-    };
+    return computePriceDifference(storePrices[chainCode], averagePrice);
   };
 
   // Build options from the live cijene price data (chain slugs), not a static
@@ -92,7 +99,7 @@ export default function StoreChainSelect({
   return (
     <Select value={displayValue} onValueChange={onChange} disabled={disabled}>
       <SelectTrigger
-        className={cn("min-w-0 h-9 text-xs sm:text-sm", classname)}
+        className={cn("min-w-0 h-9 text-xs sm:text-sm", className)}
       >
         <SelectValue placeholder="Trgovina" />
       </SelectTrigger>

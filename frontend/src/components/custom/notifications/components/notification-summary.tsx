@@ -1,8 +1,8 @@
 import { HandCoins } from "lucide-react";
-import type { NotificationsSummary } from "@/context/notifications-types";
+import type { INotificationsSummary } from "@/context/notifications-types";
 
 interface INotificationSummaryProps {
-  summary: NotificationsSummary;
+  summary: INotificationsSummary;
 }
 
 export default function NotificationSummary({

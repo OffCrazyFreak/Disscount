@@ -3,60 +3,39 @@ import { ChartDataPoint } from "@/typings/chart-data";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { ShoppingListItemDto } from "@/lib/api/types";
 import { formatDate } from "@/utils/strings";
+import { buildDateWindow } from "@/utils/date";
+import { PRICE_ARCHIVE_START } from "@/constants/price-history";
 import { calculatePriceChange } from "@/app/products/utils/product-utils";
 
 export function getPriceHistoryDates(daysToShow: number): string[] {
-  const arr: string[] = [];
-  const today = new Date();
-  const START_DATE = new Date("2025-05-16");
-  const maxDaysFromCap = Math.max(
-    0,
-    Math.ceil((today.getTime() - START_DATE.getTime()) / (1000 * 60 * 60 * 24)),
-  );
-
-  let cappedDays: number;
-  if (daysToShow === -1) {
-    cappedDays = maxDaysFromCap;
-  } else {
-    cappedDays = Math.min(daysToShow, maxDaysFromCap);
-  }
-
-  for (let i = 0; i < cappedDays; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    arr.push(d.toISOString().slice(0, 10));
-  }
-
-  return arr.reverse();
+  return buildDateWindow(daysToShow, PRICE_ARCHIVE_START);
 }
 
 export function groupPriceHistoriesByEan(
   productsData: (ProductResponse | undefined)[],
   eans: string[],
   datesLength: number,
-): Record<string, ProductResponse[]> {
-  const result: Record<string, ProductResponse[]> = {};
+): Record<string, (ProductResponse | undefined)[]> {
+  const result: Record<string, (ProductResponse | undefined)[]> = {};
 
   eans.forEach((ean, eanIndex) => {
     const startIdx = eanIndex * datesLength;
     const endIdx = startIdx + datesLength;
-    result[ean] = productsData
-      .slice(startIdx, endIdx)
-      .map((data) => data as ProductResponse)
-      .filter(Boolean);
+    // Keep positional (date-aligned) holes; filtering would desync prices from dates.
+    result[ean] = productsData.slice(startIdx, endIdx);
   });
 
   return result;
 }
 
 export function getAvailableChains(
-  priceHistoriesByEan: Record<string, ProductResponse[]>,
+  priceHistoriesByEan: Record<string, (ProductResponse | undefined)[]>,
 ): string[] {
   const chainSet = new Set<string>();
 
   Object.values(priceHistoriesByEan).forEach((products) => {
     products.forEach((product) => {
-      product.chains?.forEach((chain) => chainSet.add(chain.chain));
+      product?.chains?.forEach((chain) => chainSet.add(chain.chain));
     });
   });
 
@@ -64,7 +43,7 @@ export function getAvailableChains(
 }
 
 export function buildChartData(
-  priceHistoriesByEan: Record<string, ProductResponse[]>,
+  priceHistoriesByEan: Record<string, (ProductResponse | undefined)[]>,
   eans: string[],
   dates: string[],
   selectedChains: string[],
@@ -131,6 +110,20 @@ export function buildChartConfig(
   return cfg;
 }
 
+const AXIS_DECIMALS = 2;
+const AXIS_MIN_STEP = 10 ** -AXIS_DECIMALS;
+
+// Round a target step up to a "nice" 1/2/5 x 10^n value, aiming for ~6 ticks.
+function niceAxisStep(range: number): number {
+  if (range <= 0) return 1;
+  const target = range / 6;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(target)));
+  const normalized = target / magnitude;
+  const nice =
+    normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
+  return Math.max(nice * magnitude, AXIS_MIN_STEP);
+}
+
 export function calculateYAxisTicks(chartData: ChartDataPoint[]): number[] {
   const padding = 0.05;
 
@@ -148,12 +141,12 @@ export function calculateYAxisTicks(chartData: ChartDataPoint[]): number[] {
   const paddedMax = Math.max(...allPrices) * (1 + padding);
 
   const ticks = [];
-  const step = 1;
+  const step = niceAxisStep(paddedMax - paddedMin);
   const start = Math.floor(paddedMin / step) * step;
   const end = Math.ceil(paddedMax / step) * step;
 
   for (let i = start; i <= end; i += step) {
-    ticks.push(parseFloat(i.toFixed(2)));
+    ticks.push(parseFloat(i.toFixed(AXIS_DECIMALS)));
   }
 
   return ticks;

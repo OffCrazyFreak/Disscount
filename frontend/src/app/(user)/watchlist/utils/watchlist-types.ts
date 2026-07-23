@@ -4,19 +4,19 @@ import {
   ProductResponse,
 } from "@/lib/cijene-api/schemas";
 
-export interface GroupedWatchlistItems {
+export interface IGroupedWatchlistItems {
   productApiId: string;
   watchlistItems: WatchlistItemDto[];
 }
 
-export interface ScopedDiscountedStore {
+export interface IScopedDiscountedStore {
   chain: ChainProductResponse;
   currentPrice: number;
   discountAmount: number;
   discountPercentage: number;
 }
 
-export interface DiscountInfo {
+export interface IDiscountInfo {
   // Signed value: negative means discounted vs average, positive means above average.
   preferredDifference: number | null;
   // Absolute percentage only (requested UI behavior).
@@ -34,11 +34,16 @@ export interface DiscountInfo {
   avgPrice: number;
 }
 
-export interface WatchlistItemWithProduct {
+export interface IWatchlistItemWithProduct {
   productApiId: string;
   watchlistItems: WatchlistItemDto[];
   product: ProductResponse | undefined;
-  discountInfo: DiscountInfo | null;
+  discountInfo: IDiscountInfo | null;
   isLoading: boolean;
   error: Error | null;
+}
+
+export interface IWatchlistSearchItem extends IWatchlistItemWithProduct {
+  productName: string;
+  brand: string;
 }

@@ -2,7 +2,7 @@ import * as cijeneService from "@/lib/cijene-api/index";
 import { ProductResponse, StoreResponse } from "@/lib/cijene-api/schemas";
 import { useMemo } from "react";
 import { getLocationLabel } from "@/utils/labels";
-import { StoreLocation } from "@/typings/store-location";
+import { IStoreLocation } from "@/typings/store-location";
 
 /**
  * Hook for fetching all locations/cities from all chains for sidebar
@@ -16,7 +16,7 @@ export function useAllLocations() {
   } = cijeneService.useSearchStores();
 
   // Process and combine all store data
-  const locations = useMemo<Array<StoreLocation>>(() => {
+  const locations = useMemo<Array<IStoreLocation>>(() => {
     if (storesLoading || !storesData?.stores) {
       return [];
     }
@@ -70,12 +70,9 @@ export function useAllLocations() {
 import { useQueries } from "@tanstack/react-query";
 import { formatDate } from "@/utils/strings";
 import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";
-
-interface UsePriceHistoryArgs {
-  ean: string;
-  /** Number of days back INCLUDING today. Pass -1 for all available history, capped to not go earlier than 2025-05-16. */
-  days?: number;
-}
+import type { IUsePriceHistoryArgs } from "@/lib/cijene-api/hooks-types";
+import { buildDateWindow } from "@/utils/date";
+import { PRICE_ARCHIVE_START } from "@/constants/price-history";
 
 /**
  * Fetch product price snapshots for the last N days in parallel
@@ -85,34 +82,11 @@ interface UsePriceHistoryArgs {
  * @returns Object containing history data, chains, loading/error states
  */
 
-const START_DATE = new Date("2025-05-16");
-
-export function usePriceHistory({ ean, days = 7 }: UsePriceHistoryArgs) {
-  const dates = useMemo(() => {
-    const arr: string[] = [];
-    const today = new Date();
-    const startCap = START_DATE;
-
-    // Cap days to not go earlier than start date
-    const maxDaysFromCap = Math.max(
-      0,
-      Math.ceil((today.getTime() - startCap.getTime()) / (1000 * 60 * 60 * 24)),
-    );
-
-    let cappedDays: number;
-    if (days === -1) {
-      cappedDays = maxDaysFromCap;
-    } else {
-      cappedDays = Math.min(days, maxDaysFromCap);
-    }
-
-    for (let i = 0; i < cappedDays; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() - i);
-      arr.push(d.toISOString().slice(0, 10));
-    }
-    return arr.reverse(); // chronological
-  }, [days]);
+export function usePriceHistory({ ean, days = 7 }: IUsePriceHistoryArgs) {
+  const dates = useMemo(
+    () => buildDateWindow(days, PRICE_ARCHIVE_START),
+    [days],
+  );
 
   const queries = useQueries({
     queries: dates.map((date, index) => ({

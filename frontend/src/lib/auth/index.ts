@@ -5,7 +5,7 @@ import { nextCookies } from "better-auth/next-js";
 import { APIError } from "better-auth/api";
 
 import { db } from "@/db";
-import { requireEnv } from "@/lib/env";
+import { appUrl, requireEnv } from "@/lib/env";
 import { emailService } from "@/lib/email";
 import {
   dispatchResetPasswordEmail,
@@ -155,5 +155,5 @@ export const auth = betterAuth({
     nextCookies(), // must be last
   ],
 
-  trustedOrigins: [process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"],
+  trustedOrigins: [appUrl()],
 });

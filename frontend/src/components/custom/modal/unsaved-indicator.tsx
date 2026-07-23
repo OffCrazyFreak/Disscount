@@ -15,6 +15,7 @@ export function UnsavedIndicator() {
     <Tooltip>
       <TooltipTrigger asChild>
         <span
+          role="img"
           aria-label="Nespremljene izmjene"
           className="inline-flex size-7 items-center justify-center rounded-full bg-amber-100 text-amber-600"
         >

@@ -158,7 +158,7 @@ export default function DigitalCardFields() {
               />
             </FormControl>
             <FormDescription>
-              Dodatne informacije o vašoj kartici (
+              Dodatne informacije o tvojoj kartici (
               {200 - (field.value?.length || 0)} preostalo).
             </FormDescription>
             <FormMessage />

@@ -251,13 +251,13 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
 
 - **Gate restore until server defaults are loaded (`enabled`).** For edit modals, if the draft is restored before the loaded record populates the form, the draft diffs against empty defaults and marks every field dirty. Pass `enabled` so restoring waits for the data.
 
-- **Use `restore: false` when the modal merges the draft itself.** Edit and prefill modals load their base values first, then merge the draft on top (draft wins). Letting the hook also auto-restore would double-reset and fight the prefill. The contact, digital card, and shopping list modals all follow this prefill-then-merge pattern.
+- **New-entity modals auto-restore; edit modals merge the draft themselves.** The shopping-list and digital-card modals pass `restore: !isEdit`: a brand-new list or card is rehydrated by the hook (its own effect re-runs when the draft key changes), while an edit modal loads its base record first and merges the draft on top with `restore: false` (draft wins). The contact modal is prefill-then-merge (`restore: false`). Letting the hook auto-restore an edit modal would double-reset and fight the prefill.
 
-- **Never draft passwords or base64 images.** Pass them in `exclude`. Passwords must not touch disk, and a base64 avatar would blow the localStorage quota. The avatar field lives outside forms and drafts entirely for this reason.
+- **Never draft passwords, base64 images, or card codes.** Pass them in `exclude`. Passwords must not touch disk, a base64 avatar would blow the localStorage quota, and the digital-card code (`value`) is excluded so a card number never persists. The avatar field lives outside forms and drafts entirely for this reason.
 
 - **Old drafts are type-guarded on restore.** If a field's type changed since a draft was written (for example a number where the field is now a string), the restore skips it so a stale draft cannot poison validation.
 
-- **Closing mid-debounce still saves.** The watch effect's cleanup flushes the last keystrokes on unmount unless the form was just submitted, so quickly closing a modal does not lose the final characters.
+- **Closing mid-debounce still saves, but a submit never re-persists.** The watch effect's cleanup flushes the last keystrokes on unmount unless the form is submitting or submitted. The `isSubmitting` guard matters for the optimistic-close pattern: the modal unmounts before the mutation resolves and `clearDraft` runs, so without it a late flush could rewrite a draft that was just cleared and a reopen would show stale data.
 
 - **Filters use repeated params, not a comma-joined string.** A category or brand can itself contain a comma, so joining would read back as two filters. Chain and location still accept a legacy comma-joined value so links shared before this change keep working.
 

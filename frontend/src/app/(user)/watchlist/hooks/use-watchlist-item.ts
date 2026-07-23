@@ -3,15 +3,17 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { watchlistService, WatchType } from "@/lib/api";
 import {
+  extractPinnedStoreChainCodes,
   isWatchThresholdReached,
-  WatchlistItemWithProduct,
+  IWatchlistItemWithProduct,
 } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { useUser } from "@/context/user-context";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { formatQuantity } from "@/utils/strings";
 
-export function useWatchlistItem(item: WatchlistItemWithProduct) {
-  const { watchlistItems, productApiId, product, discountInfo } = item;
+export function useWatchlistItem(item: IWatchlistItemWithProduct) {
+  const { watchlistItems, productApiId, product, discountInfo, isLoading } =
+    item;
   const queryClient = useQueryClient();
   const { user } = useUser();
   const [isRemoving, setIsRemoving] = useState(false);
@@ -50,8 +52,8 @@ export function useWatchlistItem(item: WatchlistItemWithProduct) {
     }
   }
 
-  // Display product name from API only (no fallback since productName removed from backend)
-  const productName = product?.name || "Učitavanje...";
+  const productName =
+    product?.name || (isLoading ? "Učitavanje..." : "Proizvod nije dostupan");
   const productBrand = product?.brand || null;
   const formattedQuantity = formatQuantity(product?.quantity);
   const quantityWithUnit =
@@ -59,7 +61,8 @@ export function useWatchlistItem(item: WatchlistItemWithProduct) {
       ? `${formattedQuantity}${product.unit}`
       : null;
 
-  const hasPinnedStores = (user?.pinnedStores?.length || 0) > 0;
+  const hasPinnedStores =
+    extractPinnedStoreChainCodes(user?.pinnedStores).length > 0;
 
   function isWatchRequirementAchieved(
     thresholdValue: number,

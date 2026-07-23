@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -9,11 +9,24 @@ import { watchlistService, WatchType } from "@/lib/api";
 import { applyProblemToForm } from "@/lib/api/problem-details";
 import { stashModalError, takeModalError } from "@/lib/modal/modal-error-bus";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
-import { removeFormDraft } from "@/utils/browser/local-storage";
+import { getFormDraft, removeFormDraft } from "@/utils/browser/local-storage";
 import {
   WatchlistFormData,
   watchlistFormSchema,
 } from "@/app/products/typings/watchlist-form";
+
+// A restore reinstates watchType and thresholdValue together, which looks like a
+// user switching the type; the saved pair identifies it so the value is kept.
+function matchesDraft(draftKey: string, values: WatchlistFormData): boolean {
+  const draft = getFormDraft(draftKey)?.values as
+    Partial<WatchlistFormData> | undefined;
+
+  return (
+    !!draft &&
+    draft.watchType === values.watchType &&
+    draft.thresholdValue === values.thresholdValue
+  );
+}
 
 export function useWatchlistItemForm(
   open: boolean,
@@ -42,24 +55,35 @@ export function useWatchlistItemForm(
     (item) => item.watchType === watchType,
   );
 
-  // Prefill the threshold with the tracked value (or a sensible default) when
-  // the type changes; user-typed (dirty) values are never overwritten.
+  const prevWatchTypeRef = useRef(watchType);
+
+  // Prefill the threshold when the type changes. A mode switch always reloads (the value's
+  // meaning changed); otherwise a user-typed or restored value is kept.
   useEffect(() => {
-    if (form.formState.dirtyFields.thresholdValue) return;
+    const watchTypeChanged = prevWatchTypeRef.current !== watchType;
+    prevWatchTypeRef.current = watchType;
+
+    if (watchTypeChanged && matchesDraft(draftKey, form.getValues())) return;
+
+    if (!watchTypeChanged && form.formState.dirtyFields.thresholdValue) return;
 
     if (existingItemForType) {
       form.setValue(
         "thresholdValue",
         existingItemForType.thresholdValue.toString(),
+        { shouldValidate: true },
       );
     } else if (watchType === WatchType.percentage) {
-      form.setValue("thresholdValue", "10");
+      form.setValue("thresholdValue", "10", { shouldValidate: true });
     } else {
       const suggested =
         avgPrice > 0 ? Math.round(avgPrice * 0.1 * 100) / 100 : 0;
       form.setValue(
         "thresholdValue",
         suggested > 0 ? suggested.toString() : "",
+        {
+          shouldValidate: true,
+        },
       );
     }
   }, [watchType, existingItemForType, avgPrice, form]);
@@ -68,7 +92,7 @@ export function useWatchlistItemForm(
   useEffect(() => {
     if (!open) return;
     const error = takeModalError(draftKey);
-    if (error) applyProblemToForm(error, form.setError);
+    if (error) applyProblemToForm(error, form);
   }, [open, draftKey, form]);
 
   // Optimistic close: the modal closes immediately and reopens only on failure.
