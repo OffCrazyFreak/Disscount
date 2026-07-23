@@ -26,7 +26,13 @@ Do not hardcode which model any engine uses. Preflight asked the user per engine
 
 ## Folder batching
 
-Diff `<base>...<target>` and take the code-only set (exclude `*.md`, `public/` assets, lockfiles, `*.yaml`). Do not review the whole repo unless the user chose that scope. The runner scripts auto-detect the highest-change folders from the diff via `scripts/_common.sh` (`review_dirs()`), so there are no repo-specific paths baked in; override with the `REVIEW_DIRS` env var when the user narrowed the scope. Keep each scarce engine (Cursor especially) under its free-tier file limits by giving it fewer folders.
+Diff `<base>...<target>` and take the code-only set (exclude `*.md`, `public/` assets, lockfiles, `*.yaml`). Do not review the whole repo unless the user chose that scope. The runner scripts auto-detect the highest-change folders from the diff via `scripts/_common.sh` (`review_dirs()`), so there are no repo-specific paths baked in; override with the `REVIEW_DIRS` env var when the user narrowed the scope.
+
+**Size every batch against the engine's per-review file cap, do not just accept the auto-detected list.** For a rate-limited engine the cost is one unit per review regardless of size, so a 5-file batch and a 140-file batch cost the same. `review_dirs()` returns folders at a fixed depth, which fragments a shallow tree into many tiny batches and burns the hourly allowance on almost nothing. Before launching, count the files per candidate folder (`git diff --name-only <base>...<target> | awk -F/ ...`) and walk UP the tree, merging children into their parent until the next merge would exceed the cap. Pass the result as `REVIEW_DIRS`.
+
+The binding constraint is that CodeRabbit's `--dir` takes exactly ONE directory (unlike `--config`, which is variadic), so a batch must be a real directory, not an arbitrary file list. Sibling folders can only be merged by reviewing their common parent. When that parent would exceed the cap, the leftover siblings genuinely have to run as separate small reviews; say so rather than silently reviewing the parent and letting the engine truncate at the cap, which can drop the very files the small batches were for.
+
+Cheap engines with no per-review cap (Codex, the Claude subagents) want the OPPOSITE: more, smaller batches, since a narrower diff per prompt yields sharper findings.
 
 ## Launching the runners
 
