@@ -20,6 +20,21 @@ interface IUseFormDraftOptions<T extends FieldValues> {
   exclude?: Path<T>[];
 }
 
+function typeChanged(current: unknown, draftValue: unknown): boolean {
+  return (
+    current !== undefined &&
+    draftValue !== undefined &&
+    typeof current !== typeof draftValue
+  );
+}
+
+// isSubmitting covers optimistic close, where the modal unmounts before clearDraft runs.
+function isClosingWithoutSubmit<T extends FieldValues>(
+  form: UseFormReturn<T>,
+): boolean {
+  return !form.formState.isSubmitted && !form.formState.isSubmitting;
+}
+
 /**
  * Persists a modal form's changed values to localStorage (24h TTL) so users can
  * close a modal and resume later. "Changed" is computed by comparing current
@@ -58,14 +73,7 @@ export function useFormDraft<T extends FieldValues>({
     for (const [field, value] of Object.entries(draft.values)) {
       if (stateRef.current.exclude.includes(field as Path<T>)) continue;
       const current = values[field];
-      // Drafts written under an older schema would poison validation.
-      if (
-        current !== undefined &&
-        value !== undefined &&
-        typeof current !== typeof value
-      ) {
-        continue;
-      }
+      if (typeChanged(current, value)) continue;
       if (JSON.stringify(current) === JSON.stringify(value)) continue;
       values[field] = value;
       changed = true;
@@ -103,10 +111,7 @@ export function useFormDraft<T extends FieldValues>({
     return () => {
       clearTimeout(timer);
       subscription.unsubscribe();
-      // Flush the debounce on close, but never over an optimistic close's clearDraft.
-      if (!form.formState.isSubmitted && !form.formState.isSubmitting) {
-        flushDraft();
-      }
+      if (isClosingWithoutSubmit(form)) flushDraft();
     };
   }, [enabled, draftKey, form, flushDraft]);
 
