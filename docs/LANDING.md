@@ -262,6 +262,8 @@ Mixing an `animate` prop with `style` MotionValues on one element makes them fig
 
 Decorative overflow becomes a horizontal scrollbar unless it is clipped. `TextGlow` is positioned with negative insets (`-inset-6`/`-inset-8`) so its halo intentionally sits ~25px outside its text box; on a narrow viewport a near-full-width heading pushes that transparent overhang past the right edge (~13px at 390px). The doodle glows do the same to a smaller degree. This surfaces as a scrollbar because of a CSS rule: when one overflow axis is `hidden` (not `visible`/`clip`), the other axis computes to `auto`. `<main>` in `app/layout.tsx` therefore uses `overflow-clip` (both axes clip, no scroll container) rather than `overflow-y-hidden`, which had silently made the x-axis scrollable. `overflow-clip` clips the transparent glow edge with zero visible loss and does not affect page (body) vertical scroll. Prefer `overflow-*-clip` over `overflow-*-hidden` for containing decorative bleed.
 
+The exact chain count is never hardcoded. The number of covered retail chains grows over time (the price API already lists 30 while `storeNamesMap` has 28 keys), so the copy, metadata, OG image, and FAQ all say `25+ trgovačkih lanaca` rather than a fixed number. The marquee derives its logos from `storeNamesMap` directly, so it always matches the data.
+
 ## Future improvements and TODOs
 
 - Wire the coming-soon feature cards (Dijeljenje popisa, Analiza potrošnje, Digitalne kartice, Karta trgovina) once their pages ship, by uncommenting the `href` in `features.ts` and dropping `comingSoon`.

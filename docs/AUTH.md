@@ -254,7 +254,9 @@ Backend: Spring Boot `3.1.0` on Java `21`, using `spring-boot-starter-oauth2-res
 - **`requireEnv` fails the boot, not the request.** If any auth env var is missing (including `RESEND_API_KEY`, `EMAIL_FROM`, and the `FACEBOOK_*` pair), the app throws at module load. Production (Netlify/Dokploy) needs all of them set or it will not start.
 - **The correct change-email key is `sendChangeEmailConfirmation`, not `...Verification`.** Better Auth silently ignores unknown option keys, so a typo fails quietly; rely on `tsc` to catch it.
 - **React Email 6 changed imports.** Import components, `render`, and `pixelBasedPreset` from the single `react-email` package, not `@react-email/components`.
-- **The Resend SDK returns `{ data, error }` and does not throw for API errors, but it can still throw on transport failures.** `resend-provider.ts` wraps the call so all `void` callers stay safe.
+- **The Resend SDK returns `{ data, error }` and does not throw for API errors, but it can still throw on transport failures.** `resend-provider.ts` normalizes both into an `EmailResult`, and `EmailService` then throws when `result.error` is set, so the fire-and-forget `.catch(logEmailFailure)` handlers actually log a failed send instead of it resolving as if it succeeded.
+- **Delete the backend profile before the auth identity.** `security-actions.ts` deletes the Spring profile first, then the better-auth user. Deleting auth first would orphan the backend row and lock the user out if the profile delete failed; backend-first aborts before touching auth on failure, so the user keeps access and can retry.
+- **The public app origin fails closed in production.** `appUrl()` in `lib/env` returns `NEXT_PUBLIC_APP_URL` and throws in production when it is unset, so a misconfigured deploy never leaks `localhost` into the auth trusted origins, canonical URLs, sitemaps, or JSON-LD. It falls back to localhost only in development.
 - **Resend only delivers from a verified domain.** The sandbox sender only reaches your own Resend account address; `disscount.me` is verified so real sends work. The `EMAIL_FROM` domain must match a verified domain exactly.
 - **Read OAuth `?error=` via `useSearchParams`, and mount the toast globally.** See [Section 6](#6-the-oauth-error-toast) for why both matter.
 - **Email hooks are fire-and-forget (`void`) on purpose.** Awaiting them would make the response time reveal whether an email exists (a timing oracle). Each has a non-PII `.catch` so a failed send is logged, not lost.
@@ -264,7 +266,7 @@ Backend: Spring Boot `3.1.0` on Java `21`, using `spring-boot-starter-oauth2-res
 
 ## 14. Future improvements and TODOs
 
-- **Enable Facebook:** complete Meta Business Verification (needs a registered entity, for example a Croatian obrt), then set `FACEBOOK_COMING_SOON = false`.
+- **Enable Facebook (re-audit the linking hook first):** complete Meta Business Verification (needs a registered entity, for example a Croatian obrt), then set `FACEBOOK_COMING_SOON = false`. Before flipping it, revisit `databaseHooks.account.create.after`: it marks OAuth emails verified, which is how Facebook (no verified-email claim) links without the deprecated `requireLocalEmailVerified` flag. Facebook does not guarantee a verified email and phone-only users have none, so a verified-provider-email gate is not viable; the better-auth core auto-link CVE is already patched in `1.6.14`, and the flow stays gated behind `FACEBOOK_COMING_SOON` until then.
 - **Apply the `app_user.username` constraint drop on the production database.**
 - **Dedicated register/set-password email copy:** the "set your password" case currently reuses reset wording, which reads slightly oddly for a first-time set.
 - **Deliverability hardening before any marketing mail:** SPF/DKIM/DMARC, a dedicated sending subdomain, and one-click unsubscribe. Templates are Croatian only today (no i18n).
