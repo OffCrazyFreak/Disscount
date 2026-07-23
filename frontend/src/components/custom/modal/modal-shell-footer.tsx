@@ -42,7 +42,8 @@ export function ModalShellFooter({
   footerStart,
   caption,
 }: IModalShellFooterProps) {
-  const hasButtons = !!cancelLabel || !!submitLabel || !!footerStart;
+  const hasButtons =
+    !!cancelLabel || !!resetLabel || !!submitLabel || !!footerStart;
 
   if (!hasButtons && !caption) return null;
 
