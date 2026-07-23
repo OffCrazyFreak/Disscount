@@ -62,11 +62,11 @@ export function useUpdateShoppingList() {
 }
 
 export function useDeleteShoppingList() {
-  const queryClient = useQueryClient();
+  const invalidate = useInvalidateListsAndItems();
   return useMutation<void, Error, string>({
     mutationKey: OFFLINE_MUTATION_KEYS.shoppingListDelete,
     mutationFn: deleteShoppingList,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: LISTS_KEY }),
+    onSuccess: invalidate,
   });
 }
 
