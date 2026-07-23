@@ -61,6 +61,8 @@ export default function StoreChainSelect({
       onChange(defaultValue);
     } else if (value) {
       setDisplayValue(value);
+    } else {
+      setDisplayValue("");
     }
   }, [value, defaultValue, onChange, disabled]);
 
