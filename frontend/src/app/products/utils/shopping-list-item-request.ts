@@ -28,7 +28,7 @@ export function buildShoppingListItemRequest(
   return {
     ...request,
     chainCode,
-    avgPrice: pricing.averagePrice || undefined,
+    avgPrice: pricing.averagePrice ?? undefined,
     storePrice: pricing.storePrices[chainCode],
   };
 }
