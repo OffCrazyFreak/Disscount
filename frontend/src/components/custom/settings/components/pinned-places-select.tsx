@@ -35,7 +35,7 @@ export default function PinnedPlacesSelect() {
                 <MultiSelectValue placeholder="Odaberi lokacije..." />
               </MultiSelectTrigger>
             </FormControl>
-            <MultiSelectContent className="bg-white">
+            <MultiSelectContent className="bg-popover">
               <MultiSelectGroup>
                 {locations
                   .slice()

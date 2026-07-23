@@ -1,6 +1,6 @@
 "use client";
 
-import { type ComponentPropsWithRef, useState } from "react";
+import { type ComponentPropsWithRef, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface IUserAvatarUser {
@@ -41,6 +41,11 @@ export default function UserAvatar({
   ...props
 }: IUserAvatarProps) {
   const [hasError, setHasError] = useState(false);
+
+  // A new avatar URL is a fresh image, so clear any error from the previous one.
+  useEffect(() => {
+    setHasError(false);
+  }, [user.image]);
 
   const showImage = user.image && !hasError;
 

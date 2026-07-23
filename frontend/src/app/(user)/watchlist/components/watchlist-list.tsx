@@ -3,7 +3,7 @@ import NoResults from "@/components/custom/common/no-results";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import WatchlistItem from "@/app/(user)/watchlist/components/watchlist-item";
 import { sortWatchlistItemsByDiscount } from "@/app/(user)/watchlist/utils/watchlist-utils";
-import { WatchlistSearchItem } from "@/app/(user)/watchlist/components/use-watchlist-data";
+import { WatchlistSearchItem } from "@/app/(user)/watchlist/hooks/use-watchlist-data";
 
 interface IWatchlistListProps {
   items: WatchlistSearchItem[];

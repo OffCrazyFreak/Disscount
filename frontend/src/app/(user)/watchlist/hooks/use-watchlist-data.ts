@@ -11,7 +11,7 @@ import {
   isWatchThresholdReached,
   WatchlistItemWithProduct,
 } from "@/app/(user)/watchlist/utils/watchlist-utils";
-import { useWatchlistSuggestions } from "@/app/(user)/watchlist/components/use-watchlist-suggestions";
+import { useWatchlistSuggestions } from "@/app/(user)/watchlist/hooks/use-watchlist-suggestions";
 
 export interface WatchlistSearchItem extends WatchlistItemWithProduct {
   productName: string;

@@ -4,13 +4,13 @@ import { type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useTransform } from "motion/react";
 
-import CartLogo from "@/components/icons/cart-logo";
+import CartLogo, { CART_ASPECT_RATIO } from "@/components/icons/cart-logo";
 import TextGlow from "@/components/custom/common/text-glow";
 import { useCursorFollow } from "@/app/(root)/hooks/use-cursor-follow";
 
-// w-14 cart; height follows the SVG's 68:50.5 viewBox aspect.
+// w-14 cart; height follows the SVG's viewBox aspect (see CART_ASPECT_RATIO).
 const CART_WIDTH_PX = 56;
-const CART_HEIGHT_PX = 42;
+const CART_HEIGHT_PX = Math.round(CART_WIDTH_PX / CART_ASPECT_RATIO);
 
 interface ICartChaserProps {
   anchorRef: RefObject<HTMLElement | null>;

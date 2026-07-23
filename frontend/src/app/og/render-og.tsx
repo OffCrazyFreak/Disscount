@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { CART_VIEW_BOX } from "@/components/icons/cart-logo";
 
 // Shared renderer for the site's social preview image, generated with the app's
 // own brand (happy cart + Saira Stencil wordmark + Huninn body) instead of a
@@ -60,7 +61,7 @@ function Cart() {
     <svg
       width={214}
       height={159}
-      viewBox="-1 6 68 50.5"
+      viewBox={CART_VIEW_BOX}
       fill="none"
       stroke={BRAND}
       strokeWidth={4}

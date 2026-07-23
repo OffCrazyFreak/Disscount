@@ -9,7 +9,7 @@ import LoginRequired from "@/components/custom/common/login-required";
 import WatchlistHeader from "@/app/(user)/watchlist/components/watchlist-header";
 import WatchlistList from "@/app/(user)/watchlist/components/watchlist-list";
 import WatchlistSuggestions from "@/app/(user)/watchlist/components/watchlist-suggestions";
-import { useWatchlistData } from "@/app/(user)/watchlist/components/use-watchlist-data";
+import { useWatchlistData } from "@/app/(user)/watchlist/hooks/use-watchlist-data";
 
 export default function WatchlistClient({ query }: { query: string }) {
   const pathname = usePathname();

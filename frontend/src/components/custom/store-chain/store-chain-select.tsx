@@ -20,7 +20,17 @@ interface IStoreChainSelectProps {
   averagePrice?: number;
   isChecked?: boolean; // Whether the item is checked
   storePriceFromDb?: number; // Store price from database when item is checked
-  classname?: string;
+  className?: string;
+}
+
+function computePriceDifference(storePrice: number, averagePrice: number) {
+  const difference = storePrice - averagePrice;
+  const percentage = Math.abs((difference / averagePrice) * 100);
+
+  return {
+    percentage: Math.round(percentage).toString(),
+    difference: difference.toFixed(2),
+  };
 }
 
 export default function StoreChainSelect({
@@ -32,7 +42,7 @@ export default function StoreChainSelect({
   averagePrice,
   isChecked = false,
   storePriceFromDb,
-  classname,
+  className,
 }: IStoreChainSelectProps) {
   const [displayValue, setDisplayValue] = useState<string>(value || "");
   const autoSelectedForRef = useRef<string | null>(null);
@@ -61,26 +71,13 @@ export default function StoreChainSelect({
       if (!averagePrice || !storePriceFromDb) return null;
       if (chainCode !== value) return null; // Only show difference for selected store when checked
 
-      const difference = storePriceFromDb - averagePrice;
-      const percentage = Math.abs((difference / averagePrice) * 100);
-
-      return {
-        percentage: Math.round(percentage).toString(),
-        difference: difference.toFixed(2),
-      };
+      return computePriceDifference(storePriceFromDb, averagePrice);
     }
 
     // When item is unchecked, use API prices
     if (!averagePrice || !storePrices[chainCode]) return null;
 
-    const storePrice = storePrices[chainCode];
-    const difference = storePrice - averagePrice;
-    const percentage = Math.abs((difference / averagePrice) * 100);
-
-    return {
-      percentage: Math.round(percentage).toString(),
-      difference: difference.toFixed(2),
-    };
+    return computePriceDifference(storePrices[chainCode], averagePrice);
   };
 
   // Build options from the live cijene price data (chain slugs), not a static
@@ -100,7 +97,7 @@ export default function StoreChainSelect({
   return (
     <Select value={displayValue} onValueChange={onChange} disabled={disabled}>
       <SelectTrigger
-        className={cn("min-w-0 h-9 text-xs sm:text-sm", classname)}
+        className={cn("min-w-0 h-9 text-xs sm:text-sm", className)}
       >
         <SelectValue placeholder="Trgovina" />
       </SelectTrigger>

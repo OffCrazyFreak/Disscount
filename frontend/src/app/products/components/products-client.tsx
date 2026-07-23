@@ -115,7 +115,7 @@ export default function ProductsClient({ query }: { query: string }) {
                   viewMode !== "grid" || isMobile ? "w-full" : "w-76"
                 }`}
               >
-                <ProductItem product={product} viewMode={viewMode} />
+                <ProductItem product={product} />
               </div>
             ))}
           </div>

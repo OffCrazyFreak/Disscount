@@ -8,7 +8,7 @@ import { WatchlistItemWithProduct } from "@/app/(user)/watchlist/utils/watchlist
 import { cn } from "@/lib/utils";
 import WatchlistItemDiscountInfo from "@/app/(user)/watchlist/components/watchlist-item-discount-info";
 import WatchlistActionButton from "@/app/(user)/watchlist/components/watchlist-action-button";
-import { useWatchlistItem } from "@/app/(user)/watchlist/components/use-watchlist-item";
+import { useWatchlistItem } from "@/app/(user)/watchlist/hooks/use-watchlist-item";
 import { WatchType } from "@/lib/api";
 
 interface IWatchlistItemProps {
