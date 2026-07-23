@@ -55,7 +55,11 @@ export default function NotificationsDropdown({
           variant="ghost"
           size="icon"
           className="relative"
-          aria-label="Obavijesti"
+          aria-label={
+            hasNotifications
+              ? `Obavijesti (${notifications.length})`
+              : "Obavijesti"
+          }
         >
           <BellRingIcon size={18} />
 
