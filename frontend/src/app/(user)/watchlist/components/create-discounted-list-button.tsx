@@ -27,7 +27,6 @@ export default function CreateDiscountedListButton({
     .filter((item) => item.product)
     .map((item) => item.product!);
 
-  // Visible text only: in the accessible name it would re-announce on every move.
   const actionLabel = "Stvori popis sniženih proizvoda";
   const buttonText = `${actionLabel} (${addableProducts.length})`;
   const isDisabled = isCreating || isLoading || addableProducts.length === 0;
@@ -107,7 +106,9 @@ export default function CreateDiscountedListButton({
         loading={isCreating}
         loadingText="Stvaranje popisa..."
         className="hidden sm:inline-flex"
+        aria-label={actionLabel}
       >
+        {/* Count stays visual: in the accessible name it would re-announce on every change. */}
         {buttonText}
       </Button>
 
