@@ -39,19 +39,29 @@ export function applyProblemToForm<T extends FieldValues>(
 ): boolean {
   const problem = parseProblem(error);
   const knownFields = new Set(Object.keys(form.getValues()));
+  const undisplayableMessages: string[] = [];
   let matchedField = false;
 
   for (const [field, message] of Object.entries(problem?.fieldErrors ?? {})) {
     const mapped = fieldMap?.[field];
-    if (!mapped && !knownFields.has(field)) continue;
+
+    if (!mapped && !knownFields.has(field)) {
+      undisplayableMessages.push(message);
+      continue;
+    }
+
     form.setError(mapped ?? (field as Path<T>), { type: "server", message });
     matchedField = true;
   }
 
-  if (!matchedField) {
+  if (undisplayableMessages.length > 0 || !matchedField) {
     form.setError("root", {
       type: "server",
-      message: problem?.detail || problem?.title || fallbackMessage,
+      message:
+        undisplayableMessages.join(" ") ||
+        problem?.detail ||
+        problem?.title ||
+        fallbackMessage,
     });
   }
 
