@@ -28,7 +28,7 @@ export default function PageFab({ primary, threshold = 600 }: IPageFabProps) {
     return <BackToTopButton threshold={threshold} />;
   }
 
-  // Back-to-top sits furthest out, leaving the primary action the shorter reach.
+  // Back-to-top joins once scrolled, sitting furthest out so primary keeps the shorter reach.
   const actions: IFabAction[] = isScrolled
     ? [
         { icon: ChevronsUp, label: "Natrag na vrh", onClick: scrollToTop },
