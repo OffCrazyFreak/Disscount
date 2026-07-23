@@ -82,7 +82,7 @@ export default function FabMenu({
                 exit={{ opacity: 0, y: 12, scale: 0.8 }}
                 transition={{
                   duration: prefersReducedMotion ? 0 : 0.18,
-                  // Unfurls outwards, so the nearest action always leads.
+                  // Unfurls outwards, so the nearest action leads when motion is enabled.
                   delay: prefersReducedMotion
                     ? 0
                     : (actions.length - 1 - index) * 0.04,

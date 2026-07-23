@@ -34,7 +34,7 @@ export default function manifest(): WebAppManifest {
     orientation: "portrait",
     lang: "hr",
     dir: "ltr",
-    // White to match the iOS launch screens, which Chrome composes against.
+    // White matches the iOS launch screens; Chrome generates its own splash from these fields.
     background_color: "#ffffff",
     theme_color: "#ffffff",
     categories: ["shopping", "lifestyle"],
