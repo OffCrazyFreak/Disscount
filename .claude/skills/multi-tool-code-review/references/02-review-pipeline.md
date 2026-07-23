@@ -9,7 +9,9 @@ How to run the multi-reviewer sweep once preflight (`01-preflight.md`) has settl
 - Launching the runners
 - Monitoring and resuming (15-minute heartbeat)
 - Failure-mode gotchas (read before debugging a stuck runner)
-- Consolidation into the triage doc
+- Consolidation into the triage doc (wait for every reviewer)
+- If you present before everything finished
+- Late findings after the doc was presented
 
 ## Reviewers and roles
 
@@ -58,7 +60,11 @@ Read these before "fixing" a stuck runner; they are the traps this pipeline hit 
 
 ## Consolidation into the triage doc
 
-When every present reviewer has finished (all `_STATUS.txt` show `run FINISHED` and the Claude subagents returned), do ONE consolidation pass at the model the user picked for it in preflight:
+**Always wait for every launched reviewer to finish before consolidating**: all `_STATUS.txt` show `run FINISHED` and every Claude subagent has returned. A slow or rate-limited tail is NOT a reason to go early. CodeRabbit's hourly limit is expected and its runner is resumable, so waiting is the normal cost of the sweep; an hour of waiting is cheaper than a triage doc the user starts acting on while findings are still arriving. "Those folders are small and probably covered by the other engines" is exactly the rationalization to refuse: you cannot know what a reviewer found until it finishes.
+
+The only reviewer you may drop is one that is genuinely dead (out of usage, or it gave up leaving no `.done`). Say so explicitly and name the coverage that is missing.
+
+Then do ONE consolidation pass at the model the user picked for it in preflight:
 
 1. Fold each reviewer's findings into a single list, deduped by `file:line + claim`.
 2. Set a consensus column: which of CC / CU / CX / CR flagged each item (more tools = higher confidence).
@@ -66,3 +72,17 @@ When every present reviewer has finished (all `_STATUS.txt` show `run FINISHED` 
 4. Write the consolidated review in the format(s) the user chose (Markdown, HTML, or both). Keep the older per-tool raw output as backing.
 
 The consensus is the point: an item flagged by 3-4 tools independently is trustworthy on sight; a single-tool flag needs a skeptical read (some are false positives, for example a rule the backend already enforces).
+
+## If you present before everything finished
+
+Sometimes the user asks to see the doc early. That is fine, but the partial state must be impossible to miss. Put an explicit **bold** "not final" banner at the top of the doc AND in the chat message, naming which reviewers are still running and which folders they still owe:
+
+```markdown
+**NOT FINAL: CodeRabbit is still reviewing `utils/`, `context/`, `backend/`. More findings may still land.**
+```
+
+Never present a partial doc as if it were complete, and never bury the caveat in prose or a footnote. State the gap before the findings, not after.
+
+## Late findings after the doc was presented
+
+When a straggler finishes after the user has already seen the doc, do not silently fold its findings in, and do not quietly drop them. Dedupe them against the existing rows first, then **ask the user with `AskUserQuestion` what to do with anything genuinely new**: add it to the current fix scope, file it as an issue, or skip it. If the fix phase is already running, say which batch it would land in and whether it changes anything already committed. The user decides; arriving late is not a reason to quietly widen or narrow the scope they already approved.
