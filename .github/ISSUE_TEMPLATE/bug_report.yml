@@ -9,6 +9,9 @@ body:
         Thanks for taking the time to report a bug. Please search
         [existing issues](https://github.com/OffCrazyFreak/Disscount/issues)
         first to avoid duplicates.
+
+        Only the description is required. Fill in whatever else you can, even a
+        one-line report is welcome and we can ask follow-up questions.
   - type: textarea
     id: description
     attributes:
@@ -20,20 +23,20 @@ body:
     id: reproduction
     attributes:
       label: Steps to reproduce
-      description: How can we reproduce the problem?
+      description: How can we reproduce the problem? (optional, but it helps a lot)
       placeholder: |
         1. Go to '...'
         2. Click on '...'
         3. See error
     validations:
-      required: true
+      required: false
   - type: textarea
     id: expected
     attributes:
       label: Expected vs actual behavior
-      description: What did you expect to happen, and what happened instead?
+      description: What did you expect to happen, and what happened instead? (optional)
     validations:
-      required: true
+      required: false
   - type: dropdown
     id: area
     attributes:
