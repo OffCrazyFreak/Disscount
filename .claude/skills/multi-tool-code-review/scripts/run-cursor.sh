@@ -36,9 +36,13 @@ for dir in "${DIRS[@]}"; do
       echo "         OK" >>"$STATUS"
       break
     fi
+    if is_terminal_limit "$out"; then
+      echo "         OUT of usage (terminal limit); giving up now, no .done for remaining folders" >>"$STATUS"
+      break 2
+    fi
     waits=$((waits + 1))
     if [ $waits -ge 5 ]; then
-      echo "         GAVE UP after $waits waits; no .done (likely quota)" >>"$STATUS"
+      echo "         GAVE UP after $waits waits; no .done" >>"$STATUS"
       break
     fi
     echo "         no completion, sleeping 20m ($waits/5)" >>"$STATUS"

@@ -9,6 +9,15 @@
 #   REVIEW_DIR_DEPTH  path segments that define a "folder" (default 4)
 #   REVIEW_MAX_DIRS   cap on how many folders to return, busiest first (default 12)
 
+# is_terminal_limit <file> -> true if the output is a hard "out of usage"
+# refusal that will NOT recover within the retry window (unlike CodeRabbit's
+# hourly rate limit). Matches distinctive CLI refusal phrases, not generic
+# rate-limit words that could appear inside a reviewed diff. Used to fail fast
+# instead of sleeping 20m per retry when an engine's quota is exhausted.
+is_terminal_limit() {
+  grep -qiE 'hit your usage limit|reached your usage limit|usage limit|ActionRequiredError|Get Cursor Pro|insufficient_quota|exceeded your current quota|quota exceeded|out of (usage|credits)' "$1" 2>/dev/null
+}
+
 review_dirs() {
   local base="$1" target="${2:-HEAD}"
   local depth="${REVIEW_DIR_DEPTH:-4}" max="${REVIEW_MAX_DIRS:-12}"

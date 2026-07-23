@@ -12,6 +12,7 @@ source "$SCRIPT_DIR/_common.sh"
 BASE="${REVIEW_BASE:-main}"
 TARGET="${REVIEW_TARGET:-HEAD}"
 EFFORT="${REVIEW_CODEX_EFFORT:-medium}"
+MODEL="${REVIEW_CODEX_MODEL:-}"
 OUT="reviews/_review-run/codex"
 STATUS="$OUT/_STATUS.txt"
 mkdir -p "$OUT"
@@ -40,11 +41,15 @@ for dir in "${DIRS[@]}"; do
   waits=0
   while :; do
     echo "[$(date +%H:%M)] REVIEW dir=$dir" >>"$STATUS"
-    timeout 900 codex exec -s read-only -c model_reasoning_effort="$EFFORT" -o "$out" "$prompt" <"$dfile" >"$out.log" 2>&1
+    timeout 900 codex exec -s read-only ${MODEL:+-m "$MODEL"} -c model_reasoning_effort="$EFFORT" -o "$out" "$prompt" <"$dfile" >"$out.log" 2>&1
     if grep -qE '^SEVERITY:|CLEAN' "$out" 2>/dev/null; then
       touch "$done_marker"
       echo "         OK" >>"$STATUS"
       break
+    fi
+    if is_terminal_limit "$out" || is_terminal_limit "$out.log"; then
+      echo "         OUT of usage (terminal limit); giving up now, no .done for remaining folders" >>"$STATUS"
+      break 2
     fi
     waits=$((waits + 1))
     if [ $waits -ge 5 ]; then
