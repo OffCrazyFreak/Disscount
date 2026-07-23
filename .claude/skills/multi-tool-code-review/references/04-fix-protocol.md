@@ -106,7 +106,9 @@ After a batch, check whether it changed a behavior or invariant that the repo do
 
 ## GitHub issues for the rest
 
-For every finding the user excluded (and anything you deferred), file a detailed GitHub issue with `gh`. Do not file issues for things that are intentional by design.
+For every finding the user excluded (and anything you deferred), file a detailed GitHub issue with `gh`.
+
+For a finding the user rejects as intentional, still file it when the trade-off deserves a record (an accessibility compromise, a deliberate deviation from a convention, a decision a future reviewer will re-flag). File it, close it immediately as not planned, and label it `intentional` with a one-line reason. That way the decision is searchable, the next review will not resurface it as new, and the closed list distinguishes "we decided this" from "nobody got to it". Skip the issue entirely only when the finding is simply wrong or trivial. Use `wontfix` instead of `intentional` when the behaviour is accepted from upstream rather than chosen by this project.
 
 **Use the repo's own issue templates when they exist.** Check `.github/ISSUE_TEMPLATE/` first and pick the template matching the finding (bug, enhancement, tech-debt, and so on). Read that template and compose a `--body-file` that fills every field it asks for instead of inventing your own format, since `gh issue create --template` can drop into an interactive prompt. If the repo has no templates, use the structure below anyway and keep it consistent across the batch.
 
