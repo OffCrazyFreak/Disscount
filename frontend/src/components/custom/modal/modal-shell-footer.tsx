@@ -51,7 +51,7 @@ export function ModalShellFooter({
   return (
     <div className="flex flex-col gap-2 px-6 pb-6 pt-4">
       {hasButtons && (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {cancelLabel && (
             <Button
               type="button"
