@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   ModalShellFooter,
-  ModalShellFooterProps,
+  IModalShellFooterProps,
 } from "@/components/custom/modal/modal-shell-footer";
 import { UnsavedIndicator } from "@/components/custom/modal/unsaved-indicator";
 import { StaggerChildren } from "@/components/ui/stagger-children";
@@ -27,7 +27,7 @@ const SIZE_CLASSES = {
   xl: "sm:max-w-4xl",
 } as const;
 
-export interface ModalShellProps extends ModalShellFooterProps {
+export interface IModalShellProps extends IModalShellFooterProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: ReactNode;
@@ -64,7 +64,7 @@ export function ModalShell({
   bodyClassName,
   children,
   ...footerProps
-}: ModalShellProps) {
+}: IModalShellProps) {
   function handleOpenChange(nextOpen: boolean) {
     if (preventClose && !nextOpen) return;
     onOpenChange(nextOpen);

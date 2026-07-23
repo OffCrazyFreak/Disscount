@@ -16,7 +16,7 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import ScrollFade from "@/components/custom/common/scroll-fade";
-import type { NavigationItem } from "@/constants/navigation";
+import type { INavigationItem } from "@/constants/navigation";
 
 export interface ISidebarFilterOption {
   value: string;
@@ -25,7 +25,7 @@ export interface ISidebarFilterOption {
 }
 
 interface ISidebarFilterMenuProps {
-  item: NavigationItem;
+  item: INavigationItem;
   filterKey: "chain" | "location";
   options: ISidebarFilterOption[];
   selected: string[];

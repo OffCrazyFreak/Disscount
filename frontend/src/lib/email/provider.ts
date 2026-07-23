@@ -1,6 +1,6 @@
 import { ReactElement } from "react";
 
-export interface EmailMessage {
+export interface IEmailMessage {
   to: string;
   subject: string;
   react: ReactElement;
@@ -8,13 +8,13 @@ export interface EmailMessage {
   idempotencyKey?: string;
 }
 
-export interface EmailResult {
+export interface IEmailResult {
   id: string | null;
   error: string | null;
 }
 
 // Provider-agnostic email transport. The email service and templates depend only on this
 // interface, so swapping the sender (Resend now, Infobip later) touches a single file.
-export interface EmailProvider {
-  send(message: EmailMessage): Promise<EmailResult>;
+export interface IEmailProvider {
+  send(message: IEmailMessage): Promise<IEmailResult>;
 }

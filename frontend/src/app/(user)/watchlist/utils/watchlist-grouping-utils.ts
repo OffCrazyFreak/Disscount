@@ -1,6 +1,6 @@
 import { PinnedStoreDto, WatchlistItemDto } from "@/lib/api/types";
 import { normalizeForSearch } from "@/utils/strings";
-import { GroupedWatchlistItems } from "@/app/(user)/watchlist/utils/watchlist-types";
+import { IGroupedWatchlistItems } from "@/app/(user)/watchlist/utils/watchlist-types";
 
 export function extractPinnedStoreChainCodes(
   pinnedStores: PinnedStoreDto[] | null | undefined,
@@ -20,7 +20,7 @@ export function extractPinnedStoreChainCodes(
 
 export function groupWatchlistItemsByProduct(
   watchlistItems: WatchlistItemDto[],
-): GroupedWatchlistItems[] {
+): IGroupedWatchlistItems[] {
   const groups = new Map<string, WatchlistItemDto[]>();
 
   for (const watchlistItem of watchlistItems) {

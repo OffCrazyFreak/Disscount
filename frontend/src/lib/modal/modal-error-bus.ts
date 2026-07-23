@@ -3,12 +3,12 @@
 // modal via URL, and the remounted form picks the error up exactly once.
 const STASH_TTL_MS = 60_000;
 
-interface StashedError {
+interface IStashedError {
   error: unknown;
   expiresAt: number;
 }
 
-const stash = new Map<string, StashedError>();
+const stash = new Map<string, IStashedError>();
 
 export function stashModalError(key: string, error: unknown): void {
   // Abandoned flows never call takeModalError; evict expired entries so the map stays bounded.

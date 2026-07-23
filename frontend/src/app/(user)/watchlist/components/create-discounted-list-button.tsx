@@ -7,11 +7,11 @@ import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageFab from "@/components/custom/fab/page-fab";
 import { shoppingListService } from "@/lib/api";
-import { WatchlistItemWithProduct } from "@/app/(user)/watchlist/utils/watchlist-utils";
+import { IWatchlistItemWithProduct } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { formatDate } from "@/utils/strings";
 
 interface ICreateDiscountedListButtonProps {
-  discountedItems: WatchlistItemWithProduct[];
+  discountedItems: IWatchlistItemWithProduct[];
   /** Prices are still resolving, so the discounted set is not final yet */
   isLoading?: boolean;
 }

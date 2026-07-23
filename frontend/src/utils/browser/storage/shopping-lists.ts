@@ -1,12 +1,12 @@
 import { PeriodOption } from "@/typings/history-period-options";
-import { ShoppingListsPreferences } from "@/typings/local-storage";
+import { IShoppingListsPreferences } from "@/typings/local-storage";
 import { getAppStorage, setAppStorage } from "@/utils/browser/storage/core";
 
-function getListPrefs(listId: string): ShoppingListsPreferences {
+function getListPrefs(listId: string): IShoppingListsPreferences {
   return getAppStorage().shoppingListsPreferences?.[listId] ?? {};
 }
 
-function setListPrefs(listId: string, partial: ShoppingListsPreferences) {
+function setListPrefs(listId: string, partial: IShoppingListsPreferences) {
   const currentPrefs = getAppStorage().shoppingListsPreferences || {};
 
   setAppStorage({

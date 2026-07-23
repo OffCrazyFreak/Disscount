@@ -59,21 +59,21 @@ export async function deleteDigitalCard(id: string): Promise<void> {
 }
 
 // React Query hooks
-export const useCreateDigitalCard = () => {
+export function useCreateDigitalCard() {
   return useMutation<DigitalCardDto, Error, DigitalCardRequest>({
     mutationFn: createDigitalCard,
   });
-};
+}
 
-export const useGetUserDigitalCards = ({ enabled = true } = {}) => {
+export function useGetUserDigitalCards({ enabled = true } = {}) {
   return useQuery<DigitalCardDto[], Error>({
     queryKey: ["digitalCards", "me"],
     queryFn: getUserDigitalCards,
     enabled,
   });
-};
+}
 
-export const useUpdateDigitalCard = () => {
+export function useUpdateDigitalCard() {
   return useMutation<
     DigitalCardDto,
     Error,
@@ -81,13 +81,13 @@ export const useUpdateDigitalCard = () => {
   >({
     mutationFn: ({ id, data }) => updateDigitalCard(id, data),
   });
-};
+}
 
-export const useDeleteDigitalCard = () => {
+export function useDeleteDigitalCard() {
   return useMutation<void, Error, string>({
     mutationFn: deleteDigitalCard,
   });
-};
+}
 
 const digitalCardService = {
   createDigitalCard,

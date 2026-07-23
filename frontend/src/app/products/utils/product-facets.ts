@@ -1,5 +1,5 @@
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
-import type { StoreLocation } from "@/typings/store-location";
+import type { IStoreLocation } from "@/typings/store-location";
 import type {
   IFacetOption,
   IFacetSelections,
@@ -42,7 +42,7 @@ function withFallback(
  */
 export function computeProductFacets(
   products: ProductResponse[],
-  locations: StoreLocation[],
+  locations: IStoreLocation[],
   selections: IFacetSelections,
 ): IProductFacets {
   const query = buildFacetQuery(products, locations, selections);

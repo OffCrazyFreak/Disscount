@@ -9,7 +9,7 @@ import {
   setFormDraft,
 } from "@/utils/browser/local-storage";
 
-interface UseFormDraftOptions<T extends FieldValues> {
+interface IUseFormDraftOptions<T extends FieldValues> {
   draftKey: string;
   form: UseFormReturn<T>;
   // Gate restoring until server defaults are loaded into the form, otherwise
@@ -34,7 +34,7 @@ export function useFormDraft<T extends FieldValues>({
   enabled = true,
   restore = true,
   exclude = [],
-}: UseFormDraftOptions<T>) {
+}: IUseFormDraftOptions<T>) {
   const [hadDraft] = useState(() => !!getFormDraft(draftKey));
   const [dismissed, setDismissed] = useState(false);
   const restoredKeyRef = useRef<string | null>(null);

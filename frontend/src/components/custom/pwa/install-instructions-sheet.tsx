@@ -17,7 +17,7 @@ interface IInstallInstructionsSheetProps {
   isIOS: boolean;
 }
 
-interface Step {
+interface IStep {
   text: ReactNode;
 }
 
@@ -28,7 +28,7 @@ export default function InstallInstructionsSheet({
   onOpenChange,
   isIOS,
 }: IInstallInstructionsSheetProps) {
-  const steps: Step[] = isIOS
+  const steps: IStep[] = isIOS
     ? [
         {
           text: (

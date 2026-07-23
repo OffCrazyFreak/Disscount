@@ -3,28 +3,28 @@ import { ProductResponse } from "@/lib/cijene-api/schemas";
 import {
   calculateDiscountInfo,
   getScopedDiscountedStores,
-  GroupedWatchlistItems,
+  IGroupedWatchlistItems,
   isDiscountValueAboveThreshold,
   isWatchThresholdReached,
 } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { getChainLabel } from "@/utils/labels";
 import {
-  NotificationsSummary,
-  WatchlistNotification,
+  INotificationsSummary,
+  IWatchlistNotification,
 } from "@/context/notifications-types";
 
 interface IBuildNotificationsResult {
-  notifications: WatchlistNotification[];
-  summary: NotificationsSummary;
+  notifications: IWatchlistNotification[];
+  summary: INotificationsSummary;
 }
 
 export function buildWatchlistNotifications(
-  groupedWatchlistItems: GroupedWatchlistItems[],
+  groupedWatchlistItems: IGroupedWatchlistItems[],
   productQueries: UseQueryResult<ProductResponse>[],
   pinnedStoreChainCodes: string[],
   hasPinnedStores: boolean,
 ): IBuildNotificationsResult {
-  const notificationsList: WatchlistNotification[] = [];
+  const notificationsList: IWatchlistNotification[] = [];
   let totalSavings = 0;
   let totalOriginalPrice = 0;
 

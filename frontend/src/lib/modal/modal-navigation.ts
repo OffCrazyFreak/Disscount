@@ -4,7 +4,7 @@ import {
   stripModalSearch,
 } from "@/lib/modal/modal-registry";
 
-export interface OpenModalOptions {
+export interface IOpenModalOptions {
   // Replaces the current history entry instead of pushing a new one; used for
   // mode/tab switches inside an already-open modal so back still closes it.
   replace?: boolean;
@@ -28,7 +28,7 @@ function hasModalMarker(): boolean {
 
 export function openModalUrl(
   target: ModalTarget,
-  options?: OpenModalOptions,
+  options?: IOpenModalOptions,
 ): void {
   const current = new URLSearchParams(window.location.search);
   const url =

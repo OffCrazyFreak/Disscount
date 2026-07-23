@@ -4,7 +4,7 @@ import { useSyncExternalStore } from "react";
 
 // Chrome/Edge fire `beforeinstallprompt` before showing their own install UI.
 // We capture the event so we can trigger installation from our own button.
-interface BeforeInstallPromptEvent extends Event {
+interface IBeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
@@ -51,15 +51,15 @@ function detectIOSSafari(): boolean {
 // banner and the sidebar banner) reads the same captured prompt; consuming it
 // once clears it everywhere. `ready` stays false until client detection runs,
 // which keeps SSR/first paint from flashing install UI.
-interface InstallState {
-  deferredPrompt: BeforeInstallPromptEvent | null;
+interface IInstallState {
+  deferredPrompt: IBeforeInstallPromptEvent | null;
   isStandalone: boolean;
   isIOS: boolean;
   isIOSSafari: boolean;
   ready: boolean;
 }
 
-const SERVER_STATE: InstallState = {
+const SERVER_STATE: IInstallState = {
   deferredPrompt: null,
   isStandalone: false,
   isIOS: false,
@@ -67,11 +67,11 @@ const SERVER_STATE: InstallState = {
   ready: false,
 };
 
-let state: InstallState = SERVER_STATE;
+let state: IInstallState = SERVER_STATE;
 const listeners = new Set<() => void>();
 let initialized = false;
 
-function setState(patch: Partial<InstallState>) {
+function setState(patch: Partial<IInstallState>) {
   state = { ...state, ...patch };
   listeners.forEach((listener) => listener());
 }
@@ -83,7 +83,7 @@ function init() {
 
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
-    setState({ deferredPrompt: event as BeforeInstallPromptEvent });
+    setState({ deferredPrompt: event as IBeforeInstallPromptEvent });
   });
 
   window.addEventListener("appinstalled", () => {

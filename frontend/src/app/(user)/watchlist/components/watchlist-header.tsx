@@ -1,13 +1,13 @@
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
 import CreateDiscountedListButton from "@/app/(user)/watchlist/components/create-discounted-list-button";
-import { WatchlistItemWithProduct } from "@/app/(user)/watchlist/utils/watchlist-utils";
+import { IWatchlistItemWithProduct } from "@/app/(user)/watchlist/utils/watchlist-utils";
 
 interface IWatchlistHeaderProps {
   query: string;
   itemCount: number;
   showCount: boolean;
   pricesUpdatedAt: number;
-  discountedItems: WatchlistItemWithProduct[];
+  discountedItems: IWatchlistItemWithProduct[];
   productsLoading: boolean;
 }
 

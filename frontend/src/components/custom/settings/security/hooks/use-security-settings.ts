@@ -13,7 +13,7 @@ import {
 } from "@/components/custom/settings/security/credentials-schema";
 import { useCredentialsSubmit } from "@/components/custom/settings/security/hooks/use-credentials-submit";
 
-interface LinkedAccount {
+interface ILinkedAccount {
   providerId: string;
   accountId: string;
 }
@@ -27,7 +27,7 @@ export function useSecuritySettings(active: boolean) {
   const query = useQuery({
     queryKey: ["linked-accounts"],
     enabled: active,
-    queryFn: async (): Promise<LinkedAccount[]> => {
+    queryFn: async (): Promise<ILinkedAccount[]> => {
       const { data, error } = await authClient.listAccounts();
       if (error || !data) throw new Error("Failed to load accounts");
       return data.map((a) => ({

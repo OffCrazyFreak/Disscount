@@ -1,11 +1,11 @@
 import { WatchType } from "@/lib/api/types";
 import {
-  DiscountInfo,
-  WatchlistItemWithProduct,
+  IDiscountInfo,
+  IWatchlistItemWithProduct,
 } from "@/app/(user)/watchlist/utils/watchlist-types";
 
 export function isWatchThresholdReached(
-  discountInfo: DiscountInfo,
+  discountInfo: IDiscountInfo,
   watchType: WatchType,
   thresholdValue: number,
   hasPinnedStores: boolean,
@@ -47,7 +47,7 @@ export function isDiscountValueAboveThreshold(
 }
 
 export function getMaxDiscountPercentage(
-  discountInfo: DiscountInfo | null,
+  discountInfo: IDiscountInfo | null,
   hasPinnedStores: boolean,
 ): number {
   if (!discountInfo) {
@@ -62,9 +62,9 @@ export function getMaxDiscountPercentage(
 }
 
 export function sortWatchlistItemsByDiscount(
-  items: WatchlistItemWithProduct[],
+  items: IWatchlistItemWithProduct[],
   hasPinnedStores: boolean,
-): WatchlistItemWithProduct[] {
+): IWatchlistItemWithProduct[] {
   return [...items].sort((a, b) => {
     const maxDiscountA = getMaxDiscountPercentage(
       a.discountInfo,

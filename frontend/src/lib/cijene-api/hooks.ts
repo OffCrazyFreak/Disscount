@@ -2,7 +2,7 @@ import * as cijeneService from "@/lib/cijene-api/index";
 import { ProductResponse, StoreResponse } from "@/lib/cijene-api/schemas";
 import { useMemo } from "react";
 import { getLocationLabel } from "@/utils/labels";
-import { StoreLocation } from "@/typings/store-location";
+import { IStoreLocation } from "@/typings/store-location";
 
 /**
  * Hook for fetching all locations/cities from all chains for sidebar
@@ -16,7 +16,7 @@ export function useAllLocations() {
   } = cijeneService.useSearchStores();
 
   // Process and combine all store data
-  const locations = useMemo<Array<StoreLocation>>(() => {
+  const locations = useMemo<Array<IStoreLocation>>(() => {
     if (storesLoading || !storesData?.stores) {
       return [];
     }
@@ -71,7 +71,7 @@ import { useQueries } from "@tanstack/react-query";
 import { formatDate } from "@/utils/strings";
 import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";
 
-interface UsePriceHistoryArgs {
+interface IUsePriceHistoryArgs {
   ean: string;
   /** Number of days back INCLUDING today. Pass -1 for all available history, capped to not go earlier than 2025-05-16. */
   days?: number;
@@ -87,7 +87,7 @@ interface UsePriceHistoryArgs {
 
 const START_DATE = new Date("2025-05-16");
 
-export function usePriceHistory({ ean, days = 7 }: UsePriceHistoryArgs) {
+export function usePriceHistory({ ean, days = 7 }: IUsePriceHistoryArgs) {
   const dates = useMemo(() => {
     const arr: string[] = [];
     const today = new Date();

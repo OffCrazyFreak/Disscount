@@ -2,10 +2,10 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
-import type { NavigationItem } from "@/constants/navigation";
+import type { INavigationItem } from "@/constants/navigation";
 
 interface IHeaderNavItemProps {
-  item: NavigationItem;
+  item: INavigationItem;
   pathname: string;
   hasNotifications: boolean;
   notificationCount: number;

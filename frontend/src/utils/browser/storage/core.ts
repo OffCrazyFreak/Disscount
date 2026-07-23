@@ -1,17 +1,17 @@
 // Single-key localStorage wrapper: all app data lives under "Disscount_app"
 // and domain helpers read/merge specific fields so unrelated settings survive.
-import { AppData } from "@/typings/local-storage";
+import { IAppData } from "@/typings/local-storage";
 
 const APP_KEY = "Disscount_app";
 
-export function getAppStorage(): AppData {
+export function getAppStorage(): IAppData {
   if (typeof window === "undefined") return {};
 
   const raw = localStorage.getItem(APP_KEY);
   if (!raw) return {};
 
   try {
-    return JSON.parse(raw) as AppData;
+    return JSON.parse(raw) as IAppData;
   } catch (e) {
     console.warn("Failed to parse app storage, resetting", e);
     try {
@@ -21,7 +21,7 @@ export function getAppStorage(): AppData {
   }
 }
 
-export function setAppStorage(partial: AppData) {
+export function setAppStorage(partial: IAppData) {
   if (typeof window === "undefined") return;
 
   const merged = { ...getAppStorage(), ...partial };

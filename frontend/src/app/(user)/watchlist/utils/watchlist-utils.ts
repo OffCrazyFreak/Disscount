@@ -1,8 +1,8 @@
 export type {
-  GroupedWatchlistItems,
-  ScopedDiscountedStore,
-  DiscountInfo,
-  WatchlistItemWithProduct,
+  IGroupedWatchlistItems,
+  IScopedDiscountedStore,
+  IDiscountInfo,
+  IWatchlistItemWithProduct,
 } from "@/app/(user)/watchlist/utils/watchlist-types";
 
 export {

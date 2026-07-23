@@ -5,8 +5,8 @@ import {
   parsePrice,
 } from "@/app/products/utils/product-utils";
 import {
-  DiscountInfo,
-  ScopedDiscountedStore,
+  IDiscountInfo,
+  IScopedDiscountedStore,
 } from "@/app/(user)/watchlist/utils/watchlist-types";
 import {
   calculatePriceComparison,
@@ -17,7 +17,7 @@ export function getScopedDiscountedStores(
   product: ProductResponse,
   pinnedStoreChainCodes: string[],
   hasPinnedStores: boolean,
-): ScopedDiscountedStore[] {
+): IScopedDiscountedStore[] {
   const avgPrice = getAveragePrice(product);
 
   if (avgPrice <= 0) {
@@ -30,7 +30,7 @@ export function getScopedDiscountedStores(
       )
     : product.chains;
 
-  const discountedStores: ScopedDiscountedStore[] = [];
+  const discountedStores: IScopedDiscountedStore[] = [];
 
   for (const chain of scopedChains) {
     const currentPrice = parsePrice(chain.min_price);
@@ -59,7 +59,7 @@ export function getScopedDiscountedStores(
 export function calculateDiscountInfo(
   product: ProductResponse,
   pinnedStoreChainCodes: string[],
-): DiscountInfo {
+): IDiscountInfo {
   const avgPrice = getAveragePrice(product);
 
   const cheapestOverall = getCheapestChainByMinPrice(product.chains);

@@ -5,13 +5,13 @@ import { watchlistService, WatchType } from "@/lib/api";
 import {
   extractPinnedStoreChainCodes,
   isWatchThresholdReached,
-  WatchlistItemWithProduct,
+  IWatchlistItemWithProduct,
 } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { useUser } from "@/context/user-context";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { formatQuantity } from "@/utils/strings";
 
-export function useWatchlistItem(item: WatchlistItemWithProduct) {
+export function useWatchlistItem(item: IWatchlistItemWithProduct) {
   const { watchlistItems, productApiId, product, discountInfo } = item;
   const queryClient = useQueryClient();
   const { user } = useUser();

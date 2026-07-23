@@ -21,7 +21,7 @@ import OnboardingWizard from "@/components/custom/settings/onboarding/onboarding
 import { useSecuritySettings } from "@/components/custom/settings/security/hooks/use-security-settings";
 import SecurityProvider from "@/components/custom/settings/security/security-context";
 
-interface AvatarState {
+interface IAvatarState {
   initialized: boolean;
   preview: string | null;
   touched: boolean;
@@ -42,7 +42,7 @@ export default function SettingsModalHost() {
     defaultValues: defaults,
   });
 
-  const [avatar, setAvatar] = useState<AvatarState>({
+  const [avatar, setAvatar] = useState<IAvatarState>({
     initialized: false,
     preview: null,
     touched: false,

@@ -54,15 +54,15 @@ export async function updatePinnedPlaces(
 }
 
 // React Query hooks
-export const useGetPinnedStores = ({ enabled = true } = {}) => {
+export function useGetPinnedStores({ enabled = true } = {}) {
   return useQuery<PinnedStoreDto[], Error>({
     queryKey: ["pinnedStores"],
     queryFn: getPinnedStores,
     enabled,
   });
-};
+}
 
-export const useUpdatePinnedStores = () => {
+export function useUpdatePinnedStores() {
   const queryClient = useQueryClient();
   return useMutation<PinnedStoreDto[], Error, BulkPinnedStoreRequest>({
     mutationFn: updatePinnedStores,
@@ -71,17 +71,17 @@ export const useUpdatePinnedStores = () => {
       queryClient.invalidateQueries({ queryKey: ["pinnedStores"] });
     },
   });
-};
+}
 
-export const useGetPinnedPlaces = ({ enabled = true } = {}) => {
+export function useGetPinnedPlaces({ enabled = true } = {}) {
   return useQuery<PinnedPlaceDto[], Error>({
     queryKey: ["pinnedPlaces"],
     queryFn: getPinnedPlaces,
     enabled,
   });
-};
+}
 
-export const useUpdatePinnedPlaces = () => {
+export function useUpdatePinnedPlaces() {
   const queryClient = useQueryClient();
   return useMutation<PinnedPlaceDto[], Error, BulkPinnedPlaceRequest>({
     mutationFn: updatePinnedPlaces,
@@ -90,7 +90,7 @@ export const useUpdatePinnedPlaces = () => {
       queryClient.invalidateQueries({ queryKey: ["pinnedPlaces"] });
     },
   });
-};
+}
 
 const preferencesService = {
   getPinnedStores,

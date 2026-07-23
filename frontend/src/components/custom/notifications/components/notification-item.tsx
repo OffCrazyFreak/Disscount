@@ -1,9 +1,9 @@
 import Link from "next/link";
-import type { WatchlistNotification } from "@/context/notifications-types";
+import type { IWatchlistNotification } from "@/context/notifications-types";
 import { formatQuantity } from "@/utils/strings";
 
 interface INotificationItemProps {
-  notification: WatchlistNotification;
+  notification: IWatchlistNotification;
   onSelect: () => void;
 }
 

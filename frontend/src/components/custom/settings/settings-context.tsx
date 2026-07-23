@@ -2,7 +2,7 @@
 
 import { createContext, useContext } from "react";
 
-export interface SettingsUiContextValue {
+export interface ISettingsUiContextValue {
   isReady: boolean;
   saving: boolean;
   restored: boolean;
@@ -13,11 +13,11 @@ export interface SettingsUiContextValue {
   resetToDefaults: () => void;
 }
 
-const SettingsUiContext = createContext<SettingsUiContextValue | null>(null);
+const SettingsUiContext = createContext<ISettingsUiContextValue | null>(null);
 
 const SettingsUiProvider = SettingsUiContext.Provider;
 
-export function useSettingsUi(): SettingsUiContextValue {
+export function useSettingsUi(): ISettingsUiContextValue {
   const context = useContext(SettingsUiContext);
   if (!context) {
     throw new Error("useSettingsUi must be used within SettingsUiProvider");

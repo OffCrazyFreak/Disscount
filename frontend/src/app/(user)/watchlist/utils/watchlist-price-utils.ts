@@ -1,7 +1,7 @@
 import { ChainProductResponse } from "@/lib/cijene-api/schemas";
 import { normalizeForSearch } from "@/utils/strings";
 
-export interface PriceComparison {
+export interface IPriceComparison {
   difference: number;
   percentage: number;
   discountValue: number;
@@ -11,7 +11,7 @@ export interface PriceComparison {
 export function calculatePriceComparison(
   baselinePrice: number,
   candidatePrice: number,
-): PriceComparison {
+): IPriceComparison {
   const difference = Number((candidatePrice - baselinePrice).toFixed(2));
   const percentage =
     baselinePrice > 0
