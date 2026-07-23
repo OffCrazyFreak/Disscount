@@ -32,8 +32,7 @@ export default function BackToTopButton({
       icon={<ChevronsUp className="size-6" />}
       label={label}
       containerClassName={containerClassName}
-      // inert also takes it out of the tab order and the accessibility tree,
-      // which opacity alone would leave behind.
+      // inert also clears the tab order and a11y tree, which opacity alone leaves.
       inert={!isVisible}
       className={cn(
         "size-12 sm:size-14 transition duration-300 motion-reduce:transition-none",

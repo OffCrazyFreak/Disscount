@@ -17,9 +17,7 @@ export default function LastSyncedLabel({
   prefix = "Osvježeno",
   className,
 }: ILastSyncedLabelProps) {
-  // Render only after mount (relative time depends on `Date.now()`, which would
-  // otherwise mismatch between server and client) and re-render each minute so
-  // the label stays current.
+  // Relative time needs Date.now(), which would mismatch between server and client.
   const [mounted, setMounted] = useState(false);
   const [, setTick] = useState(0);
 

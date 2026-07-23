@@ -18,8 +18,7 @@ interface ILinkedAccount {
   accountId: string;
 }
 
-// Owns the Sigurnost tab's data + credentials form so the shared modal footer
-// (which lives in a parent) can drive its submit, reset and dirty state.
+// Lifted here so the parent's shared footer can drive submit, reset and dirty.
 export function useSecuritySettings(active: boolean) {
   const { user } = useUser();
   const currentEmail = user?.email ?? "";

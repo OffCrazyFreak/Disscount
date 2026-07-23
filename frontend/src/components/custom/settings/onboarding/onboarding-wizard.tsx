@@ -57,8 +57,7 @@ export default function OnboardingWizard({
         </div>
       }
       footer={
-        // Same left/right split as ModalShellFooter: back on the left, the
-        // primary next/finish action pushed to the right with ml-auto.
+        // Same left/right split as ModalShellFooter.
         <div className="flex items-center gap-2 px-6 pb-6 pt-4">
           {!isFirst && (
             <Button

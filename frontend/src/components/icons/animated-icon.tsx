@@ -12,8 +12,7 @@ interface IAnimatedIconProps {
   children: ReactNode;
 }
 
-// Shared shell for the hover-animated line icons: owns the motion controls,
-// reduced-motion guard and the common SVG frame; each icon supplies its paths.
+// Owns the motion controls and reduced-motion guard; each icon supplies its paths.
 export default function AnimatedIcon({
   size = 28,
   className,

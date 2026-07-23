@@ -18,9 +18,7 @@ interface IPriceHistoryChartShellProps {
   children: ReactNode;
 }
 
-// Shared line-chart frame for the product and shopping-list price histories:
-// identical container, grid, axes and tooltip; each caller supplies its own
-// <Line> elements, tooltip content and pre-computed Y-axis ticks.
+// Shared frame; callers supply their own lines, tooltip and Y-axis ticks.
 export default function PriceHistoryChartShell({
   chartData,
   chartConfig,

@@ -9,8 +9,7 @@ import {
 } from "@/lib/api/schemas/auth-user";
 
 export function useSignupForm() {
-  // Set once registration succeeds. Email verification is required, so we don't log in -
-  // we show a "check your inbox" notice instead.
+  // Verification is required, so registration shows an inbox notice, not a session.
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
   const form = useForm<RegisterRequest>({
@@ -26,8 +25,7 @@ export function useSignupForm() {
     form.clearErrors("root");
 
     try {
-      // The endpoint always responds the same way (no account-existence enumeration):
-      // a new email gets a verification link, an existing account a "set/reset password" link.
+      // The endpoint responds identically either way, so it can't enumerate accounts.
       const response = await fetch("/api/account/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

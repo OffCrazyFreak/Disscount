@@ -5,8 +5,7 @@ import { SidebarMenuBadge, SidebarMenuButton } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import type { INavigationItem } from "@/constants/navigation";
 
-// Badges keep their own fill, so they opt out of the peer rules that would
-// otherwise recolour their text to follow an active or hovered item.
+// Opts out of the peer rules that would recolour badge text on hover or active.
 const BADGE_CLASS =
   "bg-primary text-primary-foreground peer-hover/menu-button:text-primary-foreground peer-data-[active=true]/menu-button:text-primary-foreground";
 
@@ -31,8 +30,7 @@ export default function SidebarNavItem({
   const showComingSoon = Boolean(item.comingSoon);
   const showCount = !showComingSoon && Boolean(badgeCount);
 
-  // Badges are positioned absolutely, so the label needs room to truncate
-  // against rather than running underneath them.
+  // Badges are absolute, so the label needs room to truncate against.
   const labelSpace = showComingSoon ? "pr-16" : showCount ? "pr-8" : undefined;
 
   return (

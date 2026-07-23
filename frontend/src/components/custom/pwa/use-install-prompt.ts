@@ -2,8 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 
-// Chrome/Edge fire `beforeinstallprompt` before showing their own install UI.
-// We capture the event so we can trigger installation from our own button.
+// Captured so installation can be triggered from our own button.
 interface IBeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
@@ -32,10 +31,7 @@ function detectIOS(): boolean {
   return isIPhoneLike || isIPadOS;
 }
 
-// On iOS only Safari can add to the home screen. Third-party iOS browsers
-// (Chrome/Firefox/Edge/Opera, the Google app) and in-app webviews
-// (Instagram, Facebook, ...) use WebKit but can't, so we treat them as
-// unsupported.
+// Other iOS browsers and in-app webviews use WebKit but cannot install.
 function detectIOSSafari(): boolean {
   if (!detectIOS()) return false;
 
@@ -47,10 +43,7 @@ function detectIOSSafari(): boolean {
   return !isOtheriOSBrowser && !isInAppBrowser;
 }
 
-// Shared install state. Lives at module scope so every consumer (the floating
-// banner and the sidebar banner) reads the same captured prompt; consuming it
-// once clears it everywhere. `ready` stays false until client detection runs,
-// which keeps SSR/first paint from flashing install UI.
+// Module scope, so both banners share one prompt and consuming it clears both.
 interface IInstallState {
   deferredPrompt: IBeforeInstallPromptEvent | null;
   isStandalone: boolean;
@@ -119,8 +112,7 @@ async function promptInstall() {
   const { deferredPrompt } = state;
   if (!deferredPrompt) return;
 
-  // The prompt is one-shot: clear it for all consumers before awaiting so a
-  // second banner can't call prompt() again on the same event.
+  // One-shot: clear before awaiting so a second banner can't reuse the event.
   setState({ deferredPrompt: null });
 
   await deferredPrompt.prompt();
@@ -131,9 +123,7 @@ export function useInstallPrompt() {
   const { deferredPrompt, isStandalone, isIOS, isIOSSafari, ready } =
     useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  // Only surface install UI when installation can actually work: either a
-  // native prompt was captured (Chromium), or it's iOS Safari (manual add to
-  // home screen). Unsupported browsers get nothing. Hidden once installed.
+  // Only show install UI where installing can actually work.
   const canInstall = deferredPrompt !== null;
   const canShowInstallUI =
     ready && !isStandalone && (canInstall || isIOSSafari);

@@ -4,9 +4,7 @@ import { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
-// Better Auth appends ?error=<code> to the redirect when a social sign-in or account-linking
-// flow fails. Map every code we can hit to a localized, specific message so the user always
-// learns WHY (rather than a generic "something went wrong").
+// Better Auth appends ?error=<code>; map each one so the user learns why.
 const ERROR_MESSAGES: Record<string, string> = {
   email_not_found:
     "Tvoj Facebook račun nije podijelio email adresu. Prijavi se emailom ili Facebook računom koji ima email.",
@@ -25,10 +23,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 
 const DEFAULT_MESSAGE = "Došlo je do greške pri prijavi. Pokušaj ponovo.";
 
-// Surfaces failed OAuth flows (social sign-in OR account linking) as a toast, mounted app-wide.
-// Account-linking errors happen while logged in, so this must live outside the auth modal that
-// only logged-out users render. Reads ?error= from Next's router snapshot (useSearchParams)
-// rather than window.location, which loses a race against a URL rewrite during session load.
+// Mounted app-wide, since linking errors happen while the auth modal is unmounted.
 export default function OAuthErrorToast() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");

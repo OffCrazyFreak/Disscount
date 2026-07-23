@@ -42,8 +42,7 @@ export default function ScrollFade({
     update();
     element.addEventListener("scroll", update, { passive: true });
 
-    // Watches the content, not the container: items loading in change how
-    // much is scrollable without resizing the element itself.
+    // Watch the content: items loading in change scrollability, not element size.
     const observer = new ResizeObserver(update);
     for (const child of element.children) observer.observe(child);
 

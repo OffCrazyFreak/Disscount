@@ -35,8 +35,7 @@ export default function WindowScrollFade({
     window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update);
 
-    // Content growing (images, lazy sections) changes scrollHeight without a
-    // scroll or resize event, so watch the body too.
+    // Growing content changes scrollHeight without firing scroll or resize.
     const observer = new ResizeObserver(update);
     observer.observe(document.body);
 

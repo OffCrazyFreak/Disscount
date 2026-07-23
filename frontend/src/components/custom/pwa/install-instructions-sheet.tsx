@@ -21,8 +21,7 @@ interface IStep {
   text: ReactNode;
 }
 
-// Manual install steps for browsers without a usable install-prompt API:
-// iOS Safari uses Share -> Add to Home Screen; other browsers use their menu.
+// Manual steps for browsers with no usable install-prompt API.
 export default function InstallInstructionsSheet({
   open,
   onOpenChange,

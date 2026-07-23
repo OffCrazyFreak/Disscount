@@ -29,8 +29,7 @@ export function useSettingsDefaults() {
     () => ({
       username: user?.username ?? "",
       acquisitionChannel: user?.acquisitionChannel ?? null,
-      // Push, email and newsletter are coming-soon placeholders (disabled in
-      // the UI), so they show a fixed default rather than the stored flag.
+      // Coming-soon and disabled, so these show a fixed default, not the stored flag.
       notificationsPush: true,
       notificationsEmail: false,
       newsletter: true,

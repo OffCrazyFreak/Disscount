@@ -32,15 +32,12 @@ export default function AppSidebar() {
   useEffect(() => {
     setOpen(false);
     setOpenMobile(false);
-    // setOpen is rebuilt whenever the sidebar opens, so listing it here would
-    // close the sidebar the moment it opens.
+    // Listing setOpen would close the sidebar the moment it opens.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   return (
-    // h-fit keeps the floating panel hugging its content, so it needs an
-    // explicit cap (mt-24 + 1rem gap) or it overflows short viewports
-    // such as tablets in landscape.
+    // h-fit hugs the content, so it needs a cap or it overflows short viewports.
     <Sidebar
       variant="floating"
       className="mt-24 h-fit max-h-[calc(100dvh-7rem)]"

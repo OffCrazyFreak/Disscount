@@ -29,8 +29,7 @@ const DESCRIPTIONS: Record<AuthMode, string> = {
 interface IAuthModalProps {
   open: boolean;
   mode: AuthMode;
-  // Contextual reason shown when the modal was opened by an auth gate, e.g.
-  // "Prijavi se za dodavanje proizvoda na popis za kupnju."
+  // Contextual reason shown when an auth gate opened the modal.
   message?: string;
   onOpenChange: (open: boolean) => void;
   onModeChange: (mode: AuthMode) => void;
@@ -51,8 +50,7 @@ export default function AuthModal({
 
   const lastLoginMethod = useLastLoginMethod();
 
-  // OAuth failures are surfaced by the app-wide <OAuthErrorToast />, not here - account-linking
-  // errors happen while logged in, when this modal isn't mounted.
+  // OAuthErrorToast owns OAuth failures: linking errors happen with this unmounted.
 
   return (
     <ModalShell

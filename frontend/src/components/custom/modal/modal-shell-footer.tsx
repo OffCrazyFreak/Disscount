@@ -15,8 +15,7 @@ export interface IModalShellFooterProps {
   submitVariant?: "primary" | "destructive";
   submitIcon?: LucideIcon;
   onSubmit?: () => void;
-  // When set, the submit button submits the <form id={formId}> living in the
-  // body; the reset button becomes a native type="reset" for the same form.
+  // When set, both buttons target the <form id={formId}> living in the body.
   formId?: string;
   resetLabel?: string;
   onReset?: () => void;
@@ -86,8 +85,7 @@ export function ModalShellFooter({
             )}
 
             {submitLabel && (
-              // A brief nudge once every 10s (CSS keyframe) while there is
-              // something to save, drawing the eye without being distracting.
+              // A brief nudge every 10s while there is something to save.
               <div className={cn(submitEnabled && "animate-submit-nudge")}>
                 <Button
                   type={formId ? "submit" : "button"}

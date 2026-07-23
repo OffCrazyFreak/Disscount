@@ -20,8 +20,7 @@ interface IFloatingActionButtonProps extends ButtonProps {
   tooltip?: boolean;
 }
 
-// Material places a FAB 16px from the edges on compact windows and 24px from
-// medium up.
+// Material spacing: 16px from the edges on compact windows, 24px from medium up.
 const positionClasses = {
   "bottom-right": "bottom-4 right-4 sm:bottom-6 sm:right-6",
   "bottom-left": "bottom-4 left-4 sm:bottom-6 sm:left-6",
@@ -54,8 +53,7 @@ export default function FloatingActionButton({
   );
 
   return (
-    // The wrapper tracks the button's size, so it stays click-through to keep
-    // a hidden or disabled button from leaving a dead zone over the page.
+    // Click-through, so a hidden or disabled button leaves no dead zone.
     <div
       className={cn(
         "pointer-events-none fixed z-50",

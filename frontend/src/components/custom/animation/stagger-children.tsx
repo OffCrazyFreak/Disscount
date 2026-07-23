@@ -21,9 +21,7 @@ interface IStaggerChildrenProps {
   itemAs?: RevealItemTag;
 }
 
-// Staggered fade + rise reveal for modal/section content; no-op under reduced
-// motion (hydration-safe: the plain-element branch only activates after mount).
-// Accepts a single child or an array (falsy children are dropped).
+// The plain-element branch activates only after mount, keeping hydration safe.
 export function StaggerChildren({
   children,
   className,

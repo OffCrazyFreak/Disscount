@@ -56,8 +56,7 @@ export function useOnboarding({ open, save }: IUseOnboardingProps) {
     setStep(step - 1);
   }
 
-  // Finishing routes through the settings save-all with the outcome stamped
-  // into the same PATCH; failures reopen the settings modal on the failed tab.
+  // Stamps the outcome into the same PATCH as the settings save-all.
   async function finish() {
     await save({ onboardingOutcome: "completed" });
   }

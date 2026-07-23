@@ -30,8 +30,7 @@ export function useForgotPasswordForm() {
         redirectTo: `${appUrl}/reset-password`,
       });
     } catch {
-      // Only a thrown transport/runtime failure reaches here; API-level { error } is intentionally
-      // ignored so the response can't reveal whether the account exists.
+      // API-level { error } is ignored on purpose, so this can't confirm an account.
       toast.error("Greška pri slanju poveznice. Pokušaj ponovo.");
       return;
     }

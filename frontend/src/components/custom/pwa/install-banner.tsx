@@ -12,8 +12,7 @@ import {
   snoozeInstallBanner,
 } from "@/utils/browser/local-storage";
 
-// One-time dismissible banner inviting first-time visitors to add the app to
-// their home screen (only on browsers that support installation).
+// One-time and dismissible, only on browsers that support installation.
 export default function InstallBanner() {
   const { canShowInstallUI, canInstall, isIOS, promptInstall } =
     useInstallPrompt();
