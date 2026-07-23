@@ -9,11 +9,24 @@ import { watchlistService, WatchType } from "@/lib/api";
 import { applyProblemToForm } from "@/lib/api/problem-details";
 import { stashModalError, takeModalError } from "@/lib/modal/modal-error-bus";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
-import { removeFormDraft } from "@/utils/browser/local-storage";
+import { getFormDraft, removeFormDraft } from "@/utils/browser/local-storage";
 import {
   WatchlistFormData,
   watchlistFormSchema,
 } from "@/app/products/typings/watchlist-form";
+
+// A restore reinstates watchType and thresholdValue together, which looks like a
+// user switching the type; the saved pair identifies it so the value is kept.
+function matchesDraft(draftKey: string, values: WatchlistFormData): boolean {
+  const draft = getFormDraft(draftKey)?.values as
+    Partial<WatchlistFormData> | undefined;
+
+  return (
+    !!draft &&
+    draft.watchType === values.watchType &&
+    draft.thresholdValue === values.thresholdValue
+  );
+}
 
 export function useWatchlistItemForm(
   open: boolean,
@@ -49,6 +62,8 @@ export function useWatchlistItemForm(
   useEffect(() => {
     const watchTypeChanged = prevWatchTypeRef.current !== watchType;
     prevWatchTypeRef.current = watchType;
+
+    if (watchTypeChanged && matchesDraft(draftKey, form.getValues())) return;
 
     if (!watchTypeChanged && form.formState.dirtyFields.thresholdValue) return;
 
