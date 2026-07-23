@@ -3,9 +3,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { CART_VIEW_BOX } from "@/components/icons/cart-logo";
 
-// Shared renderer for the site's social preview image, generated with the app's
-// own brand (happy cart + Saira Stencil wordmark + Huninn body) instead of a
-// static export. Used by both opengraph-image.tsx and twitter-image.tsx.
+// Shared by opengraph-image.tsx and twitter-image.tsx.
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -15,9 +13,7 @@ export const alt =
 const BRAND = "#2ec50d";
 const INK = "#252525";
 
-// Satori can't read woff2, so we load Saira Stencil (.ttf) and a woff build of
-// the Huninn latin-ext subset (converted from the app's woff2). These OG routes
-// are statically generated at build time, so reading from src/ is safe.
+// Satori can't read woff2, so these are .ttf and .woff builds of the app fonts.
 async function loadFonts() {
   const dir = join(process.cwd(), "src", "app", "fonts");
 

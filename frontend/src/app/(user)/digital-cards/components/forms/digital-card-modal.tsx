@@ -58,8 +58,7 @@ export default function DigitalCardModal({
     defaultValues: EMPTY_VALUES,
   });
 
-  // Populate from the loaded card, then merge any saved draft on top (draft
-  // wins and shows as unsaved). Never clobbers values the user is editing.
+  // Draft wins over the loaded card, so an in-progress edit is never clobbered.
   useEffect(() => {
     if (!digitalCard || form.formState.isDirty) return;
 

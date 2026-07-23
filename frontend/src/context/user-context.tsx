@@ -79,9 +79,7 @@ export function UserProvider({ children }: IUserProviderProps) {
     if (session?.user) {
       refreshUser();
     } else {
-      // No valid session (initial load, explicit logout, expiry, revoked
-      // cookie, or sign-out in another tab): wipe the persisted cache so a
-      // previous user's data and queued writes never linger on a shared device.
+      // Wipe the cache so a previous user never lingers on a shared device.
       clearAuthToken();
       void purgeOfflineCache(queryClient);
       setUser(null);
@@ -96,8 +94,7 @@ export function UserProvider({ children }: IUserProviderProps) {
       clearAuthToken();
       setUser(null);
       await purgeOfflineCache(queryClient);
-      // Leaving a user-only page (e.g. shopping lists) signed out would show a
-      // login gate; send the user home instead.
+      // Staying on a protected route signed out would just show a login gate.
       if (isProtectedRoute(pathname)) router.push("/");
     }
   }, [queryClient, router, pathname]);
@@ -116,9 +113,7 @@ export function UserProvider({ children }: IUserProviderProps) {
     setUser((prev) => (prev ? { ...prev, pinnedPlaces: places } : null));
   }, []);
 
-  // Merge session identity (name/email/image from better-auth) into the backend profile at render time.
-  // Email is no longer stored in app_user, so it comes from the better-auth session for the current user.
-  // Keeps refreshUser free of session dependency while still exposing a single unified user object.
+  // Identity lives in the better-auth session, not app_user, so merge at render.
   const mergedUser: UserDto | null = user
     ? {
         ...user,

@@ -55,8 +55,7 @@ export default function ContactModal({ open }: IContactModalProps) {
     fullName: user?.name ?? "",
   };
 
-  // Prefill from the signed-in profile on open, then merge any saved draft on
-  // top (draft wins and shows as unsaved). Skips while the user is mid-edit.
+  // Draft wins over the profile prefill, and neither runs mid-edit.
   useEffect(() => {
     if (!open || form.formState.isDirty) return;
 
@@ -69,8 +68,7 @@ export default function ContactModal({ open }: IContactModalProps) {
     }
   }, [open, user, form]);
 
-  // sourcePath is stamped at submit time and honeypot is a bot trap; neither is
-  // user content, so keep them out of localStorage.
+  // Neither is user content, so keep them out of localStorage.
   const { restored, clearDraft } = useFormDraft({
     draftKey: DRAFT_KEY,
     form,

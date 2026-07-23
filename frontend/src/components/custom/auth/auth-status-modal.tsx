@@ -25,9 +25,7 @@ interface IAuthStatusModalProps {
   kind: StatusKind;
 }
 
-// Shown after the user returns from a verification / email-change link
-// (?modal=email-verified | email-changed). Better Auth signs them in on the way
-// back, so this is just a friendly confirmation with a single continue action.
+// Better Auth already signed them in on the way back, so this only confirms.
 export default function AuthStatusModal({ open, kind }: IAuthStatusModalProps) {
   const { refreshUser } = useUser();
   const copy = STATUS_COPY[kind];

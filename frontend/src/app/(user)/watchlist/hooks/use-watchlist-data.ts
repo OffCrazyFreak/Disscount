@@ -35,8 +35,7 @@ export function useWatchlistData(query: string) {
 
   const productQueries = useQueries({
     queries: groupedWatchlistItems.map((item) => ({
-      // Same key the modal's useGetProductByEan reads, so opening the watchlist
-      // modal is a cache hit instead of a refetch behind a skeleton.
+      // Same key the modal reads, so opening it is a cache hit, not a skeleton.
       queryKey: productByEanQueryKey(item.productApiId),
       queryFn: () => getProductByEan({ ean: item.productApiId }),
       enabled: Boolean(item.productApiId) && isAuthenticated,
@@ -46,8 +45,7 @@ export function useWatchlistData(query: string) {
 
   const productsLoading = productQueries.some((query) => query.isLoading);
 
-  // Freshest successful price fetch across the tracked products, for the
-  // "last synced" label.
+  // Drives the "last synced" label.
   const pricesUpdatedAt = useMemo(() => {
     const timestamps = productQueries
       .map((query) => query.dataUpdatedAt)

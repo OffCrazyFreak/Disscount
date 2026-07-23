@@ -15,8 +15,7 @@ import { ReactNode, Suspense } from "react";
 import { huninn, sairaStencil } from "@/app/fonts";
 import { appUrl } from "@/lib/env";
 
-// Shorter than the meta description on purpose: social previews truncate around
-// 125 chars, while the full description below stays fine for search results.
+// Social previews truncate near 125 chars, so this is shorter than the meta one.
 const socialDescription =
   "Usporedi cijene proizvoda u 25+ trgovačkih lanaca u Hrvatskoj, prati povijest cijena i uštedi pri svakoj kupnji. Besplatno.";
 

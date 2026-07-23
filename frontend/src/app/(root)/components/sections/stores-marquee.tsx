@@ -34,8 +34,7 @@ function LogoRow({ ariaHidden = false }: ILogoRowProps) {
   );
 }
 
-// Pure-CSS infinite marquee: the track holds two identical rows and slides by
-// -50%; pauses on hover (group/marquee) and stops under reduced motion.
+// Two identical rows sliding by -50% is what makes the CSS loop seamless.
 export default function StoresMarquee() {
   return (
     <div className="group/marquee relative overflow-x-clip">

@@ -21,10 +21,7 @@ interface IStepperNumberInputProps {
   className?: string;
 }
 
-// A free-typing number input flanked by +/- shortcut buttons. The buttons are
-// convenience shortcuts (clamped to min/max); typing is NOT clamped and the
-// field can be emptied, so users can clear it and type any valid number. The
-// owning form's zod schema validates the range and disables submit when invalid.
+// Buttons clamp to min/max, typing does not: the owning form's zod schema ranges it.
 export function StepperNumberInput({
   value,
   onChange,

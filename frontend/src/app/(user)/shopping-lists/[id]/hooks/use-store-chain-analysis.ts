@@ -31,8 +31,6 @@ export function useStoreChainAnalysis({
   pinnedStores,
   optimizeBy,
 }: IUseStoreChainAnalysisParams) {
-  // Optimise the store comparison over the products still to buy: items already
-  // ticked off as bought are excluded from every store metric below.
   const activeItems = useMemo(
     () => (shoppingList.items ?? []).filter((item) => !item.isChecked),
     [shoppingList.items],
@@ -90,8 +88,7 @@ export function useStoreChainAnalysis({
     [allChains, activeItems],
   );
 
-  // Sort a copy (never mutate the memoized allChains) by the chosen optimisation
-  // mode; pinned stores always stay on top inside compareStoreChains.
+  // Sort a copy, since Array.sort mutates and allChains is memoized.
   const sortedChains = useMemo(() => {
     const pinnedStoreIds = pinnedStores?.map((store) => store.storeApiId) || [];
 

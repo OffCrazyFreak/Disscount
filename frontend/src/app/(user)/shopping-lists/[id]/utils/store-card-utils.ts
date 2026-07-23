@@ -44,14 +44,12 @@ export function getStoreCardMetrics({
   const storeAvgPrice = parseFloat(chain.avg_price);
   const storeMaxPrice = parseFloat(chain.max_price);
 
-  // Store metrics are computed over not-yet-bought items, so compare coverage
-  // against the count of items still to buy (checked-off items are excluded).
+  // Coverage compares against items still to buy, not the whole list.
   const totalItemsInList =
     shoppingList.items?.filter((item) => !item.isChecked).length || 0;
   const hasAllItems = chain.itemCount === totalItemsInList;
 
-  // Only color the totals when this store covers every item, so the comparison
-  // against the absolute min/max range is meaningful.
+  // Coloring only means something when the store covers every item.
   const minExtreme = hasAllItems
     ? getPriceExtreme(storeMinPrice, absoluteMinPrice, absoluteMaxPrice)
     : null;

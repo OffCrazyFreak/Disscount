@@ -26,8 +26,7 @@ export function usePriceHistoryChart(product: ProductResponse) {
     const availableChains =
       product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) || [];
 
-    // Get period from product-specific prefs or default, coercing a persisted
-    // disabled period (e.g. "1Y"/"ALL") back to an enabled one
+    // A persisted period may since have been disabled, so coerce it back.
     const period = getEnabledPeriod(
       (productsPreferences?.period || "1W") as PeriodOption,
     );
