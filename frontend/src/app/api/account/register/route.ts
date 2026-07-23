@@ -8,6 +8,8 @@ import { user as userTable } from "@/db/auth-schema";
 import { requireEnv } from "@/lib/env";
 import { passwordSchema } from "@/lib/api/schemas/auth-user";
 
+const BETTER_AUTH_URL = requireEnv("BETTER_AUTH_URL");
+
 const registerSchema = z.object({
   email: z.email(),
   password: passwordSchema,
@@ -45,7 +47,7 @@ export async function POST(request: Request) {
         body: {
           email,
           // No email in the URL: it would leak via history, Referer and logs.
-          redirectTo: `${requireEnv("BETTER_AUTH_URL")}/reset-password`,
+          redirectTo: `${BETTER_AUTH_URL}/reset-password`,
         },
       });
     } else {
