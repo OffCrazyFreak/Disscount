@@ -1,6 +1,5 @@
 name: Bug report
 description: Report something that is broken or not working as expected
-title: "[Bug]: "
 labels: ["bug"]
 body:
   - type: markdown
@@ -12,6 +11,10 @@ body:
 
         Only the description is required. Fill in whatever else you can, even a
         one-line report is welcome and we can ask follow-up questions.
+
+        **Found a security vulnerability?** Do not file it here. Report it
+        privately as a
+        [security advisory](https://github.com/OffCrazyFreak/Disscount/security/advisories/new).
   - type: textarea
     id: description
     attributes:

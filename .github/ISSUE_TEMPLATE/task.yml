@@ -1,6 +1,5 @@
 name: Maintenance task
 description: A concrete code change - refactor, cleanup, tech debt, or review follow-up
-title: "[Task]: "
 labels: ["tech-debt"]
 body:
   - type: markdown
@@ -20,6 +19,10 @@ body:
           inline in the issue.
 
         Only the summary is required.
+
+        **Found a security vulnerability?** Do not file it here. Report it
+        privately as a
+        [security advisory](https://github.com/OffCrazyFreak/Disscount/security/advisories/new).
   - type: textarea
     id: summary
     attributes:

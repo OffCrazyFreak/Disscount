@@ -1,6 +1,5 @@
 name: Feature request
 description: Suggest an idea or improvement for Disscount
-title: "[Feature]: "
 labels: ["enhancement"]
 body:
   - type: markdown
@@ -47,3 +46,15 @@ body:
       description: Mockups, links, or anything else that helps explain the idea.
     validations:
       required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Frontend (web / PWA)
+        - Backend (API)
+        - Infrastructure / CI
+        - Docs
+        - Not sure
+    validations:
+      required: true
