@@ -1,0 +1,89 @@
+name: Maintenance task
+description: A concrete code change - refactor, cleanup, tech debt, or review follow-up
+title: "[Task]: "
+labels: ["tech-debt"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For work where the change is already understood and someone just needs to
+        pick it up. If you are not sure what the fix is, **Bug report** and
+        **Feature request** are shorter and easier to fill in.
+
+        Two habits make a task easy to pick up months later:
+
+        - **One issue, one outcome**, so it can be closed in one go. Independent
+          changes belong in separate issues, otherwise the issue lingers on its
+          slowest item.
+        - **Readable without opening the codebase.** Select the lines on GitHub,
+          press <kbd>y</kbd> for a permalink, and paste it - the code renders
+          inline in the issue.
+
+        Only the summary is required.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What needs to change
+      description: One or two sentences that make sense on their own.
+    validations:
+      required: true
+  - type: textarea
+    id: where
+    attributes:
+      label: Where
+      description: Paths, or line permalinks so the code shows up inline.
+      placeholder: |
+        frontend/src/app/products/utils/product-chain-sort.ts
+    validations:
+      required: false
+  - type: textarea
+    id: behaviour
+    attributes:
+      label: Current and expected behaviour
+      description: What happens today, why it is a problem, and what should be true instead.
+      placeholder: |
+        Now: picking "distance" leaves the order unchanged.
+        Should be: chains are sorted by distance, or the option is removed.
+    validations:
+      required: false
+  - type: textarea
+    id: done_when
+    attributes:
+      label: Done when
+      description: >-
+        How anyone can confirm it worked. A checklist here renders as a progress
+        counter on the issue list, so status is visible without opening the issue.
+      placeholder: |
+        - [ ] Picking "distance" reorders the chain list
+        - [ ] pnpm exec tsc --noEmit stays clean
+    validations:
+      required: false
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints and gotchas
+      description: >-
+        Anything that would send someone down the wrong path: decisions already
+        made, code that must not change, related issues or PRs.
+    validations:
+      required: false
+  - type: input
+    id: blocked_on
+    attributes:
+      label: Blocked on
+      description: Anything that has to land first, including work outside this repo.
+      placeholder: "e.g. waiting on self-hosting the price archive"
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Frontend (web / PWA)
+        - Backend (API)
+        - Infrastructure / CI
+        - Docs
+        - Not sure
+    validations:
+      required: true
