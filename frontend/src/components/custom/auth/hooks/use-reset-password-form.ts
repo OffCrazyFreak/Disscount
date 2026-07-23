@@ -18,8 +18,7 @@ const resetPasswordSchema = z
 export type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
 export function useResetPasswordForm(open: boolean) {
-  // Capture the token the first render the modal is open (adjust-during-render,
-  // so it works when `open` flips true), then strip it from the URL in an effect.
+  // Adjust-during-render, so capture still works when `open` flips true.
   const [captured, setCaptured] = useState<{ token: string | null } | null>(
     null,
   );

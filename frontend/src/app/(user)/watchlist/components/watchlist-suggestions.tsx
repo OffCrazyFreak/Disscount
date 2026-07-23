@@ -9,7 +9,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
-import { IWatchlistSearchItem } from "@/app/(user)/watchlist/utils/watchlist-types";
+import { IWatchlistSearchItem } from "@/app/(user)/watchlist/typings/watchlist-types";
 
 interface IWatchlistSuggestionsProps {
   items: IWatchlistSearchItem[];

@@ -14,9 +14,7 @@ interface IFeatureCardActionProps {
   children: ReactNode;
 }
 
-// Client boundary for feature cards that trigger an action rather than navigate.
-// Receives only serializable props + server-rendered children, so the card and
-// its icon stay server-rendered.
+// Server-rendered children pass through this client boundary, so the card and icon stay server-rendered.
 export default function FeatureCardAction({
   action,
   className,

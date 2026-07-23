@@ -5,8 +5,7 @@ interface IBlockLoadingSpinnerProps {
   className?: string;
 }
 
-// Blocks that trace a square. Defaults to the brand green for page/section
-// loaders; pass `text-inherit` (or any text color) to recolor it inside buttons.
+// Pass `text-inherit` (or any text color) to recolor it inside buttons.
 export default function BlockLoadingSpinner({
   size = 64,
   className,

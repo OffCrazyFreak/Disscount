@@ -42,13 +42,11 @@ export function isEntityTarget(
   return !!target && (ENTITY_NAMES as readonly string[]).includes(target.name);
 }
 
-// Keeps the last target mounted briefly after close so the dialog's exit
-// animation can play before the component unmounts.
+// Keeps the last target mounted after close so the exit animation can play.
 function useLingeringTarget(target: EntityTarget | null) {
   const [lingering, setLingering] = useState(target);
 
-  // Adjust-during-render pattern: track the latest non-null target without an
-  // effect, then clear it shortly after close so exit animations can play.
+  // Adjust-during-render, so tracking the latest target needs no effect.
   if (target && target !== lingering) setLingering(target);
 
   useEffect(() => {
@@ -60,11 +58,11 @@ function useLingeringTarget(target: EntityTarget | null) {
   return target ?? lingering;
 }
 
-export default function EntityModalOutlet({
-  target,
-}: {
+interface IEntityModalOutletProps {
   target: EntityTarget | null;
-}) {
+}
+
+export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
   const rendered = useLingeringTarget(target);
   if (!rendered) return null;
 

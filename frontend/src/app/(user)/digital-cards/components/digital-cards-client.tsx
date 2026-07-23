@@ -19,7 +19,13 @@ import { AnimatedGroup } from "@/components/custom/animation/animated-group";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 
-export default function DigitalCardsClient({ query }: { query: string }) {
+interface IDigitalCardsClientProps {
+  query: string;
+}
+
+export default function DigitalCardsClient({
+  query,
+}: IDigitalCardsClientProps) {
   const pathname = usePathname();
   const [viewMode] = useViewMode(pathname, "grid");
 

@@ -16,7 +16,11 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import PageFab from "@/components/custom/fab/page-fab";
 
-export default function ProductsClient({ query }: { query: string }) {
+interface IProductsClientProps {
+  query: string;
+}
+
+export default function ProductsClient({ query }: IProductsClientProps) {
   const isMobile = useIsMobile();
   const pathname = usePathname();
   const [viewMode] = useViewMode(pathname);
@@ -31,14 +35,12 @@ export default function ProductsClient({ query }: { query: string }) {
     clearFilters,
   } = filters;
 
-  const { visibleProducts, total, isLoading, error } = useInfiniteProducts(
-    query,
-    {
+  const { visibleProducts, total, isTruncated, isLoading, error } =
+    useInfiniteProducts(query, {
       allowedChains,
       selectedCategories,
       selectedBrands,
-    },
-  );
+    });
 
   // A location filter is set but the city -> chains mapping is still loading
   const waitingForLocations = Boolean(query) && !locationsReady;
@@ -62,7 +64,7 @@ export default function ProductsClient({ query }: { query: string }) {
             `Rezultati pretrage za "${query}"${
               isLoading || waitingForLocations
                 ? ""
-                : ` (${total}${total >= 100 ? "+" : ""})`
+                : ` (${total}${isTruncated ? "+" : ""})`
             }`}
         </h3>
 

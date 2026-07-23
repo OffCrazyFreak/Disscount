@@ -17,10 +17,8 @@ interface ICartChaserProps {
   active: boolean;
 }
 
-// Miniature cart that leaves the hero once the page scrolls and lazily trails
-// the cursor, flipping and tilting so it always faces it. Decorative,
-// desktop-only, and never server-rendered (HeroCart only mounts it after
-// hydration), so portaling to document.body is safe.
+// HeroCart only mounts this after hydration (finePointer is false on the server),
+// so it never server-renders and portaling to document.body is safe.
 export default function CartChaser({ anchorRef, active }: ICartChaserProps) {
   const { x, y, scaleX, rotate } = useCursorFollow(anchorRef, active);
   const left = useTransform(x, (value) => value - CART_WIDTH_PX / 2);

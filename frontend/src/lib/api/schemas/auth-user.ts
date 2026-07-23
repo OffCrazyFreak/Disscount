@@ -3,8 +3,7 @@ import { z } from "zod";
 const PASSWORD_ERROR =
   "Lozinka mora imati barem 12 znakova i treba sadržavati najmanje jedno veliko slovo, jedno malo slovo te broj (0-9).";
 
-// Shared rules for any newly created password (signup, set/change password).
-// Not used for login, where any existing password must be accepted.
+// New passwords only: login must still accept any existing password.
 export const passwordSchema = z
   .string()
   .refine(
@@ -32,8 +31,7 @@ export const registerRequestSchema = z
     path: ["confirmPassword"],
   });
 
-// Mirrors the backend AcquisitionChannel enum - granular per platform so marketing
-// attribution can distinguish Instagram vs Facebook vs TikTok, etc.
+// Mirrors the backend AcquisitionChannel enum, per platform for attribution.
 export const acquisitionChannelSchema = z.enum([
   "GOOGLE_SEARCH",
   "INSTAGRAM",

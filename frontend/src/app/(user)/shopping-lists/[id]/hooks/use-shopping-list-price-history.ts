@@ -5,16 +5,18 @@ import { PeriodOption } from "@/typings/history-period-options";
 import { periodOptions } from "@/constants/price-history";
 import cijeneService from "@/lib/cijene-api";
 import { useUser } from "@/context/user-context";
-import { usePriceHistoryChains } from "@/app/(user)/shopping-lists/[id]/components/price-history/use-price-history-chains";
+import { usePriceHistoryChains } from "@/app/(user)/shopping-lists/[id]/hooks/use-price-history-chains";
 import {
   getPriceHistoryDates,
   groupPriceHistoriesByEan,
   getAvailableChains,
+} from "@/app/(user)/shopping-lists/[id]/utils/price-history-series";
+import {
   buildChartData,
   buildChartConfig,
-  calculateYAxisTicks,
-  calculateTotalPriceChange,
-} from "@/app/(user)/shopping-lists/[id]/components/price-history/price-history-utils";
+} from "@/app/(user)/shopping-lists/[id]/utils/price-history-chart-data";
+import { calculateYAxisTicks } from "@/app/(user)/shopping-lists/[id]/utils/price-history-axis";
+import { calculateTotalPriceChange } from "@/app/(user)/shopping-lists/[id]/utils/price-history-totals";
 
 export function useShoppingListPriceHistory(
   shoppingList: ShoppingListDto,
@@ -48,6 +50,7 @@ export function useShoppingListPriceHistory(
 
   const isLoading = queries.some((q) => q.isLoading);
   const hasError = queries.some((q) => q.isError);
+  const areChainsReady = queries.every((q) => q.isSuccess || q.isError);
 
   const priceHistoriesByEan = useMemo(() => {
     return groupPriceHistoriesByEan(
@@ -71,6 +74,7 @@ export function useShoppingListPriceHistory(
     shoppingList.id,
     availableChains,
     pinnedStoreIds,
+    areChainsReady,
   );
 
   const chartData = useMemo(

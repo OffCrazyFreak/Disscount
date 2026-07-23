@@ -42,8 +42,7 @@ export function getChainItemPriceInfo(
   const maxPriceAcrossChains =
     allChainPrices.length > 0 ? Math.max(...allChainPrices) : 0;
 
-  // getPriceExtreme returns null when min === max (a single price,
-  // or all chains equal), so a uniform price is never flagged.
+  // getPriceExtreme returns null when min === max, so uniform prices stay unflagged.
   const priceExtreme = isAvailable
     ? getPriceExtreme(price, minPriceAcrossChains, maxPriceAcrossChains)
     : null;

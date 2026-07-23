@@ -7,11 +7,11 @@ import { Card } from "@/components/ui/card";
 import UpvoteButton from "@/app/suggestions/components/upvote-button";
 import { Suggestion } from "@/app/suggestions/suggestions";
 
-export default function SuggestionCard({
-  suggestion,
-}: {
+interface ISuggestionCardProps {
   suggestion: Suggestion;
-}) {
+}
+
+export default function SuggestionCard({ suggestion }: ISuggestionCardProps) {
   return (
     <Card className="p-0 transition-shadow hover:shadow-md">
       <Link

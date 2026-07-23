@@ -8,7 +8,7 @@ import {
   getMaxDiscountPercentage,
   IWatchlistItemWithProduct,
 } from "@/app/(user)/watchlist/utils/watchlist-utils";
-import type { IWatchlistSearchItem } from "@/app/(user)/watchlist/utils/watchlist-types";
+import type { IWatchlistSearchItem } from "@/app/(user)/watchlist/typings/watchlist-types";
 
 interface IUseWatchlistSuggestionsParams {
   query: string;

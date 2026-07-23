@@ -15,8 +15,7 @@ import {
   watchlistFormSchema,
 } from "@/app/products/typings/watchlist-form";
 
-// A restore reinstates watchType and thresholdValue together, which looks like a
-// user switching the type; the saved pair identifies it so the value is kept.
+// A restored pair looks like a type switch, so match it to keep the value.
 function matchesDraft(draftKey: string, values: WatchlistFormData): boolean {
   const draft = getFormDraft(draftKey)?.values as
     Partial<WatchlistFormData> | undefined;
@@ -57,8 +56,7 @@ export function useWatchlistItemForm(
 
   const prevWatchTypeRef = useRef(watchType);
 
-  // Prefill the threshold when the type changes. A mode switch always reloads (the value's
-  // meaning changed); otherwise a user-typed or restored value is kept.
+  // A mode switch changes what the value means, so only that forces a reload.
   useEffect(() => {
     const watchTypeChanged = prevWatchTypeRef.current !== watchType;
     prevWatchTypeRef.current = watchType;
@@ -126,8 +124,7 @@ export function useWatchlistItemForm(
     }
   }
 
-  // Remove the current tab's entry if it exists, otherwise the product's other
-  // tracked entry, so the red X works no matter which tab is open.
+  // Falls back to the other tracked entry, so the red X works from either tab.
   async function onRemove() {
     const target = existingItemForType ?? existingItems[0];
     if (!target) return;

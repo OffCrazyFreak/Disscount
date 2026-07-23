@@ -8,8 +8,7 @@ interface ILegalPageProps {
   children: ReactNode;
 }
 
-// Shared wrapper for the static legal pages (terms, privacy, data deletion).
-// Refined, on-brand layout using the app's design tokens.
+// Shared by terms, privacy and data deletion.
 export default function LegalPage({
   title,
   intro,

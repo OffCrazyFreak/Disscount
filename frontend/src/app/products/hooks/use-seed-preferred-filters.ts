@@ -21,8 +21,7 @@ export default function useSeedPreferredFilters(): void {
   const hasSeeded = useRef(false);
 
   useEffect(() => {
-    // The profile arrives after the first render, so this runs once it lands
-    // rather than on mount.
+    // The profile arrives after first render, so this waits for it.
     if (hasSeeded.current || !user) return;
 
     hasSeeded.current = true;

@@ -8,8 +8,7 @@ import { authClient } from "@/lib/auth/client";
 import { userService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 
-// Account-level security actions that live outside the credentials form:
-// signing out other devices and deleting the account (with full session cleanup).
+// The Sigurnost actions that sit outside the credentials form.
 export function useSecurityActions() {
   const router = useRouter();
   const { logout } = useUser();

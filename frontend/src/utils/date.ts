@@ -67,8 +67,7 @@ const DIVISIONS: { amount: number; unit: Intl.RelativeTimeFormatUnit }[] = [
   { amount: 12, unit: "months" },
 ];
 
-// Human-friendly relative time, e.g. "prije 2 sata". Accepts a Date or an
-// epoch-millis timestamp (such as React Query's `dataUpdatedAt`).
+// Accepts a Date or epoch millis, such as React Query's `dataUpdatedAt`.
 export function formatRelativeTime(date: Date | number, locale = "hr"): string {
   const timestamp = typeof date === "number" ? date : date.getTime();
   let duration = (timestamp - Date.now()) / 1000; // seconds; negative = past

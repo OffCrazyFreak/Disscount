@@ -2,8 +2,7 @@ import { z } from "zod";
 
 import { acquisitionChannelSchema } from "@/lib/api/schemas/auth-user";
 
-// One form spans the three form tabs (Profil, Obavijesti, Preference); the
-// Sigurnost tab is immediate actions and lives outside this schema.
+// Spans the three form tabs; Sigurnost is immediate actions and sits outside.
 export const settingsFormSchema = z.object({
   username: z
     .string()
@@ -14,8 +13,7 @@ export const settingsFormSchema = z.object({
   notificationsEmail: z.boolean(),
   newsletter: z.boolean(),
   feedbackContact: z.boolean(),
-  // Chain codes (storeApiId), NOT display names - the save path always sent
-  // codes, so the load path must map codes too.
+  // Chain codes (storeApiId), never display names, matching the save path.
   pinnedStores: z.array(z.string()),
   // Place names double as their API ids.
   pinnedPlaces: z.array(z.string()),

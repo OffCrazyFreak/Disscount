@@ -4,7 +4,7 @@ import {
   SettingsSection,
 } from "@/components/custom/settings/settings-schema";
 
-function fieldChanged(
+export function fieldChanged(
   values: SettingsFormValues,
   defaults: Partial<SettingsFormValues>,
   field: keyof SettingsFormValues,
@@ -12,8 +12,7 @@ function fieldChanged(
   return JSON.stringify(values[field]) !== JSON.stringify(defaults[field]);
 }
 
-// Value-compare against the form's default baseline instead of trusting RHF's
-// dirtyFields shape (array fields report per-index flags there).
+// RHF's dirtyFields reports per-index flags for arrays, so value-compare instead.
 export function dirtySections(
   values: SettingsFormValues,
   defaults: Partial<SettingsFormValues>,

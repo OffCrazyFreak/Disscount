@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import AdminContactRow from "@/app/dashboard/components/admin-contact-row";
 import AdminContactDetail from "@/app/dashboard/components/admin-contact-detail";
-import { useContactInbox } from "@/app/dashboard/components/use-contact-inbox";
+import { useContactInbox } from "@/app/dashboard/hooks/use-contact-inbox";
 import { contactService } from "@/lib/api";
 import { ContactMessageDto } from "@/lib/api/types";
 import { filterByFields } from "@/utils/generic";

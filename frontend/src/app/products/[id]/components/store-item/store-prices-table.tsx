@@ -30,8 +30,7 @@ const StorePricesTable = memo(
     const productMinPrice = getMinPrice(product);
     const productMaxPrice = getMaxPrice(product);
 
-    // Pinned places are stored under the standardized city name, so the
-    // display label doubles as the lookup key.
+    // Pinned places key off the standardized city name, so label is lookup key.
     const preferredPlaceIds =
       user?.pinnedPlaces?.map((place) => place.placeApiId) || [];
 

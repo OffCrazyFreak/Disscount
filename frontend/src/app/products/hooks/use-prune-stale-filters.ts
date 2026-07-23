@@ -49,8 +49,7 @@ export default function usePruneStaleFilters(
   useEffect(() => {
     if (!query || !data) return;
 
-    // A full result set may be truncated, so a valid filter could match products we did not
-    // fetch. Only prune when the set is complete, otherwise valid selections get dropped.
+    // A truncated set would prune filters matching products we never fetched.
     if (data.products.length >= PRODUCT_SEARCH_LIMIT) return;
 
     const categories = keepAvailable(

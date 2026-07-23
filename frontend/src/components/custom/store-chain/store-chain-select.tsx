@@ -47,8 +47,7 @@ export default function StoreChainSelect({
   const [displayValue, setDisplayValue] = useState<string>(value || "");
   const autoSelectedForRef = useRef<string | null>(null);
 
-  // Auto-select the default once per default value. The guard stops a mutation-rollback
-  // re-render (value reverts to empty) from re-firing onChange in a request/toast storm.
+  // The guard stops a mutation rollback from re-firing onChange in a toast storm.
   useEffect(() => {
     if (
       !value &&
@@ -82,10 +81,8 @@ export default function StoreChainSelect({
     return computePriceDifference(storePrices[chainCode], averagePrice);
   };
 
-  // Build options from the live cijene price data (chain slugs), not a static
-  // list, so any chain the API returns is selectable, even unmapped ones.
-  // When checked, only the chosen store is shown; otherwise all priced stores
-  // plus the current selection.
+  // Built from live price data, so even chains we have not mapped stay selectable.
+  // When checked, only the chosen store is offered; otherwise all priced stores plus the current selection.
   const availableChainCodes = (
     isChecked
       ? value

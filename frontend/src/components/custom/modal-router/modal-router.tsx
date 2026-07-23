@@ -54,9 +54,7 @@ export default function ModalRouter() {
   const isPublicTarget =
     !!target && (PUBLIC_MODAL_NAMES as readonly string[]).includes(target.name);
 
-  // Protected modals opened while logged out show the login modal instead; the
-  // modal param stays in the URL, so the intended modal appears after login.
-  // Public modals (reset-password, email confirmations) are never gated.
+  // The modal param stays in the URL, so the intended modal opens after login.
   const needsAuthGate =
     !!target &&
     !isAuthTarget &&
@@ -67,8 +65,7 @@ export default function ModalRouter() {
   const showAuthModal =
     (isAuthTarget && !isAuthenticated && !isLoading) || needsAuthGate;
 
-  // While gating, the URL still holds the intended target (add-to-list, ...), so the
-  // login/signup switch is tracked locally instead of overwriting that target.
+  // Tracked locally, since the URL still holds the gated target.
   const [gateMode, setGateMode] = useState<AuthMode>("login");
 
   const authMode: AuthMode = needsAuthGate

@@ -16,7 +16,13 @@ import { useUser } from "@/context/user-context";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 
-export default function ShoppingListsClient({ query }: { query: string }) {
+interface IShoppingListsClientProps {
+  query: string;
+}
+
+export default function ShoppingListsClient({
+  query,
+}: IShoppingListsClientProps) {
   const pathname = usePathname();
 
   const { isAuthenticated, isLoading: userLoading } = useUser();

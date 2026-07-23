@@ -14,12 +14,11 @@ import resizeImageToWebp from "@/utils/browser/image";
 import { useUser } from "@/context/user-context";
 import { useSettingsUi } from "@/components/custom/settings/settings-context";
 
-// Guards against decoding an absurdly large source; the stored size is set by
-// the WebP re-encode below, not the raw file, so this can be generous.
+// Only guards decoding: the WebP re-encode below sets the stored size.
 const MAX_AVATAR_BYTES = 15 * 1024 * 1024;
 
-// Lives outside react-hook-form and outside drafts on purpose: base64 images
-// would blow the localStorage quota and don't belong in dirty tracking.
+// Outside react-hook-form and drafts on purpose: base64 images would blow the
+// localStorage quota and don't belong in dirty tracking.
 export default function AvatarField() {
   const { user } = useUser();
   const { avatarPreview, updateAvatar } = useSettingsUi();

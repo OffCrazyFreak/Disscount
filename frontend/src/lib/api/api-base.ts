@@ -18,8 +18,7 @@ const apiClient: AxiosInstance = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// In-memory JWT cache. The token's `exp` is decoded so we can refresh shortly
-// before it expires instead of waiting for a 401 round-trip.
+// The token's `exp` is decoded so we refresh before expiry, not after a 401.
 const TOKEN_REFRESH_SKEW_SECONDS = 30;
 
 // Cooldown after a failed fetch - avoids hammering /api/auth/token when logged out
@@ -125,9 +124,7 @@ apiClient.interceptors.request.use(
   },
 );
 
-// On a 401, refresh the token once and replay the request. All other failures
-// (5xx, network) bubble up so React Query's retry policy owns retries - one
-// place, not two competing backoffs.
+// Only 401 retries here; React Query owns the rest, so backoffs never compete.
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {

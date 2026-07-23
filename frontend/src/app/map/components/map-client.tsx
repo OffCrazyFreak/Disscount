@@ -8,7 +8,11 @@ import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import ComingSoon from "@/components/custom/common/coming-soon";
 
-export default function MapClient({ query }: { query: string }) {
+interface IMapClientProps {
+  query: string;
+}
+
+export default function MapClient({ query }: IMapClientProps) {
   const pathname = usePathname();
 
   return (

@@ -29,10 +29,7 @@ function getInitials({ name, email }: IUserAvatarUser) {
   return initials.toUpperCase();
 }
 
-// Renders the avatar image directly instead of through Radix's Avatar. Radix has
-// no synchronous fast-path for already-complete images, so data-URI avatars (which
-// decode instantly) never fire its load event and stay stuck on the initials
-// fallback until an unrelated re-render. A plain <img> paints immediately.
+// A plain <img>, since Radix's Avatar never fires load for instant data-URI images.
 export default function UserAvatar({
   user,
   size = "md",

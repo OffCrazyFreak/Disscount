@@ -115,8 +115,7 @@ export function buildModalSearch(
   if ("watchType" in target && target.watchType)
     params.set("type", target.watchType);
 
-  // URLSearchParams percent-encodes "/", which is legal but ugly in the address
-  // bar; decode it back so links read ?modal=settings/profil.
+  // URLSearchParams percent-encodes "/"; decode it so links read ?modal=settings/profil.
   return `?${params.toString().replace(/%2F/g, "/")}`;
 }
 

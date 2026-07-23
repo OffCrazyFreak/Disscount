@@ -21,8 +21,7 @@ export default function HeaderNavItem({
   const isActive = pathname.startsWith(item.href);
   const label = item.shortLabel ?? item.label;
 
-  // Coming-soon items are not navigable in the navbar; the
-  // USKORO badge sits on top, like the notification badge.
+  // Coming-soon items are not navigable; the USKORO badge sits on top.
   if (item.comingSoon) {
     return (
       <li>

@@ -4,14 +4,12 @@ interface ICartLogoProps {
   className?: string;
 }
 
-// The cart artwork's intrinsic viewBox, single-sourced so the OG image and the
-// cursor-chaser derive their geometry from the same numbers as the SVG below.
+// Single-sourced, so the OG image and cursor-chaser share this geometry.
 export const CART_VIEW_BOX = "-1 6 68 50.5";
 export const CART_ASPECT_RATIO = 68 / 50.5;
 
-// The animated cart brand mark, inlined so it server-renders everywhere and
-// every instance replays its draw-on animation (see .dis-cart-* in
-// globals.css). Keep geometry in sync with
+// Inlined so it server-renders and every instance replays its draw-on animation
+// (see .dis-cart-* in globals.css); keep geometry in sync with
 // public/brand/logo/cart/cart-rgb-animated.svg, which exists for PNG exports.
 export default function CartLogo({ className }: ICartLogoProps) {
   return (

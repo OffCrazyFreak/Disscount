@@ -11,7 +11,11 @@ import { NotificationsProvider } from "@/context/notifications-context";
 import RequestPersistentStorage from "@/components/custom/pwa/request-persistent-storage";
 import AppleSplashScreens from "@/components/custom/pwa/apple-splash-screens";
 
-export default function Providers({ children }: { children: ReactNode }) {
+interface IProvidersProps {
+  children: ReactNode;
+}
+
+export default function Providers({ children }: IProvidersProps) {
   return (
     <ReactQueryProviderWrapper>
       <UserContextProvider>

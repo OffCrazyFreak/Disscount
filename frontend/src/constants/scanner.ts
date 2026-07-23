@@ -1,8 +1,7 @@
 import type { BarcodeFormat } from "barcode-detector";
 import { ScanPreset } from "@/typings/scanned-code";
 
-// Format names are shared between @yudiel/react-qr-scanner and the
-// BarcodeDetector API, so these lists drive both camera and image scanning.
+// The scanner and BarcodeDetector share format names, so one list drives both.
 export const PRODUCT_SCAN_FORMATS: BarcodeFormat[] = [
   "ean_8",
   "ean_13",

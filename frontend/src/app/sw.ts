@@ -38,8 +38,7 @@ const runtimeCaching: RuntimeCaching[] = [
       ],
     }),
   },
-  // Never store authed/proxied API responses in Cache Storage - offline authed
-  // data is owned by the React Query IndexedDB cache instead.
+  // Authed data belongs to the React Query IndexedDB cache, never Cache Storage.
   {
     matcher: ({ url, sameOrigin }) =>
       sameOrigin && url.pathname.startsWith("/api/"),

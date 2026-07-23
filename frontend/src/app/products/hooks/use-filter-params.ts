@@ -42,8 +42,7 @@ export default function useFilterParams(): IFilterParamsResult {
     (updates: Partial<Record<ProductFilterKey, string[]>>) => {
       replaceParams((params) => {
         for (const [key, values] of Object.entries(updates)) {
-          // One param per value, since a category or brand may itself contain
-          // a comma and would otherwise read back as two filters.
+          // One param per value: a category or brand may itself contain a comma.
           params.delete(key);
           values?.forEach((value) => params.append(key, value));
         }

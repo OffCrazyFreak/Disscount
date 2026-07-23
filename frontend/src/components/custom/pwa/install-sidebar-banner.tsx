@@ -8,9 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useInstallPrompt } from "@/components/custom/pwa/use-install-prompt";
 import InstallInstructionsSheet from "@/components/custom/pwa/install-instructions-sheet";
 
-// Persistent banner pinned to the bottom of the sidebar. Stays visible while
-// the app isn't installed (on browsers that support it); uses the native
-// prompt when available and otherwise opens manual instructions.
+// Persistent counterpart to InstallBanner, shown on capable browsers until the app is installed.
 export default function InstallSidebarBanner() {
   const { canShowInstallUI, canInstall, isIOS, promptInstall } =
     useInstallPrompt();

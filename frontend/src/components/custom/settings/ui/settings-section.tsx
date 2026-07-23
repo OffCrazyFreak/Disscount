@@ -13,8 +13,7 @@ interface ISettingsSectionProps {
   children: ReactNode;
 }
 
-// The one section pattern shared by every settings tab: an uppercase icon label,
-// an optional one-line hint, then flat content sitting on the modal background.
+// The one section pattern shared by every settings tab.
 export default function SettingsSection({
   icon: Icon,
   label,

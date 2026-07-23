@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-interface StepPair {
+interface IStepPair {
   primary: number;
   secondary: number;
 }
@@ -12,7 +12,7 @@ interface StepPair {
 interface IStepperNumberInputProps {
   value: string;
   onChange: (value: string) => void;
-  steps: StepPair;
+  steps: IStepPair;
   min: number;
   max: number;
   integer?: boolean;
@@ -21,10 +21,8 @@ interface IStepperNumberInputProps {
   className?: string;
 }
 
-// A free-typing number input flanked by +/- shortcut buttons. The buttons are
-// convenience shortcuts (clamped to min/max); typing is NOT clamped and the
-// field can be emptied, so users can clear it and type any valid number. The
-// owning form's zod schema validates the range and disables submit when invalid.
+// Buttons clamp to min/max; typing may be empty or out of range, and the owning
+// form's zod schema ranges it and blocks an invalid submission.
 export function StepperNumberInput({
   value,
   onChange,

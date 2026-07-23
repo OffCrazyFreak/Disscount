@@ -31,27 +31,29 @@ import {
 } from "react";
 import { Badge } from "@/components/ui/badge";
 
-type MultiSelectContextType = {
+interface IMultiSelectContext {
   open: boolean;
   setOpen: (open: boolean) => void;
   selectedValues: Set<string>;
   toggleValue: (value: string) => void;
   items: Map<string, ReactNode>;
   onItemAdded: (value: string, label: ReactNode) => void;
-};
-const MultiSelectContext = createContext<MultiSelectContextType | null>(null);
+}
+const MultiSelectContext = createContext<IMultiSelectContext | null>(null);
+
+interface IMultiSelectProps {
+  children: ReactNode;
+  values?: string[];
+  defaultValues?: string[];
+  onValuesChange?: (values: string[]) => void;
+}
 
 export function MultiSelect({
   children,
   values,
   defaultValues,
   onValuesChange,
-}: {
-  children: ReactNode;
-  values?: string[];
-  defaultValues?: string[];
-  onValuesChange?: (values: string[]) => void;
-}) {
+}: IMultiSelectProps) {
   const [open, setOpen] = useState(false);
   const [selectedValues, setSelectedValues] = useState(
     new Set<string>(values ?? defaultValues),
@@ -97,14 +99,17 @@ export function MultiSelect({
   );
 }
 
+// Button's props are a union, so this cannot be an interface.
+type IMultiSelectTriggerProps = {
+  className?: string;
+  children?: ReactNode;
+} & ComponentPropsWithoutRef<typeof Button>;
+
 export function MultiSelectTrigger({
   className,
   children,
   ...props
-}: {
-  className?: string;
-  children?: ReactNode;
-} & ComponentPropsWithoutRef<typeof Button>) {
+}: IMultiSelectTriggerProps) {
   const { open } = useMultiSelectContext();
 
   return (
@@ -126,17 +131,22 @@ export function MultiSelectTrigger({
   );
 }
 
+interface IMultiSelectValueProps extends Omit<
+  ComponentPropsWithoutRef<"div">,
+  "children"
+> {
+  placeholder?: string;
+  clickToRemove?: boolean;
+  overflowBehavior?: "wrap" | "wrap-when-open" | "cutoff";
+}
+
 export function MultiSelectValue({
   placeholder,
   clickToRemove = true,
   className,
   overflowBehavior = "wrap-when-open",
   ...props
-}: {
-  placeholder?: string;
-  clickToRemove?: boolean;
-  overflowBehavior?: "wrap" | "wrap-when-open" | "cutoff";
-} & Omit<ComponentPropsWithoutRef<"div">, "children">) {
+}: IMultiSelectValueProps) {
   const { selectedValues, toggleValue, items, open } = useMultiSelectContext();
   const [overflowAmount, setOverflowAmount] = useState(0);
   const valueRef = useRef<HTMLDivElement>(null);
@@ -245,14 +255,19 @@ export function MultiSelectValue({
   );
 }
 
+interface IMultiSelectContentProps extends Omit<
+  ComponentPropsWithoutRef<typeof Command>,
+  "children"
+> {
+  search?: boolean | { placeholder?: string; emptyMessage?: string };
+  children: ReactNode;
+}
+
 export function MultiSelectContent({
   search = true,
   children,
   ...props
-}: {
-  search?: boolean | { placeholder?: string; emptyMessage?: string };
-  children: ReactNode;
-} & Omit<ComponentPropsWithoutRef<typeof Command>, "children">) {
+}: IMultiSelectContentProps) {
   const canSearch = typeof search === "object" ? true : search;
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -304,16 +319,21 @@ export function MultiSelectContent({
   );
 }
 
+interface IMultiSelectItemProps extends Omit<
+  ComponentPropsWithoutRef<typeof CommandItem>,
+  "value"
+> {
+  badgeLabel?: ReactNode;
+  value: string;
+}
+
 export function MultiSelectItem({
   value,
   children,
   badgeLabel,
   onSelect,
   ...props
-}: {
-  badgeLabel?: ReactNode;
-  value: string;
-} & Omit<ComponentPropsWithoutRef<typeof CommandItem>, "value">) {
+}: IMultiSelectItemProps) {
   const { toggleValue, selectedValues, onItemAdded } = useMultiSelectContext();
   const isSelected = selectedValues.has(value);
 

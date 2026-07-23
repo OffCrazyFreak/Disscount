@@ -11,22 +11,21 @@ import {
 } from "@/lib/offline/persister";
 import { registerOfflineMutationDefaults } from "@/lib/offline/offline-mutations";
 
+interface IReactQueryProviderWrapperProps {
+  children: ReactNode;
+}
+
 export default function ReactQueryProviderWrapper({
   children,
-}: {
-  children: ReactNode;
-}) {
+}: IReactQueryProviderWrapperProps) {
   // keep QueryClient stable across re-renders
   const [queryClient] = useState(() => {
     const client = new QueryClient({
       defaultOptions: {
         queries: {
-          // gcTime must be >= the persister's maxAge, otherwise entries are
-          // evicted from memory before they can be restored from disk.
+          // Must be >= the persister's maxAge, or entries evict before restoring.
           gcTime: OFFLINE_CACHE_MAX_AGE_MS,
-          // One retry after the initial fetch: a transient blip gets a second
-          // chance, but a genuine failure surfaces fast instead of making the
-          // user wait through the default 3-attempt backoff.
+          // One retry: a blip gets a second chance, a real failure surfaces fast.
           retry: 1,
         },
       },

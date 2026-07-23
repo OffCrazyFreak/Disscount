@@ -21,13 +21,11 @@ export function useShoppingListModal({
   const createMutation = shoppingListService.useCreateShoppingList();
   const updateMutation = shoppingListService.useUpdateShoppingList();
 
-  // Optimistic close: the modal closes immediately and reopens (with the draft
-  // still holding the values) only if the request fails.
+  // Optimistic close: the modal closes immediately and reopens only on failure.
   async function onSubmit(data: ShoppingListRequest) {
     closeModalUrl();
 
-    // Offline, the mutation is paused and replays on reconnect, so the await
-    // below resolves only once the sync happens; tell the user right away.
+    // A paused mutation resolves only on reconnect, so say so now.
     if (!onlineManager.isOnline()) {
       toast.info(
         "Izvan si mreže - promjena će se sinkronizirati kad se vratiš na mrežu.",

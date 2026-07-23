@@ -3,8 +3,8 @@ import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import { CardHeader } from "@/components/ui/card";
 import { getChainLabel } from "@/utils/labels";
 import { cn } from "@/lib/utils";
-import { ChainSummary } from "@/app/(user)/shopping-lists/[id]/components/stores/store-chain-types";
-import { IStoreCardMetrics } from "@/app/(user)/shopping-lists/[id]/components/stores/store-card-utils";
+import { ChainSummary } from "@/app/(user)/shopping-lists/[id]/typings/store-chain-types";
+import { IStoreCardMetrics } from "@/app/(user)/shopping-lists/[id]/utils/store-card-utils";
 import StoreCardBadges from "@/app/(user)/shopping-lists/[id]/components/stores/store-card-badges";
 import StoreCardPriceRow from "@/app/(user)/shopping-lists/[id]/components/stores/store-card-price-row";
 

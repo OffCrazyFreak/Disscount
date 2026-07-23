@@ -3,7 +3,7 @@ export type {
   IScopedDiscountedStore,
   IDiscountInfo,
   IWatchlistItemWithProduct,
-} from "@/app/(user)/watchlist/utils/watchlist-types";
+} from "@/app/(user)/watchlist/typings/watchlist-types";
 
 export {
   extractPinnedStoreChainCodes,

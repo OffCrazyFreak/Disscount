@@ -71,8 +71,7 @@ export default function ProductFacetSelects({
       {FACETS.map((facet) => (
         <div
           key={facet.key}
-          // In a row every filter shares the width evenly and may shrink, so
-          // the bar spans the full width and the inputs grow to fill it.
+          // In a row the filters share the width evenly and may shrink.
           className={isStack ? "space-y-1.5" : "min-w-0 flex-1"}
         >
           {isStack && (

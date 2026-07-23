@@ -6,11 +6,13 @@ import PasswordField from "@/components/custom/auth/components/fields/password-f
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useResetPasswordForm } from "@/components/custom/auth/hooks/use-reset-password-form";
 
-// Opened from the reset / set-password email link (as ?modal=reset-password&token=).
-// The token is captured into state and immediately stripped from the URL so it
-// can't linger in history or leak via the Referer header. On success the user is
-// sent to log in (we never auto-login, so no PII rides along).
-export default function ResetPasswordModal({ open }: { open: boolean }) {
+interface IResetPasswordModalProps {
+  open: boolean;
+}
+
+// The token is captured then removed from the URL via replaceState, so it can't leak
+// via history or Referer. On success the user is sent to log in, never auto-logged in.
+export default function ResetPasswordModal({ open }: IResetPasswordModalProps) {
   const { form, token, ready, onSubmit } = useResetPasswordForm(open);
 
   return (

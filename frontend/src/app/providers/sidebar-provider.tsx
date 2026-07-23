@@ -3,7 +3,11 @@
 import { SidebarProvider as SidebarContextProvider } from "@/components/ui/sidebar";
 import type { ReactNode } from "react";
 
-export default function SidebarProvider({ children }: { children: ReactNode }) {
+interface ISidebarProviderProps {
+  children: ReactNode;
+}
+
+export default function SidebarProvider({ children }: ISidebarProviderProps) {
   return (
     <SidebarContextProvider defaultOpen={false}>
       {children}
