@@ -113,7 +113,7 @@ export function UserProvider({ children }: IUserProviderProps) {
     setUser((prev) => (prev ? { ...prev, pinnedPlaces: places } : null));
   }, []);
 
-  // Identity lives in the better-auth session, not app_user, so merge at render.
+  // Prefer the session's name and email at render, keeping the app profile's other fields.
   const mergedUser: UserDto | null = user
     ? {
         ...user,
