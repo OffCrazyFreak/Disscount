@@ -147,14 +147,16 @@ export function useAddToListForm(open: boolean, ean: string) {
         "popis";
 
       if (data.shoppingListId === "new") {
-        if (customListTitle) {
+        const title = customListTitle.trim();
+
+        if (title) {
           const newList = await createShoppingListMutation.mutateAsync({
-            title: customListTitle,
+            title,
             isPublic: false,
           });
-          toast.success(`Popis za kupnju "${customListTitle}" je stvoren`);
+          toast.success(`Popis za kupnju "${title}" je stvoren`);
           listId = newList.id;
-          listName = customListTitle;
+          listName = title;
         } else {
           // A restored draft can keep the "new" placeholder without its (un-persisted) title;
           // fall back to the latest list so we never send "new" as a real id.
