@@ -12,8 +12,9 @@ import {
   pixelBasedPreset,
 } from "react-email";
 
-// The app green as hex, deep enough that white button text stays legible.
-const BRAND = "#16a34a";
+// Darker than --primary (oklch ~141 hue) so white-on-brand clears WCAG AA at 5.0:1;
+// hex because email clients cannot parse oklch.
+const BRAND = "#15803d";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://disscount.me";
 
@@ -22,7 +23,7 @@ interface IEmailLayoutProps {
   children: ReactNode;
 }
 
-// Shared shell whose footer always links back to email preferences.
+// Shared shell whose footer links to the app, where email settings can be changed.
 export default function EmailLayout({ preview, children }: IEmailLayoutProps) {
   return (
     <Html lang="hr">
