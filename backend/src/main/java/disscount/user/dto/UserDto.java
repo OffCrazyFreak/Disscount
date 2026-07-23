@@ -29,6 +29,8 @@ public class UserDto {
     private LocalDateTime feedbackContactEnabledAt;
     private AcquisitionChannel acquisitionChannel;
     private String image;
+    private LocalDateTime onboardingCompletedAt;
+    private String onboardingOutcome;
     private AccountType accountType;
     private LocalDateTime createdAt;
 }

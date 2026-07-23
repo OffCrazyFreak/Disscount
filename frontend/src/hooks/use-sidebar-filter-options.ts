@@ -5,7 +5,7 @@ import cijeneService from "@/lib/cijene-api";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { getChainLabel } from "@/utils/labels";
 import { compareHr } from "@/utils/strings";
-import type { ISidebarFilterOption } from "@/components/custom/sidebar-filter-menu";
+import type { ISidebarFilterOption } from "@/components/custom/sidebar/sidebar-filter-menu";
 
 function byLabel(a: ISidebarFilterOption, b: ISidebarFilterOption): number {
   return compareHr(a.label, b.label);

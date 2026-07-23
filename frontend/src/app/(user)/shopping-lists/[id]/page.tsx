@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ShoppingListDetailPage(
-  props: PageProps<"/shopping-lists/[id]">
+  props: PageProps<"/shopping-lists/[id]">,
 ) {
   const { id: listId } = await props.params;
 

@@ -156,7 +156,7 @@ export type PriceExtreme = "min" | "max" | null;
 
 /**
  * Classify a price against a range's overall min/max.
- * Returns null when the value is neither extreme, OR when min === max — a
+ * Returns null when the value is neither extreme, OR when min === max - a
  * uniform price has no cheapest/most-expensive distinction to color, so every
  * view renders it neutrally instead of disagreeing (red vs green).
  */

@@ -84,7 +84,7 @@ export function formatQuantity(q?: string | null): string | null {
 export function pluralizeCroatian(
   n: number,
   singular: string,
-  plural: string
+  plural: string,
 ): string {
   const last = n % 10;
   const lastTwo = n % 100;

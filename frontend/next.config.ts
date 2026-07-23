@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
 
     return [
       {
-        // Proxy backend API calls — exclude /api/cijene/* (external), /api/auth/* and
+        // Proxy backend API calls - exclude /api/cijene/* (external), /api/auth/* and
         // /api/account/* (better-auth, handled by Next.js)
         source: "/api/:path((?!cijene/)(?!auth/)(?!account/).*)",
         destination: `${backendOrigin}/api/:path*`,

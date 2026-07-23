@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/utils/date";
 import { useOnlineStatus } from "@/hooks/use-online-status";
 
-interface LastSyncedLabelProps {
+interface ILastSyncedLabelProps {
   // React Query's `dataUpdatedAt` (epoch millis); 0 when there's no data yet.
   updatedAt: number;
   prefix?: string;
@@ -16,7 +16,7 @@ export default function LastSyncedLabel({
   updatedAt,
   prefix = "Osvježeno",
   className,
-}: LastSyncedLabelProps) {
+}: ILastSyncedLabelProps) {
   // Render only after mount (relative time depends on `Date.now()`, which would
   // otherwise mismatch between server and client) and re-render each minute so
   // the label stays current.

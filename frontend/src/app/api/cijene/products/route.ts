@@ -38,6 +38,6 @@ export async function GET(request: NextRequest) {
   const queryString = buildQueryString(parsed.data);
 
   return withCijeneRoute("products", productSearchResponseSchema, () =>
-    cijeneApiV1Client.get(`/products?${queryString}`)
+    cijeneApiV1Client.get(`/products?${queryString}`),
   );
 }

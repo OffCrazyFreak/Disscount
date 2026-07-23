@@ -4,13 +4,13 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageFab from "@/components/custom/fab/page-fab";
 
-interface CreateShoppingListButtonProps {
+interface ICreateShoppingListButtonProps {
   onCreateClick: () => void;
 }
 
 export default function CreateShoppingListButton({
   onCreateClick,
-}: CreateShoppingListButtonProps) {
+}: ICreateShoppingListButtonProps) {
   const buttonText = "Stvori popis za kupnju";
 
   return (

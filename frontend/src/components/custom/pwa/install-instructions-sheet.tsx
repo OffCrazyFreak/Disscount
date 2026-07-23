@@ -4,20 +4,20 @@ import { ReactNode } from "react";
 import { SquareArrowUp, Plus, EllipsisVertical, Download } from "lucide-react";
 
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+} from "@/components/ui/drawer";
 
-interface InstallInstructionsSheetProps {
+interface IInstallInstructionsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isIOS: boolean;
 }
 
-interface Step {
+interface IStep {
   text: ReactNode;
 }
 
@@ -27,13 +27,14 @@ export default function InstallInstructionsSheet({
   open,
   onOpenChange,
   isIOS,
-}: InstallInstructionsSheetProps) {
-  const steps: Step[] = isIOS
+}: IInstallInstructionsSheetProps) {
+  const steps: IStep[] = isIOS
     ? [
         {
           text: (
             <>
-              Dodirni gumb <SquareArrowUp className="inline size-5 text-primary" />{" "}
+              Dodirni gumb{" "}
+              <SquareArrowUp className="inline size-5 text-primary" />{" "}
               <span className="font-medium">Podijeli</span> u Safariju.
             </>
           ),
@@ -73,23 +74,19 @@ export default function InstallInstructionsSheet({
           ),
         },
         {
-          text: (
-            <>
-              Potvrdi odabir.
-            </>
-          ),
+          text: <>Potvrdi odabir.</>,
         },
       ];
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="rounded-t-2xl">
-        <SheetHeader>
-          <SheetTitle>Dodaj na početni zaslon</SheetTitle>
-          <SheetDescription>
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>Dodaj na početni zaslon</DrawerTitle>
+          <DrawerDescription>
             Dodaj Disscount na početni zaslon u nekoliko koraka.
-          </SheetDescription>
-        </SheetHeader>
+          </DrawerDescription>
+        </DrawerHeader>
 
         <ol className="flex flex-col gap-4 px-4 pb-8">
           {steps.map((step, index) => (
@@ -101,7 +98,7 @@ export default function InstallInstructionsSheet({
             </li>
           ))}
         </ol>
-      </SheetContent>
-    </Sheet>
+      </DrawerContent>
+    </Drawer>
   );
 }

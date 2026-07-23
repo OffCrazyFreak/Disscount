@@ -118,8 +118,8 @@ Use triple-mustache with a pipe for fallbacks: `{{{PROPERTY_KEY|fallback}}}`
 | Expecting `create` to send the broadcast | `create` makes a draft. Call `send` separately, or pass `send: true` |
 | Calling `.delete()` instead of `.remove()` | Node.js SDK uses `.remove()` for all delete operations |
 | Deleting a sent/scheduled broadcast | Only drafts can be deleted |
-| Missing `segmentId` | Required — broadcasts target segments, not all contacts |
+| Missing `segmentId` | Required - broadcasts target segments, not all contacts |
 | Missing unsubscribe link | Include `{{{RESEND_UNSUBSCRIBE_URL}}}` in HTML |
 | `{{VAR}}` instead of `{{{VAR}}}` | Triple braces required for variable interpolation |
-| Ignoring `error` return | Node.js SDK returns `{ data, error }` — always check `error` |
+| Ignoring `error` return | Node.js SDK returns `{ data, error }` - always check `error` |
 | `scheduledAt` format confusion | Accepts both ISO 8601 (`2025-03-15T10:00:00Z`) and natural language (`in 1 hour`) |

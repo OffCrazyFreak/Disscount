@@ -58,11 +58,14 @@ export default function ScanImageButton({
         type="button"
         variant="outline"
         className="w-full"
-        disabled={busy}
+        icon={ImageUp}
+        iconPlacement="left"
+        loading={busy}
+        loadingText="Učitavanje..."
+        loadingIconPlacement="left"
         onClick={() => inputRef.current?.click()}
       >
-        <ImageUp className="size-5" />
-        {busy ? "Učitavanje..." : "Učitaj sliku s kodom"}
+        Učitaj sliku s kodom
       </Button>
 
       <input

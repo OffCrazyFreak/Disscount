@@ -5,29 +5,46 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
+  "inline-flex items-center justify-center rounded-full border text-[10px] sm:text-xs sm:shadow-sm font-medium w-fit whitespace-nowrap shrink-0 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
   {
     variants: {
+      size: {
+        default: "px-2 py-0.5",
+        // Numeric counter: a true circle at one digit that grows into a pill
+        // from two, with tabular figures so the width does not jitter.
+        count: "h-5 min-w-5 px-1 py-0 leading-none tabular-nums",
+      },
       variant: {
-        default:
+        primary:
           "border-transparent bg-primary text-white [a&]:hover:bg-primary/90",
-        secondary:
-          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+        primarySoft:
+          "border-primary/40 bg-primary/10 text-primary [a&]:hover:bg-primary/15",
         destructive:
           "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+        destructiveSoft:
+          "border-red-200 bg-red-50 text-red-600 [a&]:hover:bg-red-100 dark:border-red-900 dark:bg-red-950 dark:text-red-300 dark:[a&]:hover:bg-red-900",
+        warning:
+          "border-transparent bg-amber-200 text-amber-700 [a&]:hover:bg-amber-300",
+        warningSoft:
+          "border-amber-200 bg-amber-50 text-amber-600 [a&]:hover:bg-amber-100 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300 dark:[a&]:hover:bg-amber-900",
+        info: "border-transparent bg-blue-500 text-white [a&]:hover:bg-blue-500/90",
+        infoSoft:
+          "border-blue-200 bg-blue-50 text-blue-700 [a&]:hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300 dark:[a&]:hover:bg-blue-900",
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "primary",
+      size: "default",
     },
-  }
+  },
 );
 
 function Badge({
   className,
   variant,
+  size,
   asChild = false,
   ...props
 }: React.ComponentProps<"span"> &
@@ -37,7 +54,7 @@ function Badge({
   return (
     <Comp
       data-slot="badge"
-      className={cn(badgeVariants({ variant }), className)}
+      className={cn(badgeVariants({ variant, size }), className)}
       {...props}
     />
   );

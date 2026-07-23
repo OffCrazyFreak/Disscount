@@ -2,19 +2,39 @@ import * as React from "react";
 import { Slot, Slottable } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
-import { Spinner } from "@/components/ui/spinner";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+
+function preventActivation(event: React.MouseEvent<HTMLElement>) {
+  event.preventDefault();
+  event.stopPropagation();
+}
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  // Disabled state swaps in opaque muted tokens (fill + text) instead of
+  // opacity, so the button never lets a busy background bleed through, its
+  // label fades too, and every colour variant collapses to the same look.
+  "cursor-pointer disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-70 disabled:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default:
+        // Semantic colours mirror badge/banner/tooltip (primary + soft, etc.).
+        primary:
           "bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs",
+        primarySoft:
+          "border border-primary/40 bg-primary/10 text-primary hover:bg-primary/15",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-xs",
+        destructiveSoft:
+          "border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 dark:border-red-900 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900",
+        warning: "bg-amber-200 text-amber-700 hover:bg-amber-300 shadow-xs",
+        warningSoft:
+          "border border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300 dark:hover:bg-amber-900",
+        info: "bg-blue-500 text-white hover:bg-blue-500/90 shadow-xs",
+        infoSoft:
+          "border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900",
         outline:
-          "outline-2 hover:outline-secondary hover:bg-green-50 hover:text-accent-foreground shadow-sm",
+          "outline-2 -outline-offset-2 hover:outline-secondary hover:bg-green-50 hover:text-accent-foreground shadow-sm",
+        // Functional-only variants with no colour-scheme equivalent.
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-xs",
         ghost: "hover:bg-accent/70 hover:text-accent-foreground",
@@ -37,7 +57,38 @@ const buttonVariants = cva(
         hoverUnderline:
           "relative !no-underline after:absolute after:bg-primary after:bottom-2 after:h-[1px] after:w-2/3 after:origin-bottom-right after:scale-x-0 hover:after:origin-bottom-left hover:after:scale-x-100 after:transition-transform after:ease-in-out after:duration-300",
         gradientSlideShow:
-          "bg-[size:400%] bg-[linear-gradient(-45deg,var(--gradient-lime),var(--gradient-ocean),var(--gradient-wine),var(--gradient-rust))] animate-gradient-flow",
+          "bg-[size:400%] bg-[linear-gradient(-45deg,var(--chart-1),oklch(0.86_0.14_142),var(--primary),var(--secondary))] animate-gradient-flow",
+        // A conic gradient spins behind the button while an inset overlay in the
+        // variant's own colour masks the middle, leaving it visible as a live ring.
+        gradientRing:
+          "relative z-0 isolate overflow-hidden before:content-[''] before:absolute before:left-1/2 before:top-1/2 before:-z-20 before:aspect-square before:w-[220%] before:-translate-x-1/2 before:-translate-y-1/2 after:content-[''] after:absolute after:inset-[2px] after:-z-10 after:rounded-[inherit] after:bg-inherit",
+      },
+      // Palette for the gradientRing effect; inert without it, since the
+      // gradient paints a pseudo-element that effect is what creates.
+      gradient: {
+        brand:
+          "before:bg-[conic-gradient(from_90deg_at_50%_50%,oklch(0.72_0.23_141)_0%,oklch(0.88_0.14_141)_50%,oklch(0.72_0.23_141)_100%)]",
+        forest:
+          "before:bg-[conic-gradient(from_90deg_at_50%_50%,#85d797_0%,#1a806b_50%,#85d797_100%)]",
+        ocean:
+          "before:bg-[conic-gradient(from_90deg_at_50%_50%,#a1c4fd_0%,#c2e9fb_50%,#a1c4fd_100%)]",
+        sunrise:
+          "before:bg-[conic-gradient(from_90deg_at_50%_50%,#f6d365_0%,#fda085_50%,#f6d365_100%)]",
+        sunset:
+          "before:bg-[conic-gradient(from_90deg_at_50%_50%,#fe5d75_0%,#f5af19_50%,#fe5d75_100%)]",
+        candy:
+          "before:bg-[conic-gradient(from_90deg_at_50%_50%,#ff9a9e_0%,#fad0c4_50%,#fad0c4_90%,#ff9a9e_100%)]",
+        nebula:
+          "before:bg-[conic-gradient(from_90deg_at_50%_50%,#a77bfe_0%,#8860d0_50%,#a77bfe_100%)]",
+        aurora:
+          "before:bg-[conic-gradient(from_90deg_at_50%_50%,#e2cbff_0%,#393bb2_50%,#e2cbff_100%)]",
+      },
+      ringSpeed: {
+        slow: "before:animate-[spin_8s_linear_infinite] motion-reduce:before:animate-none",
+        default:
+          "before:animate-[spin_4s_linear_infinite] motion-reduce:before:animate-none",
+        fast: "before:animate-[spin_2s_linear_infinite] motion-reduce:before:animate-none",
+        pulse: "before:animate-pulse motion-reduce:before:animate-none",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -47,7 +98,7 @@ const buttonVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "primary",
       size: "default",
     },
   },
@@ -89,31 +140,59 @@ const Button = React.forwardRef<
       className,
       variant,
       effect,
+      gradient,
+      ringSpeed,
       size = "default",
       icon: Icon,
       iconPlacement,
       loading,
       loadingText,
       loadingIconPlacement = "right",
-      hideIconOnLoading = false,
+      hideIconOnLoading = true,
       asChild = false,
       ...props
     },
     ref,
   ) => {
     const Comp = asChild ? Slot : "button";
+    // Other effects paint their own ::before, so the ring palette and spin are
+    // applied only when gradientRing asked for them.
+    const isRing = effect === "gradientRing";
+    const ringGradient = isRing ? (gradient ?? "brand") : undefined;
+    const ringAnimation = isRing ? (ringSpeed ?? "default") : undefined;
+    const isDisabled = loading || props.disabled;
+    // Slot children such as <a> ignore the native disabled attribute.
+    const inertAsChild = asChild && !!isDisabled;
+
+    // Outline buttons have a light fill, so the blocks read best in brand green;
+    // filled variants (default/destructive) inherit their white foreground.
+    const spinnerColor = variant === "outline" ? "" : "text-inherit";
+
     return (
       <Comp
         className={cn(
-          "cursor-pointer relative",
-          buttonVariants({ variant, effect, size, className }),
+          "relative",
+          inertAsChild && "pointer-events-none opacity-70",
+          buttonVariants({
+            variant,
+            effect,
+            size,
+            gradient: ringGradient,
+            ringSpeed: ringAnimation,
+            className,
+          }),
         )}
-        disabled={loading}
         ref={ref}
         {...props}
+        disabled={isDisabled}
+        {...(inertAsChild && {
+          "aria-disabled": true,
+          tabIndex: -1,
+          onClick: preventActivation,
+        })}
       >
         {loading && loadingIconPlacement === "left" && (
-          <Spinner variant={variant || "default"} />
+          <BlockLoadingSpinner size={18} className={spinnerColor} />
         )}
 
         {Icon &&
@@ -130,10 +209,7 @@ const Button = React.forwardRef<
         <Slottable>{loading ? loadingText : props.children}</Slottable>
 
         {loading && loadingIconPlacement === "right" && (
-          <Spinner
-            variant={variant || "default"}
-            className="ml-2 animate-spin"
-          />
+          <BlockLoadingSpinner size={18} className={cn("ml-2", spinnerColor)} />
         )}
 
         {Icon &&

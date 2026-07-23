@@ -24,7 +24,10 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
   }
 
   const parsed = registerSchema.safeParse(body);
@@ -57,12 +60,15 @@ export async function POST(request: Request) {
           email,
           password: parsed.data.password,
           name: email.split("@")[0],
+          // After the user clicks the verification link they land back on the
+          // homepage with a success modal (Better Auth signs them in en route).
+          callbackURL: "/?modal=email-verified",
         },
       });
     }
   } catch (error) {
     // Swallow to keep the response identical regardless of branch/outcome (anti-enumeration).
-    // Log only the error name/type — never the raw error, which can carry the email/password.
+    // Log only the error name/type - never the raw error, which can carry the email/password.
     console.error(
       "Registration handler failed:",
       error instanceof Error ? error.name : typeof error,

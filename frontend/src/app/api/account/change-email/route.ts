@@ -11,14 +11,17 @@ const bodySchema = z.object({ newEmail: z.email() });
 
 // Server-side guard for the "one email defines the user" invariant. Changing the account email
 // while a social provider is linked would let a provider login carry a different email than the
-// account — so we block the change until every social account is unlinked, leaving only the
+// account - so we block the change until every social account is unlinked, leaving only the
 // password (credential). This holds regardless of which UI calls it.
 export async function POST(request: Request) {
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
   }
 
   const parsed = bodySchema.safeParse(body);
@@ -49,12 +52,19 @@ export async function POST(request: Request) {
 
   try {
     // Sends a confirmation to the CURRENT address; the change applies only after it's clicked.
+    // The confirmation link returns to the homepage with a success modal.
     await auth.api.changeEmail({
-      body: { newEmail: parsed.data.newEmail.toLowerCase() },
+      body: {
+        newEmail: parsed.data.newEmail.toLowerCase(),
+        callbackURL: "/?modal=email-changed",
+      },
       headers: requestHeaders,
     });
   } catch {
-    return NextResponse.json({ error: "Failed to change email" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to change email" },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ status: true });

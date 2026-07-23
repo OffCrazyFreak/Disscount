@@ -1,4 +1,4 @@
-import ActionEmail from "./components/action-email";
+import ActionEmail from "@/emails/components/action-email";
 
 interface IVerificationEmailProps {
   verificationUrl: string;
@@ -11,10 +11,10 @@ export default function VerificationEmail({
     <ActionEmail
       preview="Potvrdi svoju email adresu za Disscount"
       heading="Potvrdi svoju email adresu"
-      intro="Hvala na registraciji! Klikni na gumb ispod kako bi potvrdio/la svoju email adresu i aktivirao/la svoj Disscount račun."
+      intro="Hvala na registraciji! Klikni na gumb ispod za potvrdu email adrese i aktivaciju Disscount računa."
       buttonLabel="Potvrdi email"
       buttonUrl={verificationUrl}
-      footnote="Ako nisi ti zatražio/la ovaj račun, slobodno zanemari ovaj email."
+      footnote="Ako ovaj račun nije tvoj, slobodno zanemari ovaj email."
     />
   );
 }

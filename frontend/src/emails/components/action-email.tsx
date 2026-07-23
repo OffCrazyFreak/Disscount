@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Button, Link, Section, Text } from "react-email";
 
-import EmailLayout from "./email-layout";
+import EmailLayout from "@/emails/components/email-layout";
 
 interface IActionEmailProps {
   preview: string;
@@ -25,7 +25,9 @@ export default function ActionEmail({
 }: IActionEmailProps) {
   return (
     <EmailLayout preview={preview}>
-      <Text className="m-0 mb-2 text-xl font-bold text-gray-800">{heading}</Text>
+      <Text className="m-0 mb-2 text-xl font-bold text-gray-800">
+        {heading}
+      </Text>
 
       <Text className="m-0 mb-6 text-sm leading-relaxed text-gray-600">
         {intro}

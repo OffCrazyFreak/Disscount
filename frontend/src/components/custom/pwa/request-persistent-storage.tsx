@@ -15,7 +15,7 @@ export default function RequestPersistentStorage() {
         if (!isPersisted) return navigator.storage.persist();
       })
       .catch(() => {
-        // Persistence is an optimization, not a requirement — ignore failures.
+        // Persistence is an optimization, not a requirement - ignore failures.
       });
   }, []);
 

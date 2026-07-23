@@ -6,15 +6,17 @@ import {
   Store,
   MapPin,
   Map as MapIcon,
-  Wallet,
+  PiggyBank,
   Megaphone,
   Lightbulb,
   ChartNoAxesCombined,
   LayoutDashboard,
+  Bug,
+  Mail,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-export interface NavigationItem {
+export interface INavigationItem {
   id: string;
   href: string;
   label: string; // Full name, shown in the sidebar
@@ -24,11 +26,11 @@ export interface NavigationItem {
   comingSoon?: boolean; // Show an "USKORO" badge for not-yet-available features
   showInHeader: boolean; // Show in desktop header navigation
   isCollapsible?: boolean; // Has sub-menu (Kategorije, Trgovine, Lokacije)
-  children?: NavigationItem[]; // Nested items shown indented under this one
+  children?: INavigationItem[]; // Nested items shown indented under this one
 }
 
 // Lives in the desktop header, so the sidebar only surfaces it on mobile
-export const dashboardNavItem: NavigationItem = {
+export const dashboardNavItem: INavigationItem = {
   id: "dashboard",
   href: "/dashboard",
   label: "Nadzorna ploča",
@@ -38,7 +40,7 @@ export const dashboardNavItem: NavigationItem = {
 };
 
 // Primary navigation items (shown in header on desktop, top of sidebar on mobile)
-export const userNavItems: NavigationItem[] = [
+export const userNavItems: INavigationItem[] = [
   {
     id: "shopping-lists",
     href: "/shopping-lists",
@@ -72,14 +74,14 @@ export const userNavItems: NavigationItem[] = [
     id: "spending",
     href: "/spending",
     label: "Potrošnja",
-    icon: Wallet,
+    icon: PiggyBank,
     comingSoon: true,
 
     showInHeader: false,
   },
 ];
 
-export const productNavItems: NavigationItem[] = [
+export const productNavItems: INavigationItem[] = [
   {
     id: "discounted",
     href: "/products?discounted=true",
@@ -148,12 +150,33 @@ export const productNavItems: NavigationItem[] = [
 
     showInHeader: false,
   },
+];
+
+// Feedback entry points, shared with the footer; coming-soon until their pages/modals ship.
+export const supportNavItems: INavigationItem[] = [
   {
     id: "suggestions",
     href: "/suggestions",
     label: "Ideje i prijedlozi",
     icon: Lightbulb,
     comingSoon: true,
+
+    showInHeader: false,
+  },
+  {
+    id: "bug-report",
+    href: "#",
+    label: "Prijavi grešku",
+    icon: Bug,
+    comingSoon: true,
+
+    showInHeader: false,
+  },
+  {
+    id: "contact",
+    href: "?modal=contact",
+    label: "Kontakt",
+    icon: Mail,
 
     showInHeader: false,
   },

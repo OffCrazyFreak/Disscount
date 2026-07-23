@@ -1,0 +1,8 @@
+# Adds a "Sponsor" button to the repository.
+
+# Ko-fi (0% on one-time tips, best for a general-audience donate button).
+ko_fi: disscount
+
+# GitHub Sponsors (0% fees, reaches developers). Needs bank/Stripe + approval.
+# Uncomment once the account is set up.
+# github: OffCrazyFreak

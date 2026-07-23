@@ -10,8 +10,8 @@ import disscount.exceptions.BadRequestException;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.user.domain.enums.AccountType;
-import disscount.user.domain.enums.AcquisitionChannel;
 import disscount.user.dto.UserDto;
+import disscount.user.dto.UserRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import disscount.exceptions.ForbiddenException;
@@ -81,7 +81,7 @@ public class UserService {
                         .notificationsEmailEnabledAt(now)
                         .build());
             } catch (DataIntegrityViolationException ignored) {
-                // Concurrent first-login race: the other request won — profile already exists
+                // Concurrent first-login race: the other request won - profile already exists
             }
         }
     }
@@ -100,29 +100,38 @@ public class UserService {
         return localPart.isBlank() ? null : localPart;
     }
 
-    public UserDto updateProfile(UUID userId, String username, Boolean notificationsPush,
-            Boolean notificationsEmail, Boolean newsletter, Boolean feedbackContact,
-            AcquisitionChannel acquisitionChannel, String image) {
+    public UserDto updateProfile(UUID userId, UserRequest request) {
         User user = userRepository.findById(userId)
                 .filter(u -> u.getDeletedAt() == null)
                 .orElseThrow(() -> new BadRequestException("User not found"));
 
+        String username = request.getUsername();
         if (username != null && !username.equals(user.getUsername())) {
             user.setUsername(username);
         }
 
-        user.setNotificationsPushEnabledAt(applyToggle(user.getNotificationsPushEnabledAt(), notificationsPush));
-        user.setNotificationsEmailEnabledAt(applyToggle(user.getNotificationsEmailEnabledAt(), notificationsEmail));
-        user.setNewsletterEnabledAt(applyToggle(user.getNewsletterEnabledAt(), newsletter));
-        user.setFeedbackContactEnabledAt(applyToggle(user.getFeedbackContactEnabledAt(), feedbackContact));
+        user.setNotificationsPushEnabledAt(applyToggle(user.getNotificationsPushEnabledAt(), request.getNotificationsPush()));
+        user.setNotificationsEmailEnabledAt(applyToggle(user.getNotificationsEmailEnabledAt(), request.getNotificationsEmail()));
+        user.setNewsletterEnabledAt(applyToggle(user.getNewsletterEnabledAt(), request.getNewsletter()));
+        user.setFeedbackContactEnabledAt(applyToggle(user.getFeedbackContactEnabledAt(), request.getFeedbackContact()));
 
-        if (acquisitionChannel != null) {
-            user.setAcquisitionChannel(acquisitionChannel);
+        if (request.getAcquisitionChannel() != null) {
+            user.setAcquisitionChannel(request.getAcquisitionChannel());
         }
 
         // null = leave unchanged, "" = clear the avatar, otherwise store the new base64 image
+        String image = request.getImage();
         if (image != null) {
             user.setImage(image.isEmpty() ? null : image);
+        }
+
+        // Outcome may be overwritten by re-running the wizard, but the completion
+        // timestamp keeps its original value so "first finished" stays meaningful.
+        if (request.getOnboardingOutcome() != null) {
+            user.setOnboardingOutcome(request.getOnboardingOutcome());
+            if (user.getOnboardingCompletedAt() == null) {
+                user.setOnboardingCompletedAt(LocalDateTime.now());
+            }
         }
 
         user = userRepository.save(user);
@@ -204,8 +213,8 @@ public class UserService {
     }
 
     /**
-     * Fully removes another user (admin action): deletes the better-auth identity — which
-     * cascades its sessions/accounts — then anonymizes and soft-deletes the profile row so
+     * Fully removes another user (admin action): deletes the better-auth identity - which
+     * cascades its sessions/accounts - then anonymizes and soft-deletes the profile row so
      * business data stays intact. better-auth shares this database, so the identity is removed
      * directly via a native delete.
      */
@@ -247,6 +256,8 @@ public class UserService {
                 .feedbackContactEnabledAt(user.getFeedbackContactEnabledAt())
                 .acquisitionChannel(user.getAcquisitionChannel())
                 .image(user.getImage())
+                .onboardingCompletedAt(user.getOnboardingCompletedAt())
+                .onboardingOutcome(user.getOnboardingOutcome())
                 .accountType(user.getAccountType())
                 .createdAt(user.getCreatedAt())
                 .build();

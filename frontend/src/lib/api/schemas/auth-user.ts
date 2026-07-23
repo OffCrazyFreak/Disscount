@@ -5,14 +5,16 @@ const PASSWORD_ERROR =
 
 // Shared rules for any newly created password (signup, set/change password).
 // Not used for login, where any existing password must be accepted.
-export const passwordSchema = z.string().refine(
-  (value) =>
-    value.length >= 12 &&
-    /[A-Z]/.test(value) &&
-    /[a-z]/.test(value) &&
-    /[0-9]/.test(value),
-  { message: PASSWORD_ERROR }
-);
+export const passwordSchema = z
+  .string()
+  .refine(
+    (value) =>
+      value.length >= 12 &&
+      /[A-Z]/.test(value) &&
+      /[a-z]/.test(value) &&
+      /[0-9]/.test(value),
+    { message: PASSWORD_ERROR },
+  );
 
 export const loginRequestSchema = z.object({
   email: z.email("Unesi važeći email"),
@@ -30,7 +32,7 @@ export const registerRequestSchema = z
     path: ["confirmPassword"],
   });
 
-// Mirrors the backend AcquisitionChannel enum — granular per platform so marketing
+// Mirrors the backend AcquisitionChannel enum - granular per platform so marketing
 // attribution can distinguish Instagram vs Facebook vs TikTok, etc.
 export const acquisitionChannelSchema = z.enum([
   "GOOGLE_SEARCH",
@@ -60,6 +62,10 @@ export const userRequestSchema = z.object({
   feedbackContact: z.boolean().optional(),
   acquisitionChannel: acquisitionChannelSchema.nullable().optional(),
   image: z.string().nullable().optional(),
+  // "completed" or "skipped:<step>"; sent only when the onboarding wizard ends
+  onboardingOutcome: z
+    .union([z.literal("completed"), z.string().regex(/^skipped:\d+$/)])
+    .optional(),
 });
 
 export const userDtoSchema = userRequestSchema
@@ -79,30 +85,33 @@ export const userDtoSchema = userRequestSchema
     notificationsEmailEnabledAt: z.string().nullable().optional(),
     newsletterEnabledAt: z.string().nullable().optional(),
     feedbackContactEnabledAt: z.string().nullable().optional(),
+    // null = onboarding wizard has never ended for this user -> auto-open it
+    onboardingCompletedAt: z.string().nullable().optional(),
+    onboardingOutcome: z.string().nullable().optional(),
     createdAt: z.string(),
-  pinnedStores: z
-    .array(
-      z.object({
-        id: z.string(),
-        userId: z.string(),
-        storeApiId: z.string(),
-        storeName: z.string(),
-      })
-    )
-    .nullable()
-    .optional(),
-  pinnedPlaces: z
-    .array(
-      z.object({
-        id: z.string(),
-        userId: z.string(),
-        placeApiId: z.string(),
-        placeName: z.string(),
-      })
-    )
-    .nullable()
-    .optional(),
-});
+    pinnedStores: z
+      .array(
+        z.object({
+          id: z.string(),
+          userId: z.string(),
+          storeApiId: z.string(),
+          storeName: z.string(),
+        }),
+      )
+      .nullable()
+      .optional(),
+    pinnedPlaces: z
+      .array(
+        z.object({
+          id: z.string(),
+          userId: z.string(),
+          placeApiId: z.string(),
+          placeName: z.string(),
+        }),
+      )
+      .nullable()
+      .optional(),
+  });
 
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
 export type RegisterRequest = z.infer<typeof registerRequestSchema>;
@@ -121,7 +130,7 @@ export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   PUBLIC_SECTOR: "Javni sektor",
 };
 
-// Croatian display labels for the "Kako si saznao za Disscount?" dropdown
+// Croatian display labels for the "Odakle znaš za Disscount?" dropdown
 export const ACQUISITION_CHANNEL_LABELS: Record<AcquisitionChannel, string> = {
   GOOGLE_SEARCH: "Google pretraga",
   INSTAGRAM: "Instagram",

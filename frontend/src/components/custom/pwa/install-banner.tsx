@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { useInstallPrompt } from "@/components/custom/pwa/use-install-prompt";
 import InstallInstructionsSheet from "@/components/custom/pwa/install-instructions-sheet";
 import {
-  getInstallBannerDismissed,
-  setInstallBannerDismissed,
+  isInstallBannerSnoozed,
+  snoozeInstallBanner,
 } from "@/utils/browser/local-storage";
 
 // One-time dismissible banner inviting first-time visitors to add the app to
@@ -21,13 +21,13 @@ export default function InstallBanner() {
   const [instructionsOpen, setInstructionsOpen] = useState(false);
 
   useEffect(() => {
-    // Read the persisted dismissal on the client to avoid a hydration mismatch.
-    setDismissed(getInstallBannerDismissed());
+    // Read the persisted snooze on the client to avoid a hydration mismatch.
+    setDismissed(isInstallBannerSnoozed());
   }, []);
 
   function handleDismiss() {
     setDismissed(true);
-    setInstallBannerDismissed(true);
+    snoozeInstallBanner();
   }
 
   async function handleInstall() {
@@ -47,7 +47,7 @@ export default function InstallBanner() {
         <div className="flex flex-col gap-3 rounded-xl border bg-card p-3 shadow-lg">
           <div className="flex items-center gap-3">
             <Image
-              src="/icons/icon-192.png"
+              src="/brand/icons/icon-192.png"
               alt="Disscount"
               width={48}
               height={48}

@@ -8,7 +8,7 @@ interface IProductInfoProps {
   category: string | null;
 }
 
-export const ProductInfo = memo(function ProductInfo({
+const ProductInfo = memo(function ProductInfo({
   name,
   brand,
   category,
@@ -27,3 +27,5 @@ export const ProductInfo = memo(function ProductInfo({
     </div>
   );
 });
+
+export default ProductInfo;

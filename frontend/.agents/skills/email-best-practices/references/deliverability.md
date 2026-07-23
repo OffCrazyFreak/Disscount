@@ -105,7 +105,7 @@ Learn more: https://resend.com/docs/knowledge-base/warming-up
 
 **Emails going to spam?** Check in order:
 1. Authentication (SPF, DKIM, DMARC)
-2. List-Unsubscribe header — required by Gmail/Yahoo since Feb 2024 (see [Compliance](./compliance.md))
+2. List-Unsubscribe header - required by Gmail/Yahoo since Feb 2024 (see [Compliance](./compliance.md))
 3. Sender reputation (blacklists, complaint rates)
 4. Content
 5. Sending patterns (sudden volume spikes)

@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
+
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 
 import {
   Table,
@@ -21,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import { adminService } from "@/lib/api";
 import {
   AccountType,
@@ -50,7 +52,7 @@ export default function AdminUsersTable() {
         onSuccess: () => toast.success("Tip računa ažuriran!"),
         onError: () => toast.error("Greška pri promjeni tipa računa."),
         onSettled: () => setUpdatingId(null),
-      }
+      },
     );
   }
 
@@ -69,7 +71,7 @@ export default function AdminUsersTable() {
   if (isLoading) {
     return (
       <div className="flex justify-center py-12">
-        <Loader2 className="size-6 animate-spin text-primary" />
+        <BlockLoadingSpinner size={24} />
       </div>
     );
   }
@@ -102,15 +104,15 @@ export default function AdminUsersTable() {
               return (
                 <TableRow key={u.id}>
                   <TableCell className="font-medium">
-                    {u.username || "—"}
+                    {u.username || "-"}
                     {isSelf && (
-                      <Badge variant="secondary" className="ml-2">
+                      <Badge variant="primary" className="ml-2">
                         Ti
                       </Badge>
                     )}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {u.email || "—"}
+                    {u.email || "-"}
                   </TableCell>
                   <TableCell>
                     <Select
@@ -156,7 +158,7 @@ export default function AdminUsersTable() {
         isOpen={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title="Brisanje računa"
-        description={`Jeste li sigurni da želite obrisati račun ${
+        description={`Sigurno želiš obrisati račun ${
           deleteTarget?.username || deleteTarget?.email || ""
         }? Ova akcija se ne može poništiti.`}
         confirmLabel="Obriši račun"

@@ -37,7 +37,7 @@ public class User {
     @Column(name = "notifications_email_enabled_at")
     private LocalDateTime notificationsEmailEnabledAt;
 
-    // Marketing consents — default OFF (null) per GDPR opt-in.
+    // Marketing consents - default OFF (null) per GDPR opt-in.
     @Column(name = "newsletter_enabled_at")
     private LocalDateTime newsletterEnabledAt;
 
@@ -52,6 +52,14 @@ public class User {
     // Base64 avatar; Google sign-ins use the session image instead, so this stays null unless uploaded.
     @Column(name = "image", columnDefinition = "TEXT")
     private String image;
+
+    // Stamped when the onboarding wizard ends, however it ends; null = wizard auto-opens on load.
+    @Column(name = "onboarding_completed_at")
+    private LocalDateTime onboardingCompletedAt;
+
+    // How onboarding ended: "completed" or "skipped:<step>" (step index where the user bailed).
+    @Column(name = "onboarding_outcome")
+    private String onboardingOutcome;
 
     // Set on first login: ADMIN if no users exist yet, otherwise CONSUMER.
     // Elevated to ENTERPRISE / PUBLIC_SECTOR manually via the admin dashboard.

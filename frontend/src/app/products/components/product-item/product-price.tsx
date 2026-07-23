@@ -13,7 +13,7 @@ interface IProductUnitPriceDetailsProps {
   product: ProductResponse;
 }
 
-export const ProductUnitPriceDetails = memo(
+const ProductUnitPriceDetails = memo(
   ({ product }: IProductUnitPriceDetailsProps) => {
     const minPrice = getMinPrice(product);
     const maxPrice = getMaxPrice(product);
@@ -89,3 +89,5 @@ export const ProductUnitPriceDetails = memo(
 );
 
 ProductUnitPriceDetails.displayName = "ProductPrice";
+
+export default ProductUnitPriceDetails;

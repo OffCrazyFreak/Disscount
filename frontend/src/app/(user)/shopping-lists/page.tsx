@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ShoppingListsPage(
-  props: PageProps<"/shopping-lists">
+  props: PageProps<"/shopping-lists">,
 ) {
   const query = readSearchParam(await props.searchParams);
 

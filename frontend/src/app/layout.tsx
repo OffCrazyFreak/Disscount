@@ -2,23 +2,49 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "@/app/globals.css";
 
-import { AppSidebar } from "@/components/custom/app-sidebar";
+import AppSidebar from "@/components/custom/sidebar/app-sidebar";
 import Header from "@/components/custom/header/header";
-import Footer from "@/components/custom/footer";
-import OAuthErrorToast from "@/components/custom/oauth-error-toast";
+import Footer from "@/components/custom/common/footer";
+import WindowScrollFade from "@/components/custom/common/window-scroll-fade";
+import OAuthErrorToast from "@/components/custom/common/oauth-error-toast";
+import ModalRouter from "@/components/custom/modal-router/modal-router";
 import InstallBanner from "@/components/custom/pwa/install-banner";
 import OfflineIndicator from "@/components/custom/offline/offline-indicator";
-import { Providers } from "@/app/providers/providers";
+import Providers from "@/app/providers/providers";
 import { ReactNode, Suspense } from "react";
-import { sairaStencil } from "@/app/fonts";
+import { huninn, sairaStencil } from "@/app/fonts";
+import { appUrl } from "@/lib/env";
+
+// Shorter than the meta description on purpose: social previews truncate around
+// 125 chars, while the full description below stays fine for search results.
+const socialDescription =
+  "Usporedi cijene proizvoda u 25+ trgovačkih lanaca u Hrvatskoj, prati povijest cijena i uštedi pri svakoj kupnji. Besplatno.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-  ),
+  metadataBase: new URL(appUrl()),
   title: {
     default: "Disscount - Pronađi najbolje cijene u Hrvatskoj",
     template: "Disscount - %s",
+  },
+  description:
+    "Usporedi cijene proizvoda u 25+ trgovačkih lanaca u Hrvatskoj, prati povijest cijena, izradi pametne popise za kupnju i uštedi pri svakoj kupnji. Besplatno.",
+  alternates: {
+    canonical: "./",
+  },
+  openGraph: {
+    type: "website",
+    locale: "hr_HR",
+    url: "/",
+    siteName: "Disscount",
+    title: "Disscount - Pronađi najbolje cijene u Hrvatskoj",
+    description: socialDescription,
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@disscountme",
+    creator: "@disscountme",
+    title: "Disscount - Pronađi najbolje cijene u Hrvatskoj",
+    description: socialDescription,
   },
   appleWebApp: {
     capable: true,
@@ -27,15 +53,19 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/brand/icons/icon.svg", type: "image/svg+xml" },
+      { url: "/brand/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/brand/icons/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
     apple: [
       {
-        url: "/icons/apple-touch-icon-180.png",
+        url: "/brand/icons/apple-touch-icon-180.png",
         sizes: "180x180",
         type: "image/png",
       },
+    ],
+    other: [
+      { rel: "mask-icon", url: "/brand/icons/mask-icon.svg", color: "#2ec50d" },
     ],
   },
   creator: "Jakov Jakovac",
@@ -70,7 +100,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#121212" },
+  ],
 };
 
 export default function RootLayout({
@@ -89,7 +122,7 @@ export default function RootLayout({
         />
       )}
       <body
-        className={`${sairaStencil.variable} antialiased bg-zinc-50 relative`}
+        className={`${sairaStencil.variable} ${huninn.variable} antialiased bg-zinc-50 relative`}
       >
         <Providers>
           <OfflineIndicator />
@@ -99,11 +132,15 @@ export default function RootLayout({
             <OAuthErrorToast />
           </Suspense>
 
+          <Suspense fallback={null}>
+            <ModalRouter />
+          </Suspense>
+
           <div className="min-h-screen flex flex-col w-full">
             {/* pattern background */}
             <div className="absolute inset-0 z-[-15] bg-[url('/+_pattern.png')] bg-repeat opacity-100" />
-            {/* radial fade overlay to white */}
-            <div className="absolute inset-0 -z-10 [background:radial-gradient(125%_125%_at_50%_100%,transparent_0%,#ffffff_90%)]" />
+            {/* radial fade to white, spreading from the page centre outward */}
+            <div className="absolute inset-0 -z-10 [background:radial-gradient(100%_100%_at_50%_50%,transparent_0%,#ffffff_60%)]" />
             {/* linear gradient from center to left and right */}
             <div className="absolute inset-0 -z-10 size-full [background:linear-gradient(90deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.0)_30%,rgba(255,255,255,0.0)_70%,rgba(255,255,255,0.9)_100%)]" />
 
@@ -115,11 +152,14 @@ export default function RootLayout({
               </Suspense>
             </aside>
 
-            <main className="max-w-4xl mx-auto p-4 mt-24 w-full overflow-y-hidden">
+            <main className="max-w-4xl mx-auto p-4 mt-24 w-full overflow-clip">
               {children}
             </main>
 
             <Footer />
+
+            {/* Bottom scrim on every scrollable page; self-hides at the end */}
+            <WindowScrollFade />
           </div>
         </Providers>
       </body>

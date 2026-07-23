@@ -15,7 +15,6 @@ import { digitalCardService } from "@/lib/api";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "@/utils/strings";
-import { useUser } from "@/context/user-context";
 
 interface IDigitalCardItemProps {
   digitalCard: DigitalCardDto;
@@ -30,7 +29,7 @@ export default function DigitalCardItem({
   const deleteDigitalCardMutation = digitalCardService.useDeleteDigitalCard();
 
   async function handleDelete(d: DigitalCardDto) {
-    if (confirm(`Jeste li sigurni da želite obrisati karticu "${d.title}"?`)) {
+    if (confirm(`Sigurno želiš obrisati karticu "${d.title}"?`)) {
       deleteDigitalCardMutation.mutate(d.id, {
         onSuccess: async () => {
           toast.success("Kartica obrisana.");
@@ -51,12 +50,8 @@ export default function DigitalCardItem({
         <div className="flex-1">
           <h3 className="font-semibold text-lg">{digitalCard.title}</h3>
           <div className="flex items-center gap-2 mt-1">
-            <Badge variant="default" className="text-xs">
-              {digitalCard.type}
-            </Badge>
-            <Badge variant="outline" className="text-xs">
-              {digitalCard.codeType}
-            </Badge>
+            <Badge variant="primary">{digitalCard.type}</Badge>
+            <Badge variant="outline">{digitalCard.codeType}</Badge>
           </div>
         </div>
 

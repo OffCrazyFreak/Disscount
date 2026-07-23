@@ -3,7 +3,7 @@
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import ShoppingListStoreSummary from "@/app/(user)/shopping-lists/[id]/components/stores/shopping-list-stores-list";
 import ShoppingListHeader from "@/app/(user)/shopping-lists/[id]/components/shopping-list-header";
 import ShoppingListItems from "@/app/(user)/shopping-lists/[id]/components/items/shopping-list-items";
@@ -12,13 +12,13 @@ import ShoppingListInfoTable from "@/app/(user)/shopping-lists/[id]/components/s
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
 import { useShoppingListData } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-data";
 
-interface ShoppingListDetailClientProps {
+interface IShoppingListDetailClientProps {
   listId: string;
 }
 
 export default function ShoppingListDetailClient({
   listId,
-}: ShoppingListDetailClientProps) {
+}: IShoppingListDetailClientProps) {
   // Use custom hooks for data and mutations
   const {
     shoppingList,

@@ -70,7 +70,8 @@ export function useSearchNavigation(
   );
 
   const openResult = useCallback(
-    (value: string) => router.push(`${searchRoute}/${encodeURIComponent(value)}`),
+    (value: string) =>
+      router.push(`${searchRoute}/${encodeURIComponent(value)}`),
     [router, searchRoute],
   );
 

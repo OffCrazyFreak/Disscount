@@ -1,31 +1,26 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { Search, Plus, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import SearchBar from "@/components/custom/search-bar";
-import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
-import DigitalCardModal from "@/app/(user)/digital-cards/components/forms/digital-card-modal";
+import SearchBar from "@/components/custom/search/search-bar";
+import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import DigitalCardItem from "@/app/(user)/digital-cards/components/digital-card-item";
-import NoResults from "@/components/custom/no-results";
-import LoginRequired from "@/components/custom/login-required";
+import NoResults from "@/components/custom/common/no-results";
+import LoginRequired from "@/components/custom/common/login-required";
 import CreateDigitalCardButton from "@/app/(user)/digital-cards/components/create-digital-card-button";
 import { DigitalCardDto } from "@/lib/api/types";
 import { useViewMode } from "@/hooks/use-view-mode";
 import { filterByFields } from "@/utils/generic";
 import { digitalCardService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
-import { AnimatedGroup } from "@/components/ui/animated-group";
-import { useQueryClient } from "@tanstack/react-query";
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
+import { AnimatedGroup } from "@/components/custom/animation/animated-group";
+import { openModalUrl } from "@/lib/modal/modal-navigation";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 
 export default function DigitalCardsClient({ query }: { query: string }) {
   const pathname = usePathname();
-  const queryClient = useQueryClient();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedDigitalCard, setSelectedDigitalCard] =
-    useState<DigitalCardDto | null>(null);
   const [viewMode] = useViewMode(pathname, "grid");
 
   const { isAuthenticated, isLoading: userLoading } = useUser();
@@ -35,8 +30,11 @@ export default function DigitalCardsClient({ query }: { query: string }) {
   const isUserLoading = userLoading || isLoading;
 
   function handleEdit(digitalCard: DigitalCardDto) {
-    setSelectedDigitalCard(digitalCard);
-    setIsModalOpen(true);
+    openModalUrl({ name: "digital-card", action: "edit", id: digitalCard.id });
+  }
+
+  function handleCreate() {
+    openModalUrl({ name: "digital-card", action: "new" });
   }
 
   const matchingDigitalCards = filterByFields(digitalCards, query, [
@@ -57,20 +55,6 @@ export default function DigitalCardsClient({ query }: { query: string }) {
 
   return (
     <>
-      <DigitalCardModal
-        isOpen={isModalOpen}
-        onOpenChange={(open) => {
-          setIsModalOpen(open);
-          if (!open) setSelectedDigitalCard(null);
-        }}
-        onSuccess={() =>
-          queryClient.invalidateQueries({
-            queryKey: ["digitalCards", "me"],
-          })
-        }
-        digitalCard={selectedDigitalCard}
-      />
-
       <div className="space-y-4">
         <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
           <SearchBar
@@ -91,7 +75,7 @@ export default function DigitalCardsClient({ query }: { query: string }) {
                 }`}
           </h3>
 
-          <CreateDigitalCardButton onCreateClick={() => setIsModalOpen(true)} />
+          <CreateDigitalCardButton onCreateClick={handleCreate} />
         </div>
 
         {isUserLoading ? (
@@ -127,14 +111,14 @@ export default function DigitalCardsClient({ query }: { query: string }) {
             </h3>
 
             <p className="text-gray-600 mb-6">
-              Stvorite svoju prvu digitalnu karticu…
+              Stvori svoju prvu digitalnu karticu…
             </p>
 
             <Button
               effect="shineHover"
               icon={Plus}
               iconPlacement="left"
-              onClick={() => setIsModalOpen(true)}
+              onClick={handleCreate}
             >
               Dodaj digitalnu karticu
             </Button>

@@ -7,6 +7,7 @@ import {
   useMemo,
   useRef,
   useState,
+  ReactNode,
 } from "react";
 import CameraScanner from "@/components/scanner/camera-scanner";
 import { IScannedCode, ScanPreset } from "@/typings/scanned-code";
@@ -23,11 +24,7 @@ interface ICameraScannerContext {
 
 const CameraScannerContext = createContext<ICameraScannerContext | null>(null);
 
-export function CameraScannerProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function CameraScannerProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [preset, setPreset] = useState<ScanPreset>("product");
   const onScanRef = useRef<IOpenScannerOptions["onScan"] | undefined>(

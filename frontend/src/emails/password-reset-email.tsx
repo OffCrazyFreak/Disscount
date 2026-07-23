@@ -1,4 +1,4 @@
-import ActionEmail from "./components/action-email";
+import ActionEmail from "@/emails/components/action-email";
 
 interface IPasswordResetEmailProps {
   resetUrl: string;
@@ -11,10 +11,10 @@ export default function PasswordResetEmail({
     <ActionEmail
       preview="Ponovno postavi svoju lozinku za Disscount"
       heading="Ponovno postavljanje lozinke"
-      intro="Zatražio/la si ponovno postavljanje lozinke. Klikni na gumb ispod kako bi postavio/la novu lozinku. Poveznica vrijedi ograničeno vrijeme."
+      intro="Stigao je zahtjev za ponovno postavljanje tvoje lozinke. Klikni na gumb ispod za postavljanje nove lozinke. Poveznica vrijedi ograničeno vrijeme."
       buttonLabel="Postavi novu lozinku"
       buttonUrl={resetUrl}
-      footnote="Ako nisi ti zatražio/la ovu promjenu, zanemari ovaj email — tvoja lozinka ostaje nepromijenjena."
+      footnote="Ako ovaj zahtjev ne dolazi od tebe, zanemari ovaj email - tvoja lozinka ostaje nepromijenjena."
     />
   );
 }

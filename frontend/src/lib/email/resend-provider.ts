@@ -1,10 +1,14 @@
 import { Resend } from "resend";
 
-import { EmailMessage, EmailProvider, EmailResult } from "@/lib/email/provider";
+import {
+  IEmailMessage,
+  IEmailProvider,
+  IEmailResult,
+} from "@/lib/email/provider";
 
-// Resend implementation of EmailProvider. The `from` address must exactly match a verified
+// Resend implementation of IEmailProvider. The `from` address must exactly match a verified
 // Resend domain or the API returns 403.
-export class ResendProvider implements EmailProvider {
+export class ResendProvider implements IEmailProvider {
   private readonly client: Resend;
   private readonly from: string;
 
@@ -18,7 +22,7 @@ export class ResendProvider implements EmailProvider {
     subject,
     react,
     idempotencyKey,
-  }: EmailMessage): Promise<EmailResult> {
+  }: IEmailMessage): Promise<IEmailResult> {
     try {
       // The SDK returns { data, error } for API-level errors and renders the React Email
       // template (plus plain-text) from `react` automatically.
@@ -38,11 +42,12 @@ export class ResendProvider implements EmailProvider {
 
       return { id: data?.id ?? null, error: null };
     } catch (error) {
-      // It can still THROW on transport/network failures — normalize those into an EmailResult
+      // It can still THROW on transport/network failures - normalize those into an IEmailResult
       // so fire-and-forget callers never produce an unhandled rejection.
       return {
         id: null,
-        error: error instanceof Error ? error.message : "Email transport failed",
+        error:
+          error instanceof Error ? error.message : "Email transport failed",
       };
     }
   }

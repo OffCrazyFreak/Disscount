@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { ChevronDown, TriangleAlert } from "lucide-react";
-import StoreChainLogo from "@/components/custom/store-chain-logo";
+import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import {
   Collapsible,
   CollapsibleContent,
@@ -24,7 +24,7 @@ import {
 } from "@/app/products/utils/product-utils";
 import { formatDate } from "@/utils/strings";
 import { useUser } from "@/context/user-context";
-import { StorePricesTable } from "@/app/products/[id]/components/store-item/store-prices-table";
+import StorePricesTable from "@/app/products/[id]/components/store-item/store-prices-table";
 
 interface IStoreItemProps {
   store: ChainProductResponse;
@@ -34,7 +34,7 @@ interface IStoreItemProps {
   onToggle?: () => void;
 }
 
-export const StoreItem = memo(
+const StoreItem = memo(
   ({ isExpanded, onToggle, store, storePrices, product }: IStoreItemProps) => {
     const { user } = useUser();
 
@@ -99,10 +99,7 @@ export const StoreItem = memo(
 
                       <div className="flex items-center gap-3">
                         {!isDataFromToday && (
-                          <Badge
-                            variant="secondary"
-                            className="bg-amber-100 text-amber-800 border-amber-200"
-                          >
+                          <Badge variant="warningSoft">
                             <TriangleAlert className="size-4 mr-1" />
                             Podaci od {formatDate(store.price_date)}
                           </Badge>
@@ -179,3 +176,5 @@ export const StoreItem = memo(
 );
 
 StoreItem.displayName = "StoreItem";
+
+export default StoreItem;

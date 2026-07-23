@@ -1,5 +1,7 @@
 import { Metadata } from "next";
-import LegalPage, { LegalSection } from "@/components/custom/legal-page";
+import LegalPage from "@/components/custom/legal/legal-page";
+import LegalSection from "@/components/custom/legal/legal-section";
+import { CONTACT_EMAIL } from "@/constants/contact";
 
 export const metadata: Metadata = {
   title: "Uvjeti korištenja",
@@ -22,15 +24,15 @@ export default function TermsOfServicePage() {
 
       <LegalSection heading="Korištenje usluge">
         <p>
-          Disscount služi za usporedbu cijena i organizaciju kupnje. Slažeš se da
-          aplikaciju nećeš koristiti u nezakonite svrhe ni na način koji ometa
-          njezin rad.
+          Disscount služi za usporedbu cijena i organizaciju kupnje. Slažeš se
+          da aplikaciju nećeš koristiti u nezakonite svrhe ni na način koji
+          ometa njezin rad.
         </p>
       </LegalSection>
 
       <LegalSection heading="Računi">
         <p>
-          Odgovoran si za aktivnosti na svom računu. Račun možeš obrisati u bilo
+          Za aktivnosti na svom računu odgovaraš ti. Račun možeš obrisati u bilo
           kojem trenutku unutar aplikacije.
         </p>
       </LegalSection>
@@ -44,16 +46,19 @@ export default function TermsOfServicePage() {
 
       <LegalSection heading="Izmjene">
         <p>
-          Ove uvjete možemo povremeno ažurirati. Nastavak korištenja nakon izmjena
-          znači prihvaćanje novih uvjeta.
+          Ove uvjete možemo povremeno ažurirati. Nastavak korištenja nakon
+          izmjena znači prihvaćanje novih uvjeta.
         </p>
       </LegalSection>
 
       <LegalSection heading="Kontakt">
         <p>
           Za pitanja o uvjetima javi se na{" "}
-          <a className="text-primary underline" href="mailto:info@disscount.me">
-            info@disscount.me
+          <a
+            className="text-primary underline"
+            href={`mailto:${CONTACT_EMAIL}`}
+          >
+            {CONTACT_EMAIL}
           </a>
           .
         </p>

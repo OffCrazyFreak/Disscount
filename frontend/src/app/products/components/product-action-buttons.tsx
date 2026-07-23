@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Image, ListPlus } from "lucide-react";
+import { Image as ImageIcon, ListPlus } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -8,10 +9,11 @@ import {
 } from "@/components/ui/tooltip";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { cn } from "@/lib/utils";
-import AddToShoppingListForm from "@/app/products/components/forms/add-to-shopping-list-form";
+import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { formatQuantity } from "@/utils/strings";
 import WatchlistActionButton from "@/app/products/components/watchlist-action-button";
 import { watchlistService } from "@/lib/api";
+import { productByEanQueryKey } from "@/lib/cijene-api";
 
 interface IProductActionButtonsProps {
   product: ProductResponse;
@@ -28,7 +30,7 @@ export default function ProductActionButtons({
   showAddToWatchlist = true,
   className,
 }: IProductActionButtonsProps) {
-  const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
+  const queryClient = useQueryClient();
   const { data: currentUserWatchlist = [] } =
     watchlistService.useGetCurrentUserWatchlist();
 
@@ -36,14 +38,16 @@ export default function ProductActionButtons({
     (watchlistItem) => watchlistItem.productApiId === product.ean,
   );
 
+  // We already hold the full product here, so seed the by-ean cache under the
+  // exact key useGetProductByEan reads. The modal then shows it instantly
+  // instead of waiting on its own fetch (the URL-driven modal has no props).
+  function openAddToList() {
+    queryClient.setQueryData(productByEanQueryKey(product.ean), product);
+    openModalUrl({ name: "add-to-list", ean: product.ean });
+  }
+
   return (
     <>
-      <AddToShoppingListForm
-        isOpen={isAddToListModalOpen}
-        onOpenChange={setIsAddToListModalOpen}
-        product={product}
-      />
-
       <div className={cn("flex items-center gap-1 sm:gap-2", className)}>
         {showSearchImage && (
           <Tooltip>
@@ -69,7 +73,7 @@ export default function ProductActionButtons({
                   window.open(googleShoppingUrl, "_blank");
                 }}
               >
-                <Image className="size-6 sm:size-7" />
+                <ImageIcon className="size-6 sm:size-7" />
               </Button>
             </TooltipTrigger>
 
@@ -86,9 +90,7 @@ export default function ProductActionButtons({
                 size="icon"
                 aria-label="Dodaj na popis za kupnju"
                 className="size-10 sm:size-12 shrink-0"
-                onClick={() => {
-                  setIsAddToListModalOpen(true);
-                }}
+                onClick={openAddToList}
               >
                 <ListPlus className="size-6 sm:size-7" />
               </Button>

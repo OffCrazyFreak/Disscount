@@ -1,78 +1,27 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { X, Loader2, Eye } from "lucide-react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { watchlistService } from "@/lib/api";
-import { useQueryClient } from "@tanstack/react-query";
-import {
-  isWatchThresholdReached,
-  WatchlistItemWithProduct,
-} from "@/app/(user)/watchlist/utils/watchlist-utils";
-import { useUser } from "@/context/user-context";
+import { IWatchlistItemWithProduct } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { cn } from "@/lib/utils";
 import WatchlistItemDiscountInfo from "@/app/(user)/watchlist/components/watchlist-item-discount-info";
-import WatchlistItemModal from "@/app/products/components/forms/watchlist-item-modal";
+import WatchlistActionButton from "@/app/(user)/watchlist/components/watchlist-action-button";
+import { useWatchlistItem } from "@/app/(user)/watchlist/hooks/use-watchlist-item";
 import { WatchType } from "@/lib/api";
-import { formatQuantity } from "@/utils/strings";
 
-interface WatchlistItemProps {
-  item: WatchlistItemWithProduct;
+interface IWatchlistItemProps {
+  item: IWatchlistItemWithProduct;
   actionMode?: "remove" | "add";
   showThresholdBadges?: boolean;
-}
-
-interface WatchlistActionButtonProps {
-  visibilityClassName: string;
-  isAddMode: boolean;
-  isRemoving: boolean;
-  hasProduct: boolean;
-  onAdd: () => void;
-  onRemove: () => void;
-}
-
-function WatchlistActionButton({
-  visibilityClassName,
-  isAddMode,
-  isRemoving,
-  hasProduct,
-  onAdd,
-  onRemove,
-}: WatchlistActionButtonProps) {
-  return (
-    <Button
-      size="icon"
-      aria-label={isAddMode ? "Dodaj proizvod" : "Ukloni proizvod"}
-      className={cn(
-        visibilityClassName,
-        isAddMode
-          ? "bg-primary hover:bg-primary/90"
-          : "bg-red-600 hover:bg-red-700",
-      )}
-      onClick={isAddMode ? onAdd : onRemove}
-      disabled={isAddMode ? !hasProduct : isRemoving}
-    >
-      {isAddMode ? (
-        <Eye className="size-5 sm:size-6" />
-      ) : isRemoving ? (
-        <Loader2 className="size-5 sm:size-6 animate-spin" />
-      ) : (
-        <X className="size-5 sm:size-6" />
-      )}
-    </Button>
-  );
 }
 
 export default function WatchlistItem({
   item,
   actionMode = "remove",
   showThresholdBadges = true,
-}: WatchlistItemProps) {
+}: IWatchlistItemProps) {
   const {
     watchlistItems,
     productApiId,
@@ -81,111 +30,22 @@ export default function WatchlistItem({
     isLoading,
     error,
   } = item;
-  const queryClient = useQueryClient();
-  const { user } = useUser();
-  const [isRemoving, setIsRemoving] = useState(false);
-  const [isWatchlistModalOpen, setIsWatchlistModalOpen] = useState(false);
-  const [selectedWatchType, setSelectedWatchType] = useState<WatchType>(
-    WatchType.percentage,
-  );
   const isAddMode = actionMode === "add";
 
-  async function handleRemove() {
-    setIsRemoving(true);
-
-    try {
-      const removeResults = await Promise.allSettled(
-        watchlistItems.map((watchlistItem) =>
-          watchlistService.removeFromWatchlist(watchlistItem.id),
-        ),
-      );
-
-      const failedRemovals = removeResults.filter(
-        (result) => result.status === "rejected",
-      ).length;
-
-      if (failedRemovals === 0) {
-        toast.success("Proizvod uklonjen s popisa za praćenje");
-      } else if (failedRemovals === watchlistItems.length) {
-        toast.error("Greška pri uklanjanju proizvoda");
-      } else {
-        toast.error(
-          `Djelomično uklanjanje: ${failedRemovals} stavki nije moguće ukloniti.`,
-        );
-      }
-    } catch {
-      toast.error("Greška pri uklanjanju proizvoda");
-    } finally {
-      await queryClient.invalidateQueries({
-        queryKey: watchlistService.QUERY_KEYS.all,
-      });
-
-      setIsRemoving(false);
-    }
-  }
-
-  // Display product name from API only (no fallback since productName removed from backend)
-  const productName = product?.name || "Učitavanje...";
-  const productBrand = product?.brand || null;
-  const formattedQuantity = formatQuantity(product?.quantity);
-  const quantityWithUnit =
-    formattedQuantity && product?.unit
-      ? `${formattedQuantity}${product.unit}`
-      : null;
-
-  const hasPinnedStores = (user?.pinnedStores?.length || 0) > 0;
-
-  function isWatchRequirementAchieved(
-    thresholdValue: number,
-    watchType: WatchType,
-  ): boolean {
-    if (!discountInfo) {
-      return false;
-    }
-
-    return isWatchThresholdReached(
-      discountInfo,
-      watchType,
-      thresholdValue,
-      hasPinnedStores,
-    );
-  }
-
-  function handleBadgeClick(
-    event: React.MouseEvent<HTMLButtonElement>,
-    watchType: WatchType,
-  ) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (!product) {
-      return;
-    }
-
-    setSelectedWatchType(watchType);
-    setIsWatchlistModalOpen(true);
-  }
-
-  function handleOpenWatchlistModal() {
-    if (!product) {
-      return;
-    }
-
-    setSelectedWatchType(WatchType.percentage);
-    setIsWatchlistModalOpen(true);
-  }
+  const {
+    isRemoving,
+    handleRemove,
+    productName,
+    productBrand,
+    quantityWithUnit,
+    hasPinnedStores,
+    isWatchRequirementAchieved,
+    handleBadgeClick,
+    handleOpenWatchlistModal,
+  } = useWatchlistItem(item);
 
   return (
     <Card className="hover:shadow-md transition-shadow">
-      {product && (
-        <WatchlistItemModal
-          isOpen={isWatchlistModalOpen}
-          onOpenChange={setIsWatchlistModalOpen}
-          product={product}
-          initialWatchType={selectedWatchType}
-        />
-      )}
-
       <CardContent className="p-4">
         {/* First row: Product name, brand, and remove button */}
         <div className="flex  justify-between gap-4 sm:flex-row flex-col">

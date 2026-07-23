@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import apiClient from "@/lib/api/api-base";
-import { UserDto, UserRequest } from "@/lib/api/types";
+import { UserDto, UserRequest, userRequestSchema } from "@/lib/api/types";
 
 const USERS_BASE_PATH = "/api/users";
 
@@ -10,7 +10,12 @@ export async function getCurrentUser(): Promise<UserDto> {
 }
 
 export async function updateCurrentUser(data: UserRequest): Promise<UserDto> {
-  const response = await apiClient.patch<UserDto>(`${USERS_BASE_PATH}/me`, data);
+  const validatedData = userRequestSchema.parse(data);
+
+  const response = await apiClient.patch<UserDto>(
+    `${USERS_BASE_PATH}/me`,
+    validatedData,
+  );
   return response.data;
 }
 

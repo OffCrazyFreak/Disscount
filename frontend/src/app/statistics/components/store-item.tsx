@@ -1,8 +1,9 @@
 "use client";
 
-import React, { memo } from "react";
-import { ChevronDown, Loader2, MapPin, Tag } from "lucide-react";
-import StoreChainLogo from "@/components/custom/store-chain-logo";
+import { memo } from "react";
+import { ChevronDown, MapPin, Tag } from "lucide-react";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import {
   Collapsible,
   CollapsibleContent,
@@ -31,7 +32,7 @@ interface IStoreItemProps {
 }
 
 // Memoized component for individual chain items to prevent unnecessary re-renders
-export const StoreItem = memo(
+const StoreItem = memo(
   ({ stat, isExpanded, onToggle, isLast }: IStoreItemProps) => {
     // Fetch stores for this specific chain when the item is rendered
     const { data: storesData, isLoading: storesLoading } =
@@ -97,7 +98,7 @@ export const StoreItem = memo(
             <div className="mt-4">
               {storesLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 className="size-6 animate-spin mr-2" />
+                  <BlockLoadingSpinner size={24} className="mr-2" />
                   Učitavanje trgovina...
                 </div>
               ) : storesData?.stores && storesData.stores.length > 0 ? (
@@ -147,3 +148,5 @@ export const StoreItem = memo(
 );
 
 StoreItem.displayName = "StoreItem";
+
+export default StoreItem;

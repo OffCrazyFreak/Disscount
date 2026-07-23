@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default async function DigitalCardsPage(
-  props: PageProps<"/digital-cards">
+  props: PageProps<"/digital-cards">,
 ) {
   const query = readSearchParam(await props.searchParams);
 

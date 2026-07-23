@@ -18,7 +18,7 @@ import {
   setShoppingListItemsOpen,
 } from "@/utils/browser/local-storage";
 
-interface ShoppingListItemsProps {
+interface IShoppingListItemsProps {
   shoppingList: ShoppingList;
   cheapestStores: Record<string, string>;
   averagePrices: Record<string, number>;
@@ -30,7 +30,7 @@ export default function ShoppingListItems({
   cheapestStores,
   averagePrices,
   storePrices,
-}: ShoppingListItemsProps) {
+}: IShoppingListItemsProps) {
   const { handleUpdateItem, handleDeleteItem, deletingItemId } =
     useShoppingListItemMutations(shoppingList.id, averagePrices, storePrices);
 

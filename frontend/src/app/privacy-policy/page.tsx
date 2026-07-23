@@ -1,5 +1,7 @@
 import { Metadata } from "next";
-import LegalPage, { LegalSection } from "@/components/custom/legal-page";
+import LegalPage from "@/components/custom/legal/legal-page";
+import LegalSection from "@/components/custom/legal/legal-section";
+import { CONTACT_EMAIL } from "@/constants/contact";
 
 export const metadata: Metadata = {
   title: "Pravila privatnosti",
@@ -46,8 +48,11 @@ export default function PrivacyPolicyPage() {
       <LegalSection heading="Kontakt">
         <p>
           Za pitanja o privatnosti javi se na{" "}
-          <a className="text-primary underline" href="mailto:info@disscount.me">
-            info@disscount.me
+          <a
+            className="text-primary underline"
+            href={`mailto:${CONTACT_EMAIL}`}
+          >
+            {CONTACT_EMAIL}
           </a>
           .
         </p>

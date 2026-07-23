@@ -1,4 +1,4 @@
-import BlockLoadingSpinner from "@/components/custom/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import { JSX } from "react";
 
 export default function Loading(): JSX.Element {

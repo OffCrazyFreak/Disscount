@@ -11,7 +11,7 @@ import {
 } from "@/lib/offline/persister";
 import { registerOfflineMutationDefaults } from "@/lib/offline/offline-mutations";
 
-export function ReactQueryProviderWrapper({
+export default function ReactQueryProviderWrapper({
   children,
 }: {
   children: ReactNode;
@@ -24,6 +24,10 @@ export function ReactQueryProviderWrapper({
           // gcTime must be >= the persister's maxAge, otherwise entries are
           // evicted from memory before they can be restored from disk.
           gcTime: OFFLINE_CACHE_MAX_AGE_MS,
+          // One retry after the initial fetch: a transient blip gets a second
+          // chance, but a genuine failure surfaces fast instead of making the
+          // user wait through the default 3-attempt backoff.
+          retry: 1,
         },
       },
     });

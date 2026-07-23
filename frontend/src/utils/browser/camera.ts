@@ -78,8 +78,7 @@ export function formatCameraLabels(devices: MediaDeviceInfo[]): INamedCamera[] {
       order: nativeCameraIndex(device.label, index),
     }))
     .sort(
-      (a, b) =>
-        facingRank(a.label) - facingRank(b.label) || a.order - b.order,
+      (a, b) => facingRank(a.label) - facingRank(b.label) || a.order - b.order,
     );
 
   const totals = new Map<string, number>();
@@ -107,16 +106,16 @@ export function describeScannerError(error: unknown): string {
 
   switch (kind) {
     case "permission-denied":
-      return "Pristup kameri je odbijen. Omogućite kameru u postavkama preglednika pa pokušajte ponovno.";
+      return "Pristup kameri je odbijen. Omogući kameru u postavkama preglednika pa pokušaj ponovno.";
     case "no-camera":
       return "Kamera nije pronađena na ovom uređaju.";
     case "in-use":
-      return "Kameru trenutno koristi druga aplikacija. Zatvorite je pa pokušajte ponovno.";
+      return "Kameru trenutno koristi druga aplikacija. Zatvori je pa pokušaj ponovno.";
     case "overconstrained":
-      return "Odabrana kamera nije dostupna. Vratite odabir kamere na automatski.";
+      return "Odabrana kamera nije dostupna. Vrati odabir kamere na automatski.";
     case "insecure-context":
       return "Skeniranje radi samo preko sigurne (HTTPS) veze.";
     default:
-      return "Greška pri pokretanju kamere. Pokušajte ponovno.";
+      return "Greška pri pokretanju kamere. Pokušaj ponovno.";
   }
 }

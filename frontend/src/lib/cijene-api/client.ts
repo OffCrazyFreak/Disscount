@@ -49,7 +49,7 @@ function createCijeneClient({
     if (process.env.NODE_ENV === "development") {
       logger.info(
         `[${label}] ${config.method?.toUpperCase()} ${config.url}`,
-        config.params || config.data
+        config.params || config.data,
       );
     }
 
@@ -62,7 +62,7 @@ function createCijeneClient({
         logger.info(
           `[${label}] ${response.status} ${response.config.method?.toUpperCase()} ${
             response.config.url
-          }`
+          }`,
         );
       }
 
@@ -75,11 +75,11 @@ function createCijeneClient({
         `[${label}] ${apiError.status} ${error.config?.method?.toUpperCase()} ${
           error.config?.url
         }`,
-        apiError.message
+        apiError.message,
       );
 
       throw apiError;
-    }
+    },
   );
 
   return client;

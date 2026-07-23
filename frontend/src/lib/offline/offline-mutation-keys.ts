@@ -1,7 +1,7 @@
 import type { Mutation, MutationKey } from "@tanstack/react-query";
 
 // Mutation keys for writes allowed to queue while offline and replay on
-// reconnect. Parallel to the read whitelist in cached-query-keys.ts — keep the
+// reconnect. Parallel to the read whitelist in cached-query-keys.ts - keep the
 // keys here as the single source of truth, attach them to the matching
 // useMutation hooks, and register their replay functions in offline-mutations.ts.
 export const OFFLINE_MUTATION_KEYS = {
@@ -25,7 +25,7 @@ export function isOfflineMutationKey(mutationKey: MutationKey | undefined) {
     : false;
 }
 
-// Only paused mutations on the allowlist are persisted (and later replayed) —
+// Only paused mutations on the allowlist are persisted (and later replayed) -
 // other writes simply fail offline as before.
 export function shouldPersistMutation(mutation: Mutation) {
   return isOfflineMutationKey(mutation.options.mutationKey);

@@ -8,8 +8,8 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useCameraScanner } from "@/context/scanner-context";
 import { IScannedCode } from "@/typings/scanned-code";
-import SearchBar from "@/components/custom/search-bar";
-import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
+import SearchBar from "@/components/custom/search/search-bar";
+import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 
 export default function HeroActions() {
   const { openScanner } = useCameraScanner();
@@ -41,9 +41,9 @@ export default function HeroActions() {
         <div className="relative">
           <Separator />
           <div className="absolute inset-0 flex items-center justify-center">
-            <h2 className="bg-background text-lg px-2 text-muted-foreground">
+            <span className="bg-background text-lg px-2 text-muted-foreground">
               ili
-            </h2>
+            </span>
           </div>
         </div>
 
@@ -51,6 +51,7 @@ export default function HeroActions() {
           <Button
             onClick={() => openScanner({ onScan: handleScan })}
             variant="outline"
+            effect="shine"
             size="lg"
             className="w-full text-lg"
           >

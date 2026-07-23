@@ -15,11 +15,11 @@ export async function getAllUsers(): Promise<UserDto[]> {
 
 export async function updateUserAccountType(
   userId: string,
-  accountType: AccountType
+  accountType: AccountType,
 ): Promise<UserDto> {
   const response = await apiClient.patch<UserDto>(
     `${ADMIN_BASE_PATH}/users/${userId}`,
-    { accountType }
+    { accountType },
   );
   return response.data;
 }
@@ -39,7 +39,11 @@ export function useGetAllUsers({ enabled = true } = {}) {
 export function useUpdateUserAccountType() {
   const queryClient = useQueryClient();
 
-  return useMutation<UserDto, Error, { userId: string; accountType: AccountType }>({
+  return useMutation<
+    UserDto,
+    Error,
+    { userId: string; accountType: AccountType }
+  >({
     mutationFn: ({ userId, accountType }) =>
       updateUserAccountType(userId, accountType),
     onSuccess: () => {

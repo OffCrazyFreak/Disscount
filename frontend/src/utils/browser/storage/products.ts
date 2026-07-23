@@ -1,6 +1,6 @@
 import {
-  ProductChartPreferences,
-  ProductsPreferences,
+  IProductChartPreferences,
+  IProductsPreferences,
 } from "@/typings/local-storage";
 import { getAppStorage, setAppStorage } from "@/utils/browser/storage/core";
 
@@ -8,7 +8,7 @@ import { getAppStorage, setAppStorage } from "@/utils/browser/storage/core";
  * Get price history chart preferences for a specific product.
  */
 export function getPriceHistoryPreferences(productEan: string): {
-  productsPreferences?: ProductChartPreferences;
+  productsPreferences?: IProductChartPreferences;
 } {
   if (typeof window === "undefined") return {};
 
@@ -28,12 +28,12 @@ export function getPriceHistoryPreferences(productEan: string): {
  */
 export function setPriceHistoryPreferences(
   productEan: string,
-  preferences: ProductChartPreferences,
+  preferences: IProductChartPreferences,
 ) {
   try {
     const existingPrefs = getAppStorage().productsPreferences || {};
 
-    const updatedPrefs: ProductsPreferences = {
+    const updatedPrefs: IProductsPreferences = {
       ...existingPrefs,
       [productEan]: preferences,
     };

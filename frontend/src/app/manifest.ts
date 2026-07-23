@@ -1,9 +1,15 @@
 import type { MetadataRoute } from "next";
 import { userNavItems } from "@/constants/navigation";
 
-// `launch_handler` isn't in Next's manifest type yet, so extend it here.
+// `launch_handler` and `share_target` aren't in Next's manifest type yet, so
+// extend it here.
 type WebAppManifest = MetadataRoute.Manifest & {
   launch_handler?: { client_mode?: string | string[] };
+  share_target?: {
+    action: string;
+    method?: "GET" | "POST";
+    params: { title?: string; text?: string; url?: string };
+  };
 };
 
 // Web App Manifest (served at /manifest.webmanifest). Next.js injects the
@@ -31,24 +37,26 @@ export default function manifest(): WebAppManifest {
     orientation: "portrait",
     lang: "hr",
     dir: "ltr",
-    background_color: "#fafafa",
+    // White splash background to match the iOS launch screens (cart + wordmark
+    // on white). Chrome composes the PWA splash from this + the 512 icon + name.
+    background_color: "#ffffff",
     theme_color: "#ffffff",
     categories: ["shopping", "lifestyle"],
     icons: [
       {
-        src: "/icons/icon-192.png",
+        src: "/brand/icons/icon-192.png",
         sizes: "192x192",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/icons/icon-512.png",
+        src: "/brand/icons/icon-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/icons/icon-maskable-512.png",
+        src: "/brand/icons/icon-maskable-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",
@@ -58,18 +66,27 @@ export default function manifest(): WebAppManifest {
     screenshots: [
       {
         src: "/screenshots/screenshot-narrow.png",
-        sizes: "1080x1920",
+        sizes: "390x844",
         type: "image/png",
         form_factor: "narrow",
+        label: "Usporedba cijena na mobitelu",
       },
       {
         src: "/screenshots/screenshot-wide.png",
         sizes: "1920x1080",
         type: "image/png",
         form_factor: "wide",
+        label: "Usporedba cijena na računalu",
       },
     ],
     shortcuts,
+    // Register as a system share target: text/title/url shared from another app
+    // is funneled into product search by the /share-target route handler.
+    share_target: {
+      action: "/share-target",
+      method: "GET",
+      params: { title: "title", text: "text", url: "url" },
+    },
     // Reuse an already-open window instead of spawning a new one when launched
     // from a shortcut or notification.
     launch_handler: { client_mode: "focus-existing" },

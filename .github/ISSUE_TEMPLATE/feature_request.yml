@@ -1,0 +1,60 @@
+name: Feature request
+description: Suggest an idea or improvement for Disscount
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an idea! Please search
+        [existing issues](https://github.com/OffCrazyFreak/Disscount/issues)
+        first to avoid duplicates.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+      description: What problem would this solve, or what need does it address?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: >-
+        Describe what you would like to happen. Leave this blank if you are not
+        sure how it should work - describing the problem above is enough.
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any other approaches you thought about.
+    validations:
+      required: false
+  - type: input
+    id: blocked_on
+    attributes:
+      label: Blocked on
+      description: Anything that has to land first, including work outside this repo.
+      placeholder: "e.g. waiting on self-hosting the price archive"
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Mockups, links, or anything else that helps explain the idea.
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Frontend (web / PWA)
+        - Backend (API)
+        - Infrastructure / CI
+        - Docs
+        - Not sure
+    validations:
+      required: true

@@ -8,7 +8,7 @@ import { normalizeForSearch } from "@/utils/strings";
  */
 export function readSearchParam(
   searchParams: Record<string, string | string[] | undefined>,
-  key = "q"
+  key = "q",
 ): string {
   const value = searchParams[key];
 
@@ -22,7 +22,7 @@ export function readSearchParam(
  *          -> "q=mlijeko&limit=10"
  */
 export function buildQueryString(
-  params: Record<string, string | number | boolean | undefined>
+  params: Record<string, string | number | boolean | undefined>,
 ): string {
   const queryParams = new URLSearchParams();
 
@@ -57,12 +57,12 @@ function dedupeTrimmed(values: string[]): string[] {
 export function readListParam(
   params: IReadableParams,
   key: string,
-  { legacyCsv = false } = {}
+  { legacyCsv = false } = {},
 ): string[] {
   const values = params.getAll(key);
 
   return dedupeTrimmed(
-    legacyCsv ? values.flatMap((value) => value.split(",")) : values
+    legacyCsv ? values.flatMap((value) => value.split(",")) : values,
   );
 }
 
@@ -74,7 +74,7 @@ export function readListParam(
 export function filterByFields<T extends Record<string, unknown>>(
   items: T[],
   query: string | null,
-  fields: Array<keyof T>
+  fields: Array<keyof T>,
 ): T[] {
   const q = (query || "").trim();
   if (!q) return items;
@@ -94,4 +94,9 @@ export function filterByFields<T extends Record<string, unknown>>(
 
     return false;
   });
+}
+
+/** Constrain a number to the inclusive [min, max] range. */
+export function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
 }

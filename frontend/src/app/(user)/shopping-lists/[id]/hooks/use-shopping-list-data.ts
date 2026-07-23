@@ -6,7 +6,6 @@ import {
   getAveragePriceForItem,
   getStorePricesForItem,
 } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
-import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 
 export function useShoppingListData(listId: string) {
   const { user } = useUser();

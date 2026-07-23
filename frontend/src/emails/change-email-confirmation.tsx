@@ -1,4 +1,4 @@
-import ActionEmail from "./components/action-email";
+import ActionEmail from "@/emails/components/action-email";
 
 interface IChangeEmailConfirmationProps {
   confirmUrl: string;
@@ -19,12 +19,12 @@ export default function ChangeEmailConfirmation({
         <>
           Zatražena je promjena email adrese tvog Disscount računa na{" "}
           <span className="font-semibold text-gray-800">{newEmail}</span>.
-          Klikni na gumb ispod kako bi potvrdio/la promjenu.
+          Klikni na gumb ispod za potvrdu promjene.
         </>
       }
       buttonLabel="Potvrdi promjenu"
       buttonUrl={confirmUrl}
-      footnote="Ako nisi ti zatražio/la ovu promjenu, odmah promijeni lozinku i javi nam se — tvoja adresa ostaje nepromijenjena dok ne potvrdiš."
+      footnote="Ako ova promjena ne dolazi od tebe, odmah promijeni lozinku i javi nam se - tvoja adresa ostaje nepromijenjena dok ne potvrdiš."
     />
   );
 }

@@ -5,10 +5,14 @@ import Link from "next/link";
 import { ArrowLeft, Calendar } from "lucide-react";
 
 import { formatDate } from "@/utils/strings";
-import { getPostById } from "@/app/updates/posts";
+import { getPostById, templatePosts } from "@/app/updates/posts";
+
+export function generateStaticParams() {
+  return templatePosts.map((post) => ({ id: post.id }));
+}
 
 export async function generateMetadata(
-  props: PageProps<"/updates/[id]">
+  props: PageProps<"/updates/[id]">,
 ): Promise<Metadata> {
   const { id } = await props.params;
   const post = getPostById(id);
@@ -19,7 +23,9 @@ export async function generateMetadata(
   };
 }
 
-export default async function PostDetailPage(props: PageProps<"/updates/[id]">) {
+export default async function PostDetailPage(
+  props: PageProps<"/updates/[id]">,
+) {
   const { id } = await props.params;
   const post = getPostById(id);
 

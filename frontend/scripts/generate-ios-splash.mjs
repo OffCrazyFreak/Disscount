@@ -7,17 +7,20 @@
 import sharp from "sharp";
 import { readFile, mkdir } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { renderCart, ROOT, WHITE as BACKGROUND } from "./lib/cart-source.mjs";
 
-const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const SRC_LOGO = path.join(ROOT, "public/disscount-logo.png");
 const OUT = path.join(ROOT, "public/splash");
+const WORDMARK = path.join(ROOT, "public/brand/logo/wordmark/wordmark-rgb.png");
 
-const BACKGROUND = { r: 255, g: 255, b: 255, alpha: 1 };
-const LOGO_RATIO = 0.35; // logo occupies ~35% of the shorter edge
+const CART_RATIO = 0.35; // cart width vs the shorter edge (matches the old size)
+const WORDMARK_RATIO = 0.55; // wordmark sits below as a smaller label
+const WM_ASPECT = 331 / 1938;
 
 const devices = JSON.parse(
-  await readFile(path.join(ROOT, "src/constants/ios-splash-screens.json"), "utf8"),
+  await readFile(
+    path.join(ROOT, "src/constants/ios-splash-screens.json"),
+    "utf8",
+  ),
 );
 
 await mkdir(OUT, { recursive: true });
@@ -25,20 +28,40 @@ await mkdir(OUT, { recursive: true });
 for (const device of devices) {
   const pxWidth = device.width * device.ratio;
   const pxHeight = device.height * device.ratio;
-  const logoSize = Math.round(Math.min(pxWidth, pxHeight) * LOGO_RATIO);
+  const short = Math.min(pxWidth, pxHeight);
 
-  const logo = await sharp(SRC_LOGO)
-    .resize(logoSize, logoSize, {
-      fit: "contain",
-      background: { r: 0, g: 0, b: 0, alpha: 0 },
-    })
+  const cartWidth = Math.round(short * CART_RATIO);
+  const wmWidth = Math.round(short * WORDMARK_RATIO);
+  const wmHeight = Math.round(wmWidth * WM_ASPECT);
+  const gap = Math.round(short * 0.04);
+
+  const cart = await renderCart(cartWidth);
+  const cartHeight = Math.round(cartWidth * (50.5 / 68));
+  const wordmark = await sharp(WORDMARK)
+    .resize({ width: wmWidth })
     .png()
     .toBuffer();
 
+  const blockHeight = cartHeight + gap + wmHeight;
+  const top = Math.round((pxHeight - blockHeight) / 2);
+
   await sharp({
-    create: { width: pxWidth, height: pxHeight, channels: 4, background: BACKGROUND },
+    create: {
+      width: pxWidth,
+      height: pxHeight,
+      channels: 4,
+      background: BACKGROUND,
+    },
   })
-    .composite([{ input: logo, gravity: "centre" }])
+    .composite([
+      { input: cart, left: Math.round((pxWidth - cartWidth) / 2), top },
+      {
+        input: wordmark,
+        left: Math.round((pxWidth - wmWidth) / 2),
+        top: top + cartHeight + gap,
+      },
+    ])
+    .withIccProfile("srgb")
     .png()
     .toFile(path.join(OUT, `apple-splash-${pxWidth}-${pxHeight}.png`));
 }

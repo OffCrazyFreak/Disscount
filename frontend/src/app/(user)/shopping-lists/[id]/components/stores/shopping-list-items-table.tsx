@@ -1,28 +1,13 @@
 "use client";
 
-import React, { memo } from "react";
-import Link from "next/link";
-import {
-  ChevronUp,
-  ArrowBigUpDash,
-  ArrowBigDownDash,
-  TriangleAlert,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { memo } from "react";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 import { ShoppingListDto } from "@/lib/api/types";
 import {
   ProductResponse,
@@ -30,16 +15,16 @@ import {
 } from "@/lib/cijene-api/schemas";
 import { sortShoppingListItemsByPurchaseAndSaving } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { getPriceExtreme } from "@/app/products/utils/product-utils";
+import ShoppingListItemRow from "@/app/(user)/shopping-lists/[id]/components/stores/shopping-list-item-row";
 
-interface ShoppingListItemsTableProps {
+interface IShoppingListItemsTableProps {
   chain: ChainProductResponse;
   shoppingList: ShoppingListDto;
   productsData: ProductResponse[];
 }
 
-export const ShoppingListItemsTable = memo(
-  ({ chain, shoppingList, productsData }: ShoppingListItemsTableProps) => {
+const ShoppingListItemsTable = memo(
+  ({ chain, shoppingList, productsData }: IShoppingListItemsTableProps) => {
     const isMobile = useIsMobile();
 
     if (!shoppingList.items || shoppingList.items.length === 0) {
@@ -71,160 +56,15 @@ export const ShoppingListItemsTable = memo(
                   chain,
                 ),
               )
-              .map((item) => {
-                // Find the product data for this item
-                const product = productsData.find((p) => p?.ean === item.ean);
-
-                // Find the chain data for this product
-                const chainData = product?.chains?.find(
-                  (c: { chain: string; avg_price: string }) =>
-                    c.chain === chain.chain,
-                );
-
-                // Check if item is available in this chain
-                const isAvailable = Boolean(chainData);
-
-                // Get the average price for this chain
-                const price = chainData ? parseFloat(chainData.avg_price) : 0;
-                const quantity = item.amount || 1;
-                const total = price * quantity;
-
-                // Find the minimum price for this item across all chains
-                const allChainPrices =
-                  product?.chains
-                    ?.map((c: { chain: string; avg_price: string }) =>
-                      parseFloat(c.avg_price),
-                    )
-                    .filter((p) => !isNaN(p)) || [];
-                const minPriceAcrossChains =
-                  allChainPrices.length > 0 ? Math.min(...allChainPrices) : 0;
-                const maxPriceAcrossChains =
-                  allChainPrices.length > 0 ? Math.max(...allChainPrices) : 0;
-
-                // getPriceExtreme returns null when min === max (a single price,
-                // or all chains equal), so a uniform price is never flagged.
-                const priceExtreme = isAvailable
-                  ? getPriceExtreme(
-                      price,
-                      minPriceAcrossChains,
-                      maxPriceAcrossChains,
-                    )
-                  : null;
-                const isLowestPrice = priceExtreme === "min";
-                const isHighestPrice = priceExtreme === "max";
-
-                return (
-                  <TableRow
-                    key={item.id}
-                    className={cn("text-pretty [&>*]:whitespace-normal")}
-                  >
-                    <TableCell>
-                      <Link
-                        href={`/products/${item.ean}`}
-                        className={cn(
-                          "hover:underline hover:text-primary cursor-pointer",
-                          !isAvailable && "text-gray-400",
-                          item.isChecked && "line-through text-gray-700",
-                        )}
-                      >
-                        {item.name}
-                      </Link>
-
-                      {!isAvailable && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            {isMobile ? (
-                              <TriangleAlert className="size-4 shrink-0 text-amber-600 inline ml-2" />
-                            ) : (
-                              <Badge
-                                variant="secondary"
-                                className="bg-orange-100 text-orange-800 border-orange-200 ml-2"
-                              >
-                                <TriangleAlert className="size-4 shrink-0 text-amber-600" />
-                                Proizvod nedostupan
-                              </Badge>
-                            )}
-                          </TooltipTrigger>
-
-                          <TooltipContent className="px-2 py-1 text-xs">
-                            Proizvod nije dostupan u ovoj trgovini
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-                    </TableCell>
-
-                    <TableCell
-                      className={cn(
-                        "text-center",
-                        !isAvailable && "text-gray-400",
-                      )}
-                    >
-                      {quantity}
-                    </TableCell>
-
-                    <TableCell
-                      className={cn(
-                        "text-center",
-                        !isAvailable && "text-gray-400",
-                      )}
-                    >
-                      {isAvailable ? (
-                        <span
-                          className={cn(
-                            "flex items-start justify-center gap-1",
-                            isLowestPrice
-                              ? "text-green-600 font-bold"
-                              : isHighestPrice
-                                ? "text-red-700 font-bold"
-                                : "text-gray-700",
-                          )}
-                        >
-                          {price.toFixed(2)}€
-                          {isLowestPrice && (
-                            <>
-                              <ArrowBigDownDash
-                                className="size-5"
-                                aria-hidden="true"
-                              />
-                              <span className="sr-only">najniža cijena</span>
-                            </>
-                          )}
-                          {isHighestPrice && (
-                            <>
-                              <ArrowBigUpDash
-                                className="size-5"
-                                aria-hidden="true"
-                              />
-                              <span className="sr-only">najviša cijena</span>
-                            </>
-                          )}
-                        </span>
-                      ) : (
-                        <span className="text-gray-400">-</span>
-                      )}
-                    </TableCell>
-
-                    <TableCell className="text-center">
-                      {isAvailable ? (
-                        <span
-                          className={cn(
-                            "flex items-center justify-center gap-1",
-                            isLowestPrice
-                              ? "font-medium text-green-600"
-                              : isHighestPrice
-                                ? "font-medium text-red-700"
-                                : "font-medium text-gray-900",
-                          )}
-                        >
-                          {total.toFixed(2)}€
-                        </span>
-                      ) : (
-                        <span className="text-gray-400">-</span>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+              .map((item) => (
+                <ShoppingListItemRow
+                  key={item.id}
+                  item={item}
+                  chain={chain}
+                  productsData={productsData}
+                  isMobile={isMobile}
+                />
+              ))}
           </TableBody>
         </Table>
       </div>
@@ -233,3 +73,5 @@ export const ShoppingListItemsTable = memo(
 );
 
 ShoppingListItemsTable.displayName = "ShoppingListItemsTable";
+
+export default ShoppingListItemsTable;

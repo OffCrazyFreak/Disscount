@@ -14,9 +14,9 @@ import {
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ProductFacetSelects from "@/app/products/components/product-facet-selects";
-import useProductFacets from "@/app/products/hooks/useProductFacets";
-import usePruneStaleFilters from "@/app/products/hooks/usePruneStaleFilters";
-import type { IUseProductFiltersResult } from "@/app/products/hooks/useProductFilters";
+import useProductFacets from "@/app/products/hooks/use-product-facets";
+import usePruneStaleFilters from "@/app/products/hooks/use-prune-stale-filters";
+import type { IUseProductFiltersResult } from "@/app/products/hooks/use-product-filters";
 
 interface IProductFiltersBarProps {
   filters: IUseProductFiltersResult;
@@ -36,14 +36,17 @@ export default function ProductFiltersBar({
   function renderClearFilters(
     className?: string,
     size: ComponentProps<typeof Button>["size"] = "sm",
+    alwaysShow = false,
   ) {
-    if (filters.activeFilterCount === 0) return null;
+    const hasFilters = filters.activeFilterCount > 0;
+    if (!hasFilters && !alwaysShow) return null;
 
     return (
       <Button
         type="button"
         variant="ghost"
         size={size}
+        disabled={!hasFilters}
         className={cn("text-muted-foreground", className)}
         onClick={filters.clearFilters}
       >
@@ -68,9 +71,7 @@ export default function ProductFiltersBar({
             <SlidersHorizontal className="size-4" />
             Filteri
             {filters.activeFilterCount > 0 && (
-              <Badge className="ml-1 size-5 justify-center rounded-full p-0 text-xs">
-                {filters.activeFilterCount}
-              </Badge>
+              <Badge>{filters.activeFilterCount}</Badge>
             )}
           </Button>
 
@@ -113,10 +114,10 @@ export default function ProductFiltersBar({
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex w-full items-center gap-2">
       <ProductFacetSelects facets={facets} filters={filters} layout="row" />
 
-      {renderClearFilters("shrink-0")}
+      {renderClearFilters("shrink-0", "sm", true)}
     </div>
   );
 }

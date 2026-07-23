@@ -8,7 +8,7 @@ export class CijeneApiError extends Error {
   constructor(
     public status: number,
     message: string,
-    public response?: unknown
+    public response?: unknown,
   ) {
     super(message);
     this.name = "CijeneApiError";

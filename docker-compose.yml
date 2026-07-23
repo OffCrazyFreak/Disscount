@@ -30,7 +30,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-    # No host port published — reach it via the compose network (db:5432) or
+    # No host port published - reach it via the compose network (db:5432) or
     # `docker compose exec db psql`. Add `ports: ["5433:5432"]` if you want host access.
 
   # One-shot: apply better-auth/drizzle migrations, then exit. Uses the frontend `build`
@@ -94,7 +94,7 @@ services:
       CIJENE_API_URL: ${CIJENE_API_URL}
       CIJENE_API_TOKEN: ${CIJENE_API_TOKEN}
       # Server-side reads of NEXT_PUBLIC_* at runtime. NEXT_PUBLIC_GOOGLE_CLIENT_ID is read
-      # dynamically (requireEnv) so Next can't inline it — it MUST be present at runtime.
+      # dynamically (requireEnv) so Next can't inline it - it MUST be present at runtime.
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
       NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}

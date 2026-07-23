@@ -1,6 +1,10 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from "axios";
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  InternalAxiosRequestConfig,
+} from "axios";
 
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/client";
 
 const API_PUBLIC_BASE = process.env.NEXT_PUBLIC_API_URL;
 
@@ -18,20 +22,13 @@ const apiClient: AxiosInstance = axios.create({
 // before it expires instead of waiting for a 401 round-trip.
 const TOKEN_REFRESH_SKEW_SECONDS = 30;
 
-// Cooldown after a failed fetch — avoids hammering /api/auth/token when logged out
+// Cooldown after a failed fetch - avoids hammering /api/auth/token when logged out
 const RETRY_COOLDOWN_MS = 2_000;
-
-const MAX_RETRIES = 3;
-const BASE_DELAY_MS = 200;
 
 let cachedToken: string | null = null;
 let cachedExp: number | null = null;
 let inflightTokenPromise: Promise<string | null> | null = null;
 let lastFailedAttemptAt = 0;
-
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 function decodeBase64Url(value: string): string {
   const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
@@ -44,7 +41,9 @@ function parseTokenExp(token: string): number | null {
   if (!payloadSegment) return null;
 
   try {
-    const payload = JSON.parse(decodeBase64Url(payloadSegment)) as { exp?: number };
+    const payload = JSON.parse(decodeBase64Url(payloadSegment)) as {
+      exp?: number;
+    };
     return payload.exp ?? null;
   } catch {
     return null;
@@ -114,52 +113,38 @@ export function resetAuthToken() {
   lastFailedAttemptAt = 0;
 }
 
-apiClient.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
-  if (config.headers) {
-    const token = await getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+apiClient.interceptors.request.use(
+  async (config: InternalAxiosRequestConfig) => {
+    if (config.headers) {
+      const token = await getToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
-  }
-  return config;
-});
+    return config;
+  },
+);
 
+// On a 401, refresh the token once and replay the request. All other failures
+// (5xx, network) bubble up so React Query's retry policy owns retries - one
+// place, not two competing backoffs.
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config;
-
     if (!originalRequest) return Promise.reject(error);
 
-    if (
-      error.response?.status === 401 &&
-      !originalRequest.headers?.["X-Retry-After-Refresh"]
-    ) {
+    const alreadyRetried = originalRequest.headers?.["X-Retry-After-Refresh"];
+    if (error.response?.status === 401 && !alreadyRetried) {
       const freshToken = await getToken(true);
-
       if (freshToken && originalRequest.headers) {
-        (originalRequest.headers as Record<string, string>).Authorization = `Bearer ${freshToken}`;
-        (originalRequest.headers as Record<string, string>)["X-Retry-After-Refresh"] = "true";
+        originalRequest.headers.Authorization = `Bearer ${freshToken}`;
+        originalRequest.headers["X-Retry-After-Refresh"] = "true";
         return apiClient(originalRequest);
       }
-
-      return Promise.reject(error);
     }
 
-    // Retry on network errors or 5xx with linear backoff; skip 4xx client errors
-    if (error.response && error.response.status < 500) {
-      return Promise.reject(error);
-    }
-
-    const retryConfig = originalRequest as AxiosRequestConfig & { __retryCount?: number };
-    retryConfig.__retryCount = (retryConfig.__retryCount ?? 0) + 1;
-
-    if (retryConfig.__retryCount > MAX_RETRIES) {
-      return Promise.reject(error);
-    }
-
-    await sleep(BASE_DELAY_MS * retryConfig.__retryCount);
-    return apiClient(retryConfig);
+    return Promise.reject(error);
   },
 );
 

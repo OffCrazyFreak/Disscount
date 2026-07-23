@@ -2,11 +2,11 @@
 
 import FacetMultiSelect from "@/app/products/components/facet-multi-select";
 import { getChainLabel } from "@/utils/labels";
-import type { IProductFacetSelects } from "@/app/products/hooks/useProductFacets";
+import type { IProductFacetSelects } from "@/app/products/hooks/use-product-facets";
 import type {
   IUseProductFiltersResult,
   ProductFilterKey,
-} from "@/app/products/hooks/useProductFilters";
+} from "@/app/products/hooks/use-product-filters";
 
 interface IFacetConfig {
   key: keyof IProductFacetSelects;
@@ -72,8 +72,8 @@ export default function ProductFacetSelects({
         <div
           key={facet.key}
           // In a row every filter shares the width evenly and may shrink, so
-          // the bar stays on one line however long the selected labels get.
-          className={isStack ? "space-y-1.5" : "min-w-0 flex-1 max-w-64"}
+          // the bar spans the full width and the inputs grow to fill it.
+          className={isStack ? "space-y-1.5" : "min-w-0 flex-1"}
         >
           {isStack && (
             <p className="text-sm font-medium text-gray-700">{facet.label}</p>

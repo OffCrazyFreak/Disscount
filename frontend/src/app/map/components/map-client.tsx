@@ -4,9 +4,9 @@ import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { MapPinned } from "lucide-react";
 
-import SearchBar from "@/components/custom/search-bar";
-import SearchBarSkeleton from "@/components/custom/search-bar-skeleton";
-import ComingSoon from "@/components/custom/coming-soon";
+import SearchBar from "@/components/custom/search/search-bar";
+import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
+import ComingSoon from "@/components/custom/common/coming-soon";
 
 export default function MapClient({ query }: { query: string }) {
   const pathname = usePathname();

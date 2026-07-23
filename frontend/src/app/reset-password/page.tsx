@@ -1,22 +1,21 @@
-import { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import ResetPasswordModal from "@/app/reset-password/reset-password-modal";
-
-export const metadata: Metadata = {
-  title: "Nova lozinka",
-  description: "Postavi novu lozinku za svoj Disscount račun.",
-};
-
-// The reset/set-password email link lands here as /reset-password?token=... (Better Auth
-// appends the token). The modal is rendered over the app, matching the auth dialogs.
+// Better Auth's reset/set-password email links land here as
+// /reset-password?token=... We forward to the homepage and open the reset modal
+// there, so the whole auth flow lives in one place (?modal=reset-password). The
+// modal captures the token and strips it from the URL on arrival.
 export default async function ResetPasswordPage(
-  props: PageProps<"/reset-password">
+  props: PageProps<"/reset-password">,
 ) {
   const searchParams = await props.searchParams;
-  // Next can hand a repeated query param as an array — take the first value.
-  // The token is used verbatim, so it is deliberately not decoded.
   const rawToken = searchParams.token;
-  const token = Array.isArray(rawToken) ? (rawToken[0] ?? "") : (rawToken ?? "");
+  const token = Array.isArray(rawToken)
+    ? (rawToken[0] ?? "")
+    : (rawToken ?? "");
 
-  return <ResetPasswordModal token={token} />;
+  const query = token
+    ? `?modal=reset-password&token=${encodeURIComponent(token)}`
+    : "?modal=reset-password";
+
+  redirect(`/${query}`);
 }

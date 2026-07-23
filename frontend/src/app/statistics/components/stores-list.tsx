@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, TrendingUp } from "lucide-react";
+import { TrendingUp } from "lucide-react";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import cijeneService from "@/lib/cijene-api";
-import { StoreItem } from "@/app/statistics/components/store-item";
+import StoreItem from "@/app/statistics/components/store-item";
 
 export default function ChainList() {
   const [expandedChain, setExpandedChain] = useState<string | null>(null);
@@ -31,7 +32,7 @@ export default function ChainList() {
       <CardContent>
         {statsLoading ? (
           <div className="flex items-center gap-2">
-            <Loader2 className="size-4 animate-spin" />
+            <BlockLoadingSpinner size={16} />
             Učitavanje...
           </div>
         ) : chainStats ? (
