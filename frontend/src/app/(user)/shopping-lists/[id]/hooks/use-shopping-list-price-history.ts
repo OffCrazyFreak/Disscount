@@ -50,6 +50,7 @@ export function useShoppingListPriceHistory(
 
   const isLoading = queries.some((q) => q.isLoading);
   const hasError = queries.some((q) => q.isError);
+  const areChainsReady = queries.every((q) => q.isSuccess || q.isError);
 
   const priceHistoriesByEan = useMemo(() => {
     return groupPriceHistoriesByEan(
@@ -73,6 +74,7 @@ export function useShoppingListPriceHistory(
     shoppingList.id,
     availableChains,
     pinnedStoreIds,
+    areChainsReady,
   );
 
   const chartData = useMemo(
