@@ -4,6 +4,11 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 
+function preventActivation(event: React.MouseEvent<HTMLElement>) {
+  event.preventDefault();
+  event.stopPropagation();
+}
+
 const buttonVariants = cva(
   // Disabled state swaps in opaque muted tokens (fill + text) instead of
   // opacity, so the button never lets a busy background bleed through, its
@@ -117,6 +122,9 @@ const Button = React.forwardRef<
     ref,
   ) => {
     const Comp = asChild ? Slot : "button";
+    const isDisabled = loading || props.disabled;
+    // Slot children such as <a> ignore the native disabled attribute.
+    const inertAsChild = asChild && !!isDisabled;
 
     // Outline buttons have a light fill, so the blocks read best in brand green;
     // filled variants (default/destructive) inherit their white foreground.
@@ -126,11 +134,17 @@ const Button = React.forwardRef<
       <Comp
         className={cn(
           "relative",
+          inertAsChild && "pointer-events-none opacity-70",
           buttonVariants({ variant, effect, size, className }),
         )}
         ref={ref}
         {...props}
-        disabled={loading || props.disabled}
+        disabled={isDisabled}
+        {...(inertAsChild && {
+          "aria-disabled": true,
+          tabIndex: -1,
+          onClick: preventActivation,
+        })}
       >
         {loading && loadingIconPlacement === "left" && (
           <BlockLoadingSpinner size={18} className={spinnerColor} />
