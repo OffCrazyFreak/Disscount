@@ -37,8 +37,12 @@ export default function CameraView({
 }: ICameraViewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
+  // exact, because a bare deviceId is only an "ideal" hint the browser may ignore.
   const constraints = useMemo(
-    () => (deviceId ? { deviceId } : { facingMode: "environment" as const }),
+    () =>
+      deviceId
+        ? { deviceId: { exact: deviceId } }
+        : { facingMode: "environment" as const },
     [deviceId],
   );
 
@@ -68,7 +72,9 @@ export default function CameraView({
     >
       <ScanOverlay />
 
+      {/* Remount per camera: the library only re-applies constraints to the live track. */}
       <Scanner
+        key={deviceId ?? "auto"}
         onScan={(codes) => {
           if (codes[0]) {
             onScan({ rawValue: codes[0].rawValue, format: codes[0].format });
@@ -83,7 +89,7 @@ export default function CameraView({
           finder: true,
           torch: true,
           zoom: true,
-          // onOff: true,
+          onOff: true,
         }}
       />
     </div>
