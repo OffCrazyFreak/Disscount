@@ -88,7 +88,8 @@ export function useStoreChainAnalysis({
     [allChains, activeItems],
   );
 
-  // Sort a copy, since Array.sort mutates and allChains is memoized.
+  // Sort a copy, since Array.sort mutates and allChains is memoized; pinned stores
+  // always stay on top inside compareStoreChains.
   const sortedChains = useMemo(() => {
     const pinnedStoreIds = pinnedStores?.map((store) => store.storeApiId) || [];
 

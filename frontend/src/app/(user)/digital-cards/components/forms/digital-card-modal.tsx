@@ -58,7 +58,8 @@ export default function DigitalCardModal({
     defaultValues: EMPTY_VALUES,
   });
 
-  // Draft wins over the loaded card, so an in-progress edit is never clobbered.
+  // Draft precedence controls restore order; the isDirty guard is what stops a
+  // reload from clobbering an in-progress edit.
   useEffect(() => {
     if (!digitalCard || form.formState.isDirty) return;
 

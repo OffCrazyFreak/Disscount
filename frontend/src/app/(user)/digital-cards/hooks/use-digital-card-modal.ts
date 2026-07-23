@@ -21,7 +21,8 @@ export function useDigitalCardModal({
   const createMutation = digitalCardService.useCreateDigitalCard();
   const updateMutation = digitalCardService.useUpdateDigitalCard();
 
-  // Optimistic close: the modal closes immediately and reopens only on failure.
+  // Optimistic close: the modal closes immediately and reopens, with the draft
+  // still holding the values, only if the request fails.
   async function onSubmit(data: DigitalCardRequest) {
     closeModalUrl();
 

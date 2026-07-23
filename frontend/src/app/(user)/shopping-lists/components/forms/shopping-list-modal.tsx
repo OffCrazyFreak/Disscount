@@ -41,7 +41,8 @@ export default function ShoppingListModal({
   const queryClient = useQueryClient();
   const isEdit = action === "edit" && !!id;
 
-  // Only seeds an instant value while the reactive by-id query settles.
+  // Only seeds an instant value while the reactive by-id query settles; by-id wins
+  // once loaded, since edits invalidate ["shoppingLists"] and refetch it.
   const cachedList = queryClient
     .getQueryData<ShoppingListDto[]>(["shoppingLists", "me"])
     ?.find((list) => list.id === id);
