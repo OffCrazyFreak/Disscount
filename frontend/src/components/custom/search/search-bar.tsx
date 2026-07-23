@@ -104,7 +104,7 @@ export default function SearchBar({
             {...registerProps}
             type="text"
             placeholder={placeholder}
-            aria-label={placeholder}
+            aria-label={placeholder || "Pretraži"}
             className="pl-10 pr-22 py-6 text-gray-500 focus:text-gray-700 bg-white"
             autoComplete="off"
           />
