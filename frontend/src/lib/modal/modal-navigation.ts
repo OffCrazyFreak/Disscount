@@ -9,7 +9,15 @@ export interface IOpenModalOptions {
   replace?: boolean;
 }
 
-// Never forward window.history.state: Next skips its router sync on its own __NA flag.
+// Plain functions (not hooks) reading window.location at call time, so open-modal
+// buttons anywhere (header, menus, cards) need no useSearchParams and its Suspense
+// boundary. Shallow pushState/replaceState leave the page untouched (no RSC refetch,
+// no scroll reset) while Next syncs useSearchParams, re-rendering the ModalRouter.
+//
+// IMPORTANT: never pass window.history.state through to pushState/replaceState. Next
+// treats state carrying its internal __NA flag as one of its OWN navigations and skips
+// the router sync entirely, so useSearchParams would never update. Passing only our
+// marker lets Next's copyNextJsInternalHistoryState re-attach its internals AND fire the sync.
 
 function hasModalMarker(): boolean {
   return !!window.history.state?.__disscountModal;
