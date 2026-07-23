@@ -11,20 +11,20 @@ const SWITCHES = [
     name: "notificationsPush",
     label: "Dopusti obavijesti aplikacije",
     description:
-      "Na mobilnu aplikaciju ćeš dobiti obavijesti za akcije o proizvodima koje odabereš.",
+      "Na mobilnu aplikaciju ćeš dobiti obavijesti za akcije isključivo o proizvodima koje odabereš, bez spama.",
     comingSoon: true,
   },
   {
     name: "notificationsEmail",
     label: "Dopusti email obavijesti",
     description:
-      "Na email ćeš dobiti obavijesti za akcije o proizvodima koje odabereš.",
+      "Na email ćeš dobiti obavijesti za akcije isključivo o proizvodima koje odabereš, bez spama.",
     comingSoon: true,
   },
   {
     name: "newsletter",
     label: "Novosti i ažuriranja",
-    description: "Povremene novosti o Disscountu na tvoj email.",
+    description: "Povremene novosti o Disscountu na tvoj email, bez spama.",
     comingSoon: true,
   },
   {
