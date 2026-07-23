@@ -9,14 +9,12 @@ import {
   extractPinnedStoreChainCodes,
   groupWatchlistItemsByProduct,
   isWatchThresholdReached,
-  IWatchlistItemWithProduct,
 } from "@/app/(user)/watchlist/utils/watchlist-utils";
+import type {
+  IWatchlistItemWithProduct,
+  IWatchlistSearchItem,
+} from "@/app/(user)/watchlist/utils/watchlist-types";
 import { useWatchlistSuggestions } from "@/app/(user)/watchlist/hooks/use-watchlist-suggestions";
-
-export interface IWatchlistSearchItem extends IWatchlistItemWithProduct {
-  productName: string;
-  brand: string;
-}
 
 export function useWatchlistData(query: string) {
   const { user, isAuthenticated, isLoading: userLoading } = useUser();

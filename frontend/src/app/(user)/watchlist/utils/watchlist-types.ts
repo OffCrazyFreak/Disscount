@@ -42,3 +42,8 @@ export interface IWatchlistItemWithProduct {
   isLoading: boolean;
   error: Error | null;
 }
+
+export interface IWatchlistSearchItem extends IWatchlistItemWithProduct {
+  productName: string;
+  brand: string;
+}
