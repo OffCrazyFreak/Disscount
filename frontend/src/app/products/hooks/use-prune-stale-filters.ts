@@ -9,8 +9,7 @@ import {
 import { normalizeForSearch } from "@/utils/strings";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import type { IUseProductFiltersResult } from "@/app/products/hooks/use-product-filters";
-
-const SEARCH_LIMIT = 100;
+import { PRODUCT_SEARCH_LIMIT } from "@/constants/products";
 
 function collectValues(
   products: ProductResponse[],
@@ -42,7 +41,7 @@ export default function usePruneStaleFilters(
   const { data } = useGetProductByName({
     q: query,
     fuzzy: false,
-    limit: SEARCH_LIMIT,
+    limit: PRODUCT_SEARCH_LIMIT,
   });
 
   const { selectedCategories, selectedBrands, setFilters } = filters;
@@ -52,7 +51,7 @@ export default function usePruneStaleFilters(
 
     // A full result set may be truncated, so a valid filter could match products we did not
     // fetch. Only prune when the set is complete, otherwise valid selections get dropped.
-    if (data.products.length >= SEARCH_LIMIT) return;
+    if (data.products.length >= PRODUCT_SEARCH_LIMIT) return;
 
     const categories = keepAvailable(
       selectedCategories,

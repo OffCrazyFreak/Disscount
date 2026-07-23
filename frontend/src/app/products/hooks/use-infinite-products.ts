@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useGetProductByName } from "@/lib/cijene-api";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { productMatchesFilters } from "@/app/products/utils/product-filters";
+import { PRODUCT_SEARCH_LIMIT } from "@/constants/products";
 
 interface IUseInfiniteProductsOptions {
   /** Resolved chain+location filter (null = unfiltered, empty = no overlap) */
@@ -45,7 +46,7 @@ export default function useInfiniteProducts(
   const { data, isLoading, error } = useGetProductByName({
     q,
     fuzzy: false,
-    limit: 100, // TODO: remove limit
+    limit: PRODUCT_SEARCH_LIMIT, // TODO: remove limit
   });
 
   const allProducts = useMemo(() => data?.products || [], [data?.products]);
