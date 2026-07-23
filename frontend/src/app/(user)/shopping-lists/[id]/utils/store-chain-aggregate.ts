@@ -23,7 +23,7 @@ export function buildChainAggregates(
 
     const quantity = shoppingItem.amount || 1;
 
-    product.chains.forEach((chain) => {
+    product.chains?.forEach((chain) => {
       const existing = chainMap.get(chain.chain);
 
       if (!existing) {
