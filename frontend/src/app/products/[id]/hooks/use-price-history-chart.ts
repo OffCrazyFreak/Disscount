@@ -84,7 +84,10 @@ export function usePriceHistoryChart(product: ProductResponse) {
   } = usePriceHistory({ ean: product.ean, days: daysToShow });
 
   const handlePeriodChange = useCallback((period: string) => {
-    setChartPrefs((p) => ({ ...p, period: period as PeriodOption }));
+    setChartPrefs((p) => ({
+      ...p,
+      period: getEnabledPeriod(period as PeriodOption),
+    }));
   }, []);
 
   const handleChainsChange = useCallback((chains: string[]) => {
