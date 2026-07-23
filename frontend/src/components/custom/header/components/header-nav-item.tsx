@@ -62,7 +62,7 @@ export default function HeaderNavItem({
           {label}
 
           {item.badge && hasNotifications && (
-            <Badge className="absolute -top-3.5 -right-4">
+            <Badge size="count" className="absolute -top-3.5 -right-4">
               {notificationCount}
             </Badge>
           )}

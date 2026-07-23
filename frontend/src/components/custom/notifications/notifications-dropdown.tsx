@@ -64,7 +64,7 @@ export default function NotificationsDropdown({
           <BellRingIcon size={18} />
 
           {hasNotifications && (
-            <Badge className="absolute -top-2 -right-1">
+            <Badge size="count" className="absolute -top-2 -right-1">
               {notifications.length}
             </Badge>
           )}
