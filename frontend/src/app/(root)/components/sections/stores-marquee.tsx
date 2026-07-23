@@ -34,7 +34,8 @@ function LogoRow({ ariaHidden = false }: ILogoRowProps) {
   );
 }
 
-// Two identical rows sliding by -50% is what makes the CSS loop seamless.
+// Two identical rows sliding by -50% make the CSS loop seamless; it pauses on
+// hover and stops under prefers-reduced-motion, both defined in globals.css.
 export default function StoresMarquee() {
   return (
     <div className="group/marquee relative overflow-x-clip">
