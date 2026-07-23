@@ -7,7 +7,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { StepperNumberInput } from "@/components/ui/stepper-number-input";
+import { StepperNumberInput } from "@/components/custom/form/stepper-number-input";
 import { AddToListFormData } from "@/app/products/typings/add-to-list";
 import { MAX_SHOPPING_LIST_ITEM_AMOUNT } from "@/constants/shopping-list";
 

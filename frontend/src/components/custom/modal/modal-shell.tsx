@@ -14,7 +14,7 @@ import {
   IModalShellFooterProps,
 } from "@/components/custom/modal/modal-shell-footer";
 import { UnsavedIndicator } from "@/components/custom/modal/unsaved-indicator";
-import { StaggerChildren } from "@/components/ui/stagger-children";
+import { StaggerChildren } from "@/components/custom/animation/stagger-children";
 import { cn } from "@/lib/utils";
 
 // TODO(responsive-drawer): add a `presentation?: "dialog" | "auto"` prop that renders

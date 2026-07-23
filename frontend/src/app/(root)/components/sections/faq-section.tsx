@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import { ScrollReveal } from "@/components/custom/animation/scroll-reveal";
 import SectionHeading from "@/app/(root)/components/sections/section-heading";
 import SquiggleUnderline from "@/app/(root)/components/doodles/squiggle-underline";
 import { faqItems } from "@/app/(root)/data/faq";

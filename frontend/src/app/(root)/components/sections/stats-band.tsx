@@ -1,4 +1,4 @@
-import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import { ScrollReveal } from "@/components/custom/animation/scroll-reveal";
 import SparkleField from "@/app/(root)/components/doodles/sparkle-field";
 import { statItems } from "@/app/(root)/data/landing";
 

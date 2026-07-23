@@ -15,7 +15,7 @@ import {
   MultiSelectItem,
   MultiSelectTrigger,
   MultiSelectValue,
-} from "@/components/ui/multi-select";
+} from "@/components/custom/form/multi-select";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
 

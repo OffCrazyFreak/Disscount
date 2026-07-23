@@ -3,7 +3,7 @@
 import { KeyRound } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
-import { PasswordInput } from "@/components/ui/password-input";
+import { PasswordInput } from "@/components/custom/form/password-input";
 import {
   Form,
   FormControl,

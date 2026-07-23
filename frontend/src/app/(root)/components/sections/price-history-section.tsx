@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import { ScrollReveal } from "@/components/custom/animation/scroll-reveal";
 import TextGlow from "@/components/custom/common/text-glow";
 import PriceLineDoodle from "@/app/(root)/components/doodles/price-line-doodle";
 

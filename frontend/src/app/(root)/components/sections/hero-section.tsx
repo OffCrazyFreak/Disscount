@@ -3,7 +3,7 @@ import HeroCart from "@/app/(root)/components/sections/hero-cart";
 import HeroTagline from "@/app/(root)/components/sections/hero-tagline";
 import SquiggleUnderline from "@/app/(root)/components/doodles/squiggle-underline";
 import SparkleField from "@/app/(root)/components/doodles/sparkle-field";
-import { StaggerChildren } from "@/components/ui/stagger-children";
+import { StaggerChildren } from "@/components/custom/animation/stagger-children";
 
 export default function HeroSection() {
   return (

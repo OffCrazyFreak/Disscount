@@ -1,4 +1,4 @@
-import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import { ScrollReveal } from "@/components/custom/animation/scroll-reveal";
 import SectionHeading from "@/app/(root)/components/sections/section-heading";
 import FeatureCard from "@/app/(root)/components/sections/feature-card";
 import { featureItems } from "@/app/(root)/data/features";

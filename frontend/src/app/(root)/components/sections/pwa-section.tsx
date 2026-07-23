@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { MonitorSmartphone, CloudOff, RefreshCw } from "lucide-react";
-import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import { ScrollReveal } from "@/components/custom/animation/scroll-reveal";
 import TextGlow from "@/components/custom/common/text-glow";
 
 const perks = [

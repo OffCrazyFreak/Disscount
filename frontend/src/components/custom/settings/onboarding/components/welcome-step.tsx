@@ -2,7 +2,7 @@
 
 import { UserRound, Bell, Store, LucideIcon } from "lucide-react";
 
-import { StaggerChildren } from "@/components/ui/stagger-children";
+import { StaggerChildren } from "@/components/custom/animation/stagger-children";
 
 const HIGHLIGHTS: { icon: LucideIcon; title: string; text: string }[] = [
   {

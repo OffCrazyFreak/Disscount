@@ -117,7 +117,7 @@ const buttonVariants = cva(
   },
 );
 
-export interface UnifiedButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface IUnifiedButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "success" | "secondary" | "destructive" | "ghost";
   size?: "sm" | "lg" | "default";
   shadow?: "flat" | "soft" | "base" | "deep" | "deeper";
@@ -136,7 +136,10 @@ export interface UnifiedButtonProps extends React.ButtonHTMLAttributes<HTMLButto
     | "primary";
 }
 
-const BgAnimateButton = React.forwardRef<HTMLButtonElement, UnifiedButtonProps>(
+const BgAnimateButton = React.forwardRef<
+  HTMLButtonElement,
+  IUnifiedButtonProps
+>(
   (
     {
       variant = "primary",
