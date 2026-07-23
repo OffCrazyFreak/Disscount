@@ -47,7 +47,7 @@ export default function ProductDetailClient({
       </section>
 
       <section>
-        <PriceHistory product={product} />
+        <PriceHistory key={product.ean} product={product} />
       </section>
 
       <section>
