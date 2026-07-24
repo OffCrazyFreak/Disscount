@@ -1,4 +1,4 @@
-const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
+export const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
 
 // Format as YYYY-MM-DD in local time; toISOString would shift a day near midnight.
 export function toLocalDateString(date: Date): string {

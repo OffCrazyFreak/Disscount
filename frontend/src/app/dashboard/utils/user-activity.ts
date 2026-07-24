@@ -1,7 +1,6 @@
 import type { ILabeledSelectOption } from "@/components/custom/common/labeled-select";
 import { UserDto } from "@/lib/api/types";
-
-const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
+import { MILLISECONDS_PER_DAY } from "@/utils/date";
 
 export const ACTIVITY_WINDOW_OPTIONS: ILabeledSelectOption[] = [
   { value: "1", label: "Zadnji 1 dan" },
