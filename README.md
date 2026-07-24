@@ -144,7 +144,7 @@ To run the services manually instead, follow the steps below.
 
 ### Prerequisites
 
-- Node.js 22 LTS+ and pnpm
+- Node.js 24 LTS+ and pnpm
 - Java 21 and Maven 3.9+
 - PostgreSQL 14+ (17 in production)
 - Docker + Docker Compose (only for the quick-run path above)
