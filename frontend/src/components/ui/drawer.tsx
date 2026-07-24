@@ -56,15 +56,24 @@ function DrawerContent({
   className,
   children,
   onPointerDownOutside,
+  ref,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Content>) {
   const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
+
+  // Compose the caller's ref with the internal one so {...props} can't drop it.
+  function setContentRef(node: HTMLDivElement | null) {
+    setContainer(node);
+
+    if (typeof ref === "function") ref(node);
+    else if (ref) ref.current = node;
+  }
 
   return (
     <DrawerPortal data-slot="drawer-portal">
       <DrawerOverlay />
       <DrawerPrimitive.Content
-        ref={setContainer}
+        ref={setContentRef}
         data-slot="drawer-content"
         onPointerDownOutside={(event) => {
           onPointerDownOutside?.(event);
