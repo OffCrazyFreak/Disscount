@@ -34,12 +34,17 @@ function mergeByEan(
   fuzzy: ProductResponse[],
   limit: number,
 ): ProductResponse[] {
-  const alreadyMatched = new Set(exact.map((product) => product.ean));
+  const seen = new Set(exact.map((product) => product.ean));
+  const merged = [...exact];
 
-  return [
-    ...exact,
-    ...fuzzy.filter((product) => !alreadyMatched.has(product.ean)),
-  ].slice(0, limit);
+  for (const product of fuzzy) {
+    if (seen.has(product.ean)) continue;
+
+    seen.add(product.ean);
+    merged.push(product);
+  }
+
+  return merged.slice(0, limit);
 }
 
 /**
