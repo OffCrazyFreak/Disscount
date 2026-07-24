@@ -30,13 +30,20 @@ export default function AdminActivityCard({
   isError,
 }: IAdminActivityCardProps) {
   const [windowDays, setWindowDays] = useState(defaultWindowDays);
+  const isDefaultWindow = windowDays === defaultWindowDays;
 
   return (
     <Card className="gap-4 py-6">
       <CardHeader>
         <CardTitle className="text-muted-foreground text-sm font-medium">
-          {title}{" "}
-          <span className="text-muted-foreground/70">({abbreviation})</span>
+          {isDefaultWindow ? (
+            <>
+              {title}{" "}
+              <span className="text-muted-foreground/70">({abbreviation})</span>
+            </>
+          ) : (
+            "Aktivni korisnici"
+          )}
         </CardTitle>
       </CardHeader>
 
