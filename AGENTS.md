@@ -54,7 +54,7 @@ Versions live in `frontend/package.json` (the source of truth) - read them there
 Installed libs - reach for these instead of reinventing them (names only, versions in `package.json`):
 
 - Core: next, react, react-dom
-- Auth: better-auth, @daveyplate/better-auth-ui
+- Auth: better-auth
 - DB: drizzle-orm, drizzle-kit, pg, kysely
 - Data & state: @tanstack/react-query (+ devtools, persist-client, query-async-storage-persister), @tanstack/react-virtual
 - Forms & validation: react-hook-form, @hookform/resolvers, zod
@@ -122,10 +122,10 @@ Installed libs - reach for these instead of reinventing them (versions in `pom.x
 
 - Spring Boot starters: data-jpa, web, validation, security, oauth2-resource-server, mail, actuator
 - DB driver: postgresql
-- API docs: springdoc-openapi (Swagger UI at `/api-docs`)
+- API docs: springdoc-openapi (Swagger UI at `/api-docs`) - its major tracks the Spring Boot major, so 2.x for Boot 3.x and 3.x for Boot 4.x
 - Monitoring: sentry-spring-boot-starter-jakarta
 - Boilerplate: lombok
-- Config: spring-dotenv (me.paulschwarz)
+- Config: springboot3-dotenv (me.paulschwarz), the Boot 3 module of spring-dotenv since its 5.0.1 artifact split
 - Testing: spring-boot-starter-test, spring-security-test, h2
 
 # Deployment

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "license": "BUSL-1.1",
+  "packageManager": "pnpm@11.9.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
@@ -44,7 +45,7 @@
     "kysely": "0.28.17",
     "lucide-react": "^0.561.0",
     "motion": "^12.23.26",
-    "next": "16.2.9",
+    "next": "16.2.11",
     "pg": "8.21.0",
     "radix-ui": "^1.4.3",
     "react": "19.2.4",

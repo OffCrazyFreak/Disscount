@@ -3,3 +3,6 @@
 // total count, or facet aggregation, so facet counts cover at most the first 100
 // matches (issue #93). Going beyond that needs upstream search-layer support.
 export const PRODUCT_SEARCH_LIMIT = 100;
+
+// Upstream's own default for GET /v1/products when `limit` is omitted.
+export const UPSTREAM_DEFAULT_SEARCH_LIMIT = 20;

@@ -76,7 +76,6 @@ export default function useProductFacets(
   // Same request as the results list, so both derive from one cache entry.
   const { data: facetData } = useGetProductByName({
     q: query,
-    fuzzy: false,
     limit: PRODUCT_SEARCH_LIMIT,
   });
 

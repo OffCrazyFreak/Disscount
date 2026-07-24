@@ -1,13 +1,13 @@
 # syntax=docker/dockerfile:1
 
 # ---- Base: Node + pinned pnpm ----
-FROM node:22-slim AS base
+FROM node:24-slim AS base
 RUN npm install -g pnpm@11.9.0
 WORKDIR /app
 
 # ---- deps: install all dependencies, cached on the lockfile ----
 FROM base AS deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 # --ignore-scripts: skip lifecycle scripts (pnpm 11 otherwise errors on unapproved build
 # scripts with no interactive approve-builds in Docker). The packages that have build scripts
 # (sharp, esbuild, etc.) ship prebuilt platform binaries via optional deps, and the rest

@@ -43,7 +43,6 @@ export default function useInfiniteProducts(
   // One unfiltered request, filtered client-side, so facet counts match results.
   const { data, isLoading, error } = useGetProductByName({
     q,
-    fuzzy: false,
     limit: PRODUCT_SEARCH_LIMIT, // Raising this needs paging upstream: >100 is a 422.
   });
 
