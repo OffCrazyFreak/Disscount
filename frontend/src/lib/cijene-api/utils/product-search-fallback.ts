@@ -27,6 +27,10 @@ function countProducts(data: unknown): number | null {
   return parsed.success ? parsed.data.products.length : null;
 }
 
+function hasExplicitSearchMode(params: SearchProductsParams): boolean {
+  return params.fuzzy !== undefined;
+}
+
 function mergeByEan(
   exact: ProductResponse[],
   fuzzy: ProductResponse[],
@@ -49,21 +53,15 @@ function mergeByEan(
  * Searches exactly first and tops the result up with fuzzy matches when the
  * exact pass comes back nearly empty, so a typo still finds something without
  * costing ranking quality on the queries that already work.
- *
- * Only an omitted `fuzzy` opts into that behaviour; an explicit value of either
- * kind is the caller stating what they want, so it is forwarded untouched.
  */
 export async function searchProductsWithFuzzyFallback(
   params: SearchProductsParams,
 ): Promise<{ data: unknown }> {
-  if (params.fuzzy !== undefined) return fetchProducts(params);
+  if (hasExplicitSearchMode(params)) return fetchProducts(params);
 
   const exact = await fetchProducts({ ...params, fuzzy: false });
   const exactCount = countProducts(exact.data);
   const effectiveLimit = params.limit ?? UPSTREAM_DEFAULT_SEARCH_LIMIT;
-
-  // Upstream already truncated the page to `limit`, so a small limit can never
-  // reach the flat threshold and would retry on an already-full page.
   const fallbackThreshold = Math.min(FUZZY_FALLBACK_THRESHOLD, effectiveLimit);
 
   if (exactCount === null || exactCount >= fallbackThreshold) {

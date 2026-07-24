@@ -4,6 +4,5 @@
 // matches (issue #93). Going beyond that needs upstream search-layer support.
 export const PRODUCT_SEARCH_LIMIT = 100;
 
-// The page size upstream applies when a request omits `limit`. The fuzzy
-// fallback needs it to cap merged results the way an exact-only call would.
+// Upstream's own default for GET /v1/products when `limit` is omitted.
 export const UPSTREAM_DEFAULT_SEARCH_LIMIT = 20;
