@@ -49,7 +49,6 @@ Notes:
 Versions live in `frontend/package.json` (the source of truth) - read them there instead of duplicating them. Non-obvious choices:
 
 - Several core deps (`next`, `react`, `better-auth`, `drizzle-orm`, `kysely`, `pg`, `recharts`) are pinned exactly (no `^`) on purpose - keep them that way.
-- `kysely` is held at `0.28.17` because better-auth's kysely-adapter breaks on `0.29`.
 
 Installed libs - reach for these instead of reinventing them (names only, versions in `package.json`):
 
