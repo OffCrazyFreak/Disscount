@@ -1,11 +1,10 @@
 "use client";
 
-import LabeledSelect, {
-  type ILabeledSelectOption,
-} from "@/components/custom/common/labeled-select";
+import LabeledSelect from "@/components/custom/common/labeled-select";
+import type { ILabeledSelectOption } from "@/typings/labeled-select-option";
 import type { ProductChainSortMode } from "@/app/products/utils/product-chain-sort";
 
-const SORT_OPTIONS: ILabeledSelectOption[] = [
+const SORT_OPTIONS: ILabeledSelectOption<ProductChainSortMode>[] = [
   { value: "stores", label: "Trgovinama" },
   { value: "price", label: "Cijeni" },
   { value: "distance", label: "Udaljenosti", comingSoon: true },

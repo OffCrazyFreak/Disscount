@@ -9,12 +9,13 @@ import { UserDto } from "@/lib/api/schemas/auth-user";
 import {
   ACTIVITY_WINDOW_OPTIONS,
   countActiveUsers,
+  type ActivityWindowDays,
 } from "@/app/dashboard/utils/user-activity";
 
 interface IAdminActivityCardProps {
   title: string;
   abbreviation: string;
-  defaultWindowDays: string;
+  defaultWindowDays: ActivityWindowDays;
   users: UserDto[] | undefined;
   isLoading: boolean;
   isError: boolean;

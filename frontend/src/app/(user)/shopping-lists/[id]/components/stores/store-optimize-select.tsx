@@ -1,9 +1,8 @@
-import LabeledSelect, {
-  type ILabeledSelectOption,
-} from "@/components/custom/common/labeled-select";
+import LabeledSelect from "@/components/custom/common/labeled-select";
+import type { ILabeledSelectOption } from "@/typings/labeled-select-option";
 import type { StoreOptimizeMode } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
 
-const OPTIMIZE_OPTIONS: ILabeledSelectOption[] = [
+const OPTIMIZE_OPTIONS: ILabeledSelectOption<StoreOptimizeMode>[] = [
   { value: "products", label: "Broj proizvoda" },
   { value: "basket", label: "Najjeftinija košarica" },
   { value: "total", label: "Zasebnim proizvodima" },

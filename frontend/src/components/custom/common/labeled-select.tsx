@@ -8,18 +8,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
-
-export interface ILabeledSelectOption {
-  value: string;
-  label: string;
-  comingSoon?: boolean;
-}
+import type { ILabeledSelectOption } from "@/typings/labeled-select-option";
 
 interface ILabeledSelectProps<TValue extends string> {
   label: string;
   value: TValue;
   onValueChange: (value: TValue) => void;
-  options: readonly ILabeledSelectOption[];
+  options: readonly ILabeledSelectOption<TValue>[];
 }
 
 /** Leading label and dropdown, shared by every control that narrows or reorders a list. */
@@ -35,7 +30,10 @@ export default function LabeledSelect<TValue extends string>({
 
       <Select
         value={value}
-        onValueChange={(next) => onValueChange(next as TValue)}
+        onValueChange={(next) => {
+          const selected = options.find((option) => option.value === next);
+          if (selected) onValueChange(selected.value);
+        }}
       >
         {/* The trigger keeps the primitive's w-fit so its label never clips, and
             min-h beats the primitive's own height where a plain h- utility loses. */}
