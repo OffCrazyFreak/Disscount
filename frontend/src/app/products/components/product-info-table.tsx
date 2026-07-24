@@ -47,7 +47,7 @@ export default function ProductInfoTable({ product }: IProductInfoTableProps) {
               </td>
               <td className="p-2 flex-1">
                 <span className="font-bold">Cijene: </span>
-                {product.chains.length > 0 ? (
+                {minPrice !== null && maxPrice !== null ? (
                   minPrice === maxPrice ? (
                     <span className="whitespace-nowrap text-gray-700">
                       {minPrice.toFixed(2)}€

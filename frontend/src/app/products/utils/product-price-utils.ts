@@ -3,9 +3,9 @@ import {
   ProductResponse,
 } from "@/lib/cijene-api/schemas";
 
-const minPriceCache = new WeakMap<ProductResponse, number>();
-const maxPriceCache = new WeakMap<ProductResponse, number>();
-const avgPriceCache = new WeakMap<ProductResponse, number>();
+const minPriceCache = new WeakMap<ProductResponse, number | null>();
+const maxPriceCache = new WeakMap<ProductResponse, number | null>();
+const avgPriceCache = new WeakMap<ProductResponse, number | null>();
 
 export function parsePrice(value: string): number | null {
   const parsed = Number.parseFloat(value);
@@ -17,61 +17,49 @@ export function parsePrice(value: string): number | null {
   return parsed;
 }
 
-export function getMinPrice(product: ProductResponse): number {
+export function getMinPrice(product: ProductResponse): number | null {
   if (minPriceCache.has(product)) {
     return minPriceCache.get(product)!;
   }
 
   const prices = product.chains
-    .map((c) => parseFloat(c.min_price))
-    .filter((price) => Number.isFinite(price));
-  const min = prices.length > 0 ? Math.min(...prices) : 0;
-  const finalMin = Number.isFinite(min) ? min : 0;
+    .map((chain) => parsePrice(chain.min_price))
+    .filter((price): price is number => price !== null);
+  const min = prices.length > 0 ? Math.min(...prices) : null;
 
-  minPriceCache.set(product, finalMin);
-  return finalMin;
+  minPriceCache.set(product, min);
+  return min;
 }
 
-export function getMaxPrice(product: ProductResponse): number {
+export function getMaxPrice(product: ProductResponse): number | null {
   if (maxPriceCache.has(product)) {
     return maxPriceCache.get(product)!;
   }
 
   const prices = product.chains
-    .map((c) => parseFloat(c.max_price))
-    .filter((price) => Number.isFinite(price));
-  const max = prices.length > 0 ? Math.max(...prices) : 0;
-  const finalMax = Number.isFinite(max) ? max : 0;
+    .map((chain) => parsePrice(chain.max_price))
+    .filter((price): price is number => price !== null);
+  const max = prices.length > 0 ? Math.max(...prices) : null;
 
-  maxPriceCache.set(product, finalMax);
-  return finalMax;
+  maxPriceCache.set(product, max);
+  return max;
 }
 
-export function getAveragePrice(product: ProductResponse): number {
+export function getAveragePrice(product: ProductResponse): number | null {
   if (avgPriceCache.has(product)) {
     return avgPriceCache.get(product)!;
   }
 
-  if (product.chains.length > 0) {
-    let sum = 0;
-    let count = 0;
+  const prices = product.chains
+    .map((chain) => parsePrice(chain.avg_price))
+    .filter((price): price is number => price !== null);
+  const avg =
+    prices.length > 0
+      ? prices.reduce((sum, price) => sum + price, 0) / prices.length
+      : null;
 
-    for (const chain of product.chains) {
-      const parsed = parseFloat(chain.avg_price);
-      if (Number.isFinite(parsed)) {
-        sum += parsed;
-        count += 1;
-      }
-    }
-
-    const avg = sum / count;
-    if (Number.isFinite(avg)) {
-      avgPriceCache.set(product, avg);
-      return avg;
-    }
-  }
-
-  return 0;
+  avgPriceCache.set(product, avg);
+  return avg;
 }
 
 export function getCheapestChainByMinPrice(

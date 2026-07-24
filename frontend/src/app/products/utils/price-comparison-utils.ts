@@ -2,9 +2,9 @@ import { PriceExtreme } from "@/app/products/utils/price-comparison-types";
 
 // Uniform prices (min === max) return null so every view renders them neutrally.
 export function getPriceExtreme(
-  value: number,
-  min: number,
-  max: number,
+  value: number | null,
+  min: number | null,
+  max: number | null,
 ): PriceExtreme {
   if (![value, min, max].every(Number.isFinite)) {
     return null;
