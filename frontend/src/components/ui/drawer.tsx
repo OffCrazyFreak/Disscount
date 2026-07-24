@@ -4,6 +4,7 @@ import * as React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
 
 import { cn } from "@/lib/utils";
+import { PortalContainerProvider } from "@/context/portal-container-context";
 
 function Drawer({
   ...props
@@ -55,12 +56,24 @@ function DrawerContent({
   className,
   children,
   onPointerDownOutside,
+  ref,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Content>) {
+  const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
+
+  // Compose the caller's ref with the internal one so {...props} can't drop it.
+  function setContentRef(node: HTMLDivElement | null) {
+    setContainer(node);
+
+    if (typeof ref === "function") ref(node);
+    else if (ref) ref.current = node;
+  }
+
   return (
     <DrawerPortal data-slot="drawer-portal">
       <DrawerOverlay />
       <DrawerPrimitive.Content
+        ref={setContentRef}
         data-slot="drawer-content"
         onPointerDownOutside={(event) => {
           onPointerDownOutside?.(event);
@@ -86,7 +99,9 @@ function DrawerContent({
         <div className="mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full bg-muted group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
         <div className="absolute top-1/2 right-2 hidden h-[100px] w-2 -translate-y-1/2 rounded-full bg-muted group-data-[vaul-drawer-direction=left]/drawer-content:block" />
         <div className="absolute top-1/2 left-2 hidden h-[100px] w-2 -translate-y-1/2 rounded-full bg-muted group-data-[vaul-drawer-direction=right]/drawer-content:block" />
-        {children}
+        <PortalContainerProvider container={container}>
+          {children}
+        </PortalContainerProvider>
       </DrawerPrimitive.Content>
     </DrawerPortal>
   );
