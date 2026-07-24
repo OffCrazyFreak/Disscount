@@ -46,11 +46,14 @@ function mergeByEan(
  * Searches exactly first and tops the result up with fuzzy matches when the
  * exact pass comes back nearly empty, so a typo still finds something without
  * costing ranking quality on the queries that already work.
+ *
+ * Only an omitted `fuzzy` opts into that behaviour; an explicit value of either
+ * kind is the caller stating what they want, so it is forwarded untouched.
  */
 export async function searchProductsWithFuzzyFallback(
   params: SearchProductsParams,
 ): Promise<{ data: unknown }> {
-  if (params.fuzzy) return fetchProducts(params);
+  if (params.fuzzy !== undefined) return fetchProducts(params);
 
   const exact = await fetchProducts({ ...params, fuzzy: false });
   const exactCount = countProducts(exact.data);
