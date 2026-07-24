@@ -7,12 +7,14 @@ import {
   SidebarMenu,
 } from "@/components/ui/sidebar";
 
-/** Group chrome shared by the product nav and the skeleton that stands in for it. */
+interface ISidebarProductNavShellProps {
+  children: ReactNode;
+}
+
+/** Group chrome shared by the product nav and the skeletons standing in for it. */
 export default function SidebarProductNavShell({
   children,
-}: {
-  children: ReactNode;
-}) {
+}: ISidebarProductNavShellProps) {
   return (
     <SidebarGroup className="py-1">
       <SidebarGroupLabel>Istraži</SidebarGroupLabel>

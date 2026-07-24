@@ -3,7 +3,10 @@ import {
   ProductResponse,
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
-import { getPriceExtreme } from "@/app/products/utils/product-utils";
+import {
+  getChainAvgPriceRange,
+  getPriceExtreme,
+} from "@/app/products/utils/product-utils";
 
 export interface IChainItemPriceInfo {
   isAvailable: boolean;
@@ -22,7 +25,7 @@ export function getChainItemPriceInfo(
   const product = productsData.find((p) => p?.ean === item.ean);
 
   const chainData = product?.chains?.find(
-    (c: { chain: string; avg_price: string }) => c.chain === chain.chain,
+    (candidate) => candidate.chain === chain.chain,
   );
 
   const isAvailable = Boolean(chainData);
@@ -31,21 +34,13 @@ export function getChainItemPriceInfo(
   const quantity = item.amount || 1;
   const total = price * quantity;
 
-  const allChainPrices =
-    product?.chains
-      ?.map((c: { chain: string; avg_price: string }) =>
-        parseFloat(c.avg_price),
-      )
-      .filter((p) => !isNaN(p)) || [];
-  const minPriceAcrossChains =
-    allChainPrices.length > 0 ? Math.min(...allChainPrices) : 0;
-  const maxPriceAcrossChains =
-    allChainPrices.length > 0 ? Math.max(...allChainPrices) : 0;
+  const range = getChainAvgPriceRange(product);
 
   // getPriceExtreme returns null when min === max, so uniform prices stay unflagged.
-  const priceExtreme = isAvailable
-    ? getPriceExtreme(price, minPriceAcrossChains, maxPriceAcrossChains)
-    : null;
+  const priceExtreme =
+    isAvailable && range
+      ? getPriceExtreme(price, range.min, range.max)
+      : null;
 
   return {
     isAvailable,

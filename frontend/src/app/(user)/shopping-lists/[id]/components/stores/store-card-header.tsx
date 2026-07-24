@@ -54,10 +54,26 @@ export default function StoreCardHeader({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1 flex-wrap">
             {hasLowestPriceItem && (
-              <ArrowBigDownDash className="size-5 text-green-600 flex-shrink-0" />
+              <>
+                <ArrowBigDownDash
+                  className="size-5 text-green-600 flex-shrink-0"
+                  aria-hidden="true"
+                />
+                <span className="sr-only">
+                  ima proizvod s najnižom cijenom
+                </span>
+              </>
             )}
             {hasHighestPriceItem && (
-              <ArrowBigUpDash className="size-5 text-red-700 flex-shrink-0" />
+              <>
+                <ArrowBigUpDash
+                  className="size-5 text-red-700 flex-shrink-0"
+                  aria-hidden="true"
+                />
+                <span className="sr-only">
+                  ima proizvod s najvišom cijenom
+                </span>
+              </>
             )}
 
             <h3 className="font-semibold text-foreground">

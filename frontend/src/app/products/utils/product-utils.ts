@@ -3,6 +3,7 @@ export {
   getMinPrice,
   getMaxPrice,
   getAveragePrice,
+  getChainAvgPriceRange,
   getCheapestChainByMinPrice,
 } from "@/app/products/utils/product-price-utils";
 

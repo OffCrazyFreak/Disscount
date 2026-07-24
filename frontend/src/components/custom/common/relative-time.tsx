@@ -9,11 +9,7 @@ interface IRelativeTimeProps {
   fallback?: string;
 }
 
-/**
- * Renders a server timestamp as "prije 5 minuta", with the full date and time
- * behind it. Shows the absolute value until mounted, because formatRelativeTime
- * reads Date.now() and would otherwise disagree with the server render.
- */
+/** A server timestamp as "prije 5 minuta", with the full date and time behind it. */
 export default function RelativeTime({
   value,
   fallback = "-",
@@ -24,6 +20,8 @@ export default function RelativeTime({
   if (Number.isNaN(timestamp)) return <>{fallback}</>;
 
   const absolute = formatDateTime(value);
+
+  // formatRelativeTime reads Date.now(), so the server render would disagree.
   if (!mounted) return <span>{absolute}</span>;
 
   return <span title={absolute}>{formatRelativeTime(timestamp)}</span>;

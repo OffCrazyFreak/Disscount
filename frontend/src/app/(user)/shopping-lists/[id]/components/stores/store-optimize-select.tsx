@@ -3,10 +3,10 @@ import type { ILabeledSelectOption } from "@/typings/labeled-select-option";
 import type { StoreOptimizeMode } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
 
 const OPTIMIZE_OPTIONS: ILabeledSelectOption<StoreOptimizeMode>[] = [
-  { value: "products", label: "Broj proizvoda" },
-  { value: "basket", label: "Najjeftinija košarica" },
+  { value: "products", label: "Broju proizvoda" },
+  { value: "basket", label: "Najjeftinijoj košarici" },
   { value: "total", label: "Zasebnim proizvodima" },
-  { value: "distance", label: "Udaljenost", comingSoon: true },
+  { value: "distance", label: "Udaljenosti", comingSoon: true },
 ];
 
 interface IStoreOptimizeSelectProps {
@@ -14,7 +14,6 @@ interface IStoreOptimizeSelectProps {
   onValueChange: (mode: StoreOptimizeMode) => void;
 }
 
-/** Picks which store chains lead the list for a shopping list. */
 export default function StoreOptimizeSelect({
   value,
   onValueChange,
