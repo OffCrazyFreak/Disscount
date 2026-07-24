@@ -1,41 +1,5 @@
-import Link from "next/link";
-import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
-import { storeNamesMap } from "@/constants/name-mappings";
-import { getChainLabel } from "@/utils/labels";
+import LogoRow from "@/app/(root)/components/sections/logo-row";
 
-const chains = Object.keys(storeNamesMap);
-
-interface ILogoRowProps {
-  ariaHidden?: boolean;
-}
-
-function LogoRow({ ariaHidden = false }: ILogoRowProps) {
-  return (
-    <ul
-      aria-hidden={ariaHidden || undefined}
-      className="flex shrink-0 items-center gap-4 pr-4"
-    >
-      {chains.map((chain) => (
-        <li key={chain} className="shrink-0">
-          <Link
-            href={`/products?chain=${chain}`}
-            aria-label={`Pogledaj cijene - ${getChainLabel(chain)}`}
-            tabIndex={ariaHidden ? -1 : undefined}
-            className="grid size-16 sm:size-20 cursor-pointer place-items-center rounded-2xl border bg-white p-2.5 shadow-sm transition-transform hover:scale-105"
-          >
-            <StoreChainLogo
-              chain={chain}
-              className="object-contain rounded-lg"
-            />
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-// Two identical rows sliding by -50% make the CSS loop seamless; it pauses on
-// hover and stops under prefers-reduced-motion, both defined in globals.css.
 export default function StoresMarquee() {
   return (
     <div className="group/marquee relative overflow-x-clip">

@@ -14,16 +14,16 @@ const ProductInfo = memo(function ProductInfo({
   category,
 }: IProductInfoProps) {
   return (
-    <div className="flex-1">
+    <div className="min-w-0 flex-1">
       {category && (
-        <div className="text-xs sm:text-sm text-gray-500">{category}</div>
+        <div className="text-xs @md:text-sm text-gray-500">{category}</div>
       )}
 
-      <h3 className="font-bold text-sm sm:text-base text-pretty">
-        {name || "Unknown product name"}
+      <h3 className="font-bold text-sm @md:text-base text-pretty">
+        {name || "Nepoznat proizvod"}
       </h3>
 
-      {brand && <div className="text-xs sm:text-sm">{brand}</div>}
+      {brand && <div className="text-xs @md:text-sm">{brand}</div>}
     </div>
   );
 });
