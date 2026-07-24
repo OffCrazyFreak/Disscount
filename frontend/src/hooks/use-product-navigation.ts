@@ -15,7 +15,7 @@ export default function useProductNavigation() {
       queryClient.setQueryData(productByEanQueryKey(ean), product);
     }
 
-    router.push(`/products/${ean}`);
+    router.push(`/products/${encodeURIComponent(ean)}`);
   }
 
   return navigateToProduct;
