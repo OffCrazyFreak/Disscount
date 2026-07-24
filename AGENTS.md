@@ -46,8 +46,6 @@ Notes:
 
 ## Tech stack
 
-Versions live in `frontend/package.json` (the source of truth) - read them there instead of duplicating them.
-
 Installed libs - reach for these instead of reinventing them (names only, versions in `package.json`):
 
 - Core: next, react, react-dom
@@ -110,7 +108,7 @@ NEVER run "mvn spring-boot:run" or any other development server command, because
 
 ## Tech stack
 
-Versions are managed by the Spring Boot parent (`3.1.0`) in `backend/pom.xml` - read them there. Non-obvious notes:
+Non-obvious notes:
 
 - Java 21; the app is a resource server - `oauth2-resource-server` validates better-auth's ES256 JWTs via JWKS.
 - Tests run against H2.
