@@ -46,9 +46,7 @@ Notes:
 
 ## Tech stack
 
-Versions live in `frontend/package.json` (the source of truth) - read them there instead of duplicating them. Non-obvious choices:
-
-- Several core deps (`next`, `react`, `better-auth`, `drizzle-orm`, `kysely`, `pg`, `recharts`) are pinned exactly (no `^`) on purpose - keep them that way.
+Versions live in `frontend/package.json` (the source of truth) - read them there instead of duplicating them.
 
 Installed libs - reach for these instead of reinventing them (names only, versions in `package.json`):
 
