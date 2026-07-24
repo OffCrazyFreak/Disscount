@@ -4,7 +4,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 
-import { authClient } from "@/lib/auth/client";
+import fetchAuthToken from "@/lib/auth/token";
 
 const API_PUBLIC_BASE = process.env.NEXT_PUBLIC_API_URL;
 
@@ -63,8 +63,7 @@ function clearTokenCache() {
 
 async function requestFreshToken(): Promise<string | null> {
   try {
-    const result = await authClient.token();
-    const token = result?.data?.token ?? null;
+    const token = await fetchAuthToken();
 
     if (!token) {
       clearTokenCache();
