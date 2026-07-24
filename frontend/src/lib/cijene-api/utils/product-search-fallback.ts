@@ -5,6 +5,7 @@ import {
   SearchProductsParams,
   productSearchResponseSchema,
 } from "@/lib/cijene-api/schemas";
+import { UPSTREAM_DEFAULT_SEARCH_LIMIT } from "@/constants/products";
 import { buildQueryString } from "@/utils/generic";
 
 /**
@@ -13,9 +14,6 @@ import { buildQueryString } from "@/utils/generic";
  * exact returns almost nothing: https://github.com/senko/cijene-api/issues/65
  */
 const FUZZY_FALLBACK_THRESHOLD = 10;
-
-/** Upstream's own default when `limit` is omitted. */
-const UPSTREAM_DEFAULT_LIMIT = 20;
 
 const searchResultCountSchema = z.object({ products: z.array(z.unknown()) });
 
@@ -62,7 +60,7 @@ export async function searchProductsWithFuzzyFallback(
 
   const exact = await fetchProducts({ ...params, fuzzy: false });
   const exactCount = countProducts(exact.data);
-  const effectiveLimit = params.limit ?? UPSTREAM_DEFAULT_LIMIT;
+  const effectiveLimit = params.limit ?? UPSTREAM_DEFAULT_SEARCH_LIMIT;
 
   // Upstream already truncated the page to `limit`, so a small limit can never
   // reach the flat threshold and would retry on an already-full page.
