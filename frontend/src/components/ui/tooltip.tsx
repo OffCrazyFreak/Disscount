@@ -20,6 +20,7 @@ const tooltipContentVariants = cva(
         warning: "bg-amber-200 text-amber-700",
         warningSoft:
           "bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-300",
+        neutral: "bg-popover text-popover-foreground border shadow-md",
       },
     },
     defaultVariants: { variant: "primary" },
@@ -38,6 +39,7 @@ const tooltipArrowVariants = cva(
         warning: "bg-amber-200 fill-amber-200 text-amber-700",
         warningSoft:
           "bg-amber-50 fill-amber-50 text-amber-600 dark:bg-amber-950 dark:fill-amber-950 dark:text-amber-300",
+        neutral: "bg-popover fill-popover",
       },
     },
     defaultVariants: { variant: "primary" },

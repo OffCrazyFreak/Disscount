@@ -1,6 +1,7 @@
-import { useMemo, type ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import { ProductResponse } from "@/lib/cijene-api/schemas";
+import { getMostFrequentCategory } from "@/app/products/utils/product-utils";
 import ProductActionButtons from "@/app/products/components/product-action-buttons";
 import ProductInfoTable from "@/app/products/components/product-info-table";
 import { Button } from "@/components/ui/button";
@@ -21,39 +22,15 @@ export default function ProductInfoDisplay({
 }: IProductInfoDisplayProps) {
   const router = useRouter();
 
-  const handleBackClick = () => {
+  function handleBackClick() {
     if (window.history.length > 1) {
       router.back();
     } else {
       router.push("/");
     }
-  };
+  }
 
-  // Get the most common category from chains (similar to ProductCard logic)
-  const category = useMemo(() => {
-    if (!product.chains || product.chains.length === 0) return null;
-
-    const categoryCount: Record<string, number> = {};
-
-    product.chains.forEach((chain) => {
-      if (chain.category) {
-        categoryCount[chain.category] =
-          (categoryCount[chain.category] || 0) + 1;
-      }
-    });
-
-    let mostFrequentCategory = null;
-    let maxCount = 0;
-
-    for (const [cat, count] of Object.entries(categoryCount)) {
-      if (count > maxCount) {
-        maxCount = count;
-        mostFrequentCategory = cat;
-      }
-    }
-
-    return mostFrequentCategory;
-  }, [product.chains]);
+  const category = getMostFrequentCategory(product);
 
   return (
     <div className="space-y-4">
