@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---- Base: Node + pinned pnpm ----
-FROM node:22-slim AS base
+FROM node:24-slim AS base
 RUN npm install -g pnpm@11.9.0
 WORKDIR /app
 
