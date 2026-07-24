@@ -3,6 +3,7 @@ package disscount.user.service;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +20,9 @@ import disscount.exceptions.ForbiddenException;
 
 import java.sql.Timestamp;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +33,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class UserService {
 
     // Coarse enough that a browsing session costs one extra write, fine enough for daily buckets.
@@ -233,7 +237,7 @@ public class UserService {
         dto.setLastActiveAt(latestOf(dto.getLastActiveAt(), identity.lastSeenAt()));
     }
 
-    private LocalDateTime latestOf(LocalDateTime first, LocalDateTime second) {
+    private Instant latestOf(Instant first, Instant second) {
         if (first == null) return second;
         if (second == null) return first;
         return first.isAfter(second) ? first : second;
@@ -256,16 +260,25 @@ public class UserService {
         for (Object[] row : rows) {
             identitiesById.put(
                     (UUID) row[0],
-                    new AuthIdentity((String) row[1], toLocalDateTime(row[2]), toLocalDateTime(row[3]))
+                    new AuthIdentity((String) row[1], toInstant(row[2]), toInstant(row[3]))
             );
         }
         return identitiesById;
     }
 
-    // Native aggregates come back as Timestamp on some drivers and LocalDateTime on others.
-    private LocalDateTime toLocalDateTime(Object value) {
-        if (value instanceof Timestamp timestamp) return timestamp.toLocalDateTime();
-        if (value instanceof LocalDateTime localDateTime) return localDateTime;
+    // Native aggregates come back as a different scalar per driver, and the zone-less ones are
+    // UTC because that is what better-auth writes. An unmapped type is logged rather than
+    // silently nulled, which would blank the whole column for every user.
+    private Instant toInstant(Object value) {
+        if (value == null) return null;
+        // toLocalDateTime() first, deliberately: the driver builds a Timestamp for a zone-less
+        // column by reading it in the JVM zone, so toInstant() would re-apply that offset.
+        if (value instanceof Timestamp timestamp) return timestamp.toLocalDateTime().toInstant(ZoneOffset.UTC);
+        if (value instanceof Instant instant) return instant;
+        if (value instanceof OffsetDateTime offsetDateTime) return offsetDateTime.toInstant();
+        if (value instanceof LocalDateTime localDateTime) return localDateTime.toInstant(ZoneOffset.UTC);
+
+        log.warn("Unmapped session timestamp type {}, treating as null", value.getClass().getName());
         return null;
     }
 
@@ -317,7 +330,12 @@ public class UserService {
                 .onboardingOutcome(user.getOnboardingOutcome())
                 .accountType(user.getAccountType())
                 .createdAt(user.getCreatedAt())
-                .lastActiveAt(user.getLastActiveAt())
+                .lastActiveAt(toUtcInstant(user.getLastActiveAt()))
                 .build();
+    }
+
+    // The column is zone-less but written by nowUtc(), so UTC is the offset it was stamped with.
+    private Instant toUtcInstant(LocalDateTime value) {
+        return value == null ? null : value.toInstant(ZoneOffset.UTC);
     }
 }
