@@ -4,20 +4,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import WatchlistDiscountRow from "@/app/(user)/watchlist/components/watchlist-discount-row";
-import {
-  formatDifference,
-  toStoreLines,
-} from "@/app/(user)/watchlist/utils/discount-display-utils";
-import {
-  IDiscountInfo,
-  IScopedDiscountedStore,
-} from "@/app/(user)/watchlist/utils/watchlist-utils";
+import { formatDifference } from "@/app/(user)/watchlist/utils/discount-display-utils";
+import { IDiscountInfo } from "@/app/(user)/watchlist/utils/watchlist-utils";
+import type { INotificationStore } from "@/context/notifications-types";
 
 interface IWatchlistItemDiscountInfoProps {
   discountInfo: IDiscountInfo | null;
   hasPinnedStores: boolean;
-  preferredStores: IScopedDiscountedStore[];
-  totalStores: IScopedDiscountedStore[];
+  preferredStores: INotificationStore[];
+  totalStores: INotificationStore[];
   isLoading: boolean;
   error: Error | null;
 }
@@ -59,7 +54,7 @@ export default function WatchlistItemDiscountInfo({
             discountInfo.preferredPercentage,
             "Nedostupno",
           )}
-          stores={toStoreLines(preferredStores)}
+          stores={preferredStores}
           bold
         />
       ) : (
@@ -88,7 +83,8 @@ export default function WatchlistItemDiscountInfo({
           discountInfo.totalPercentage,
           "Nema podataka",
         )}
-        stores={toStoreLines(totalStores)}
+        stores={totalStores}
+        tooltipSide="bottom"
       />
     </div>
   );

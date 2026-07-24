@@ -8,6 +8,7 @@ import {
   IWatchlistItemWithProduct,
 } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { getMostFrequentCategory } from "@/app/products/utils/product-utils";
+import { toStoreLines } from "@/app/(user)/watchlist/utils/discount-display-utils";
 import useWatchlistRemoval from "@/app/(user)/watchlist/hooks/use-watchlist-removal";
 import { useUser } from "@/context/user-context";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
@@ -37,11 +38,17 @@ export function useWatchlistItem(item: IWatchlistItemWithProduct) {
   const category = product ? getMostFrequentCategory(product) : null;
 
   const preferredStores = product
-    ? getScopedDiscountedStores(product, pinnedStoreChainCodes, true)
+    ? toStoreLines(
+        getScopedDiscountedStores(product, pinnedStoreChainCodes, true),
+        watchlistItems,
+      )
     : [];
 
   const totalStores = product
-    ? getScopedDiscountedStores(product, [], false)
+    ? toStoreLines(
+        getScopedDiscountedStores(product, [], false),
+        watchlistItems,
+      )
     : [];
 
   function isWatchRequirementAchieved(

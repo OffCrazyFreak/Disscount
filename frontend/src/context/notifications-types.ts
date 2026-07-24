@@ -3,6 +3,7 @@ export interface INotificationStore {
   currentPrice: number;
   discountAmount: number;
   discountPercentage: number;
+  meetsThreshold?: boolean;
 }
 
 export interface IWatchlistNotification {

@@ -70,6 +70,7 @@ export function buildWatchlistNotifications(
         currentPrice: store.currentPrice,
         discountAmount: store.discountAmount,
         discountPercentage: store.discountPercentage,
+        meetsThreshold: true,
       }))
       .sort((a, b) => {
         if (b.discountAmount !== a.discountAmount) {

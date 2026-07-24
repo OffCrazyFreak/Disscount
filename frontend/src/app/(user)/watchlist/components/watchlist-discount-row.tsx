@@ -10,6 +10,7 @@ interface IWatchlistDiscountRowProps {
   text: string;
   stores: INotificationStore[];
   bold?: boolean;
+  tooltipSide?: "top" | "right" | "bottom" | "left";
 }
 
 export default function WatchlistDiscountRow({
@@ -18,6 +19,7 @@ export default function WatchlistDiscountRow({
   text,
   stores,
   bold = false,
+  tooltipSide,
 }: IWatchlistDiscountRowProps) {
   const color = cn({
     "text-red-700": (difference ?? 0) > 0,
@@ -29,7 +31,7 @@ export default function WatchlistDiscountRow({
     <div className="flex items-center justify-start gap-2">
       <Icon className={cn("size-4 sm:size-5", color)} />
 
-      <StorePriceTooltip stores={stores}>
+      <StorePriceTooltip stores={stores} side={tooltipSide}>
         <p className={cn("text-sm", bold ? "font-bold" : "font-medium", color)}>
           {text}
         </p>

@@ -13,19 +13,21 @@ import type { INotificationStore } from "@/context/notifications-types";
 interface IStorePriceTooltipProps {
   stores: INotificationStore[];
   emptyLabel?: string;
+  side?: "top" | "right" | "bottom" | "left";
   children: ReactNode;
 }
 
 export default function StorePriceTooltip({
   stores,
   emptyLabel = "Nema sniženja",
+  side,
   children,
 }: IStorePriceTooltipProps) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>{children}</TooltipTrigger>
 
-      <TooltipContent variant="neutral" className="px-3 py-2">
+      <TooltipContent variant="neutral" side={side} className="px-3 py-2">
         {stores.length > 0 ? (
           <StorePriceList stores={stores} />
         ) : (
