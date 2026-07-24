@@ -1,13 +1,11 @@
 package disscount.user.service;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.exceptions.BadRequestException;
+import disscount.user.dao.AuthIdentityDao;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.user.domain.enums.AccountType;
@@ -18,13 +16,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import disscount.exceptions.ForbiddenException;
 
-import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,16 +28,13 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Transactional
-@Slf4j
 public class UserService {
 
     // Coarse enough that a browsing session costs one extra write, fine enough for daily buckets.
     private static final Duration ACTIVITY_STAMP_INTERVAL = Duration.ofMinutes(5);
 
     private final UserRepository userRepository;
-
-    @PersistenceContext
-    private EntityManager entityManager;
+    private final AuthIdentityDao authIdentityDao;
 
     // better-auth writes its session timestamps in UTC, and these columns are compared against
     // them, so stamping in the JVM's default zone would make the two disagree off Docker.
@@ -220,7 +212,7 @@ public class UserService {
         // Email and sign-in history live in the better-auth tables (shared DB), not in app_user.
         // Populate them here so the admin list still shows them, keeping a single source of truth.
         if (!dtos.isEmpty()) {
-            Map<UUID, AuthIdentity> identitiesById = fetchAuthIdentities(dtos.stream().map(UserDto::getId).toList());
+            Map<UUID, AuthIdentity> identitiesById = authIdentityDao.findByUserIds(dtos.stream().map(UserDto::getId).toList());
             dtos.forEach(dto -> applyAuthIdentity(dto, identitiesById.get(dto.getId())));
         }
 
@@ -243,59 +235,17 @@ public class UserService {
         return first.isAfter(second) ? first : second;
     }
 
-    @SuppressWarnings("unchecked")
-    private Map<UUID, AuthIdentity> fetchAuthIdentities(List<UUID> ids) {
-        List<Object[]> rows = entityManager
-                .createNativeQuery("""
-                        SELECT u.id, u.email, MAX(s.created_at), MAX(s.updated_at)
-                        FROM "user" u
-                        LEFT JOIN "session" s ON s.user_id = u.id
-                        WHERE u.id IN (:ids)
-                        GROUP BY u.id, u.email
-                        """)
-                .setParameter("ids", ids)
-                .getResultList();
-
-        Map<UUID, AuthIdentity> identitiesById = new HashMap<>();
-        for (Object[] row : rows) {
-            identitiesById.put(
-                    (UUID) row[0],
-                    new AuthIdentity((String) row[1], toInstant(row[2]), toInstant(row[3]))
-            );
-        }
-        return identitiesById;
-    }
-
-    // Native aggregates come back as a different scalar per driver, and the zone-less ones are
-    // UTC because that is what better-auth writes. An unmapped type is logged rather than
-    // silently nulled, which would blank the whole column for every user.
-    private Instant toInstant(Object value) {
-        if (value == null) return null;
-        // toLocalDateTime() first, deliberately: the driver builds a Timestamp for a zone-less
-        // column by reading it in the JVM zone, so toInstant() would re-apply that offset.
-        if (value instanceof Timestamp timestamp) return timestamp.toLocalDateTime().toInstant(ZoneOffset.UTC);
-        if (value instanceof Instant instant) return instant;
-        if (value instanceof OffsetDateTime offsetDateTime) return offsetDateTime.toInstant();
-        if (value instanceof LocalDateTime localDateTime) return localDateTime.toInstant(ZoneOffset.UTC);
-
-        log.warn("Unmapped session timestamp type {}, treating as null", value.getClass().getName());
-        return null;
-    }
-
     /**
      * Fully removes another user (admin action): deletes the better-auth identity - which
      * cascades its sessions/accounts - then anonymizes and soft-deletes the profile row so
-     * business data stays intact. better-auth shares this database, so the identity is removed
-     * directly via a native delete.
+     * business data stays intact.
      */
     public void deleteUserAsAdmin(UUID targetUserId, UUID adminUserId) {
         if (targetUserId.equals(adminUserId)) {
             throw new BadRequestException("You cannot delete your own account from the admin panel");
         }
 
-        entityManager.createNativeQuery("DELETE FROM \"user\" WHERE id = :id")
-                .setParameter("id", targetUserId)
-                .executeUpdate();
+        authIdentityDao.deleteById(targetUserId);
 
         deleteAccount(targetUserId);
     }
