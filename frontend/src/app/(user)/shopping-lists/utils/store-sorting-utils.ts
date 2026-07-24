@@ -3,6 +3,7 @@ import {
   ProductResponse,
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
+import { getChainAvgPriceRange } from "@/app/products/utils/product-utils";
 
 /**
  * Modes for optimising the store list on a shopping list.
@@ -83,12 +84,7 @@ function getItemSavingPercentAtChain(
   if (!chainData) return -Infinity;
 
   const price = parseFloat(chainData.avg_price);
-
-  const prices =
-    product?.chains
-      ?.map((c) => parseFloat(c.avg_price))
-      .filter((p) => !isNaN(p)) ?? [];
-  const maxPrice = prices.length > 0 ? Math.max(...prices) : 0;
+  const maxPrice = getChainAvgPriceRange(product)?.max ?? 0;
 
   if (!maxPrice || isNaN(price)) return 0;
 

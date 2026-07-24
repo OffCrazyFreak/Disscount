@@ -62,6 +62,19 @@ export function getAveragePrice(product: ProductResponse): number | null {
   return avg;
 }
 
+/** Spread of the per-chain average prices, which is what the extreme markers compare against. */
+export function getChainAvgPriceRange(
+  product: ProductResponse | undefined,
+): { min: number; max: number } | null {
+  const prices = (product?.chains ?? [])
+    .map((chain) => parsePrice(chain.avg_price))
+    .filter((price): price is number => price !== null);
+
+  if (prices.length === 0) return null;
+
+  return { min: Math.min(...prices), max: Math.max(...prices) };
+}
+
 export function getCheapestChainByMinPrice(
   chains: ChainProductResponse[],
 ): { chain: ChainProductResponse; price: number } | null {

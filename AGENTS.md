@@ -52,7 +52,7 @@ Installed libs - reach for these instead of reinventing them (names only, versio
 
 - Core: next, react, react-dom
 - Auth: better-auth
-- DB: drizzle-orm, drizzle-kit, pg, kysely
+- DB: drizzle-orm, drizzle-kit, pg, kysely (a direct dep only to pin better-auth's required peer, nothing imports it)
 - Data & state: @tanstack/react-query (+ devtools, persist-client, query-async-storage-persister), @tanstack/react-virtual
 - Forms & validation: react-hook-form, @hookform/resolvers, zod
 - HTTP: axios

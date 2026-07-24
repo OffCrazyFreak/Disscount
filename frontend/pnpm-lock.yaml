@@ -203,7 +203,7 @@ importers:
         specifier: ^9.5.11
         version: 9.5.11(browserslist@4.28.6)(typescript@6.0.3)
       sharp:
-        specifier: ^0.35.2
+        specifier: ^0.35.3
         version: 0.35.3(@types/node@24.13.3)
       tailwindcss:
         specifier: ^4

@@ -1,13 +1,12 @@
 import { ShoppingListItemDto } from "@/lib/api/types";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import {
+  getChainAvgPriceRange,
   getPriceExtreme,
   type PriceExtreme,
 } from "@/app/products/utils/product-utils";
 
-// How many list products hit their extreme average price at each chain, judged by
-// the same rule the price cells use, so a chain never earns a badge without a
-// marked row behind it.
+/** Counts, per chain, how many list products sit at their extreme average price. */
 function countChainsAtExtreme(
   productsData: ProductResponse[],
   activeItems: ShoppingListItemDto[],
@@ -21,16 +20,16 @@ function countChainsAtExtreme(
     );
     if (!product?.chains?.length) return;
 
-    const prices = product.chains
-      .map((chain) => parseFloat(chain.avg_price))
-      .filter((price) => !isNaN(price));
-    if (prices.length === 0) return;
-
-    const min = Math.min(...prices);
-    const max = Math.max(...prices);
+    const range = getChainAvgPriceRange(product);
+    if (!range) return;
 
     product.chains.forEach((chain) => {
-      if (getPriceExtreme(parseFloat(chain.avg_price), min, max) !== extreme) {
+      const extremeAtChain = getPriceExtreme(
+        parseFloat(chain.avg_price),
+        range.min,
+        range.max,
+      );
+      if (extremeAtChain !== extreme) {
         return;
       }
 

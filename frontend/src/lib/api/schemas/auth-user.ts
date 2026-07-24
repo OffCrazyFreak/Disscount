@@ -87,8 +87,9 @@ export const userDtoSchema = userRequestSchema
     onboardingCompletedAt: z.string().nullable().optional(),
     onboardingOutcome: z.string().nullable().optional(),
     createdAt: z.string(),
-    // Admin list only: last sign-in, and last seen (what the active-user counters read).
+    // Admin list only; derived from the better-auth session rows.
     lastLoginAt: z.string().nullable().optional(),
+    // Present on every UserDto, and what the active-user counters read.
     lastActiveAt: z.string().nullable().optional(),
     pinnedStores: z
       .array(

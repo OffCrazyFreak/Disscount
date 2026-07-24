@@ -1,18 +1,20 @@
-import type { ILabeledSelectOption } from "@/components/custom/common/labeled-select";
-import { UserDto } from "@/lib/api/types";
+import type { ILabeledSelectOption } from "@/typings/labeled-select-option";
+import { UserDto } from "@/lib/api/schemas/auth-user";
+import { MILLISECONDS_PER_DAY } from "@/utils/date";
 
-const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
+export type ActivityWindowDays = "1" | "7" | "14" | "30" | "90";
 
-export const ACTIVITY_WINDOW_OPTIONS: ILabeledSelectOption[] = [
-  { value: "1", label: "Zadnji 1 dan" },
-  { value: "7", label: "Zadnjih 7 dana" },
-  { value: "14", label: "Zadnjih 14 dana" },
-  { value: "30", label: "Zadnjih 30 dana" },
-  { value: "90", label: "Zadnjih 90 dana" },
-];
+export const ACTIVITY_WINDOW_OPTIONS: ILabeledSelectOption<ActivityWindowDays>[] =
+  [
+    { value: "1", label: "Zadnji 1 dan" },
+    { value: "7", label: "Zadnjih 7 dana" },
+    { value: "14", label: "Zadnjih 14 dana" },
+    { value: "30", label: "Zadnjih 30 dana" },
+    { value: "90", label: "Zadnjih 90 dana" },
+  ];
 
-export const WEEKLY_WINDOW_DAYS = "7";
-export const MONTHLY_WINDOW_DAYS = "30";
+export const WEEKLY_WINDOW_DAYS: ActivityWindowDays = "7";
+export const MONTHLY_WINDOW_DAYS: ActivityWindowDays = "30";
 
 /**
  * Users seen within the trailing window. Only the latest activity per user is stored,
@@ -20,7 +22,7 @@ export const MONTHLY_WINDOW_DAYS = "30";
  */
 export function countActiveUsers(
   users: UserDto[] | undefined,
-  windowDays: string,
+  windowDays: ActivityWindowDays,
 ): number {
   const cutoff = Date.now() - Number(windowDays) * MILLISECONDS_PER_DAY;
 

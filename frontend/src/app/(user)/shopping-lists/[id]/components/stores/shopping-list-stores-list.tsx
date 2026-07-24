@@ -57,7 +57,6 @@ export default function ShoppingListStoreSummary({
     productsLoading,
     productsError,
     productsData,
-    completeStoresAnalysis,
     storesWithLowestPriceItems,
     storesWithHighestPriceItems,
     absolutePrices,
@@ -111,7 +110,6 @@ export default function ShoppingListStoreSummary({
                 absoluteMinPrice={absolutePrices.min}
                 absoluteMaxPrice={absolutePrices.max}
                 productsData={productsData}
-                completeStoresAnalysis={completeStoresAnalysis}
                 hasLowestPriceItem={storesWithLowestPriceItems.has(chain.chain)}
                 hasHighestPriceItem={storesWithHighestPriceItems.has(
                   chain.chain,

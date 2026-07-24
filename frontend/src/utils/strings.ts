@@ -55,6 +55,22 @@ export function formatDate(dateString?: string | null) {
 }
 
 /**
+ * Format an ISO date string to DD.MM.YYYY. HH:MM.
+ * Falls back to the original input when the date is invalid.
+ */
+export function formatDateTime(dateString?: string | null) {
+  if (!dateString) return "";
+
+  const d = new Date(dateString);
+  if (Number.isNaN(d.getTime())) return dateString;
+
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+
+  return `${formatDate(dateString)} ${hours}:${minutes}`;
+}
+
+/**
  * Convert a string to PascalCase.
  */
 export function toPascalCase(str: string) {

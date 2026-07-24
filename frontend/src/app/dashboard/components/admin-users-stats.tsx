@@ -9,7 +9,7 @@ import { adminService } from "@/lib/api";
 
 /** Active-user counters above the user list; shares its cached query, so no extra request. */
 export default function AdminUsersStats() {
-  const { data: users } = adminService.useGetAllUsers();
+  const { data: users, isLoading, isError } = adminService.useGetAllUsers();
 
   return (
     <div className="grid gap-4 sm:grid-cols-2">
@@ -18,6 +18,8 @@ export default function AdminUsersStats() {
         abbreviation="WAU"
         defaultWindowDays={WEEKLY_WINDOW_DAYS}
         users={users}
+        isLoading={isLoading}
+        isError={isError}
       />
 
       <AdminActivityCard
@@ -25,6 +27,8 @@ export default function AdminUsersStats() {
         abbreviation="MAU"
         defaultWindowDays={MONTHLY_WINDOW_DAYS}
         users={users}
+        isLoading={isLoading}
+        isError={isError}
       />
     </div>
   );

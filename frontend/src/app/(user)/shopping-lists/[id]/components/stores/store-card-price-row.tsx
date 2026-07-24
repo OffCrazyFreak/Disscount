@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
 import { PriceExtreme } from "@/app/products/utils/product-utils";
+import StoreCardPriceStat from "@/app/(user)/shopping-lists/[id]/components/stores/store-card-price-stat";
 
 interface IStoreCardPriceRowProps {
   minPrice: number;
@@ -8,14 +8,6 @@ interface IStoreCardPriceRowProps {
   minExtreme: PriceExtreme;
   avgExtreme: PriceExtreme;
   maxExtreme: PriceExtreme;
-}
-
-function extremeClass(extreme: PriceExtreme): string {
-  return extreme === "min"
-    ? "text-green-600 font-bold"
-    : extreme === "max"
-      ? "text-red-700 font-bold"
-      : "text-gray-700";
 }
 
 export default function StoreCardPriceRow({
@@ -28,15 +20,13 @@ export default function StoreCardPriceRow({
 }: IStoreCardPriceRowProps) {
   return (
     <div className="flex items-center gap-4 text-sm">
-      <span className={cn(extremeClass(minExtreme))}>
-        Min: {minPrice.toFixed(2)}€
-      </span>
-      <span className={cn(extremeClass(avgExtreme))}>
-        Prosjek: {avgPrice.toFixed(2)}€
-      </span>
-      <span className={cn(extremeClass(maxExtreme))}>
-        Max: {maxPrice.toFixed(2)}€
-      </span>
+      <StoreCardPriceStat label="Min" price={minPrice} extreme={minExtreme} />
+      <StoreCardPriceStat
+        label="Prosjek"
+        price={avgPrice}
+        extreme={avgExtreme}
+      />
+      <StoreCardPriceStat label="Max" price={maxPrice} extreme={maxExtreme} />
     </div>
   );
 }

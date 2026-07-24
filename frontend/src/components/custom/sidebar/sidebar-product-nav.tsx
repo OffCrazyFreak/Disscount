@@ -1,17 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
-import {
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuSub,
-} from "@/components/ui/sidebar";
+import { Suspense, useState } from "react";
+import { usePathname } from "next/navigation";
+import { SidebarMenuItem, SidebarMenuSub } from "@/components/ui/sidebar";
+import SidebarProductNavShell from "@/components/custom/sidebar/sidebar-product-nav-shell";
 import SidebarNavItem from "@/components/custom/sidebar/sidebar-nav-item";
 import SidebarFilterMenu from "@/components/custom/sidebar/sidebar-filter-menu";
+import SidebarFilterMenuSkeleton from "@/components/custom/sidebar/sidebar-filter-menu-skeleton";
 import { useSidebarFilterOptions } from "@/hooks/use-sidebar-filter-options";
 import {
   productNavItems,
@@ -21,6 +16,7 @@ import {
 import { useUser } from "@/context/user-context";
 import { isAdmin } from "@/lib/api/schemas/auth-user";
 import { readListParam } from "@/utils/generic";
+import { useClientSearchParams } from "@/hooks/use-client-search-params";
 
 type OpenSection = "stores" | "locations" | null;
 
@@ -28,19 +24,19 @@ type OpenSection = "stores" | "locations" | null;
 export default function SidebarProductNav() {
   const [openMenu, setOpenMenu] = useState<OpenSection>(null);
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const searchParams = useClientSearchParams();
   const { user } = useUser();
   const { chains, cities } = useSidebarFilterOptions();
 
   const userIsAdmin = isAdmin(user?.accountType);
   const isOnProducts = pathname.startsWith("/products");
 
-  const searchParamsString = searchParams.toString();
+  const searchParamsString = searchParams?.toString() ?? "";
   const fullPath = `${pathname}${searchParamsString ? `?${searchParamsString}` : ""}`;
 
   function isItemActive(item: INavigationItem): boolean {
     if (item.id === "discounted") {
-      return isOnProducts && searchParams.get("discounted") === "true";
+      return isOnProducts && searchParams?.get("discounted") === "true";
     }
 
     return item.href !== PLACEHOLDER_HREF && fullPath.startsWith(item.href);
@@ -56,7 +52,7 @@ export default function SidebarProductNav() {
         filterKey={isStores ? "chain" : "location"}
         options={isStores ? chains : cities}
         selected={
-          isOnProducts
+          isOnProducts && searchParams
             ? readListParam(searchParams, isStores ? "chain" : "location", {
                 legacyCsv: true,
               })
@@ -71,28 +67,28 @@ export default function SidebarProductNav() {
   }
 
   return (
-    <SidebarGroup className="py-1">
-      <SidebarGroupLabel>Istraži</SidebarGroupLabel>
+    <SidebarProductNavShell>
+      {productNavItems.map((item) => (
+        <SidebarMenuItem key={item.id}>
+          <SidebarNavItem
+            item={item}
+            isActive={isItemActive(item)}
+            isLocked={Boolean(item.comingSoon) && !userIsAdmin}
+          />
 
-      <SidebarGroupContent>
-        <SidebarMenu className="gap-0">
-          {productNavItems.map((item) => (
-            <SidebarMenuItem key={item.id}>
-              <SidebarNavItem
-                item={item}
-                isActive={isItemActive(item)}
-                isLocked={Boolean(item.comingSoon) && !userIsAdmin}
-              />
-
-              {item.children?.length ? (
-                <SidebarMenuSub className="gap-0">
-                  {item.children.map(renderFilterMenu)}
-                </SidebarMenuSub>
-              ) : null}
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
+          {item.children?.length ? (
+            <Suspense
+              fallback={
+                <SidebarFilterMenuSkeleton count={item.children.length} />
+              }
+            >
+              <SidebarMenuSub className="gap-0">
+                {item.children.map(renderFilterMenu)}
+              </SidebarMenuSub>
+            </Suspense>
+          ) : null}
+        </SidebarMenuItem>
+      ))}
+    </SidebarProductNavShell>
   );
 }

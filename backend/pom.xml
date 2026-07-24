@@ -22,6 +22,8 @@
 	</licenses>
 	<properties>
 		<java.version>21</java.version>
+		<!-- Overrides the spring-boot-dependencies default; used by the processor path too. -->
+		<lombok.version>1.18.46</lombok.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -73,7 +75,6 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.46</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -112,7 +113,7 @@
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
-							<version>1.18.46</version>
+							<version>${lombok.version}</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>

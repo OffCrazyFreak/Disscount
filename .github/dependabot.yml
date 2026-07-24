@@ -27,8 +27,10 @@ updates:
           - "patch"
     ignore:
       # springdoc tracks the Spring Boot line it was built against, so Boot 3.1.x
-      # pairs with 2.2.x only. Drop this once the Boot 4 migration lands.
+      # pairs with 2.2.x only. Bounded so 2.2.x security fixes still reach the
+      # publicly exposed swagger-ui. Drop this once the Boot 4 migration lands.
       - dependency-name: "org.springdoc:springdoc-openapi-starter-webmvc-ui"
+        versions: [">=2.3.0"]
 
   # GitHub Actions workflows
   - package-ecosystem: "github-actions"
