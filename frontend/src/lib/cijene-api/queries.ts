@@ -14,13 +14,16 @@ import {
   listChainsResponseSchema,
   listStoresResponseSchema,
   productResponseSchema,
+  productSearchResponseSchema,
   storePricesResponseSchema,
   chainStatsResponseSchema,
   healthCheckResponseSchema,
   getProductParamsSchema,
+  searchProductsParamsSchema,
   searchStoresParamsSchema,
   getPricesParamsSchema,
 } from "@/lib/cijene-api/schemas";
+import { buildQueryString } from "@/utils/generic";
 
 export async function listChains(): Promise<ListChainsResponse> {
   const response = await axios.get("/api/cijene/chains");
@@ -68,19 +71,12 @@ export async function getProductByEan(
 export async function getProductByName(
   params: SearchProductsParams,
 ): Promise<ProductSearchResponse> {
-  const queryParams = new URLSearchParams();
-  queryParams.append("q", params.q);
-  if (params.date) queryParams.append("date", params.date);
-  if (params.chains) queryParams.append("chains", params.chains);
-  if (params.fuzzy !== undefined)
-    queryParams.append("fuzzy", params.fuzzy.toString());
-  if (params.limit !== undefined)
-    queryParams.append("limit", params.limit.toString());
+  const validatedParams = searchProductsParamsSchema.parse(params);
 
   const response = await axios.get(
-    `/api/cijene/products?${queryParams.toString()}`,
+    `/api/cijene/products?${buildQueryString(validatedParams)}`,
   );
-  return response.data;
+  return productSearchResponseSchema.parse(response.data);
 }
 
 export async function getPrices(

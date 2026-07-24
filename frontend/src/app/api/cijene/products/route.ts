@@ -1,13 +1,12 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { cijeneApiV1Client } from "@/lib/cijene-api/client";
 import {
   productSearchResponseSchema,
   searchProductsParamsSchema,
 } from "@/lib/cijene-api/schemas";
+import { searchProductsWithFuzzyFallback } from "@/lib/cijene-api/utils/product-search-fallback";
 import { createApiError } from "@/lib/cijene-api/utils/response-utils";
 import { withCijeneRoute } from "@/lib/cijene-api/utils/with-cijene-route";
-import { buildQueryString } from "@/utils/generic";
 
 function parseBooleanParam(value: string | null): boolean | undefined {
   if (value === "true") return true;
@@ -35,9 +34,7 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const queryString = buildQueryString(parsed.data);
-
   return withCijeneRoute("products", productSearchResponseSchema, () =>
-    cijeneApiV1Client.get(`/products?${queryString}`),
+    searchProductsWithFuzzyFallback(parsed.data),
   );
 }
