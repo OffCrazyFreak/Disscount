@@ -45,10 +45,10 @@ export default function WatchlistThresholdBadges({
             onClick={(event) => onEdit(event, item.watchType)}
             disabled={disabled}
           >
-            {item.watchType === "ABSOLUTE"
+            {item.watchType === WatchType.absolute
               ? `- ${item.thresholdValue.toFixed(2)}€`
               : `- ${Math.round(item.thresholdValue)}%`}
-            <Pencil className="size-3" />
+            <Pencil className="size-3" aria-hidden="true" />
           </button>
         </Badge>
       ))}
