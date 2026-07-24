@@ -46,8 +46,8 @@ export default function ProductCard({
         className,
       )}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 px-3 py-2 @md:gap-4 @md:px-6 @md:py-4">
-        <div className="flex min-w-0 grow basis-48 items-center gap-4">
+      <div className="flex flex-col justify-between gap-3 px-3 py-2 @min-[320px]:flex-row @min-[320px]:items-center @md:gap-4 @md:px-6 @md:py-4">
+        <div className="flex min-w-0 flex-1 items-center gap-4">
           {imageUrl && (
             <Image
               src={imageUrl}
@@ -71,7 +71,7 @@ export default function ProductCard({
 
         {trailing && (
           <div
-            className="flex shrink-0 items-center gap-4"
+            className="flex shrink-0 items-center justify-between gap-4"
             onClick={stopCardNavigation}
           >
             {trailing}
