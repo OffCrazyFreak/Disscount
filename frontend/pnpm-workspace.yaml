@@ -9,6 +9,14 @@ allowBuilds:
   core-js: false
   "@openapitools/openapi-generator-cli": false
 
+# Browser-compatibility data tables that republish almost daily. Without this they
+# never clear pnpm's 24h minimumReleaseAge gate, so every rebased PR stays red.
+# The guard stays active for every other package.
+minimumReleaseAgeExclude:
+  - electron-to-chromium
+  - caniuse-lite
+  - baseline-browser-mapping
+
 # Force patched versions of vulnerable transitive deps (Dependabot #1-3).
 # Range selectors bump only the vulnerable copies; already-safe copies stay put.
 overrides:
