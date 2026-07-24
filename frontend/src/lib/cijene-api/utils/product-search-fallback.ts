@@ -5,6 +5,7 @@ import {
   SearchProductsParams,
   productSearchResponseSchema,
 } from "@/lib/cijene-api/schemas";
+import { UPSTREAM_DEFAULT_SEARCH_LIMIT } from "@/constants/products";
 import { buildQueryString } from "@/utils/generic";
 
 /**
@@ -14,8 +15,8 @@ import { buildQueryString } from "@/utils/generic";
  */
 const FUZZY_FALLBACK_THRESHOLD = 10;
 
-/** Upstream's own default when `limit` is omitted. */
-const UPSTREAM_DEFAULT_LIMIT = 20;
+/** Upstream matches on trigrams, which shorter queries cannot produce. */
+const MIN_FUZZY_QUERY_LENGTH = 3;
 
 const searchResultCountSchema = z.object({ products: z.array(z.unknown()) });
 
@@ -29,17 +30,30 @@ function countProducts(data: unknown): number | null {
   return parsed.success ? parsed.data.products.length : null;
 }
 
+function hasExplicitSearchMode(params: SearchProductsParams): boolean {
+  return params.fuzzy !== undefined;
+}
+
+function canFuzzyMatch(query: string): boolean {
+  return query.trim().length >= MIN_FUZZY_QUERY_LENGTH;
+}
+
 function mergeByEan(
   exact: ProductResponse[],
   fuzzy: ProductResponse[],
   limit: number,
 ): ProductResponse[] {
-  const alreadyMatched = new Set(exact.map((product) => product.ean));
+  const seen = new Set(exact.map((product) => product.ean));
+  const merged = [...exact];
 
-  return [
-    ...exact,
-    ...fuzzy.filter((product) => !alreadyMatched.has(product.ean)),
-  ].slice(0, limit);
+  for (const product of fuzzy) {
+    if (seen.has(product.ean)) continue;
+
+    seen.add(product.ean);
+    merged.push(product);
+  }
+
+  return merged.slice(0, limit);
 }
 
 /**
@@ -50,14 +64,15 @@ function mergeByEan(
 export async function searchProductsWithFuzzyFallback(
   params: SearchProductsParams,
 ): Promise<{ data: unknown }> {
-  if (params.fuzzy) return fetchProducts(params);
+  if (hasExplicitSearchMode(params)) return fetchProducts(params);
 
   const exact = await fetchProducts({ ...params, fuzzy: false });
   const exactCount = countProducts(exact.data);
+  const effectiveLimit = params.limit ?? UPSTREAM_DEFAULT_SEARCH_LIMIT;
+  const fallbackThreshold = Math.min(FUZZY_FALLBACK_THRESHOLD, effectiveLimit);
 
-  if (exactCount === null || exactCount >= FUZZY_FALLBACK_THRESHOLD) {
-    return exact;
-  }
+  if (exactCount === null || exactCount >= fallbackThreshold) return exact;
+  if (!canFuzzyMatch(params.q)) return exact;
 
   const fuzzy = await fetchProducts({ ...params, fuzzy: true }).catch(
     () => null,
@@ -73,7 +88,7 @@ export async function searchProductsWithFuzzyFallback(
       products: mergeByEan(
         exactParsed.data.products,
         fuzzyParsed.data.products,
-        params.limit ?? UPSTREAM_DEFAULT_LIMIT,
+        effectiveLimit,
       ),
     },
   };
