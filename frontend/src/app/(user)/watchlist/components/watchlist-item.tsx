@@ -54,7 +54,6 @@ export default function WatchlistItem({
       quantity={quantityWithUnit}
       isLoading={isLoading}
       onClick={() => navigateToProduct(productApiId, product)}
-      trailingWraps
       trailing={
         <>
           <WatchlistItemDiscountInfo
