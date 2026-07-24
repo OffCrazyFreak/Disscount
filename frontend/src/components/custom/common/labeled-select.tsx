@@ -9,33 +9,33 @@ import {
 } from "@/components/ui/select";
 import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
 
-export interface ISortSelectOption {
+export interface ILabeledSelectOption {
   value: string;
   label: string;
   comingSoon?: boolean;
 }
 
-interface ISortSelectProps<TMode extends string> {
+interface ILabeledSelectProps<TValue extends string> {
   label: string;
-  value: TMode;
-  onValueChange: (mode: TMode) => void;
-  options: readonly ISortSelectOption[];
+  value: TValue;
+  onValueChange: (value: TValue) => void;
+  options: readonly ILabeledSelectOption[];
 }
 
-/** Leading label and dropdown for ordering a list, shared by every list that offers one. */
-export default function SortSelect<TMode extends string>({
+/** Leading label and dropdown, shared by every control that narrows or reorders a list. */
+export default function LabeledSelect<TValue extends string>({
   label,
   value,
   onValueChange,
   options,
-}: ISortSelectProps<TMode>) {
+}: ILabeledSelectProps<TValue>) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span className="shrink-0 text-sm text-muted-foreground">{label}</span>
 
       <Select
         value={value}
-        onValueChange={(mode) => onValueChange(mode as TMode)}
+        onValueChange={(next) => onValueChange(next as TValue)}
       >
         {/* The trigger keeps the primitive's w-fit so its label never clips, and
             min-h beats the primitive's own height where a plain h- utility loses. */}

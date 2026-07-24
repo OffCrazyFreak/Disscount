@@ -33,4 +33,9 @@ public class UserDto {
     private String onboardingOutcome;
     private AccountType accountType;
     private LocalDateTime createdAt;
+    // Sign-in time, read from the better-auth `session` table; null for /me and for users
+    // whose sessions have all been signed out or expired away.
+    private LocalDateTime lastLoginAt;
+    // Last seen, and what the dashboard's active-user counters are built on.
+    private LocalDateTime lastActiveAt;
 }

@@ -71,6 +71,11 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    // Refreshed on authenticated requests (throttled) so activity survives sign-out and
+    // session expiry, which the better-auth `session` rows do not.
+    @Column(name = "last_active_at")
+    private LocalDateTime lastActiveAt;
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 

@@ -1,11 +1,11 @@
 "use client";
 
-import SortSelect, {
-  type ISortSelectOption,
-} from "@/components/custom/common/sort-select";
+import LabeledSelect, {
+  type ILabeledSelectOption,
+} from "@/components/custom/common/labeled-select";
 import type { ProductChainSortMode } from "@/app/products/utils/product-chain-sort";
 
-const SORT_OPTIONS: ISortSelectOption[] = [
+const SORT_OPTIONS: ILabeledSelectOption[] = [
   { value: "stores", label: "Trgovinama" },
   { value: "price", label: "Cijeni" },
   { value: "distance", label: "Udaljenosti", comingSoon: true },
@@ -22,7 +22,7 @@ export default function ProductChainSortSelect({
   onValueChange,
 }: IProductChainSortSelectProps) {
   return (
-    <SortSelect
+    <LabeledSelect
       label="Optimiziraj po:"
       value={value}
       onValueChange={onValueChange}

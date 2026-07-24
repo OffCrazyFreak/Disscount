@@ -10,12 +10,15 @@ import disscount.exceptions.BadRequestException;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.user.domain.enums.AccountType;
+import disscount.user.dto.AuthIdentity;
 import disscount.user.dto.UserDto;
 import disscount.user.dto.UserRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import disscount.exceptions.ForbiddenException;
 
+import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +30,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional
 public class UserService {
+
+    // Coarse enough that a browsing session costs one extra write, fine enough for daily buckets.
+    private static final Duration ACTIVITY_STAMP_INTERVAL = Duration.ofMinutes(5);
 
     private final UserRepository userRepository;
 
@@ -55,6 +61,10 @@ public class UserService {
                 user.setDeletedAt(null);
                 changed = true;
             }
+            if (isActivityStampStale(user.getLastActiveAt())) {
+                user.setLastActiveAt(LocalDateTime.now());
+                changed = true;
+            }
             // Email is no longer mirrored here: it lives authoritatively in the better-auth `user`
             // table, and the backend reads it from there (admin list) or the session (current user).
             // image is intentionally not synced here: the avatar is user-owned after creation,
@@ -81,11 +91,17 @@ public class UserService {
                         .notificationsEmailEnabledAt(now)
                         .newsletterEnabledAt(now)
                         .feedbackContactEnabledAt(now)
+                        .lastActiveAt(now)
                         .build());
             } catch (DataIntegrityViolationException ignored) {
                 // Concurrent first-login race: the other request won - profile already exists
             }
         }
+    }
+
+    private boolean isActivityStampStale(LocalDateTime lastActiveAt) {
+        return lastActiveAt == null
+                || lastActiveAt.isBefore(LocalDateTime.now().minus(ACTIVITY_STAMP_INTERVAL));
     }
 
     /**
@@ -190,28 +206,60 @@ public class UserService {
                 .map(this::convertToUserDto)
                 .toList();
 
-        // Email lives in the better-auth `user` table (shared DB), not in app_user.
-        // Populate it here so the admin list still shows it, keeping a single source of truth.
+        // Email and sign-in history live in the better-auth tables (shared DB), not in app_user.
+        // Populate them here so the admin list still shows them, keeping a single source of truth.
         if (!dtos.isEmpty()) {
-            Map<UUID, String> emailsById = fetchEmailsFromAuth(dtos.stream().map(UserDto::getId).toList());
-            dtos.forEach(dto -> dto.setEmail(emailsById.get(dto.getId())));
+            Map<UUID, AuthIdentity> identitiesById = fetchAuthIdentities(dtos.stream().map(UserDto::getId).toList());
+            dtos.forEach(dto -> applyAuthIdentity(dto, identitiesById.get(dto.getId())));
         }
 
         return dtos;
     }
 
+    private void applyAuthIdentity(UserDto dto, AuthIdentity identity) {
+        if (identity == null) return;
+
+        dto.setEmail(identity.email());
+        dto.setLastLoginAt(identity.lastLoginAt());
+        // The stamped column only starts at this feature's rollout, so surviving session rows
+        // fill in the history behind it.
+        dto.setLastActiveAt(latestOf(dto.getLastActiveAt(), identity.lastSeenAt()));
+    }
+
+    private LocalDateTime latestOf(LocalDateTime first, LocalDateTime second) {
+        if (first == null) return second;
+        if (second == null) return first;
+        return first.isAfter(second) ? first : second;
+    }
+
     @SuppressWarnings("unchecked")
-    private Map<UUID, String> fetchEmailsFromAuth(List<UUID> ids) {
+    private Map<UUID, AuthIdentity> fetchAuthIdentities(List<UUID> ids) {
         List<Object[]> rows = entityManager
-                .createNativeQuery("SELECT id, email FROM \"user\" WHERE id IN (:ids)")
+                .createNativeQuery("""
+                        SELECT u.id, u.email, MAX(s.created_at), MAX(s.updated_at)
+                        FROM "user" u
+                        LEFT JOIN "session" s ON s.user_id = u.id
+                        WHERE u.id IN (:ids)
+                        GROUP BY u.id, u.email
+                        """)
                 .setParameter("ids", ids)
                 .getResultList();
 
-        Map<UUID, String> emailsById = new HashMap<>();
+        Map<UUID, AuthIdentity> identitiesById = new HashMap<>();
         for (Object[] row : rows) {
-            emailsById.put((UUID) row[0], (String) row[1]);
+            identitiesById.put(
+                    (UUID) row[0],
+                    new AuthIdentity((String) row[1], toLocalDateTime(row[2]), toLocalDateTime(row[3]))
+            );
         }
-        return emailsById;
+        return identitiesById;
+    }
+
+    // Native aggregates come back as Timestamp on some drivers and LocalDateTime on others.
+    private LocalDateTime toLocalDateTime(Object value) {
+        if (value instanceof Timestamp timestamp) return timestamp.toLocalDateTime();
+        if (value instanceof LocalDateTime localDateTime) return localDateTime;
+        return null;
     }
 
     /**
@@ -262,6 +310,7 @@ public class UserService {
                 .onboardingOutcome(user.getOnboardingOutcome())
                 .accountType(user.getAccountType())
                 .createdAt(user.getCreatedAt())
+                .lastActiveAt(user.getLastActiveAt())
                 .build();
     }
 }

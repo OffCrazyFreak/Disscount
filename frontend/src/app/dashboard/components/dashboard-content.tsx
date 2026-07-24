@@ -3,6 +3,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUser } from "@/context/user-context";
 import { isAdmin } from "@/lib/api/schemas/auth-user";
+import AdminUsersStats from "@/app/dashboard/components/admin-users-stats";
 import AdminUsersTable from "@/app/dashboard/components/admin-users-table";
 import AdminContactTable from "@/app/dashboard/components/admin-contact-table";
 
@@ -24,7 +25,8 @@ export default function DashboardContent() {
             <TabsTrigger value="contact">Kontakt</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="users" className="space-y-3">
+          <TabsContent value="users" className="space-y-4">
+            <AdminUsersStats />
             <AdminUsersTable />
           </TabsContent>
 

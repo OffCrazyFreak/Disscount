@@ -1,9 +1,9 @@
-import SortSelect, {
-  type ISortSelectOption,
-} from "@/components/custom/common/sort-select";
+import LabeledSelect, {
+  type ILabeledSelectOption,
+} from "@/components/custom/common/labeled-select";
 import type { StoreOptimizeMode } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
 
-const OPTIMIZE_OPTIONS: ISortSelectOption[] = [
+const OPTIMIZE_OPTIONS: ILabeledSelectOption[] = [
   { value: "products", label: "Broj proizvoda" },
   { value: "basket", label: "Najjeftinija košarica" },
   { value: "total", label: "Zasebnim proizvodima" },
@@ -21,7 +21,7 @@ export default function StoreOptimizeSelect({
   onValueChange,
 }: IStoreOptimizeSelectProps) {
   return (
-    <SortSelect
+    <LabeledSelect
       label="Optimiziraj po:"
       value={value}
       onValueChange={onValueChange}
