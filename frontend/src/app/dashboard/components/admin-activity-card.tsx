@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import LabeledSelect from "@/components/custom/common/labeled-select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { UserDto } from "@/lib/api/types";
 import {
   ACTIVITY_WINDOW_OPTIONS,
@@ -15,6 +16,8 @@ interface IAdminActivityCardProps {
   abbreviation: string;
   defaultWindowDays: string;
   users: UserDto[] | undefined;
+  isLoading: boolean;
+  isError: boolean;
 }
 
 /** One active-user counter over a trailing window the admin picks. */
@@ -23,6 +26,8 @@ export default function AdminActivityCard({
   abbreviation,
   defaultWindowDays,
   users,
+  isLoading,
+  isError,
 }: IAdminActivityCardProps) {
   const [windowDays, setWindowDays] = useState(defaultWindowDays);
 
@@ -36,9 +41,19 @@ export default function AdminActivityCard({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <p className="text-primary text-4xl font-bold tabular-nums">
-          {countActiveUsers(users, windowDays)}
-        </p>
+        {isLoading && <Skeleton className="h-10 w-20" />}
+
+        {isError && (
+          <p className="text-destructive text-sm">
+            Greška pri dohvaćanju korisnika.
+          </p>
+        )}
+
+        {!isLoading && !isError && (
+          <p className="text-primary text-4xl font-bold tabular-nums">
+            {countActiveUsers(users, windowDays)}
+          </p>
+        )}
 
         <LabeledSelect
           label="Razdoblje:"
