@@ -1,4 +1,5 @@
 import { getChainLabel } from "@/utils/labels";
+import { formatPriceDelta } from "@/utils/price";
 import { IScopedDiscountedStore } from "@/app/(user)/watchlist/typings/watchlist-types";
 import type { INotificationStore } from "@/context/notifications-types";
 
@@ -22,5 +23,5 @@ export function formatDifference(
     return fallback;
   }
 
-  return `${difference > 0 ? "+" : ""}${difference.toFixed(2)}€ (${Math.round(Math.abs(percentage))}%)`;
+  return formatPriceDelta(difference, percentage);
 }
