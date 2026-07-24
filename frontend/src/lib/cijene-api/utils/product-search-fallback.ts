@@ -62,8 +62,13 @@ export async function searchProductsWithFuzzyFallback(
 
   const exact = await fetchProducts({ ...params, fuzzy: false });
   const exactCount = countProducts(exact.data);
+  const effectiveLimit = params.limit ?? UPSTREAM_DEFAULT_LIMIT;
 
-  if (exactCount === null || exactCount >= FUZZY_FALLBACK_THRESHOLD) {
+  // Upstream already truncated the page to `limit`, so a small limit can never
+  // reach the flat threshold and would retry on an already-full page.
+  const fallbackThreshold = Math.min(FUZZY_FALLBACK_THRESHOLD, effectiveLimit);
+
+  if (exactCount === null || exactCount >= fallbackThreshold) {
     return exact;
   }
 
@@ -81,7 +86,7 @@ export async function searchProductsWithFuzzyFallback(
       products: mergeByEan(
         exactParsed.data.products,
         fuzzyParsed.data.products,
-        params.limit ?? UPSTREAM_DEFAULT_LIMIT,
+        effectiveLimit,
       ),
     },
   };
