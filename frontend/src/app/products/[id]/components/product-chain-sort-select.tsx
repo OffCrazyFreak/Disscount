@@ -22,7 +22,7 @@ export default function ProductChainSortSelect({
 }: IProductChainSortSelectProps) {
   return (
     <LabeledSelect
-      label="Optimiziraj po:"
+      label="Sortiraj po:"
       value={value}
       onValueChange={onValueChange}
       options={SORT_OPTIONS}
