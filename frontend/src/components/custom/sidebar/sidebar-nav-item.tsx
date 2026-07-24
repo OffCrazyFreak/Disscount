@@ -1,13 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import type { MouseEvent } from "react";
 import { SidebarMenuBadge, SidebarMenuButton } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import type { INavigationItem } from "@/constants/navigation";
+import { PLACEHOLDER_HREF, type INavigationItem } from "@/constants/navigation";
 
 // Opts out of the peer rules that would recolour badge text on hover or active.
 const BADGE_CLASS =
   "bg-primary text-primary-foreground peer-hover/menu-button:text-primary-foreground peer-data-[active=true]/menu-button:text-primary-foreground";
+
+function preventNavigation(event: MouseEvent<HTMLAnchorElement>) {
+  event.preventDefault();
+}
 
 interface ISidebarNavItemProps {
   item: INavigationItem;
@@ -33,18 +38,35 @@ export default function SidebarNavItem({
   // Badges are absolute, so the label needs room to truncate against.
   const labelSpace = showComingSoon ? "pr-16" : showCount ? "pr-8" : undefined;
 
+  // A locked item stays an anchor so crawlers still reach the page behind it.
+  const isDeadEnd = isLocked && item.href === PLACEHOLDER_HREF;
+
+  const label = (
+    <>
+      <Icon />
+      <span>{item.label}</span>
+    </>
+  );
+
   return (
     <>
-      {isLocked ? (
+      {isDeadEnd ? (
         <SidebarMenuButton type="button" disabled className={labelSpace}>
-          <Icon />
-          <span>{item.label}</span>
+          {label}
         </SidebarMenuButton>
       ) : (
-        <SidebarMenuButton asChild isActive={isActive} className={labelSpace}>
-          <Link href={item.href}>
-            <Icon />
-            <span>{item.label}</span>
+        <SidebarMenuButton
+          asChild
+          isActive={!isLocked && isActive}
+          className={labelSpace}
+        >
+          <Link
+            href={item.href}
+            aria-disabled={isLocked ? true : undefined}
+            tabIndex={isLocked ? -1 : undefined}
+            onClick={isLocked ? preventNavigation : undefined}
+          >
+            {label}
           </Link>
         </SidebarMenuButton>
       )}
