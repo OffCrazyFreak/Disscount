@@ -68,6 +68,7 @@ export default function AdminActivityCard({
           value={windowDays}
           onValueChange={setWindowDays}
           options={ACTIVITY_WINDOW_OPTIONS}
+          className="justify-start"
         />
       </CardContent>
     </Card>
