@@ -1,13 +1,18 @@
 import { Star, Store } from "lucide-react";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { IDiscountInfo } from "@/app/(user)/watchlist/utils/watchlist-utils";
-import { cn } from "@/lib/utils";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
+import WatchlistDiscountRow from "@/app/(user)/watchlist/components/watchlist-discount-row";
+import { formatDifference } from "@/app/(user)/watchlist/utils/discount-display-utils";
+import { IDiscountInfo } from "@/app/(user)/watchlist/utils/watchlist-utils";
+import type { INotificationStore } from "@/context/notifications-types";
 
 interface IWatchlistItemDiscountInfoProps {
   discountInfo: IDiscountInfo | null;
   hasPinnedStores: boolean;
+  preferredStores: INotificationStore[];
+  totalStores: INotificationStore[];
   isLoading: boolean;
   error: Error | null;
 }
@@ -15,6 +20,8 @@ interface IWatchlistItemDiscountInfoProps {
 export default function WatchlistItemDiscountInfo({
   discountInfo,
   hasPinnedStores,
+  preferredStores,
+  totalStores,
   isLoading,
   error,
 }: IWatchlistItemDiscountInfoProps) {
@@ -22,7 +29,7 @@ export default function WatchlistItemDiscountInfo({
     return (
       <div className="space-y-2">
         <Skeleton className="h-4 w-24 ml-auto" />
-        <Separator className="" />
+        <Separator />
         <Skeleton className="h-4 w-20 ml-auto" />
       </div>
     );
@@ -37,71 +44,48 @@ export default function WatchlistItemDiscountInfo({
   }
 
   return (
-    <>
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-start gap-2">
-          <Star
-            className={cn("size-4 sm:size-5", {
-              "text-red-700": (discountInfo.preferredDifference ?? 0) > 0,
-              "text-green-700": (discountInfo.preferredDifference ?? 0) < 0,
-              "text-gray-700": (discountInfo.preferredDifference ?? 0) === 0,
-            })}
-          />
-
-          {hasPinnedStores ? (
-            <p
-              className={cn("text-sm font-bold", {
-                "text-red-700": (discountInfo.preferredDifference ?? 0) > 0,
-                "text-green-700": (discountInfo.preferredDifference ?? 0) < 0,
-                "text-gray-700": (discountInfo.preferredDifference ?? 0) === 0,
-              })}
-            >
-              {discountInfo.preferredDifference !== null &&
-              discountInfo.preferredPercentage !== null
-                ? `${discountInfo.preferredDifference > 0 ? "+" : ""}${discountInfo.preferredDifference.toFixed(2)}€ (${Math.round(Math.abs(discountInfo.preferredPercentage))}%)`
-                : "Nedostupno"}
-            </p>
-          ) : (
-            <button
-              type="button"
-              className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer italic"
-              onClick={() =>
-                openModalUrl({ name: "settings", tab: "preference" })
-              }
-            >
-              Postavi preference
-            </button>
+    <div className="flex flex-col gap-2">
+      {hasPinnedStores ? (
+        <WatchlistDiscountRow
+          icon={Star}
+          difference={discountInfo.preferredDifference}
+          text={formatDifference(
+            discountInfo.preferredDifference,
+            discountInfo.preferredPercentage,
+            "Nedostupno",
           )}
-        </div>
-
-        <Separator className="" />
-
+          stores={preferredStores}
+          bold
+        />
+      ) : (
         <div className="flex items-center justify-start gap-2">
-          <Store
-            className={cn("size-4 sm:size-5", {
-              "text-red-700": (discountInfo.totalDifference ?? 0) > 0,
-              "text-green-700": (discountInfo.totalDifference ?? 0) < 0,
-              "text-gray-700": (discountInfo.totalDifference ?? 0) === 0,
-            })}
-          />
+          <Star className="size-4 sm:size-5 text-gray-700" />
 
-          <p
-            className={cn(
-              "text-sm font-medium text-right flex gap-2 flex-wrap items-center justify-end transition-all",
-              {
-                "text-red-700": (discountInfo.totalDifference ?? 0) > 0,
-                "text-green-700": (discountInfo.totalDifference ?? 0) < 0,
-                "text-gray-700": (discountInfo.totalDifference ?? 0) === 0,
-              },
-            )}
+          <button
+            type="button"
+            className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer italic"
+            onClick={() =>
+              openModalUrl({ name: "settings", tab: "preference" })
+            }
           >
-            {discountInfo.totalDifference !== null &&
-            discountInfo.totalPercentage !== null
-              ? `${discountInfo.totalDifference > 0 ? "+" : ""}${discountInfo.totalDifference.toFixed(2)}€ (${Math.round(Math.abs(discountInfo.totalPercentage))}%)`
-              : "Nema podataka"}
-          </p>
+            Postavi preference
+          </button>
         </div>
-      </div>
-    </>
+      )}
+
+      <Separator />
+
+      <WatchlistDiscountRow
+        icon={Store}
+        difference={discountInfo.totalDifference}
+        text={formatDifference(
+          discountInfo.totalDifference,
+          discountInfo.totalPercentage,
+          "Nema podataka",
+        )}
+        stores={totalStores}
+        tooltipSide="bottom"
+      />
+    </div>
   );
 }

@@ -4,7 +4,7 @@ import PriceChangeDisplay from "@/components/custom/price/price-change-display";
 import { DISABLED_PERIODS } from "@/constants/price-history";
 
 interface IPriceHistoryControlsProps {
-  priceChange: { difference: number; percentage: number } | null;
+  priceChange: { difference: number; percentage: number | null } | null;
   chains: string[];
   selectedChains: string[];
   onChainsChange: (chains: string[]) => void;
