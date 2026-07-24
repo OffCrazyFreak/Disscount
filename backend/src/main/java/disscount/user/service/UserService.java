@@ -20,6 +20,7 @@ import disscount.exceptions.ForbiddenException;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,12 @@ public class UserService {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    // better-auth writes its session timestamps in UTC, and these columns are compared against
+    // them, so stamping in the JVM's default zone would make the two disagree off Docker.
+    private static LocalDateTime nowUtc() {
+        return LocalDateTime.now(ZoneOffset.UTC);
+    }
 
     public Optional<UserDto> findById(UUID id) {
         return userRepository.findById(id)
@@ -62,7 +69,7 @@ public class UserService {
                 changed = true;
             }
             if (isActivityStampStale(user.getLastActiveAt())) {
-                user.setLastActiveAt(LocalDateTime.now());
+                user.setLastActiveAt(nowUtc());
                 changed = true;
             }
             // Email is no longer mirrored here: it lives authoritatively in the better-auth `user`
@@ -80,7 +87,7 @@ public class UserService {
                     : AccountType.CONSUMER;
             String username = seedUsername(name, email);
             // Every switch starts ON; the stamped timestamp is what the settings form reads back.
-            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime now = nowUtc();
             try {
                 userRepository.save(User.builder()
                         .id(id)
@@ -101,7 +108,7 @@ public class UserService {
 
     private boolean isActivityStampStale(LocalDateTime lastActiveAt) {
         return lastActiveAt == null
-                || lastActiveAt.isBefore(LocalDateTime.now().minus(ACTIVITY_STAMP_INTERVAL));
+                || lastActiveAt.isBefore(nowUtc().minus(ACTIVITY_STAMP_INTERVAL));
     }
 
     /**
@@ -148,7 +155,7 @@ public class UserService {
         if (request.getOnboardingOutcome() != null) {
             user.setOnboardingOutcome(request.getOnboardingOutcome());
             if (user.getOnboardingCompletedAt() == null) {
-                user.setOnboardingCompletedAt(LocalDateTime.now());
+                user.setOnboardingCompletedAt(nowUtc());
             }
         }
 
@@ -166,7 +173,7 @@ public class UserService {
             return current;
         }
         if (desired) {
-            return current != null ? current : LocalDateTime.now();
+            return current != null ? current : nowUtc();
         }
         return null;
     }
@@ -182,7 +189,7 @@ public class UserService {
 
         user.setUsername(null);
         user.setImage(null);
-        user.setDeletedAt(LocalDateTime.now());
+        user.setDeletedAt(nowUtc());
         userRepository.save(user);
     }
 
