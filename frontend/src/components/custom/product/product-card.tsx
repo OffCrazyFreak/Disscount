@@ -1,6 +1,6 @@
 "use client";
 
-import { MouseEvent, ReactNode } from "react";
+import { KeyboardEvent, MouseEvent, ReactNode } from "react";
 import Image from "next/image";
 
 import { Card } from "@/components/ui/card";
@@ -37,9 +37,21 @@ export default function ProductCard({
     if (onClick) event.stopPropagation();
   }
 
+  function handleCardKeyDown(event: KeyboardEvent) {
+    if (!onClick) return;
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onClick();
+    }
+  }
+
   return (
     <Card
       onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? handleCardKeyDown : undefined}
       className={cn(
         "@container shadow-sm hover:shadow-lg transition-shadow",
         onClick && "cursor-pointer",
