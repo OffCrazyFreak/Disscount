@@ -19,6 +19,7 @@ import InstallSidebarBanner from "@/components/custom/pwa/install-sidebar-banner
 import SidebarUser from "@/components/custom/sidebar/sidebar-user";
 import SidebarMainNav from "@/components/custom/sidebar/sidebar-main-nav";
 import SidebarProductNav from "@/components/custom/sidebar/sidebar-product-nav";
+import SidebarProductNavSkeleton from "@/components/custom/sidebar/sidebar-product-nav-skeleton";
 import SidebarSupportNav from "@/components/custom/sidebar/sidebar-support-nav";
 import ScrollFade from "@/components/custom/common/scroll-fade";
 import SearchBar from "@/components/custom/search/search-bar";
@@ -82,7 +83,11 @@ export default function AppSidebar() {
         >
           <SidebarMainNav />
 
-          <SidebarProductNav />
+          {/* Reads the URL, so this boundary keeps it from taking the whole
+              sidebar out of the prerendered HTML. */}
+          <Suspense fallback={<SidebarProductNavSkeleton />}>
+            <SidebarProductNav />
+          </Suspense>
 
           <SidebarSupportNav />
         </SidebarContent>

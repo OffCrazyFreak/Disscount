@@ -13,7 +13,11 @@ import {
 import SidebarNavItem from "@/components/custom/sidebar/sidebar-nav-item";
 import SidebarFilterMenu from "@/components/custom/sidebar/sidebar-filter-menu";
 import { useSidebarFilterOptions } from "@/hooks/use-sidebar-filter-options";
-import { productNavItems, type INavigationItem } from "@/constants/navigation";
+import {
+  productNavItems,
+  PLACEHOLDER_HREF,
+  type INavigationItem,
+} from "@/constants/navigation";
 import { useUser } from "@/context/user-context";
 import { isAdmin } from "@/lib/api/schemas/auth-user";
 import { readListParam } from "@/utils/generic";
@@ -39,7 +43,7 @@ export default function SidebarProductNav() {
       return isOnProducts && searchParams.get("discounted") === "true";
     }
 
-    return item.href !== "#" && fullPath.startsWith(item.href);
+    return item.href !== PLACEHOLDER_HREF && fullPath.startsWith(item.href);
   }
 
   function renderFilterMenu(child: INavigationItem) {
