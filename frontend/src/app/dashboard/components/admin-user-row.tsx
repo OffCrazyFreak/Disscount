@@ -12,13 +12,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TableCell, TableRow } from "@/components/ui/table";
+import RelativeTime from "@/components/custom/common/relative-time";
 import {
   AccountType,
   ACCOUNT_TYPE_LABELS,
   UserDto,
 } from "@/lib/api/schemas/auth-user";
-import { formatRelativeTime } from "@/utils/date";
-import { formatDate } from "@/utils/strings";
 
 const ACCOUNT_TYPES = Object.keys(ACCOUNT_TYPE_LABELS) as AccountType[];
 
@@ -53,13 +52,7 @@ export default function AdminUserRow({
       </TableCell>
 
       <TableCell className="text-muted-foreground whitespace-nowrap text-sm">
-        {user.lastLoginAt ? (
-          <span title={formatDate(user.lastLoginAt)}>
-            {formatRelativeTime(new Date(user.lastLoginAt))}
-          </span>
-        ) : (
-          "-"
-        )}
+        <RelativeTime value={user.lastLoginAt} />
       </TableCell>
 
       <TableCell>
