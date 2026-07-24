@@ -1,11 +1,17 @@
 import { ShoppingListItemDto } from "@/lib/api/types";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
+import {
+  getPriceExtreme,
+  type PriceExtreme,
+} from "@/app/products/utils/product-utils";
 
-// How many list products hit their extreme average price at each chain.
+// How many list products hit their extreme average price at each chain, judged by
+// the same rule the price cells use, so a chain never earns a badge without a
+// marked row behind it.
 function countChainsAtExtreme(
   productsData: ProductResponse[],
   activeItems: ShoppingListItemDto[],
-  pickExtreme: (prices: number[]) => number,
+  extreme: NonNullable<PriceExtreme>,
 ): Map<string, number> {
   const counts = new Map<string, number>();
 
@@ -20,10 +26,14 @@ function countChainsAtExtreme(
       .filter((price) => !isNaN(price));
     if (prices.length === 0) return;
 
-    const extreme = pickExtreme(prices);
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
 
     product.chains.forEach((chain) => {
-      if (parseFloat(chain.avg_price) !== extreme) return;
+      if (getPriceExtreme(parseFloat(chain.avg_price), min, max) !== extreme) {
+        return;
+      }
+
       counts.set(chain.chain, (counts.get(chain.chain) ?? 0) + 1);
     });
   });
@@ -35,18 +45,12 @@ export function countCheapestByChain(
   productsData: ProductResponse[],
   activeItems: ShoppingListItemDto[],
 ): Map<string, number> {
-  return countChainsAtExtreme(productsData, activeItems, (prices) =>
-    Math.min(...prices),
-  );
+  return countChainsAtExtreme(productsData, activeItems, "min");
 }
 
 export function findHighestPriceStores(
   productsData: ProductResponse[],
   activeItems: ShoppingListItemDto[],
 ): Set<string> {
-  const counts = countChainsAtExtreme(productsData, activeItems, (prices) =>
-    Math.max(...prices),
-  );
-
-  return new Set(counts.keys());
+  return new Set(countChainsAtExtreme(productsData, activeItems, "max").keys());
 }
