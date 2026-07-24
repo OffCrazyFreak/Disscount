@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import type { ReactElement } from "react";
 
 import {
   Tooltip,
@@ -14,7 +14,7 @@ interface IStorePriceTooltipProps {
   stores: INotificationStore[];
   emptyLabel?: string;
   side?: "top" | "right" | "bottom" | "left";
-  children: ReactNode;
+  children: ReactElement;
 }
 
 export default function StorePriceTooltip({
