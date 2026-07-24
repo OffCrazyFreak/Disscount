@@ -15,6 +15,9 @@ import { buildQueryString } from "@/utils/generic";
  */
 const FUZZY_FALLBACK_THRESHOLD = 10;
 
+/** Upstream matches on trigrams, which shorter queries cannot produce. */
+const MIN_FUZZY_QUERY_LENGTH = 3;
+
 const searchResultCountSchema = z.object({ products: z.array(z.unknown()) });
 
 function fetchProducts(params: SearchProductsParams) {
@@ -29,6 +32,10 @@ function countProducts(data: unknown): number | null {
 
 function hasExplicitSearchMode(params: SearchProductsParams): boolean {
   return params.fuzzy !== undefined;
+}
+
+function canFuzzyMatch(query: string): boolean {
+  return query.trim().length >= MIN_FUZZY_QUERY_LENGTH;
 }
 
 function mergeByEan(
@@ -64,9 +71,8 @@ export async function searchProductsWithFuzzyFallback(
   const effectiveLimit = params.limit ?? UPSTREAM_DEFAULT_SEARCH_LIMIT;
   const fallbackThreshold = Math.min(FUZZY_FALLBACK_THRESHOLD, effectiveLimit);
 
-  if (exactCount === null || exactCount >= fallbackThreshold) {
-    return exact;
-  }
+  if (exactCount === null || exactCount >= fallbackThreshold) return exact;
+  if (!canFuzzyMatch(params.q)) return exact;
 
   const fuzzy = await fetchProducts({ ...params, fuzzy: true }).catch(
     () => null,
