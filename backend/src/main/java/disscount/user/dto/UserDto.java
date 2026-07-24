@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -33,4 +34,9 @@ public class UserDto {
     private String onboardingOutcome;
     private AccountType accountType;
     private LocalDateTime createdAt;
+    // Instant, not LocalDateTime: the dashboard does date maths and needs the offset.
+    // Sign-in time from the better-auth `session` table; null for /me and once sessions expire.
+    private Instant lastLoginAt;
+    // Last seen, and what the dashboard's active-user counters are built on.
+    private Instant lastActiveAt;
 }

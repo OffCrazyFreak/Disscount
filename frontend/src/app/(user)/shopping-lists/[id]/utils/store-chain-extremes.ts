@@ -1,11 +1,16 @@
 import { ShoppingListItemDto } from "@/lib/api/types";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
+import {
+  getChainAvgPriceRange,
+  getPriceExtreme,
+  type PriceExtreme,
+} from "@/app/products/utils/product-utils";
 
-// How many list products hit their extreme average price at each chain.
+/** Counts, per chain, how many list products sit at their extreme average price. */
 function countChainsAtExtreme(
   productsData: ProductResponse[],
   activeItems: ShoppingListItemDto[],
-  pickExtreme: (prices: number[]) => number,
+  extreme: NonNullable<PriceExtreme>,
 ): Map<string, number> {
   const counts = new Map<string, number>();
 
@@ -15,15 +20,19 @@ function countChainsAtExtreme(
     );
     if (!product?.chains?.length) return;
 
-    const prices = product.chains
-      .map((chain) => parseFloat(chain.avg_price))
-      .filter((price) => !isNaN(price));
-    if (prices.length === 0) return;
-
-    const extreme = pickExtreme(prices);
+    const range = getChainAvgPriceRange(product);
+    if (!range) return;
 
     product.chains.forEach((chain) => {
-      if (parseFloat(chain.avg_price) !== extreme) return;
+      const extremeAtChain = getPriceExtreme(
+        parseFloat(chain.avg_price),
+        range.min,
+        range.max,
+      );
+      if (extremeAtChain !== extreme) {
+        return;
+      }
+
       counts.set(chain.chain, (counts.get(chain.chain) ?? 0) + 1);
     });
   });
@@ -35,18 +44,12 @@ export function countCheapestByChain(
   productsData: ProductResponse[],
   activeItems: ShoppingListItemDto[],
 ): Map<string, number> {
-  return countChainsAtExtreme(productsData, activeItems, (prices) =>
-    Math.min(...prices),
-  );
+  return countChainsAtExtreme(productsData, activeItems, "min");
 }
 
 export function findHighestPriceStores(
   productsData: ProductResponse[],
   activeItems: ShoppingListItemDto[],
 ): Set<string> {
-  const counts = countChainsAtExtreme(productsData, activeItems, (prices) =>
-    Math.max(...prices),
-  );
-
-  return new Set(counts.keys());
+  return new Set(countChainsAtExtreme(productsData, activeItems, "max").keys());
 }

@@ -11,10 +11,7 @@ import { ShoppingListDto } from "@/lib/api/types";
 import { useUser } from "@/context/user-context";
 import ShoppingListItemsTable from "@/app/(user)/shopping-lists/[id]/components/stores/shopping-list-items-table";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
-import {
-  ChainSummary,
-  ICompleteStoresAnalysis,
-} from "@/app/(user)/shopping-lists/[id]/typings/store-chain-types";
+import { ChainSummary } from "@/app/(user)/shopping-lists/[id]/typings/store-chain-types";
 import { getStoreCardMetrics } from "@/app/(user)/shopping-lists/[id]/utils/store-card-utils";
 import StoreCardHeader from "@/app/(user)/shopping-lists/[id]/components/stores/store-card-header";
 
@@ -24,7 +21,6 @@ interface IShoppingListStoreItemProps {
   absoluteMinPrice: number;
   absoluteMaxPrice: number;
   productsData: ProductResponse[];
-  completeStoresAnalysis: ICompleteStoresAnalysis;
   hasLowestPriceItem: boolean;
   hasHighestPriceItem: boolean;
 }

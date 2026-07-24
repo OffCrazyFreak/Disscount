@@ -1,23 +1,25 @@
 package disscount.user.service;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.exceptions.BadRequestException;
+import disscount.user.dao.AuthIdentityDao;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.user.domain.enums.AccountType;
+import disscount.user.dto.AuthIdentity;
 import disscount.user.dto.UserDto;
 import disscount.user.dto.UserRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import disscount.exceptions.ForbiddenException;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,10 +30,16 @@ import java.util.UUID;
 @Transactional
 public class UserService {
 
-    private final UserRepository userRepository;
+    // Coarse enough that a browsing session costs one extra write, fine enough for daily buckets.
+    private static final Duration ACTIVITY_STAMP_INTERVAL = Duration.ofMinutes(5);
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    private final UserRepository userRepository;
+    private final AuthIdentityDao authIdentityDao;
+
+    // Compared against better-auth's UTC session timestamps, so the JVM zone must not leak in.
+    private static LocalDateTime nowUtc() {
+        return LocalDateTime.now(ZoneOffset.UTC);
+    }
 
     public Optional<UserDto> findById(UUID id) {
         return userRepository.findById(id)
@@ -55,6 +63,10 @@ public class UserService {
                 user.setDeletedAt(null);
                 changed = true;
             }
+            if (isActivityStampStale(user.getLastActiveAt())) {
+                user.setLastActiveAt(nowUtc());
+                changed = true;
+            }
             // Email is no longer mirrored here: it lives authoritatively in the better-auth `user`
             // table, and the backend reads it from there (admin list) or the session (current user).
             // image is intentionally not synced here: the avatar is user-owned after creation,
@@ -70,7 +82,7 @@ public class UserService {
                     : AccountType.CONSUMER;
             String username = seedUsername(name, email);
             // Every switch starts ON; the stamped timestamp is what the settings form reads back.
-            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime now = nowUtc();
             try {
                 userRepository.save(User.builder()
                         .id(id)
@@ -81,11 +93,17 @@ public class UserService {
                         .notificationsEmailEnabledAt(now)
                         .newsletterEnabledAt(now)
                         .feedbackContactEnabledAt(now)
+                        .lastActiveAt(now)
                         .build());
             } catch (DataIntegrityViolationException ignored) {
                 // Concurrent first-login race: the other request won - profile already exists
             }
         }
+    }
+
+    private boolean isActivityStampStale(LocalDateTime lastActiveAt) {
+        return lastActiveAt == null
+                || lastActiveAt.isBefore(nowUtc().minus(ACTIVITY_STAMP_INTERVAL));
     }
 
     /**
@@ -132,7 +150,7 @@ public class UserService {
         if (request.getOnboardingOutcome() != null) {
             user.setOnboardingOutcome(request.getOnboardingOutcome());
             if (user.getOnboardingCompletedAt() == null) {
-                user.setOnboardingCompletedAt(LocalDateTime.now());
+                user.setOnboardingCompletedAt(nowUtc());
             }
         }
 
@@ -150,7 +168,7 @@ public class UserService {
             return current;
         }
         if (desired) {
-            return current != null ? current : LocalDateTime.now();
+            return current != null ? current : nowUtc();
         }
         return null;
     }
@@ -166,7 +184,7 @@ public class UserService {
 
         user.setUsername(null);
         user.setImage(null);
-        user.setDeletedAt(LocalDateTime.now());
+        user.setDeletedAt(nowUtc());
         userRepository.save(user);
     }
 
@@ -190,44 +208,43 @@ public class UserService {
                 .map(this::convertToUserDto)
                 .toList();
 
-        // Email lives in the better-auth `user` table (shared DB), not in app_user.
-        // Populate it here so the admin list still shows it, keeping a single source of truth.
+        // Email and sign-in history live in the better-auth tables (shared DB), not in app_user.
+        // Populate them here so the admin list still shows them, keeping a single source of truth.
         if (!dtos.isEmpty()) {
-            Map<UUID, String> emailsById = fetchEmailsFromAuth(dtos.stream().map(UserDto::getId).toList());
-            dtos.forEach(dto -> dto.setEmail(emailsById.get(dto.getId())));
+            Map<UUID, AuthIdentity> identitiesById = authIdentityDao.findByUserIds(dtos.stream().map(UserDto::getId).toList());
+            dtos.forEach(dto -> applyAuthIdentity(dto, identitiesById.get(dto.getId())));
         }
 
         return dtos;
     }
 
-    @SuppressWarnings("unchecked")
-    private Map<UUID, String> fetchEmailsFromAuth(List<UUID> ids) {
-        List<Object[]> rows = entityManager
-                .createNativeQuery("SELECT id, email FROM \"user\" WHERE id IN (:ids)")
-                .setParameter("ids", ids)
-                .getResultList();
+    private void applyAuthIdentity(UserDto dto, AuthIdentity identity) {
+        if (identity == null) return;
 
-        Map<UUID, String> emailsById = new HashMap<>();
-        for (Object[] row : rows) {
-            emailsById.put((UUID) row[0], (String) row[1]);
-        }
-        return emailsById;
+        dto.setEmail(identity.email());
+        dto.setLastLoginAt(identity.lastLoginAt());
+        // The stamped column only starts at this feature's rollout, so surviving session rows
+        // fill in the history behind it.
+        dto.setLastActiveAt(latestOf(dto.getLastActiveAt(), identity.lastSeenAt()));
+    }
+
+    private Instant latestOf(Instant first, Instant second) {
+        if (first == null) return second;
+        if (second == null) return first;
+        return first.isAfter(second) ? first : second;
     }
 
     /**
      * Fully removes another user (admin action): deletes the better-auth identity - which
      * cascades its sessions/accounts - then anonymizes and soft-deletes the profile row so
-     * business data stays intact. better-auth shares this database, so the identity is removed
-     * directly via a native delete.
+     * business data stays intact.
      */
     public void deleteUserAsAdmin(UUID targetUserId, UUID adminUserId) {
         if (targetUserId.equals(adminUserId)) {
             throw new BadRequestException("You cannot delete your own account from the admin panel");
         }
 
-        entityManager.createNativeQuery("DELETE FROM \"user\" WHERE id = :id")
-                .setParameter("id", targetUserId)
-                .executeUpdate();
+        authIdentityDao.deleteById(targetUserId);
 
         deleteAccount(targetUserId);
     }
@@ -262,6 +279,12 @@ public class UserService {
                 .onboardingOutcome(user.getOnboardingOutcome())
                 .accountType(user.getAccountType())
                 .createdAt(user.getCreatedAt())
+                .lastActiveAt(toUtcInstant(user.getLastActiveAt()))
                 .build();
+    }
+
+    // The column is zone-less but written by nowUtc(), so UTC is the offset it was stamped with.
+    private Instant toUtcInstant(LocalDateTime value) {
+        return value == null ? null : value.toInstant(ZoneOffset.UTC);
     }
 }

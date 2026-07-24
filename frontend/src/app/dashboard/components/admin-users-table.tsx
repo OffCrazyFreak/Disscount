@@ -1,38 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-
+import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
+import AdminUserRow from "@/app/dashboard/components/admin-user-row";
 import { adminService } from "@/lib/api";
-import {
-  AccountType,
-  ACCOUNT_TYPE_LABELS,
-  UserDto,
-} from "@/lib/api/schemas/auth-user";
+import { AccountType, UserDto } from "@/lib/api/schemas/auth-user";
 import { useUser } from "@/context/user-context";
-
-const ACCOUNT_TYPES = Object.keys(ACCOUNT_TYPE_LABELS) as AccountType[];
 
 export default function AdminUsersTable() {
   const { user: currentUser } = useUser();
@@ -92,64 +75,23 @@ export default function AdminUsersTable() {
             <TableRow>
               <TableHead>Korisničko ime</TableHead>
               <TableHead>Email</TableHead>
+              <TableHead>Zadnja prijava</TableHead>
               <TableHead className="w-48">Tip računa</TableHead>
               <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            {users?.map((u) => {
-              const isSelf = u.id === currentUser?.id;
-
-              return (
-                <TableRow key={u.id}>
-                  <TableCell className="font-medium">
-                    {u.username || "-"}
-                    {isSelf && (
-                      <Badge variant="primary" className="ml-2">
-                        Ti
-                      </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {u.email || "-"}
-                  </TableCell>
-                  <TableCell>
-                    <Select
-                      value={u.accountType}
-                      onValueChange={(value) =>
-                        handleChange(u.id, value as AccountType)
-                      }
-                      disabled={isSelf || updatingId === u.id}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {ACCOUNT_TYPES.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {ACCOUNT_TYPE_LABELS[type]}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      aria-label="Obriši račun"
-                      className="text-destructive hover:text-destructive"
-                      disabled={isSelf}
-                      onClick={() => setDeleteTarget(u)}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+            {users?.map((user) => (
+              <AdminUserRow
+                key={user.id}
+                user={user}
+                isSelf={user.id === currentUser?.id}
+                isUpdating={updatingId === user.id}
+                onAccountTypeChange={handleChange}
+                onDelete={setDeleteTarget}
+              />
+            ))}
           </TableBody>
         </Table>
       </div>

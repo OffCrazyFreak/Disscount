@@ -1,15 +1,17 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
+import LabeledSelect from "@/components/custom/common/labeled-select";
+import type { ILabeledSelectOption } from "@/typings/labeled-select-option";
+import type { StoreOptimizeMode } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
+
+const OPTIMIZE_OPTIONS: ILabeledSelectOption<StoreOptimizeMode>[] = [
+  { value: "products", label: "Broju proizvoda" },
+  { value: "basket", label: "Najjeftinijoj košarici" },
+  { value: "total", label: "Zasebnim proizvodima" },
+  { value: "distance", label: "Udaljenosti", comingSoon: true },
+];
 
 interface IStoreOptimizeSelectProps {
-  value: string;
-  onValueChange: (value: string) => void;
+  value: StoreOptimizeMode;
+  onValueChange: (mode: StoreOptimizeMode) => void;
 }
 
 export default function StoreOptimizeSelect({
@@ -17,26 +19,11 @@ export default function StoreOptimizeSelect({
   onValueChange,
 }: IStoreOptimizeSelectProps) {
   return (
-    <div className="flex flex-wrap items-center justify-end gap-2">
-      <span className="text-sm text-muted-foreground">Optimiziraj po</span>
-
-      <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger className="w-full sm:w-60 bg-white" size="sm">
-          <SelectValue />
-        </SelectTrigger>
-
-        <SelectContent>
-          <SelectItem value="products">Broj proizvoda</SelectItem>
-          <SelectItem value="basket">Najjeftinija košarica</SelectItem>
-          <SelectItem value="total">Zasebnim proizvodima</SelectItem>
-          <SelectItem value="distance" disabled>
-            <span className="flex items-center gap-2">
-              Udaljenost
-              <ComingSoonBadge />
-            </span>
-          </SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
+    <LabeledSelect
+      label="Optimiziraj po:"
+      value={value}
+      onValueChange={onValueChange}
+      options={OPTIMIZE_OPTIONS}
+    />
   );
 }

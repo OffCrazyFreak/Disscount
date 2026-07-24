@@ -16,6 +16,9 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
+/** Destination for items whose page does not exist yet. */
+export const PLACEHOLDER_HREF = "#";
+
 export interface INavigationItem {
   id: string;
   href: string;
@@ -124,7 +127,7 @@ export const productNavItems: INavigationItem[] = [
     children: [
       {
         id: "stores",
-        href: "#",
+        href: PLACEHOLDER_HREF,
         label: "Trgovine",
         icon: Store,
 
@@ -134,7 +137,7 @@ export const productNavItems: INavigationItem[] = [
       },
       {
         id: "locations",
-        href: "#",
+        href: PLACEHOLDER_HREF,
         label: "Lokacije",
         icon: MapPin,
 
@@ -177,7 +180,7 @@ export const supportNavItems: INavigationItem[] = [
   },
   {
     id: "bug-report",
-    href: "#",
+    href: PLACEHOLDER_HREF,
     label: "Prijavi grešku",
     icon: Bug,
     comingSoon: true,

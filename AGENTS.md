@@ -22,6 +22,8 @@ These principles apply across the whole repo (frontend and backend).
 
 - If you need to add env variables, first notify the user and then update both the .env file and the example.env file. Always make sure they are in sync.
 
+- Never run dev servers or build commands, as stated per stack below. Except when during a framework or dependency migration, frontend or backend. Then it's allowed to test everything.
+
 ## Commit message requirement
 
 At the end of every response that includes code changes, include a suggested Git commit message. To make sure you don't miss any changes, first check with git status and git diff what are the changes made, and then using this info and your conversation history in this chat, make a message.
@@ -46,16 +48,11 @@ Notes:
 
 ## Tech stack
 
-Versions live in `frontend/package.json` (the source of truth) - read them there instead of duplicating them. Non-obvious choices:
-
-- Several core deps (`next`, `react`, `better-auth`, `drizzle-orm`, `kysely`, `pg`, `recharts`) are pinned exactly (no `^`) on purpose - keep them that way.
-- `kysely` is held at `0.28.17` because better-auth's kysely-adapter breaks on `0.29`.
-
 Installed libs - reach for these instead of reinventing them (names only, versions in `package.json`):
 
 - Core: next, react, react-dom
 - Auth: better-auth
-- DB: drizzle-orm, drizzle-kit, pg, kysely
+- DB: drizzle-orm, drizzle-kit, pg, kysely (a direct dep only to pin better-auth's required peer, nothing imports it)
 - Data & state: @tanstack/react-query (+ devtools, persist-client, query-async-storage-persister), @tanstack/react-virtual
 - Forms & validation: react-hook-form, @hookform/resolvers, zod
 - HTTP: axios
@@ -113,7 +110,7 @@ NEVER run "mvn spring-boot:run" or any other development server command, because
 
 ## Tech stack
 
-Versions are managed by the Spring Boot parent (`3.1.0`) in `backend/pom.xml` - read them there. Non-obvious notes:
+Non-obvious notes:
 
 - Java 21; the app is a resource server - `oauth2-resource-server` validates better-auth's ES256 JWTs via JWKS.
 - Tests run against H2.

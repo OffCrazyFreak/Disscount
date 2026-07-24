@@ -11,10 +11,7 @@ import {
   type StoreOptimizeMode,
 } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
 import { buildChainAggregates } from "@/app/(user)/shopping-lists/[id]/utils/store-chain-aggregate";
-import {
-  findCompleteStoresAnalysis,
-  computeAbsolutePrices,
-} from "@/app/(user)/shopping-lists/[id]/utils/store-chain-completeness";
+import { computeAbsolutePrices } from "@/app/(user)/shopping-lists/[id]/utils/store-chain-completeness";
 import {
   countCheapestByChain,
   findHighestPriceStores,
@@ -43,29 +40,26 @@ export function useStoreChainAnalysis({
     );
   }, [shoppingList.items]);
 
-  const productQueries = useQueries({
+  // combine is memoised by TanStack, so productsData keeps a stable identity between renders.
+  const { productsData, productsLoading, productsError } = useQueries({
     queries: eans.map((ean) => ({
       queryKey: productByEanQueryKey(ean),
       queryFn: () => cijeneService.getProductByEan({ ean }),
       enabled: Boolean(ean),
       staleTime: 6 * 60 * 60 * 1000, // 6 hours
     })),
+    combine: (results) => ({
+      productsData: results
+        .map((result) => result.data)
+        .filter((data): data is ProductResponse => data !== undefined),
+      productsLoading: results.some((result) => result.isLoading),
+      productsError: results.some((result) => result.error),
+    }),
   });
-
-  const productsLoading = productQueries.some((query) => query.isLoading);
-  const productsError = productQueries.some((query) => query.error);
-  const productsData = productQueries
-    .map((query) => query.data)
-    .filter((data): data is ProductResponse => data !== undefined);
 
   const allChains = useMemo(
     () => buildChainAggregates(productsData, activeItems),
     [productsData, activeItems],
-  );
-
-  const completeStoresAnalysis = useMemo(
-    () => findCompleteStoresAnalysis(allChains, activeItems),
-    [allChains, activeItems],
   );
 
   const cheapestCountByChain = useMemo(
@@ -110,7 +104,6 @@ export function useStoreChainAnalysis({
     productsLoading,
     productsError,
     productsData,
-    completeStoresAnalysis,
     storesWithLowestPriceItems,
     storesWithHighestPriceItems,
     absolutePrices,
