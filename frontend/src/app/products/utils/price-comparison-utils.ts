@@ -1,4 +1,4 @@
-export type PriceExtreme = "min" | "max" | null;
+import { PriceExtreme } from "@/app/products/utils/price-comparison-types";
 
 // Uniform prices (min === max) return null so every view renders them neutrally.
 export function getPriceExtreme(
@@ -29,10 +29,11 @@ export function calculatePriceChange(
   currentPrice: number,
   previousPrice: number,
 ) {
-  const percentage = Math.abs(
-    ((currentPrice - previousPrice) / previousPrice) * 100,
-  );
   const difference = Number((currentPrice - previousPrice).toFixed(2));
+  const percentage =
+    previousPrice === 0
+      ? null
+      : Math.abs(((currentPrice - previousPrice) / previousPrice) * 100);
 
   return { percentage, difference };
 }

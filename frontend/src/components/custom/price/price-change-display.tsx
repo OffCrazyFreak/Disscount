@@ -5,7 +5,7 @@ import { priceDeltaColorClass } from "@/utils/price";
 interface IPriceChangeDisplayProps {
   priceChange: {
     difference: number;
-    percentage: number;
+    percentage: number | null;
   } | null;
 }
 
@@ -27,7 +27,9 @@ export default function PriceChangeDisplay({
         {priceChange.difference.toFixed(2)}€
       </span>
 
-      <span>({Math.round(Math.abs(priceChange.percentage))}%)</span>
+      {priceChange.percentage !== null && (
+        <span>({Math.round(Math.abs(priceChange.percentage))}%)</span>
+      )}
 
       {priceChange.difference !== 0 &&
         (priceChange.difference < 0 ? (
