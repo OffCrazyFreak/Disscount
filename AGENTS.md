@@ -22,6 +22,8 @@ These principles apply across the whole repo (frontend and backend).
 
 - If you need to add env variables, first notify the user and then update both the .env file and the example.env file. Always make sure they are in sync.
 
+- Never run dev servers or build commands, as stated per stack below. Except when during a framework or dependency migration, frontend or backend. Then it's allowed to test everything.
+
 ## Commit message requirement
 
 At the end of every response that includes code changes, include a suggested Git commit message. To make sure you don't miss any changes, first check with git status and git diff what are the changes made, and then using this info and your conversation history in this chat, make a message.
