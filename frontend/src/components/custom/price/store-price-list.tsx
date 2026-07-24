@@ -18,7 +18,7 @@ export default function StorePriceList({ stores }: IStorePriceListProps) {
           className={cn(
             "text-sm",
             Math.round(store.discountPercentage) === bestPercentage &&
-              "text-green-700",
+              "text-primary",
           )}
         >
           {store.chainName} ~ {store.currentPrice.toFixed(2)}€
