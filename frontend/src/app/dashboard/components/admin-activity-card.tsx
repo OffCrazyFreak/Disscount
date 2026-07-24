@@ -5,7 +5,7 @@ import { useState } from "react";
 import LabeledSelect from "@/components/custom/common/labeled-select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UserDto } from "@/lib/api/types";
+import { UserDto } from "@/lib/api/schemas/auth-user";
 import {
   ACTIVITY_WINDOW_OPTIONS,
   countActiveUsers,

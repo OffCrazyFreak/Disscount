@@ -1,5 +1,5 @@
 import type { ILabeledSelectOption } from "@/components/custom/common/labeled-select";
-import { UserDto } from "@/lib/api/types";
+import { UserDto } from "@/lib/api/schemas/auth-user";
 import { MILLISECONDS_PER_DAY } from "@/utils/date";
 
 export const ACTIVITY_WINDOW_OPTIONS: ILabeledSelectOption[] = [
