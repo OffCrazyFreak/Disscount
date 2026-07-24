@@ -41,8 +41,7 @@ export default function ShoppingListStoreSummary({
       : "products";
   });
 
-  function handleOptimizeChange(value: string) {
-    const mode = value as StoreOptimizeMode;
+  function handleOptimizeChange(mode: StoreOptimizeMode) {
     setOptimizeBy(mode);
     setStoreOptimizeMode(mode);
   }
