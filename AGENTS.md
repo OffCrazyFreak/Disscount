@@ -54,7 +54,7 @@ Versions live in `frontend/package.json` (the source of truth) - read them there
 Installed libs - reach for these instead of reinventing them (names only, versions in `package.json`):
 
 - Core: next, react, react-dom
-- Auth: better-auth, @daveyplate/better-auth-ui
+- Auth: better-auth
 - DB: drizzle-orm, drizzle-kit, pg, kysely
 - Data & state: @tanstack/react-query (+ devtools, persist-client, query-async-storage-persister), @tanstack/react-virtual
 - Forms & validation: react-hook-form, @hookform/resolvers, zod

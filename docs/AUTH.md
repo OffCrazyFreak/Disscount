@@ -238,7 +238,6 @@ Frontend (versions from `frontend/package.json`):
 | Library                       | Version               | Role                                                        |
 | ----------------------------- | --------------------- | ----------------------------------------------------------- |
 | `better-auth`                 | `1.6.14`              | Identity provider (auth logic, OAuth, JWT).                 |
-| `@daveyplate/better-auth-ui`  | `^3.2.13`             | Only used for `UserAvatar`.                                 |
 | `drizzle-orm` / `drizzle-kit` | `0.45.2` / `^0.31.10` | Owns the auth tables.                                       |
 | `pg`                          | `8.21.0`              | Postgres driver.                                            |
 | `resend`                      | `^6.14.0`             | Transactional email API.                                    |
