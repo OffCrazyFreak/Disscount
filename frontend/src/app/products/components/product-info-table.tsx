@@ -77,23 +77,29 @@ export default function ProductInfoTable({ product }: IProductInfoTableProps) {
             <tr className="flex flex-col sm:table-row">
               <td className="p-2 flex-1">
                 <span className="font-bold">Jed. cijene: </span>
-                {minPricePerUnit === maxPricePerUnit ? (
-                  <span className="whitespace-nowrap text-gray-700">
-                    {minPricePerUnit?.toFixed(2)}€/{product.unit}
-                  </span>
+                {minPricePerUnit !== undefined &&
+                maxPricePerUnit !== undefined ? (
+                  minPricePerUnit === maxPricePerUnit ? (
+                    <span className="whitespace-nowrap text-gray-700">
+                      {minPricePerUnit.toFixed(2)}€/{product.unit}
+                    </span>
+                  ) : (
+                    <span className="whitespace-nowrap">
+                      <span className="text-green-700">
+                        {minPricePerUnit.toFixed(2)}€/{product.unit}
+                      </span>
+                      <span className="text-gray-700">
+                        {" "}
+                        | {averagePricePerUnit?.toFixed(2)}€/{product.unit}{" "}
+                        |{" "}
+                      </span>
+                      <span className="text-red-700">
+                        {maxPricePerUnit.toFixed(2)}€/{product.unit}
+                      </span>
+                    </span>
+                  )
                 ) : (
-                  <span className="whitespace-nowrap">
-                    <span className="text-green-700">
-                      {minPricePerUnit?.toFixed(2)}€/{product.unit}
-                    </span>
-                    <span className="text-gray-700">
-                      {" "}
-                      | {averagePricePerUnit?.toFixed(2)}€/{product.unit} |{" "}
-                    </span>
-                    <span className="text-red-700">
-                      {maxPricePerUnit?.toFixed(2)}€/{product.unit}
-                    </span>
-                  </span>
+                  "Nepoznato"
                 )}
               </td>
             </tr>
