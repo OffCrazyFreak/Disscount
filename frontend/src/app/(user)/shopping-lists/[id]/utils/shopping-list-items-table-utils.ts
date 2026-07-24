@@ -38,9 +38,7 @@ export function getChainItemPriceInfo(
 
   // getPriceExtreme returns null when min === max, so uniform prices stay unflagged.
   const priceExtreme =
-    isAvailable && range
-      ? getPriceExtreme(price, range.min, range.max)
-      : null;
+    isAvailable && range ? getPriceExtreme(price, range.min, range.max) : null;
 
   return {
     isAvailable,

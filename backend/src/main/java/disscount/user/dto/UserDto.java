@@ -34,10 +34,8 @@ public class UserDto {
     private String onboardingOutcome;
     private AccountType accountType;
     private LocalDateTime createdAt;
-    // Instant rather than LocalDateTime so the JSON carries an offset: the dashboard does date
-    // maths on these two, and an offset-less string is parsed as browser-local time.
-    // Sign-in time, read from the better-auth `session` table; null for /me and for users
-    // whose sessions have all been signed out or expired away.
+    // Instant, not LocalDateTime: the dashboard does date maths and needs the offset.
+    // Sign-in time from the better-auth `session` table; null for /me and once sessions expire.
     private Instant lastLoginAt;
     // Last seen, and what the dashboard's active-user counters are built on.
     private Instant lastActiveAt;

@@ -22,8 +22,7 @@
 	</licenses>
 	<properties>
 		<java.version>21</java.version>
-		<!-- Overrides the version spring-boot-dependencies manages, and is the single
-		     source for both the dependency and the annotation processor path below. -->
+		<!-- Overrides the spring-boot-dependencies default; used by the processor path too. -->
 		<lombok.version>1.18.46</lombok.version>
 	</properties>
 	<dependencies>

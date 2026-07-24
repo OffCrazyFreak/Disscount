@@ -59,9 +59,7 @@ export default function StoreCardHeader({
                   className="size-5 text-green-600 flex-shrink-0"
                   aria-hidden="true"
                 />
-                <span className="sr-only">
-                  ima proizvod s najnižom cijenom
-                </span>
+                <span className="sr-only">ima proizvod s najnižom cijenom</span>
               </>
             )}
             {hasHighestPriceItem && (
@@ -70,9 +68,7 @@ export default function StoreCardHeader({
                   className="size-5 text-red-700 flex-shrink-0"
                   aria-hidden="true"
                 />
-                <span className="sr-only">
-                  ima proizvod s najvišom cijenom
-                </span>
+                <span className="sr-only">ima proizvod s najvišom cijenom</span>
               </>
             )}
 

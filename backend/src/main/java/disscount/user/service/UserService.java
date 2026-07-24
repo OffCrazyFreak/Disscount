@@ -36,8 +36,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final AuthIdentityDao authIdentityDao;
 
-    // better-auth writes its session timestamps in UTC, and these columns are compared against
-    // them, so stamping in the JVM's default zone would make the two disagree off Docker.
+    // Compared against better-auth's UTC session timestamps, so the JVM zone must not leak in.
     private static LocalDateTime nowUtc() {
         return LocalDateTime.now(ZoneOffset.UTC);
     }
