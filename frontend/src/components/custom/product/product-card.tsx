@@ -17,6 +17,8 @@ interface IProductCardProps {
   onClick?: () => void;
   isLoading?: boolean;
   trailing?: ReactNode;
+  // Lets the trailing content drop below itself when the card runs out of room.
+  trailingWraps?: boolean;
   className?: string;
 }
 
@@ -29,6 +31,7 @@ export default function ProductCard({
   onClick,
   isLoading = false,
   trailing,
+  trailingWraps = false,
   className,
 }: IProductCardProps) {
   const displayName = name && quantity ? `${name} (${quantity})` : name;
@@ -71,7 +74,12 @@ export default function ProductCard({
 
         {trailing && (
           <div
-            className="flex shrink-0 items-center gap-4"
+            className={cn(
+              "flex items-center gap-4",
+              trailingWraps
+                ? "min-w-0 flex-wrap-reverse justify-end gap-y-2"
+                : "shrink-0",
+            )}
             onClick={stopCardNavigation}
           >
             {trailing}
