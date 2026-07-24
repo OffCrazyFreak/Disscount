@@ -30,7 +30,7 @@ const buttonVariants = cva(
         infoSoft:
           "border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900",
         outline:
-          "outline-2 -outline-offset-2 hover:outline-secondary hover:bg-green-50 hover:text-accent-foreground shadow-sm",
+          "outline-2 -outline-offset-2 bg-white hover:outline-secondary hover:bg-green-50 hover:text-accent-foreground shadow-sm",
         // Functional-only variants with no colour-scheme equivalent.
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-xs",

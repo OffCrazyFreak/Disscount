@@ -5,7 +5,10 @@ import { useGetProductByName, useListChains } from "@/lib/cijene-api";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { getChainLabel } from "@/utils/labels";
 import { compareHr } from "@/utils/strings";
-import { canonicalizeSelection } from "@/app/products/utils/product-filters";
+import {
+  canonicalizeSelection,
+  normalizeChainCode,
+} from "@/app/products/utils/product-filters";
 import { PRODUCT_SEARCH_LIMIT } from "@/constants/products";
 import {
   computeProductFacets,
@@ -32,7 +35,6 @@ function toFacetSelect(
   facetOptions: IFacetOption[] | null,
   fallbackValues: string[],
   selectedRaw: string[],
-  fallbackCounts?: Record<string, number>,
 ): IFacetSelect {
   const values = facetOptions
     ? facetOptions.map((option) => option.value)
@@ -40,10 +42,16 @@ function toFacetSelect(
 
   const selected = canonicalizeSelection(selectedRaw, values);
   const known = new Set(values);
-  const options = [...values, ...selected.filter((v) => !known.has(v))];
+  const missing = selected.filter((value) => !known.has(value));
+  const options = [...values, ...missing];
+
+  // A selected value that fell out of the universe still shows a (0) count.
   const counts = facetOptions
-    ? Object.fromEntries(facetOptions.map((o) => [o.value, o.count]))
-    : fallbackCounts;
+    ? Object.fromEntries([
+        ...facetOptions.map((o): [string, number] => [o.value, o.count]),
+        ...missing.map((value): [string, number] => [value, 0]),
+      ])
+    : undefined;
 
   return {
     options,
@@ -73,14 +81,21 @@ export default function useProductFacets(
   });
 
   return useMemo(() => {
+    const chainUniverse = (chainsData?.chains ?? []).map(normalizeChainCode);
+
     const facets =
       query && facetData
-        ? computeProductFacets(facetData.products, locations ?? [], {
-            chains: filters.selectedChains,
-            locations: filters.selectedLocations,
-            categories: filters.selectedCategories,
-            brands: filters.selectedBrands,
-          })
+        ? computeProductFacets(
+            facetData.products,
+            locations ?? [],
+            {
+              chains: filters.selectedChains,
+              locations: filters.selectedLocations,
+              categories: filters.selectedCategories,
+              brands: filters.selectedBrands,
+            },
+            chainUniverse,
+          )
         : null;
 
     const allLocations = [...(locations ?? [])].sort((a, b) =>
@@ -89,7 +104,7 @@ export default function useProductFacets(
 
     const chains = toFacetSelect(
       facets?.chains ?? null,
-      chainsData?.chains ?? [],
+      chainUniverse,
       filters.selectedChains,
     );
     chains.options = [...chains.options].sort((a, b) =>
@@ -102,9 +117,6 @@ export default function useProductFacets(
         facets?.locations ?? null,
         allLocations.map((location) => location.name),
         filters.selectedLocations,
-        Object.fromEntries(
-          allLocations.map((location) => [location.name, location.storeCount]),
-        ),
       ),
       categories: toFacetSelect(
         facets?.categories ?? null,

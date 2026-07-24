@@ -1,12 +1,15 @@
-import { useState, MouseEvent } from "react";
-import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
-import { watchlistService, WatchType } from "@/lib/api";
+import { MouseEvent } from "react";
+
+import { WatchType } from "@/lib/api";
 import {
   extractPinnedStoreChainCodes,
+  getScopedDiscountedStores,
   isWatchThresholdReached,
   IWatchlistItemWithProduct,
 } from "@/app/(user)/watchlist/utils/watchlist-utils";
+import { getMostFrequentCategory } from "@/app/products/utils/product-utils";
+import { toStoreLines } from "@/app/(user)/watchlist/utils/discount-display-utils";
+import useWatchlistRemoval from "@/app/(user)/watchlist/hooks/use-watchlist-removal";
 import { useUser } from "@/context/user-context";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { formatQuantity } from "@/utils/strings";
@@ -14,43 +17,9 @@ import { formatQuantity } from "@/utils/strings";
 export function useWatchlistItem(item: IWatchlistItemWithProduct) {
   const { watchlistItems, productApiId, product, discountInfo, isLoading } =
     item;
-  const queryClient = useQueryClient();
   const { user } = useUser();
-  const [isRemoving, setIsRemoving] = useState(false);
 
-  async function handleRemove() {
-    setIsRemoving(true);
-
-    try {
-      const removeResults = await Promise.allSettled(
-        watchlistItems.map((watchlistItem) =>
-          watchlistService.removeFromWatchlist(watchlistItem.id),
-        ),
-      );
-
-      const failedRemovals = removeResults.filter(
-        (result) => result.status === "rejected",
-      ).length;
-
-      if (failedRemovals === 0) {
-        toast.success("Proizvod uklonjen s popisa za praćenje");
-      } else if (failedRemovals === watchlistItems.length) {
-        toast.error("Greška pri uklanjanju proizvoda");
-      } else {
-        toast.error(
-          `Djelomično uklanjanje: ${failedRemovals} stavki nije moguće ukloniti.`,
-        );
-      }
-    } catch {
-      toast.error("Greška pri uklanjanju proizvoda");
-    } finally {
-      await queryClient.invalidateQueries({
-        queryKey: watchlistService.QUERY_KEYS.all,
-      });
-
-      setIsRemoving(false);
-    }
-  }
+  const { isRemoving, handleRemove } = useWatchlistRemoval(watchlistItems);
 
   const productName =
     product?.name || (isLoading ? "Učitavanje..." : "Proizvod nije dostupan");
@@ -61,8 +30,22 @@ export function useWatchlistItem(item: IWatchlistItemWithProduct) {
       ? `${formattedQuantity}${product.unit}`
       : null;
 
-  const hasPinnedStores =
-    extractPinnedStoreChainCodes(user?.pinnedStores).length > 0;
+  const pinnedStoreChainCodes = extractPinnedStoreChainCodes(
+    user?.pinnedStores,
+  );
+  const hasPinnedStores = pinnedStoreChainCodes.length > 0;
+
+  const category = product ? getMostFrequentCategory(product) : null;
+
+  const preferredStores = product
+    ? toStoreLines(
+        getScopedDiscountedStores(product, pinnedStoreChainCodes, true),
+      )
+    : [];
+
+  const totalStores = product
+    ? toStoreLines(getScopedDiscountedStores(product, [], false))
+    : [];
 
   function isWatchRequirementAchieved(
     thresholdValue: number,
@@ -116,7 +99,10 @@ export function useWatchlistItem(item: IWatchlistItemWithProduct) {
     productName,
     productBrand,
     quantityWithUnit,
+    category,
     hasPinnedStores,
+    preferredStores,
+    totalStores,
     isWatchRequirementAchieved,
     handleBadgeClick,
     handleOpenWatchlistModal,

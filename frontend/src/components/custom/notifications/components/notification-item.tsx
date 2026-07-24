@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { IWatchlistNotification } from "@/context/notifications-types";
+import StorePriceList from "@/components/custom/price/store-price-list";
 import { formatQuantity } from "@/utils/strings";
 
 interface INotificationItemProps {
@@ -39,17 +40,7 @@ export default function NotificationItem({
             )}
           </div>
 
-          <div className="space-y-0">
-            {notification.discountedStores.map((store) => (
-              <p
-                key={`${notification.id}-${store.chainName}`}
-                className="text-sm first:text-green-700"
-              >
-                {store.chainName} ~ {store.currentPrice.toFixed(2)}€
-                {` (-${store.discountAmount.toFixed(2)}€, ${Math.round(store.discountPercentage)}%)`}
-              </p>
-            ))}
-          </div>
+          <StorePriceList stores={notification.discountedStores} />
         </div>
       </div>
     </Link>

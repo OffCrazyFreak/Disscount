@@ -59,8 +59,8 @@ export default function WatchlistItemModal({
   const productQuery = cijeneService.useGetProductByEan({ ean });
   const product = productQuery.data;
 
-  const avgPrice = product ? getAveragePrice(product) : 0;
-  const minPrice = product ? getMinPrice(product) : 0;
+  const avgPrice = product ? (getAveragePrice(product) ?? 0) : 0;
+  const minPrice = product ? (getMinPrice(product) ?? 0) : 0;
 
   const {
     form,

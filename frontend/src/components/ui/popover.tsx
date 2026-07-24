@@ -4,6 +4,7 @@ import * as React from "react";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 
 import { cn } from "@/lib/utils";
+import { usePortalContainer } from "@/context/portal-container-context";
 
 function Popover({
   ...props
@@ -21,10 +22,18 @@ function PopoverContent({
   className,
   align = "center",
   sideOffset = 4,
+  container,
   ...props
-}: React.ComponentProps<typeof PopoverPrimitive.Content>) {
+}: React.ComponentProps<typeof PopoverPrimitive.Content> & {
+  container?: HTMLElement | null;
+}) {
+  // Inside a drawer/modal, render into that container so touch scroll works.
+  const portalContainer = usePortalContainer();
+
   return (
-    <PopoverPrimitive.Portal>
+    <PopoverPrimitive.Portal
+      container={container ?? portalContainer ?? undefined}
+    >
       <PopoverPrimitive.Content
         data-slot="popover-content"
         align={align}

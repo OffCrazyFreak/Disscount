@@ -50,19 +50,23 @@ export default function FacetMultiSelect({
         <MultiSelectGroup>
           {facet.options.map((value) => {
             const optionLabel = getLabel?.(value) ?? value;
+            const count = facet.counts?.[value];
+
+            // Unavailable options stay listed but disabled; a selected one that
+            // dropped to zero stays enabled so it can still be removed.
+            const isDisabled = count === 0 && !facet.selected.includes(value);
 
             return (
               <MultiSelectItem
                 key={value}
                 value={value}
                 badgeLabel={optionLabel}
+                disabled={isDisabled}
               >
                 <span className="flex w-full items-center justify-between gap-2">
                   <span>{optionLabel}</span>
-                  {facet.counts?.[value] !== undefined && (
-                    <span className="text-muted-foreground">
-                      ({facet.counts[value]})
-                    </span>
+                  {count !== undefined && (
+                    <span className="text-muted-foreground">({count})</span>
                   )}
                 </span>
               </MultiSelectItem>

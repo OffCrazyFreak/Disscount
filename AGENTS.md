@@ -2,31 +2,25 @@
 
 These principles apply across the whole repo (frontend and backend).
 
-- Always follow DRY and clean code principles, with separation of concerns, modularity, and reusability in mind.
+- Write code all like a senior dev - always follow DRY and clean code principles, with separation of concerns, modularity, and reusability in mind. The files should aim to be 50-100ish lines long, so they are easy to read, parse, and maintain.
+
+- Add empty rows for better readability between logical blocks of code, my prettier will take care of the rest.
+
+- Before writing any function or component, ALWAYS check the codebase (especially utils/ and hooks/ folders) for a similar one and reuse it. If I ask you to refactor something out and nothing similar exists, create it in a new separate file instead of inline.
 
 - Always follow project structure and conventions, including file organization, naming conventions, and coding styles, but feel free to suggest improvements when appropriate.
-
-- The files should aim to be 50-100ish lines long, so they are easy to read, parse, and maintain.
+- Always use kebab-case naming of files if you can.
+- Feature-specific code goes in feature folders (products/, shopping-lists/), shared/generic code stays in central locations (utils/, lib/, constants/).
 
 - Write self-explanatory code. Use comments only for genuinely complex logic or decisions. NEVER USE multi-line comments to explain something UNLESS STRICLY NECCESSARY, if you think you should you _probably_ did it wrong and YOU SHOULD TRY TO REWRITE IT AND ALL CONNECTED CODE (basically a full refractor, while keeping funcionality) so you don't need it. So don't simply remove comments, but refractor everything conected so it doesn't need a comment anymore.
+
+- Do not prematurely optimize code. Focus on clarity and correctness first. Especially for frontend now that react compiler optimizations are very good.
 
 - After every code generation, ALWAYS provide a brief explanation of the code changes you made and why because I'm still learning and I want to become a better developer.
 
 - Always fetch and follow proper and most recent documentation, especially for libraries. Fetch it from the official website or repository, instead of searching in node modules or other places.
 
-- Do not prematurely optimize code. Focus on clarity and correctness first. Especially for frontend now that react compiler optimizations are very good.
-
 - If you need to add env variables, first notify the user and then update both the .env file and the example.env file. Always make sure they are in sync.
-
-- Always use kebab-case naming of files if you can.
-
-- Before writing any function or component, ALWAYS check the codebase (especially utils/ and hooks/ folders) for a similar one and reuse it. If I ask you to refactor something out and nothing similar exists, create it in a new separate file instead of inline.
-
-- Feature-specific code goes in feature folders (products/, shopping-lists/), shared/generic code stays in central locations (utils/, lib/, constants/).
-
-- Add empty rows for better readability between logical blocks of code, my prettier will take care of the rest.
-
-- After editing any repo markdown (README, AGENTS, CLAUDE, `docs/`, `.github/`, `.claude/`), run `pnpm exec prettier --write --ignore-path ../.prettierignore "../<file-or-glob>"` from `frontend/` before committing, since CI format-checks those too.
 
 ## Commit message requirement
 
@@ -88,8 +82,9 @@ If you need to import some hooks or components from react library, ALWAYS import
 Write all functions with syntax "function functionName() {}" instead of arrow functions like "const functionName = () => {}" unless it's a small inline function.
 
 ALWAYS check if all typescript types are correct and there are no type errors by first formatting "pnpm exec prettier" and then using "pnpm exec tsc --noEmit" before providing the final code.
+After editing ANY repo files, run `pnpm exec prettier --write --ignore-path ../.prettierignore "../<file-or-glob>"` from `frontend/` before committing, since CI format-checks those too.
 
-ALWAYS use frontend design skill when generating frontend code.
+ALWAYS use frontend design skill when generating UI code.
 
 Never edit the package.json or package-lock.json files directly, but instead use "pnpm add package-name@version" or "pnpm remove package-name" to manage dependencies.
 
