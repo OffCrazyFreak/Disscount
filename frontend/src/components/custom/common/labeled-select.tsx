@@ -1,5 +1,7 @@
 "use client";
 
+import { useId } from "react";
+
 import {
   Select,
   SelectContent,
@@ -24,9 +26,13 @@ export default function LabeledSelect<TValue extends string>({
   onValueChange,
   options,
 }: ILabeledSelectProps<TValue>) {
+  const labelId = useId();
+
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="shrink-0 text-sm text-muted-foreground">{label}</span>
+      <span id={labelId} className="shrink-0 text-sm text-muted-foreground">
+        {label}
+      </span>
 
       <Select
         value={value}
@@ -37,7 +43,10 @@ export default function LabeledSelect<TValue extends string>({
       >
         {/* The trigger keeps the primitive's w-fit so its label never clips, and
             min-h beats the primitive's own height where a plain h- utility loses. */}
-        <SelectTrigger className="min-h-10 min-w-52 bg-white">
+        <SelectTrigger
+          aria-labelledby={labelId}
+          className="min-h-10 min-w-52 bg-white"
+        >
           <SelectValue />
         </SelectTrigger>
 
