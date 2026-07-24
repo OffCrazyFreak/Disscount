@@ -29,7 +29,7 @@ export default function SidebarProductNavSkeleton() {
                 <SidebarMenuSub className="gap-0">
                   {item.children.map((child) => (
                     <SidebarMenuSubItem key={child.id}>
-                      <Skeleton className="h-7 w-full" />
+                      <Skeleton className="h-8 w-full" />
                     </SidebarMenuSubItem>
                   ))}
                 </SidebarMenuSub>
