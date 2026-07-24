@@ -40,15 +40,11 @@ export function useWatchlistItem(item: IWatchlistItemWithProduct) {
   const preferredStores = product
     ? toStoreLines(
         getScopedDiscountedStores(product, pinnedStoreChainCodes, true),
-        watchlistItems,
       )
     : [];
 
   const totalStores = product
-    ? toStoreLines(
-        getScopedDiscountedStores(product, [], false),
-        watchlistItems,
-      )
+    ? toStoreLines(getScopedDiscountedStores(product, [], false))
     : [];
 
   function isWatchRequirementAchieved(
