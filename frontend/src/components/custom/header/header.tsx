@@ -20,7 +20,7 @@ export default function Header() {
                 "bg-background/50 max-w-5xl rounded-2xl border backdrop-blur-sm px-4",
             )}
           >
-            <div className="flex items-center justify-between gap-6 flex-wrap py-2 sm:py-4">
+            <div className="flex items-center justify-between gap-2 sm:gap-6 flex-wrap py-2 sm:py-4">
               <HeaderBrand />
 
               <HeaderNav />
