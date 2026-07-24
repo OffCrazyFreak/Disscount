@@ -48,7 +48,7 @@ export default function PriceHistorySection() {
           </Button>
         </div>
 
-        <div className="relative bg-card border rounded-3xl p-8 shadow-sm">
+        <div className="relative bg-card border rounded-3xl p-8 shadow-sm hidden sm:block">
           <PriceLineDoodle className="w-full h-auto text-primary" />
           <p className="mt-4 text-center text-xs uppercase tracking-wider text-muted-foreground text-pretty">
             Cijena kroz vrijeme

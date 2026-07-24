@@ -12,13 +12,7 @@ import {
   FormMessage,
   FormDescription,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import DigitalCardSelectField from "@/app/(user)/digital-cards/components/forms/digital-card-select-field";
 import type { DigitalCardRequest } from "@/lib/api/types";
 
 const CARD_TYPES = [
@@ -35,44 +29,6 @@ const CODE_TYPES = [
   { value: "number", label: "Broj" },
   { value: "text", label: "Tekst" },
 ];
-
-interface ISelectFieldProps {
-  name: "type" | "codeType";
-  label: string;
-  placeholder: string;
-  options: { value: string; label: string }[];
-}
-
-function SelectField({ name, label, placeholder, options }: ISelectFieldProps) {
-  const form = useFormContext<DigitalCardRequest>();
-
-  return (
-    <FormField
-      control={form.control}
-      name={name}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>{label}</FormLabel>
-          <Select onValueChange={field.onChange} value={field.value}>
-            <FormControl>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder={placeholder} />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              {options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
-}
 
 export default function DigitalCardFields() {
   const form = useFormContext<DigitalCardRequest>();
@@ -107,14 +63,14 @@ export default function DigitalCardFields() {
         )}
       />
 
-      <SelectField
+      <DigitalCardSelectField
         name="type"
         label="Tip kartice"
         placeholder="Odaberi tip"
         options={CARD_TYPES}
       />
 
-      <SelectField
+      <DigitalCardSelectField
         name="codeType"
         label="Tip koda"
         placeholder="Odaberi tip koda"
