@@ -2,14 +2,8 @@
 
 import { useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import {
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuSub,
-} from "@/components/ui/sidebar";
+import { SidebarMenuItem, SidebarMenuSub } from "@/components/ui/sidebar";
+import SidebarProductNavShell from "@/components/custom/sidebar/sidebar-product-nav-shell";
 import SidebarNavItem from "@/components/custom/sidebar/sidebar-nav-item";
 import SidebarFilterMenu from "@/components/custom/sidebar/sidebar-filter-menu";
 import { useSidebarFilterOptions } from "@/hooks/use-sidebar-filter-options";
@@ -71,28 +65,22 @@ export default function SidebarProductNav() {
   }
 
   return (
-    <SidebarGroup className="py-1">
-      <SidebarGroupLabel>Istraži</SidebarGroupLabel>
+    <SidebarProductNavShell>
+      {productNavItems.map((item) => (
+        <SidebarMenuItem key={item.id}>
+          <SidebarNavItem
+            item={item}
+            isActive={isItemActive(item)}
+            isLocked={Boolean(item.comingSoon) && !userIsAdmin}
+          />
 
-      <SidebarGroupContent>
-        <SidebarMenu className="gap-0">
-          {productNavItems.map((item) => (
-            <SidebarMenuItem key={item.id}>
-              <SidebarNavItem
-                item={item}
-                isActive={isItemActive(item)}
-                isLocked={Boolean(item.comingSoon) && !userIsAdmin}
-              />
-
-              {item.children?.length ? (
-                <SidebarMenuSub className="gap-0">
-                  {item.children.map(renderFilterMenu)}
-                </SidebarMenuSub>
-              ) : null}
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
+          {item.children?.length ? (
+            <SidebarMenuSub className="gap-0">
+              {item.children.map(renderFilterMenu)}
+            </SidebarMenuSub>
+          ) : null}
+        </SidebarMenuItem>
+      ))}
+    </SidebarProductNavShell>
   );
 }

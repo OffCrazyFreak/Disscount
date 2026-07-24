@@ -1,12 +1,9 @@
 import {
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import SidebarProductNavShell from "@/components/custom/sidebar/sidebar-product-nav-shell";
 import { Skeleton } from "@/components/ui/skeleton";
 import { productNavItems } from "@/constants/navigation";
 
@@ -16,28 +13,22 @@ import { productNavItems } from "@/constants/navigation";
  */
 export default function SidebarProductNavSkeleton() {
   return (
-    <SidebarGroup className="py-1">
-      <SidebarGroupLabel>Istraži</SidebarGroupLabel>
+    <SidebarProductNavShell>
+      {productNavItems.map((item) => (
+        <SidebarMenuItem key={item.id}>
+          <Skeleton className="h-8 w-full" />
 
-      <SidebarGroupContent>
-        <SidebarMenu className="gap-0">
-          {productNavItems.map((item) => (
-            <SidebarMenuItem key={item.id}>
-              <Skeleton className="h-8 w-full" />
-
-              {item.children?.length ? (
-                <SidebarMenuSub className="gap-0">
-                  {item.children.map((child) => (
-                    <SidebarMenuSubItem key={child.id}>
-                      <Skeleton className="h-8 w-full" />
-                    </SidebarMenuSubItem>
-                  ))}
-                </SidebarMenuSub>
-              ) : null}
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
+          {item.children?.length ? (
+            <SidebarMenuSub className="gap-0">
+              {item.children.map((child) => (
+                <SidebarMenuSubItem key={child.id}>
+                  <Skeleton className="h-8 w-full" />
+                </SidebarMenuSubItem>
+              ))}
+            </SidebarMenuSub>
+          ) : null}
+        </SidebarMenuItem>
+      ))}
+    </SidebarProductNavShell>
   );
 }
