@@ -36,7 +36,7 @@ export default function SearchSheet() {
         aria-hidden="true"
         onClick={close}
         className={cn(
-          "fixed inset-0 z-[44] bg-black/20 transition-opacity duration-200 md:hidden",
+          "fixed inset-0 z-[43] bg-black/20 transition-opacity duration-200 md:hidden",
           isOpen ? "opacity-100" : "pointer-events-none opacity-0",
         )}
       />
@@ -44,7 +44,9 @@ export default function SearchSheet() {
       <div
         ref={containerRef}
         className={cn(
-          "bg-background fixed inset-x-0 bottom-[var(--bottom-nav-total)] z-[45] rounded-t-2xl border-t p-4 shadow-2xl transition-all duration-200 md:hidden",
+          // Runs behind the bar, which stays on top at z-45, and pads its own
+          // content clear of it so nothing ends up hidden underneath.
+          "bg-background fixed inset-x-0 bottom-0 z-[44] rounded-t-2xl border-t p-4 pb-[calc(var(--bottom-nav-total)+0.75rem)] shadow-2xl transition-all duration-200 md:hidden",
           isOpen
             ? "translate-y-0 opacity-100"
             : "invisible translate-y-2 opacity-0",
