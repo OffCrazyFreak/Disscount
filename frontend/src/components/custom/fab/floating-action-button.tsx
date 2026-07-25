@@ -57,7 +57,7 @@ export default function FloatingActionButton({
     <div
       className={cn(
         // Below every overlay layer, so it never floats over a sheet's scrim.
-        "pointer-events-none fixed z-30",
+        "pointer-events-none fixed z-[var(--z-back-to-top)]",
         positionClasses[position],
         containerClassName,
       )}

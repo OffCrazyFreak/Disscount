@@ -2,8 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useGetShoppingListById } from "@/lib/api/shopping-lists/hooks";
-
-const DETAIL_PATH = /^\/shopping-lists\/([^/]+)$/;
+import { shoppingListIdFromPath } from "@/utils/routes";
 
 /**
  * How much of the list you are currently looking at is ticked off, so the ring
@@ -15,8 +14,9 @@ const DETAIL_PATH = /^\/shopping-lists\/([^/]+)$/;
 export default function useActiveListProgress(): number | undefined {
   const pathname = usePathname();
 
-  const id = DETAIL_PATH.exec(pathname)?.[1] ?? "";
-  const { data: list } = useGetShoppingListById(decodeURIComponent(id));
+  const { data: list } = useGetShoppingListById(
+    shoppingListIdFromPath(pathname) ?? "",
+  );
 
   if (!list?.items.length) return undefined;
 

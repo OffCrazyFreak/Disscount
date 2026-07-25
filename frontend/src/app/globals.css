@@ -617,6 +617,22 @@ html {
   font-weight: 600;
 }
 
+/* The stacking contract, in descending order; read it top to bottom. Kept as
+   tokens because the ladder is only reviewable when its rungs sit together, and
+   a magic z-[44] in one file says nothing about what it must stay under. */
+:root {
+  --z-offline: 60;
+  --z-overlay: 50;
+  --z-bottom-nav: 45;
+  --z-bottom-sheet: 44;
+  --z-bottom-sheet-scrim: 43;
+  --z-install-banner: 41;
+  --z-scroll-fade: 40;
+  --z-back-to-top: 30;
+  --z-header: 20;
+  --z-sidebar: 10;
+}
+
 /* Mobile bottom navigation.
    Dimensions live here rather than on Tailwind's spacing scale because this
    project sets --spacing to 0.2rem, so h-16 would render 51px, not 64px.
@@ -665,18 +681,29 @@ body:has([data-sheet-non-modal][data-state="open"]) {
   initial-value: 0.85rem;
 }
 
-@property --bottom-nav-surface-opacity {
-  syntax: "<number>";
+/* The surface's own alpha, not the bar's opacity. Fading the element dimmed the
+   icons, the labels, the badge and the active disc along with the surface, and
+   gave the pill a stacking context it has no use for. */
+@property --bottom-nav-surface-alpha {
+  syntax: "<percentage>";
   inherits: true;
-  initial-value: 1;
+  initial-value: 50%;
 }
 
 @keyframes bottom-nav-compact {
   to {
     --bottom-nav-label-opacity: 0;
     --bottom-nav-label-height: 0rem;
-    --bottom-nav-surface-opacity: 0.9;
+    --bottom-nav-surface-alpha: 45%;
   }
+}
+
+.bottom-nav-compacts > ul {
+  background-color: color-mix(
+    in oklab,
+    var(--background) var(--bottom-nav-surface-alpha),
+    transparent
+  );
 }
 
 /* Compacts once the page is scrolled, the same trigger the header already uses

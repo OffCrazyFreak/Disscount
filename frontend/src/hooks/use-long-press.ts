@@ -2,11 +2,8 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
-import {
-  createLongPressTimer,
-  LONG_PRESS_MOVE_TOLERANCE_PX,
-  type ILongPressTimer,
-} from "@/utils/long-press";
+import { HOLD_CANCEL_PX } from "@/constants/gestures";
+import { createLongPressTimer, type ILongPressTimer } from "@/utils/long-press";
 
 interface IUseLongPressOptions {
   onLongPress: () => void;
@@ -65,8 +62,7 @@ export default function useLongPress({
     const dx = event.clientX - origin.current.x;
     const dy = event.clientY - origin.current.y;
 
-    if (Math.hypot(dx, dy) > LONG_PRESS_MOVE_TOLERANCE_PX)
-      timer.current.cancel();
+    if (Math.hypot(dx, dy) > HOLD_CANCEL_PX) timer.current.cancel();
   }, []);
 
   const cancel = useCallback(() => timer.current?.cancel(), []);

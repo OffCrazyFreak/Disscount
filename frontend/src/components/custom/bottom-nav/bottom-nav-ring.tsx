@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { CELL_DISC_CLASS } from "@/components/custom/bottom-nav/bottom-nav-classes";
 
 const RADIUS = 17;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
@@ -31,11 +32,7 @@ export default function BottomNavRing({
     <svg
       viewBox="0 0 36 36"
       aria-hidden="true"
-      className={cn(
-        // Matches BottomNavIndicator, so ring and disc stay concentric.
-        "pointer-events-none absolute top-1/2 left-1/2 size-[3.6rem] -translate-x-1/2 -translate-y-1/2",
-        className,
-      )}
+      className={cn(CELL_DISC_CLASS, "pointer-events-none", className)}
     >
       <circle
         cx="18"

@@ -2,8 +2,14 @@
 
 import { ChevronsDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import isKeyboardClick from "@/utils/events";
 import BottomNavIndicator from "@/components/custom/bottom-nav/bottom-nav-indicator";
 import BottomNavRing from "@/components/custom/bottom-nav/bottom-nav-ring";
+import {
+  CELL_BUTTON_CLASS,
+  CELL_ITEM_CLASS,
+  CELL_LABEL_CLASS,
+} from "@/components/custom/bottom-nav/bottom-nav-classes";
 import type { IndicatorOpacity } from "@/components/custom/bottom-nav/use-indicator-opacity";
 
 /** Both glyphs share the circle's centre and swap by rotating through it */
@@ -15,6 +21,8 @@ interface IBottomNavCenterItemProps {
   /** On the catalogue route. Opening the sheet deliberately does not count */
   isActive: boolean;
   isScrubbed: boolean;
+  /** Holds the one active disc, which a thumb borrows while it scrubs */
+  showsDisc: boolean;
   isSearchOpen: boolean;
   indicatorOpacity: IndicatorOpacity;
   onKeyboardActivate: () => void;
@@ -33,27 +41,29 @@ export default function BottomNavCenterItem({
   label,
   isActive,
   isScrubbed,
+  showsDisc,
   isSearchOpen,
   indicatorOpacity,
   onKeyboardActivate,
 }: IBottomNavCenterItemProps) {
   return (
-    <li className="relative flex-1 [--press-progress:0]">
+    <li className={CELL_ITEM_CLASS}>
       <button
         type="button"
         aria-label={isSearchOpen ? "Zatvori traženje" : `${label}, traži`}
         aria-current={isActive ? "page" : undefined}
         aria-expanded={isSearchOpen}
         onClick={(event) => {
-          if (event.detail === 0) onKeyboardActivate();
+          if (isKeyboardClick(event)) onKeyboardActivate();
         }}
-        className="relative flex size-full cursor-pointer flex-col items-center justify-center gap-[0.2rem] select-none [-webkit-touch-callout:none] [-webkit-user-drag:none]"
+        className={CELL_BUTTON_CLASS}
       >
-        {isActive && <BottomNavIndicator opacity={indicatorOpacity} />}
+        {showsDisc && <BottomNavIndicator opacity={indicatorOpacity} />}
 
+        {/* Always present, since holding this cell always opens the scanner */}
         <BottomNavRing
           progress="var(--press-progress, 0)"
-          className="stroke-primary/50"
+          className="stroke-primary"
         />
 
         <span
@@ -79,7 +89,7 @@ export default function BottomNavCenterItem({
 
         <span
           className={cn(
-            "relative h-[var(--bottom-nav-label-height)] overflow-hidden text-[0.65rem] leading-none tracking-tight opacity-[var(--bottom-nav-label-opacity)]",
+            CELL_LABEL_CLASS,
             isActive ? "text-primary font-bold" : "text-muted-foreground",
             isScrubbed && "text-primary",
           )}

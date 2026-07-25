@@ -44,7 +44,7 @@ export default function InstallBanner() {
     <>
       {/* Sits above the bottom nav, which owns the bottom strip below md, and
           below the sheet it opens */}
-      <div className="fixed inset-x-0 bottom-[var(--bottom-nav-total)] z-[41] p-4 md:bottom-0 md:inset-x-auto md:right-4 md:max-w-sm">
+      <div className="fixed inset-x-0 bottom-[var(--bottom-nav-total)] z-[var(--z-install-banner)] p-4 md:bottom-0 md:inset-x-auto md:right-4 md:max-w-sm">
         <div className="flex flex-col gap-3 rounded-xl border bg-card p-3 shadow-lg">
           <div className="flex items-center gap-3">
             <Image

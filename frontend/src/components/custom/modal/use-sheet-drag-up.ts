@@ -1,9 +1,7 @@
 "use client";
 
 import { useRef, type PointerEvent } from "react";
-
-/** Far enough that a scroll, a wobble or a tap cannot trigger it */
-const DRAG_UP_PX = 40;
+import { SHEET_DRAG_EXPAND_PX } from "@/constants/gestures";
 
 /**
  * Pointer props that fire once per gesture when the sheet is dragged upward,
@@ -27,7 +25,7 @@ export default function useSheetDragUp(onDragUp?: () => void) {
 
     onPointerMove: (event: PointerEvent<HTMLDivElement>) => {
       if (startY.current === null) return;
-      if (startY.current - event.clientY < DRAG_UP_PX) return;
+      if (startY.current - event.clientY < SHEET_DRAG_EXPAND_PX) return;
 
       startY.current = null;
       onDragUp();
