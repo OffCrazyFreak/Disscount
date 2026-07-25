@@ -16,9 +16,7 @@ export interface ISheetShellHeaderProps {
   description?: string;
   srOnlyTitle?: boolean;
   srOnlyDescription?: boolean;
-  /** Sits opposite the title, e.g. a clear-filters button */
-  headerExtra?: ReactNode;
-  /** For a sheet with no other explicit way out, since no sheet closes on an outside tap */
+  /** An explicit way out, for a sheet whose own content offers none */
   showCloseButton?: boolean;
 }
 
@@ -34,7 +32,6 @@ export default function SheetShellHeader({
   description,
   srOnlyTitle = false,
   srOnlyDescription = true,
-  headerExtra,
   showCloseButton = false,
 }: ISheetShellHeaderProps) {
   return (
@@ -51,23 +48,19 @@ export default function SheetShellHeader({
         )}
       </div>
 
-      <div className="flex shrink-0 items-center gap-1">
-        {headerExtra}
-
-        {showCloseButton && (
-          <DrawerClose asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label="Zatvori"
-              className="text-muted-foreground"
-            >
-              <X className="size-4" />
-            </Button>
-          </DrawerClose>
-        )}
-      </div>
+      {showCloseButton && (
+        <DrawerClose asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label="Zatvori"
+            className="shrink-0 text-muted-foreground"
+          >
+            <X className="size-4" />
+          </Button>
+        </DrawerClose>
+      )}
     </div>
   );
 }

@@ -78,6 +78,9 @@ export default function InstallInstructionsSheet({
       title="Dodaj na početni zaslon"
       description="Dodaj Disscount na početni zaslon u nekoliko koraka."
       srOnlyDescription={false}
+      // Instructions to read and then leave, not an addition to the page behind:
+      // nothing here changes it, and the scrim buys tap-outside-to-close.
+      modal
       showCloseButton
     >
       <ol className="flex flex-col gap-4">

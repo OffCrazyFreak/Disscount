@@ -115,9 +115,9 @@ export default function BottomNav() {
   return (
     <nav
       aria-label="Glavna navigacija"
-      // Every sheet is non-modal, and globals.css hands the whole page back for
-      // those, so the bar needs no opt-in of its own. It stays inert under real
-      // modals, whose overlay covers it anyway.
+      // The search sheet is non-modal, and globals.css hands the whole page back
+      // for those, so the bar needs no opt-in of its own. It stays inert under
+      // real modals, whose overlay covers it anyway.
       className="bottom-nav-compacts fixed inset-x-0 bottom-0 z-[45] md:hidden"
     >
       {/* touch-none keeps a horizontal scrub from being read as a page pan */}

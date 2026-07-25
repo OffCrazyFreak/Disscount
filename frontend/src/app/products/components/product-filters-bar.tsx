@@ -1,13 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import SheetShell from "@/components/custom/modal/sheet-shell";
-import { useIsMobile } from "@/hooks/use-mobile";
 import ClearFiltersButton from "@/app/products/components/clear-filters-button";
-import ProductFacetSelects from "@/app/products/components/product-facet-selects";
+import ProductFiltersRow from "@/app/products/components/product-filters-row";
 import ProductFiltersTrigger from "@/app/products/components/product-filters-trigger";
-import useProductFacets from "@/app/products/hooks/use-product-facets";
+import { useSearchSheet } from "@/context/search-sheet-context";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { IUseProductFiltersResult } from "@/app/products/hooks/use-product-filters";
 
 interface IProductFiltersBarProps {
@@ -15,62 +12,32 @@ interface IProductFiltersBarProps {
   query: string;
 }
 
+/**
+ * The filters for the list: inline where there is room, and below `md` a button
+ * that opens the search sheet with its filters already expanded.
+ *
+ * The page used to carry a filters sheet of its own, which meant two sheets built
+ * from the same controls. Now there is one, so a query and the facets narrowing it
+ * are never split across two layers.
+ */
 export default function ProductFiltersBar({
   filters,
   query,
 }: IProductFiltersBarProps) {
-  const facets = useProductFacets(query, filters);
   const isMobile = useIsMobile();
+  const { openFilters } = useSearchSheet();
 
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
-  // A drawer on mobile, so filters neither eat the viewport nor hide in a strip.
-  if (isMobile) {
-    return (
-      <>
-        <div className="flex w-full items-center gap-2">
-          <ProductFiltersTrigger
-            count={filters.activeFilterCount}
-            className="flex-1"
-            onClick={() => setIsDrawerOpen(true)}
-          />
-
-          <ClearFiltersButton
-            filters={filters}
-            size="default"
-            className="flex-1"
-          />
-        </div>
-
-        <SheetShell
-          open={isDrawerOpen}
-          onOpenChange={setIsDrawerOpen}
-          title="Filteri"
-          description="Suzi rezultate pretrage po trgovinama, lokacijama, kategorijama i markama."
-          headerExtra={
-            <ClearFiltersButton filters={filters} className="shrink-0" />
-          }
-          footer={
-            <Button type="button" onClick={() => setIsDrawerOpen(false)}>
-              Prikaži rezultate
-            </Button>
-          }
-        >
-          <ProductFacetSelects
-            facets={facets}
-            filters={filters}
-            layout="stack"
-          />
-        </SheetShell>
-      </>
-    );
-  }
+  if (!isMobile) return <ProductFiltersRow filters={filters} query={query} />;
 
   return (
     <div className="flex w-full items-center gap-2">
-      <ProductFacetSelects facets={facets} filters={filters} layout="row" />
+      <ProductFiltersTrigger
+        count={filters.activeFilterCount}
+        className="flex-1"
+        onClick={openFilters}
+      />
 
-      <ClearFiltersButton filters={filters} alwaysShow className="shrink-0" />
+      <ClearFiltersButton filters={filters} size="default" className="flex-1" />
     </div>
   );
 }

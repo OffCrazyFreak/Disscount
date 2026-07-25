@@ -1,25 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import SearchBar from "@/components/custom/search/search-bar";
+import SearchNavButton from "@/components/custom/search/search-nav-button";
 import SheetShell from "@/components/custom/modal/sheet-shell";
 import ProductSearchFilters from "@/app/products/components/product-search-filters";
 import { useSearchSheet } from "@/context/search-sheet-context";
+import { useUser } from "@/context/user-context";
+import { isAdmin } from "@/lib/api/schemas/auth-user";
+import { findNavItem } from "@/constants/navigation";
 
 /** The one route whose filters live in the sheet, so it survives arriving there */
 const FILTERED_ROUTE = "/products";
 
+const discountsNavItem = findNavItem("discounted");
+
 /**
- * Mobile search, opened by the bottom nav's centre tab.
+ * Mobile search, opened by the bottom nav's centre tab and by the products page's
+ * Filteri button, which lands on it already expanded.
  *
  * Runs behind the bar with no scrim, so the nav stays visible and the sheet reads
  * as an extension of it rather than a layer over the app.
  */
 export default function SearchSheet() {
-  const { isOpen, inputRef, close } = useSearchSheet();
-  const [areFiltersOpen, setAreFiltersOpen] = useState(false);
+  const { isOpen, areFiltersOpen, setAreFiltersOpen, inputRef, close } =
+    useSearchSheet();
   const pathname = usePathname();
+  const { user } = useUser();
 
   // Leaving closes it, matching the sidebar, except on the route whose filters it
   // carries: dismissing there would hide the controls it just revealed.
@@ -34,7 +42,9 @@ export default function SearchSheet() {
       title="Traži proizvode"
       srOnlyTitle
       description="Upiši naziv proizvoda ili skeniraj crtni kod."
-      initialFocusRef={inputRef}
+      // Opened for the filters, the field is not what you came for, and focusing
+      // it would raise the keyboard over the facets you asked to see.
+      initialFocusRef={areFiltersOpen ? undefined : inputRef}
       // Dragging up asks for the whole surface, which is search plus its filters.
       onDragUp={() => setAreFiltersOpen(true)}
       className="md:hidden"
@@ -46,6 +56,13 @@ export default function SearchSheet() {
         submitButtonLocation="block"
         submitLabel="Pretraži"
         inputRef={inputRef}
+      />
+
+      <SearchNavButton
+        item={discountsNavItem}
+        isLocked={
+          Boolean(discountsNavItem.comingSoon) && !isAdmin(user?.accountType)
+        }
       />
 
       <ProductSearchFilters

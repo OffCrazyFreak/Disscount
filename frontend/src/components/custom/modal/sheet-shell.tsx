@@ -2,7 +2,7 @@
 
 import { ReactNode, type RefObject } from "react";
 
-import { Drawer, DrawerContent, DrawerFooter } from "@/components/ui/drawer";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import SheetShellHeader from "@/components/custom/modal/sheet-shell-header";
 import useSheetDragUp from "@/components/custom/modal/use-sheet-drag-up";
 import { cn } from "@/lib/utils";
@@ -28,18 +28,16 @@ export interface ISheetShellProps {
   /** Hides the visible title, for sheets whose content already names itself */
   srOnlyTitle?: boolean;
   srOnlyDescription?: boolean;
-  /** Sits opposite the title, e.g. a clear-filters button */
-  headerExtra?: ReactNode;
-  footer?: ReactNode;
-  /** For a sheet with no other explicit way out, since none close on an outside tap */
+  /** An explicit way out, for a sheet whose own content offers none */
   showCloseButton?: boolean;
   /** Dragging the sheet upward, which vaul otherwise clamps to nothing */
   onDragUp?: () => void;
   /** Focused on open, so the user can start typing straight away */
   initialFocusRef?: RefObject<HTMLElement | null>;
   /**
-   * Nothing opts in today. On it adds the scrim and the scroll lock, and lets an
-   * outside press dismiss; off, only the handle and an explicit control can.
+   * On it adds the scrim and the scroll lock, and lets an outside press dismiss;
+   * off, only the handle and an explicit control can. Off suits a sheet that adds
+   * to the page behind it, which is why the search sheet is the one that stays.
    */
   modal?: boolean;
   bodyClassName?: string;
@@ -63,8 +61,6 @@ export default function SheetShell({
   description,
   srOnlyTitle = false,
   srOnlyDescription = true,
-  headerExtra,
-  footer,
   showCloseButton = false,
   onDragUp,
   initialFocusRef,
@@ -108,16 +104,11 @@ export default function SheetShell({
           description={description}
           srOnlyTitle={srOnlyTitle}
           srOnlyDescription={srOnlyDescription}
-          headerExtra={headerExtra}
           showCloseButton={showCloseButton}
         />
 
         {children && (
           <div className={cn(BODY_CLASS, bodyClassName)}>{children}</div>
-        )}
-
-        {footer && (
-          <DrawerFooter className="px-4 pt-3 pb-0">{footer}</DrawerFooter>
         )}
       </DrawerContent>
     </Drawer>
