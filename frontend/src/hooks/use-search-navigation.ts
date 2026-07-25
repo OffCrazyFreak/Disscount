@@ -8,6 +8,7 @@ export interface IUseSearchNavigationResult {
   routeQuery: string;
   /** True when submitting this query would leave the page exactly as it is */
   isUnchanged: (query: string) => boolean;
+
   /** Navigates to the search route, adding the query to the history */
   search: (query: string) => void;
   /** Mirrors the query into `q` without adding a history entry */
@@ -69,11 +70,19 @@ export function useSearchNavigation(
     [isOnRoute, routeQuery, buildSearchUrl, router],
   );
 
-  // Off the route every query is a change, since submitting navigates there. On
-  // it the filters need no comparison: each pick writes itself to the URL as you
-  // make it, so they are never waiting on a submit.
+  // Off the route every query is a change, since submitting navigates there. The
+  // filters need no comparison: each pick writes itself to the URL as you make it,
+  // so they are never waiting on a submit.
+  //
+  // An empty field counts as unchanged even over a searched page, because the
+  // clear button drops the query itself. Comparing it instead would light the
+  // button up for the render between the field emptying and the URL following.
   const isUnchanged = useCallback(
-    (query: string) => query.trim() === routeQuery,
+    (query: string) => {
+      const trimmed = query.trim();
+
+      return !trimmed || trimmed === routeQuery;
+    },
     [routeQuery],
   );
 
