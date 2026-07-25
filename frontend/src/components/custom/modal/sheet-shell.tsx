@@ -4,6 +4,7 @@ import { ReactNode, type RefObject } from "react";
 
 import { Drawer, DrawerContent, DrawerFooter } from "@/components/ui/drawer";
 import SheetShellHeader from "@/components/custom/modal/sheet-shell-header";
+import useSheetDragUp from "@/components/custom/modal/use-sheet-drag-up";
 import { cn } from "@/lib/utils";
 
 /**
@@ -32,6 +33,8 @@ export interface ISheetShellProps {
   footer?: ReactNode;
   /** For a sheet with no other explicit way out, since none close on an outside tap */
   showCloseButton?: boolean;
+  /** Dragging the sheet upward, which vaul otherwise clamps to nothing */
+  onDragUp?: () => void;
   /** Focused on open, so the user can start typing straight away */
   initialFocusRef?: RefObject<HTMLElement | null>;
   /**
@@ -63,12 +66,15 @@ export default function SheetShell({
   headerExtra,
   footer,
   showCloseButton = false,
+  onDragUp,
   initialFocusRef,
   modal = false,
   bodyClassName,
   className,
   children,
 }: ISheetShellProps) {
+  const dragUpProps = useSheetDragUp(onDragUp);
+
   return (
     <Drawer
       direction="bottom"
@@ -95,6 +101,7 @@ export default function SheetShell({
         }}
         // No trigger to restore focus to, and Radix's body fallback jumps the scroll.
         onCloseAutoFocus={(event) => event.preventDefault()}
+        {...dragUpProps}
       >
         <SheetShellHeader
           title={title}

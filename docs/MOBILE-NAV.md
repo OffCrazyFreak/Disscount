@@ -278,26 +278,41 @@ Exact equality, not `startsWith`: a product's own page has no result set to filt
 
 ### 6.1. The filters panel
 
-On `/products` the sheet carries the page's own four facet controls (Trgovine, Lokacije, Kategorije, Marka) behind a **Filteri** toggle under **Pretraži**. Expanding grows the sheet upward rather than stacking a second sheet over it, so the query you just typed stays in view and there is only ever one layer to dismiss. NN/g's guidance is explicit that stacked sheets disorient.
+The sheet carries the products page's own four facet controls (Trgovine, Lokacije, Kategorije, Marka) behind a **Filteri** toggle under **Pretraži**, on **every route**. Expanding grows the sheet upward rather than stacking a second sheet over it, so the query you just typed stays in view and there is only ever one layer to dismiss. NN/g's guidance is explicit that stacked sheets disorient.
+
+Two ways in, and the second is the reason the panel is worth having off `/products`:
+
+| Gesture                   | Result                                                            |
+| ------------------------- | ----------------------------------------------------------------- |
+| Tap **Filteri**           | expands, chevron flips                                            |
+| **Drag the sheet upward** | expands, mid-drag, so the sheet grows under the finger that asked |
 
 ```mermaid
 flowchart TB
-    guard["ProductSearchFilters<br/>usePathname() === '/products'"] -->|else| null["renders nothing"]
-    guard --> panel["ProductSearchFiltersPanel"]
-    panel --> trigger["ProductFiltersTrigger<br/>count + flipping chevron"]
-    panel --> clear["ClearFiltersButton"]
-    panel --> body["Collapsible → ProductFacetSelects layout='stack'"]
-    body --> url["filters.setFilter → router.replace"]
+    drag["Drag up 40px"] --> open["areFiltersOpen"]
+    tap["Tap Filteri"] --> open
+    open --> body["Collapsible → ProductFacetSelects layout='stack'"]
+    body -->|on /products| amend["filters.setFilter → router.replace, list updates behind"]
+    body -->|elsewhere| go["push /products?q=typed&key=value"]
 ```
 
-Four things make this work without touching the controls:
+Five things make this work without touching the controls:
 
-- **The guard has to be its own component.** `SearchSheet` is mounted in the root layout, so it renders on every route, and `useFilterParams` writes to `usePathname()`. Off `/products` the panel must not mount at all, and a hook-owning component cannot early-return without changing its hook order between renders.
+- **Filters always land on `/products`, wherever you pick them.** On that route `setFilter` amends the URL and the list behind updates live. Anywhere else there is no filter state in the URL to amend, so the pick and whatever is typed travel together in one `router.push`, read off the shared `queryInputRef` so a half-typed query survives the trip. This follows what the app already did: `sidebar-filter-menu.tsx` builds `/products?chain=...` hrefs and navigates on click.
 - **`layout="stack"` already exists** for the mobile filters sheet, so the four labelled full-width selects drop in unchanged. They render a bare fragment, so the panel supplies the `flex flex-col gap-3` parent.
-- **The query comes from `?q`, not from the field.** These facets describe the results showing behind the sheet, so an unsubmitted keystroke must not change them.
-- **`useProductFilters({ seedPreferred: false })`.** `ProductsClient` already owns the pinned-store seeding on this route; two readers racing it would double-append params.
+- **The query comes from `?q`, and only on `/products`.** These facets describe a submitted products search. Elsewhere it is deliberately empty, which both avoids a stray request and stops another page's `?q` (the map page has one, for store names) from facetting products.
+- **`useProductFilters({ seedPreferred: false })`.** `ProductsClient` already owns the pinned-store seeding on that route; two readers racing it would double-append params.
+- **The expanded state lives in `SearchSheet`**, not the panel, because the drag gesture is the shell's and the collapsible is the panel's. It deliberately survives a close, so a sheet you had expanded reopens expanded.
 
-No extra request: `useProductFacets` reuses the query key the page already holds. The popover each select opens portals **into** the sheet via `PortalContainerProvider`, so touch scrolling inside it survives.
+No extra request either way: `useProductFacets` reuses the query key the page already holds, and `useGetProductByName` is gated on `enabled: Boolean(params.q)`, so an empty query fetches nothing. The popover each select opens portals **into** the sheet via `PortalContainerProvider`, so touch scrolling inside it survives.
+
+Measured at 360x740: 261px collapsed, 559px expanded, on both `/products` and off it.
+
+### Dragging up
+
+vaul clamps upward movement on a bottom drawer, so the gesture had to be added. `useSheetDragUp` returns plain React pointer props that `SheetShell` spreads onto `DrawerContent`, which is safe because **vaul composes rather than replaces**: its `onPointerDown`, `onPointerMove` and `onPointerUp` each call the caller's handler first and then run the drag logic (`dist/index.mjs`, its `Content`). So no native listeners, no ref juggling, and swipe-to-close is untouched.
+
+The threshold is 40px, far enough that a scroll, a wobble or a tap cannot trigger it, and it fires **mid-drag** rather than on release so the sheet expands while your finger is still moving. Verified: a 20px nudge does nothing.
 
 The products page keeps its own **Filteri** button and sheet. Two entry points to one control set is deliberate: the page one is reachable without opening search, and both render the same `ProductFacetSelects`.
 
@@ -307,14 +322,15 @@ The products page keeps its own **Filteri** button and sheet. Two entry points t
 
 `SheetShell` is `ModalShell`'s bottom-sheet counterpart. Four sheets had grown four different shapes, differing in layer, modality, surface, bottom padding and the gap under the grab handle. All of it is now fixed by the shell, so a call site supplies content and nothing else.
 
-| Fixed by the shell | Value                                | Why it cannot be per call site                            |
-| ------------------ | ------------------------------------ | --------------------------------------------------------- |
-| Content layer      | `z-[44]`                             | Under the bar at `z-45`, so the pill is never covered     |
-| Surface            | `bg-background/85 backdrop-blur-sm`  | The bar's blur, muted, see below                          |
-| Height cap         | `max-h-[85dvh]`                      | One cap, so a growing sheet always yields to the viewport |
-| Bottom inset       | `pb-[var(--sheet-bottom-clearance)]` | 92px at 360x740, so no content hides under the bar        |
-| Handle gap         | the header's own `pt-3 pb-2`         | 16px, whether or not the header draws anything, see below |
-| Modality           | non-modal                            | Every sheet in the app, see below                         |
+| Fixed by the shell | Value                                | Why it cannot be per call site                                                                                                 |
+| ------------------ | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| Content layer      | `z-[44]`                             | Under the bar at `z-45`, so the pill is never covered                                                                          |
+| Surface            | `bg-background/85 backdrop-blur-sm`  | The bar's blur, muted, see below                                                                                               |
+| Height cap         | `max-h-[85dvh]`                      | One cap, so a growing sheet always yields to the viewport                                                                      |
+| Bottom inset       | `pb-[var(--sheet-bottom-clearance)]` | 92px at 360x740, so no content hides under the bar                                                                             |
+| Handle gap         | the header's own `pt-3 pb-2`         | 16px, whether or not the header draws anything, see below                                                                      |
+| Handle colour      | `bg-muted-foreground/40`             | `bg-muted` all but vanished on a light surface, in `ui/drawer.tsx` for all three handles including the sidebar's vertical ones |
+| Modality           | non-modal                            | Every sheet in the app, see below                                                                                              |
 
 | Prop                   | Purpose                                                                                                   |
 | ---------------------- | --------------------------------------------------------------------------------------------------------- |

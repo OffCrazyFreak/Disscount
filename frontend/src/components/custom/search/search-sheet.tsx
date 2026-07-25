@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import SearchBar from "@/components/custom/search/search-bar";
 import SheetShell from "@/components/custom/modal/sheet-shell";
@@ -18,6 +18,7 @@ const FILTERED_ROUTE = "/products";
  */
 export default function SearchSheet() {
   const { isOpen, inputRef, close } = useSearchSheet();
+  const [areFiltersOpen, setAreFiltersOpen] = useState(false);
   const pathname = usePathname();
 
   // Leaving closes it, matching the sidebar, except on the route whose filters it
@@ -34,6 +35,8 @@ export default function SearchSheet() {
       srOnlyTitle
       description="Upiši naziv proizvoda ili skeniraj crtni kod."
       initialFocusRef={inputRef}
+      // Dragging up asks for the whole surface, which is search plus its filters.
+      onDragUp={() => setAreFiltersOpen(true)}
       className="md:hidden"
     >
       <SearchBar
@@ -45,7 +48,11 @@ export default function SearchSheet() {
         inputRef={inputRef}
       />
 
-      <ProductSearchFilters />
+      <ProductSearchFilters
+        open={areFiltersOpen}
+        onOpenChange={setAreFiltersOpen}
+        queryInputRef={inputRef}
+      />
     </SheetShell>
   );
 }

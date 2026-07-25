@@ -103,10 +103,11 @@ function DrawerContent({
         )}
         {...props}
       >
-        {/* Grab handle: horizontal for bottom drawers, vertical for side ones */}
-        <div className="mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full bg-muted group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
-        <div className="absolute top-1/2 right-2 hidden h-[100px] w-2 -translate-y-1/2 rounded-full bg-muted group-data-[vaul-drawer-direction=left]/drawer-content:block" />
-        <div className="absolute top-1/2 left-2 hidden h-[100px] w-2 -translate-y-1/2 rounded-full bg-muted group-data-[vaul-drawer-direction=right]/drawer-content:block" />
+        {/* Grab handles: horizontal for bottom drawers, vertical for side ones.
+            All darker than bg-muted, which all but vanished on a light surface. */}
+        <div className="mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full bg-muted-foreground/40 group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
+        <div className="absolute top-1/2 right-2 hidden h-[100px] w-2 -translate-y-1/2 rounded-full bg-muted-foreground/40 group-data-[vaul-drawer-direction=left]/drawer-content:block" />
+        <div className="absolute top-1/2 left-2 hidden h-[100px] w-2 -translate-y-1/2 rounded-full bg-muted-foreground/40 group-data-[vaul-drawer-direction=right]/drawer-content:block" />
         <PortalContainerProvider container={container}>
           {children}
         </PortalContainerProvider>
