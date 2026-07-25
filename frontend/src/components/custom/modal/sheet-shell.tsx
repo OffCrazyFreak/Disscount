@@ -6,8 +6,16 @@ import { Drawer, DrawerContent, DrawerFooter } from "@/components/ui/drawer";
 import SheetShellHeader from "@/components/custom/modal/sheet-shell-header";
 import { cn } from "@/lib/utils";
 
-/** Under the bottom nav at z-45, so the bar stays visible above every sheet */
-const CONTENT_CLASS = "z-[44] max-h-[85dvh] pb-[var(--sheet-bottom-clearance)]";
+/**
+ * Under the bottom nav at z-45, so the bar stays visible above every sheet, and
+ * wearing the bar's blur so the two read as one family of floating chrome.
+ *
+ * Far less translucent than the bar, though: a sheet is full of white inputs, and
+ * at the bar's own 50% the page ghosts through hard enough that every field looks
+ * like it is floating in front of the sheet rather than sitting in it.
+ */
+const CONTENT_CLASS =
+  "z-[44] max-h-[85dvh] bg-background/85 backdrop-blur-sm pb-[var(--sheet-bottom-clearance)]";
 const OVERLAY_CLASS = "z-[43]";
 const BODY_CLASS = "flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4";
 
@@ -22,9 +30,14 @@ export interface ISheetShellProps {
   /** Sits opposite the title, e.g. a clear-filters button */
   headerExtra?: ReactNode;
   footer?: ReactNode;
+  /** For a sheet with no other explicit way out, since none close on an outside tap */
+  showCloseButton?: boolean;
   /** Focused on open, so the user can start typing straight away */
   initialFocusRef?: RefObject<HTMLElement | null>;
-  /** Off drops the scrim and the scroll lock, leaving the page usable behind */
+  /**
+   * Nothing opts in today. On it adds the scrim and the scroll lock, and lets an
+   * outside press dismiss; off, only the handle and an explicit control can.
+   */
   modal?: boolean;
   bodyClassName?: string;
   className?: string;
@@ -49,8 +62,9 @@ export default function SheetShell({
   srOnlyDescription = true,
   headerExtra,
   footer,
+  showCloseButton = false,
   initialFocusRef,
-  modal = true,
+  modal = false,
   bodyClassName,
   className,
   children,
@@ -65,6 +79,9 @@ export default function SheetShell({
       <DrawerContent
         className={cn(CONTENT_CLASS, className)}
         overlayClassName={OVERLAY_CLASS}
+        // Radix locks the body whatever vaul is told, so globals.css hands the
+        // page back off this marker. Absent when modal, which wants the lock.
+        {...(modal ? {} : { "data-sheet-non-modal": "" })}
         // Radix's documented opt-out for a sheet with no description.
         {...(description ? {} : { "aria-describedby": undefined })}
         // Focus the named field, or the container: focusing the first control
@@ -85,6 +102,7 @@ export default function SheetShell({
           srOnlyTitle={srOnlyTitle}
           srOnlyDescription={srOnlyDescription}
           headerExtra={headerExtra}
+          showCloseButton={showCloseButton}
         />
 
         {children && (

@@ -78,6 +78,7 @@ export default function InstallInstructionsSheet({
       title="Dodaj na početni zaslon"
       description="Dodaj Disscount na početni zaslon u nekoliko koraka."
       srOnlyDescription={false}
+      showCloseButton
     >
       <ol className="flex flex-col gap-4">
         {steps.map((step, index) => (

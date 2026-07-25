@@ -49,6 +49,7 @@ export default function ProductQuickActions({
       onOpenChange={onOpenChange}
       title={product.name ?? product.ean}
       description="Radnje za odabrani proizvod."
+      showCloseButton
       bodyClassName="gap-1"
     >
       <Button

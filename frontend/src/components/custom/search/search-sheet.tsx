@@ -34,7 +34,6 @@ export default function SearchSheet() {
       srOnlyTitle
       description="Upiši naziv proizvoda ili skeniraj crtni kod."
       initialFocusRef={inputRef}
-      modal={false}
       className="md:hidden"
     >
       <SearchBar

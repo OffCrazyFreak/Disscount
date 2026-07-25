@@ -642,6 +642,15 @@ html {
   }
 }
 
+/* A non-modal sheet is an addition to the page, not a layer over it, so the page
+   behind has to stay usable. vaul never passes `modal` down to Radix's dialog, so
+   Radix always locks the body with an inline `pointer-events: none`, and vaul's
+   own undo runs in a requestAnimationFrame and loses the race. Hence !important:
+   an inline style is the only thing this has to beat. */
+body:has([data-sheet-non-modal][data-state="open"]) {
+  pointer-events: auto !important;
+}
+
 /* Registered so the compaction keyframes interpolate: unregistered custom
    properties animate discretely and would snap at the halfway point. */
 @property --bottom-nav-label-opacity {

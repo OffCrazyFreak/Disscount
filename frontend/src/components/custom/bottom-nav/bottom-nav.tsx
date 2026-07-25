@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
 import { useNotifications } from "@/context/notifications-context";
 import { useCameraScanner } from "@/context/scanner-context";
 import { useSearchSheet } from "@/context/search-sheet-context";
@@ -116,13 +115,10 @@ export default function BottomNav() {
   return (
     <nav
       aria-label="Glavna navigacija"
-      className={cn(
-        "bottom-nav-compacts fixed inset-x-0 bottom-0 z-[45] md:hidden",
-        // An open dismissable layer disables pointer events on the body. The
-        // search sheet is deliberately non-modal, so the bar opts back in for
-        // that one case, while staying inert under real modals.
-        isSearchOpen && "pointer-events-auto",
-      )}
+      // Every sheet is non-modal, and globals.css hands the whole page back for
+      // those, so the bar needs no opt-in of its own. It stays inert under real
+      // modals, whose overlay covers it anyway.
+      className="bottom-nav-compacts fixed inset-x-0 bottom-0 z-[45] md:hidden"
     >
       {/* touch-none keeps a horizontal scrub from being read as a page pan */}
       <ul
