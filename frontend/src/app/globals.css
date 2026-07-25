@@ -630,6 +630,16 @@ html {
   --bottom-nav-total: calc(
     var(--bottom-nav-h) + var(--bottom-nav-gap) + var(--bottom-nav-safe)
   );
+
+  /* Where every bottom sheet ends, so no sheet has to know the bar exists */
+  --sheet-bottom-clearance: calc(var(--bottom-nav-total) + 0.5rem);
+}
+
+/* No bar above md, so the sheets fall back to a plain comfortable inset. */
+@media (width >= 48rem) {
+  :root {
+    --sheet-bottom-clearance: max(1rem, env(safe-area-inset-bottom, 0px));
+  }
 }
 
 /* Registered so the compaction keyframes interpolate: unregistered custom

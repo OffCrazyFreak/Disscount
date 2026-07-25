@@ -52,13 +52,21 @@ function isInsidePopper(target: Node): boolean {
   ).some((popper) => popper.contains(target));
 }
 
+interface IDrawerContentProps extends React.ComponentProps<
+  typeof DrawerPrimitive.Content
+> {
+  /** Restyles the scrim, which the content renders and so nothing else can reach */
+  overlayClassName?: string;
+}
+
 function DrawerContent({
   className,
+  overlayClassName,
   children,
   onPointerDownOutside,
   ref,
   ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Content>) {
+}: IDrawerContentProps) {
   const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
 
   // Compose the caller's ref with the internal one so {...props} can't drop it.
@@ -71,7 +79,7 @@ function DrawerContent({
 
   return (
     <DrawerPortal data-slot="drawer-portal">
-      <DrawerOverlay />
+      <DrawerOverlay className={overlayClassName} />
       <DrawerPrimitive.Content
         ref={setContentRef}
         data-slot="drawer-content"
