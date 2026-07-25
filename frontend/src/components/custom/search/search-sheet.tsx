@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import SearchBar from "@/components/custom/search/search-bar";
 import { useSearchSheet } from "@/context/search-sheet-context";
@@ -15,6 +16,12 @@ import { useSearchSheet } from "@/context/search-sheet-context";
  */
 export default function SearchSheet() {
   const { isOpen, inputRef, containerRef, close } = useSearchSheet();
+  const pathname = usePathname();
+
+  // Leaving the page closes the sheet, matching how the sidebar behaves.
+  useEffect(() => {
+    close();
+  }, [pathname, close]);
 
   useEffect(() => {
     if (!isOpen) return;

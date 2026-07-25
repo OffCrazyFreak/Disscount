@@ -40,8 +40,8 @@ export const bottomNavItems: IBottomNavItem[] = [
   {
     item: navItem("digital-cards"),
     longPressTarget: { name: "digital-card", action: "new" },
-    // Wired now, inert while the tab is a teaser. Flip this the day the feature
-    // ships rather than revisiting the gesture plumbing.
+    // TODO: flip to true when digital cards ship. Wired now so the gesture
+    // plumbing never has to be revisited, but inert while the tab is a teaser.
     longPressEnabled: false,
   },
 ];
