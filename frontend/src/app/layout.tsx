@@ -103,6 +103,9 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#121212" },
   ],
+  // Without cover, every env(safe-area-inset-*) silently resolves to zero.
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content",
 };
 
 interface IRootLayoutProps {
@@ -135,7 +138,8 @@ export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
             <ModalRouter />
           </Suspense>
 
-          <div className="min-h-screen flex flex-col w-full">
+          {/* The clearance sits here, not on main: Footer renders after it. */}
+          <div className="min-h-svh flex flex-col w-full pb-[calc(var(--bottom-nav-total)+1rem)] md:pb-0">
             {/* pattern background */}
             <div className="absolute inset-0 z-[-15] bg-[url('/+_pattern.png')] bg-repeat opacity-100" />
             {/* radial fade to white, spreading from the page centre outward */}

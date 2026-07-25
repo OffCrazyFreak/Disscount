@@ -616,3 +616,80 @@ html {
   font-family: var(--font-saira-stencil), ui-sans-serif, sans-serif;
   font-weight: 600;
 }
+
+/* Descending order is the layer contract; read it top to bottom. */
+:root {
+  --z-offline: 60;
+  --z-overlay: 50;
+  --z-bottom-nav: 45;
+  --z-bottom-sheet: 44;
+  --z-bottom-sheet-scrim: 43;
+  --z-install-banner: 41;
+  --z-scroll-fade: 40;
+  --z-back-to-top: 30;
+  --z-header: 20;
+  --z-sidebar: 10;
+}
+
+/* Explicit lengths, not spacing utilities: --spacing is 0.2rem here, so every
+   utility renders 20% smaller than it reads. */
+:root {
+  --bottom-nav-h: 4.5rem;
+  --bottom-nav-gap: 0.75rem;
+  --bottom-nav-safe: env(safe-area-inset-bottom, 0px);
+  --bottom-nav-total: calc(
+    var(--bottom-nav-h) + var(--bottom-nav-gap) + var(--bottom-nav-safe)
+  );
+  --sheet-bottom-clearance: calc(var(--bottom-nav-total) + 0.5rem);
+
+  scroll-padding-bottom: var(--bottom-nav-total);
+}
+
+@media (width >= 48rem) {
+  :root {
+    --sheet-bottom-clearance: max(1rem, env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Unregistered custom properties animate discretely and would snap midway. */
+@property --nav-label-opacity {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+@property --nav-label-height {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0.85rem;
+}
+
+@property --nav-surface-opacity {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+@keyframes bottom-nav-compact {
+  to {
+    --nav-label-opacity: 0;
+    --nav-label-height: 0rem;
+    --nav-surface-opacity: 0.9;
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .bottom-nav-compacts {
+      animation: bottom-nav-compact auto linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 40px 180px;
+    }
+  }
+}
+
+/* vaul leaves the underlying dialog in modal mode, so Radix still writes an
+   inline pointer-events:none onto the body. Only !important beats that. */
+body:has([data-bottom-sheet="non-modal"][data-state="open"]) {
+  pointer-events: auto !important;
+}
