@@ -2,7 +2,7 @@
 
 A complete reference for the mobile bottom navigation bar, its gestures, and the shared bottom-sheet shell it opens, written to be understandable even if you're new to this. Keep it up to date as the setup changes.
 
-_Last verified end-to-end on 2026-07-25 against `feat/mobile-bottom-nav`, measured in a real browser at 360x740 and 320x568._
+_Last verified end-to-end on 2026-07-26 against `feat/mobile-bottom-nav`, measured in a real browser at 360x740 and 320x740. Still unverified on real iOS or Android hardware, see [§19](#19-future-improvements--todos)._
 
 > **Mental model in one sentence:** below the `md` breakpoint the app grows a five-cell **tab bar** pinned to the bottom of the screen, and that bar becomes the primary navigation a phone user needs, because the hamburger sidebar stays on as overflow, the create actions hang off **long presses**, and back-to-top becomes **re-tapping the tab you are already on**.
 
@@ -336,13 +336,13 @@ The threshold is 40px, far enough that a scroll, a wobble or a tap cannot trigge
 
 | Fixed by the shell | Value                                | Why it cannot be per call site                                                                                                 |
 | ------------------ | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| Content layer      | `z-[44]`                             | Under the bar at `z-45`, so the pill is never covered                                                                          |
+| Content layer      | `z-[var(--z-bottom-sheet)]`          | Under the bar, so the pill is never covered                                                                                    |
 | Surface            | `bg-background/85 backdrop-blur-sm`  | The bar's blur, muted, see below                                                                                               |
 | Height cap         | `max-h-[85dvh]`                      | One cap, so a growing sheet always yields to the viewport                                                                      |
 | Bottom inset       | `pb-[var(--sheet-bottom-clearance)]` | 92px at 360x740, so no content hides under the bar                                                                             |
 | Handle gap         | the header's own `pt-3 pb-2`         | 16px, whether or not the header draws anything, see below                                                                      |
 | Handle colour      | `bg-muted-foreground/40`             | `bg-muted` all but vanished on a light surface, in `ui/drawer.tsx` for all three handles including the sidebar's vertical ones |
-| Modality default   | non-modal                            | The default fits a sheet that adds to its page; two of the three opt out, see below                                            |
+| Modality default   | **modal**                            | Only a sheet the page changes behind earns the opt-out, and the search sheet is the one that does, see below                   |
 
 | Prop                   | Purpose                                                                                                 |
 | ---------------------- | ------------------------------------------------------------------------------------------------------- |
@@ -353,7 +353,7 @@ The threshold is 40px, far enough that a scroll, a wobble or a tap cannot trigge
 | `footer`               | Pinned below the body in a `DrawerFooter`, so it survives the body scrolling                            |
 | `showCloseButton`      | An X in the header, for a sheet whose own content offers no way out                                     |
 | `initialFocusRef`      | Focused on open, so the user can start typing straight away                                             |
-| `modal`                | Defaults **off**. On, it adds the scrim, the scroll lock and outside-press dismissal                    |
+| `modal`                | Defaults **on**, adding the scrim, the scroll lock and outside-press dismissal. Off is the opt-out      |
 
 `headerExtra` is gone: the filters sheet was its only user, and a slot nothing fills is a slot that drifts.
 
@@ -378,23 +378,25 @@ The sheet wears the bar's `backdrop-blur-sm` so the two read as one family of fl
 
 ### Layer stack
 
-The whole app, so the sheets' 44 can be read in context:
+The whole ladder lives in `globals.css` as `--z-*` tokens, in descending order, so it can be read in one place. A magic `z-[44]` in one file says nothing about what it has to stay under.
 
-| z   | Element                                                     |
-| --- | ----------------------------------------------------------- |
-| 60  | offline indicator                                           |
-| 50  | dialogs, popovers, dropdowns, tooltips, selects             |
-| 50  | mobile sidebar drawer, modal and deliberately above the bar |
-| 45  | bottom nav                                                  |
-| 44  | bottom sheets                                               |
-| 43  | a modal sheet's scrim, below the bar by design              |
-| 41  | PWA install banner                                          |
-| 40  | window scroll fade                                          |
-| 30  | back-to-top FAB                                             |
-| 20  | header                                                      |
-| 10  | desktop sidebar                                             |
+| z   | Token                    | Element                                                     |
+| --- | ------------------------ | ----------------------------------------------------------- |
+| 60  | `--z-offline`            | offline indicator                                           |
+| 50  | `--z-overlay`            | dialogs, popovers, dropdowns, tooltips, selects             |
+| 50  | -                        | mobile sidebar drawer, modal and deliberately above the bar |
+| 45  | `--z-bottom-nav`         | bottom nav                                                  |
+| 44  | `--z-bottom-sheet`       | bottom sheets                                               |
+| 43  | `--z-bottom-sheet-scrim` | a modal sheet's scrim, below the bar by design              |
+| 41  | `--z-install-banner`     | PWA install banner                                          |
+| 40  | `--z-scroll-fade`        | window scroll fade                                          |
+| 30  | `--z-back-to-top`        | back-to-top FAB                                             |
+| 20  | `--z-header`             | header                                                      |
+| 10  | `--z-sidebar`            | desktop sidebar                                             |
 
-Two moves made room for it: the FAB dropped from `z-50` (it is desktop-only and belongs under every layer) and the PWA banner from `z-50` to `z-[41]`, since it opens the install sheet and must not float over it.
+`--z-overlay` and `--z-sidebar` are declared but not yet consumed: dialogs and the desktop sidebar still carry shadcn's own `z-50` and `z-10`.
+
+Two moves made room for the bar: the FAB dropped from `z-50` (it is desktop-only and belongs under every layer) and the PWA banner from `z-50` to the install-banner token, since it opens the install sheet and must not float over it.
 
 The **mobile sidebar** stays out of `SheetShell` and keeps `z-50`. It is a `direction={side}` drawer covering the full height, and unlike the sheets it really is modal, so its scrim should cover the bar rather than leave it poking through.
 
@@ -414,6 +416,8 @@ The other two do not, so they are modal:
 | PWA install steps    | Instructions to read and then leave. Nothing on the page behind is involved, so blocking it costs nothing and the scrim helps focus |
 
 Both gain tap-outside-to-close from it, which is the dismissal users try first.
+
+The shell therefore **defaults to modal**, and the search sheet is the single explicit `modal={false}`. It was the other way round at first, which meant a new sheet that simply forgot the prop silently lost its scrim, its scroll lock and tap-outside-to-close. Non-modal is also the buggier path in vaul (see [§18](#18-gotchas--lessons-learned)), so the fewer sheets that take it, the better. The one opt-out is the one that earns it.
 
 That split also matches `ModalShell`'s own line: all 12 of its consumers are self-contained tasks with their own submit (`shopping-list-modal`, `settings-modal` and its four tabs, `onboarding-wizard`, `confirm-dialog`, the auth modals, ...). Dialogs are a mini page; a non-modal sheet changes the page you are on.
 
@@ -465,14 +469,22 @@ Neither modal needs its cache seeded, unlike `useProductModals`: the detail page
 
 ### Timing
 
-| Value                     | Source                                                                                      |
-| ------------------------- | ------------------------------------------------------------------------------------------- |
-| **450ms** fire            | iOS `minimumPressDuration` is 0.5s, Android roughly 400-500ms, react-aria defaults to 500ms |
-| **200ms** silent debounce | past a deliberate tap, so an ordinary tap draws nothing at all                              |
-| **250ms** ring fill       | whatever the debounce leaves of the 450ms, so the fill reads as "committed"                 |
-| **10px** cancel           | beyond this, the press is a drag or a scroll                                                |
+Every value lives in `constants/gestures.ts`, and nothing else may restate them.
 
-The debounce is a real gate, not a clamp: for the first 200ms `createLongPressTimer` has scheduled nothing but a single timeout, with no `requestAnimationFrame` loop and no writes to `--press-progress`. Only when it elapses does the ramp start.
+| Constant                | Value | Source                                                                                      |
+| ----------------------- | ----- | ------------------------------------------------------------------------------------------- |
+| `HOLD_FIRE_MS`          | 450   | iOS `minimumPressDuration` is 0.5s, Android roughly 400-500ms, react-aria defaults to 500ms |
+| `HOLD_GATE_MS`          | 200   | past a deliberate tap, so an ordinary tap draws nothing at all                              |
+| `HOLD_RING_MS`          | 250   | derived: whatever the gate leaves of the 450ms, so a full ring reads as "committed"         |
+| `HOLD_CANCEL_PX`        | 10    | beyond this, the press is a drag or a scroll                                                |
+| `HOLD_DRAIN_MS`         | 120   | an abandoned ring retracts over this rather than vanishing between frames                   |
+| `BAR_EDGE_EXCLUSION_PX` | 16    | keeps a press clear of the iOS back-swipe and home-indicator zones                          |
+| `BAR_VERTICAL_SLOP_PX`  | 24    | how far past the pill a thumb may stray and still count as on the bar                       |
+| `SHEET_DRAG_EXPAND_PX`  | 40    | upward drag that expands a sheet                                                            |
+
+The gate is a real gate, not a clamp: for the first 200ms `createLongPressTimer` has scheduled nothing but a single timeout, with no `requestAnimationFrame` loop and no writes to `--press-progress`. Only when it elapses does the ramp start.
+
+Cancelling **drains** rather than snapping. `cancel()` reads back whatever fraction the ring reached and ramps it to zero over `HOLD_DRAIN_MS`, reusing the same ramp helper the fill uses, so an abandoned hold reads as a release rather than a glitch.
 
 It began at 120ms, chosen to put feedback inside Nielsen's 0.1s "instant" window, and that was wrong in practice: a deliberate tap on a nav cell commonly lasts 150-200ms, so **every** tap on `Popisi` flashed a sliver of ring and the bar felt broken. 200ms is the smallest value that clears a tap.
 
@@ -488,8 +500,12 @@ Typing a product name and scanning its barcode answer the same question, "what d
 
 ```mermaid
 flowchart TB
+    gest["constants/gestures.ts<br/>every timing and threshold"] --> util
     util["utils/long-press.ts<br/>framework-free timer"] --> hook["hooks/use-long-press.ts<br/>one element (product cards)"]
-    util --> bar["bottom-nav/use-bottom-nav-pointer.ts<br/>the whole bar, plus scrubbing"]
+    util --> cell["bottom-nav/use-cell-hold.ts<br/>timing plus the ring's progress"]
+    cell --> bar["bottom-nav/use-bottom-nav-pointer.ts<br/>the whole bar, plus scrubbing"]
+    hit["bottom-nav/bar-hit-test.ts<br/>a point to a cell, or none"] --> bar
+    res["bottom-nav/resolve-hold-target.ts<br/>what a hold does, or null"] --> bar
 ```
 
 The timer lives outside React because the bar and the product cards own very different pointer streams but need identical timing. Press progress is written straight to the element as a `--press-progress` custom property rather than held in state, so the ring does not re-render its subtree once per frame.
@@ -502,8 +518,17 @@ The timer lives outside React because the bar and the product cards own very dif
 | ----------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------- |
 | Badge on **Praćenje**         | `useNotifications()`, the same count the desktop header shows | only when the count is above zero                                     |
 | Completion ring on **Popisi** | `useGetShoppingListById`, keyed off the pathname              | only on `/shopping-lists/[id]`, and only for a list that has items    |
-| Active disc                   | `pathname.startsWith(item.href)`                              | slides between cells via `layoutId`, and fades out on the search cell |
+| Active disc                   | `isRouteActive(pathname, item.href)`, or the scrubbed cell    | slides between cells via `layoutId`, and fades out on the search cell |
 | Chevron on the active icon    | `useTabReentry`                                               | only while a return position is held                                  |
+
+Which cell renders the disc is one expression in `bottom-nav.tsx`:
+
+```ts
+const discIndex =
+  scrubbedDisc ?? cells.findIndex((cell) => cell.isActive && !cell.isLocked);
+```
+
+So a thumb borrows the disc while it scrubs, and the route takes it back on release. `isRouteActive` matches on a segment boundary, so a future `/watchlisting` could never light Praćenje.
 
 ### Why the disc fades on the search cell
 
@@ -577,13 +602,15 @@ At 320px the disc essentially fills its cell, which is fine because only one cel
 
 ### Viewport changes this required
 
-| Change                                 | Why                                                                                                                                                       |
-| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `viewportFit: "cover"`                 | Without it **every `env(safe-area-inset-*)` silently resolves to 0**, and the bar would sit under the iOS home indicator                                  |
-| `interactiveWidget: "resizes-content"` | Shrinks the layout viewport when the keyboard opens, so fixed bottom elements reposition instead of hiding behind it. Chromium and Firefox only           |
-| `min-h-screen` to `min-h-svh`          | `100vh` is computed as if browser UI were hidden, so a `100vh` shell is taller than the visible area                                                      |
-| bottom padding on the shell wrapper    | `calc(var(--bottom-nav-total) + 1rem)` below `md`. It sits on the wrapper, **not** `<main>`, see the footer gotcha in [§18](#18-gotchas--lessons-learned) |
-| `scroll-pb` on `<html>`                | So anchor jumps and `scrollIntoView` do not land under the bar                                                                                            |
+| Change                                 | Why                                                                                                                                                                            |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `viewportFit: "cover"`                 | Without it **every `env(safe-area-inset-*)` silently resolves to 0**, and the bar would sit under the iOS home indicator                                                       |
+| `interactiveWidget: "resizes-content"` | Shrinks the layout viewport when the keyboard opens, so fixed bottom elements reposition instead of hiding behind it. Chromium and Firefox only                                |
+| `min-h-screen` to `min-h-svh`          | `100vh` is computed as if browser UI were hidden, so a `100vh` shell is taller than the visible area                                                                           |
+| bottom padding on the shell wrapper    | `calc(var(--bottom-nav-total) + 0.5rem)` below `md`, resolving to 92px. It sits on the wrapper, **not** `<main>`, see the footer gotcha in [§18](#18-gotchas--lessons-learned) |
+| `scroll-pb` on `<html>`                | So anchor jumps and `scrollIntoView` do not land under the bar                                                                                                                 |
+
+That 92px is close to the floor. 84px of it is the bar itself plus the gap it floats on, which cannot be reclaimed without the pill covering the footer, so only the last 8px is breathing room. It started at 1rem and was trimmed to 0.5rem, matching what `--sheet-bottom-clearance` already used. Shrinking it further means shrinking `--bottom-nav-gap`, which moves the whole bar closer to the screen edge.
 
 ---
 
@@ -671,24 +698,33 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 
 ### The bar
 
-| File                                                       | Role                                                                 |
-| ---------------------------------------------------------- | -------------------------------------------------------------------- |
-| `components/custom/bottom-nav/bottom-nav.tsx`              | The `md:hidden` shell, owning the surface, activation and long press |
-| `components/custom/bottom-nav/bottom-nav-item.tsx`         | One plain cell: icon, label, badge, rings, USKORO chip               |
-| `components/custom/bottom-nav/bottom-nav-center-item.tsx`  | The raised filled search cell with its `Proizvodi` label             |
-| `components/custom/bottom-nav/bottom-nav-indicator.tsx`    | The `layoutId` active disc                                           |
-| `components/custom/bottom-nav/bottom-nav-ring.tsx`         | One ring, shared by long-press feedback and list completion          |
-| `components/custom/bottom-nav/bottom-nav-items.ts`         | The five-cell order and the long-press mapping                       |
-| `components/custom/bottom-nav/use-bottom-nav-pointer.ts`   | One pointer stream for tap, scrub and long press                     |
-| `components/custom/bottom-nav/use-active-list-progress.ts` | Completion of the list on screen                                     |
-| `components/custom/bottom-nav/use-indicator-opacity.ts`    | The disc's fade pair, tracking the route it is coming from           |
-| `components/custom/bottom-nav/use-product-page-ean.ts`     | The EAN of the product page you are on, for the contextual holds     |
+| File                                                        | Role                                                                |
+| ----------------------------------------------------------- | ------------------------------------------------------------------- |
+| `components/custom/bottom-nav/bottom-nav.tsx`               | The `md:hidden` shell, composing the cells and owning the disc rule |
+| `components/custom/bottom-nav/bottom-nav-item.tsx`          | One plain cell: icon, label, badge, rings, USKORO chip              |
+| `components/custom/bottom-nav/bottom-nav-center-item.tsx`   | The raised filled search cell with its `Proizvodi` label            |
+| `components/custom/bottom-nav/bottom-nav-item-glyph.tsx`    | The icon with its badge and return chevron                          |
+| `components/custom/bottom-nav/bottom-nav-indicator.tsx`     | The `layoutId` active disc                                          |
+| `components/custom/bottom-nav/bottom-nav-ring.tsx`          | One ring, shared by long-press feedback and list completion         |
+| `components/custom/bottom-nav/bottom-nav-classes.ts`        | The class strings both cell components share                        |
+| `components/custom/bottom-nav/bottom-nav-items.ts`          | The five-cell order and the long-press mapping                      |
+| `components/custom/bottom-nav/use-bottom-nav-cells.ts`      | Route and lock state per cell                                       |
+| `components/custom/bottom-nav/use-bottom-nav-activation.ts` | What a press commits to                                             |
+| `components/custom/bottom-nav/use-bottom-nav-pointer.ts`    | One pointer stream for tap, scrub and long press                    |
+| `components/custom/bottom-nav/bar-hit-test.ts`              | A point to a cell index, or none if it left the bar                 |
+| `components/custom/bottom-nav/use-cell-hold.ts`             | Hold timing, and the ring progress written to the pressed cell      |
+| `components/custom/bottom-nav/resolve-hold-target.ts`       | What a hold does, or null if the cell has none                      |
+| `components/custom/bottom-nav/use-active-list-progress.ts`  | Completion of the list on screen                                    |
+| `components/custom/bottom-nav/use-indicator-opacity.ts`     | The disc's fade pair, tracking the route it is coming from          |
 
 ### Shared primitives
 
 | File                                              | Role                                                         |
 | ------------------------------------------------- | ------------------------------------------------------------ |
-| `utils/long-press.ts`                             | Framework-free press timer with progress and cancellation    |
+| `constants/gestures.ts`                           | Every gesture timing and threshold, in one place             |
+| `utils/routes.ts`                                 | Route id parsing, and active-route matching on a boundary    |
+| `utils/events.ts`                                 | `isKeyboardClick`, for cells the captured pointer bypasses   |
+| `utils/long-press.ts`                             | Framework-free press timer with progress, drain and cancel   |
 | `hooks/use-long-press.ts`                         | Element-scoped Pointer Events wrapper, used by product cards |
 | `hooks/use-tab-reentry.ts`                        | Scroll to top, then return to the saved position             |
 | `hooks/use-product-modals.ts`                     | Opens the product modals, seeding the by-ean cache first     |
@@ -851,6 +887,14 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 
 **Do not derive a cell index by dividing the bar's width.** The pill has inner padding, so width division skews every boundary. The index comes from the cells' own `getBoundingClientRect()`, which is exact and self-correcting if the layout changes.
 
+**A hit test on x alone will commit a gesture the user walked away from.** The original resolved a release from `clientX` only and always returned some cell, so pressing a tab, dragging straight up over the page and letting go still navigated. `bar-hit-test.ts` now bounds the test vertically by `BAR_VERTICAL_SLOP_PX` and returns `null` outside it, and `null` commits nothing. Verified in the browser: with the pointer released 200px above the bar, the route does not change and the disc returns to the active cell.
+
+**Handle `onLostPointerCapture`.** A capture can be revoked with neither `pointerup` nor `pointercancel` (the pointer is removed, the element is detached, an OS gesture claims it). Without that handler the scrub highlight and a half-filled ring stay on screen until the next press.
+
+**Write hold progress to the element captured at press time.** Resolving the pressed cell inside the progress callback looks equivalent and is not: the drain runs for 120ms _after_ the gesture has ended and its index has been cleared, so a per-tick lookup finds nothing and the ring freezes at whatever fraction it had reached. `use-cell-hold.ts` holds the element in a ref from `pointerdown`.
+
+**Fading a bar is not the same as fading its surface.** The compaction used element `opacity` on the `<ul>`, which composites the whole subtree, so the icons, the labels, the badge and the active disc all dimmed along with the surface, and the pill gained a stacking context for no reason. Animate a registered `<percentage>` into a `color-mix` on `background-color` instead.
+
 **A non-modal drawer does not actually leave the page usable.** vaul never passes `modal` down to Radix's `Dialog.Root`, so Radix is always in modal mode and sets `pointer-events: none` on **`<body>`**, which makes everything underneath unreachable. vaul does try to undo it in a `requestAnimationFrame` and loses the race. So "non-modal" gets you no scrim and no scroll lock, but an inert page anyway, which is a silent trap: the page looks live and is not. There is no marker on `<body>` or `<html>` to key a fix off, and the only `[data-vaul-drawer]` marker is also worn by the modal sidebar drawer, so `SheetShell` stamps its own `data-sheet-non-modal` and `globals.css` overrides the inline style off that.
 
 **Do not make a sheet's surface pointer-transparent to protect what is above it.** This was the original fix for the tabs, and it was both unnecessary and harmful:
@@ -930,3 +974,5 @@ Selection mode is the one with real product upside: costing a subset of a list a
 - **Decide whether Pretraži should be the apply gate for the filters.** Today every pick applies itself, so the button only ever answers for the query. Batching the picks would make the sheet a form you fill and submit, at the cost of the live filtering behind it. A product call, not a technical one.
 - **Close the double-submit window.** Typing a new query on `/products?q=...` leaves Pretraži live until the navigation lands, so it can be pressed twice. Harmless today because the second press is idempotent, but a shared pending-navigation flag would tidy it.
 - **View transitions between tabs.** Two board items already exist for `<ViewTransition>` and `<Activity>` boundaries under Design System & Shell; a tab bar is a natural place to use them.
+- **Finish the layer scale.** `--z-overlay` and `--z-sidebar` are declared but unconsumed: dialogs, popovers and the desktop sidebar still carry shadcn's own `z-50` and `z-10`. Either migrate them or drop the two tokens, because a declared rung nothing stands on is worse than no rung.
+- **Clamp the active disc.** It is a hardcoded 3.6rem. That clears the pill by 7.5px at 320px, so there is headroom today, but a longer label in a future locale would need a `min()` against the cell width rather than a fixed size.

@@ -360,7 +360,7 @@ The app has three bottom sheets: the search sheet, the product quick-actions she
 | Footer           | pinned below the scrolling body                                                                  |
 | Focus in         | a named field, optionally declined                                                               |
 | Focus out        | suppressed, because there is no trigger to restore to and the default jumps the scroll           |
-| Modality default | non-modal                                                                                        |
+| Modality default | modal, with non-modal as an explicit opt-out (see [Modality](#modality) below)                   |
 
 **No call site may set a sheet's layer, its bottom padding, or any safe-area value.** After this is built, a search for hand-rolled sheet padding or z-index should return nothing outside the shared surface and the token definitions.
 
