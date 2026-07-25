@@ -30,17 +30,23 @@ export default function useLongPress({
   const origin = useRef({ x: 0, y: 0 });
   const latest = useRef(onLongPress);
 
-  latest.current = onLongPress;
+  useEffect(() => {
+    latest.current = onLongPress;
+  });
 
-  if (!timer.current) {
-    timer.current = createLongPressTimer({
+  useEffect(() => () => timer.current?.cancel(), []);
+
+  // Built on first press rather than during render, so the ref is only ever
+  // touched from an event handler.
+  const getTimer = useCallback(() => {
+    timer.current ??= createLongPressTimer({
       onFire: () => latest.current(),
       onProgress: (fraction) =>
         element.current?.style.setProperty("--press-progress", `${fraction}`),
     });
-  }
 
-  useEffect(() => () => timer.current?.cancel(), []);
+    return timer.current;
+  }, []);
 
   const start = useCallback(
     (event: ReactPointerEvent<HTMLElement>) => {
@@ -48,9 +54,9 @@ export default function useLongPress({
 
       element.current = event.currentTarget;
       origin.current = { x: event.clientX, y: event.clientY };
-      timer.current?.start();
+      getTimer().start();
     },
-    [enabled],
+    [enabled, getTimer],
   );
 
   const move = useCallback((event: ReactPointerEvent<HTMLElement>) => {

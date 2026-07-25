@@ -60,9 +60,10 @@ export default function BottomNavItem({
           isLit && "text-primary",
         )}
       >
-        <span className="relative flex items-center justify-center">
-          {isActive && <BottomNavIndicator />}
+        {/* Encloses icon and label both, so it sits before them in paint order */}
+        {isActive && <BottomNavIndicator />}
 
+        <span className="relative flex items-center justify-center">
           {listProgress !== undefined && (
             <BottomNavRing
               progress={listProgress}
@@ -98,7 +99,12 @@ export default function BottomNavItem({
           )}
         </span>
 
-        <span className="h-[var(--bottom-nav-label-height)] overflow-hidden text-[0.65rem] leading-none tracking-tight opacity-[var(--bottom-nav-label-opacity)]">
+        <span
+          className={cn(
+            "relative h-[var(--bottom-nav-label-height)] overflow-hidden text-[0.65rem] leading-none tracking-tight opacity-[var(--bottom-nav-label-opacity)]",
+            isActive && "font-bold",
+          )}
+        >
           {label}
         </span>
 

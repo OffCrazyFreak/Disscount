@@ -1,5 +1,4 @@
 import { Image as ImageIcon, ListPlus } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -9,11 +8,10 @@ import {
 } from "@/components/ui/tooltip";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { cn } from "@/lib/utils";
-import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { formatQuantity } from "@/utils/strings";
 import WatchlistActionButton from "@/app/products/components/watchlist-action-button";
+import useProductModals from "@/hooks/use-product-modals";
 import { watchlistService } from "@/lib/api";
-import { productByEanQueryKey } from "@/lib/cijene-api";
 
 interface IProductActionButtonsProps {
   product: ProductResponse;
@@ -30,19 +28,14 @@ export default function ProductActionButtons({
   showAddToWatchlist = true,
   className,
 }: IProductActionButtonsProps) {
-  const queryClient = useQueryClient();
   const { data: currentUserWatchlist = [] } =
     watchlistService.useGetCurrentUserWatchlist();
+
+  const { openAddToList } = useProductModals(product);
 
   const isInWatchlist = currentUserWatchlist.some(
     (watchlistItem) => watchlistItem.productApiId === product.ean,
   );
-
-  // Seeds the by-ean cache, since the URL-driven modal takes no props.
-  function openAddToList() {
-    queryClient.setQueryData(productByEanQueryKey(product.ean), product);
-    openModalUrl({ name: "add-to-list", ean: product.ean });
-  }
 
   return (
     <>

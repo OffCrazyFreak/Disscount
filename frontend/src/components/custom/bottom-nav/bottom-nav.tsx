@@ -104,6 +104,7 @@ export default function BottomNav() {
           entry.isSearch ? (
             <BottomNavCenterItem
               key={entry.item.id}
+              label={entry.item.shortLabel ?? entry.item.label}
               isScrubbed={scrubIndex === index}
               isSearchOpen={isSearchOpen}
               onKeyboardActivate={() => activate(index)}

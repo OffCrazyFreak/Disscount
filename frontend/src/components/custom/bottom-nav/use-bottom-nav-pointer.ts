@@ -42,20 +42,16 @@ export default function useBottomNavPointer({
   const consumed = useRef(false);
   const latest = useRef({ onActivate, onLongPress, canLongPress });
 
-  latest.current = { onActivate, onLongPress, canLongPress };
+  useEffect(() => {
+    latest.current = { onActivate, onLongPress, canLongPress };
+  });
 
-  const setProgress = useCallback((fraction: number) => {
-    const index = pressedIndex.current;
-    if (index === null) return;
+  useEffect(() => () => timer.current?.cancel(), []);
 
-    const cell = list.current?.children[index];
-    if (cell instanceof HTMLElement) {
-      cell.style.setProperty("--press-progress", `${fraction}`);
-    }
-  }, []);
-
-  if (!timer.current) {
-    timer.current = createLongPressTimer({
+  // Built on first press rather than during render, so the ref is only ever
+  // touched from an event handler.
+  const getTimer = useCallback(() => {
+    timer.current ??= createLongPressTimer({
       onFire: () => {
         const index = pressedIndex.current;
         if (index === null) return;
@@ -63,11 +59,19 @@ export default function useBottomNavPointer({
         consumed.current = true;
         latest.current.onLongPress(index);
       },
-      onProgress: setProgress,
-    });
-  }
+      onProgress: (fraction) => {
+        const index = pressedIndex.current;
+        if (index === null) return;
 
-  useEffect(() => () => timer.current?.cancel(), []);
+        const cell = list.current?.children[index];
+        if (cell instanceof HTMLElement) {
+          cell.style.setProperty("--press-progress", `${fraction}`);
+        }
+      },
+    });
+
+    return timer.current;
+  }, []);
 
   const indexFrom = useCallback(
     (event: ReactPointerEvent<HTMLUListElement>) => {
@@ -98,9 +102,9 @@ export default function useBottomNavPointer({
       setScrubIndex(index);
       event.currentTarget.setPointerCapture(event.pointerId);
 
-      if (latest.current.canLongPress(index)) timer.current?.start();
+      if (latest.current.canLongPress(index)) getTimer().start();
     },
-    [indexFrom],
+    [indexFrom, getTimer],
   );
 
   const move = useCallback(

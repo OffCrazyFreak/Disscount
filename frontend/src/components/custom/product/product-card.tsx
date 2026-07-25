@@ -1,6 +1,11 @@
 "use client";
 
-import { KeyboardEvent, MouseEvent, ReactNode } from "react";
+import {
+  KeyboardEvent,
+  MouseEvent,
+  ReactNode,
+  type ComponentProps,
+} from "react";
 import Image from "next/image";
 
 import { Card } from "@/components/ui/card";
@@ -18,6 +23,16 @@ interface IProductCardProps {
   isLoading?: boolean;
   trailing?: ReactNode;
   className?: string;
+  /** Pointer handlers from useLongPress, for the quick-actions gesture */
+  pressProps?: Pick<
+    ComponentProps<"div">,
+    | "onPointerDown"
+    | "onPointerMove"
+    | "onPointerUp"
+    | "onPointerCancel"
+    | "onPointerLeave"
+    | "onContextMenu"
+  >;
 }
 
 export default function ProductCard({
@@ -30,6 +45,7 @@ export default function ProductCard({
   isLoading = false,
   trailing,
   className,
+  pressProps,
 }: IProductCardProps) {
   const displayName = name && quantity ? `${name} (${quantity})` : name;
 
@@ -54,9 +70,12 @@ export default function ProductCard({
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? handleCardKeyDown : undefined}
+      {...pressProps}
       className={cn(
         "@container shadow-sm hover:shadow-lg transition-shadow",
         onClick && "cursor-pointer",
+        // Suppresses the iOS selection callout a long press would otherwise raise.
+        pressProps && "select-none [-webkit-touch-callout:none]",
         className,
       )}
     >

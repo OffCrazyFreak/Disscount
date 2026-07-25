@@ -8,4 +8,3 @@ export * from "@/utils/browser/storage/scanner";
 export * from "@/utils/browser/storage/pwa";
 export * from "@/utils/browser/storage/drafts";
 export * from "@/utils/browser/storage/bottom-nav";
-export * from "@/utils/browser/storage/search";
