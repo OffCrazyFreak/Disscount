@@ -49,9 +49,6 @@ export default function ProductQuickActions({
       onOpenChange={onOpenChange}
       title={product.name ?? product.ean}
       description="Radnje za odabrani proizvod."
-      // The one modal sheet: a launcher changes nothing behind it, and two of its
-      // three actions open a dialog anyway. The scrim buys tap-outside-to-close.
-      modal
       bodyClassName="gap-1"
     >
       <Button

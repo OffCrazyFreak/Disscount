@@ -8,16 +8,16 @@ import useSheetDragUp from "@/components/custom/modal/use-sheet-drag-up";
 import { cn } from "@/lib/utils";
 
 /**
- * Under the bottom nav at z-45, so the bar stays visible above every sheet, and
- * wearing the bar's blur so the two read as one family of floating chrome.
+ * Under the bottom nav, so the bar stays visible above every sheet, and wearing
+ * the bar's blur so the two read as one family of floating chrome.
  *
  * Far less translucent than the bar, though: a sheet is full of white inputs, and
  * at the bar's own 50% the page ghosts through hard enough that every field looks
  * like it is floating in front of the sheet rather than sitting in it.
  */
 const CONTENT_CLASS =
-  "z-[44] max-h-[85dvh] bg-background/85 backdrop-blur-sm pb-[var(--sheet-bottom-clearance)]";
-const OVERLAY_CLASS = "z-[43]";
+  "z-[var(--z-bottom-sheet)] max-h-[85dvh] bg-background/85 backdrop-blur-sm pb-[var(--sheet-bottom-clearance)]";
+const OVERLAY_CLASS = "z-[var(--z-bottom-sheet-scrim)]";
 const BODY_CLASS = "flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4";
 
 export interface ISheetShellProps {
@@ -38,8 +38,9 @@ export interface ISheetShellProps {
   initialFocusRef?: RefObject<HTMLElement | null>;
   /**
    * On it adds the scrim and the scroll lock, and lets an outside press dismiss;
-   * off, only the handle and an explicit control can. Off suits a sheet that adds
-   * to the page behind it, which is why the search sheet is the one that stays.
+   * off, only the handle and an explicit control can. Defaults on, because only a
+   * sheet the page changes behind earns the opt-out, and forgetting the prop
+   * should cost a scrim rather than tap-outside-to-close.
    */
   modal?: boolean;
   bodyClassName?: string;
@@ -67,7 +68,7 @@ export default function SheetShell({
   showCloseButton = false,
   onDragUp,
   initialFocusRef,
-  modal = false,
+  modal = true,
   bodyClassName,
   className,
   children,

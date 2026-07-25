@@ -47,6 +47,9 @@ export default function SearchSheet() {
       title="Traži proizvode"
       srOnlyTitle
       description="Upiši naziv proizvoda ili skeniraj crtni kod."
+      // The one non-modal sheet: picking a facet re-filters the list behind it
+      // live, so it must neither cover the page nor lock it.
+      modal={false}
       // Opened for the filters, the field is not what you came for, and focusing
       // it would raise the keyboard over the facets you asked to see.
       initialFocusRef={areFiltersOpen ? undefined : inputRef}
