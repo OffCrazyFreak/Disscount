@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { scrollWindowTo } from "@/utils/scroll";
 
 /**
@@ -13,6 +14,10 @@ import { scrollWindowTo } from "@/utils/scroll";
  */
 export default function useTabReentry() {
   const [savedY, setSavedY] = useState<number | null>(null);
+  const pathname = usePathname();
+
+  // A position saved on one route means nothing on the next one.
+  useEffect(() => setSavedY(null), [pathname]);
 
   const reenter = useCallback(() => {
     if (window.scrollY > 0) {

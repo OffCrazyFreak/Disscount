@@ -45,5 +45,7 @@ export interface IAppData {
   storeOptimizeMode?: string; // Preferred store-list sort, shared across all shopping lists
   preferredCameraId?: string; // Manually chosen scanner camera; absent means auto-pick
   formDrafts?: Record<string, IFormDraft>; // Unsaved modal-form drafts keyed per modal
+  bottomNavVariant?: string; // Chosen mobile bottom-nav surface, while the three are being compared
+  recentSearches?: string[]; // Most recent product queries first, offered by the mobile search sheet
   [key: string]: unknown;
 }
