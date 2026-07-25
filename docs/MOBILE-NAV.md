@@ -14,7 +14,7 @@ _Last verified end-to-end on 2026-07-25 against `feat/mobile-bottom-nav`._
 2. [Why this exists](#2-why-this-exists)
 3. [Anatomy of the bar](#3-anatomy-of-the-bar)
 4. [How a touch becomes an action](#4-how-a-touch-becomes-an-action)
-5. [The three surface variants](#5-the-three-surface-variants)
+5. [The surface](#5-the-surface)
 6. [The search sheet](#6-the-search-sheet)
 7. [SheetShell, the shared bottom sheet](#7-sheetshell-the-shared-bottom-sheet)
 8. [Long-press gestures](#8-long-press-gestures)
@@ -32,18 +32,17 @@ _Last verified end-to-end on 2026-07-25 against `feat/mobile-bottom-nav`._
 
 ## 1. Quick reference
 
-| Thing                 | Value                                                                       |
-| --------------------- | --------------------------------------------------------------------------- |
-| Shown at              | widths under `md` (768px), in the browser and the installed PWA alike       |
-| Cells, left to right  | Potrošnja (USKORO), Praćenje, Proizvodi (search), Popisi, Kartice (USKORO)  |
-| Bar height            | 64px of content, plus `env(safe-area-inset-bottom)`                         |
-| Icon / label size     | 24px icon, 10.4px label, always visible                                     |
-| z-index               | scrim 43, search sheet 44, **bar 45**, Radix and vaul overlays 50           |
-| Element type per cell | `<button>`, never `<a href>` (see [§16](#16-gotchas--lessons-learned))      |
-| Long-press threshold  | 450ms, with the ring starting to fill at 120ms                              |
-| Surface variants      | `pill` (default), `flat`, `glass`, switchable while they are being compared |
-| Variant override      | `?nav=pill\|flat\|glass`, or the dev-only chip top-left                     |
-| Haptics               | none, deliberately (see [§16](#16-gotchas--lessons-learned))                |
+| Thing                 | Value                                                                      |
+| --------------------- | -------------------------------------------------------------------------- |
+| Shown at              | widths under `md` (768px), in the browser and the installed PWA alike      |
+| Cells, left to right  | Potrošnja (USKORO), Praćenje, Proizvodi (search), Popisi, Kartice (USKORO) |
+| Bar height            | 72px of content, plus `env(safe-area-inset-bottom)`                        |
+| Icon / label size     | 24px icon, 10.4px label, always visible                                    |
+| z-index               | search sheet 44, **bar 45**, Radix and vaul overlays 50                    |
+| Element type per cell | `<button>`, never `<a href>` (see [§16](#16-gotchas--lessons-learned))     |
+| Long-press threshold  | 450ms, with the ring starting to fill at 120ms                             |
+| Surface               | A floating pill, matching the scrolled header's treatment                  |
+| Haptics               | none, deliberately (see [§16](#16-gotchas--lessons-learned))               |
 
 **Daily workflow:** nothing to configure. The bar reads its items from `frontend/src/constants/navigation.ts` and mounts itself once in the root layout.
 
@@ -70,7 +69,7 @@ The important detail is that the best-performing condition was **visible and hid
 ```mermaid
 flowchart TB
     subgraph nav["nav.bottom-nav-compacts (fixed, z-45, md:hidden)"]
-        subgraph ul["ul[data-variant] (owns the pointer stream)"]
+        subgraph ul["ul (owns the pointer stream)"]
             c1["li: Potrošnja<br/>USKORO chip"]
             c2["li: Praćenje<br/>badge"]
             c3["li: Proizvodi<br/>raised green circle"]
@@ -157,25 +156,19 @@ Presses that start within **16px of a screen edge** are ignored entirely, so the
 
 ---
 
-## 5. The three surface variants
+## 5. The surface
 
-All three are one markup tree, selected by a `data-variant` attribute on the `<ul>`, so there is nothing to keep in sync while they are being compared.
+A floating pill, taking the scrolled header's treatment verbatim so the app's two floating bars match:
 
-| Variant | Look                                                                   | Notes                                                                                                                      |
-| ------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `pill`  | rounded-full, inset from all three edges, near-solid, bordered, shadow | Default. Matches the floating header pill, and the iOS 26 tab bar                                                          |
-| `flat`  | edge-to-edge, flush, opaque, top border                                | Material 3's convention. Most robust across iOS Safari toolbar quirks                                                      |
-| `glass` | edge-to-edge, translucent, `backdrop-blur-lg`                          | The iOS 18 look. Stacks a second blurred fixed layer over the header's own `backdrop-blur-sm`, which is a real jank source |
+```
+mx-[0.5rem] px-[0.4rem] rounded-full border bg-background/50 backdrop-blur-sm
+```
 
-Resolution order, in `bottom-nav-variant.ts`:
+Three variants (this pill, an edge-to-edge flat bar and an edge-to-edge frosted one) were built behind a switcher so the look could be chosen on a real device. The pill won, and the other two plus their URL parameter, storage key and dev chip were removed.
 
-1. `?nav=pill|flat|glass` read from `window.location`,
-2. the persisted choice in `Disscount_app.bottomNavVariant`,
-3. `pill`.
+The horizontal inset and inner padding are explicit rem values rather than spacing utilities, because of the `--spacing` trap in [§10](#10-layout-safe-areas-and-css-tokens). Together they hold the 57.6px active disc 11.5px clear of the pill's edges at a 360px viewport, and 7.5px at 320px, so the first and last cell's disc never touches the border.
 
-The URL parameter is read from `window.location` rather than `useSearchParams` on purpose: `useSearchParams` would opt the root layout's whole subtree out of prerendering, a cost already documented in commit `7977ff0`. The trade-off is that the bar renders the default for one frame before switching, which is fine for a comparison affordance.
-
-The floating chip that cycles the variants is gated on `process.env.NODE_ENV === "development"`, so it never reaches a production bundle. On a real phone against the deployed dev site, use the URL parameter.
+One trade-off, flagged and accepted deliberately: this is a second blurred fixed layer over the header's own `backdrop-blur-sm`. Stacked blurs are the main scroll-jank source on mid-range Android, so it is worth watching on real hardware.
 
 ---
 
@@ -194,11 +187,12 @@ flowchart LR
     nav --> close["onSubmitted closes the sheet"]
 ```
 
-Three deliberate choices:
+Four deliberate choices:
 
 - **`modal={false}`.** This drops vaul's scrim and scroll lock, which is what lets the sheet sit _behind_ the bar at `z-44` with the nav still visible on top at `z-45`. The sheet pads its own bottom by `--bottom-nav-total` so none of its content hides under the bar.
+- **`passThroughSurface`.** The sheet's surface extends under the bar, so without this it would swallow taps meant for the tabs. See the pointer-events gotcha in [§16](#16-gotchas--lessons-learned), which needs two separate fixes to work.
 - **It closes on route change**, matching `AppSidebar`. Submitting from `/products` only changes the query, not the pathname, which `onSubmitted` already covers.
-- **The field is focused on open** via `initialFocusRef`, so the user can start typing immediately.
+- **The field is focused on open** via `initialFocusRef`, so the user can start typing immediately, and **Pretraži stays disabled** until something is typed.
 
 The sheet reuses `SearchBar` rather than adding a second search field, which is the same configuration the sidebar already uses (`submitButtonLocation="block"`).
 
@@ -304,8 +298,8 @@ So the bar expresses none of its dimensions through the spacing scale. They live
 
 ```css
 :root {
-  --bottom-nav-h: 4rem; /* 64px of content */
-  --bottom-nav-gap: 0.75rem; /* the floating variant's inset */
+  --bottom-nav-h: 4.5rem; /* 72px of content */
+  --bottom-nav-gap: 0.75rem; /* the pill's inset from the bottom edge */
   --bottom-nav-safe: env(safe-area-inset-bottom, 0px);
   --bottom-nav-total: calc(
     var(--bottom-nav-h) + var(--bottom-nav-gap) + var(--bottom-nav-safe)
@@ -313,7 +307,7 @@ So the bar expresses none of its dimensions through the spacing scale. They live
 }
 ```
 
-`--bottom-nav-total` reserves the floating variant's gap for **every** variant, so switching surfaces never changes the page's padding.
+`--bottom-nav-total` includes the pill's gap, so the page's bottom clearance always matches what the bar actually occupies.
 
 ### Viewport changes this required
 
@@ -384,18 +378,16 @@ Two other bottom-anchored elements were offset out of the way:
 
 ### The bar
 
-| File                                                           | Role                                                                        |
-| -------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| `components/custom/bottom-nav/bottom-nav.tsx`                  | The `md:hidden` shell: resolves the variant, owns activation and long press |
-| `components/custom/bottom-nav/bottom-nav-item.tsx`             | One plain cell: icon, label, badge, rings, USKORO chip                      |
-| `components/custom/bottom-nav/bottom-nav-center-item.tsx`      | The raised filled search cell with its `Proizvodi` label                    |
-| `components/custom/bottom-nav/bottom-nav-indicator.tsx`        | The `layoutId` active disc                                                  |
-| `components/custom/bottom-nav/bottom-nav-ring.tsx`             | One ring, shared by long-press feedback and list completion                 |
-| `components/custom/bottom-nav/bottom-nav-items.ts`             | The five-cell order and the long-press mapping                              |
-| `components/custom/bottom-nav/use-bottom-nav-pointer.ts`       | One pointer stream for tap, scrub and long press                            |
-| `components/custom/bottom-nav/use-active-list-progress.ts`     | Completion of the list on screen                                            |
-| `components/custom/bottom-nav/bottom-nav-variant.ts`           | Variant type and the URL-then-storage-then-default resolver                 |
-| `components/custom/bottom-nav/bottom-nav-variant-switcher.tsx` | The dev-only cycling chip                                                   |
+| File                                                       | Role                                                                 |
+| ---------------------------------------------------------- | -------------------------------------------------------------------- |
+| `components/custom/bottom-nav/bottom-nav.tsx`              | The `md:hidden` shell, owning the surface, activation and long press |
+| `components/custom/bottom-nav/bottom-nav-item.tsx`         | One plain cell: icon, label, badge, rings, USKORO chip               |
+| `components/custom/bottom-nav/bottom-nav-center-item.tsx`  | The raised filled search cell with its `Proizvodi` label             |
+| `components/custom/bottom-nav/bottom-nav-indicator.tsx`    | The `layoutId` active disc                                           |
+| `components/custom/bottom-nav/bottom-nav-ring.tsx`         | One ring, shared by long-press feedback and list completion          |
+| `components/custom/bottom-nav/bottom-nav-items.ts`         | The five-cell order and the long-press mapping                       |
+| `components/custom/bottom-nav/use-bottom-nav-pointer.ts`   | One pointer stream for tap, scrub and long press                     |
+| `components/custom/bottom-nav/use-active-list-progress.ts` | Completion of the list on screen                                     |
 
 ### Shared primitives
 
@@ -435,7 +427,7 @@ Versions read from `frontend/package.json`. Nothing new was installed for this f
 | `motion`                   | ^12.23.26 | The `layoutId` active disc and `useReducedMotion`                  |
 | `vaul`                     | ^1.1.2    | The drawer under `SheetShell`, including the grab handle and swipe |
 | `lucide-react`             | ^1.26.0   | Every icon on the bar                                              |
-| `tailwindcss`              | ^4        | All styling, including the `data-[variant=...]` surface selectors  |
+| `tailwindcss`              | ^4        | All styling, including the pill's translucent blurred surface      |
 | `sonner`                   | ^2.0.7    | Toasts, offset above the bar                                       |
 | `@tanstack/react-query`    | ^5.90.12  | The list-completion query                                          |
 | `react-hook-form`          | ^7.68.0   | Inside `SearchBar`                                                 |
@@ -453,7 +445,7 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 | Landmark             | A real `<nav>` with `aria-label="Glavna navigacija"`. There are three `<nav>` landmarks now, so each needs a distinguishing label       |
 | Current page         | `aria-current="page"` on the active cell, which is the only thing that conveys "you are here" to a screen reader                        |
 | Not colour alone     | Active state is the disc **plus** the tint **plus** a bold label, satisfying WCAG 1.4.1                                                 |
-| Touch targets        | Each cell is 72px wide at a 360px viewport and 64px at 320px, over the 48px practical minimum                                           |
+| Touch targets        | Measured 65.8px wide at a 360px viewport and 57.8px at 320px, by 72px tall, both over the 48px practical minimum                        |
 | Keyboard             | Cells are real `<button>`s. Pointer activation runs on the list, so cells act only on keyboard clicks, which arrive with `detail === 0` |
 | Long press           | Every target is also reachable by a visible control, so no action is gesture-only (WCAG 2.1.1, 2.5.1)                                   |
 | Pointer cancellation | The press fires on the hold timer, and moving 10px abandons it (WCAG 2.5.2)                                                             |
@@ -476,9 +468,9 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 | The active disc following the route           | ✅ auto    | `usePathname` plus `layoutId`                                                                  |
 | **Adding or reordering a cell**               | ❌ manual  | Edit `bottom-nav-items.ts`, and remember Apple's rule that a shipped tab set should not change |
 | **Enabling the Kartice long press**           | ❌ manual  | Flip `longPressEnabled` when digital cards ship                                                |
-| **Choosing the final surface variant**        | ❌ manual  | Pick one, then delete the other two and the switcher                                           |
 | **A real price-drop badge count**             | ❌ manual  | Needs an endpoint or a per-user last-seen timestamp                                            |
 | **Verifying the iOS keyboard and safe areas** | ❌ manual  | Needs a real iPhone; DevTools emulation cannot show either                                     |
+| **Turning the React Query devtools back on**  | ❌ manual  | `NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS=true`, then restart the dev server                    |
 
 ---
 
@@ -495,6 +487,19 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 **Custom properties need `@property` to animate.** Without registration they animate discretely and snap at the halfway point, so the compaction would jump instead of fading.
 
 **Capturing the pointer on the list retargets the click.** Because `setPointerCapture` is called on the `<ul>`, a click no longer lands on the button that was pressed. That is why activation runs on `pointerup` and cells handle only keyboard clicks, discriminated by `detail === 0`.
+
+**Release the pointer capture explicitly.** The spec releases it on `pointerup`, but relying on that left captures outliving their gesture and retargeting the next one to the list, which showed up as a tap on one tab activating a different one. `end` and `abort` both call `releasePointerCapture` now, guarded by `hasPointerCapture`.
+
+**Do not derive a cell index by dividing the bar's width.** The pill has inner padding, so width division skews every boundary. The index comes from the cells' own `getBoundingClientRect()`, which is exact and self-correcting if the layout changes.
+
+**An open sheet disables pointer events on the whole page, and beating it takes two fixes.** A sheet that deliberately sits under the bar needs both, and either alone silently fails:
+
+1. Radix sets `pointer-events` **inline** on the layer, so a plain `pointer-events-none` class loses on specificity. It has to be `pointer-events-none!`, with `[&>div]:pointer-events-auto` handing them back to the children so the grab handle still drags.
+2. Radix also sets `pointer-events: none` on **`<body>`**, which makes everything underneath unreachable no matter what the sheet does. The bar opts back in with `pointer-events-auto`, but only while the non-modal search sheet is open, so it stays correctly inert under real modals.
+
+**Devtools overlays sat exactly on the bar.** The Next indicator lands bottom-left over Potrošnja and the React Query button bottom-right over Kartice. `devIndicators: false` handles the first; the second is now behind `NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS`, matching the existing `NEXT_PUBLIC_ENABLE_REACT_SCAN` pattern. Both need a dev-server restart, since `next.config.ts` and `NEXT_PUBLIC_*` are read at compile time.
+
+**Bold widens the active label.** Sizing the active disc against the unbolded label leaves the active one touching its edges, which is the state you actually look at. The disc is sized against the widest label _once bold_.
 
 **Do not set `touch-action: none` on things inside a scroller.** `pointercancel` fires for free when a pan or scroll claims the pointer, which is what abandons a long press on a product card, and `touch-action: none` would suppress it. The bar itself is fixed chrome, so it does use `touch-none` to keep a horizontal scrub from being read as a page pan.
 
@@ -523,8 +528,7 @@ Tracked on the **Disscount Roadmap** project board, in Backlog:
 
 Not yet scheduled:
 
-- **Pick a surface variant and delete the other two**, along with the switcher, the URL parameter and `bottomNavVariant` in storage.
-- **Decide the rest of the mobile chrome.** Deferred until the variants have been seen on a real phone: stripping the mobile header to brand plus account, collapsing the mobile footer to legal links, and whether `WindowScrollFade` should be offset above the bar or dropped on mobile. Its `h-28` scrim is taller than the bar and currently draws a wash over the area.
+- **Decide the rest of the mobile chrome.** Still deferred: stripping the mobile header to brand plus account, collapsing the mobile footer to legal links, and whether `WindowScrollFade` should be offset above the bar or dropped on mobile. Its `h-28` scrim is taller than the bar and currently draws a wash over the area.
 - **An accessory strip above the bar**, the iOS 26 `tabViewBottomAccessory` pattern: an active list's name, its ticked count and a running total, which no competing Croatian price app has. Needs a product answer for what makes a list "active".
 - **Instrument the bar in Umami**, per-cell taps plus the sidebar open rate before and after. If sidebar opens do not drop, the bar is not actually absorbing navigation.
-- **Verify on real hardware**: iOS safe areas, the keyboard, and whether the `pill` variant's floating gutter feels right in a store with one hand.
+- **Verify on real hardware**: iOS safe areas, the keyboard, and whether the pill's floating gutter feels right in a store with one hand.
