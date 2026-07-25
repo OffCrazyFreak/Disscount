@@ -1,0 +1,78 @@
+{
+  "packageId": "me.disscount.app",
+  "host": "disscount.me",
+  "name": "Disscount - Pronađi najbolje cijene u Hrvatskoj",
+  "launcherName": "Disscount",
+  "display": "standalone",
+  "themeColor": "#FFFFFF",
+  "themeColorDark": "#121212",
+  "navigationColor": "#FFFFFF",
+  "navigationColorDark": "#121212",
+  "navigationDividerColor": "#FFFFFF",
+  "navigationDividerColorDark": "#121212",
+  "backgroundColor": "#FFFFFF",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://dev.disscount.me/brand/icons/icon-512.png",
+  "maskableIconUrl": "https://dev.disscount.me/brand/icons/icon-maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "/home/silver/.local/share/disscount-android-signing/disscount-upload.jks",
+    "alias": "disscount-upload"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [
+    {
+      "name": "Skeniraj barkod",
+      "shortName": "Skeniraj",
+      "url": "https://disscount.me/?scan=1",
+      "chosenIconUrl": "https://dev.disscount.me/brand/shortcuts/scan-any.png",
+      "chosenMaskableIconUrl": "https://dev.disscount.me/brand/shortcuts/scan.png"
+    },
+    {
+      "name": "Popisi za kupnju",
+      "shortName": "Popisi",
+      "url": "https://disscount.me/shopping-lists",
+      "chosenIconUrl": "https://dev.disscount.me/brand/shortcuts/shopping-lists-any.png",
+      "chosenMaskableIconUrl": "https://dev.disscount.me/brand/shortcuts/shopping-lists.png"
+    },
+    {
+      "name": "Praćeni proizvodi",
+      "shortName": "Praćenje",
+      "url": "https://disscount.me/watchlist",
+      "chosenIconUrl": "https://dev.disscount.me/brand/shortcuts/watchlist-any.png",
+      "chosenMaskableIconUrl": "https://dev.disscount.me/brand/shortcuts/watchlist.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://disscount.me/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://disscount.me/",
+  "minSdkVersion": 23,
+  "shareTarget": {
+    "action": "https://disscount.me/share-target",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "orientation": "portrait",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "protocolHandlers": [],
+  "fileHandlers": [],
+  "launchHandlerClientMode": "navigate-existing",
+  "displayOverride": [],
+  "appVersion": "1.0.0"
+}

@@ -63,6 +63,26 @@ frontend/yarn-error.log*
 frontend/package-lock.json
 frontend/yarn.lock
 
+# --- Android TWA wrapper (Bubblewrap) ---
+# The project sources and twa-manifest.json ARE tracked; only build output is not.
+android/build/
+android/app/build/
+android/.gradle/
+android/local.properties
+android/.idea/
+android/*.apk
+android/*.aab
+android/*.idsig
+
+# --- Android signing material (NEVER commit) ---
+# The upload keystore lives outside this repo, in ~/.local/share/disscount-android-signing/
+*.jks
+*.keystore
+*.p12
+keystore.properties
+signing.properties
+play-service-account*.json
+
 # --- Misc ---
 *.bak
 *.orig
