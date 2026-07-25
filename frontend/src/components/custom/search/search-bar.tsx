@@ -3,9 +3,9 @@
 import { useEffect, useCallback, useRef, type RefObject } from "react";
 import { useForm } from "react-hook-form";
 import { Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SearchBarActions from "@/components/custom/search/search-bar-actions";
+import SearchSubmitButton from "@/components/custom/search/search-submit-button";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 import { useCameraScanner } from "@/context/scanner-context";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -19,6 +19,8 @@ interface ISearchBarProps {
   allowScanning?: boolean;
   submitButtonLocation?: "none" | "auto" | "block";
   submitLabel?: string;
+  /** Names the form, so an owner can put the submit button outside it */
+  formId?: string;
   /** Exposes the field so an owner can focus it inside a gesture's own task */
   inputRef?: RefObject<HTMLInputElement | null>;
   /** Fires once a search or a scan has navigated away */
@@ -33,6 +35,7 @@ export default function SearchBar({
   autoSearch = false,
   allowScanning = false,
   submitLabel = "Pretraži",
+  formId,
   inputRef: exposedInputRef,
   onSubmitted,
 }: ISearchBarProps) {
@@ -100,6 +103,7 @@ export default function SearchBar({
   return (
     <div>
       <form
+        id={formId}
         onSubmit={handleSubmit(submit)}
         className="relative flex items-center gap-4 flex-wrap"
       >
@@ -134,18 +138,11 @@ export default function SearchBar({
         </div>
 
         {submitButtonLocation !== "none" && (
-          <Button
-            type="submit"
-            size="lg"
-            effect="shineHover"
-            className={`text-lg p-6 bg-primary hover:bg-secondary grow ${
-              submitButtonLocation === "block" && "w-full"
-            }`}
+          <SearchSubmitButton
+            label={submitLabel}
+            block={submitButtonLocation === "block"}
             disabled={!queryValue?.trim()}
-          >
-            <Search className="size-5 mr-2" />
-            {submitLabel}
-          </Button>
+          />
         )}
       </form>
     </div>

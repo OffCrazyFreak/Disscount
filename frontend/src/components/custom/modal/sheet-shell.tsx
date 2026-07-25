@@ -2,7 +2,7 @@
 
 import { ReactNode, type RefObject } from "react";
 
-import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerFooter } from "@/components/ui/drawer";
 import SheetShellHeader from "@/components/custom/modal/sheet-shell-header";
 import useSheetDragUp from "@/components/custom/modal/use-sheet-drag-up";
 import { cn } from "@/lib/utils";
@@ -28,6 +28,8 @@ export interface ISheetShellProps {
   /** Hides the visible title, for sheets whose content already names itself */
   srOnlyTitle?: boolean;
   srOnlyDescription?: boolean;
+  /** Pinned below the body, so it survives the body scrolling */
+  footer?: ReactNode;
   /** An explicit way out, for a sheet whose own content offers none */
   showCloseButton?: boolean;
   /** Dragging the sheet upward, which vaul otherwise clamps to nothing */
@@ -61,6 +63,7 @@ export default function SheetShell({
   description,
   srOnlyTitle = false,
   srOnlyDescription = true,
+  footer,
   showCloseButton = false,
   onDragUp,
   initialFocusRef,
@@ -109,6 +112,10 @@ export default function SheetShell({
 
         {children && (
           <div className={cn(BODY_CLASS, bodyClassName)}>{children}</div>
+        )}
+
+        {footer && (
+          <DrawerFooter className="px-4 pt-3 pb-0">{footer}</DrawerFooter>
         )}
       </DrawerContent>
     </Drawer>

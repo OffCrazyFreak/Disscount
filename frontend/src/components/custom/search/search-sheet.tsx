@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchNavButton from "@/components/custom/search/search-nav-button";
+import SearchSubmitButton from "@/components/custom/search/search-submit-button";
 import SheetShell from "@/components/custom/modal/sheet-shell";
 import ProductSearchFilters from "@/app/products/components/product-search-filters";
 import { useSearchSheet } from "@/context/search-sheet-context";
@@ -13,6 +14,9 @@ import { findNavItem } from "@/constants/navigation";
 
 /** The one route whose filters live in the sheet, so it survives arriving there */
 const FILTERED_ROUTE = "/products";
+
+/** Ties the footer's submit button to the field's form, which it sits outside of */
+const SEARCH_FORM_ID = "search-sheet-form";
 
 const discountsNavItem = findNavItem("discounted");
 
@@ -47,14 +51,19 @@ export default function SearchSheet() {
       initialFocusRef={areFiltersOpen ? undefined : inputRef}
       // Dragging up asks for the whole surface, which is search plus its filters.
       onDragUp={() => setAreFiltersOpen(true)}
+      // Last in the sheet and outside the scroll, so expanding the filters cannot
+      // push the one action that acts on them out of reach.
+      footer={
+        <SearchSubmitButton label="Pretraži" block form={SEARCH_FORM_ID} />
+      }
       className="md:hidden"
     >
       <SearchBar
         searchRoute={FILTERED_ROUTE}
         placeholder="Pretraži proizvode..."
         allowScanning
-        submitButtonLocation="block"
-        submitLabel="Pretraži"
+        submitButtonLocation="none"
+        formId={SEARCH_FORM_ID}
         inputRef={inputRef}
       />
 

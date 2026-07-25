@@ -15,8 +15,8 @@ interface IClearFiltersButtonProps {
 }
 
 /**
- * Drops every active filter. Shared by the products page, its filters sheet and
- * the search sheet's panel, so the three cannot label or gate it differently.
+ * Drops every active filter. Shared by the products page's two layouts and the
+ * search sheet's panel, so they cannot label or gate it differently.
  */
 export default function ClearFiltersButton({
   filters,
