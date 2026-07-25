@@ -47,7 +47,8 @@ export default function ReactQueryProviderWrapper({
       }}
     >
       {children}
-      <ReactQueryDevtools />
+      {/* Its default corner lands on the bottom nav, which makes the bar untestable */}
+      <ReactQueryDevtools buttonPosition="top-left" />
     </PersistQueryClientProvider>
   );
 }

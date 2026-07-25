@@ -2,7 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import PageFab from "@/components/custom/fab/page-fab";
+import BackToTopButton from "@/components/custom/fab/back-to-top-button";
 
 interface ICreateShoppingListButtonProps {
   onCreateClick: () => void;
@@ -15,20 +15,19 @@ export default function CreateShoppingListButton({
 
   return (
     <>
+      {/* Visible at every width: with the FAB gone a hold would be the only
+          other way to create, and a gesture-only action fails WCAG 2.1.1. */}
       <Button
         type="button"
         effect="expandIcon"
         onClick={onCreateClick}
         icon={Plus}
         iconPlacement="left"
-        className="hidden sm:inline-flex"
       >
         {buttonText}
       </Button>
 
-      <PageFab
-        primary={{ icon: Plus, label: buttonText, onClick: onCreateClick }}
-      />
+      <BackToTopButton containerClassName="hidden md:block" />
     </>
   );
 }

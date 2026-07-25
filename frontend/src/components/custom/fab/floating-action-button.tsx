@@ -56,7 +56,7 @@ export default function FloatingActionButton({
     // Click-through, so a hidden or disabled button leaves no dead zone.
     <div
       className={cn(
-        "pointer-events-none fixed z-50",
+        "pointer-events-none fixed z-[var(--z-back-to-top)]",
         positionClasses[position],
         containerClassName,
       )}

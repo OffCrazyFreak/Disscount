@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import PageFab from "@/components/custom/fab/page-fab";
+import BackToTopButton from "@/components/custom/fab/back-to-top-button";
 import { shoppingListService } from "@/lib/api";
 import { IWatchlistItemWithProduct } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { formatDate } from "@/utils/strings";
@@ -105,22 +105,13 @@ export default function CreateDiscountedListButton({
         disabled={isDisabled}
         loading={isCreating}
         loadingText="Stvaranje popisa..."
-        className="hidden sm:inline-flex"
         aria-label={actionLabel}
       >
         {/* Count stays visual: in the accessible name it would re-announce on every change. */}
         {buttonText}
       </Button>
 
-      <PageFab
-        primary={{
-          icon: Sparkles,
-          label: actionLabel,
-          onClick: handleCreateDiscountedList,
-          disabled: isDisabled,
-          loading: isCreating,
-        }}
-      />
+      <BackToTopButton containerClassName="hidden md:block" />
     </>
   );
 }

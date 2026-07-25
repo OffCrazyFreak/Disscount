@@ -645,8 +645,10 @@ html {
   scroll-padding-bottom: var(--bottom-nav-total);
 }
 
+/* No bar above md, so everything offsetting off the bar resolves to nothing. */
 @media (width >= 48rem) {
   :root {
+    --bottom-nav-total: 0px;
     --sheet-bottom-clearance: max(1rem, env(safe-area-inset-bottom, 0px));
   }
 }
