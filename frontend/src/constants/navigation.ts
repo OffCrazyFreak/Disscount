@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   Bug,
   Mail,
+  Package,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -38,6 +39,16 @@ export const dashboardNavItem: INavigationItem = {
   href: "/dashboard",
   label: "Nadzorna ploča",
   icon: LayoutDashboard,
+
+  showInHeader: false,
+};
+
+// The catalogue itself, which productNavItems only ever reached through filters
+export const productsNavItem: INavigationItem = {
+  id: "products",
+  href: "/products",
+  label: "Proizvodi",
+  icon: Package,
 
   showInHeader: false,
 };
