@@ -4,6 +4,7 @@ import { ChevronsUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import FloatingActionButton from "@/components/custom/fab/floating-action-button";
 import { useScrolledPast } from "@/hooks/use-scrolled-past";
+import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 import { scrollToTop } from "@/utils/scroll";
 
 interface IBackToTopButtonProps {
@@ -25,10 +26,11 @@ export default function BackToTopButton({
   label = "Natrag na vrh",
 }: IBackToTopButtonProps) {
   const isVisible = useScrolledPast(threshold);
+  const reduced = useReducedMotionSafe();
 
   return (
     <FloatingActionButton
-      onClick={scrollToTop}
+      onClick={() => scrollToTop(reduced)}
       icon={<ChevronsUp className="size-6" />}
       label={label}
       containerClassName={containerClassName}

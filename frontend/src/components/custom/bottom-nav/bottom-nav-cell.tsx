@@ -53,7 +53,11 @@ export default function BottomNavCell({
       aria-current={isActive ? "page" : undefined}
       aria-expanded={isToggle ? isSheetOpen : undefined}
       aria-label={showsChevrons ? "Zatvori traženje" : undefined}
-      onClick={() => onActivate(index)}
+      // The bar captures the pointer, so a pointer click lands on the pill and
+      // never here. Detail 0 is the Enter/Space click that still should.
+      onClick={(event) => {
+        if (event.detail === 0) onActivate(index);
+      }}
       className={cn(
         "relative flex size-full min-h-12 min-w-12 flex-col items-center justify-center gap-1 select-none",
         isLocked
