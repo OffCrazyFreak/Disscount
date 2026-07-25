@@ -60,19 +60,20 @@ export default function CameraSelect({
       {hasManualChoice && (
         <Tooltip>
           <TooltipTrigger asChild>
+            {/* The modal footer's reset button, kept icon-only beside the select. */}
             <Button
               type="button"
               variant="outline"
               size="icon"
+              icon={RotateCcw}
+              iconPlacement="left"
               onClick={onReset}
-              aria-label="Vrati na automatski odabir kamere"
-            >
-              <RotateCcw />
-            </Button>
+              aria-label="Resetiraj kameru na automatski odabir"
+            />
           </TooltipTrigger>
 
           <TooltipContent className="px-2 py-1 text-xs">
-            Vrati na automatski odabir kamere
+            Resetiraj kameru na automatski odabir
           </TooltipContent>
         </Tooltip>
       )}
