@@ -11,9 +11,10 @@ import { FILTER_KEYS } from "@/app/products/hooks/use-filter-params";
  * filter is a deliberate choice, whether shared as a link or picked here, so
  * it is left alone rather than mixed with preferences that could contradict it.
  *
- * Seeds once per mount, so clearing a filter sticks while the user stays.
+ * Seeds once per mount, so clearing a filter sticks while the user stays. Only
+ * one reader may seed: a second racing the first double-appends every param.
  */
-export default function useSeedPreferredFilters(): void {
+export default function useSeedPreferredFilters(enabled = true): void {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function useSeedPreferredFilters(): void {
 
   useEffect(() => {
     // The profile arrives after first render, so this waits for it.
-    if (hasSeeded.current || !user) return;
+    if (!enabled || hasSeeded.current || !user) return;
 
     hasSeeded.current = true;
 
@@ -43,5 +44,5 @@ export default function useSeedPreferredFilters(): void {
     pinnedPlaces.forEach((place) => params.append("location", place));
 
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [user, searchParams, pathname, router]);
+  }, [enabled, user, searchParams, pathname, router]);
 }

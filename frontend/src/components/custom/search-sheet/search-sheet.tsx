@@ -16,7 +16,8 @@ export const SEARCH_SHEET_FORM_ID = "search-sheet-form";
  * focus-outside dismissal when a sheet is non-modal.
  */
 export default function SearchSheet() {
-  const { isOpen, filtersExpanded, closeSheet } = useSearchSheet();
+  const { isOpen, filtersExpanded, closeSheet, setFiltersExpanded } =
+    useSearchSheet();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [canSubmit, setCanSubmit] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
@@ -41,6 +42,8 @@ export default function SearchSheet() {
       // Declined when opened straight into the filters, since the keyboard would
       // cover the facets the user just asked to see.
       initialFocusRef={filtersExpanded ? undefined : inputRef}
+      // Mid-drag, so the sheet grows under the finger that asked for it.
+      onDragUp={() => setFiltersExpanded(true)}
       footer={
         <Button
           type="submit"
