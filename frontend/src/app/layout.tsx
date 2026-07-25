@@ -7,6 +7,7 @@ import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/common/footer";
 import WindowScrollFade from "@/components/custom/common/window-scroll-fade";
 import BottomNav from "@/components/custom/bottom-nav/bottom-nav";
+import SearchSheet from "@/components/custom/search-sheet/search-sheet";
 import OAuthErrorToast from "@/components/custom/common/oauth-error-toast";
 import ModalRouter from "@/components/custom/modal-router/modal-router";
 import InstallBanner from "@/components/custom/pwa/install-banner";
@@ -164,6 +165,12 @@ export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
 
             {/* Bottom scrim on every scrollable page; self-hides at the end */}
             <WindowScrollFade />
+
+            {/* Its search bar reads the URL, so it needs the same boundary the
+                modal router uses; it renders nothing until first opened. */}
+            <Suspense fallback={null}>
+              <SearchSheet />
+            </Suspense>
 
             {/* Last, so keyboard users reach the content before the navigation */}
             <BottomNav />

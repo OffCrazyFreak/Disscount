@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, type RefObject } from "react";
 import { useForm } from "react-hook-form";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SearchBarActions from "@/components/custom/search/search-bar-actions";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
+import { canSubmitSearch } from "@/utils/search";
 import { useCameraScanner } from "@/context/scanner-context";
 import { useSidebar } from "@/components/ui/sidebar";
 import { IScannedCode } from "@/typings/scanned-code";
@@ -19,6 +20,13 @@ interface ISearchBarProps {
   allowScanning?: boolean;
   submitButtonLocation?: "none" | "auto" | "block";
   submitLabel?: string;
+  /** Lets a submit button outside the form associate back to it */
+  formId?: string;
+  /** Mirrors the submit rule out, for a button rendered elsewhere */
+  onCanSubmitChange?: (canSubmit: boolean) => void;
+  onQueryChange?: (query: string) => void;
+  /** Lets a container focus the field explicitly, as a sheet must on open */
+  inputRef?: RefObject<HTMLInputElement | null>;
 }
 
 export default function SearchBar({
@@ -29,6 +37,10 @@ export default function SearchBar({
   autoSearch = false,
   allowScanning = false,
   submitLabel = "Pretraži",
+  formId,
+  onCanSubmitChange,
+  onQueryChange,
+  inputRef: externalInputRef,
 }: ISearchBarProps) {
   const { routeQuery, search, syncQuery, openResult } =
     useSearchNavigation(searchRoute);
@@ -45,6 +57,18 @@ export default function SearchBar({
 
   const queryValue = watch("query");
   const { ref: registerRef, ...registerProps } = register("query");
+
+  const canSubmit = canSubmitSearch(queryValue ?? "", routeQuery);
+
+  // Reported out so a submit button rendered elsewhere mirrors one boolean
+  // rather than reaching into this form.
+  useEffect(() => {
+    onCanSubmitChange?.(canSubmit);
+  }, [canSubmit, onCanSubmitChange]);
+
+  useEffect(() => {
+    onQueryChange?.(queryValue ?? "");
+  }, [queryValue, onQueryChange]);
 
   useEffect(() => {
     if (getValues("query") !== routeQuery) {
@@ -90,6 +114,7 @@ export default function SearchBar({
   return (
     <div>
       <form
+        id={formId}
         onSubmit={handleSubmit(submit)}
         className="relative flex items-center gap-4 flex-wrap"
       >
@@ -99,6 +124,7 @@ export default function SearchBar({
           <Input
             ref={(el) => {
               inputRef.current = el;
+              if (externalInputRef) externalInputRef.current = el;
               registerRef(el);
             }}
             {...registerProps}
@@ -125,7 +151,7 @@ export default function SearchBar({
             className={`text-lg p-6 bg-primary hover:bg-secondary grow ${
               submitButtonLocation === "block" && "w-full"
             }`}
-            disabled={!queryValue?.trim()}
+            disabled={!canSubmit}
           >
             <Search className="size-5 mr-2" />
             {submitLabel}

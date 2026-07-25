@@ -10,6 +10,7 @@ import useBarPointer from "@/components/custom/bottom-nav/use-bar-pointer";
 import useReturnScroll from "@/components/custom/bottom-nav/use-return-scroll";
 import useHoldActions from "@/components/custom/bottom-nav/use-hold-actions";
 import resolveHoldTarget from "@/components/custom/bottom-nav/resolve-hold-target";
+import { useSearchSheet } from "@/context/search-sheet-context";
 
 // touch-none belongs to the pill alone: it is fixed chrome, so a horizontal
 // scrub is never a page pan. Nothing inside a scroller may suppress panning.
@@ -25,6 +26,7 @@ export default function BottomNav() {
   const router = useRouter();
   const returnScroll = useReturnScroll();
   const runHold = useHoldActions();
+  const searchSheet = useSearchSheet();
   const [scrubIndex, setScrubIndex] = useState<number | null>(null);
   const {
     activeIndex,
@@ -44,6 +46,17 @@ export default function BottomNav() {
   }
 
   function activate(index: number) {
+    const cell = BOTTOM_NAV_CELLS[index];
+
+    if (cell.togglesSearchSheet) {
+      searchSheet.toggleSheet();
+      return;
+    }
+
+    // Every other branch dismisses first, which covers what a route-change rule
+    // cannot: re-tapping the current tab never changes the pathname.
+    searchSheet.closeSheet();
+
     if (isLocked(index)) return;
 
     if (index === activeIndex) {
@@ -51,7 +64,7 @@ export default function BottomNav() {
       return;
     }
 
-    router.push(BOTTOM_NAV_CELLS[index].item.href);
+    router.push(cell.item.href);
   }
 
   const pointerHandlers = useBarPointer({
@@ -82,7 +95,7 @@ export default function BottomNav() {
               isActive={index === activeIndex}
               isLocked={isLocked(index)}
               isScrubbed={index === scrubIndex}
-              isSheetOpen={false}
+              isSheetOpen={searchSheet.isOpen}
               notificationCount={notificationCount}
               shoppingListId={shoppingListId}
               hasReturnPosition={returnScroll.hasReturnPosition}
