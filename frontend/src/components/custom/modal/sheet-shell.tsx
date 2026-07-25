@@ -26,6 +26,12 @@ export interface ISheetShellProps {
   modal?: boolean;
   /** Hides the visible title, for sheets whose content already names itself */
   srOnlyTitle?: boolean;
+  /**
+   * Lets pointers through the sheet's own surface while its content still
+   * receives them, so a sheet that extends under fixed chrome does not swallow
+   * taps meant for it.
+   */
+  passThroughSurface?: boolean;
   bodyClassName?: string;
   className?: string;
   children?: ReactNode;
@@ -47,6 +53,7 @@ export default function SheetShell({
   initialFocusRef,
   modal = true,
   srOnlyTitle = false,
+  passThroughSurface = false,
   bodyClassName,
   className,
   children,
@@ -59,7 +66,15 @@ export default function SheetShell({
       modal={modal}
     >
       <DrawerContent
-        className={cn("max-h-[85dvh]", className)}
+        className={cn(
+          "max-h-[85dvh]",
+          // Radix sets pointer-events inline on the layer, so this has to win on
+          // specificity. Children get them back, which leaves only the sheet's
+          // own padding transparent to taps, and keeps the grab handle draggable.
+          passThroughSurface &&
+            "pointer-events-none! [&>div]:pointer-events-auto",
+          className,
+        )}
         // Radix's documented opt-out for a sheet with no description.
         {...(description ? {} : { "aria-describedby": undefined })}
         // Focus the named field, or the container: focusing the first control
