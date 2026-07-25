@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductInfo from "@/components/custom/product/product-info";
+import useLongPress from "@/hooks/use-long-press";
 import { cn } from "@/lib/utils";
 
 interface IProductCardProps {
@@ -15,6 +16,7 @@ interface IProductCardProps {
   quantity?: string | null;
   imageUrl?: string | null;
   onClick?: () => void;
+  onLongPress?: () => void;
   isLoading?: boolean;
   trailing?: ReactNode;
   className?: string;
@@ -27,10 +29,13 @@ export default function ProductCard({
   quantity,
   imageUrl,
   onClick,
+  onLongPress,
   isLoading = false,
   trailing,
   className,
 }: IProductCardProps) {
+  const { holdProps } = useLongPress(onLongPress ?? null);
+
   const displayName = name && quantity ? `${name} (${quantity})` : name;
 
   function stopCardNavigation(event: MouseEvent) {
@@ -54,12 +59,21 @@ export default function ProductCard({
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? handleCardKeyDown : undefined}
+      {...holdProps}
       className={cn(
-        "@container shadow-sm hover:shadow-lg transition-shadow",
+        "@container relative shadow-sm hover:shadow-lg transition-shadow",
         onClick && "cursor-pointer",
         className,
       )}
     >
+      {onLongPress && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-[inherit] border-2 border-primary"
+          style={{ opacity: "var(--press-progress, 0)" }}
+        />
+      )}
+
       <div className="flex flex-col justify-between gap-3 px-3 py-2 @min-[320px]:flex-row @min-[320px]:items-center @md:gap-4 @md:px-6 @md:py-4">
         <div className="flex min-w-0 flex-1 items-center gap-4">
           {imageUrl && (
