@@ -1,8 +1,8 @@
 // One-off generator for the PWA app-shortcut icons. Run from the frontend dir:
 //   node scripts/generate-shortcut-icons.mjs
 // Produces the icons referenced by the shortcuts array in app/manifest.ts: the
-// same lucide glyph the nav uses, brand green on a rounded white tile. Chrome
-// accepts PNG only for shortcut icons, so the SVGs cannot be linked directly.
+// same lucide glyph the nav uses, brand green on a white tile. Chrome accepts
+// PNG only for shortcut icons, so the SVGs cannot be linked directly.
 import sharp from "sharp";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -16,13 +16,14 @@ const OUT = path.join(ROOT, "public/brand/shortcuts");
 const SIZE = 192; // What Chrome asks for when a single shortcut icon is given.
 const GREEN = "#2ec50d"; // --primary
 
-// Launchers mask these to a circle, so the glyph stays inside the inscribed
-// circle instead of filling the tile.
-const GLYPH = Math.round(SIZE * 0.52);
-
-// Same corner ratio as brand/icons/icon.svg (rx 96 on 512). Desktop Chrome and
-// Edge draw jump-list icons unmasked, where a hard square reads as a blank block.
-const RADIUS = Math.round(SIZE * (96 / 512));
+// Full bleed and declared maskable, so Android masks the tile itself. A tile
+// with its own rounded corners gets shrunk onto a second white plate instead,
+// which is what left the glyph tiny and the corners poking past the mask.
+//
+// Lucide insets its art by roughly 2 of 24 units, so the ink lands near 0.55 of
+// the canvas. Its diagonal then just clears the 80% safe-zone circle, which the
+// corner-bracket glyphs actually reach into.
+const GLYPH = Math.round(SIZE * 0.66);
 
 // Keyed by navigation item id, since manifest.ts derives each src from it.
 const SHORTCUTS = {
@@ -30,11 +31,6 @@ const SHORTCUTS = {
   "shopping-lists": ListChecks,
   watchlist: Eye,
 };
-
-const ROUNDED = Buffer.from(
-  `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}">` +
-    `<rect width="${SIZE}" height="${SIZE}" rx="${RADIUS}" ry="${RADIUS}" fill="#fff"/></svg>`,
-);
 
 // Rendering the component rather than a copied path keeps the shortcut icon and
 // the in-app nav icon from ever drifting apart.
@@ -50,10 +46,7 @@ async function writeTile(id, Icon) {
   await sharp({
     create: { width: SIZE, height: SIZE, channels: 4, background: WHITE },
   })
-    .composite([
-      { input: await glyph(Icon), gravity: "centre" },
-      { input: ROUNDED, blend: "dest-in" },
-    ])
+    .composite([{ input: await glyph(Icon), gravity: "centre" }])
     .withIccProfile("srgb")
     .png()
     .toFile(path.join(OUT, `${id}.png`));

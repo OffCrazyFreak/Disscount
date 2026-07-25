@@ -42,20 +42,34 @@ async function writeSrgb(file, buffer) {
 
 await mkdir(ICONS, { recursive: true });
 
-// PWA "any"-purpose icons: white bg, generous crop.
-await writeSrgb(path.join(ICONS, "icon-192.png"), await cartOnSquare(192, 0.8));
-await writeSrgb(path.join(ICONS, "icon-512.png"), await cartOnSquare(512, 0.8));
+// PWA "any"-purpose icons: white bg, generous crop. Android shrinks these onto
+// a white circle when it has no maskable icon to reach for, so a roomy cart
+// here is what survives that second pass.
+await writeSrgb(
+  path.join(ICONS, "icon-192.png"),
+  await cartOnSquare(192, 0.86),
+);
+await writeSrgb(
+  path.join(ICONS, "icon-512.png"),
+  await cartOnSquare(512, 0.86),
+);
 
-// Maskable: tighter crop so OS circle/squircle masks never clip the cart.
+// Maskable: cropped to the widest cart whose corners still clear the 80% safe
+// zone. Shipped at both launcher sizes so Chrome never has to fall back to an
+// "any" icon just because it wanted 192.
+await writeSrgb(
+  path.join(ICONS, "icon-maskable-192.png"),
+  await cartOnSquare(192, 0.7),
+);
 await writeSrgb(
   path.join(ICONS, "icon-maskable-512.png"),
-  await cartOnSquare(512, 0.6),
+  await cartOnSquare(512, 0.7),
 );
 
 // Apple touch icon: no transparency, near-full crop.
 await writeSrgb(
   path.join(ICONS, "apple-touch-icon-180.png"),
-  await cartOnSquare(180, 0.82),
+  await cartOnSquare(180, 0.86),
 );
 
 // favicon.ico: line-art needs the tightest crop to survive 16px.

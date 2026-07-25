@@ -108,6 +108,7 @@ frontend/public/brand/
 │   ├── mask-icon.svg          # Safari pinned-tab silhouette (tinted brand green)
 │   ├── icon-192.png
 │   ├── icon-512.png
+│   ├── icon-maskable-192.png
 │   ├── icon-maskable-512.png
 │   └── apple-touch-icon-180.png
 └── social/                    # per-platform upload images (manual, see section 8)
@@ -181,9 +182,9 @@ These need no manual upload; the app references them directly.
 
 The theme colour is set in `layout.tsx` `viewport.themeColor` as a light/dark pair (`#ffffff` / `#121212`) so the mobile browser chrome matches the page. The OG and Twitter link-preview images are generated dynamically (see section 8), and their alt text is exported from the same modules.
 
-**PWA icons** are declared in `src/app/manifest.ts`: `icon-192`, `icon-512` (both `purpose: "any"`), and `icon-maskable-512` (`purpose: "maskable"`, a tighter crop so Android's circle/squircle mask never clips the cart). The install banners (`install-banner.tsx`, `install-sidebar-banner.tsx`) reuse `icon-192.png`.
+**PWA icons** are declared in `src/app/manifest.ts`: `icon-192` and `icon-512` (`purpose: "any"`, cart at 86% to match `icon.svg`), plus `icon-maskable-192` and `icon-maskable-512` (`purpose: "maskable"`, cart at 70% so its diagonal clears Android's 80% safe-zone circle). Both maskable sizes ship because an `any` icon is not masked but shrunk onto Android's own white plate, and Chrome will reach for one if it wants a size the maskable set does not offer. The install banners (`install-banner.tsx`, `install-sidebar-banner.tsx`) reuse `icon-192.png`. Ratios and the reasoning behind them live in [`PWA.md`](PWA.md#icon-sizing).
 
-**App-shortcut icons** (`brand/shortcuts/`, one 192 PNG per shortcut) are the exception to "everything comes from the cart". They carry the same `lucide-react` glyph as the matching nav item, in brand green on a rounded white tile, because a shortcut has to read as its own destination rather than as the app. `scripts/generate-shortcut-icons.mjs` renders the icon component itself rather than a copied path, so the two can never drift. Chrome accepts PNG only here, which is why the SVGs cannot simply be linked. See [`PWA.md`](PWA.md#app-shortcuts).
+**App-shortcut icons** (`brand/shortcuts/`, one 192 PNG per shortcut) are the exception to "everything comes from the cart". They carry the same `lucide-react` glyph as the matching nav item, in brand green on a full-bleed white tile declared `any maskable`, because a shortcut has to read as its own destination rather than as the app. `scripts/generate-shortcut-icons.mjs` renders the icon component itself rather than a copied path, so the two can never drift. Chrome accepts PNG only here, which is why the SVGs cannot simply be linked. See [`PWA.md`](PWA.md#app-shortcuts).
 
 **iOS splash screens** (`public/splash/`, 18 of them) are the branded image iOS shows while an installed app launches, instead of a white flash. iOS ignores the manifest for this and matches a `<link rel="apple-touch-startup-image">` per device by media query. The component `apple-splash-screens.tsx` and the generator both read the **same** device list, `src/constants/ios-splash-screens.json`, so the tags and the files never drift. Each image is the cart plus the wordmark on white.
 
