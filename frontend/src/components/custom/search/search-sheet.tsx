@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import BottomSheet from "@/components/custom/bottom-sheet/bottom-sheet";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchNavButton from "@/components/custom/search/search-nav-button";
@@ -16,13 +17,29 @@ const SEARCH_FORM_ID = "search-sheet-form";
 
 const discountsItem = findNavItem("discounted");
 
+interface ISearchSheetProps {
+  /**
+   * Products-feature markup, created in the root layout and rendered only once
+   * the drawer mounts, so nothing under components/ imports a feature folder and
+   * no page is dropped out of the prerender.
+   */
+  filtersPanel: ReactNode;
+}
+
 /**
  * The only non-modal sheet in the app, because it is an addition to the page:
  * what is behind it changes as you act through it. That costs it every outside
  * dismissal, which is why the bar's centre cell is a toggle.
  */
-export default function SearchSheet() {
-  const { isOpen, close, fieldRef, setQueryDraft } = useSearchSheet();
+export default function SearchSheet({ filtersPanel }: ISearchSheetProps) {
+  const {
+    isOpen,
+    close,
+    fieldRef,
+    setQueryDraft,
+    areFiltersExpanded,
+    setFiltersExpanded,
+  } = useSearchSheet();
   const { user } = useUser();
 
   return (
@@ -33,7 +50,10 @@ export default function SearchSheet() {
       srOnlyTitle
       description="Upiši naziv proizvoda ili skeniraj crtni kod."
       modal={false}
-      initialFocusRef={fieldRef}
+      // Opened for the filters, the field is not what you came for, and focusing
+      // it would raise the keyboard over the facets you just asked to see.
+      initialFocusRef={areFiltersExpanded ? undefined : fieldRef}
+      onDragUp={() => setFiltersExpanded(true)}
       footer={
         <SearchSheetSubmit searchRoute={SEARCH_ROUTE} formId={SEARCH_FORM_ID} />
       }
@@ -55,6 +75,8 @@ export default function SearchSheet() {
           Boolean(discountsItem.comingSoon) && !isAdmin(user?.accountType)
         }
       />
+
+      {filtersPanel}
     </BottomSheet>
   );
 }

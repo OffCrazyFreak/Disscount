@@ -60,18 +60,22 @@ export function MultiSelect({
   );
   const [items, setItems] = useState<Map<string, ReactNode>>(new Map());
 
+  // A controlled owner can change the selection from outside (clearing filters,
+  // a back navigation), so the payload and the display must read one source. The
+  // internal set is seeded once at mount, so emitting from it resurrects values.
+  const currentValues = values ? new Set(values) : selectedValues;
+
   function toggleValue(value: string) {
-    const getNewSet = (prev: Set<string>) => {
-      const newSet = new Set(prev);
-      if (newSet.has(value)) {
-        newSet.delete(value);
-      } else {
-        newSet.add(value);
-      }
-      return newSet;
-    };
-    setSelectedValues(getNewSet);
-    onValuesChange?.([...getNewSet(selectedValues)]);
+    const next = new Set(currentValues);
+
+    if (next.has(value)) {
+      next.delete(value);
+    } else {
+      next.add(value);
+    }
+
+    setSelectedValues(next);
+    onValuesChange?.([...next]);
   }
 
   const onItemAdded = useCallback((value: string, label: ReactNode) => {
@@ -86,7 +90,7 @@ export function MultiSelect({
       value={{
         open,
         setOpen,
-        selectedValues: values ? new Set(values) : selectedValues,
+        selectedValues: currentValues,
         toggleValue,
         items,
         onItemAdded,

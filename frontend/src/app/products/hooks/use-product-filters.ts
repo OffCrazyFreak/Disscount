@@ -12,7 +12,6 @@ import { resolveAllowedChains } from "@/app/products/utils/allowed-chains";
 import useFilterParams, {
   type IFilterParamsResult,
 } from "@/app/products/hooks/use-filter-params";
-import useSeedPreferredFilters from "@/app/products/hooks/use-seed-preferred-filters";
 
 export type { ProductFilterKey } from "@/app/products/hooks/use-filter-params";
 
@@ -32,13 +31,14 @@ export interface IUseProductFiltersResult extends IFilterParamsResult {
  * URL-backed filter state for the products page: shareable and
  * back/forward-safe. All four filters apply client-side: the endpoint's
  * `chains` filter runs after its limit, so it would starve the facets.
+ *
+ * Reads only. Seeding the user's pinned stores is the page's own job, so a
+ * second reader mounting elsewhere cannot race it into double-appending params.
  */
 export default function useProductFilters(): IUseProductFiltersResult {
   const searchParams = useSearchParams();
   const { data: locations, isLoading: locationsLoading } = useAllLocations();
   const filterParams = useFilterParams();
-
-  useSeedPreferredFilters();
 
   // Only these two split on commas, so old shared links still resolve.
   const selectedChains = useMemo(
