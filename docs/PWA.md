@@ -454,7 +454,8 @@ Read from `frontend/package.json`.
 
 **Distribution**
 
-- [ ] Package the PWA for the **Google Play Store** via a Trusted Web Activity (Bubblewrap / PWABuilder), and optionally the iOS App Store. The generated icons and splash/screenshot assets are the same ones a store listing needs.
+- [x] Package the PWA for the **Google Play Store** via a Trusted Web Activity (Bubblewrap). The wrapper lives in `android/`; see [`ANDROID_PLAY_RELEASE.md`](ANDROID_PLAY_RELEASE.md) for the build, signing, and release flow.
+- [ ] Optionally package for the **iOS App Store**. It cannot use a TWA, so it needs a different wrapper and a stronger native-value story to pass review.
 
 **Later**
 
