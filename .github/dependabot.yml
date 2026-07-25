@@ -12,6 +12,14 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # react-scan 0.5.x depends on react-grab, whose manifest points its
+      # "browser" field at an IIFE bundle that exports nothing, so webpack
+      # cannot resolve the named import react-scan makes from it and the build
+      # fails. Bounded so 0.4.x patches still come through. Drop this once
+      # react-grab ships a browser build with real exports.
+      - dependency-name: "react-scan"
+        versions: [">=0.5.0"]
 
   # Backend (Spring Boot, Maven)
   - package-ecosystem: "maven"
