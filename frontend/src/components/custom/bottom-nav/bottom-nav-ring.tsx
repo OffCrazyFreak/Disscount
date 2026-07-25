@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-const RADIUS = 15;
+const RADIUS = 17;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 interface IBottomNavRingProps {
@@ -13,8 +13,9 @@ interface IBottomNavRingProps {
 }
 
 /**
- * A ring around a tab icon. Used both for long-press feedback and for the
- * active list's completion, which are the same shape at different speeds.
+ * A ring enclosing a whole cell's icon and label, sharing the active disc's
+ * geometry. Used both for long-press feedback and for list completion, which are
+ * the same shape at different speeds.
  *
  * stroke-dasharray is the right tool here because a circle has a known length,
  * unlike the multi-path Lucide glyphs where one dash value draws each icon at a
@@ -30,14 +31,17 @@ export default function BottomNavRing({
     <svg
       viewBox="0 0 36 36"
       aria-hidden="true"
-      className={cn("pointer-events-none absolute -inset-1", className)}
+      className={cn(
+        "pointer-events-none absolute top-1/2 left-1/2 size-[3.1rem] -translate-x-1/2 -translate-y-1/2",
+        className,
+      )}
     >
       <circle
         cx="18"
         cy="18"
         r={RADIUS}
         fill="none"
-        strokeWidth="2.5"
+        strokeWidth="1.75"
         strokeLinecap="round"
         // Starts at twelve o'clock so it reads as filling up, not sweeping past.
         transform="rotate(-90 18 18)"

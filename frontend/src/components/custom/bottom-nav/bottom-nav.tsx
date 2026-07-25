@@ -115,6 +115,8 @@ export default function BottomNav() {
               entry={entry}
               isActive={isActiveIndex(index)}
               isScrubbed={scrubIndex === index}
+              // TODO: swap for a count of watched products whose price dropped
+              // since the last visit, cleared on visit and capped at 9+.
               badgeCount={hasNotifications ? notifications.length : undefined}
               listProgress={
                 entry.item.id === "shopping-lists" ? listProgress : undefined

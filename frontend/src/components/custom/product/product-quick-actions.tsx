@@ -2,12 +2,7 @@
 
 import { Eye, ListPlus, Share2 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+import SheetShell from "@/components/custom/modal/sheet-shell";
 import { Button } from "@/components/ui/button";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import useProductModals from "@/hooks/use-product-modals";
@@ -49,49 +44,45 @@ export default function ProductQuickActions({
   }
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent>
-        <DrawerHeader className="pb-2">
-          <DrawerTitle className="truncate text-base">
-            {product.name ?? product.ean}
-          </DrawerTitle>
-        </DrawerHeader>
+    <SheetShell
+      open={open}
+      onOpenChange={onOpenChange}
+      title={product.name ?? product.ean}
+      description="Radnje za odabrani proizvod."
+      bodyClassName="gap-1 pb-[max(1rem,env(safe-area-inset-bottom))]"
+    >
+      <Button
+        type="button"
+        variant="ghost"
+        size="lg"
+        onClick={() => run(openAddToList)}
+        className="h-14 justify-start gap-3 text-base"
+      >
+        <ListPlus className="size-5" />
+        Dodaj na popis
+      </Button>
 
-        <div className="flex flex-col gap-1 p-4 pt-0">
-          <Button
-            type="button"
-            variant="ghost"
-            size="lg"
-            onClick={() => run(openAddToList)}
-            className="h-14 justify-start gap-3 text-base"
-          >
-            <ListPlus className="size-5" />
-            Dodaj na popis
-          </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="lg"
+        onClick={() => run(openWatchlist)}
+        className="h-14 justify-start gap-3 text-base"
+      >
+        <Eye className="size-5" />
+        Prati cijenu
+      </Button>
 
-          <Button
-            type="button"
-            variant="ghost"
-            size="lg"
-            onClick={() => run(openWatchlist)}
-            className="h-14 justify-start gap-3 text-base"
-          >
-            <Eye className="size-5" />
-            Prati cijenu
-          </Button>
-
-          <Button
-            type="button"
-            variant="ghost"
-            size="lg"
-            onClick={share}
-            className="h-14 justify-start gap-3 text-base"
-          >
-            <Share2 className="size-5" />
-            Podijeli
-          </Button>
-        </div>
-      </DrawerContent>
-    </Drawer>
+      <Button
+        type="button"
+        variant="ghost"
+        size="lg"
+        onClick={share}
+        className="h-14 justify-start gap-3 text-base"
+      >
+        <Share2 className="size-5" />
+        Podijeli
+      </Button>
+    </SheetShell>
   );
 }

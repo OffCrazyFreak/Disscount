@@ -4,13 +4,7 @@ import { useState, type ComponentProps } from "react";
 import { SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+import SheetShell from "@/components/custom/modal/sheet-shell";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ProductFacetSelects from "@/app/products/components/product-facet-selects";
@@ -75,37 +69,24 @@ export default function ProductFiltersBar({
           {renderClearFilters("flex-1", "default")}
         </div>
 
-        <Drawer
-          direction="bottom"
+        <SheetShell
           open={isDrawerOpen}
           onOpenChange={setIsDrawerOpen}
+          title="Filteri"
+          description="Suzi rezultate pretrage po trgovinama, lokacijama, kategorijama i markama."
+          headerExtra={renderClearFilters("shrink-0")}
+          footer={
+            <Button type="button" onClick={() => setIsDrawerOpen(false)}>
+              Prikaži rezultate
+            </Button>
+          }
         >
-          <DrawerContent className="max-h-[85dvh]">
-            <div className="flex items-center justify-between gap-2 px-4 pt-2 pb-3">
-              <DrawerTitle className="text-lg">Filteri</DrawerTitle>
-              <DrawerDescription className="sr-only">
-                Suzi rezultate pretrage po trgovinama, lokacijama, kategorijama
-                i markama.
-              </DrawerDescription>
-
-              {renderClearFilters("shrink-0")}
-            </div>
-
-            <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 pb-2">
-              <ProductFacetSelects
-                facets={facets}
-                filters={filters}
-                layout="stack"
-              />
-            </div>
-
-            <DrawerFooter className="px-4 pt-3 pb-4">
-              <Button type="button" onClick={() => setIsDrawerOpen(false)}>
-                Prikaži rezultate
-              </Button>
-            </DrawerFooter>
-          </DrawerContent>
-        </Drawer>
+          <ProductFacetSelects
+            facets={facets}
+            filters={filters}
+            layout="stack"
+          />
+        </SheetShell>
       </>
     );
   }

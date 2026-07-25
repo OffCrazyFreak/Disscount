@@ -60,24 +60,25 @@ export default function BottomNavItem({
           isLit && "text-primary",
         )}
       >
-        {/* Encloses icon and label both, so it sits before them in paint order */}
+        {/* The disc and both rings enclose icon and label together, so they come
+            before them in paint order */}
         {isActive && <BottomNavIndicator />}
 
+        {listProgress !== undefined && (
+          <BottomNavRing
+            progress={listProgress}
+            className="stroke-primary/50"
+          />
+        )}
+
+        {hasLongPress && (
+          <BottomNavRing
+            progress="var(--press-progress, 0)"
+            className="stroke-primary"
+          />
+        )}
+
         <span className="relative flex items-center justify-center">
-          {listProgress !== undefined && (
-            <BottomNavRing
-              progress={listProgress}
-              className="stroke-primary/45"
-            />
-          )}
-
-          {hasLongPress && (
-            <BottomNavRing
-              progress="var(--press-progress, 0)"
-              className="stroke-primary"
-            />
-          )}
-
           <Icon
             className={cn(
               "relative size-[1.5rem] transition-transform duration-150",

@@ -1,27 +1,26 @@
 "use client";
 
-import { useUser } from "@/context/user-context";
-import { useGetCurrentUserShoppingLists } from "@/lib/api/shopping-lists/hooks";
+import { usePathname } from "next/navigation";
+import { useGetShoppingListById } from "@/lib/api/shopping-lists/hooks";
+
+const DETAIL_PATH = /^\/shopping-lists\/([^/]+)$/;
 
 /**
- * How much of the list you touched most recently is ticked off, which is the
- * closest thing to an "active" list without inventing a new concept for it.
+ * How much of the list you are currently looking at is ticked off, so the ring
+ * around Popisi tracks that one list while you shop it.
  *
- * Undefined whenever there is nothing worth showing, so the ring stays off
- * rather than sitting at zero and reading as a broken progress bar.
+ * Undefined anywhere but a list's own page, and undefined for an empty list, so
+ * the ring stays off rather than sitting at zero and reading as a broken bar.
  */
 export default function useActiveListProgress(): number | undefined {
-  const { isAuthenticated } = useUser();
-  const { data } = useGetCurrentUserShoppingLists({ enabled: isAuthenticated });
+  const pathname = usePathname();
 
-  const active = data
-    ?.filter((list) => list.items.length > 0)
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
-    .at(0);
+  const id = DETAIL_PATH.exec(pathname)?.[1] ?? "";
+  const { data: list } = useGetShoppingListById(decodeURIComponent(id));
 
-  if (!active) return undefined;
+  if (!list?.items.length) return undefined;
 
-  const checked = active.items.filter((item) => item.isChecked).length;
+  const checked = list.items.filter((item) => item.isChecked).length;
 
-  return checked / active.items.length;
+  return checked / list.items.length;
 }
