@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, X } from "lucide-react";
+import { ChevronsDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import BottomNavIndicator from "@/components/custom/bottom-nav/bottom-nav-indicator";
 import BottomNavRing from "@/components/custom/bottom-nav/bottom-nav-ring";
@@ -25,8 +25,9 @@ interface IBottomNavCenterItemProps {
  * equal share of the row.
  *
  * Tap opens the search sheet rather than navigating, and taps again to close it,
- * which is what the glyph animates to say. Holding it opens the scanner, since
- * typing a name and scanning a barcode answer the same question.
+ * which is what the glyph animates to say: the chevrons point the way the sheet
+ * leaves, matching the swipe that also closes it. Holding it opens the scanner,
+ * since typing a name and scanning a barcode answer the same question.
  */
 export default function BottomNavCenterItem({
   label,
@@ -68,7 +69,7 @@ export default function BottomNavCenterItem({
             )}
           />
 
-          <X
+          <ChevronsDown
             className={cn(
               ICON_CLASS,
               !isSearchOpen && "-rotate-90 scale-50 opacity-0",
