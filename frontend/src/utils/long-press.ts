@@ -1,14 +1,15 @@
+/** Measured from the press, so the ring fills over whatever the debounce leaves */
 export const LONG_PRESS_MS = 450;
 
 /** Past this, a press is a drag or a scroll, so the gesture is abandoned */
 export const LONG_PRESS_MOVE_TOLERANCE_PX = 10;
 
 /**
- * Visible feedback starts inside Nielsen's 0.1s instant window, so an accidental
- * press shows the ring begin to fill. That is what teaches the gesture, and it is
- * why no coachmark is needed.
+ * Nothing at all happens for this long, which is past a deliberate tap, so a tap
+ * never flashes the ring. Only a press that outlives it gets feedback, and that
+ * is what teaches the gesture without a coachmark.
  */
-const FEEDBACK_DELAY_MS = 120;
+export const LONG_PRESS_DEBOUNCE_MS = 200;
 
 export interface ILongPressTimer {
   start: () => void;
@@ -19,7 +20,7 @@ export interface ILongPressTimer {
 
 interface ICreateLongPressTimerOptions {
   onFire: () => void;
-  /** Receives 0 to 1, ramping only after the feedback delay */
+  /** Receives 0 to 1, and only once the debounce has elapsed */
   onProgress: (fraction: number) => void;
 }
 
@@ -43,17 +44,12 @@ export function createLongPressTimer({
     frame = null;
   }
 
-  function start() {
-    clear();
-    fired = false;
-
+  function ramp() {
     const startedAt = performance.now();
-    const ramp = LONG_PRESS_MS - FEEDBACK_DELAY_MS;
+    const duration = LONG_PRESS_MS - LONG_PRESS_DEBOUNCE_MS;
 
     function tick() {
-      const elapsed = performance.now() - startedAt - FEEDBACK_DELAY_MS;
-
-      onProgress(Math.min(1, Math.max(0, elapsed / ramp)));
+      onProgress(Math.min(1, (performance.now() - startedAt) / duration));
       frame = requestAnimationFrame(tick);
     }
 
@@ -64,7 +60,16 @@ export function createLongPressTimer({
       clear();
       onProgress(0);
       onFire();
-    }, LONG_PRESS_MS);
+    }, duration);
+  }
+
+  function start() {
+    clear();
+    fired = false;
+
+    // The debounce holds the only pending timer, so isPending stays true through
+    // it and a drag can still abandon the gesture before anything is drawn.
+    timeout = window.setTimeout(ramp, LONG_PRESS_DEBOUNCE_MS);
   }
 
   function cancel() {
