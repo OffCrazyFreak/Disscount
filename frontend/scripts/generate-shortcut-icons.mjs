@@ -1,20 +1,19 @@
 // One-off generator for the PWA app-shortcut icons. Run from the frontend dir:
 //   node scripts/generate-shortcut-icons.mjs
 // Produces the icons referenced by the shortcuts array in app/manifest.ts: the
-// same lucide glyph the nav uses, brand green on a white tile. Chrome accepts
-// PNG only for shortcut icons, so the SVGs cannot be linked directly.
+// same lucide glyph the nav uses, white on brand green. Chrome accepts PNG only
+// for shortcut icons, so the SVGs cannot be linked directly.
 import sharp from "sharp";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Eye, ListChecks, ScanBarcode } from "lucide-react";
-import { ROOT, WHITE } from "./lib/cart-source.mjs";
+import { GREEN, ROOT } from "./lib/cart-source.mjs";
 
 const OUT = path.join(ROOT, "public/brand/shortcuts");
 
 const SIZE = 192; // What Chrome asks for when a single shortcut icon is given.
-const GREEN = "#2ec50d"; // --primary
 
 // Full bleed and declared maskable, so Android masks the tile itself. A tile
 // with its own rounded corners gets shrunk onto a second white plate instead,
@@ -36,7 +35,7 @@ const SHORTCUTS = {
 // the in-app nav icon from ever drifting apart.
 async function glyph(Icon) {
   const svg = renderToStaticMarkup(
-    createElement(Icon, { size: GLYPH, color: GREEN, strokeWidth: 2 }),
+    createElement(Icon, { size: GLYPH, color: "#ffffff", strokeWidth: 2 }),
   );
 
   return sharp(Buffer.from(svg)).png().toBuffer();
@@ -44,7 +43,7 @@ async function glyph(Icon) {
 
 async function writeTile(id, Icon) {
   await sharp({
-    create: { width: SIZE, height: SIZE, channels: 4, background: WHITE },
+    create: { width: SIZE, height: SIZE, channels: 4, background: GREEN },
   })
     .composite([{ input: await glyph(Icon), gravity: "centre" }])
     .withIccProfile("srgb")

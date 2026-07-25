@@ -11,19 +11,23 @@ const ROOT = path.join(
   "..",
   "..",
 );
-const SRC = path.join(ROOT, "public/brand/logo/cart/cart-rgb.svg");
+// Both variants are written by generate-logos.mjs and share a viewBox, so they
+// are interchangeable here.
+const src = (variant) =>
+  path.join(ROOT, `public/brand/logo/cart/cart-${variant}.svg`);
 
 // viewBox is "-1 6 68 50.5", so the art is 68 x 50.5 units (wider than tall).
 const ASPECT = 50.5 / 68;
 
 const WHITE = { r: 255, g: 255, b: 255, alpha: 1 };
 const TRANSPARENT = { r: 0, g: 0, b: 0, alpha: 0 };
+const GREEN = "#2ec50d"; // --primary
 
 // The <style> block renders the animation's first frame (body hidden via
 // stroke-dashoffset, wheels at scale 0). Drop it so we capture the finished
 // cart, and size the <svg> up front so librsvg rasterizes it crisply.
-async function frozenCart(width) {
-  const svg = await readFile(SRC, "utf8");
+async function frozenCart(width, variant) {
+  const svg = await readFile(src(variant), "utf8");
   const height = Math.round(width * ASPECT);
 
   return svg
@@ -31,17 +35,17 @@ async function frozenCart(width) {
     .replace(/<svg /, `<svg width="${width}" height="${height}" `);
 }
 
-// The green cart on a transparent canvas, fitted to a given width.
-export async function renderCart(width) {
-  return sharp(Buffer.from(await frozenCart(width)))
+// The cart on a transparent canvas, fitted to a given width.
+export async function renderCart(width, variant = "rgb") {
+  return sharp(Buffer.from(await frozenCart(width, variant)))
     .png()
     .toBuffer();
 }
 
 // The cart centered on a solid square, occupying `ratio` of the square's width.
 // Line-art needs a tighter crop at small sizes to stay legible, hence the knob.
-export async function cartOnSquare(size, ratio, background = WHITE) {
-  const cart = await renderCart(Math.round(size * ratio));
+export async function cartOnSquare(size, ratio, background = WHITE, variant) {
+  const cart = await renderCart(Math.round(size * ratio), variant);
 
   return sharp({
     create: { width: size, height: size, channels: 4, background },
@@ -51,4 +55,4 @@ export async function cartOnSquare(size, ratio, background = WHITE) {
     .toBuffer();
 }
 
-export { ROOT, ASPECT, WHITE, TRANSPARENT };
+export { ROOT, ASPECT, WHITE, TRANSPARENT, GREEN };
