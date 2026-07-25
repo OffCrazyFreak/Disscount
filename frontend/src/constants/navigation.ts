@@ -207,3 +207,13 @@ export const supportNavItems: INavigationItem[] = [
     showInHeader: false,
   },
 ];
+
+/** Both groups, since a surface can mix the account section and the catalogue. */
+export function findNavItem(id: string): INavigationItem {
+  const found = [...userNavItems, ...productNavItems].find(
+    (item) => item.id === id,
+  );
+  if (!found) throw new Error(`Unknown navigation item: ${id}`);
+
+  return found;
+}

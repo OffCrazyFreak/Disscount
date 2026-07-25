@@ -1,7 +1,6 @@
 import {
-  productNavItems,
+  findNavItem,
   productsNavItem,
-  userNavItems,
   type INavigationItem,
 } from "@/constants/navigation";
 import type { ModalTarget } from "@/lib/modal/modal-registry";
@@ -16,16 +15,6 @@ export interface IBottomNavItem {
   longPressEnabled?: boolean;
 }
 
-// Both groups, since the bar draws from the account section and the catalogue.
-function navItem(id: string): INavigationItem {
-  const found = [...userNavItems, ...productNavItems].find(
-    (item) => item.id === id,
-  );
-  if (!found) throw new Error(`Unknown navigation item: ${id}`);
-
-  return found;
-}
-
 /**
  * Five destinations, search dead centre. The two coming-soon items sit on the
  * outer edges, which are the hardest thumb positions, and the arrangement stays
@@ -33,16 +22,16 @@ function navItem(id: string): INavigationItem {
  * whose shape shifts between sessions cannot build muscle memory.
  */
 export const bottomNavItems: IBottomNavItem[] = [
-  { item: navItem("map") },
-  { item: navItem("watchlist") },
+  { item: findNavItem("map") },
+  { item: findNavItem("watchlist") },
   { item: productsNavItem, isSearch: true },
   {
-    item: navItem("shopping-lists"),
+    item: findNavItem("shopping-lists"),
     longPressTarget: { name: "shopping-list", action: "new" },
     longPressEnabled: true,
   },
   {
-    item: navItem("digital-cards"),
+    item: findNavItem("digital-cards"),
     longPressTarget: { name: "digital-card", action: "new" },
     // TODO: flip to true when digital cards ship. Wired now so the gesture
     // plumbing never has to be revisited, but inert while the tab is a teaser.
