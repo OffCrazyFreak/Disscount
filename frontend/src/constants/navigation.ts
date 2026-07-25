@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   Bug,
   Mail,
+  Search,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -42,59 +43,112 @@ export const dashboardNavItem: INavigationItem = {
   showInHeader: false,
 };
 
+// The bottom nav's centre cell; the header and sidebar reach products by search
+export const productsNavItem: INavigationItem = {
+  id: "products",
+  href: "/products",
+  label: "Proizvodi",
+  icon: Search,
+
+  showInHeader: false,
+};
+
+export const shoppingListsNavItem: INavigationItem = {
+  id: "shopping-lists",
+  href: "/shopping-lists",
+  label: "Popisi za kupnju",
+  shortLabel: "Popisi",
+  icon: ListChecks,
+
+  showInHeader: true,
+};
+
+export const watchlistNavItem: INavigationItem = {
+  id: "watchlist",
+  href: "/watchlist",
+  label: "Praćeni proizvodi",
+  shortLabel: "Praćenje",
+  icon: Eye,
+  badge: true,
+
+  showInHeader: true,
+};
+
+export const digitalCardsNavItem: INavigationItem = {
+  id: "digital-cards",
+  href: "/digital-cards",
+  label: "Digitalne kartice",
+  shortLabel: "Kartice",
+  icon: CreditCard,
+  comingSoon: true,
+
+  showInHeader: true,
+};
+
+const spendingNavItem: INavigationItem = {
+  id: "spending",
+  href: "/spending",
+  label: "Potrošnja",
+  icon: PiggyBank,
+  comingSoon: true,
+
+  showInHeader: false,
+};
+
 // Primary navigation items (shown in header on desktop, top of sidebar on mobile)
 export const userNavItems: INavigationItem[] = [
-  {
-    id: "shopping-lists",
-    href: "/shopping-lists",
-    label: "Popisi za kupnju",
-    shortLabel: "Popisi",
-    icon: ListChecks,
-
-    showInHeader: true,
-  },
-  {
-    id: "watchlist",
-    href: "/watchlist",
-    label: "Praćeni proizvodi",
-    shortLabel: "Praćenje",
-    icon: Eye,
-    badge: true,
-
-    showInHeader: true,
-  },
-  {
-    id: "digital-cards",
-    href: "/digital-cards",
-    label: "Digitalne kartice",
-    shortLabel: "Kartice",
-    icon: CreditCard,
-    comingSoon: true,
-
-    showInHeader: true,
-  },
-  {
-    id: "spending",
-    href: "/spending",
-    label: "Potrošnja",
-    icon: PiggyBank,
-    comingSoon: true,
-
-    showInHeader: false,
-  },
+  shoppingListsNavItem,
+  watchlistNavItem,
+  digitalCardsNavItem,
+  spendingNavItem,
 ];
 
-export const productNavItems: INavigationItem[] = [
-  {
-    id: "discounted",
-    href: "/products?discounted=true",
-    label: "Popusti",
-    icon: Percent,
-    // TODO(#83): the price API cannot filter by discount yet.
-    comingSoon: true,
+export const discountedNavItem: INavigationItem = {
+  id: "discounted",
+  href: "/products?discounted=true",
+  label: "Popusti",
+  icon: Percent,
+  // TODO(#83): the price API cannot filter by discount yet.
+  comingSoon: true,
 
-    showInHeader: false,
-  },
+  showInHeader: false,
+};
+
+export const mapNavItem: INavigationItem = {
+  id: "map",
+  href: "/map",
+  label: "Karta",
+  icon: MapIcon,
+  comingSoon: true,
+
+  showInHeader: false,
+
+  children: [
+    {
+      id: "stores",
+      href: PLACEHOLDER_HREF,
+      label: "Trgovine",
+      icon: Store,
+
+      showInHeader: false,
+
+      isCollapsible: true,
+    },
+    {
+      id: "locations",
+      href: PLACEHOLDER_HREF,
+      label: "Lokacije",
+      icon: MapPin,
+
+      showInHeader: false,
+
+      isCollapsible: true,
+    },
+  ],
+};
+
+export const productNavItems: INavigationItem[] = [
+  discountedNavItem,
   // TODO(#82): parked until the price API exposes a category taxonomy.
   // {
   //   id: "categories",
@@ -115,38 +169,7 @@ export const productNavItems: INavigationItem[] = [
   //   showInHeader: false,
   //   isCollapsible: true,
   // },
-  {
-    id: "map",
-    href: "/map",
-    label: "Karta",
-    icon: MapIcon,
-    comingSoon: true,
-
-    showInHeader: false,
-
-    children: [
-      {
-        id: "stores",
-        href: PLACEHOLDER_HREF,
-        label: "Trgovine",
-        icon: Store,
-
-        showInHeader: false,
-
-        isCollapsible: true,
-      },
-      {
-        id: "locations",
-        href: PLACEHOLDER_HREF,
-        label: "Lokacije",
-        icon: MapPin,
-
-        showInHeader: false,
-
-        isCollapsible: true,
-      },
-    ],
-  },
+  mapNavItem,
   {
     id: "statistics",
     href: "/statistics",

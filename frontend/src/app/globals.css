@@ -641,6 +641,12 @@ html {
     var(--bottom-nav-h) + var(--bottom-nav-gap) + var(--bottom-nav-safe)
   );
   --sheet-bottom-clearance: calc(var(--bottom-nav-total) + 0.5rem);
+  --bottom-nav-pill-padding: 0.5rem;
+  --bottom-nav-radius: 1.625rem;
+  /* Sized against the widest label in its bold weight, since the active one is
+     bold and is the one people look at. */
+  --bottom-nav-disc-size: 3.6rem;
+  --bottom-nav-raised-size: 2.8125rem;
 
   scroll-padding-bottom: var(--bottom-nav-total);
 }
@@ -664,20 +670,26 @@ html {
   initial-value: 0.85rem;
 }
 
-@property --nav-surface-opacity {
-  syntax: "<number>";
+/* The pill's background alpha, not the whole bar's opacity: fading the bar would
+   dim the icons, the labels and the active disc along with the surface. At rest
+   it matches the scrolled header's bg-background/50. */
+@property --nav-surface-alpha {
+  syntax: "<percentage>";
   inherits: true;
-  initial-value: 1;
+  initial-value: 50%;
 }
 
 @keyframes bottom-nav-compact {
   to {
     --nav-label-opacity: 0;
     --nav-label-height: 0rem;
-    --nav-surface-opacity: 0.9;
+    --nav-surface-alpha: 90%;
   }
 }
 
+/* Scroll-driven, so there is no listener and no hydration behaviour. Browsers
+   without it hold the full-size bar, which is the correct fallback: the bar
+   compacts, it never hides. */
 @supports (animation-timeline: scroll()) {
   @media (prefers-reduced-motion: no-preference) {
     .bottom-nav-compacts {
@@ -686,6 +698,20 @@ html {
       animation-range: 40px 180px;
     }
   }
+}
+
+/* The disc slides by whole cells, so it needs the cell width the flex row
+   resolves to. Set here because a call site must not restate the geometry. */
+[data-bottom-nav] > ul {
+  --bottom-nav-cell-width: calc(
+    (100% - 2 * var(--bottom-nav-pill-padding)) / 5
+  );
+
+  background-color: color-mix(
+    in oklab,
+    var(--background) var(--nav-surface-alpha),
+    transparent
+  );
 }
 
 /* vaul leaves the underlying dialog in modal mode, so Radix still writes an
