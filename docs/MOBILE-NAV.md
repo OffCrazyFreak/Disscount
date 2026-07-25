@@ -47,7 +47,8 @@ _Last verified end-to-end on 2026-07-25 against `feat/mobile-bottom-nav`, measur
 | z-index               | sheet scrim 43, bottom sheets 44, **bar 45**, dialogs and popovers 50, offline indicator 60                                                         |
 | Bottom sheets         | three, all behind the bar and clearing it by `--sheet-bottom-clearance`; only search is non-modal (see [§7](#7-sheetshell-the-shared-bottom-sheet)) |
 | Element type per cell | `<button>`, never `<a href>` (see [§18](#18-gotchas--lessons-learned))                                                                              |
-| Long press            | fires at 450ms, silent for the first 200ms, cancels past 10px of movement                                                                           |
+| Long press            | four of five cells have one; fires at 450ms, silent for the first 200ms, cancels past 10px of movement                                              |
+| Contextual holds      | on `/products/<ean>` Praćenje watches that product and Popisi adds it to a list (see [§8](#8-long-press-gestures))                                  |
 | Haptics               | none, deliberately (see [§18](#18-gotchas--lessons-learned))                                                                                        |
 
 **Daily workflow:** nothing to configure. The bar reads its items from `frontend/src/constants/navigation.ts` and mounts itself once in the root layout.
@@ -434,12 +435,33 @@ A sheet can also decline the field: `SearchSheet` withholds `initialFocusRef` wh
 
 Long press is strictly an **accelerator**, never the only way to reach something. Every target is a `?modal=` URL that a visible, tappable control also reaches, which is what keeps it keyboard and screen-reader accessible.
 
-| Gesture                  | Opens                      | Enabled?                                                           |
-| ------------------------ | -------------------------- | ------------------------------------------------------------------ |
-| Hold **Popisi**          | `?modal=shopping-list/new` | yes                                                                |
-| Hold **Kartice**         | `?modal=digital-card/new`  | wired, off until digital cards ship, and the cell is locked anyway |
-| Hold the **centre cell** | the barcode scanner        | yes                                                                |
-| Hold a **product card**  | the quick-actions sheet    | yes                                                                |
+| Gesture                  | On `/products/<ean>`       | Everywhere else            | Enabled?                                                |
+| ------------------------ | -------------------------- | -------------------------- | ------------------------------------------------------- |
+| Hold **Karta**           | store preferences          | store preferences          | admins only, until the map drops `comingSoon`           |
+| Hold **Praćenje**        | `?modal=watchlist&ean=…`   | nothing                    | yes                                                     |
+| Hold the **centre cell** | the barcode scanner        | the barcode scanner        | yes                                                     |
+| Hold **Popisi**          | `?modal=add-to-list&ean=…` | `?modal=shopping-list/new` | yes                                                     |
+| Hold **Kartice**         | `?modal=digital-card/new`  | `?modal=digital-card/new`  | wired, off until digital cards ship, cell locked anyway |
+| Hold a **product card**  | the quick-actions sheet    | the quick-actions sheet    | yes                                                     |
+
+### Targets that depend on the route
+
+Two cells act on the product whose page you are on. `IBottomNavItem` carries a `productPageTarget?: (ean: string) => ModalTarget` for that, so each cell declares its own product-scoped target in `bottom-nav-items.ts` and the bar only has to ask:
+
+```tsx
+if (productPageEan && entry.productPageTarget)
+  return entry.productPageTarget(productPageEan);
+
+return entry.longPressEnabled ? (entry.longPressTarget ?? null) : null;
+```
+
+`useProductPageEan` reads the EAN off `usePathname()` rather than `useParams`, because the bar is mounted in the root layout and never sees the route's own params. `Praćenje` has only a product-page target, so it has no gesture anywhere else; `Popisi` has both and swaps. One helper answers for `longPress` and `canLongPress` alike, so the two cannot disagree about whether a hold does anything.
+
+Neither modal needs its cache seeded, unlike `useProductModals`: the detail page has already fetched the product through the same `useGetProductByEan` key, so both open populated.
+
+**Karta's hold is a plain static target**, `?modal=settings/preference`, because the map will load your pinned stores and centre on you by itself. What is left worth a shortcut is the preferences behind that behaviour, which is where `pinned-stores-grid.tsx` and `pinned-places-select.tsx` live. It needs no `longPressEnabled` gate, since the settings modal already works; the cell's own lock is what keeps it inert, as `canLongPress` refuses a `comingSoon` cell for everyone but admins.
+
+**This was a reversal.** The first version of this doc recorded "no long press on Praćenje" as a decision, on the grounds that a gesture meaning different things per route can never be learned, with the product card's own quick-actions sheet as the alternative. Two cells now do exactly that. What keeps it defensible is the accelerator rule above: on a product page both targets also sit on screen as buttons, the Eye in `watchlist-action-button.tsx` and its neighbour in `product-action-buttons.tsx`, so nothing is gesture-only and the gesture is a shortcut past a thumb journey rather than a hidden feature. The learnability cost is real and unmeasured, and it is the thing to watch if the holds go unused.
 
 ### Timing
 
@@ -601,36 +623,37 @@ Three other bottom-anchored elements needed offsetting:
 
 Recorded so the next person does not re-litigate them. Each of these was an explicit choice against a real alternative.
 
-| Decision                                          | Alternatives rejected                                                                                                                                                                                                                                            |
-| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 5 cells, two of them teasers                      | 3 live cells only, or 4 dropping the left teaser. Both change the bar's shape as features land, and Apple's stability rule cuts against that                                                                                                                     |
-| Karta as the left teaser, not Potrošnja           | Keeping Potrošnja, which is the same kind of unshipped teaser but answers a question a shopper is less likely to have in a store. It also happens to be auth-protected, where `/map` is public                                                                   |
-| Always visible below `md`                         | Standalone-PWA only, which is purer but hides the best navigation from most visitors, who arrive in a browser tab                                                                                                                                                |
-| Floating pill                                     | Edge-to-edge flat (Material's convention), and edge-to-edge frosted (iOS 18). All three were built behind a switcher and compared on a device; the pill won                                                                                                      |
-| Centre cell opens a sheet                         | Navigating to `/products` and then focusing its field, which cannot raise the keyboard on iOS. Also a plain tab with no autofocus, which loses a tap                                                                                                             |
-| Centre cell toggles, morphing into chevrons       | An `X`, which reads as "cancel" rather than "put it away"; a close button inside the sheet, which duplicates the grab handle; or leaving the sheet closable only by swipe, Escape or navigation, which is what it was                                            |
-| Locked teaser cells                               | Letting them navigate to a teaser page, which the header and sidebar both refuse to do. Apple's rule says never disable a tab; app-wide consistency won                                                                                                          |
-| Disc fades out on the search cell                 | Not rendering it there at all, which pops instead of fading; or tinting the raised circle differently, which weakens the one primary control on the bar                                                                                                          |
-| 200ms silent long-press gate                      | The 120ms it shipped with, which is shorter than a real tap; and a literal 100ms, asked for and declined because it makes the flashing ring worse, not better                                                                                                    |
-| Centre cell raised and filled, keeping its cell   | A detached circle beside the pill (iOS 26's search role), and an equal-weight segment with only a different icon                                                                                                                                                 |
-| Signed-out cells navigate                         | Opening the login modal directly, which makes four of five cells the same button; or a smaller signed-out bar, which changes shape at login and shifts on hydration                                                                                              |
-| Long press fires directly, with a cancel window   | A peek menu rising above the tab, which is more discoverable and gives free cancellation, but is more UI to build                                                                                                                                                |
-| No long press on Praćenje                         | Holding Praćenje on a product page to watch it. Rejected: the same gesture would mean different things per route, so it can never be learned                                                                                                                     |
-| Product cards hold the watchlist shortcut instead | Nothing; this is where that idea went, because the context is unambiguous when you are holding the product                                                                                                                                                       |
-| Compaction on scroll, never hiding                | iOS 26's full minimize behaviour, which trades away the discoverability this feature exists to buy                                                                                                                                                               |
-| Completion ring on Popisi                         | A full "active list" accessory strip above the bar (iOS 26's `tabViewBottomAccessory`), which is higher value but needs a product answer for what "active" means                                                                                                 |
-| Reuse the notification count for the badge        | A real price-drop count, which needs backend work; or a dot; or no badge                                                                                                                                                                                         |
-| No haptics                                        | Android-only `navigator.vibrate`, which is inconsistent across platforms for no gain                                                                                                                                                                             |
-| Sheet runs behind the bar                         | Ending the sheet at the bar's top edge (a visible gap), or covering the bar like a normal modal sheet                                                                                                                                                            |
-| Only the search sheet is non-modal                | All four non-modal, which was shipped first and made three sheets pay for a property only one needed; or all modal, which contradicts what the search sheet is for. Cost paid: two modes to remember, keyed on one question, does the page behind change         |
-| Filters expand inline in the search sheet         | A second sheet stacked over it, which NN/g warns disorients; or replacing the sheet's content with a back arrow, which hides the query you just typed                                                                                                            |
-| One filters surface, not two                      | Keeping the products page's own filters sheet as a second entry point, which was shipped first: two sheets built from the same four controls, so a query and the facets narrowing it sat on separate layers. The page button now opens the search sheet expanded |
-| Pretraži pinned in the sheet's footer             | Leaving it under the field, where expanding the filters pushed it out of thumb reach; or last in the body, which scrolls away on a short phone. Cost paid: it lives outside the form and needs a `form` attribute                                                |
-| Disable Pretraži when nothing would change        | Leaving it always live, which lets the loudest control in the sheet do nothing when pressed; or hiding it, which moves the layout under the thumb                                                                                                                |
-| Filters collapse on every open                    | Restoring whatever you left expanded, which was the first behaviour: the centre cell then sometimes opened a tall sheet you did not ask for. The state moved into the context so each entry point can set it in the same batch as the open                       |
-| Očisti filtere is icon-only below `md`            | Keeping the label everywhere, which took as much width as the Filteri button beside it at 360px; or dropping the button when idle, which reflowed the row every time the last filter went                                                                        |
-| The sheet survives arriving at `/products`        | Closing on every route change as before, which would dismiss the filters panel the moment a search revealed it                                                                                                                                                   |
-| Handle gap held by the header's padding           | A dedicated spacer element, or conditional padding keyed on `srOnlyTitle`. Both add a branch to express what `sr-only` collapsing already does for free                                                                                                          |
+| Decision                                         | Alternatives rejected                                                                                                                                                                                                                                                                   |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 5 cells, two of them teasers                     | 3 live cells only, or 4 dropping the left teaser. Both change the bar's shape as features land, and Apple's stability rule cuts against that                                                                                                                                            |
+| Karta as the left teaser, not Potrošnja          | Keeping Potrošnja, which is the same kind of unshipped teaser but answers a question a shopper is less likely to have in a store. It also happens to be auth-protected, where `/map` is public                                                                                          |
+| Always visible below `md`                        | Standalone-PWA only, which is purer but hides the best navigation from most visitors, who arrive in a browser tab                                                                                                                                                                       |
+| Floating pill                                    | Edge-to-edge flat (Material's convention), and edge-to-edge frosted (iOS 18). All three were built behind a switcher and compared on a device; the pill won                                                                                                                             |
+| Centre cell opens a sheet                        | Navigating to `/products` and then focusing its field, which cannot raise the keyboard on iOS. Also a plain tab with no autofocus, which loses a tap                                                                                                                                    |
+| Centre cell toggles, morphing into chevrons      | An `X`, which reads as "cancel" rather than "put it away"; a close button inside the sheet, which duplicates the grab handle; or leaving the sheet closable only by swipe, Escape or navigation, which is what it was                                                                   |
+| Locked teaser cells                              | Letting them navigate to a teaser page, which the header and sidebar both refuse to do. Apple's rule says never disable a tab; app-wide consistency won                                                                                                                                 |
+| Disc fades out on the search cell                | Not rendering it there at all, which pops instead of fading; or tinting the raised circle differently, which weakens the one primary control on the bar                                                                                                                                 |
+| 200ms silent long-press gate                     | The 120ms it shipped with, which is shorter than a real tap; and a literal 100ms, asked for and declined because it makes the flashing ring worse, not better                                                                                                                           |
+| Centre cell raised and filled, keeping its cell  | A detached circle beside the pill (iOS 26's search role), and an equal-weight segment with only a different icon                                                                                                                                                                        |
+| Signed-out cells navigate                        | Opening the login modal directly, which makes four of five cells the same button; or a smaller signed-out bar, which changes shape at login and shifts on hydration                                                                                                                     |
+| Long press fires directly, with a cancel window  | A peek menu rising above the tab, which is more discoverable and gives free cancellation, but is more UI to build                                                                                                                                                                       |
+| Praćenje and Popisi act on the product page      | **Reversed.** This was first rejected, because a gesture meaning different things per route cannot be learned. Overruled deliberately: on that page both targets are also on-screen buttons, so the hold is a thumb shortcut and not a hidden feature. See [§8](#8-long-press-gestures) |
+| Product cards keep their own quick-actions sheet | Removing it once the bar gained the same two actions. Kept: it works in a list, where the bar's contextual holds cannot, since the bar has no way to know which card you meant                                                                                                          |
+| Karta holds the store preferences                | Nothing map-specific, since the map will load pinned stores and centre on the user by itself. A "nearby stores" hold was considered and dropped as redundant for the same reason                                                                                                        |
+| Compaction on scroll, never hiding               | iOS 26's full minimize behaviour, which trades away the discoverability this feature exists to buy                                                                                                                                                                                      |
+| Completion ring on Popisi                        | A full "active list" accessory strip above the bar (iOS 26's `tabViewBottomAccessory`), which is higher value but needs a product answer for what "active" means                                                                                                                        |
+| Reuse the notification count for the badge       | A real price-drop count, which needs backend work; or a dot; or no badge                                                                                                                                                                                                                |
+| No haptics                                       | Android-only `navigator.vibrate`, which is inconsistent across platforms for no gain                                                                                                                                                                                                    |
+| Sheet runs behind the bar                        | Ending the sheet at the bar's top edge (a visible gap), or covering the bar like a normal modal sheet                                                                                                                                                                                   |
+| Only the search sheet is non-modal               | All four non-modal, which was shipped first and made three sheets pay for a property only one needed; or all modal, which contradicts what the search sheet is for. Cost paid: two modes to remember, keyed on one question, does the page behind change                                |
+| Filters expand inline in the search sheet        | A second sheet stacked over it, which NN/g warns disorients; or replacing the sheet's content with a back arrow, which hides the query you just typed                                                                                                                                   |
+| One filters surface, not two                     | Keeping the products page's own filters sheet as a second entry point, which was shipped first: two sheets built from the same four controls, so a query and the facets narrowing it sat on separate layers. The page button now opens the search sheet expanded                        |
+| Pretraži pinned in the sheet's footer            | Leaving it under the field, where expanding the filters pushed it out of thumb reach; or last in the body, which scrolls away on a short phone. Cost paid: it lives outside the form and needs a `form` attribute                                                                       |
+| Disable Pretraži when nothing would change       | Leaving it always live, which lets the loudest control in the sheet do nothing when pressed; or hiding it, which moves the layout under the thumb                                                                                                                                       |
+| Filters collapse on every open                   | Restoring whatever you left expanded, which was the first behaviour: the centre cell then sometimes opened a tall sheet you did not ask for. The state moved into the context so each entry point can set it in the same batch as the open                                              |
+| Očisti filtere is icon-only below `md`           | Keeping the label everywhere, which took as much width as the Filteri button beside it at 360px; or dropping the button when idle, which reflowed the row every time the last filter went                                                                                               |
+| The sheet survives arriving at `/products`       | Closing on every route change as before, which would dismiss the filters panel the moment a search revealed it                                                                                                                                                                          |
+| Handle gap held by the header's padding          | A dedicated spacer element, or conditional padding keyed on `srOnlyTitle`. Both add a branch to express what `sr-only` collapsing already does for free                                                                                                                                 |
 
 Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 
@@ -659,6 +682,7 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 | `components/custom/bottom-nav/use-bottom-nav-pointer.ts`   | One pointer stream for tap, scrub and long press                     |
 | `components/custom/bottom-nav/use-active-list-progress.ts` | Completion of the list on screen                                     |
 | `components/custom/bottom-nav/use-indicator-opacity.ts`    | The disc's fade pair, tracking the route it is coming from           |
+| `components/custom/bottom-nav/use-product-page-ean.ts`     | The EAN of the product page you are on, for the contextual holds     |
 
 ### Shared primitives
 
@@ -756,22 +780,22 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 
 ## 16. Accessibility
 
-| Concern              | How it is handled                                                                                                                       |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Landmark             | A real `<nav>` with `aria-label="Glavna navigacija"`. There are three `<nav>` landmarks now, so each needs a distinguishing label       |
-| Current page         | `aria-current="page"` on the active cell, the only thing that conveys "you are here" to a screen reader                                 |
-| Locked cells         | A `disabled` button, so it is skipped by tab order and announced as unavailable, with its USKORO chip still readable                    |
-| Toggling controls    | The centre cell carries `aria-expanded`, and its accessible name changes to `Zatvori traženje` while the sheet is open                  |
-| Not colour alone     | Active state is the disc **plus** the tint **plus** a bold label, satisfying WCAG 1.4.1                                                 |
-| Touch targets        | Measured 65.8px wide at a 360px viewport and 57.8px at 320px, by 72px tall, both over the 48px practical minimum                        |
-| Keyboard             | Cells are real `<button>`s. Pointer activation runs on the list, so cells act only on keyboard clicks, which arrive with `detail === 0` |
-| Long press           | Every target is also reachable by a visible control, so no action is gesture-only (WCAG 2.1.1, 2.5.1)                                   |
-| Pointer cancellation | The press fires on the hold timer, and moving 10px abandons it (WCAG 2.5.2)                                                             |
-| Focus on open        | Sheets focus a named field, so a long press or a tap lands the cursor ready to type, except when opening into the filters               |
-| Icon-only controls   | "Očisti filtere" keeps its name in both `aria-label` and a tooltip below `md`, and renders the label outright above it                  |
-| Focus order          | The bar is last in DOM order, so keyboard users reach content first. Its visual position is the bottom anyway                           |
-| Reduced motion       | The disc, the compaction and every scroll are all instant under `prefers-reduced-motion`                                                |
-| Inert under dialogs  | Sheets hand the page back, so the bar stays live under them; a real dialog keeps the body locked and its overlay covers the bar anyway  |
+| Concern              | How it is handled                                                                                                                                                                                 |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Landmark             | A real `<nav>` with `aria-label="Glavna navigacija"`. There are three `<nav>` landmarks now, so each needs a distinguishing label                                                                 |
+| Current page         | `aria-current="page"` on the active cell, the only thing that conveys "you are here" to a screen reader                                                                                           |
+| Locked cells         | A `disabled` button, so it is skipped by tab order and announced as unavailable, with its USKORO chip still readable                                                                              |
+| Toggling controls    | The centre cell carries `aria-expanded`, and its accessible name changes to `Zatvori traženje` while the sheet is open                                                                            |
+| Not colour alone     | Active state is the disc **plus** the tint **plus** a bold label, satisfying WCAG 1.4.1                                                                                                           |
+| Touch targets        | Measured 65.8px wide at a 360px viewport and 57.8px at 320px, by 72px tall, both over the 48px practical minimum                                                                                  |
+| Keyboard             | Cells are real `<button>`s. Pointer activation runs on the list, so cells act only on keyboard clicks, which arrive with `detail === 0`                                                           |
+| Long press           | Every target is also reachable by a visible control, so no action is gesture-only (WCAG 2.1.1, 2.5.1). That includes the two contextual holds, whose modals both have buttons on the product page |
+| Pointer cancellation | The press fires on the hold timer, and moving 10px abandons it (WCAG 2.5.2)                                                                                                                       |
+| Focus on open        | Sheets focus a named field, so a long press or a tap lands the cursor ready to type, except when opening into the filters                                                                         |
+| Icon-only controls   | "Očisti filtere" keeps its name in both `aria-label` and a tooltip below `md`, and renders the label outright above it                                                                            |
+| Focus order          | The bar is last in DOM order, so keyboard users reach content first. Its visual position is the bottom anyway                                                                                     |
+| Reduced motion       | The disc, the compaction and every scroll are all instant under `prefers-reduced-motion`                                                                                                          |
+| Inert under dialogs  | Sheets hand the page back, so the bar stays live under them; a real dialog keeps the body locked and its overlay covers the bar anyway                                                            |
 
 **Do not** reach for `role="tablist"` and `role="tab"` here. Those are for in-page tab panels and imply roving-tabindex arrow-key navigation. A bottom nav is a list of destinations, so `<nav><ul><li><button>` is correct.
 
@@ -793,6 +817,8 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 | The active disc following the route           | ✅ auto    | `usePathname` plus `layoutId`                                                  |
 | Signed-out cells explaining themselves        | ✅ auto    | The pages already render `LoginRequired`                                       |
 | Locking and unlocking teaser cells            | ✅ auto    | Derived from `comingSoon` in `constants/navigation.ts` plus the admin check    |
+| Swapping a hold's target on a product page    | ✅ auto    | `productPageTarget` is resolved from the path at press time                    |
+| Unlocking Karta's hold when the map ships     | ✅ auto    | Its target already works; dropping `comingSoon` is all that gates it           |
 | **Adding or reordering a cell**               | ❌ manual  | Edit `bottom-nav-items.ts`, and remember a shipped tab set should not change   |
 | **Enabling the Kartice long press**           | ❌ manual  | Flip `longPressEnabled`, and drop `comingSoon` so the cell unlocks             |
 | **A real price-drop badge count**             | ❌ manual  | Needs an endpoint or a per-user last-seen timestamp                            |
@@ -847,6 +873,8 @@ Two smaller things that make those holes worse: `touch-action: none` is set on t
 **Filters never wait on a submit, so there is nothing to compare them against.** Every pick writes itself to the URL as you make it, `router.replace` on `/products` and `router.push` to it from anywhere else, and `search()` preserves existing params when submitting from the route. A "filters changed" clause on the Pretraži button could therefore never fire. Making it the apply gate would first mean holding the picks in local state, which costs the live filtering the non-modal sheet exists for.
 
 **A disabled trigger cannot open a tooltip.** `Button` sets `disabled:pointer-events-none`, so a tooltip-named icon button says nothing while disabled. That is fine for "Očisti filtere", which is disabled exactly when there is nothing to explain, but it rules out tooltips as the only label for a control that is disabled for a reason the user needs to know.
+
+**`useParams` is empty in the bar.** The bar and the search sheet are mounted in the root layout, which has no dynamic segment of its own, so a route's `[id]` never reaches them. Anything they need from the URL has to be parsed out of `usePathname()`, which is what `useProductPageEan` does. The same applies to `useSearchParams`, with a second cost attached, see above.
 
 **A layout-mounted sheet writes to whatever route it is on.** `SearchSheet` lives in the root layout, and `useFilterParams` builds its target from `usePathname()`. Rendering the filters panel unguarded would let a chain picked from the sheet rewrite `/map?chain=...`. The guard is a separate component because a hook-owning one cannot early-return without changing its hook order between renders.
 
