@@ -18,7 +18,8 @@ updates:
       # default-exporting only, so the import cannot be linked and the build
       # fails (aidenybai/react-scan#467). 0.5.x also floats react-grab and
       # react-doctor on the "latest" tag, so a fresh resolution can pull an
-      # unreviewed version. Bounded so 0.4.x patches still come through.
+      # unreviewed version (aidenybai/react-scan#468). Bounded so 0.4.x
+      # patches still come through.
       - dependency-name: "react-scan"
         versions: [">=0.5.0"]
 
