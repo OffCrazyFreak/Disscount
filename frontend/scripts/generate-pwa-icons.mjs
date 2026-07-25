@@ -1,12 +1,12 @@
 // One-off generator for the brand icon set. Run from the frontend dir:
 //   node scripts/generate-pwa-icons.mjs
 // Produces the icons referenced by app/manifest.ts and layout metadata plus the
-// legacy favicon.ico. All are the white cart on brand green; see
+// legacy favicon.ico. All are the happy cart on white; see
 // scripts/lib/cart-source.mjs for the shared source.
 import sharp from "sharp";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { cartOnSquare, GREEN, ROOT } from "./lib/cart-source.mjs";
+import { cartOnSquare, ROOT } from "./lib/cart-source.mjs";
 
 const ICONS = path.join(ROOT, "public/brand/icons");
 const FAVICON = path.join(ROOT, "src/app/favicon.ico");
@@ -42,38 +42,39 @@ async function writeSrgb(file, buffer) {
 
 await mkdir(ICONS, { recursive: true });
 
-// Brand green fills every tile and the cart goes white. A white plate reads as
-// empty space on a home screen full of saturated icons, and it is also what
-// Android falls back to on its own, so the icon stops looking deliberate.
-const onGreen = (size, ratio) => cartOnSquare(size, ratio, GREEN, "white");
-
 // PWA "any"-purpose icons: generous crop, since nothing masks these.
-await writeSrgb(path.join(ICONS, "icon-192.png"), await onGreen(192, 0.86));
-await writeSrgb(path.join(ICONS, "icon-512.png"), await onGreen(512, 0.86));
+await writeSrgb(
+  path.join(ICONS, "icon-192.png"),
+  await cartOnSquare(192, 0.86),
+);
+await writeSrgb(
+  path.join(ICONS, "icon-512.png"),
+  await cartOnSquare(512, 0.86),
+);
 
 // Maskable: cropped to the widest cart whose corners still clear the 80% safe
 // zone. Shipped at both launcher sizes so Chrome never has to fall back to an
 // "any" icon just because it wanted 192.
 await writeSrgb(
   path.join(ICONS, "icon-maskable-192.png"),
-  await onGreen(192, 0.7),
+  await cartOnSquare(192, 0.7),
 );
 await writeSrgb(
   path.join(ICONS, "icon-maskable-512.png"),
-  await onGreen(512, 0.7),
+  await cartOnSquare(512, 0.7),
 );
 
 // Apple touch icon: no transparency, near-full crop.
 await writeSrgb(
   path.join(ICONS, "apple-touch-icon-180.png"),
-  await onGreen(180, 0.86),
+  await cartOnSquare(180, 0.86),
 );
 
 // favicon.ico: line-art needs the tightest crop to survive 16px.
 const frames = await Promise.all(
   [16, 32, 48].map(async (size) => ({
     size,
-    data: await onGreen(size, 0.92),
+    data: await cartOnSquare(size, 0.92),
   })),
 );
 await writeFile(FAVICON, pngsToIco(frames));

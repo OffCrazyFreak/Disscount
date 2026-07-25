@@ -11,10 +11,7 @@ const ROOT = path.join(
   "..",
   "..",
 );
-// Both variants are written by generate-logos.mjs and share a viewBox, so they
-// are interchangeable here.
-const src = (variant) =>
-  path.join(ROOT, `public/brand/logo/cart/cart-${variant}.svg`);
+const SRC = path.join(ROOT, "public/brand/logo/cart/cart-rgb.svg");
 
 // viewBox is "-1 6 68 50.5", so the art is 68 x 50.5 units (wider than tall).
 const ASPECT = 50.5 / 68;
@@ -26,8 +23,8 @@ const GREEN = "#2ec50d"; // --primary
 // The <style> block renders the animation's first frame (body hidden via
 // stroke-dashoffset, wheels at scale 0). Drop it so we capture the finished
 // cart, and size the <svg> up front so librsvg rasterizes it crisply.
-async function frozenCart(width, variant) {
-  const svg = await readFile(src(variant), "utf8");
+async function frozenCart(width) {
+  const svg = await readFile(SRC, "utf8");
   const height = Math.round(width * ASPECT);
 
   return svg
@@ -35,17 +32,17 @@ async function frozenCart(width, variant) {
     .replace(/<svg /, `<svg width="${width}" height="${height}" `);
 }
 
-// The cart on a transparent canvas, fitted to a given width.
-export async function renderCart(width, variant = "rgb") {
-  return sharp(Buffer.from(await frozenCart(width, variant)))
+// The green cart on a transparent canvas, fitted to a given width.
+export async function renderCart(width) {
+  return sharp(Buffer.from(await frozenCart(width)))
     .png()
     .toBuffer();
 }
 
 // The cart centered on a solid square, occupying `ratio` of the square's width.
 // Line-art needs a tighter crop at small sizes to stay legible, hence the knob.
-export async function cartOnSquare(size, ratio, background = WHITE, variant) {
-  const cart = await renderCart(Math.round(size * ratio), variant);
+export async function cartOnSquare(size, ratio, background = WHITE) {
+  const cart = await renderCart(Math.round(size * ratio));
 
   return sharp({
     create: { width: size, height: size, channels: 4, background },
