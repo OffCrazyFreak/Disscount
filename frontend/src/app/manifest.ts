@@ -1,18 +1,21 @@
 import type { MetadataRoute } from "next";
 import { userNavItems } from "@/constants/navigation";
+import { PLAY_PACKAGE_ID } from "@/constants/android";
 
 type ShortcutIcon = NonNullable<
   NonNullable<MetadataRoute.Manifest["shortcuts"]>[number]["icons"]
 >;
 
-// Neither key is in Next's manifest type yet.
-type WebAppManifest = MetadataRoute.Manifest & {
+// Next's type misses the first two keys, and wrongly requires `url` on
+// related_applications where the spec accepts a bare platform id.
+type WebAppManifest = Omit<MetadataRoute.Manifest, "related_applications"> & {
   launch_handler?: { client_mode?: string | string[] };
   share_target?: {
     action: string;
     method?: "GET" | "POST";
     params: { title?: string; text?: string; url?: string };
   };
+  related_applications?: { platform: string; id?: string; url?: string }[];
 };
 
 // Read out by assistive tech, so each one says what the shortcut does rather
@@ -141,5 +144,9 @@ export default function manifest(): WebAppManifest {
     // the shortcut's url. focus-existing would only focus the window and hand
     // the url to launchQueue, which nothing here consumes.
     launch_handler: { client_mode: "navigate-existing" },
+    // Lets getInstalledRelatedApps() report whether the Play build is already
+    // installed. We still prefer the web install, so the browser prompt stays.
+    related_applications: [{ platform: "play", id: PLAY_PACKAGE_ID }],
+    prefer_related_applications: false,
   };
 }

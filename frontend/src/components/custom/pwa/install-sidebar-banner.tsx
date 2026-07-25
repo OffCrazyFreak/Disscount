@@ -7,11 +7,17 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useInstallPrompt } from "@/components/custom/pwa/use-install-prompt";
 import InstallInstructionsSheet from "@/components/custom/pwa/install-instructions-sheet";
+import GooglePlayButton from "@/components/custom/pwa/google-play-button";
 
 // Persistent counterpart to InstallBanner, shown on capable browsers until the app is installed.
 export default function InstallSidebarBanner() {
-  const { canShowInstallUI, canInstall, isIOS, promptInstall } =
-    useInstallPrompt();
+  const {
+    canShowInstallUI,
+    canShowPlayStore,
+    canInstall,
+    isIOS,
+    promptInstall,
+  } = useInstallPrompt();
   const [instructionsOpen, setInstructionsOpen] = useState(false);
 
   if (!canShowInstallUI) return null;
@@ -46,6 +52,8 @@ export default function InstallSidebarBanner() {
           <Plus className="size-4" />
           Dodaj na početni zaslon
         </Button>
+
+        {canShowPlayStore && <GooglePlayButton />}
       </div>
 
       <InstallInstructionsSheet
