@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductInfo from "@/components/custom/product/product-info";
+import useLongPress from "@/hooks/use-long-press";
 import { cn } from "@/lib/utils";
 
 interface IProductCardProps {
@@ -15,6 +16,8 @@ interface IProductCardProps {
   quantity?: string | null;
   imageUrl?: string | null;
   onClick?: () => void;
+  /** Opens the card's quick actions; every one is also a visible control */
+  onLongPress?: () => void;
   isLoading?: boolean;
   trailing?: ReactNode;
   className?: string;
@@ -27,14 +30,23 @@ export default function ProductCard({
   quantity,
   imageUrl,
   onClick,
+  onLongPress,
   isLoading = false,
   trailing,
   className,
 }: IProductCardProps) {
   const displayName = name && quantity ? `${name} (${quantity})` : name;
+  const longPress = useLongPress(() => onLongPress?.(), Boolean(onLongPress));
 
   function stopCardNavigation(event: MouseEvent) {
     if (onClick) event.stopPropagation();
+  }
+
+  // A fired hold swallows the click the release would otherwise make.
+  function handleCardClick() {
+    if (longPress.consumeFired()) return;
+
+    onClick?.();
   }
 
   function handleCardKeyDown(event: KeyboardEvent) {
@@ -50,10 +62,19 @@ export default function ProductCard({
 
   return (
     <Card
-      onClick={onClick}
+      data-long-press={onLongPress ? "" : undefined}
+      onClick={onClick ? handleCardClick : undefined}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? handleCardKeyDown : undefined}
+      {...longPress.handlers}
+      // Gives under the thumb as the hold's progress builds, so a press that
+      // outlives the gate shows something without the card growing new chrome.
+      style={
+        onLongPress
+          ? { scale: "calc(1 - 0.02 * var(--long-press-progress, 0))" }
+          : undefined
+      }
       className={cn(
         "@container shadow-sm hover:shadow-lg transition-shadow",
         onClick && "cursor-pointer",

@@ -1,5 +1,4 @@
 import { Image as ImageIcon, ListPlus } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -9,11 +8,10 @@ import {
 } from "@/components/ui/tooltip";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { cn } from "@/lib/utils";
-import { openModalUrl } from "@/lib/modal/modal-navigation";
-import { formatQuantity } from "@/utils/strings";
 import WatchlistActionButton from "@/app/products/components/watchlist-action-button";
 import { watchlistService } from "@/lib/api";
-import { productByEanQueryKey } from "@/lib/cijene-api";
+import useProductModals from "@/app/products/hooks/use-product-modals";
+import { openProductImageSearch } from "@/app/products/utils/product-image-search";
 
 interface IProductActionButtonsProps {
   product: ProductResponse;
@@ -30,19 +28,13 @@ export default function ProductActionButtons({
   showAddToWatchlist = true,
   className,
 }: IProductActionButtonsProps) {
-  const queryClient = useQueryClient();
+  const { openAddToList } = useProductModals();
   const { data: currentUserWatchlist = [] } =
     watchlistService.useGetCurrentUserWatchlist();
 
   const isInWatchlist = currentUserWatchlist.some(
     (watchlistItem) => watchlistItem.productApiId === product.ean,
   );
-
-  // Seeds the by-ean cache, since the URL-driven modal takes no props.
-  function openAddToList() {
-    queryClient.setQueryData(productByEanQueryKey(product.ean), product);
-    openModalUrl({ name: "add-to-list", ean: product.ean });
-  }
 
   return (
     <>
@@ -54,22 +46,7 @@ export default function ProductActionButtons({
                 size="icon"
                 aria-label="Pretraži sliku proizvoda"
                 className="size-10 sm:size-12 shrink-0"
-                onClick={() => {
-                  let searchQuery = `${product.name}`;
-
-                  if (product.brand) {
-                    searchQuery += ` ${product.brand}`;
-                  }
-
-                  if (product.quantity) {
-                    searchQuery += ` ${formatQuantity(product.quantity)}`;
-                  }
-
-                  const googleShoppingUrl = `https://www.google.com/search?udm=2&q=${encodeURIComponent(
-                    searchQuery,
-                  )}`;
-                  window.open(googleShoppingUrl, "_blank");
-                }}
+                onClick={() => openProductImageSearch(product)}
               >
                 <ImageIcon className="size-6 sm:size-7" />
               </Button>
@@ -88,7 +65,7 @@ export default function ProductActionButtons({
                 size="icon"
                 aria-label="Dodaj na popis za kupnju"
                 className="size-10 sm:size-12 shrink-0"
-                onClick={openAddToList}
+                onClick={() => openAddToList(product)}
               >
                 <ListPlus className="size-6 sm:size-7" />
               </Button>

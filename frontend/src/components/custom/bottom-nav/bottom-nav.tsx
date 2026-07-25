@@ -8,6 +8,8 @@ import { BOTTOM_NAV_CELLS } from "@/components/custom/bottom-nav/bottom-nav-cell
 import useBottomNavState from "@/components/custom/bottom-nav/use-bottom-nav-state";
 import useBarPointer from "@/components/custom/bottom-nav/use-bar-pointer";
 import useReturnScroll from "@/components/custom/bottom-nav/use-return-scroll";
+import useHoldActions from "@/components/custom/bottom-nav/use-hold-actions";
+import resolveHoldTarget from "@/components/custom/bottom-nav/resolve-hold-target";
 
 // touch-none belongs to the pill alone: it is fixed chrome, so a horizontal
 // scrub is never a page pan. Nothing inside a scroller may suppress panning.
@@ -22,6 +24,7 @@ const PILL_CLASS =
 export default function BottomNav() {
   const router = useRouter();
   const returnScroll = useReturnScroll();
+  const runHold = useHoldActions();
   const [scrubIndex, setScrubIndex] = useState<number | null>(null);
   const {
     activeIndex,
@@ -29,8 +32,16 @@ export default function BottomNav() {
     discVisible,
     isLocked,
     notificationCount,
+    productEan,
     shoppingListId,
   } = useBottomNavState();
+
+  function holdTarget(index: number) {
+    return resolveHoldTarget(BOTTOM_NAV_CELLS[index], {
+      productEan,
+      isLocked: isLocked(index),
+    });
+  }
 
   function activate(index: number) {
     if (isLocked(index)) return;
@@ -46,6 +57,12 @@ export default function BottomNav() {
   const pointerHandlers = useBarPointer({
     onActivate: activate,
     onScrub: setScrubIndex,
+    // One resolver answers both, so they can never disagree.
+    hasHold: (index) => holdTarget(index) !== null,
+    onHold: (index) => {
+      const target = holdTarget(index);
+      if (target) runHold(target, productEan);
+    },
   });
 
   return (

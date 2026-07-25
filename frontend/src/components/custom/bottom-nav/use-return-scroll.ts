@@ -1,9 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 import { scrollWindowTo } from "@/utils/scroll";
+
+interface IReturnPosition {
+  pathname: string;
+  y: number;
+}
 
 export interface IUseReturnScrollResult {
   /** A position is held, so the active cell shows its return chevron */
@@ -19,21 +24,22 @@ export interface IUseReturnScrollResult {
 export default function useReturnScroll(): IUseReturnScrollResult {
   const pathname = usePathname();
   const reduced = useReducedMotionSafe();
-  const [returnTo, setReturnTo] = useState<number | null>(null);
+  const [stored, setStored] = useState<IReturnPosition | null>(null);
 
-  // A position from one route means nothing on the next.
-  useEffect(() => setReturnTo(null), [pathname]);
+  // A position from one route means nothing on the next, so it expires by
+  // comparison rather than by an effect that resets it.
+  const held = stored?.pathname === pathname ? stored : null;
 
   function toggleScroll() {
-    if (returnTo !== null) {
-      scrollWindowTo(returnTo, reduced);
-      setReturnTo(null);
+    if (held) {
+      scrollWindowTo(held.y, reduced);
+      setStored(null);
       return;
     }
 
-    setReturnTo(window.scrollY);
+    setStored({ pathname, y: window.scrollY });
     scrollWindowTo(0, reduced);
   }
 
-  return { hasReturnPosition: returnTo !== null, toggleScroll };
+  return { hasReturnPosition: held !== null, toggleScroll };
 }

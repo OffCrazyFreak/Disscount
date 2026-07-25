@@ -714,6 +714,14 @@ html {
   );
 }
 
+/* Both the fill and the drain are written frame by frame, so this needs no
+   transition; registering it still keeps it a real number rather than a token. */
+@property --long-press-progress {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
 /* vaul leaves the underlying dialog in modal mode, so Radix still writes an
    inline pointer-events:none onto the body. Only !important beats that. */
 body:has([data-bottom-sheet="non-modal"][data-state="open"]) {

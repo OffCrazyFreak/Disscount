@@ -10,6 +10,9 @@ export const HOLD_RING_MS = HOLD_FIRE_MS - HOLD_GATE_MS;
 /** Beyond this the press is a drag or a scroll, not a hold */
 export const HOLD_CANCEL_PX = 10;
 
+/** How long an abandoned ring takes to drain back to nothing */
+export const HOLD_DRAIN_MS = 120;
+
 /** Keeps the bar clear of the back-swipe and the home-indicator gesture */
 export const BAR_EDGE_EXCLUSION_PX = 16;
 
