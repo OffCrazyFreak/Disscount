@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchNavButton from "@/components/custom/search/search-nav-button";
-import SearchSubmitButton from "@/components/custom/search/search-submit-button";
+import SearchSheetSubmit from "@/components/custom/search/search-sheet-submit";
 import SheetShell from "@/components/custom/modal/sheet-shell";
 import ProductSearchFilters from "@/app/products/components/product-search-filters";
 import { useSearchSheet } from "@/context/search-sheet-context";
@@ -30,6 +30,7 @@ const discountsNavItem = findNavItem("discounted");
 export default function SearchSheet() {
   const { isOpen, areFiltersOpen, setAreFiltersOpen, inputRef, close } =
     useSearchSheet();
+  const [typedQuery, setTypedQuery] = useState("");
   const pathname = usePathname();
   const { user } = useUser();
 
@@ -54,7 +55,11 @@ export default function SearchSheet() {
       // Last in the sheet and outside the scroll, so expanding the filters cannot
       // push the one action that acts on them out of reach.
       footer={
-        <SearchSubmitButton label="Pretraži" block form={SEARCH_FORM_ID} />
+        <SearchSheetSubmit
+          searchRoute={FILTERED_ROUTE}
+          query={typedQuery}
+          form={SEARCH_FORM_ID}
+        />
       }
       className="md:hidden"
     >
@@ -65,6 +70,7 @@ export default function SearchSheet() {
         submitButtonLocation="none"
         formId={SEARCH_FORM_ID}
         inputRef={inputRef}
+        onQueryChange={setTypedQuery}
       />
 
       <SearchNavButton

@@ -23,6 +23,8 @@ interface ISearchBarProps {
   formId?: string;
   /** Exposes the field so an owner can focus it inside a gesture's own task */
   inputRef?: RefObject<HTMLInputElement | null>;
+  /** Mirrors what is typed, for an owner rendering the submit button itself */
+  onQueryChange?: (query: string) => void;
   /** Fires once a search or a scan has navigated away */
   onSubmitted?: (query: string) => void;
 }
@@ -37,9 +39,10 @@ export default function SearchBar({
   submitLabel = "Pretraži",
   formId,
   inputRef: exposedInputRef,
+  onQueryChange,
   onSubmitted,
 }: ISearchBarProps) {
-  const { routeQuery, search, syncQuery, openResult } =
+  const { routeQuery, isUnchanged, search, syncQuery, openResult } =
     useSearchNavigation(searchRoute);
   const { openScanner } = useCameraScanner();
   const { setOpen } = useSidebar();
@@ -64,6 +67,11 @@ export default function SearchBar({
       });
     }
   }, [routeQuery, setValue, getValues]);
+
+  // Watched rather than hooked to onChange, so a clear or a route sync counts too.
+  useEffect(() => {
+    onQueryChange?.(queryValue ?? "");
+  }, [queryValue, onQueryChange]);
 
   useEffect(() => {
     if (!autoSearch) return;
@@ -141,7 +149,7 @@ export default function SearchBar({
           <SearchSubmitButton
             label={submitLabel}
             block={submitButtonLocation === "block"}
-            disabled={!queryValue?.trim()}
+            disabled={isUnchanged(queryValue ?? "")}
           />
         )}
       </form>

@@ -6,6 +6,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 export interface IUseSearchNavigationResult {
   /** The `q` param, empty unless the search route is the current page */
   routeQuery: string;
+  /** True when submitting this query would leave the page exactly as it is */
+  isUnchanged: (query: string) => boolean;
   /** Navigates to the search route, adding the query to the history */
   search: (query: string) => void;
   /** Mirrors the query into `q` without adding a history entry */
@@ -67,11 +69,19 @@ export function useSearchNavigation(
     [isOnRoute, routeQuery, buildSearchUrl, router],
   );
 
+  // Off the route every query is a change, since submitting navigates there. On
+  // it the filters need no comparison: each pick writes itself to the URL as you
+  // make it, so they are never waiting on a submit.
+  const isUnchanged = useCallback(
+    (query: string) => query.trim() === routeQuery,
+    [routeQuery],
+  );
+
   const openResult = useCallback(
     (value: string) =>
       router.push(`${searchRoute}/${encodeURIComponent(value)}`),
     [router, searchRoute],
   );
 
-  return { routeQuery, search, syncQuery, openResult };
+  return { routeQuery, isUnchanged, search, syncQuery, openResult };
 }
