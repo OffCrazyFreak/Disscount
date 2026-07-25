@@ -1,4 +1,5 @@
 import {
+  productNavItems,
   productsNavItem,
   userNavItems,
   type INavigationItem,
@@ -15,8 +16,11 @@ export interface IBottomNavItem {
   longPressEnabled?: boolean;
 }
 
+// Both groups, since the bar draws from the account section and the catalogue.
 function navItem(id: string): INavigationItem {
-  const found = userNavItems.find((item) => item.id === id);
+  const found = [...userNavItems, ...productNavItems].find(
+    (item) => item.id === id,
+  );
   if (!found) throw new Error(`Unknown navigation item: ${id}`);
 
   return found;
@@ -29,7 +33,7 @@ function navItem(id: string): INavigationItem {
  * whose shape shifts between sessions cannot build muscle memory.
  */
 export const bottomNavItems: IBottomNavItem[] = [
-  { item: navItem("spending") },
+  { item: navItem("map") },
   { item: navItem("watchlist") },
   { item: productsNavItem, isSearch: true },
   {

@@ -37,7 +37,7 @@ _Last verified end-to-end on 2026-07-25 against `feat/mobile-bottom-nav`, measur
 | Thing                 | Value                                                                                                                                  |
 | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Shown at              | widths under `md` (768px), in the browser and the installed PWA alike                                                                  |
-| Cells, left to right  | Potrošnja (USKORO), Praćenje, Proizvodi (search), Popisi, Kartice (USKORO)                                                             |
+| Cells, left to right  | Karta (USKORO), Praćenje, Proizvodi (search), Popisi, Kartice (USKORO)                                                                 |
 | USKORO cells          | disabled for everyone but admins, as in the sidebar                                                                                    |
 | Bar height            | 72px of content, plus `env(safe-area-inset-bottom)`                                                                                    |
 | Cell width (measured) | 65.8px at a 360px viewport, 57.8px at 320px                                                                                            |
@@ -78,7 +78,7 @@ Ergonomics back this up. Hoober's field observation of 1,333 real interactions f
 flowchart TB
     subgraph nav["nav.bottom-nav-compacts (fixed, z-45, md:hidden)"]
         subgraph ul["ul (owns the whole pointer stream)"]
-            c1["li: Potrošnja<br/>USKORO chip"]
+            c1["li: Karta<br/>USKORO chip"]
             c2["li: Praćenje<br/>badge"]
             c3["li: Proizvodi<br/>raised green circle"]
             c4["li: Popisi<br/>completion ring"]
@@ -86,7 +86,7 @@ flowchart TB
         end
     end
 
-    c1 --> spending["/spending"]
+    c1 --> map["/map"]
     c2 --> watchlist["/watchlist"]
     c3 --> sheet["Search sheet<br/>(SheetShell, z-44)"]
     c4 --> lists["/shopping-lists"]
@@ -105,7 +105,11 @@ The centre cell is different: a raised, filled, brand-green 44.8px circle with `
 
 ### Why the two teaser cells sit on the outside
 
-`Potrošnja` and `Kartice` are not shipped yet. Putting them at the far left and far right keeps the arrangement symmetric with search dead centre, and puts the least useful cells in the hardest thumb positions.
+`Karta` and `Kartice` are not shipped yet. Putting them at the far left and far right keeps the arrangement symmetric with search dead centre, and puts the least useful cells in the hardest thumb positions.
+
+The left cell was `Potrošnja` at first. Both it and `Karta` are `comingSoon` teasers with a real `ComingSoon` page behind them, so the swap is a judgement about which one people will reach for, and a map of nearby stores and their opening hours beats a spending breakdown for a shopper standing in the street. `bottomNavItems` looks up ids across both `userNavItems` and `productNavItems` for it, since `map` lives in the catalogue group.
+
+One knock-on: `/spending` is in `PROTECTED_ROUTE_PREFIXES` and `/map` is not, so the left cell is now reachable signed out.
 
 ### Locked teaser cells
 
@@ -126,7 +130,7 @@ The same rule now applies to `HeaderNavItem`, which previously blocked coming-so
 
 ### Signed out
 
-Four of the five destinations are in `PROTECTED_ROUTE_PREFIXES` (`/spending`, `/watchlist`, `/shopping-lists`, `/digital-cards`), so for a signed-out visitor only the centre search cell is public.
+Three of the five destinations are in `PROTECTED_ROUTE_PREFIXES` (`/watchlist`, `/shopping-lists`, `/digital-cards`), so for a signed-out visitor the centre search cell and `Karta` are public.
 
 `Praćenje` and `Popisi` still navigate. The page then renders the existing `LoginRequired`, which explains the feature and opens the auth modal. That needed no new code, and it is why those cells are not locked: explaining beats dead-ending wherever there is something to explain.
 
@@ -495,7 +499,7 @@ Targets to hit: 72px content height, 24px icons, 10-11px labels, at least 48px o
 
 ### Why 72px and a 57.6px disc
 
-Worked out by measuring, not by eye. Labels are 10.4px, and the widest is `Potrošnja` at 45.9px unbolded. The active label is **bold**, which widens it, so sizing the disc against the unbolded width leaves the active cell (the one you actually look at) touching its own edges.
+Worked out by measuring, not by eye. Labels are 10.4px, and the active one is **bold**, which widens it, so sizing the disc against an unbolded width leaves the active cell (the one you actually look at) touching its own edges. Re-measured after `Potrošnja` (45.9px unbolded) gave way to `Karta`: the widest unbolded is now `Praćenje` at 42px, and the widest bold is `Proizvodi` at 44.7px. So the constraint eased slightly and the 57.6px disc is unchanged.
 
 The resulting numbers, verified in the browser:
 
@@ -559,7 +563,8 @@ Recorded so the next person does not re-litigate them. Each of these was an expl
 
 | Decision                                          | Alternatives rejected                                                                                                                                                                                                                          |
 | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 5 cells, two of them teasers                      | 3 live cells only, or 4 dropping Potrošnja. Both change the bar's shape as features land, and Apple's stability rule cuts against that                                                                                                         |
+| 5 cells, two of them teasers                      | 3 live cells only, or 4 dropping the left teaser. Both change the bar's shape as features land, and Apple's stability rule cuts against that                                                                                                   |
+| Karta as the left teaser, not Potrošnja           | Keeping Potrošnja, which is the same kind of unshipped teaser but answers a question a shopper is less likely to have in a store. It also happens to be auth-protected, where `/map` is public                                                 |
 | Always visible below `md`                         | Standalone-PWA only, which is purer but hides the best navigation from most visitors, who arrive in a browser tab                                                                                                                              |
 | Floating pill                                     | Edge-to-edge flat (Material's convention), and edge-to-edge frosted (iOS 18). All three were built behind a switcher and compared on a device; the pill won                                                                                    |
 | Centre cell opens a sheet                         | Navigating to `/products` and then focusing its field, which cannot raise the keyboard on iOS. Also a plain tab with no autofocus, which loses a tap                                                                                           |
@@ -647,7 +652,7 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 | `components/custom/product/product-card.tsx` | Accepts `pressProps`                                               |
 | `components/custom/product/product-item/…`   | Wires the long press and the quick-actions sheet                   |
 | `components/custom/common/coming-soon.tsx`   | Accepts an `action` slot                                           |
-| `app/(user)/spending/page.tsx`               | A value prop plus the notify CTA                                   |
+| `app/(user)/spending/page.tsx`               | A value prop plus the notify CTA, from when it was a bar cell      |
 | `components/custom/header/components/…`      | `HeaderNavItem` locks on an `isLocked` prop, not on `comingSoon`   |
 
 ---
@@ -658,7 +663,7 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 | ----------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------------- |
 | `viewportFit: "cover"`                    | `app/layout.tsx` `viewport` export | Makes `env(safe-area-inset-*)` non-zero. Load-bearing                              |
 | `interactiveWidget: "resizes-content"`    | same                               | Reflows the layout viewport for the keyboard. Chromium and Firefox only            |
-| `devIndicators: false`                    | `next.config.ts`                   | Next's dev indicator landed bottom-left, over Potrošnja                            |
+| `devIndicators: false`                    | `next.config.ts`                   | Next's dev indicator landed bottom-left, over the left teaser cell                 |
 | `NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS` | `.env.local`, `.env.local.example` | Default `false`. Its floating button landed bottom-right, over Kartice             |
 | `longPressEnabled` on the Kartice entry   | `bottom-nav-items.ts`              | Keeps the wired gesture inert until digital cards ship                             |
 | `Disscount_app` in `localStorage`         | `utils/browser/storage/*`          | Unrelated to the bar now; its `bottomNavVariant` key was removed with the variants |
@@ -792,9 +797,9 @@ Two smaller things that make those holes worse: `touch-action: none` is set on t
 
 **The by-ean cache must be seeded before opening a product modal.** Those modals are URL-driven and take no props, so without the seed they refetch what the caller already has and open empty. `useProductModals` is the one place that does it.
 
-**Dev overlays sat exactly on the bar.** Next's indicator lands bottom-left over Potrošnja and the React Query button bottom-right over Kartice, which makes the bar impossible to judge or test. Both are now off by default, see [§14](#14-config-env-vars-and-flags).
+**Dev overlays sat exactly on the bar.** Next's indicator lands bottom-left over the left cell and the React Query button bottom-right over Kartice, which makes the bar impossible to judge or test. Both are now off by default, see [§14](#14-config-env-vars-and-flags).
 
-**Two of five cells being teasers is a real risk, and locking them sharpens it.** No UX research endorses teaser destinations in primary navigation, and now two of the five tabs are visibly inert for everyone but an admin. If `Potrošnja` and `Kartice` stay unshipped for long, 40% of the bar is dead weight and it starts reading as vaporware.
+**Two of five cells being teasers is a real risk, and locking them sharpens it.** No UX research endorses teaser destinations in primary navigation, and now two of the five tabs are visibly inert for everyone but an admin. If `Karta` and `Kartice` stay unshipped for long, 40% of the bar is dead weight and it starts reading as vaporware.
 
 ---
 
