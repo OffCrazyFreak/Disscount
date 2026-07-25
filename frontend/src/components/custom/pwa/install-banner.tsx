@@ -42,7 +42,9 @@ export default function InstallBanner() {
 
   return (
     <>
-      <div className="fixed inset-x-0 bottom-0 z-50 p-4 sm:inset-x-auto sm:right-4 sm:max-w-sm">
+      {/* Below the sheets: it opens the install sheet and must not float over
+          the sheet it opened. Cleared off the bar's own height token. */}
+      <div className="fixed inset-x-0 bottom-[var(--bottom-nav-total)] z-[var(--z-install-banner)] p-4 sm:inset-x-auto sm:right-4 sm:max-w-sm">
         <div className="flex flex-col gap-3 rounded-xl border bg-card p-3 shadow-lg">
           <div className="flex items-center gap-3">
             <Image

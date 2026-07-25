@@ -14,6 +14,10 @@ interface IBackToTopButtonProps {
   label?: string;
 }
 
+// md, not sm: between 640 and 768 this would show alongside the bottom nav,
+// whose active tab already returns you to the top when re-tapped.
+const BREAKPOINT_CLASS = "hidden md:block";
+
 /**
  * Returns a long, scrolled page to the top.
  *
@@ -22,7 +26,7 @@ interface IBackToTopButtonProps {
  */
 export default function BackToTopButton({
   threshold = 600,
-  containerClassName,
+  containerClassName = BREAKPOINT_CLASS,
   label = "Natrag na vrh",
 }: IBackToTopButtonProps) {
   const isVisible = useScrolledPast(threshold);

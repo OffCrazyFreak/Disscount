@@ -47,7 +47,11 @@ export default function ReactQueryProviderWrapper({
       }}
     >
       {children}
-      <ReactQueryDevtools />
+
+      {/* Its launcher sits over the bottom nav's right cell, so it is opt-in */}
+      {process.env.NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS === "true" && (
+        <ReactQueryDevtools />
+      )}
     </PersistQueryClientProvider>
   );
 }

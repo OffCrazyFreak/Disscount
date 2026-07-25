@@ -11,7 +11,12 @@ export default function ToasterProvider({ children }: IToasterProviderProps) {
   return (
     <>
       {children}
-      <Toaster richColors position="bottom-right" />
+      {/* Cleared off the same token as every other bottom-anchored element */}
+      <Toaster
+        richColors
+        position="bottom-right"
+        mobileOffset={{ bottom: "var(--sheet-bottom-clearance)" }}
+      />
     </>
   );
 }

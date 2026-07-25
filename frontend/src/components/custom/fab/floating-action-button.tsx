@@ -22,10 +22,10 @@ interface IFloatingActionButtonProps extends ButtonProps {
 
 // Material spacing: 16px from the edges on compact windows, 24px from medium up.
 const positionClasses = {
-  "bottom-right": "bottom-4 right-4 sm:bottom-6 sm:right-6",
-  "bottom-left": "bottom-4 left-4 sm:bottom-6 sm:left-6",
-  "top-right": "top-4 right-4 sm:top-6 sm:right-6",
-  "top-left": "top-4 left-4 sm:top-6 sm:left-6",
+  "bottom-right": "bottom-4 right-4 md:bottom-6 md:right-6",
+  "bottom-left": "bottom-4 left-4 md:bottom-6 md:left-6",
+  "top-right": "top-4 right-4 md:top-6 md:right-6",
+  "top-left": "top-4 left-4 md:top-6 md:left-6",
 };
 
 export default function FloatingActionButton({
@@ -56,7 +56,8 @@ export default function FloatingActionButton({
     // Click-through, so a hidden or disabled button leaves no dead zone.
     <div
       className={cn(
-        "pointer-events-none fixed z-50",
+        // Desktop-only, so it belongs under every other floating layer.
+        "pointer-events-none fixed z-[var(--z-back-to-top)]",
         positionClasses[position],
         containerClassName,
       )}
