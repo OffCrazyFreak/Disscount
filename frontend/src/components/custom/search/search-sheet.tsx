@@ -31,9 +31,9 @@ export default function SearchSheet() {
       description="Upiši naziv proizvoda ili skeniraj crtni kod."
       initialFocusRef={inputRef}
       modal={false}
-      // Runs under the bar, and lets pointers through its own surface so the
-      // tabs stay tappable while the sheet is open.
-      passThroughSurface
+      // Runs under the bar at z-44, which is what keeps the tabs tappable: the
+      // bar wins hit testing at z-45, so the sheet's surface stays whole and
+      // therefore draggable everywhere.
       className="z-[44] pb-[calc(var(--bottom-nav-total)+0.5rem)] md:hidden"
       bodyClassName="pb-0"
     >
