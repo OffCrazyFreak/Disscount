@@ -10,6 +10,7 @@ import OAuthErrorToast from "@/components/custom/common/oauth-error-toast";
 import ModalRouter from "@/components/custom/modal-router/modal-router";
 import InstallBanner from "@/components/custom/pwa/install-banner";
 import BottomNav from "@/components/custom/bottom-nav/bottom-nav";
+import SearchSheet from "@/components/custom/search/search-sheet";
 import OfflineIndicator from "@/components/custom/offline/offline-indicator";
 import Providers from "@/app/providers/providers";
 import { ReactNode, Suspense } from "react";
@@ -167,6 +168,7 @@ export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
           </div>
 
           {/* Last in the DOM, so keyboard users reach the content first */}
+          <SearchSheet />
           <BottomNav />
         </Providers>
       </body>

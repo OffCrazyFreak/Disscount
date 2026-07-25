@@ -6,6 +6,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 export interface IUseSearchNavigationResult {
   /** The `q` param, empty unless the search route is the current page */
   routeQuery: string;
+  /** True when submitting would change nothing, so every submit surface agrees */
+  isUnchanged: (query: string) => boolean;
   /** Navigates to the search route, adding the query to the history */
   search: (query: string) => void;
   /** Mirrors the query into `q` without adding a history entry */
@@ -28,6 +30,18 @@ export function useSearchNavigation(
 
   const isOnRoute = normalizePath(pathname) === normalizePath(searchRoute);
   const routeQuery = isOnRoute ? (searchParams.get("q") ?? "") : "";
+
+  // An empty field counts as unchanged whatever the URL holds, because clearing
+  // already drops the query itself. Comparing it instead would light a submit
+  // button up for the render between the field emptying and the URL following.
+  const isUnchanged = useCallback(
+    (query: string) => {
+      const trimmed = query.trim();
+
+      return !trimmed || trimmed === routeQuery;
+    },
+    [routeQuery],
+  );
 
   // Existing query params survive a search from the route itself; from elsewhere it starts clean.
   const buildSearchUrl = useCallback(
@@ -73,5 +87,5 @@ export function useSearchNavigation(
     [router, searchRoute],
   );
 
-  return { routeQuery, search, syncQuery, openResult };
+  return { routeQuery, isUnchanged, search, syncQuery, openResult };
 }
