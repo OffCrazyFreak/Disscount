@@ -18,7 +18,6 @@ import useProductPageEan from "@/components/custom/bottom-nav/use-product-page-e
 import {
   bottomNavItems,
   BOTTOM_NAV_SEARCH_INDEX,
-  WATCHLIST_ID,
   type IBottomNavItem,
 } from "@/components/custom/bottom-nav/bottom-nav-items";
 import type { ModalTarget } from "@/lib/modal/modal-registry";
@@ -90,11 +89,12 @@ export default function BottomNav() {
     router.push(entry.item.href);
   }
 
-  // Praćenje is the one cell whose target depends on the route, so it cannot be
-  // declared in bottom-nav-items.ts with the static ones.
+  // On a product's page the cells act on that product instead: Praćenje watches
+  // it, Popisi adds it to a list. Elsewhere they fall back to their own target,
+  // which for Praćenje is nothing at all.
   function longPressTarget(entry: IBottomNavItem): ModalTarget | null {
-    if (entry.item.id === WATCHLIST_ID)
-      return productPageEan ? { name: "watchlist", ean: productPageEan } : null;
+    if (productPageEan && entry.productPageTarget)
+      return entry.productPageTarget(productPageEan);
 
     return entry.longPressEnabled ? (entry.longPressTarget ?? null) : null;
   }

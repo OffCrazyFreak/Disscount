@@ -5,9 +5,6 @@ import {
 } from "@/constants/navigation";
 import type { ModalTarget } from "@/lib/modal/modal-registry";
 
-/** Its long press is resolved from the route, so the bar owns it, not this file */
-export const WATCHLIST_ID = "watchlist";
-
 export interface IBottomNavItem {
   item: INavigationItem;
   /** The raised centre cell, which opens the search sheet instead of navigating */
@@ -16,6 +13,11 @@ export interface IBottomNavItem {
   longPressTarget?: ModalTarget;
   /** Lets a target be wired ahead of the feature it belongs to */
   longPressEnabled?: boolean;
+  /**
+   * Takes over the long press on a product's own page, where the cell has a
+   * product to act on. Without one, the cell simply has no gesture there.
+   */
+  productPageTarget?: (ean: string) => ModalTarget;
 }
 
 /**
@@ -26,12 +28,16 @@ export interface IBottomNavItem {
  */
 export const bottomNavItems: IBottomNavItem[] = [
   { item: findNavItem("map") },
-  { item: findNavItem(WATCHLIST_ID) },
+  {
+    item: findNavItem("watchlist"),
+    productPageTarget: (ean) => ({ name: "watchlist", ean }),
+  },
   { item: productsNavItem, isSearch: true },
   {
     item: findNavItem("shopping-lists"),
     longPressTarget: { name: "shopping-list", action: "new" },
     longPressEnabled: true,
+    productPageTarget: (ean) => ({ name: "add-to-list", ean }),
   },
   {
     item: findNavItem("digital-cards"),
