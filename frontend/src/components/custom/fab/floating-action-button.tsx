@@ -56,7 +56,8 @@ export default function FloatingActionButton({
     // Click-through, so a hidden or disabled button leaves no dead zone.
     <div
       className={cn(
-        "pointer-events-none fixed z-50",
+        // Below every overlay layer, so it never floats over a sheet's scrim.
+        "pointer-events-none fixed z-30",
         positionClasses[position],
         containerClassName,
       )}
