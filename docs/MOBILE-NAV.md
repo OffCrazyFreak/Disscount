@@ -233,7 +233,7 @@ Tapping the centre cell opens a compact sheet directly above the bar, holding th
 ```mermaid
 flowchart LR
     tap["Tap the centre cell"] --> open["SearchSheetProvider.open()"]
-    open --> shell["SheetShell<br/>modal=false, z-44<br/>passThroughSurface"]
+    open --> shell["SheetShell<br/>modal=false, z-44"]
     shell --> focus["initialFocusRef focuses the field"]
     shell --> bar["SearchBar<br/>allowScanning<br/>submitButtonLocation=block"]
     bar -->|submit| nav["useSearchNavigation('/products').search(q)"]
@@ -249,9 +249,11 @@ Five deliberate choices:
 
 - **`modal={false}`.** This drops vaul's scrim and scroll lock, which is what lets the sheet sit _behind_ the bar at `z-44` with the nav still visible on top at `z-45`. The sheet pads its own bottom by `--bottom-nav-total`, so none of its content hides under the bar.
 - **The centre cell toggles it**, since vaul leaves the bar as the only thing that can close it.
-- **`passThroughSurface`.** The sheet's surface extends under the bar, so without this it swallows every tap meant for the tabs. This needs two independent fixes to work, both in [§18](#18-gotchas--lessons-learned).
+- **The sheet's surface is left whole.** The bar wins hit testing on its own box at `z-45`, so the sheet needs no pointer-events holes to keep the tabs tappable. Punching holes in it broke the swipe, see [§18](#18-gotchas--lessons-learned).
 - **It closes on route change**, matching `AppSidebar`. Submitting from `/products` only changes the query, not the pathname, which `onSubmitted` already covers.
 - **The field is focused on open** via `initialFocusRef`, so you can start typing immediately.
+
+Measured at a 360px viewport, the sheet is 204px tall: its top 120px receives pointers and is draggable, and the bottom 84px lies under the `<nav>`'s box, which is exactly the region whose taps belong to the bar.
 
 The sheet reuses `SearchBar` rather than adding a second search field, in the same configuration the sidebar already uses (`submitButtonLocation="block"`). `SearchBar` gained two small props for this: `inputRef`, so an owner can focus the field, and `onSubmitted`, so an owner knows when a search or scan has navigated.
 
@@ -270,7 +272,6 @@ The sheet reuses `SearchBar` rather than adding a second search field, in the sa
 | `footer`               | Rendered in a `DrawerFooter`, e.g. "Prikaži rezultate"                                                  |
 | `initialFocusRef`      | Focused on open, so the user can start typing straight away                                             |
 | `modal`                | `false` drops the scrim and scroll lock, leaving the page usable behind                                 |
-| `passThroughSurface`   | Lets pointers through the sheet's own surface while its content still receives them                     |
 
 Current users:
 
@@ -639,10 +640,14 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 
 **Do not derive a cell index by dividing the bar's width.** The pill has inner padding, so width division skews every boundary. The index comes from the cells' own `getBoundingClientRect()`, which is exact and self-correcting if the layout changes.
 
-**An open sheet disables pointer events on the whole page, and beating it takes two fixes.** A sheet that deliberately sits under the bar needs both, and either alone silently fails:
+**An open sheet disables pointer events on the whole page.** vaul never passes `modal` down to Radix's `Dialog.Root`, so Radix is always in modal mode and sets `pointer-events: none` on **`<body>`**, which makes everything underneath unreachable. The bar opts back in with `pointer-events-auto`, but only while the non-modal search sheet is open, so it stays correctly inert under real modals. (vaul does try to undo this in a `requestAnimationFrame` for non-modal drawers, and loses the race.)
 
-1. Radix sets `pointer-events` **inline** on the layer, so a plain `pointer-events-none` class loses on specificity. It has to be `pointer-events-none!`, with `[&>div]:pointer-events-auto` handing them back to the children so the grab handle still drags.
-2. Radix also sets `pointer-events: none` on **`<body>`**, which makes everything underneath unreachable no matter what the sheet does. The bar opts back in with `pointer-events-auto`, but only while the non-modal search sheet is open, so it stays correctly inert under real modals.
+**Do not make a sheet's surface pointer-transparent to protect what is above it.** This was the original fix for the tabs, and it was both unnecessary and harmful:
+
+- Unnecessary, because the bar is at `z-45` and the sheet at `z-44`, so **the bar already wins hit testing** on its own box. Measured with `elementFromPoint`: all five cells resolve to the nav whether the sheet's surface takes pointers or not.
+- Harmful, because `pointer-events-none!` on the layer with `[&>div]:pointer-events-auto` on its children leaves every pixel of the sheet's **own padding** as a hole. A press in a hole hits `<html>`, and vaul's `onPress` bails on `!drawerRef.current.contains(event.target)`, so no drag starts and no pointer is captured. Measured at 360px: a 16px dead strip along the sheet's top edge, right where the grab handle is, and another at the body's lower edge. The gesture worked only when a press happened to land on a child element, which is why swiping the sheet closed felt unreliable rather than broken.
+
+Two smaller things that make those holes worse: `touch-action: none` is set on the drawer, so it does not apply in a hole, leaving the browser free to pan the page instead; and shadcn's drawer replaces vaul's `Drawer.Handle` with a plain div, so the handle is `h-2`, which is **6.4px** under this project's `--spacing`, with no hit area around it.
 
 **A non-modal vaul drawer cannot be dismissed from outside itself.** Its `onPointerDownOutside` returns early when `!modal`, and `onFocusOutside` does the same, so no press anywhere on the page closes it. Anything that should close such a sheet has to do it explicitly, which is why the bar closes it on every cell and why the centre cell had to become a toggle.
 
