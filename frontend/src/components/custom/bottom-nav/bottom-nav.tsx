@@ -14,10 +14,14 @@ import BottomNavItem from "@/components/custom/bottom-nav/bottom-nav-item";
 import useActiveListProgress from "@/components/custom/bottom-nav/use-active-list-progress";
 import useBottomNavPointer from "@/components/custom/bottom-nav/use-bottom-nav-pointer";
 import useIndicatorOpacity from "@/components/custom/bottom-nav/use-indicator-opacity";
+import useProductPageEan from "@/components/custom/bottom-nav/use-product-page-ean";
 import {
   bottomNavItems,
   BOTTOM_NAV_SEARCH_INDEX,
+  WATCHLIST_ID,
+  type IBottomNavItem,
 } from "@/components/custom/bottom-nav/bottom-nav-items";
+import type { ModalTarget } from "@/lib/modal/modal-registry";
 
 /**
  * The scrolled header's pill treatment, so the two floating bars match.
@@ -48,6 +52,7 @@ export default function BottomNav() {
   const { user } = useUser();
   const navigateToProduct = useProductNavigation();
   const listProgress = useActiveListProgress();
+  const productPageEan = useProductPageEan();
 
   const userIsAdmin = isAdmin(user?.accountType);
 
@@ -85,6 +90,15 @@ export default function BottomNav() {
     router.push(entry.item.href);
   }
 
+  // Praćenje is the one cell whose target depends on the route, so it cannot be
+  // declared in bottom-nav-items.ts with the static ones.
+  function longPressTarget(entry: IBottomNavItem): ModalTarget | null {
+    if (entry.item.id === WATCHLIST_ID)
+      return productPageEan ? { name: "watchlist", ean: productPageEan } : null;
+
+    return entry.longPressEnabled ? (entry.longPressTarget ?? null) : null;
+  }
+
   function longPress(index: number) {
     const entry = bottomNavItems[index];
 
@@ -93,7 +107,8 @@ export default function BottomNav() {
       return;
     }
 
-    if (entry.longPressTarget) openModalUrl(entry.longPressTarget);
+    const target = longPressTarget(entry);
+    if (target) openModalUrl(target);
   }
 
   function canLongPress(index: number) {
@@ -101,9 +116,7 @@ export default function BottomNav() {
 
     if (isLockedIndex(index)) return false;
 
-    return Boolean(
-      entry.isSearch || (entry.longPressTarget && entry.longPressEnabled),
-    );
+    return Boolean(entry.isSearch || longPressTarget(entry));
   }
 
   const { scrubIndex, listProps } = useBottomNavPointer({

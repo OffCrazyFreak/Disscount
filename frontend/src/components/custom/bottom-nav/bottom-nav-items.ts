@@ -5,6 +5,9 @@ import {
 } from "@/constants/navigation";
 import type { ModalTarget } from "@/lib/modal/modal-registry";
 
+/** Its long press is resolved from the route, so the bar owns it, not this file */
+export const WATCHLIST_ID = "watchlist";
+
 export interface IBottomNavItem {
   item: INavigationItem;
   /** The raised centre cell, which opens the search sheet instead of navigating */
@@ -23,7 +26,7 @@ export interface IBottomNavItem {
  */
 export const bottomNavItems: IBottomNavItem[] = [
   { item: findNavItem("map") },
-  { item: findNavItem("watchlist") },
+  { item: findNavItem(WATCHLIST_ID) },
   { item: productsNavItem, isSearch: true },
   {
     item: findNavItem("shopping-lists"),
