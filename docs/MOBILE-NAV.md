@@ -34,19 +34,20 @@ _Last verified end-to-end on 2026-07-25 against `feat/mobile-bottom-nav`, measur
 
 ## 1. Quick reference
 
-| Thing                 | Value                                                                         |
-| --------------------- | ----------------------------------------------------------------------------- |
-| Shown at              | widths under `md` (768px), in the browser and the installed PWA alike         |
-| Cells, left to right  | Potrošnja (USKORO), Praćenje, Proizvodi (search), Popisi, Kartice (USKORO)    |
-| Bar height            | 72px of content, plus `env(safe-area-inset-bottom)`                           |
-| Cell width (measured) | 65.8px at a 360px viewport, 57.8px at 320px                                   |
-| Icon / label          | 24px icon, 10.4px label, labels always visible                                |
-| Active indicator      | a 57.6px disc enclosing icon and label, sliding between cells                 |
-| Surface               | a floating pill matching the scrolled header's translucent blurred treatment  |
-| z-index               | search sheet 44, **bar 45**, Radix and vaul overlays 50, offline indicator 60 |
-| Element type per cell | `<button>`, never `<a href>` (see [§18](#18-gotchas--lessons-learned))        |
-| Long press            | fires at 450ms, ring starts filling at 120ms, cancels past 10px of movement   |
-| Haptics               | none, deliberately (see [§18](#18-gotchas--lessons-learned))                  |
+| Thing                 | Value                                                                                           |
+| --------------------- | ----------------------------------------------------------------------------------------------- |
+| Shown at              | widths under `md` (768px), in the browser and the installed PWA alike                           |
+| Cells, left to right  | Potrošnja (USKORO), Praćenje, Proizvodi (search), Popisi, Kartice (USKORO)                      |
+| USKORO cells          | disabled for everyone but admins, as in the sidebar                                             |
+| Bar height            | 72px of content, plus `env(safe-area-inset-bottom)`                                             |
+| Cell width (measured) | 65.8px at a 360px viewport, 57.8px at 320px                                                     |
+| Icon / label          | 24px icon, 10.4px label, labels always visible                                                  |
+| Active indicator      | a 57.6px disc enclosing icon and label, sliding between cells and fading out on the search cell |
+| Surface               | a floating pill matching the scrolled header's translucent blurred treatment                    |
+| z-index               | search sheet 44, **bar 45**, Radix and vaul overlays 50, offline indicator 60                   |
+| Element type per cell | `<button>`, never `<a href>` (see [§18](#18-gotchas--lessons-learned))                          |
+| Long press            | fires at 450ms, silent for the first 200ms, cancels past 10px of movement                       |
+| Haptics               | none, deliberately (see [§18](#18-gotchas--lessons-learned))                                    |
 
 **Daily workflow:** nothing to configure. The bar reads its items from `frontend/src/constants/navigation.ts` and mounts itself once in the root layout.
 
@@ -105,13 +106,28 @@ The centre cell is different: a raised, filled, brand-green 44.8px circle with `
 
 `Potrošnja` and `Kartice` are not shipped yet. Putting them at the far left and far right keeps the arrangement symmetric with search dead centre, and puts the least useful cells in the hardest thumb positions.
 
-Apple's Human Interface Guidelines are emphatic that a tab must never be disabled or removed, and in iOS 26 `UITabBarItem.isEnabled` has no effect at all. So the teaser cells **navigate normally** to their real routes and the page explains itself, rather than being greyed out or dead-ended.
+### Locked teaser cells
+
+Both teaser cells are **dead ends for everyone but an admin**, which is the rule `sidebar-nav-item.tsx` already applies:
+
+```ts
+const isLocked = Boolean(item.comingSoon) && !isAdmin(user?.accountType);
+```
+
+A locked cell is a `disabled` button in `text-muted-foreground/70`, so it takes no tap, no keyboard focus, no scrub tint and no long press. It keeps its USKORO chip, and `activate()` in `bottom-nav.tsx` guards the pointer path separately, because a disabled button does not stop the `<ul>` from resolving that cell.
+
+Two things worth knowing:
+
+- This runs **against** Apple's Human Interface Guidelines, which are emphatic that a tab must never be disabled (in iOS 26 `UITabBarItem.isEnabled` has no effect at all). Consistency with the app's other two navigations won, since a bar that walks you into a teaser page the header refuses to open is the more confusing inconsistency.
+- The admin escape exists so `/digital-cards`, which is a working page carrying the badge only until barcode rendering lands, stays reachable from a phone.
+
+The same rule now applies to `HeaderNavItem`, which previously blocked coming-soon items for admins too. Note that the escape is unreachable there today: `HeaderNav` swaps the whole list for a single dashboard link whenever `canAccessDashboard` is true, which covers every admin. It is there for consistency and for whenever that layout changes.
 
 ### Signed out
 
 Four of the five destinations are in `PROTECTED_ROUTE_PREFIXES` (`/spending`, `/watchlist`, `/shopping-lists`, `/digital-cards`), so for a signed-out visitor only the centre search cell is public.
 
-They still navigate. The page then renders the existing `LoginRequired`, which explains the feature and opens the auth modal. That needed no new code, and it follows the same "never disable a tab, explain instead" rule.
+`Praćenje` and `Popisi` still navigate. The page then renders the existing `LoginRequired`, which explains the feature and opens the auth modal. That needed no new code, and it is why those cells are not locked: explaining beats dead-ending wherever there is something to explain.
 
 ---
 
@@ -130,7 +146,7 @@ sequenceDiagram
     L->>L: find the cell from its own box
     L->>L: setPointerCapture
     L->>T: start (only if that cell has a target)
-    Note over T: ring starts filling at 120ms
+    Note over T: nothing is drawn for 200ms,<br/>then the ring fills
 
     alt held still for 450ms
         T->>A: fires, and marks the sequence consumed
@@ -147,13 +163,16 @@ sequenceDiagram
     end
 ```
 
-Activation branches three ways, in `bottom-nav.tsx`:
+Activation branches four ways, in `bottom-nav.tsx`:
 
 | Case                        | What happens                                                  |
 | --------------------------- | ------------------------------------------------------------- |
-| Centre cell                 | opens the search sheet                                        |
+| Centre cell                 | opens the search sheet, or closes it when it is already open  |
+| A locked teaser cell        | nothing, beyond dismissing the sheet                          |
 | The cell you are already on | `useTabReentry`: scroll to top, then a second tap returns you |
 | Any other cell              | `router.push(item.href)`                                      |
+
+Every branch except the centre one dismisses the search sheet first. That covers what the sheet's own pathname effect cannot: re-tapping the tab you are already on does not change the route.
 
 Note that **route match and activation are deliberately separate questions.** `isActiveIndex` is a pure `pathname.startsWith` check covering all five cells, so the centre cell lights up on `/products`; `isSearch` decides what a tap _does_. Conflating the two was a real bug, see [§18](#18-gotchas--lessons-learned).
 
@@ -222,9 +241,14 @@ flowchart LR
     nav --> close["onSubmitted closes the sheet"]
 ```
 
-Four deliberate choices:
+The centre cell is a toggle, and its glyph says so: the `Search` icon rotates out and an `X` rotates in while the sheet is open, so the same cell closes what it opened. Both glyphs are stacked in the raised circle and cross-faded in CSS, with `motion-reduce:transition-none` for the reduced-motion case. Its accessible name switches to `Zatvori traženje` alongside `aria-expanded`.
+
+That toggle is also the only way to close the sheet from the bar, because vaul **vetoes every outside dismissal for a non-modal drawer** (`dist/index.js`, its `onPointerDownOutside` handler returns early when `!modal`, and `onFocusOutside` likewise). So no press on the bar, or anywhere else on the page, can close the sheet on its own. Useful consequence: the sheet's open state cannot change mid-gesture, so reading it on `pointerup` is race-free.
+
+Five deliberate choices:
 
 - **`modal={false}`.** This drops vaul's scrim and scroll lock, which is what lets the sheet sit _behind_ the bar at `z-44` with the nav still visible on top at `z-45`. The sheet pads its own bottom by `--bottom-nav-total`, so none of its content hides under the bar.
+- **The centre cell toggles it**, since vaul leaves the bar as the only thing that can close it.
 - **`passThroughSurface`.** The sheet's surface extends under the bar, so without this it swallows every tap meant for the tabs. This needs two independent fixes to work, both in [§18](#18-gotchas--lessons-learned).
 - **It closes on route change**, matching `AppSidebar`. Submitting from `/products` only changes the query, not the pathname, which `onSubmitted` already covers.
 - **The field is focused on open** via `initialFocusRef`, so you can start typing immediately.
@@ -266,22 +290,29 @@ Focus is set explicitly in `onOpenAutoFocus` rather than by relying on a child's
 
 Long press is strictly an **accelerator**, never the only way to reach something. Every target is a `?modal=` URL that a visible, tappable control also reaches, which is what keeps it keyboard and screen-reader accessible.
 
-| Gesture                  | Opens                      | Enabled?                            |
-| ------------------------ | -------------------------- | ----------------------------------- |
-| Hold **Popisi**          | `?modal=shopping-list/new` | yes                                 |
-| Hold **Kartice**         | `?modal=digital-card/new`  | wired, off until digital cards ship |
-| Hold the **centre cell** | the barcode scanner        | yes                                 |
-| Hold a **product card**  | the quick-actions sheet    | yes                                 |
+| Gesture                  | Opens                      | Enabled?                                                           |
+| ------------------------ | -------------------------- | ------------------------------------------------------------------ |
+| Hold **Popisi**          | `?modal=shopping-list/new` | yes                                                                |
+| Hold **Kartice**         | `?modal=digital-card/new`  | wired, off until digital cards ship, and the cell is locked anyway |
+| Hold the **centre cell** | the barcode scanner        | yes                                                                |
+| Hold a **product card**  | the quick-actions sheet    | yes                                                                |
 
 ### Timing
 
-| Value           | Source                                                                                      |
-| --------------- | ------------------------------------------------------------------------------------------- |
-| **450ms** fire  | iOS `minimumPressDuration` is 0.5s, Android roughly 400-500ms, react-aria defaults to 500ms |
-| **120ms** ring  | inside Nielsen's 0.1s "instant" window                                                      |
-| **10px** cancel | beyond this, the press is a drag or a scroll                                                |
+| Value                     | Source                                                                                      |
+| ------------------------- | ------------------------------------------------------------------------------------------- |
+| **450ms** fire            | iOS `minimumPressDuration` is 0.5s, Android roughly 400-500ms, react-aria defaults to 500ms |
+| **200ms** silent debounce | past a deliberate tap, so an ordinary tap draws nothing at all                              |
+| **250ms** ring fill       | whatever the debounce leaves of the 450ms, so the fill reads as "committed"                 |
+| **10px** cancel           | beyond this, the press is a drag or a scroll                                                |
 
-The 120ms figure is the discoverability mechanism, and the reason no coachmark was built: an accidental 200ms press shows the ring **begin** to fill, which teaches the gesture while you are performing it. NN/g's own finding on coach marks is that users do not read them and forget them within about 20 seconds.
+The debounce is a real gate, not a clamp: for the first 200ms `createLongPressTimer` has scheduled nothing but a single timeout, with no `requestAnimationFrame` loop and no writes to `--press-progress`. Only when it elapses does the ramp start.
+
+It began at 120ms, chosen to put feedback inside Nielsen's 0.1s "instant" window, and that was wrong in practice: a deliberate tap on a nav cell commonly lasts 150-200ms, so **every** tap on `Popisi` flashed a sliver of ring and the bar felt broken. 200ms is the smallest value that clears a tap.
+
+The ring is still the discoverability mechanism and the reason no coachmark was built: a press that outlives the gate shows the ring **begin** to fill, which teaches the gesture while you are performing it. NN/g's own finding on coach marks is that users do not read them and forget them within about 20 seconds. The trade is that a press has to be a little more deliberate before it teaches you anything.
+
+Both consumers inherit the gate, since they share the timer: the bar's cells and the product cards. `isPending()` stays true through the debounce, which is what lets a drag abandon the gesture before anything has been drawn.
 
 ### Why the centre cell holds the scanner
 
@@ -301,12 +332,28 @@ The timer lives outside React because the bar and the product cards own very dif
 
 ## 9. Live state on the bar
 
-| Indicator                     | Source                                                        | Behaviour                                                          |
-| ----------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------ |
-| Badge on **Praćenje**         | `useNotifications()`, the same count the desktop header shows | only when the count is above zero                                  |
-| Completion ring on **Popisi** | `useGetShoppingListById`, keyed off the pathname              | only on `/shopping-lists/[id]`, and only for a list that has items |
-| Active disc                   | `pathname.startsWith(item.href)`                              | slides between cells via `layoutId`                                |
-| Chevron on the active icon    | `useTabReentry`                                               | only while a return position is held                               |
+| Indicator                     | Source                                                        | Behaviour                                                             |
+| ----------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Badge on **Praćenje**         | `useNotifications()`, the same count the desktop header shows | only when the count is above zero                                     |
+| Completion ring on **Popisi** | `useGetShoppingListById`, keyed off the pathname              | only on `/shopping-lists/[id]`, and only for a list that has items    |
+| Active disc                   | `pathname.startsWith(item.href)`                              | slides between cells via `layoutId`, and fades out on the search cell |
+| Chevron on the active icon    | `useTabReentry`                                               | only while a return position is held                                  |
+
+### Why the disc fades on the search cell
+
+On `/products` the disc's `bg-primary/15` lands behind the raised `bg-primary` circle, which reads as a smudge rather than a highlight. The raised circle already marks that cell, so the disc dissolves as it slides onto it and resolves as it slides off, which keeps one shared `layoutId` element instead of making the disc appear and disappear.
+
+The previous route's value has to be held **outside** the disc, in `use-indicator-opacity.ts`, called from `BottomNav`:
+
+```ts
+const [wasSearchActive, setWasSearchActive] = useState(isSearchActive);
+
+useEffect(() => setWasSearchActive(isSearchActive), [isSearchActive]);
+
+return { from: wasSearchActive ? 0 : 1, to: isSearchActive ? 0 : 1 };
+```
+
+`{isActive && <BottomNavIndicator />}` replaces the element on every navigation, so a value kept inside it would be lost with it, and `initial` needs somewhere to start. One pair serves all five cells, because the target is only `0` while the search cell is the active one, and that is the only time it renders the disc. The update is deliberately in an effect rather than during render: the disc has to mount with the previous value, so React's "adjust state during render" pattern would defeat it.
 
 The completion ring is scoped to a list's own page on purpose: it tracks the list you are actually shopping, so you can glance at the bar in a store and see how far through you are without opening anything.
 
@@ -411,6 +458,10 @@ Recorded so the next person does not re-litigate them. Each of these was an expl
 | Always visible below `md`                         | Standalone-PWA only, which is purer but hides the best navigation from most visitors, who arrive in a browser tab                                                   |
 | Floating pill                                     | Edge-to-edge flat (Material's convention), and edge-to-edge frosted (iOS 18). All three were built behind a switcher and compared on a device; the pill won         |
 | Centre cell opens a sheet                         | Navigating to `/products` and then focusing its field, which cannot raise the keyboard on iOS. Also a plain tab with no autofocus, which loses a tap                |
+| Centre cell toggles, morphing into an `X`         | A close button inside the sheet, which duplicates the grab handle; or leaving the sheet closable only by swipe, Escape or navigation, which is what it was          |
+| Locked teaser cells                               | Letting them navigate to a teaser page, which the header and sidebar both refuse to do. Apple's rule says never disable a tab; app-wide consistency won             |
+| Disc fades out on the search cell                 | Not rendering it there at all, which pops instead of fading; or tinting the raised circle differently, which weakens the one primary control on the bar             |
+| 200ms silent long-press gate                      | The 120ms it shipped with, which is shorter than a real tap; and a literal 100ms, asked for and declined because it makes the flashing ring worse, not better       |
 | Centre cell raised and filled, keeping its cell   | A detached circle beside the pill (iOS 26's search role), and an equal-weight segment with only a different icon                                                    |
 | Signed-out cells navigate                         | Opening the login modal directly, which makes four of five cells the same button; or a smaller signed-out bar, which changes shape at login and shifts on hydration |
 | Long press fires directly, with a cancel window   | A peek menu rising above the tab, which is more discoverable and gives free cancellation, but is more UI to build                                                   |
@@ -448,6 +499,7 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 | `components/custom/bottom-nav/bottom-nav-items.ts`         | The five-cell order and the long-press mapping                       |
 | `components/custom/bottom-nav/use-bottom-nav-pointer.ts`   | One pointer stream for tap, scrub and long press                     |
 | `components/custom/bottom-nav/use-active-list-progress.ts` | Completion of the list on screen                                     |
+| `components/custom/bottom-nav/use-indicator-opacity.ts`    | The disc's fade pair, tracking the route it is coming from           |
 
 ### Shared primitives
 
@@ -476,6 +528,7 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 | `components/custom/product/product-item/…`   | Wires the long press and the quick-actions sheet                   |
 | `components/custom/common/coming-soon.tsx`   | Accepts an `action` slot                                           |
 | `app/(user)/spending/page.tsx`               | A value prop plus the notify CTA                                   |
+| `components/custom/header/components/…`      | `HeaderNavItem` locks on an `isLocked` prop, not on `comingSoon`   |
 
 ---
 
@@ -526,6 +579,8 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | Landmark             | A real `<nav>` with `aria-label="Glavna navigacija"`. There are three `<nav>` landmarks now, so each needs a distinguishing label       |
 | Current page         | `aria-current="page"` on the active cell, the only thing that conveys "you are here" to a screen reader                                 |
+| Locked cells         | A `disabled` button, so it is skipped by tab order and announced as unavailable, with its USKORO chip still readable                    |
+| Toggling controls    | The centre cell carries `aria-expanded`, and its accessible name changes to `Zatvori traženje` while the sheet is open                  |
 | Not colour alone     | Active state is the disc **plus** the tint **plus** a bold label, satisfying WCAG 1.4.1                                                 |
 | Touch targets        | Measured 65.8px wide at a 360px viewport and 57.8px at 320px, by 72px tall, both over the 48px practical minimum                        |
 | Keyboard             | Cells are real `<button>`s. Pointer activation runs on the list, so cells act only on keyboard clicks, which arrive with `detail === 0` |
@@ -551,8 +606,9 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 | Closing the search sheet on navigation        | ✅ auto    | Pathname effect, like `AppSidebar`                                           |
 | The active disc following the route           | ✅ auto    | `usePathname` plus `layoutId`                                                |
 | Signed-out cells explaining themselves        | ✅ auto    | The pages already render `LoginRequired`                                     |
+| Locking and unlocking teaser cells            | ✅ auto    | Derived from `comingSoon` in `constants/navigation.ts` plus the admin check  |
 | **Adding or reordering a cell**               | ❌ manual  | Edit `bottom-nav-items.ts`, and remember a shipped tab set should not change |
-| **Enabling the Kartice long press**           | ❌ manual  | Flip `longPressEnabled` when digital cards ship                              |
+| **Enabling the Kartice long press**           | ❌ manual  | Flip `longPressEnabled`, and drop `comingSoon` so the cell unlocks           |
 | **A real price-drop badge count**             | ❌ manual  | Needs an endpoint or a per-user last-seen timestamp                          |
 | **Turning the React Query devtools back on**  | ❌ manual  | `NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS=true`, then restart the dev server  |
 | **Verifying the iOS keyboard and safe areas** | ❌ manual  | Needs a real iPhone; DevTools emulation cannot show either                   |
@@ -588,6 +644,10 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 1. Radix sets `pointer-events` **inline** on the layer, so a plain `pointer-events-none` class loses on specificity. It has to be `pointer-events-none!`, with `[&>div]:pointer-events-auto` handing them back to the children so the grab handle still drags.
 2. Radix also sets `pointer-events: none` on **`<body>`**, which makes everything underneath unreachable no matter what the sheet does. The bar opts back in with `pointer-events-auto`, but only while the non-modal search sheet is open, so it stays correctly inert under real modals.
 
+**A non-modal vaul drawer cannot be dismissed from outside itself.** Its `onPointerDownOutside` returns early when `!modal`, and `onFocusOutside` does the same, so no press anywhere on the page closes it. Anything that should close such a sheet has to do it explicitly, which is why the bar closes it on every cell and why the centre cell had to become a toggle.
+
+**Feedback timed inside the "instant" window fires on ordinary taps.** The long press showed its ring from 120ms, which sounds right by Nielsen's numbers and is wrong for a thumb: a deliberate tap on a nav cell runs 150-200ms, so the ring flashed on taps that were never presses. A gesture's feedback threshold has to clear the gesture it is distinguishing itself from, not an abstract perception budget.
+
 **Do not set `touch-action: none` on things inside a scroller.** `pointercancel` fires for free when a pan or scroll claims the pointer, which is what abandons a long press on a product card, and `touch-action: none` would suppress it. The bar itself is fixed chrome, so it does use `touch-none` to keep a horizontal scrub from being read as a page pan.
 
 **Haptics are a dead end on iOS.** `navigator.vibrate` has never shipped in WebKit and the `<input type="checkbox" switch>` workaround was patched in iOS 26.5. Android Chrome supports it, but a buzz that exists on one platform only is worse than none, so the feel comes entirely from motion and timing.
@@ -600,7 +660,7 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 
 **Dev overlays sat exactly on the bar.** Next's indicator lands bottom-left over Potrošnja and the React Query button bottom-right over Kartice, which makes the bar impossible to judge or test. Both are now off by default, see [§14](#14-config-env-vars-and-flags).
 
-**Two of five cells being teasers is a real risk.** Apple's guidance not to disable a tab is clear, but no UX research endorses teaser destinations in primary navigation. If `Potrošnja` and `Kartice` stay unshipped for long, the bar starts reading as vaporware.
+**Two of five cells being teasers is a real risk, and locking them sharpens it.** No UX research endorses teaser destinations in primary navigation, and now two of the five tabs are visibly inert for everyone but an admin. If `Potrošnja` and `Kartice` stay unshipped for long, 40% of the bar is dead weight and it starts reading as vaporware.
 
 ---
 
@@ -612,7 +672,7 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 | ------------------------------------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Price-drop count badge on Praćenje                      | Watchlist      | Swap the notification count for "watched products cheaper since your last visit", cleared on visit, capped at 9+, with the number in the accessible name |
 | Price-drop pulse on the Praćenje icon                   | Watchlist      | One 300ms scale pulse when a watched price drops while the app is open, at most once a minute, off under reduced motion. Blocked by the badge above      |
-| Enable the Kartice long press                           | Digital Cards  | One flag in `bottom-nav-items.ts` the day digital cards ship, plus dropping its USKORO marker                                                            |
+| Enable the Kartice long press                           | Digital Cards  | One flag in `bottom-nav-items.ts` the day digital cards ship, plus dropping `comingSoon` so the cell unlocks for everyone                                |
 | Selection mode: the bar becomes a contextual action bar | Shopping Lists | On `/shopping-lists/[id]`, long-press an item to get "N odabrano" plus move, delete, mark bought, and "nađi najjeftiniji lanac za ovih N"                |
 
 Selection mode is the one with real product upside: costing a subset of a list across chains is something no competing Croatian price app does. It is also its own feature, needing selection state and back-button semantics, so it is a separate PR rather than a line item.
