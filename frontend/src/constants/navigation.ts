@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   Bug,
   Mail,
+  Search,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -38,6 +39,16 @@ export const dashboardNavItem: INavigationItem = {
   href: "/dashboard",
   label: "Nadzorna ploča",
   icon: LayoutDashboard,
+
+  showInHeader: false,
+};
+
+// The bottom nav's centre cell; the header and sidebar reach products by search
+export const productsNavItem: INavigationItem = {
+  id: "products",
+  href: "/products",
+  label: "Proizvodi",
+  icon: Search,
 
   showInHeader: false,
 };
@@ -196,3 +207,14 @@ export const supportNavItems: INavigationItem[] = [
     showInHeader: false,
   },
 ];
+
+/** Searches both groups, since a surface may mix account items and catalogue. */
+export function findNavItem(id: string): INavigationItem {
+  const item = [...userNavItems, ...productNavItems].find(
+    (entry) => entry.id === id,
+  );
+
+  if (!item) throw new Error(`Unknown navigation item: ${id}`);
+
+  return item;
+}

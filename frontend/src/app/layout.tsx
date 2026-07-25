@@ -9,6 +9,7 @@ import WindowScrollFade from "@/components/custom/common/window-scroll-fade";
 import OAuthErrorToast from "@/components/custom/common/oauth-error-toast";
 import ModalRouter from "@/components/custom/modal-router/modal-router";
 import InstallBanner from "@/components/custom/pwa/install-banner";
+import BottomNav from "@/components/custom/bottom-nav/bottom-nav";
 import OfflineIndicator from "@/components/custom/offline/offline-indicator";
 import Providers from "@/app/providers/providers";
 import { ReactNode, Suspense } from "react";
@@ -164,6 +165,9 @@ export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
             {/* Bottom scrim on every scrollable page; self-hides at the end */}
             <WindowScrollFade />
           </div>
+
+          {/* Last in the DOM, so keyboard users reach the content first */}
+          <BottomNav />
         </Providers>
       </body>
     </html>
