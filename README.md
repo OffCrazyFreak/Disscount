@@ -82,18 +82,18 @@ Landing page ([full-page screenshot](docs/screenshots/desktop/pages/landing.webp
 </p>
 
 <p align="center">
-  <img width="45%" src="docs/screenshots/desktop/pages/shopping-lists.webp" alt="Disscount - Shopping lists"/>
-  <img width="45%" src="docs/screenshots/desktop/pages/shopping-list-detail.webp" alt="Disscount - Shopping list with per-store basket totals"/>
-</p>
-
-<p align="center">
   <img width="45%" src="docs/screenshots/desktop/pages/watchlist.webp" alt="Disscount - Product watchlist with price-drop targets"/>
-  <img width="45%" src="docs/screenshots/desktop/pages/digital-cards.webp" alt="Disscount - Digital loyalty cards"/>
+  <img width="45%" src="docs/screenshots/desktop/pages/shopping-lists.webp" alt="Disscount - Shopping lists"/>
 </p>
 
 <p align="center">
+  <img width="45%" src="docs/screenshots/desktop/pages/shopping-list-detail-items.webp" alt="Disscount - Shopping list items with quantities and per-item savings"/>
+  <img width="45%" src="docs/screenshots/desktop/pages/shopping-list-detail-stores.webp" alt="Disscount - Shopping list basket totals per store chain"/>
+</p>
+
+<p align="center">
+  <img width="45%" src="docs/screenshots/desktop/pages/digital-cards.webp" alt="Disscount - Digital loyalty cards"/>
   <img width="45%" src="docs/screenshots/desktop/settings/preference.webp" alt="Disscount - Preferences (nearby stores and locations)"/>
-  <img width="45%" src="docs/screenshots/desktop/pages/statistics.webp" alt="Disscount - Market statistics per chain"/>
 </p>
 
 ### On your phone
