@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, type RefObject } from "react";
 import { useForm } from "react-hook-form";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,10 @@ interface ISearchBarProps {
   allowScanning?: boolean;
   submitButtonLocation?: "none" | "auto" | "block";
   submitLabel?: string;
+  /** Exposes the field so an owner can focus it inside a gesture's own task */
+  inputRef?: RefObject<HTMLInputElement | null>;
+  /** Fires once a search or a scan has navigated away */
+  onSubmitted?: (query: string) => void;
 }
 
 export default function SearchBar({
@@ -29,6 +33,8 @@ export default function SearchBar({
   autoSearch = false,
   allowScanning = false,
   submitLabel = "Pretraži",
+  inputRef: exposedInputRef,
+  onSubmitted,
 }: ISearchBarProps) {
   const { routeQuery, search, syncQuery, openResult } =
     useSearchNavigation(searchRoute);
@@ -69,8 +75,11 @@ export default function SearchBar({
   }, [autoSearch, queryValue, routeQuery, syncQuery]);
 
   function submit(data: { query: string }) {
+    const query = data.query?.trim() ?? "";
+
     setOpen(false);
-    search(data.query?.trim() ?? "");
+    search(query);
+    onSubmitted?.(query);
   }
 
   function handleClear() {
@@ -83,8 +92,9 @@ export default function SearchBar({
     (code: IScannedCode) => {
       setOpen(false);
       openResult(code.rawValue);
+      onSubmitted?.(code.rawValue);
     },
-    [openResult, setOpen],
+    [openResult, setOpen, onSubmitted],
   );
 
   return (
@@ -99,14 +109,20 @@ export default function SearchBar({
           <Input
             ref={(el) => {
               inputRef.current = el;
+              if (exposedInputRef) exposedInputRef.current = el;
               registerRef(el);
             }}
             {...registerProps}
-            type="text"
+            type="search"
+            inputMode="search"
+            enterKeyHint="search"
             placeholder={placeholder}
             aria-label={placeholder || "Pretraži"}
-            className="pl-10 pr-22 py-6 text-gray-500 focus:text-gray-700 bg-white"
+            className="pl-10 pr-22 py-6 text-gray-500 focus:text-gray-700 bg-white [&::-webkit-search-cancel-button]:hidden"
             autoComplete="off"
+            autoCapitalize="off"
+            autoCorrect="off"
+            spellCheck={false}
           />
 
           <SearchBarActions
