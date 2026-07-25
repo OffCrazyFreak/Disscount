@@ -183,6 +183,8 @@ The theme colour is set in `layout.tsx` `viewport.themeColor` as a light/dark pa
 
 **PWA icons** are declared in `src/app/manifest.ts`: `icon-192`, `icon-512` (both `purpose: "any"`), and `icon-maskable-512` (`purpose: "maskable"`, a tighter crop so Android's circle/squircle mask never clips the cart). The install banners (`install-banner.tsx`, `install-sidebar-banner.tsx`) reuse `icon-192.png`.
 
+**App-shortcut icons** (`brand/shortcuts/`, one 192 PNG per shortcut) are the exception to "everything comes from the cart". They carry the same `lucide-react` glyph as the matching nav item, in brand green on a rounded white tile, because a shortcut has to read as its own destination rather than as the app. `scripts/generate-shortcut-icons.mjs` renders the icon component itself rather than a copied path, so the two can never drift. Chrome accepts PNG only here, which is why the SVGs cannot simply be linked. See [`PWA.md`](PWA.md#app-shortcuts).
+
 **iOS splash screens** (`public/splash/`, 18 of them) are the branded image iOS shows while an installed app launches, instead of a white flash. iOS ignores the manifest for this and matches a `<link rel="apple-touch-startup-image">` per device by media query. The component `apple-splash-screens.tsx` and the generator both read the **same** device list, `src/constants/ios-splash-screens.json`, so the tags and the files never drift. Each image is the cart plus the wordmark on white.
 
 **Android / Chrome splash** cannot take a custom image. Chrome composes it at runtime from the manifest's `background_color` (`#ffffff`, set to match the iOS screens) + the 512 icon + the app `name`, so it shows the cart + "Disscount" text on white. Parity with the iOS design stops there by platform design.

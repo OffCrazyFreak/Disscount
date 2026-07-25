@@ -104,19 +104,39 @@ Disscount ships a Web App Manifest and a registered service worker, which togeth
 
 A Next.js dynamic manifest (a function returning `MetadataRoute.Manifest`) served at `/manifest.webmanifest`. Key fields:
 
-| Field              | Value                                                 | Why                                                                                                                |
-| ------------------ | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `display`          | `standalone`                                          | opens without browser chrome, like an app                                                                          |
-| `orientation`      | `portrait`                                            | shopping is a phone-in-hand, portrait activity (also means we only need portrait splash screens)                   |
-| `background_color` | `#ffffff`                                             | the splash background while the app boots (white, to match the iOS launch screens)                                 |
-| `theme_color`      | `#ffffff`                                             | neutral title bar (the light/dark pair is set in `layout.tsx` `viewport.themeColor`)                               |
-| `icons`            | 192, 512, and a 512 **maskable**                      | maskable avoids the icon being clipped by the OS circle/squircle                                                   |
-| `shortcuts`        | derived from `userNavItems` filtered by `!comingSoon` | long-press the icon to jump to Shopping lists / Watchlist; the list grows automatically as features ship           |
-| `screenshots`      | one `narrow` + one `wide` (each `label`ed)            | Chrome's richer, app-store-like install dialog                                                                     |
-| `share_target`     | GET to `/share-target`                                | registers Disscount in the system share sheet; the route handler funnels shared text/title/url into `/products?q=` |
-| `launch_handler`   | `{ client_mode: "focus-existing" }`                   | reuse an open window instead of spawning a duplicate when launched from a shortcut or notification                 |
+| Field              | Value                                                   | Why                                                                                                                |
+| ------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `display`          | `standalone`                                            | opens without browser chrome, like an app                                                                          |
+| `orientation`      | `portrait`                                              | shopping is a phone-in-hand, portrait activity (also means we only need portrait splash screens)                   |
+| `background_color` | `#ffffff`                                               | the splash background while the app boots (white, to match the iOS launch screens)                                 |
+| `theme_color`      | `#ffffff`                                               | neutral title bar (the light/dark pair is set in `layout.tsx` `viewport.themeColor`)                               |
+| `icons`            | 192, 512, and a 512 **maskable**                        | maskable avoids the icon being clipped by the OS circle/squircle                                                   |
+| `shortcuts`        | Skeniraj, then `userNavItems` filtered by `!comingSoon` | long-press the icon to scan a barcode or jump to Shopping lists / Watchlist; see [App shortcuts](#app-shortcuts)   |
+| `screenshots`      | one `narrow` + one `wide` (each `label`ed)              | Chrome's richer, app-store-like install dialog                                                                     |
+| `share_target`     | GET to `/share-target`                                  | registers Disscount in the system share sheet; the route handler funnels shared text/title/url into `/products?q=` |
+| `launch_handler`   | `{ client_mode: "navigate-existing" }`                  | reuse an open window instead of spawning a duplicate, **and** navigate it to the shortcut's url                    |
 
 Icons are generated from the happy-cart source (`public/brand/logo/cart/cart-rgb.svg`) by `scripts/generate-pwa-icons.mjs` (uses `sharp`), into `public/brand/icons` (plus the legacy `src/app/favicon.ico`). See `docs/BRAND.md` for the full asset map.
+
+### App shortcuts
+
+Long-pressing the installed icon opens a shortcut menu. Ours is built in `manifest.ts` from one hand-written entry (Skeniraj) plus `userNavItems` filtered by `!comingSoon`, so the list grows on its own as features ship.
+
+**There are fewer slots than it looks.** Chrome for Android shows **3** shortcuts. It allowed 4 until Chrome 92 started injecting its own "Site settings" entry, which takes a slot. Desktop Chrome and Edge show up to 10. Shortcuts render in manifest order, so the array order in `manifest.ts` is what decides which three a phone actually surfaces. We sit at exactly 3 today:
+
+| Order | Shortcut | Url               | Icon          |
+| ----- | -------- | ----------------- | ------------- |
+| 1     | Skeniraj | `/?scan=1`        | `ScanBarcode` |
+| 2     | Popisi   | `/shopping-lists` | `ListChecks`  |
+| 3     | Praćenje | `/watchlist`      | `Eye`         |
+
+That "Site settings" entry and its black gear come from Chrome, not from us. No manifest key can recolour, reorder or remove it.
+
+**Icons.** Chrome accepts **PNG only** here, so the brand SVGs cannot be linked directly. `scripts/generate-shortcut-icons.mjs` renders the same `lucide-react` component the nav uses through `renderToStaticMarkup`, then rasterizes it with `sharp` into `public/brand/shortcuts/<nav-item-id>.png` at 192x192: brand green on a rounded white tile, glyph at 52% so a launcher's circular mask cannot clip it. Rendering the component rather than a copied path is what keeps a shortcut icon from drifting away from its nav icon. `manifest.ts` derives each `src` from the nav item's `id`, so dropping a `comingSoon` flag wires a shortcut up by itself, and the only manual step left is adding its glyph to the generator and re-running it.
+
+**Skeniraj has no route of its own.** The scanner is imperative (`context/scanner-context.tsx`), so the shortcut points at `/?scan=1` and `components/custom/pwa/scan-shortcut.tsx` picks the flag up, strips it from the URL with `replaceState` before opening the camera (so a refresh or a back navigation does not reopen it), and routes the scanned code through `useProductNavigation`.
+
+Adding Karta and Digitalne kartice once they ship is tracked in [#127](https://github.com/OffCrazyFreak/Disscount/issues/127), which is really a "pick the final three" decision rather than an append.
 
 ### The install UX (`src/components/custom/pwa/`)
 
@@ -223,6 +243,7 @@ Three pieces make replay-after-reload correct:
 | **Persistent storage**   | `request-persistent-storage.tsx` calls `navigator.storage.persist()` once on load                                                                                                                    | asks the browser not to evict the IndexedDB offline cache under storage pressure or after disuse (notably on iOS)  |
 | **Manifest screenshots** | `public/screenshots/screenshot-narrow.png` + `screenshot-wide.png`                                                                                                                                   | Chrome's richer install dialog; currently branded placeholder cards to be swapped for real captures                |
 | **Icons**                | `public/brand/icons/*` from `scripts/generate-pwa-icons.mjs` (plus hand-authored `icon.svg` + `mask-icon.svg`)                                                                                       | 192, 512, maskable 512, apple-touch 180, favicon SVG, Safari mask-icon                                             |
+| **Shortcut icons**       | `public/brand/shortcuts/*` from `scripts/generate-shortcut-icons.mjs`                                                                                                                                | one 192 PNG per app shortcut; Chrome takes PNG only, so the brand SVGs cannot be reused                            |
 
 Splash and persistent-storage components are mounted inside `providers.tsx`. This matters for the splash links specifically: because Next.js server-renders the provider tree, React hoists the `apple-touch-startup-image` links into the initial HTML `<head>`, so iOS sees them at launch time (not only after hydration).
 
@@ -244,6 +265,7 @@ The screenshot generator script was removed after the images were generated, so 
 | `frontend/src/components/custom/pwa/install-instructions-sheet.tsx`         | manual install steps (iOS / other)                                                          |
 | `frontend/src/components/custom/pwa/apple-splash-screens.tsx`               | emits `apple-touch-startup-image` links                                                     |
 | `frontend/src/components/custom/pwa/request-persistent-storage.tsx`         | requests durable storage                                                                    |
+| `frontend/src/components/custom/pwa/scan-shortcut.tsx`                      | serves the Skeniraj app shortcut: consumes `?scan=1` and opens the camera                   |
 | `frontend/src/app/providers/react-query-provider.tsx`                       | `PersistQueryClientProvider`, registers offline mutation defaults, resumes paused mutations |
 | `frontend/src/lib/offline/persister.ts`                                     | IndexedDB persister + persist options (maxAge, buster, dehydrate rules)                     |
 | `frontend/src/lib/offline/cached-query-keys.ts`                             | whitelist of query keys that may be persisted                                               |
@@ -256,7 +278,8 @@ The screenshot generator script was removed after the images were generated, so 
 | `frontend/src/utils/date.ts`                                                | `formatRelativeTime` helper                                                                 |
 | `frontend/src/constants/ios-splash-screens.json`                            | iOS device list (single source for the generator and the links)                             |
 | `frontend/scripts/generate-pwa-icons.mjs` / `generate-ios-splash.mjs`       | asset generators (run with `node`)                                                          |
-| `frontend/public/{icons,splash,screenshots}/`                               | generated PNG assets                                                                        |
+| `frontend/scripts/generate-shortcut-icons.mjs`                              | app-shortcut icon generator (lucide glyph on a rounded white tile)                          |
+| `frontend/public/{icons,shortcuts,splash,screenshots}/`                     | generated PNG assets                                                                        |
 
 ---
 
@@ -331,6 +354,7 @@ Read from `frontend/package.json`.
 - Android/desktop Chrome: the install banner/sidebar entry appears and the prompt works; installed app opens standalone with the white status bar.
 - iOS Safari: the instructions sheet opens; after Add to Home Screen, the app launches with a branded splash (not a white flash).
 - DevTools, Application, Manifest: no errors, icons and screenshots load, "Installability" passes.
+- App shortcuts: DevTools lists all three under Manifest with their icons resolving. On a phone, reinstall first (Android caches the WebAPK), then long-press the icon; Skeniraj should open the camera modal and land on the product page after a scan.
 
 **Endpoints (against a running server):** `curl -s http://localhost:3000/manifest.webmanifest` (fields present), `curl -s http://localhost:3000/ | grep apple-touch-startup-image` (18 links in `<head>`), `curl -s http://localhost:3000/ | grep 'theme-color'` (`#ffffff`).
 
@@ -352,6 +376,8 @@ Read from `frontend/package.json`.
 | **Watchlist add/remove is not optimistic offline** | The write queues correctly but the UI does not reflect it until it syncs. A future optimistic-toggle improvement.                                                                                                                                                                       |
 | **Offline create has no temp entity**              | A list created offline appears only after reconnect (the modal closes with a toast). True optimistic create needs temp IDs + reconciliation.                                                                                                                                            |
 | **iOS can evict storage**                          | Hence `navigator.storage.persist()`; treat the offline cache as best-effort, never as the source of truth.                                                                                                                                                                              |
+| **`focus-existing` silently drops the url**        | `launch_handler` was `focus-existing`, which focuses an already-open window **without navigating** and hands the target url to `window.launchQueue`. Nothing here consumes `launchQueue`, so every shortcut did nothing whenever the app was already open. Now `navigate-existing`.     |
+| **Android caches the WebAPK**                      | Manifest changes (new shortcuts, new icons) do not appear on a refresh. Uninstall and reinstall the PWA to see them, or expect a delay of up to a day or two while Chrome re-fetches.                                                                                                   |
 
 ---
 

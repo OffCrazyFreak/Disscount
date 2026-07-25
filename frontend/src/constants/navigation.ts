@@ -69,6 +69,7 @@ export const userNavItems: INavigationItem[] = [
     label: "Digitalne kartice",
     shortLabel: "Kartice",
     icon: CreditCard,
+    // TODO(#127): generate its PWA shortcut icon before dropping this flag.
     comingSoon: true,
 
     showInHeader: true,
@@ -120,6 +121,8 @@ export const productNavItems: INavigationItem[] = [
     href: "/map",
     label: "Karta",
     icon: MapIcon,
+    // TODO(#127): manifest.ts only reads userNavItems, so a PWA shortcut for
+    // this one needs adding by hand.
     comingSoon: true,
 
     showInHeader: false,
