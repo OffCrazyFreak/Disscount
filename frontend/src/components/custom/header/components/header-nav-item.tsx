@@ -9,6 +9,8 @@ interface IHeaderNavItemProps {
   pathname: string;
   hasNotifications: boolean;
   notificationCount: number;
+  /** A coming-soon item nobody but an admin may open */
+  isLocked?: boolean;
 }
 
 export default function HeaderNavItem({
@@ -16,13 +18,18 @@ export default function HeaderNavItem({
   pathname,
   hasNotifications,
   notificationCount,
+  isLocked = false,
 }: IHeaderNavItemProps) {
   const Icon = item.icon;
   const isActive = pathname.startsWith(item.href);
   const label = item.shortLabel ?? item.label;
 
-  // Coming-soon items are not navigable; the USKORO badge sits on top.
-  if (item.comingSoon) {
+  const comingSoonBadge = item.comingSoon && (
+    <ComingSoonBadge className="absolute -top-4.5 -right-7 rotate-6" />
+  );
+
+  // A locked item is not navigable; the USKORO badge sits on top.
+  if (isLocked) {
     return (
       <li>
         <span className="flex items-center space-x-2 text-muted-foreground/70 cursor-not-allowed relative">
@@ -30,7 +37,7 @@ export default function HeaderNavItem({
           <span className="relative">
             {label}
 
-            <ComingSoonBadge className="absolute -top-4.5 -right-7 rotate-6" />
+            {comingSoonBadge}
           </span>
         </span>
       </li>
@@ -59,6 +66,8 @@ export default function HeaderNavItem({
           )}
         >
           {label}
+
+          {comingSoonBadge}
 
           {item.badge && hasNotifications && (
             <Badge size="count" className="absolute -top-2 -right-4">
