@@ -21,7 +21,7 @@ export default function ProductFiltersRow({
     <div className="flex w-full items-center gap-2">
       <ProductFacetSelects facets={facets} filters={filters} layout="row" />
 
-      <ClearFiltersButton filters={filters} alwaysShow className="shrink-0" />
+      <ClearFiltersButton filters={filters} showLabel className="shrink-0" />
     </div>
   );
 }

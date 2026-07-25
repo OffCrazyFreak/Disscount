@@ -1,12 +1,16 @@
 "use client";
 
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { RemoveIconButton } from "@/components/custom/common/remove-icon-button";
 import type { IUseProductFiltersResult } from "@/app/products/hooks/use-product-filters";
 
+const LABEL = "Očisti filtere";
+
 interface IClearFiltersButtonProps {
   filters: IUseProductFiltersResult;
-  /** Keeps the button in the layout while disabled, for a row that must not reflow */
-  alwaysShow?: boolean;
+  /** Names itself instead of leaning on a tooltip, for the widths that have room */
+  showLabel?: boolean;
   className?: string;
 }
 
@@ -14,22 +18,36 @@ interface IClearFiltersButtonProps {
  * Drops every active filter. Shared by the products page's two layouts and the
  * search sheet's panel, so they cannot label or gate it differently.
  *
- * Icon-only with a tooltip, since it sits beside the Filteri button on the
- * narrowest screens and a labelled button crowded it out.
+ * Always mounted and merely disabled when there is nothing to clear, so no filter
+ * surface reflows as filters come and go.
  */
 export default function ClearFiltersButton({
   filters,
-  alwaysShow = false,
+  showLabel = false,
   className,
 }: IClearFiltersButtonProps) {
   const hasFilters = filters.activeFilterCount > 0;
 
-  if (!hasFilters && !alwaysShow) return null;
+  if (showLabel) {
+    return (
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={!hasFilters}
+        className={className}
+        onClick={filters.clearFilters}
+      >
+        <X className="size-4" />
+        {LABEL}
+      </Button>
+    );
+  }
 
   return (
     <RemoveIconButton
       tone="neutral"
-      label="Očisti filtere"
+      label={LABEL}
       disabled={!hasFilters}
       onClick={filters.clearFilters}
       className={className}
