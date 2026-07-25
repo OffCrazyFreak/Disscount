@@ -67,7 +67,12 @@
     }
   },
   "orientation": "portrait",
-  "fingerprints": [],
+  "fingerprints": [
+    {
+      "name": "upload",
+      "value": "00:CD:B5:40:81:70:A9:31:7C:28:5C:2E:17:D5:79:25:15:8D:53:90:9F:5A:D2:49:53:55:C8:7C:61:72:5B:DD"
+    }
+  ],
   "additionalTrustedOrigins": [],
   "retainedBundles": [],
   "protocolHandlers": [],

@@ -8,6 +8,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { format } from "prettier";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ASSET_LINKS = path.join(ROOT, "public/.well-known/assetlinks.json");
@@ -52,7 +53,12 @@ if (existing.map(normalize).includes(fingerprint)) {
 }
 
 existing.push(fingerprint);
-await writeFile(ASSET_LINKS, `${JSON.stringify(statements, null, 2)}\n`);
+
+// Through Prettier, so the rewritten file still passes the CI format check.
+await writeFile(
+  ASSET_LINKS,
+  await format(JSON.stringify(statements), { filepath: ASSET_LINKS }),
+);
 
 console.log(
   `Added ${fingerprint}\n${existing.length} fingerprint(s) now trusted. Deploy for the change to take effect.`,
