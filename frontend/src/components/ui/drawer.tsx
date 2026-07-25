@@ -56,9 +56,13 @@ function DrawerContent({
   className,
   children,
   onPointerDownOutside,
+  overlay = <DrawerOverlay />,
   ref,
   ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Content>) {
+}: React.ComponentProps<typeof DrawerPrimitive.Content> & {
+  // The scrim is rendered here, so only a slot can relayer or remove it.
+  overlay?: React.ReactNode;
+}) {
   const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
 
   // Compose the caller's ref with the internal one so {...props} can't drop it.
@@ -71,7 +75,7 @@ function DrawerContent({
 
   return (
     <DrawerPortal data-slot="drawer-portal">
-      <DrawerOverlay />
+      {overlay}
       <DrawerPrimitive.Content
         ref={setContentRef}
         data-slot="drawer-content"
@@ -96,9 +100,9 @@ function DrawerContent({
         {...props}
       >
         {/* Grab handle: horizontal for bottom drawers, vertical for side ones */}
-        <div className="mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full bg-muted group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
-        <div className="absolute top-1/2 right-2 hidden h-[100px] w-2 -translate-y-1/2 rounded-full bg-muted group-data-[vaul-drawer-direction=left]/drawer-content:block" />
-        <div className="absolute top-1/2 left-2 hidden h-[100px] w-2 -translate-y-1/2 rounded-full bg-muted group-data-[vaul-drawer-direction=right]/drawer-content:block" />
+        <div className="mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full bg-muted-foreground/40 group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
+        <div className="absolute top-1/2 right-2 hidden h-[100px] w-2 -translate-y-1/2 rounded-full bg-muted-foreground/40 group-data-[vaul-drawer-direction=left]/drawer-content:block" />
+        <div className="absolute top-1/2 left-2 hidden h-[100px] w-2 -translate-y-1/2 rounded-full bg-muted-foreground/40 group-data-[vaul-drawer-direction=right]/drawer-content:block" />
         <PortalContainerProvider container={container}>
           {children}
         </PortalContainerProvider>
