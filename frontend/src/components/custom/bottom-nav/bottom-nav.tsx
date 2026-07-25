@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import { useNotifications } from "@/context/notifications-context";
 import { useCameraScanner } from "@/context/scanner-context";
 import { useSearchSheet } from "@/context/search-sheet-context";
+import { useUser } from "@/context/user-context";
+import { isAdmin } from "@/lib/api/schemas/auth-user";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import useProductNavigation from "@/hooks/use-product-navigation";
 import useTabReentry from "@/hooks/use-tab-reentry";
@@ -12,7 +14,11 @@ import BottomNavCenterItem from "@/components/custom/bottom-nav/bottom-nav-cente
 import BottomNavItem from "@/components/custom/bottom-nav/bottom-nav-item";
 import useActiveListProgress from "@/components/custom/bottom-nav/use-active-list-progress";
 import useBottomNavPointer from "@/components/custom/bottom-nav/use-bottom-nav-pointer";
-import { bottomNavItems } from "@/components/custom/bottom-nav/bottom-nav-items";
+import useIndicatorOpacity from "@/components/custom/bottom-nav/use-indicator-opacity";
+import {
+  bottomNavItems,
+  BOTTOM_NAV_SEARCH_INDEX,
+} from "@/components/custom/bottom-nav/bottom-nav-items";
 
 /**
  * The scrolled header's pill treatment, so the two floating bars match.
@@ -34,10 +40,17 @@ export default function BottomNav() {
   const router = useRouter();
   const { notifications, hasNotifications } = useNotifications();
   const { openScanner } = useCameraScanner();
-  const { isOpen: isSearchOpen, open: openSearch } = useSearchSheet();
+  const {
+    isOpen: isSearchOpen,
+    open: openSearch,
+    close: closeSearch,
+  } = useSearchSheet();
   const { reenter, canReturn } = useTabReentry();
+  const { user } = useUser();
   const navigateToProduct = useProductNavigation();
   const listProgress = useActiveListProgress();
+
+  const userIsAdmin = isAdmin(user?.accountType);
 
   // Route match, which drives styling for every cell including the search one.
   // Activation is a separate question, answered by `isSearch` below.
@@ -45,10 +58,27 @@ export default function BottomNav() {
     return pathname.startsWith(bottomNavItems[index].item.href);
   }
 
+  // Coming-soon tabs are dead ends for everyone but admins, as in the sidebar.
+  function isLockedIndex(index: number) {
+    return Boolean(bottomNavItems[index].item.comingSoon) && !userIsAdmin;
+  }
+
+  const indicatorOpacity = useIndicatorOpacity(
+    isActiveIndex(BOTTOM_NAV_SEARCH_INDEX),
+  );
+
   function activate(index: number) {
     const entry = bottomNavItems[index];
 
-    if (entry.isSearch) return openSearch();
+    // The sheet is non-modal, which vaul takes to mean no press outside it may
+    // dismiss it, so the bar is the only thing that can close it again.
+    if (entry.isSearch) return isSearchOpen ? closeSearch() : openSearch();
+
+    // Every other cell dismisses it too, which covers what the sheet's own
+    // pathname effect cannot: re-tapping the tab you are already on.
+    closeSearch();
+
+    if (isLockedIndex(index)) return;
 
     // Re-entering the tab you are on scrolls to the top, then back again.
     if (isActiveIndex(index)) return reenter();
@@ -69,6 +99,8 @@ export default function BottomNav() {
 
   function canLongPress(index: number) {
     const entry = bottomNavItems[index];
+
+    if (isLockedIndex(index)) return false;
 
     return Boolean(
       entry.isSearch || (entry.longPressTarget && entry.longPressEnabled),
@@ -106,6 +138,7 @@ export default function BottomNav() {
               isActive={isActiveIndex(index)}
               isScrubbed={scrubIndex === index}
               isSearchOpen={isSearchOpen}
+              indicatorOpacity={indicatorOpacity}
               onKeyboardActivate={() => activate(index)}
             />
           ) : (
@@ -114,6 +147,8 @@ export default function BottomNav() {
               entry={entry}
               isActive={isActiveIndex(index)}
               isScrubbed={scrubIndex === index}
+              isLocked={isLockedIndex(index)}
+              indicatorOpacity={indicatorOpacity}
               // TODO: swap for a count of watched products whose price dropped
               // since the last visit, cleared on visit and capped at 9+.
               badgeCount={hasNotifications ? notifications.length : undefined}

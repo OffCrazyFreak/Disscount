@@ -7,12 +7,16 @@ import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
 import BottomNavIndicator from "@/components/custom/bottom-nav/bottom-nav-indicator";
 import BottomNavRing from "@/components/custom/bottom-nav/bottom-nav-ring";
 import type { IBottomNavItem } from "@/components/custom/bottom-nav/bottom-nav-items";
+import type { IndicatorOpacity } from "@/components/custom/bottom-nav/use-indicator-opacity";
 
 interface IBottomNavItemProps {
   entry: IBottomNavItem;
   isActive: boolean;
   /** Previewed while a thumb is dragging over this cell */
   isScrubbed: boolean;
+  /** A coming-soon cell nobody but an admin may open */
+  isLocked: boolean;
+  indicatorOpacity: IndicatorOpacity;
   badgeCount?: number;
   /** How much of the active shopping list is ticked off, 0 to 1 */
   listProgress?: number;
@@ -31,6 +35,8 @@ export default function BottomNavItem({
   entry,
   isActive,
   isScrubbed,
+  isLocked,
+  indicatorOpacity,
   badgeCount,
   listProgress,
   canReturn,
@@ -40,14 +46,20 @@ export default function BottomNavItem({
 
   const Icon = item.icon;
   const label = item.shortLabel ?? item.label;
-  const hasLongPress = Boolean(longPressTarget && longPressEnabled);
+  const hasLongPress =
+    Boolean(longPressTarget && longPressEnabled) && !isLocked;
   const showCount = Boolean(item.badge && badgeCount);
-  const isLit = isActive || isScrubbed;
+  // A locked cell is still `aria-current` when its route is open by URL, but it
+  // must not look like a tab you arrived at by tapping it.
+  const showsActive = isActive && !isLocked;
+  const isPressed = isScrubbed && !isLocked;
+  const isLit = showsActive || isPressed;
 
   return (
     <li className="relative flex-1 [--press-progress:0]">
       <button
         type="button"
+        disabled={isLocked}
         aria-current={isActive ? "page" : undefined}
         // Pointer activation runs on the list, which captures the pointer and so
         // retargets the click. Keyboard clicks arrive with detail 0.
@@ -58,11 +70,12 @@ export default function BottomNavItem({
           "text-muted-foreground relative flex size-full cursor-pointer flex-col items-center justify-center gap-[0.2rem] select-none transition-colors duration-150",
           "[-webkit-touch-callout:none] [-webkit-user-drag:none]",
           isLit && "text-primary",
+          isLocked && "text-muted-foreground/70 cursor-not-allowed",
         )}
       >
         {/* The disc and both rings enclose icon and label together, so they come
             before them in paint order */}
-        {isActive && <BottomNavIndicator />}
+        {showsActive && <BottomNavIndicator opacity={indicatorOpacity} />}
 
         {listProgress !== undefined && (
           <BottomNavRing
@@ -82,7 +95,7 @@ export default function BottomNavItem({
           <Icon
             className={cn(
               "relative size-[1.5rem] transition-transform duration-150",
-              isScrubbed && "scale-115",
+              isPressed && "scale-115",
             )}
           />
 
@@ -92,7 +105,7 @@ export default function BottomNavItem({
             </Badge>
           )}
 
-          {isActive && canReturn && (
+          {showsActive && canReturn && (
             <ChevronDown
               aria-hidden="true"
               className="text-primary absolute -bottom-2 size-[0.7rem]"
@@ -103,7 +116,7 @@ export default function BottomNavItem({
         <span
           className={cn(
             "relative h-[var(--bottom-nav-label-height)] overflow-hidden text-[0.65rem] leading-none tracking-tight opacity-[var(--bottom-nav-label-opacity)]",
-            isActive && "font-bold",
+            showsActive && "font-bold",
           )}
         >
           {label}
