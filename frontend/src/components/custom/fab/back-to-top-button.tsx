@@ -16,8 +16,9 @@ interface IBackToTopButtonProps {
 /**
  * Returns a long, scrolled page to the top.
  *
- * Stays smaller than the primary action FAB, so a page carrying both reads the
- * create button as the more important of the two.
+ * Desktop only, at the same breakpoint where the bottom nav appears: on mobile
+ * this is what re-tapping the active tab does, which is the convention on both
+ * platforms and costs no chrome.
  */
 export default function BackToTopButton({
   threshold = 600,
@@ -31,7 +32,7 @@ export default function BackToTopButton({
       onClick={scrollToTop}
       icon={<ChevronsUp className="size-6" />}
       label={label}
-      containerClassName={containerClassName}
+      containerClassName={cn("hidden md:block", containerClassName)}
       // inert also clears the tab order and a11y tree, which opacity alone leaves.
       inert={!isVisible}
       className={cn(

@@ -42,7 +42,8 @@ export default function InstallBanner() {
 
   return (
     <>
-      <div className="fixed inset-x-0 bottom-0 z-50 p-4 sm:inset-x-auto sm:right-4 sm:max-w-sm">
+      {/* Sits above the bottom nav, which owns the bottom strip below md */}
+      <div className="fixed inset-x-0 bottom-[var(--bottom-nav-total)] z-50 p-4 md:bottom-0 md:inset-x-auto md:right-4 md:max-w-sm">
         <div className="flex flex-col gap-3 rounded-xl border bg-card p-3 shadow-lg">
           <div className="flex items-center gap-3">
             <Image

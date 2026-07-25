@@ -59,7 +59,8 @@ export default function useLongPress({
     const dx = event.clientX - origin.current.x;
     const dy = event.clientY - origin.current.y;
 
-    if (Math.hypot(dx, dy) > LONG_PRESS_MOVE_TOLERANCE_PX) timer.current.cancel();
+    if (Math.hypot(dx, dy) > LONG_PRESS_MOVE_TOLERANCE_PX)
+      timer.current.cancel();
   }, []);
 
   const cancel = useCallback(() => timer.current?.cancel(), []);

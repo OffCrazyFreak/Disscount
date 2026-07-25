@@ -3,6 +3,9 @@ import Script from "next/script";
 import "@/app/globals.css";
 
 import AppSidebar from "@/components/custom/sidebar/app-sidebar";
+import BottomNav from "@/components/custom/bottom-nav/bottom-nav";
+import BottomNavVariantSwitcher from "@/components/custom/bottom-nav/bottom-nav-variant-switcher";
+import SearchSheet from "@/components/custom/search/search-sheet";
 import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/common/footer";
 import WindowScrollFade from "@/components/custom/common/window-scroll-fade";
@@ -103,6 +106,12 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#121212" },
   ],
+  // Without this every env(safe-area-inset-*) resolves to 0, so the bottom nav
+  // would sit under the iOS home indicator.
+  viewportFit: "cover",
+  // Shrinks the layout viewport when the keyboard opens, so fixed bottom
+  // elements reposition instead of hiding behind it. Chromium and Firefox only.
+  interactiveWidget: "resizes-content",
 };
 
 interface IRootLayoutProps {
@@ -111,7 +120,11 @@ interface IRootLayoutProps {
 
 export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
   return (
-    <html lang="hr" data-scroll-behavior="smooth">
+    <html
+      lang="hr"
+      data-scroll-behavior="smooth"
+      className="scroll-pb-[var(--bottom-nav-total)] md:scroll-pb-0"
+    >
       {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
         <Script
           defer
@@ -135,7 +148,7 @@ export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
             <ModalRouter />
           </Suspense>
 
-          <div className="min-h-screen flex flex-col w-full">
+          <div className="min-h-svh flex flex-col w-full">
             {/* pattern background */}
             <div className="absolute inset-0 z-[-15] bg-[url('/+_pattern.png')] bg-repeat opacity-100" />
             {/* radial fade to white, spreading from the page centre outward */}
@@ -151,7 +164,7 @@ export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
               </Suspense>
             </aside>
 
-            <main className="max-w-4xl mx-auto p-4 mt-24 w-full overflow-clip">
+            <main className="max-w-4xl mx-auto p-4 mt-24 w-full overflow-clip pb-[calc(var(--bottom-nav-total)+1rem)] md:pb-4">
               {children}
             </main>
 
@@ -159,7 +172,15 @@ export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
 
             {/* Bottom scrim on every scrollable page; self-hides at the end */}
             <WindowScrollFade />
+
+            <BottomNav />
           </div>
+
+          <Suspense fallback={null}>
+            <SearchSheet />
+          </Suspense>
+
+          <BottomNavVariantSwitcher />
         </Providers>
       </body>
     </html>

@@ -11,7 +11,13 @@ export default function ToasterProvider({ children }: IToasterProviderProps) {
   return (
     <>
       {children}
-      <Toaster richColors position="bottom-right" />
+
+      {/* Cleared over the bottom nav, which owns that strip below md */}
+      <Toaster
+        richColors
+        position="bottom-right"
+        mobileOffset={{ bottom: "calc(var(--bottom-nav-total) + 0.5rem)" }}
+      />
     </>
   );
 }

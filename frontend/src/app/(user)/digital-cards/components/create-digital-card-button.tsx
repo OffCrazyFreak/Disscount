@@ -2,7 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import PageFab from "@/components/custom/fab/page-fab";
+import BackToTopButton from "@/components/custom/fab/back-to-top-button";
 
 interface ICreateDigitalCardButtonProps {
   onCreateClick: () => void;
@@ -21,14 +21,11 @@ export default function CreateDigitalCardButton({
         onClick={onCreateClick}
         icon={Plus}
         iconPlacement="left"
-        className="hidden sm:inline-flex"
       >
         {buttonText}
       </Button>
 
-      <PageFab
-        primary={{ icon: Plus, label: buttonText, onClick: onCreateClick }}
-      />
+      <BackToTopButton />
     </>
   );
 }
