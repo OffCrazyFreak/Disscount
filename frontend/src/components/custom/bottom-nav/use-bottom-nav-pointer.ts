@@ -12,7 +12,6 @@ import {
 const EDGE_GUARD_PX = 16;
 
 interface IUseBottomNavPointerOptions {
-  count: number;
   onActivate: (index: number) => void;
   onLongPress: (index: number) => void;
   canLongPress: (index: number) => boolean;
@@ -29,7 +28,6 @@ interface IUseBottomNavPointerOptions {
  * Cells still handle keyboard-driven clicks, which arrive with `detail === 0`.
  */
 export default function useBottomNavPointer({
-  count,
   onActivate,
   onLongPress,
   canLongPress,
@@ -73,16 +71,28 @@ export default function useBottomNavPointer({
     return timer.current;
   }, []);
 
+  /**
+   * Measured from the cells themselves rather than by dividing the bar's width,
+   * so the pill's own inner padding cannot skew the boundaries. A pointer in
+   * that padding resolves to the nearest cell.
+   */
   const indexFrom = useCallback(
     (event: ReactPointerEvent<HTMLUListElement>) => {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const raw = Math.floor(
-        (event.clientX - rect.left) / (rect.width / count),
-      );
+      const cells = [...event.currentTarget.children];
+      const x = event.clientX;
 
-      return Math.min(count - 1, Math.max(0, raw));
+      const hit = cells.findIndex((cell) => {
+        const rect = cell.getBoundingClientRect();
+        return x >= rect.left && x <= rect.right;
+      });
+
+      if (hit !== -1) return hit;
+
+      const firstLeft = cells[0].getBoundingClientRect().left;
+
+      return x < firstLeft ? 0 : cells.length - 1;
     },
-    [count],
+    [],
   );
 
   const start = useCallback(
@@ -127,8 +137,21 @@ export default function useBottomNavPointer({
     [indexFrom],
   );
 
+  /**
+   * Capture is released explicitly. The spec releases it implicitly on pointerup,
+   * but a capture that outlives the gesture would retarget the next one to the
+   * list, so this does not rely on that.
+   */
+  const release = useCallback((event: ReactPointerEvent<HTMLUListElement>) => {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  }, []);
+
   const end = useCallback(
     (event: ReactPointerEvent<HTMLUListElement>) => {
+      release(event);
+
       if (pressedIndex.current === null) return;
 
       const index = indexFrom(event);
@@ -140,14 +163,18 @@ export default function useBottomNavPointer({
 
       if (!consumed.current) latest.current.onActivate(index);
     },
-    [indexFrom],
+    [indexFrom, release],
   );
 
-  const abort = useCallback(() => {
-    timer.current?.cancel();
-    pressedIndex.current = null;
-    setScrubIndex(null);
-  }, []);
+  const abort = useCallback(
+    (event: ReactPointerEvent<HTMLUListElement>) => {
+      release(event);
+      timer.current?.cancel();
+      pressedIndex.current = null;
+      setScrubIndex(null);
+    },
+    [release],
+  );
 
   return {
     /** The cell under a dragging thumb, so the indicator can preview it */

@@ -32,7 +32,8 @@ export default function BottomNavRing({
       viewBox="0 0 36 36"
       aria-hidden="true"
       className={cn(
-        "pointer-events-none absolute top-1/2 left-1/2 size-[3.1rem] -translate-x-1/2 -translate-y-1/2",
+        // Matches BottomNavIndicator, so ring and disc stay concentric.
+        "pointer-events-none absolute top-1/2 left-1/2 size-[3.6rem] -translate-x-1/2 -translate-y-1/2",
         className,
       )}
     >

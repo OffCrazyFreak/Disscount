@@ -4,7 +4,6 @@ import "@/app/globals.css";
 
 import AppSidebar from "@/components/custom/sidebar/app-sidebar";
 import BottomNav from "@/components/custom/bottom-nav/bottom-nav";
-import BottomNavVariantSwitcher from "@/components/custom/bottom-nav/bottom-nav-variant-switcher";
 import SearchSheet from "@/components/custom/search/search-sheet";
 import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/common/footer";
@@ -148,7 +147,9 @@ export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
             <ModalRouter />
           </Suspense>
 
-          <div className="min-h-svh flex flex-col w-full">
+          {/* The clearance sits here, not on <main>: the footer renders after
+              main with mt-auto, so it is the element the bar would cover. */}
+          <div className="min-h-svh flex flex-col w-full pb-[calc(var(--bottom-nav-total)+1rem)] md:pb-0">
             {/* pattern background */}
             <div className="absolute inset-0 z-[-15] bg-[url('/+_pattern.png')] bg-repeat opacity-100" />
             {/* radial fade to white, spreading from the page centre outward */}
@@ -164,7 +165,7 @@ export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
               </Suspense>
             </aside>
 
-            <main className="max-w-4xl mx-auto p-4 mt-24 w-full overflow-clip pb-[calc(var(--bottom-nav-total)+1rem)] md:pb-4">
+            <main className="max-w-4xl mx-auto p-4 mt-24 w-full overflow-clip">
               {children}
             </main>
 
@@ -179,8 +180,6 @@ export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
           <Suspense fallback={null}>
             <SearchSheet />
           </Suspense>
-
-          <BottomNavVariantSwitcher />
         </Providers>
       </body>
     </html>

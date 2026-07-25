@@ -18,7 +18,9 @@ export default function BottomNavIndicator() {
     <motion.span
       layoutId="bottom-nav-indicator"
       aria-hidden="true"
-      className="bg-primary/15 absolute top-1/2 left-1/2 size-[3.1rem] -translate-x-1/2 -translate-y-1/2 rounded-full"
+      // 3.6rem is 57.6px: enough to pad the widest label once bold (Potrošnja,
+      // about 48px) while still fitting a 59.8px cell at a 320px viewport.
+      className="bg-primary/15 absolute top-1/2 left-1/2 size-[3.6rem] -translate-x-1/2 -translate-y-1/2 rounded-full"
       transition={
         prefersReducedMotion
           ? { duration: 0 }

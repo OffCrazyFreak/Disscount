@@ -619,11 +619,12 @@ html {
 
 /* Mobile bottom navigation.
    Dimensions live here rather than on Tailwind's spacing scale because this
-   project sets --spacing to 0.2rem, so h-16 would render 51px, not 64px. The
-   reserved space includes the floating variant's gap for every variant, so the
-   page padding never changes when the surface style does. */
+   project sets --spacing to 0.2rem, so h-16 would render 51px, not 64px.
+   Keeping them in one place also stops the bar's height and the page's bottom
+   clearance from drifting apart. */
 :root {
-  --bottom-nav-h: 4rem;
+  /* 72px, which leaves the 57.6px active disc clear of the pill's edges */
+  --bottom-nav-h: 4.5rem;
   --bottom-nav-gap: 0.75rem;
   --bottom-nav-safe: env(safe-area-inset-bottom, 0px);
   --bottom-nav-total: calc(

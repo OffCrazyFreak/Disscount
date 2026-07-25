@@ -2,10 +2,13 @@
 
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import BottomNavIndicator from "@/components/custom/bottom-nav/bottom-nav-indicator";
 import BottomNavRing from "@/components/custom/bottom-nav/bottom-nav-ring";
 
 interface IBottomNavCenterItemProps {
   label: string;
+  /** On the catalogue route. Opening the sheet deliberately does not count */
+  isActive: boolean;
   isScrubbed: boolean;
   isSearchOpen: boolean;
   onKeyboardActivate: () => void;
@@ -20,6 +23,7 @@ interface IBottomNavCenterItemProps {
  */
 export default function BottomNavCenterItem({
   label,
+  isActive,
   isScrubbed,
   isSearchOpen,
   onKeyboardActivate,
@@ -29,34 +33,34 @@ export default function BottomNavCenterItem({
       <button
         type="button"
         aria-label={`${label}, traži`}
+        aria-current={isActive ? "page" : undefined}
         aria-expanded={isSearchOpen}
         onClick={(event) => {
           if (event.detail === 0) onKeyboardActivate();
         }}
         className="relative flex size-full cursor-pointer flex-col items-center justify-center gap-[0.2rem] select-none [-webkit-touch-callout:none] [-webkit-user-drag:none]"
       >
-        <span className="relative -translate-y-[0.3rem]">
-          <BottomNavRing
-            progress="var(--press-progress, 0)"
-            className="stroke-primary/50 -inset-[0.3rem]"
-          />
+        {isActive && <BottomNavIndicator />}
 
-          <span
-            className={cn(
-              "bg-primary text-primary-foreground flex size-[2.6rem] items-center justify-center rounded-full shadow-md transition-transform duration-150",
-              (isScrubbed || isSearchOpen) && "scale-105",
-            )}
-          >
-            <Search className="size-[1.3rem]" />
-          </span>
+        <BottomNavRing
+          progress="var(--press-progress, 0)"
+          className="stroke-primary/50"
+        />
+
+        <span
+          className={cn(
+            "bg-primary text-primary-foreground relative flex size-[2.8rem] -translate-y-[0.2rem] items-center justify-center rounded-full transition-transform duration-150",
+            isScrubbed && "scale-105",
+          )}
+        >
+          <Search className="size-[1.6rem]" />
         </span>
 
         <span
           className={cn(
-            "h-[var(--bottom-nav-label-height)] -translate-y-[0.15rem] overflow-hidden text-[0.65rem] leading-none tracking-tight opacity-[var(--bottom-nav-label-opacity)]",
-            isScrubbed || isSearchOpen
-              ? "text-primary"
-              : "text-muted-foreground",
+            "relative h-[var(--bottom-nav-label-height)] overflow-hidden text-[0.65rem] leading-none tracking-tight opacity-[var(--bottom-nav-label-opacity)]",
+            isActive ? "text-primary font-bold" : "text-muted-foreground",
+            isScrubbed && "text-primary",
           )}
         >
           {label}

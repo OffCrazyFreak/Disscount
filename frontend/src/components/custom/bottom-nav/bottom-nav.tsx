@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/context/notifications-context";
@@ -14,15 +13,16 @@ import BottomNavItem from "@/components/custom/bottom-nav/bottom-nav-item";
 import useActiveListProgress from "@/components/custom/bottom-nav/use-active-list-progress";
 import useBottomNavPointer from "@/components/custom/bottom-nav/use-bottom-nav-pointer";
 import { bottomNavItems } from "@/components/custom/bottom-nav/bottom-nav-items";
-import {
-  DEFAULT_BOTTOM_NAV_VARIANT,
-  readBottomNavVariant,
-  type TBottomNavVariant,
-} from "@/components/custom/bottom-nav/bottom-nav-variant";
 
-// One markup tree for all three surfaces, switched on a data attribute.
+/**
+ * The scrolled header's pill treatment, so the two floating bars match.
+ *
+ * The inset and inner padding are explicit rem values, not spacing utilities,
+ * because this project's --spacing is 0.2rem. Together they keep the 57.6px
+ * active disc clear of the pill's edges on the first and last cell.
+ */
 const SURFACE_CLASS =
-  "flex items-stretch data-[variant=pill]:mx-3 data-[variant=pill]:mb-[max(var(--bottom-nav-gap),var(--bottom-nav-safe))] data-[variant=pill]:rounded-full data-[variant=pill]:border data-[variant=pill]:bg-background/95 data-[variant=pill]:shadow-lg data-[variant=flat]:border-t data-[variant=flat]:bg-background data-[variant=flat]:pb-[var(--bottom-nav-safe)] data-[variant=glass]:border-t data-[variant=glass]:bg-background/70 data-[variant=glass]:pb-[var(--bottom-nav-safe)] data-[variant=glass]:backdrop-blur-lg";
+  "flex items-stretch h-[var(--bottom-nav-h)] touch-none mx-[0.5rem] px-[0.4rem] mb-[max(var(--bottom-nav-gap),var(--bottom-nav-safe))] rounded-full border bg-background/50 backdrop-blur-sm";
 
 /**
  * The mobile primary navigation. Hidden from `md` up through CSS rather than a
@@ -30,10 +30,6 @@ const SURFACE_CLASS =
  * never shifts on hydration.
  */
 export default function BottomNav() {
-  const [variant, setVariant] = useState<TBottomNavVariant>(
-    DEFAULT_BOTTOM_NAV_VARIANT,
-  );
-
   const pathname = usePathname();
   const router = useRouter();
   const { notifications, hasNotifications } = useNotifications();
@@ -43,12 +39,10 @@ export default function BottomNav() {
   const navigateToProduct = useProductNavigation();
   const listProgress = useActiveListProgress();
 
-  useEffect(() => setVariant(readBottomNavVariant()), []);
-
+  // Route match, which drives styling for every cell including the search one.
+  // Activation is a separate question, answered by `isSearch` below.
   function isActiveIndex(index: number) {
-    const entry = bottomNavItems[index];
-
-    return !entry.isSearch && pathname.startsWith(entry.item.href);
+    return pathname.startsWith(bottomNavItems[index].item.href);
   }
 
   function activate(index: number) {
@@ -82,7 +76,6 @@ export default function BottomNav() {
   }
 
   const { scrubIndex, listProps } = useBottomNavPointer({
-    count: bottomNavItems.length,
     onActivate: activate,
     onLongPress: longPress,
     canLongPress,
@@ -91,12 +84,17 @@ export default function BottomNav() {
   return (
     <nav
       aria-label="Glavna navigacija"
-      className="bottom-nav-compacts fixed inset-x-0 bottom-0 z-[45] md:hidden"
+      className={cn(
+        "bottom-nav-compacts fixed inset-x-0 bottom-0 z-[45] md:hidden",
+        // An open dismissable layer disables pointer events on the body. The
+        // search sheet is deliberately non-modal, so the bar opts back in for
+        // that one case, while staying inert under real modals.
+        isSearchOpen && "pointer-events-auto",
+      )}
     >
+      {/* touch-none keeps a horizontal scrub from being read as a page pan */}
       <ul
-        data-variant={variant}
-        // touch-none keeps a horizontal scrub from being read as a page pan.
-        className={cn(SURFACE_CLASS, "h-[var(--bottom-nav-h)] touch-none")}
+        className={SURFACE_CLASS}
         style={{ opacity: "var(--bottom-nav-surface-opacity)" }}
         {...listProps}
       >
@@ -105,6 +103,7 @@ export default function BottomNav() {
             <BottomNavCenterItem
               key={entry.item.id}
               label={entry.item.shortLabel ?? entry.item.label}
+              isActive={isActiveIndex(index)}
               isScrubbed={scrubIndex === index}
               isSearchOpen={isSearchOpen}
               onKeyboardActivate={() => activate(index)}

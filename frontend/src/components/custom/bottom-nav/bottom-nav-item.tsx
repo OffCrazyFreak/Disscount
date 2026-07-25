@@ -110,7 +110,9 @@ export default function BottomNavItem({
         </span>
 
         {item.comingSoon && (
-          <ComingSoonBadge className="pointer-events-none absolute top-[0.1rem] left-1/2 -translate-x-1/2 -rotate-6 px-1 py-0 text-[0.5rem] shadow-none" />
+          // Rotated off the right edge, the convention the header nav and the
+          // landing page already use.
+          <ComingSoonBadge className="pointer-events-none absolute top-[0.1rem] right-0 rotate-6 px-1 py-0 text-[0.5rem] shadow-none" />
         )}
       </button>
     </li>
