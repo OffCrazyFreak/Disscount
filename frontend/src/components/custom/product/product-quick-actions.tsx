@@ -49,7 +49,7 @@ export default function ProductQuickActions({
       onOpenChange={onOpenChange}
       title={product.name ?? product.ean}
       description="Radnje za odabrani proizvod."
-      bodyClassName="gap-1 pb-[max(1rem,env(safe-area-inset-bottom))]"
+      bodyClassName="gap-1"
     >
       <Button
         type="button"
