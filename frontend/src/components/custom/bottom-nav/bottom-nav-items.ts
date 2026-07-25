@@ -27,7 +27,13 @@ export interface IBottomNavItem {
  * whose shape shifts between sessions cannot build muscle memory.
  */
 export const bottomNavItems: IBottomNavItem[] = [
-  { item: findNavItem("map") },
+  {
+    item: findNavItem("map"),
+    // The map loads your pinned stores and centres on you by itself, so the only
+    // thing left to reach is where those preferences are set.
+    longPressTarget: { name: "settings", tab: "preference" },
+    longPressEnabled: true,
+  },
   {
     item: findNavItem("watchlist"),
     productPageTarget: (ean) => ({ name: "watchlist", ean }),
