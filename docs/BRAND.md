@@ -4,7 +4,7 @@ A complete reference for the Disscount brand image system: the happy-cart logo, 
 
 _Last verified end-to-end on 2026-07-21: all generators run clean, every raster carries an sRGB profile, app + docs point at the new paths._
 
-> **Mental model in one sentence:** every brand image in the app is **generated from three hand-drawn source files** by three small Node scripts, so the mark, its green, and its shape stay pixel-identical everywhere, and changing the cart once and re-running the scripts propagates the change to the favicon, the PWA icons, the splash screens, and the downloadable logo pack all at once.
+> **Mental model in one sentence:** every brand image in the app is **generated from three hand-drawn source files** by four small Node scripts, so the mark, its green, and its shape stay pixel-identical everywhere, and changing the cart once and re-running the scripts propagates the change to the favicon, the PWA icons, the splash screens, and the downloadable logo pack all at once.
 
 > **Usage & licensing:** this repository is **public**, so these files are visible to anyone, but the Disscount name and the happy-cart logo are **brand marks, not part of the code licence**. Do not reuse them to represent another product or to imply affiliation with or endorsement by Disscount. Referencing the project (for example linking to it, or writing about it) is fine.
 
@@ -31,24 +31,24 @@ _Last verified end-to-end on 2026-07-21: all generators run clean, every raster 
 
 ## 1. Quick reference
 
-| Thing                | Value                                                                                                 |
-| -------------------- | ----------------------------------------------------------------------------------------------------- |
-| Brand green          | `#2ec50d` = `rgb(46, 197, 13)` = `oklch(0.7183 0.2344 141.297)` (the app's `--primary` in light mode) |
-| Wordmark font        | Saira Stencil SemiBold (weight 600), self-hosted                                                      |
-| Tagline font         | Huninn (weight 400), self-hosted latin-ext subset                                                     |
-| Tagline              | "Pronađi najbolje cijene u Hrvatskoj"                                                                 |
-| Source of truth      | 3 files under `frontend/public/brand/logo/` (see [section 3](#3-the-single-source-of-truth))          |
-| Generated asset root | `frontend/public/brand/` (`logo/`, `icons/`, `social/`) + `frontend/public/splash/`                   |
-| Generators           | `frontend/scripts/generate-logos.mjs`, `generate-pwa-icons.mjs`, `generate-ios-splash.mjs`            |
-| Image library        | `sharp` (`^0.35.3`)                                                                                   |
+| Thing                | Value                                                                                                                     |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Brand green          | `#2ec50d` = `rgb(46, 197, 13)` = `oklch(0.7183 0.2344 141.297)` (the app's `--primary` in light mode)                     |
+| Wordmark font        | Saira Stencil SemiBold (weight 600), self-hosted                                                                          |
+| Tagline font         | Huninn (weight 400), self-hosted latin-ext subset                                                                         |
+| Tagline              | "Pronađi najbolje cijene u Hrvatskoj"                                                                                     |
+| Source of truth      | 3 files under `frontend/public/brand/logo/` (see [section 3](#3-the-single-source-of-truth))                              |
+| Generated asset root | `frontend/public/brand/` (`logo/`, `icons/`, `shortcuts/`, `social/`) + `frontend/public/splash/`                         |
+| Generators           | `frontend/scripts/generate-logos.mjs`, `generate-pwa-icons.mjs`, `generate-shortcut-icons.mjs`, `generate-ios-splash.mjs` |
+| Image library        | `sharp` (`^0.35.3`)                                                                                                       |
 
-**Daily workflow:** you almost never touch these. You only regenerate when the cart shape, the wordmark, or the brand green changes: edit the relevant source, run the three scripts, commit the output.
+**Daily workflow:** you almost never touch these. You only regenerate when the cart shape, the wordmark, or the brand green changes: edit the relevant source, run the four scripts, commit the output.
 
 ---
 
 ## 2. How it works, end to end
 
-Three hand-maintained source files feed two shared helper modules, which feed three generator scripts, which write every raster and vector the app and the outside world use. The social kit is the one exception: it is rendered from a live-font Playwright artboard rather than from `sharp`.
+Three hand-maintained source files feed the shared helper modules, which feed the generator scripts, which write every raster and vector the app and the outside world use. Two exceptions: the social kit is rendered from a live-font Playwright artboard rather than from `sharp`, and the app-shortcut tiles start from a `lucide-react` component rather than from the cart.
 
 ```mermaid
 flowchart TD
@@ -66,13 +66,16 @@ flowchart TD
     G1[generate-logos.mjs]
     G2[generate-pwa-icons.mjs]
     G3[generate-ios-splash.mjs]
+    G4[generate-shortcut-icons.mjs]
     L1 --> G2 & G3
     L2 --> G1
     S2 --> G1
     S3 --> G1 & G3
+    Lucide[lucide-react nav icons<br/>not a brand source] --> G4
     G1 --> O1[brand/logo/&lt;mark&gt;/*<br/>40 logo files]
     G2 --> O2[brand/icons/* + src/app/favicon.ico]
     G3 --> O3[public/splash/* 18 iOS screens]
+    G4 --> O5[brand/shortcuts/*<br/>2 tiles per shortcut]
     Artboard[Playwright artboard<br/>NOT committed, live fonts] --> O4[brand/social/* 11 files]
 ```
 
@@ -234,15 +237,16 @@ The app's own OG and Twitter link-preview images are **generated dynamically** b
 
 All live in `frontend/scripts/` and are run manually with `node`. They share two helper modules so the cart and its animation are defined once.
 
-| Script                    | Produces                                                  | Key ideas                                                                                                              |
-| ------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `lib/cart-source.mjs`     | (helper) `renderCart(width)`, `cartOnSquare(size, ratio)` | Strips the `<style>` block from the animated SVG to freeze the finished cart, then rasterizes it                       |
-| `lib/cart-frames.mjs`     | (helper) easings + `cartFrameSvg()`                       | librsvg can't play CSS animation, so the draw-on is rebuilt frame by frame with cubic-bezier easings                   |
-| `generate-logos.mjs`      | The 40-file logo matrix                                   | A `markFile()` router sends each output into its per-mark subfolder; `flood()` fixes edge fringe (see gotchas)         |
-| `generate-pwa-icons.mjs`  | PWA icons + `favicon.ico`                                 | Green cart on a white plate throughout; wraps PNG frames in a hand-built ICO container since `sharp` can't emit `.ico` |
-| `generate-ios-splash.mjs` | 18 iOS splash screens                                     | Composites the cart + a smaller wordmark label centred on white, per device from the JSON list                         |
+| Script                        | Produces                                                  | Key ideas                                                                                                                          |
+| ----------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `lib/cart-source.mjs`         | (helper) `renderCart(width)`, `cartOnSquare(size, ratio)` | Strips the `<style>` block from the animated SVG to freeze the finished cart, then rasterizes it                                   |
+| `lib/cart-frames.mjs`         | (helper) easings + `cartFrameSvg()`                       | librsvg can't play CSS animation, so the draw-on is rebuilt frame by frame with cubic-bezier easings                               |
+| `generate-logos.mjs`          | The 40-file logo matrix                                   | A `markFile()` router sends each output into its per-mark subfolder; `flood()` fixes edge fringe (see gotchas)                     |
+| `generate-pwa-icons.mjs`      | PWA icons + `favicon.ico`                                 | Green cart on a white plate throughout; wraps PNG frames in a hand-built ICO container since `sharp` can't emit `.ico`             |
+| `generate-ios-splash.mjs`     | 18 iOS splash screens                                     | Composites the cart + a smaller wordmark label centred on white, per device from the JSON list                                     |
+| `generate-shortcut-icons.mjs` | `brand/shortcuts/*`, 2 tiles per shortcut                 | The one generator that does not start from the cart: it renders the nav item's own `lucide-react` component, white on a green tile |
 
-**Order matters** if you run them fresh: `generate-logos.mjs` first (it writes `cart/cart-rgb.svg`, which the other two read via `cart-source.mjs`), then the icon and splash scripts.
+**Order matters** if you run them fresh: `generate-logos.mjs` first (it writes `cart/cart-rgb.svg`, which the other two read via `cart-source.mjs`), then the icon and splash scripts. `generate-shortcut-icons.mjs` reads none of them, so it can run whenever.
 
 ### Regenerating
 
@@ -252,6 +256,7 @@ Run from `frontend/`:
 node scripts/generate-logos.mjs       # 4 marks x 2 variants x 5 formats
 node scripts/generate-pwa-icons.mjs   # PWA icons + favicon.ico
 node scripts/generate-ios-splash.mjs  # iOS splash screens
+node scripts/generate-shortcut-icons.mjs  # PWA app-shortcut tiles
 ```
 
 The social kit (`brand/social/`) is not regenerated by these; it comes from the separate, uncommitted Playwright artboard.
@@ -270,7 +275,7 @@ The social kit (`brand/social/`) is not regenerated by these; it comes from the 
 | In-app header/footer logo                           | Automatic  | Inline `<CartLogo />`, no file needed                                                    |
 | Social profile pics & banners                       | **Manual** | Upload `brand/social/*` in each platform                                                 |
 | Email signature logo                                | **Manual** | Use `logo/lockup-horizontal/lockup-horizontal-rgb`                                       |
-| Regenerating after a brand change                   | **Manual** | Edit a source, run the three scripts, commit                                             |
+| Regenerating after a brand change                   | **Manual** | Edit a source, run the four scripts, commit                                              |
 | Keeping `cart-logo.tsx` in sync with the SVG source | **Manual** | Two parallel representations (see [section 6](#6-the-in-app-logo-vs-the-exported-files)) |
 
 ---
@@ -281,6 +286,7 @@ The social kit (`brand/social/`) is not regenerated by these; it comes from the 
 | ------------------------------------------------------------- | ----------------------------------------------------- |
 | `frontend/public/brand/logo/<mark>/`                          | The generated logo pack, one subfolder per mark       |
 | `frontend/public/brand/icons/`                                | Favicon SVG + PWA / apple-touch icons                 |
+| `frontend/public/brand/shortcuts/`                            | Generated PWA app-shortcut tiles                      |
 | `frontend/public/brand/social/`                               | Per-platform social images (manual upload)            |
 | `frontend/public/splash/`                                     | 18 generated iOS launch screens                       |
 | `frontend/src/app/favicon.ico`                                | Legacy favicon fallback (Next.js file convention)     |
@@ -288,6 +294,7 @@ The social kit (`brand/social/`) is not regenerated by these; it comes from the 
 | `frontend/scripts/generate-logos.mjs`                         | Builds the logo matrix                                |
 | `frontend/scripts/generate-pwa-icons.mjs`                     | Builds PWA icons + favicon.ico                        |
 | `frontend/scripts/generate-ios-splash.mjs`                    | Builds the iOS splash screens                         |
+| `frontend/scripts/generate-shortcut-icons.mjs`                | Builds the PWA app-shortcut tiles                     |
 | `frontend/scripts/lib/cart-source.mjs`                        | Shared cart rasterizer                                |
 | `frontend/scripts/lib/cart-frames.mjs`                        | Shared animation math + brand green                   |
 | `frontend/src/components/icons/cart-logo.tsx`                 | The live in-app animated cart                         |
