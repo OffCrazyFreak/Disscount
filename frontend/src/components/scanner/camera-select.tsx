@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useId, useMemo } from "react";
 import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -34,13 +34,14 @@ export default function CameraSelect({
   onReset,
 }: ICameraSelectProps) {
   const namedCameras = useMemo(() => formatCameraLabels(devices), [devices]);
+  const selectId = useId();
 
   return (
     <div className="flex items-end gap-2">
       <div className="min-w-0 flex-1 space-y-1.5">
-        <Label>Kamera</Label>
+        <Label htmlFor={selectId}>Kamera</Label>
         <Select value={value ?? ""} onValueChange={onSelect}>
-          <SelectTrigger className="w-full">
+          <SelectTrigger id={selectId} className="w-full">
             <SelectValue placeholder="Automatski (stražnja kamera)" />
           </SelectTrigger>
           <SelectContent>
@@ -60,7 +61,6 @@ export default function CameraSelect({
       {hasManualChoice && (
         <Tooltip>
           <TooltipTrigger asChild>
-            {/* The modal footer's reset button, kept icon-only beside the select. */}
             <Button
               type="button"
               variant="outline"

@@ -143,13 +143,13 @@ Every crop ratio in the generators is fixed by one rule: **Android masks a `mask
 
 The safe zone for a masked icon is a circle centred on the tile with a **radius of 40% of the width**, so a diameter of 80%. Aggressive OEM masks can go tighter, down to the 72dp visible area of Android's 108dp adaptive-icon layer (**66.7%**). Anything whose bounding-box corners carry ink has to fit its _diagonal_ inside that circle, not its width.
 
-| Asset                        | Ratio  | Bound                                                                          |
-| ---------------------------- | ------ | ------------------------------------------------------------------------------ |
-| `icon-192` / `icon-512`      | `0.86` | never masked, so this is just the roomiest crop that keeps a visible margin    |
-| `icon-maskable-192` / `-512` | `0.70` | the cart is 68x50.5, so 0.70 wide puts its diagonal just inside the 80% circle |
-| `apple-touch-icon-180`       | `0.86` | iOS applies a squircle, whose corners the cart does not reach into             |
-| favicon frames               | `0.92` | line art needs the tightest crop to survive 16px                               |
-| shortcut glyphs              | `0.66` | lucide insets its art by about 2 of 24 units, landing the ink near 0.55        |
+| Asset                        | Ratio  | Bound                                                                       |
+| ---------------------------- | ------ | --------------------------------------------------------------------------- |
+| `icon-192` / `icon-512`      | `0.86` | never masked, so this is just the roomiest crop that keeps a visible margin |
+| `icon-maskable-192` / `-512` | `0.70` | the widest crop whose ink still sits on the 80% safe-zone boundary          |
+| `apple-touch-icon-180`       | `0.86` | iOS applies a squircle, whose corners the cart does not reach into          |
+| favicon frames               | `0.92` | line art needs the tightest crop to survive 16px                            |
+| shortcut glyphs              | `0.66` | lucide insets its art by about 2 of 24 units, landing the ink near 0.55     |
 
 Both maskable sizes ship so Chrome never falls back to an `any` icon merely because it wanted 192.
 
@@ -171,7 +171,7 @@ Long-pressing the installed icon opens a shortcut menu. Ours is built in `manife
 
 That "Site settings" entry and its black gear come from Chrome, not from us. No manifest key can recolour, reorder or remove it.
 
-**Icons.** Chrome accepts **PNG only** here and asks for 192x192. `scripts/generate-shortcut-icons.mjs` renders the same `lucide-react` component the nav uses through `renderToStaticMarkup`, then rasterizes it with `sharp` into `public/brand/shortcuts/`: a white glyph on a brand-green tile, glyph at 66% (see [Icon sizing](#icon-sizing)). Rendering the component rather than a copied path is what keeps a shortcut icon from drifting away from its nav icon. `manifest.ts` derives each `src` from the nav item's `id`, so dropping a `comingSoon` flag wires a shortcut up by itself, and the only manual step left is adding its glyph to the generator and re-running it.
+**Icons.** Chrome accepts **PNG only** here and asks for 192x192. `scripts/generate-shortcut-icons.mjs` renders the same `lucide-react` component the nav uses through `renderToStaticMarkup`, then rasterizes it with `sharp` into `public/brand/shortcuts/`: a white glyph on a brand-green tile, glyph at 66% (see [Icon sizing](#icon-sizing)). Rendering the component rather than a copied path is what keeps a shortcut icon from drifting away from its nav icon. `constants/pwa-shortcuts.ts` derives each `src` from the nav item's `id` and emits a shortcut only for a released item that carries a `shortcutDescription`, so a missing description drops the shortcut rather than shipping one with no accessible name. Releasing an item therefore takes two manual steps: give it a `shortcutDescription` in `constants/navigation.ts` if it has none, and add its glyph to `generate-shortcut-icons.mjs` and re-run it. Dropping the `comingSoon` flag does the rest.
 
 **Each shortcut ships two tiles**, because one image cannot do both jobs:
 
@@ -327,7 +327,8 @@ The screenshot generator script was removed after the images were generated, so 
 | `frontend/src/constants/ios-splash-screens.json`                            | iOS device list (single source for the generator and the links)                             |
 | `frontend/scripts/generate-pwa-icons.mjs` / `generate-ios-splash.mjs`       | asset generators (run with `node`)                                                          |
 | `frontend/scripts/generate-shortcut-icons.mjs`                              | app-shortcut icon generator (white lucide glyph on green; one masked tile + one rounded)    |
-| `frontend/public/{icons,shortcuts,splash,screenshots}/`                     | generated PNG assets                                                                        |
+| `frontend/public/brand/{icons,shortcuts}/`                                  | generated icon and app-shortcut PNGs                                                        |
+| `frontend/public/{splash,screenshots}/`                                     | generated splash screens and install-dialog screenshots                                     |
 
 ---
 

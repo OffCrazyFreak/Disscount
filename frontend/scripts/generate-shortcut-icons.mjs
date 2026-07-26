@@ -9,7 +9,9 @@ import path from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Eye, ListChecks, ScanBarcode } from "lucide-react";
-import { GREEN, ROOT } from "./lib/cart-source.mjs";
+import { GREEN } from "./lib/brand.mjs";
+import { ROOT } from "./lib/cart-source.mjs";
+import { SRGB } from "./lib/srgb.mjs";
 
 const OUT = path.join(ROOT, "public/brand/shortcuts");
 
@@ -50,15 +52,12 @@ function tile(art, corners = []) {
     create: { width: SIZE, height: SIZE, channels: 4, background: GREEN },
   })
     .composite([{ input: art, gravity: "centre" }, ...corners])
-    .withIccProfile("srgb")
+    .withIccProfile(SRGB)
     .png();
 }
 
-// Two tiles per shortcut, because one image cannot serve both jobs. The masked
-// one must stay full bleed: Chrome hands it to Android as an adaptive-icon
-// layer, where transparent corners are filled by the launcher rather than left
-// alone. The unmasked one is drawn as-is in desktop jump lists, where a hard
-// square reads as a blank block, so it keeps the brand corner radius.
+// Two tiles per shortcut, one full bleed for the mask and one rounded for the
+// surfaces that draw it unmasked. The reasoning is in docs/PWA.md#app-shortcuts.
 async function writeTiles(id, Icon) {
   const art = await glyph(Icon);
 

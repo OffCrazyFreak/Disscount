@@ -7,6 +7,7 @@
 import sharp from "sharp";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
+import { GREEN, GREEN_RGB } from "./lib/brand.mjs";
 import { renderCart, ROOT } from "./lib/cart-source.mjs";
 import {
   easeOut,
@@ -14,6 +15,7 @@ import {
   cartFrameSvg,
   extractPaths,
 } from "./lib/cart-frames.mjs";
+import { SRGB } from "./lib/srgb.mjs";
 
 const LOGO = path.join(ROOT, "public/brand/logo");
 const MARKS = ["lockup-horizontal", "lockup-vertical", "wordmark", "cart"];
@@ -28,9 +30,8 @@ const WM_SRC = markFile("wordmark-rgb.png");
 const FPS = 25;
 const HOLD = 1500; // ms lingering on the finished frame before looping
 
-const GREEN = [46, 197, 13]; // #2ec50d, the app's --primary
 const VARIANTS = [
-  { n: "rgb", rgb: GREEN, hex: "#2ec50d", gifMatte: "#ffffff" },
+  { n: "rgb", rgb: GREEN_RGB, hex: GREEN, gifMatte: "#ffffff" },
   { n: "white", rgb: [255, 255, 255], hex: "#ffffff", gifMatte: null },
 ];
 
@@ -106,20 +107,18 @@ async function animate(name, build, gifW, webpW, end, matte) {
 
   const webp = await frames(build, webpW, end, null);
   await sharp(webp.buffers, { join: { animated: true } })
-    .withIccProfile("srgb")
+    .withIccProfile(SRGB)
     .webp({ delay: webp.delay, loop: 0, quality: 90, effort: 5 })
     .toFile(markFile(`${name}-animated.webp`));
 }
 
-// Tag rasters as sRGB so wide-gamut viewers colour-manage them like the SVG
-// (an untagged PNG gets treated as device-native and over-saturates the green).
 async function stillSet(name, png, svg) {
   await sharp(png)
-    .withIccProfile("srgb")
+    .withIccProfile(SRGB)
     .png()
     .toFile(markFile(`${name}.png`));
   await sharp(png)
-    .withIccProfile("srgb")
+    .withIccProfile(SRGB)
     .webp({ lossless: true })
     .toFile(markFile(`${name}.webp`));
   await writeFile(markFile(`${name}.svg`), svg);
@@ -128,7 +127,7 @@ async function stillSet(name, png, svg) {
 for (const m of MARKS) await mkdir(path.join(LOGO, m), { recursive: true });
 const animSvg = await readFile(markFile("cart-rgb-animated.svg"), "utf8");
 const { body, eyes } = extractPaths(animSvg);
-const wmGreen = await flood(await readFile(WM_SRC), GREEN);
+const wmGreen = await flood(await readFile(WM_SRC), GREEN_RGB);
 await writeFile(WM_SRC, wmGreen); // keep the source hue-clean
 
 for (const { n, rgb, hex, gifMatte } of VARIANTS) {

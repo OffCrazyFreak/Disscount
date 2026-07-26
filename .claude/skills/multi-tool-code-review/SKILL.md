@@ -80,7 +80,7 @@ Follow `04-fix-protocol.md`. If the harness supports plan mode, enter it first a
 
 ## Stage 3: Finalize
 
-1. Run the final typecheck gate, push the branch, and open the PR into the target with a per-area summary body.
+1. **Run the host repo's whole CI job locally before pushing**, not just the per-commit format and typecheck gate. Read its workflow file and run every step it runs, in order, including the production build. Pushing to find out is slower and noisier than reproducing it. Then push the branch and open the PR into the target with a per-area summary body.
 2. File GitHub issues (labeled) for every finding the user excluded, and for anything you deferred. Surface deferrals with a recommendation; never silently skip.
 3. Offer a recap and to watch CI settle.
 
@@ -89,7 +89,7 @@ Follow `04-fix-protocol.md`. If the harness supports plan mode, enter it first a
 - Ask if you are unsure of anything rather than assuming. Follow the host repo's `AGENTS.md` / `CLAUDE.md` closely.
 - No em dashes anywhere (chat, docs, commits, comments).
 - Do not hardcode any model; ask the user each run and recommend from a fresh online check.
-- Frontend gate: `pnpm exec prettier --write <files>` then `pnpm exec tsc --noEmit`. Ignore the known pre-existing `PageProps` / `RouteContext` generated-type errors (they come from Next's typegen, not your changes).
+- Frontend gate: `pnpm exec prettier --write <files>` then `pnpm exec tsc --noEmit`. Run `pnpm exec next typegen` first and the typecheck is clean; without it, `tsc` reports `PageProps` / `RouteContext` errors that are missing generated route types rather than real defects.
 - If `pnpm` is not on PATH, prepend it: `export PATH="$HOME/.local/share/pnpm/bin:$HOME/.local/share/nvm/*/bin:$PATH"`.
-- Never run the dev server, a build, or any deploy/Docker command.
+- Never run the dev server or any deploy/Docker command. The production build is allowed, and Stage 3 expects it.
 - Runner outputs and the triage doc live under `reviews/` (gitignored). Keep them out of commits; `git add` explicit files, never `-A`.

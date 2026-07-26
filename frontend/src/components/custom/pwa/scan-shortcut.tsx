@@ -19,7 +19,12 @@ export default function ScanShortcut() {
   const opened = useRef(false);
 
   useEffect(() => {
-    if (opened.current || params?.get("scan") !== "1") return;
+    if (params?.get("scan") !== "1") {
+      opened.current = false;
+      return;
+    }
+
+    if (opened.current) return;
 
     opened.current = true;
 
@@ -29,7 +34,7 @@ export default function ScanShortcut() {
     window.history.replaceState(
       null,
       "",
-      pathname + (query ? `?${query}` : ""),
+      pathname + (query ? `?${query}` : "") + window.location.hash,
     );
 
     openScanner({
