@@ -3,10 +3,10 @@
 // Produces the icons referenced by app/manifest.ts and layout metadata plus the
 // legacy favicon.ico. All are the happy cart on white; see
 // scripts/lib/cart-source.mjs for the shared source.
-import sharp from "sharp";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { cartOnSquare, ROOT } from "./lib/cart-source.mjs";
+import { writeSrgbPng } from "./lib/srgb.mjs";
 
 const ICONS = path.join(ROOT, "public/brand/icons");
 const FAVICON = path.join(ROOT, "src/app/favicon.ico");
@@ -35,19 +35,14 @@ function pngsToIco(frames) {
   return Buffer.concat([header, dir, ...frames.map((f) => f.data)]);
 }
 
-// Tag PNGs sRGB so wide-gamut viewers colour-manage the green like the SVG.
-async function writeSrgb(file, buffer) {
-  await sharp(buffer).withIccProfile("srgb").png().toFile(file);
-}
-
 await mkdir(ICONS, { recursive: true });
 
 // PWA "any"-purpose icons: generous crop, since nothing masks these.
-await writeSrgb(
+await writeSrgbPng(
   path.join(ICONS, "icon-192.png"),
   await cartOnSquare(192, 0.86),
 );
-await writeSrgb(
+await writeSrgbPng(
   path.join(ICONS, "icon-512.png"),
   await cartOnSquare(512, 0.86),
 );
@@ -55,17 +50,17 @@ await writeSrgb(
 // Maskable: cropped to the widest cart whose corners still clear the 80% safe
 // zone. Shipped at both launcher sizes so Chrome never has to fall back to an
 // "any" icon just because it wanted 192.
-await writeSrgb(
+await writeSrgbPng(
   path.join(ICONS, "icon-maskable-192.png"),
   await cartOnSquare(192, 0.7),
 );
-await writeSrgb(
+await writeSrgbPng(
   path.join(ICONS, "icon-maskable-512.png"),
   await cartOnSquare(512, 0.7),
 );
 
 // Apple touch icon: no transparency, near-full crop.
-await writeSrgb(
+await writeSrgbPng(
   path.join(ICONS, "apple-touch-icon-180.png"),
   await cartOnSquare(180, 0.86),
 );

@@ -15,6 +15,7 @@ import {
   cartFrameSvg,
   extractPaths,
 } from "./lib/cart-frames.mjs";
+import { SRGB } from "./lib/srgb.mjs";
 
 const LOGO = path.join(ROOT, "public/brand/logo");
 const MARKS = ["lockup-horizontal", "lockup-vertical", "wordmark", "cart"];
@@ -106,20 +107,18 @@ async function animate(name, build, gifW, webpW, end, matte) {
 
   const webp = await frames(build, webpW, end, null);
   await sharp(webp.buffers, { join: { animated: true } })
-    .withIccProfile("srgb")
+    .withIccProfile(SRGB)
     .webp({ delay: webp.delay, loop: 0, quality: 90, effort: 5 })
     .toFile(markFile(`${name}-animated.webp`));
 }
 
-// Tag rasters as sRGB so wide-gamut viewers colour-manage them like the SVG
-// (an untagged PNG gets treated as device-native and over-saturates the green).
 async function stillSet(name, png, svg) {
   await sharp(png)
-    .withIccProfile("srgb")
+    .withIccProfile(SRGB)
     .png()
     .toFile(markFile(`${name}.png`));
   await sharp(png)
-    .withIccProfile("srgb")
+    .withIccProfile(SRGB)
     .webp({ lossless: true })
     .toFile(markFile(`${name}.webp`));
   await writeFile(markFile(`${name}.svg`), svg);

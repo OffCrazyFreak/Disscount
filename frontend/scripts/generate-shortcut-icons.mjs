@@ -11,6 +11,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { Eye, ListChecks, ScanBarcode } from "lucide-react";
 import { GREEN } from "./lib/brand.mjs";
 import { ROOT } from "./lib/cart-source.mjs";
+import { SRGB } from "./lib/srgb.mjs";
 
 const OUT = path.join(ROOT, "public/brand/shortcuts");
 
@@ -51,7 +52,7 @@ function tile(art, corners = []) {
     create: { width: SIZE, height: SIZE, channels: 4, background: GREEN },
   })
     .composite([{ input: art, gravity: "centre" }, ...corners])
-    .withIccProfile("srgb")
+    .withIccProfile(SRGB)
     .png();
 }
 
