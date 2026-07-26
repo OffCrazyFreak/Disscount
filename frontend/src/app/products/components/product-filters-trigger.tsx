@@ -29,13 +29,13 @@ export default function ProductFiltersTrigger({
       className={cn("bg-white", className)}
       {...props}
     >
-      <SlidersHorizontal className="size-4" />
+      <SlidersHorizontal className="size-5" />
       Filteri
       {count > 0 && <Badge>{count}</Badge>}
       {expanded !== undefined && (
         <ChevronDown
           className={cn(
-            "size-4 transition-transform duration-200 motion-reduce:transition-none",
+            "size-5 transition-transform duration-200 motion-reduce:transition-none",
             expanded && "rotate-180",
           )}
         />

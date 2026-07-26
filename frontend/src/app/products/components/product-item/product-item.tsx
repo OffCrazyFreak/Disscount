@@ -45,6 +45,9 @@ const ProductItem = memo(function ProductItem({ product }: IProductItemProps) {
               showSearchImage={true}
               showAddToList={true}
               showAddToWatchlist={false}
+              // Sharing lives on the product's own page and in its quick-actions
+              // sheet; a list row does not need a third way in.
+              showShare={false}
               className="flex-col sm:flex-row"
             />
           </>
@@ -53,6 +56,17 @@ const ProductItem = memo(function ProductItem({ product }: IProductItemProps) {
 
       <ProductQuickActions
         product={product}
+        // The same card the list draws, minus its actions: the sheet's own
+        // buttons are those actions, at thumb size.
+        summary={
+          <ProductCard
+            name={product.name}
+            brand={product.brand}
+            category={category}
+            trailing={<ProductUnitPriceDetails product={product} />}
+            className="shadow-none"
+          />
+        }
         open={quickActionsOpen}
         onOpenChange={setQuickActionsOpen}
       />

@@ -1,4 +1,4 @@
-import { Image as ImageIcon, ListPlus } from "lucide-react";
+import { Image as ImageIcon, ListPlus, Share2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -8,9 +8,10 @@ import {
 } from "@/components/ui/tooltip";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { cn } from "@/lib/utils";
-import { formatQuantity } from "@/utils/strings";
+import { productImageSearchUrl } from "@/utils/product-links";
 import WatchlistActionButton from "@/app/products/components/watchlist-action-button";
 import useProductModals from "@/hooks/use-product-modals";
+import useProductShare from "@/hooks/use-product-share";
 import { watchlistService } from "@/lib/api";
 
 interface IProductActionButtonsProps {
@@ -18,6 +19,7 @@ interface IProductActionButtonsProps {
   showSearchImage?: boolean;
   showAddToList?: boolean;
   showAddToWatchlist?: boolean;
+  showShare?: boolean;
   className?: string;
 }
 
@@ -26,12 +28,14 @@ export default function ProductActionButtons({
   showSearchImage = true,
   showAddToList = true,
   showAddToWatchlist = true,
+  showShare = true,
   className,
 }: IProductActionButtonsProps) {
   const { data: currentUserWatchlist = [] } =
     watchlistService.useGetCurrentUserWatchlist();
 
   const { openAddToList } = useProductModals(product);
+  const share = useProductShare(product);
 
   const isInWatchlist = currentUserWatchlist.some(
     (watchlistItem) => watchlistItem.productApiId === product.ean,
@@ -47,22 +51,9 @@ export default function ProductActionButtons({
                 size="icon"
                 aria-label="Pretraži sliku proizvoda"
                 className="size-10 sm:size-12 shrink-0"
-                onClick={() => {
-                  let searchQuery = `${product.name}`;
-
-                  if (product.brand) {
-                    searchQuery += ` ${product.brand}`;
-                  }
-
-                  if (product.quantity) {
-                    searchQuery += ` ${formatQuantity(product.quantity)}`;
-                  }
-
-                  const googleShoppingUrl = `https://www.google.com/search?udm=2&q=${encodeURIComponent(
-                    searchQuery,
-                  )}`;
-                  window.open(googleShoppingUrl, "_blank");
-                }}
+                onClick={() =>
+                  window.open(productImageSearchUrl(product), "_blank")
+                }
               >
                 <ImageIcon className="size-6 sm:size-7" />
               </Button>
@@ -98,6 +89,25 @@ export default function ProductActionButtons({
             product={product}
             isInWatchlist={isInWatchlist}
           />
+        )}
+
+        {showShare && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                aria-label="Podijeli proizvod"
+                className="size-10 sm:size-12 shrink-0"
+                onClick={share}
+              >
+                <Share2 className="size-6 sm:size-7" />
+              </Button>
+            </TooltipTrigger>
+
+            <TooltipContent className="px-2 py-1 text-xs">
+              Podijeli proizvod
+            </TooltipContent>
+          </Tooltip>
         )}
       </div>
     </>

@@ -1,46 +1,47 @@
 "use client";
 
-import { Eye, ListPlus, Share2 } from "lucide-react";
-import { toast } from "sonner";
+import type { ReactNode } from "react";
+import { Eye, Image as ImageIcon, ListPlus, Share2 } from "lucide-react";
 import SheetShell from "@/components/custom/modal/sheet-shell";
 import { Button } from "@/components/ui/button";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import useProductModals from "@/hooks/use-product-modals";
-import { shareOrCopy } from "@/utils/browser/share";
+import useProductShare from "@/hooks/use-product-share";
+import { productImageSearchUrl } from "@/utils/product-links";
+
+/** Full width and stacked, left-aligned so the labels read as a list */
+const ACTION_CLASS = "w-full justify-start gap-3";
 
 interface IProductQuickActionsProps {
   product: ProductResponse;
+  /**
+   * The product as the list already draws it. Injected rather than imported,
+   * because the price display belongs to the products feature and this sheet
+   * does not.
+   */
+  summary?: ReactNode;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 /**
  * What a long press on a product card opens. Every action here also has a
- * tappable button elsewhere, so the gesture is a shortcut rather than the only
- * way in, which is what keeps it keyboard and screen-reader accessible.
+ * tappable button on the product's own page, so the gesture is a shortcut rather
+ * than the only way in, which is what keeps it keyboard and screen-reader
+ * accessible.
  */
 export default function ProductQuickActions({
   product,
+  summary,
   open,
   onOpenChange,
 }: IProductQuickActionsProps) {
   const { openAddToList, openWatchlist } = useProductModals(product);
+  const share = useProductShare(product);
 
   function run(action: () => void) {
     onOpenChange(false);
     action();
-  }
-
-  async function share() {
-    onOpenChange(false);
-
-    const outcome = await shareOrCopy({
-      title: product.name ?? product.ean,
-      url: `${window.location.origin}/products/${encodeURIComponent(product.ean)}`,
-    });
-
-    if (outcome === "copied") toast.success("Veza je kopirana");
-    if (outcome === "failed") toast.error("Dijeljenje nije uspjelo");
   }
 
   return (
@@ -48,15 +49,18 @@ export default function ProductQuickActions({
       open={open}
       onOpenChange={onOpenChange}
       title={product.name ?? product.ean}
+      // The summary names the product already, and far better than a truncated
+      // title row could.
+      srOnlyTitle
       description="Radnje za odabrani proizvod."
-      bodyClassName="gap-1"
+      bodyClassName="gap-2"
     >
+      {summary}
+
       <Button
         type="button"
-        variant="ghost"
-        size="lg"
         onClick={() => run(openAddToList)}
-        className="h-14 justify-start gap-3 text-base"
+        className={ACTION_CLASS}
       >
         <ListPlus className="size-5" />
         Dodaj na popis
@@ -64,10 +68,8 @@ export default function ProductQuickActions({
 
       <Button
         type="button"
-        variant="ghost"
-        size="lg"
         onClick={() => run(openWatchlist)}
-        className="h-14 justify-start gap-3 text-base"
+        className={ACTION_CLASS}
       >
         <Eye className="size-5" />
         Prati cijenu
@@ -75,13 +77,18 @@ export default function ProductQuickActions({
 
       <Button
         type="button"
-        variant="ghost"
-        size="lg"
-        onClick={share}
-        className="h-14 justify-start gap-3 text-base"
+        onClick={() =>
+          run(() => window.open(productImageSearchUrl(product), "_blank"))
+        }
+        className={ACTION_CLASS}
       >
+        <ImageIcon className="size-5" />
+        Pretraži sliku proizvoda
+      </Button>
+
+      <Button type="button" onClick={() => run(share)} className={ACTION_CLASS}>
         <Share2 className="size-5" />
-        Podijeli
+        Podijeli proizvod
       </Button>
     </SheetShell>
   );
