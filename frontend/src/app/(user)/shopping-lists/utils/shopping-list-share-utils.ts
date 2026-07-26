@@ -2,6 +2,9 @@ import { ShoppingListDto } from "@/lib/api/types";
 import { getChainLabel } from "@/utils/labels";
 import { formatDate } from "@/utils/strings";
 
+// Open-ended rules, so a long title never has to line up with a closing corner.
+const RULE = "═".repeat(18);
+
 /**
  * Format shopping list as text for sharing
  * Sorts items by checked status, then shop (chainCode), then brand, then name
@@ -36,15 +39,9 @@ export function formatShoppingListForSharing(
     return a.name.localeCompare(b.name);
   });
 
-  // Format the header
-  const titleText = `📋 ${shoppingList.title}`;
-  const padding = 4; // 2 spaces on each side
-  const boxWidth = titleText.length + padding;
-  const separator = "═".repeat(boxWidth);
-
-  let shareText = `╔${separator}╗\n`;
-  shareText += `   ${titleText}   \n`;
-  shareText += `╚${separator}╝\n\n`;
+  let shareText = `╔${RULE}\n`;
+  shareText += `📋 ${shoppingList.title}\n`;
+  shareText += `╚${RULE}\n\n`;
   shareText += `📅 Stvoreno: ${formatDate(shoppingList.createdAt)}\n`;
   shareText += `🔄 Ažurirano: ${formatDate(shoppingList.updatedAt)}\n\n`;
 
@@ -74,11 +71,11 @@ export function formatShoppingListForSharing(
   });
 
   // Add branding footer
-  shareText += `\n╔═══════════════════════════════════════════╗\n`;
-  shareText += `    ✨ Popis stvoren pomoću Disscount ✨\n`;
-  shareText += `       💰 Usporedi cijene i uštedi! 💰\n`;
-  shareText += `  🌐 Isprobaj besplatno na disscount.me 🌐\n`;
-  shareText += `╚═══════════════════════════════════════════╝\n`;
+  shareText += `\n╔${RULE}\n`;
+  shareText += `✨ Popis stvoren pomoću Disscount\n`;
+  shareText += `💰 Usporedi cijene i uštedi!\n`;
+  shareText += `🌐 Isprobaj besplatno na disscount.me\n`;
+  shareText += `╚${RULE}\n`;
 
   return shareText;
 }
