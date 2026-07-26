@@ -5,6 +5,10 @@ import sharp from "sharp";
 
 export const SRGB = "srgb";
 
+export async function srgbPng(buffer) {
+  return sharp(buffer).withIccProfile(SRGB).png().toBuffer();
+}
+
 // Pass a background to drop the alpha channel, for the outputs whose platform
 // wants an opaque image.
 export async function writeSrgbPng(file, buffer, background) {

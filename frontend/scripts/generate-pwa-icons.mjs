@@ -6,7 +6,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { cartOnSquare, ROOT, WHITE } from "./lib/cart-source.mjs";
-import { writeSrgbPng } from "./lib/srgb.mjs";
+import { srgbPng, writeSrgbPng } from "./lib/srgb.mjs";
 
 const ICONS = path.join(ROOT, "public/brand/icons");
 const FAVICON = path.join(ROOT, "src/app/favicon.ico");
@@ -70,7 +70,7 @@ await writeSrgbPng(
 const frames = await Promise.all(
   [16, 32, 48].map(async (size) => ({
     size,
-    data: await cartOnSquare(size, 0.92),
+    data: await srgbPng(await cartOnSquare(size, 0.92)),
   })),
 );
 await writeFile(FAVICON, pngsToIco(frames));
