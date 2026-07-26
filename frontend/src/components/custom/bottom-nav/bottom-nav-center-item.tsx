@@ -2,7 +2,7 @@
 
 import { ChevronsDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-import isKeyboardClick from "@/utils/events";
+import { isKeyboardClick } from "@/utils/events";
 import BottomNavIndicator from "@/components/custom/bottom-nav/bottom-nav-indicator";
 import BottomNavRing from "@/components/custom/bottom-nav/bottom-nav-ring";
 import {

@@ -25,7 +25,7 @@ interface IRemoveIconButtonProps {
  * An X that removes what it sits beside, naming itself through a tooltip so the
  * icon can stay small. Red for a deletion, outlined for a reset.
  */
-export function RemoveIconButton({
+export default function RemoveIconButton({
   onClick,
   label,
   tone = "destructive",
@@ -41,13 +41,9 @@ export function RemoveIconButton({
         <Button
           type="button"
           size="icon"
-          variant={isDestructive ? "primary" : "outline"}
+          variant={isDestructive ? "destructive" : "outline"}
           aria-label={label}
-          className={cn(
-            "size-9 shrink-0",
-            isDestructive && "bg-red-600 hover:bg-red-700",
-            className,
-          )}
+          className={cn("size-9 shrink-0", className)}
           onClick={onClick}
           disabled={loading || disabled}
         >

@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import isKeyboardClick from "@/utils/events";
+import { isKeyboardClick } from "@/utils/events";
 import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
 import BottomNavIndicator from "@/components/custom/bottom-nav/bottom-nav-indicator";
 import BottomNavItemGlyph from "@/components/custom/bottom-nav/bottom-nav-item-glyph";

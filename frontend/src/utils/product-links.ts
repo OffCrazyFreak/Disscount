@@ -10,6 +10,15 @@ export function productImageSearchUrl(product: ProductResponse): string {
   return `https://www.google.com/search?udm=2&q=${encodeURIComponent(query)}`;
 }
 
+/**
+ * The one place the product route is spelled. Three call sites used to forget the
+ * encoding, so an EAN with a stray character built a different URL depending on
+ * where you clicked from.
+ */
+export function productPath(ean: string): string {
+  return `/products/${encodeURIComponent(ean)}`;
+}
+
 export function productPageUrl(ean: string): string {
-  return `${appUrl()}/products/${encodeURIComponent(ean)}`;
+  return `${appUrl()}${productPath(ean)}`;
 }

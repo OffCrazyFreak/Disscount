@@ -1,11 +1,19 @@
-import { BAR_VERTICAL_SLOP_PX } from "@/constants/gestures";
+/** Past this, a press has left the bar, so releasing commits nothing */
+const BAR_VERTICAL_SLOP_PX = 24;
+
+/**
+ * The cells, by marker rather than by taking bar.children, so an index means the
+ * cell index even if anything else ever renders inside the list.
+ */
+export function navCells(bar: HTMLElement): HTMLElement[] {
+  return [...bar.querySelectorAll<HTMLElement>("[data-nav-cell]")];
+}
 
 /**
  * Which cell a point belongs to, measured from the cells themselves rather than
  * by dividing the bar's width, so the pill's own inner padding cannot skew the
  * boundaries. A point in that padding resolves to the nearest cell; one that has
- * left the bar vertically resolves to none, which is what stops a drag away from
- * the bar committing anything on release.
+ * left the bar vertically resolves to none.
  */
 export default function indexFromPoint(
   bar: HTMLElement,
@@ -17,9 +25,7 @@ export default function indexFromPoint(
   if (y < bounds.top - BAR_VERTICAL_SLOP_PX) return null;
   if (y > bounds.bottom + BAR_VERTICAL_SLOP_PX) return null;
 
-  // Queried by marker rather than taken as bar.children, so the index means the
-  // cell index even if anything else ever renders inside the list.
-  const cells = [...bar.querySelectorAll("[data-nav-cell]")];
+  const cells = navCells(bar);
   if (!cells.length) return null;
 
   const hit = cells.findIndex((cell) => {

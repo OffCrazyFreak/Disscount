@@ -10,8 +10,7 @@ import ProductSearchFilters from "@/app/products/components/product-search-filte
 import { useProductsSheet } from "@/context/products-sheet-context";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUser } from "@/context/user-context";
-import { isAdmin } from "@/lib/api/schemas/auth-user";
-import { findNavItem } from "@/constants/navigation";
+import { findNavItem, isNavItemLocked } from "@/constants/navigation";
 
 /** The one route whose filters live in the sheet, so it survives arriving there */
 const FILTERED_ROUTE = "/products";
@@ -96,9 +95,7 @@ export default function ProductsSheet() {
 
       <SearchNavButton
         item={discountsNavItem}
-        isLocked={
-          Boolean(discountsNavItem.comingSoon) && !isAdmin(user?.accountType)
-        }
+        isLocked={isNavItemLocked(discountsNavItem, user?.accountType)}
         // A query-string change never trips the pathname effect above, so this
         // has to close the sheet itself or it covers where it just sent you.
         onNavigate={close}

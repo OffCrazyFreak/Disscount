@@ -2,9 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
-import { BAR_EDGE_EXCLUSION_PX, HOLD_CANCEL_PX } from "@/constants/gestures";
-import indexFromPoint from "@/components/custom/bottom-nav/bar-hit-test";
-import useCellHold from "@/components/custom/bottom-nav/use-cell-hold";
+import { HOLD_CANCEL_PX } from "@/constants/gestures";
+import indexFromPoint, {
+  navCells,
+} from "@/components/custom/bottom-nav/bar-hit-test";
+import useLongPressTimer from "@/hooks/use-long-press-timer";
+
+/** The rounded pill's own corners, where a press is more likely a swipe home */
+const BAR_EDGE_EXCLUSION_PX = 16;
 
 interface IUseBottomNavPointerOptions {
   onActivate: (index: number) => void;
@@ -27,7 +32,7 @@ export default function useBottomNavPointer({
   holdFor,
 }: IUseBottomNavPointerOptions) {
   const [scrubIndex, setScrubIndex] = useState<number | null>(null);
-  const hold = useCellHold();
+  const hold = useLongPressTimer();
   const pressedIndex = useRef<number | null>(null);
   const pointerId = useRef<number | null>(null);
   const origin = useRef({ x: 0, y: 0 });
@@ -67,7 +72,7 @@ export default function useBottomNavPointer({
       const action = latest.current.holdFor(index);
       if (!action) return;
 
-      hold.start(event.currentTarget.children[index], () => {
+      hold.start(navCells(event.currentTarget)[index] ?? null, () => {
         consumed.current = true;
         action();
       });

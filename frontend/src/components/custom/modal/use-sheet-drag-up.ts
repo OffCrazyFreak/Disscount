@@ -1,7 +1,9 @@
 "use client";
 
 import { useRef, type PointerEvent } from "react";
-import { SHEET_DRAG_EXPAND_PX } from "@/constants/gestures";
+
+/** Far enough that a deliberate pull up is not a stray touch */
+const SHEET_DRAG_EXPAND_PX = 40;
 
 /**
  * Pointer props that fire once per gesture when the sheet is dragged upward,

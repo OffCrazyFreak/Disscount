@@ -67,6 +67,8 @@ export default function SidebarNavItem({
         >
           <Link
             href={item.href}
+            // data-active styles it, but says nothing to a screen reader.
+            aria-current={!isLocked && isActive ? "page" : undefined}
             aria-disabled={isLocked ? true : undefined}
             tabIndex={isLocked ? -1 : undefined}
             onClick={isLocked ? preventNavigation : undefined}

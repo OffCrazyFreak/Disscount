@@ -10,6 +10,7 @@ import { useCameraScanner } from "@/context/scanner-context";
 import { IScannedCode } from "@/typings/scanned-code";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
+import { productPath } from "@/utils/product-links";
 
 export default function HeroActions() {
   const { openScanner } = useCameraScanner();
@@ -20,7 +21,7 @@ export default function HeroActions() {
       const value = code.rawValue.trim();
       if (!value) return;
 
-      router.push(`/products/${encodeURIComponent(value)}`);
+      router.push(productPath(value));
     },
     [router],
   );

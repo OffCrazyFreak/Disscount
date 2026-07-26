@@ -2,8 +2,8 @@
 
 import { usePathname } from "next/navigation";
 import { useUser } from "@/context/user-context";
-import { isAdmin } from "@/lib/api/schemas/auth-user";
 import { isRouteActive } from "@/utils/routes";
+import { isNavItemLocked } from "@/constants/navigation";
 import {
   bottomNavItems,
   type IBottomNavItem,
@@ -25,11 +25,9 @@ export default function useBottomNavCells(): IBottomNavCell[] {
   const pathname = usePathname();
   const { user } = useUser();
 
-  const userIsAdmin = isAdmin(user?.accountType);
-
   return bottomNavItems.map((entry) => ({
     entry,
     isActive: isRouteActive(pathname, entry.item.href),
-    isLocked: Boolean(entry.item.comingSoon) && !userIsAdmin,
+    isLocked: isNavItemLocked(entry.item, user?.accountType),
   }));
 }

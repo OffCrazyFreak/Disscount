@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { RemoveIconButton } from "@/components/custom/common/remove-icon-button";
+import RemoveIconButton from "@/components/custom/common/remove-icon-button";
 import type { IUseProductFiltersResult } from "@/app/products/hooks/use-product-filters";
 
 const LABEL = "Očisti filtere";

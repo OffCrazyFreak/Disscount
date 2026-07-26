@@ -17,6 +17,11 @@ import { cn } from "@/lib/utils";
  */
 // The cap carries vaul's own direction variant, or drawer.tsx's 80vh outranks a
 // plain max-h and the sheet silently keeps a static cap that ignores the keyboard.
+/* The grab handle: darker than shadcn's bg-muted, which all but vanished on a
+   light surface. Applied from here rather than by editing the primitive. */
+const HANDLE_CLASS =
+  "[&>div:first-of-type]:bg-muted-foreground/40 [&>div:nth-of-type(2)]:bg-muted-foreground/40 [&>div:nth-of-type(3)]:bg-muted-foreground/40";
+
 const CONTENT_CLASS =
   "z-[var(--z-bottom-sheet)] data-[vaul-drawer-direction=bottom]:max-h-[85dvh] bg-background/85 backdrop-blur-sm pb-[var(--sheet-bottom-clearance)]";
 const OVERLAY_CLASS = "z-[var(--z-bottom-sheet-scrim)]";
@@ -85,7 +90,7 @@ export default function SheetShell({
       modal={modal}
     >
       <DrawerContent
-        className={cn(CONTENT_CLASS, className)}
+        className={cn(CONTENT_CLASS, HANDLE_CLASS, className)}
         overlayClassName={OVERLAY_CLASS}
         // Radix locks the body whatever vaul is told, so globals.css hands the
         // page back off this marker. Absent when modal, which wants the lock.

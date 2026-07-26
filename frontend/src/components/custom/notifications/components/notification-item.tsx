@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { IWatchlistNotification } from "@/context/notifications-types";
 import StorePriceList from "@/components/custom/price/store-price-list";
 import { formatQuantity } from "@/utils/strings";
+import { productPath } from "@/utils/product-links";
 
 interface INotificationItemProps {
   notification: IWatchlistNotification;
@@ -21,7 +22,7 @@ export default function NotificationItem({
 
   return (
     <Link
-      href={`/products/${notification.productApiId}`}
+      href={productPath(notification.productApiId)}
       onClick={onSelect}
       className="block p-4 border-b last:border-b-0 hover:bg-primary/5 transition-colors"
     >

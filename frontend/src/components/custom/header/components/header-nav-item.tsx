@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
+import { isRouteActive } from "@/utils/routes";
 import type { INavigationItem } from "@/constants/navigation";
 
 interface IHeaderNavItemProps {
@@ -21,7 +22,7 @@ export default function HeaderNavItem({
   isLocked = false,
 }: IHeaderNavItemProps) {
   const Icon = item.icon;
-  const isActive = pathname.startsWith(item.href);
+  const isActive = isRouteActive(pathname, item.href);
   const label = item.shortLabel ?? item.label;
 
   const comingSoonBadge = item.comingSoon && (
@@ -48,6 +49,8 @@ export default function HeaderNavItem({
     <li>
       <Link
         href={item.href}
+        // The bold primary colour says "current" to a sighted user only.
+        aria-current={isActive ? "page" : undefined}
         className={cn(
           "flex items-center space-x-2 text-muted-foreground hover:text-accent-foreground duration-150 group hover:scale-110 relative",
           isActive && "font-bold text-primary",
