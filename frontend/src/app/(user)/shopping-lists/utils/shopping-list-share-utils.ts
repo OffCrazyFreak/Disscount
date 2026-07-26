@@ -6,6 +6,14 @@ import { formatDate } from "@/utils/strings";
 const RULE = "═".repeat(18);
 
 /**
+ * None of these clients define an escape syntax for their own markers, so a
+ * backslash renders literally. Lookalikes read the same and cannot open a run.
+ */
+function neutraliseMarkers(text: string): string {
+  return text.replace(/\*/g, "\u2217").replace(/~/g, "\u2053");
+}
+
+/**
  * WhatsApp, Viber and Messenger all read *bold* and ~strikethrough~, and all
  * need the markers to sit against a space, so a bought item reads as crossed off
  * rather than as another thing left to find.
@@ -49,7 +57,7 @@ export function formatShoppingListForSharing(
   });
 
   let shareText = `╔${RULE}\n`;
-  shareText += `📋 *${shoppingList.title}*\n`;
+  shareText += `📋 *${neutraliseMarkers(shoppingList.title)}*\n`;
   shareText += `╚${RULE}\n\n`;
   shareText += `📅 Stvoreno: ${formatDate(shoppingList.createdAt)}\n`;
   shareText += `🔄 Ažurirano: ${formatDate(shoppingList.updatedAt)}\n\n`;
@@ -58,10 +66,10 @@ export function formatShoppingListForSharing(
   sortedItems.forEach((item, index) => {
     const number = index + 1;
     const checkbox = item.isChecked ? "✅" : "⬜";
-    const name = item.name;
-    const brand = item.brand ? ` - ${item.brand}` : "";
-    const unit = item.unit || "";
-    const quantity = item.quantity || "";
+    const name = neutraliseMarkers(item.name);
+    const brand = item.brand ? ` - ${neutraliseMarkers(item.brand)}` : "";
+    const unit = neutraliseMarkers(item.unit || "");
+    const quantity = neutraliseMarkers(item.quantity || "");
     const unitAndQuantity =
       unit && quantity
         ? ` (${quantity} ${unit})`
@@ -73,7 +81,9 @@ export function formatShoppingListForSharing(
     const amount = item.amount > 1 ? ` x${item.amount}` : "";
 
     // Get store name from chainCode
-    const storeName = item.chainCode ? getChainLabel(item.chainCode) : "";
+    const storeName = item.chainCode
+      ? neutraliseMarkers(getChainLabel(item.chainCode))
+      : "";
     const store = storeName ? ` - ${storeName}` : "";
 
     const details = `${name}${brand}${unitAndQuantity}${amount}${store}`;

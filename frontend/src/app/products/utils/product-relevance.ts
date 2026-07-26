@@ -35,20 +35,27 @@ function findWholeQuery(haystack: string, query: string) {
   };
 }
 
+function findBestWholeQuery(name: string, brand: string, query: string) {
+  const nameMatch = findWholeQuery(name, query);
+  const brandMatch = findWholeQuery(brand, query);
+
+  return nameMatch.tier <= brandMatch.tier ? nameMatch : brandMatch;
+}
+
 function rate(
   product: ProductResponse,
   query: string,
   tokens: string[],
 ): IProductRelevance {
-  // Name first, so a hit in it always beats the same hit in the brand on position.
-  const haystack = normalizeForSearch(
-    `${product.name ?? ""} ${product.brand ?? ""}`,
-  );
+  const name = normalizeForSearch(product.name ?? "");
+  const brand = normalizeForSearch(product.brand ?? "");
 
   return {
     product,
-    matchedTokens: tokens.filter((token) => haystack.includes(token)).length,
-    ...findWholeQuery(haystack, query),
+    matchedTokens: tokens.filter(
+      (token) => name.includes(token) || brand.includes(token),
+    ).length,
+    ...findBestWholeQuery(name, brand, query),
     chainCount: product.chains.length,
     nameLength: (product.name ?? "").length,
   };

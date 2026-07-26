@@ -663,9 +663,12 @@ body:has([data-vaul-drawer][data-state="open"]:not([data-sheet-non-modal])) {
   --sheet-bottom-clearance: calc(var(--bottom-nav-total) + 0.5rem);
 }
 
-/* No bar above md, so the sheets fall back to a plain comfortable inset. */
+/* No bar above md, so its footprint is genuinely zero and the sheets fall back to
+   a plain comfortable inset. Zeroing the token is what lets consumers that cannot
+   express a breakpoint, such as sonner's offset prop, still come out right. */
 @media (width >= 48rem) {
   :root {
+    --bottom-nav-total: 0px;
     --sheet-bottom-clearance: max(1rem, env(safe-area-inset-bottom, 0px));
   }
 }
