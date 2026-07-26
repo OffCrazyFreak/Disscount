@@ -42,7 +42,7 @@ Under the hood it is a full production stack: a Next.js frontend that also acts 
 - **Email:** Resend + React Email
 - **Infra:** Docker Compose, Dokploy on a Hetzner VPS, Traefik, Cloudflare, Sentry, [UptimeRobot](https://stats.uptimerobot.com/ej4ROz2eMo), Umami
 
-Deeper references live in [docs/](docs/): [authentication](docs/AUTH.md), [PWA & offline](docs/PWA.md), [state persistence](docs/STATE-PERSISTENCE.md), and [deployment](docs/DEPLOYMENT.md).
+Deeper references live in [docs/](docs/): [authentication](docs/AUTH.md), [PWA & offline](docs/PWA.md), [mobile navigation](docs/MOBILE-NAV.md), [state persistence](docs/STATE-PERSISTENCE.md), [the landing page](docs/LANDING.md), [brand assets](docs/BRAND.md), and [deployment](docs/DEPLOYMENT.md).
 
 ## Link
 

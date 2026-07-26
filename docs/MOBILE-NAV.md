@@ -15,7 +15,7 @@ _Last verified end-to-end on 2026-07-26 against `feat/mobile-bottom-nav`, measur
 3. [Anatomy of the bar](#3-anatomy-of-the-bar)
 4. [How a touch becomes an action](#4-how-a-touch-becomes-an-action)
 5. [The surface](#5-the-surface)
-6. [The search sheet](#6-the-search-sheet), and [its filters panel](#61-the-filters-panel)
+6. [The products sheet](#6-the-products-sheet), and [its filters panel](#61-the-filters-panel)
 7. [SheetShell, the shared bottom sheet](#7-sheetshell-the-shared-bottom-sheet)
 8. [Long-press gestures](#8-long-press-gestures)
 9. [Live state on the bar](#9-live-state-on-the-bar)
@@ -35,22 +35,22 @@ _Last verified end-to-end on 2026-07-26 against `feat/mobile-bottom-nav`, measur
 
 ## 1. Quick reference
 
-| Thing                 | Value                                                                                                                                               |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Shown at              | widths under `md` (768px), in the browser and the installed PWA alike                                                                               |
-| Cells, left to right  | Karta (USKORO), Praćenje, Proizvodi (search), Popisi, Kartice (USKORO)                                                                              |
-| USKORO cells          | disabled for everyone but admins, as in the sidebar                                                                                                 |
-| Bar height            | 72px of content, plus `env(safe-area-inset-bottom)`                                                                                                 |
-| Cell width (measured) | 65.8px at a 360px viewport, 57.8px at 320px                                                                                                         |
-| Icon / label          | 24px icon, 10.4px label, labels always visible                                                                                                      |
-| Active indicator      | a 57.6px disc enclosing icon and label, sliding between cells and fading out on the search cell                                                     |
-| Surface               | a floating pill matching the scrolled header's translucent blurred treatment                                                                        |
-| z-index               | sheet scrim 43, bottom sheets 44, **bar 45**, dialogs and popovers 50, offline indicator 60                                                         |
-| Bottom sheets         | three, all behind the bar and clearing it by `--sheet-bottom-clearance`; only search is non-modal (see [§7](#7-sheetshell-the-shared-bottom-sheet)) |
-| Element type per cell | `<button>`, never `<a href>` (see [§18](#18-gotchas--lessons-learned))                                                                              |
-| Long press            | four of five cells have one; fires at 450ms, silent for the first 200ms, cancels past 10px of movement                                              |
-| Contextual holds      | on `/products/<ean>` Praćenje watches that product and Popisi adds it to a list (see [§8](#8-long-press-gestures))                                  |
-| Haptics               | none, deliberately (see [§18](#18-gotchas--lessons-learned))                                                                                        |
+| Thing                 | Value                                                                                                                                                                                                                                                   |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shown at              | widths under `md` (768px), in the browser and the installed PWA alike                                                                                                                                                                                   |
+| Cells, left to right  | Karta (USKORO), Praćenje, Proizvodi (search), Popisi, Kartice (USKORO)                                                                                                                                                                                  |
+| USKORO cells          | disabled for everyone but admins, as in the sidebar                                                                                                                                                                                                     |
+| Bar height            | 72px of content, plus `env(safe-area-inset-bottom)`                                                                                                                                                                                                     |
+| Cell width (measured) | 65.8px at a 360px viewport, 57.8px at 320px                                                                                                                                                                                                             |
+| Icon / label          | 24px icon, 10.4px label, labels visible until the scroll compaction collapses them                                                                                                                                                                      |
+| Active indicator      | a 57.6px disc enclosing icon and label, sliding between cells and fading out on the search cell                                                                                                                                                         |
+| Surface               | a floating pill matching the scrolled header's translucent blurred treatment                                                                                                                                                                            |
+| z-index               | scroll fade 40, install banner 41, FAB 42, sheet scrim 43, bottom sheets 44, **bar 45**, dialogs and popovers 50, offline indicator 60. Tokens live in `globals.css`                                                                                    |
+| Bottom sheets         | three, all behind the bar and clearing it by `--sheet-bottom-clearance`; only the products sheet is non-modal, and only for pointer input (see [§7](#7-sheetshell-the-shared-bottom-sheet))                                                             |
+| Element type per cell | `<button>`, never `<a href>` (see [§18](#18-gotchas--lessons-learned))                                                                                                                                                                                  |
+| Long press            | two of five today (Proizvodi opens the scanner, Popisi adds the open product), plus Praćenje on a product page; Karta unlocks for admins and Kartice when digital cards ship. Fires at 450ms, silent for the first 200ms, cancels past 10px of movement |
+| Contextual holds      | on `/products/<ean>` Praćenje watches that product and Popisi adds it to a list (see [§8](#8-long-press-gestures))                                                                                                                                      |
+| Haptics               | none, deliberately (see [§18](#18-gotchas--lessons-learned))                                                                                                                                                                                            |
 
 **Daily workflow:** nothing to configure. The bar reads its items from `frontend/src/constants/navigation.ts` and mounts itself once in the root layout.
 
@@ -90,7 +90,7 @@ flowchart TB
 
     c1 --> map["/map"]
     c2 --> watchlist["/watchlist"]
-    c3 --> sheet["Search sheet<br/>(SheetShell, z-44)"]
+    c3 --> sheet["Products sheet<br/>(SheetShell, z-44)"]
     c4 --> lists["/shopping-lists"]
     c5 --> cards["/digital-cards"]
 ```
@@ -172,14 +172,14 @@ sequenceDiagram
 
 Activation branches four ways, in `bottom-nav.tsx`:
 
-| Case                        | What happens                                                  |
-| --------------------------- | ------------------------------------------------------------- |
-| Centre cell                 | opens the search sheet, or closes it when it is already open  |
-| A locked teaser cell        | nothing, beyond dismissing the sheet                          |
-| The cell you are already on | `useTabReentry`: scroll to top, then a second tap returns you |
-| Any other cell              | `router.push(item.href)`                                      |
+| Case                        | What happens                                                   |
+| --------------------------- | -------------------------------------------------------------- |
+| Centre cell                 | opens the products sheet, or closes it when it is already open |
+| A locked teaser cell        | nothing, beyond dismissing the sheet                           |
+| The cell you are already on | `useTabReentry`: scroll to top, then a second tap returns you  |
+| Any other cell              | `router.push(item.href)`                                       |
 
-Every branch except the centre one dismisses the search sheet first. That covers what the sheet's own pathname effect cannot: re-tapping the tab you are already on does not change the route.
+Every branch except the centre one dismisses the products sheet first. That covers what the sheet's own pathname effect cannot: re-tapping the tab you are already on does not change the route.
 
 Note that **route match and activation are deliberately separate questions.** `isActiveIndex` is a pure `pathname.startsWith` check covering all five cells, so the centre cell lights up on `/products`; `isSearch` decides what a tap _does_. Conflating the two was a real bug, see [§18](#18-gotchas--lessons-learned).
 
@@ -201,8 +201,8 @@ Presses starting within **16px of a screen edge** are ignored entirely, so the b
 
 A floating pill, taking the scrolled header's treatment verbatim so the app's two floating bars match:
 
-```
-mx-[0.5rem] px-[0.4rem] rounded-full border bg-background/50 backdrop-blur-sm
+```text
+mx-[0.5rem] px-[0.4rem] rounded-full border backdrop-blur-sm
 ```
 
 The horizontal inset and inner padding are explicit rem values rather than spacing utilities, because of the `--spacing` trap in [§10](#10-layout-safe-areas-and-css-tokens). Together they hold the 57.6px active disc **11.5px** clear of the pill's edges at a 360px viewport and **7.5px** at 320px, so the first and last cell's disc never touches the border.
@@ -211,7 +211,7 @@ One trade-off, flagged and then accepted deliberately: this is a second blurred 
 
 ### Compaction on scroll
 
-Once the page is scrolled, the labels fade and collapse and the surface drops to 90% opacity. That is the same trigger the header already uses via `useScrolledPast(50)`, but driven by a **scroll timeline**, so there is no scroll listener, no jank and no hydration behaviour:
+Once the page is scrolled, the labels fade and collapse and the surface's alpha drops from 50% to 45% of the background colour. That is the same trigger the header already uses via `useScrolledPast(50)`, but driven by a **scroll timeline**, so there is no scroll listener, no jank and no hydration behaviour:
 
 ```css
 @supports (animation-timeline: scroll()) {
@@ -233,26 +233,26 @@ Three things to know:
 
 ---
 
-## 6. The search sheet
+## 6. The products sheet
 
 Tapping the centre cell opens a compact sheet directly above the bar. Top to bottom it holds the existing `SearchBar` field with its scan button, a **Popusti** shortcut into the catalogue, a **Filteri** toggle ([§6.1](#61-the-filters-panel)), and last a full-width **Pretraži** button pinned in the shell's footer.
 
 ```mermaid
 flowchart LR
-    tap["Tap the centre cell"] --> open["SearchSheetProvider.open()"]
-    filteri["Tap Filteri on /products"] --> openf["SearchSheetProvider.openFilters()"]
+    tap["Tap the centre cell"] --> open["ProductsSheetProvider.open()"]
+    filteri["Tap Filteri on /products"] --> openf["ProductsSheetProvider.openFilters()"]
     open --> shell["SheetShell<br/>modal=false"]
     openf --> shell
     shell --> focus["initialFocusRef focuses the field<br/>unless opened expanded"]
     shell --> bar["SearchBar<br/>allowScanning<br/>submitButtonLocation=none"]
-    shell --> nav2["SearchNavButton<br/>Popusti, disabled"]
+    shell --> nav2["SearchNavButton<br/>Popusti, locked for non-admins"]
     shell --> filters["ProductSearchFilters<br/>every route"]
-    shell --> submit["footer: SearchSheetSubmit"]
+    shell --> submit["footer: ProductsSheetSubmit"]
     submit -->|submit| go["useSearchNavigation('/products').search(q)"]
     bar -->|scan| scanner["CameraScannerProvider"]
 ```
 
-**Pretraži lives in the shell's footer**, outside the body's scroll container, so expanding the filters cannot push the one action that acts on them out of reach. That puts it outside `SearchBar`'s `<form>`, so it carries `form="search-sheet-form"` against a `formId` on that form. Form ownership is what the HTML spec uses to pick a form's default button, so Enter in the field still submits from there, see [§18](#18-gotchas--lessons-learned).
+**Pretraži lives in the shell's footer**, outside the body's scroll container, so expanding the filters cannot push the one action that acts on them out of reach. That puts it outside `SearchBar`'s `<form>`, so it carries `form="products-sheet-form"` against a `formId` on that form. Form ownership is what the HTML spec uses to pick a form's default button, so Enter in the field still submits from there, see [§18](#18-gotchas--lessons-learned).
 
 **It is disabled whenever submitting would change nothing**: `useSearchNavigation` exposes `isUnchanged(query)`, true when the trimmed query matches the route's own `q`, or when the field is empty. Every surface with a submit button shares it, so the landing hero, the sidebar and the products page behave the same way. Off the search route `routeQuery` is `""`, which is why typing anything there enables it immediately.
 
@@ -278,15 +278,18 @@ The sheet reuses `SearchBar` rather than adding a second search field. `SearchBa
 
 `SearchBar.onSubmitted` used to force a close, which the sheet no longer passes. One rule now covers everything, because every exit from the sheet is a pathname change except the one that should not close it:
 
-| Action                            | Pathname          | Sheet                    |
-| --------------------------------- | ----------------- | ------------------------ |
-| Submit a search from `/watchlist` | `/products`       | stays open               |
-| Submit again on `/products`       | unchanged         | stays open               |
-| Scan a barcode                    | `/products/<ean>` | closes                   |
-| Open a product                    | `/products/<ean>` | closes                   |
-| Tap any other nav cell            | that tab          | closes, via `activate()` |
+| Action                            | Pathname          | Sheet                     |
+| --------------------------------- | ----------------- | ------------------------- |
+| Submit a search from `/watchlist` | `/products`       | closes                    |
+| Submit again on `/products`       | unchanged         | closes, via `onSubmitted` |
+| Tap the Popusti shortcut          | `/products?...`   | closes, via `onNavigate`  |
+| Scan a barcode                    | `/products/<ean>` | closes                    |
+| Open a product                    | `/products/<ean>` | closes                    |
+| Tap any other nav cell            | that tab          | closes, via `activate()`  |
+| Pick a facet                      | `/products?...`   | **stays open**, by design |
+| Cross the `md` breakpoint         | unchanged         | closes                    |
 
-Exact equality, not `startsWith`: a product's own page has no result set to filter, so it closes there like anywhere else.
+There is no route exception any more. The sheet used to stay open on `/products` so a submitted search would not hide the filters it had just revealed, but that left the results covered by the sheet that asked for them, which is worse.
 
 ### 6.1. The filters panel
 
@@ -317,7 +320,7 @@ Five things make this work without touching the controls:
 - **`layout="stack"` already existed**, built for the filters sheet this panel replaced, so the four labelled full-width selects drop in unchanged. They render a bare fragment, so the panel supplies the `flex flex-col gap-3` parent.
 - **The query comes from `?q`, and only on `/products`.** These facets describe a submitted products search. Elsewhere it is deliberately empty, which both avoids a stray request and stops another page's `?q` (the map page has one, for store names) from facetting products.
 - **`useProductFilters({ seedPreferred: false })`.** `ProductsClient` already owns the pinned-store seeding on that route; two readers racing it would double-append params.
-- **The expanded state lives in `SearchSheetContext`**, not in the panel and not in `SearchSheet`, because two entry points have to decide it. `open()` collapses the filters and `openFilters()` expands them, each in the same batch that flips `isOpen`, so the sheet never renders at the wrong size for a frame and no effect is needed. The centre cell therefore always lands on the compact sheet, whatever you left expanded last time.
+- **The expanded state lives in `ProductsSheetContext`**, not in the panel and not in `ProductsSheet`, because two entry points have to decide it. `open()` collapses the filters and `openFilters()` expands them, each in the same batch that flips `isOpen`, so the sheet never renders at the wrong size for a frame and no effect is needed. The centre cell therefore always lands on the compact sheet, whatever you left expanded last time.
 
 No extra request either way: `useProductFacets` reuses the query key the page already holds, and `useGetProductByName` is gated on `enabled: Boolean(params.q)`, so an empty query fetches nothing. The popover each select opens portals **into** the sheet via `PortalContainerProvider`, so touch scrolling inside it survives.
 
@@ -333,7 +336,7 @@ The threshold is 40px, far enough that a scroll, a wobble or a tap cannot trigge
 
 ## 7. SheetShell, the shared bottom sheet
 
-`SheetShell` is `ModalShell`'s bottom-sheet counterpart. Four sheets had grown four different shapes, differing in layer, modality, surface, bottom padding and the gap under the grab handle. All of it is now fixed by the shell, so a call site supplies content and nothing else. Three of those four remain: the products filters sheet is gone, folded into the search sheet ([§6.1](#61-the-filters-panel)).
+`SheetShell` is `ModalShell`'s bottom-sheet counterpart. Four sheets had grown four different shapes, differing in layer, modality, surface, bottom padding and the gap under the grab handle. All of it is now fixed by the shell, so a call site supplies content and nothing else. Three of those four remain: the products filters sheet is gone, folded into the products sheet ([§6.1](#61-the-filters-panel)).
 
 | Fixed by the shell | Value                                | Why it cannot be per call site                                                                                                 |
 | ------------------ | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
@@ -343,7 +346,7 @@ The threshold is 40px, far enough that a scroll, a wobble or a tap cannot trigge
 | Bottom inset       | `pb-[var(--sheet-bottom-clearance)]` | 92px at 360x740, so no content hides under the bar                                                                             |
 | Handle gap         | the header's own `pt-[1rem] pb-2`    | 16px, whether or not the header draws anything, see below                                                                      |
 | Handle colour      | `bg-muted-foreground/40`             | `bg-muted` all but vanished on a light surface, in `ui/drawer.tsx` for all three handles including the sidebar's vertical ones |
-| Modality default   | **modal**                            | Only a sheet the page changes behind earns the opt-out, and the search sheet is the one that does, see below                   |
+| Modality default   | **modal**                            | Only a sheet the page changes behind earns the opt-out, and the products sheet is the one that does, see below                 |
 
 | Prop                   | Purpose                                                                                                 |
 | ---------------------- | ------------------------------------------------------------------------------------------------------- |
@@ -362,7 +365,7 @@ Current users, identical apart from their content and their modality:
 
 | Sheet                    | File                                                   | Modal | Explicit dismissal beyond the handle             |
 | ------------------------ | ------------------------------------------------------ | ----- | ------------------------------------------------ |
-| Search                   | `components/custom/search/search-sheet.tsx`            | no    | the bar's centre cell; also the only `md:hidden` |
+| Search                   | `components/custom/products-sheet/products-sheet.tsx`  | no    | the bar's centre cell; also the only `md:hidden` |
 | Product quick actions    | `components/custom/product/product-quick-actions.tsx`  | yes   | an outside press, plus any action it runs        |
 | PWA install instructions | `components/custom/pwa/install-instructions-sheet.tsx` | yes   | an outside press and `showCloseButton`           |
 
@@ -374,7 +377,7 @@ The sheet wears the bar's `backdrop-blur-sm` so the two read as one family of fl
 
 `sheet-shell-header.tsx` exists for two reasons, both of them former bugs:
 
-- **The handle needs a gap that survives a hidden title.** The old shell put `sr-only` on the header _container_, so the search sheet's handle sat 6.4px above the input with nothing between them. `sr-only` is `position: absolute`, so moving it to the title column collapses the row to its own padding and the 16px gap holds either way, with no conditional padding anywhere.
+- **The handle needs a gap that survives a hidden title.** The old shell put `sr-only` on the header _container_, so the products sheet's handle sat 6.4px above the input with nothing between them. `sr-only` is `position: absolute`, so moving it to the title column collapses the row to its own padding and the 16px gap holds either way, with no conditional padding anywhere.
 - **A visible description has to sit under the title.** The old header was one `flex-row` holding title, description and `headerExtra` side by side, which is why the PWA sheet never migrated: it needs a visible description. The column fixes it, and that sheet is now the proof.
 
 ### Layer stack
@@ -391,7 +394,7 @@ The whole ladder lives in `globals.css` as `--z-*` tokens, in descending order, 
 | 43  | `--z-bottom-sheet-scrim` | a modal sheet's scrim, below the bar by design              |
 | 41  | `--z-install-banner`     | PWA install banner                                          |
 | 40  | `--z-scroll-fade`        | window scroll fade                                          |
-| 30  | `--z-back-to-top`        | back-to-top FAB                                             |
+| 30  | `--z-fab`                | back-to-top FAB                                             |
 | 20  | `--z-header`             | header                                                      |
 | 10  | `--z-sidebar`            | desktop sidebar                                             |
 
@@ -403,11 +406,11 @@ The **mobile sidebar** stays out of `SheetShell` and keeps `z-50`. It is a `dire
 
 `DrawerOverlay` is rendered by `DrawerContent` with no props, so its `z-50` was unreachable from outside. `DrawerContent` now takes an `overlayClassName` that forwards to it, which is what keeps a modal sheet's scrim at 43 instead of silently landing above the bar.
 
-### Why only the search sheet is non-modal
+### Why only the products sheet is non-modal
 
 A non-modal sheet is an **addition to the page**: you open it, you act through it, and what is behind it changes as you do. That is exactly Material's _standard_ bottom sheet, which "co-exists with the screen's main UI region and allows for simultaneously viewing and interacting with both regions" and has no scrim. A _modal_ sheet "presents a set of choices while blocking interaction with the rest of the screen".
 
-Only the search sheet earns the first description, and it earns it completely: picking a facet in it re-filters the list behind it live, which is the entire reason it must not be covered by a scrim or lock the page.
+Only the products sheet earns the first description, and it earns it completely: picking a facet in it re-filters the list behind it live, which is the entire reason it must not be covered by a scrim or lock the page.
 
 The other two do not, so they are modal:
 
@@ -418,21 +421,21 @@ The other two do not, so they are modal:
 
 Both gain tap-outside-to-close from it, which is the dismissal users try first.
 
-The shell therefore **defaults to modal**, and the search sheet is the single explicit `modal={false}`. It was the other way round at first, which meant a new sheet that simply forgot the prop silently lost its scrim, its scroll lock and tap-outside-to-close. Non-modal is also the buggier path in vaul (see [§18](#18-gotchas--lessons-learned)), so the fewer sheets that take it, the better. The one opt-out is the one that earns it.
+The shell therefore **defaults to modal**, and the products sheet is the single explicit `modal={false}`. It was the other way round at first, which meant a new sheet that simply forgot the prop silently lost its scrim, its scroll lock and tap-outside-to-close. Non-modal is also the buggier path in vaul (see [§18](#18-gotchas--lessons-learned)), so the fewer sheets that take it, the better. The one opt-out is the one that earns it.
 
 That split also matches `ModalShell`'s own line: all 12 of its consumers are self-contained tasks with their own submit (`shopping-list-modal`, `settings-modal` and its four tabs, `onboarding-wizard`, `confirm-dialog`, the auth modals, ...). Dialogs are a mini page; a non-modal sheet changes the page you are on.
 
-What non-modal costs the search sheet, and what had to be paid for it:
+What non-modal costs the products sheet, and what had to be paid for it:
 
 - **No outside press dismisses it**, because vaul vetoes that for a non-modal drawer (below). It therefore needs an explicit way out, which is the bar's centre cell. `Escape` and the grab handle work throughout.
-- **The page had to be handed back explicitly.** Non-modal did not actually leave the page usable: Radix locks `<body>` regardless (see [§18](#18-gotchas--lessons-learned)), so a rule in `globals.css` keyed on `[data-sheet-non-modal][data-state="open"]` restores `pointer-events` with `!important`, an inline style being the only thing it has to beat. The marker is absent when `modal` is set, since a modal sheet wants the lock. Measured with the search sheet open: `<body>` reads `auto`, the page behind scrolls, and the sheet survives both the scroll and an outside click. A real dialog still reads `none`.
+- **The page had to be handed back explicitly.** Non-modal did not actually leave the page usable: Radix locks `<body>` regardless (see [§18](#18-gotchas--lessons-learned)), so a rule in `globals.css` keyed on `[data-sheet-non-modal][data-state="open"]` restores `pointer-events` with `!important`, an inline style being the only thing it has to beat. The marker is absent when `modal` is set, since a modal sheet wants the lock. Measured with the products sheet open: `<body>` reads `auto`, the page behind scrolls, and the sheet survives both the scroll and an outside click. A real dialog still reads `none`.
 - **The bar's own opt-in became redundant** and is gone. It used to carry `isSearchOpen && "pointer-events-auto"`; the page-level rule now covers it, and the bar stays inert under modal sheets and real dialogs, whose overlays cover it anyway.
 
 ### Focus
 
 Focus is set explicitly in `onOpenAutoFocus` rather than by relying on a child's `autoFocus` surviving Radix's focus scope. Closing calls `event.preventDefault()` in `onCloseAutoFocus`, matching `ModalShell`: there is no trigger to restore focus to, and Radix's body fallback jumps the scroll.
 
-A sheet can also decline the field: `SearchSheet` withholds `initialFocusRef` when it opens straight into its filters, so the keyboard does not rise over the facets the user just asked to see.
+A sheet can also decline the field: `ProductsSheet` withholds `initialFocusRef` when it opens straight into its filters, so the keyboard does not rise over the facets the user just asked to see.
 
 ---
 
@@ -460,7 +463,7 @@ if (productPageEan && entry.productPageTarget)
 return entry.longPressEnabled ? (entry.longPressTarget ?? null) : null;
 ```
 
-`useProductPageEan` reads the EAN off `usePathname()` rather than `useParams`, because the bar is mounted in the root layout and never sees the route's own params. `Praćenje` has only a product-page target, so it has no gesture anywhere else; `Popisi` has both and swaps. One helper answers for `longPress` and `canLongPress` alike, so the two cannot disagree about whether a hold does anything.
+`productEanFromPath` (in `utils/routes.ts`) reads the EAN off `usePathname()` rather than `useParams`, because the bar is mounted in the root layout and never sees the route's own params. `Praćenje` has only a product-page target, so it has no gesture anywhere else; `Popisi` has both and swaps. `resolveHoldTarget` answers once, and the bar passes the result down as `hasHold`, so the ring and the behaviour cannot disagree about whether a hold does anything.
 
 Neither modal needs its cache seeded, unlike `useProductModals`: the detail page has already fetched the product through the same `useGetProductByEan` key, so both open populated.
 
@@ -503,7 +506,7 @@ Typing a product name and scanning its barcode answer the same question, "what d
 flowchart TB
     gest["constants/gestures.ts<br/>every timing and threshold"] --> util
     util["utils/long-press.ts<br/>framework-free timer"] --> hook["hooks/use-long-press.ts<br/>one element (product cards)"]
-    util --> cell["bottom-nav/use-cell-hold.ts<br/>timing plus the ring's progress"]
+    util --> cell["bottom-nav/use-long-press-timer.ts<br/>timing plus the ring's progress"]
     cell --> bar["bottom-nav/use-bottom-nav-pointer.ts<br/>the whole bar, plus scrubbing"]
     hit["bottom-nav/bar-hit-test.ts<br/>a point to a cell, or none"] --> bar
     res["bottom-nav/resolve-hold-target.ts<br/>what a hold does, or null"] --> bar
@@ -603,13 +606,13 @@ At 320px the disc essentially fills its cell, which is fine because only one cel
 
 ### Viewport changes this required
 
-| Change                                 | Why                                                                                                                                                                            |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `viewportFit: "cover"`                 | Without it **every `env(safe-area-inset-*)` silently resolves to 0**, and the bar would sit under the iOS home indicator                                                       |
-| `interactiveWidget: "resizes-content"` | Shrinks the layout viewport when the keyboard opens, so fixed bottom elements reposition instead of hiding behind it. Chromium and Firefox only                                |
-| `min-h-screen` to `min-h-svh`          | `100vh` is computed as if browser UI were hidden, so a `100vh` shell is taller than the visible area                                                                           |
-| bottom padding on the shell wrapper    | `calc(var(--bottom-nav-total) + 0.5rem)` below `md`, resolving to 92px. It sits on the wrapper, **not** `<main>`, see the footer gotcha in [§18](#18-gotchas--lessons-learned) |
-| `scroll-pb` on `<html>`                | So anchor jumps and `scrollIntoView` do not land under the bar                                                                                                                 |
+| Change                                 | Why                                                                                                                                                                                                     |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `viewportFit: "cover"`                 | Without it **every `env(safe-area-inset-*)` silently resolves to 0**, and the bar would sit under the iOS home indicator                                                                                |
+| `interactiveWidget: "resizes-content"` | Shrinks the layout viewport when the keyboard opens, so fixed bottom elements reposition instead of hiding behind it. Chrome Android 108+, Firefox Android 133+ and Samsung Internet; not Safari on iOS |
+| `min-h-screen` to `min-h-svh`          | `100vh` is computed as if browser UI were hidden, so a `100vh` shell is taller than the visible area                                                                                                    |
+| bottom padding on the shell wrapper    | `calc(var(--bottom-nav-total) + 0.5rem)` below `md`, resolving to 92px. It sits on the wrapper, **not** `<main>`, see the footer gotcha in [§18](#18-gotchas--lessons-learned)                          |
+| `scroll-pb` on `<html>`                | So anchor jumps and `scrollIntoView` do not land under the bar                                                                                                                                          |
 
 That 92px is close to the floor. 84px of it is the bar itself plus the gap it floats on, which cannot be reclaimed without the pill covering the footer, so only the last 8px is breathing room. It started at 1rem and was trimmed to 0.5rem, matching what `--sheet-bottom-clearance` already used. Shrinking it further means shrinking `--bottom-nav-gap`, which moves the whole bar closer to the screen edge.
 
@@ -624,13 +627,13 @@ The mobile `FabMenu` used to sit at `bottom-4 right-4 z-50`, exactly where the b
 | Per-page create action     | a long press, plus the inline button which is now visible on mobile |
 | Back-to-top on `/products` | re-tapping the active tab                                           |
 
-| File                             | Fate                                       |
-| -------------------------------- | ------------------------------------------ |
-| `fab/fab-menu.tsx`               | deleted                                    |
-| `fab/page-fab.tsx`               | deleted                                    |
-| `fab/fab-action.ts`              | deleted                                    |
-| `fab/floating-action-button.tsx` | kept, `BackToTopButton` still builds on it |
-| `fab/back-to-top-button.tsx`     | kept, now `hidden md:block`                |
+| File                         | Fate                                       |
+| ---------------------------- | ------------------------------------------ |
+| `fab/fab-menu.tsx`           | deleted                                    |
+| `fab/page-fab.tsx`           | deleted                                    |
+| `fab/fab-action.ts`          | deleted                                    |
+| `fab/back-to-top-button.tsx` | kept, `BackToTopButton` still builds on it |
+| `fab/back-to-top-button.tsx` | kept, now `hidden md:block`                |
 
 Two consequences worth remembering:
 
@@ -681,9 +684,9 @@ Recorded so the next person does not re-litigate them. Each of these was an expl
 | Reuse the notification count for the badge       | A real price-drop count, which needs backend work; or a dot; or no badge                                                                                                                                                                                                                |
 | No haptics                                       | Android-only `navigator.vibrate`, which is inconsistent across platforms for no gain                                                                                                                                                                                                    |
 | Sheet runs behind the bar                        | Ending the sheet at the bar's top edge (a visible gap), or covering the bar like a normal modal sheet                                                                                                                                                                                   |
-| Only the search sheet is non-modal               | All four non-modal, which was shipped first and made three sheets pay for a property only one needed; or all modal, which contradicts what the search sheet is for. Cost paid: two modes to remember, keyed on one question, does the page behind change                                |
-| Filters expand inline in the search sheet        | A second sheet stacked over it, which NN/g warns disorients; or replacing the sheet's content with a back arrow, which hides the query you just typed                                                                                                                                   |
-| One filters surface, not two                     | Keeping the products page's own filters sheet as a second entry point, which was shipped first: two sheets built from the same four controls, so a query and the facets narrowing it sat on separate layers. The page button now opens the search sheet expanded                        |
+| Only the products sheet is non-modal             | All four non-modal, which was shipped first and made three sheets pay for a property only one needed; or all modal, which contradicts what the products sheet is for. Cost paid: two modes to remember, keyed on one question, does the page behind change                              |
+| Filters expand inline in the products sheet      | A second sheet stacked over it, which NN/g warns disorients; or replacing the sheet's content with a back arrow, which hides the query you just typed                                                                                                                                   |
+| One filters surface, not two                     | Keeping the products page's own filters sheet as a second entry point, which was shipped first: two sheets built from the same four controls, so a query and the facets narrowing it sat on separate layers. The page button now opens the products sheet expanded                      |
 | Pretraži pinned in the sheet's footer            | Leaving it under the field, where expanding the filters pushed it out of thumb reach; or last in the body, which scrolls away on a short phone. Cost paid: it lives outside the form and needs a `form` attribute                                                                       |
 | Disable Pretraži when nothing would change       | Leaving it always live, which lets the loudest control in the sheet do nothing when pressed; or hiding it, which moves the layout under the thumb                                                                                                                                       |
 | Filters collapse on every open                   | Restoring whatever you left expanded, which was the first behaviour: the centre cell then sometimes opened a tall sheet you did not ask for. The state moved into the context so each entry point can set it in the same batch as the open                                              |
@@ -721,7 +724,7 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 | `components/custom/bottom-nav/use-bottom-nav-activation.ts` | What a press commits to                                             |
 | `components/custom/bottom-nav/use-bottom-nav-pointer.ts`    | One pointer stream for tap, scrub and long press                    |
 | `components/custom/bottom-nav/bar-hit-test.ts`              | A point to a cell index, or none if it left the bar                 |
-| `components/custom/bottom-nav/use-cell-hold.ts`             | Hold timing, and the ring progress written to the pressed cell      |
+| `components/custom/bottom-nav/use-long-press-timer.ts`      | Hold timing, and the ring progress written to the pressed cell      |
 | `components/custom/bottom-nav/resolve-hold-target.ts`       | What a hold does, or null if the cell has none                      |
 | `components/custom/bottom-nav/use-active-list-progress.ts`  | Completion of the list on screen                                    |
 | `components/custom/bottom-nav/use-indicator-opacity.ts`     | The disc's fade pair, tracking the route it is coming from          |
@@ -741,18 +744,18 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 | `utils/browser/share.ts`                          | OS share sheet, falling back to copying the link             |
 | `components/custom/modal/sheet-shell.tsx`         | The shared bottom sheet, owning layer, height and clearance  |
 | `components/custom/modal/sheet-shell-header.tsx`  | Its header band, which holds the handle's gap open           |
-| `context/search-sheet-context.tsx`                | Holds the sheet open, and whether it opens with filters      |
+| `context/products-sheet-context.tsx`              | Holds the sheet open, and whether it opens with filters      |
 | `components/custom/common/remove-icon-button.tsx` | Tooltip plus icon button, red to delete or outlined to reset |
 | `components/custom/common/notify-me-button.tsx`   | The "Obavijesti me" CTA on a teaser page                     |
 
-### The search sheet's own parts
+### The products sheet's own parts
 
-| File                                                | Role                                                            |
-| --------------------------------------------------- | --------------------------------------------------------------- |
-| `components/custom/search/search-sheet.tsx`         | The sheet: field, Popusti, filters, footer                      |
-| `components/custom/search/search-nav-button.tsx`    | A nav item as an outlined button, with its USKORO badge         |
-| `components/custom/search/search-submit-button.tsx` | The Pretraži button itself, shared with the inline bars         |
-| `components/custom/search/search-sheet-submit.tsx`  | Wraps it with the URL comparison, so no hook runs in the layout |
+| File                                                         | Role                                                            |
+| ------------------------------------------------------------ | --------------------------------------------------------------- |
+| `components/custom/products-sheet/products-sheet.tsx`        | The sheet: field, Popusti, filters, footer                      |
+| `components/custom/search/search-nav-button.tsx`             | A nav item as an outlined button, with its USKORO badge         |
+| `components/custom/search/search-action-button.tsx`          | The Pretraži button itself, shared with the inline bars         |
+| `components/custom/products-sheet/products-sheet-submit.tsx` | Wraps it with the URL comparison, so no hook runs in the layout |
 
 ### The filters
 
@@ -770,7 +773,7 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 | -------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | `app/layout.tsx`                             | Viewport flags, `min-h-svh`, wrapper padding, mounts bar and sheet                          |
 | `app/globals.css`                            | The custom properties and the compaction keyframes                                          |
-| `app/providers/providers.tsx`                | Adds `SearchSheetProvider`                                                                  |
+| `app/providers/providers.tsx`                | Adds `ProductsSheetProvider`                                                                |
 | `constants/navigation.ts`                    | Added `productsNavItem` and the shared `findNavItem()` lookup                               |
 | `components/custom/search/search-bar.tsx`    | Added `inputRef`, `formId`, `onQueryChange` and `onSubmitted`, plus search input attributes |
 | `hooks/use-search-navigation.ts`             | Added `isUnchanged()`, so every submit button shares one rule                               |
@@ -784,14 +787,14 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 
 ## 14. Config, env vars and flags
 
-| Setting                                   | Where                              | Purpose                                                                            |
-| ----------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------------- |
-| `viewportFit: "cover"`                    | `app/layout.tsx` `viewport` export | Makes `env(safe-area-inset-*)` non-zero. Load-bearing                              |
-| `interactiveWidget: "resizes-content"`    | same                               | Reflows the layout viewport for the keyboard. Chromium and Firefox only            |
-| `devIndicators: false`                    | `next.config.ts`                   | Next's dev indicator landed bottom-left, over the left teaser cell                 |
-| `NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS` | `.env.local`, `.env.local.example` | Default `false`. Its floating button landed bottom-right, over Kartice             |
-| `longPressEnabled` on the Kartice entry   | `bottom-nav-items.ts`              | Keeps the wired gesture inert until digital cards ship                             |
-| `Disscount_app` in `localStorage`         | `utils/browser/storage/*`          | Unrelated to the bar now; its `bottomNavVariant` key was removed with the variants |
+| Setting                                   | Where                              | Purpose                                                                                                                         |
+| ----------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `viewportFit: "cover"`                    | `app/layout.tsx` `viewport` export | Makes `env(safe-area-inset-*)` non-zero. Load-bearing                                                                           |
+| `interactiveWidget: "resizes-content"`    | same                               | Reflows the layout viewport for the keyboard. Chrome Android 108+, Firefox Android 133+ and Samsung Internet; not Safari on iOS |
+| `devIndicators: false`                    | `next.config.ts`                   | Next's dev indicator landed bottom-left, over the left teaser cell                                                              |
+| `NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS` | `.env.local`, `.env.local.example` | Default `false`. Its floating button landed bottom-right, over Kartice                                                          |
+| `longPressEnabled` on the Kartice entry   | `bottom-nav-items.ts`              | Keeps the wired gesture inert until digital cards ship                                                                          |
+| `Disscount_app` in `localStorage`         | `utils/browser/storage/*`          | Unrelated to the bar now; its `bottomNavVariant` key was removed with the variants                                              |
 
 Both dev-overlay switches are read at compile time, so they need a **dev-server restart**, not just a reload. The flag follows the existing `NEXT_PUBLIC_ENABLE_REACT_SCAN` naming.
 
@@ -825,22 +828,22 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 
 ## 16. Accessibility
 
-| Concern              | How it is handled                                                                                                                                                                                 |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Landmark             | A real `<nav>` with `aria-label="Glavna navigacija"`. There are three `<nav>` landmarks now, so each needs a distinguishing label                                                                 |
-| Current page         | `aria-current="page"` on the active cell, the only thing that conveys "you are here" to a screen reader                                                                                           |
-| Locked cells         | A `disabled` button, so it is skipped by tab order and announced as unavailable, with its USKORO chip still readable                                                                              |
-| Toggling controls    | The centre cell carries `aria-expanded`, and its accessible name changes to `Zatvori traženje` while the sheet is open                                                                            |
-| Not colour alone     | Active state is the disc **plus** the tint **plus** a bold label, satisfying WCAG 1.4.1                                                                                                           |
-| Touch targets        | Measured 65.8px wide at a 360px viewport and 57.8px at 320px, by 72px tall, both over the 48px practical minimum                                                                                  |
-| Keyboard             | Cells are real `<button>`s. Pointer activation runs on the list, so cells act only on keyboard clicks, which arrive with `detail === 0`                                                           |
-| Long press           | Every target is also reachable by a visible control, so no action is gesture-only (WCAG 2.1.1, 2.5.1). That includes the two contextual holds, whose modals both have buttons on the product page |
-| Pointer cancellation | The press fires on the hold timer, and moving 10px abandons it (WCAG 2.5.2)                                                                                                                       |
-| Focus on open        | Sheets focus a named field, so a long press or a tap lands the cursor ready to type, except when opening into the filters                                                                         |
-| Icon-only controls   | "Očisti filtere" keeps its name in both `aria-label` and a tooltip below `md`, and renders the label outright above it                                                                            |
-| Focus order          | The bar is last in DOM order, so keyboard users reach content first. Its visual position is the bottom anyway                                                                                     |
-| Reduced motion       | The disc, the compaction and every scroll are all instant under `prefers-reduced-motion`                                                                                                          |
-| Inert under dialogs  | Sheets hand the page back, so the bar stays live under them; a real dialog keeps the body locked and its overlay covers the bar anyway                                                            |
+| Concern              | How it is handled                                                                                                                                                                                                                          |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Landmark             | A real `<nav>` with `aria-label="Glavna navigacija"`, plus `role="list"` on the `<ul>` because Tailwind's `list-style: none` drops list semantics in Safari. The header carries the only other `<nav>`                                     |
+| Current page         | `aria-current="page"` on the active cell, the only thing that conveys "you are here" to a screen reader                                                                                                                                    |
+| Locked cells         | A `disabled` button, so it is skipped by tab order and announced as unavailable, with its USKORO chip still readable                                                                                                                       |
+| Toggling controls    | The centre cell carries `aria-expanded`, and its accessible name changes to `Zatvori traženje` while the sheet is open                                                                                                                     |
+| Not colour alone     | Active state is the disc **plus** the tint **plus** a bold label, satisfying WCAG 1.4.1                                                                                                                                                    |
+| Touch targets        | Measured 65.8px wide at a 360px viewport and 57.8px at 320px, by 72px tall, both over the 48px practical minimum                                                                                                                           |
+| Keyboard             | Cells are real `<button>`s. Pointer activation runs on the list, so cells act only on keyboard clicks, which arrive with `detail === 0`                                                                                                    |
+| Long press           | Every target is also reachable by a visible control, so no action is gesture-only (WCAG 2.1.1, 2.5.1). That includes the two contextual holds, whose modals both have buttons on the product page                                          |
+| Pointer cancellation | The press fires on the hold timer, and moving 10px abandons it (WCAG 2.5.2)                                                                                                                                                                |
+| Focus on open        | Sheets focus a named field, so a long press or a tap lands the cursor ready to type, except when opening into the filters                                                                                                                  |
+| Icon-only controls   | "Očisti filtere" keeps its name in both `aria-label` and a tooltip below `md`, and renders the label outright above it                                                                                                                     |
+| Focus order          | The bar is last in DOM order, so keyboard users reach content first. Its visual position is the bottom anyway                                                                                                                              |
+| Reduced motion       | The disc, the compaction and every scroll are all instant under `prefers-reduced-motion`                                                                                                                                                   |
+| Inert under dialogs  | The non-modal products sheet hands the page back, so the bar stays live and above it. A modal sheet or dialog keeps the body locked, and the bar now drops below the scrim rather than sitting on top of it fully visible and inert anyway |
 
 **Do not** reach for `role="tablist"` and `role="tab"` here. Those are for in-page tab panels and imply roving-tabindex arrow-key navigation. A bottom nav is a list of destinations, so `<nav><ul><li><button>` is correct.
 
@@ -854,7 +857,7 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 | Safe-area padding                             | ✅ auto    | `env(safe-area-inset-bottom)`, once `viewportFit: "cover"` is set              |
 | Reserving page space for the bar              | ✅ auto    | The shell wrapper's padding derives from `--bottom-nav-total`                  |
 | Compaction on scroll                          | ✅ auto    | Scroll timeline, no listener                                                   |
-| Closing the search sheet on navigation        | ✅ auto    | Pathname effect, like `AppSidebar`, except on `/products`                      |
+| Closing the products sheet on navigation      | ✅ auto    | Pathname effect, like `AppSidebar`, except on `/products`                      |
 | Keeping a sheet clear of the bar              | ✅ auto    | `SheetShell` pads by `--sheet-bottom-clearance`; no call site sets padding     |
 | Routing a filter pick to `/products`          | ✅ auto    | On the route it amends the URL; off it, the pick and the query travel together |
 | Collapsing the filters between opens          | ✅ auto    | `open()` and `openFilters()` each set it as they open                          |
@@ -874,7 +877,7 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 
 ## 18. Gotchas & lessons learned
 
-**Cells must be `<button>`, never `<a href>`.** iOS shows a link-preview popover, a callout and a drag affordance on a long-pressed anchor, and `-webkit-touch-callout: none` is unreliable (an open Apple report against iOS 26.1). A button has none of those. SEO is unaffected because the prerendered header and sidebar already carry the crawlable links for these routes, which commit `c0c050c` specifically preserved.
+**Cells must be `<button>`, never `<a href>`.** iOS shows a link-preview popover, a callout and a drag affordance on a long-pressed anchor, and `-webkit-touch-callout: none` is unreliable (an open Apple report against iOS 26.1). A button has none of those. SEO is unaffected because the prerendered header and sidebar already carry the crawlable links for these routes, which commit `c0c050ce` specifically preserved.
 
 **`contextmenu` never fires on iOS long press.** It has not since iOS 13.1, so the gesture cannot be built on it and has to be a `pointerdown` timer.
 
@@ -900,7 +903,7 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 
 **Handle `onLostPointerCapture`.** A capture can be revoked with neither `pointerup` nor `pointercancel` (the pointer is removed, the element is detached, an OS gesture claims it). Without that handler the scrub highlight and a half-filled ring stay on screen until the next press.
 
-**Write hold progress to the element captured at press time.** Resolving the pressed cell inside the progress callback looks equivalent and is not: the drain runs for 120ms _after_ the gesture has ended and its index has been cleared, so a per-tick lookup finds nothing and the ring freezes at whatever fraction it had reached. `use-cell-hold.ts` holds the element in a ref from `pointerdown`.
+**Write hold progress to the element captured at press time.** Resolving the pressed cell inside the progress callback looks equivalent and is not: the drain runs for 120ms _after_ the gesture has ended and its index has been cleared, so a per-tick lookup finds nothing and the ring freezes at whatever fraction it had reached. `use-long-press-timer.ts` holds the element in a ref from `pointerdown`.
 
 **Fading a bar is not the same as fading its surface.** The compaction used element `opacity` on the `<ul>`, which composites the whole subtree, so the icons, the labels, the badge and the active disc all dimmed along with the surface, and the pill gained a stacking context for no reason. Animate a registered `<percentage>` into a `color-mix` on `background-color` instead.
 
@@ -913,17 +916,17 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 
 Two smaller things that make those holes worse: `touch-action: none` is set on the drawer, so it does not apply in a hole, leaving the browser free to pan the page instead; and shadcn's drawer replaces vaul's `Drawer.Handle` with a plain div, so the handle is `h-2`, which is **6.4px** under this project's `--spacing`, with no hit area around it.
 
-**`sr-only` on a header container takes its padding with it.** `sr-only` is `position: absolute`, so a row marked `sr-only` contributes no height at all, padding included. That is how the search sheet ended up with its grab handle 6.4px above the input: the shell hid the whole header row rather than just the title inside it. Put `sr-only` on the text and let the row keep its padding, and the gap holds whether or not anything is drawn in it.
+**`sr-only` on a header container takes its padding with it.** `sr-only` is `position: absolute`, so a row marked `sr-only` contributes no height at all, padding included. That is how the products sheet ended up with its grab handle 6.4px above the input: the shell hid the whole header row rather than just the title inside it. Put `sr-only` on the text and let the row keep its padding, and the gap holds whether or not anything is drawn in it.
 
-**A plain `max-h` on the sheet loses to `ui/drawer.tsx`'s data-variant.** The shell asked for `max-h-[85dvh]`, but `drawer.tsx` carries `data-[vaul-drawer-direction=bottom]:max-h-[80vh]`. tailwind-merge keeps both, because the variant prefixes differ, and the compiled compound selector then outranks the plain class on specificity. Measured before the fix: a 735px viewport gave a 588px cap, exactly 80%, not the 625px the shell asked for. Worse, `vh` is the **large** viewport, so it ignores browser chrome and the keyboard entirely, which is the one thing a search sheet cannot afford. The shell now states the cap with the same variant prefix, and it measures 624.75px.
+**A plain `max-h` on the sheet loses to `ui/drawer.tsx`'s data-variant.** The shell asked for `max-h-[85dvh]`, but `drawer.tsx` carries `data-[vaul-drawer-direction=bottom]:max-h-[80vh]`. tailwind-merge keeps both, because the variant prefixes differ, and the compiled compound selector then outranks the plain class on specificity. Measured before the fix: a 735px viewport gave a 588px cap, exactly 80%, not the 625px the shell asked for. Worse, `vh` is the **large** viewport, so it ignores browser chrome and the keyboard entirely, which is the one thing a products sheet cannot afford. The shell now states the cap with the same variant prefix, and it measures 624.75px.
 
 **The grab handle's clearance came from the header's padding, and it was short.** `pt-3` is 9.6px under this project's spacing scale, not the 16px the geometry table claimed; the full 16px only appeared when `sr-only` collapsed the row and its `pb-2` was added in. It is now an explicit `pt-[1rem]`, so a sheet with a visible title gets the same clearance as one without.
 
 **`DrawerOverlay` had no escape hatch.** `DrawerContent` renders it internally with no props, so its hardcoded `z-50` could not be reached from a call site. Overriding the content's `z-index` alone gets you a sheet _below_ its own scrim. `DrawerContent` now takes `overlayClassName`.
 
-**A submit button outside its form needs the `form` attribute, and gets more than submission from it.** Moving Pretraži into the footer took it out of `SearchBar`'s `<form>`, and DOM ancestry is what associates the two. `form="search-sheet-form"` restores it, and because the spec picks a form's default button as the first submit button whose _form owner_ is that form, the outside button is still what implicit submission activates. So Enter in the field keeps working, and disabling the button would also block Enter.
+**A submit button outside its form needs the `form` attribute, and gets more than submission from it.** Moving Pretraži into the footer took it out of `SearchBar`'s `<form>`, and DOM ancestry is what associates the two. `form="products-sheet-form"` restores it, and because the spec picks a form's default button as the first submit button whose _form owner_ is that form, the outside button is still what implicit submission activates. So Enter in the field keeps working, and disabling the button would also block Enter.
 
-**A component mounted in the root layout must not call `useSearchParams`.** `SearchSheet` lives there, so a hook reading the URL in its body would drop every page in the app out of the prerender. That is why the footer's comparison lives in `search-sheet-submit.tsx`: passed as a `footer` node it is only ever _created_ in the layout, and only rendered inside `DrawerContent`, which vaul mounts when the sheet opens. Creating an element calls no hooks.
+**A component mounted in the root layout must not call `useSearchParams`.** `ProductsSheet` lives there, so a hook reading the URL in its body would drop every page in the app out of the prerender. That is why the footer's comparison lives in `products-sheet-submit.tsx`: passed as a `footer` node it is only ever _created_ in the layout, and only rendered inside `DrawerContent`, which vaul mounts when the sheet opens. Creating an element calls no hooks.
 
 **Comparing the field against the URL flashes on a clear.** `handleClear` resets the field and _then_ navigates, so for one render an empty field sits over the old `q`, which reads as a change and lights the button up before the URL catches up. `isUnchanged` therefore treats an empty field as unchanged whatever the URL holds, which costs nothing because the clear button already drops the query and does it instantly. Chasing the pending navigation instead would need state shared across two `useSearchNavigation` instances, since the sheet's footer reads its own.
 
@@ -931,9 +934,9 @@ Two smaller things that make those holes worse: `touch-action: none` is set on t
 
 **A disabled trigger cannot open a tooltip.** `Button` sets `disabled:pointer-events-none`, so a tooltip-named icon button says nothing while disabled. That is fine for "Očisti filtere", which is disabled exactly when there is nothing to explain, but it rules out tooltips as the only label for a control that is disabled for a reason the user needs to know.
 
-**`useParams` is empty in the bar.** The bar and the search sheet are mounted in the root layout, which has no dynamic segment of its own, so a route's `[id]` never reaches them. Anything they need from the URL has to be parsed out of `usePathname()`, which is what `useProductPageEan` does. The same applies to `useSearchParams`, with a second cost attached, see above.
+**`useParams` is empty in the bar.** The bar and the products sheet are mounted in the root layout, which has no dynamic segment of its own, so a route's `[id]` never reaches them. Anything they need from the URL has to be parsed out of `usePathname()`, which is what `productEanFromPath` does. The same applies to `useSearchParams`, with a second cost attached, see above.
 
-**A layout-mounted sheet writes to whatever route it is on.** `SearchSheet` lives in the root layout, and `useFilterParams` builds its target from `usePathname()`. Rendering the filters panel unguarded would let a chain picked from the sheet rewrite `/map?chain=...`. The guard is a separate component because a hook-owning one cannot early-return without changing its hook order between renders.
+**A layout-mounted sheet writes to whatever route it is on.** `ProductsSheet` lives in the root layout, and `useFilterParams` builds its target from `usePathname()`. Rendering the filters panel unguarded would let a chain picked from the sheet rewrite `/map?chain=...`. The guard is a separate component because a hook-owning one cannot early-return without changing its hook order between renders.
 
 **`MultiSelect` emitted stale values when controlled.** Found while testing the panel and fixed in the same pass, though it predated it and reproduced on the products page's own filters sheet too, back when that existed: clear the filters, then pick one chain, and every cleared chain comes back. `toggleValue` derived its payload from an internal `Set` that is seeded once at mount and never re-synced, while the _display_ correctly read the `values` prop. So an owner changing `values` externally desynced the two, and the next toggle emitted `internal ± value` instead of `values ± value`. Both now read one `currentValues`.
 
@@ -952,6 +955,12 @@ Two smaller things that make those holes worse: `touch-action: none` is set on t
 **The by-ean cache must be seeded before opening a product modal.** Those modals are URL-driven and take no props, so without the seed they refetch what the caller already has and open empty. `useProductModals` is the one place that does it.
 
 **Dev overlays sat exactly on the bar.** Next's indicator lands bottom-left over the left cell and the React Query button bottom-right over Kartice, which makes the bar impossible to judge or test. Both are now off by default, see [§14](#14-config-env-vars-and-flags).
+
+**`modal={false}` is non-modal for pointer input only.** Verified against vaul v1.1.2's own source: it consumes `modal` internally, for scroll prevention, the body `pointer-events` reset and whether the overlay renders, and never forwards it to `DialogPrimitive.Root`. Radix therefore falls back to its own `modal={true}`, mounts `DialogContentModal`, calls `hideOthers()` and traps focus. So the products sheet genuinely hands the page back to a mouse or a thumb, but a keyboard or screen-reader user still gets the app `aria-hidden`-ed, including the bar that is the sheet's only close control. Upstream fixed it on `main`, but 1.1.2 is the newest published version, so there is nothing to upgrade to yet. Do not describe the sheet as non-modal for accessibility purposes until that ships.
+
+**The non-modal pointer-events rule must not be scoped to `[data-state="open"]`.** vaul animates out for 500ms while the state is already `closed`, and Radix restores the body's `pointer-events` only on unmount, so qualifying the rule left the entire page unclickable for half a second after every close. `body:has([data-sheet-non-modal])` already stops matching the moment the sheet unmounts, which is exactly the right window.
+
+**`--bottom-nav-total` is `max(gap, safe)`, not a sum.** The bar's own margin is `mb-[max(var(--bottom-nav-gap),var(--bottom-nav-safe))]`, so adding both over-reserved 12px on a notched phone and floated the page padding, the install banner and every sheet's clearance with it. The token exists precisely so the bar's footprint has one definition; it has to be the same expression the bar lays itself out with. It is also `0px` above `md`, where there is no bar, which is what lets a consumer that cannot express a breakpoint (sonner's `offset` prop) still come out right.
 
 **Two of five cells being teasers is a real risk, and locking them sharpens it.** No UX research endorses teaser destinations in primary navigation, and now two of the five tabs are visibly inert for everyone but an admin. If `Karta` and `Kartice` stay unshipped for long, 40% of the bar is dead weight and it starts reading as vaporware.
 
@@ -990,7 +999,40 @@ Selection mode is the one with real product upside: costing a subset of a list a
 - **Finish the layer scale.** `--z-overlay` and `--z-sidebar` are declared but unconsumed: dialogs, popovers and the desktop sidebar still carry shadcn's own `z-50` and `z-10`. Either migrate them or drop the two tokens, because a declared rung nothing stands on is worse than no rung.
 - **Clamp the active disc.** It is a hardcoded 3.6rem. That clears the pill by 7.5px at 320px, so there is headroom today, but a longer label in a future locale would need a `min()` against the cell width rather than a fixed size.
 - **Finish the off-route filters guard.** A facet pick from the sheet is routed to `/products` (`product-search-filters.tsx`), but `clearFilters` in `use-filter-params.ts` still does a `router.replace(pathname)` on whatever route the sheet is open over, and the displayed selections and the active count read that route's own search params. No shipped route carries `chain`, `location`, `category` or `brand`, so nothing misbehaves today, but the guard is one-sided and the next route that takes any of those params would expose it.
-- **Consider deriving the search sheet's close rule** instead of running it in an effect on `pathname`. Today the sheet paints one frame on the new route before closing, which is cosmetic. The obvious derived alternative reopens the sheet on a Back navigation, so it needs the open flag cleared as well as derived, not simply swapped.
+- **Consider deriving the products sheet's close rule** instead of running it in an effect on `pathname`. Today the sheet paints one frame on the new route before closing, which is cosmetic. The obvious derived alternative reopens the sheet on a Back navigation, so it needs the open flag cleared as well as derived, not simply swapped.
+
+### Settled in the 2026-07 multi-tool review
+
+A four-reviewer sweep (Claude Opus 5 subagents, Codex `gpt-5.6-sol`, CodeRabbit CLI, plus CodeRabbit's passes on PR #125) produced 71 findings against this branch. What it changed, and what it deliberately did not:
+
+**Fixed, and worth knowing about**
+
+| Was                                                          | Now                                                                                                                               |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| `decodeURIComponent` unguarded in root-layout chrome         | Guarded. `/products/50%` used to throw `URIError` during every page's render and white-screen the whole app shell                 |
+| The two gated quick actions closed the sheet, then pushed    | They replace the history entry. `closeModalUrl` pops with an async `history.back()`, so the push landed first and was thrown away |
+| A cold `?modal=product-actions` link rendered nothing        | The shell always renders: skeleton while pending, a message plus a close button when the product never resolves                   |
+| The bar's gesture accepted any pointer                       | Bound to the initiating `pointerId`. A second finger's release used to commit the cell under IT and cancel the real gesture       |
+| The hold ring was derived separately from the hold itself    | `resolveHoldTarget` answers once and the bar passes `hasHold` down                                                                |
+| Locked cells used the `disabled` attribute                   | `aria-disabled` plus `tabIndex={-1}`, because a disabled control swallows pointer events and a scrub could not start on one       |
+| The FAB sat below `--z-scroll-fade`                          | Raised to `--z-fab` (42). It was painting under an always-mounted 89.6px gradient exactly when visible                            |
+| The FAB was 44.8px with a 19.2px inset                       | Material's 56px / 24px / 24px, in explicit rem, because `--spacing: 0.2rem` made the utilities lie                                |
+| Every `navigator.share` rejection read as a dismissal        | Only `AbortError` does; the rest fall through to the clipboard                                                                    |
+| Six surfaces each derived the coming-soon rule               | One `isNavItemLocked`                                                                                                             |
+| Seven places built a `/products/<ean>` path, three unencoded | One `productPath`                                                                                                                 |
+
+**Deliberately not fixed**
+
+- **Poppers inside a sheet are occluded by the bar.** A facet select collision-positioned low in the products sheet can land under the pill. The popper portals into the drawer container on purpose, so touch scrolling works, which puts it inside a `z-44` stacking context its own `z-50` cannot escape. The alternatives are re-portalling it, which breaks the scrolling, or a hardcoded pixel `collisionPadding` that duplicates `--sheet-bottom-clearance`. Tracked as an issue instead.
+- **The install banner and the desktop FAB share the bottom-right corner.** The ladder decides which wins now, rather than paint order. Accepted as-is.
+- **"Obavijesti me" opens a settings tab whose toggles are all `comingSoon`.** A product decision, not a defect, and out of scope for a review pass.
+- **Multi-line explanatory comments.** AGENTS.md discourages them and this subsystem is full of them. Kept deliberately: they record browser and library behaviour that no rename or split can encode, and this document exists for the rest.
+
+**Still open**
+
+- **`findNavItem` takes a `string`.** A wrong id is a runtime throw at module evaluation rather than a compile error. A real fix needs the item arrays converted to `as const` assertions, which is wider than this pass.
+- **Relevance ranking only ever sorts one page.** `sortProductsByRelevance` can reorder only what the capped request returned, so a better match beyond the limit cannot surface. Blocked on the price API: filed upstream, asking for relevance-ordered results plus `offset` and `total`.
+- **`viewportFit: "cover"` beyond the bottom inset.** The bar now consumes the horizontal insets, which are 0 except on a notched device in landscape, but the fixed header and side controls have not been checked on real hardware.
 
 ---
 
@@ -1027,7 +1069,7 @@ Carried over from the build spec this feature was written against, which is why 
 - [ ] Teaser cells take no tap, no focus, no scrub tint and no hold as a non-admin, and do as an admin
 - [ ] Signed out, the protected cells still navigate and the pages explain themselves
 
-### The search sheet
+### The products sheet
 
 - [ ] Opens above the bar with the field focused and the filters collapsed
 - [ ] The page behind it scrolls and takes clicks while it is open

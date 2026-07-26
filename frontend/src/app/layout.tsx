@@ -110,7 +110,8 @@ export const viewport: Viewport = {
   // would sit under the iOS home indicator.
   viewportFit: "cover",
   // Shrinks the layout viewport when the keyboard opens, so fixed bottom
-  // elements reposition instead of hiding behind it. Chromium and Firefox only.
+  // elements reposition instead of hiding behind it. Chrome Android 108+,
+  // Firefox Android 133+ and Samsung Internet; iOS Safari ignores it.
   interactiveWidget: "resizes-content",
 };
 
