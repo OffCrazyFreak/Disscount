@@ -79,6 +79,7 @@ export const userNavItems: INavigationItem[] = [
     href: "/spending",
     label: "Potrošnja",
     icon: PiggyBank,
+    // TODO(#127): generate its PWA shortcut icon before dropping this flag.
     comingSoon: true,
 
     showInHeader: false,
