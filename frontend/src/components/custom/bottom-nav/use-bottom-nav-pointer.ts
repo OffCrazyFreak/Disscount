@@ -29,6 +29,7 @@ export default function useBottomNavPointer({
   const [scrubIndex, setScrubIndex] = useState<number | null>(null);
   const hold = useCellHold();
   const pressedIndex = useRef<number | null>(null);
+  const pointerId = useRef<number | null>(null);
   const origin = useRef({ x: 0, y: 0 });
   const consumed = useRef(false);
   const latest = useRef({ onActivate, holdFor });
@@ -43,7 +44,11 @@ export default function useBottomNavPointer({
         event.clientX < BAR_EDGE_EXCLUSION_PX ||
         window.innerWidth - event.clientX < BAR_EDGE_EXCLUSION_PX;
 
-      if (!event.isPrimary || nearEdge) return;
+      // isPrimary identifies the primary pointer, not the pressed button, so a
+      // right-click would otherwise start and commit a gesture.
+      const isMainButton = event.pointerType !== "mouse" || event.button === 0;
+
+      if (!event.isPrimary || !isMainButton || nearEdge) return;
 
       const index = indexFromPoint(
         event.currentTarget,
@@ -52,6 +57,7 @@ export default function useBottomNavPointer({
       );
       if (index === null) return;
 
+      pointerId.current = event.pointerId;
       pressedIndex.current = index;
       origin.current = { x: event.clientX, y: event.clientY };
       consumed.current = false;
@@ -72,6 +78,7 @@ export default function useBottomNavPointer({
   const move = useCallback(
     (event: ReactPointerEvent<HTMLUListElement>) => {
       if (pressedIndex.current === null) return;
+      if (event.pointerId !== pointerId.current) return;
 
       const index = indexFromPoint(
         event.currentTarget,
@@ -96,6 +103,11 @@ export default function useBottomNavPointer({
    */
   const finish = useCallback(
     (event: ReactPointerEvent<HTMLUListElement>, activates: boolean) => {
+      // A second finger lands on the bar as its own pointer, and capture only
+      // binds the first, so without this its release would commit the cell under
+      // IT and cancel the real gesture.
+      if (event.pointerId !== pointerId.current) return;
+
       if (event.currentTarget.hasPointerCapture(event.pointerId))
         event.currentTarget.releasePointerCapture(event.pointerId);
 
@@ -107,6 +119,7 @@ export default function useBottomNavPointer({
 
       hold.cancel();
       pressedIndex.current = null;
+      pointerId.current = null;
       setScrubIndex(null);
 
       if (activates && !consumed.current && index !== null)

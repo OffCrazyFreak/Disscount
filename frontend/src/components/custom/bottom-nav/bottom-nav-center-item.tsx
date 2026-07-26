@@ -47,10 +47,12 @@ export default function BottomNavCenterItem({
   onKeyboardActivate,
 }: IBottomNavCenterItemProps) {
   return (
-    <li className={CELL_ITEM_CLASS}>
+    <li className={CELL_ITEM_CLASS} data-nav-cell>
       <button
         type="button"
-        aria-label={isSearchOpen ? "Zatvori traženje" : `${label}, traži`}
+        // The visible word stays in the name in both states, so speech control
+        // can still address the cell while the sheet is open (WCAG 2.5.3).
+        aria-label={isSearchOpen ? `${label}, zatvori` : `${label}, traži`}
         aria-current={isActive ? "page" : undefined}
         aria-expanded={isSearchOpen}
         onClick={(event) => {

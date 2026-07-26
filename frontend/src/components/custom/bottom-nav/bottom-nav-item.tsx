@@ -23,6 +23,8 @@ interface IBottomNavItemProps {
   isLocked: boolean;
   /** Holds the one active disc, which a thumb borrows while it scrubs */
   showsDisc: boolean;
+  /** Resolved by the bar, so the ring cannot disagree with what a hold does */
+  hasHold: boolean;
   indicatorOpacity: IndicatorOpacity;
   badgeCount?: number;
   /** How much of the active shopping list is ticked off, 0 to 1 */
@@ -44,26 +46,29 @@ export default function BottomNavItem({
   isScrubbed,
   isLocked,
   showsDisc,
+  hasHold,
   indicatorOpacity,
   badgeCount,
   listProgress,
   canReturn,
   onKeyboardActivate,
 }: IBottomNavItemProps) {
-  const { item, longPressTarget, longPressEnabled } = entry;
+  const { item } = entry;
 
-  const hasLongPress =
-    Boolean(longPressTarget && longPressEnabled) && !isLocked;
   // A locked cell is still `aria-current` when its route is open by URL, but it
   // must not look like a tab you arrived at by tapping it.
   const showsActive = isActive && !isLocked;
   const isPressed = isScrubbed && !isLocked;
 
   return (
-    <li className={CELL_ITEM_CLASS}>
+    <li className={CELL_ITEM_CLASS} data-nav-cell>
       <button
         type="button"
-        disabled={isLocked}
+        // aria-disabled, not disabled: browsers suppress pointer events on a
+        // disabled control, so a press starting here would never reach the list
+        // and you could not scrub off a locked cell onto a usable one.
+        aria-disabled={isLocked || undefined}
+        tabIndex={isLocked ? -1 : undefined}
         aria-current={isActive ? "page" : undefined}
         onClick={(event) => {
           if (isKeyboardClick(event)) onKeyboardActivate();
@@ -86,7 +91,7 @@ export default function BottomNavItem({
           />
         )}
 
-        {hasLongPress && (
+        {hasHold && (
           <BottomNavRing
             progress="var(--press-progress, 0)"
             className="stroke-primary"
@@ -96,7 +101,7 @@ export default function BottomNavItem({
         <BottomNavItemGlyph
           icon={item.icon}
           isPressed={isPressed}
-          badgeCount={item.badge && badgeCount ? badgeCount : undefined}
+          badgeCount={badgeCount}
           showsReturn={showsActive && canReturn}
         />
 

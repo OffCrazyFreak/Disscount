@@ -13,7 +13,11 @@ export default function useCellHold() {
   const cell = useRef<HTMLElement | null>(null);
   const fire = useRef<() => void>(() => {});
 
-  useEffect(() => () => timer.current?.cancel(), []);
+  useEffect(() => () => timer.current?.dispose(), []);
+
+  function resetCell() {
+    cell.current?.style.setProperty("--press-progress", "0");
+  }
 
   // Built on first press rather than during render, so the ref is only ever
   // touched from an event handler.
@@ -31,6 +35,10 @@ export default function useCellHold() {
 
   const start = useCallback(
     (target: Element | undefined, onFire: () => void) => {
+      // A drain still running on the previous cell is about to be cleared, so
+      // zero that cell here or it keeps a half-filled ring for good.
+      resetCell();
+
       cell.current = target instanceof HTMLElement ? target : null;
       fire.current = onFire;
 

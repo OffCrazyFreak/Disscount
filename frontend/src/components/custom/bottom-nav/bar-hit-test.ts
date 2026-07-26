@@ -17,7 +17,10 @@ export default function indexFromPoint(
   if (y < bounds.top - BAR_VERTICAL_SLOP_PX) return null;
   if (y > bounds.bottom + BAR_VERTICAL_SLOP_PX) return null;
 
-  const cells = [...bar.children];
+  // Queried by marker rather than taken as bar.children, so the index means the
+  // cell index even if anything else ever renders inside the list.
+  const cells = [...bar.querySelectorAll("[data-nav-cell]")];
+  if (!cells.length) return null;
 
   const hit = cells.findIndex((cell) => {
     const rect = cell.getBoundingClientRect();

@@ -8,6 +8,7 @@ import { clamp } from "@/utils/generic";
 export interface ILongPressTimer {
   start: () => void;
   cancel: () => void;
+  dispose: () => void;
   isPending: () => boolean;
   hasFired: () => boolean;
 }
@@ -108,9 +109,20 @@ export function createLongPressTimer({
     );
   }
 
+  /**
+   * For unmount, where cancel() would be wrong: it starts a drain, so the ramp
+   * keeps scheduling frames and writing to a detached element for HOLD_DRAIN_MS.
+   */
+  function dispose() {
+    clear();
+    pending = false;
+    progress = 0;
+  }
+
   return {
     start,
     cancel,
+    dispose,
     isPending: () => pending,
     hasFired: () => fired,
   };

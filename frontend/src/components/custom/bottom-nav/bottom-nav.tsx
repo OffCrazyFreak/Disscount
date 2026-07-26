@@ -75,8 +75,10 @@ export default function BottomNav() {
       // real modals, whose overlay covers it anyway.
       className="bottom-nav-compacts fixed inset-x-0 bottom-0 z-[var(--z-bottom-nav)] md:hidden"
     >
-      {/* touch-none keeps a horizontal scrub from being read as a page pan */}
-      <ul className={SURFACE_CLASS} {...listProps}>
+      {/* touch-none keeps a horizontal scrub from being read as a page pan.
+          role="list" because Tailwind's list-style: none drops list semantics
+          in Safari, which otherwise announces five loose buttons. */}
+      <ul role="list" className={SURFACE_CLASS} {...listProps}>
         {cells.map(({ entry, isActive, isLocked }, index) =>
           entry.isSearch ? (
             <BottomNavCenterItem
@@ -97,10 +99,15 @@ export default function BottomNav() {
               isScrubbed={scrubIndex === index}
               isLocked={isLocked}
               showsDisc={discIndex === index}
+              hasHold={holdFor(index) !== null}
               indicatorOpacity={indicatorOpacity}
               // TODO: swap for a count of watched products whose price dropped
               // since the last visit, cleared on visit and capped at 9+.
-              badgeCount={hasNotifications ? notifications.length : undefined}
+              badgeCount={
+                entry.item.badge && hasNotifications
+                  ? notifications.length
+                  : undefined
+              }
               listProgress={
                 entry.item.id === "shopping-lists" ? listProgress : undefined
               }
