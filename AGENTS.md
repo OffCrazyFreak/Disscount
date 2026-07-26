@@ -22,7 +22,7 @@ These principles apply across the whole repo (frontend and backend).
 
 - If you need to add env variables, first notify the user and then update both the .env file and the example.env file. Always make sure they are in sync.
 
-- Never run dev servers or build commands, as stated per stack below. Except when during a framework or dependency migration, frontend or backend. Then it's allowed to test everything.
+- Never run dev servers, and only run build commands where the stack section below allows it. Except when during a framework or dependency migration, frontend or backend. Then it's allowed to test everything.
 
 ## Commit message requirement
 
@@ -50,25 +50,26 @@ Notes:
 
 Installed libs - reach for these instead of reinventing them (names only, versions in `package.json`):
 
-- Core: next, react, react-dom
+- Core: next, react, react-dom, server-only (import it in any module that must never reach the client)
 - Auth: better-auth
-- DB: drizzle-orm, drizzle-kit, pg, kysely (a direct dep only to pin better-auth's required peer, nothing imports it)
+- DB: drizzle-orm, drizzle-kit, pg (+ @types/pg), kysely (a direct dep only to pin better-auth's required peer, nothing imports it), dotenv (only `drizzle.config.ts` reads it, to load `.env.local` outside Next)
 - Data & state: @tanstack/react-query (+ devtools, persist-client, query-async-storage-persister), @tanstack/react-virtual
 - Forms & validation: react-hook-form, @hookform/resolvers, zod
 - HTTP: axios
-- UI: radix-ui (+ individual @radix-ui/react-\*), lucide-react, sonner, cmdk, vaul, class-variance-authority, clsx, tailwind-merge, tailwindcss, tw-animate-css
+- UI: radix-ui (+ individual @radix-ui/react-\*), lucide-react, sonner, cmdk, vaul, class-variance-authority, clsx, tailwind-merge, tailwindcss, @tailwindcss/postcss, tw-animate-css
 - Charts: recharts
 - Animation: motion
 - PWA & offline: @serwist/next, serwist, idb-keyval
 - Scanning: @yudiel/react-qr-scanner, barcode-detector
 - Email: resend, react-email
-- Images: sharp
-- Monitoring: @sentry/nextjs
-- Tooling: eslint, eslint-config-next, prettier, typescript, react-scan, @openapitools/openapi-generator-cli
+- Images: sharp (also what every `scripts/generate-*.mjs` brand generator runs on)
+- Monitoring: @sentry/nextjs, react-scan
+- Tooling: eslint (+ eslint-config-next; `eslint.config.mjs` is flat config), prettier, typescript, @types/node, @types/react, @types/react-dom, @openapitools/openapi-generator-cli
+- Not imported anywhere: baseline-browser-mapping, a direct dep only so `pnpm-workspace.yaml` can exempt it from the release-age gate; @eslint/eslintrc and the `disscount` self-link, both create-next-app leftovers that nothing reads
 
 ## Guidelines
 
-NEVER run "pnpm run dev" or any other development server command, because I always already have my dev server running. Also never run build commands.
+NEVER run "pnpm run dev" or any other development server command, because I always already have my dev server running. Running "pnpm build" is allowed, so you can verify a change the way CI does.
 
 NEVER use ":any" as a type in typescript code. Check the types and define proper interfaces or types when necessary.
 
@@ -112,18 +113,20 @@ NEVER run "mvn spring-boot:run" or any other development server command, because
 
 Non-obvious notes:
 
-- Java 21; the app is a resource server - `oauth2-resource-server` validates better-auth's ES256 JWTs via JWKS.
-- Tests run against H2.
+- The app is a resource server - `oauth2-resource-server` validates better-auth's ES256 JWTs via JWKS.
+- Tests run against H2, so anything Postgres-specific has to be portable or profile-guarded.
+- Versions come from the `spring-boot-starter-parent` BOM, so most dependencies carry no `<version>`. Only the ones outside the BOM pin their own.
 
 Installed libs - reach for these instead of reinventing them (versions in `pom.xml`):
 
 - Spring Boot starters: data-jpa, web, validation, security, oauth2-resource-server, mail, actuator
-- DB driver: postgresql
-- API docs: springdoc-openapi (Swagger UI at `/api-docs`) - its major tracks the Spring Boot major, so 2.x for Boot 3.x and 3.x for Boot 4.x
+- DB driver: postgresql (runtime scope)
+- API docs: springdoc-openapi-starter-webmvc-ui (Swagger UI at `/api-docs`) - its major tracks the Spring Boot major
 - Monitoring: sentry-spring-boot-starter-jakarta
-- Boilerplate: lombok
-- Config: springboot3-dotenv (me.paulschwarz), the Boot 3 module of spring-dotenv since its 5.0.1 artifact split
+- Boilerplate: lombok, pinned by a `lombok.version` property because the compiler's annotation processor path needs it explicitly
+- Config: springboot3-dotenv (me.paulschwarz), the Boot 3 artifact of spring-dotenv after its module split
 - Testing: spring-boot-starter-test, spring-security-test, h2
+- Build plugins: maven-compiler-plugin (holds the Java release + the Lombok processor path), spring-boot-maven-plugin
 
 # Deployment
 

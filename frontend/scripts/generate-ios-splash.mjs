@@ -8,6 +8,7 @@ import sharp from "sharp";
 import { readFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { renderCart, ROOT, WHITE as BACKGROUND } from "./lib/cart-source.mjs";
+import { SRGB } from "./lib/srgb.mjs";
 
 const OUT = path.join(ROOT, "public/splash");
 const WORDMARK = path.join(ROOT, "public/brand/logo/wordmark/wordmark-rgb.png");
@@ -61,7 +62,7 @@ for (const device of devices) {
         top: top + cartHeight + gap,
       },
     ])
-    .withIccProfile("srgb")
+    .withIccProfile(SRGB)
     .png()
     .toFile(path.join(OUT, `apple-splash-${pxWidth}-${pxHeight}.png`));
 }

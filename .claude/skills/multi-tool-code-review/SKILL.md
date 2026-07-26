@@ -81,7 +81,7 @@ Follow `04-fix-protocol.md`. If the harness supports plan mode, enter it first a
 
 ## Stage 3: Finalize
 
-1. Reproduce the host repo's **full CI gate** locally and get it green, including the production build, then push the branch once and open (or update) the PR into the target with a per-area summary body. Read `.github/workflows/` rather than assuming which steps CI runs.
+1. **Run the host repo's whole CI job locally before pushing**, not just the per-batch format and typecheck gate. Read its workflow file rather than assuming which steps CI runs, and run every one of them in order, including the production build. Pushing to find out is slower and noisier than reproducing it. Then push the branch once and open (or, when the branch already has one, update) the PR into the target with a per-area summary body.
 2. File GitHub issues (labeled) for every finding the user excluded, and for anything you deferred. Surface deferrals with a recommendation; never silently skip.
 3. Offer a recap and to watch CI settle.
 
@@ -90,7 +90,8 @@ Follow `04-fix-protocol.md`. If the harness supports plan mode, enter it first a
 - Ask if you are unsure of anything rather than assuming. Follow the host repo's `AGENTS.md` / `CLAUDE.md` closely.
 - No em dashes anywhere (chat, docs, commits, comments).
 - Do not hardcode any model; ask the user each run and recommend from a fresh online check.
-- Frontend gate: `prettier --write <files>` then `tsc --noEmit`, invoked as binaries from `node_modules/.bin/` (in this repo `pnpm exec` purges `node_modules`). Ignore the known pre-existing `PageProps` / `RouteContext` generated-type errors (they come from Next's typegen, not your changes). Before pushing, reproduce the full CI gate from `.github/workflows/`, production build included.
+- Frontend gate: `pnpm exec prettier --write <files>` then `pnpm exec tsc --noEmit`. Run `pnpm exec next typegen` first and the typecheck is clean; without it, `tsc` reports `PageProps` / `RouteContext` errors that are missing generated route types rather than real defects. Before pushing, reproduce the full CI job from `.github/workflows/`, production build included.
+- In a **worktree with symlinked `node_modules`**, do not use `pnpm exec` or `pnpm run`: both run a deps-status check, see the symlink as out of sync, and try to purge the main tree's real `node_modules` through it. Call the binary directly there instead. In a normal checkout `pnpm exec` is fine.
 - If `pnpm` is not on PATH, prepend it: `export PATH="$HOME/.local/share/pnpm/bin:$HOME/.local/share/nvm/*/bin:$PATH"`.
-- Never run the dev server, a build, or any deploy/Docker command.
+- Never run the dev server or any deploy/Docker command. The production build is allowed, and Stage 3 expects it.
 - Runner outputs and the triage doc live under `reviews/` (gitignored). Keep them out of commits; `git add` explicit files, never `-A`.

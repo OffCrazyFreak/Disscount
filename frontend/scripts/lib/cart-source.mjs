@@ -17,7 +17,6 @@ const SRC = path.join(ROOT, "public/brand/logo/cart/cart-rgb.svg");
 const ASPECT = 50.5 / 68;
 
 const WHITE = { r: 255, g: 255, b: 255, alpha: 1 };
-const TRANSPARENT = { r: 0, g: 0, b: 0, alpha: 0 };
 
 // The <style> block renders the animation's first frame (body hidden via
 // stroke-dashoffset, wheels at scale 0). Drop it so we capture the finished
@@ -40,15 +39,15 @@ export async function renderCart(width) {
 
 // The cart centered on a solid square, occupying `ratio` of the square's width.
 // Line-art needs a tighter crop at small sizes to stay legible, hence the knob.
-export async function cartOnSquare(size, ratio, background = WHITE) {
+export async function cartOnSquare(size, ratio) {
   const cart = await renderCart(Math.round(size * ratio));
 
   return sharp({
-    create: { width: size, height: size, channels: 4, background },
+    create: { width: size, height: size, channels: 4, background: WHITE },
   })
     .composite([{ input: cart, gravity: "centre" }])
     .png()
     .toBuffer();
 }
 
-export { ROOT, ASPECT, WHITE, TRANSPARENT };
+export { ROOT, WHITE };

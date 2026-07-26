@@ -1,6 +1,7 @@
 // Shared draw-on animation math for the happy cart. librsvg can't play the
 // SVG animation, so both the cart and lockup animators rebuild it frame by
 // frame from these easings and the per-frame cart group.
+import { GREEN } from "./brand.mjs";
 
 // Solves a CSS cubic-bezier easing y for a given progress x (Newton-Raphson).
 export function bezier(x1, y1, x2, y2) {
@@ -31,7 +32,6 @@ export const seg = (T, start, dur) =>
   Math.min(1, Math.max(0, (T - start) / dur));
 
 export const CART_END = 1.6; // seconds until the last cart element finishes
-export const GREEN = "#2ec50d"; // brand green, matches the app's --primary
 
 // Pulls the two animated path strings out of cart-animated.svg.
 export function extractPaths(svg) {

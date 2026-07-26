@@ -28,6 +28,7 @@ export interface INavigationItem {
   icon: LucideIcon;
   badge?: boolean; // For items that can show badge counts
   comingSoon?: boolean; // Show an "USKORO" badge for not-yet-available features
+  shortcutDescription?: string; // Read out by assistive tech; its presence opts the item into a PWA shortcut
   showInHeader: boolean; // Show in desktop header navigation
   isCollapsible?: boolean; // Has sub-menu (Kategorije, Trgovine, Lokacije)
   children?: INavigationItem[]; // Nested items shown indented under this one
@@ -61,6 +62,7 @@ export const userNavItems: INavigationItem[] = [
     label: "Popisi za kupnju",
     shortLabel: "Popisi",
     icon: ListChecks,
+    shortcutDescription: "Otvori svoje popise za kupnju",
 
     showInHeader: true,
   },
@@ -71,6 +73,7 @@ export const userNavItems: INavigationItem[] = [
     shortLabel: "Praćenje",
     icon: Eye,
     badge: true,
+    shortcutDescription: "Pogledaj proizvode koje pratiš",
 
     showInHeader: true,
   },
@@ -80,6 +83,8 @@ export const userNavItems: INavigationItem[] = [
     label: "Digitalne kartice",
     shortLabel: "Kartice",
     icon: CreditCard,
+    shortcutDescription: "Otvori svoje digitalne kartice",
+    // TODO(#127): generate its PWA shortcut icon before dropping this flag.
     comingSoon: true,
 
     showInHeader: true,
@@ -89,6 +94,8 @@ export const userNavItems: INavigationItem[] = [
     href: "/spending",
     label: "Potrošnja",
     icon: PiggyBank,
+    shortcutDescription: "Pregledaj svoju potrošnju",
+    // TODO(#127): generate its PWA shortcut icon before dropping this flag.
     comingSoon: true,
 
     showInHeader: false,
@@ -131,6 +138,8 @@ export const productNavItems: INavigationItem[] = [
     href: "/map",
     label: "Karta",
     icon: MapIcon,
+    // TODO(#127): manifest.ts only reads userNavItems, so a PWA shortcut for
+    // this one needs adding by hand.
     comingSoon: true,
 
     showInHeader: false,

@@ -77,25 +77,33 @@ This is an auto-commit workflow (a standing "never commit unless asked" rule is 
 
 ## Verifying
 
-Two levels, and do not conflate them.
+There are two levels: a fast gate per batch, and one full local CI run before the push.
 
-**Per batch, before committing**, run the host repo's format + typecheck gate as defined in its `AGENTS.md`. For this repo:
+**Per batch** (or per finding for risky ones), run the host repo's own format + typecheck gate before committing, as defined in its `AGENTS.md`. For this repo the gate is:
 
 ```bash
 cd frontend
-./node_modules/.bin/prettier --write <changed files>
-./node_modules/.bin/tsc --noEmit 2>&1 | grep -E "error TS" | grep -vE "PageProps|RouteContext"
+pnpm exec next typegen        # once per session is enough
+pnpm exec prettier --write <changed files>
+pnpm exec tsc --noEmit 2>&1 | grep -E "error TS"
 ```
 
-The grep must print nothing. The `PageProps` / `RouteContext` errors are Next's generated-types noise (produced by `next build` in CI, absent in a standalone `tsc`); they are not yours.
+The grep must print nothing. `PageProps` / `RouteContext` errors are missing generated route types, not defects: run `next typegen` once and they disappear, which is exactly what CI does before it typechecks. Prefer that over filtering them out, so a real error in a page file cannot hide behind the filter.
 
-**Invoke the binaries directly, not through `pnpm exec`, in this repo:** `pnpm exec` purges `node_modules` here, which costs a full reinstall mid-run. Check the host repo's `AGENTS.md` and memory for the equivalent trap before using a package-manager wrapper.
+In a **worktree with symlinked `node_modules`**, do not use `pnpm exec` or `pnpm run`: both run a deps-status check, see the symlink as out of sync, and try to purge the main tree's real `node_modules` through it. Call the binary directly there (`./node_modules/.bin/tsc`). In a normal checkout `pnpm exec` is fine.
 
-**Once, at the end**, reproduce the **full CI gate** before pushing. Read `.github/workflows/` instead of assuming the steps; CI usually does more than typecheck. For this repo that is route typegen, `tsc`, `eslint src`, `prettier --check src`, `prettier --check` over the root and docs markdown, and a production `pnpm run build` with CI's env vars.
+**Before pushing, once**, reproduce the whole CI job locally instead of pushing to find out. Read the workflow file (`.github/workflows/*.yml`) and run every step it runs, in order, with the same environment it injects. For this repo that is `next typegen`, `tsc --noEmit`, `eslint src`, both `prettier --check` invocations, and the production build:
 
-A production build writes to the framework's build directory, which a running dev server also uses, so warn the user that they may need to restart it. If the host repo forbids build commands, this end-of-run build is the one place to ask for an explicit exception rather than assume one.
+```bash
+cd frontend
+DATABASE_URL=... BETTER_AUTH_SECRET=... <the workflow's env block> pnpm build
+```
 
-The backend is validated by CI (`mvn verify` on H2); do not run `mvn` locally. Be extra careful with Java syntax since it is not locally compiled. Skip the backend gate entirely when the diff touches no backend files, and say so. If the skill is reused on another repo, swap in that repo's commands.
+Copy the dummy env values straight out of the workflow; the build only needs them present. Skip `pnpm install --frozen-lockfile` when you are in a worktree with symlinked `node_modules`, and expect the build to be much the slowest step, so start it in the background.
+
+A production build writes to the framework's build directory, which a running dev server also uses, so warn the user that they may need to restart it. If the host repo forbids build commands, this is the one place to ask for an explicit exception rather than assume one.
+
+The backend is validated by CI (`mvn verify` on H2); do not run `mvn` locally. Be extra careful with Java syntax since it is not locally compiled. Skip the backend gate entirely when the diff touches no backend files, and say so. If the skill is reused on another repo, swap in that repo's lint/format/typecheck/build commands, and read its `AGENTS.md` first in case that repo forbids running a build.
 
 ## When to use subagents
 
@@ -155,7 +163,7 @@ Cross-link both directions: the issue names the commit, the commit names the fin
 
 ## Open the PR
 
-1. Full CI gate clean locally, production build included (see Verifying).
-2. Push the branch, once (only after the branch/PR target was confirmed with the user, which happens back at Checkpoint 1 so the fix runs unattended to here). If the branch already has an open PR, pushing updates it and no new PR is needed.
+1. Full local CI run clean, production build included (see Verifying).
+2. Push the branch, once (only after the branch/PR target was confirmed with the user, which happens back at Checkpoint 1 so the fix runs unattended to here). If the branch already has an open PR, pushing updates it and step 3 is a no-op.
 3. `gh pr create --base <target> --head <branch>` with a per-area summary body (write it to a file and use `--body-file`).
 4. Confirm CI kicks off. Offer a recap.

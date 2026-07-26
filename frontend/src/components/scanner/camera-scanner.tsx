@@ -40,6 +40,7 @@ export default function CameraScanner({
   const [error, setError] = useState<string | null>(null);
 
   const activeDeviceId = manualDeviceId ?? pickBackCamera(devices) ?? undefined;
+  const hasManualChoice = Boolean(manualDeviceId);
 
   function handleSelect(deviceId: string) {
     setManualDeviceId(deviceId);
@@ -83,11 +84,11 @@ export default function CameraScanner({
             />
           )}
 
-          {devices.length > 1 && (
+          {(devices.length > 1 || hasManualChoice) && (
             <CameraSelect
               devices={devices}
               value={activeDeviceId}
-              hasManualChoice={Boolean(manualDeviceId)}
+              hasManualChoice={hasManualChoice}
               onSelect={handleSelect}
               onReset={handleReset}
             />
