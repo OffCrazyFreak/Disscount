@@ -5,7 +5,7 @@
 // scripts/lib/cart-source.mjs for the shared source.
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { cartOnSquare, ROOT } from "./lib/cart-source.mjs";
+import { cartOnSquare, ROOT, WHITE } from "./lib/cart-source.mjs";
 import { writeSrgbPng } from "./lib/srgb.mjs";
 
 const ICONS = path.join(ROOT, "public/brand/icons");
@@ -59,10 +59,11 @@ await writeSrgbPng(
   await cartOnSquare(512, 0.7),
 );
 
-// Apple touch icon: no transparency, near-full crop.
+// Apple touch icon: near-full crop, flattened since iOS wants it opaque.
 await writeSrgbPng(
   path.join(ICONS, "apple-touch-icon-180.png"),
   await cartOnSquare(180, 0.86),
+  WHITE,
 );
 
 // favicon.ico: line-art needs the tightest crop to survive 16px.
