@@ -37,7 +37,7 @@ export default function ProductFiltersBar({
         onClick={openFilters}
       />
 
-      <ClearFiltersButton filters={filters} className="shrink-0" />
+      <ClearFiltersButton filters={filters} showLabel className="shrink-0" />
     </div>
   );
 }

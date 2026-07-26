@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import SearchBarActions from "@/components/custom/search/search-bar-actions";
-import SearchSubmitButton from "@/components/custom/search/search-submit-button";
+import SearchActionButton from "@/components/custom/search/search-action-button";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 import { useCameraScanner } from "@/context/scanner-context";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -146,10 +146,10 @@ export default function SearchBar({
         </div>
 
         {submitButtonLocation !== "none" && (
-          <SearchSubmitButton
+          <SearchActionButton
             label={submitLabel}
             block={submitButtonLocation === "block"}
-            disabled={isUnchanged(queryValue ?? "")}
+            isUnchanged={isUnchanged(queryValue ?? "")}
           />
         )}
       </form>

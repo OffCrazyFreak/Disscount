@@ -1,6 +1,6 @@
 "use client";
 
-import SearchSubmitButton from "@/components/custom/search/search-submit-button";
+import SearchActionButton from "@/components/custom/search/search-action-button";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 
 interface IProductsSheetSubmitProps {
@@ -26,11 +26,11 @@ export default function ProductsSheetSubmit({
   const { isUnchanged } = useSearchNavigation(searchRoute);
 
   return (
-    <SearchSubmitButton
+    <SearchActionButton
       label="Pretraži"
       block
       form={form}
-      disabled={isUnchanged(query)}
+      isUnchanged={isUnchanged(query)}
     />
   );
 }

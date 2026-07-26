@@ -1,55 +1,67 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
+import { cn } from "@/lib/utils";
 import type { INavigationItem } from "@/constants/navigation";
 
 /**
  * Pinned over the button rather than inside it, as in the sidebar: a disabled
  * button is half-transparent, and a badge that faded with it stopped being
- * readable.
+ * readable. pointer-events-none so it never eats a click meant for the link.
  */
-const BADGE_CLASS = "absolute top-1/2 right-3 -translate-y-1/2";
+const BADGE_CLASS =
+  "pointer-events-none absolute top-1/2 right-3 -translate-y-1/2";
 
 interface ISearchNavButtonProps {
   item: INavigationItem;
   /** A coming-soon item nobody but an admin may open */
   isLocked?: boolean;
+  /** Lets the sheet close itself, since a query-string change never will */
+  onNavigate?: () => void;
 }
 
 /**
  * A catalogue shortcut in the products sheet, outlined rather than filled so the
  * Pretraži button above it stays the one loud action.
  *
- * The sheet is the fourth nav surface after the sidebar, the header and the bar,
- * and it locks its coming-soon items exactly as those three do.
+ * A locked item stays a focusable link marked aria-disabled, rather than becoming
+ * a disabled button: a disabled control leaves the tab order entirely, so a
+ * keyboard user never reached it and never heard why it was closed.
  */
 export default function SearchNavButton({
   item,
   isLocked = false,
+  onNavigate,
 }: ISearchNavButtonProps) {
   const Icon = item.icon;
-
-  const label = (
-    <>
-      <Icon className="size-5" />
-
-      {item.label}
-    </>
-  );
+  const badgeId = `${item.id}-coming-soon`;
 
   return (
     <div className="relative">
-      {isLocked ? (
-        <Button type="button" variant="outline" disabled className="w-full">
-          {label}
-        </Button>
-      ) : (
-        <Button asChild variant="outline" className="w-full">
-          <Link href={item.href}>{label}</Link>
-        </Button>
-      )}
+      <Button asChild variant="outline" className="w-full">
+        <Link
+          href={item.href}
+          aria-disabled={isLocked || undefined}
+          aria-describedby={item.comingSoon ? badgeId : undefined}
+          onClick={(event) => {
+            if (isLocked) {
+              event.preventDefault();
+              return;
+            }
 
-      {item.comingSoon && <ComingSoonBadge className={BADGE_CLASS} />}
+            onNavigate?.();
+          }}
+          className={cn(isLocked && "cursor-not-allowed opacity-50")}
+        >
+          <Icon className="size-5" />
+
+          {item.label}
+        </Link>
+      </Button>
+
+      {item.comingSoon && (
+        <ComingSoonBadge id={badgeId} className={BADGE_CLASS} />
+      )}
     </div>
   );
 }

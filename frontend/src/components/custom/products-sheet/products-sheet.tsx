@@ -8,6 +8,7 @@ import ProductsSheetSubmit from "@/components/custom/products-sheet/products-she
 import SheetShell from "@/components/custom/modal/sheet-shell";
 import ProductSearchFilters from "@/app/products/components/product-search-filters";
 import { useProductsSheet } from "@/context/products-sheet-context";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useUser } from "@/context/user-context";
 import { isAdmin } from "@/lib/api/schemas/auth-user";
 import { findNavItem } from "@/constants/navigation";
@@ -31,14 +32,30 @@ export default function ProductsSheet() {
   const { isOpen, areFiltersOpen, setAreFiltersOpen, inputRef, close } =
     useProductsSheet();
   const [typedQuery, setTypedQuery] = useState("");
+  const [wasOpen, setWasOpen] = useState(false);
   const pathname = usePathname();
+  const isMobile = useIsMobile();
   const { user } = useUser();
 
-  // Leaving closes it, matching the sidebar, except on the route whose filters it
-  // carries: dismissing there would hide the controls it just revealed.
+  // Adjust-during-render rather than an effect, the same pattern as
+  // useLingeringTarget: the field unmounts with the sheet and remounts from the
+  // URL, so a value typed before a close would light the submit button against an
+  // empty input on reopen.
+  if (wasOpen !== isOpen) {
+    setWasOpen(isOpen);
+    if (!isOpen) setTypedQuery("");
+  }
+
+  // Any navigation closes it, so a search never leaves its own results covered.
   useEffect(() => {
-    if (pathname !== FILTERED_ROUTE) close();
+    close();
   }, [pathname, close]);
+
+  // md:hidden only hides it. Left open, Radix keeps the focus trap alive inside a
+  // display:none container and the bar's toggle state goes stale.
+  useEffect(() => {
+    if (!isMobile) close();
+  }, [isMobile, close]);
 
   return (
     <SheetShell
@@ -74,6 +91,7 @@ export default function ProductsSheet() {
         formId={PRODUCTS_FORM_ID}
         inputRef={inputRef}
         onQueryChange={setTypedQuery}
+        onSubmitted={close}
       />
 
       <SearchNavButton
@@ -81,6 +99,9 @@ export default function ProductsSheet() {
         isLocked={
           Boolean(discountsNavItem.comingSoon) && !isAdmin(user?.accountType)
         }
+        // A query-string change never trips the pathname effect above, so this
+        // has to close the sheet itself or it covers where it just sent you.
+        onNavigate={close}
       />
 
       <ProductSearchFilters
