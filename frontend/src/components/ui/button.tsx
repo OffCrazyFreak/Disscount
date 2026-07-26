@@ -196,7 +196,7 @@ const Button = React.forwardRef<
           iconPlacement === "left" &&
           !(hideIconOnLoading && loading) &&
           (effect === "expandIcon" ? (
-            <div className="w-0 translate-x-[0%] pr-0 opacity-0 transition-all duration-200 group-hover:w-5 group-hover:-translate-x-1 group-hover:pr-2 group-hover:opacity-100">
+            <div className="w-5 -translate-x-1 pr-2 opacity-100 transition-all duration-200 [@media(hover:hover)]:w-0 [@media(hover:hover)]:translate-x-[0%] [@media(hover:hover)]:pr-0 [@media(hover:hover)]:opacity-0 group-hover:w-5 group-hover:-translate-x-1 group-hover:pr-2 group-hover:opacity-100">
               <Icon className="size-5" />
             </div>
           ) : (
@@ -213,7 +213,7 @@ const Button = React.forwardRef<
           iconPlacement === "right" &&
           !(hideIconOnLoading && loading) &&
           (effect === "expandIcon" ? (
-            <div className="w-0 relative translate-x-[100%] pl-0 opacity-0 transition-all duration-200 group-hover:w-5 group-hover:translate-x-0 group-hover:pl-2 group-hover:opacity-100">
+            <div className="relative w-5 translate-x-0 pl-2 opacity-100 transition-all duration-200 [@media(hover:hover)]:w-0 [@media(hover:hover)]:translate-x-[100%] [@media(hover:hover)]:pl-0 [@media(hover:hover)]:opacity-0 group-hover:w-5 group-hover:translate-x-0 group-hover:pl-2 group-hover:opacity-100">
               <Icon className="size-5" />
             </div>
           ) : (
