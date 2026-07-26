@@ -143,13 +143,13 @@ Every crop ratio in the generators is fixed by one rule: **Android masks a `mask
 
 The safe zone for a masked icon is a circle centred on the tile with a **radius of 40% of the width**, so a diameter of 80%. Aggressive OEM masks can go tighter, down to the 72dp visible area of Android's 108dp adaptive-icon layer (**66.7%**). Anything whose bounding-box corners carry ink has to fit its _diagonal_ inside that circle, not its width.
 
-| Asset                        | Ratio  | Bound                                                                          |
-| ---------------------------- | ------ | ------------------------------------------------------------------------------ |
-| `icon-192` / `icon-512`      | `0.86` | never masked, so this is just the roomiest crop that keeps a visible margin    |
-| `icon-maskable-192` / `-512` | `0.70` | the cart is 68x50.5, so 0.70 wide puts its diagonal just inside the 80% circle |
-| `apple-touch-icon-180`       | `0.86` | iOS applies a squircle, whose corners the cart does not reach into             |
-| favicon frames               | `0.92` | line art needs the tightest crop to survive 16px                               |
-| shortcut glyphs              | `0.66` | lucide insets its art by about 2 of 24 units, landing the ink near 0.55        |
+| Asset                        | Ratio  | Bound                                                                       |
+| ---------------------------- | ------ | --------------------------------------------------------------------------- |
+| `icon-192` / `icon-512`      | `0.86` | never masked, so this is just the roomiest crop that keeps a visible margin |
+| `icon-maskable-192` / `-512` | `0.70` | the widest crop whose ink still sits on the 80% safe-zone boundary          |
+| `apple-touch-icon-180`       | `0.86` | iOS applies a squircle, whose corners the cart does not reach into          |
+| favicon frames               | `0.92` | line art needs the tightest crop to survive 16px                            |
+| shortcut glyphs              | `0.66` | lucide insets its art by about 2 of 24 units, landing the ink near 0.55     |
 
 Both maskable sizes ship so Chrome never falls back to an `any` icon merely because it wanted 192.
 

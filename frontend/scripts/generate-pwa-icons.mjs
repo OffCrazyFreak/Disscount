@@ -47,9 +47,9 @@ await writeSrgbPng(
   await cartOnSquare(512, 0.86),
 );
 
-// Maskable: cropped to the widest cart whose corners still clear the 80% safe
-// zone. Shipped at both launcher sizes so Chrome never has to fall back to an
-// "any" icon just because it wanted 192.
+// Maskable: the widest cart whose ink still sits on the 80% safe-zone boundary,
+// which a real squircle mask keeps whole. Shipped at both launcher sizes so
+// Chrome never has to fall back to an "any" icon just because it wanted 192.
 await writeSrgbPng(
   path.join(ICONS, "icon-maskable-192.png"),
   await cartOnSquare(192, 0.7),
