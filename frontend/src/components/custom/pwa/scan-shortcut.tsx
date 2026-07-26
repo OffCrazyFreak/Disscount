@@ -34,7 +34,7 @@ export default function ScanShortcut() {
     window.history.replaceState(
       null,
       "",
-      pathname + (query ? `?${query}` : ""),
+      pathname + (query ? `?${query}` : "") + window.location.hash,
     );
 
     openScanner({
