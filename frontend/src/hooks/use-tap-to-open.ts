@@ -16,17 +16,19 @@ import { HOLD_CANCEL_PX } from "@/constants/gestures";
 export default function useTapToOpen() {
   const [open, setOpen] = useState(false);
   const origin = useRef<{ x: number; y: number } | null>(null);
+  const pointerId = useRef<number | null>(null);
 
   const start = useCallback((event: ReactPointerEvent<HTMLElement>) => {
-    if (event.pointerType === "mouse") return;
+    if (event.pointerType === "mouse" || !event.isPrimary) return;
 
+    pointerId.current = event.pointerId;
     origin.current = { x: event.clientX, y: event.clientY };
     // Radix skips its own handler once the event is defaultPrevented.
     event.preventDefault();
   }, []);
 
   const move = useCallback((event: ReactPointerEvent<HTMLElement>) => {
-    if (!origin.current) return;
+    if (!origin.current || event.pointerId !== pointerId.current) return;
 
     const dx = event.clientX - origin.current.x;
     const dy = event.clientY - origin.current.y;
@@ -34,14 +36,20 @@ export default function useTapToOpen() {
     if (Math.hypot(dx, dy) > HOLD_CANCEL_PX) origin.current = null;
   }, []);
 
-  const cancel = useCallback(() => {
+  const cancel = useCallback((event: ReactPointerEvent<HTMLElement>) => {
+    if (event.pointerId !== pointerId.current) return;
+
     origin.current = null;
+    pointerId.current = null;
   }, []);
 
-  const commit = useCallback(() => {
-    if (!origin.current) return;
+  // Only the finger that started the press may resolve it, so a second touch
+  // cannot toggle the menu or release someone else's gesture.
+  const commit = useCallback((event: ReactPointerEvent<HTMLElement>) => {
+    if (!origin.current || event.pointerId !== pointerId.current) return;
 
     origin.current = null;
+    pointerId.current = null;
     setOpen((current) => !current);
   }, []);
 

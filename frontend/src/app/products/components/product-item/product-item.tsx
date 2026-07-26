@@ -30,9 +30,11 @@ const ProductItem = memo(function ProductItem({ product }: IProductItemProps) {
       name={product.name}
       brand={product.brand}
       category={category}
-      // A press that opened the sheet must not also navigate on release.
-      onClick={() => {
-        if (!hasFired()) navigateToProduct(product.ean, product);
+      // A press that opened the sheet must not also navigate on release. The
+      // keyboard path skips the guard, since hasFired stays true until the next
+      // pointerdown and Enter would otherwise be swallowed for good.
+      onClick={(viaKeyboard) => {
+        if (viaKeyboard || !hasFired()) navigateToProduct(product.ean, product);
       }}
       pressProps={pressProps}
       trailing={

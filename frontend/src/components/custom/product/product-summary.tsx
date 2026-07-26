@@ -1,6 +1,6 @@
 "use client";
 
-import { type MouseEvent, type ReactNode } from "react";
+import { type ComponentProps, type ReactNode } from "react";
 import Image from "next/image";
 
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,7 +17,10 @@ interface IProductSummaryProps {
   /** Prices, actions, or whatever the surface puts opposite the name */
   trailing?: ReactNode;
   /** Keeps a press on the trailing controls from reaching a clickable card */
-  onTrailingClick?: (event: MouseEvent) => void;
+  trailingProps?: Pick<
+    ComponentProps<"div">,
+    "onClick" | "onPointerDown" | "onPointerUp"
+  >;
   className?: string;
 }
 
@@ -34,7 +37,7 @@ export default function ProductSummary({
   imageUrl,
   isLoading = false,
   trailing,
-  onTrailingClick,
+  trailingProps,
   className,
 }: IProductSummaryProps) {
   const displayName = name && quantity ? `${name} (${quantity})` : name;
@@ -72,7 +75,7 @@ export default function ProductSummary({
         {trailing && (
           <div
             className="flex shrink-0 items-center justify-between gap-4"
-            onClick={onTrailingClick}
+            {...trailingProps}
           >
             {trailing}
           </div>

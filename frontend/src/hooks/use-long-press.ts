@@ -1,13 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import type { PointerEvent as ReactPointerEvent } from "react";
+import type {
+  MouseEvent as ReactMouseEvent,
+  PointerEvent as ReactPointerEvent,
+} from "react";
 import { HOLD_CANCEL_PX } from "@/constants/gestures";
 import { createLongPressTimer, type ILongPressTimer } from "@/utils/long-press";
 
 interface IUseLongPressOptions {
   onLongPress: () => void;
-  enabled?: boolean;
 }
 
 /**
@@ -18,10 +20,7 @@ interface IUseLongPressOptions {
  * through state, so the ring animates without re-rendering its subtree 27 times
  * per press.
  */
-export default function useLongPress({
-  onLongPress,
-  enabled = true,
-}: IUseLongPressOptions) {
+export default function useLongPress({ onLongPress }: IUseLongPressOptions) {
   const timer = useRef<ILongPressTimer | null>(null);
   const element = useRef<HTMLElement | null>(null);
   const origin = useRef({ x: 0, y: 0 });
@@ -31,7 +30,9 @@ export default function useLongPress({
     latest.current = onLongPress;
   });
 
-  useEffect(() => () => timer.current?.cancel(), []);
+  // dispose, not cancel: cancel starts a drain that would keep scheduling frames
+  // against a detached element.
+  useEffect(() => () => timer.current?.dispose(), []);
 
   // Built on first press rather than during render, so the ref is only ever
   // touched from an event handler.
@@ -47,13 +48,15 @@ export default function useLongPress({
 
   const start = useCallback(
     (event: ReactPointerEvent<HTMLElement>) => {
-      if (!enabled || !event.isPrimary) return;
+      // Touch and pen only. Holding a mouse button is not a long press, and the
+      // callout suppression below would take the desktop context menu with it.
+      if (event.pointerType === "mouse" || !event.isPrimary) return;
 
       element.current = event.currentTarget;
       origin.current = { x: event.clientX, y: event.clientY };
       getTimer().start();
     },
-    [enabled, getTimer],
+    [getTimer],
   );
 
   const move = useCallback((event: ReactPointerEvent<HTMLElement>) => {
@@ -74,8 +77,11 @@ export default function useLongPress({
     onPointerUp: cancel,
     onPointerCancel: cancel,
     onPointerLeave: cancel,
-    onContextMenu: (event: { preventDefault: () => void }) =>
-      event.preventDefault(),
+    // Suppressed only while a hold is in flight, so a desktop right-click, which
+    // never starts one, keeps its menu.
+    onContextMenu: (event: ReactMouseEvent<HTMLElement>) => {
+      if (timer.current?.isPending()) event.preventDefault();
+    },
     /** True once the press fired, so a click handler can skip its own action */
     hasFired: () => timer.current?.hasFired() ?? false,
   };
