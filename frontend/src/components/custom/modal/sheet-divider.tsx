@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
  * outranks a plain height class, so the override has to carry it too.
  */
 const DIVIDER_CLASS =
-  "rounded-full bg-muted-foreground/40 data-[orientation=horizontal]:h-1";
+  "rounded-full bg-muted-foreground/40 data-[orientation=horizontal]:h-0.5";
 
 interface ISheetDividerProps {
   className?: string;
