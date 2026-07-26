@@ -40,10 +40,12 @@ export default function SheetShellHeader({
 }: ISheetShellHeaderProps) {
   return (
     <div className="flex shrink-0 items-start justify-between gap-2 px-4 pt-[1rem] pb-2">
-      <div
-        className={cn("flex min-w-0 flex-col gap-1", srOnlyTitle && "sr-only")}
-      >
-        <DrawerTitle className="truncate text-lg">{title}</DrawerTitle>
+      <div className="flex min-w-0 flex-col gap-1">
+        <DrawerTitle
+          className={cn("truncate text-lg", srOnlyTitle && "sr-only")}
+        >
+          {title}
+        </DrawerTitle>
 
         {description && (
           <DrawerDescription className={cn(srOnlyDescription && "sr-only")}>

@@ -29,7 +29,7 @@ export default function WatchlistActionButton({
           size="icon"
           aria-label={actionLabel}
           className="size-10 sm:size-12 shrink-0"
-          onClick={openWatchlist}
+          onClick={() => openWatchlist()}
         >
           {isInWatchlist ? (
             <EyeOff className="size-6 sm:size-7" />

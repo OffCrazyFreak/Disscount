@@ -2,7 +2,9 @@
 
 import dynamic from "next/dynamic";
 
-import useLingeringTarget from "@/components/custom/modal-router/use-lingering-target";
+import useLingeringTarget, {
+  SHEET_EXIT_MS,
+} from "@/components/custom/modal-router/use-lingering-target";
 import type { ModalTarget } from "@/lib/modal/modal-registry";
 
 const ProductActionsSheet = dynamic(
@@ -22,7 +24,7 @@ export default function ProductActionsOutlet({
   target,
 }: IProductActionsOutletProps) {
   const active = target?.name === "product-actions" ? target : null;
-  const rendered = useLingeringTarget(active);
+  const rendered = useLingeringTarget(active, SHEET_EXIT_MS);
 
   if (!rendered) return null;
 

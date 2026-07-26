@@ -5,7 +5,7 @@ import { getMostFrequentCategory } from "@/app/products/utils/product-utils";
 import ProductUnitPriceDetails from "@/app/products/components/product-item/product-price";
 import ProductQuickActions from "@/components/custom/product/product-quick-actions";
 import ProductSummary from "@/components/custom/product/product-summary";
-import { useModalUrl } from "@/lib/modal/use-modal-url";
+import { closeModalUrl } from "@/lib/modal/modal-navigation";
 
 interface IProductActionsSheetProps {
   open: boolean;
@@ -21,25 +21,28 @@ export default function ProductActionsSheet({
   open,
   ean,
 }: IProductActionsSheetProps) {
-  const { closeModal } = useModalUrl();
-  const { data: product } = cijeneService.useGetProductByEan({ ean });
-
-  if (!product) return null;
+  const { data: product, isLoading } = cijeneService.useGetProductByEan({
+    ean,
+  });
 
   return (
     <ProductQuickActions
       product={product}
+      isLoading={isLoading}
       summary={
         <ProductSummary
-          name={product.name}
-          brand={product.brand}
-          category={getMostFrequentCategory(product)}
-          trailing={<ProductUnitPriceDetails product={product} />}
+          name={product?.name ?? null}
+          brand={product?.brand}
+          category={product ? getMostFrequentCategory(product) : null}
+          isLoading={isLoading}
+          trailing={
+            product ? <ProductUnitPriceDetails product={product} /> : undefined
+          }
           className="px-0 @md:px-0"
         />
       }
       open={open}
-      onOpenChange={(next) => !next && closeModal()}
+      onOpenChange={(next) => !next && closeModalUrl()}
     />
   );
 }

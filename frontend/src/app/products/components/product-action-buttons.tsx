@@ -71,7 +71,7 @@ export default function ProductActionButtons({
                 size="icon"
                 aria-label="Dodaj na popis za kupnju"
                 className="size-10 sm:size-12 shrink-0"
-                onClick={openAddToList}
+                onClick={() => openAddToList()}
               >
                 <ListPlus className="size-6 sm:size-7" />
               </Button>
