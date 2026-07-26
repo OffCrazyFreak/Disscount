@@ -43,7 +43,7 @@ export default function ProductSummary({
     <div className="@container">
       <div
         className={cn(
-          "flex flex-col justify-between gap-3 px-3 py-2 @min-[320px]:flex-row @min-[320px]:items-center @md:gap-4 @md:px-6 @md:py-4",
+          "flex flex-col justify-between gap-3 px-3 py-2 @min-[300px]:flex-row @min-[300px]:items-center @md:gap-4 @md:px-6 @md:py-4",
           className,
         )}
       >
