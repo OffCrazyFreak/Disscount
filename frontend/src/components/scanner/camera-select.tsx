@@ -61,7 +61,6 @@ export default function CameraSelect({
       {hasManualChoice && (
         <Tooltip>
           <TooltipTrigger asChild>
-            {/* The modal footer's reset button, kept icon-only beside the select. */}
             <Button
               type="button"
               variant="outline"
