@@ -29,7 +29,7 @@ export default function CartChaser({ anchorRef, active }: ICartChaserProps) {
       {active && (
         <motion.div
           aria-hidden="true"
-          className="pointer-events-none fixed left-0 top-0 z-30"
+          className="pointer-events-none fixed left-0 top-0 z-[var(--z-doodle)]"
           style={{ x: left, y: top }}
           initial={{ opacity: 0, scale: 2.6 }}
           animate={{ opacity: 1, scale: 1 }}

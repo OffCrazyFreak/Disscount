@@ -1,44 +1,61 @@
 "use client";
 
 import { ChevronsUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import FloatingActionButton from "@/components/custom/fab/floating-action-button";
 import { useScrolledPast } from "@/hooks/use-scrolled-past";
 import { scrollToTop } from "@/utils/scroll";
 
-interface IBackToTopButtonProps {
-  /** How far to scroll before the button appears */
-  threshold?: number;
-  containerClassName?: string;
-  label?: string;
-}
+/** Far enough down that the button answers a real problem rather than nagging */
+const THRESHOLD_PX = 600;
+
+const LABEL = "Natrag na vrh";
 
 /**
  * Returns a long, scrolled page to the top.
  *
- * Desktop only, at the same breakpoint where the bottom nav appears: on mobile
- * this is what re-tapping the active tab does, which is the convention on both
- * platforms and costs no chrome.
+ * Material's regular FAB is 56dp with a 24dp icon, held 24dp off the edge of a
+ * desktop window. Those are explicit rem values because this project sets
+ * --spacing to 0.2rem, so size-14 would render 44.8px, not the 56px the spec asks
+ * for, which is how the previous 44.8px button and its 19.2px inset happened.
+ *
+ * Desktop only: on mobile the bottom nav's active tab does this, and the bar
+ * already owns that corner. Mounted once in the root layout, so every page long
+ * enough to scroll gets one without having to ask.
  */
-export default function BackToTopButton({
-  threshold = 600,
-  containerClassName,
-  label = "Natrag na vrh",
-}: IBackToTopButtonProps) {
-  const isVisible = useScrolledPast(threshold);
+export default function BackToTopButton() {
+  const isVisible = useScrolledPast(THRESHOLD_PX);
 
   return (
-    <FloatingActionButton
-      onClick={scrollToTop}
-      icon={<ChevronsUp className="size-6" />}
-      label={label}
-      containerClassName={cn("hidden md:block", containerClassName)}
-      // inert also clears the tab order and a11y tree, which opacity alone leaves.
-      inert={!isVisible}
-      className={cn(
-        "size-12 sm:size-14 transition duration-300 motion-reduce:transition-none",
-        isVisible ? "scale-100 opacity-100" : "scale-75 opacity-0",
-      )}
-    />
+    // Click-through, so the hidden button leaves no dead zone in the corner.
+    <div className="pointer-events-none fixed right-[1.5rem] bottom-[1.5rem] z-[var(--z-fab)] hidden md:block">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            size="icon"
+            aria-label={LABEL}
+            onClick={scrollToTop}
+            // inert also clears the tab order and the a11y tree, which opacity
+            // alone leaves behind.
+            inert={!isVisible}
+            className={cn(
+              "pointer-events-auto size-[3.5rem] rounded-full shadow-lg",
+              "transition duration-300 motion-reduce:transition-none",
+              isVisible ? "scale-100 opacity-100" : "scale-75 opacity-0",
+            )}
+          >
+            <ChevronsUp className="size-[1.5rem]" />
+          </Button>
+        </TooltipTrigger>
+
+        <TooltipContent side="left">{LABEL}</TooltipContent>
+      </Tooltip>
+    </div>
   );
 }

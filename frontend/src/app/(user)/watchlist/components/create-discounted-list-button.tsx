@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import BackToTopButton from "@/components/custom/fab/back-to-top-button";
 import ResponsiveLabel from "@/components/custom/common/responsive-label";
 import { shoppingListService } from "@/lib/api";
 import { IWatchlistItemWithProduct } from "@/app/(user)/watchlist/utils/watchlist-utils";
@@ -114,8 +113,6 @@ export default function CreateDiscountedListButton({
           short={`Stvori popis (${addableProducts.length})`}
         />
       </Button>
-
-      <BackToTopButton />
     </>
   );
 }

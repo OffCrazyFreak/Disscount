@@ -8,6 +8,7 @@ import ProductsSheet from "@/components/custom/products-sheet/products-sheet";
 import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/common/footer";
 import WindowScrollFade from "@/components/custom/common/window-scroll-fade";
+import BackToTopButton from "@/components/custom/fab/back-to-top-button";
 import OAuthErrorToast from "@/components/custom/common/oauth-error-toast";
 import ModalRouter from "@/components/custom/modal-router/modal-router";
 import InstallBanner from "@/components/custom/pwa/install-banner";
@@ -173,6 +174,10 @@ export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
 
             {/* Bottom scrim on every scrollable page; self-hides at the end */}
             <WindowScrollFade />
+
+            {/* Desktop only, and only past 600px of scroll, so a short page
+                never shows one and no page has to opt in */}
+            <BackToTopButton />
 
             <BottomNav />
           </div>

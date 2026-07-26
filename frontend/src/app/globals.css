@@ -626,11 +626,21 @@ html {
   --z-bottom-nav: 45;
   --z-bottom-sheet: 44;
   --z-bottom-sheet-scrim: 43;
+  --z-fab: 42;
   --z-install-banner: 41;
   --z-scroll-fade: 40;
-  --z-back-to-top: 30;
+  /* Only while a modal sheet's scrim is up, see the rule further down */
+  --z-bottom-nav-covered: 39;
+  --z-doodle: 30;
   --z-header: 20;
   --z-sidebar: 10;
+}
+
+/* A modal sheet's scrim should cover the bar. Left on top it stays fully visible
+   while Radix's body lock makes it inert, which reads as a frozen UI. The
+   non-modal products sheet is the deliberate exception and keeps the bar above. */
+body:has([data-vaul-drawer][data-state="open"]:not([data-sheet-non-modal])) {
+  --z-bottom-nav: var(--z-bottom-nav-covered);
 }
 
 /* Mobile bottom navigation.
@@ -643,8 +653,10 @@ html {
   --bottom-nav-h: 4.5rem;
   --bottom-nav-gap: 0.75rem;
   --bottom-nav-safe: env(safe-area-inset-bottom, 0px);
+  /* max(), not a sum: the bar's own margin is max(gap, safe), so adding both
+     over-reserved 12px on a notched phone and floated everything keyed off this. */
   --bottom-nav-total: calc(
-    var(--bottom-nav-h) + var(--bottom-nav-gap) + var(--bottom-nav-safe)
+    var(--bottom-nav-h) + max(var(--bottom-nav-gap), var(--bottom-nav-safe))
   );
 
   /* Where every bottom sheet ends, so no sheet has to know the bar exists */
@@ -662,8 +674,12 @@ html {
    behind has to stay usable. vaul never passes `modal` down to Radix's dialog, so
    Radix always locks the body with an inline `pointer-events: none`, and vaul's
    own undo runs in a requestAnimationFrame and loses the race. Hence !important:
-   an inline style is the only thing this has to beat. */
-body:has([data-sheet-non-modal][data-state="open"]) {
+   an inline style is the only thing this has to beat.
+   Deliberately not scoped to [data-state="open"]: vaul animates out for 500ms
+   while the state is already "closed" and Radix only restores pointer events on
+   unmount, so qualifying it left the whole page unclickable for half a second
+   after every close. :has() already stops matching once the sheet unmounts. */
+body:has([data-sheet-non-modal]) {
   pointer-events: auto !important;
 }
 
@@ -696,6 +712,13 @@ body:has([data-sheet-non-modal][data-state="open"]) {
     --bottom-nav-label-height: 0rem;
     --bottom-nav-surface-alpha: 45%;
   }
+}
+
+/* viewportFit is "cover", so a notch or a rounded corner can eat into the bar in
+   landscape. These resolve to 0 in portrait and on every device without insets. */
+.bottom-nav-compacts {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
 }
 
 .bottom-nav-compacts > ul {

@@ -2,7 +2,6 @@
 
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import BackToTopButton from "@/components/custom/fab/back-to-top-button";
 import ResponsiveLabel from "@/components/custom/common/responsive-label";
 
 interface ICreateShoppingListButtonProps {
@@ -26,8 +25,6 @@ export default function CreateShoppingListButton({
       >
         <ResponsiveLabel full={buttonText} short="Stvori popis" />
       </Button>
-
-      <BackToTopButton />
     </>
   );
 }
