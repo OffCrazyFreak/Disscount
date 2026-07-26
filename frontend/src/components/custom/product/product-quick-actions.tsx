@@ -3,8 +3,8 @@
 import type { ReactNode } from "react";
 import { Eye, Image as ImageIcon, ListPlus, Share2 } from "lucide-react";
 import SheetShell from "@/components/custom/modal/sheet-shell";
+import SheetDivider from "@/components/custom/modal/sheet-divider";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import useProductModals from "@/hooks/use-product-modals";
 import useProductShare from "@/hooks/use-product-share";
@@ -55,7 +55,7 @@ export default function ProductQuickActions({
         <>
           {summary}
 
-          <Separator className="mb-1" />
+          <SheetDivider className="mb-1" />
         </>
       )}
 
