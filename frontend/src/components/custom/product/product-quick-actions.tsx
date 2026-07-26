@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { Eye, Image as ImageIcon, ListPlus, Share2 } from "lucide-react";
 import SheetShell from "@/components/custom/modal/sheet-shell";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import useProductModals from "@/hooks/use-product-modals";
 import useProductShare from "@/hooks/use-product-share";
@@ -14,11 +15,7 @@ const ACTION_CLASS = "w-full justify-start gap-3";
 
 interface IProductQuickActionsProps {
   product: ProductResponse;
-  /**
-   * The product as the list already draws it. Injected rather than imported,
-   * because the price display belongs to the products feature and this sheet
-   * does not.
-   */
+  /** The product as the list draws it; injected, since it is feature code */
   summary?: ReactNode;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -49,13 +46,18 @@ export default function ProductQuickActions({
       open={open}
       onOpenChange={onOpenChange}
       title={product.name ?? product.ean}
-      // The summary names the product already, and far better than a truncated
-      // title row could.
+      // The summary names the product better than a truncated title row could.
       srOnlyTitle
       description="Radnje za odabrani proizvod."
       bodyClassName="gap-2"
     >
-      {summary}
+      {summary && (
+        <>
+          {summary}
+
+          <Separator className="mb-1" />
+        </>
+      )}
 
       <Button
         type="button"

@@ -15,9 +15,8 @@ interface IProductActionsOutletProps {
 }
 
 /**
- * Mounted outside the router's signed-in branch, because a shared link to a
- * product's actions must open for anyone. The two actions that need an account
- * raise the auth gate themselves when they are picked.
+ * Mounted outside the router's signed-in branch, since a shared link must open
+ * for anyone; the two gated actions raise the auth gate when they are picked.
  */
 export default function ProductActionsOutlet({
   target,

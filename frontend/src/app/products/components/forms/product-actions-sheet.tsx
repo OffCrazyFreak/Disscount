@@ -13,12 +13,9 @@ interface IProductActionsSheetProps {
 }
 
 /**
- * The URL-driven half of the quick-actions sheet: it resolves the product the
- * link names and lends the sheet the price display, which belongs to this
- * feature rather than to the shared sheet.
- *
- * The opener seeds the by-ean cache, so a long press opens this instantly and
- * only a cold shared link actually fetches.
+ * Resolves the product a shared link names and lends the sheet the price
+ * display, which belongs to this feature rather than to the shared sheet. The
+ * opener seeds the by-ean cache, so only a cold link actually fetches.
  */
 export default function ProductActionsSheet({
   open,
