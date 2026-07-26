@@ -22,7 +22,7 @@ These principles apply across the whole repo (frontend and backend).
 
 - If you need to add env variables, first notify the user and then update both the .env file and the example.env file. Always make sure they are in sync.
 
-- Never run dev servers or build commands, as stated per stack below. Except when during a framework or dependency migration, frontend or backend. Then it's allowed to test everything.
+- Never run dev servers, and only run build commands where the stack section below allows it. Except when during a framework or dependency migration, frontend or backend. Then it's allowed to test everything.
 
 ## Commit message requirement
 
@@ -69,7 +69,7 @@ Installed libs - reach for these instead of reinventing them (names only, versio
 
 ## Guidelines
 
-NEVER run "pnpm run dev" or any other development server command, because I always already have my dev server running. Also never run build commands.
+NEVER run "pnpm run dev" or any other development server command, because I always already have my dev server running. Running "pnpm build" is allowed, so you can verify a change the way CI does.
 
 NEVER use ":any" as a type in typescript code. Check the types and define proper interfaces or types when necessary.
 
