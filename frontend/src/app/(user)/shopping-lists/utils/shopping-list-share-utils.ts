@@ -6,6 +6,15 @@ import { formatDate } from "@/utils/strings";
 const RULE = "═".repeat(18);
 
 /**
+ * WhatsApp, Viber and Messenger all read *bold* and ~strikethrough~, and all
+ * need the markers to sit against a space, so a bought item reads as crossed off
+ * rather than as another thing left to find.
+ */
+function strikeWhenChecked(text: string, isChecked: boolean): string {
+  return isChecked ? `~${text}~` : text;
+}
+
+/**
  * Format shopping list as text for sharing
  * Sorts items by checked status, then shop (chainCode), then brand, then name
  * @param shoppingList The shopping list to format
@@ -40,7 +49,7 @@ export function formatShoppingListForSharing(
   });
 
   let shareText = `╔${RULE}\n`;
-  shareText += `📋 ${shoppingList.title}\n`;
+  shareText += `📋 *${shoppingList.title}*\n`;
   shareText += `╚${RULE}\n\n`;
   shareText += `📅 Stvoreno: ${formatDate(shoppingList.createdAt)}\n`;
   shareText += `🔄 Ažurirano: ${formatDate(shoppingList.updatedAt)}\n\n`;
@@ -48,7 +57,7 @@ export function formatShoppingListForSharing(
   // Format items
   sortedItems.forEach((item, index) => {
     const number = index + 1;
-    const checkbox = item.isChecked ? "[ x ]" : "[  ]";
+    const checkbox = item.isChecked ? "✅" : "⬜";
     const name = item.name;
     const brand = item.brand ? ` - ${item.brand}` : "";
     const unit = item.unit || "";
@@ -67,12 +76,14 @@ export function formatShoppingListForSharing(
     const storeName = item.chainCode ? getChainLabel(item.chainCode) : "";
     const store = storeName ? ` - ${storeName}` : "";
 
-    shareText += `${number}. ${checkbox} ${name}${brand}${unitAndQuantity}${amount}${store}\n`;
+    const details = `${name}${brand}${unitAndQuantity}${amount}${store}`;
+
+    shareText += `${number}. ${checkbox} ${strikeWhenChecked(details, item.isChecked)}\n`;
   });
 
   // Add branding footer
   shareText += `\n╔${RULE}\n`;
-  shareText += `✨ Popis stvoren pomoću Disscount\n`;
+  shareText += `✨ *Popis stvoren pomoću Disscount*\n`;
   shareText += `💰 Usporedi cijene i uštedi!\n`;
   shareText += `🌐 Isprobaj besplatno na disscount.me\n`;
   shareText += `╚${RULE}\n`;
