@@ -14,7 +14,6 @@ import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-import PageFab from "@/components/custom/fab/page-fab";
 
 interface IProductsClientProps {
   query: string;
@@ -122,8 +121,6 @@ export default function ProductsClient({ query }: IProductsClientProps) {
               </div>
             ))}
           </div>
-
-          <PageFab />
         </>
       ) : activeFilterCount > 0 ? (
         <div className="text-center py-12">

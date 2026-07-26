@@ -1,5 +1,4 @@
-import { Image as ImageIcon, ListPlus } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { Image as ImageIcon, ListPlus, Share2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -9,17 +8,19 @@ import {
 } from "@/components/ui/tooltip";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { cn } from "@/lib/utils";
-import { openModalUrl } from "@/lib/modal/modal-navigation";
-import { formatQuantity } from "@/utils/strings";
+import { productImageSearchUrl } from "@/utils/product-links";
+import { openExternal } from "@/utils/browser/open-external";
 import WatchlistActionButton from "@/app/products/components/watchlist-action-button";
+import useProductModals from "@/hooks/use-product-modals";
+import useProductShare from "@/hooks/use-product-share";
 import { watchlistService } from "@/lib/api";
-import { productByEanQueryKey } from "@/lib/cijene-api";
 
 interface IProductActionButtonsProps {
   product: ProductResponse;
   showSearchImage?: boolean;
   showAddToList?: boolean;
   showAddToWatchlist?: boolean;
+  showShare?: boolean;
   className?: string;
 }
 
@@ -28,21 +29,18 @@ export default function ProductActionButtons({
   showSearchImage = true,
   showAddToList = true,
   showAddToWatchlist = true,
+  showShare = true,
   className,
 }: IProductActionButtonsProps) {
-  const queryClient = useQueryClient();
   const { data: currentUserWatchlist = [] } =
     watchlistService.useGetCurrentUserWatchlist();
+
+  const { openAddToList } = useProductModals(product);
+  const share = useProductShare(product);
 
   const isInWatchlist = currentUserWatchlist.some(
     (watchlistItem) => watchlistItem.productApiId === product.ean,
   );
-
-  // Seeds the by-ean cache, since the URL-driven modal takes no props.
-  function openAddToList() {
-    queryClient.setQueryData(productByEanQueryKey(product.ean), product);
-    openModalUrl({ name: "add-to-list", ean: product.ean });
-  }
 
   return (
     <>
@@ -54,22 +52,7 @@ export default function ProductActionButtons({
                 size="icon"
                 aria-label="Pretraži sliku proizvoda"
                 className="size-10 sm:size-12 shrink-0"
-                onClick={() => {
-                  let searchQuery = `${product.name}`;
-
-                  if (product.brand) {
-                    searchQuery += ` ${product.brand}`;
-                  }
-
-                  if (product.quantity) {
-                    searchQuery += ` ${formatQuantity(product.quantity)}`;
-                  }
-
-                  const googleShoppingUrl = `https://www.google.com/search?udm=2&q=${encodeURIComponent(
-                    searchQuery,
-                  )}`;
-                  window.open(googleShoppingUrl, "_blank");
-                }}
+                onClick={() => openExternal(productImageSearchUrl(product))}
               >
                 <ImageIcon className="size-6 sm:size-7" />
               </Button>
@@ -88,7 +71,7 @@ export default function ProductActionButtons({
                 size="icon"
                 aria-label="Dodaj na popis za kupnju"
                 className="size-10 sm:size-12 shrink-0"
-                onClick={openAddToList}
+                onClick={() => openAddToList()}
               >
                 <ListPlus className="size-6 sm:size-7" />
               </Button>
@@ -105,6 +88,25 @@ export default function ProductActionButtons({
             product={product}
             isInWatchlist={isInWatchlist}
           />
+        )}
+
+        {showShare && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                aria-label="Podijeli proizvod"
+                className="size-10 sm:size-12 shrink-0"
+                onClick={share}
+              >
+                <Share2 className="size-6 sm:size-7" />
+              </Button>
+            </TooltipTrigger>
+
+            <TooltipContent className="px-2 py-1 text-xs">
+              Podijeli proizvod
+            </TooltipContent>
+          </Tooltip>
         )}
       </div>
     </>

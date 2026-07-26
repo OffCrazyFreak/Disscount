@@ -2,7 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import PageFab from "@/components/custom/fab/page-fab";
+import ResponsiveLabel from "@/components/custom/common/responsive-label";
 
 interface ICreateDigitalCardButtonProps {
   onCreateClick: () => void;
@@ -21,14 +21,9 @@ export default function CreateDigitalCardButton({
         onClick={onCreateClick}
         icon={Plus}
         iconPlacement="left"
-        className="hidden sm:inline-flex"
       >
-        {buttonText}
+        <ResponsiveLabel full={buttonText} short="Dodaj karticu" />
       </Button>
-
-      <PageFab
-        primary={{ icon: Plus, label: buttonText, onClick: onCreateClick }}
-      />
     </>
   );
 }

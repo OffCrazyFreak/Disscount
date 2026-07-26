@@ -7,12 +7,15 @@ interface IComingSoonProps {
   title?: string;
   description?: string;
   icon?: ReactNode;
+  /** A call to action, so a teaser reached from the bottom nav is not a dead end */
+  action?: ReactNode;
 }
 
 export default function ComingSoon({
   title,
   description = "Ova značajka je u izradi i bit će uskoro dostupna.",
   icon,
+  action,
 }: IComingSoonProps) {
   return (
     <div className="space-y-6">
@@ -26,6 +29,8 @@ export default function ComingSoon({
         <p className="max-w-md text-pretty text-muted-foreground">
           {description}
         </p>
+
+        {action}
       </div>
     </div>
   );

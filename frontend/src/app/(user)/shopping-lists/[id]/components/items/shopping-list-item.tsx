@@ -9,6 +9,7 @@ import RemoveItemButton from "@/app/(user)/shopping-lists/[id]/components/items/
 import ItemAmountControls from "@/app/(user)/shopping-lists/[id]/components/items/item-amount-controls";
 import ItemPriceDisplay from "@/app/(user)/shopping-lists/[id]/components/items/item-price-display";
 import type { IShoppingListItemUpdate } from "@/app/(user)/shopping-lists/[id]/typings/shopping-list-item-types";
+import { productPath } from "@/utils/product-links";
 
 interface IShoppingListItemProps {
   item: ShoppingListItemDto;
@@ -48,7 +49,7 @@ export default function ShoppingListItem({
           />
           <div className="flex-1">
             <Link
-              href={`/products/${item.ean}`}
+              href={productPath(item.ean)}
               className={`text-sm sm:text-md text-pretty hover:underline hover:text-primary cursor-pointer ${
                 item.isChecked ? "line-through text-gray-500" : ""
               }`}

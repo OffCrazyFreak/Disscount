@@ -12,7 +12,7 @@ export default function Header() {
   return (
     <>
       <header>
-        <nav className="fixed z-20 inset-x-4 my-4">
+        <nav className="fixed z-[var(--z-header)] inset-x-4 my-4">
           <div
             className={cn(
               "mx-auto max-w-6xl transition-all duration-300 px-2",

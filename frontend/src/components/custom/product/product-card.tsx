@@ -1,11 +1,9 @@
 "use client";
 
-import { KeyboardEvent, MouseEvent, ReactNode } from "react";
-import Image from "next/image";
+import { KeyboardEvent, ReactNode, type ComponentProps } from "react";
 
 import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import ProductInfo from "@/components/custom/product/product-info";
+import ProductSummary from "@/components/custom/product/product-summary";
 import { cn } from "@/lib/utils";
 
 interface IProductCardProps {
@@ -14,12 +12,32 @@ interface IProductCardProps {
   category: string | null;
   quantity?: string | null;
   imageUrl?: string | null;
-  onClick?: () => void;
+  /** `viaKeyboard` lets a consumer skip a gesture guard that only pointers need */
+  onClick?: (viaKeyboard?: boolean) => void;
   isLoading?: boolean;
   trailing?: ReactNode;
   className?: string;
+  /** Pointer handlers from useLongPress, for the quick-actions gesture */
+  pressProps?: Pick<
+    ComponentProps<"div">,
+    | "onPointerDown"
+    | "onPointerMove"
+    | "onPointerUp"
+    | "onPointerCancel"
+    | "onPointerLeave"
+    | "onContextMenu"
+  >;
 }
 
+function stopEvent(event: { stopPropagation: () => void }) {
+  event.stopPropagation();
+}
+
+/**
+ * A product as a tappable row in a list. The row's own contents live in
+ * ProductSummary, so a surface that wants the product without the card, such as
+ * the quick-actions sheet, takes that instead of restyling this.
+ */
 export default function ProductCard({
   name,
   brand,
@@ -30,12 +48,19 @@ export default function ProductCard({
   isLoading = false,
   trailing,
   className,
+  pressProps,
 }: IProductCardProps) {
-  const displayName = name && quantity ? `${name} (${quantity})` : name;
-
-  function stopCardNavigation(event: MouseEvent) {
-    if (onClick) event.stopPropagation();
-  }
+  // The card owns the long-press gesture, so a press on the trailing controls
+  // must not reach it. Stopping click alone still let a hold there open the sheet
+  // and then run the button on release.
+  const trailingProps =
+    onClick || pressProps
+      ? {
+          onClick: stopEvent,
+          onPointerDown: stopEvent,
+          onPointerUp: stopEvent,
+        }
+      : undefined;
 
   function handleCardKeyDown(event: KeyboardEvent) {
     if (!onClick) return;
@@ -44,54 +69,37 @@ export default function ProductCard({
 
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      onClick();
+      onClick(true);
     }
   }
 
   return (
     <Card
-      onClick={onClick}
+      onClick={onClick ? () => onClick() : undefined}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? handleCardKeyDown : undefined}
+      {...pressProps}
       className={cn(
-        "@container shadow-sm hover:shadow-lg transition-shadow",
+        "shadow-sm hover:shadow-lg transition-shadow",
         onClick && "cursor-pointer",
+        // Suppresses the iOS selection callout a long press would raise, on touch
+        // only, so a pointer user can still select the product's name.
+        pressProps &&
+          "[@media(hover:none)]:select-none [-webkit-touch-callout:none]",
         className,
       )}
     >
-      <div className="flex flex-col justify-between gap-3 px-3 py-2 @min-[320px]:flex-row @min-[320px]:items-center @md:gap-4 @md:px-6 @md:py-4">
-        <div className="flex min-w-0 flex-1 items-center gap-4">
-          {imageUrl && (
-            <Image
-              src={imageUrl}
-              alt={name ?? ""}
-              width={80}
-              height={80}
-              className="hidden @md:block size-16 @lg:size-20 shrink-0 rounded-lg object-contain"
-            />
-          )}
-
-          {isLoading ? (
-            <div className="min-w-0 flex-1 space-y-2">
-              <Skeleton className="h-3.5 w-24" />
-              <Skeleton className="h-5 w-48" />
-              <Skeleton className="h-3.5 w-32" />
-            </div>
-          ) : (
-            <ProductInfo name={displayName} brand={brand} category={category} />
-          )}
-        </div>
-
-        {trailing && (
-          <div
-            className="flex shrink-0 items-center justify-between gap-4"
-            onClick={stopCardNavigation}
-          >
-            {trailing}
-          </div>
-        )}
-      </div>
+      <ProductSummary
+        name={name}
+        brand={brand}
+        category={category}
+        quantity={quantity}
+        imageUrl={imageUrl}
+        isLoading={isLoading}
+        trailing={trailing}
+        trailingProps={trailingProps}
+      />
     </Card>
   );
 }

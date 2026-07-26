@@ -7,7 +7,7 @@ import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
-import { RemoveIconButton } from "@/components/custom/common/remove-icon-button";
+import RemoveIconButton from "@/components/custom/common/remove-icon-button";
 import { Banner } from "@/components/custom/common/banner";
 import ShoppingListSelector from "@/app/products/components/forms/shopping-list-selector";
 import QuantityInput from "@/app/products/components/forms/quantity-input";

@@ -13,6 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import useTapToOpen from "@/hooks/use-tap-to-open";
 import type { IShoppingListActionGroupProps } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-actions";
 
 export default function ShoppingListMobileActions({
@@ -28,11 +29,18 @@ export default function ShoppingListMobileActions({
   onEdit,
   onDeleteClick,
 }: IShoppingListActionGroupProps) {
+  const { rootProps, triggerProps } = useTapToOpen();
+
   return (
     <div className="flex sm:hidden">
-      <DropdownMenu>
+      <DropdownMenu {...rootProps}>
         <DropdownMenuTrigger asChild>
-          <Button size="icon" aria-label="Dodatne opcije" variant="primary">
+          <Button
+            size="icon"
+            aria-label="Dodatne opcije"
+            variant="primary"
+            {...triggerProps}
+          >
             <MoreVertical className="size-6" />
           </Button>
         </DropdownMenuTrigger>

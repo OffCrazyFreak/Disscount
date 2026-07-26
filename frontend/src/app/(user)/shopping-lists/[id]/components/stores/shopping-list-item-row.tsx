@@ -14,6 +14,7 @@ import {
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
 import { getChainItemPriceInfo } from "@/app/(user)/shopping-lists/[id]/utils/shopping-list-items-table-utils";
+import { productPath } from "@/utils/product-links";
 
 interface IShoppingListItemRowProps {
   item: ShoppingListItemDto;
@@ -35,7 +36,7 @@ export default function ShoppingListItemRow({
     <TableRow className={cn("text-pretty [&>*]:whitespace-normal")}>
       <TableCell>
         <Link
-          href={`/products/${item.ean}`}
+          href={productPath(item.ean)}
           className={cn(
             "hover:underline hover:text-primary cursor-pointer",
             !isAvailable && "text-gray-400",

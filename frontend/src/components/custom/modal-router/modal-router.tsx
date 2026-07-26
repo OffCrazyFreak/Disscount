@@ -11,6 +11,7 @@ import OnboardingGate from "@/components/custom/settings/onboarding/components/o
 import ResetPasswordModal from "@/components/custom/auth/reset-password-modal";
 import AuthStatusModal from "@/components/custom/auth/auth-status-modal";
 import ContactModal from "@/components/custom/contact/contact-modal";
+import ProductActionsOutlet from "@/components/custom/modal-router/product-actions-outlet";
 import {
   AUTH_MODAL_NAMES,
   PUBLIC_MODAL_NAMES,
@@ -112,6 +113,8 @@ export default function ModalRouter() {
       />
 
       <ContactModal open={target?.name === "contact"} />
+
+      <ProductActionsOutlet target={target} />
 
       {isAuthenticated && (
         <>

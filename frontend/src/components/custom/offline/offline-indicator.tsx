@@ -15,7 +15,10 @@ export default function OfflineIndicator() {
   if (isOnline) return null;
 
   return (
-    <div className="fixed inset-x-0 top-0 z-[60] flex items-center justify-center gap-2 bg-amber-500 px-3 py-1.5 text-center text-sm font-medium text-white">
+    <div
+      role="status"
+      className="fixed inset-x-0 top-0 z-[var(--z-offline)] flex items-center justify-center gap-2 bg-amber-500 px-3 py-1.5 text-center text-sm font-medium text-white"
+    >
       <WifiOff className="size-4 shrink-0" />
       {pendingWrites > 0
         ? `Izvan mreže - spremljene promjene (${pendingWrites}) sinkronizirat će se kasnije.`

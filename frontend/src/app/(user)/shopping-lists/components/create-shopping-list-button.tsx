@@ -2,7 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import PageFab from "@/components/custom/fab/page-fab";
+import ResponsiveLabel from "@/components/custom/common/responsive-label";
 
 interface ICreateShoppingListButtonProps {
   onCreateClick: () => void;
@@ -21,14 +21,9 @@ export default function CreateShoppingListButton({
         onClick={onCreateClick}
         icon={Plus}
         iconPlacement="left"
-        className="hidden sm:inline-flex"
       >
-        {buttonText}
+        <ResponsiveLabel full={buttonText} short="Stvori popis" />
       </Button>
-
-      <PageFab
-        primary={{ icon: Plus, label: buttonText, onClick: onCreateClick }}
-      />
     </>
   );
 }

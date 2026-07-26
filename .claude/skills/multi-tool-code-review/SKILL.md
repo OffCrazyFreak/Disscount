@@ -1,11 +1,11 @@
 ---
 name: multi-tool-code-review
-description: Runs a resumable multi-tool code review of a git branch (CodeRabbit, Cursor, Codex, and Claude subagents), consolidates findings into one ranked triage doc, then drives the chosen fixes to a PR. Use when the user wants to review a branch before merging (for example dev vs main), asks for the multi-tool or multi-model review, wants a consolidated triage doc of findings, or wants to implement and apply review findings as per-finding commits with a PR and GitHub issues.
+description: Runs a resumable multi-tool code review of a git branch (CodeRabbit, Cursor, Codex, and Claude subagents), consolidates findings into one ranked triage doc, then drives the chosen fixes to a PR. Use when the user wants to review a branch before merging (for example dev vs main), asks for the multi-tool or multi-model review, wants a consolidated triage doc of findings, or wants to implement and apply review findings as committed batches with a PR and GitHub issues.
 ---
 
 # Multi-tool code review and fix cycle
 
-Reviews a git branch with several independent reviewers, consolidates their findings into one ranked, deduped triage doc, then implements the findings the user picks as one commit each and opens a PR. It runs hands-off between a few human checkpoints, and front-loads the questions so the fix phase can run unattended to the end.
+Reviews a git branch with several independent reviewers, consolidates their findings into one ranked, deduped triage doc, then implements the findings the user picks as logical committed batches and opens a PR. It runs hands-off between a few human checkpoints, and front-loads the questions so the fix phase can run unattended to the end.
 
 The reference files are numbered in run order: `01-preflight.md`, `02-review-pipeline.md`, `03-triage-doc-format.md`, `04-fix-protocol.md`. Read each when you reach its stage.
 
@@ -67,20 +67,21 @@ Record the user's explicit NOTs; they override any blanket rule. Do not start fi
 
 ## Stage 2: Fix
 
-Goal: one commit per finding on a fix branch, verified against the host repo's gate.
+Goal: the selected findings implemented as logical, verified commits on a fix branch, gated by the host repo's own checks.
 
 Follow `04-fix-protocol.md`. If the harness supports plan mode, enter it first and plan the whole fix pass (groups, order, shared commits, docs, PR target) before editing. Then:
 
 1. Create branch `fix/ai-<slug>-review-<YYYY-MM>` off the target branch, matching the user's existing naming.
 2. Closely follow ALL rules in the host repo's `AGENTS.md` / `CLAUDE.md`. Write senior-dev code: reuse existing utils/hooks, respect the folder structure and naming, keep files small, minimal comments.
-3. Group findings by file/area; implement each as its own auto-committed commit (AGENTS.md commit format, no `Co-Authored-By`, no em dashes).
-4. Run the repo's format + typecheck gate clean before committing a group (this repo: `pnpm exec prettier --write` then `pnpm exec tsc --noEmit`; backend via CI `mvn verify`).
+3. Group findings by file/area and commit in **logical batches**, auto-committed as you go (AGENTS.md commit format, no `Co-Authored-By`, no em dashes). A batch is one coherent change the user would want to read as a unit, not one commit per row. Keep a genuinely significant fix (a crash, a security hole) as its own commit so it is visible in the log.
+4. Run the repo's format + typecheck gate clean before committing a batch (this repo: prettier then `tsc --noEmit`; backend via CI `mvn verify`).
 5. For large mechanical sweeps, spawn one subagent at a time; keep commits serialized to avoid git races.
-6. Sync docs: update the affected `docs/*` if they exist, or create a new doc via the `document-subsystem` skill (ask before adding a brand-new one).
+6. **Do not push during the fix phase.** Push once, at the very end, after the full CI gate passes locally (Stage 3).
+7. Sync docs: update the affected `docs/*` if they exist, or create a new doc via the `document-subsystem` skill (ask before adding a brand-new one).
 
 ## Stage 3: Finalize
 
-1. **Run the host repo's whole CI job locally before pushing**, not just the per-commit format and typecheck gate. Read its workflow file and run every step it runs, in order, including the production build. Pushing to find out is slower and noisier than reproducing it. Then push the branch and open the PR into the target with a per-area summary body.
+1. **Run the host repo's whole CI job locally before pushing**, not just the per-batch format and typecheck gate. Read its workflow file rather than assuming which steps CI runs, and run every one of them in order, including the production build. Pushing to find out is slower and noisier than reproducing it. Then push the branch once and open (or, when the branch already has one, update) the PR into the target with a per-area summary body.
 2. File GitHub issues (labeled) for every finding the user excluded, and for anything you deferred. Surface deferrals with a recommendation; never silently skip.
 3. Offer a recap and to watch CI settle.
 
@@ -89,7 +90,8 @@ Follow `04-fix-protocol.md`. If the harness supports plan mode, enter it first a
 - Ask if you are unsure of anything rather than assuming. Follow the host repo's `AGENTS.md` / `CLAUDE.md` closely.
 - No em dashes anywhere (chat, docs, commits, comments).
 - Do not hardcode any model; ask the user each run and recommend from a fresh online check.
-- Frontend gate: `pnpm exec prettier --write <files>` then `pnpm exec tsc --noEmit`. Run `pnpm exec next typegen` first and the typecheck is clean; without it, `tsc` reports `PageProps` / `RouteContext` errors that are missing generated route types rather than real defects.
+- Frontend gate: `pnpm exec prettier --write <files>` then `pnpm exec tsc --noEmit`. Run `pnpm exec next typegen` first and the typecheck is clean; without it, `tsc` reports `PageProps` / `RouteContext` errors that are missing generated route types rather than real defects. Before pushing, reproduce the full CI job from `.github/workflows/`, production build included.
+- In a **worktree with symlinked `node_modules`**, do not use `pnpm exec` or `pnpm run`: both run a deps-status check, see the symlink as out of sync, and try to purge the main tree's real `node_modules` through it. Call the binary directly there instead. In a normal checkout `pnpm exec` is fine.
 - If `pnpm` is not on PATH, prepend it: `export PATH="$HOME/.local/share/pnpm/bin:$HOME/.local/share/nvm/*/bin:$PATH"`.
 - Never run the dev server or any deploy/Docker command. The production build is allowed, and Stage 3 expects it.
 - Runner outputs and the triage doc live under `reviews/` (gitignored). Keep them out of commits; `git add` explicit files, never `-A`.

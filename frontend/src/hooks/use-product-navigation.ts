@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { productByEanQueryKey } from "@/lib/cijene-api";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
+import { productPath } from "@/utils/product-links";
 
 export default function useProductNavigation() {
   const router = useRouter();
@@ -15,7 +16,7 @@ export default function useProductNavigation() {
       queryClient.setQueryData(productByEanQueryKey(ean), product);
     }
 
-    router.push(`/products/${encodeURIComponent(ean)}`);
+    router.push(productPath(ean));
   }
 
   return navigateToProduct;

@@ -13,8 +13,10 @@ import {
   LayoutDashboard,
   Bug,
   Mail,
+  Package,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { isAdmin, type AccountType } from "@/lib/api/schemas/auth-user";
 
 /** Destination for items whose page does not exist yet. */
 export const PLACEHOLDER_HREF = "#";
@@ -39,6 +41,16 @@ export const dashboardNavItem: INavigationItem = {
   href: "/dashboard",
   label: "Nadzorna ploča",
   icon: LayoutDashboard,
+
+  showInHeader: false,
+};
+
+// The catalogue itself, which productNavItems only ever reached through filters
+export const productsNavItem: INavigationItem = {
+  id: "products",
+  href: "/products",
+  label: "Proizvodi",
+  icon: Package,
 
   showInHeader: false,
 };
@@ -205,3 +217,38 @@ export const supportNavItems: INavigationItem[] = [
     showInHeader: false,
   },
 ];
+
+const ALL_NAV_ITEMS: INavigationItem[] = [
+  dashboardNavItem,
+  productsNavItem,
+  ...userNavItems,
+  ...productNavItems,
+  ...supportNavItems,
+];
+
+/**
+ * Every group and their children, so an id cannot resolve on one surface and
+ * throw on another. The throw is deliberate fail-fast: the table is hardcoded, so
+ * a bad id is a bug to surface at import rather than render as an empty cell.
+ */
+export function findNavItem(id: string): INavigationItem {
+  const found =
+    ALL_NAV_ITEMS.find((item) => item.id === id) ??
+    ALL_NAV_ITEMS.flatMap((item) => item.children ?? []).find(
+      (child) => child.id === id,
+    );
+  if (!found) throw new Error(`Unknown navigation item: ${id}`);
+
+  return found;
+}
+
+/**
+ * One home for the coming-soon rule, which six navigation surfaces were each
+ * deriving for themselves. Admins get to open what is not shipped yet.
+ */
+export function isNavItemLocked(
+  item: INavigationItem,
+  accountType?: AccountType | null,
+): boolean {
+  return Boolean(item.comingSoon) && !isAdmin(accountType);
+}

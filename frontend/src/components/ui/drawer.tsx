@@ -52,13 +52,21 @@ function isInsidePopper(target: Node): boolean {
   ).some((popper) => popper.contains(target));
 }
 
+interface IDrawerContentProps extends React.ComponentProps<
+  typeof DrawerPrimitive.Content
+> {
+  /** Restyles the scrim, which the content renders and so nothing else can reach */
+  overlayClassName?: string;
+}
+
 function DrawerContent({
   className,
+  overlayClassName,
   children,
   onPointerDownOutside,
   ref,
   ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Content>) {
+}: IDrawerContentProps) {
   const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
 
   // Compose the caller's ref with the internal one so {...props} can't drop it.
@@ -71,7 +79,7 @@ function DrawerContent({
 
   return (
     <DrawerPortal data-slot="drawer-portal">
-      <DrawerOverlay />
+      <DrawerOverlay className={overlayClassName} />
       <DrawerPrimitive.Content
         ref={setContentRef}
         data-slot="drawer-content"
@@ -95,7 +103,10 @@ function DrawerContent({
         )}
         {...props}
       >
-        {/* Grab handle: horizontal for bottom drawers, vertical for side ones */}
+        {/* Grab handles: horizontal for bottom drawers, vertical for side ones.
+            DEVIATION from upstream shadcn, deliberately kept: overlayClassName,
+            since the overlay is rendered internally and a caller cannot reach it
+            otherwise. Re-apply it after any `shadcn add drawer`. */}
         <div className="mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full bg-muted group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
         <div className="absolute top-1/2 right-2 hidden h-[100px] w-2 -translate-y-1/2 rounded-full bg-muted group-data-[vaul-drawer-direction=left]/drawer-content:block" />
         <div className="absolute top-1/2 left-2 hidden h-[100px] w-2 -translate-y-1/2 rounded-full bg-muted group-data-[vaul-drawer-direction=right]/drawer-content:block" />

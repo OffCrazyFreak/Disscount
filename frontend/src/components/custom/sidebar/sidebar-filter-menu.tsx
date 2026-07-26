@@ -16,6 +16,8 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import ScrollFade from "@/components/custom/common/scroll-fade";
+import { SIDEBAR_ICON_CLASS } from "@/components/custom/sidebar/sidebar-styles";
+import { cn } from "@/lib/utils";
 import type { INavigationItem } from "@/constants/navigation";
 
 export interface ISidebarFilterOption {
@@ -66,7 +68,10 @@ export default function SidebarFilterMenu({
     >
       <SidebarMenuSubItem>
         <CollapsibleTrigger asChild>
-          <SidebarMenuButton type="button" className="cursor-pointer">
+          <SidebarMenuButton
+            type="button"
+            className={cn("cursor-pointer", SIDEBAR_ICON_CLASS)}
+          >
             <Icon />
             <span>{item.label}</span>
             <ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />

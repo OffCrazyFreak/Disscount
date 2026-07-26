@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, type RefObject } from "react";
 import { useForm } from "react-hook-form";
 import { Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SearchBarActions from "@/components/custom/search/search-bar-actions";
+import SearchActionButton from "@/components/custom/search/search-action-button";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 import { useCameraScanner } from "@/context/scanner-context";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -19,6 +19,14 @@ interface ISearchBarProps {
   allowScanning?: boolean;
   submitButtonLocation?: "none" | "auto" | "block";
   submitLabel?: string;
+  /** Names the form, so an owner can put the submit button outside it */
+  formId?: string;
+  /** Exposes the field so an owner can focus it inside a gesture's own task */
+  inputRef?: RefObject<HTMLInputElement | null>;
+  /** Mirrors what is typed, for an owner rendering the submit button itself */
+  onQueryChange?: (query: string) => void;
+  /** Fires once a search or a scan has navigated away */
+  onSubmitted?: (query: string) => void;
 }
 
 export default function SearchBar({
@@ -29,8 +37,12 @@ export default function SearchBar({
   autoSearch = false,
   allowScanning = false,
   submitLabel = "Pretraži",
+  formId,
+  inputRef: exposedInputRef,
+  onQueryChange,
+  onSubmitted,
 }: ISearchBarProps) {
-  const { routeQuery, search, syncQuery, openResult } =
+  const { routeQuery, isUnchanged, search, syncQuery, openResult } =
     useSearchNavigation(searchRoute);
   const { openScanner } = useCameraScanner();
   const { setOpen } = useSidebar();
@@ -56,6 +68,11 @@ export default function SearchBar({
     }
   }, [routeQuery, setValue, getValues]);
 
+  // Watched rather than hooked to onChange, so a clear or a route sync counts too.
+  useEffect(() => {
+    onQueryChange?.(queryValue ?? "");
+  }, [queryValue, onQueryChange]);
+
   useEffect(() => {
     if (!autoSearch) return;
 
@@ -69,8 +86,11 @@ export default function SearchBar({
   }, [autoSearch, queryValue, routeQuery, syncQuery]);
 
   function submit(data: { query: string }) {
+    const query = data.query?.trim() ?? "";
+
     setOpen(false);
-    search(data.query?.trim() ?? "");
+    search(query);
+    onSubmitted?.(query);
   }
 
   function handleClear() {
@@ -83,13 +103,15 @@ export default function SearchBar({
     (code: IScannedCode) => {
       setOpen(false);
       openResult(code.rawValue);
+      onSubmitted?.(code.rawValue);
     },
-    [openResult, setOpen],
+    [openResult, setOpen, onSubmitted],
   );
 
   return (
     <div>
       <form
+        id={formId}
         onSubmit={handleSubmit(submit)}
         className="relative flex items-center gap-4 flex-wrap"
       >
@@ -99,14 +121,20 @@ export default function SearchBar({
           <Input
             ref={(el) => {
               inputRef.current = el;
+              if (exposedInputRef) exposedInputRef.current = el;
               registerRef(el);
             }}
             {...registerProps}
-            type="text"
+            type="search"
+            inputMode="search"
+            enterKeyHint="search"
             placeholder={placeholder}
             aria-label={placeholder || "Pretraži"}
-            className="pl-10 pr-22 py-6 text-gray-500 focus:text-gray-700 bg-white"
+            className="pl-10 pr-22 py-6 text-gray-500 focus:text-gray-700 bg-white [&::-webkit-search-cancel-button]:hidden"
             autoComplete="off"
+            autoCapitalize="off"
+            autoCorrect="off"
+            spellCheck={false}
           />
 
           <SearchBarActions
@@ -118,18 +146,11 @@ export default function SearchBar({
         </div>
 
         {submitButtonLocation !== "none" && (
-          <Button
-            type="submit"
-            size="lg"
-            effect="shineHover"
-            className={`text-lg p-6 bg-primary hover:bg-secondary grow ${
-              submitButtonLocation === "block" && "w-full"
-            }`}
-            disabled={!queryValue?.trim()}
-          >
-            <Search className="size-5 mr-2" />
-            {submitLabel}
-          </Button>
+          <SearchActionButton
+            label={submitLabel}
+            block={submitButtonLocation === "block"}
+            isUnchanged={isUnchanged(queryValue ?? "")}
+          />
         )}
       </form>
     </div>

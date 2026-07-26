@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 
+import useLingeringTarget from "@/components/custom/modal-router/use-lingering-target";
 import type { ModalTarget } from "@/lib/modal/modal-registry";
 
 const ShoppingListModal = dynamic(
@@ -40,22 +40,6 @@ export function isEntityTarget(
   target: ModalTarget | null,
 ): target is EntityTarget {
   return !!target && (ENTITY_NAMES as readonly string[]).includes(target.name);
-}
-
-// Keeps the last target mounted after close so the exit animation can play.
-function useLingeringTarget(target: EntityTarget | null) {
-  const [lingering, setLingering] = useState(target);
-
-  // Adjust-during-render, so tracking the latest target needs no effect.
-  if (target && target !== lingering) setLingering(target);
-
-  useEffect(() => {
-    if (target) return;
-    const timer = setTimeout(() => setLingering(null), 200);
-    return () => clearTimeout(timer);
-  }, [target]);
-
-  return target ?? lingering;
 }
 
 interface IEntityModalOutletProps {

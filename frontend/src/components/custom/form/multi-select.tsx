@@ -60,18 +60,18 @@ export function MultiSelect({
   );
   const [items, setItems] = useState<Map<string, ReactNode>>(new Map());
 
+  // A controlled owner can change `values` behind our back, so the toggle reads
+  // them rather than the internal set, which is only ever seeded once.
+  const currentValues = values ? new Set(values) : selectedValues;
+
   function toggleValue(value: string) {
-    const getNewSet = (prev: Set<string>) => {
-      const newSet = new Set(prev);
-      if (newSet.has(value)) {
-        newSet.delete(value);
-      } else {
-        newSet.add(value);
-      }
-      return newSet;
-    };
-    setSelectedValues(getNewSet);
-    onValuesChange?.([...getNewSet(selectedValues)]);
+    const nextValues = new Set(currentValues);
+
+    if (nextValues.has(value)) nextValues.delete(value);
+    else nextValues.add(value);
+
+    setSelectedValues(nextValues);
+    onValuesChange?.([...nextValues]);
   }
 
   const onItemAdded = useCallback((value: string, label: ReactNode) => {
@@ -86,7 +86,7 @@ export function MultiSelect({
       value={{
         open,
         setOpen,
-        selectedValues: values ? new Set(values) : selectedValues,
+        selectedValues: currentValues,
         toggleValue,
         items,
         onItemAdded,

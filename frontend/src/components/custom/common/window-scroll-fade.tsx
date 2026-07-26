@@ -50,7 +50,7 @@ export default function WindowScrollFade({
     <EdgeFade
       side={side}
       className={cn(
-        "fixed z-40 h-28 via-background/70 transition-opacity duration-200",
+        "fixed z-[var(--z-scroll-fade)] h-28 via-background/70 transition-opacity duration-200",
         hasHiddenContent ? "opacity-100" : "opacity-0",
         className,
       )}
