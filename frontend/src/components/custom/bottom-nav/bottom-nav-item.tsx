@@ -70,7 +70,7 @@ export default function BottomNavItem({
         }}
         className={cn(
           CELL_BUTTON_CLASS,
-          "text-muted-foreground transition-colors duration-150",
+          "text-muted-foreground transition-colors duration-150 motion-reduce:transition-none",
           (showsActive || isPressed) && "text-primary",
           isLocked && "text-muted-foreground/70 cursor-not-allowed",
         )}

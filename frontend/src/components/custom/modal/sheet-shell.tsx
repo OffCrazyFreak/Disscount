@@ -15,8 +15,10 @@ import { cn } from "@/lib/utils";
  * at the bar's own 50% the page ghosts through hard enough that every field looks
  * like it is floating in front of the sheet rather than sitting in it.
  */
+// The cap carries vaul's own direction variant, or drawer.tsx's 80vh outranks a
+// plain max-h and the sheet silently keeps a static cap that ignores the keyboard.
 const CONTENT_CLASS =
-  "z-[var(--z-bottom-sheet)] max-h-[85dvh] bg-background/85 backdrop-blur-sm pb-[var(--sheet-bottom-clearance)]";
+  "z-[var(--z-bottom-sheet)] data-[vaul-drawer-direction=bottom]:max-h-[85dvh] bg-background/85 backdrop-blur-sm pb-[var(--sheet-bottom-clearance)]";
 const OVERLAY_CLASS = "z-[var(--z-bottom-sheet-scrim)]";
 const BODY_CLASS = "flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4";
 

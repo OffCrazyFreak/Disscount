@@ -3,6 +3,7 @@
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BackToTopButton from "@/components/custom/fab/back-to-top-button";
+import ResponsiveLabel from "@/components/custom/common/responsive-label";
 
 interface ICreateDigitalCardButtonProps {
   onCreateClick: () => void;
@@ -21,8 +22,9 @@ export default function CreateDigitalCardButton({
         onClick={onCreateClick}
         icon={Plus}
         iconPlacement="left"
+        aria-label={buttonText}
       >
-        {buttonText}
+        <ResponsiveLabel full={buttonText} short="Dodaj karticu" />
       </Button>
 
       <BackToTopButton />

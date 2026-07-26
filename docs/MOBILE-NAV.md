@@ -340,7 +340,7 @@ The threshold is 40px, far enough that a scroll, a wobble or a tap cannot trigge
 | Surface            | `bg-background/85 backdrop-blur-sm`  | The bar's blur, muted, see below                                                                                               |
 | Height cap         | `max-h-[85dvh]`                      | One cap, so a growing sheet always yields to the viewport                                                                      |
 | Bottom inset       | `pb-[var(--sheet-bottom-clearance)]` | 92px at 360x740, so no content hides under the bar                                                                             |
-| Handle gap         | the header's own `pt-3 pb-2`         | 16px, whether or not the header draws anything, see below                                                                      |
+| Handle gap         | the header's own `pt-[1rem] pb-2`    | 16px, whether or not the header draws anything, see below                                                                      |
 | Handle colour      | `bg-muted-foreground/40`             | `bg-muted` all but vanished on a light surface, in `ui/drawer.tsx` for all three handles including the sidebar's vertical ones |
 | Modality default   | **modal**                            | Only a sheet the page changes behind earns the opt-out, and the search sheet is the one that does, see below                   |
 
@@ -634,6 +634,14 @@ The mobile `FabMenu` used to sit at `bottom-4 right-4 z-50`, exactly where the b
 Two consequences worth remembering:
 
 - The inline create buttons **had** to lose `hidden sm:inline-flex`. With the FAB gone they were the only remaining tappable path, and a long press alone would fail WCAG 2.1.1.
+- Being visible at 360px, they also had to get shorter wording there. `ResponsiveLabel` (`components/custom/common/responsive-label.tsx`) renders both strings and swaps them with `sm:hidden` / `hidden sm:inline`, so the choice is CSS and the label never changes on hydration. The control keeps the full wording in its own `aria-label`, which wins over either string as the accessible name, so nothing is lost to a screen reader.
+
+  | Button         | From `sm` up                        | Below `sm`       |
+  | -------------- | ----------------------------------- | ---------------- |
+  | Shopping lists | Stvori popis za kupnju              | Stvori popis     |
+  | Watchlist      | Stvori popis sniženih proizvoda (N) | Stvori popis (N) |
+  | Digital cards  | Dodaj digitalnu karticu             | Dodaj karticu    |
+
 - `BackToTopButton` moved from `sm` to `md`, or widths between 640px and 768px would have shown the bar and the FAB at once.
 
 Three other bottom-anchored elements needed offsetting:
@@ -905,6 +913,10 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 Two smaller things that make those holes worse: `touch-action: none` is set on the drawer, so it does not apply in a hole, leaving the browser free to pan the page instead; and shadcn's drawer replaces vaul's `Drawer.Handle` with a plain div, so the handle is `h-2`, which is **6.4px** under this project's `--spacing`, with no hit area around it.
 
 **`sr-only` on a header container takes its padding with it.** `sr-only` is `position: absolute`, so a row marked `sr-only` contributes no height at all, padding included. That is how the search sheet ended up with its grab handle 6.4px above the input: the shell hid the whole header row rather than just the title inside it. Put `sr-only` on the text and let the row keep its padding, and the gap holds whether or not anything is drawn in it.
+
+**A plain `max-h` on the sheet loses to `ui/drawer.tsx`'s data-variant.** The shell asked for `max-h-[85dvh]`, but `drawer.tsx` carries `data-[vaul-drawer-direction=bottom]:max-h-[80vh]`. tailwind-merge keeps both, because the variant prefixes differ, and the compiled compound selector then outranks the plain class on specificity. Measured before the fix: a 735px viewport gave a 588px cap, exactly 80%, not the 625px the shell asked for. Worse, `vh` is the **large** viewport, so it ignores browser chrome and the keyboard entirely, which is the one thing a search sheet cannot afford. The shell now states the cap with the same variant prefix, and it measures 624.75px.
+
+**The grab handle's clearance came from the header's padding, and it was short.** `pt-3` is 9.6px under this project's spacing scale, not the 16px the geometry table claimed; the full 16px only appeared when `sr-only` collapsed the row and its `pb-2` was added in. It is now an explicit `pt-[1rem]`, so a sheet with a visible title gets the same clearance as one without.
 
 **`DrawerOverlay` had no escape hatch.** `DrawerContent` renders it internally with no props, so its hardcoded `z-50` could not be reached from a call site. Overriding the content's `z-index` alone gets you a sheet _below_ its own scrim. `DrawerContent` now takes `overlayClassName`.
 

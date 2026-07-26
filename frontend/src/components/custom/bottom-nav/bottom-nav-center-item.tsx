@@ -68,7 +68,7 @@ export default function BottomNavCenterItem({
 
         <span
           className={cn(
-            "bg-primary text-primary-foreground relative flex size-[2.8rem] -translate-y-[0.2rem] items-center justify-center rounded-full transition-transform duration-150",
+            "bg-primary text-primary-foreground relative flex size-[2.8rem] -translate-y-[0.2rem] items-center justify-center rounded-full transition-transform duration-150 motion-reduce:transition-none",
             isScrubbed && "scale-105",
           )}
         >

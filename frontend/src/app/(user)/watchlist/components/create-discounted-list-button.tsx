@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BackToTopButton from "@/components/custom/fab/back-to-top-button";
+import ResponsiveLabel from "@/components/custom/common/responsive-label";
 import { shoppingListService } from "@/lib/api";
 import { IWatchlistItemWithProduct } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { formatDate } from "@/utils/strings";
@@ -108,7 +109,10 @@ export default function CreateDiscountedListButton({
         aria-label={actionLabel}
       >
         {/* Count stays visual: in the accessible name it would re-announce on every change. */}
-        {buttonText}
+        <ResponsiveLabel
+          full={buttonText}
+          short={`Stvori popis (${addableProducts.length})`}
+        />
       </Button>
 
       <BackToTopButton />

@@ -26,6 +26,10 @@ export interface ISheetShellHeaderProps {
  * Its padding is unconditional, and that is the whole point: `sr-only` takes the
  * title out of flow, so a sheet that names itself in its content still keeps the
  * gap that separates the handle from the first control.
+ *
+ * The top inset is an explicit 1rem rather than `pt-4`, which this project's
+ * 0.2rem spacing scale would render as 12.8px, leaving the handle closer to the
+ * title than to the sheet's own edge.
  */
 export default function SheetShellHeader({
   title,
@@ -35,7 +39,7 @@ export default function SheetShellHeader({
   showCloseButton = false,
 }: ISheetShellHeaderProps) {
   return (
-    <div className="flex shrink-0 items-start justify-between gap-2 px-4 pt-3 pb-2">
+    <div className="flex shrink-0 items-start justify-between gap-2 px-4 pt-[1rem] pb-2">
       <div
         className={cn("flex min-w-0 flex-col gap-1", srOnlyTitle && "sr-only")}
       >

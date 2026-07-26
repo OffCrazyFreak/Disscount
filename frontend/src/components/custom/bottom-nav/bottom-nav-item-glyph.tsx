@@ -26,7 +26,7 @@ export default function BottomNavItemGlyph({
     <span className="relative flex items-center justify-center">
       <Icon
         className={cn(
-          "relative size-[1.5rem] transition-transform duration-150",
+          "relative size-[1.5rem] transition-transform duration-150 motion-reduce:transition-none",
           isPressed && "scale-115",
         )}
       />
