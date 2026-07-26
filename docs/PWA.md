@@ -327,7 +327,8 @@ The screenshot generator script was removed after the images were generated, so 
 | `frontend/src/constants/ios-splash-screens.json`                            | iOS device list (single source for the generator and the links)                             |
 | `frontend/scripts/generate-pwa-icons.mjs` / `generate-ios-splash.mjs`       | asset generators (run with `node`)                                                          |
 | `frontend/scripts/generate-shortcut-icons.mjs`                              | app-shortcut icon generator (white lucide glyph on green; one masked tile + one rounded)    |
-| `frontend/public/{icons,shortcuts,splash,screenshots}/`                     | generated PNG assets                                                                        |
+| `frontend/public/brand/{icons,shortcuts}/`                                  | generated icon and app-shortcut PNGs                                                        |
+| `frontend/public/{splash,screenshots}/`                                     | generated splash screens and install-dialog screenshots                                     |
 
 ---
 
