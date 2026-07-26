@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useGetProductByName } from "@/lib/cijene-api";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { productMatchesFilters } from "@/app/products/utils/product-filters";
+import sortProductsByRelevance from "@/app/products/utils/product-relevance";
 import { PRODUCT_SEARCH_LIMIT } from "@/constants/products";
 
 interface IUseInfiniteProductsOptions {
@@ -67,13 +68,19 @@ export default function useInfiniteProducts(
     );
   }, [allProducts, allowedChains, selectedCategories, selectedBrands]);
 
+  // The API returns hits in its own order, so the best match can land anywhere.
+  const rankedProducts = useMemo(
+    () => sortProductsByRelevance(filteredProducts, q),
+    [filteredProducts, q],
+  );
+
   const batchedProducts = useMemo(() => {
     const batches: ProductResponse[][] = [];
-    for (let i = 0; i < filteredProducts.length; i += safeBatchSize) {
-      batches.push(filteredProducts.slice(i, i + safeBatchSize));
+    for (let i = 0; i < rankedProducts.length; i += safeBatchSize) {
+      batches.push(rankedProducts.slice(i, i + safeBatchSize));
     }
     return batches;
-  }, [filteredProducts, safeBatchSize]);
+  }, [rankedProducts, safeBatchSize]);
 
   const [batchesToShow, setBatchesToShow] = useState<number>(
     batchedProducts.length > 0 ? 1 : 0,
