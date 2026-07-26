@@ -8,8 +8,10 @@ import UserContextProvider from "@/app/providers/user-provider";
 import ReactScan from "@/app/providers/react-scan";
 import { CameraScannerProvider } from "@/context/scanner-context";
 import { NotificationsProvider } from "@/context/notifications-context";
+import { ProductsSheetProvider } from "@/context/products-sheet-context";
 import RequestPersistentStorage from "@/components/custom/pwa/request-persistent-storage";
 import AppleSplashScreens from "@/components/custom/pwa/apple-splash-screens";
+import ScanShortcut from "@/components/custom/pwa/scan-shortcut";
 
 interface IProvidersProps {
   children: ReactNode;
@@ -22,13 +24,16 @@ export default function Providers({ children }: IProvidersProps) {
         <NotificationsProvider>
           <SidebarProvider>
             <CameraScannerProvider>
-              <ToasterProvider>
-                <ReactScan />
-                <RequestPersistentStorage />
-                <AppleSplashScreens />
+              <ProductsSheetProvider>
+                <ToasterProvider>
+                  <ReactScan />
+                  <RequestPersistentStorage />
+                  <AppleSplashScreens />
+                  <ScanShortcut />
 
-                {children}
-              </ToasterProvider>
+                  {children}
+                </ToasterProvider>
+              </ProductsSheetProvider>
             </CameraScannerProvider>
           </SidebarProvider>
         </NotificationsProvider>

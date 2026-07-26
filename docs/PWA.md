@@ -104,19 +104,87 @@ Disscount ships a Web App Manifest and a registered service worker, which togeth
 
 A Next.js dynamic manifest (a function returning `MetadataRoute.Manifest`) served at `/manifest.webmanifest`. Key fields:
 
-| Field              | Value                                                 | Why                                                                                                                |
-| ------------------ | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `display`          | `standalone`                                          | opens without browser chrome, like an app                                                                          |
-| `orientation`      | `portrait`                                            | shopping is a phone-in-hand, portrait activity (also means we only need portrait splash screens)                   |
-| `background_color` | `#ffffff`                                             | the splash background while the app boots (white, to match the iOS launch screens)                                 |
-| `theme_color`      | `#ffffff`                                             | neutral title bar (the light/dark pair is set in `layout.tsx` `viewport.themeColor`)                               |
-| `icons`            | 192, 512, and a 512 **maskable**                      | maskable avoids the icon being clipped by the OS circle/squircle                                                   |
-| `shortcuts`        | derived from `userNavItems` filtered by `!comingSoon` | long-press the icon to jump to Shopping lists / Watchlist; the list grows automatically as features ship           |
-| `screenshots`      | one `narrow` + one `wide` (each `label`ed)            | Chrome's richer, app-store-like install dialog                                                                     |
-| `share_target`     | GET to `/share-target`                                | registers Disscount in the system share sheet; the route handler funnels shared text/title/url into `/products?q=` |
-| `launch_handler`   | `{ client_mode: "focus-existing" }`                   | reuse an open window instead of spawning a duplicate when launched from a shortcut or notification                 |
+| Field              | Value                                                   | Why                                                                                                                |
+| ------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `display`          | `standalone`                                            | opens without browser chrome, like an app                                                                          |
+| `orientation`      | `portrait`                                              | shopping is a phone-in-hand, portrait activity (also means we only need portrait splash screens)                   |
+| `background_color` | `#ffffff`                                               | the splash background while the app boots (white, to match the iOS launch screens)                                 |
+| `theme_color`      | `#ffffff`                                               | neutral title bar (the light/dark pair is set in `layout.tsx` `viewport.themeColor`)                               |
+| `icons`            | 192 + 512 `any`, and 192 + 512 **maskable**             | maskable avoids the icon being shrunk onto Android's own white plate; see [Icon sizing](#icon-sizing)              |
+| `shortcuts`        | Skeniraj, then `userNavItems` filtered by `!comingSoon` | long-press the icon to scan a barcode or jump to Shopping lists / Watchlist; see [App shortcuts](#app-shortcuts)   |
+| `screenshots`      | one `narrow` + one `wide` (each `label`ed)              | Chrome's richer, app-store-like install dialog                                                                     |
+| `share_target`     | GET to `/share-target`                                  | registers Disscount in the system share sheet; the route handler funnels shared text/title/url into `/products?q=` |
+| `launch_handler`   | `{ client_mode: "navigate-existing" }`                  | reuse an open window instead of spawning a duplicate, **and** navigate it to the shortcut's url                    |
 
 Icons are generated from the happy-cart source (`public/brand/logo/cart/cart-rgb.svg`) by `scripts/generate-pwa-icons.mjs` (uses `sharp`), into `public/brand/icons` (plus the legacy `src/app/favicon.ico`). See `docs/BRAND.md` for the full asset map.
+
+### Polarity
+
+The two icon families run opposite ways on purpose:
+
+| Family                          | Polarity                                  |
+| ------------------------------- | ----------------------------------------- |
+| App icons, apple-touch, favicon | green cart on **white**                   |
+| Shortcut tiles                  | white glyph on **full-bleed brand green** |
+
+**The app icon is a deliberate brand call, taken against the general guidance.** The advice for Android's adaptive background layer is to fill it with your primary colour, and the argument for it is real: a home screen is dense with saturated tiles, so a white plate reads as empty space with something small floating in it, and it fades against a light wallpaper. Disscount keeps the white plate anyway, because the happy cart is the brand and it reads as itself in green. Both were built and compared side by side before choosing. Do not "fix" this back to a green fill without asking.
+
+The shortcut tiles do take the fill, because a shortcut has to read as its own destination rather than as the app, and because they are only ever seen against the dark long-press sheet.
+
+Worth knowing when tempted to make a mark bigger: **size and polarity are not independent levers.** Enlarging on a plate is capped by the mask and the cap arrives early, at roughly 0.74 for the scan glyph before its corner brackets clip. Filling the tile has no cap, because the mark becomes the whole circle. Flipping the app icon to a green fill and back proved this, and proved the reverse too, that the two versions are pixel-identical in ink box and padding: a light mark on a dark ground simply _looks_ larger than the same mark dark-on-light.
+
+**The cart sits left of centre and that is intended.** Its `viewBox` is `-1 6 68 50.5` while the art inside is `translate(2.5 0) rotate(-7)`, so about 11.5% of the box on the right is dead space and the ink midpoint lands roughly 5.75% left of the tile centre. Do not re-centre it.
+
+The splash screens are a green cart on white too, matching `background_color` so the launch does not flash.
+
+### Icon sizing
+
+Every crop ratio in the generators is fixed by one rule: **Android masks a `maskable` icon, but shrinks an `any` icon onto a white plate of its own.** The second behaviour is what makes a mark look small on a phone, because the artwork gets scaled down twice.
+
+The safe zone for a masked icon is a circle centred on the tile with a **radius of 40% of the width**, so a diameter of 80%. Aggressive OEM masks can go tighter, down to the 72dp visible area of Android's 108dp adaptive-icon layer (**66.7%**). Anything whose bounding-box corners carry ink has to fit its _diagonal_ inside that circle, not its width.
+
+| Asset                        | Ratio  | Bound                                                                       |
+| ---------------------------- | ------ | --------------------------------------------------------------------------- |
+| `icon-192` / `icon-512`      | `0.86` | never masked, so this is just the roomiest crop that keeps a visible margin |
+| `icon-maskable-192` / `-512` | `0.70` | the widest crop whose ink still sits on the 80% safe-zone boundary          |
+| `apple-touch-icon-180`       | `0.86` | iOS applies a squircle, whose corners the cart does not reach into          |
+| favicon frames               | `0.92` | line art needs the tightest crop to survive 16px                            |
+| shortcut glyphs              | `0.66` | lucide insets its art by about 2 of 24 units, landing the ink near 0.55     |
+
+Both maskable sizes ship so Chrome never falls back to an `any` icon merely because it wanted 192.
+
+**iOS ignores all of this for shortcuts.** Safari has no app-shortcut support at all, so the `shortcuts` array is an Android and desktop feature. `apple-touch-icon-180` is the only piece of this that iOS reads.
+
+To re-check a ratio, mask the generated PNG against circles at 80% and 66.7% and look at it. That is faster and more honest than the trigonometry.
+
+### App shortcuts
+
+Long-pressing the installed icon opens a shortcut menu. Ours is built in `manifest.ts` from one hand-written entry (Skeniraj) plus `userNavItems` filtered by `!comingSoon`, so the list grows on its own as features ship.
+
+**There are fewer slots than it looks.** Chrome for Android shows **3** shortcuts. It allowed 4 until Chrome 92 started injecting its own "Site settings" entry, which takes a slot. Desktop Chrome and Edge show up to 10. Shortcuts render in manifest order, so the array order in `manifest.ts` is what decides which three a phone actually surfaces. We sit at exactly 3 today:
+
+| Order | Shortcut | Url               | Icon          |
+| ----- | -------- | ----------------- | ------------- |
+| 1     | Skeniraj | `/?scan=1`        | `ScanBarcode` |
+| 2     | Popisi   | `/shopping-lists` | `ListChecks`  |
+| 3     | Praćenje | `/watchlist`      | `Eye`         |
+
+That "Site settings" entry and its black gear come from Chrome, not from us. No manifest key can recolour, reorder or remove it.
+
+**Icons.** Chrome accepts **PNG only** here and asks for 192x192. `scripts/generate-shortcut-icons.mjs` renders the same `lucide-react` component the nav uses through `renderToStaticMarkup`, then rasterizes it with `sharp` into `public/brand/shortcuts/`: a white glyph on a brand-green tile, glyph at 66% (see [Icon sizing](#icon-sizing)). Rendering the component rather than a copied path is what keeps a shortcut icon from drifting away from its nav icon. `constants/pwa-shortcuts.ts` derives each `src` from the nav item's `id` and emits a shortcut only for a released item that carries a `shortcutDescription`, so a missing description drops the shortcut rather than shipping one with no accessible name. Releasing an item therefore takes two manual steps: give it a `shortcutDescription` in `constants/navigation.ts` if it has none, and add its glyph to `generate-shortcut-icons.mjs` and re-run it. Dropping the `comingSoon` flag does the rest.
+
+**Each shortcut ships two tiles**, because one image cannot do both jobs:
+
+| File           | `purpose`  | Shape                                 | Who draws it                  |
+| -------------- | ---------- | ------------------------------------- | ----------------------------- |
+| `<id>.png`     | `maskable` | full bleed, square                    | Android, which applies a mask |
+| `<id>-any.png` | `any`      | brand corner radius (96/512 = 18.75%) | desktop jump lists, unmasked  |
+
+The masked one has to stay full bleed. Chrome hands a maskable icon to Android as an adaptive-icon layer, and transparent corners there are filled in by the launcher rather than left alone, which is how the first version ended up shrunk onto a second white plate with its corners poking past the mask. The unmasked one is drawn exactly as given, where a hard square reads as a blank block, so it keeps the radius. Splitting them is also what the maskable guidance recommends: an icon designed for a mask looks wrong without one.
+
+**Skeniraj has no route of its own.** The scanner is imperative (`context/scanner-context.tsx`), so the shortcut points at `/?scan=1` and `components/custom/pwa/scan-shortcut.tsx` picks the flag up, strips it from the URL with `replaceState` before opening the camera (so a refresh or a back navigation does not reopen it), and routes the scanned code through `useProductNavigation`.
+
+Adding Karta and Digitalne kartice once they ship is tracked in [#127](https://github.com/OffCrazyFreak/Disscount/issues/127), which is really a "pick the final three" decision rather than an append.
 
 ### The install UX (`src/components/custom/pwa/`)
 
@@ -222,7 +290,8 @@ Three pieces make replay-after-reload correct:
 | **iOS splash screens**   | `constants/ios-splash-screens.json` (18 portrait device sizes) + `scripts/generate-ios-splash.mjs` (writes `public/splash/*`) + `apple-splash-screens.tsx` (emits `apple-touch-startup-image` links) | iOS ignores the manifest for launch screens, so without these the installed app opens to a white flash             |
 | **Persistent storage**   | `request-persistent-storage.tsx` calls `navigator.storage.persist()` once on load                                                                                                                    | asks the browser not to evict the IndexedDB offline cache under storage pressure or after disuse (notably on iOS)  |
 | **Manifest screenshots** | `public/screenshots/screenshot-narrow.png` + `screenshot-wide.png`                                                                                                                                   | Chrome's richer install dialog; currently branded placeholder cards to be swapped for real captures                |
-| **Icons**                | `public/brand/icons/*` from `scripts/generate-pwa-icons.mjs` (plus hand-authored `icon.svg` + `mask-icon.svg`)                                                                                       | 192, 512, maskable 512, apple-touch 180, favicon SVG, Safari mask-icon                                             |
+| **Icons**                | `public/brand/icons/*` from `scripts/generate-pwa-icons.mjs` (plus hand-authored `icon.svg` + `mask-icon.svg`)                                                                                       | 192 + 512 `any`, 192 + 512 maskable, apple-touch 180, favicon SVG, Safari mask-icon                                |
+| **Shortcut icons**       | `public/brand/shortcuts/*` from `scripts/generate-shortcut-icons.mjs`                                                                                                                                | two 192 PNGs per app shortcut, a full-bleed `maskable` and a rounded `any`; Chrome takes PNG only                  |
 
 Splash and persistent-storage components are mounted inside `providers.tsx`. This matters for the splash links specifically: because Next.js server-renders the provider tree, React hoists the `apple-touch-startup-image` links into the initial HTML `<head>`, so iOS sees them at launch time (not only after hydration).
 
@@ -244,6 +313,7 @@ The screenshot generator script was removed after the images were generated, so 
 | `frontend/src/components/custom/pwa/install-instructions-sheet.tsx`         | manual install steps (iOS / other)                                                          |
 | `frontend/src/components/custom/pwa/apple-splash-screens.tsx`               | emits `apple-touch-startup-image` links                                                     |
 | `frontend/src/components/custom/pwa/request-persistent-storage.tsx`         | requests durable storage                                                                    |
+| `frontend/src/components/custom/pwa/scan-shortcut.tsx`                      | serves the Skeniraj app shortcut: consumes `?scan=1` and opens the camera                   |
 | `frontend/src/app/providers/react-query-provider.tsx`                       | `PersistQueryClientProvider`, registers offline mutation defaults, resumes paused mutations |
 | `frontend/src/lib/offline/persister.ts`                                     | IndexedDB persister + persist options (maxAge, buster, dehydrate rules)                     |
 | `frontend/src/lib/offline/cached-query-keys.ts`                             | whitelist of query keys that may be persisted                                               |
@@ -256,7 +326,9 @@ The screenshot generator script was removed after the images were generated, so 
 | `frontend/src/utils/date.ts`                                                | `formatRelativeTime` helper                                                                 |
 | `frontend/src/constants/ios-splash-screens.json`                            | iOS device list (single source for the generator and the links)                             |
 | `frontend/scripts/generate-pwa-icons.mjs` / `generate-ios-splash.mjs`       | asset generators (run with `node`)                                                          |
-| `frontend/public/{icons,splash,screenshots}/`                               | generated PNG assets                                                                        |
+| `frontend/scripts/generate-shortcut-icons.mjs`                              | app-shortcut icon generator (white lucide glyph on green; one masked tile + one rounded)    |
+| `frontend/public/brand/{icons,shortcuts}/`                                  | generated icon and app-shortcut PNGs                                                        |
+| `frontend/public/{splash,screenshots}/`                                     | generated splash screens and install-dialog screenshots                                     |
 
 ---
 
@@ -331,6 +403,7 @@ Read from `frontend/package.json`.
 - Android/desktop Chrome: the install banner/sidebar entry appears and the prompt works; installed app opens standalone with the white status bar.
 - iOS Safari: the instructions sheet opens; after Add to Home Screen, the app launches with a branded splash (not a white flash).
 - DevTools, Application, Manifest: no errors, icons and screenshots load, "Installability" passes.
+- App shortcuts: DevTools lists all three under Manifest with their icons resolving. On a phone, reinstall first (Android caches the WebAPK), then long-press the icon; Skeniraj should open the camera modal and land on the product page after a scan.
 
 **Endpoints (against a running server):** `curl -s http://localhost:3000/manifest.webmanifest` (fields present), `curl -s http://localhost:3000/ | grep apple-touch-startup-image` (18 links in `<head>`), `curl -s http://localhost:3000/ | grep 'theme-color'` (`#ffffff`).
 
@@ -338,20 +411,23 @@ Read from `frontend/package.json`.
 
 ## 13. Gotchas and lessons learned
 
-| Gotcha                                             | What happened / fix                                                                                                                                                                                                                                                                     |
-| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Serwist needs webpack**                          | Next.js 16 defaults to Turbopack, so `build` is `next build --webpack`. The SW only exists in production builds.                                                                                                                                                                        |
-| **No service worker in dev**                       | `disable: NODE_ENV === "development"`, so `/sw.js` does not exist locally. This is intentional (SW + HMR do not mix).                                                                                                                                                                   |
-| **Stale SW 404s `/sw.js` in dev**                  | A service worker registered during earlier production testing keeps re-checking `/sw.js`, which 404s in dev. Harmless; unregister it in DevTools, Application, Service Workers.                                                                                                         |
-| **Persisted paused mutations need defaults**       | Persisting a paused mutation without a matching `setMutationDefaults` means it cannot be replayed after a reload. That is why `offline-mutations.ts` + `resumePausedMutations()` exist, and why the persister only dehydrates allowlisted mutations.                                    |
-| **`gcTime` must be >= `maxAge`**                   | Otherwise React Query evicts an entry from memory before it can be restored from disk. Both are 7 days.                                                                                                                                                                                 |
-| **Authed data must not hit Cache Storage**         | The service worker uses `NetworkOnly` for `/api/*` (non-cijene). Private data lives only in IndexedDB, which is purged on any transition to unauthenticated (logout, expiry, revoked cookie, other-tab sign-out), not just explicit logout.                                             |
-| **Auth-loss purge also clears the public cache**   | `purgeOfflineCache` wipes the whole React Query IndexedDB cache, including public product data, so an anonymous user's cache does not survive a full reload. In production the Serwist SW still serves `/api/cijene` GETs from Cache Storage, so public offline browsing keeps working. |
-| **iOS splash must be server-rendered**             | The `apple-touch-startup-image` links must be in the initial HTML `<head>` (iOS reads them at launch). They are rendered through the provider tree so React hoists them during SSR, not injected client-side.                                                                           |
-| **`@tanstack` persist version pin**                | Pinned to `5.101.1` to match `react-query`; a mismatch causes duplicate `query-core` and `tsc` errors.                                                                                                                                                                                  |
-| **Watchlist add/remove is not optimistic offline** | The write queues correctly but the UI does not reflect it until it syncs. A future optimistic-toggle improvement.                                                                                                                                                                       |
-| **Offline create has no temp entity**              | A list created offline appears only after reconnect (the modal closes with a toast). True optimistic create needs temp IDs + reconciliation.                                                                                                                                            |
-| **iOS can evict storage**                          | Hence `navigator.storage.persist()`; treat the offline cache as best-effort, never as the source of truth.                                                                                                                                                                              |
+| Gotcha                                             | What happened / fix                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Serwist needs webpack**                          | Next.js 16 defaults to Turbopack, so `build` is `next build --webpack`. The SW only exists in production builds.                                                                                                                                                                                                                                                                                                                                    |
+| **No service worker in dev**                       | `disable: NODE_ENV === "development"`, so `/sw.js` does not exist locally. This is intentional (SW + HMR do not mix).                                                                                                                                                                                                                                                                                                                               |
+| **Stale SW 404s `/sw.js` in dev**                  | A service worker registered during earlier production testing keeps re-checking `/sw.js`, which 404s in dev. Harmless; unregister it in DevTools, Application, Service Workers.                                                                                                                                                                                                                                                                     |
+| **Persisted paused mutations need defaults**       | Persisting a paused mutation without a matching `setMutationDefaults` means it cannot be replayed after a reload. That is why `offline-mutations.ts` + `resumePausedMutations()` exist, and why the persister only dehydrates allowlisted mutations.                                                                                                                                                                                                |
+| **`gcTime` must be >= `maxAge`**                   | Otherwise React Query evicts an entry from memory before it can be restored from disk. Both are 7 days.                                                                                                                                                                                                                                                                                                                                             |
+| **Authed data must not hit Cache Storage**         | The service worker uses `NetworkOnly` for `/api/*` (non-cijene). Private data lives only in IndexedDB, which is purged on any transition to unauthenticated (logout, expiry, revoked cookie, other-tab sign-out), not just explicit logout.                                                                                                                                                                                                         |
+| **Auth-loss purge also clears the public cache**   | `purgeOfflineCache` wipes the whole React Query IndexedDB cache, including public product data, so an anonymous user's cache does not survive a full reload. In production the Serwist SW still serves `/api/cijene` GETs from Cache Storage, so public offline browsing keeps working.                                                                                                                                                             |
+| **iOS splash must be server-rendered**             | The `apple-touch-startup-image` links must be in the initial HTML `<head>` (iOS reads them at launch). They are rendered through the provider tree so React hoists them during SSR, not injected client-side.                                                                                                                                                                                                                                       |
+| **`@tanstack` persist version pin**                | Pinned to `5.101.1` to match `react-query`; a mismatch causes duplicate `query-core` and `tsc` errors.                                                                                                                                                                                                                                                                                                                                              |
+| **Watchlist add/remove is not optimistic offline** | The write queues correctly but the UI does not reflect it until it syncs. A future optimistic-toggle improvement.                                                                                                                                                                                                                                                                                                                                   |
+| **Offline create has no temp entity**              | A list created offline appears only after reconnect (the modal closes with a toast). True optimistic create needs temp IDs + reconciliation.                                                                                                                                                                                                                                                                                                        |
+| **iOS can evict storage**                          | Hence `navigator.storage.persist()`; treat the offline cache as best-effort, never as the source of truth.                                                                                                                                                                                                                                                                                                                                          |
+| **`focus-existing` silently drops the url**        | `launch_handler` was `focus-existing`, which focuses an already-open window **without navigating** and hands the target url to `window.launchQueue`. Nothing here consumes `launchQueue`, so every shortcut did nothing whenever the app was already open. Now `navigate-existing`.                                                                                                                                                                 |
+| **Android caches the WebAPK**                      | Manifest changes (new shortcuts, new icons) do not appear on a refresh. Uninstall and reinstall the PWA to see them, or expect a delay of up to a day or two while Chrome re-fetches.                                                                                                                                                                                                                                                               |
+| **A rounded tile gets plated twice**               | The first shortcut icons were rounded white tiles with a 52% glyph. Android reads a non-maskable icon as legacy artwork, shrinks it and drops it on a white plate of its own, so the glyph came out unreadably small and the tile's corners poked past the launcher's mask. A full-bleed `maskable` tile is the fix, with the rounded variant split off under `any`, and the same reasoning is why the app icon ships maskable at both 192 and 512. |
 
 ---
 

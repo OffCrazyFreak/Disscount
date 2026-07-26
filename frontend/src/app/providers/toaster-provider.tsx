@@ -11,7 +11,16 @@ export default function ToasterProvider({ children }: IToasterProviderProps) {
   return (
     <>
       {children}
-      <Toaster richColors position="bottom-right" />
+
+      {/* Both offsets, because sonner only applies mobileOffset under 600px while
+          the bar runs to 768px. The token is 0 above md, so desktop keeps a plain
+          inset without sonner needing a breakpoint of its own. */}
+      <Toaster
+        richColors
+        position="bottom-right"
+        offset={{ bottom: "calc(var(--bottom-nav-total) + 0.5rem)" }}
+        mobileOffset={{ bottom: "calc(var(--bottom-nav-total) + 0.5rem)" }}
+      />
     </>
   );
 }

@@ -34,6 +34,7 @@ _Last verified end-to-end on 2026-06-28: prod + dev healthy, redirects and certs
 | Production site  | `https://disscount.me` (aliases `www.` / `app.` 301-redirect to it)                   |
 | Dev/staging site | `https://dev.disscount.me`                                                            |
 | Dokploy panel    | `https://dokploy.disscount.me`                                                        |
+| Status page      | `https://stats.uptimerobot.com/ej4ROz2eMo` (public, no account needed)                |
 | VPS              | Hetzner **CX33** (4 vCPU / 8 GB / 80 GB), Ubuntu, Helsinki, IP **YOUR_VPS_IP**        |
 | SSH              | `ssh YOUR_USER@YOUR_VPS_IP` (key-only; root + password login disabled)                |
 | Repo             | `OffCrazyFreak/Disscount` (**public**), prod from `main`, dev from `dev`              |
@@ -80,17 +81,18 @@ flowchart LR
 
 ## 3. Accounts & services
 
-| Service           | What it's for                              | Where / notes                                                        |
-| ----------------- | ------------------------------------------ | -------------------------------------------------------------------- |
-| **Hetzner**       | The VPS (server)                           | Cloud console, plus it hosts the **Cloud Firewall** `disscount-web`  |
-| **Dokploy**       | Deployment platform (on the VPS)           | `https://dokploy.disscount.me`; admin login = your email             |
-| **Cloudflare**    | DNS, CDN, DDoS, redirects, SSL mode        | zone `disscount.me` (free plan)                                      |
-| **GitHub**        | Source code + auto-deploy trigger          | `OffCrazyFreak/Disscount`; connected to Dokploy via a **GitHub App** |
-| **Sentry**        | Error tracking                             | projects `disscount-frontend` + `disscount-backend` (EU region)      |
-| **Cloudflare R2** | Off-site backup storage                    | bucket `disscount-backups` (S3-compatible)                           |
-| **Resend**        | Transactional email + Dokploy alert emails | domain `disscount.me` verified                                       |
-| **UptimeRobot**   | Uptime monitoring                          | monitors `https://disscount.me/health`                               |
-| **Google / Meta** | OAuth login providers                      | redirect URIs must include each live domain                          |
+| Service           | What it's for                              | Where / notes                                                                                          |
+| ----------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| **Hetzner**       | The VPS (server)                           | Cloud console, plus it hosts the **Cloud Firewall** `disscount-web`                                    |
+| **Dokploy**       | Deployment platform (on the VPS)           | `https://dokploy.disscount.me`; admin login = your email                                               |
+| **Cloudflare**    | DNS, CDN, DDoS, redirects, SSL mode        | zone `disscount.me` (free plan)                                                                        |
+| **GitHub**        | Source code + auto-deploy trigger          | `OffCrazyFreak/Disscount`; connected to Dokploy via a **GitHub App**                                   |
+| **Sentry**        | Error tracking                             | projects `disscount-frontend` + `disscount-backend` (EU region)                                        |
+| **Cloudflare R2** | Off-site backup storage                    | bucket `disscount-backups` (S3-compatible)                                                             |
+| **Resend**        | Transactional email + Dokploy alert emails | domain `disscount.me` verified                                                                         |
+| **UptimeRobot**   | Uptime monitoring                          | monitors `https://disscount.me/health`; public [status page](https://stats.uptimerobot.com/ej4ROz2eMo) |
+| **Umami Cloud**   | Privacy-friendly web analytics             | `cloud.umami.is`; wired only when `NEXT_PUBLIC_UMAMI_WEBSITE_ID` is set                                |
+| **Google / Meta** | OAuth login providers                      | redirect URIs must include each live domain                                                            |
 
 ---
 
@@ -257,6 +259,7 @@ docker exec pg-test psql -U postgres -d restoretest -c '\dt'   # verify
 | **Sentry**                | runtime errors (frontend + backend)       | Sentry dashboard / email |
 | **Dokploy Notifications** | deploy failures (`App Build Error`)       | Resend email             |
 
+- The UptimeRobot checks are published as a **public status page** at https://stats.uptimerobot.com/ej4ROz2eMo, linked from the README so anyone can see uptime and response times without an account.
 - `/health` (frontend) is a lightweight liveness route; the backend also has `/actuator/health` (internal only, used by the container healthcheck).
 - Sentry `send-default-pii=false` (privacy). Source-map upload is **not** enabled yet (see TODOs).
 
@@ -281,23 +284,23 @@ Set in **Dokploy → service → Environment**, per environment. Both DSNs live 
 
 ## 10. What's automatic vs manual
 
-| Task                                                       | Automatic? | Notes                                                                          |
-| ---------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------ |
-| Build & deploy on `git push`                               | ✅ auto    | Dokploy autodeploy (per branch)                                                |
-| CI checks (typecheck, lint, format, build, backend verify) | ✅ auto    | `.github/workflows/ci.yml` on every push + PR; required to merge to `main`     |
-| Branch previews (every branch except `main`/`dev`)         | ✅ auto    | Netlify, gated by `frontend/netlify.toml` (see [§4](#netlify-branch-previews)) |
-| HTTPS certificate issuance + renewal                       | ✅ auto    | Traefik + Let's Encrypt                                                        |
-| HTTP to HTTPS redirect                                     | ✅ auto    | Cloudflare                                                                     |
-| DB migrations (auth tables + app tables)                   | ✅ auto    | `migrate` service (drizzle) + Hibernate `ddl-auto=update` on each deploy       |
-| Nightly DB backups (R2 + local) + rotation                 | ✅ auto    | Dokploy Backups + Schedule                                                     |
-| OS security updates                                        | ✅ auto    | unattended-upgrades                                                            |
-| Uptime checks                                              | ✅ auto    | UptimeRobot                                                                    |
-| **Adding/Changing a `NEXT_PUBLIC_*` var**                  | ❌ manual  | edit in Dokploy env **+ redeploy**                                             |
-| **Adding a new domain/subdomain**                          | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                      |
-| **New OAuth provider redirect URIs**                       | ❌ manual  | add in Google/Meta consoles                                                    |
-| **Hard-refresh after deploy**                              | ❌ manual  | avoids stale-bundle errors                                                     |
-| **Restoring a backup**                                     | ❌ manual  | see [§8](#8-backups--restore)                                                  |
-| **Rotating secrets / tokens**                              | ❌ manual  | as needed                                                                      |
+| Task                                                       | Automatic? | Notes                                                                                      |
+| ---------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------ |
+| Build & deploy on `git push`                               | ✅ auto    | Dokploy autodeploy (per branch)                                                            |
+| CI checks (typecheck, lint, format, build, backend verify) | ✅ auto    | `.github/workflows/ci.yml` on every push + PR; required to merge to `main`                 |
+| Branch previews (every branch except `main`/`dev`)         | ✅ auto    | Netlify, gated by `frontend/netlify.toml` (see [§4](#netlify-branch-previews))             |
+| HTTPS certificate issuance + renewal                       | ✅ auto    | Traefik + Let's Encrypt                                                                    |
+| HTTP to HTTPS redirect                                     | ✅ auto    | Cloudflare                                                                                 |
+| DB migrations (auth tables + app tables)                   | ✅ auto    | `migrate` service (drizzle) + Hibernate `ddl-auto=update` on each deploy                   |
+| Nightly DB backups (R2 + local) + rotation                 | ✅ auto    | Dokploy Backups + Schedule                                                                 |
+| OS security updates                                        | ✅ auto    | unattended-upgrades                                                                        |
+| Uptime checks                                              | ✅ auto    | UptimeRobot, published as a [public status page](https://stats.uptimerobot.com/ej4ROz2eMo) |
+| **Adding/Changing a `NEXT_PUBLIC_*` var**                  | ❌ manual  | edit in Dokploy env **+ redeploy**                                                         |
+| **Adding a new domain/subdomain**                          | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                                  |
+| **New OAuth provider redirect URIs**                       | ❌ manual  | add in Google/Meta consoles                                                                |
+| **Hard-refresh after deploy**                              | ❌ manual  | avoids stale-bundle errors                                                                 |
+| **Restoring a backup**                                     | ❌ manual  | see [§8](#8-backups--restore)                                                              |
+| **Rotating secrets / tokens**                              | ❌ manual  | as needed                                                                                  |
 
 ---
 

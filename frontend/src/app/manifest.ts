@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { userNavItems } from "@/constants/navigation";
+import { pwaShortcuts } from "@/constants/pwa-shortcuts";
 
 // Neither key is in Next's manifest type yet.
 type WebAppManifest = MetadataRoute.Manifest & {
@@ -13,15 +13,6 @@ type WebAppManifest = MetadataRoute.Manifest & {
 
 // Next injects <link rel="manifest"> automatically when this file exists.
 export default function manifest(): WebAppManifest {
-  // Long-press shortcuts mirror the nav, minus anything not yet released.
-  const shortcuts = userNavItems
-    .filter((item) => !item.comingSoon)
-    .map((item) => ({
-      name: item.label,
-      short_name: item.shortLabel ?? item.label,
-      url: item.href,
-    }));
-
   return {
     name: "Disscount - Pronađi najbolje cijene u Hrvatskoj",
     short_name: "Disscount",
@@ -52,6 +43,12 @@ export default function manifest(): WebAppManifest {
         purpose: "any",
       },
       {
+        src: "/brand/icons/icon-maskable-192.png",
+        sizes: "192x192",
+        type: "image/png",
+        purpose: "maskable",
+      },
+      {
         src: "/brand/icons/icon-maskable-512.png",
         sizes: "512x512",
         type: "image/png",
@@ -75,14 +72,16 @@ export default function manifest(): WebAppManifest {
         label: "Usporedba cijena na računalu",
       },
     ],
-    shortcuts,
+    shortcuts: pwaShortcuts,
     // Shares from other apps land in /share-target and become a product search.
     share_target: {
       action: "/share-target",
       method: "GET",
       params: { title: "title", text: "text", url: "url" },
     },
-    // Reuse an open window rather than spawning one per shortcut launch.
-    launch_handler: { client_mode: "focus-existing" },
+    // Reuse an open window rather than spawning one per launch, but still go to
+    // the shortcut's url. focus-existing would only focus the window and hand
+    // the url to launchQueue, which nothing here consumes.
+    launch_handler: { client_mode: "navigate-existing" },
   };
 }

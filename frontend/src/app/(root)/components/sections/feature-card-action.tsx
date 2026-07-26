@@ -7,6 +7,7 @@ import { useNotifications } from "@/context/notifications-context";
 import { useUser } from "@/context/user-context";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import type { IScannedCode } from "@/typings/scanned-code";
+import { productPath } from "@/utils/product-links";
 
 interface IFeatureCardActionProps {
   action: "scanner" | "notifications";
@@ -28,7 +29,7 @@ export default function FeatureCardAction({
   const handleScan = useCallback(
     (code: IScannedCode) => {
       const value = code.rawValue.trim();
-      if (value) router.push(`/products/${encodeURIComponent(value)}`);
+      if (value) router.push(productPath(value));
     },
     [router],
   );

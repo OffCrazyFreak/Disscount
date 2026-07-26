@@ -74,6 +74,6 @@ End the doc by telling the user it is easier to name what NOT to fix than what t
 
 ## Formatting and the HTML variant
 
-If prettier is available in the repo, run it on the Markdown so the tables align: `pnpm exec prettier --write "reviews/REVIEW-<date>-BY-AREA.md"`. Prettier only checks table syntax, not content, so re-read the rows after any scripted (awk/sed) column edit to catch a swapped cell.
+If prettier is available in the repo, run it on the Markdown so the tables align: `./node_modules/.bin/prettier --write "../reviews/REVIEW-<date>-BY-AREA.md"` from the frontend package. Prettier only checks table syntax, not content, so re-read the rows after any scripted (awk/sed) column edit to catch a swapped cell.
 
 For the HTML variant, build a single self-contained page with the `frontend-design` skill if one is available, so it is a readable, well-typeset document rather than a generic dump. Keep the same areas, columns, legend, and row numbering; the only goal of HTML is easier scanning of a long list. Never send the review to any external host; it stays a local file under `reviews/`.

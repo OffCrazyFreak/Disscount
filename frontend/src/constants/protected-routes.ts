@@ -1,3 +1,5 @@
+import { isRouteActive } from "@/utils/routes";
+
 // Logging out bounces the user home from any of these, or their detail pages.
 export const PROTECTED_ROUTE_PREFIXES = [
   "/shopping-lists",
@@ -8,7 +10,7 @@ export const PROTECTED_ROUTE_PREFIXES = [
 ] as const;
 
 export function isProtectedRoute(pathname: string): boolean {
-  return PROTECTED_ROUTE_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  return PROTECTED_ROUTE_PREFIXES.some((prefix) =>
+    isRouteActive(pathname, prefix),
   );
 }

@@ -47,7 +47,12 @@ export default function ReactQueryProviderWrapper({
       }}
     >
       {children}
-      <ReactQueryDevtools />
+
+      {/* Its floating button sits over the mobile bottom nav, so it is opt-in
+          via NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS=true, like react-scan. */}
+      {process.env.NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS === "true" && (
+        <ReactQueryDevtools />
+      )}
     </PersistQueryClientProvider>
   );
 }

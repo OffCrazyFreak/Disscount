@@ -3,13 +3,7 @@
 import { ReactNode } from "react";
 import { SquareArrowUp, Plus, EllipsisVertical, Download } from "lucide-react";
 
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerDescription,
-} from "@/components/ui/drawer";
+import SheetShell from "@/components/custom/modal/sheet-shell";
 
 interface IInstallInstructionsSheetProps {
   open: boolean;
@@ -78,26 +72,24 @@ export default function InstallInstructionsSheet({
       ];
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerTitle>Dodaj na početni zaslon</DrawerTitle>
-          <DrawerDescription>
-            Dodaj Disscount na početni zaslon u nekoliko koraka.
-          </DrawerDescription>
-        </DrawerHeader>
-
-        <ol className="flex flex-col gap-4 px-4 pb-8">
-          {steps.map((step, index) => (
-            <li key={index} className="flex items-center gap-3">
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
-                {index + 1}
-              </span>
-              <span>{step.text}</span>
-            </li>
-          ))}
-        </ol>
-      </DrawerContent>
-    </Drawer>
+    <SheetShell
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Dodaj na početni zaslon"
+      description="Dodaj Disscount na početni zaslon u nekoliko koraka."
+      srOnlyDescription={false}
+      showCloseButton
+    >
+      <ol className="flex flex-col gap-4">
+        {steps.map((step, index) => (
+          <li key={index} className="flex items-center gap-3">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
+              {index + 1}
+            </span>
+            <span>{step.text}</span>
+          </li>
+        ))}
+      </ol>
+    </SheetShell>
   );
 }

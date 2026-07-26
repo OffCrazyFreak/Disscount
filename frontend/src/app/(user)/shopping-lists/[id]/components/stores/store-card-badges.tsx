@@ -18,7 +18,8 @@ export default function StoreCardBadges({
   priceDate,
 }: IStoreCardBadgesProps) {
   return (
-    <div className="flex items-center gap-3">
+    // Badges are nowrap and never shrink, so on narrow screens they stack instead of overflowing.
+    <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-3">
       {!hasAllItems && (
         <Badge variant="warningSoft">
           <TriangleAlert className="size-4 mr-1" />

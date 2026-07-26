@@ -3,9 +3,12 @@ import Script from "next/script";
 import "@/app/globals.css";
 
 import AppSidebar from "@/components/custom/sidebar/app-sidebar";
+import BottomNav from "@/components/custom/bottom-nav/bottom-nav";
+import ProductsSheet from "@/components/custom/products-sheet/products-sheet";
 import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/common/footer";
 import WindowScrollFade from "@/components/custom/common/window-scroll-fade";
+import BackToTopButton from "@/components/custom/fab/back-to-top-button";
 import OAuthErrorToast from "@/components/custom/common/oauth-error-toast";
 import ModalRouter from "@/components/custom/modal-router/modal-router";
 import InstallBanner from "@/components/custom/pwa/install-banner";
@@ -103,6 +106,13 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#121212" },
   ],
+  // Without this every env(safe-area-inset-*) resolves to 0, so the bottom nav
+  // would sit under the iOS home indicator.
+  viewportFit: "cover",
+  // Shrinks the layout viewport when the keyboard opens, so fixed bottom
+  // elements reposition instead of hiding behind it. Chrome Android 108+,
+  // Firefox Android 133+ and Samsung Internet; iOS Safari ignores it.
+  interactiveWidget: "resizes-content",
 };
 
 interface IRootLayoutProps {
@@ -111,7 +121,11 @@ interface IRootLayoutProps {
 
 export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
   return (
-    <html lang="hr" data-scroll-behavior="smooth">
+    <html
+      lang="hr"
+      data-scroll-behavior="smooth"
+      className="scroll-pb-[var(--bottom-nav-total)] md:scroll-pb-0"
+    >
       {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
         <Script
           defer
@@ -135,7 +149,9 @@ export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
             <ModalRouter />
           </Suspense>
 
-          <div className="min-h-screen flex flex-col w-full">
+          {/* The clearance sits here, not on <main>: the footer renders after
+              main with mt-auto, so it is the element the bar would cover. */}
+          <div className="min-h-svh flex flex-col w-full pb-[calc(var(--bottom-nav-total)+0.5rem)] md:pb-0">
             {/* pattern background */}
             <div className="absolute inset-0 z-[-15] bg-[url('/+_pattern.png')] bg-repeat opacity-100" />
             {/* radial fade to white, spreading from the page centre outward */}
@@ -159,7 +175,17 @@ export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
 
             {/* Bottom scrim on every scrollable page; self-hides at the end */}
             <WindowScrollFade />
+
+            {/* Desktop only, and only past 600px of scroll, so a short page
+                never shows one and no page has to opt in */}
+            <BackToTopButton />
+
+            <BottomNav />
           </div>
+
+          <Suspense fallback={null}>
+            <ProductsSheet />
+          </Suspense>
         </Providers>
       </body>
     </html>

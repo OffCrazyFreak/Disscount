@@ -9,18 +9,21 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import SidebarNavItem from "@/components/custom/sidebar/sidebar-nav-item";
-import { dashboardNavItem, userNavItems } from "@/constants/navigation";
+import {
+  dashboardNavItem,
+  userNavItems,
+  isNavItemLocked,
+} from "@/constants/navigation";
 import { useNotifications } from "@/context/notifications-context";
 import { useUser } from "@/context/user-context";
-import { canAccessDashboard, isAdmin } from "@/lib/api/schemas/auth-user";
+import { canAccessDashboard } from "@/lib/api/schemas/auth-user";
+import { isRouteActive } from "@/utils/routes";
 
 /** The signed-in user's own pages, plus the dashboard link on mobile. */
 export default function SidebarMainNav() {
   const pathname = usePathname();
   const { notifications, hasNotifications } = useNotifications();
   const { user } = useUser();
-
-  const userIsAdmin = isAdmin(user?.accountType);
 
   return (
     <>
@@ -31,7 +34,7 @@ export default function SidebarMainNav() {
               <SidebarMenuItem>
                 <SidebarNavItem
                   item={dashboardNavItem}
-                  isActive={pathname.startsWith("/dashboard")}
+                  isActive={isRouteActive(pathname, dashboardNavItem.href)}
                 />
               </SidebarMenuItem>
             </SidebarMenu>
@@ -48,8 +51,8 @@ export default function SidebarMainNav() {
               <SidebarMenuItem key={item.id}>
                 <SidebarNavItem
                   item={item}
-                  isActive={pathname.startsWith(item.href)}
-                  isLocked={Boolean(item.comingSoon) && !userIsAdmin}
+                  isActive={isRouteActive(pathname, item.href)}
+                  isLocked={isNavItemLocked(item, user?.accountType)}
                   badgeCount={
                     item.badge && hasNotifications
                       ? notifications.length

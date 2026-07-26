@@ -1,8 +1,12 @@
+<p align="center">
+  <a href="https://disscount.me"><img src="frontend/public/brand/social/og-image.png" alt="Disscount - Pronađi najbolje cijene u Hrvatskoj" width="100%"/></a>
+</p>
+
 # Disscount
 
 **Find the cheapest groceries in Croatia.** Disscount compares product prices across every major retail chain, shows real price history so you can tell whether a discount is genuine, and turns shopping lists into per-store basket totals.
 
-[![Live](https://img.shields.io/badge/live-disscount.me-06b6d4)](https://disscount.me) [![License: BUSL 1.1](https://img.shields.io/badge/License-BUSL%201.1-cyan.svg)](https://spdx.org/licenses/BUSL-1.1.html) ![Next.js](https://img.shields.io/badge/Next.js-16-black) ![React](https://img.shields.io/badge/React-19-149eca) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-6DB33F) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1)
+[![Live](https://img.shields.io/badge/live-disscount.me-06b6d4)](https://disscount.me) [![Uptime](https://img.shields.io/badge/uptime-status%20page-2ec50d)](https://stats.uptimerobot.com/ej4ROz2eMo) [![License: BUSL 1.1](https://img.shields.io/badge/License-BUSL%201.1-cyan.svg)](https://spdx.org/licenses/BUSL-1.1.html) ![Next.js](https://img.shields.io/badge/Next.js-black) ![React](https://img.shields.io/badge/React-149eca) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1)
 
 ## Description
 
@@ -31,17 +35,20 @@ Under the hood it is a full production stack: a Next.js frontend that also acts 
 
 ## Tech stack
 
-- **Frontend:** Next.js 16, React 19, TypeScript, Tailwind CSS 4, shadcn-style UI, TanStack Query, React Hook Form + Zod, Motion
-- **Backend:** Spring Boot 3 (Java 21), PostgreSQL 17, JPA / Hibernate
-- **Auth:** better-auth (in Next.js) issues ES256 JWTs, validated by Spring as an OAuth2 resource server via JWKS
-- **PWA & offline:** Serwist service worker, IndexedDB-backed React Query cache, offline reads and queued writes
-- **Infra:** Docker Compose, Dokploy on a Hetzner VPS, Traefik, Cloudflare, Sentry, Umami
+- **Frontend:** Next.js, React, TypeScript, Tailwind CSS, shadcn-style UI on Radix + lucide-react, TanStack Query (+ Virtual), React Hook Form + Zod, Axios, Motion, Recharts, Sonner, cmdk, Vaul
+- **Backend:** Spring Boot on Java, PostgreSQL, JPA / Hibernate, Spring Security + OAuth2 resource server, Bean Validation, Lombok, springdoc-openapi (Swagger UI), Actuator
+- **Auth:** better-auth (in Next.js) issues ES256 JWTs, validated by Spring as an OAuth2 resource server via JWKS. Drizzle owns the auth tables
+- **PWA & offline:** Serwist service worker, IndexedDB-backed React Query cache (idb-keyval), offline reads and queued writes, in-browser barcode scanning
+- **Email:** Resend + React Email
+- **Infra:** Docker Compose, Dokploy on a Hetzner VPS, Traefik, Cloudflare, Sentry, [UptimeRobot](https://stats.uptimerobot.com/ej4ROz2eMo), Umami
 
-Deeper references live in [docs/](docs/): [authentication](docs/AUTH.md), [PWA & offline](docs/PWA.md), [state persistence](docs/STATE-PERSISTENCE.md), and [deployment](docs/DEPLOYMENT.md).
+Deeper references live in [docs/](docs/): [authentication](docs/AUTH.md), [PWA & offline](docs/PWA.md), [mobile navigation](docs/MOBILE-NAV.md), [state persistence](docs/STATE-PERSISTENCE.md), [the landing page](docs/LANDING.md), [brand assets](docs/BRAND.md), and [deployment](docs/DEPLOYMENT.md).
 
 ## Link
 
 Deployed and available on: _[disscount.me](https://disscount.me/)_
+
+Live uptime and response times: _[status page](https://stats.uptimerobot.com/ej4ROz2eMo)_
 
 ## Visuals
 
@@ -75,18 +82,18 @@ Landing page ([full-page screenshot](docs/screenshots/desktop/pages/landing.webp
 </p>
 
 <p align="center">
-  <img width="45%" src="docs/screenshots/desktop/pages/shopping-lists.webp" alt="Disscount - Shopping lists"/>
-  <img width="45%" src="docs/screenshots/desktop/pages/shopping-list-detail.webp" alt="Disscount - Shopping list with per-store basket totals"/>
-</p>
-
-<p align="center">
   <img width="45%" src="docs/screenshots/desktop/pages/watchlist.webp" alt="Disscount - Product watchlist with price-drop targets"/>
-  <img width="45%" src="docs/screenshots/desktop/pages/digital-cards.webp" alt="Disscount - Digital loyalty cards"/>
+  <img width="45%" src="docs/screenshots/desktop/pages/shopping-lists.webp" alt="Disscount - Shopping lists"/>
 </p>
 
 <p align="center">
+  <img width="45%" src="docs/screenshots/desktop/pages/shopping-list-detail-items.webp" alt="Disscount - Shopping list items with quantities and per-item savings"/>
+  <img width="45%" src="docs/screenshots/desktop/pages/shopping-list-detail-stores.webp" alt="Disscount - Shopping list basket totals per store chain"/>
+</p>
+
+<p align="center">
+  <img width="45%" src="docs/screenshots/desktop/pages/digital-cards.webp" alt="Disscount - Digital loyalty cards"/>
   <img width="45%" src="docs/screenshots/desktop/settings/preference.webp" alt="Disscount - Preferences (nearby stores and locations)"/>
-  <img width="45%" src="docs/screenshots/desktop/pages/statistics.webp" alt="Disscount - Market statistics per chain"/>
 </p>
 
 ### On your phone
@@ -227,7 +234,7 @@ No secrets are committed: `supabase` and `sentry` authenticate via browser OAuth
 
 ## Deployment
 
-Disscount is self-hosted on a Hetzner VPS using [Dokploy](https://dokploy.com) (Docker Compose), with Traefik for routing and automatic Let's Encrypt TLS, and Cloudflare in front for DNS, CDN, and proxying. Production deploys automatically from the `main` branch, and a staging environment deploys from the `dev` branch, on every push.
+Disscount is self-hosted on a Hetzner VPS using [Dokploy](https://dokploy.com) (Docker Compose), with Traefik for routing and automatic Let's Encrypt TLS, and Cloudflare in front for DNS, CDN, and proxying. Production deploys automatically from the `main` branch, and a staging environment deploys from the `dev` branch, on every push. Runtime errors go to Sentry, and UptimeRobot polls `/health` with a public [status page](https://stats.uptimerobot.com/ej4ROz2eMo).
 
 See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the full infrastructure reference: architecture, environment variables, DNS and SSL, security, backups and restore, monitoring, and how to add more apps to the server.
 

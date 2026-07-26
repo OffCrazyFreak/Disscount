@@ -28,17 +28,24 @@ export interface IUseProductFiltersResult extends IFilterParamsResult {
   locationsReady: boolean;
 }
 
+interface IUseProductFiltersOptions {
+  /** Off for a second reader on the same route, so the two cannot both seed */
+  seedPreferred?: boolean;
+}
+
 /**
  * URL-backed filter state for the products page: shareable and
  * back/forward-safe. All four filters apply client-side: the endpoint's
  * `chains` filter runs after its limit, so it would starve the facets.
  */
-export default function useProductFilters(): IUseProductFiltersResult {
+export default function useProductFilters({
+  seedPreferred = true,
+}: IUseProductFiltersOptions = {}): IUseProductFiltersResult {
   const searchParams = useSearchParams();
   const { data: locations, isLoading: locationsLoading } = useAllLocations();
   const filterParams = useFilterParams();
 
-  useSeedPreferredFilters();
+  useSeedPreferredFilters(seedPreferred);
 
   // Only these two split on commas, so old shared links still resolve.
   const selectedChains = useMemo(

@@ -12,9 +12,9 @@ import {
   productNavItems,
   PLACEHOLDER_HREF,
   type INavigationItem,
+  isNavItemLocked,
 } from "@/constants/navigation";
 import { useUser } from "@/context/user-context";
-import { isAdmin } from "@/lib/api/schemas/auth-user";
 import { readListParam } from "@/utils/generic";
 import { useClientSearchParams } from "@/hooks/use-client-search-params";
 
@@ -28,7 +28,6 @@ export default function SidebarProductNav() {
   const { user } = useUser();
   const { chains, cities } = useSidebarFilterOptions();
 
-  const userIsAdmin = isAdmin(user?.accountType);
   const isOnProducts = pathname.startsWith("/products");
 
   const searchParamsString = searchParams?.toString() ?? "";
@@ -73,7 +72,7 @@ export default function SidebarProductNav() {
           <SidebarNavItem
             item={item}
             isActive={isItemActive(item)}
-            isLocked={Boolean(item.comingSoon) && !userIsAdmin}
+            isLocked={isNavItemLocked(item, user?.accountType)}
           />
 
           {item.children?.length ? (

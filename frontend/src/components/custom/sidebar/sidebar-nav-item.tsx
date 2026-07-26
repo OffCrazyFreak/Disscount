@@ -5,6 +5,7 @@ import type { MouseEvent } from "react";
 import { SidebarMenuBadge, SidebarMenuButton } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { PLACEHOLDER_HREF, type INavigationItem } from "@/constants/navigation";
+import { SIDEBAR_ICON_CLASS } from "@/components/custom/sidebar/sidebar-styles";
 
 // Opts out of the peer rules that would recolour badge text on hover or active.
 const BADGE_CLASS =
@@ -51,17 +52,23 @@ export default function SidebarNavItem({
   return (
     <>
       {isDeadEnd ? (
-        <SidebarMenuButton type="button" disabled className={labelSpace}>
+        <SidebarMenuButton
+          type="button"
+          disabled
+          className={cn(labelSpace, SIDEBAR_ICON_CLASS)}
+        >
           {label}
         </SidebarMenuButton>
       ) : (
         <SidebarMenuButton
           asChild
           isActive={!isLocked && isActive}
-          className={labelSpace}
+          className={cn(labelSpace, SIDEBAR_ICON_CLASS)}
         >
           <Link
             href={item.href}
+            // data-active styles it, but says nothing to a screen reader.
+            aria-current={!isLocked && isActive ? "page" : undefined}
             aria-disabled={isLocked ? true : undefined}
             tabIndex={isLocked ? -1 : undefined}
             onClick={isLocked ? preventNavigation : undefined}

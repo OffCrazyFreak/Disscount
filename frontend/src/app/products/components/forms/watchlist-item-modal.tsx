@@ -6,7 +6,7 @@ import { Eye, Save, TriangleAlert } from "lucide-react";
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
-import { RemoveIconButton } from "@/components/custom/common/remove-icon-button";
+import RemoveIconButton from "@/components/custom/common/remove-icon-button";
 import { WatchType } from "@/lib/api";
 import cijeneService from "@/lib/cijene-api";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
