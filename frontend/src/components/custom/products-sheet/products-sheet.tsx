@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchNavButton from "@/components/custom/search/search-nav-button";
-import SearchSheetSubmit from "@/components/custom/search/search-sheet-submit";
+import ProductsSheetSubmit from "@/components/custom/products-sheet/products-sheet-submit";
 import SheetShell from "@/components/custom/modal/sheet-shell";
 import ProductSearchFilters from "@/app/products/components/product-search-filters";
-import { useSearchSheet } from "@/context/search-sheet-context";
+import { useProductsSheet } from "@/context/products-sheet-context";
 import { useUser } from "@/context/user-context";
 import { isAdmin } from "@/lib/api/schemas/auth-user";
 import { findNavItem } from "@/constants/navigation";
@@ -16,7 +16,7 @@ import { findNavItem } from "@/constants/navigation";
 const FILTERED_ROUTE = "/products";
 
 /** Ties the footer's submit button to the field's form, which it sits outside of */
-const SEARCH_FORM_ID = "search-sheet-form";
+const PRODUCTS_FORM_ID = "products-sheet-form";
 
 const discountsNavItem = findNavItem("discounted");
 
@@ -27,9 +27,9 @@ const discountsNavItem = findNavItem("discounted");
  * Runs behind the bar with no scrim, so the nav stays visible and the sheet reads
  * as an extension of it rather than a layer over the app.
  */
-export default function SearchSheet() {
+export default function ProductsSheet() {
   const { isOpen, areFiltersOpen, setAreFiltersOpen, inputRef, close } =
-    useSearchSheet();
+    useProductsSheet();
   const [typedQuery, setTypedQuery] = useState("");
   const pathname = usePathname();
   const { user } = useUser();
@@ -58,10 +58,10 @@ export default function SearchSheet() {
       // Last in the sheet and outside the scroll, so expanding the filters cannot
       // push the one action that acts on them out of reach.
       footer={
-        <SearchSheetSubmit
+        <ProductsSheetSubmit
           searchRoute={FILTERED_ROUTE}
           query={typedQuery}
-          form={SEARCH_FORM_ID}
+          form={PRODUCTS_FORM_ID}
         />
       }
       className="md:hidden"
@@ -71,7 +71,7 @@ export default function SearchSheet() {
         placeholder="Pretraži proizvode..."
         allowScanning
         submitButtonLocation="none"
-        formId={SEARCH_FORM_ID}
+        formId={PRODUCTS_FORM_ID}
         inputRef={inputRef}
         onQueryChange={setTypedQuery}
       />

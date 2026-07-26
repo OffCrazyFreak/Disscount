@@ -17,7 +17,7 @@ interface ISearchNavButtonProps {
 }
 
 /**
- * A catalogue shortcut in the search sheet, outlined rather than filled so the
+ * A catalogue shortcut in the products sheet, outlined rather than filled so the
  * Pretraži button above it stays the one loud action.
  *
  * The sheet is the fourth nav surface after the sidebar, the header and the bar,

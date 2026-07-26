@@ -4,7 +4,7 @@ import "@/app/globals.css";
 
 import AppSidebar from "@/components/custom/sidebar/app-sidebar";
 import BottomNav from "@/components/custom/bottom-nav/bottom-nav";
-import SearchSheet from "@/components/custom/search/search-sheet";
+import ProductsSheet from "@/components/custom/products-sheet/products-sheet";
 import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/common/footer";
 import WindowScrollFade from "@/components/custom/common/window-scroll-fade";
@@ -178,7 +178,7 @@ export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
           </div>
 
           <Suspense fallback={null}>
-            <SearchSheet />
+            <ProductsSheet />
           </Suspense>
         </Providers>
       </body>

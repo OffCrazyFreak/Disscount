@@ -25,7 +25,7 @@ interface IProductSearchFiltersProps {
 }
 
 /**
- * The products filters, inline in the search sheet on every route.
+ * The products filters, inline in the products sheet on every route.
  *
  * Expanding grows the sheet upward instead of stacking a second one over it, so
  * the search field you just used stays in view and there is only ever one layer

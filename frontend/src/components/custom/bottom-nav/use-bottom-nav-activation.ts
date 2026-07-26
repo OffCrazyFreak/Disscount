@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useSearchSheet } from "@/context/search-sheet-context";
+import { useProductsSheet } from "@/context/products-sheet-context";
 import useTabReentry from "@/hooks/use-tab-reentry";
 import type { IBottomNavCell } from "@/components/custom/bottom-nav/use-bottom-nav-cells";
 
@@ -11,7 +11,7 @@ import type { IBottomNavCell } from "@/components/custom/bottom-nav/use-bottom-n
  */
 export default function useBottomNavActivation(cells: IBottomNavCell[]) {
   const router = useRouter();
-  const { isOpen, open, close } = useSearchSheet();
+  const { isOpen, open, close } = useProductsSheet();
   const { reenter, canReturn } = useTabReentry();
 
   function activate(index: number) {

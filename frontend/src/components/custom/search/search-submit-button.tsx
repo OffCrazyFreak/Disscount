@@ -15,7 +15,7 @@ interface ISearchSubmitButtonProps {
   form?: string;
 }
 
-/** The Pretraži button, shared by the inline bars and the search sheet's footer. */
+/** The Pretraži button, shared by the inline bars and the products sheet's footer. */
 export default function SearchSubmitButton({
   label,
   block = false,

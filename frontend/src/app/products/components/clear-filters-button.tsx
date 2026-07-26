@@ -16,7 +16,7 @@ interface IClearFiltersButtonProps {
 
 /**
  * Drops every active filter. Shared by the products page's two layouts and the
- * search sheet's panel, so they cannot label or gate it differently.
+ * products sheet's panel, so they cannot label or gate it differently.
  *
  * Always mounted and merely disabled when there is nothing to clear, so no filter
  * surface reflows as filters come and go.

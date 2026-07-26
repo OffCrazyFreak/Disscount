@@ -70,7 +70,7 @@ export default function BottomNav() {
   return (
     <nav
       aria-label="Glavna navigacija"
-      // The search sheet is non-modal, and globals.css hands the whole page back
+      // The products sheet is non-modal, and globals.css hands the whole page back
       // for those, so the bar needs no opt-in of its own. It stays inert under
       // real modals, whose overlay covers it anyway.
       className="bottom-nav-compacts fixed inset-x-0 bottom-0 z-[var(--z-bottom-nav)] md:hidden"

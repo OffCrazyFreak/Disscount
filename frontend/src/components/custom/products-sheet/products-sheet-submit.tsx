@@ -3,7 +3,7 @@
 import SearchSubmitButton from "@/components/custom/search/search-submit-button";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 
-interface ISearchSheetSubmitProps {
+interface IProductsSheetSubmitProps {
   searchRoute: string;
   /** The live field value, so the button can tell a real search from a no-op */
   query: string;
@@ -12,17 +12,17 @@ interface ISearchSheetSubmitProps {
 }
 
 /**
- * The search sheet's footer button.
+ * The products sheet's footer button.
  *
- * Its own component because it reads the URL, and `SearchSheet` is mounted in the
+ * Its own component because it reads the URL, and `ProductsSheet` is mounted in the
  * root layout: a `useSearchParams` call up there would drop every page out of the
  * prerender. Down here it only runs while the sheet is open.
  */
-export default function SearchSheetSubmit({
+export default function ProductsSheetSubmit({
   searchRoute,
   query,
   form,
-}: ISearchSheetSubmitProps) {
+}: IProductsSheetSubmitProps) {
   const { isUnchanged } = useSearchNavigation(searchRoute);
 
   return (

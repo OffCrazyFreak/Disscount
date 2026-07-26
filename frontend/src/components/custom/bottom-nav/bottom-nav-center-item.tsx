@@ -32,7 +32,7 @@ interface IBottomNavCenterItemProps {
  * The search cell: raised and filled, so it reads as primary while keeping its
  * equal share of the row.
  *
- * Tap opens the search sheet rather than navigating, and taps again to close it,
+ * Tap opens the products sheet rather than navigating, and taps again to close it,
  * which is what the glyph animates to say: the chevrons point the way the sheet
  * leaves, matching the swipe that also closes it. Holding it opens the scanner,
  * since typing a name and scanning a barcode answer the same question.

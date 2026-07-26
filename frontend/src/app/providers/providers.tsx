@@ -8,7 +8,7 @@ import UserContextProvider from "@/app/providers/user-provider";
 import ReactScan from "@/app/providers/react-scan";
 import { CameraScannerProvider } from "@/context/scanner-context";
 import { NotificationsProvider } from "@/context/notifications-context";
-import { SearchSheetProvider } from "@/context/search-sheet-context";
+import { ProductsSheetProvider } from "@/context/products-sheet-context";
 import RequestPersistentStorage from "@/components/custom/pwa/request-persistent-storage";
 import AppleSplashScreens from "@/components/custom/pwa/apple-splash-screens";
 
@@ -23,7 +23,7 @@ export default function Providers({ children }: IProvidersProps) {
         <NotificationsProvider>
           <SidebarProvider>
             <CameraScannerProvider>
-              <SearchSheetProvider>
+              <ProductsSheetProvider>
                 <ToasterProvider>
                   <ReactScan />
                   <RequestPersistentStorage />
@@ -31,7 +31,7 @@ export default function Providers({ children }: IProvidersProps) {
 
                   {children}
                 </ToasterProvider>
-              </SearchSheetProvider>
+              </ProductsSheetProvider>
             </CameraScannerProvider>
           </SidebarProvider>
         </NotificationsProvider>

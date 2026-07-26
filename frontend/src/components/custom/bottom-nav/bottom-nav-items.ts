@@ -7,7 +7,7 @@ import type { ModalTarget } from "@/lib/modal/modal-registry";
 
 export interface IBottomNavItem {
   item: INavigationItem;
-  /** The raised centre cell, which opens the search sheet instead of navigating */
+  /** The raised centre cell, which opens the products sheet instead of navigating */
   isSearch?: boolean;
   /** Opened by a long press; every target is also reachable by a visible control */
   longPressTarget?: ModalTarget;

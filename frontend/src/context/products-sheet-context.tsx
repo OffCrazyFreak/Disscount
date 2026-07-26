@@ -11,7 +11,7 @@ import {
   type RefObject,
 } from "react";
 
-interface ISearchSheetContext {
+interface IProductsSheetContext {
   isOpen: boolean;
   /** The expanded filters, which every open starts without */
   areFiltersOpen: boolean;
@@ -24,21 +24,23 @@ interface ISearchSheetContext {
   close: () => void;
 }
 
-const SearchSheetContext = createContext<ISearchSheetContext | null>(null);
+const ProductsSheetContext = createContext<IProductsSheetContext | null>(null);
 
-interface ISearchSheetProviderProps {
+interface IProductsSheetProviderProps {
   children: ReactNode;
 }
 
 /**
- * Holds the mobile search sheet open, so the bottom nav's centre tab can open a
+ * Holds the mobile products sheet open, so the bottom nav's centre tab can open a
  * sheet that lives outside it in the tree.
  *
  * The filters live here too rather than in the sheet, so each entry point decides
  * their state in the same batch that opens: the centre cell always lands on the
  * compact sheet, the products page's Filteri button lands on the expanded one.
  */
-export function SearchSheetProvider({ children }: ISearchSheetProviderProps) {
+export function ProductsSheetProvider({
+  children,
+}: IProductsSheetProviderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [areFiltersOpen, setAreFiltersOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -69,16 +71,18 @@ export function SearchSheetProvider({ children }: ISearchSheetProviderProps) {
   );
 
   return (
-    <SearchSheetContext.Provider value={value}>
+    <ProductsSheetContext.Provider value={value}>
       {children}
-    </SearchSheetContext.Provider>
+    </ProductsSheetContext.Provider>
   );
 }
 
-export function useSearchSheet() {
-  const context = useContext(SearchSheetContext);
+export function useProductsSheet() {
+  const context = useContext(ProductsSheetContext);
   if (!context) {
-    throw new Error("useSearchSheet must be used within a SearchSheetProvider");
+    throw new Error(
+      "useProductsSheet must be used within a ProductsSheetProvider",
+    );
   }
 
   return context;
