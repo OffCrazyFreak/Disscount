@@ -56,11 +56,8 @@ function tile(art, corners = []) {
     .png();
 }
 
-// Two tiles per shortcut, because one image cannot serve both jobs. The masked
-// one must stay full bleed: Chrome hands it to Android as an adaptive-icon
-// layer, where transparent corners are filled by the launcher rather than left
-// alone. The unmasked one is drawn as-is in desktop jump lists, where a hard
-// square reads as a blank block, so it keeps the brand corner radius.
+// Two tiles per shortcut, one full bleed for the mask and one rounded for the
+// surfaces that draw it unmasked. The reasoning is in docs/PWA.md#app-shortcuts.
 async function writeTiles(id, Icon) {
   const art = await glyph(Icon);
 
