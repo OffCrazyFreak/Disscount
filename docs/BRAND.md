@@ -60,15 +60,21 @@ flowchart TD
     subgraph Shared[scripts/lib shared helpers]
         L1[cart-source.mjs<br/>renderCart / cartOnSquare]
         L2[cart-frames.mjs<br/>easings + per-frame cart]
+        L3[brand.mjs<br/>brand green]
+        L4[srgb.mjs<br/>sRGB tagging]
     end
     S1 --> L1
     S2 --> L2
+    L3 --> L2
     G1[generate-logos.mjs]
     G2[generate-pwa-icons.mjs]
     G3[generate-ios-splash.mjs]
     G4[generate-shortcut-icons.mjs]
-    L1 --> G2 & G3
+    L1 --> G1 & G2 & G3
+    L1 -.->|ROOT path only| G4
     L2 --> G1
+    L3 --> G1 & G4
+    L4 --> G1 & G2 & G3 & G4
     S2 --> G1
     S3 --> G1 & G3
     Lucide[lucide-react nav icons<br/>not a brand source] --> G4

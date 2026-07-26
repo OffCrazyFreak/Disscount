@@ -1078,7 +1078,7 @@ Carried over from the build spec this feature was written against, which is why 
 - [ ] Escape closes it
 - [ ] Pretraži sits at the bottom whatever the sheet's height, and Enter in the field submits
 - [ ] Pretraži is disabled when the field is empty and when it matches the current query, with no flash after clearing
-- [ ] Submitting from another route lands on the products list with the sheet still open
+- [ ] Submitting from another route lands on the products list and closes the sheet
 - [ ] Scanning a barcode closes it
 - [ ] Popusti is present, disabled, badged, and enabled for an admin
 
@@ -1090,7 +1090,7 @@ Carried over from the build spec this feature was written against, which is why 
 - [ ] Picking a facet on the products list updates the URL and the list behind it, live, without closing the sheet
 - [ ] Picking a facet from another route navigates to the products list carrying both the facet and whatever was typed
 - [ ] Clearing the filters and then picking one option does not resurrect the cleared ones
-- [ ] Očisti filtere is present but disabled with no filters set, icon-only below `md` with a tooltip, labelled above it
+- [ ] Očisti filtere is present but disabled with no filters set, and its label remains visible below `md`
 - [ ] A facet's popover scrolls by touch
 
 ### Sheets and layers
@@ -1098,7 +1098,7 @@ Carried over from the build spec this feature was written against, which is why 
 - [ ] All three sheets end the same distance above the bar, and none covers it
 - [ ] Each sheet caps at 85% of the **dynamic** viewport, not 80% of the static one
 - [ ] The gap below the grab handle is 16px in all three, including the one with a hidden title
-- [ ] A modal sheet's scrim leaves the bar visible, and the bar is inert under it
+- [ ] A modal sheet's scrim covers the bar, leaving it inert underneath
 - [ ] The install instructions sheet shows its description, closes on an outside press, and has a visible close control
 - [ ] No sheet's own code sets a layer, a bottom padding or a safe-area value
 
