@@ -29,6 +29,7 @@ _Last verified end-to-end on 2026-07-26 against `feat/mobile-bottom-nav`, measur
 17. [What's automatic vs manual](#17-whats-automatic-vs-manual)
 18. [Gotchas & lessons learned](#18-gotchas--lessons-learned)
 19. [Future improvements & TODOs](#19-future-improvements--todos)
+20. [Regression checklist](#20-regression-checklist)
 
 ---
 
@@ -990,3 +991,83 @@ Selection mode is the one with real product upside: costing a subset of a list a
 - **Clamp the active disc.** It is a hardcoded 3.6rem. That clears the pill by 7.5px at 320px, so there is headroom today, but a longer label in a future locale would need a `min()` against the cell width rather than a fixed size.
 - **Finish the off-route filters guard.** A facet pick from the sheet is routed to `/products` (`product-search-filters.tsx`), but `clearFilters` in `use-filter-params.ts` still does a `router.replace(pathname)` on whatever route the sheet is open over, and the displayed selections and the active count read that route's own search params. No shipped route carries `chain`, `location`, `category` or `brand`, so nothing misbehaves today, but the guard is one-sided and the next route that takes any of those params would expose it.
 - **Consider deriving the search sheet's close rule** instead of running it in an effect on `pathname`. Today the sheet paints one frame on the new route before closing, which is cosmetic. The obvious derived alternative reopens the sheet on a Back navigation, so it needs the open flag cleared as well as derived, not simply swapped.
+
+---
+
+## 20. Regression checklist
+
+Run these after changing the bar, a gesture or the shared sheet. Do it at **360x740** signed in, and repeat the geometry checks at **320px**. Verify in a browser: static analysis says nothing about a gesture.
+
+Carried over from the build spec this feature was written against, which is why it reads as requirements rather than as description.
+
+### The bar
+
+- [ ] Present under 768px, absent at 768px and above, in the prerendered HTML with no shift on hydration
+- [ ] 72px of content plus the safe-area inset, with the page's last content and the footer both fully reachable
+- [ ] Five cells, correct order, correct labels, all labels visible
+- [ ] Each cell at least 48px in both axes
+- [ ] The active disc never touches the pill's inner edge on the first or last cell
+- [ ] Scrolling compacts the labels and settles the surface without changing the bar's outer height, and the labels fade rather than snapping
+- [ ] Scrolling does **not** dim the icons, the badge or the disc
+- [ ] The bar never hides
+
+### Navigation and gestures
+
+- [ ] Tapping a cell navigates, and the disc slides rather than reappearing
+- [ ] The centre cell lights up on the products list and carries `aria-current` there
+- [ ] Re-tapping the active tab scrolls to top, a second tap returns, and a chevron shows in between
+- [ ] Scrubbing across the bar **moves the disc** and commits the cell released on
+- [ ] Pressing a cell, dragging off the bar and releasing commits nothing, and the disc returns to the route's cell
+- [ ] A press starting within 16px of either screen edge does nothing
+- [ ] An ordinary tap draws **no** ring at all
+- [ ] A hold shows the ring begin to fill and fires at roughly 450ms
+- [ ] Moving more than 10px during a hold **drains** the ring, retracting rather than vanishing, and fires nothing
+- [ ] Every hold opens its target, and each target is also reachable by a visible control
+- [ ] Holding Praćenje does nothing off a product page; holding Popisi opens the new-list modal there and the add-to-list modal on a product page
+- [ ] Teaser cells take no tap, no focus, no scrub tint and no hold as a non-admin, and do as an admin
+- [ ] Signed out, the protected cells still navigate and the pages explain themselves
+
+### The search sheet
+
+- [ ] Opens above the bar with the field focused and the filters collapsed
+- [ ] The page behind it scrolls and takes clicks while it is open
+- [ ] The centre cell closes it, and its glyph and accessible name change while open
+- [ ] Swiping the handle down closes it, including a press starting on the sheet's own padding
+- [ ] Escape closes it
+- [ ] Pretraži sits at the bottom whatever the sheet's height, and Enter in the field submits
+- [ ] Pretraži is disabled when the field is empty and when it matches the current query, with no flash after clearing
+- [ ] Submitting from another route lands on the products list with the sheet still open
+- [ ] Scanning a barcode closes it
+- [ ] Popusti is present, disabled, badged, and enabled for an admin
+
+### The filters
+
+- [ ] Filteri expands in place and the sheet grows upward; past 85% of the viewport the body scrolls
+- [ ] Dragging the sheet up 40px expands it mid-drag; a 20px nudge does nothing
+- [ ] The products page's Filteri button opens the sheet already expanded, with the field unfocused
+- [ ] Picking a facet on the products list updates the URL and the list behind it, live, without closing the sheet
+- [ ] Picking a facet from another route navigates to the products list carrying both the facet and whatever was typed
+- [ ] Clearing the filters and then picking one option does not resurrect the cleared ones
+- [ ] Očisti filtere is present but disabled with no filters set, icon-only below `md` with a tooltip, labelled above it
+- [ ] A facet's popover scrolls by touch
+
+### Sheets and layers
+
+- [ ] All three sheets end the same distance above the bar, and none covers it
+- [ ] Each sheet caps at 85% of the **dynamic** viewport, not 80% of the static one
+- [ ] The gap below the grab handle is 16px in all three, including the one with a hidden title
+- [ ] A modal sheet's scrim leaves the bar visible, and the bar is inert under it
+- [ ] The install instructions sheet shows its description, closes on an outside press, and has a visible close control
+- [ ] No sheet's own code sets a layer, a bottom padding or a safe-area value
+
+### Elsewhere on the page
+
+- [ ] Toasts, the install banner and any dev overlay all clear the bar
+- [ ] The create buttons are visible below `sm`, show their icon on a touch device, and use their short wording
+- [ ] Under `prefers-reduced-motion` the disc, the compaction, the glyph swap and the scrub swell are all instant
+
+### Housekeeping
+
+- [ ] Formatted, type-clean and lint-clean per `AGENTS.md`, with no new lint warnings
+- [ ] No file grew past the size `AGENTS.md` asks for
+- [ ] No multi-line explanatory comment survived where a rename or a split would remove the need for it
