@@ -234,13 +234,13 @@ The app's own OG and Twitter link-preview images are **generated dynamically** b
 
 All live in `frontend/scripts/` and are run manually with `node`. They share two helper modules so the cart and its animation are defined once.
 
-| Script                    | Produces                                                  | Key ideas                                                                                                            |
-| ------------------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `lib/cart-source.mjs`     | (helper) `renderCart(width)`, `cartOnSquare(size, ratio)` | Strips the `<style>` block from the animated SVG to freeze the finished cart, then rasterizes it                     |
-| `lib/cart-frames.mjs`     | (helper) easings + `cartFrameSvg()`                       | librsvg can't play CSS animation, so the draw-on is rebuilt frame by frame with cubic-bezier easings                 |
-| `generate-logos.mjs`      | The 40-file logo matrix                                   | A `markFile()` router sends each output into its per-mark subfolder; `flood()` fixes edge fringe (see gotchas)       |
-| `generate-pwa-icons.mjs`  | PWA icons + `favicon.ico`                                 | White cart on brand green throughout; wraps PNG frames in a hand-built ICO container since `sharp` can't emit `.ico` |
-| `generate-ios-splash.mjs` | 18 iOS splash screens                                     | Composites the cart + a smaller wordmark label centred on white, per device from the JSON list                       |
+| Script                    | Produces                                                  | Key ideas                                                                                                              |
+| ------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `lib/cart-source.mjs`     | (helper) `renderCart(width)`, `cartOnSquare(size, ratio)` | Strips the `<style>` block from the animated SVG to freeze the finished cart, then rasterizes it                       |
+| `lib/cart-frames.mjs`     | (helper) easings + `cartFrameSvg()`                       | librsvg can't play CSS animation, so the draw-on is rebuilt frame by frame with cubic-bezier easings                   |
+| `generate-logos.mjs`      | The 40-file logo matrix                                   | A `markFile()` router sends each output into its per-mark subfolder; `flood()` fixes edge fringe (see gotchas)         |
+| `generate-pwa-icons.mjs`  | PWA icons + `favicon.ico`                                 | Green cart on a white plate throughout; wraps PNG frames in a hand-built ICO container since `sharp` can't emit `.ico` |
+| `generate-ios-splash.mjs` | 18 iOS splash screens                                     | Composites the cart + a smaller wordmark label centred on white, per device from the JSON list                         |
 
 **Order matters** if you run them fresh: `generate-logos.mjs` first (it writes `cart/cart-rgb.svg`, which the other two read via `cart-source.mjs`), then the icon and splash scripts.
 
