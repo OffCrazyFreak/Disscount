@@ -9,7 +9,8 @@ import path from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Eye, ListChecks, ScanBarcode } from "lucide-react";
-import { GREEN, ROOT } from "./lib/cart-source.mjs";
+import { GREEN } from "./lib/brand.mjs";
+import { ROOT } from "./lib/cart-source.mjs";
 
 const OUT = path.join(ROOT, "public/brand/shortcuts");
 

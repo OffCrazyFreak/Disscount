@@ -18,7 +18,6 @@ const ASPECT = 50.5 / 68;
 
 const WHITE = { r: 255, g: 255, b: 255, alpha: 1 };
 const TRANSPARENT = { r: 0, g: 0, b: 0, alpha: 0 };
-const GREEN = "#2ec50d"; // --primary
 
 // The <style> block renders the animation's first frame (body hidden via
 // stroke-dashoffset, wheels at scale 0). Drop it so we capture the finished
@@ -52,4 +51,4 @@ export async function cartOnSquare(size, ratio, background = WHITE) {
     .toBuffer();
 }
 
-export { ROOT, ASPECT, WHITE, TRANSPARENT, GREEN };
+export { ROOT, ASPECT, WHITE, TRANSPARENT };

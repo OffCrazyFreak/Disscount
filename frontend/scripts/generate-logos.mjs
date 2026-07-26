@@ -7,6 +7,7 @@
 import sharp from "sharp";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
+import { GREEN, GREEN_RGB } from "./lib/brand.mjs";
 import { renderCart, ROOT } from "./lib/cart-source.mjs";
 import {
   easeOut,
@@ -28,9 +29,8 @@ const WM_SRC = markFile("wordmark-rgb.png");
 const FPS = 25;
 const HOLD = 1500; // ms lingering on the finished frame before looping
 
-const GREEN = [46, 197, 13]; // #2ec50d, the app's --primary
 const VARIANTS = [
-  { n: "rgb", rgb: GREEN, hex: "#2ec50d", gifMatte: "#ffffff" },
+  { n: "rgb", rgb: GREEN_RGB, hex: GREEN, gifMatte: "#ffffff" },
   { n: "white", rgb: [255, 255, 255], hex: "#ffffff", gifMatte: null },
 ];
 
@@ -128,7 +128,7 @@ async function stillSet(name, png, svg) {
 for (const m of MARKS) await mkdir(path.join(LOGO, m), { recursive: true });
 const animSvg = await readFile(markFile("cart-rgb-animated.svg"), "utf8");
 const { body, eyes } = extractPaths(animSvg);
-const wmGreen = await flood(await readFile(WM_SRC), GREEN);
+const wmGreen = await flood(await readFile(WM_SRC), GREEN_RGB);
 await writeFile(WM_SRC, wmGreen); // keep the source hue-clean
 
 for (const { n, rgb, hex, gifMatte } of VARIANTS) {
