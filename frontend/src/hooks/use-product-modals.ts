@@ -27,5 +27,10 @@ export default function useProductModals(product: ProductResponse) {
     openModalUrl({ name: "watchlist", ean: product.ean });
   }
 
-  return { openAddToList, openWatchlist };
+  function openQuickActions() {
+    seed();
+    openModalUrl({ name: "product-actions", ean: product.ean });
+  }
+
+  return { openAddToList, openWatchlist, openQuickActions };
 }

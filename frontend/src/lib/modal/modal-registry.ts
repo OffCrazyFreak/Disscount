@@ -26,17 +26,20 @@ export type ModalTarget =
   | { name: "digital-card"; action: "new" }
   | { name: "digital-card"; action: "edit"; id: string }
   | { name: "add-to-list"; ean: string }
+  | { name: "product-actions"; ean: string }
   | { name: "watchlist"; ean: string; watchType?: WatchTypeParam };
 
 // Login-style modals shown to logged-out users when a protected modal is opened.
 export const AUTH_MODAL_NAMES = ["login", "signup", "forgot-password"] as const;
 
-// Modals reachable by anyone (from email links); never auth-gated.
+// Modals reachable by anyone (from email links, or a shared link); never auth-gated.
 export const PUBLIC_MODAL_NAMES = [
   "reset-password",
   "email-verified",
   "email-changed",
   "contact",
+  // Two of its four actions need no account, and the gated two gate themselves.
+  "product-actions",
 ] as const;
 
 function isSettingsTab(value: string): value is SettingsTab {
@@ -71,6 +74,7 @@ export function parseModalParam(
       if (sub === "edit" && id) return { name, action: "edit", id };
       return null;
     case "add-to-list":
+    case "product-actions":
       return ean ? { name, ean } : null;
     case "watchlist": {
       if (!ean) return null;
