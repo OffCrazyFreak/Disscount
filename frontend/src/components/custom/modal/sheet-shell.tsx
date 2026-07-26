@@ -15,13 +15,13 @@ import { cn } from "@/lib/utils";
  * at the bar's own 50% the page ghosts through hard enough that every field looks
  * like it is floating in front of the sheet rather than sitting in it.
  */
-// The cap carries vaul's own direction variant, or drawer.tsx's 80vh outranks a
-// plain max-h and the sheet silently keeps a static cap that ignores the keyboard.
-/* The grab handle: darker than shadcn's bg-muted, which all but vanished on a
-   light surface. Applied from here rather than by editing the primitive. */
+// The grab handles: darker than shadcn's bg-muted, which all but vanished on a
+// light surface. Applied from here rather than by editing the primitive.
 const HANDLE_CLASS =
   "[&>div:first-of-type]:bg-muted-foreground/40 [&>div:nth-of-type(2)]:bg-muted-foreground/40 [&>div:nth-of-type(3)]:bg-muted-foreground/40";
 
+// The cap carries vaul's own direction variant, or drawer.tsx's 80vh outranks a
+// plain max-h and the sheet silently keeps a static cap that ignores the keyboard.
 const CONTENT_CLASS =
   "z-[var(--z-bottom-sheet)] data-[vaul-drawer-direction=bottom]:max-h-[85dvh] bg-background/85 backdrop-blur-sm pb-[var(--sheet-bottom-clearance)]";
 const OVERLAY_CLASS = "z-[var(--z-bottom-sheet-scrim)]";
@@ -43,6 +43,11 @@ export interface ISheetShellProps {
   onDragUp?: () => void;
   /** Focused on open, so the user can start typing straight away */
   initialFocusRef?: RefObject<HTMLElement | null>;
+  /**
+   * Focused on close. Give it for a sheet opened from a real control, or a
+   * keyboard user lands on document.body and tabs from the top of the page.
+   */
+  returnFocusRef?: RefObject<HTMLElement | null>;
   /**
    * On it adds the scrim and the scroll lock, and lets an outside press dismiss;
    * off, only the handle and an explicit control can. Defaults on, because only a
@@ -75,6 +80,7 @@ export default function SheetShell({
   showCloseButton = false,
   onDragUp,
   initialFocusRef,
+  returnFocusRef,
   modal = true,
   bodyClassName,
   className,
@@ -106,8 +112,12 @@ export default function SheetShell({
           if (target instanceof HTMLElement)
             target.focus({ preventScroll: true });
         }}
-        // No trigger to restore focus to, and Radix's body fallback jumps the scroll.
-        onCloseAutoFocus={(event) => event.preventDefault()}
+        // Radix's own fallback jumps the scroll, so restore focus by hand where
+        // there is a control to restore it to. URL-driven sheets have none.
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          returnFocusRef?.current?.focus({ preventScroll: true });
+        }}
         {...dragUpProps}
       >
         <SheetShellHeader

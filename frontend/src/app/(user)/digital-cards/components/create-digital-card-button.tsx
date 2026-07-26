@@ -21,7 +21,6 @@ export default function CreateDigitalCardButton({
         onClick={onCreateClick}
         icon={Plus}
         iconPlacement="left"
-        aria-label={buttonText}
       >
         <ResponsiveLabel full={buttonText} short="Dodaj karticu" />
       </Button>

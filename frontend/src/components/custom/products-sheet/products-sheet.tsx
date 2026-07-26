@@ -28,8 +28,14 @@ const discountsNavItem = findNavItem("discounted");
  * as an extension of it rather than a layer over the app.
  */
 export default function ProductsSheet() {
-  const { isOpen, areFiltersOpen, setAreFiltersOpen, inputRef, close } =
-    useProductsSheet();
+  const {
+    isOpen,
+    areFiltersOpen,
+    setAreFiltersOpen,
+    inputRef,
+    triggerRef,
+    close,
+  } = useProductsSheet();
   const [typedQuery, setTypedQuery] = useState("");
   const [wasOpen, setWasOpen] = useState(false);
   const pathname = usePathname();
@@ -69,6 +75,8 @@ export default function ProductsSheet() {
       // Opened for the filters, the field is not what you came for, and focusing
       // it would raise the keyboard over the facets you asked to see.
       initialFocusRef={areFiltersOpen ? undefined : inputRef}
+      // The bar's centre cell opened it, so closing puts focus back on it.
+      returnFocusRef={triggerRef}
       // Dragging up asks for the whole surface, which is search plus its filters.
       onDragUp={() => setAreFiltersOpen(true)}
       // Last in the sheet and outside the scroll, so expanding the filters cannot

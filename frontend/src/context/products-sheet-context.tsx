@@ -18,6 +18,8 @@ interface IProductsSheetContext {
   setAreFiltersOpen: (open: boolean) => void;
   /** Registered by the sheet's field, so the shell can focus it on open */
   inputRef: RefObject<HTMLInputElement | null>;
+  /** Registered by the bar's centre cell, so closing returns focus to it */
+  triggerRef: RefObject<HTMLButtonElement | null>;
   open: () => void;
   /** The products page's Filteri button, which has no sheet of its own */
   openFilters: () => void;
@@ -44,6 +46,7 @@ export function ProductsSheetProvider({
   const [isOpen, setIsOpen] = useState(false);
   const [areFiltersOpen, setAreFiltersOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   const open = useCallback(() => {
     setAreFiltersOpen(false);
@@ -63,6 +66,7 @@ export function ProductsSheetProvider({
       areFiltersOpen,
       setAreFiltersOpen,
       inputRef,
+      triggerRef,
       open,
       openFilters,
       close,

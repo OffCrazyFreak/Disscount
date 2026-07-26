@@ -21,7 +21,6 @@ export default function CreateShoppingListButton({
         onClick={onCreateClick}
         icon={Plus}
         iconPlacement="left"
-        aria-label={buttonText}
       >
         <ResponsiveLabel full={buttonText} short="Stvori popis" />
       </Button>

@@ -3,6 +3,7 @@
 import { ChevronsDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isKeyboardClick } from "@/utils/events";
+import { useProductsSheet } from "@/context/products-sheet-context";
 import BottomNavIndicator from "@/components/custom/bottom-nav/bottom-nav-indicator";
 import BottomNavRing from "@/components/custom/bottom-nav/bottom-nav-ring";
 import {
@@ -46,9 +47,12 @@ export default function BottomNavCenterItem({
   indicatorOpacity,
   onKeyboardActivate,
 }: IBottomNavCenterItemProps) {
+  const { triggerRef } = useProductsSheet();
+
   return (
     <li className={CELL_ITEM_CLASS} data-nav-cell>
       <button
+        ref={triggerRef}
         type="button"
         // The visible word stays in the name in both states, so speech control
         // can still address the cell while the sheet is open (WCAG 2.5.3).

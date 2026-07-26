@@ -28,7 +28,7 @@ export default function CreateDiscountedListButton({
     .map((item) => item.product!);
 
   const actionLabel = "Stvori popis sniženih proizvoda";
-  const buttonText = `${actionLabel} (${addableProducts.length})`;
+  const buttonText = actionLabel;
   const isDisabled = isCreating || isLoading || addableProducts.length === 0;
 
   async function handleCreateDiscountedList() {
@@ -105,13 +105,12 @@ export default function CreateDiscountedListButton({
         disabled={isDisabled}
         loading={isCreating}
         loadingText="Stvaranje popisa..."
-        aria-label={actionLabel}
       >
-        {/* Count stays visual: in the accessible name it would re-announce on every change. */}
-        <ResponsiveLabel
-          full={buttonText}
-          short={`Stvori popis (${addableProducts.length})`}
-        />
+        <ResponsiveLabel full={buttonText} short="Stvori popis" />
+
+        {/* Visual only: inside the label it would leave the visible text outside
+            the accessible name, and re-announce on every change. */}
+        <span aria-hidden="true">({addableProducts.length})</span>
       </Button>
     </>
   );
