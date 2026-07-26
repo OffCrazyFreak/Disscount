@@ -1,6 +1,6 @@
 # Fix protocol
 
-How to implement the findings the user selected. The goal is a clean, reviewable history: one commit per finding, each verified, on a branch that becomes one PR. Plan the work first, then execute it.
+How to implement the findings the user selected. The goal is a clean, reviewable history: logical batches, each verified, on a branch that becomes one PR. Plan the work first, then execute it. Push once at the very end, after the host repo's full CI gate passes locally.
 
 ## Contents
 
@@ -8,7 +8,7 @@ How to implement the findings the user selected. The goal is a clean, reviewable
 - Follow ALL of AGENTS.md
 - Branch setup
 - Segmenting the work
-- The per-finding loop
+- The fix loop
 - Verifying (the host repo's gate)
 - When to use subagents
 - Shared-file ordering
@@ -20,7 +20,7 @@ How to implement the findings the user selected. The goal is a clean, reviewable
 
 ## Plan mode first
 
-If the harness supports plan mode, enter it before touching code. Plan the whole fix pass: the file-disjoint groups, their order, which findings share a commit, the docs each group touches, and the push/PR target. Present that plan for approval, then execute. Planning the scope before editing is what keeps the per-finding history clean and avoids mid-run surprises.
+If the harness supports plan mode, enter it before touching code. Plan the whole fix pass: the file-disjoint groups, their order, how the findings batch into commits, the docs each group touches, and the push/PR target. Present that plan for approval, then execute. Planning the scope before editing is what keeps the history clean and avoids mid-run surprises.
 
 ## Follow ALL of AGENTS.md
 
@@ -38,16 +38,16 @@ If `reviews/` is not gitignored yet, add it as the first small chore commit so t
 
 ## Segmenting the work
 
-Group the selected findings into file-disjoint area batches (auth, forms/modals, backend, a11y, copy, ...). Process batches sequentially in the single working tree so per-finding commit boundaries stay clean and there are no git races. Order areas most-critical first; within a batch, order importance then easiest-first.
+Group the selected findings into file-disjoint area batches (auth, forms/modals, backend, a11y, copy, ...). Process batches sequentially in the single working tree so commit boundaries stay clean and there are no git races. Order areas most-critical first; within a batch, order importance then easiest-first.
 
-## The per-finding loop
+## The fix loop
 
 For each finding:
 
 1. Read the target file(s). Understand the current behavior before changing it.
 2. Make the smallest correct change. Reuse existing utils/hooks; do not invent new code when something fits.
 3. Comments are minimal: only for genuinely non-obvious logic or a real decision. Do not narrate the code.
-4. Commit it alone, using the AGENTS.md commit format, citing the finding number:
+4. Commit in a **logical batch**, using the AGENTS.md commit format, citing every finding number the batch covers:
 
 ```text
 type(scope): Short imperative summary
@@ -66,27 +66,46 @@ Notes:
 
 Also note that `Closes #<n>` only auto-closes when the commit lands on the repository's **default** branch. When the PR targets an integration branch (`dev`), the keyword stays inert until that branch merges up, so close the issue manually instead (see below) rather than assuming GitHub did it.
 
-Two findings that are literally the same edit share one commit and cite both IDs. Everything else is its own commit. This is an auto-commit workflow (a standing "never commit unless asked" rule is intentionally suspended for the fix phase, because the user asked for per-finding commits). No `Co-Authored-By` trailer. No em dashes.
+**Batch by coherence, not by row count.** A batch is one change a reviewer would want to read as a unit: a group of findings in the same file or the same concern (all the z-index rungs, all the a11y attributes, one mechanical rename). Cite every row the batch covers in the `Notes:` block.
+
+Two exceptions stay their own commit, so they are visible in the log rather than buried in a batch:
+
+- a genuinely significant fix (a crash, a security hole, data loss),
+- a large mechanical rename or move, which should never be mixed with behavioural change.
+
+This is an auto-commit workflow (a standing "never commit unless asked" rule is intentionally suspended for the fix phase, because the user asked for committed batches). No `Co-Authored-By` trailer. No em dashes.
 
 ## Verifying
 
-Per batch (or per finding for risky ones), run the host repo's own format + typecheck gate before committing, as defined in its `AGENTS.md`. For this repo the gate is:
+Two levels, and do not conflate them.
+
+**Per batch, before committing**, run the host repo's format + typecheck gate as defined in its `AGENTS.md`. For this repo:
 
 ```bash
 cd frontend
-pnpm exec prettier --write <changed files>
-pnpm exec tsc --noEmit 2>&1 | grep -E "error TS" | grep -vE "PageProps|RouteContext"
+./node_modules/.bin/prettier --write <changed files>
+./node_modules/.bin/tsc --noEmit 2>&1 | grep -E "error TS" | grep -vE "PageProps|RouteContext"
 ```
 
-The grep must print nothing. The `PageProps` / `RouteContext` errors are Next's generated-types noise (produced by `next build` in CI, absent in a standalone `tsc`); they are not yours. The backend is validated by CI (`mvn verify` on H2); do not run `mvn` locally. Be extra careful with Java syntax since it is not locally compiled. If the skill is reused on another repo, swap in that repo's lint/format/typecheck commands.
+The grep must print nothing. The `PageProps` / `RouteContext` errors are Next's generated-types noise (produced by `next build` in CI, absent in a standalone `tsc`); they are not yours.
+
+**Invoke the binaries directly, not through `pnpm exec`, in this repo:** `pnpm exec` purges `node_modules` here, which costs a full reinstall mid-run. Check the host repo's `AGENTS.md` and memory for the equivalent trap before using a package-manager wrapper.
+
+**Once, at the end**, reproduce the **full CI gate** before pushing. Read `.github/workflows/` instead of assuming the steps; CI usually does more than typecheck. For this repo that is route typegen, `tsc`, `eslint src`, `prettier --check src`, `prettier --check` over the root and docs markdown, and a production `pnpm run build` with CI's env vars.
+
+A production build writes to the framework's build directory, which a running dev server also uses, so warn the user that they may need to restart it. If the host repo forbids build commands, this end-of-run build is the one place to ask for an explicit exception rather than assume one.
+
+The backend is validated by CI (`mvn verify` on H2); do not run `mvn` locally. Be extra careful with Java syntax since it is not locally compiled. Skip the backend gate entirely when the diff touches no backend files, and say so. If the skill is reused on another repo, swap in that repo's commands.
 
 ## When to use subagents
 
-For large, mechanical, well-defined sweeps (a copy sweep, an I-prefix / arrow-to-function pass, a DRY batch, a file move), spawn ONE subagent at a time with precise per-item instructions, have it run the typecheck gate itself, and report per item. Then review its diff and commit. Do not run subagents in parallel worktrees for this: reconciling dozens of per-finding commits across worktrees muddies the clean history the user wants. Keep commits serialized.
+For large, mechanical, well-defined sweeps (a copy sweep, an I-prefix / arrow-to-function pass, a DRY batch, a file move), spawn ONE subagent at a time with precise per-item instructions, have it run the typecheck gate itself, and report per item. Then review its diff and commit. Do not run subagents in parallel worktrees for this: reconciling commits across worktrees muddies the clean history the user wants. Keep commits serialized.
 
 ## Shared-file ordering
 
-When several findings touch the same file, you cannot cleanly split them into separate commits after the fact. Do those findings strictly edit-then-commit one at a time (commit finding A's change to the shared file before making finding B's change to it). Findings in disjoint files can be edited together and committed per-file from a single verified working tree.
+Findings that touch the same file usually belong in the same batch, which is the simple case: edit them together and commit once.
+
+When two findings in one file genuinely have to land in different commits (one is a crash fix that must stand alone, or one is part of a mechanical rename), you cannot split them after the fact. Do those strictly edit-then-commit one at a time: commit the first file's change before making the second. Findings in disjoint files can always be edited together and committed from a single verified working tree.
 
 ## Honesty rules
 
@@ -102,7 +121,8 @@ After a batch, check whether it changed a behavior or invariant that the repo do
 
 - If a doc for the affected subsystem exists, update its gotchas / future-improvements surgically (do not rewrite the whole doc).
 - If the fix reveals a subsystem with no doc, create a new one. Use the `document-subsystem` skill if one is available; ask the user before adding a brand-new doc.
-- Follow the repo's doc conventions (for this repo: no em dashes, one physical line per paragraph/bullet, no hard wrap) and run its markdown formatter (`pnpm exec prettier --write --ignore-path ../.prettierignore "../docs/<file>.md"` from `frontend/`).
+- **Record the decisions, not just the code.** The doc should say what was deliberately NOT fixed and why, what is blocked on an upstream release or external API, and what remains as a TODO. The triage doc under `reviews/` is gitignored and throwaway, so a decision that lives only there is lost to the next reader and will be re-flagged as new by the next review. The subsystem doc is where it survives.
+- Follow the repo's doc conventions (for this repo: no em dashes, one physical line per paragraph/bullet, no hard wrap) and run its markdown formatter (`./node_modules/.bin/prettier --write --ignore-path ../.prettierignore "../docs/<file>.md"` from `frontend/`).
 
 ## GitHub issues for the rest
 
@@ -135,7 +155,7 @@ Cross-link both directions: the issue names the commit, the commit names the fin
 
 ## Open the PR
 
-1. Final typecheck gate clean.
-2. Push the branch (only after the branch/PR target was confirmed with the user, which happens back at Checkpoint 1 so the fix runs unattended to here).
+1. Full CI gate clean locally, production build included (see Verifying).
+2. Push the branch, once (only after the branch/PR target was confirmed with the user, which happens back at Checkpoint 1 so the fix runs unattended to here). If the branch already has an open PR, pushing updates it and no new PR is needed.
 3. `gh pr create --base <target> --head <branch>` with a per-area summary body (write it to a file and use `--body-file`).
 4. Confirm CI kicks off. Offer a recap.
