@@ -1,10 +1,16 @@
 const PRODUCT_PAGE = /^\/products\/([^/]+)\/?$/;
 const SHOPPING_LIST_PAGE = /^\/shopping-lists\/([^/]+)\/?$/;
 
-function firstSegment(pattern: RegExp, pathname: string): string | null {
+function capturedSegment(pattern: RegExp, pathname: string): string | null {
   const match = pattern.exec(pathname);
+  if (!match) return null;
 
-  return match ? decodeURIComponent(match[1]) : null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    // Malformed percent escapes throw, and these run in root-layout chrome.
+    return null;
+  }
 }
 
 /**
@@ -12,11 +18,11 @@ function firstSegment(pattern: RegExp, pathname: string): string | null {
  * these is mounted in the root layout, which has no dynamic segment of its own.
  */
 export function productEanFromPath(pathname: string): string | null {
-  return firstSegment(PRODUCT_PAGE, pathname);
+  return capturedSegment(PRODUCT_PAGE, pathname);
 }
 
 export function shoppingListIdFromPath(pathname: string): string | null {
-  return firstSegment(SHOPPING_LIST_PAGE, pathname);
+  return capturedSegment(SHOPPING_LIST_PAGE, pathname);
 }
 
 /** Boundary aware, so a future /watchlisting could never light /watchlist */
