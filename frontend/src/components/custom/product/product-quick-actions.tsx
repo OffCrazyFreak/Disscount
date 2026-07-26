@@ -9,6 +9,7 @@ import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import useProductModals from "@/hooks/use-product-modals";
 import useProductShare from "@/hooks/use-product-share";
 import { productImageSearchUrl } from "@/utils/product-links";
+import { openExternal } from "@/utils/browser/open-external";
 
 /** Full width and stacked, left-aligned so the labels read as a list */
 const ACTION_CLASS = "w-full justify-start gap-3";
@@ -79,9 +80,7 @@ export default function ProductQuickActions({
 
       <Button
         type="button"
-        onClick={() =>
-          run(() => window.open(productImageSearchUrl(product), "_blank"))
-        }
+        onClick={() => run(() => openExternal(productImageSearchUrl(product)))}
         className={ACTION_CLASS}
       >
         <ImageIcon className="size-5" />

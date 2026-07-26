@@ -9,6 +9,7 @@ import {
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { cn } from "@/lib/utils";
 import { productImageSearchUrl } from "@/utils/product-links";
+import { openExternal } from "@/utils/browser/open-external";
 import WatchlistActionButton from "@/app/products/components/watchlist-action-button";
 import useProductModals from "@/hooks/use-product-modals";
 import useProductShare from "@/hooks/use-product-share";
@@ -51,9 +52,7 @@ export default function ProductActionButtons({
                 size="icon"
                 aria-label="Pretraži sliku proizvoda"
                 className="size-10 sm:size-12 shrink-0"
-                onClick={() =>
-                  window.open(productImageSearchUrl(product), "_blank")
-                }
+                onClick={() => openExternal(productImageSearchUrl(product))}
               >
                 <ImageIcon className="size-6 sm:size-7" />
               </Button>
