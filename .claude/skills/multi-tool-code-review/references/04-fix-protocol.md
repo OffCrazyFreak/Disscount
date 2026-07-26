@@ -70,7 +70,9 @@ Two findings that are literally the same edit share one commit and cite both IDs
 
 ## Verifying
 
-Per batch (or per finding for risky ones), run the host repo's own format + typecheck gate before committing, as defined in its `AGENTS.md`. For this repo the gate is:
+There are two levels: a fast gate per batch, and a full local CI run once before the PR.
+
+**Per batch** (or per finding for risky ones), run the host repo's own format + typecheck gate before committing, as defined in its `AGENTS.md`. For this repo the gate is:
 
 ```bash
 cd frontend
@@ -78,7 +80,18 @@ pnpm exec prettier --write <changed files>
 pnpm exec tsc --noEmit 2>&1 | grep -E "error TS" | grep -vE "PageProps|RouteContext"
 ```
 
-The grep must print nothing. The `PageProps` / `RouteContext` errors are Next's generated-types noise (produced by `next build` in CI, absent in a standalone `tsc`); they are not yours. The backend is validated by CI (`mvn verify` on H2); do not run `mvn` locally. Be extra careful with Java syntax since it is not locally compiled. If the skill is reused on another repo, swap in that repo's lint/format/typecheck commands.
+The grep must print nothing. The `PageProps` / `RouteContext` errors are missing generated route types, not defects: run `pnpm exec next typegen` once and they disappear, which is exactly what CI does before it typechecks.
+
+**Before the PR**, reproduce the whole CI job locally instead of pushing to find out. Read the workflow file (`.github/workflows/*.yml`) and run every step it runs, in order, with the same environment it injects. For this repo that is `next typegen`, `tsc --noEmit`, `eslint src`, both `prettier --check` invocations, and the production build:
+
+```bash
+cd frontend
+DATABASE_URL=... BETTER_AUTH_SECRET=... <the workflow's env block> pnpm build
+```
+
+Copy the dummy env values straight out of the workflow; the build only needs them present. Skip `pnpm install --frozen-lockfile` when you are in a worktree with symlinked `node_modules`, and expect the build to be much the slowest step, so start it in the background.
+
+The backend is validated by CI (`mvn verify` on H2); do not run `mvn` locally. Be extra careful with Java syntax since it is not locally compiled. If the skill is reused on another repo, swap in that repo's lint/format/typecheck/build commands, and read its `AGENTS.md` first in case that repo forbids running a build.
 
 ## When to use subagents
 
@@ -135,7 +148,7 @@ Cross-link both directions: the issue names the commit, the commit names the fin
 
 ## Open the PR
 
-1. Final typecheck gate clean.
+1. Full local CI run clean, production build included (see Verifying).
 2. Push the branch (only after the branch/PR target was confirmed with the user, which happens back at Checkpoint 1 so the fix runs unattended to here).
 3. `gh pr create --base <target> --head <branch>` with a per-area summary body (write it to a file and use `--body-file`).
 4. Confirm CI kicks off. Offer a recap.
