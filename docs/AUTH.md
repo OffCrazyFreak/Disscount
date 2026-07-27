@@ -157,6 +157,27 @@ Two implementation points that matter for safety and correctness:
 - **The reset token is stripped from the URL on arrival.** Email links land on `/reset-password?token=...`; the page server-redirects to `/?modal=reset-password&token=...`, and `ResetPasswordModal` captures the token into component state on the first open, then `history.replaceState`s it out of the address bar. This keeps the token from lingering in history or leaking via the Referer header once the page has other content on it. The email link URL itself is unchanged, so no Better Auth email construction had to move.
 - **Public modals are never auth-gated.** `PUBLIC_MODAL_NAMES` (in `modal-registry.ts`) lists `reset-password`, `email-verified`, and `email-changed`; `ModalRouter` renders these regardless of session and excludes them from the "log in first" gate. A logged-out user resetting a password must not be bounced to the login modal.
 
+### 8.2 Mandatory onboarding after sign-in
+
+`OnboardingGate` mounts inside the authenticated branch of `ModalRouter`. Once the user profile is available, it treats only `onboardingOutcome === "completed"` as finished. A missing outcome and every historical `skipped:<step>` outcome open the required wizard at `?modal=onboarding`; `onboardingCompletedAt` is retained for backend history but does not satisfy this client gate.
+
+| Mode     | URL                        | Entry                                                                | Dismissal                                                                                        | Starting step                                      |
+| -------- | -------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------- |
+| Required | `?modal=onboarding`        | Automatically enforced for every authenticated, incomplete user      | Blocked through the X, Escape, outside interaction, URL replacement and every other modal target | Welcome, or the stored historical `skipped:<step>` |
+| Replay   | `?modal=onboarding/replay` | "Pokreni vodič ponovno" from Settings after onboarding was completed | Allowed through the normal modal controls                                                        | Welcome                                            |
+
+The two modes intentionally share one wizard and the permanently mounted Settings form. The middle steps are the existing Profile, Notifications and Preferences components, so onboarding and later Settings edits cannot drift into separate validation or API behavior.
+
+Completion is transactional from the user's point of view:
+
+- Each form step validates its own fields before advancing.
+- "Završi" saves every changed Settings section first.
+- Only after those saves succeed does a final user update write `onboardingOutcome: "completed"`.
+- A failed field save keeps the wizard open and returns to the first invalid step. A completion-stamp failure also keeps it open and shows the shared root error.
+- Only full success clears the Settings draft, resets the form baseline, updates cached state and closes the required wizard.
+
+Replay is deliberately non-destructive. Closing it does not change the existing `completed` outcome, and completing it writes `completed` again while the backend preserves the original `onboardingCompletedAt` timestamp. This prevents an optional refresher from turning a completed account back into an incomplete one.
+
 ## 9. Config, env vars, and feature flags
 
 ### Feature flag
