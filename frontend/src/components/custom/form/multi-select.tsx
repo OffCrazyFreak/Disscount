@@ -36,6 +36,8 @@ interface IMultiSelectContext {
   setOpen: (open: boolean) => void;
   selectedValues: Set<string>;
   toggleValue: (value: string) => void;
+  searchValue: string;
+  setSearchValue: (value: string) => void;
   items: Map<string, ReactNode>;
   onItemAdded: (value: string, label: ReactNode) => void;
 }
@@ -58,6 +60,7 @@ export function MultiSelect({
   const [selectedValues, setSelectedValues] = useState(
     new Set<string>(values ?? defaultValues),
   );
+  const [searchValue, setSearchValue] = useState("");
   const [items, setItems] = useState<Map<string, ReactNode>>(new Map());
 
   // A controlled owner can change `values` behind our back, so the toggle reads
@@ -88,6 +91,8 @@ export function MultiSelect({
         setOpen,
         selectedValues: currentValues,
         toggleValue,
+        searchValue,
+        setSearchValue,
         items,
         onItemAdded,
       }}
@@ -270,6 +275,7 @@ export function MultiSelectContent({
 }: IMultiSelectContentProps) {
   const canSearch = typeof search === "object" ? true : search;
   const listRef = useRef<HTMLDivElement>(null);
+  const { searchValue, setSearchValue } = useMultiSelectContext();
 
   return (
     <>
@@ -282,6 +288,8 @@ export function MultiSelectContent({
         <Command {...props}>
           {canSearch ? (
             <CommandInput
+              value={searchValue}
+              onValueChange={setSearchValue}
               placeholder={
                 typeof search === "object" ? search.placeholder : undefined
               }
@@ -334,7 +342,8 @@ export function MultiSelectItem({
   onSelect,
   ...props
 }: IMultiSelectItemProps) {
-  const { toggleValue, selectedValues, onItemAdded } = useMultiSelectContext();
+  const { toggleValue, selectedValues, setSearchValue, onItemAdded } =
+    useMultiSelectContext();
   const isSelected = selectedValues.has(value);
 
   useEffect(() => {
@@ -347,6 +356,7 @@ export function MultiSelectItem({
       value={value}
       onSelect={(v) => {
         toggleValue(v);
+        if (!isSelected) setSearchValue("");
         onSelect?.(v);
       }}
     >

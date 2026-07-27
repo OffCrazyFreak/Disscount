@@ -35,9 +35,9 @@ export default function ShoppingListDesktopActions({
               disabled={isSharing}
             >
               {isSharing ? (
-                <BlockLoadingSpinner size={20} className="text-inherit" />
+                <BlockLoadingSpinner size={26} className="text-inherit" />
               ) : (
-                <Share2 className="size-5" />
+                <Share2 className="size-6 sm:size-7" />
               )}
             </Button>
           </TooltipTrigger>
@@ -61,9 +61,9 @@ export default function ShoppingListDesktopActions({
               disabled={isCopying}
             >
               {isCopying ? (
-                <BlockLoadingSpinner size={20} className="text-inherit" />
+                <BlockLoadingSpinner size={26} className="text-inherit" />
               ) : (
-                <Copy className="size-5" />
+                <Copy className="size-6 sm:size-7" />
               )}
             </Button>
           </TooltipTrigger>
@@ -83,7 +83,7 @@ export default function ShoppingListDesktopActions({
               className="shrink-0"
               onClick={onEdit}
             >
-              <LucideClipboardEdit className="size-5" />
+              <LucideClipboardEdit className="size-6 sm:size-7" />
             </Button>
           </TooltipTrigger>
 
@@ -106,9 +106,9 @@ export default function ShoppingListDesktopActions({
               disabled={isDeleting}
             >
               {isDeleting ? (
-                <BlockLoadingSpinner size={20} className="text-inherit" />
+                <BlockLoadingSpinner size={26} className="text-inherit" />
               ) : (
-                <Trash2 className="size-5" />
+                <Trash2 className="size-6 sm:size-7" />
               )}
             </Button>
           </TooltipTrigger>
