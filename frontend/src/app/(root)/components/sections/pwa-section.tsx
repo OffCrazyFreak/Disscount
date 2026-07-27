@@ -1,15 +1,10 @@
 import Image from "next/image";
-import { MonitorSmartphone, CloudOff, RefreshCw } from "lucide-react";
+import { CloudOff, RefreshCw } from "lucide-react";
 import { ScrollReveal } from "@/components/custom/animation/scroll-reveal";
 import TextGlow from "@/components/custom/common/text-glow";
+import InstallSidebarBanner from "@/components/custom/pwa/install-sidebar-banner";
 
 const perks = [
-  {
-    icon: MonitorSmartphone,
-    title: "Instaliraj kao aplikaciju",
-    description:
-      "Bez trgovine aplikacija - dodaj Disscount na početni zaslon izravno iz preglednika.",
-  },
   {
     icon: CloudOff,
     title: "Popisi dostupni offline",
@@ -57,10 +52,15 @@ export default function PwaSection() {
             </h2>
 
             <div className="space-y-5">
+              <InstallSidebarBanner presentation="perk" />
+
               {perks.map((perk) => (
                 <div key={perk.title} className="flex items-center gap-4">
                   <div className="size-11 md:size-16 shrink-0 grid place-items-center rounded-xl bg-primary/10 text-primary">
-                    <perk.icon className="size-6 md:size-8" />
+                    <perk.icon
+                      aria-hidden="true"
+                      className="size-6 md:size-8"
+                    />
                   </div>
                   <div className="space-y-1">
                     <h3 className="font-semibold text-pretty">{perk.title}</h3>
@@ -71,6 +71,8 @@ export default function PwaSection() {
                 </div>
               ))}
             </div>
+
+            <InstallSidebarBanner permanent />
           </div>
         </div>
       </ScrollReveal>
