@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "deny": [
+      "Bash(pnpm dev)",
+      "Bash(pnpm dev:*)",
+      "Bash(pnpm run dev)",
+      "Bash(pnpm run dev:*)",
+      "Bash(next dev)",
+      "Bash(next dev:*)",
+      "Bash(pnpm email)",
+      "Bash(pnpm email:*)",
+      "Bash(pnpm run email)",
+      "Bash(pnpm run email:*)",
+      "Bash(mvn:*)",
+      "Bash(./mvnw:*)",
+      "Bash(docker:*)",
+      "Bash(docker compose:*)",
+      "Bash(docker-compose:*)",
+      "Bash(dokploy:*)"
+    ]
+  }
+}
