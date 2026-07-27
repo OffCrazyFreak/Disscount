@@ -2,10 +2,7 @@
 
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
-import type { UserRequest } from "@/lib/api/schemas/auth-user";
 
-import { userService } from "@/lib/api";
-import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useUser } from "@/context/user-context";
 import {
   SECTION_FIELDS,
@@ -16,23 +13,31 @@ import { ONBOARDING_STEPS } from "@/components/custom/settings/onboarding/onboar
 
 interface IUseOnboardingProps {
   open: boolean;
-  save: (extraUserPatch?: Partial<UserRequest>) => Promise<boolean>;
+  save: () => Promise<boolean>;
+}
+
+function resumeStepFromOutcome(outcome: string | null | undefined) {
+  const match = outcome?.match(/^skipped:(\d+)$/);
+  if (!match) return 0;
+
+  return Math.min(Number.parseInt(match[1], 10), ONBOARDING_STEPS.length - 1);
 }
 
 export function useOnboarding({ open, save }: IUseOnboardingProps) {
   const form = useFormContext<SettingsFormValues>();
-  const { setUser } = useUser();
-  const userMutation = userService.useUpdateCurrentUser();
+  const { user } = useUser();
+  const resumeStep = resumeStepFromOutcome(user?.onboardingOutcome);
 
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(resumeStep);
   const [direction, setDirection] = useState<1 | -1>(1);
 
-  // Restart from the first step every time the wizard opens.
+  // Required onboarding resumes historical skipped flows. Completed users who
+  // replay the guide still begin from the welcome step.
   const [prevOpen, setPrevOpen] = useState(open);
   if (open !== prevOpen) {
     setPrevOpen(open);
     if (open) {
-      setStep(0);
+      setStep(resumeStep);
       setDirection(1);
     }
   }
@@ -56,19 +61,19 @@ export function useOnboarding({ open, save }: IUseOnboardingProps) {
     setStep(step - 1);
   }
 
-  // Stamps the outcome into the same PATCH as the settings save-all; the ignored
-  // result is safe because save reopens the failed settings tab on error.
   async function finish() {
-    await save({ onboardingOutcome: "completed" });
-  }
+    const saved = await save();
+    if (saved) return;
 
-  // Skipping (button or X) stamps where the user bailed and closes for good.
-  function skip() {
-    userMutation.mutate(
-      { onboardingOutcome: `skipped:${step}` },
-      { onSuccess: (updated) => setUser(updated) },
-    );
-    closeModalUrl();
+    const failedStep = ONBOARDING_STEPS.findIndex(({ id }) => {
+      const fields = SECTION_FIELDS[id as SettingsSection];
+      return fields?.some((field) => form.getFieldState(field).invalid);
+    });
+
+    if (failedStep >= 0) {
+      setDirection(-1);
+      setStep(failedStep);
+    }
   }
 
   return {
@@ -80,7 +85,6 @@ export function useOnboarding({ open, save }: IUseOnboardingProps) {
     next,
     back,
     finish,
-    skip,
-    skipping: userMutation.isPending,
+    rootError: form.formState.errors.root?.message,
   };
 }
