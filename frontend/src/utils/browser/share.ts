@@ -2,6 +2,7 @@ export type ShareOutcome = "shared" | "dismissed" | "copied" | "failed";
 
 interface IShareData {
   title: string;
+  text?: string;
   url: string;
 }
 
