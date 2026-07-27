@@ -34,7 +34,6 @@ export default function ClearFiltersButton({
       <Button
         type="button"
         variant="outline"
-        size="sm"
         disabled={!hasFilters}
         className={className}
         onClick={filters.clearFilters}
