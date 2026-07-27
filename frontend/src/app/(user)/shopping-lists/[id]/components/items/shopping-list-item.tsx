@@ -38,6 +38,12 @@ export default function ShoppingListItem({
         {/* Left side: Checkbox, item name, and delete button (mobile) */}
         <div className="flex items-center gap-4 w-full sm:w-auto">
           <Checkbox
+            aria-label={
+              item.isChecked
+                ? `Označi ${item.name} kao nekupljeno`
+                : `Označi ${item.name} kao kupljeno`
+            }
+            className="size-8 sm:size-9 [&_svg]:size-6 sm:[&_svg]:size-7"
             checked={item.isChecked}
             onCheckedChange={(checked) =>
               onUpdate({
