@@ -18,3 +18,7 @@
 # Private, secret-containing docs (also gitignored) and generated HTML
 docs/disscount_*
 docs/*.html
+
+# Email HTML is pasted into an ESP verbatim; Prettier rewrites quoted font names
+# to &quot; entities, which not every email client's CSS parser handles.
+marketing/emails/*.html
