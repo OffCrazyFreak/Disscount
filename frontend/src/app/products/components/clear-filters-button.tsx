@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RemoveIconButton from "@/components/custom/common/remove-icon-button";
 import type { IUseProductFiltersResult } from "@/app/products/hooks/use-product-filters";
+import { cn } from "@/lib/utils";
 
 const LABEL = "Očisti filtere";
 
@@ -50,7 +51,7 @@ export default function ClearFiltersButton({
       label={LABEL}
       disabled={!hasFilters}
       onClick={filters.clearFilters}
-      className={className}
+      className={cn("size-10", className)}
     />
   );
 }

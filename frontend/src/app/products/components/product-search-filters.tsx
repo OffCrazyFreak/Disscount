@@ -76,7 +76,7 @@ export default function ProductSearchFilters({
           />
         </CollapsibleTrigger>
 
-        <ClearFiltersButton filters={filters} showLabel className="shrink-0" />
+        <ClearFiltersButton filters={filters} className="shrink-0" />
       </div>
 
       {/* The global class animates the height, so the sheet grows rather than jumps */}
