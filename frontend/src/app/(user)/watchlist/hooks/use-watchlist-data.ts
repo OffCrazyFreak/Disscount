@@ -25,6 +25,7 @@ export function useWatchlistData(query: string) {
     () => groupWatchlistItemsByProduct(watchlistItems),
     [watchlistItems],
   );
+  const hasWatchedProducts = groupedWatchlistItems.length > 0;
 
   const pinnedStoreChainCodes = useMemo(
     () => extractPinnedStoreChainCodes(user?.pinnedStores),
@@ -124,6 +125,7 @@ export function useWatchlistData(query: string) {
     isAuthenticated,
     userLoading,
     watchlistLoading,
+    hasWatchedProducts,
     shoppingListItemsLoading,
     hasPinnedStores,
     productsLoading,

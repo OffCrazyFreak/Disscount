@@ -56,6 +56,7 @@ export default function ShoppingListsClient({
             clearable={true}
             submitButtonLocation="none"
             autoSearch={true}
+            disabled={!isUserLoading && shoppingLists.length === 0}
           />
         </Suspense>
 

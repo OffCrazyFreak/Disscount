@@ -22,6 +22,7 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
     isAuthenticated,
     userLoading,
     watchlistLoading,
+    hasWatchedProducts,
     shoppingListItemsLoading,
     hasPinnedStores,
     productsLoading,
@@ -52,6 +53,7 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
           clearable={true}
           submitButtonLocation="none"
           autoSearch={true}
+          disabled={!listLoading && !hasWatchedProducts}
         />
       </Suspense>
 

@@ -12,6 +12,7 @@ const BASE_CLASS = "grow p-6 text-lg hover:bg-secondary";
 interface ISearchActionButtonProps {
   label: string;
   block?: boolean;
+  disabled?: boolean;
   /** True when submitting this query would leave the page exactly as it is */
   isUnchanged: boolean;
   /**
@@ -33,12 +34,13 @@ interface ISearchActionButtonProps {
 export default function SearchActionButton({
   label,
   block = false,
+  disabled = false,
   isUnchanged,
   form,
 }: ISearchActionButtonProps) {
   const canReturn = useScrolledPast(BACK_TO_TOP_THRESHOLD_PX);
 
-  if (isUnchanged && canReturn) {
+  if (!disabled && isUnchanged && canReturn) {
     return (
       <Button
         type="button"
@@ -59,7 +61,7 @@ export default function SearchActionButton({
       form={form}
       size="lg"
       effect="shineHover"
-      disabled={isUnchanged}
+      disabled={disabled || isUnchanged}
       className={cn(BASE_CLASS, block && "w-full")}
     >
       <Search className="size-5" />

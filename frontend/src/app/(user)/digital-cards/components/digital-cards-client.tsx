@@ -69,6 +69,7 @@ export default function DigitalCardsClient({
             clearable={true}
             submitButtonLocation="none"
             autoSearch={true}
+            disabled={!isUserLoading && digitalCards.length === 0}
           />
         </Suspense>
 
