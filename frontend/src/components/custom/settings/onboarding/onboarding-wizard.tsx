@@ -51,6 +51,8 @@ export default function OnboardingWizard({
       }
       srOnlyDescription={!currentStep.description}
       preventClose={busy}
+      onSubmit={() => void (isLast ? finish() : next())}
+      submitDisabled={busy}
       headerExtra={
         <div className="pt-2">
           <WizardProgressDots count={ONBOARDING_STEPS.length} current={step} />

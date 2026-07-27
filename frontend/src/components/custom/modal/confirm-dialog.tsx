@@ -55,6 +55,8 @@ export function ConfirmDialog({
       preventClose={isLoading}
       title={title}
       description={description}
+      onSubmit={onConfirm}
+      submitLoading={isLoading}
       hero={
         <motion.div
           initial={reduceMotion ? false : { scale: 0.6, opacity: 0 }}
