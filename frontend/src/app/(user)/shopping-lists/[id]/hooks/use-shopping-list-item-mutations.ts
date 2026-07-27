@@ -102,12 +102,6 @@ export function useShoppingListItemMutations(
             error.message || "Greška pri ažuriranju stavke. Pokušaj ponovno.",
           );
         },
-        onSettled: () => {
-          queryClient.invalidateQueries({
-            queryKey: ["shoppingLists", listId],
-          });
-          queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
-        },
       },
     );
   };
@@ -150,10 +144,6 @@ export function useShoppingListItemMutations(
         },
         onSettled: () => {
           setDeletingItemId(null);
-          queryClient.invalidateQueries({
-            queryKey: ["shoppingLists", listId],
-          });
-          queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
         },
       },
     );

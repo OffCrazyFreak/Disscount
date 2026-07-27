@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { ShoppingListDto } from "@/lib/api/types";
 import { formatDate } from "@/utils/strings";
 import { calculateShoppingListStats } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import ShoppingListPriceRangeSkeleton from "@/app/(user)/shopping-lists/[id]/components/shopping-list-price-range-skeleton";
 
 interface IShoppingListInfoTableProps {
   shoppingList: ShoppingListDto;
@@ -45,7 +45,7 @@ export default function ShoppingListInfoTable({
 
   return (
     <div className="border border-gray-300 rounded-lg overflow-hidden bg-background shadow-2xs">
-      <table className="w-full text-sm">
+      <table aria-busy={isPricesLoading} className="w-full text-sm">
         <tbody>
           <tr className="flex flex-col sm:table-row">
             <td className="p-2 whitespace-nowrap border-b sm:border-b-0 sm:border-r">
@@ -62,7 +62,7 @@ export default function ShoppingListInfoTable({
             <td className="p-2 border-b sm:border-b-0 sm:border-r">
               <span className="font-bold">Ukupno: </span>
               {isPricesLoading ? (
-                <BlockLoadingSpinner size={16} />
+                <ShoppingListPriceRangeSkeleton />
               ) : totalCount > 0 ? (
                 <span className="whitespace-nowrap">
                   <span className="text-green-700">{minTotal.toFixed(2)}€</span>
@@ -80,7 +80,7 @@ export default function ShoppingListInfoTable({
             <td className="p-2">
               <span className="font-bold">Preostalo: </span>
               {isPricesLoading ? (
-                <BlockLoadingSpinner size={16} />
+                <ShoppingListPriceRangeSkeleton />
               ) : totalCount > 0 ? (
                 <span className="whitespace-nowrap">
                   <span className="text-green-700">
@@ -97,6 +97,7 @@ export default function ShoppingListInfoTable({
               )}
             </td>
           </tr>
+          {/* TODO: Make Potrošeno and Ušteđeno/Preplaćeno accessible links to /spending. */}
           <tr className="flex flex-col sm:table-row">
             <td className="p-2 border-b sm:border-b-0 sm:border-r">
               <span className="font-bold">Potrošeno: </span>
