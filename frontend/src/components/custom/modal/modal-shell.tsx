@@ -13,6 +13,7 @@ import {
   ModalShellFooter,
   IModalShellFooterProps,
 } from "@/components/custom/modal/modal-shell-footer";
+import { handleModalEnterSubmit } from "@/components/custom/modal/modal-enter-submit";
 import { UnsavedIndicator } from "@/components/custom/modal/unsaved-indicator";
 import { StaggerChildren } from "@/components/custom/animation/stagger-children";
 import { cn } from "@/lib/utils";
@@ -83,6 +84,13 @@ export function ModalShell({
         {...(description ? {} : { "aria-describedby": undefined })}
         onEscapeKeyDown={(e) => preventClose && e.preventDefault()}
         onInteractOutside={(e) => preventClose && e.preventDefault()}
+        onKeyDown={(event) =>
+          handleModalEnterSubmit(event, {
+            formId: footerProps.formId,
+            onSubmit: footerProps.onSubmit,
+            disabled: footerProps.submitDisabled || footerProps.submitLoading,
+          })
+        }
         // Focus the container, not the first control, which would pop its tooltip.
         // Inputs with autoFocus still focus themselves via the DOM.
         onOpenAutoFocus={(e) => {
