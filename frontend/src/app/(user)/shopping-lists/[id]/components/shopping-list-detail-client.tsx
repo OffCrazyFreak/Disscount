@@ -49,7 +49,7 @@ export default function ShoppingListDetailClient({
           </div>
 
           <Link href="/shopping-lists">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Natrag na popise za kupnju
             </Button>

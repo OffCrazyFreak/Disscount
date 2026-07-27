@@ -59,8 +59,12 @@ export default function DigitalCardItem({
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="size-8">
-              <MoreVertical className="h-4 w-4" />
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Dodatne opcije kartice"
+            >
+              <MoreVertical className="size-5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

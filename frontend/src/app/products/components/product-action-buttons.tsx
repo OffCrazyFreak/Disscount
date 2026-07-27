@@ -56,7 +56,7 @@ export default function ProductActionButtons({
               className={cn("shrink-0", grouped && "rounded-r-none!")}
               onClick={() => openExternal(productImageSearchUrl(product))}
             >
-              <ImageIcon className="size-6 sm:size-7" />
+              <ImageIcon className="size-5" />
             </Button>
           </TooltipTrigger>
 
@@ -79,7 +79,7 @@ export default function ProductActionButtons({
               )}
               onClick={() => openAddToList()}
             >
-              <ListPlus className="size-6 sm:size-7" />
+              <ListPlus className="size-5" />
             </Button>
           </TooltipTrigger>
 
@@ -114,7 +114,7 @@ export default function ProductActionButtons({
               )}
               onClick={share}
             >
-              <Share2 className="size-6 sm:size-7" />
+              <Share2 className="size-5" />
             </Button>
           </TooltipTrigger>
 

@@ -41,7 +41,7 @@ export default function ProductInfoDisplay({
           {/* Back button only on the standalone product page, not inside modals */}
           {enableActionButtons && (
             <Button variant="ghost" size="icon" onClick={handleBackClick}>
-              <ChevronLeft className="size-6 sm:size-7" />
+              <ChevronLeft className="size-5" />
             </Button>
           )}
 

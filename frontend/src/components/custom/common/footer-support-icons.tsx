@@ -3,8 +3,9 @@ import Link from "next/link";
 import { supportNavItems } from "@/constants/navigation";
 
 const LIVE_CLASS =
-  "text-muted-foreground hover:text-primary block transition-all hover:scale-110";
-const DISABLED_CLASS = "text-muted-foreground/50 block cursor-not-allowed";
+  "text-muted-foreground hover:text-primary inline-flex size-10 items-center justify-center rounded-md transition-all hover:scale-110";
+const DISABLED_CLASS =
+  "text-muted-foreground/50 inline-flex size-10 cursor-not-allowed items-center justify-center rounded-md";
 
 /** Feedback entry icons, sharing supportNavItems with the sidebar group. */
 export default function FooterSupportIcons() {
@@ -21,7 +22,7 @@ export default function FooterSupportIcons() {
             aria-label={item.label}
             className={LIVE_CLASS}
           >
-            <Icon size={16} />
+            <Icon size={20} />
           </Link>
         ) : (
           <button
@@ -32,7 +33,7 @@ export default function FooterSupportIcons() {
             title="Uskoro"
             className={DISABLED_CLASS}
           >
-            <Icon size={16} />
+            <Icon size={20} />
           </button>
         );
       })}

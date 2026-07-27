@@ -297,7 +297,7 @@ function SidebarTrigger({
               exit={{ opacity: 0, rotate: 90 }}
               transition={{ duration: 0.2 }}
             >
-              <PanelLeftClose className="size-6" />
+              <PanelLeftClose className="size-5" />
             </motion.div>
           ) : (
             <motion.div
@@ -307,7 +307,7 @@ function SidebarTrigger({
               exit={{ opacity: 0, rotate: -90 }}
               transition={{ duration: 0.2 }}
             >
-              <PanelLeftOpen className="size-6" />
+              <PanelLeftOpen className="size-5" />
             </motion.div>
           )}
         </AnimatePresence>

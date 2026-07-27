@@ -43,7 +43,7 @@ export default function RemoveIconButton({
           size="icon"
           variant={isDestructive ? "destructive" : "outline"}
           aria-label={label}
-          className={cn("size-9 shrink-0", className)}
+          className={cn("shrink-0", className)}
           onClick={onClick}
           disabled={loading || disabled}
         >

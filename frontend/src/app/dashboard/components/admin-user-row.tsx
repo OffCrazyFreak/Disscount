@@ -86,7 +86,7 @@ export default function AdminUserRow({
           disabled={isSelf}
           onClick={() => onDelete(user)}
         >
-          <Trash2 className="size-4" />
+          <Trash2 className="size-5" />
         </Button>
       </TableCell>
     </TableRow>

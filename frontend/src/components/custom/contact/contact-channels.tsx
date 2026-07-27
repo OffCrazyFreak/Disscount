@@ -29,10 +29,9 @@ export default function ContactChannels() {
             variant="ghost"
             size="icon"
             aria-label="Kopiraj e-mail adresu"
-            className="size-6"
             onClick={copyEmail}
           >
-            <Copy className="size-3.5" />
+            <Copy className="size-5" />
           </Button>
         </span>{" "}
         ili putem{" "}
@@ -61,10 +60,9 @@ export default function ContactChannels() {
             variant="ghost"
             size="icon"
             aria-label="Otvori Ideje i prijedloge"
-            className="size-6"
           >
             <Link href="/suggestions">
-              <ExternalLink className="size-3.5" />
+              <ExternalLink className="size-5" />
             </Link>
           </Button>
         </li>
@@ -79,10 +77,9 @@ export default function ContactChannels() {
             variant="ghost"
             size="icon"
             aria-label="Otvori prijavu greške"
-            className="size-6"
           >
             <Link href="?modal=bug-report">
-              <ExternalLink className="size-3.5" />
+              <ExternalLink className="size-5" />
             </Link>
           </Button>
         </li>
