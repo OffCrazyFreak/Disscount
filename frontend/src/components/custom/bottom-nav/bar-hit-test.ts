@@ -10,9 +10,8 @@ export function navCells(bar: HTMLElement): HTMLElement[] {
 }
 
 /**
- * Which cell a point belongs to, measured from the cells themselves rather than
- * by dividing the bar's width, so the pill's own inner padding cannot skew the
- * boundaries. A point in that padding resolves to the nearest cell; one that has
+ * Which cell a point belongs to, measured from the cells themselves so the
+ * flexible gaps and pill padding resolve to their nearest cell. A point that has
  * left the bar vertically resolves to none.
  */
 export default function indexFromPoint(
@@ -28,15 +27,18 @@ export default function indexFromPoint(
   const cells = navCells(bar);
   if (!cells.length) return null;
 
-  const hit = cells.findIndex((cell) => {
-    const rect = cell.getBoundingClientRect();
+  let closestIndex = 0;
+  let closestDistance = Number.POSITIVE_INFINITY;
 
-    return x >= rect.left && x <= rect.right;
+  cells.forEach((cell, index) => {
+    const rect = cell.getBoundingClientRect();
+    const distance = Math.abs(x - (rect.left + rect.right) / 2);
+
+    if (distance >= closestDistance) return;
+
+    closestIndex = index;
+    closestDistance = distance;
   });
 
-  if (hit !== -1) return hit;
-
-  const firstLeft = cells[0].getBoundingClientRect().left;
-
-  return x < firstLeft ? 0 : cells.length - 1;
+  return closestIndex;
 }

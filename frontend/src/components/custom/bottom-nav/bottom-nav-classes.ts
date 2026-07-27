@@ -1,5 +1,6 @@
 /** Each cell owns its own list item, so the row's geometry is stated once here */
-export const CELL_ITEM_CLASS = "relative flex-1 [--press-progress:0]";
+export const CELL_ITEM_CLASS =
+  "relative w-[3.6rem] shrink-0 [--press-progress:0]";
 
 /**
  * iOS raises a selection callout and a drag ghost on a long press, and both fire

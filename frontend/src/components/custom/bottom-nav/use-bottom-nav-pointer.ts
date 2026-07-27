@@ -12,9 +12,16 @@ import useLongPressTimer from "@/hooks/use-long-press-timer";
 const BAR_EDGE_EXCLUSION_PX = 16;
 
 interface IUseBottomNavPointerOptions {
-  onActivate: (index: number) => void;
+  onActivate: (index: number) => boolean;
   /** What a hold on this cell does, or null when the cell has none */
   holdFor: (index: number) => (() => void) | null;
+  /** Changes when a requested route has landed */
+  routeKey: string;
+}
+
+interface ISettlingNavigation {
+  index: number;
+  routeKey: string;
 }
 
 /**
@@ -30,17 +37,19 @@ interface IUseBottomNavPointerOptions {
 export default function useBottomNavPointer({
   onActivate,
   holdFor,
+  routeKey,
 }: IUseBottomNavPointerOptions) {
   const [scrubIndex, setScrubIndex] = useState<number | null>(null);
+  const [settling, setSettling] = useState<ISettlingNavigation | null>(null);
   const hold = useLongPressTimer();
   const pressedIndex = useRef<number | null>(null);
   const pointerId = useRef<number | null>(null);
   const origin = useRef({ x: 0, y: 0 });
   const consumed = useRef(false);
-  const latest = useRef({ onActivate, holdFor });
+  const latest = useRef({ onActivate, holdFor, routeKey });
 
   useEffect(() => {
-    latest.current = { onActivate, holdFor };
+    latest.current = { onActivate, holdFor, routeKey };
   });
 
   const start = useCallback(
@@ -127,15 +136,28 @@ export default function useBottomNavPointer({
       pointerId.current = null;
       setScrubIndex(null);
 
-      if (activates && !consumed.current && index !== null)
+      const didNavigate =
+        activates &&
+        !consumed.current &&
+        index !== null &&
         latest.current.onActivate(index);
+
+      setSettling(
+        didNavigate && index !== null
+          ? { index, routeKey: latest.current.routeKey }
+          : null,
+      );
     },
     [hold],
   );
 
+  const settlingIndex = settling?.routeKey === routeKey ? settling.index : null;
+
   return {
     /** The cell under a dragging thumb, so the disc can preview it */
     scrubIndex,
+    /** Keeps the destination preview in place while its route settles */
+    previewIndex: scrubIndex ?? settlingIndex,
     listProps: {
       onPointerDown: start,
       onPointerMove: move,
