@@ -84,12 +84,19 @@ function cartInner([x, y, w, h], T, hex, body, eyes) {
   return `<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="-1 6 68 50.5" ${stroke(hex)}>${g}</svg>`;
 }
 
+// Outlook and most previews render only the first frame, so the finished logo
+// leads and the draw-on follows; the loop lands back on it, so nothing changes.
+function leadWithFinishedFrame(times) {
+  return [times.at(-1), ...times.slice(0, -1)];
+}
+
 async function frames(build, rw, end, matte) {
   const count = Math.round(end * FPS) + 1;
   const times = Array.from({ length: count }, (_, i) => i / FPS);
-  const delay = times.map((_, i) => (i === count - 1 ? HOLD : 1000 / FPS));
+  const ordered = leadWithFinishedFrame(times);
+  const delay = ordered.map((_, i) => (i === 0 ? HOLD : 1000 / FPS));
   const buffers = await Promise.all(
-    times.map((T) => {
+    ordered.map((T) => {
       const img = sharp(Buffer.from(build(T, rw)));
       return (matte ? img.flatten({ background: matte }) : img)
         .png()
