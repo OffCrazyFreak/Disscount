@@ -4,7 +4,6 @@ import { onlineManager } from "@tanstack/react-query";
 import type { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 
-import type { UserRequest } from "@/lib/api/schemas/auth-user";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
 import { dirtySections } from "@/components/custom/settings/settings-dirty";
@@ -36,15 +35,14 @@ export function useSettingsSave({
 }: IUseSettingsSaveProps) {
   const { runners, saving } = useSettingsSaveRunners();
 
-  // Optimistic close: the modal closes immediately and reopens only on failure.
-  async function save(extraUserPatch?: Partial<UserRequest>): Promise<boolean> {
+  async function save(mode: "settings" | "onboarding"): Promise<boolean> {
     const values = form.getValues();
     const defaults = (form.formState.defaultValues ??
       {}) as Partial<SettingsFormValues>;
     const dirty = dirtySections(values, defaults, avatarTouched);
 
-    closeModalUrl();
-    if (dirty.size === 0 && !extraUserPatch) return true;
+    if (mode === "settings") closeModalUrl();
+    if (mode === "settings" && dirty.size === 0) return true;
 
     if (!onlineManager.isOnline()) {
       toast.info(
@@ -52,19 +50,16 @@ export function useSettingsSave({
       );
     }
 
-    const userDirty =
-      dirty.has("profil") || dirty.has("obavijesti") || !!extraUserPatch;
+    const userDirty = dirty.has("profil") || dirty.has("obavijesti");
 
     const jobs = buildSaveJobs(
       values,
       defaults,
       userDirty
-        ? buildUserPatch(
-            values,
-            defaults,
-            { touched: avatarTouched, preview: avatarPreview },
-            extraUserPatch,
-          )
+        ? buildUserPatch(values, defaults, {
+            touched: avatarTouched,
+            preview: avatarPreview,
+          })
         : null,
       runners,
     );
@@ -74,23 +69,54 @@ export function useSettingsSave({
       (_, index) => results[index].status === "rejected",
     );
 
-    if (failed.length === 0) {
-      clearDraft();
-      form.reset(values);
-      onSaved();
-      toast.success("Postavke su spremljene!");
-      return true;
+    if (failed.length > 0) {
+      rebaselineSavedSections(form, jobs, results, values, onSaved);
+      if (mode === "settings") {
+        openModalUrl({
+          name: "settings",
+          tab: failedSaveTab(failed[0].key, dirty),
+        });
+      }
+      applySaveErrors(form, jobs, results);
+
+      return false;
     }
 
-    rebaselineSavedSections(form, jobs, results, values, onSaved);
-    openModalUrl({
-      name: "settings",
-      tab: failedSaveTab(failed[0].key, dirty),
-    });
-    applySaveErrors(form, jobs, results);
+    if (mode === "onboarding") {
+      const completionJobs = [
+        {
+          key: "user" as const,
+          run: () => runners.saveUser({ onboardingOutcome: "completed" }),
+        },
+      ];
+      const completionResults = await Promise.allSettled([
+        completionJobs[0].run(),
+      ]);
 
-    return false;
+      if (completionResults[0].status === "rejected") {
+        rebaselineSavedSections(form, jobs, results, values, onSaved);
+        applySaveErrors(form, completionJobs, completionResults);
+
+        return false;
+      }
+    }
+
+    clearDraft();
+    form.reset(values);
+    onSaved();
+    toast.success("Postavke su spremljene!");
+    if (mode === "onboarding") closeModalUrl();
+
+    return true;
   }
 
-  return { save, saving };
+  function saveSettings(): Promise<boolean> {
+    return save("settings");
+  }
+
+  function saveOnboarding(): Promise<boolean> {
+    return save("onboarding");
+  }
+
+  return { saveSettings, saveOnboarding, saving };
 }

@@ -1,30 +1,25 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
 import { useModalUrl } from "@/lib/modal/use-modal-url";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { useUser } from "@/context/user-context";
 
 /**
- * Auto-opens the onboarding wizard once per browser session for users who have
- * never finished (or skipped) it. The skip/finish stamp on the user record
- * prevents it forever after.
+ * Keeps required onboarding open until the user completes it. Historical
+ * skipped outcomes remain incomplete and are sent through the required flow.
  */
 export default function OnboardingGate() {
   const { target } = useModalUrl();
   const { user, isAuthenticated } = useUser();
-  const firedRef = useRef(false);
 
   useEffect(() => {
-    if (firedRef.current) return;
     if (!isAuthenticated || !user) return;
-    if (user.onboardingCompletedAt) return;
-    // Never hijack a modal the user (or a deep link) already opened.
-    if (target) return;
+    if (user.onboardingOutcome === "completed") return;
+    if (target?.name === "onboarding" && target.mode === "required") return;
 
-    firedRef.current = true;
-    openModalUrl({ name: "onboarding" }, { replace: true });
+    openModalUrl({ name: "onboarding", mode: "required" }, { replace: true });
   }, [isAuthenticated, user, target]);
 
   return null;

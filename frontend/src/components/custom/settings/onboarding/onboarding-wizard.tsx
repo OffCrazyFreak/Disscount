@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Button } from "@/components/ui/button";
-import type { UserRequest } from "@/lib/api/schemas/auth-user";
+import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { ONBOARDING_STEPS } from "@/components/custom/settings/onboarding/onboarding-steps";
 import WizardProgressDots from "@/components/custom/settings/onboarding/components/wizard-progress-dots";
 import WizardStepPanel from "@/components/custom/settings/onboarding/components/wizard-step-panel";
@@ -12,12 +12,14 @@ import { useOnboarding } from "@/components/custom/settings/onboarding/hooks/use
 
 interface IOnboardingWizardProps {
   open: boolean;
-  save: (extraUserPatch?: Partial<UserRequest>) => Promise<boolean>;
+  mode: "required" | "replay";
+  save: () => Promise<boolean>;
   saving: boolean;
 }
 
 export default function OnboardingWizard({
   open,
+  mode,
   save,
   saving,
 }: IOnboardingWizardProps) {
@@ -30,19 +32,18 @@ export default function OnboardingWizard({
     next,
     back,
     finish,
-    skip,
-    skipping,
+    rootError,
   } = useOnboarding({ open, save });
 
   const StepComponent = currentStep.component;
-  const busy = saving || skipping;
+  const busy = saving;
+  const required = mode === "required";
 
   return (
     <ModalShell
       open={open}
       onOpenChange={(isOpen) => {
-        // Closing with X/ESC counts as skipping at the current step.
-        if (!isOpen) void skip();
+        if (!isOpen && !required) closeModalUrl();
       }}
       title={currentStep.title}
       description={
@@ -50,7 +51,7 @@ export default function OnboardingWizard({
         "Kratko postavljanje računa, sve se kasnije može promijeniti."
       }
       srOnlyDescription={!currentStep.description}
-      preventClose={busy}
+      preventClose={required || busy}
       onSubmit={() => void (isLast ? finish() : next())}
       submitDisabled={busy}
       headerExtra={
@@ -101,6 +102,15 @@ export default function OnboardingWizard({
         </div>
       }
     >
+      {rootError && (
+        <div
+          role="alert"
+          className="mb-4 rounded-md border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive"
+        >
+          {rootError}
+        </div>
+      )}
+
       <WizardStepPanel stepId={currentStep.id} direction={direction}>
         <StepComponent />
       </WizardStepPanel>
