@@ -60,6 +60,7 @@ export default function ShoppingListSelector({
                 <ShoppingListTrigger
                   open={open}
                   isLoadingLists={isLoadingLists}
+                  hasShoppingLists={sortedShoppingLists.length > 0}
                   disabled={disabled}
                   isNewList={field.value === "new"}
                   customListTitle={customListTitle}

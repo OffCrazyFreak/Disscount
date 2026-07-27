@@ -9,6 +9,7 @@ import { ShoppingListDto } from "@/lib/api/types";
 interface IShoppingListTriggerProps extends ComponentPropsWithoutRef<"button"> {
   open: boolean;
   isLoadingLists: boolean;
+  hasShoppingLists: boolean;
   isNewList: boolean;
   customListTitle: string;
   selectedList: ShoppingListDto | undefined;
@@ -22,6 +23,7 @@ const ShoppingListTrigger = forwardRef<
   {
     open,
     isLoadingLists,
+    hasShoppingLists,
     disabled,
     isNewList,
     customListTitle,
@@ -74,8 +76,10 @@ const ShoppingListTrigger = forwardRef<
               /{selectedList.items?.length ?? 0}
             </span>
           </div>
-        ) : (
+        ) : hasShoppingLists ? (
           "Odaberi popis..."
+        ) : (
+          "Stvori prvi popis direktno..."
         )}
       </div>
 
