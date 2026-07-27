@@ -101,6 +101,17 @@ const buttonVariants = cva(
   },
 );
 
+const LABEL_FROM_CLASSES = {
+  sm: {
+    button: "sm:w-auto sm:px-4",
+    label: "hidden sm:inline",
+  },
+  md: {
+    button: "md:w-auto md:px-4",
+    label: "hidden md:inline",
+  },
+} as const;
+
 interface LoadingProps {
   loading?: boolean;
   loadingText?: string;
@@ -123,6 +134,8 @@ export interface ButtonProps
     React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  /** Keeps an icon-sized button below this breakpoint, then reveals its label. Pair with `aria-label`. */
+  labelFrom?: keyof typeof LABEL_FROM_CLASSES;
 }
 
 export type ButtonIconProps = IconProps | IconRefProps;
@@ -147,6 +160,7 @@ const Button = React.forwardRef<
       loadingIconPlacement = "right",
       hideIconOnLoading = true,
       asChild = false,
+      labelFrom,
       ...props
     },
     ref,
@@ -178,6 +192,7 @@ const Button = React.forwardRef<
             ringSpeed: ringAnimation,
             className,
           }),
+          labelFrom && LABEL_FROM_CLASSES[labelFrom].button,
         )}
         ref={ref}
         {...props}
@@ -203,7 +218,17 @@ const Button = React.forwardRef<
             <Icon className="size-5" />
           ))}
 
-        <Slottable>{loading ? loadingText : props.children}</Slottable>
+        <Slottable>
+          {labelFrom ? (
+            <span className={LABEL_FROM_CLASSES[labelFrom].label}>
+              {loading ? loadingText : props.children}
+            </span>
+          ) : loading ? (
+            loadingText
+          ) : (
+            props.children
+          )}
+        </Slottable>
 
         {loading && loadingIconPlacement === "right" && (
           <BlockLoadingSpinner size={18} className={cn("ml-2", spinnerColor)} />
