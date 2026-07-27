@@ -48,7 +48,6 @@ export default function LabeledSelect<TValue extends string>({
       >
         <SelectTrigger
           aria-labelledby={labelId}
-          size="sm"
           className="w-full bg-white sm:w-60"
         >
           <SelectValue />

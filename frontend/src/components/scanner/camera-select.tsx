@@ -40,7 +40,11 @@ export default function CameraSelect({
     <div className="flex items-end gap-2">
       <div className="min-w-0 flex-1 space-y-1.5">
         <Label htmlFor={selectId}>Kamera</Label>
-        <Select value={value ?? ""} onValueChange={onSelect}>
+        <Select
+          value={value ?? ""}
+          onValueChange={onSelect}
+          disabled={devices.length === 0}
+        >
           <SelectTrigger id={selectId} className="w-full">
             <SelectValue placeholder="Automatski (stražnja kamera)" />
           </SelectTrigger>

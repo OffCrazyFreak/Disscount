@@ -88,7 +88,7 @@ export default function ProductFacetSelects({
               filters.setFilter(facet.filterKey, values)
             }
             getLabel={facet.key === "chains" ? getChainLabel : undefined}
-            className={isStack ? "max-w-none min-h-10" : "min-h-10"}
+            className={isStack ? "max-w-none" : undefined}
           />
         </div>
       ))}

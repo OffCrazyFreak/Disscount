@@ -40,7 +40,6 @@ export default function ContactChannels() {
           asChild
           type="button"
           variant="ghost"
-          size="sm"
           className="h-6 gap-1 px-1.5 align-middle"
         >
           <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer">

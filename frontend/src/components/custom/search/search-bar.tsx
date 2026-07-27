@@ -138,7 +138,8 @@ export default function SearchBar({
             placeholder={placeholder}
             aria-label={placeholder || "Pretraži"}
             disabled={disabled}
-            className="pl-10 pr-22 py-6 text-gray-500 focus:text-gray-700 bg-white [&::-webkit-search-cancel-button]:hidden"
+            size="lg"
+            className="pl-10 pr-22 text-gray-500 focus:text-gray-700 bg-white [&::-webkit-search-cancel-button]:hidden"
             autoComplete="off"
             autoCapitalize="off"
             autoCorrect="off"

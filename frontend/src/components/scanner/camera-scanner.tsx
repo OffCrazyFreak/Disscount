@@ -84,15 +84,13 @@ export default function CameraScanner({
             />
           )}
 
-          {(devices.length > 1 || hasManualChoice) && (
-            <CameraSelect
-              devices={devices}
-              value={activeDeviceId}
-              hasManualChoice={hasManualChoice}
-              onSelect={handleSelect}
-              onReset={handleReset}
-            />
-          )}
+          <CameraSelect
+            devices={devices}
+            value={activeDeviceId}
+            hasManualChoice={hasManualChoice}
+            onSelect={handleSelect}
+            onReset={handleReset}
+          />
 
           <ScanImageButton preset={preset} onScan={onScan} />
         </div>

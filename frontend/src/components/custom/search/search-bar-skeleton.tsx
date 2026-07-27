@@ -17,13 +17,13 @@ export default function SearchBarSkeleton({
     <div className={className}>
       <div className="relative flex items-center gap-4 flex-wrap">
         <div className="relative flex-1">
-          <Skeleton className="h-12 w-full rounded-md" />
+          <Skeleton className="h-11 w-full rounded-md" />
         </div>
 
         {shouldShowButton && (
           <Skeleton
             className={cn(
-              "h-12 min-w-28 rounded-md",
+              "h-11 min-w-28 rounded-md",
               isBlockButton && "w-full",
             )}
           />

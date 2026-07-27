@@ -17,7 +17,7 @@ export default function ItemAmountControls({
       <Button
         size="icon"
         aria-label="Smanji količinu za 1"
-        className="size-8 sm:size-10 shrink-0"
+        className="shrink-0"
         onClick={() =>
           onUpdate({
             isChecked: item.isChecked,
@@ -27,7 +27,7 @@ export default function ItemAmountControls({
         }
         disabled={(item.amount || 1) <= 1 || item.isChecked}
       >
-        <Minus className="size-4 sm:size-5" />
+        <Minus className="size-5" />
       </Button>
 
       <span className="text-center min-w-8">{item.amount}</span>
@@ -35,7 +35,7 @@ export default function ItemAmountControls({
       <Button
         size="icon"
         aria-label="Povećaj količinu za 1"
-        className="size-8 sm:size-10 shrink-0"
+        className="shrink-0"
         onClick={() =>
           onUpdate({
             isChecked: item.isChecked,
@@ -45,7 +45,7 @@ export default function ItemAmountControls({
         }
         disabled={item.isChecked}
       >
-        <Plus className="size-4 sm:size-5" />
+        <Plus className="size-5" />
       </Button>
     </div>
   );

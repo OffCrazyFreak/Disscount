@@ -71,7 +71,7 @@ export default function WatchlistItem({
 
           <div className="flex flex-col items-center gap-2 sm:flex-row-reverse">
             <WatchlistActionButton
-              visibilityClassName="size-8 sm:size-10 shrink-0"
+              visibilityClassName="shrink-0"
               isAddMode={isAddMode}
               isRemoving={isRemoving}
               hasProduct={Boolean(product)}

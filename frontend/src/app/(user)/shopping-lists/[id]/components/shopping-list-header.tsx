@@ -21,8 +21,8 @@ export default function ShoppingListHeader({
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-0 sm:gap-1 min-w-0">
           <Link href="/shopping-lists">
-            <Button variant="ghost" className="" size={"icon"}>
-              <ChevronLeft className="size-6 sm:size-7" />
+            <Button variant="ghost" size="icon">
+              <ChevronLeft className="size-5" />
             </Button>
           </Link>
 

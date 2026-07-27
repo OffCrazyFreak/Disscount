@@ -30,14 +30,14 @@ export default function ShoppingListDesktopActions({
             <Button
               size="icon"
               aria-label="Podijeli popis"
-              className="size-10 sm:size-12 shrink-0"
+              className="shrink-0"
               onClick={onShare}
               disabled={isSharing}
             >
               {isSharing ? (
-                <BlockLoadingSpinner size={26} className="text-inherit" />
+                <BlockLoadingSpinner size={20} className="text-inherit" />
               ) : (
-                <Share2 className="size-6 sm:size-7" />
+                <Share2 className="size-5" />
               )}
             </Button>
           </TooltipTrigger>
@@ -54,16 +54,16 @@ export default function ShoppingListDesktopActions({
             <Button
               size="icon"
               aria-label="Kopiraj popis"
-              className="size-10 sm:size-12 shrink-0"
+              className="shrink-0"
               onClick={() => {
                 onCopy();
               }}
               disabled={isCopying}
             >
               {isCopying ? (
-                <BlockLoadingSpinner size={26} className="text-inherit" />
+                <BlockLoadingSpinner size={20} className="text-inherit" />
               ) : (
-                <Copy className="size-6 sm:size-7" />
+                <Copy className="size-5" />
               )}
             </Button>
           </TooltipTrigger>
@@ -80,10 +80,10 @@ export default function ShoppingListDesktopActions({
             <Button
               size="icon"
               aria-label="Uredi popis"
-              className="size-10 sm:size-12 shrink-0"
+              className="shrink-0"
               onClick={onEdit}
             >
-              <LucideClipboardEdit className="size-6 sm:size-7" />
+              <LucideClipboardEdit className="size-5" />
             </Button>
           </TooltipTrigger>
 
@@ -99,16 +99,16 @@ export default function ShoppingListDesktopActions({
             <Button
               size="icon"
               aria-label="Obriši popis"
-              className="size-10 sm:size-12 shrink-0 bg-red-600 hover:bg-red-700"
+              className="shrink-0 bg-red-600 hover:bg-red-700"
               onClick={() => {
                 onDeleteClick();
               }}
               disabled={isDeleting}
             >
               {isDeleting ? (
-                <BlockLoadingSpinner size={26} className="text-inherit" />
+                <BlockLoadingSpinner size={20} className="text-inherit" />
               ) : (
-                <Trash2 className="size-6 sm:size-7" />
+                <Trash2 className="size-5" />
               )}
             </Button>
           </TooltipTrigger>
