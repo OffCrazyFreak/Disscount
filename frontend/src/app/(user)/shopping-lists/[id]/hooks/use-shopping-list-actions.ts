@@ -44,13 +44,23 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
   async function handleShare() {
     setIsSharing(true);
     try {
+      const text = formatShoppingListForSharing(shoppingList);
+      const url = shoppingList.isPublic
+        ? `${appUrl()}/shopping-lists/${encodeURIComponent(shoppingList.id)}`
+        : undefined;
       const outcome = await shareOrCopy({
         title: shoppingList.title,
-        text: formatShoppingListForSharing(shoppingList),
-        url: `${appUrl()}/shopping-lists/${encodeURIComponent(shoppingList.id)}`,
+        text,
+        ...(url ? { url } : {}),
       });
 
-      if (outcome === "copied") toast.success("URL veza je kopirana");
+      if (outcome === "copied") {
+        toast.success(
+          shoppingList.isPublic
+            ? "URL veza je kopirana"
+            : "Tekst popisa je kopiran",
+        );
+      }
       if (outcome === "failed") toast.error("Dijeljenje nije uspjelo");
     } finally {
       setIsSharing(false);

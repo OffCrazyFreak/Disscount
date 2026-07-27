@@ -1,15 +1,13 @@
 export type ShareOutcome = "shared" | "dismissed" | "copied" | "failed";
 
-interface IShareData {
-  title: string;
-  text?: string;
-  url: string;
-}
+type IShareData =
+  | { title: string; text: string; url?: string }
+  | { title: string; text?: string; url: string };
 
 /**
- * Shares through the OS sheet where there is one, and copies the link where there
- * is not. Returns the outcome rather than showing a toast, so callers keep their
- * own wording.
+ * Shares through the OS sheet where there is one, then copies the URL or shared
+ * text where there is not. Returns the outcome rather than showing a toast, so
+ * callers keep their own wording.
  */
 function isDismissal(error: unknown): boolean {
   return error instanceof DOMException && error.name === "AbortError";
@@ -29,8 +27,11 @@ export async function shareOrCopy(data: IShareData): Promise<ShareOutcome> {
     }
   }
 
+  const clipboardValue = data.url ?? data.text;
+  if (!clipboardValue) return "failed";
+
   try {
-    await navigator.clipboard.writeText(data.url);
+    await navigator.clipboard.writeText(clipboardValue);
     return "copied";
   } catch {
     return "failed";
