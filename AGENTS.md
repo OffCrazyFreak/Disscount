@@ -1,139 +1,155 @@
-# General
+# AGENTS.md
 
-These principles apply across the whole repo (frontend and backend).
+Croatian grocery price comparison app. Next.js frontend, Spring Boot backend, self-hosted on Hetzner via Dokploy.
+`CLAUDE.md` imports this file, so Claude Code and Codex read the same instructions.
 
-- Write code all like a senior dev - always follow DRY and clean code principles, with separation of concerns, modularity, and reusability in mind. The files should aim to be 50-100ish lines long, so they are easy to read, parse, and maintain.
+The repository is public but the licence is BUSL-1.1, so it is source-available, not open source. Never describe it as open source anywhere, including marketing copy and docs.
 
-- Add empty rows for better readability between logical blocks of code, my prettier will take care of the rest.
+## Boundaries
 
-- Before writing any function or component, ALWAYS check the codebase (especially utils/ and hooks/ folders) for a similar one and reuse it. If I ask you to refactor something out and nothing similar exists, create it in a new separate file instead of inline.
+Never:
 
-- Always follow project structure and conventions, including file organization, naming conventions, and coding styles, but feel free to suggest improvements when appropriate.
-- Always use kebab-case naming of files if you can.
-- Feature-specific code goes in feature folders (products/, shopping-lists/), shared/generic code stays in central locations (utils/, lib/, constants/).
+- Run a dev server. Mine is already running. That includes `pnpm dev`, `pnpm email`, and any Maven or Docker equivalent. No exceptions, including during migrations.
+- Run any Maven command. Not `spring-boot:run`, not build, not test, not package. Ask if you think you need one.
+- Run deploy, Docker, or Dokploy commands. Deploys happen automatically on push.
+- Commit or push. Finish the work, leave it uncommitted, suggest the message.
+- Commit secrets, credentials, the server IP, or the SSH user. Use placeholders in docs.
+- Reference `docs/disscount_*` from any tracked file. Those are gitignored because they hold credentials and strategy, and a link to them leaks that they exist.
+- Hand-edit dependency entries or lockfiles, use npm, or generate a `package-lock.json`.
+- Touch unrelated changes already sitting in the worktree. Do not revert, reformat, stage, or describe them as yours.
+- Drive a browser for visual verification unless I ask for it in that same message.
 
-- Write self-explanatory code. Use comments only for genuinely complex logic or decisions. NEVER USE multi-line comments to explain something UNLESS STRICLY NECCESSARY, if you think you should you _probably_ did it wrong and YOU SHOULD TRY TO REWRITE IT AND ALL CONNECTED CODE (basically a full refractor, while keeping funcionality) so you don't need it. So don't simply remove comments, but refractor everything conected so it doesn't need a comment anymore.
+Ask first:
 
-- Do not prematurely optimize code. Focus on clarity and correctness first. Especially for frontend now that react compiler optimizations are very good.
+- Adding or renaming an environment variable.
+- Adding a dependency the task does not strictly require.
+- Anything that needs a backend endpoint that does not exist yet.
+- Widening scope beyond what I asked for.
+- Any instruction of mine that has two plausible readings. Ask before you edit, do not pick one and start.
 
-- After every code generation, ALWAYS provide a brief explanation of the code changes you made and why because I'm still learning and I want to become a better developer.
+Hand back to me rather than running: interactive installers, `init` wizards, and anything that prompts for input or writes outside the repo. Give me the exact command, then verify the result once I say it is done.
 
-- Always fetch and follow proper and most recent documentation, especially for libraries. Fetch it from the official website or repository, instead of searching in node modules or other places.
+Safe without asking, run from `frontend/`:
 
-- If you need to add env variables, first notify the user and then update both the .env file and the example.env file. Always make sure they are in sync.
+- `pnpm exec prettier --write --ignore-path ../.prettierignore "../<changed-path>"`
+- `pnpm exec next typegen`, then `pnpm exec tsc --noEmit`
+- `pnpm lint`
+- `pnpm build`
+- `pnpm add <name>@<version>` and `pnpm remove <name>`, once I have approved the dependency
 
-- Never run dev servers, and only run build commands where the stack section below allows it. Except when during a framework or dependency migration, frontend or backend. Then it's allowed to test everything.
+Inside a git worktree, call the binaries directly (`./node_modules/.bin/tsc`) instead of `pnpm exec`, which purges the main tree's `node_modules` through the symlink.
 
-## Commit message requirement
+## Definition of done
 
-At the end of every response that includes code changes, include a suggested Git commit message. To make sure you don't miss any changes, first check with git status and git diff what are the changes made, and then using this info and your conversation history in this chat, make a message.
+Prettier written over the files you touched, `tsc --noEmit` clean, and `pnpm build` passing if you touched routing, config, or anything that only fails at build time. Skip the build when formatting and type-checking already give enough confidence.
 
-Use this format:
+Type errors are yours to fix in `src/`. Do not chase errors coming out of generated types or dependencies, and never re-run a check I interrupted.
+
+Say which checks passed, which failed, and which you did not run. For backend work, say what you verified by reading and which command I should run.
+
+If a check fails for a reason unrelated to your change, report the command and the error, say it looks pre-existing, and leave it alone.
+
+## How I want you to work
+
+- Explain what you changed and why at the end. I am still learning, so the explanation is the point, not a formality.
+- Never use em dashes or en dashes, anywhere: chat, code comments, UI copy, docs, commit messages, PR text. Use a comma, a colon, parentheses, or rewrite the sentence.
+- In Markdown, write one physical line per paragraph and per bullet. Never hard-wrap prose to a column width.
+- If a task has a standard-but-optional dimension, either do it or name it with a one-line recommendation and rough effort. Do not quietly drop it.
+- Do not rewrite `docs/*.md` as you go. Track what went stale and land it as one `docs:` commit when I ask to push.
+- Prefer the smallest change that does the job. Merge code because it means the same thing, never because it looks the same.
+- Keep files focused and short. I aim for roughly 50 to 100 lines and would rather have one more file than one long one. Split by concern, not to hit a number.
+- Before writing a shared helper, hook, or component, look for an existing one in `utils/`, `hooks/`, and the relevant feature folder. If I ask you to extract something and nothing similar exists, give it its own new file rather than inlining it.
+- Feature-specific code lives in the feature folder. Shared code lives in `utils/`, `lib/`, `constants/`, `typings/`.
+- Use kebab-case filenames.
+- Write code that explains itself. Comment only non-obvious decisions: business rules, security assumptions, compatibility quirks, why the simpler approach is unsafe. Never restate the code in a comment, and never expand into a broad refactor just to delete one.
+- Leave a blank line between logical blocks. Prettier handles the rest.
+- Do not optimise before it is a problem. The React Compiler is on and handles most of what you would hand-tune.
+- For library APIs, read the current official docs for the version in `package.json` or `pom.xml`. Never grep `node_modules`. Skip the lookup for stable behaviour the codebase already demonstrates.
+
+## Frontend (Next.js, `frontend/`)
+
+`package.json` and the lockfile are authoritative for what is installed. What follows is intent and gotchas, not an inventory.
+
+- `kysely` is a direct dependency only to pin better-auth's required peer. Nothing imports it.
+- `dotenv` is read only by `drizzle.config.ts`, to load `.env.local` outside Next.
+- `baseline-browser-mapping` is a direct dependency only so `frontend/pnpm-workspace.yaml` can exempt it from pnpm's release-age gate.
+- `@eslint/eslintrc` and the `disscount` self-link are create-next-app leftovers. Nothing reads them.
+- Import `server-only` in any module that must never reach the client.
+- `next`, `react`, `react-dom`, `better-auth`, `drizzle-orm`, `kysely` and `pg` stay exact-pinned, so auth and data-layer bumps have to go through a reviewed PR. Everything else takes a range. Do not add a pin to a dependency with no security or data blast radius.
+- After changing a dependency or a pnpm override, delete `node_modules`, `pnpm-lock.yaml` and `.next` before reinstalling. A plain `pnpm install` leaves the old resolution in place.
+- Resetting the database means dropping both the `public` and the `drizzle` schemas. Dropping only `public` leaves the migration journal behind and `drizzle-kit migrate` silently no-ops.
+
+Conventions:
+
+- No `any`. Define the real type, or take `unknown` and narrow it.
+- `I`-prefixed Props interfaces, in the same file as the component. One component per file, default export.
+- `function name() {}`, not `const name = () => {}`, except for small inline callbacks.
+- `import { useState } from "react"`, never `React.useState`.
+- `components/ui/` is shadcn output, so do not hand-edit it. Our components live in `components/custom/`, grouped by concern.
+- Types: API and domain go in `lib/api/schemas/*` as zod `*Dto` / `*Response`; external price API types in `lib/cijene-api/schemas.ts`; shared UI types in `@/typings`; feature-only types stay colocated in `*-types.ts`.
+- React Query hooks live next to their service in `lib/api/<domain>/`. Feature composition hooks go in the feature's `hooks/`.
+- Before generating or redesigning UI, read `frontend/.github/skills/frontend-design/SKILL.md` and follow it.
+
+Accessibility is where I have had to go back and fix things most often, so check these before you hand UI work over:
+
+- Every icon-only control has an accessible name, and it does not contradict a visible label sitting next to it.
+- Decorative icons are hidden from the accessibility tree.
+- Anything clickable is keyboard operable, and a control nested inside a card does not trigger the card's own navigation.
+- Dialogs move focus in on open and restore it on close.
+- Counts and status that change without a navigation are announced.
+- Motion respects `prefers-reduced-motion`.
+
+Croatian copy uses second person ("ti"), never third person ("vi"), and ungendered forms. The company voice ("mi") stays as it is. This covers accessible names, `alt` text and `title` attributes, not just visible text. There is no i18n framework and every string is a hardcoded literal, so write the Croatian inline and do not reach for a translation library.
+
+Before wiring an API call, confirm the endpoint exists in `backend/` or in https://github.com/senko/cijene-api, which is upstream and not ours to change. Do not invent endpoints, fields, or auth behaviour. If the contract is missing, finish everything else in scope and tell me exactly what is missing.
+
+## Backend (Spring, `backend/`)
+
+- The app is a resource server. `oauth2-resource-server` validates better-auth's ES256 JWTs via JWKS.
+- Tests run on H2, so anything Postgres-specific has to be portable or profile-guarded.
+- Versions come from the `spring-boot-starter-parent` BOM, so most dependencies carry no `<version>`. Only the ones outside the BOM pin their own, and `lombok.version` is pinned because the compiler's annotation processor path needs it explicitly.
+- Swagger UI is at `/api-docs`, and springdoc's major has to track the Spring Boot major.
+- `ddl-auto=update` never drops anything, so changing an enum column to String leaves a stale CHECK constraint that 500s on write.
+
+## Branches and releases
+
+Work lands on `dev`. A production release is a `dev` into `main` pull request. Before one of those, dev-vs-main goes through a multi-tool review and the findings land as their own `fix:` PR, with the artifacts kept in `reviews/`.
+
+Getting one change onto another branch means cherry-picking that commit, not merging the branch, because `dev` usually carries unrelated work. Do not open or merge a pull request unless I asked for one.
+
+Adding something to the project board means asking me which column first. Never leave Status empty.
+
+## Deployment
+
+Self-hosted on Hetzner via Dokploy (Docker Compose). Full reference in `docs/DEPLOYMENT.md`.
+
+Environment variables live in Dokploy, set per environment, never in committed files. `NEXT_PUBLIC_*` is baked at build time, so changing one needs a redeploy, not a restart.
+
+When a change needs a new environment variable, tell me what it controls and whether it is required, server-only, or public, then add it with a placeholder to the example file it belongs to:
+
+- root: `.env.example`
+- frontend: `frontend/.env.local.example`
+- backend: `backend/.env.example`
+
+Keep the example file structurally in sync with its real counterpart. Never put a real value in a tracked file.
+
+## Commit message
+
+End every response that changed code with a suggested message. Check `git status --short` and the relevant diff first, and cover only this task's changes.
 
 ```text
 type(scope): Short summary in imperative mood
 
 Changes:
-- Specific change 1
-- Specific change 2
-- Specific change 3
+- Specific change
 
 Brief explanation of why the change was needed.
-
-Notes:
-- Optional important detail for reviewers or future maintenance
 ```
 
-# Next.js (frontend)
+Add a `Notes:` section only when there is something a reviewer would otherwise miss.
 
-## Tech stack
+Types in use: `fix`, `feat`, `docs`, `refactor`, `chore`, `style`, `perf`, `ci`. Scope is the kebab-case area, matching a folder where one exists: `products`, `pwa`, `watchlist`, `shopping-lists`, `settings`, `search`, `scanner`, `header`, `sidebar`, `price-history`, `modals`, `a11y`, `deps`.
 
-Installed libs - reach for these instead of reinventing them (names only, versions in `package.json`):
+Never add a `Co-Authored-By` trailer.
 
-- Core: next, react, react-dom, server-only (import it in any module that must never reach the client)
-- Auth: better-auth
-- DB: drizzle-orm, drizzle-kit, pg (+ @types/pg), kysely (a direct dep only to pin better-auth's required peer, nothing imports it), dotenv (only `drizzle.config.ts` reads it, to load `.env.local` outside Next)
-- Data & state: @tanstack/react-query (+ devtools, persist-client, query-async-storage-persister), @tanstack/react-virtual
-- Forms & validation: react-hook-form, @hookform/resolvers, zod
-- HTTP: axios
-- UI: radix-ui (+ individual @radix-ui/react-\*), lucide-react, sonner, cmdk, vaul, class-variance-authority, clsx, tailwind-merge, tailwindcss, @tailwindcss/postcss, tw-animate-css
-- Charts: recharts
-- Animation: motion
-- PWA & offline: @serwist/next, serwist, idb-keyval
-- Scanning: @yudiel/react-qr-scanner, barcode-detector
-- Email: resend, react-email
-- Images: sharp (also what every `scripts/generate-*.mjs` brand generator runs on)
-- Monitoring: @sentry/nextjs, react-scan
-- Tooling: eslint (+ eslint-config-next; `eslint.config.mjs` is flat config), prettier, typescript, @types/node, @types/react, @types/react-dom, @openapitools/openapi-generator-cli
-- Not imported anywhere: baseline-browser-mapping, a direct dep only so `pnpm-workspace.yaml` can exempt it from the release-age gate; @eslint/eslintrc and the `disscount` self-link, both create-next-app leftovers that nothing reads
-
-## Guidelines
-
-NEVER run "pnpm run dev" or any other development server command, because I always already have my dev server running. Running "pnpm build" is allowed, so you can verify a change the way CI does.
-
-NEVER use ":any" as a type in typescript code. Check the types and define proper interfaces or types when necessary.
-
-Use I-prefix for interfaces, and use default exports wherever possible.
-
-If you need to import some hooks or components from react library, ALWAYS import them by "import { x } from 'react';" instead of React.x or other ways.
-
-Write all functions with syntax "function functionName() {}" instead of arrow functions like "const functionName = () => {}" unless it's a small inline function.
-
-ALWAYS check if all typescript types are correct and there are no type errors by first formatting "pnpm exec prettier" and then using "pnpm exec tsc --noEmit" before providing the final code.
-After editing ANY repo files, run `pnpm exec prettier --write --ignore-path ../.prettierignore "../<file-or-glob>"` from `frontend/` before committing, since CI format-checks those too.
-
-ALWAYS use frontend design skill when generating UI code.
-
-Never edit the package.json or package-lock.json files directly, but instead use "pnpm add package-name@version" or "pnpm remove package-name" to manage dependencies.
-
-If you are asked to generate code that involves API calls, check if the API endpoints exist in the repo https://github.com/senko/cijene-api/ or the backend codebase. If they do not exist, inform me that the endpoints do not exist and ask for further instructions.
-
-In Croatian wording, always use drugo lice ("ti"), nikad treće lice ("vi").
-Also always use ungendered forms.
-Leave the company voice ("mi") intact.
-
-## Project structure (frontend/src)
-
-- `app/` - Next.js routes. A feature folder uses `components/` + `hooks/` + `utils/` + `typings/` (add only what it needs).
-- `components/ui/` - shadcn primitives, do not hand-edit. `components/custom/` - our components, grouped into concern folders (`header/`, `sidebar/`, `search/`, `store-chain/`, `price/`, `common/`, ...). `settings/` is the reference sub-feature layout: `components/ hooks/ tabs/ ui/` plus nested `security/` and `onboarding/`.
-- `lib/` - data & infra: `api/` (internal service layer + `schemas/` zod models), `cijene-api/` (external price API), `modal/`, `offline/`, `email/`, `auth*`.
-- Root: `hooks/` (shared hooks), `context/`, `utils/` (shared helpers), `constants/`, `typings/` (shared types), `emails/`, `db/`.
-
-Where things go:
-
-- Types: API/domain -> `lib/api/schemas/*` (zod `*Dto`/`*Response`); external price API -> `lib/cijene-api/schemas.ts`; shared UI/util -> `@/typings`; feature-only -> colocated `*-types.ts`.
-- React Query hooks: colocate with their service under `lib/api/<domain>/`; feature-specific composition hooks go in the feature `hooks/`.
-- One component per file (default export); its `I`-prefixed Props interface stays in the same file.
-
-# Spring (backend)
-
-NEVER run "mvn spring-boot:run" or any other development server command, because I always already have my dev server running. Also never run build commands.
-
-## Tech stack
-
-Non-obvious notes:
-
-- The app is a resource server - `oauth2-resource-server` validates better-auth's ES256 JWTs via JWKS.
-- Tests run against H2, so anything Postgres-specific has to be portable or profile-guarded.
-- Versions come from the `spring-boot-starter-parent` BOM, so most dependencies carry no `<version>`. Only the ones outside the BOM pin their own.
-
-Installed libs - reach for these instead of reinventing them (versions in `pom.xml`):
-
-- Spring Boot starters: data-jpa, web, validation, security, oauth2-resource-server, mail, actuator
-- DB driver: postgresql (runtime scope)
-- API docs: springdoc-openapi-starter-webmvc-ui (Swagger UI at `/api-docs`) - its major tracks the Spring Boot major
-- Monitoring: sentry-spring-boot-starter-jakarta
-- Boilerplate: lombok, pinned by a `lombok.version` property because the compiler's annotation processor path needs it explicitly
-- Config: springboot3-dotenv (me.paulschwarz), the Boot 3 artifact of spring-dotenv after its module split
-- Testing: spring-boot-starter-test, spring-security-test, h2
-- Build plugins: maven-compiler-plugin (holds the Java release + the Lombok processor path), spring-boot-maven-plugin
-
-# Deployment
-
-The app is self-hosted on a Hetzner VPS via Dokploy (Docker Compose). See docs/DEPLOYMENT.md for the full infrastructure reference (architecture, env vars, DNS/SSL, backups, monitoring).
-
-NEVER run deployment, Docker, or Dokploy commands (deploy, build, push images, prune, server restarts) unless I explicitly ask, since deploys happen automatically on push.
-
-Environment variables live in Dokploy, set per environment, NOT in committed files. Remember `NEXT_PUBLIC_*` vars are baked at build time, so changing them needs a redeploy, not just a restart.
-
-The repository is PUBLIC. NEVER commit secrets, credentials, the server IP, or the SSH user; use placeholders in any committed docs.
+Name the issues a commit or PR closes, and use full 40-character SHAs when referring to commits. `Closes #N` only fires on a merge into `main`, so a PR targeting `dev` links but never closes, and I close those by hand. Anything filed on `senko/cijene-api` links back to https://disscount.me and this repository.
