@@ -15,6 +15,8 @@ interface IOSNavigator extends Navigator {
 
 function detectStandalone(): boolean {
   return (
+    // Trusted Web Activities identify their Android app launch through the referrer.
+    document.referrer.startsWith("android-app://") ||
     window.matchMedia("(display-mode: standalone)").matches ||
     (window.navigator as IOSNavigator).standalone === true
   );
@@ -40,6 +42,10 @@ function detectIOSInstallCapable(): boolean {
   );
 }
 
+function detectInstallSupport(): boolean {
+  return "onbeforeinstallprompt" in window || detectIOSInstallCapable();
+}
+
 // Module scope, so both banners share one prompt and consuming it clears both.
 // ready stays false until client detection runs, so SSR and first paint never flash install UI.
 interface IInstallState {
@@ -47,6 +53,7 @@ interface IInstallState {
   isStandalone: boolean;
   isIOS: boolean;
   isIOSInstallCapable: boolean;
+  supportsInstall: boolean;
   ready: boolean;
 }
 
@@ -55,6 +62,7 @@ const SERVER_STATE: IInstallState = {
   isStandalone: false,
   isIOS: false,
   isIOSInstallCapable: false,
+  supportsInstall: false,
   ready: false,
 };
 
@@ -74,7 +82,10 @@ function init() {
 
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
-    setState({ deferredPrompt: event as IBeforeInstallPromptEvent });
+    setState({
+      deferredPrompt: event as IBeforeInstallPromptEvent,
+      supportsInstall: true,
+    });
   });
 
   window.addEventListener("appinstalled", () => {
@@ -85,6 +96,7 @@ function init() {
     isStandalone: detectStandalone(),
     isIOS: detectIOS(),
     isIOSInstallCapable: detectIOSInstallCapable(),
+    supportsInstall: detectInstallSupport(),
     ready: true,
   });
 }
@@ -118,13 +130,27 @@ async function promptInstall() {
 }
 
 export function useInstallPrompt() {
-  const { deferredPrompt, isStandalone, isIOS, isIOSInstallCapable, ready } =
-    useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const {
+    deferredPrompt,
+    isStandalone,
+    isIOS,
+    isIOSInstallCapable,
+    supportsInstall,
+    ready,
+  } = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   // Only show install UI where installing can actually work.
   const canInstall = deferredPrompt !== null;
   const canShowInstallUI =
     ready && !isStandalone && (canInstall || isIOSInstallCapable);
 
-  return { canInstall, canShowInstallUI, isIOS, isStandalone, promptInstall };
+  return {
+    ready,
+    canInstall,
+    canShowInstallUI,
+    isIOS,
+    isStandalone,
+    supportsInstall,
+    promptInstall,
+  };
 }
