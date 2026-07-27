@@ -1,10 +1,8 @@
 "use client";
 
 import { memo } from "react";
-import { ChevronRight } from "lucide-react";
 
 import { ProductResponse } from "@/lib/cijene-api/schemas";
-import { Button } from "@/components/ui/button";
 import { getMostFrequentCategory } from "@/app/products/utils/product-utils";
 import ProductCard from "@/components/custom/product/product-card";
 import ProductUnitPriceDetails from "@/app/products/components/product-item/product-price";
@@ -46,17 +44,6 @@ const ProductItem = memo(function ProductItem({ product }: IProductItemProps) {
       trailing={
         <>
           <ProductUnitPriceDetails product={product} />
-
-          <Button
-            type="button"
-            size="icon"
-            variant="primarySoft"
-            aria-label="Otvori detalje proizvoda"
-            onClick={openProduct}
-            className="size-10 shrink-0 rounded-full sm:hidden"
-          >
-            <ChevronRight aria-hidden="true" className="size-6" />
-          </Button>
 
           <ProductActionButtons product={product} grouped />
         </>
