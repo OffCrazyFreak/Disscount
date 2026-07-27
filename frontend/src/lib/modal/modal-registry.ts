@@ -19,7 +19,7 @@ export type ModalTarget =
   | { name: "email-verified" }
   | { name: "email-changed" }
   | { name: "contact" }
-  | { name: "onboarding" }
+  | { name: "onboarding"; mode: "required" | "replay" }
   | { name: "settings"; tab: SettingsTab }
   | { name: "shopping-list"; action: "new" }
   | { name: "shopping-list"; action: "edit"; id: string }
@@ -64,8 +64,9 @@ export function parseModalParam(
     case "email-verified":
     case "email-changed":
     case "contact":
-    case "onboarding":
       return { name };
+    case "onboarding":
+      return { name, mode: sub === "replay" ? "replay" : "required" };
     case "settings":
       return { name, tab: sub && isSettingsTab(sub) ? sub : "profil" };
     case "shopping-list":
@@ -95,6 +96,8 @@ function modalParamValue(target: ModalTarget): string {
   switch (target.name) {
     case "settings":
       return `settings/${target.tab}`;
+    case "onboarding":
+      return target.mode === "replay" ? "onboarding/replay" : "onboarding";
     case "shopping-list":
     case "digital-card":
       return `${target.name}/${target.action}`;

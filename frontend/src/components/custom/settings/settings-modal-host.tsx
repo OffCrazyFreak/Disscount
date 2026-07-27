@@ -70,7 +70,7 @@ export default function SettingsModalHost() {
     enabled: isReady,
   });
 
-  const { save, saving } = useSettingsSave({
+  const { saveSettings, saveOnboarding, saving } = useSettingsSave({
     form,
     avatarPreview: avatar.preview,
     avatarTouched: avatar.touched,
@@ -111,7 +111,7 @@ export default function SettingsModalHost() {
           updateAvatar: (preview) =>
             setAvatar((state) => ({ ...state, preview, touched: true })),
           save: () => {
-            void save();
+            void saveSettings();
           },
           resetToDefaults,
         }}
@@ -122,7 +122,8 @@ export default function SettingsModalHost() {
 
         <OnboardingWizard
           open={target?.name === "onboarding"}
-          save={save}
+          mode={target?.name === "onboarding" ? target.mode : "required"}
+          save={saveOnboarding}
           saving={saving}
         />
       </SettingsUiProvider>

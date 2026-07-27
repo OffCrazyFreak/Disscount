@@ -83,7 +83,8 @@ export const userDtoSchema = userRequestSchema
     notificationsEmailEnabledAt: z.string().nullable().optional(),
     newsletterEnabledAt: z.string().nullable().optional(),
     feedbackContactEnabledAt: z.string().nullable().optional(),
-    // null = onboarding wizard has never ended for this user -> auto-open it
+    // Only a completed outcome satisfies the onboarding gate. Historical skipped
+    // outcomes remain incomplete even though they have a completion timestamp.
     onboardingCompletedAt: z.string().nullable().optional(),
     onboardingOutcome: z.string().nullable().optional(),
     createdAt: z.string(),

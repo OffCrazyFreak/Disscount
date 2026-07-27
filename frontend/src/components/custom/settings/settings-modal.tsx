@@ -84,7 +84,7 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
       caption={
         <button
           type="button"
-          onClick={() => swapModalUrl({ name: "onboarding" })}
+          onClick={() => swapModalUrl({ name: "onboarding", mode: "replay" })}
           className="cursor-pointer underline hover:text-primary"
         >
           Pokreni vodič ponovno
