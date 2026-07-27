@@ -14,6 +14,7 @@ import {
   Bug,
   Mail,
   Package,
+  House,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { isAdmin, type AccountType } from "@/lib/api/schemas/auth-user";
@@ -34,6 +35,15 @@ export interface INavigationItem {
   isCollapsible?: boolean; // Has sub-menu (Kategorije, Trgovine, Lokacije)
   children?: INavigationItem[]; // Nested items shown indented under this one
 }
+
+export const homeNavItem: INavigationItem = {
+  id: "home",
+  href: "/",
+  label: "Početna",
+  icon: House,
+
+  showInHeader: false,
+};
 
 // Lives in the desktop header, so the sidebar only surfaces it on mobile
 export const dashboardNavItem: INavigationItem = {
@@ -219,6 +229,7 @@ export const supportNavItems: INavigationItem[] = [
 ];
 
 const ALL_NAV_ITEMS: INavigationItem[] = [
+  homeNavItem,
   dashboardNavItem,
   productsNavItem,
   ...userNavItems,

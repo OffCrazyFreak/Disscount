@@ -11,6 +11,7 @@ import {
 import SidebarNavItem from "@/components/custom/sidebar/sidebar-nav-item";
 import {
   dashboardNavItem,
+  homeNavItem,
   userNavItems,
   isNavItemLocked,
 } from "@/constants/navigation";
@@ -19,7 +20,7 @@ import { useUser } from "@/context/user-context";
 import { canAccessDashboard } from "@/lib/api/schemas/auth-user";
 import { isRouteActive } from "@/utils/routes";
 
-/** The signed-in user's own pages, plus the dashboard link on mobile. */
+/** The homepage, mobile dashboard link and signed-in user's own pages. */
 export default function SidebarMainNav() {
   const pathname = usePathname();
   const { notifications, hasNotifications } = useNotifications();
@@ -27,20 +28,27 @@ export default function SidebarMainNav() {
 
   return (
     <>
-      {canAccessDashboard(user?.accountType) && (
-        <SidebarGroup className="py-1 md:hidden">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
+      <SidebarGroup className="py-1">
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarNavItem
+                item={homeNavItem}
+                isActive={isRouteActive(pathname, homeNavItem.href)}
+              />
+            </SidebarMenuItem>
+
+            {canAccessDashboard(user?.accountType) && (
+              <SidebarMenuItem className="md:hidden">
                 <SidebarNavItem
                   item={dashboardNavItem}
                   isActive={isRouteActive(pathname, dashboardNavItem.href)}
                 />
               </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      )}
+            )}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
 
       <SidebarGroup className="py-1">
         <SidebarGroupLabel>Moj račun</SidebarGroupLabel>
