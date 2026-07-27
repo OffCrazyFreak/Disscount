@@ -27,7 +27,7 @@ Ask first:
 - Widening scope beyond what I asked for.
 - Any instruction of mine that has two plausible readings. Ask before you edit, do not pick one and start.
 
-Hand back to me rather than running: interactive installers, `init` wizards, and anything that prompts for input or writes outside the repo. Give me the exact command, then verify the result once I say it is done.
+Hand back interactive installers and `init` wizards, except `pnpm dlx shadcn@latest add <component>`, which you may run.
 
 Safe without asking, run from `frontend/`:
 
@@ -41,7 +41,7 @@ Inside a git worktree, call the binaries directly (`./node_modules/.bin/tsc`) in
 
 ## Definition of done
 
-Prettier written over the files you touched, `tsc --noEmit` clean, and `pnpm build` passing if you touched routing, config, or anything that only fails at build time. Skip the build when formatting and type-checking already give enough confidence.
+Prettier and `tsc --noEmit` must pass; run `pnpm build` only for migrations, dependency version changes, or newly added dependencies.
 
 Type errors are yours to fix in `src/`. Do not chase errors coming out of generated types or dependencies, and never re-run a check I interrupted.
 
