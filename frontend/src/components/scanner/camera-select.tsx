@@ -58,25 +58,24 @@ export default function CameraSelect({
         </Select>
       </div>
 
-      {hasManualChoice && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              icon={RotateCcw}
-              iconPlacement="left"
-              onClick={onReset}
-              aria-label="Resetiraj kameru na automatski odabir"
-            />
-          </TooltipTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            icon={RotateCcw}
+            iconPlacement="left"
+            onClick={onReset}
+            disabled={!hasManualChoice}
+            aria-label="Resetiraj kameru na automatski odabir"
+          />
+        </TooltipTrigger>
 
-          <TooltipContent className="px-2 py-1 text-xs">
-            Resetiraj kameru na automatski odabir
-          </TooltipContent>
-        </Tooltip>
-      )}
+        <TooltipContent className="px-2 py-1 text-xs">
+          Resetiraj kameru na automatski odabir
+        </TooltipContent>
+      </Tooltip>
     </div>
   );
 }
