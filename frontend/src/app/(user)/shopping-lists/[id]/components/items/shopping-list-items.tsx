@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import Link from "next/link";
+import { ChevronDown, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   Collapsible,
@@ -81,10 +83,19 @@ export default function ShoppingListItems({
 
       <CollapsibleContent>
         {shoppingList.items.length === 0 ? (
-          <p className="p-2 text-gray-600 text-center">
-            Ovaj popis još ne sadrži proizvode. Probaj pretražiti proizvode pa
-            ih dodaj na ovaj popis.
-          </p>
+          <div className="p-4 text-center">
+            <p className="mb-4 text-gray-600">
+              Ovaj popis još ne sadrži proizvode. Pretraži proizvode i dodaj ih
+              na ovaj popis.
+            </p>
+
+            <Button asChild effect="shineHover">
+              <Link href="/products">
+                <Search aria-hidden="true" className="size-5" />
+                Pretraži proizvode
+              </Link>
+            </Button>
+          </div>
         ) : (
           <Card className="p-4">
             <div className="space-y-1">
