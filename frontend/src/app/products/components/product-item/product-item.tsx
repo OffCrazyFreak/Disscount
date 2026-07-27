@@ -1,8 +1,10 @@
 "use client";
 
 import { memo } from "react";
+import { ChevronRight } from "lucide-react";
 
 import { ProductResponse } from "@/lib/cijene-api/schemas";
+import { Button } from "@/components/ui/button";
 import { getMostFrequentCategory } from "@/app/products/utils/product-utils";
 import ProductCard from "@/components/custom/product/product-card";
 import ProductUnitPriceDetails from "@/app/products/components/product-item/product-price";
@@ -25,6 +27,10 @@ const ProductItem = memo(function ProductItem({ product }: IProductItemProps) {
     onLongPress: openQuickActions,
   });
 
+  function openProduct() {
+    navigateToProduct(product.ean, product);
+  }
+
   return (
     <ProductCard
       name={product.name}
@@ -34,23 +40,25 @@ const ProductItem = memo(function ProductItem({ product }: IProductItemProps) {
       // keyboard path skips the guard, since hasFired stays true until the next
       // pointerdown and Enter would otherwise be swallowed for good.
       onClick={(viaKeyboard) => {
-        if (viaKeyboard || !hasFired()) navigateToProduct(product.ean, product);
+        if (viaKeyboard || !hasFired()) openProduct();
       }}
       pressProps={pressProps}
       trailing={
         <>
           <ProductUnitPriceDetails product={product} />
 
-          <ProductActionButtons
-            product={product}
-            showSearchImage={true}
-            showAddToList={true}
-            showAddToWatchlist={false}
-            // Sharing lives on the product's own page and in its quick-actions
-            // sheet; a list row does not need a third way in.
-            showShare={false}
-            className="flex-col sm:flex-row"
-          />
+          <Button
+            type="button"
+            size="icon"
+            variant="primarySoft"
+            aria-label="Otvori detalje proizvoda"
+            onClick={openProduct}
+            className="size-10 shrink-0 rounded-full sm:hidden"
+          >
+            <ChevronRight aria-hidden="true" className="size-6" />
+          </Button>
+
+          <ProductActionButtons product={product} grouped />
         </>
       }
     />

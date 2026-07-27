@@ -8,15 +8,18 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import useProductModals from "@/hooks/use-product-modals";
+import { cn } from "@/lib/utils";
 
 interface IWatchlistActionButtonProps {
   product: ProductResponse;
   isInWatchlist: boolean;
+  className?: string;
 }
 
 export default function WatchlistActionButton({
   product,
   isInWatchlist,
+  className,
 }: IWatchlistActionButtonProps) {
   const { openWatchlist } = useProductModals(product);
 
@@ -28,7 +31,7 @@ export default function WatchlistActionButton({
         <Button
           size="icon"
           aria-label={actionLabel}
-          className="size-10 sm:size-12 shrink-0"
+          className={cn("size-10 sm:size-12 shrink-0", className)}
           onClick={() => openWatchlist()}
         >
           {isInWatchlist ? (
