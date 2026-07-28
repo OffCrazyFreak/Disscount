@@ -13,7 +13,7 @@ export default function ItemAmountControls({
   onUpdate,
 }: IItemAmountControlsProps) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="pointer-events-none relative z-20 flex items-center gap-2 [&_button]:pointer-events-auto">
       <Button
         size="icon"
         aria-label="Smanji količinu za 1"

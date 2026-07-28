@@ -1,21 +1,24 @@
 "use client";
 
-import { KeyboardEvent, ReactNode, type ComponentProps } from "react";
+import { type ComponentProps, type ReactNode } from "react";
 
 import { Card } from "@/components/ui/card";
+import ProductOverlayLink from "@/components/custom/product/product-overlay-link";
 import ProductSummary from "@/components/custom/product/product-summary";
 import { cn } from "@/lib/utils";
 
 interface IProductCardProps {
+  ean: string;
   name: string | null;
   brand?: string | null;
   category: string | null;
   quantity?: string | null;
   imageUrl?: string | null;
-  /** `viaKeyboard` lets a consumer skip a gesture guard that only pointers need */
-  onClick?: (viaKeyboard?: boolean) => void;
+  /** Returning false cancels navigation, for example after a long press */
+  onNavigate?: (viaKeyboard: boolean) => boolean | void;
   isLoading?: boolean;
   trailing?: ReactNode;
+  actions?: ReactNode;
   className?: string;
   /** Pointer handlers from useLongPress, for the quick-actions gesture */
   pressProps?: Pick<
@@ -39,57 +42,43 @@ function stopEvent(event: { stopPropagation: () => void }) {
  * the quick-actions sheet, takes that instead of restyling this.
  */
 export default function ProductCard({
+  ean,
   name,
   brand,
   category,
   quantity,
   imageUrl,
-  onClick,
+  onNavigate,
   isLoading = false,
   trailing,
+  actions,
   className,
   pressProps,
 }: IProductCardProps) {
-  // The card owns the long-press gesture, so a press on the trailing controls
+  // The card owns the long-press gesture, so a press on its action controls
   // must not reach it. Stopping click alone still let a hold there open the sheet
   // and then run the button on release.
-  const trailingProps =
-    onClick || pressProps
-      ? {
-          onClick: stopEvent,
-          onPointerDown: stopEvent,
-          onPointerUp: stopEvent,
-        }
-      : undefined;
-
-  function handleCardKeyDown(event: KeyboardEvent) {
-    if (!onClick) return;
-    // Ignore keydowns bubbled from focusable controls inside the card.
-    if (event.target !== event.currentTarget) return;
-
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      onClick(true);
-    }
-  }
+  const actionProps = pressProps
+    ? {
+        onClick: stopEvent,
+        onPointerDown: stopEvent,
+        onPointerUp: stopEvent,
+      }
+    : undefined;
 
   return (
     <Card
-      onClick={onClick ? () => onClick() : undefined}
-      role={onClick ? "button" : undefined}
-      tabIndex={onClick ? 0 : undefined}
-      onKeyDown={onClick ? handleCardKeyDown : undefined}
       {...pressProps}
       className={cn(
-        "shadow-sm hover:shadow-lg transition-shadow",
-        onClick && "cursor-pointer",
-        // Suppresses the iOS selection callout a long press would raise, on touch
-        // only, so a pointer user can still select the product's name.
+        "relative shadow-sm hover:shadow-lg transition-shadow",
+        // Suppresses the iOS selection callout a long press would raise on touch.
         pressProps &&
           "[@media(hover:none)]:select-none [-webkit-touch-callout:none]",
         className,
       )}
     >
+      <ProductOverlayLink ean={ean} name={name} onNavigate={onNavigate} />
+
       <ProductSummary
         name={name}
         brand={brand}
@@ -98,7 +87,8 @@ export default function ProductCard({
         imageUrl={imageUrl}
         isLoading={isLoading}
         trailing={trailing}
-        trailingProps={trailingProps}
+        actions={actions}
+        actionProps={actionProps}
       />
     </Card>
   );

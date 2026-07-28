@@ -111,6 +111,8 @@ export default function ShoppingListItems({
                   cheapestStore={cheapestStores[item.id]}
                   averagePrice={averagePrices[item.id]}
                   storePrices={storePrices[item.id] || {}}
+                  isFirst={index === 0}
+                  isLast={index === sortedItems.length - 1}
                   showSeparator={index < sortedItems.length - 1}
                 />
               ))}
