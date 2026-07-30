@@ -9,11 +9,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import { cn } from "@/lib/utils";
 
 interface IRemoveIconButtonProps {
   onClick: () => void;
   label: string;
+  /** Names the pending action while it runs; the icon has no room for text */
+  loadingLabel?: string;
   /** "destructive" deletes something; "neutral" only resets state, so it outlines */
   tone?: "destructive" | "neutral";
   loading?: boolean;
@@ -28,12 +31,14 @@ interface IRemoveIconButtonProps {
 export default function RemoveIconButton({
   onClick,
   label,
+  loadingLabel = LOADING_LABELS.deleting,
   tone = "destructive",
   loading = false,
   disabled = false,
   className,
 }: IRemoveIconButtonProps) {
   const isDestructive = tone === "destructive";
+  const currentLabel = loading ? loadingLabel : label;
 
   return (
     <Tooltip>
@@ -42,7 +47,7 @@ export default function RemoveIconButton({
           type="button"
           size="icon"
           variant={isDestructive ? "destructive" : "outline"}
-          aria-label={label}
+          aria-label={currentLabel}
           className={cn("shrink-0", className)}
           onClick={onClick}
           disabled={loading || disabled}
@@ -58,7 +63,7 @@ export default function RemoveIconButton({
         variant={isDestructive ? "destructive" : "neutral"}
         className="px-2 py-1 text-xs"
       >
-        {label}
+        {currentLabel}
       </TooltipContent>
     </Tooltip>
   );

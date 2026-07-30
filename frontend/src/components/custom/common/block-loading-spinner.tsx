@@ -5,13 +5,19 @@ interface IBlockLoadingSpinnerProps {
   className?: string;
 }
 
-// Pass `text-inherit` (or any text color) to recolor it inside buttons.
+/**
+ * Pass `text-inherit` (or any text color) to recolor it inside buttons.
+ *
+ * The blocks travel the full viewBox, so this paints edge to edge, unlike a
+ * Lucide icon whose stroke sits inset. When it stands in for one, size it to
+ * roughly 80% of the icon's box or it reads as the heavier of the two.
+ */
 export default function BlockLoadingSpinner({
   size = 64,
   className,
 }: IBlockLoadingSpinnerProps) {
   return (
-    <div className={cn("px-1 inline-block text-primary", className)}>
+    <div className={cn("inline-block text-primary", className)}>
       <svg
         width={size}
         height={size}

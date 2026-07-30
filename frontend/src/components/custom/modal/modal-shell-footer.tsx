@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import { RotateCcw, Save, X, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import PendingStatus from "@/components/custom/common/pending-status";
 import { cn } from "@/lib/utils";
 
 export interface IModalShellFooterProps {
@@ -12,6 +13,9 @@ export interface IModalShellFooterProps {
   submitLabel?: string;
   submitDisabled?: boolean;
   submitLoading?: boolean;
+  // Replaces submitLabel while saving, e.g. "Spremanje...". Falls back to
+  // submitLabel so a pending button never ends up with no label at all.
+  submitLoadingLabel?: string;
   submitVariant?: "primary" | "destructive";
   submitIcon?: LucideIcon;
   onSubmit?: () => void;
@@ -31,6 +35,7 @@ export function ModalShellFooter({
   submitLabel,
   submitDisabled,
   submitLoading,
+  submitLoadingLabel,
   submitVariant = "primary",
   submitIcon = Save,
   onSubmit,
@@ -87,22 +92,30 @@ export function ModalShellFooter({
             )}
 
             {submitLabel && (
-              // A brief nudge every 10s while there is something to save.
-              <div className={cn(submitEnabled && "animate-submit-nudge")}>
-                <Button
-                  type={formId ? "submit" : "button"}
-                  form={formId}
-                  variant={submitVariant}
-                  icon={submitIcon}
-                  iconPlacement="left"
-                  onClick={formId ? undefined : onSubmit}
-                  disabled={submitDisabled}
-                  loading={submitLoading}
-                  loadingIconPlacement="left"
-                >
-                  {submitLabel}
-                </Button>
-              </div>
+              <>
+                <PendingStatus
+                  pending={!!submitLoading}
+                  label={submitLoadingLabel ?? submitLabel}
+                />
+
+                {/* A brief nudge every 10s while there is something to save. */}
+                <div className={cn(submitEnabled && "animate-submit-nudge")}>
+                  <Button
+                    type={formId ? "submit" : "button"}
+                    form={formId}
+                    variant={submitVariant}
+                    icon={submitIcon}
+                    iconPlacement="left"
+                    onClick={formId ? undefined : onSubmit}
+                    disabled={submitDisabled}
+                    loading={submitLoading}
+                    loadingText={submitLoadingLabel ?? submitLabel}
+                    loadingIconPlacement="left"
+                  >
+                    {submitLabel}
+                  </Button>
+                </div>
+              </>
             )}
           </div>
         </div>

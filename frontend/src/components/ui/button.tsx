@@ -116,7 +116,9 @@ const LABEL_FROM_CLASSES = {
 
 interface LoadingProps {
   loading?: boolean;
-  loadingText?: string;
+  // ReactNode, not string: a button that swaps wording by breakpoint has to pass
+  // the same responsive markup for its pending label.
+  loadingText?: React.ReactNode;
   hideIconOnLoading?: boolean;
   loadingIconPlacement?: "left" | "right";
 }
@@ -199,6 +201,7 @@ const Button = React.forwardRef<
         ref={ref}
         {...props}
         disabled={isDisabled}
+        aria-busy={loading || undefined}
         {...(inertAsChild && {
           "aria-disabled": true,
           tabIndex: -1,
@@ -206,7 +209,7 @@ const Button = React.forwardRef<
         })}
       >
         {loading && loadingIconPlacement === "left" && (
-          <BlockLoadingSpinner size={18} className={spinnerColor} />
+          <BlockLoadingSpinner size={16} className={spinnerColor} />
         )}
 
         {Icon &&
@@ -233,7 +236,7 @@ const Button = React.forwardRef<
         </Slottable>
 
         {loading && loadingIconPlacement === "right" && (
-          <BlockLoadingSpinner size={18} className={cn("ml-2", spinnerColor)} />
+          <BlockLoadingSpinner size={16} className={cn("ml-2", spinnerColor)} />
         )}
 
         {Icon &&

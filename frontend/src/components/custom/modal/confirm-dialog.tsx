@@ -11,6 +11,7 @@ import {
 import { motion, useReducedMotion } from "motion/react";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
+import PendingStatus from "@/components/custom/common/pending-status";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,8 @@ interface IConfirmDialogProps {
   title: string;
   description: string;
   confirmLabel?: string;
+  // Replaces confirmLabel while the action runs, e.g. "Brisanje...".
+  confirmLoadingLabel?: string;
   cancelLabel?: string;
   variant?: "primary" | "destructive";
   icon?: LucideIcon;
@@ -34,6 +37,7 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel = "Potvrdi",
+  confirmLoadingLabel,
   cancelLabel = "Odustani",
   variant = "primary",
   icon,
@@ -98,11 +102,17 @@ export function ConfirmDialog({
             {cancelLabel}
           </Button>
 
+          <PendingStatus
+            pending={isLoading}
+            label={confirmLoadingLabel ?? confirmLabel}
+          />
+
           <Button
             variant={variant}
             icon={ConfirmIcon}
             iconPlacement="left"
             loading={isLoading}
+            loadingText={confirmLoadingLabel ?? confirmLabel}
             loadingIconPlacement="left"
             onClick={onConfirm}
           >
