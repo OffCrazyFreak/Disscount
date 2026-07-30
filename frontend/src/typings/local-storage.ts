@@ -43,6 +43,7 @@ export interface IAppData {
   lastLoginMethod?: LoginMethod;
   installBannerDismissedAt?: number; // Epoch ms of last "install app" banner dismissal; re-shown after the snooze window
   storeOptimizeMode?: string; // Preferred store-list sort, shared across all shopping lists
+  digitalCardSort?: string; // Preferred card sort, shared across the whole wallet
   preferredCameraId?: string; // Manually chosen scanner camera; absent means auto-pick
   formDrafts?: Record<string, IFormDraft>; // Unsaved modal-form drafts keyed per modal
   [key: string]: unknown;

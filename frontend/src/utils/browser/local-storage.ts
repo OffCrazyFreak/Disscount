@@ -3,6 +3,7 @@ export * from "@/utils/browser/storage/core";
 export * from "@/utils/browser/storage/view-mode";
 export * from "@/utils/browser/storage/products";
 export * from "@/utils/browser/storage/shopping-lists";
+export * from "@/utils/browser/storage/digital-cards";
 export * from "@/utils/browser/storage/auth";
 export * from "@/utils/browser/storage/scanner";
 export * from "@/utils/browser/storage/pwa";
