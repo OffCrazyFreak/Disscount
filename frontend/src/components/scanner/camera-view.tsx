@@ -23,6 +23,7 @@ interface ICameraViewProps {
   deviceId?: string;
   onScan: (code: IScannedCode) => void;
   onError: (error: unknown) => void;
+  onCameraReady: () => void;
 }
 
 function getVideoTrack(video: HTMLVideoElement | null) {
@@ -54,6 +55,7 @@ export default function CameraView({
   deviceId,
   onScan,
   onError,
+  onCameraReady,
 }: ICameraViewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isPageVisible, setIsPageVisible] = useState(true);
@@ -87,6 +89,20 @@ export default function CameraView({
     const video =
       containerRef.current?.querySelector<HTMLVideoElement>("video") ?? null;
     let attempts = 0;
+    let hasNotifiedReady = false;
+
+    function handleCameraReady() {
+      const track = getVideoTrack(video);
+
+      if (!track || hasNotifiedReady) return;
+
+      hasNotifiedReady = true;
+      turnTorchOff(track);
+      onCameraReady();
+    }
+
+    video?.addEventListener("playing", handleCameraReady);
+    handleCameraReady();
 
     const timer = window.setInterval(() => {
       const track = getVideoTrack(video);
@@ -95,15 +111,16 @@ export default function CameraView({
       if (!track && attempts < CAMERA_TRACK_POLL_LIMIT) return;
 
       window.clearInterval(timer);
-      turnTorchOff(track);
+      handleCameraReady();
     }, CAMERA_TRACK_POLL_INTERVAL);
 
     return () => {
       window.clearInterval(timer);
+      video?.removeEventListener("playing", handleCameraReady);
       turnTorchOff(getVideoTrack(video));
       stopVideo(video);
     };
-  }, [deviceId]);
+  }, [deviceId, onCameraReady]);
 
   return (
     <div

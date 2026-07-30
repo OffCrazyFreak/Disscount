@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { ScanBarcode, TriangleAlert } from "lucide-react";
-import { useDevices } from "@yudiel/react-qr-scanner";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +19,7 @@ import { IScannedCode, ScanPreset } from "@/typings/scanned-code";
 import CameraView from "@/components/scanner/camera-view";
 import CameraSelect from "@/components/scanner/camera-select";
 import ScanImageButton from "@/components/scanner/scan-image";
+import useCameraDevices from "@/components/scanner/hooks/use-camera-devices";
 
 interface ICameraScannerProps {
   isOpen: boolean;
@@ -34,7 +34,7 @@ export default function CameraScanner({
   onClose,
   onScan,
 }: ICameraScannerProps) {
-  const devices = useDevices();
+  const { devices, refreshDevices } = useCameraDevices();
   const [manualDeviceId, setManualDeviceId] = useState<string | undefined>(() =>
     getPreferredCamera(),
   );
@@ -87,6 +87,7 @@ export default function CameraScanner({
               deviceId={activeDeviceId}
               onScan={onScan}
               onError={(err) => setError(describeScannerError(err))}
+              onCameraReady={refreshDevices}
             />
           )}
 
