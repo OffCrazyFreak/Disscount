@@ -17,7 +17,7 @@ import type {
 import { useWatchlistSuggestions } from "@/app/(user)/watchlist/hooks/use-watchlist-suggestions";
 
 export function useWatchlistData(query: string) {
-  const { user, isAuthenticated, isLoading: userLoading } = useUser();
+  const { user, hasSession, isLoading: userLoading } = useUser();
   const {
     data: watchlistItems = [],
     pending: watchlistLoading,
@@ -44,7 +44,7 @@ export function useWatchlistData(query: string) {
     updatedAt: pricesUpdatedAt,
   } = useProductsByEans(
     groupedWatchlistItems.map((item) => item.productApiId),
-    { enabled: isAuthenticated },
+    { enabled: hasSession },
   );
 
   const enrichedItems = useMemo<IWatchlistItemWithProduct[]>(() => {
@@ -110,11 +110,10 @@ export function useWatchlistData(query: string) {
       watchedProductApiIds,
       pinnedStoreChainCodes,
       hasPinnedStores,
-      isAuthenticated,
+      hasSession,
     });
 
   return {
-    isAuthenticated,
     requiresAuth,
     userLoading,
     watchlistLoading,

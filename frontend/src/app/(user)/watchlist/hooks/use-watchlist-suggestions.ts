@@ -15,7 +15,7 @@ interface IUseWatchlistSuggestionsParams {
   watchedProductApiIds: Set<string>;
   pinnedStoreChainCodes: string[];
   hasPinnedStores: boolean;
-  isAuthenticated: boolean;
+  hasSession: boolean;
 }
 
 export function useWatchlistSuggestions({
@@ -23,7 +23,7 @@ export function useWatchlistSuggestions({
   watchedProductApiIds,
   pinnedStoreChainCodes,
   hasPinnedStores,
-  isAuthenticated,
+  hasSession,
 }: IUseWatchlistSuggestionsParams) {
   const { data: shoppingListItems = [], pending: shoppingListItemsLoading } =
     useAuthedQuery(shoppingListQueries.myItems());
@@ -69,7 +69,7 @@ export function useWatchlistSuggestions({
 
   const { results: suggestionProductQueries } = useProductsByEans(
     suggestionProductApiIds,
-    { enabled: isAuthenticated },
+    { enabled: hasSession },
   );
 
   const suggestionItems = useMemo<IWatchlistItemWithProduct[]>(() => {

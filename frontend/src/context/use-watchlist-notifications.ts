@@ -11,7 +11,7 @@ import { buildWatchlistNotifications } from "@/context/build-watchlist-notificat
 import { INotificationsContext } from "@/context/notifications-types";
 
 export function useWatchlistNotifications(): INotificationsContext {
-  const { user, isAuthenticated } = useUser();
+  const { user, hasSession } = useUser();
   const [openMenuSignal, setOpenMenuSignal] = useState(0);
 
   const requestOpenMenu = useCallback(() => {
@@ -38,7 +38,7 @@ export function useWatchlistNotifications(): INotificationsContext {
   // Progressive loading: one request per grouped product.
   const { results: productQueries } = useProductsByEans(
     groupedWatchlistItems.map((item) => item.productApiId),
-    { enabled: isAuthenticated },
+    { enabled: hasSession },
   );
 
   const productQueriesStateKey = productQueries
