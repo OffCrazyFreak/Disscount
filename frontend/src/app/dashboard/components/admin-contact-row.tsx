@@ -81,9 +81,9 @@ export default function AdminContactRow({
             onClick={() => onToggleRead(message)}
           >
             {unread ? (
-              <MailOpen className="size-5" />
+              <MailOpen className="size-6 sm:size-7" />
             ) : (
-              <Mail className="size-5" />
+              <Mail className="size-6 sm:size-7" />
             )}
           </Button>
 
@@ -95,7 +95,7 @@ export default function AdminContactRow({
               aria-label="Kopiraj e-mail"
               onClick={copyEmail}
             >
-              <Copy className="size-5" />
+              <Copy className="size-6 sm:size-7" />
             </Button>
           )}
 
@@ -107,7 +107,7 @@ export default function AdminContactRow({
               aria-label="Vrati poruku"
               onClick={() => onRestore(message)}
             >
-              <RotateCcw className="size-5" />
+              <RotateCcw className="size-6 sm:size-7" />
             </Button>
           ) : (
             <Button
@@ -118,7 +118,7 @@ export default function AdminContactRow({
               className="text-destructive hover:text-destructive"
               onClick={() => onDelete(message)}
             >
-              <Trash2 className="size-5" />
+              <Trash2 className="size-6 sm:size-7" />
             </Button>
           )}
         </div>

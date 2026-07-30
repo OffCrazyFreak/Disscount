@@ -66,7 +66,7 @@ export default function InstallBanner() {
               aria-label="Zatvori"
               className="-mr-1 -mt-1 shrink-0"
             >
-              <X className="size-5" />
+              <X className="size-6 sm:size-7" />
             </Button>
           </div>
 

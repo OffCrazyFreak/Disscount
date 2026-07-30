@@ -88,9 +88,12 @@ const buttonVariants = cva(
         pulse: "before:animate-pulse motion-reduce:before:animate-none",
       },
       size: {
+        sm: "h-9 rounded-md px-3",
         default: "h-10 px-4 py-2",
         lg: "h-11 rounded-md px-8 py-2",
-        icon: "size-10 [&_svg]:size-5",
+        "icon-sm": "size-9 [&_svg]:size-5",
+        icon: "size-10 [&_svg]:size-6",
+        "icon-lg": "size-11 [&_svg]:size-7",
       },
     },
     defaultVariants: {
@@ -102,11 +105,11 @@ const buttonVariants = cva(
 
 const LABEL_FROM_CLASSES = {
   sm: {
-    button: "sm:w-auto sm:px-4",
+    button: "sm:h-10 sm:w-auto sm:px-4 sm:[&_svg]:size-5",
     label: "hidden sm:inline",
   },
   md: {
-    button: "md:w-auto md:px-4",
+    button: "md:h-10 md:w-auto md:px-4 md:[&_svg]:size-5",
     label: "hidden md:inline",
   },
 } as const;

@@ -57,7 +57,7 @@ export default function ShoppingListItem({
                 ? `Označi ${item.name} kao nekupljeno`
                 : `Označi ${item.name} kao kupljeno`
             }
-            className="relative z-20 size-10 [&_svg]:size-6 sm:[&_svg]:size-7"
+            className="relative z-20"
             checked={item.isChecked}
             onCheckedChange={(checked) =>
               onUpdate({

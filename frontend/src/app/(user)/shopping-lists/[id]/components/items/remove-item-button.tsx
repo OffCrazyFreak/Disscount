@@ -34,9 +34,9 @@ export default function RemoveItemButton({
           disabled={isDeleting}
         >
           {isDeleting ? (
-            <BlockLoadingSpinner size={20} className="text-inherit" />
+            <BlockLoadingSpinner size={24} className="text-inherit" />
           ) : (
-            <X className="size-5" />
+            <X className="size-6 sm:size-7" />
           )}
         </Button>
       </TooltipTrigger>

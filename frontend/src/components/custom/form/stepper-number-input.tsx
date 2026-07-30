@@ -53,7 +53,9 @@ export function StepperNumberInput({
         aria-label={`${sign > 0 ? "Povećaj" : "Smanji"} za ${amount}`}
         className={cn(
           "shrink-0 rounded-full text-lg font-bold",
-          isSecondary ? "hidden sm:flex size-14" : "size-13",
+          isSecondary
+            ? "hidden size-14 sm:flex sm:size-14"
+            : "size-13 sm:size-13",
         )}
         onClick={() => step(sign * amount)}
       >

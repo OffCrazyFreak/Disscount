@@ -45,7 +45,7 @@ export default function BackToTopButton() {
             // alone leaves behind.
             inert={!isVisible}
             className={cn(
-              "pointer-events-auto size-[3.5rem] rounded-full shadow-lg [&_svg]:size-6!",
+              "pointer-events-auto size-[3.5rem] rounded-full shadow-lg sm:size-[3.5rem] [&_svg]:size-6! sm:[&_svg]:size-6!",
               "transition duration-300 motion-reduce:transition-none",
               isVisible ? "scale-100 opacity-100" : "scale-75 opacity-0",
             )}
