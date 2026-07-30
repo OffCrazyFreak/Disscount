@@ -90,6 +90,17 @@ Conventions:
 - React Query hooks live next to their service in `lib/api/<domain>/`. Feature composition hooks go in the feature's `hooks/`.
 - Before generating or redesigning UI, read `frontend/.github/skills/frontend-design/SKILL.md` and follow it.
 
+Data fetching and loading UI, in full in `docs/DATA-FETCHING.md`:
+
+- Each `lib/api/<domain>/` splits into `keys.ts`, `queries.ts` (fetchers) and `hooks.ts` (`queryOptions()` descriptors plus mutation hooks). Reads are descriptors, not hooks, so the React layer picks `useQuery`, `useAuthedQuery`, `useQueries` or a prefetch.
+- Never branch on a query's `isLoading`. Under `PersistQueryClientProvider` it reads false with no data while the IndexedDB cache restores, so guards fall through to the error or empty branch. Use `useAuthedQuery`'s `pending`, or `useDataPending(...)`.
+- Auth-gated reads go through `useAuthedQuery`, which folds the session into `enabled` and returns `requiresAuth` for the `LoginRequired` gate.
+- `staleTime` comes from `CACHE_TIMES` in `lib/query/cache-times.ts`, never a hand-written number.
+- Sections render through `AsyncSection`, which fixes the order as pending, error, empty, data.
+- A skeleton is a colocated sibling, `<component-name>-skeleton.tsx`, server-renderable, with no hooks, so `loading.tsx` and the client pending branch can share it. It must not re-type the real component's wrapper classes: import them, or share a shell.
+- Bars are `h-[1lh]` inside a wrapper carrying the same font classes as the text they replace. `--spacing` is `0.2rem` here, so `h-4` is 12.8px and matches no text size we use.
+- `BlockLoadingSpinner` is for buttons and short inline actions only. Content loading gets a skeleton.
+
 Accessibility is where I have had to go back and fix things most often, so check these before you hand UI work over:
 
 - Every icon-only control has an accessible name, and it does not contradict a visible label sitting next to it.

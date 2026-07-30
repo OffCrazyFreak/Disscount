@@ -3,7 +3,7 @@
 import { useEffect, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import PageShellSkeleton from "@/components/custom/skeleton/page-shell-skeleton";
 import { useUser } from "@/context/user-context";
 import { canAccessDashboard } from "@/lib/api/schemas/auth-user";
 
@@ -23,12 +23,9 @@ export default function DashboardGuard({ children }: IDashboardGuardProps) {
     }
   }, [isLoading, allowed, router]);
 
+  // Also covers the moment after a denial, while the redirect above runs.
   if (isLoading || !allowed) {
-    return (
-      <div className="flex justify-center py-24">
-        <BlockLoadingSpinner size={24} />
-      </div>
-    );
+    return <PageShellSkeleton />;
   }
 
   return <>{children}</>;

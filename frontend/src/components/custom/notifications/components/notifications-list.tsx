@@ -1,4 +1,6 @@
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import AsyncSection from "@/components/custom/common/async-section";
+import RepeatSkeleton from "@/components/custom/skeleton/repeat-skeleton";
+import NotificationItemSkeleton from "@/components/custom/notifications/components/notification-item-skeleton";
 import type { IWatchlistNotification } from "@/context/notifications-types";
 import NotificationItem from "@/components/custom/notifications/components/notification-item";
 import NotificationsEmptyState from "@/components/custom/notifications/components/notifications-empty-state";
@@ -30,25 +32,29 @@ export default function NotificationsList({
 
   return (
     <div className="max-h-128 overflow-y-auto">
-      {isLoading ? (
-        <div className="p-6 flex items-center justify-center gap-2 text-muted-foreground">
-          <BlockLoadingSpinner size={16} />
-          <span className="text-sm">Učitavanje...</span>
-        </div>
-      ) : notifications.length === 0 ? (
-        <NotificationsEmptyState
-          hasWatchlistItems={hasWatchlistItems}
-          onAddProducts={onAddProducts}
-        />
-      ) : (
-        sortedNotifications.map((notification) => (
+      <AsyncSection
+        pending={isLoading}
+        isEmpty={notifications.length === 0}
+        empty={
+          <NotificationsEmptyState
+            hasWatchlistItems={hasWatchlistItems}
+            onAddProducts={onAddProducts}
+          />
+        }
+        skeleton={
+          <RepeatSkeleton count={3}>
+            <NotificationItemSkeleton />
+          </RepeatSkeleton>
+        }
+      >
+        {sortedNotifications.map((notification) => (
           <NotificationItem
             key={notification.id}
             notification={notification}
             onSelect={onSelect}
           />
-        ))
-      )}
+        ))}
+      </AsyncSection>
     </div>
   );
 }

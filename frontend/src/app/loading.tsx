@@ -1,10 +1,10 @@
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-import { JSX } from "react";
+import PageShellSkeleton from "@/components/custom/skeleton/page-shell-skeleton";
 
-export default function Loading(): JSX.Element {
-  return (
-    <div className="grid place-items-center h-[70dvh]">
-      <BlockLoadingSpinner size={96} />
-    </div>
-  );
+/**
+ * The last-resort route fallback, for segments with no loading.tsx of their own.
+ * A neutral shape beats a centred spinner: the page keeps its height, so content
+ * does not shove the viewport when it arrives.
+ */
+export default function Loading() {
+  return <PageShellSkeleton />;
 }

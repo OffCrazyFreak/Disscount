@@ -3,15 +3,23 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp } from "lucide-react";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import AsyncSection from "@/components/custom/common/async-section";
+import RepeatSkeleton from "@/components/custom/skeleton/repeat-skeleton";
+import StatisticsStoreItemSkeleton from "@/app/statistics/components/store-item-skeleton";
+import { useDataPending } from "@/lib/query/use-data-pending";
 import cijeneService from "@/lib/cijene-api";
 import StoreItem from "@/app/statistics/components/store-item";
 
 export default function ChainList() {
   const [expandedChain, setExpandedChain] = useState<string | null>(null);
 
-  const { data: chainStats, isLoading: statsLoading } =
-    cijeneService.useGetChainStats();
+  const {
+    data: chainStats,
+    isPending,
+    error,
+  } = cijeneService.useGetChainStats();
+
+  const pending = useDataPending(isPending);
 
   function toggleChainExpansion(chainCode: string) {
     setExpandedChain((prev) => (prev === chainCode ? null : chainCode));
@@ -30,12 +38,17 @@ export default function ChainList() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {statsLoading ? (
-          <div className="flex items-center gap-2">
-            <BlockLoadingSpinner size={16} />
-            Učitavanje...
-          </div>
-        ) : chainStats ? (
+        <AsyncSection
+          pending={pending}
+          error={error}
+          isEmpty={sortedStats.length === 0}
+          empty={<div className="text-gray-500">Nema podataka</div>}
+          skeleton={
+            <RepeatSkeleton count={5}>
+              <StatisticsStoreItemSkeleton />
+            </RepeatSkeleton>
+          }
+        >
           <div>
             {sortedStats.map((stat, index) => (
               <StoreItem
@@ -47,9 +60,7 @@ export default function ChainList() {
               />
             ))}
           </div>
-        ) : (
-          <div className="text-gray-500">Nema podataka</div>
-        )}
+        </AsyncSection>
       </CardContent>
     </Card>
   );

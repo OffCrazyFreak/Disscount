@@ -1,7 +1,6 @@
 import { LogIn } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import HeaderActionsSkeleton from "@/components/custom/header/components/header-actions-skeleton";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { useUser } from "@/context/user-context";
 import UserMenu from "@/components/custom/user-menu/user-menu";
@@ -18,9 +17,7 @@ export default function HeaderActions() {
   return (
     <div className="flex items-center justify-between gap-8">
       {isInitializing ? (
-        <Skeleton
-          className={cn("rounded-full", isMobile ? "h-8 w-24" : "h-10 w-28")}
-        />
+        <HeaderActionsSkeleton isMobile={isMobile} />
       ) : isAuthenticated ? (
         <div className="flex items-center gap-4">
           <NotificationsDropdown openViaContext />

@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { ChevronDown, MapPin, Tag } from "lucide-react";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import TableSkeleton from "@/components/custom/skeleton/table-skeleton";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import {
   Collapsible,
@@ -35,7 +35,7 @@ interface IStoreItemProps {
 const StoreItem = memo(
   ({ stat, isExpanded, onToggle, isLast }: IStoreItemProps) => {
     // Fetch stores for this specific chain when the item is rendered
-    const { data: storesData, isLoading: storesLoading } =
+    const { data: storesData, isPending: storesLoading } =
       cijeneService.useListStoresByChain(stat.chain_code);
 
     return (
@@ -97,10 +97,7 @@ const StoreItem = memo(
           <CollapsibleContent>
             <div className="mt-4">
               {storesLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <BlockLoadingSpinner size={24} className="mr-2" />
-                  Učitavanje trgovina...
-                </div>
+                <TableSkeleton columns={3} rows={5} />
               ) : storesData?.stores && storesData.stores.length > 0 ? (
                 <div className="max-h-128 overflow-y-auto">
                   <Table>
