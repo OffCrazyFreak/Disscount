@@ -32,8 +32,24 @@ const scanShortcut: Shortcut = {
 };
 
 // Android shows 3 of these (Chrome keeps a fourth slot for its own "Site
-// settings"), so order is what decides what a phone actually surfaces.
-// Scanning leads: it is the fastest path from launcher to a price.
+// settings"), so order is what decides what a phone actually surfaces. Stated
+// explicitly rather than inherited from navigation.ts, where the ordering is about
+// the sidebar and a reshuffle there would silently drop a shortcut from phones.
+// Scanning leads (fastest path from launcher to a price), then the two the till
+// needs. Praćenje is fourth: it is a browsing destination, not a two-tap errand.
+const PWA_SHORTCUT_ORDER = [
+  "scan",
+  "digital-cards",
+  "shopping-lists",
+  "watchlist",
+];
+
+function shortcutRank(id: string): number {
+  const index = PWA_SHORTCUT_ORDER.indexOf(id);
+
+  return index === -1 ? PWA_SHORTCUT_ORDER.length : index;
+}
+
 export const pwaShortcuts: Shortcut[] = [
   scanShortcut,
   ...userNavItems
@@ -44,5 +60,8 @@ export const pwaShortcuts: Shortcut[] = [
       description: item.shortcutDescription,
       url: item.href,
       icons: shortcutIcons(item.id),
-    })),
+      id: item.id,
+    }))
+    .sort((a, b) => shortcutRank(a.id) - shortcutRank(b.id))
+    .map(({ id: _id, ...shortcut }) => shortcut),
 ];

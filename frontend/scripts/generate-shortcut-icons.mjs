@@ -8,7 +8,7 @@ import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { Eye, ListChecks, ScanBarcode } from "lucide-react";
+import { CreditCard, Eye, ListChecks, ScanBarcode } from "lucide-react";
 import { GREEN } from "./lib/brand.mjs";
 import { ROOT } from "./lib/cart-source.mjs";
 import { SRGB } from "./lib/srgb.mjs";
@@ -28,6 +28,7 @@ const RADIUS = Math.round(SIZE * (96 / 512));
 // Keyed by navigation item id, since manifest.ts derives each src from it.
 const SHORTCUTS = {
   scan: ScanBarcode,
+  "digital-cards": CreditCard,
   "shopping-lists": ListChecks,
   watchlist: Eye,
 };
