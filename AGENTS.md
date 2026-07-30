@@ -148,7 +148,7 @@ Brief explanation of why the change was needed.
 
 Add a `Notes:` section only when there is something a reviewer would otherwise miss.
 
-Types in use: `fix`, `feat`, `docs`, `refactor`, `chore`, `style`, `perf`, `ci`. Scope is the kebab-case area, matching a folder where one exists: `products`, `pwa`, `watchlist`, `shopping-lists`, `settings`, `search`, `scanner`, `header`, `sidebar`, `price-history`, `modals`, `a11y`, `deps`.
+Types in use: `fix`, `feat`, `docs`, `refactor`, `chore`, `style`, `perf`, `ci`. Scope is the kebab-case area, matching a folder where one exists: `products`, `pwa`, `watchlist`, `shopping-lists`, `settings`, `auth`, `search`, `scanner`, `landing`, `header`, `sidebar`, `bottom-nav`, `price-history`, `modals`, `ui`, `brand`, `a11y`, `deps`, `agents`.
 
 Never add a `Co-Authored-By` trailer.
 
