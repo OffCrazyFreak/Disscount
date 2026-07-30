@@ -3,9 +3,18 @@
 import { type ComponentProps, type ReactNode } from "react";
 import Image from "next/image";
 
-import { Skeleton } from "@/components/ui/skeleton";
 import ProductInfo from "@/components/custom/product/product-info";
 import { cn } from "@/lib/utils";
+
+/**
+ * Shared with product-summary-skeleton so the two cannot drift apart. A row and
+ * its placeholder having identical geometry is the whole reason nothing shifts.
+ */
+export const PRODUCT_SUMMARY_ROW_CLASSES =
+  "flex flex-col justify-between gap-3 px-3 py-2 @min-[300px]:flex-row @min-[300px]:items-center @md:gap-4 @md:px-6 @md:py-4";
+
+export const PRODUCT_SUMMARY_IMAGE_CLASSES =
+  "hidden @md:block size-16 @lg:size-20 shrink-0 rounded-lg object-contain";
 
 interface IProductSummaryProps {
   name: string | null;
@@ -13,7 +22,6 @@ interface IProductSummaryProps {
   category: string | null;
   quantity?: string | null;
   imageUrl?: string | null;
-  isLoading?: boolean;
   /** Passive details, such as prices, shown opposite the product identity */
   trailing?: ReactNode;
   actions?: ReactNode;
@@ -36,7 +44,6 @@ export default function ProductSummary({
   category,
   quantity,
   imageUrl,
-  isLoading = false,
   trailing,
   actions,
   actionProps,
@@ -46,12 +53,7 @@ export default function ProductSummary({
 
   return (
     <div className="@container">
-      <div
-        className={cn(
-          "flex flex-col justify-between gap-3 px-3 py-2 @min-[300px]:flex-row @min-[300px]:items-center @md:gap-4 @md:px-6 @md:py-4",
-          className,
-        )}
-      >
+      <div className={cn(PRODUCT_SUMMARY_ROW_CLASSES, className)}>
         <div className="flex min-w-0 flex-1 items-center gap-4">
           {imageUrl && (
             <Image
@@ -59,19 +61,11 @@ export default function ProductSummary({
               alt={name ?? ""}
               width={80}
               height={80}
-              className="hidden @md:block size-16 @lg:size-20 shrink-0 rounded-lg object-contain"
+              className={PRODUCT_SUMMARY_IMAGE_CLASSES}
             />
           )}
 
-          {isLoading ? (
-            <div className="min-w-0 flex-1 space-y-2">
-              <Skeleton className="h-3.5 w-24" />
-              <Skeleton className="h-5 w-48" />
-              <Skeleton className="h-3.5 w-32" />
-            </div>
-          ) : (
-            <ProductInfo name={displayName} brand={brand} category={category} />
-          )}
+          <ProductInfo name={displayName} brand={brand} category={category} />
         </div>
 
         {(trailing || actions) && (
