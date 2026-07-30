@@ -25,6 +25,7 @@ export type ModalTarget =
   | { name: "shopping-list"; action: "edit"; id: string }
   | { name: "digital-card"; action: "new" }
   | { name: "digital-card"; action: "edit"; id: string }
+  | { name: "digital-card"; action: "view"; id: string }
   | { name: "add-to-list"; ean: string }
   | { name: "product-actions"; ean: string }
   | { name: "watchlist"; ean: string; watchType?: WatchTypeParam };
@@ -70,9 +71,13 @@ export function parseModalParam(
     case "settings":
       return { name, tab: sub && isSettingsTab(sub) ? sub : "profil" };
     case "shopping-list":
+      if (sub === "new") return { name, action: "new" };
+      if (sub === "edit" && id) return { name, action: "edit", id };
+      return null;
     case "digital-card":
       if (sub === "new") return { name, action: "new" };
       if (sub === "edit" && id) return { name, action: "edit", id };
+      if (sub === "view" && id) return { name, action: "view", id };
       return null;
     case "add-to-list":
     case "product-actions":

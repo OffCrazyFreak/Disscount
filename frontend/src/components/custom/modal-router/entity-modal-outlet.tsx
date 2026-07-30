@@ -15,6 +15,11 @@ const DigitalCardModal = dynamic(
     import("@/app/(user)/digital-cards/components/forms/digital-card-modal"),
   { ssr: false },
 );
+const DigitalCardViewModal = dynamic(
+  () =>
+    import("@/app/(user)/digital-cards/components/view/digital-card-view-modal"),
+  { ssr: false },
+);
 const AddToShoppingListModal = dynamic(
   () => import("@/app/products/components/forms/add-to-shopping-list-form"),
   { ssr: false },
@@ -54,19 +59,25 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
 
   switch (rendered.name) {
     case "shopping-list":
-    case "digital-card": {
-      const Modal =
-        rendered.name === "shopping-list"
-          ? ShoppingListModal
-          : DigitalCardModal;
       return (
-        <Modal
+        <ShoppingListModal
           open={open}
           action={rendered.action}
           id={rendered.action === "edit" ? rendered.id : undefined}
         />
       );
-    }
+    case "digital-card":
+      // View is a separate modal rather than a mode of the form: it is a different job,
+      // reached by a different action, and shares only the card it reads.
+      return rendered.action === "view" ? (
+        <DigitalCardViewModal open={open} id={rendered.id} />
+      ) : (
+        <DigitalCardModal
+          open={open}
+          action={rendered.action}
+          id={rendered.action === "edit" ? rendered.id : undefined}
+        />
+      );
     case "add-to-list":
       return <AddToShoppingListModal open={open} ean={rendered.ean} />;
     case "watchlist":

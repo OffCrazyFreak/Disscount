@@ -21,11 +21,11 @@ export function useDigitalCardModal({
   const createMutation = digitalCardService.useCreateDigitalCard();
   const updateMutation = digitalCardService.useUpdateDigitalCard();
 
-  // Optimistic close: the modal closes immediately and reopens, with the draft
-  // still holding the values, only if the request fails.
+  // Optimistic close: the modal closes immediately and reopens only on failure.
   async function onSubmit(data: DigitalCardRequest) {
     closeModalUrl();
 
+    // A paused mutation resolves only on reconnect, so say so now.
     if (!onlineManager.isOnline()) {
       toast.info(
         "Izvan si mreže - promjena će se sinkronizirati kad se vratiš na mrežu.",
@@ -35,10 +35,10 @@ export function useDigitalCardModal({
     try {
       if (digitalCard) {
         await updateMutation.mutateAsync({ id: digitalCard.id, data });
-        toast.success("Digitalna kartica je uspješno ažurirana!");
+        toast.success("Kartica je uspješno ažurirana!");
       } else {
         await createMutation.mutateAsync(data);
-        toast.success("Digitalna kartica je uspješno kreirana!");
+        toast.success("Kartica je uspješno dodana!");
       }
 
       removeFormDraft(draftKey);
