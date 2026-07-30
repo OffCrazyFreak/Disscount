@@ -15,6 +15,9 @@ importers:
 
   .:
     dependencies:
+      '@bwip-js/browser':
+        specifier: ^4.11.2
+        version: 4.11.2
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.4.0(react-hook-form@7.81.0(react@19.2.8))
@@ -395,6 +398,9 @@ packages:
 
   '@borewit/text-codec@0.2.2':
     resolution: {integrity: sha512-DDaRehssg1aNrH4+2hnj1B7vnUGEjU6OIlyRdkMd0aUdIUvKXrJfXsy8LVtXAy7DRvYVluWbMspsRhz2lcW0mQ==}
+
+  '@bwip-js/browser@4.11.2':
+    resolution: {integrity: sha512-+6wZZY218c0Q6e9xjpESAs851ezWp8pZp2vS7WSjwX0GBOeGoT04NbvgHWPvtg4NIWXEIxoOgSBPnhmkFXhyNg==}
 
   '@clack/core@0.3.5':
     resolution: {integrity: sha512-5cfhQNH+1VQ2xLQlmzXMqUoiaH0lRBq9/CLW9lTyMbuKLC3+xEK01tHVvyut++mLOn5urSHmkm6I0Lg9MaJSTQ==}
@@ -5782,6 +5788,8 @@ snapshots:
   '@better-fetch/fetch@1.3.1': {}
 
   '@borewit/text-codec@0.2.2': {}
+
+  '@bwip-js/browser@4.11.2': {}
 
   '@clack/core@0.3.5':
     dependencies:
