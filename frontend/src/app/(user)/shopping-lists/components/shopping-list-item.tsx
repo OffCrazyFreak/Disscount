@@ -32,7 +32,7 @@ export default function ShoppingListListItem({
       <Link
         href={shoppingListPath}
         aria-label={`Otvori popis: ${shoppingList.title}`}
-        className="absolute inset-0 hidden rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:block"
+        className="absolute inset-0 rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       />
 
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-3 sm:flex sm:gap-4">
