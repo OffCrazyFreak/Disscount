@@ -12,6 +12,7 @@ import {
   CredentialsFormValues,
 } from "@/components/custom/settings/security/credentials-schema";
 import { useCredentialsSubmit } from "@/components/custom/settings/security/hooks/use-credentials-submit";
+import { usePasswordRecovery } from "@/components/custom/settings/security/hooks/use-password-recovery";
 
 interface ILinkedAccount {
   providerId: string;
@@ -69,8 +70,12 @@ export function useSecuritySettings(active: boolean) {
     onChanged: query.refetch,
   });
 
+  // Lifted so the label-row trigger and the notice below the form share state.
+  const recovery = usePasswordRecovery();
+
   return {
     status: query.status,
+    recovery,
     accounts,
     hasPassword,
     hasLinkedSocial,

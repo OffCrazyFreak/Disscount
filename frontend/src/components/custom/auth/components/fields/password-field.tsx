@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { Control, FieldPath, FieldValues } from "react-hook-form";
 
 import {
@@ -16,6 +17,8 @@ interface IPasswordFieldProps<T extends FieldValues> {
   label: string;
   autoComplete: string;
   hasError?: boolean;
+  // Sits on the label row, so a recovery link never pushes the input down.
+  action?: ReactNode;
 }
 
 export default function PasswordField<T extends FieldValues>({
@@ -24,6 +27,7 @@ export default function PasswordField<T extends FieldValues>({
   label,
   autoComplete,
   hasError,
+  action,
 }: IPasswordFieldProps<T>) {
   return (
     <FormField
@@ -31,7 +35,10 @@ export default function PasswordField<T extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <div className="flex items-center justify-between gap-2">
+            <FormLabel>{label}</FormLabel>
+            {action}
+          </div>
           <FormControl>
             <PasswordInput
               {...field}
