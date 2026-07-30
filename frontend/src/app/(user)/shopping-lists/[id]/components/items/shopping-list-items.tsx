@@ -33,7 +33,7 @@ export default function ShoppingListItems({
   averagePrices,
   storePrices,
 }: IShoppingListItemsProps) {
-  const { handleUpdateItem, handleDeleteItem, deletingItemId } =
+  const { handleUpdateItem, handleDeleteItem, deletingItemId, updatingItemId } =
     useShoppingListItemMutations(shoppingList.id, averagePrices, storePrices);
 
   const [isItemsOpen, setIsItemsOpen] = useState(() =>
@@ -108,6 +108,7 @@ export default function ShoppingListItems({
                   }
                   onDelete={() => handleDeleteItem(item.id)}
                   isDeleting={deletingItemId === item.id}
+                  isUpdating={updatingItemId === item.id}
                   cheapestStore={cheapestStores[item.id]}
                   averagePrice={averagePrices[item.id]}
                   storePrices={storePrices[item.id] || {}}

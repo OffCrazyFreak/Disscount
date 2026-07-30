@@ -6,14 +6,21 @@ import type { IShoppingListItemUpdate } from "@/app/(user)/shopping-lists/[id]/t
 interface IItemAmountControlsProps {
   item: ShoppingListItemDto;
   onUpdate: (updatedItem: IShoppingListItemUpdate) => void;
+  isUpdating: boolean;
 }
 
 export default function ItemAmountControls({
   item,
   onUpdate,
+  isUpdating,
 }: IItemAmountControlsProps) {
+  // No spinner here on purpose: the write is optimistic, so the new amount is
+  // already rendered and swapping in a loader would flicker on every tap.
   return (
-    <div className="pointer-events-none relative z-20 flex items-center gap-2 [&_button]:pointer-events-auto">
+    <div
+      className="pointer-events-none relative z-20 flex items-center gap-2 [&_button]:pointer-events-auto"
+      aria-busy={isUpdating}
+    >
       <Button
         size="icon"
         aria-label="Smanji količinu za 1"

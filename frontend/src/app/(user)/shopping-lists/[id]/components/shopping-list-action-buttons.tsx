@@ -1,5 +1,6 @@
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import { useShoppingListActions } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-actions";
 import ShoppingListDesktopActions from "@/app/(user)/shopping-lists/[id]/components/shopping-list-desktop-actions";
 import ShoppingListMobileActions from "@/app/(user)/shopping-lists/[id]/components/shopping-list-mobile-actions";
@@ -57,6 +58,7 @@ export default function ShoppingListActionButtons({
         title="Obriši popis za kupnju"
         description={`Sigurno želiš obrisati popis "${shoppingList.title}"? Ova akcija se ne može poništiti.`}
         confirmLabel="Obriši"
+        confirmLoadingLabel={LOADING_LABELS.deleting}
         variant="destructive"
         onConfirm={handleConfirmDelete}
         isLoading={isDeleting}

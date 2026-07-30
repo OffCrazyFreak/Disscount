@@ -23,6 +23,7 @@ import { shoppingListService } from "@/lib/api";
 import { applyProblemToForm } from "@/lib/api/problem-details";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { takeModalError } from "@/lib/modal/modal-error-bus";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import { getFormDraft } from "@/utils/browser/local-storage";
 import { useShoppingListModal } from "@/app/(user)/shopping-lists/hooks/use-shopping-list-modal";
@@ -127,6 +128,9 @@ export default function ShoppingListModal({
       dirty={isDirty}
       formId="shopping-list-form"
       submitLabel={isEdit ? "Spremi" : "Stvori"}
+      submitLoadingLabel={
+        isEdit ? LOADING_LABELS.saving : LOADING_LABELS.creating
+      }
       submitIcon={Save}
       submitLoading={isLoading}
       submitDisabled={!isDirty || !isValid || notFound || loadError}

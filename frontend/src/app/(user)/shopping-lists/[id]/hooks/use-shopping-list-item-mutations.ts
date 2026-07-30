@@ -11,6 +11,7 @@ export function useShoppingListItemMutations(
 ) {
   const queryClient = useQueryClient();
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
+  const [updatingItemId, setUpdatingItemId] = useState<string | null>(null);
 
   const updateItemMutation = shoppingListService.useUpdateShoppingListItem();
   const deleteItemMutation = shoppingListService.useDeleteShoppingListItem();
@@ -33,6 +34,8 @@ export function useShoppingListItemMutations(
 
     // Validate amount
     if (updatedItem.amount < 1) return;
+
+    setUpdatingItemId(itemId);
 
     // Optimistic update
     await queryClient.cancelQueries({ queryKey: ["shoppingLists", listId] });
@@ -102,6 +105,8 @@ export function useShoppingListItemMutations(
             error.message || "Greška pri ažuriranju stavke. Pokušaj ponovno.",
           );
         },
+        // Clears the busy flag only; dev deliberately dropped the invalidation here.
+        onSettled: () => setUpdatingItemId(null),
       },
     );
   };
@@ -153,5 +158,6 @@ export function useShoppingListItemMutations(
     handleUpdateItem,
     handleDeleteItem,
     deletingItemId,
+    updatingItemId,
   };
 }

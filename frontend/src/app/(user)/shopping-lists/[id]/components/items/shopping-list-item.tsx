@@ -16,6 +16,7 @@ interface IShoppingListItemProps {
   onUpdate: (updatedItem: IShoppingListItemUpdate) => void;
   onDelete: () => void;
   isDeleting: boolean;
+  isUpdating: boolean;
   cheapestStore?: string;
   averagePrice?: number;
   storePrices: Record<string, number>;
@@ -29,6 +30,7 @@ export default function ShoppingListItem({
   onUpdate,
   onDelete,
   isDeleting,
+  isUpdating,
   cheapestStore,
   averagePrice,
   storePrices,
@@ -96,7 +98,11 @@ export default function ShoppingListItem({
             <div className="flex items-center justify-between gap-6">
               <ItemPriceDisplay item={item} averagePrice={averagePrice} />
 
-              <ItemAmountControls item={item} onUpdate={onUpdate} />
+              <ItemAmountControls
+                item={item}
+                onUpdate={onUpdate}
+                isUpdating={isUpdating}
+              />
             </div>
 
             {/* Store Chain Select */}

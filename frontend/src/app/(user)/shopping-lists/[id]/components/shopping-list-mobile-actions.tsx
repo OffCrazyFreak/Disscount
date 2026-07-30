@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,7 +57,9 @@ export default function ShoppingListMobileActions({
               ) : (
                 <Share2 className="size-6" />
               )}
-              <span>Podijeli popis</span>
+              <span>
+                {isSharing ? LOADING_LABELS.sharing : "Podijeli popis"}
+              </span>
             </DropdownMenuItem>
           )}
 
@@ -73,7 +76,9 @@ export default function ShoppingListMobileActions({
               ) : (
                 <Copy className="size-6" />
               )}
-              <span>Kopiraj popis</span>
+              <span>
+                {isCopying ? LOADING_LABELS.copying : "Kopiraj popis"}
+              </span>
             </DropdownMenuItem>
           )}
 
@@ -100,7 +105,9 @@ export default function ShoppingListMobileActions({
               ) : (
                 <Trash2 className="size-6 text-red-600" />
               )}
-              <span>Obriši popis</span>
+              <span>
+                {isDeleting ? LOADING_LABELS.deleting : "Obriši popis"}
+              </span>
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>
