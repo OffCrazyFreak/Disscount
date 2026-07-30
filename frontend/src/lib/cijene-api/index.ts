@@ -21,6 +21,7 @@ import {
 
 export * from "@/lib/cijene-api/queries";
 export * from "@/lib/cijene-api/query-hooks";
+export { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 
 const cijeneService = {
   listChains,

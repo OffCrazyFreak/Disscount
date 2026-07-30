@@ -2,6 +2,7 @@ import { onlineManager, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { shoppingListService } from "@/lib/api";
+import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import type { ShoppingListDto, ShoppingListRequest } from "@/lib/api/types";
 import { stashModalError } from "@/lib/modal/modal-error-bus";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
@@ -42,7 +43,9 @@ export function useShoppingListModal({
       }
 
       removeFormDraft(draftKey);
-      await queryClient.invalidateQueries({ queryKey: ["shoppingLists"] });
+      await queryClient.invalidateQueries({
+        queryKey: SHOPPING_LIST_QUERY_KEYS.all,
+      });
     } catch (error) {
       stashModalError(draftKey, error);
       openModalUrl(

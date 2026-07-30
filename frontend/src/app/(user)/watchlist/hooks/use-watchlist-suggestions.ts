@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import { useQueries } from "@tanstack/react-query";
-import { shoppingListService } from "@/lib/api";
-import { getProductByEan, productByEanQueryKey } from "@/lib/cijene-api";
+import { shoppingListQueries } from "@/lib/api/shopping-lists/hooks";
+import { useAuthedQuery } from "@/lib/query/use-authed-query";
+import { useProductsByEans } from "@/lib/cijene-api/use-products-by-eans";
 import { filterByFields } from "@/utils/generic";
 import {
   calculateDiscountInfo,
@@ -25,10 +25,8 @@ export function useWatchlistSuggestions({
   hasPinnedStores,
   isAuthenticated,
 }: IUseWatchlistSuggestionsParams) {
-  const { data: shoppingListItems = [], isLoading: shoppingListItemsLoading } =
-    shoppingListService.useGetAllUserShoppingListItems({
-      enabled: isAuthenticated,
-    });
+  const { data: shoppingListItems = [], pending: shoppingListItemsLoading } =
+    useAuthedQuery(shoppingListQueries.myItems());
 
   const suggestionProductApiIds = useMemo(() => {
     const uniqueProductApiIds = new Set<string>();
@@ -69,15 +67,10 @@ export function useWatchlistSuggestions({
     return occurrenceMap;
   }, [shoppingListItems, watchedProductApiIds]);
 
-  const suggestionProductQueries = useQueries({
-    queries: suggestionProductApiIds.map((productApiId) => ({
-      // Shared key with the product page/modal, so a suggestion is a cache hit, not a refetch.
-      queryKey: productByEanQueryKey(productApiId),
-      queryFn: () => getProductByEan({ ean: productApiId }),
-      enabled: Boolean(productApiId) && isAuthenticated,
-      staleTime: 6 * 60 * 60 * 1000,
-    })),
-  });
+  const { results: suggestionProductQueries } = useProductsByEans(
+    suggestionProductApiIds,
+    { enabled: isAuthenticated },
+  );
 
   const suggestionItems = useMemo<IWatchlistItemWithProduct[]>(() => {
     return suggestionProductApiIds.map((productApiId, index) => {
@@ -92,7 +85,7 @@ export function useWatchlistSuggestions({
         discountInfo: product
           ? calculateDiscountInfo(product, pinnedStoreChainCodes)
           : null,
-        isLoading: productQuery?.isLoading ?? false,
+        isLoading: productQuery?.isPending ?? false,
         error: queryError instanceof Error ? queryError : null,
       };
     });

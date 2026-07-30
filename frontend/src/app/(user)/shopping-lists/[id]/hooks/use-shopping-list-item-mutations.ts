@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { shoppingListService } from "@/lib/api";
+import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 
 export function useShoppingListItemMutations(
@@ -23,10 +24,9 @@ export function useShoppingListItemMutations(
       chainCode: string | null;
     },
   ) => {
-    const shoppingList = queryClient.getQueryData<ShoppingList>([
-      "shoppingLists",
-      listId,
-    ]);
+    const shoppingList = queryClient.getQueryData<ShoppingList>(
+      SHOPPING_LIST_QUERY_KEYS.byId(listId),
+    );
 
     const item = shoppingList?.items?.find((i) => i.id === itemId);
     if (!item) return;
@@ -35,14 +35,15 @@ export function useShoppingListItemMutations(
     if (updatedItem.amount < 1) return;
 
     // Optimistic update
-    await queryClient.cancelQueries({ queryKey: ["shoppingLists", listId] });
-    const previousData = queryClient.getQueryData<ShoppingList>([
-      "shoppingLists",
-      listId,
-    ]);
+    await queryClient.cancelQueries({
+      queryKey: SHOPPING_LIST_QUERY_KEYS.byId(listId),
+    });
+    const previousData = queryClient.getQueryData<ShoppingList>(
+      SHOPPING_LIST_QUERY_KEYS.byId(listId),
+    );
 
     queryClient.setQueryData<ShoppingList | undefined>(
-      ["shoppingLists", listId],
+      SHOPPING_LIST_QUERY_KEYS.byId(listId),
       (old) => {
         if (!old) return old;
         return {
@@ -96,7 +97,10 @@ export function useShoppingListItemMutations(
       {
         onError: (error: Error) => {
           if (previousData) {
-            queryClient.setQueryData(["shoppingLists", listId], previousData);
+            queryClient.setQueryData(
+              SHOPPING_LIST_QUERY_KEYS.byId(listId),
+              previousData,
+            );
           }
           toast.error(
             error.message || "Greška pri ažuriranju stavke. Pokušaj ponovno.",
@@ -110,14 +114,15 @@ export function useShoppingListItemMutations(
     setDeletingItemId(itemId);
 
     // Optimistic update
-    await queryClient.cancelQueries({ queryKey: ["shoppingLists", listId] });
-    const previousData = queryClient.getQueryData<ShoppingList>([
-      "shoppingLists",
-      listId,
-    ]);
+    await queryClient.cancelQueries({
+      queryKey: SHOPPING_LIST_QUERY_KEYS.byId(listId),
+    });
+    const previousData = queryClient.getQueryData<ShoppingList>(
+      SHOPPING_LIST_QUERY_KEYS.byId(listId),
+    );
 
     queryClient.setQueryData<ShoppingList | undefined>(
-      ["shoppingLists", listId],
+      SHOPPING_LIST_QUERY_KEYS.byId(listId),
       (old) => {
         if (!old) return old;
         return {
@@ -133,7 +138,10 @@ export function useShoppingListItemMutations(
       {
         onError: (error: Error) => {
           if (previousData) {
-            queryClient.setQueryData(["shoppingLists", listId], previousData);
+            queryClient.setQueryData(
+              SHOPPING_LIST_QUERY_KEYS.byId(listId),
+              previousData,
+            );
           }
           toast.error(
             error.message || "Greška pri brisanju stavke. Pokušaj ponovno.",

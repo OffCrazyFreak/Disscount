@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
-import { useQueries } from "@tanstack/react-query";
-import { watchlistService } from "@/lib/api";
-import { getProductByEan, productByEanQueryKey } from "@/lib/cijene-api";
+import { watchlistQueries } from "@/lib/api/watchlist/hooks";
+import { useAuthedQuery } from "@/lib/query/use-authed-query";
+import { useProductsByEans } from "@/lib/cijene-api/use-products-by-eans";
 import { useUser } from "@/context/user-context";
 import {
   extractPinnedStoreChainCodes,
@@ -18,9 +18,10 @@ export function useWatchlistNotifications(): INotificationsContext {
     setOpenMenuSignal((signal) => signal + 1);
   }, []);
 
-  // Gate the watchlist query - avoids hitting /api/watchlist/me (and /api/auth/token) when logged out
-  const { data: watchlistItems = [], isLoading: watchlistLoading } =
-    watchlistService.useGetCurrentUserWatchlist({ enabled: isAuthenticated });
+  // useAuthedQuery gates on the session, so /api/watchlist/me (and
+  // /api/auth/token behind it) is never hit while logged out.
+  const { data: watchlistItems = [], pending: watchlistLoading } =
+    useAuthedQuery(watchlistQueries.me());
 
   const groupedWatchlistItems = useMemo(
     () => groupWatchlistItemsByProduct(watchlistItems),
@@ -34,15 +35,11 @@ export function useWatchlistNotifications(): INotificationsContext {
 
   const hasPinnedStores = pinnedStoreChainCodes.length > 0;
 
-  // Progressive loading: fetch product data per grouped product
-  const productQueries = useQueries({
-    queries: groupedWatchlistItems.map((item) => ({
-      queryKey: productByEanQueryKey(item.productApiId),
-      queryFn: () => getProductByEan({ ean: item.productApiId }),
-      enabled: !!item.productApiId && isAuthenticated,
-      staleTime: 6 * 60 * 60 * 1000, // 6 hours
-    })),
-  });
+  // Progressive loading: one request per grouped product.
+  const { results: productQueries } = useProductsByEans(
+    groupedWatchlistItems.map((item) => item.productApiId),
+    { enabled: isAuthenticated },
+  );
 
   const productQueriesStateKey = productQueries
     .map(

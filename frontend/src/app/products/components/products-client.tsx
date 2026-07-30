@@ -13,7 +13,18 @@ import { Suspense } from "react";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import AsyncSection from "@/components/custom/common/async-section";
+import ErrorState from "@/components/custom/common/error-state";
+import CountSkeleton from "@/components/custom/skeleton/count-skeleton";
+import RepeatSkeleton from "@/components/custom/skeleton/repeat-skeleton";
+import ProductCardSkeleton from "@/components/custom/product/product-card-skeleton";
+import { useDataPending } from "@/lib/query/use-data-pending";
+import {
+  useRememberedRowCount,
+  useRememberRowCount,
+} from "@/hooks/use-remembered-row-count";
+
+const ROW_COUNT_KEY = "products:results";
 
 interface IProductsClientProps {
   query: string;
@@ -44,6 +55,18 @@ export default function ProductsClient({ query }: IProductsClientProps) {
   // A location filter is set but the city -> chains mapping is still loading
   const waitingForLocations = Boolean(query) && !locationsReady;
 
+  // Results only exist once a query is typed, so an empty search box is not a
+  // pending state, it is the prompt below.
+  const pending = useDataPending(
+    Boolean(query) && (isLoading || waitingForLocations),
+  );
+
+  const rows = useRememberedRowCount(ROW_COUNT_KEY, 6);
+  useRememberRowCount(
+    ROW_COUNT_KEY,
+    query ? visibleProducts.length : undefined,
+  );
+
   return (
     <div className="space-y-4">
       <Suspense fallback={<SearchBarSkeleton />}>
@@ -59,90 +82,100 @@ export default function ProductsClient({ query }: IProductsClientProps) {
 
       <div className="flex items-center justify-between gap-4">
         <h3>
-          {query.length > 0 &&
-            `Rezultati pretrage za "${query}"${
-              isLoading || waitingForLocations
-                ? ""
-                : ` (${total}${isTruncated ? "+" : ""})`
-            }`}
+          {query.length > 0 && (
+            <>
+              {`Rezultati pretrage za "${query}" `}
+
+              {/* A pill rather than a number, so the heading never shows 0
+                  results for a search that is about to return some. */}
+              {pending ? (
+                <CountSkeleton />
+              ) : (
+                `(${total}${isTruncated ? "+" : ""})`
+              )}
+            </>
+          )}
         </h3>
 
         {/* TODO: re-enable with personalisable list views (see view-switcher.tsx) */}
         {/* <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} /> */}
       </div>
 
-      {isLoading || waitingForLocations ? (
-        <div className="flex items-center justify-center py-12">
-          <BlockLoadingSpinner />
-        </div>
-      ) : error ? (
-        <div className="text-center py-12">
-          <Search className="size-12 text-red-700 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-foreground mb-2">
-            Greška pri pretraživanju
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Došlo je do greške pri dohvaćanju podataka. Pokušaj ponovo.
-          </p>
-        </div>
-      ) : query && total === 0 && activeFilterCount > 0 ? (
-        <div>
+      <AsyncSection
+        pending={pending}
+        error={error}
+        errorState={
+          <ErrorState
+            icon={<Search className="size-12 text-red-700 mx-auto mb-4" />}
+            title="Greška pri pretraživanju"
+            fallbackMessage="Došlo je do greške pri dohvaćanju podataka. Pokušaj ponovo."
+          />
+        }
+        skeleton={
+          <RepeatSkeleton className="space-y-4" count={rows}>
+            <ProductCardSkeleton />
+          </RepeatSkeleton>
+        }
+      >
+        {query && total === 0 && activeFilterCount > 0 ? (
+          <div>
+            <NoResults
+              icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
+              description="Nema rezultata za odabrane filtere"
+            />
+            <div className="text-center">
+              <Button type="button" variant="outline" onClick={clearFilters}>
+                Očisti filtere
+              </Button>
+            </div>
+          </div>
+        ) : query && total === 0 ? (
           <NoResults
             icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
-            description="Nema rezultata za odabrane filtere"
           />
-          <div className="text-center">
-            <Button type="button" variant="outline" onClick={clearFilters}>
-              Očisti filtere
-            </Button>
+        ) : query ? (
+          <>
+            <div
+              className={`${
+                viewMode !== "grid" || isMobile
+                  ? "space-y-4"
+                  : "grid grid-cols-2 sm:grid-cols-3 gap-4"
+              }`}
+            >
+              {visibleProducts.map((product) => (
+                <div
+                  key={product.ean}
+                  className={`${
+                    viewMode !== "grid" || isMobile ? "w-full" : "w-76"
+                  }`}
+                >
+                  <ProductItem product={product} />
+                </div>
+              ))}
+            </div>
+          </>
+        ) : activeFilterCount > 0 ? (
+          <div className="text-center py-12">
+            <SlidersHorizontal className="size-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">
+              Unesi pojam za pretragu
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Filteri su postavljeni, rezultati će se prikazati nakon pretrage
+            </p>
           </div>
-        </div>
-      ) : query && total === 0 ? (
-        <NoResults
-          icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
-        />
-      ) : query ? (
-        <>
-          <div
-            className={`${
-              viewMode !== "grid" || isMobile
-                ? "space-y-4"
-                : "grid grid-cols-2 sm:grid-cols-3 gap-4"
-            }`}
-          >
-            {visibleProducts.map((product) => (
-              <div
-                key={product.ean}
-                className={`${
-                  viewMode !== "grid" || isMobile ? "w-full" : "w-76"
-                }`}
-              >
-                <ProductItem product={product} />
-              </div>
-            ))}
+        ) : (
+          <div className="text-center py-12">
+            <Search className="size-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">
+              Pretraži proizvode
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Unesi naziv proizvoda koji tražiš
+            </p>
           </div>
-        </>
-      ) : activeFilterCount > 0 ? (
-        <div className="text-center py-12">
-          <SlidersHorizontal className="size-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-foreground mb-2">
-            Unesi pojam za pretragu
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Filteri su postavljeni, rezultati će se prikazati nakon pretrage
-          </p>
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <Search className="size-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-foreground mb-2">
-            Pretraži proizvode
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Unesi naziv proizvoda koji tražiš
-          </p>
-        </div>
-      )}
+        )}
+      </AsyncSection>
     </div>
   );
 }

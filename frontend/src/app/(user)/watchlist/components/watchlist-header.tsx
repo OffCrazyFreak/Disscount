@@ -1,10 +1,12 @@
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
+import CountSkeleton from "@/components/custom/skeleton/count-skeleton";
 import CreateDiscountedListButton from "@/app/(user)/watchlist/components/create-discounted-list-button";
 import { IWatchlistItemWithProduct } from "@/app/(user)/watchlist/utils/watchlist-utils";
 
 interface IWatchlistHeaderProps {
   query: string;
   itemCount: number;
+  /** False while the list is still loading: the count shows a pill, never 0. */
   showCount: boolean;
   pricesUpdatedAt: number;
   discountedItems: IWatchlistItemWithProduct[];
@@ -24,8 +26,10 @@ export default function WatchlistHeader({
       <div className="flex flex-col">
         <h3>
           {query.length > 0
-            ? `Rezultati pretrage za "${query}" (${itemCount})`
-            : `Praćeni proizvodi${showCount ? ` (${itemCount})` : ""}`}
+            ? `Rezultati pretrage za "${query}" `
+            : "Praćeni proizvodi "}
+
+          {showCount ? `(${itemCount})` : <CountSkeleton />}
         </h3>
 
         {pricesUpdatedAt > 0 && (

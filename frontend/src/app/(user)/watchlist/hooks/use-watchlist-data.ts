@@ -1,8 +1,8 @@
 import { useMemo } from "react";
-import { useQueries } from "@tanstack/react-query";
-import { watchlistService } from "@/lib/api";
+import { watchlistQueries } from "@/lib/api/watchlist/hooks";
+import { useAuthedQuery } from "@/lib/query/use-authed-query";
 import { useUser } from "@/context/user-context";
-import { getProductByEan, productByEanQueryKey } from "@/lib/cijene-api";
+import { useProductsByEans } from "@/lib/cijene-api/use-products-by-eans";
 import { filterByFields } from "@/utils/generic";
 import {
   calculateDiscountInfo,
@@ -18,8 +18,11 @@ import { useWatchlistSuggestions } from "@/app/(user)/watchlist/hooks/use-watchl
 
 export function useWatchlistData(query: string) {
   const { user, isAuthenticated, isLoading: userLoading } = useUser();
-  const { data: watchlistItems = [], isLoading: watchlistLoading } =
-    watchlistService.useGetCurrentUserWatchlist({ enabled: isAuthenticated });
+  const {
+    data: watchlistItems = [],
+    pending: watchlistLoading,
+    requiresAuth,
+  } = useAuthedQuery(watchlistQueries.me());
 
   const groupedWatchlistItems = useMemo(
     () => groupWatchlistItemsByProduct(watchlistItems),
@@ -34,26 +37,15 @@ export function useWatchlistData(query: string) {
 
   const hasPinnedStores = pinnedStoreChainCodes.length > 0;
 
-  const productQueries = useQueries({
-    queries: groupedWatchlistItems.map((item) => ({
-      // Same key the modal reads, so opening it is a cache hit, not a skeleton.
-      queryKey: productByEanQueryKey(item.productApiId),
-      queryFn: () => getProductByEan({ ean: item.productApiId }),
-      enabled: Boolean(item.productApiId) && isAuthenticated,
-      staleTime: 6 * 60 * 60 * 1000,
-    })),
-  });
-
-  const productsLoading = productQueries.some((query) => query.isLoading);
-
-  // Drives the "last synced" label.
-  const pricesUpdatedAt = useMemo(() => {
-    const timestamps = productQueries
-      .map((query) => query.dataUpdatedAt)
-      .filter((timestamp) => timestamp > 0);
-
-    return timestamps.length > 0 ? Math.max(...timestamps) : 0;
-  }, [productQueries]);
+  const {
+    results: productQueries,
+    pending: productsLoading,
+    // Drives the "last synced" label.
+    updatedAt: pricesUpdatedAt,
+  } = useProductsByEans(
+    groupedWatchlistItems.map((item) => item.productApiId),
+    { enabled: isAuthenticated },
+  );
 
   const enrichedItems = useMemo<IWatchlistItemWithProduct[]>(() => {
     return groupedWatchlistItems.map((groupedItem, index) => {
@@ -123,6 +115,7 @@ export function useWatchlistData(query: string) {
 
   return {
     isAuthenticated,
+    requiresAuth,
     userLoading,
     watchlistLoading,
     hasWatchedProducts,

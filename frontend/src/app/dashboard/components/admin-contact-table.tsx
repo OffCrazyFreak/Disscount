@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import TableSkeleton from "@/components/custom/skeleton/table-skeleton";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -22,9 +22,10 @@ import {
 import AdminContactRow from "@/app/dashboard/components/admin-contact-row";
 import AdminContactDetail from "@/app/dashboard/components/admin-contact-detail";
 import { useContactInbox } from "@/app/dashboard/hooks/use-contact-inbox";
-import { contactService } from "@/lib/api";
 import { ContactMessageDto } from "@/lib/api/types";
 import { filterByFields } from "@/utils/generic";
+import { contactQueries } from "@/lib/api/contact/hooks";
+import { useAuthedQuery } from "@/lib/query/use-authed-query";
 
 type InboxView = "all" | "unread";
 
@@ -44,8 +45,11 @@ export default function AdminContactTable() {
   const [showDeleted, setShowDeleted] = useState(false);
   const [detail, setDetail] = useState<ContactMessageDto | null>(null);
 
-  const { data, isLoading, isError } =
-    contactService.useGetContactMessages(showDeleted);
+  const {
+    data,
+    pending: isLoading,
+    isError,
+  } = useAuthedQuery(contactQueries.list(showDeleted));
   const inbox = useContactInbox();
 
   const messages = useMemo(() => {
@@ -59,11 +63,7 @@ export default function AdminContactTable() {
   }, [data, view, search]);
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center py-12">
-        <BlockLoadingSpinner size={24} />
-      </div>
-    );
+    return <TableSkeleton columns={5} />;
   }
 
   if (isError) {

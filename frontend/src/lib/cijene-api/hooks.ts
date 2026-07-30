@@ -71,6 +71,8 @@ import { useQueries } from "@tanstack/react-query";
 import { formatDate } from "@/utils/strings";
 import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";
 import type { IUsePriceHistoryArgs } from "@/lib/cijene-api/hooks-types";
+import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
+import { CACHE_TIMES } from "@/lib/query/cache-times";
 import { buildDateWindow } from "@/utils/date";
 import { PRICE_ARCHIVE_START } from "@/constants/price-history";
 
@@ -90,13 +92,14 @@ export function usePriceHistory({ ean, days = 7 }: IUsePriceHistoryArgs) {
 
   const queries = useQueries({
     queries: dates.map((date, index) => ({
-      queryKey: ["cijene", "product", "history", ean, date],
+      queryKey: CIJENE_QUERY_KEYS.productHistory(ean, date),
       queryFn: () => cijeneService.getProductByEan({ ean, date }),
       enabled: !!ean,
+      // Only the window's edges can still be revised upstream.
       staleTime:
         index === 0 || index === dates.length - 1
-          ? 60 * 1000
-          : 6 * 60 * 60 * 1000,
+          ? CACHE_TIMES.priceHistoryEdge
+          : CACHE_TIMES.priceHistoryArchived,
     })),
   });
 

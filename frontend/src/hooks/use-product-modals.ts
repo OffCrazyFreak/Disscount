@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { productByEanQueryKey } from "@/lib/cijene-api";
+import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import {
   openModalUrl,
@@ -17,7 +17,10 @@ export default function useProductModals(product: ProductResponse) {
   const queryClient = useQueryClient();
 
   function seed() {
-    queryClient.setQueryData(productByEanQueryKey(product.ean), product);
+    queryClient.setQueryData(
+      CIJENE_QUERY_KEYS.productByEan({ ean: product.ean }),
+      product,
+    );
   }
 
   function openAddToList(options?: IOpenModalOptions) {

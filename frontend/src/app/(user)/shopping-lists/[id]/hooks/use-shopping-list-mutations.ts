@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { shoppingListService } from "@/lib/api";
+import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import type {
   ShoppingListDto as ShoppingList,
   ShoppingListRequest,
@@ -22,13 +23,12 @@ export function useShoppingListMutations(
 
   const confirmDelete = async () => {
     // Prepare optimistic update: remove item from cache immediately
-    await queryClient.cancelQueries({ queryKey: ["shoppingLists", "me"] });
-    const previous = queryClient.getQueryData<ShoppingList[]>([
-      "shoppingLists",
-      "me",
-    ]);
+    await queryClient.cancelQueries({ queryKey: SHOPPING_LIST_QUERY_KEYS.me });
+    const previous = queryClient.getQueryData<ShoppingList[]>(
+      SHOPPING_LIST_QUERY_KEYS.me,
+    );
     queryClient.setQueryData<ShoppingList[] | undefined>(
-      ["shoppingLists", "me"],
+      SHOPPING_LIST_QUERY_KEYS.me,
       (old: ShoppingList[] | undefined) =>
         old ? old.filter((l) => l.id !== listId) : [],
     );
@@ -38,7 +38,7 @@ export function useShoppingListMutations(
       onError: (error: Error) => {
         // Rollback cache so UI reflects server state
         if (previous) {
-          queryClient.setQueryData(["shoppingLists", "me"], previous);
+          queryClient.setQueryData(SHOPPING_LIST_QUERY_KEYS.me, previous);
         }
         toast.error(
           error.message ||
@@ -47,11 +47,15 @@ export function useShoppingListMutations(
       },
       onSuccess: () => {
         toast.success("Popis za kupnju je uspješno obrisan!");
-        queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
+        queryClient.invalidateQueries({
+          queryKey: SHOPPING_LIST_QUERY_KEYS.me,
+        });
         router.push("/shopping-lists");
       },
       onSettled: () => {
-        queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
+        queryClient.invalidateQueries({
+          queryKey: SHOPPING_LIST_QUERY_KEYS.me,
+        });
       },
     });
   };
@@ -97,7 +101,7 @@ export function useShoppingListMutations(
 
       // Invalidate queries to refresh data
       await queryClient.invalidateQueries({
-        queryKey: ["shoppingLists"],
+        queryKey: SHOPPING_LIST_QUERY_KEYS.all,
       });
 
       // Show success toast

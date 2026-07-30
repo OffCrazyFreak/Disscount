@@ -1,39 +1,12 @@
-import { useMutation } from "@tanstack/react-query";
-import apiClient from "@/lib/api/api-base";
-import { UserDto, UserRequest, userRequestSchema } from "@/lib/api/types";
+import * as queries from "@/lib/api/users/queries";
+import * as hooks from "@/lib/api/users/hooks";
 
-const USERS_BASE_PATH = "/api/users";
-
-export async function getCurrentUser(): Promise<UserDto> {
-  const response = await apiClient.get<UserDto>(`${USERS_BASE_PATH}/me`);
-  return response.data;
-}
-
-export async function updateCurrentUser(data: UserRequest): Promise<UserDto> {
-  const validatedData = userRequestSchema.parse(data);
-
-  const response = await apiClient.patch<UserDto>(
-    `${USERS_BASE_PATH}/me`,
-    validatedData,
-  );
-  return response.data;
-}
-
-export async function deleteCurrentUser(): Promise<void> {
-  await apiClient.delete(`${USERS_BASE_PATH}/me`);
-}
-
-export function useUpdateCurrentUser() {
-  return useMutation<UserDto, Error, UserRequest>({
-    mutationFn: updateCurrentUser,
-  });
-}
+export * from "@/lib/api/users/queries";
+export * from "@/lib/api/users/hooks";
 
 const userService = {
-  getCurrentUser,
-  updateCurrentUser,
-  deleteCurrentUser,
-  useUpdateCurrentUser,
+  ...queries,
+  ...hooks,
 };
 
 export default userService;
