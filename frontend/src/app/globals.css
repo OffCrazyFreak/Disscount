@@ -568,6 +568,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Skeletons use Tailwind's animate-pulse, which no rule above covers. They
+     stay visible, just static, which is what reduced motion asks for. */
+  [data-slot="skeleton"] {
+    animation: none;
+  }
   .spinner_9y7u {
     animation: none;
   }
