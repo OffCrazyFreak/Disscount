@@ -46,6 +46,9 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
+                // Shared lists authorize on the share token plus ShoppingListAccessService,
+                // not on the filter chain, because the caller may legitimately be anonymous.
+                .requestMatchers("/api/shared/**").permitAll()
                 .requestMatchers(
                     "/actuator/health",
                     "/v3/api-docs/**",
