@@ -22,6 +22,7 @@ import { useFormDraft } from "@/hooks/use-form-draft";
 import { getFormDraft } from "@/utils/browser/local-storage";
 import { useUser } from "@/context/user-context";
 import { GITHUB_REPO_URL } from "@/constants/contact";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 
 const EMPTY_VALUES: ContactMessageRequest = {
   email: "",
@@ -107,6 +108,7 @@ export default function ContactModal({ open }: IContactModalProps) {
       submitLabel="Pošalji poruku"
       submitIcon={Send}
       submitLoading={createMessage.isPending}
+      submitLoadingLabel={LOADING_LABELS.sending}
       submitDisabled={!form.formState.isValid}
       cancelLabel="Odustani"
       resetLabel="Resetiraj"

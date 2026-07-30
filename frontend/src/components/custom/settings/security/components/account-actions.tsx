@@ -5,6 +5,7 @@ import { LogOut, MonitorSmartphone, Trash2, TriangleAlert } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import SettingRow from "@/components/custom/settings/ui/setting-row";
 import { useSecurityActions } from "@/components/custom/settings/security/security-actions";
 
@@ -77,6 +78,7 @@ export default function AccountActions() {
         title="Odjaviti ostale uređaje?"
         description="Sve aktivne prijave osim ove trenutne bit će zatvorene."
         confirmLabel="Odjavi"
+        confirmLoadingLabel={LOADING_LABELS.signingOut}
         onConfirm={confirmRevoke}
         isLoading={revoking}
       />
@@ -88,6 +90,7 @@ export default function AccountActions() {
         title="Obrisati račun?"
         description="Tvoj račun i svi povezani podaci bit će nepovratno obrisani."
         confirmLabel="Obriši"
+        confirmLoadingLabel={LOADING_LABELS.deleting}
         onConfirm={deleteAccount}
         isLoading={deleting}
       />

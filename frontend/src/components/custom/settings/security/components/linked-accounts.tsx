@@ -12,6 +12,7 @@ import GoogleIcon from "@/components/icons/google-icon";
 import FacebookIcon from "@/components/icons/facebook-icon";
 import { authClient } from "@/lib/auth/client";
 import { FACEBOOK_COMING_SOON } from "@/constants/auth";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import { useSecurity } from "@/components/custom/settings/security/security-context";
 
 type SocialProvider = "google" | "facebook";
@@ -93,7 +94,10 @@ export default function LinkedAccounts() {
                     variant="outline"
                     icon={Unlink}
                     iconPlacement="left"
-                    disabled={onlyMethod || pending === id}
+                    disabled={onlyMethod}
+                    loading={pending === id}
+                    loadingText={LOADING_LABELS.unlinking}
+                    loadingIconPlacement="left"
                     onClick={() => unlink(id, linked.accountId)}
                   >
                     Odspoji
@@ -103,7 +107,10 @@ export default function LinkedAccounts() {
                     type="button"
                     icon={Link2}
                     iconPlacement="left"
-                    disabled={comingSoon || pending === id}
+                    disabled={comingSoon}
+                    loading={pending === id}
+                    loadingText={LOADING_LABELS.linking}
+                    loadingIconPlacement="left"
                     onClick={() => link(id)}
                   >
                     Poveži

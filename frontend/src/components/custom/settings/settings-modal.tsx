@@ -19,6 +19,7 @@ import { dirtySections } from "@/components/custom/settings/settings-dirty";
 import { useSettingsUi } from "@/components/custom/settings/settings-context";
 import { useSecurity } from "@/components/custom/settings/security/security-context";
 import { CREDENTIALS_FORM_ID } from "@/components/custom/settings/security/components/credentials-form";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import ProfileTab from "@/components/custom/settings/tabs/profile-tab";
 import NotificationsTab from "@/components/custom/settings/tabs/notifications-tab";
 import PreferencesTab from "@/components/custom/settings/tabs/preferences-tab";
@@ -68,6 +69,7 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
     formId: CREDENTIALS_FORM_ID,
     submitLabel: "Spremi",
     submitLoading: security.form.formState.isSubmitting,
+    submitLoadingLabel: LOADING_LABELS.saving,
     submitDisabled:
       !security.form.formState.isDirty || !security.form.formState.isValid,
     resetLabel: "Resetiraj",
@@ -80,6 +82,7 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
     formId: "settings-form",
     submitLabel: "Spremi",
     submitLoading: saving,
+    submitLoadingLabel: LOADING_LABELS.saving,
     submitDisabled: !anyDirty || !isReady,
     resetLabel: "Resetiraj",
     resetDisabled: !anyDirty,

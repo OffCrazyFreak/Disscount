@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useUser } from "@/context/user-context";
 import useSwipeHorizontal from "@/hooks/use-swipe-horizontal";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import { ONBOARDING_STEPS } from "@/components/custom/settings/onboarding/onboarding-steps";
 import WizardProgressDots from "@/components/custom/settings/onboarding/components/wizard-progress-dots";
 import WizardStepPanel from "@/components/custom/settings/onboarding/components/wizard-step-panel";
@@ -113,6 +114,8 @@ export default function OnboardingWizard({
                 type="button"
                 onClick={() => void finish()}
                 loading={saving}
+                loadingText={LOADING_LABELS.saving}
+                loadingIconPlacement="left"
                 disabled={busy}
                 icon={Check}
                 iconPlacement="left"
