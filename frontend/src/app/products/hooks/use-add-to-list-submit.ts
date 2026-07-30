@@ -19,9 +19,9 @@ interface IUseAddToListSubmitProps {
   draftKey: string;
   product: ProductResponse | undefined;
   lists: ShoppingListDto[];
-  customListTitle: string;
   pricing: IProductPricing;
   clearDraft: () => void;
+  resetForm: () => void;
 }
 
 export function useAddToListSubmit({
@@ -29,9 +29,9 @@ export function useAddToListSubmit({
   draftKey,
   product,
   lists,
-  customListTitle,
   pricing,
   clearDraft,
+  resetForm,
 }: IUseAddToListSubmitProps) {
   const router = useRouter();
   const createShoppingListMutation =
@@ -47,19 +47,19 @@ export function useAddToListSubmit({
     };
   }
 
-  async function resolveTargetList(selectedId: string) {
-    if (selectedId !== "new") {
-      const selected = lists.find((list) => list.id === selectedId);
+  async function resolveTargetList(data: AddToListFormData) {
+    if (data.shoppingListId !== "new") {
+      const selected = lists.find((list) => list.id === data.shoppingListId);
       return selected
         ? targetFromList(selected)
         : {
-            id: selectedId,
+            id: data.shoppingListId,
             name: "popis",
             isQuantityIncrease: false,
           };
     }
 
-    const title = customListTitle.trim();
+    const title = data.customListTitle.trim();
 
     if (title) {
       const created = await createShoppingListMutation.mutateAsync({
@@ -69,7 +69,7 @@ export function useAddToListSubmit({
       return { id: created.id, name: title, isQuantityIncrease: false };
     }
 
-    // A restored draft can keep "new" without its un-persisted title.
+    // An older restored draft can keep "new" without a persisted title.
     const newestList = lists[0];
     return newestList ? targetFromList(newestList) : null;
   }
@@ -80,7 +80,7 @@ export function useAddToListSubmit({
     closeModalUrl();
 
     try {
-      const target = await resolveTargetList(data.shoppingListId);
+      const target = await resolveTargetList(data);
 
       if (!target) {
         toast.error("Odaberi ili stvori popis za kupnju.");
@@ -94,6 +94,7 @@ export function useAddToListSubmit({
       });
 
       clearDraft();
+      resetForm();
       toast.success(
         target.isQuantityIncrease
           ? `Količina proizvoda je povećana u "${target.name}"`

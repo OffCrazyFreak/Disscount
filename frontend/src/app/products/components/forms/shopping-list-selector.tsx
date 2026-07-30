@@ -29,9 +29,8 @@ interface IShoppingListSelectorProps {
   formField: UseFormReturn<AddToListFormData>;
   isLoadingLists: boolean;
   sortedShoppingLists: ShoppingListDto[];
-  customListTitle: string;
-  setCustomListTitle: (title: string) => void;
   selectedList: ShoppingListDto | undefined;
+  onSelectList: (listId: string) => void;
   disabled?: boolean;
 }
 
@@ -39,12 +38,12 @@ export default function ShoppingListSelector({
   formField,
   isLoadingLists,
   sortedShoppingLists,
-  customListTitle,
-  setCustomListTitle,
   selectedList,
+  onSelectList,
   disabled = false,
 }: IShoppingListSelectorProps) {
   const [open, setOpen] = useState(false);
+  const customListTitle = formField.watch("customListTitle");
 
   return (
     <FormField
@@ -74,7 +73,11 @@ export default function ShoppingListSelector({
                 <CommandInput
                   placeholder="Pretraži svoje popise ili stvori novi..."
                   value={customListTitle}
-                  onValueChange={setCustomListTitle}
+                  onValueChange={(title) =>
+                    formField.setValue("customListTitle", title, {
+                      shouldDirty: true,
+                    })
+                  }
                 />
                 <CommandList>
                   <CommandEmpty>
@@ -92,7 +95,7 @@ export default function ShoppingListSelector({
                           list={list}
                           isSelected={selectedList?.id === list.id}
                           onSelect={() => {
-                            field.onChange(list.id);
+                            onSelectList(list.id);
                             setOpen(false);
                           }}
                         />
@@ -105,7 +108,7 @@ export default function ShoppingListSelector({
                       <CreateListOption
                         customListTitle={customListTitle}
                         onSelect={() => {
-                          field.onChange("new");
+                          onSelectList("new");
                           setOpen(false);
                         }}
                       />

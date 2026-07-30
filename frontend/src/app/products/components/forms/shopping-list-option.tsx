@@ -22,7 +22,7 @@ export default function ShoppingListOption({
   onSelect,
 }: IShoppingListOptionProps) {
   return (
-    <CommandItem value={list.id} onSelect={onSelect}>
+    <CommandItem value={list.id} keywords={[list.title]} onSelect={onSelect}>
       <ListChecks className={cn("size-4", isSelected && "text-primary")} />
       <TooltipProvider>
         <Tooltip>
