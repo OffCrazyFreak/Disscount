@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { digitalCardService } from "@/lib/api";
 import type { DigitalCardDto, DigitalCardRequest } from "@/lib/api/types";
 import { stashModalError } from "@/lib/modal/modal-error-bus";
+import { stashModalValues } from "@/lib/modal/modal-retry-bus";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import { removeFormDraft } from "@/utils/browser/local-storage";
 
@@ -45,6 +46,9 @@ export function useDigitalCardModal({
       await queryClient.invalidateQueries({ queryKey: ["digitalCards"] });
     } catch (error) {
       stashModalError(draftKey, error);
+      // The code is excluded from the draft, so without this the retry would come back
+      // empty and silently resubmit the old server value. Memory only, never disk.
+      stashModalValues(draftKey, { codeValue: data.codeValue });
       openModalUrl(
         digitalCard
           ? { name: "digital-card", action: "edit", id: digitalCard.id }

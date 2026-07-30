@@ -14,9 +14,10 @@ import {
   type DigitalCardFormData,
 } from "@/lib/api/schemas/digital-card";
 import { takeModalError } from "@/lib/modal/modal-error-bus";
+import { takeModalValues } from "@/lib/modal/modal-retry-bus";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useFormDraft } from "@/hooks/use-form-draft";
-import { getFormDraft } from "@/utils/browser/local-storage";
+import { getFormDraft, removeFormDraft } from "@/utils/browser/local-storage";
 import extractDominantColor from "@/utils/browser/extract-dominant-color";
 import CardNameField from "@/app/(user)/digital-cards/components/forms/card-name-field";
 import CardTypeField from "@/app/(user)/digital-cards/components/forms/card-type-field";
@@ -39,6 +40,16 @@ interface IDigitalCardModalProps {
   open: boolean;
   action: "new" | "edit";
   id?: string;
+}
+
+// Drafts written before the code was excluded still hold a card number under the old
+// "value" field. Deleting the whole key is safer than trusting the shape of a draft
+// written by a build we no longer have.
+function dropLegacyDraft(draftKey: string): void {
+  const draft = getFormDraft(draftKey)?.values;
+  if (draft && ("value" in draft || "codeValue" in draft)) {
+    removeFormDraft(draftKey);
+  }
 }
 
 const EMPTY_VALUES: DigitalCardFormData = {
@@ -86,6 +97,10 @@ export default function DigitalCardModal({
   // Draft precedence controls restore order; the isDirty guard is what stops a
   // reload from clobbering an in-progress edit.
   useEffect(() => {
+    dropLegacyDraft(draftKey);
+  }, [draftKey]);
+
+  useEffect(() => {
     if (!digitalCard || form.formState.isDirty) return;
 
     const base: DigitalCardFormData = {
@@ -117,11 +132,21 @@ export default function DigitalCardModal({
     exclude: ["codeValue"],
   });
 
-  // A failed optimistic save reopened this modal: surface the server error.
+  // A failed optimistic save reopened this modal: surface the server error and give back
+  // the code the user typed, which the draft deliberately never kept.
   useEffect(() => {
     if (!open) return;
+
     const error = takeModalError(draftKey);
     if (error) applyProblemToForm(error, form);
+
+    const retry = takeModalValues(draftKey);
+    if (typeof retry?.codeValue === "string") {
+      form.setValue("codeValue", retry.codeValue, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
   }, [open, draftKey, form]);
 
   const { onSubmit, isLoading: isSaving } = useDigitalCardModal({
