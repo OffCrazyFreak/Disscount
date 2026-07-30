@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { shoppingListService } from "@/lib/api";
@@ -32,14 +33,30 @@ export function useAddToListSubmit({
   pricing,
   clearDraft,
 }: IUseAddToListSubmitProps) {
+  const router = useRouter();
   const createShoppingListMutation =
     shoppingListService.useCreateShoppingList();
   const addItemMutation = shoppingListService.useAddItemToShoppingList();
 
+  function targetFromList(list: ShoppingListDto) {
+    return {
+      id: list.id,
+      name: list.title,
+      isQuantityIncrease:
+        list.items?.some((item) => item.name === product?.name) ?? false,
+    };
+  }
+
   async function resolveTargetList(selectedId: string) {
     if (selectedId !== "new") {
       const selected = lists.find((list) => list.id === selectedId);
-      return { id: selectedId, name: selected?.title || "popis" };
+      return selected
+        ? targetFromList(selected)
+        : {
+            id: selectedId,
+            name: "popis",
+            isQuantityIncrease: false,
+          };
     }
 
     const title = customListTitle.trim();
@@ -49,13 +66,12 @@ export function useAddToListSubmit({
         title,
         isPublic: false,
       });
-      toast.success(`Popis za kupnju "${title}" je stvoren`);
-      return { id: created.id, name: title };
+      return { id: created.id, name: title, isQuantityIncrease: false };
     }
 
     // A restored draft can keep "new" without its un-persisted title.
     const newestList = lists[0];
-    return newestList ? { id: newestList.id, name: newestList.title } : null;
+    return newestList ? targetFromList(newestList) : null;
   }
 
   // Optimistic close: the modal closes immediately and reopens only on failure.
@@ -78,7 +94,18 @@ export function useAddToListSubmit({
       });
 
       clearDraft();
-      toast.success(`Proizvod je dodan u "${target.name}"`);
+      toast.success(
+        target.isQuantityIncrease
+          ? `Količina proizvoda je povećana u "${target.name}"`
+          : `Proizvod je dodan u "${target.name}"`,
+        {
+          action: {
+            label: "Otvori",
+            onClick: () =>
+              router.push(`/shopping-lists/${encodeURIComponent(target.id)}`),
+          },
+        },
+      );
     } catch (error) {
       stashModalError(draftKey, error);
       openModalUrl({ name: "add-to-list", ean });
