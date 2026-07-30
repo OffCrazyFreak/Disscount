@@ -12,6 +12,7 @@ import {
   ChartNoAxesCombined,
   LayoutDashboard,
   Bug,
+  HeartHandshake,
   Mail,
   Package,
   House,
@@ -198,7 +199,7 @@ export const productNavItems: INavigationItem[] = [
   },
 ];
 
-// Feedback entry points, shared with the footer; coming-soon until their pages/modals ship.
+// Support entry points, shared with the footer; coming-soon until their pages/modals ship.
 export const supportNavItems: INavigationItem[] = [
   {
     id: "suggestions",
@@ -223,6 +224,14 @@ export const supportNavItems: INavigationItem[] = [
     href: "?modal=contact",
     label: "Kontakt",
     icon: Mail,
+
+    showInHeader: false,
+  },
+  {
+    id: "donate",
+    href: "?modal=donate",
+    label: "Podrži Disscount",
+    icon: HeartHandshake,
 
     showInHeader: false,
   },

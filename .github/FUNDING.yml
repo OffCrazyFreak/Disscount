@@ -1,8 +1,9 @@
 # Adds a "Sponsor" button to the repository.
 
-# Ko-fi (0% on one-time tips, best for a general-audience donate button).
+# Ko-fi can charge 0% on one-time tips when Contributor mode is disabled.
+# Payment processor fees still apply.
 ko_fi: disscount
 
-# GitHub Sponsors (0% fees, reaches developers). Needs bank/Stripe + approval.
-# Uncomment once the account is set up.
+# Uncomment after the GitHub Sponsors profile is approved and publicly available.
+# Personal-account sponsors have no GitHub fee. Organization sponsors can incur fees.
 # github: OffCrazyFreak
