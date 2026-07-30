@@ -11,6 +11,10 @@ export const OFFLINE_MUTATION_KEYS = {
   shoppingListItemDelete: ["shoppingLists", "items", "delete"],
   watchlistAdd: ["watchlist", "add"],
   watchlistRemove: ["watchlist", "remove"],
+  digitalCardCreate: ["digitalCards", "create"],
+  digitalCardUpdate: ["digitalCards", "update"],
+  digitalCardDelete: ["digitalCards", "delete"],
+  digitalCardSetPinned: ["digitalCards", "setPinned"],
 } as const satisfies Record<string, MutationKey>;
 
 const OFFLINE_MUTATION_KEY_HASHES = new Set(

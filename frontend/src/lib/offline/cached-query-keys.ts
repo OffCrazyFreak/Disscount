@@ -9,6 +9,7 @@ const PERSISTED_QUERY_KEY_PREFIXES = [
   "shoppingListItems",
   "watchlist",
   "digitalCards",
+  "storeNames", // community store-name suggestions, so the card form works offline
   "pinnedStores",
   "pinnedPlaces",
   "users", // current user profile (["users", "me"])
