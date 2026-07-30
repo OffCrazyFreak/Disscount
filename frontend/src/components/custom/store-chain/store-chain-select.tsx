@@ -95,9 +95,7 @@ export default function StoreChainSelect({
 
   return (
     <Select value={displayValue} onValueChange={onChange} disabled={disabled}>
-      <SelectTrigger
-        className={cn("min-w-0 h-9 text-xs sm:text-sm", className)}
-      >
+      <SelectTrigger className={cn("min-w-0 text-xs sm:text-sm", className)}>
         <SelectValue placeholder="Trgovina" />
       </SelectTrigger>
 

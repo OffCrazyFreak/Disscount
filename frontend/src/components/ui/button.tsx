@@ -88,10 +88,12 @@ const buttonVariants = cva(
         pulse: "before:animate-pulse motion-reduce:before:animate-none",
       },
       size: {
+        sm: "h-9 rounded-md px-3",
         default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3 py-4",
-        lg: "h-11 rounded-md px-8 py-6",
-        icon: "size-10",
+        lg: "h-11 rounded-md px-8 py-2",
+        "icon-sm": "size-9 [&_svg]:size-5",
+        icon: "size-10 [&_svg]:size-6",
+        "icon-lg": "size-11 [&_svg]:size-7",
       },
     },
     defaultVariants: {
@@ -100,6 +102,17 @@ const buttonVariants = cva(
     },
   },
 );
+
+const LABEL_FROM_CLASSES = {
+  sm: {
+    button: "sm:h-10 sm:w-auto sm:px-4 sm:[&_svg]:size-5",
+    label: "hidden sm:inline",
+  },
+  md: {
+    button: "md:h-10 md:w-auto md:px-4 md:[&_svg]:size-5",
+    label: "hidden md:inline",
+  },
+} as const;
 
 interface LoadingProps {
   loading?: boolean;
@@ -123,6 +136,8 @@ export interface ButtonProps
     React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  /** Keeps an icon-sized button below this breakpoint, then reveals its label. Pair with `aria-label`. */
+  labelFrom?: keyof typeof LABEL_FROM_CLASSES;
 }
 
 export type ButtonIconProps = IconProps | IconRefProps;
@@ -147,6 +162,7 @@ const Button = React.forwardRef<
       loadingIconPlacement = "right",
       hideIconOnLoading = true,
       asChild = false,
+      labelFrom,
       ...props
     },
     ref,
@@ -178,6 +194,7 @@ const Button = React.forwardRef<
             ringSpeed: ringAnimation,
             className,
           }),
+          labelFrom && LABEL_FROM_CLASSES[labelFrom].button,
         )}
         ref={ref}
         {...props}
@@ -203,7 +220,17 @@ const Button = React.forwardRef<
             <Icon className="size-5" />
           ))}
 
-        <Slottable>{loading ? loadingText : props.children}</Slottable>
+        <Slottable>
+          {labelFrom ? (
+            <span className={LABEL_FROM_CLASSES[labelFrom].label}>
+              {loading ? loadingText : props.children}
+            </span>
+          ) : loading ? (
+            loadingText
+          ) : (
+            props.children
+          )}
+        </Slottable>
 
         {loading && loadingIconPlacement === "right" && (
           <BlockLoadingSpinner size={18} className={cn("ml-2", spinnerColor)} />

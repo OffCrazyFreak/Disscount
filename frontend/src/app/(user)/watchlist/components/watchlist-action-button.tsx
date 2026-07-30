@@ -43,11 +43,11 @@ export default function WatchlistActionButton({
           disabled={isAddMode ? !hasProduct : isRemoving}
         >
           {isAddMode ? (
-            <Eye className="size-5 sm:size-6" />
+            <Eye />
           ) : isRemoving ? (
-            <BlockLoadingSpinner size={22} className="text-inherit" />
+            <BlockLoadingSpinner size={24} className="text-inherit" />
           ) : (
-            <X className="size-5 sm:size-6" />
+            <X />
           )}
         </Button>
       </TooltipTrigger>

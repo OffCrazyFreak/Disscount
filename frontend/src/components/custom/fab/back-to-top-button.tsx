@@ -20,9 +20,10 @@ const LABEL = "Natrag na vrh";
  * Returns a long, scrolled page to the top.
  *
  * Material's regular FAB is 56dp with a 24dp icon, held 24dp off the edge of a
- * desktop window. Those are explicit rem values because this project sets
- * --spacing to 0.2rem, so size-14 would render 44.8px, not the 56px the spec asks
- * for, which is how the previous 44.8px button and its 19.2px inset happened.
+ * desktop window. The 28px icon optically compensates for the empty space in
+ * Lucide's double-chevron view box. These are explicit rem values because this
+ * project sets --spacing to 0.2rem, so numeric size utilities render smaller
+ * than their usual pixel equivalents.
  *
  * Desktop only: on mobile the bottom nav's active tab does this, and the bar
  * already owns that corner. Mounted once in the root layout, so every page long
@@ -45,12 +46,12 @@ export default function BackToTopButton() {
             // alone leaves behind.
             inert={!isVisible}
             className={cn(
-              "pointer-events-auto size-[3.5rem] rounded-full shadow-lg",
+              "pointer-events-auto size-[3.5rem] rounded-full shadow-lg sm:size-[3.5rem] [&_svg]:size-[1.75rem]! sm:[&_svg]:size-[1.75rem]!",
               "transition duration-300 motion-reduce:transition-none",
               isVisible ? "scale-100 opacity-100" : "scale-75 opacity-0",
             )}
           >
-            <ChevronsUp className="size-[1.5rem]" />
+            <ChevronsUp />
           </Button>
         </TooltipTrigger>
 

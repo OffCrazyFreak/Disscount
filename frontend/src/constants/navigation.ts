@@ -12,8 +12,10 @@ import {
   ChartNoAxesCombined,
   LayoutDashboard,
   Bug,
+  HeartHandshake,
   Mail,
   Package,
+  House,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { isAdmin, type AccountType } from "@/lib/api/schemas/auth-user";
@@ -34,6 +36,15 @@ export interface INavigationItem {
   isCollapsible?: boolean; // Has sub-menu (Kategorije, Trgovine, Lokacije)
   children?: INavigationItem[]; // Nested items shown indented under this one
 }
+
+export const homeNavItem: INavigationItem = {
+  id: "home",
+  href: "/",
+  label: "Početna",
+  icon: House,
+
+  showInHeader: false,
+};
 
 // Lives in the desktop header, so the sidebar only surfaces it on mobile
 export const dashboardNavItem: INavigationItem = {
@@ -186,7 +197,7 @@ export const productNavItems: INavigationItem[] = [
   },
 ];
 
-// Feedback entry points, shared with the footer; coming-soon until their pages/modals ship.
+// Support entry points, shared with the footer; coming-soon until their pages/modals ship.
 export const supportNavItems: INavigationItem[] = [
   {
     id: "suggestions",
@@ -214,9 +225,18 @@ export const supportNavItems: INavigationItem[] = [
 
     showInHeader: false,
   },
+  {
+    id: "donate",
+    href: "?modal=donate",
+    label: "Podrži Disscount",
+    icon: HeartHandshake,
+
+    showInHeader: false,
+  },
 ];
 
 const ALL_NAV_ITEMS: INavigationItem[] = [
+  homeNavItem,
   dashboardNavItem,
   productsNavItem,
   ...userNavItems,

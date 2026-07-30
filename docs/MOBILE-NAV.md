@@ -2,7 +2,7 @@
 
 A complete reference for the mobile bottom navigation bar, its gestures, and the shared bottom-sheet shell it opens, written to be understandable even if you're new to this. Keep it up to date as the setup changes.
 
-_Last verified end-to-end on 2026-07-26 against `feat/mobile-bottom-nav`, measured in a real browser at 360x740 and 320x740. Still unverified on real iOS or Android hardware, see [§19](#19-future-improvements--todos)._
+_Last verified end-to-end on 2026-07-26 against `feat/mobile-bottom-nav`, measured in a real browser at 360x740 and 320x740. The persistent labels and `space-between` layout added on 2026-07-27 passed formatting and type checks but have not been remeasured in a browser. Still unverified on real iOS or Android hardware, see [§19](#19-future-improvements--todos)._
 
 > **Mental model in one sentence:** below the `md` breakpoint the app grows a five-cell **tab bar** pinned to the bottom of the screen, and that bar becomes the primary navigation a phone user needs, because the hamburger sidebar stays on as overflow, the create actions hang off **long presses**, and back-to-top becomes **re-tapping the tab you are already on**.
 
@@ -41,8 +41,8 @@ _Last verified end-to-end on 2026-07-26 against `feat/mobile-bottom-nav`, measur
 | Cells, left to right  | Karta (USKORO), Praćenje, Proizvodi (search), Popisi, Kartice (USKORO)                                                                                                                                                                                  |
 | USKORO cells          | disabled for everyone but admins, as in the sidebar                                                                                                                                                                                                     |
 | Bar height            | 72px of content, plus `env(safe-area-inset-bottom)`                                                                                                                                                                                                     |
-| Cell width (measured) | 65.8px at a 360px viewport, 57.8px at 320px                                                                                                                                                                                                             |
-| Icon / label          | 24px icon, 10.4px label, labels visible until the scroll compaction collapses them                                                                                                                                                                      |
+| Cell distribution     | five fixed 57.6px cells with the remaining horizontal room distributed between them                                                                                                                                                                     |
+| Icon / label          | 24px icon, 10.4px label, always visible                                                                                                                                                                                                                 |
 | Active indicator      | a 57.6px disc enclosing icon and label, sliding between cells and fading out on the search cell                                                                                                                                                         |
 | Surface               | a floating pill matching the scrolled header's translucent blurred treatment                                                                                                                                                                            |
 | z-index               | scroll fade 40, install banner 41, FAB 42, sheet scrim 43, bottom sheets 44, **bar 45**, dialogs and popovers 50, offline indicator 60. Tokens live in `globals.css`                                                                                    |
@@ -205,13 +205,13 @@ A floating pill, taking the scrolled header's treatment verbatim so the app's tw
 mx-[0.5rem] px-[0.4rem] rounded-full border backdrop-blur-sm
 ```
 
-The horizontal inset and inner padding are explicit rem values rather than spacing utilities, because of the `--spacing` trap in [§10](#10-layout-safe-areas-and-css-tokens). Together they hold the 57.6px active disc **11.5px** clear of the pill's edges at a 360px viewport and **7.5px** at 320px, so the first and last cell's disc never touches the border.
+The horizontal inset and inner padding are explicit rem values rather than spacing utilities, because of the `--spacing` trap in [§10](#10-layout-safe-areas-and-css-tokens). Each cell is fixed at the active disc's 57.6px width, and `justify-between` puts all remaining horizontal room between cells. The 0.4rem inner padding therefore keeps the first and last disc clear of the pill's border at every supported width.
 
 One trade-off, flagged and then accepted deliberately: this is a second blurred fixed layer over the header's own `backdrop-blur-sm`. Stacked blurs are Apple's "glass sandwich" and the main scroll-jank source on mid-range Android, so it is worth watching on real hardware.
 
-### Compaction on scroll
+### Surface change on scroll
 
-Once the page is scrolled, the labels fade and collapse and the surface's alpha drops from 50% to 45% of the background colour. That is the same trigger the header already uses via `useScrolledPast(50)`, but driven by a **scroll timeline**, so there is no scroll listener, no jank and no hydration behaviour:
+Once the page is scrolled, the surface's alpha drops from 50% to 45% of the background colour while every icon and label remains fully visible. That is the same trigger the header already uses via `useScrolledPast(50)`, but driven by a **scroll timeline**, so there is no scroll listener, no jank and no hydration behaviour:
 
 ```css
 @supports (animation-timeline: scroll()) {
@@ -225,11 +225,10 @@ Once the page is scrolled, the labels fade and collapse and the surface's alpha 
 }
 ```
 
-Three things to know:
+Two things to know:
 
-- The three animated values are registered with `@property`. **Unregistered custom properties animate discretely** and would snap at the halfway point instead of fading.
+- The animated surface alpha is registered with `@property`. **Unregistered custom properties animate discretely** and would snap at the halfway point instead of fading.
 - The bar's outer height never changes, so the pill does not resize mid-scroll and the page's padding never shifts.
-- It **compacts, it never hides.** Hiding navigation is the roughly 21% task-completion penalty this whole feature exists to avoid. Browsers without scroll-driven animations keep the full-size bar, which is the correct fallback.
 
 ---
 
@@ -518,21 +517,24 @@ The timer lives outside React because the bar and the product cards own very dif
 
 ## 9. Live state on the bar
 
-| Indicator                     | Source                                                        | Behaviour                                                             |
-| ----------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Badge on **Praćenje**         | `useNotifications()`, the same count the desktop header shows | only when the count is above zero                                     |
-| Completion ring on **Popisi** | `useGetShoppingListById`, keyed off the pathname              | only on `/shopping-lists/[id]`, and only for a list that has items    |
-| Active disc                   | `isRouteActive(pathname, item.href)`, or the scrubbed cell    | slides between cells via `layoutId`, and fades out on the search cell |
-| Chevron on the active icon    | `useTabReentry`                                               | only while a return position is held                                  |
+| Indicator                     | Source                                                                            | Behaviour                                                             |
+| ----------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Badge on **Praćenje**         | `useNotifications()`, the same count the desktop header shows                     | only when the count is above zero                                     |
+| Completion ring on **Popisi** | `useGetShoppingListById`, keyed off the pathname                                  | only on `/shopping-lists/[id]`, and only for a list that has items    |
+| Active disc                   | `isRouteActive(pathname, item.href)`, the scrubbed cell, or a settling navigation | slides between cells via `layoutId`, and fades out on the search cell |
+| Chevron on the active icon    | `useTabReentry`                                                                   | only while a return position is held                                  |
 
 Which cell renders the disc is one expression in `bottom-nav.tsx`:
 
 ```ts
+const previewedDisc =
+  previewIndex !== null && !cells[previewIndex].isLocked ? previewIndex : null;
+
 const discIndex =
-  scrubbedDisc ?? cells.findIndex((cell) => cell.isActive && !cell.isLocked);
+  previewedDisc ?? cells.findIndex((cell) => cell.isActive && !cell.isLocked);
 ```
 
-So a thumb borrows the disc while it scrubs, and the route takes it back on release. `isRouteActive` matches on a segment boundary, so a future `/watchlisting` could never light Praćenje.
+So a thumb borrows the disc while it scrubs. When release starts a route navigation, that destination keeps the disc until `usePathname()` changes, preventing the disc from returning briefly to the old route while `router.push()` settles. Search toggles, locked cells, active-tab re-entry, cancelled gestures and consumed long presses clear the preview immediately because none starts a route change. `isRouteActive` matches on a segment boundary, so a future `/watchlisting` could never light Praćenje.
 
 ### Why the disc fades on the search cell
 
@@ -592,17 +594,7 @@ Targets to hit: 72px content height, 24px icons, 10-11px labels, at least 48px o
 
 Worked out by measuring, not by eye. Labels are 10.4px, and the active one is **bold**, which widens it, so sizing the disc against an unbolded width leaves the active cell (the one you actually look at) touching its own edges. Re-measured after `Potrošnja` (45.9px unbolded) gave way to `Karta`: the widest unbolded is now `Praćenje` at 42px, and the widest bold is `Proizvodi` at 44.7px. So the constraint eased slightly and the 57.6px disc is unchanged.
 
-The resulting numbers, verified in the browser:
-
-| Measure                        | 360px viewport | 320px viewport |
-| ------------------------------ | -------------- | -------------- |
-| Cell width                     | 65.8px         | 57.8px         |
-| Disc                           | 57.6px         | 57.6px         |
-| Padding around the bold label  | 7.8px          | 7.8px          |
-| Padding inside the bar         | 7.2px          | 7.2px          |
-| Clearance from the pill's edge | 11.5px         | 7.5px          |
-
-At 320px the disc essentially fills its cell, which is fine because only one cell carries a disc at a time.
+Each cell and its disc are now 57.6px wide at every viewport. At 320px they nearly touch, while wider screens place the available room between them. The 0.4rem inner padding keeps the outer discs away from the pill border, and taps or scrubs in a distributed gap resolve to the nearest cell.
 
 ### Viewport changes this required
 
@@ -890,6 +882,8 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 **Padding on `<main>` does not protect the footer.** `<Footer>` renders _after_ main with `mt-auto`, so main's bottom padding sits above it and the bar covers the footer anyway. Measured before the fix: the footer's bottom edge at y=740 with the bar occupying 664-740, so its last 76px were unreachable. The clearance belongs on the shell wrapper.
 
 **Route match and activation are different questions.** `isActiveIndex` originally short-circuited on `!entry.isSearch`, so the centre cell could never be active and `/products` had no `aria-current` at all. It also lit up merely because the sheet opened, which is not a route change. Keep the styling predicate pure and let a separate flag decide behaviour.
+
+**Clearing the scrub preview before the route changes makes the disc bounce.** A pointer release used to clear `scrubIndex`, return the disc to the old active route, call `router.push()`, then move it to the destination after `usePathname()` updated. Activation now reports whether it started a navigation, and the pointer hook keeps that destination as a settling preview only until the pathname changes.
 
 **Bold widens the active label.** Sizing the active disc against the unbolded label leaves the active cell touching its own edges, and the active cell is the one you actually look at. Size against the widest label _once bold_.
 

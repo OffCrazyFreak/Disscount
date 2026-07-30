@@ -21,7 +21,7 @@ export default function HeaderNav() {
   const showDashboard = canAccessDashboard(user?.accountType);
 
   return (
-    <ul className="hidden md:flex gap-8 text-sm">
+    <ul className="mr-auto hidden gap-8 text-sm md:flex">
       {showDashboard ? (
         <HeaderNavItem
           item={dashboardNavItem}

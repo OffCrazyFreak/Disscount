@@ -41,7 +41,7 @@ export default function ShoppingListMobileActions({
             variant="primary"
             {...triggerProps}
           >
-            <MoreVertical className="size-6" />
+            <MoreVertical />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-max">
@@ -52,9 +52,9 @@ export default function ShoppingListMobileActions({
               disabled={isSharing}
             >
               {isSharing ? (
-                <BlockLoadingSpinner size={20} className="text-inherit" />
+                <BlockLoadingSpinner size={24} className="text-inherit" />
               ) : (
-                <Share2 className="size-5" />
+                <Share2 className="size-6" />
               )}
               <span>Podijeli popis</span>
             </DropdownMenuItem>
@@ -69,9 +69,9 @@ export default function ShoppingListMobileActions({
               disabled={isCopying}
             >
               {isCopying ? (
-                <BlockLoadingSpinner size={20} className="text-inherit" />
+                <BlockLoadingSpinner size={24} className="text-inherit" />
               ) : (
-                <Copy className="size-5" />
+                <Copy className="size-6" />
               )}
               <span>Kopiraj popis</span>
             </DropdownMenuItem>
@@ -82,7 +82,7 @@ export default function ShoppingListMobileActions({
               onSelect={onEdit}
               className="cursor-pointer flex items-center gap-4"
             >
-              <LucideClipboardEdit className="size-5" />
+              <LucideClipboardEdit className="size-6" />
               <span>Uredi popis</span>
             </DropdownMenuItem>
           )}
@@ -96,9 +96,9 @@ export default function ShoppingListMobileActions({
               disabled={isDeleting}
             >
               {isDeleting ? (
-                <BlockLoadingSpinner size={20} className="text-inherit" />
+                <BlockLoadingSpinner size={24} className="text-inherit" />
               ) : (
-                <Trash2 className="size-5 text-red-600" />
+                <Trash2 className="size-6 text-red-600" />
               )}
               <span>Obriši popis</span>
             </DropdownMenuItem>

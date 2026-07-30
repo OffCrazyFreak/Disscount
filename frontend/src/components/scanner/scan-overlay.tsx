@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 
 // Replaces the library's own finder, which scanner.css hides.
 const CORNERS = [
@@ -11,8 +12,13 @@ const CORNERS = [
 ];
 
 export default function ScanOverlay() {
+  const reduceMotion = useReducedMotionSafe();
+
   return (
-    <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
+    >
       <div className="relative aspect-square w-[70%]">
         <div className="absolute inset-0 rounded-2xl border-2 border-dashed border-primary/40" />
 
@@ -25,8 +31,12 @@ export default function ScanOverlay() {
 
         <motion.div
           className="absolute right-[6%] left-[6%] h-0.5 rounded-full bg-primary shadow-[0_0_12px_3px] shadow-primary/60"
-          animate={{ top: ["6%", "92%", "6%"] }}
-          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+          animate={{ top: reduceMotion ? "50%" : ["6%", "92%", "6%"] }}
+          transition={
+            reduceMotion
+              ? { duration: 0 }
+              : { duration: 2.4, repeat: Infinity, ease: "easeInOut" }
+          }
         />
       </div>
     </div>

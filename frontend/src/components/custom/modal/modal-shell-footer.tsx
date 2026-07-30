@@ -80,9 +80,9 @@ export function ModalShellFooter({
                 onClick={onReset}
                 disabled={resetDisabled || submitLoading}
                 aria-label={resetLabel}
-                className="sm:w-auto sm:px-4"
+                labelFrom="sm"
               >
-                <span className="hidden sm:inline">{resetLabel}</span>
+                {resetLabel}
               </Button>
             )}
 

@@ -84,7 +84,7 @@ Shareable and back/forward-safe. Everything here can be pasted into a new tab an
 
 - **Product filters.** Chain, location, category, and brand are stored as repeated query params by `useFilterParams` / `useProductFilters`. They are written with `router.replace` (so they do not spam browser history) and read back on load. All four apply client-side because the upstream Cijene search endpoint only accepts `q`.
 
-- **Open modal (`?modal=`).** Which modal is open is itself a URL param (`use-modal-url` + `modal-registry`), so modals are deep-linkable and survive a reload. The full modal-URL flow is documented in [AUTH.md](AUTH.md).
+- **Open modal (`?modal=`).** Which modal is open is itself a URL param (`use-modal-url` + `modal-registry`), so modals are deep-linkable and survive a reload. Required onboarding uses `?modal=onboarding`, while the optional Settings replay uses `?modal=onboarding/replay`. The full modal-URL flow and onboarding gate are documented in [AUTH.md](AUTH.md).
 
 - **One-shot tokens.** The reset-password token and OAuth error arrive as URL params and are consumed by the page that handles them. They are transient by nature, not something to persist.
 
@@ -120,14 +120,14 @@ sequenceDiagram
 
 Forms wired to drafts:
 
-| Form                      | File                       | Notes                                         |
-| ------------------------- | -------------------------- | --------------------------------------------- |
-| Watchlist item modal      | `watchlist-item-modal.tsx` | restore handled by the hook                   |
-| Add to shopping list      | `use-add-to-list-form.ts`  | restore handled by the hook                   |
-| Shopping list create/edit | `shopping-list-modal.tsx`  | prefill-then-merge (`restore: false`)         |
-| Digital card create/edit  | `digital-card-modal.tsx`   | prefill-then-merge; also feeds scan-to-fill   |
-| Settings (profile, etc.)  | `settings-modal-host.tsx`  | one draft across the tabbed form              |
-| Contact                   | `contact-modal.tsx`        | prefill from profile, then merge draft on top |
+| Form                      | File                       | Notes                                                                       |
+| ------------------------- | -------------------------- | --------------------------------------------------------------------------- |
+| Watchlist item modal      | `watchlist-item-modal.tsx` | restore handled by the hook                                                 |
+| Add to shopping list      | `use-add-to-list-form.ts`  | restore handled by the hook                                                 |
+| Shopping list create/edit | `shopping-list-modal.tsx`  | prefill-then-merge (`restore: false`)                                       |
+| Digital card create/edit  | `digital-card-modal.tsx`   | prefill-then-merge; also feeds scan-to-fill                                 |
+| Settings and onboarding   | `settings-modal-host.tsx`  | one shared draft, cleared after a successful save and onboarding completion |
+| Contact                   | `contact-modal.tsx`        | prefill from profile, then merge draft on top                               |
 
 ### 4b. Device preferences
 
@@ -165,21 +165,21 @@ Not everything should be remembered. These are intentionally **not** persisted, 
 
 ## 7. Coverage matrix (every input and form)
 
-| Input / form                        | Persisted?    | Where                    |
-| ----------------------------------- | ------------- | ------------------------ |
-| Global search                       | Yes           | URL `?q=`                |
-| Product filters                     | Yes           | URL repeated params      |
-| Open modal                          | Yes           | URL `?modal=`            |
-| Watchlist item modal                | Yes           | localStorage draft       |
-| Add-to-list form                    | Yes           | localStorage draft       |
-| Shopping list modal                 | Yes           | localStorage draft       |
-| Digital card modal                  | Yes           | localStorage draft       |
-| Settings modal                      | Yes           | localStorage draft       |
-| Contact modal                       | Yes           | localStorage draft       |
-| View mode / sort / camera / periods | Yes           | localStorage preferences |
-| Auth + security forms               | No, by design | passwords, never stored  |
-| Avatar upload                       | No, by design | base64, quota-excluded   |
-| Admin dashboard filters             | No, by design | session `useState`       |
+| Input / form                        | Persisted?    | Where                     |
+| ----------------------------------- | ------------- | ------------------------- |
+| Global search                       | Yes           | URL `?q=`                 |
+| Product filters                     | Yes           | URL repeated params       |
+| Open modal                          | Yes           | URL `?modal=`             |
+| Watchlist item modal                | Yes           | localStorage draft        |
+| Add-to-list form                    | Yes           | localStorage draft        |
+| Shopping list modal                 | Yes           | localStorage draft        |
+| Digital card modal                  | Yes           | localStorage draft        |
+| Settings modal and onboarding       | Yes           | shared localStorage draft |
+| Contact modal                       | Yes           | localStorage draft        |
+| View mode / sort / camera / periods | Yes           | localStorage preferences  |
+| Auth + security forms               | No, by design | passwords, never stored   |
+| Avatar upload                       | No, by design | base64, quota-excluded    |
+| Admin dashboard filters             | No, by design | session `useState`        |
 
 ---
 

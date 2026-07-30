@@ -66,11 +66,11 @@ export default function InstallBanner() {
               aria-label="Zatvori"
               className="-mr-1 -mt-1 shrink-0"
             >
-              <X className="size-4" />
+              <X />
             </Button>
           </div>
 
-          <Button size="sm" className="w-full" onClick={handleInstall}>
+          <Button className="w-full" onClick={handleInstall}>
             <Plus className="size-4" />
             Dodaj na početni zaslon
           </Button>

@@ -10,6 +10,7 @@ import {
   SettingsSection,
 } from "@/components/custom/settings/settings-schema";
 import { ONBOARDING_STEPS } from "@/components/custom/settings/onboarding/onboarding-steps";
+import { useOnboardingProgress } from "@/components/custom/settings/onboarding/hooks/use-onboarding-progress";
 
 interface IUseOnboardingProps {
   open: boolean;
@@ -26,6 +27,7 @@ function resumeStepFromOutcome(outcome: string | null | undefined) {
 export function useOnboarding({ open, save }: IUseOnboardingProps) {
   const form = useFormContext<SettingsFormValues>();
   const { user } = useUser();
+  const { persist } = useOnboardingProgress();
   const resumeStep = resumeStepFromOutcome(user?.onboardingOutcome);
 
   const [step, setStep] = useState(resumeStep);
@@ -45,6 +47,13 @@ export function useOnboarding({ open, save }: IUseOnboardingProps) {
   const currentStep = ONBOARDING_STEPS[step];
   const isLast = step === ONBOARDING_STEPS.length - 1;
 
+  // The live form value, so a username edited on the profile step greets correctly.
+  const username = form.watch("username");
+  const title =
+    typeof currentStep.title === "function"
+      ? currentStep.title(username?.trim() ?? "")
+      : currentStep.title;
+
   async function next() {
     // Form steps validate their own fields before advancing.
     const fields = SECTION_FIELDS[currentStep.id as SettingsSection];
@@ -53,12 +62,14 @@ export function useOnboarding({ open, save }: IUseOnboardingProps) {
     if (isLast) return;
     setDirection(1);
     setStep(step + 1);
+    persist(step + 1);
   }
 
   function back() {
     if (step === 0) return;
     setDirection(-1);
     setStep(step - 1);
+    persist(step - 1);
   }
 
   async function finish() {
@@ -80,6 +91,7 @@ export function useOnboarding({ open, save }: IUseOnboardingProps) {
     step,
     direction,
     currentStep,
+    title,
     isLast,
     isFirst: step === 0,
     next,

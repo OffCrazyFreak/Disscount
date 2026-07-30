@@ -14,23 +14,33 @@ export default function useBottomNavActivation(cells: IBottomNavCell[]) {
   const { isOpen, open, close } = useProductsSheet();
   const { reenter, canReturn } = useTabReentry();
 
-  function activate(index: number) {
+  function activate(index: number): boolean {
     const { entry, isActive, isLocked } = cells[index];
 
     // The sheet is non-modal, which vaul takes to mean no press outside it may
     // dismiss it, so the bar is the only thing that can close it again.
-    if (entry.isSearch) return isOpen ? close() : open();
+    if (entry.isSearch) {
+      isOpen ? close() : open();
+
+      return false;
+    }
 
     // Every other cell dismisses it too, which covers what the sheet's own
     // pathname effect cannot: re-tapping the tab you are already on.
     close();
 
-    if (isLocked) return;
+    if (isLocked) return false;
 
     // Re-entering the tab you are on scrolls to the top, then back again.
-    if (isActive) return reenter();
+    if (isActive) {
+      reenter();
+
+      return false;
+    }
 
     router.push(entry.item.href);
+
+    return true;
   }
 
   return { activate, canReturn, isSearchOpen: isOpen };

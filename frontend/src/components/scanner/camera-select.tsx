@@ -40,7 +40,11 @@ export default function CameraSelect({
     <div className="flex items-end gap-2">
       <div className="min-w-0 flex-1 space-y-1.5">
         <Label htmlFor={selectId}>Kamera</Label>
-        <Select value={value ?? ""} onValueChange={onSelect}>
+        <Select
+          value={value ?? ""}
+          onValueChange={onSelect}
+          disabled={devices.length === 0}
+        >
           <SelectTrigger id={selectId} className="w-full">
             <SelectValue placeholder="Automatski (stražnja kamera)" />
           </SelectTrigger>
@@ -58,25 +62,24 @@ export default function CameraSelect({
         </Select>
       </div>
 
-      {hasManualChoice && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              icon={RotateCcw}
-              iconPlacement="left"
-              onClick={onReset}
-              aria-label="Resetiraj kameru na automatski odabir"
-            />
-          </TooltipTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            icon={RotateCcw}
+            iconPlacement="left"
+            onClick={onReset}
+            disabled={!hasManualChoice}
+            aria-label="Resetiraj kameru na automatski odabir"
+          />
+        </TooltipTrigger>
 
-          <TooltipContent className="px-2 py-1 text-xs">
-            Resetiraj kameru na automatski odabir
-          </TooltipContent>
-        </Tooltip>
-      )}
+        <TooltipContent className="px-2 py-1 text-xs">
+          Resetiraj kameru na automatski odabir
+        </TooltipContent>
+      </Tooltip>
     </div>
   );
 }

@@ -14,7 +14,8 @@ import java.util.UUID;
 @Repository
 public interface ShoppingListRepository extends JpaRepository<ShoppingList, UUID> {
 
-    @Query("SELECT sl FROM ShoppingList sl WHERE sl.owner = :owner AND sl.deletedAt IS NULL ORDER BY sl.updatedAt DESC")
+    @Query("SELECT sl FROM ShoppingList sl WHERE sl.owner = :owner AND sl.deletedAt IS NULL "
+            + "ORDER BY sl.updatedAt DESC, sl.createdAt DESC, sl.id DESC")
     List<ShoppingList> findActiveByOwner(User owner);
 
     @Query("SELECT sl FROM ShoppingList sl WHERE sl.id = :id AND sl.deletedAt IS NULL")

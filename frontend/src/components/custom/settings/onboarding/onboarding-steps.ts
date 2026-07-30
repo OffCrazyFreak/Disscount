@@ -10,7 +10,8 @@ import DoneStep from "@/components/custom/settings/onboarding/components/done-st
 
 export interface IOnboardingStep {
   id: string;
-  title: string;
+  // A function when the step greets the user by name; resolved in useOnboarding.
+  title: string | ((username: string) => string);
   description?: string;
   component: ComponentType;
 }
@@ -21,7 +22,10 @@ export interface IOnboardingStep {
 export const ONBOARDING_STEPS: IOnboardingStep[] = [
   {
     id: "welcome",
-    title: "Drago nam je što si tu",
+    title: (username) =>
+      username
+        ? `${username}, drago nam je što si tu!`
+        : "Drago nam je što si tu!",
     component: WelcomeStep,
   },
   {

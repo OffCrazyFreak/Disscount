@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
+import { appUrl } from "@/lib/env";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
+import { shareOrCopy } from "@/utils/browser/share";
 import { useShoppingListMutations } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-mutations";
 import { formatShoppingListForSharing } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
 
@@ -42,12 +44,24 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
   async function handleShare() {
     setIsSharing(true);
     try {
-      const shareText = formatShoppingListForSharing(shoppingList);
-      await navigator.clipboard.writeText(shareText);
-      toast.success("Popis je kopiran u međuspremnik!");
-    } catch (error) {
-      console.error("Error sharing shopping list:", error);
-      toast.error("Greška pri kopiranju popisa");
+      const text = formatShoppingListForSharing(shoppingList);
+      const url = shoppingList.isPublic
+        ? `${appUrl()}/shopping-lists/${encodeURIComponent(shoppingList.id)}`
+        : undefined;
+      const outcome = await shareOrCopy({
+        title: shoppingList.title,
+        text,
+        ...(url ? { url } : {}),
+      });
+
+      if (outcome === "copied") {
+        toast.success(
+          shoppingList.isPublic
+            ? "URL veza je kopirana"
+            : "Tekst popisa je kopiran",
+        );
+      }
+      if (outcome === "failed") toast.error("Dijeljenje nije uspjelo");
     } finally {
       setIsSharing(false);
     }

@@ -31,7 +31,7 @@ interface IBottomNavCenterItemProps {
 
 /**
  * The search cell: raised and filled, so it reads as primary while keeping its
- * equal share of the row.
+ * fixed place in the row.
  *
  * Tap opens the products sheet rather than navigating, and taps again to close it,
  * which is what the glyph animates to say: the chevrons point the way the sheet

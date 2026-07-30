@@ -38,6 +38,10 @@ export default function BottomNavRing({
         cx="18"
         cy="18"
         r={RADIUS}
+        className={cn(
+          typeof progress === "number" &&
+            "transition-[stroke-dashoffset] duration-500 ease-out motion-reduce:transition-none",
+        )}
         fill="none"
         strokeWidth="1.75"
         strokeLinecap="round"

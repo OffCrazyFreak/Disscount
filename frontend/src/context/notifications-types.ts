@@ -32,7 +32,11 @@ export interface INotificationsContext {
   isLoading: boolean;
   hasNotifications: boolean;
   hasWatchlistItems: boolean;
-  /** Header dropdown open state, lifted so other UI can open it (e.g. a CTA) */
-  isMenuOpen: boolean;
-  setMenuOpen: (open: boolean) => void;
+  /**
+   * One-shot open request from outside the dropdown (e.g. the landing CTA).
+   * A counter, not an open flag: the menu's own open state stays local to the
+   * component, so a remount can never resurrect a stale open menu.
+   */
+  openMenuSignal: number;
+  requestOpenMenu: () => void;
 }

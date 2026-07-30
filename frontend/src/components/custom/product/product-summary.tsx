@@ -14,10 +14,11 @@ interface IProductSummaryProps {
   quantity?: string | null;
   imageUrl?: string | null;
   isLoading?: boolean;
-  /** Prices, actions, or whatever the surface puts opposite the name */
+  /** Passive details, such as prices, shown opposite the product identity */
   trailing?: ReactNode;
-  /** Keeps a press on the trailing controls from reaching a clickable card */
-  trailingProps?: Pick<
+  actions?: ReactNode;
+  /** Keeps a press on actions from reaching a card-level gesture */
+  actionProps?: Pick<
     ComponentProps<"div">,
     "onClick" | "onPointerDown" | "onPointerUp"
   >;
@@ -37,7 +38,8 @@ export default function ProductSummary({
   imageUrl,
   isLoading = false,
   trailing,
-  trailingProps,
+  actions,
+  actionProps,
   className,
 }: IProductSummaryProps) {
   const displayName = name && quantity ? `${name} (${quantity})` : name;
@@ -72,12 +74,18 @@ export default function ProductSummary({
           )}
         </div>
 
-        {trailing && (
-          <div
-            className="flex shrink-0 items-center justify-between gap-4"
-            {...trailingProps}
-          >
+        {(trailing || actions) && (
+          <div className="flex shrink-0 items-center justify-between gap-4">
             {trailing}
+
+            {actions && (
+              <div
+                className="pointer-events-none relative z-20 [&_a]:pointer-events-auto [&_button]:pointer-events-auto"
+                {...actionProps}
+              >
+                {actions}
+              </div>
+            )}
           </div>
         )}
       </div>

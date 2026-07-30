@@ -36,6 +36,8 @@ interface IMultiSelectContext {
   setOpen: (open: boolean) => void;
   selectedValues: Set<string>;
   toggleValue: (value: string) => void;
+  searchValue: string;
+  setSearchValue: (value: string) => void;
   items: Map<string, ReactNode>;
   onItemAdded: (value: string, label: ReactNode) => void;
 }
@@ -58,6 +60,7 @@ export function MultiSelect({
   const [selectedValues, setSelectedValues] = useState(
     new Set<string>(values ?? defaultValues),
   );
+  const [searchValue, setSearchValue] = useState("");
   const [items, setItems] = useState<Map<string, ReactNode>>(new Map());
 
   // A controlled owner can change `values` behind our back, so the toggle reads
@@ -88,6 +91,8 @@ export function MultiSelect({
         setOpen,
         selectedValues: currentValues,
         toggleValue,
+        searchValue,
+        setSearchValue,
         items,
         onItemAdded,
       }}
@@ -120,7 +125,7 @@ export function MultiSelectTrigger({
         role={props.role ?? "combobox"}
         aria-expanded={props["aria-expanded"] ?? open}
         className={cn(
-          "flex h-auto min-h-9 w-fit items-center justify-between gap-2 overflow-hidden rounded-md border border-input bg-transparent px-3 py-1.5 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[placeholder]:text-muted-foreground dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground",
+          "flex h-auto min-h-10 w-fit items-center justify-between gap-2 overflow-hidden rounded-md border border-input bg-transparent px-3 py-1.5 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[placeholder]:text-muted-foreground dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground",
           className,
         )}
       >
@@ -270,6 +275,7 @@ export function MultiSelectContent({
 }: IMultiSelectContentProps) {
   const canSearch = typeof search === "object" ? true : search;
   const listRef = useRef<HTMLDivElement>(null);
+  const { searchValue, setSearchValue } = useMultiSelectContext();
 
   return (
     <>
@@ -282,6 +288,8 @@ export function MultiSelectContent({
         <Command {...props}>
           {canSearch ? (
             <CommandInput
+              value={searchValue}
+              onValueChange={setSearchValue}
               placeholder={
                 typeof search === "object" ? search.placeholder : undefined
               }
@@ -332,9 +340,11 @@ export function MultiSelectItem({
   children,
   badgeLabel,
   onSelect,
+  onMouseDown,
   ...props
 }: IMultiSelectItemProps) {
-  const { toggleValue, selectedValues, onItemAdded } = useMultiSelectContext();
+  const { toggleValue, selectedValues, setSearchValue, onItemAdded } =
+    useMultiSelectContext();
   const isSelected = selectedValues.has(value);
 
   useEffect(() => {
@@ -345,8 +355,16 @@ export function MultiSelectItem({
     <CommandItem
       {...props}
       value={value}
+      // An item is a div, so pressing on it would move focus off the search
+      // input and stop you typing after a pick. Blocking the default keeps the
+      // caret in the input; the click still fires and selects.
+      onMouseDown={(e) => {
+        e.preventDefault();
+        onMouseDown?.(e);
+      }}
       onSelect={(v) => {
         toggleValue(v);
+        if (!isSelected) setSearchValue("");
         onSelect?.(v);
       }}
     >

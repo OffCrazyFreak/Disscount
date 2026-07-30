@@ -1,5 +1,7 @@
 "use client";
 
+import { Minus, Plus } from "lucide-react";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -19,6 +21,12 @@ interface IStepperNumberInputProps {
   placeholder?: string;
   ariaLabel?: string;
   className?: string;
+}
+
+function formatStepAmount(amount: number) {
+  const value = `${amount}`;
+
+  return value.startsWith("0.") ? value.slice(1) : value;
 }
 
 // Buttons clamp to min/max; typing may be empty or out of range, and the owning
@@ -48,17 +56,29 @@ export function StepperNumberInput({
     return (
       <Button
         type="button"
-        size={isSecondary ? "sm" : "icon"}
+        size="icon"
         variant={isSecondary ? "outline" : "primary"}
         aria-label={`${sign > 0 ? "Povećaj" : "Smanji"} za ${amount}`}
         className={cn(
           "shrink-0 rounded-full text-lg font-bold",
-          isSecondary ? "hidden sm:flex size-14" : "size-13",
+          isSecondary
+            ? "hidden size-14 sm:flex sm:size-14"
+            : "size-13 sm:size-10",
         )}
         onClick={() => step(sign * amount)}
       >
-        {sign > 0 ? "+" : "-"}
-        {amount}
+        {amount === 1 ? (
+          sign > 0 ? (
+            <Plus />
+          ) : (
+            <Minus />
+          )
+        ) : (
+          <>
+            {sign > 0 ? "+" : "-"}
+            {formatStepAmount(amount)}
+          </>
+        )}
       </Button>
     );
   }

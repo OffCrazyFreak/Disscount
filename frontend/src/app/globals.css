@@ -686,20 +686,6 @@ body:has([data-sheet-non-modal]) {
   pointer-events: auto !important;
 }
 
-/* Registered so the compaction keyframes interpolate: unregistered custom
-   properties animate discretely and would snap at the halfway point. */
-@property --bottom-nav-label-opacity {
-  syntax: "<number>";
-  inherits: true;
-  initial-value: 1;
-}
-
-@property --bottom-nav-label-height {
-  syntax: "<length>";
-  inherits: true;
-  initial-value: 0.85rem;
-}
-
 /* The surface's own alpha, not the bar's opacity. Fading the element dimmed the
    icons, the labels, the badge and the active disc along with the surface, and
    gave the pill a stacking context it has no use for. */
@@ -711,8 +697,6 @@ body:has([data-sheet-non-modal]) {
 
 @keyframes bottom-nav-compact {
   to {
-    --bottom-nav-label-opacity: 0;
-    --bottom-nav-label-height: 0rem;
     --bottom-nav-surface-alpha: 45%;
   }
 }
@@ -732,10 +716,9 @@ body:has([data-sheet-non-modal]) {
   );
 }
 
-/* Compacts once the page is scrolled, the same trigger the header already uses
-   via useScrolledPast(50), but driven by the scroll timeline so there is no
-   listener, no jank and no hydration behaviour. The outer height stays fixed so
-   the pill never resizes mid-scroll and the page padding never shifts.
+/* Softens the surface once the page is scrolled, using the same range as the
+   header without a listener, layout shift or hydration behaviour. Icons and
+   labels stay fully visible throughout.
    Browsers without scroll-driven animations keep the full-size bar, which is
    the correct fallback: navigation must never become unreachable. */
 @supports (animation-timeline: scroll()) {

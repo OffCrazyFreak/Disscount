@@ -31,14 +31,10 @@ export default function WatchlistActionButton({
         <Button
           size="icon"
           aria-label={actionLabel}
-          className={cn("size-10 sm:size-12 shrink-0", className)}
+          className={cn("shrink-0", className)}
           onClick={() => openWatchlist()}
         >
-          {isInWatchlist ? (
-            <EyeOff className="size-6 sm:size-7" />
-          ) : (
-            <Eye className="size-6 sm:size-7" />
-          )}
+          {isInWatchlist ? <EyeOff /> : <Eye />}
         </Button>
       </TooltipTrigger>
 

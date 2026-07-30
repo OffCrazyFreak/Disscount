@@ -1,12 +1,13 @@
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import { supportNavItems } from "@/constants/navigation";
 
 const LIVE_CLASS =
-  "text-muted-foreground hover:text-primary block transition-all hover:scale-110";
-const DISABLED_CLASS = "text-muted-foreground/50 block cursor-not-allowed";
+  "text-muted-foreground hover:text-primary transition-all hover:scale-110";
+const DISABLED_CLASS = "text-muted-foreground/50";
 
-/** Feedback entry icons, sharing supportNavItems with the sidebar group. */
+/** Support entry icons, sharing supportNavItems with the sidebar group. */
 export default function FooterSupportIcons() {
   return (
     <div className="flex items-center gap-4">
@@ -15,25 +16,31 @@ export default function FooterSupportIcons() {
         const isLive = !item.comingSoon && item.href !== "#";
 
         return isLive ? (
-          <Link
+          <Button
             key={item.id}
-            href={item.href}
+            asChild
+            variant="ghost"
+            size="icon"
             aria-label={item.label}
             className={LIVE_CLASS}
           >
-            <Icon size={16} />
-          </Link>
+            <Link href={item.href}>
+              <Icon />
+            </Link>
+          </Button>
         ) : (
-          <button
+          <Button
             key={item.id}
             type="button"
+            variant="ghost"
+            size="icon"
             disabled
             aria-label={`${item.label} (uskoro)`}
             title="Uskoro"
             className={DISABLED_CLASS}
           >
-            <Icon size={16} />
-          </button>
+            <Icon />
+          </Button>
         );
       })}
     </div>

@@ -31,6 +31,7 @@ export default function SearchBarActions({
               type="button"
               variant="ghost"
               size="icon"
+              className="size-8 sm:size-8 [&_svg]:size-5 sm:[&_svg]:size-5"
               onClick={onClear}
               aria-label="Očisti pretragu"
             >
@@ -51,6 +52,7 @@ export default function SearchBarActions({
               type="button"
               variant="primary"
               size="icon"
+              className="size-8 sm:size-8 [&_svg]:size-5 sm:[&_svg]:size-5"
               onClick={onScan}
               aria-label="Skeniraj barkod"
             >

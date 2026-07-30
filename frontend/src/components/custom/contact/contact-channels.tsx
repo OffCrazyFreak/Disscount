@@ -29,10 +29,9 @@ export default function ContactChannels() {
             variant="ghost"
             size="icon"
             aria-label="Kopiraj e-mail adresu"
-            className="size-6"
             onClick={copyEmail}
           >
-            <Copy className="size-3.5" />
+            <Copy />
           </Button>
         </span>{" "}
         ili putem{" "}
@@ -40,7 +39,6 @@ export default function ContactChannels() {
           asChild
           type="button"
           variant="ghost"
-          size="sm"
           className="h-6 gap-1 px-1.5 align-middle"
         >
           <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer">
@@ -62,10 +60,9 @@ export default function ContactChannels() {
             variant="ghost"
             size="icon"
             aria-label="Otvori Ideje i prijedloge"
-            className="size-6"
           >
             <Link href="/suggestions">
-              <ExternalLink className="size-3.5" />
+              <ExternalLink />
             </Link>
           </Button>
         </li>
@@ -80,10 +77,9 @@ export default function ContactChannels() {
             variant="ghost"
             size="icon"
             aria-label="Otvori prijavu greške"
-            className="size-6"
           >
             <Link href="?modal=bug-report">
-              <ExternalLink className="size-3.5" />
+              <ExternalLink />
             </Link>
           </Button>
         </li>

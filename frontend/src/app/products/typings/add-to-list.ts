@@ -4,6 +4,7 @@ import { MAX_SHOPPING_LIST_ITEM_AMOUNT } from "@/constants/shopping-list";
 // amount is a string so the input can be emptied and free-typed; refine ranges it.
 export const addToListFormSchema = z.object({
   shoppingListId: z.string().min(1, "Popis za kupnju je obavezan"),
+  customListTitle: z.string(),
   amount: z.string().refine(
     (value) => {
       // Plain-integer string only, so "1.9"/"1e2" are rejected rather than truncated.

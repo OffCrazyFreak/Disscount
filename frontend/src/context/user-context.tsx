@@ -21,6 +21,8 @@ import { isProtectedRoute } from "@/constants/protected-routes";
 interface IUserContext {
   user: UserDto | null;
   isLoading: boolean;
+  /** True only until auth first resolves; stays false through later refreshes */
+  isInitializing: boolean;
   isAuthenticated: boolean;
   refreshUser: () => Promise<UserDto | undefined>;
   setUser: (user: UserDto | null) => void;
@@ -39,6 +41,7 @@ interface IUserProviderProps {
 export function UserProvider({ children }: IUserProviderProps) {
   const [user, setUser] = useState<UserDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasResolvedAuth, setHasResolvedAuth] = useState(false);
 
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -70,6 +73,7 @@ export function UserProvider({ children }: IUserProviderProps) {
       setUser(null);
     } finally {
       setIsLoading(false);
+      setHasResolvedAuth(true);
     }
   }, []);
 
@@ -84,6 +88,7 @@ export function UserProvider({ children }: IUserProviderProps) {
       void purgeOfflineCache(queryClient);
       setUser(null);
       setIsLoading(false);
+      setHasResolvedAuth(true);
     }
   }, [session?.user?.id, sessionPending, refreshUser, queryClient]);
 
@@ -126,6 +131,7 @@ export function UserProvider({ children }: IUserProviderProps) {
   const value: IUserContext = {
     user: mergedUser,
     isLoading: isLoading || sessionPending,
+    isInitializing: !hasResolvedAuth,
     isAuthenticated: !!mergedUser,
     refreshUser,
     setUser,

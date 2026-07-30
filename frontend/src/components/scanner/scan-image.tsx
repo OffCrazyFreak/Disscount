@@ -7,9 +7,30 @@ import { Button } from "@/components/ui/button";
 import { ALL_SCAN_FORMATS, SCAN_FORMATS_BY_PRESET } from "@/constants/scanner";
 import { IScannedCode, ScanPreset } from "@/typings/scanned-code";
 
+const MAX_SCAN_IMAGE_DIMENSION = 2048;
+
 interface IScanImageButtonProps {
   preset: ScanPreset;
   onScan: (code: IScannedCode) => void;
+}
+
+async function createScanBitmap(file: File): Promise<ImageBitmap> {
+  const source = await createImageBitmap(file);
+  const largestDimension = Math.max(source.width, source.height);
+
+  if (largestDimension <= MAX_SCAN_IMAGE_DIMENSION) return source;
+
+  const scale = MAX_SCAN_IMAGE_DIMENSION / largestDimension;
+
+  try {
+    return await createImageBitmap(source, {
+      resizeWidth: Math.round(source.width * scale),
+      resizeHeight: Math.round(source.height * scale),
+      resizeQuality: "high",
+    });
+  } finally {
+    source.close();
+  }
 }
 
 export default function ScanImageButton({
@@ -24,7 +45,7 @@ export default function ScanImageButton({
     let bitmap: ImageBitmap | undefined;
 
     try {
-      bitmap = await createImageBitmap(file);
+      bitmap = await createScanBitmap(file);
       const { BarcodeDetector } = await import("barcode-detector/ponyfill");
       const detector = new BarcodeDetector({ formats: ALL_SCAN_FORMATS });
       const detected = await detector.detect(bitmap);

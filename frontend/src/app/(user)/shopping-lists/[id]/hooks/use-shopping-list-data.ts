@@ -1,24 +1,17 @@
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
+import { useQueries } from "@tanstack/react-query";
 import { shoppingListService } from "@/lib/api";
+import cijeneService, { productByEanQueryKey } from "@/lib/cijene-api";
+import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { useUser } from "@/context/user-context";
 import {
-  findCheapestStoreForItem,
-  getAveragePriceForItem,
-  getStorePricesForItem,
+  findCheapestStoreFromProduct,
+  getStorePricesFromProduct,
 } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
+import { getAveragePrice } from "@/app/products/utils/product-utils";
 
 export function useShoppingListData(listId: string) {
   const { user } = useUser();
-  const [cheapestStores, setCheapestStores] = useState<Record<string, string>>(
-    {},
-  );
-  const [averagePrices, setAveragePrices] = useState<Record<string, number>>(
-    {},
-  );
-  const [storePrices, setStorePrices] = useState<
-    Record<string, Record<string, number>>
-  >({});
-  const [isPricesLoading, setIsPricesLoading] = useState(false);
 
   const {
     data: shoppingList,
@@ -27,84 +20,67 @@ export function useShoppingListData(listId: string) {
     dataUpdatedAt: listUpdatedAt,
   } = shoppingListService.useGetShoppingListById(listId);
 
-  // Compute cheapest stores for all items
-  useEffect(() => {
-    if (!shoppingList?.items || !user?.pinnedStores) return;
+  const eans = useMemo(
+    () => [
+      ...new Set(
+        shoppingList?.items.map((item) => item.ean).filter(Boolean) ?? [],
+      ),
+    ],
+    [shoppingList?.items],
+  );
 
-    const abortController = new AbortController();
+  const { productsData, isPricesLoading } = useQueries({
+    queries: eans.map((ean) => ({
+      queryKey: productByEanQueryKey(ean),
+      queryFn: () => cijeneService.getProductByEan({ ean }),
+      staleTime: 6 * 60 * 60 * 1000,
+    })),
+    combine: (results) => ({
+      productsData: results
+        .map((result) => result.data)
+        .filter((data): data is ProductResponse => data !== undefined),
+      isPricesLoading: results.some((result) => result.isLoading),
+    }),
+  });
 
-    const computeCheapestStores = async () => {
-      try {
-        const promises = shoppingList.items.map(async (item) => {
-          try {
-            const cheapestStore = await findCheapestStoreForItem(
-              item,
-              user.pinnedStores || undefined,
-            );
-            return { itemId: item.id, cheapestStore };
-          } catch (error) {
-            console.error(
-              `Failed to find cheapest store for item ${item.id}:`,
-              error,
-            );
-            return { itemId: item.id, cheapestStore: null };
-          }
-        });
+  const { cheapestStores, averagePrices, storePrices } = useMemo(() => {
+    const productsByEan = new Map(
+      productsData.map((product) => [product.ean, product]),
+    );
+    const nextCheapestStores: Record<string, string> = {};
+    const nextAveragePrices: Record<string, number> = {};
+    const nextStorePrices: Record<string, Record<string, number>> = {};
 
-        const results = await Promise.allSettled(promises);
+    for (const item of shoppingList?.items ?? []) {
+      const product = productsByEan.get(item.ean);
+      if (!product) continue;
 
-        if (abortController.signal.aborted) return;
+      const averagePrice = getAveragePrice(product);
+      const itemStorePrices = getStorePricesFromProduct(product);
+      const cheapestStore = findCheapestStoreFromProduct(
+        product,
+        user?.pinnedStores,
+      );
 
-        const stores: Record<string, string> = {};
-        results.forEach((result) => {
-          if (result.status === "fulfilled" && result.value.cheapestStore) {
-            stores[result.value.itemId] = result.value.cheapestStore;
-          }
-        });
-
-        setCheapestStores(stores);
-      } catch (error) {
-        console.error("Error computing cheapest stores:", error);
-      }
-    };
-
-    computeCheapestStores();
-
-    return () => {
-      abortController.abort();
-    };
-  }, [shoppingList?.items, user?.pinnedStores]);
-
-  // Compute average prices and store prices for all items on page load
-  useEffect(() => {
-    if (!shoppingList?.items) return;
-
-    const computeAveragePrices = async () => {
-      setIsPricesLoading(true);
-      const prices: Record<string, number> = {};
-      const stores: Record<string, Record<string, number>> = {};
-
-      // Prefetch every item, checked or not, so a later toggle usually has its price ready.
-      for (const item of shoppingList.items) {
-        const avgPrice = await getAveragePriceForItem(item);
-        const itemStorePrices = await getStorePricesForItem(item);
-
-        if (avgPrice !== null) {
-          prices[item.id] = avgPrice;
-        }
-
-        if (Object.keys(itemStorePrices).length > 0) {
-          stores[item.id] = itemStorePrices;
-        }
+      if (averagePrice !== null) {
+        nextAveragePrices[item.id] = averagePrice;
       }
 
-      setAveragePrices(prices);
-      setStorePrices(stores);
-      setIsPricesLoading(false);
-    };
+      if (Object.keys(itemStorePrices).length > 0) {
+        nextStorePrices[item.id] = itemStorePrices;
+      }
 
-    computeAveragePrices();
-  }, [shoppingList?.items]);
+      if (cheapestStore) {
+        nextCheapestStores[item.id] = cheapestStore;
+      }
+    }
+
+    return {
+      cheapestStores: nextCheapestStores,
+      averagePrices: nextAveragePrices,
+      storePrices: nextStorePrices,
+    };
+  }, [productsData, shoppingList?.items, user?.pinnedStores]);
 
   // Calculate total savings from checked items
   const { totalSavings, totalPotentialCost } = shoppingList?.items

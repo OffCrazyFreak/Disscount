@@ -1,5 +1,6 @@
 /** Each cell owns its own list item, so the row's geometry is stated once here */
-export const CELL_ITEM_CLASS = "relative flex-1 [--press-progress:0]";
+export const CELL_ITEM_CLASS =
+  "relative w-[3.6rem] shrink-0 [--press-progress:0]";
 
 /**
  * iOS raises a selection callout and a drag ghost on a long press, and both fire
@@ -8,9 +9,8 @@ export const CELL_ITEM_CLASS = "relative flex-1 [--press-progress:0]";
 export const CELL_BUTTON_CLASS =
   "relative flex size-full cursor-pointer flex-col items-center justify-center gap-[0.2rem] select-none [-webkit-touch-callout:none] [-webkit-user-drag:none]";
 
-/** Collapses to nothing as the bar compacts, driven by the registered properties */
 export const CELL_LABEL_CLASS =
-  "relative h-[var(--bottom-nav-label-height)] overflow-hidden text-[0.65rem] leading-none tracking-tight opacity-[var(--bottom-nav-label-opacity)]";
+  "relative h-[0.85rem] overflow-hidden text-[0.65rem] leading-none tracking-tight";
 
 /**
  * 3.6rem is 57.6px: enough to pad the widest label once bold (Potrošnja, about

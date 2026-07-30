@@ -138,7 +138,7 @@ export default function InstallSidebarBanner({
           </p>
         </div>
 
-        <Button size="sm" className="w-full" onClick={handleInstall}>
+        <Button className="w-full" onClick={handleInstall}>
           <Plus className="size-4" />
           Dodaj na početni zaslon
         </Button>

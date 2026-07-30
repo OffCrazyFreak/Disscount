@@ -7,7 +7,7 @@ import { useScrolledPast } from "@/hooks/use-scrolled-past";
 import { BACK_TO_TOP_THRESHOLD_PX, scrollToTop } from "@/utils/scroll";
 
 /** Full width and stacked, rather than sharing a row with the field */
-const BASE_CLASS = "grow p-6 text-lg hover:bg-secondary";
+const BASE_CLASS = "grow px-6 text-lg hover:bg-secondary";
 
 interface ISearchActionButtonProps {
   label: string;

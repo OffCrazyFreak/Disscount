@@ -10,6 +10,7 @@ interface IShoppingListActionButtonsProps {
   showEditButton?: boolean;
   showDeleteButton?: boolean;
   showShareButton?: boolean;
+  mobilePresentation?: "menu" | "buttons" | "none";
   className?: string;
 }
 
@@ -19,6 +20,8 @@ export default function ShoppingListActionButtons({
   showEditButton = false,
   showDeleteButton = false,
   showShareButton = false,
+  mobilePresentation = "menu",
+  className,
 }: IShoppingListActionButtonsProps) {
   const {
     isDeleteDialogOpen,
@@ -59,9 +62,15 @@ export default function ShoppingListActionButtons({
         isLoading={isDeleting}
       />
 
-      <ShoppingListDesktopActions {...groupProps} />
+      <ShoppingListDesktopActions
+        {...groupProps}
+        visibleOnMobile={mobilePresentation === "buttons"}
+        className={className}
+      />
 
-      <ShoppingListMobileActions {...groupProps} />
+      {mobilePresentation === "menu" && (
+        <ShoppingListMobileActions {...groupProps} />
+      )}
     </>
   );
 }

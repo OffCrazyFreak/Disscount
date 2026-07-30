@@ -53,13 +53,10 @@ export default function ProductActionButtons({
             <Button
               size="icon"
               aria-label="Pretraži sliku proizvoda"
-              className={cn(
-                "size-10 sm:size-12 shrink-0",
-                grouped && "rounded-r-none!",
-              )}
+              className={cn("shrink-0", grouped && "rounded-r-none!")}
               onClick={() => openExternal(productImageSearchUrl(product))}
             >
-              <ImageIcon className="size-6 sm:size-7" />
+              <ImageIcon />
             </Button>
           </TooltipTrigger>
 
@@ -76,13 +73,13 @@ export default function ProductActionButtons({
               size="icon"
               aria-label="Dodaj na popis za kupnju"
               className={cn(
-                "size-10 sm:size-12 shrink-0",
+                "shrink-0",
                 grouped &&
                   "rounded-none! border-l! border-primary-foreground/30",
               )}
               onClick={() => openAddToList()}
             >
-              <ListPlus className="size-6 sm:size-7" />
+              <ListPlus />
             </Button>
           </TooltipTrigger>
 
@@ -111,13 +108,13 @@ export default function ProductActionButtons({
               size="icon"
               aria-label="Podijeli proizvod"
               className={cn(
-                "size-10 sm:size-12 shrink-0",
+                "shrink-0",
                 grouped &&
                   "rounded-l-none! border-l! border-primary-foreground/30",
               )}
               onClick={share}
             >
-              <Share2 className="size-6 sm:size-7" />
+              <Share2 />
             </Button>
           </TooltipTrigger>
 

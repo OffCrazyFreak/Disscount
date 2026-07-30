@@ -27,7 +27,7 @@ export default function QuantityInput({ formField }: IQuantityInputProps) {
             <StepperNumberInput
               value={field.value}
               onChange={field.onChange}
-              steps={{ primary: 2, secondary: 5 }}
+              steps={{ primary: 1, secondary: 5 }}
               min={1}
               max={MAX_SHOPPING_LIST_ITEM_AMOUNT}
               integer

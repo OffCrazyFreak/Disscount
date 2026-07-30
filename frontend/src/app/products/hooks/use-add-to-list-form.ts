@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -16,29 +16,45 @@ import { useAddToListSubmit } from "@/app/products/hooks/use-add-to-list-submit"
 import { takeModalError } from "@/lib/modal/modal-error-bus";
 import { applyProblemToForm } from "@/lib/api/problem-details";
 import { useFormDraft } from "@/hooks/use-form-draft";
+import { getFormDraft } from "@/utils/browser/local-storage";
+
+const EMPTY_FORM_VALUES: AddToListFormData = {
+  shoppingListId: "",
+  customListTitle: "",
+  amount: "1",
+  isChecked: false,
+  chainCode: null,
+};
 
 export function useAddToListForm(open: boolean, ean: string) {
-  const [customListTitle, setCustomListTitle] = useState("");
-
   const { user } = useUser();
   const draftKey = `add-to-list.${ean}`;
 
   // Same query key as the product page, so this is a cache hit unless deep-linked.
   const productQuery = cijeneService.useGetProductByEan({ ean });
   const product = productQuery.data;
+  const draftedListId = getFormDraft(draftKey)?.values.shoppingListId;
+  const restoredListId =
+    typeof draftedListId === "string" ? draftedListId : null;
 
   const form = useForm<AddToListFormData>({
     resolver: zodResolver(addToListFormSchema),
     mode: "onChange",
-    defaultValues: {
-      shoppingListId: "",
-      amount: "1",
-      isChecked: false,
-      chainCode: null,
-    },
+    defaultValues: EMPTY_FORM_VALUES,
   });
 
-  const selection = useSelectedShoppingList(form, product?.ean, !!user);
+  const selection = useSelectedShoppingList(
+    form,
+    product?.ean,
+    !!user,
+    restoredListId,
+  );
+  const customListTitle = form.watch("customListTitle");
+
+  function resetForm() {
+    selection.resetSelection();
+    form.reset(EMPTY_FORM_VALUES);
+  }
 
   // Gated until lists load, so the auto-selected default isn't drafted as a change.
   const { restored, clearDraft } = useFormDraft({
@@ -58,9 +74,9 @@ export function useAddToListForm(open: boolean, ean: string) {
     draftKey,
     product,
     lists: selection.sortedShoppingLists,
-    customListTitle,
     pricing,
     clearDraft,
+    resetForm,
   });
 
   // A failed optimistic save reopened this modal: surface the server error.
@@ -77,8 +93,8 @@ export function useAddToListForm(open: boolean, ean: string) {
     isLoadingLists: selection.isLoadingLists,
     sortedShoppingLists: selection.sortedShoppingLists,
     customListTitle,
-    setCustomListTitle,
     selectedList: selection.selectedList,
+    selectList: selection.selectList,
     duplicateItem: selection.duplicateItem,
     isChecked: form.watch("isChecked"),
     ...pricing,
@@ -88,5 +104,6 @@ export function useAddToListForm(open: boolean, ean: string) {
     isSubmitting,
     restored,
     clearDraft,
+    resetForm,
   };
 }
