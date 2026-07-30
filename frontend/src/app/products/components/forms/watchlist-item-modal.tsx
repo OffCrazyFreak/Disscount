@@ -10,6 +10,7 @@ import RemoveIconButton from "@/components/custom/common/remove-icon-button";
 import { WatchType } from "@/lib/api";
 import cijeneService from "@/lib/cijene-api";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import type { WatchTypeParam } from "@/lib/modal/modal-registry";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
 import { Banner } from "@/components/custom/common/banner";
@@ -108,6 +109,9 @@ export default function WatchlistItemModal({
       submitLabel={existingItemForType ? "Spremi" : "Prati"}
       submitIcon={existingItemForType ? Save : Eye}
       submitLoading={isSaving}
+      submitLoadingLabel={
+        existingItemForType ? LOADING_LABELS.saving : LOADING_LABELS.adding
+      }
       submitDisabled={
         isCheckingWatchlist || !product || !form.formState.isValid
       }

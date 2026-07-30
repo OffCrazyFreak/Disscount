@@ -14,6 +14,7 @@ import QuantityInput from "@/app/products/components/forms/quantity-input";
 import MarkAsCheckedCheckbox from "@/app/products/components/forms/mark-as-checked-checkbox";
 import StoreChainField from "@/app/products/components/forms/store-chain-field";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import { useAddToListForm } from "@/app/products/hooks/use-add-to-list-form";
 
 interface IAddToShoppingListFormProps {
@@ -60,6 +61,7 @@ export default function AddToShoppingListForm({
       submitLabel="Dodaj"
       submitIcon={ListPlus}
       submitLoading={isSubmitting}
+      submitLoadingLabel={LOADING_LABELS.adding}
       submitDisabled={
         !product ||
         !form.formState.isValid ||
