@@ -12,7 +12,7 @@ Never:
 - Run a dev server. Mine is already running. That includes `pnpm dev`, `pnpm email`, and any Maven or Docker equivalent. No exceptions, including during migrations.
 - Run any Maven command. Not `spring-boot:run`, not build, not test, not package. Ask if you think you need one.
 - Run deploy, Docker, or Dokploy commands. Deploys happen automatically on push.
-- Commit or push. Finish the work, leave it uncommitted, suggest the message.
+- Commit or push unless I explicitly ask. When asked, include only the requested task's changes.
 - Commit secrets, credentials, the server IP, or the SSH user. Use placeholders in docs.
 - Reference `docs/disscount_*` from any tracked file. Those are gitignored because they hold credentials and strategy, and a link to them leaks that they exist.
 - Hand-edit dependency entries or lockfiles, use npm, or generate a `package-lock.json`.
