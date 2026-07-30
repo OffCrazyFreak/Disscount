@@ -4,7 +4,7 @@ import { Send } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import EmailField from "@/components/custom/auth/components/fields/email-field";
-import InboxNotice from "@/components/custom/auth/components/inbox-notice";
+import InboxNotice from "@/components/custom/common/inbox-notice";
 import { useForgotPasswordForm } from "@/components/custom/auth/hooks/use-forgot-password-form";
 
 interface IForgotPasswordFormProps {

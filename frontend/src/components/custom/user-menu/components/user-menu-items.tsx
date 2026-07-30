@@ -31,7 +31,7 @@ export default function UserMenuItems({ onLogout }: IUserMenuItemsProps) {
           onSelect={() => openModalUrl({ name: "settings", tab })}
           className="cursor-pointer flex items-center gap-4"
         >
-          <Icon />
+          <Icon className="size-6" />
           <span>{label}</span>
         </DropdownMenuItem>
       ))}
@@ -40,7 +40,7 @@ export default function UserMenuItems({ onLogout }: IUserMenuItemsProps) {
         onSelect={onLogout}
         className="cursor-pointer flex items-center gap-4"
       >
-        <LogOut />
+        <LogOut className="size-6" />
         <span>Odjava</span>
       </DropdownMenuItem>
     </>

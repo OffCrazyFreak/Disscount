@@ -7,7 +7,7 @@ import { Form } from "@/components/ui/form";
 import EmailField from "@/components/custom/auth/components/fields/email-field";
 import PasswordField from "@/components/custom/auth/components/fields/password-field";
 import FormRootError from "@/components/custom/common/form-root-error";
-import InboxNotice from "@/components/custom/auth/components/inbox-notice";
+import InboxNotice from "@/components/custom/common/inbox-notice";
 import { useSignupForm } from "@/components/custom/auth/hooks/use-signup-form";
 
 interface ISignUpFormProps {

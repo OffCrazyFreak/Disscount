@@ -63,9 +63,15 @@ export default function ShoppingListModal({
     defaultValues: { title: "", isPublic: false },
   });
 
+  // Destructured, never read inline: formState is a Proxy that subscribes to a
+  // field the first time it is read during render. Behind a || the read gets
+  // short-circuited away, so RHF never recomputes that field and the button
+  // reacts a keystroke late.
+  const { isDirty, isValid, errors } = form.formState;
+
   // Draft wins over the loaded list, so an in-progress edit is never clobbered.
   useEffect(() => {
-    if (!shoppingList || form.formState.isDirty) return;
+    if (!shoppingList || isDirty) return;
 
     const base = {
       title: shoppingList.title,
@@ -78,6 +84,9 @@ export default function ShoppingListModal({
     if (draft && Object.keys(draft).length > 0) {
       form.reset({ ...base, ...draft }, { keepDefaultValues: true });
     }
+    // isDirty is read on purpose but must not retrigger the seed: adding it would
+    // reset the form the moment the user's first keystroke flips it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shoppingList, draftKey, form]);
 
   const { restored, clearDraft, flushDraft } = useFormDraft({
@@ -117,20 +126,15 @@ export default function ShoppingListModal({
       title={isEdit ? "Uredi popis za kupnju" : "Novi popis za kupnju"}
       description="Popis možeš dijeliti i uspoređivati cijene po trgovinama."
       srOnlyDescription
-      dirty={form.formState.isDirty}
+      dirty={isDirty}
       formId="shopping-list-form"
       submitLabel={isEdit ? "Spremi" : "Stvori"}
       submitIcon={Save}
       submitLoading={isLoading}
-      submitDisabled={
-        !form.formState.isDirty ||
-        !form.formState.isValid ||
-        notFound ||
-        loadError
-      }
+      submitDisabled={!isDirty || !isValid || notFound || loadError}
       cancelLabel="Odustani"
       resetLabel="Resetiraj"
-      resetDisabled={!form.formState.isDirty && !restored}
+      resetDisabled={!isDirty && !restored}
       onReset={() => {
         clearDraft();
         form.reset();
@@ -153,9 +157,9 @@ export default function ShoppingListModal({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-4"
           >
-            {form.formState.errors.root && (
+            {errors.root && (
               <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
-                {form.formState.errors.root.message}
+                {errors.root.message}
               </div>
             )}
 
