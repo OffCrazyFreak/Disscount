@@ -100,6 +100,10 @@ export function useAddToListSubmit({
           ? `Količina proizvoda je povećana u "${target.name}"`
           : `Proizvod je dodan u "${target.name}"`,
         {
+          classNames: {
+            actionButton:
+              "bg-primary! text-primary-foreground! hover:bg-primary/90!",
+          },
           action: {
             label: "Otvori",
             onClick: () =>
