@@ -3,14 +3,10 @@
 import Link from "next/link";
 import { ShoppingListDto } from "@/lib/api/types";
 import { Card } from "@/components/ui/card";
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/ui/tooltip";
-import { Globe, Lock, Calendar, ListChecks } from "lucide-react";
+import { Calendar, ListChecks } from "lucide-react";
 import { formatDate } from "@/utils/strings";
 import ShoppingListActionButtons from "@/app/(user)/shopping-lists/[id]/components/shopping-list-action-buttons";
+import ShoppingListVisibilityIndicator from "@/app/(user)/shopping-lists/components/shopping-list-visibility-indicator";
 
 interface IShoppingListListItemProps {
   shoppingList: ShoppingListDto;
@@ -37,22 +33,13 @@ export default function ShoppingListListItem({
       <div className="flex items-stretch sm:items-center justify-between gap-4 flex-col sm:flex-row">
         <div className="flex items-center justify-between gap-4 min-w-0 flex-1">
           {/* Title */}
-          <h3 className="font-bold text-lg truncate">{shoppingList.title}</h3>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="relative z-10 flex-shrink-0" tabIndex={0}>
-                {shoppingList.isPublic ? (
-                  <Globe className="size-5 text-primary" />
-                ) : (
-                  <Lock className="size-5 text-gray-600" />
-                )}
-              </div>
-            </TooltipTrigger>
-
-            <TooltipContent sideOffset={4}>
-              {shoppingList.isPublic ? "Popis je javan" : "Popis je privatan"}
-            </TooltipContent>
-          </Tooltip>
+          <h3 className="min-w-0 flex-1 break-words text-pretty text-lg font-bold">
+            {shoppingList.title}
+          </h3>
+          <ShoppingListVisibilityIndicator
+            isPublic={shoppingList.isPublic}
+            className="relative z-10"
+          />
         </div>
 
         {/* Right-side meta */}
@@ -70,7 +57,7 @@ export default function ShoppingListListItem({
             </span>
           </div>
 
-          <div className="relative z-10 hidden sm:flex items-center gap-2">
+          <div className="relative z-10 flex items-center gap-2">
             <ShoppingListActionButtons
               shoppingList={shoppingList}
               showEditButton={true}

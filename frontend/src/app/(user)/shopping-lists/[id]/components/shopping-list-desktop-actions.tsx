@@ -9,6 +9,11 @@ import {
 import { cn } from "@/lib/utils";
 import type { IShoppingListActionGroupProps } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-actions";
 
+interface IShoppingListDesktopActionsProps extends IShoppingListActionGroupProps {
+  visibleOnMobile?: boolean;
+  className?: string;
+}
+
 export default function ShoppingListDesktopActions({
   showShareButton,
   showCopyButton,
@@ -21,9 +26,17 @@ export default function ShoppingListDesktopActions({
   onCopy,
   onEdit,
   onDeleteClick,
-}: IShoppingListActionGroupProps) {
+  visibleOnMobile = false,
+  className,
+}: IShoppingListDesktopActionsProps) {
   return (
-    <div className={cn("hidden sm:flex items-center gap-1 sm:gap-2")}>
+    <div
+      className={cn(
+        "items-center gap-1 sm:gap-2",
+        visibleOnMobile ? "flex" : "hidden sm:flex",
+        className,
+      )}
+    >
       {showShareButton && (
         <Tooltip>
           <TooltipTrigger asChild>
@@ -37,7 +50,7 @@ export default function ShoppingListDesktopActions({
               {isSharing ? (
                 <BlockLoadingSpinner size={24} className="text-inherit" />
               ) : (
-                <Share2 className="size-6 sm:size-7" />
+                <Share2 />
               )}
             </Button>
           </TooltipTrigger>
@@ -63,7 +76,7 @@ export default function ShoppingListDesktopActions({
               {isCopying ? (
                 <BlockLoadingSpinner size={24} className="text-inherit" />
               ) : (
-                <Copy className="size-6 sm:size-7" />
+                <Copy />
               )}
             </Button>
           </TooltipTrigger>
@@ -83,7 +96,7 @@ export default function ShoppingListDesktopActions({
               className="shrink-0"
               onClick={onEdit}
             >
-              <LucideClipboardEdit className="size-6 sm:size-7" />
+              <LucideClipboardEdit />
             </Button>
           </TooltipTrigger>
 
@@ -108,7 +121,7 @@ export default function ShoppingListDesktopActions({
               {isDeleting ? (
                 <BlockLoadingSpinner size={24} className="text-inherit" />
               ) : (
-                <Trash2 className="size-6 sm:size-7" />
+                <Trash2 />
               )}
             </Button>
           </TooltipTrigger>
