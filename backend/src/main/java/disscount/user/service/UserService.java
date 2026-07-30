@@ -33,6 +33,9 @@ public class UserService {
     // Coarse enough that a browsing session costs one extra write, fine enough for daily buckets.
     private static final Duration ACTIVITY_STAMP_INTERVAL = Duration.ofMinutes(5);
 
+    // The only outcome that satisfies the onboarding gate; "skipped:<step>" is progress, not completion.
+    private static final String ONBOARDING_COMPLETED = "completed";
+
     private final UserRepository userRepository;
     private final AuthIdentityDao authIdentityDao;
 
@@ -147,9 +150,12 @@ public class UserService {
 
         // Outcome may be overwritten by re-running the wizard, but the completion
         // timestamp keeps its original value so "first finished" stays meaningful.
+        // Only "completed" stamps it: the wizard writes "skipped:<step>" on every
+        // advance so progress survives a reload, and those must not count as finishing.
         if (request.getOnboardingOutcome() != null) {
             user.setOnboardingOutcome(request.getOnboardingOutcome());
-            if (user.getOnboardingCompletedAt() == null) {
+            if (ONBOARDING_COMPLETED.equals(request.getOnboardingOutcome())
+                    && user.getOnboardingCompletedAt() == null) {
                 user.setOnboardingCompletedAt(nowUtc());
             }
         }
