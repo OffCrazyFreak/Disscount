@@ -1,8 +1,7 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
 import ProductsClient from "@/app/products/components/products-client";
-import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import ProductsSkeleton from "@/app/products/components/products-skeleton";
 import { readSearchParam } from "@/utils/generic";
 
 export const metadata: Metadata = {
@@ -15,16 +14,7 @@ export default async function ProductsPage(props: PageProps<"/products">) {
 
   // ProductsClient's useSearchParams needs a Suspense boundary when prerendering.
   return (
-    <Suspense
-      fallback={
-        <div className="space-y-4">
-          <SearchBarSkeleton />
-          <div className="flex items-center justify-center py-12">
-            <BlockLoadingSpinner />
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<ProductsSkeleton />}>
       <ProductsClient query={query} />
     </Suspense>
   );
