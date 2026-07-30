@@ -6,6 +6,9 @@
 .DS_Store
 Thumbs.db
 
+# T3 Code workspace configuration
+/t3.json
+
 # --- OS ---
 .idea/
 .vscode/
