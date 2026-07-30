@@ -158,6 +158,34 @@ if (requiresAuth) return <LoginRequired ... />;
 
 Before this, every authed page hand-wrote the same three things: fold `isAuthenticated` into `enabled`, merge `userLoading || isLoading` into one flag, and separately decide when to show the login gate. That merge was also load-bearing by accident, since a disabled query reports `isLoading: false`, so the gate only held while `userLoading` happened to still be true.
 
+#### It gates on the session, not the profile
+
+`enabled` keys on `hasSession` (`!!session.user`), not `isAuthenticated` (`!!user`). The distinction matters because those resolve a round trip apart:
+
+```mermaid
+sequenceDiagram
+    participant B as Browser
+    participant A as better-auth
+    participant API as Backend
+
+    B->>A: get-session
+    A-->>B: session
+    Note over B: hasSession true here
+    B->>API: /api/auth/token
+    par now parallel
+        B->>API: /api/users/me
+        and
+        B->>API: /api/shopping-lists/me
+    end
+    Note over B: isAuthenticated true once /users/me lands
+```
+
+An authed request only needs a session to be authorised. Gating on the loaded profile made every authed page queue behind a request it did not depend on, so total time was `profile + data` instead of `max(profile, data)`.
+
+**`pending` still waits for the profile, deliberately.** Several surfaces derive from `user.pinnedStores` (the watchlist sorts on it), so painting rows before it lands would reorder them under the reader. Waiting costs nothing now that the fetch already started in parallel.
+
+`requiresAuth` is keyed on the session too, so a profile fetch that fails surfaces as an error rather than telling a signed-in reader to sign in.
+
 ### `useDataPending`
 
 For public reads and for combining several flags:
@@ -431,7 +459,43 @@ Not specific to this layer, but it bit during the work. The worktree's `node_mod
 ## 14. Future improvements & TODOs
 
 - **Prefetch on hover or viewport entry.** `useProductNavigation` already seeds the product cache before pushing a route. The same trick would suit shopping list cards, so opening one is a cache hit.
-- **Server-side prefetch with `HydrationBoundary`.** Nothing currently prefetches on the server, so every page starts empty on a cold cache. Public product data is the obvious first candidate, and it would remove the skeleton entirely on a first visit.
+
+### TODO: server-side prefetch with `HydrationBoundary`
+
+The largest remaining win, and the one that would retire most skeletons rather than just make them well behaved.
+
+Nothing prefetches on the server today, so a cold visit always pays the full client waterfall before anything renders. Even with the session gating above, a first paint still costs `get-session` → `/api/auth/token` → the data request. A server prefetch collapses that: the RSC renders with data already in the cache, and the skeleton never appears at all.
+
+The shape:
+
+```tsx
+// page.tsx (server component)
+const queryClient = new QueryClient();
+await queryClient.prefetchQuery(cijeneQueries.productByEan({ ean }));
+
+return (
+  <HydrationBoundary state={dehydrate(queryClient)}>
+    <ProductDetailClient ean={ean} />
+  </HydrationBoundary>
+);
+```
+
+The `queryOptions()` descriptors already make this trivial, which was part of why reads became descriptors rather than hooks: the same object feeds `prefetchQuery` on the server and `useQuery` on the client.
+
+Do it in this order:
+
+| Step | Route            | Why first                                                                                                              |
+| ---- | ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| 1    | `/products/[id]` | Public data, no auth, no cookie forwarding. Pure win, lowest risk                                                      |
+| 2    | `/products`      | Public, but the query depends on searchParams, so key parity matters                                                   |
+| 3    | Authed routes    | Needs the session cookie forwarded to the fetcher, so `apiClient`'s browser-only token logic has to grow a server path |
+
+Things that will bite:
+
+- **`lib/api/api-base.ts` is browser-only.** `getToken()` returns `null` when `typeof window === "undefined"`, so authed prefetch needs a server-side token path before step 3 is possible at all.
+- **Key parity is absolute.** A server prefetch under a key the client does not read is wasted bytes and a silent double fetch. The factories in `keys.ts` are what make this safe, so prefetch through them, never with a literal.
+- **Interaction with the persister.** Hydrated data lands in the same cache the persister dehydrates. Confirm a hydrated entry does not overwrite fresher restored data on a repeat visit.
+- **Do not delete the skeletons.** They still cover client navigation, refetch after invalidation, and the offline case. Prefetch removes the skeleton from the first paint, not from the app.
 - **Extend the offline allowlist.** `cached-query-keys.ts` carries `TODO(offline)` markers for `/spending`, `/updates` and `/map` keys, to add when those features ship.
 - **Skeletons for the Coming Soon routes.** `/map` and `/spending` need them once they hold real data.
 - **A visual regression check on CLS.** The zero-shift claim is currently verified by hand. A Lighthouse or Playwright assertion per route would keep it honest.
