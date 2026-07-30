@@ -1,11 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import { SCAN_FORMATS_BY_PRESET } from "@/constants/scanner";
 import { IScannedCode, ScanPreset } from "@/typings/scanned-code";
 import ScanOverlay from "@/components/scanner/scan-overlay";
 import "@/components/scanner/scanner.css";
+
+const CAMERA_SCAN_RETRY_DELAY = 750;
+const CAMERA_TRACK_POLL_INTERVAL = 300;
+const CAMERA_TRACK_POLL_LIMIT = 20;
+
+const CAMERA_COMPONENTS = {
+  finder: true,
+  torch: true,
+  zoom: true,
+  onOff: true,
+};
 
 interface ICameraViewProps {
   preset: ScanPreset;
@@ -14,8 +25,7 @@ interface ICameraViewProps {
   onError: (error: unknown) => void;
 }
 
-function getVideoTrack(container: HTMLElement | null) {
-  const video = container?.querySelector("video");
+function getVideoTrack(video: HTMLVideoElement | null) {
   const stream = (video?.srcObject as MediaStream | null) ?? null;
 
   return stream?.getVideoTracks()[0] ?? null;
@@ -29,6 +39,16 @@ function turnTorchOff(track: MediaStreamTrack | null) {
     .catch(() => {});
 }
 
+function stopVideo(video: HTMLVideoElement | null) {
+  const stream = (video?.srcObject as MediaStream | null) ?? null;
+
+  for (const track of stream?.getTracks() ?? []) {
+    track.stop();
+  }
+
+  if (video) video.srcObject = null;
+}
+
 export default function CameraView({
   preset,
   deviceId,
@@ -36,31 +56,52 @@ export default function CameraView({
   onError,
 }: ICameraViewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const [isPageVisible, setIsPageVisible] = useState(true);
 
   // exact, because a bare deviceId is only an "ideal" hint the browser may ignore.
   const constraints = useMemo(
-    () =>
-      deviceId
+    () => ({
+      width: { ideal: 1280, max: 1280 },
+      height: { ideal: 720, max: 720 },
+      frameRate: { ideal: 24, max: 30 },
+      ...(deviceId
         ? { deviceId: { exact: deviceId } }
-        : { facingMode: "environment" as const },
+        : { facingMode: "environment" as const }),
+    }),
     [deviceId],
   );
 
+  useEffect(() => {
+    function handleVisibilityChange() {
+      setIsPageVisible(document.visibilityState === "visible");
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
+
   // Some devices remember the torch across streams, so force it off on start.
   useEffect(() => {
-    const container = containerRef.current;
+    const video =
+      containerRef.current?.querySelector<HTMLVideoElement>("video") ?? null;
+    let attempts = 0;
 
     const timer = window.setInterval(() => {
-      const track = getVideoTrack(container);
-      if (!track) return;
+      const track = getVideoTrack(video);
+      attempts += 1;
+
+      if (!track && attempts < CAMERA_TRACK_POLL_LIMIT) return;
 
       window.clearInterval(timer);
       turnTorchOff(track);
-    }, 300);
+    }, CAMERA_TRACK_POLL_INTERVAL);
 
     return () => {
       window.clearInterval(timer);
-      turnTorchOff(getVideoTrack(container));
+      turnTorchOff(getVideoTrack(video));
+      stopVideo(video);
     };
   }, [deviceId]);
 
@@ -82,14 +123,10 @@ export default function CameraView({
         onError={onError}
         formats={SCAN_FORMATS_BY_PRESET[preset]}
         constraints={constraints}
-        scanDelay={150}
+        retryDelay={CAMERA_SCAN_RETRY_DELAY}
+        paused={!isPageVisible}
         sound
-        components={{
-          finder: true,
-          torch: true,
-          zoom: true,
-          onOff: true,
-        }}
+        components={CAMERA_COMPONENTS}
       />
     </div>
   );

@@ -13,8 +13,13 @@ function scoreCamera(label: string, index: number): number {
 
 // Labels exist only after permission is granted, so this can return null.
 export function pickBackCamera(devices: MediaDeviceInfo[]): string | null {
-  const scored = devices
-    .filter((device) => device.label)
+  const labeledDevices = devices.filter((device) => device.label);
+
+  // The browser already has to use the only camera. Waiting for its label and
+  // then selecting it explicitly would just restart the same stream.
+  if (labeledDevices.length < 2) return null;
+
+  const scored = labeledDevices
     .map((device, index) => ({
       deviceId: device.deviceId,
       score: scoreCamera(device.label, index),

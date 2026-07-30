@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Banner } from "@/components/custom/common/banner";
 import {
   clearPreferredCamera,
   getPreferredCamera,
@@ -64,17 +65,22 @@ export default function CameraScanner({
       <DialogContent>
         <DialogHeader className="text-left">
           <DialogTitle className="flex items-center gap-2">
-            <ScanBarcode className="size-6" />
+            <ScanBarcode aria-hidden="true" className="size-6" />
             Skeniraj kod
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           {error ? (
-            <p className="flex items-start gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
-              <TriangleAlert className="mt-0.5 size-4 shrink-0" />
+            <Banner
+              role="alert"
+              variant="warningSoft"
+              size="md"
+              icon={TriangleAlert}
+              className="mb-0"
+            >
               {error}
-            </p>
+            </Banner>
           ) : (
             <CameraView
               preset={preset}
