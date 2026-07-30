@@ -4,6 +4,7 @@ import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
 import PasswordField from "@/components/custom/auth/components/fields/password-field";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import { useResetPasswordForm } from "@/components/custom/auth/hooks/use-reset-password-form";
 
 interface IResetPasswordModalProps {
@@ -24,6 +25,7 @@ export default function ResetPasswordModal({ open }: IResetPasswordModalProps) {
       formId="reset-password-form"
       submitLabel="Postavi lozinku"
       submitLoading={form.formState.isSubmitting}
+      submitLoadingLabel={LOADING_LABELS.settingUp}
       submitDisabled={!token}
       cancelLabel="Odustani"
     >

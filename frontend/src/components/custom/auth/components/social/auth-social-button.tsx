@@ -5,6 +5,7 @@ import type { ElementType } from "react";
 import { Button } from "@/components/ui/button";
 import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
 import LastLoginBadge from "@/components/custom/auth/components/last-login-badge";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 
 export type SocialProvider = "google" | "facebook";
 
@@ -37,6 +38,8 @@ export default function AuthSocialButton({
       onClick={() => onSignIn(provider)}
       disabled={socialPending !== null || comingSoon}
       loading={socialPending === provider}
+      loadingText={LOADING_LABELS.signingIn}
+      loadingIconPlacement="left"
       icon={icon}
       iconPlacement="left"
     >

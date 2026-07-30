@@ -8,6 +8,7 @@ import EmailField from "@/components/custom/auth/components/fields/email-field";
 import PasswordField from "@/components/custom/auth/components/fields/password-field";
 import FormRootError from "@/components/custom/common/form-root-error";
 import InboxNotice from "@/components/custom/common/inbox-notice";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import { useSignupForm } from "@/components/custom/auth/hooks/use-signup-form";
 
 interface ISignUpFormProps {
@@ -61,7 +62,7 @@ export default function SignUpForm({ externalDisabled }: ISignUpFormProps) {
           icon={UserPlus}
           iconPlacement="left"
           loading={form.formState.isSubmitting}
-          loadingText="Registracija..."
+          loadingText={LOADING_LABELS.registering}
           loadingIconPlacement="left"
           disabled={form.formState.isSubmitting || externalDisabled}
         >

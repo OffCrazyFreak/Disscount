@@ -9,6 +9,7 @@ import PasswordField from "@/components/custom/auth/components/fields/password-f
 import ForgotPasswordLink from "@/components/custom/form/forgot-password-link";
 import FormRootError from "@/components/custom/common/form-root-error";
 import LastLoginBadge from "@/components/custom/auth/components/last-login-badge";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import { useLoginForm } from "@/components/custom/auth/hooks/use-login-form";
 
 interface ILoginFormProps {
@@ -53,7 +54,7 @@ export default function LoginForm({
           icon={LogIn}
           iconPlacement="left"
           loading={form.formState.isSubmitting}
-          loadingText="Prijava..."
+          loadingText={LOADING_LABELS.signingIn}
           loadingIconPlacement="left"
           disabled={form.formState.isSubmitting || externalDisabled}
         >
