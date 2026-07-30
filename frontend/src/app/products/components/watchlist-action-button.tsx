@@ -34,11 +34,7 @@ export default function WatchlistActionButton({
           className={cn("shrink-0", className)}
           onClick={() => openWatchlist()}
         >
-          {isInWatchlist ? (
-            <EyeOff className="size-6 sm:size-7" />
-          ) : (
-            <Eye className="size-6 sm:size-7" />
-          )}
+          {isInWatchlist ? <EyeOff /> : <Eye />}
         </Button>
       </TooltipTrigger>
 

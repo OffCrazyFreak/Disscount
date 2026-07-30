@@ -36,7 +36,7 @@ export default function RemoveItemButton({
           {isDeleting ? (
             <BlockLoadingSpinner size={24} className="text-inherit" />
           ) : (
-            <X className="size-6 sm:size-7" />
+            <X />
           )}
         </Button>
       </TooltipTrigger>

@@ -27,7 +27,7 @@ export default function ItemAmountControls({
         }
         disabled={(item.amount || 1) <= 1 || item.isChecked}
       >
-        <Minus className="size-6 sm:size-7" />
+        <Minus />
       </Button>
 
       <span className="text-center min-w-8">{item.amount}</span>
@@ -45,7 +45,7 @@ export default function ItemAmountControls({
         }
         disabled={item.isChecked}
       >
-        <Plus className="size-6 sm:size-7" />
+        <Plus />
       </Button>
     </div>
   );

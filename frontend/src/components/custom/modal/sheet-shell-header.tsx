@@ -63,7 +63,7 @@ export default function SheetShellHeader({
             aria-label="Zatvori"
             className="shrink-0 text-muted-foreground"
           >
-            <X className="size-6 sm:size-7" />
+            <X />
           </Button>
         </DrawerClose>
       )}

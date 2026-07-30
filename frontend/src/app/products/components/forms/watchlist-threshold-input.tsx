@@ -20,8 +20,8 @@ import {
 
 function thresholdSteps(watchType: WatchType, minPrice: number) {
   if (watchType === WatchType.percentage) return { primary: 5, secondary: 10 };
-  if (minPrice < 10) return { primary: 0.5, secondary: 1 };
-  return { primary: 2, secondary: 5 };
+  if (minPrice < 10) return { primary: 0.5, secondary: 2 };
+  return { primary: 1, secondary: 5 };
 }
 
 interface IWatchlistThresholdInputProps {

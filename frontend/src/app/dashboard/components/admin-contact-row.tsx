@@ -80,11 +80,7 @@ export default function AdminContactRow({
             aria-label={unread ? "Označi pročitano" : "Označi nepročitano"}
             onClick={() => onToggleRead(message)}
           >
-            {unread ? (
-              <MailOpen className="size-6 sm:size-7" />
-            ) : (
-              <Mail className="size-6 sm:size-7" />
-            )}
+            {unread ? <MailOpen /> : <Mail />}
           </Button>
 
           {email && (
@@ -95,7 +91,7 @@ export default function AdminContactRow({
               aria-label="Kopiraj e-mail"
               onClick={copyEmail}
             >
-              <Copy className="size-6 sm:size-7" />
+              <Copy />
             </Button>
           )}
 
@@ -107,7 +103,7 @@ export default function AdminContactRow({
               aria-label="Vrati poruku"
               onClick={() => onRestore(message)}
             >
-              <RotateCcw className="size-6 sm:size-7" />
+              <RotateCcw />
             </Button>
           ) : (
             <Button
@@ -118,7 +114,7 @@ export default function AdminContactRow({
               className="text-destructive hover:text-destructive"
               onClick={() => onDelete(message)}
             >
-              <Trash2 className="size-6 sm:size-7" />
+              <Trash2 />
             </Button>
           )}
         </div>

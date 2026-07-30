@@ -25,7 +25,7 @@ export default function FooterSupportIcons() {
             className={LIVE_CLASS}
           >
             <Link href={item.href}>
-              <Icon className="size-6 sm:size-7" />
+              <Icon />
             </Link>
           </Button>
         ) : (
@@ -39,7 +39,7 @@ export default function FooterSupportIcons() {
             title="Uskoro"
             className={DISABLED_CLASS}
           >
-            <Icon className="size-6 sm:size-7" />
+            <Icon />
           </Button>
         );
       })}

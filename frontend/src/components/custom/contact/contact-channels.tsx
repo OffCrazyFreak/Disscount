@@ -31,7 +31,7 @@ export default function ContactChannels() {
             aria-label="Kopiraj e-mail adresu"
             onClick={copyEmail}
           >
-            <Copy className="size-6 sm:size-7" />
+            <Copy />
           </Button>
         </span>{" "}
         ili putem{" "}
@@ -62,7 +62,7 @@ export default function ContactChannels() {
             aria-label="Otvori Ideje i prijedloge"
           >
             <Link href="/suggestions">
-              <ExternalLink className="size-6 sm:size-7" />
+              <ExternalLink />
             </Link>
           </Button>
         </li>
@@ -79,7 +79,7 @@ export default function ContactChannels() {
             aria-label="Otvori prijavu greške"
           >
             <Link href="?modal=bug-report">
-              <ExternalLink className="size-6 sm:size-7" />
+              <ExternalLink />
             </Link>
           </Button>
         </li>

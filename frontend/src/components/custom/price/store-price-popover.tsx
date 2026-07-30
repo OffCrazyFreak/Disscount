@@ -35,7 +35,7 @@ export default function StorePricePopover({
             title={label}
             className="text-inherit hover:text-inherit focus-visible:text-inherit"
           >
-            <Info className="size-6 sm:size-7" aria-hidden="true" />
+            <Info aria-hidden="true" />
           </Button>
         </PopoverTrigger>
 
