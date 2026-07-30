@@ -10,7 +10,7 @@ interface IShoppingListActionButtonsProps {
   showEditButton?: boolean;
   showDeleteButton?: boolean;
   showShareButton?: boolean;
-  mobilePresentation?: "menu" | "buttons";
+  mobilePresentation?: "menu" | "buttons" | "none";
   className?: string;
 }
 

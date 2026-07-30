@@ -28,9 +28,9 @@ export default function ShoppingListVisibilityIndicator({
           aria-label={label}
         >
           {isPublic ? (
-            <Globe className="size-5 text-primary" aria-hidden="true" />
+            <Globe className="size-6 text-primary" aria-hidden="true" />
           ) : (
-            <Lock className="size-5 text-muted-foreground" aria-hidden="true" />
+            <Lock className="size-6 text-muted-foreground" aria-hidden="true" />
           )}
         </span>
       </TooltipTrigger>

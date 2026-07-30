@@ -43,11 +43,8 @@ export default function ShoppingListHeader({
           </h1>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
-          <ShoppingListVisibilityIndicator
-            isPublic={shoppingList.isPublic}
-            className="mr-2"
-          />
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+          <ShoppingListVisibilityIndicator isPublic={shoppingList.isPublic} />
           <ShoppingListActionButtons
             shoppingList={shoppingList}
             showCopyButton={true}
