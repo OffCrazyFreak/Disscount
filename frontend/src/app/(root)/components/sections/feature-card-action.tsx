@@ -22,7 +22,7 @@ export default function FeatureCardAction({
   children,
 }: IFeatureCardActionProps) {
   const { openScanner } = useCameraScanner();
-  const { setMenuOpen } = useNotifications();
+  const { requestOpenMenu } = useNotifications();
   const { isAuthenticated } = useUser();
   const router = useRouter();
 
@@ -36,7 +36,7 @@ export default function FeatureCardAction({
 
   // Guests have no notifications dropdown mounted, so send them to login first
   function openNotifications() {
-    if (isAuthenticated) setMenuOpen(true);
+    if (isAuthenticated) requestOpenMenu();
     else openModalUrl({ name: "login" });
   }
 

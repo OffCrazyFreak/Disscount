@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
@@ -16,9 +16,8 @@ import NotificationsList from "@/components/custom/notifications/components/noti
 
 interface INotificationsDropdownProps {
   /**
-   * Bind open state to the notifications context so external UI (e.g. the
-   * landing CTA) can open this instance. Only ONE mounted dropdown should
-   * opt in, otherwise they all open together; the rest stay on local state.
+   * Answer open requests from external UI (e.g. the landing CTA). Only ONE
+   * mounted dropdown should opt in, otherwise they all open together.
    */
   openViaContext?: boolean;
 }
@@ -32,15 +31,22 @@ export default function NotificationsDropdown({
     isLoading,
     hasNotifications,
     hasWatchlistItems,
-    isMenuOpen,
-    setMenuOpen,
+    openMenuSignal,
   } = useNotifications();
   const router = useRouter();
 
-  const [isLocalOpen, setLocalOpen] = useState(false);
+  const [isOpen, setOpen] = useState(false);
 
-  const isOpen = openViaContext ? isMenuOpen : isLocalOpen;
-  const setOpen = openViaContext ? setMenuOpen : setLocalOpen;
+  // Seeded with the current signal so a remount replays nothing: only a bump
+  // that happens while this instance is mounted counts as a real request.
+  const lastHandledSignal = useRef(openMenuSignal);
+
+  useEffect(() => {
+    if (!openViaContext || openMenuSignal === lastHandledSignal.current) return;
+
+    lastHandledSignal.current = openMenuSignal;
+    setOpen(true);
+  }, [openViaContext, openMenuSignal]);
 
   function handleAddProducts() {
     setOpen(false);

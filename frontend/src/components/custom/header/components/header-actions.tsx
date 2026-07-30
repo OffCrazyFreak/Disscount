@@ -9,13 +9,15 @@ import NotificationsDropdown from "@/components/custom/notifications/notificatio
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function HeaderActions() {
-  const { isAuthenticated, isLoading } = useUser();
+  // isInitializing, not isLoading: a background session refresh must not
+  // unmount the bell, or it tears down an open notifications menu mid-use.
+  const { isAuthenticated, isInitializing } = useUser();
 
   const isMobile = useIsMobile();
 
   return (
     <div className="flex items-center justify-between gap-8">
-      {isLoading ? (
+      {isInitializing ? (
         <Skeleton
           className={cn("rounded-full", isMobile ? "h-8 w-24" : "h-10 w-28")}
         />
