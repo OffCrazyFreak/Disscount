@@ -13,6 +13,9 @@ import {
 } from "@/components/ui/select";
 import { TableCell, TableRow } from "@/components/ui/table";
 import RelativeTime from "@/components/custom/common/relative-time";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import PendingStatus from "@/components/custom/common/pending-status";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import {
   AccountType,
   ACCOUNT_TYPE_LABELS,
@@ -56,24 +59,31 @@ export default function AdminUserRow({
       </TableCell>
 
       <TableCell>
-        <Select
-          value={user.accountType}
-          onValueChange={(value) =>
-            onAccountTypeChange(user.id, value as AccountType)
-          }
-          disabled={isSelf || isUpdating}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {ACCOUNT_TYPES.map((type) => (
-              <SelectItem key={type} value={type}>
-                {ACCOUNT_TYPE_LABELS[type]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {/* A select has nowhere to put pending copy, so the spinner sits beside
+            it and the live region carries the wording. */}
+        <div className="flex items-center gap-2">
+          <Select
+            value={user.accountType}
+            onValueChange={(value) =>
+              onAccountTypeChange(user.id, value as AccountType)
+            }
+            disabled={isSelf || isUpdating}
+          >
+            <SelectTrigger className="w-full" aria-busy={isUpdating}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ACCOUNT_TYPES.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {ACCOUNT_TYPE_LABELS[type]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {isUpdating && <BlockLoadingSpinner size={16} />}
+          <PendingStatus pending={isUpdating} label={LOADING_LABELS.updating} />
+        </div>
       </TableCell>
 
       <TableCell>

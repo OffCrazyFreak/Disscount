@@ -22,7 +22,16 @@ export function useContactInbox() {
     });
   }
 
+  // Which row is busy, and doing what, so a table of rows can show it per row.
+  // `variables` is the id, since each of these mutations takes only that.
+  function pendingIdFor(...mutations: ContactMutation[]) {
+    return mutations.find((m) => m.isPending)?.variables ?? null;
+  }
+
   return {
+    readPendingId: pendingIdFor(markRead, markUnread),
+    deletePendingId: pendingIdFor(softDelete),
+    restorePendingId: pendingIdFor(restore),
     toggleRead: (m: ContactMessageDto) =>
       m.readAt
         ? run(markUnread, m.id, "Označeno kao nepročitano.")

@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import { formatDate } from "@/utils/strings";
 import { ContactMessageDto } from "@/lib/api/types";
 
@@ -15,6 +17,9 @@ interface IAdminContactRowProps {
   onToggleRead: (m: ContactMessageDto) => void;
   onDelete: (m: ContactMessageDto) => void;
   onRestore: (m: ContactMessageDto) => void;
+  isTogglingRead: boolean;
+  isDeleting: boolean;
+  isRestoring: boolean;
 }
 
 export default function AdminContactRow({
@@ -23,10 +28,22 @@ export default function AdminContactRow({
   onToggleRead,
   onDelete,
   onRestore,
+  isTogglingRead,
+  isDeleting,
+  isRestoring,
 }: IAdminContactRowProps) {
   const unread = !message.readAt;
   const isDeleted = !!message.deletedAt;
   const email = message.email ?? "";
+
+  // Icon-only, so the spinner is the whole visual and the names carry the copy.
+  const readLabel = isTogglingRead
+    ? LOADING_LABELS.updating
+    : unread
+      ? "Označi pročitano"
+      : "Označi nepročitano";
+  const deleteLabel = isDeleting ? LOADING_LABELS.deleting : "Obriši poruku";
+  const restoreLabel = isRestoring ? LOADING_LABELS.restoring : "Vrati poruku";
 
   async function copyEmail() {
     try {
@@ -77,10 +94,17 @@ export default function AdminContactRow({
             type="button"
             variant="ghost"
             size="icon"
-            aria-label={unread ? "Označi pročitano" : "Označi nepročitano"}
+            aria-label={readLabel}
             onClick={() => onToggleRead(message)}
+            disabled={isTogglingRead}
           >
-            {unread ? <MailOpen /> : <Mail />}
+            {isTogglingRead ? (
+              <BlockLoadingSpinner size={24} className="text-inherit" />
+            ) : unread ? (
+              <MailOpen />
+            ) : (
+              <Mail />
+            )}
           </Button>
 
           {email && (
@@ -100,21 +124,31 @@ export default function AdminContactRow({
               type="button"
               variant="ghost"
               size="icon"
-              aria-label="Vrati poruku"
+              aria-label={restoreLabel}
               onClick={() => onRestore(message)}
+              disabled={isRestoring}
             >
-              <RotateCcw />
+              {isRestoring ? (
+                <BlockLoadingSpinner size={24} className="text-inherit" />
+              ) : (
+                <RotateCcw />
+              )}
             </Button>
           ) : (
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              aria-label="Obriši poruku"
+              aria-label={deleteLabel}
               className="text-destructive hover:text-destructive"
               onClick={() => onDelete(message)}
+              disabled={isDeleting}
             >
-              <Trash2 />
+              {isDeleting ? (
+                <BlockLoadingSpinner size={24} className="text-inherit" />
+              ) : (
+                <Trash2 />
+              )}
             </Button>
           )}
         </div>

@@ -121,6 +121,9 @@ export default function AdminContactTable() {
                 onToggleRead={inbox.toggleRead}
                 onDelete={inbox.remove}
                 onRestore={inbox.restore}
+                isTogglingRead={inbox.readPendingId === message.id}
+                isDeleting={inbox.deletePendingId === message.id}
+                isRestoring={inbox.restorePendingId === message.id}
               />
             ))}
           </TableBody>

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import {
   Table,
   TableBody,
@@ -104,6 +105,7 @@ export default function AdminUsersTable() {
           deleteTarget?.username || deleteTarget?.email || ""
         }? Ova akcija se ne može poništiti.`}
         confirmLabel="Obriši račun"
+        confirmLoadingLabel={LOADING_LABELS.deleting}
         variant="destructive"
         onConfirm={handleDelete}
         isLoading={deleteUser.isPending}
