@@ -13,13 +13,12 @@ import disscount.digitalCard.service.DigitalCardService;
 import disscount.util.SecurityUtils;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/digital-cards")
 @RequiredArgsConstructor
-@Tag(name = "Digital Cards", description = "Digital card management endpoints")
+@Tag(name = "Digital Cards", description = "Loyalty card wallet endpoints")
 public class DigitalCardController {
 
     private final DigitalCardService digitalCardService;
@@ -28,42 +27,47 @@ public class DigitalCardController {
     @PostMapping
     public ResponseEntity<DigitalCardDto> createCard(@Valid @RequestBody DigitalCardRequest request) {
         UUID userId = SecurityUtils.getCurrentUserId();
-        DigitalCardDto card = digitalCardService.createCard(userId, request);
-        return ResponseEntity.ok(card);
+        DigitalCardDto created = digitalCardService.createCard(userId, request);
+        return ResponseEntity.ok(created);
     }
 
-    @Operation(summary = "Get all digital cards for current user")
+    @Operation(summary = "Get current user's digital cards")
     @GetMapping("/me")
-    public ResponseEntity<List<DigitalCardDto>> getUserCards() {
+    public ResponseEntity<List<DigitalCardDto>> getCurrentUserCards() {
         UUID userId = SecurityUtils.getCurrentUserId();
         List<DigitalCardDto> cards = digitalCardService.getUserCards(userId);
         return ResponseEntity.ok(cards);
-    }
-
-    @Operation(summary = "Get digital card by ID")
-    @GetMapping("/{id}")
-    public ResponseEntity<DigitalCardDto> getCardById(@PathVariable UUID id) {
-        UUID userId = SecurityUtils.getCurrentUserId();
-        return digitalCardService.getCardById(id, userId)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
     }
 
     @Operation(summary = "Update digital card")
     @PutMapping("/{id}")
     public ResponseEntity<DigitalCardDto> updateCard(
             @PathVariable UUID id,
-            @RequestBody DigitalCardRequest request) {
+            @Valid @RequestBody DigitalCardRequest request) {
         UUID userId = SecurityUtils.getCurrentUserId();
-        DigitalCardDto updatedCard = digitalCardService.updateCard(id, userId, request);
-        return ResponseEntity.ok(updatedCard);
+        DigitalCardDto updated = digitalCardService.updateCard(id, userId, request);
+        return ResponseEntity.ok(updated);
     }
 
-    @Operation(summary = "Delete digital card (soft delete)")
+    @Operation(summary = "Delete digital card")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteCard(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteCard(@PathVariable UUID id) {
         UUID userId = SecurityUtils.getCurrentUserId();
         digitalCardService.deleteCard(id, userId);
-        return ResponseEntity.ok(Map.of("message", "Card deleted successfully"));
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Pin digital card")
+    @PatchMapping("/{id}/pin")
+    public ResponseEntity<DigitalCardDto> pinCard(@PathVariable UUID id) {
+        UUID userId = SecurityUtils.getCurrentUserId();
+        return ResponseEntity.ok(digitalCardService.setPinned(id, userId, true));
+    }
+
+    @Operation(summary = "Unpin digital card")
+    @PatchMapping("/{id}/unpin")
+    public ResponseEntity<DigitalCardDto> unpinCard(@PathVariable UUID id) {
+        UUID userId = SecurityUtils.getCurrentUserId();
+        return ResponseEntity.ok(digitalCardService.setPinned(id, userId, false));
     }
 }
