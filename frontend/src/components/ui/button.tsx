@@ -209,7 +209,7 @@ const Button = React.forwardRef<
         })}
       >
         {loading && loadingIconPlacement === "left" && (
-          <BlockLoadingSpinner size={16} className={spinnerColor} />
+          <BlockLoadingSpinner size={20} className={spinnerColor} />
         )}
 
         {Icon &&
@@ -236,7 +236,7 @@ const Button = React.forwardRef<
         </Slottable>
 
         {loading && loadingIconPlacement === "right" && (
-          <BlockLoadingSpinner size={16} className={cn("ml-2", spinnerColor)} />
+          <BlockLoadingSpinner size={20} className={cn("ml-2", spinnerColor)} />
         )}
 
         {Icon &&
