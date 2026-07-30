@@ -6,6 +6,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import { cn } from "@/lib/utils";
 
 interface IWatchlistActionButtonProps {
@@ -26,13 +27,15 @@ export default function WatchlistActionButton({
   onRemove,
 }: IWatchlistActionButtonProps) {
   const label = isAddMode ? "Prati proizvod" : "Makni proizvod";
+  // Icon-only, so the spinner is the whole visual and the name carries the copy.
+  const currentLabel = isRemoving ? LOADING_LABELS.deleting : label;
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
           size="icon"
-          aria-label={label}
+          aria-label={currentLabel}
           className={cn(
             visibilityClassName,
             isAddMode
@@ -56,7 +59,7 @@ export default function WatchlistActionButton({
         variant={isAddMode ? "primary" : "destructive"}
         className="px-2 py-1 text-xs"
       >
-        {label}
+        {currentLabel}
       </TooltipContent>
     </Tooltip>
   );

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ResponsiveLabel from "@/components/custom/common/responsive-label";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import { shoppingListService } from "@/lib/api";
 import { IWatchlistItemWithProduct } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { formatDate } from "@/utils/strings";
@@ -104,7 +105,14 @@ export default function CreateDiscountedListButton({
         iconPlacement="left"
         disabled={isDisabled}
         loading={isCreating}
-        loadingText="Stvaranje popisa..."
+        // Mirrors the label's own breakpoint swap, so the pending wording is
+        // never wider than the idle one it replaces.
+        loadingText={
+          <ResponsiveLabel
+            full="Stvaranje popisa..."
+            short={LOADING_LABELS.creating}
+          />
+        }
       >
         <ResponsiveLabel full={buttonText} short="Stvori popis" />
 
