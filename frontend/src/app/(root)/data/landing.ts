@@ -14,10 +14,6 @@ export const tagLines: string[] = [
   "Zaboravi na kataloge i letke!",
 ];
 
-// TODO: Add a "Zajedno gradimo Disscount" section once there are contributors
-// to show. It should keep code contributions and opted-in financial support in
-// separate columns: "Doprinos razvoju" and "Podrška projektu".
-
 export interface IHowItWorksStep {
   title: string;
   description: string;

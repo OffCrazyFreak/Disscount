@@ -59,21 +59,30 @@ export default function DonationModal({ open }: IDonationModalProps) {
       open={open}
       onOpenChange={(isOpen) => !isOpen && handleClose()}
       title="Podrži Disscount"
-      description="Disscount je besplatan i takav ostaje. Ako ti pomaže pri kupnji, dobrovoljna podrška pomaže pokriti hosting i daljnji razvoj."
+      description={
+        <>
+          <span className="block">
+            Disscount je besplatan i takav ostaje. Ako ti pomaže pri
+            organizaciji kupovine, ili na bilo koji drugi način, puno nam znači
+            bilo kakva dobrovoljna podrška.
+          </span>
+          <span className="mt-3 block">
+            Sve ide direktno nazad u Disscount kako bi se pokrilo održavanje i
+            daljnji razvoj!
+          </span>
+        </>
+      }
       size="sm"
       centered
       hero={
         <div className="bg-primary/10 text-primary flex size-14 items-center justify-center rounded-full">
-          <HeartHandshake className="size-7" aria-hidden />
+          <HeartHandshake className="size-6" aria-hidden />
         </div>
       }
       footer={
-        <div className="flex flex-col-reverse gap-2 px-6 pb-6 pt-4 sm:flex-row sm:justify-end">
-          <Button type="button" variant="outline" onClick={handleClose}>
-            Ne sada
-          </Button>
-
-          <Button asChild icon={Coffee} iconPlacement="left">
+        <div className="px-6 pb-6 pt-4">
+          {/* TODO: Add a GitHub Sponsors button beside Ko-fi after the profile is live. */}
+          <Button asChild icon={Coffee} iconPlacement="left" className="w-full">
             <a href={KO_FI_URL} target="_blank" rel="noopener noreferrer">
               Podrži na Ko-fi
             </a>

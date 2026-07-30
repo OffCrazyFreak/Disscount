@@ -30,6 +30,7 @@ export default function Home() {
       <StoresSection />
       <PwaSection />
       <PricingSection />
+      {/* TODO: Add the "Zajedno gradimo Disscount" contributor and opted-in supporter section here. */}
       <FaqSection />
       <FinalCtaSection />
     </div>
