@@ -72,6 +72,18 @@ const nextConfig: NextConfig = {
         source: "/((?!api/|_next/|favicon|robots).*)",
         headers: [{ key: "Content-Security-Policy", value: csp }],
       },
+      {
+        // Shared and personal lists are unlisted, not public. Deliberately a header and
+        // not a robots.txt rule: a disallow stops the crawler fetching the page at all,
+        // so it would never see the directive. A shared link only leaks by being pasted
+        // somewhere crawlable, which is exactly the case this covers.
+        source: "/s/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+      {
+        source: "/shopping-lists/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
     ];
   },
 };

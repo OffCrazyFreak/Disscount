@@ -44,6 +44,14 @@ const runtimeCaching: RuntimeCaching[] = [
       sameOrigin && url.pathname.startsWith("/api/"),
     handler: new NetworkOnly(),
   },
+  // Shared lists server-render someone else's list title for the link preview, and
+  // defaultCache would keep that document for 24 days keyed by URL alone, with no notion
+  // of who asked. Must stay above defaultCache, which is matched in order.
+  {
+    matcher: ({ url, sameOrigin }) =>
+      sameOrigin && url.pathname.startsWith("/s/"),
+    handler: new NetworkOnly(),
+  },
   ...defaultCache,
 ];
 
