@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import ShoppingListItem from "@/app/(user)/shopping-lists/[id]/components/items/shopping-list-item";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import { useShoppingListItemMutations } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-item-mutations";
+import { resolveShoppingListAccess } from "@/app/(user)/shopping-lists/utils/shopping-list-access";
 import {
   getShoppingListItemsOpen,
   setShoppingListItemsOpen,
@@ -25,6 +26,8 @@ interface IShoppingListItemsProps {
   cheapestStores: Record<string, string>;
   averagePrices: Record<string, number>;
   storePrices: Record<string, Record<string, number>>;
+  /** Set when this list was opened through a share link, so writes carry the token. */
+  shareToken?: string;
 }
 
 export default function ShoppingListItems({
@@ -32,9 +35,19 @@ export default function ShoppingListItems({
   cheapestStores,
   averagePrices,
   storePrices,
+  shareToken,
 }: IShoppingListItemsProps) {
+  const { canCheck, canEditItems, isOwner } = resolveShoppingListAccess(
+    shoppingList.myAccess,
+  );
+
   const { handleUpdateItem, handleDeleteItem, deletingItemId } =
-    useShoppingListItemMutations(shoppingList.id, averagePrices, storePrices);
+    useShoppingListItemMutations(
+      shoppingList.id,
+      averagePrices,
+      storePrices,
+      shareToken,
+    );
 
   const [isItemsOpen, setIsItemsOpen] = useState(() =>
     getShoppingListItemsOpen(shoppingList.id),
@@ -85,16 +98,20 @@ export default function ShoppingListItems({
         {shoppingList.items.length === 0 ? (
           <div className="p-4 text-center">
             <p className="mb-4 text-gray-600">
-              Ovaj popis još ne sadrži proizvode. Pretraži proizvode i dodaj ih
-              na ovaj popis.
+              {isOwner
+                ? "Ovaj popis još ne sadrži proizvode. Pretraži proizvode i dodaj ih na ovaj popis."
+                : "Ovaj popis još ne sadrži proizvode."}
             </p>
 
-            <Button asChild effect="shineHover">
-              <Link href="/products">
-                <Search aria-hidden="true" className="size-5" />
-                Pretraži proizvode
-              </Link>
-            </Button>
+            {/* Only the owner can add items, so nobody else gets an invitation to try. */}
+            {isOwner && (
+              <Button asChild effect="shineHover">
+                <Link href="/products">
+                  <Search aria-hidden="true" className="size-5" />
+                  Pretraži proizvode
+                </Link>
+              </Button>
+            )}
           </div>
         ) : (
           <Card className="p-4">
@@ -114,6 +131,8 @@ export default function ShoppingListItems({
                   isFirst={index === 0}
                   isLast={index === sortedItems.length - 1}
                   showSeparator={index < sortedItems.length - 1}
+                  canCheck={canCheck}
+                  canEditItems={canEditItems}
                 />
               ))}
             </div>

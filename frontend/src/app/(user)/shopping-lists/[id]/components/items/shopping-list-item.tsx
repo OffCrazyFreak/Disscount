@@ -22,6 +22,10 @@ interface IShoppingListItemProps {
   isFirst: boolean;
   isLast: boolean;
   showSeparator: boolean;
+  /** Ticking off and switching store: the in-the-shop actions. */
+  canCheck: boolean;
+  /** Amount and removal. */
+  canEditItems: boolean;
 }
 
 export default function ShoppingListItem({
@@ -35,6 +39,8 @@ export default function ShoppingListItem({
   isFirst,
   isLast,
   showSeparator,
+  canCheck,
+  canEditItems,
 }: IShoppingListItemProps) {
   return (
     <>
@@ -59,6 +65,7 @@ export default function ShoppingListItem({
             }
             className="relative z-20"
             checked={item.isChecked}
+            disabled={!canCheck}
             onCheckedChange={(checked) =>
               onUpdate({
                 isChecked: checked as boolean,
@@ -83,11 +90,13 @@ export default function ShoppingListItem({
           </div>
 
           {/* Delete button - shown on mobile in same row as item name */}
-          <RemoveItemButton
-            visibilityClassName="relative z-20 sm:hidden"
-            onDelete={onDelete}
-            isDeleting={isDeleting}
-          />
+          {canEditItems && (
+            <RemoveItemButton
+              visibilityClassName="relative z-20 sm:hidden"
+              onDelete={onDelete}
+              isDeleting={isDeleting}
+            />
+          )}
         </div>
 
         {/* Right side: Amount controls, price, and remove button */}
@@ -96,7 +105,11 @@ export default function ShoppingListItem({
             <div className="flex items-center justify-between gap-6">
               <ItemPriceDisplay item={item} averagePrice={averagePrice} />
 
-              <ItemAmountControls item={item} onUpdate={onUpdate} />
+              <ItemAmountControls
+                item={item}
+                onUpdate={onUpdate}
+                canEdit={canEditItems}
+              />
             </div>
 
             {/* Store Chain Select */}
@@ -109,7 +122,7 @@ export default function ShoppingListItem({
                   chainCode,
                 })
               }
-              disabled={item.isChecked}
+              disabled={item.isChecked || !canCheck}
               defaultValue={cheapestStore}
               storePrices={storePrices}
               averagePrice={averagePrice}
@@ -120,11 +133,13 @@ export default function ShoppingListItem({
           </div>
 
           {/* Remove button - hidden on mobile, shown on larger screens */}
-          <RemoveItemButton
-            visibilityClassName="relative z-20 hidden sm:flex"
-            onDelete={onDelete}
-            isDeleting={isDeleting}
-          />
+          {canEditItems && (
+            <RemoveItemButton
+              visibilityClassName="relative z-20 hidden sm:flex"
+              onDelete={onDelete}
+              isDeleting={isDeleting}
+            />
+          )}
         </div>
       </div>
 

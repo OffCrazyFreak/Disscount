@@ -6,12 +6,25 @@ import type { IShoppingListItemUpdate } from "@/app/(user)/shopping-lists/[id]/t
 interface IItemAmountControlsProps {
   item: ShoppingListItemDto;
   onUpdate: (updatedItem: IShoppingListItemUpdate) => void;
+  canEdit: boolean;
 }
 
 export default function ItemAmountControls({
   item,
   onUpdate,
+  canEdit,
 }: IItemAmountControlsProps) {
+  // The amount is information, not just a control, so a read-only visitor still sees it.
+  // Only the buttons go away, rather than sitting there permanently disabled.
+  if (!canEdit) {
+    return (
+      <span className="relative z-20 text-center min-w-8">
+        <span className="sr-only">Količina: </span>
+        {item.amount}
+      </span>
+    );
+  }
+
   return (
     <div className="pointer-events-none relative z-20 flex items-center gap-2 [&_button]:pointer-events-auto">
       <Button
