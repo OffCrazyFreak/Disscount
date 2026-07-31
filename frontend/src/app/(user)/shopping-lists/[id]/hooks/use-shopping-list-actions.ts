@@ -6,6 +6,7 @@ import { shareOrCopy } from "@/utils/browser/share";
 import { useShoppingListMutations } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-mutations";
 import { formatShoppingListForSharing } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
 import { shareListUrl } from "@/app/(user)/shopping-lists/utils/share-list-url";
+import { resolveShoppingListAccess } from "@/app/(user)/shopping-lists/utils/shopping-list-access";
 
 export interface IShoppingListActionGroupProps {
   showShareButton: boolean;
@@ -41,12 +42,23 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
     });
   }
 
+  const { canManageShare } = resolveShoppingListAccess(shoppingList.myAccess);
+
   async function handleShare() {
+    // The owner gets the settings panel, where the link is created and revoked. Everyone
+    // else can still pass the list on: either the link they already hold, or plain text.
+    if (canManageShare) {
+      openModalUrl({
+        name: "shopping-list",
+        action: "share",
+        id: shoppingList.id,
+      });
+      return;
+    }
+
     setIsSharing(true);
     try {
       const text = formatShoppingListForSharing(shoppingList);
-      // The share URL carries the token, never the list id, so a forwarded link cannot be
-      // turned back into the list's own URL. Absent token means the list is not shared.
       const url = shoppingList.shareToken
         ? shareListUrl(shoppingList.shareToken)
         : undefined;

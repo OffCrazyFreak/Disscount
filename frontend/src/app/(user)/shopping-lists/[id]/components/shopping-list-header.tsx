@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import ShoppingListActionButtons from "@/app/(user)/shopping-lists/[id]/components/shopping-list-action-buttons";
 import ShoppingListVisibilityIndicator from "@/app/(user)/shopping-lists/components/shopping-list-visibility-indicator";
+import { resolveShoppingListAccess } from "@/app/(user)/shopping-lists/utils/shopping-list-access";
 import {
   Tooltip,
   TooltipContent,
@@ -17,6 +18,8 @@ interface IShoppingListHeaderProps {
 export default function ShoppingListHeader({
   shoppingList,
 }: IShoppingListHeaderProps) {
+  const { isOwner } = resolveShoppingListAccess(shoppingList.myAccess);
+
   return (
     <div className="mb-6 space-y-4">
       <div className="flex items-center justify-between gap-4">
@@ -44,15 +47,19 @@ export default function ShoppingListHeader({
         </div>
 
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-          <ShoppingListVisibilityIndicator
-            linkAccess={shoppingList.linkAccess}
-          />
+          {/* Non-owners are sent a null linkAccess, so this reads as private for them
+              rather than advertising a setting they cannot change. */}
+          {isOwner && (
+            <ShoppingListVisibilityIndicator
+              linkAccess={shoppingList.linkAccess}
+            />
+          )}
           <ShoppingListActionButtons
             shoppingList={shoppingList}
             showCopyButton={true}
             showShareButton={true}
-            showEditButton={true}
-            showDeleteButton={true}
+            showEditButton={isOwner}
+            showDeleteButton={isOwner}
             mobilePresentation="buttons"
           />
         </div>

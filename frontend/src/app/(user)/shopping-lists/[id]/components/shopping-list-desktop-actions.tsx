@@ -7,6 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import type { IShoppingListActionGroupProps } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-actions";
 
 interface IShoppingListDesktopActionsProps extends IShoppingListActionGroupProps {
@@ -29,6 +30,12 @@ export default function ShoppingListDesktopActions({
   visibleOnMobile = false,
   className,
 }: IShoppingListDesktopActionsProps) {
+  // Icon-only, so the spinner is the whole visual and the accessible name carries the
+  // pending copy. The tooltip has to say the same thing or the two contradict each other.
+  const shareLabel = isSharing ? LOADING_LABELS.sharing : "Podijeli popis";
+  const copyLabel = isCopying ? LOADING_LABELS.copying : "Kopiraj popis";
+  const deleteLabel = isDeleting ? LOADING_LABELS.deleting : "Obriši popis";
+
   return (
     <div
       className={cn(
@@ -42,7 +49,7 @@ export default function ShoppingListDesktopActions({
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              aria-label="Podijeli popis"
+              aria-label={shareLabel}
               className="shrink-0"
               onClick={onShare}
               disabled={isSharing}
@@ -56,7 +63,7 @@ export default function ShoppingListDesktopActions({
           </TooltipTrigger>
 
           <TooltipContent className="px-2 py-1 text-xs">
-            Podijeli popis
+            {shareLabel}
           </TooltipContent>
         </Tooltip>
       )}
@@ -66,7 +73,7 @@ export default function ShoppingListDesktopActions({
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              aria-label="Kopiraj popis"
+              aria-label={copyLabel}
               className="shrink-0"
               onClick={() => {
                 onCopy();
@@ -82,7 +89,7 @@ export default function ShoppingListDesktopActions({
           </TooltipTrigger>
 
           <TooltipContent className="px-2 py-1 text-xs">
-            Kopiraj popis
+            {copyLabel}
           </TooltipContent>
         </Tooltip>
       )}
@@ -111,7 +118,7 @@ export default function ShoppingListDesktopActions({
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              aria-label="Obriši popis"
+              aria-label={deleteLabel}
               className="shrink-0 bg-red-600 hover:bg-red-700"
               onClick={() => {
                 onDeleteClick();
@@ -127,7 +134,7 @@ export default function ShoppingListDesktopActions({
           </TooltipTrigger>
 
           <TooltipContent variant="destructive" className="px-2 py-1 text-xs">
-            Obriši popis
+            {deleteLabel}
           </TooltipContent>
         </Tooltip>
       )}

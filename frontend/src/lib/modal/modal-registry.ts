@@ -23,6 +23,7 @@ export type ModalTarget =
   | { name: "settings"; tab: SettingsTab }
   | { name: "shopping-list"; action: "new" }
   | { name: "shopping-list"; action: "edit"; id: string }
+  | { name: "shopping-list"; action: "share"; id: string }
   | { name: "digital-card"; action: "new" }
   | { name: "digital-card"; action: "edit"; id: string }
   | { name: "add-to-list"; ean: string }
@@ -70,6 +71,10 @@ export function parseModalParam(
     case "settings":
       return { name, tab: sub && isSettingsTab(sub) ? sub : "profil" };
     case "shopping-list":
+      if (sub === "new") return { name, action: "new" };
+      if (sub === "edit" && id) return { name, action: "edit", id };
+      if (sub === "share" && id) return { name, action: "share", id };
+      return null;
     case "digital-card":
       if (sub === "new") return { name, action: "new" };
       if (sub === "edit" && id) return { name, action: "edit", id };

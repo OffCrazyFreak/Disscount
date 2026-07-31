@@ -1,20 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Bug, Copy, ExternalLink, Lightbulb } from "lucide-react";
-import { toast } from "sonner";
+import { Bug, ExternalLink, Lightbulb } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import CopyButton from "@/components/custom/common/copy-button";
 import { CONTACT_EMAIL, LINKEDIN_URL } from "@/constants/contact";
-
-async function copyEmail() {
-  try {
-    await navigator.clipboard.writeText(CONTACT_EMAIL);
-    toast.success("E-mail adresa je kopirana!");
-  } catch {
-    toast.error("Greška pri kopiranju e-maila");
-  }
-}
 
 /** Intro line plus links to the dedicated idea and bug flows. */
 export default function ContactChannels() {
@@ -24,15 +15,12 @@ export default function ContactChannels() {
         Pošalji nam poruku kroz obrazac ispod, direktno na{" "}
         <span className="text-foreground inline-flex items-center gap-0.5 align-middle font-medium">
           {CONTACT_EMAIL}
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            aria-label="Kopiraj e-mail adresu"
-            onClick={copyEmail}
-          >
-            <Copy />
-          </Button>
+          <CopyButton
+            value={CONTACT_EMAIL}
+            label="Kopiraj e-mail adresu"
+            successMessage="E-mail adresa je kopirana!"
+            errorMessage="Greška pri kopiranju e-maila"
+          />
         </span>{" "}
         ili putem{" "}
         <Button
