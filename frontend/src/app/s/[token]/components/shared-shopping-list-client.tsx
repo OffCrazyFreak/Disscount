@@ -99,7 +99,10 @@ export default function SharedShoppingListClient({
       )}
 
       <section>
-        <ShoppingListHeader shoppingList={shoppingList} />
+        <ShoppingListHeader
+          shoppingList={shoppingList}
+          isSignedIn={isAuthenticated}
+        />
 
         {listUpdatedAt > 0 && (
           <LastSyncedLabel

@@ -13,10 +13,16 @@ import {
 
 interface IShoppingListHeaderProps {
   shoppingList: ShoppingList;
+  /**
+   * False for a logged-out link visitor: copying creates a list on their own account,
+   * and the list index they would go back to is itself behind a login.
+   */
+  isSignedIn?: boolean;
 }
 
 export default function ShoppingListHeader({
   shoppingList,
+  isSignedIn = true,
 }: IShoppingListHeaderProps) {
   const { isOwner } = resolveShoppingListAccess(shoppingList.myAccess);
 
@@ -24,22 +30,24 @@ export default function ShoppingListHeader({
     <div className="mb-6 space-y-4">
       <div className="flex items-center justify-between gap-4">
         <div className="flex min-w-0 flex-1 items-center gap-0 sm:gap-1">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" asChild>
-                <Link
-                  href="/shopping-lists"
-                  aria-label="Natrag na popise za kupnju"
-                >
-                  <ChevronLeft aria-hidden="true" />
-                </Link>
-              </Button>
-            </TooltipTrigger>
+          {isSignedIn && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" asChild>
+                  <Link
+                    href="/shopping-lists"
+                    aria-label="Natrag na popise za kupnju"
+                  >
+                    <ChevronLeft aria-hidden="true" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
 
-            <TooltipContent className="px-2 py-1 text-xs">
-              Natrag na popise za kupnju
-            </TooltipContent>
-          </Tooltip>
+              <TooltipContent className="px-2 py-1 text-xs">
+                Natrag na popise za kupnju
+              </TooltipContent>
+            </Tooltip>
+          )}
 
           <h1 className="min-w-0 flex-1 break-words text-pretty text-xl font-bold sm:text-2xl">
             {shoppingList.title}
@@ -56,7 +64,7 @@ export default function ShoppingListHeader({
           )}
           <ShoppingListActionButtons
             shoppingList={shoppingList}
-            showCopyButton={true}
+            showCopyButton={isSignedIn}
             showShareButton={true}
             showEditButton={isOwner}
             showDeleteButton={isOwner}
