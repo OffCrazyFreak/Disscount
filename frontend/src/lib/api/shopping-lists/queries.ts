@@ -87,3 +87,44 @@ export async function getAllUserShoppingListItems(): Promise<
   );
   return response.data;
 }
+
+// Shared lists. The token is the capability, so it travels on every request: knowing a
+// list's id is never enough. apiClient omits the Authorization header when there is no
+// session, which is exactly the anonymous read path.
+
+export async function getSharedShoppingList(
+  token: string,
+): Promise<ShoppingListDto> {
+  const response = await apiClient.get<ShoppingListDto>(`/api/shared/${token}`);
+  return response.data;
+}
+
+export async function updateSharedShoppingList(
+  token: string,
+  data: ShoppingListRequest,
+): Promise<ShoppingListDto> {
+  const response = await apiClient.put<ShoppingListDto>(
+    `/api/shared/${token}`,
+    data,
+  );
+  return response.data;
+}
+
+export async function updateSharedShoppingListItem(
+  token: string,
+  itemId: string,
+  data: ShoppingListItemRequest,
+): Promise<ShoppingListItemDto> {
+  const response = await apiClient.put<ShoppingListItemDto>(
+    `/api/shared/${token}/items/${itemId}`,
+    data,
+  );
+  return response.data;
+}
+
+export async function deleteSharedShoppingListItem(
+  token: string,
+  itemId: string,
+): Promise<void> {
+  await apiClient.delete(`/api/shared/${token}/items/${itemId}`);
+}

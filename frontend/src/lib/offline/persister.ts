@@ -12,7 +12,10 @@ import { shouldPersistMutation } from "@/lib/offline/offline-mutation-keys";
 const IDB_CACHE_KEY = "disscount-react-query-cache";
 
 // Bump on a breaking cache-shape change to discard stale persisted data.
-const CACHE_BUSTER = "1";
+// "2": ShoppingListDto dropped isPublic and gained linkAccess, shareToken and myAccess.
+// A restored pre-change list has no myAccess, which every capability check would read
+// as no access at all.
+const CACHE_BUSTER = "2";
 
 export const OFFLINE_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 

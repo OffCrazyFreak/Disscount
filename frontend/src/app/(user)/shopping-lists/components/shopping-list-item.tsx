@@ -41,7 +41,9 @@ export default function ShoppingListListItem({
         </h3>
 
         <div className="relative z-10 flex items-center gap-1 sm:hidden">
-          <ShoppingListVisibilityIndicator isPublic={shoppingList.isPublic} />
+          <ShoppingListVisibilityIndicator
+            linkAccess={shoppingList.linkAccess}
+          />
 
           <Tooltip>
             <TooltipTrigger asChild>
@@ -76,7 +78,9 @@ export default function ShoppingListListItem({
         </div>
 
         <div className="relative z-10 hidden items-center gap-1 sm:flex sm:gap-2">
-          <ShoppingListVisibilityIndicator isPublic={shoppingList.isPublic} />
+          <ShoppingListVisibilityIndicator
+            linkAccess={shoppingList.linkAccess}
+          />
           <ShoppingListActionButtons
             shoppingList={shoppingList}
             showCopyButton={true}

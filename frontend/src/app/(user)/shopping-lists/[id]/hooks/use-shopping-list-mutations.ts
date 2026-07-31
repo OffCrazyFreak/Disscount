@@ -61,10 +61,11 @@ export function useShoppingListMutations(
 
     setIsCopying(true);
     try {
-      // Create new shopping list with copied title
+      // Create new shopping list with copied title. Sharing is deliberately not carried
+      // over: a copy is a new object, and inheriting a capability token would mint a live
+      // secret nobody had chosen to hand out. Matches AnyList, Todoist, Notion and Drive.
       const newListData: ShoppingListRequest = {
         title: `${shoppingList.title} (Kopija)`,
-        isPublic: false,
       };
 
       const newList = await shoppingListService.createShoppingList(newListData);
@@ -100,8 +101,15 @@ export function useShoppingListMutations(
         queryKey: ["shoppingLists"],
       });
 
-      // Show success toast
-      toast.success("Popis za kupnju je uspješno kopiran!");
+      // Say the copy is private rather than leaving it to be discovered: someone copying
+      // a shared list may well assume the same people can still reach it.
+      const wasShared =
+        !!shoppingList.linkAccess && shoppingList.linkAccess !== "NONE";
+      toast.success(
+        wasShared
+          ? "Popis je kopiran. Kopija nije podijeljena."
+          : "Popis za kupnju je uspješno kopiran!",
+      );
 
       // Navigate to new shopping list
       router.push(`/shopping-lists/${newList.id}`);

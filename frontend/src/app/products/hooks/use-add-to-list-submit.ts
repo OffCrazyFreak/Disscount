@@ -62,10 +62,7 @@ export function useAddToListSubmit({
     const title = data.customListTitle.trim();
 
     if (title) {
-      const created = await createShoppingListMutation.mutateAsync({
-        title,
-        isPublic: false,
-      });
+      const created = await createShoppingListMutation.mutateAsync({ title });
       return { id: created.id, name: title, isQuantityIncrease: false };
     }
 

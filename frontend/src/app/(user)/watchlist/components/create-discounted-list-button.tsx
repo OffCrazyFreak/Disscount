@@ -43,7 +43,6 @@ export default function CreateDiscountedListButton({
 
       const createdList = await shoppingListService.createShoppingList({
         title: `Sniženo ${today}`,
-        isPublic: false,
       });
 
       const createItemResults = await Promise.allSettled(
