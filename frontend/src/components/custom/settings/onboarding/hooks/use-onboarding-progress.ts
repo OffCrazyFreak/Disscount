@@ -3,6 +3,7 @@
 import { onlineManager } from "@tanstack/react-query";
 
 import { userService } from "@/lib/api";
+import { ONBOARDING_COMPLETED } from "@/lib/api/schemas/auth-user";
 import { useUser } from "@/context/user-context";
 
 /**
@@ -25,6 +26,13 @@ export function useOnboardingProgress() {
 
     const outcome = `skipped:${step}`;
     if (!user || user.onboardingOutcome === outcome) return;
+
+    // A progress ping must never downgrade a finished account. OnboardingGate
+    // keys off "completed", so writing skipped:<step> over it replaces the URL
+    // with an uncloseable required wizard the user cannot escape. Guarding here
+    // rather than at the caller covers every route in, including a replay and a
+    // stray swipe.
+    if (user.onboardingOutcome === ONBOARDING_COMPLETED) return;
 
     mutation
       .mutateAsync({ onboardingOutcome: outcome })

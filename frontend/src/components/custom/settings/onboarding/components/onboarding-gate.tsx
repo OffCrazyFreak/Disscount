@@ -4,6 +4,7 @@ import { useEffect } from "react";
 
 import { useModalUrl } from "@/lib/modal/use-modal-url";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
+import { ONBOARDING_COMPLETED } from "@/lib/api/schemas/auth-user";
 import { useUser } from "@/context/user-context";
 
 /**
@@ -16,7 +17,7 @@ export default function OnboardingGate() {
 
   useEffect(() => {
     if (!isAuthenticated || !user) return;
-    if (user.onboardingOutcome === "completed") return;
+    if (user.onboardingOutcome === ONBOARDING_COMPLETED) return;
     if (target?.name === "onboarding" && target.mode === "required") return;
 
     openModalUrl({ name: "onboarding", mode: "required" }, { replace: true });
