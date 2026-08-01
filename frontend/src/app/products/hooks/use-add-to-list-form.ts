@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -33,9 +33,15 @@ export function useAddToListForm(open: boolean, ean: string) {
   // Same query key as the product page, so this is a cache hit unless deep-linked.
   const productQuery = cijeneService.useGetProductByEan({ ean });
   const product = productQuery.data;
-  const draftedListId = getFormDraft(draftKey)?.values.shoppingListId;
-  const restoredListId =
-    typeof draftedListId === "string" ? draftedListId : null;
+  // Read once on mount, not every render. getFormDraft parses the whole app blob
+  // and removes the entry when its TTL has passed, so calling it in the hook body
+  // made a localStorage write part of rendering. It is also the value as it was
+  // when the modal opened, which is what the selection effect wants.
+  const [restoredListId] = useState(() => {
+    const drafted = getFormDraft(draftKey)?.values.shoppingListId;
+
+    return typeof drafted === "string" ? drafted : null;
+  });
 
   const form = useForm<AddToListFormData>({
     resolver: zodResolver(addToListFormSchema),
@@ -77,6 +83,8 @@ export function useAddToListForm(open: boolean, ean: string) {
     pricing,
     clearDraft,
     resetForm,
+    onListCreated: (listId) =>
+      form.setValue("shoppingListId", listId, { shouldDirty: true }),
   });
 
   // A failed optimistic save reopened this modal: surface the server error.

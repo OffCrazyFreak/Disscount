@@ -17,14 +17,21 @@ export function useSelectedShoppingList(
     shoppingListService.useGetCurrentUserShoppingLists({ enabled });
   const removeItemMutation = shoppingListService.useDeleteShoppingListItem();
 
+  // An unparseable timestamp yields NaN, and NaN !== 0 is true, so comparing it
+  // loosely would return NaN and skip the tiebreaks below. The spec coerces that
+  // to 0, leaving the order at whatever the API happened to return.
   const sortedShoppingLists = shoppingLists.slice().sort((a, b) => {
     const updatedAtDifference =
       new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-    if (updatedAtDifference !== 0) return updatedAtDifference;
+    if (Number.isFinite(updatedAtDifference) && updatedAtDifference !== 0) {
+      return updatedAtDifference;
+    }
 
     const createdAtDifference =
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    if (createdAtDifference !== 0) return createdAtDifference;
+    if (Number.isFinite(createdAtDifference) && createdAtDifference !== 0) {
+      return createdAtDifference;
+    }
 
     return b.id.localeCompare(a.id);
   });
