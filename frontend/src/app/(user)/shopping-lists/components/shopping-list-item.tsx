@@ -6,6 +6,7 @@ import type { ShoppingListDto } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatDate } from "@/utils/strings";
+import { shoppingListPath } from "@/utils/shopping-list-links";
 import ShoppingListActionButtons from "@/app/(user)/shopping-lists/[id]/components/shopping-list-action-buttons";
 import ShoppingListVisibilityIndicator from "@/app/(user)/shopping-lists/components/shopping-list-visibility-indicator";
 import {
@@ -25,12 +26,12 @@ export default function ShoppingListListItem({
     (item) => item.isChecked,
   ).length;
   const totalCount = shoppingList.items.length;
-  const shoppingListPath = `/shopping-lists/${shoppingList.id}`;
+  const listPath = shoppingListPath(shoppingList.id);
 
   return (
     <Card className="relative p-4 hover:shadow-md transition-shadow">
       <Link
-        href={shoppingListPath}
+        href={listPath}
         aria-label={`Otvori popis: ${shoppingList.title}`}
         className="absolute inset-0 rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       />
@@ -47,7 +48,7 @@ export default function ShoppingListListItem({
             <TooltipTrigger asChild>
               <Button size="icon" variant="primary" asChild>
                 <Link
-                  href={shoppingListPath}
+                  href={listPath}
                   aria-label={`Otvori popis: ${shoppingList.title}`}
                 >
                   <ChevronRight aria-hidden="true" />
