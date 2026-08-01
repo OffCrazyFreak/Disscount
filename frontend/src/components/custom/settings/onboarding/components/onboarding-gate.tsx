@@ -4,6 +4,7 @@ import { useEffect } from "react";
 
 import { useModalUrl } from "@/lib/modal/use-modal-url";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
+import { isPublicModal } from "@/lib/modal/modal-registry";
 import { ONBOARDING_COMPLETED } from "@/lib/api/schemas/auth-user";
 import { useUser } from "@/context/user-context";
 
@@ -19,6 +20,13 @@ export default function OnboardingGate() {
     if (!isAuthenticated || !user) return;
     if (user.onboardingOutcome === ONBOARDING_COMPLETED) return;
     if (target?.name === "onboarding" && target.mode === "required") return;
+
+    // Never pre-empt a modal a link put there. Verifying an email auto-signs the
+    // user in and lands on ?modal=email-verified, and a reset link redirects to
+    // ?modal=reset-password carrying its token: replacing either leaves the user
+    // unable to finish the flow they were sent to complete. The wizard re-asserts
+    // itself once the public modal closes.
+    if (target && isPublicModal(target.name)) return;
 
     openModalUrl({ name: "onboarding", mode: "required" }, { replace: true });
   }, [isAuthenticated, user, target]);

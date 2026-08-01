@@ -44,6 +44,11 @@ export const PUBLIC_MODAL_NAMES = [
   "product-actions",
 ] as const;
 
+/** Reachable without an account, so nothing may pre-empt one of these. */
+export function isPublicModal(name: string): boolean {
+  return (PUBLIC_MODAL_NAMES as readonly string[]).includes(name);
+}
+
 function isSettingsTab(value: string): value is SettingsTab {
   return (SETTINGS_TABS as readonly string[]).includes(value);
 }
