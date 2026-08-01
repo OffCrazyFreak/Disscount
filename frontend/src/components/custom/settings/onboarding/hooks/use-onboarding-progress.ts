@@ -16,12 +16,14 @@ import { useUser } from "@/context/user-context";
  * costs nothing more than one repeated step.
  */
 export function useOnboardingProgress() {
-  const { user, setUser } = useUser();
+  const { user, mergeUser } = useUser();
   const mutation = userService.useUpdateCurrentUser();
 
   function persist(step: number) {
-    // Step 0 is where a missing outcome already resumes to.
-    if (step <= 0) return;
+    // Step 0 is persisted too. Returning early left skipped:1 stored after a
+    // step back to the welcome step, so a reload resumed at the step the user
+    // had just deliberately left.
+    if (step < 0) return;
     if (!onlineManager.isOnline()) return;
 
     const outcome = `skipped:${step}`;
@@ -36,11 +38,10 @@ export function useOnboardingProgress() {
 
     mutation
       .mutateAsync({ onboardingOutcome: outcome })
-      // Merged, not replaced: the PATCH response carries no pinned stores or
-      // places, so assigning it wholesale would drop them from context.
-      .then((dto) =>
-        setUser({ ...user, onboardingOutcome: dto.onboardingOutcome }),
-      )
+      // Merged against the latest context value, not the `user` captured when
+      // this ping was fired: anything that resolved in the meantime, including
+      // the completion save, must not be rolled back by a slower progress write.
+      .then((dto) => mergeUser({ onboardingOutcome: dto.onboardingOutcome }))
       .catch(() => {});
   }
 
