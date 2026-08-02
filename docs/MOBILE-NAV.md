@@ -211,7 +211,7 @@ One trade-off, flagged and then accepted deliberately: this is a second blurred 
 
 ### Surface change on scroll
 
-Once the page is scrolled, the surface's alpha drops from 50% to 45% of the background colour while every icon and label remains fully visible. That is the same trigger the header already uses via `useScrolledPast(50)`, but driven by a **scroll timeline**, so there is no scroll listener, no jank and no hydration behaviour:
+Once the page is scrolled, the surface's alpha eases from 50% to 45% of the background colour while every icon and label stays fully visible. It is driven by a **scroll timeline**, so there is no scroll listener, no jank and no hydration behaviour. Note this is a progressive range rather than a threshold: `animation-range: 40px 180px` interpolates the whole way, so it is not the same trigger as the header's `useScrolledPast(50)`, which flips once at 50px.
 
 ```css
 @supports (animation-timeline: scroll()) {
@@ -390,9 +390,10 @@ The whole ladder lives in `globals.css` as `--z-*` tokens, in descending order, 
 | 50  | -                        | mobile sidebar drawer, modal and deliberately above the bar |
 | 45  | `--z-bottom-nav`         | bottom nav                                                  |
 | 44  | `--z-bottom-sheet`       | bottom sheets                                               |
-| 43  | `--z-bottom-sheet-scrim` | a modal sheet's scrim, below the bar by design              |
+| 43  | `--z-bottom-sheet-scrim` | a modal sheet's scrim                                       |
 | 41  | `--z-install-banner`     | PWA install banner                                          |
 | 40  | `--z-scroll-fade`        | window scroll fade                                          |
+| 39  | `--z-bottom-nav-covered` | what `--z-bottom-nav` becomes while a modal sheet is open   |
 | 30  | `--z-fab`                | back-to-top FAB                                             |
 | 20  | `--z-header`             | header                                                      |
 | 10  | `--z-sidebar`            | desktop sidebar                                             |
@@ -403,7 +404,9 @@ Two moves made room for the bar: the FAB dropped from `z-50` (it is desktop-only
 
 The **mobile sidebar** stays out of `SheetShell` and keeps `z-50`. It is a `direction={side}` drawer covering the full height, and unlike the sheets it really is modal, so its scrim should cover the bar rather than leave it poking through.
 
-`DrawerOverlay` is rendered by `DrawerContent` with no props, so its `z-50` was unreachable from outside. `DrawerContent` now takes an `overlayClassName` that forwards to it, which is what keeps a modal sheet's scrim at 43 instead of silently landing above the bar.
+`DrawerOverlay` is rendered by `DrawerContent` with no props, so its `z-50` was unreachable from outside. `DrawerContent` now takes an `overlayClassName` that forwards to it, which is what pins a modal sheet's scrim to 43 instead of letting it land above everything at 50.
+
+43 is still below the bar's resting 45, so the bar is not left poking through the scrim: a rule in `globals.css` keyed on `body:has([data-vaul-drawer][data-state="open"]:not([data-sheet-non-modal]))` swaps `--z-bottom-nav` to `--z-bottom-nav-covered` (39) for as long as a modal sheet is open. Leaving the bar on top would keep it fully visible while Radix's body lock made it inert, which reads as a frozen UI. The non-modal products sheet carries the `data-sheet-non-modal` marker and is the deliberate exception, so the bar stays above it and its centre cell remains the way out.
 
 ### Why only the products sheet is non-modal
 
@@ -1043,7 +1046,7 @@ Carried over from the build spec this feature was written against, which is why 
 - [ ] Five cells, correct order, correct labels, all labels visible
 - [ ] Each cell at least 48px in both axes
 - [ ] The active disc never touches the pill's inner edge on the first or last cell
-- [ ] Scrolling compacts the labels and settles the surface without changing the bar's outer height, and the labels fade rather than snapping
+- [ ] Scrolling eases the surface alpha without changing the bar's outer height, and the labels stay fully visible throughout
 - [ ] Scrolling does **not** dim the icons, the badge or the disc
 - [ ] The bar never hides
 

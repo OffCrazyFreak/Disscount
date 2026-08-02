@@ -13,10 +13,8 @@ import AuthStatusModal from "@/components/custom/auth/auth-status-modal";
 import ContactModal from "@/components/custom/contact/contact-modal";
 import DonationModal from "@/components/custom/donation/donation-modal";
 import ProductActionsOutlet from "@/components/custom/modal-router/product-actions-outlet";
-import {
-  AUTH_MODAL_NAMES,
-  PUBLIC_MODAL_NAMES,
-} from "@/lib/modal/modal-registry";
+import ShoppingListActionsOutlet from "@/components/custom/modal-router/shopping-list-actions-outlet";
+import { AUTH_MODAL_NAMES, isPublicModal } from "@/lib/modal/modal-registry";
 import { useModalUrl } from "@/lib/modal/use-modal-url";
 import { useUser } from "@/context/user-context";
 
@@ -37,6 +35,7 @@ const GATE_MESSAGES: Record<string, string> = {
   "add-to-list": "Prijavi se za dodavanje proizvoda na popis za kupnju.",
   watchlist: "Prijavi se za praćenje sniženja ovog proizvoda.",
   "shopping-list": "Prijavi se za upravljanje popisima za kupnju.",
+  "shopping-list-actions": "Prijavi se za upravljanje popisima za kupnju.",
   "digital-card": "Prijavi se za upravljanje digitalnim karticama.",
   settings: "Prijavi se za otvaranje postavki.",
   onboarding: "Prijavi se za početak.",
@@ -53,8 +52,7 @@ export default function ModalRouter() {
 
   const isAuthTarget =
     !!target && (AUTH_MODAL_NAMES as readonly string[]).includes(target.name);
-  const isPublicTarget =
-    !!target && (PUBLIC_MODAL_NAMES as readonly string[]).includes(target.name);
+  const isPublicTarget = !!target && isPublicModal(target.name);
 
   // The modal param stays in the URL, so the intended modal opens after login.
   const needsAuthGate =
@@ -123,6 +121,7 @@ export default function ModalRouter() {
           <OnboardingGate />
           <SettingsModalHost />
           <EntityModalOutlet target={isEntityTarget(target) ? target : null} />
+          <ShoppingListActionsOutlet target={target} />
         </>
       )}
     </>

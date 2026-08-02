@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import disscount.shoppingList.domain.ShoppingList;
 import disscount.user.domain.User;
+import disscount.util.Timestamps;
 
 import java.math.BigDecimal;
 
@@ -78,13 +79,13 @@ public class ShoppingListItem {
 
     @PrePersist
     protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = Timestamps.nowUtc();
         createdAt = now;
         updatedAt = now;
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = Timestamps.nowUtc();
     }
 }

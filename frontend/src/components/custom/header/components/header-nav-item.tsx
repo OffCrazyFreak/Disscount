@@ -34,7 +34,7 @@ export default function HeaderNavItem({
     return (
       <li>
         <span className="flex items-center space-x-2 text-muted-foreground/70 cursor-not-allowed relative">
-          <Icon className="size-6" />
+          <Icon aria-hidden="true" className="size-6" />
           <span className="relative">
             {label}
 
@@ -57,6 +57,7 @@ export default function HeaderNavItem({
         )}
       >
         <Icon
+          aria-hidden="true"
           className={cn(
             "size-6 group-hover:text-primary transition-colors",
             isActive && "text-primary",

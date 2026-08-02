@@ -64,14 +64,23 @@ export default function CameraSelect({
 
       <Tooltip>
         <TooltipTrigger asChild>
+          {/* aria-disabled rather than the native attribute, matching
+              SearchNavButton: disabled drops the control out of the tab order and
+              kills the pointer events the tooltip needs, so the only explanation
+              of this icon vanished exactly when it was least obvious. */}
           <Button
             type="button"
             variant="outline"
             size="icon"
             icon={RotateCcw}
             iconPlacement="left"
-            onClick={onReset}
-            disabled={!hasManualChoice}
+            aria-disabled={!hasManualChoice}
+            onClick={() => {
+              if (!hasManualChoice) return;
+
+              onReset();
+            }}
+            className="aria-disabled:pointer-events-auto aria-disabled:opacity-50"
             aria-label="Resetiraj kameru na automatski odabir"
           />
         </TooltipTrigger>

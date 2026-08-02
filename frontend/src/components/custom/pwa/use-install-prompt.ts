@@ -13,12 +13,33 @@ interface IOSNavigator extends Navigator {
   standalone?: boolean;
 }
 
+// Every display mode that means "already installed". Checking only standalone
+// missed two: the spec falls standalone back to minimal-ui where it is not
+// supported, and a desktop install can report window-controls-overlay.
+const INSTALLED_DISPLAY_MODES = [
+  "standalone",
+  "minimal-ui",
+  "fullscreen",
+  "window-controls-overlay",
+];
+
 function detectStandalone(): boolean {
   return (
     // Trusted Web Activities identify their Android app launch through the referrer.
     document.referrer.startsWith("android-app://") ||
-    window.matchMedia("(display-mode: standalone)").matches ||
+    INSTALLED_DISPLAY_MODES.some(
+      (mode) => window.matchMedia(`(display-mode: ${mode})`).matches,
+    ) ||
     (window.navigator as IOSNavigator).standalone === true
+  );
+}
+
+// Embedded browsers render pages inside a host app, so there is no home screen
+// to add to and no browser menu to reach. Advertising an install there is a
+// dead end on every platform, not just iOS.
+function detectInAppBrowser(): boolean {
+  return /FBAN|FBAV|FB_IAB|Instagram|Line|Twitter|TikTok|Snapchat/i.test(
+    window.navigator.userAgent,
   );
 }
 
@@ -35,15 +56,7 @@ function detectIOS(): boolean {
 
 // Since iOS 16.4 any eligible browser can add to the home screen; webviews still cannot.
 function detectIOSInstallCapable(): boolean {
-  if (!detectIOS()) return false;
-
-  return !/FBAN|FBAV|FB_IAB|Instagram|Line|Twitter|TikTok|Snapchat/i.test(
-    window.navigator.userAgent,
-  );
-}
-
-function detectInstallSupport(): boolean {
-  return "onbeforeinstallprompt" in window || detectIOSInstallCapable();
+  return detectIOS() && !detectInAppBrowser();
 }
 
 // Module scope, so both banners share one prompt and consuming it clears both.
@@ -53,7 +66,7 @@ interface IInstallState {
   isStandalone: boolean;
   isIOS: boolean;
   isIOSInstallCapable: boolean;
-  supportsInstall: boolean;
+  isInAppBrowser: boolean;
   ready: boolean;
 }
 
@@ -62,7 +75,7 @@ const SERVER_STATE: IInstallState = {
   isStandalone: false,
   isIOS: false,
   isIOSInstallCapable: false,
-  supportsInstall: false,
+  isInAppBrowser: false,
   ready: false,
 };
 
@@ -82,10 +95,7 @@ function init() {
 
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
-    setState({
-      deferredPrompt: event as IBeforeInstallPromptEvent,
-      supportsInstall: true,
-    });
+    setState({ deferredPrompt: event as IBeforeInstallPromptEvent });
   });
 
   window.addEventListener("appinstalled", () => {
@@ -96,7 +106,7 @@ function init() {
     isStandalone: detectStandalone(),
     isIOS: detectIOS(),
     isIOSInstallCapable: detectIOSInstallCapable(),
-    supportsInstall: detectInstallSupport(),
+    isInAppBrowser: detectInAppBrowser(),
     ready: true,
   });
 }
@@ -135,22 +145,33 @@ export function useInstallPrompt() {
     isStandalone,
     isIOS,
     isIOSInstallCapable,
-    supportsInstall,
+    isInAppBrowser,
     ready,
   } = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  // Only show install UI where installing can actually work.
   const canInstall = deferredPrompt !== null;
+
+  // Two tiers, and both rule out an install that has already happened.
+  //
+  // Unprompted surfaces (banner, sidebar) wait for evidence that an install is
+  // one tap away: either a captured prompt event or iOS's share-sheet route.
+  //
+  // Promotional surfaces (the landing page) show wherever an install is possible
+  // at all, which is wider than it looks: beforeinstallprompt is Chromium-only,
+  // so gating on it would wrongly write off macOS Safari and Firefox on Android,
+  // both of which install through their own menus. Only an embedded webview is
+  // genuinely a dead end.
   const canShowInstallUI =
     ready && !isStandalone && (canInstall || isIOSInstallCapable);
+  const canPromoteInstall = ready && !isStandalone && !isInAppBrowser;
 
   return {
     ready,
     canInstall,
     canShowInstallUI,
+    canPromoteInstall,
     isIOS,
     isStandalone,
-    supportsInstall,
     promptInstall,
   };
 }

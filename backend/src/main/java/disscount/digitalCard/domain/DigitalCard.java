@@ -1,5 +1,6 @@
 package disscount.digitalCard.domain;
 
+import disscount.util.Timestamps;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -56,6 +57,6 @@ public class DigitalCard {
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        createdAt = Timestamps.nowUtc();
     }
 }

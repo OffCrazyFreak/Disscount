@@ -97,7 +97,16 @@ export function MultiSelect({
         onItemAdded,
       }}
     >
-      <Popover open={open} onOpenChange={setOpen}>
+      {/* Clearing on close, not only when a value is added: a search left behind
+          reopened the list still filtered, which reads as the facet having no
+          other options. */}
+      <Popover
+        open={open}
+        onOpenChange={(next) => {
+          setOpen(next);
+          if (!next) setSearchValue("");
+        }}
+      >
         {children}
       </Popover>
     </MultiSelectContext>

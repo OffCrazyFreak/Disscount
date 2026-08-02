@@ -5,6 +5,7 @@ import type { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
+import { ONBOARDING_COMPLETED } from "@/lib/api/schemas/auth-user";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
 import { dirtySections } from "@/components/custom/settings/settings-dirty";
 import {
@@ -52,14 +53,21 @@ export function useSettingsSave({
 
     const userDirty = dirty.has("profil") || dirty.has("obavijesti");
 
+    // Onboarding stamps its outcome in the same patch as the profile fields, so
+    // only one user PATCH runs. A second, later call would land after the pinned
+    // stores and places jobs and, response by response, undo them.
+    const completion = mode === "onboarding" ? ONBOARDING_COMPLETED : undefined;
+
     const jobs = buildSaveJobs(
       values,
       defaults,
-      userDirty
-        ? buildUserPatch(values, defaults, {
-            touched: avatarTouched,
-            preview: avatarPreview,
-          })
+      userDirty || completion
+        ? buildUserPatch(
+            values,
+            defaults,
+            { touched: avatarTouched, preview: avatarPreview },
+            completion ? { onboardingOutcome: completion } : undefined,
+          )
         : null,
       runners,
     );
@@ -82,30 +90,17 @@ export function useSettingsSave({
       return false;
     }
 
-    if (mode === "onboarding") {
-      const completionJobs = [
-        {
-          key: "user" as const,
-          run: () => runners.saveUser({ onboardingOutcome: "completed" }),
-        },
-      ];
-      const completionResults = await Promise.allSettled([
-        completionJobs[0].run(),
-      ]);
-
-      if (completionResults[0].status === "rejected") {
-        rebaselineSavedSections(form, jobs, results, values, onSaved);
-        applySaveErrors(form, completionJobs, completionResults);
-
-        return false;
-      }
-    }
-
     clearDraft();
     form.reset(values);
     onSaved();
-    toast.success("Postavke su spremljene!");
-    if (mode === "onboarding") closeModalUrl();
+    // Onboarding always runs a job to stamp its outcome, so only a settings save
+    // can reach here with nothing written, and claiming otherwise would be a lie.
+    if (mode === "onboarding") {
+      toast.success("Sve je spremno!");
+      closeModalUrl();
+    } else {
+      toast.success("Postavke su spremljene!");
+    }
 
     return true;
   }

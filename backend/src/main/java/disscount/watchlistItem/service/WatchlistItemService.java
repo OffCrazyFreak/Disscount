@@ -1,5 +1,6 @@
 package disscount.watchlistItem.service;
 
+import disscount.util.Timestamps;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +13,6 @@ import disscount.watchlistItem.domain.WatchlistItem;
 import disscount.watchlistItem.dto.WatchlistItemDto;
 import disscount.watchlistItem.dto.WatchlistItemRequest;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -66,7 +66,7 @@ public class WatchlistItemService {
         WatchlistItem watchlistItem = watchlistItemRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Watchlist item not found"));
 
-        watchlistItem.setDeletedAt(LocalDateTime.now());
+        watchlistItem.setDeletedAt(Timestamps.nowUtc());
         watchlistItemRepository.save(watchlistItem);
     }
 
@@ -83,7 +83,7 @@ public class WatchlistItemService {
     public void updateLastNotifiedAt(UUID watchlistItemId) {
         Optional<WatchlistItem> watchlistItem = watchlistItemRepository.findById(watchlistItemId);
         if (watchlistItem.isPresent()) {
-            watchlistItem.get().setLastNotifiedAt(LocalDateTime.now());
+            watchlistItem.get().setLastNotifiedAt(Timestamps.nowUtc());
             watchlistItemRepository.save(watchlistItem.get());
         }
     }

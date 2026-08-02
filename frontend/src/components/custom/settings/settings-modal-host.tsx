@@ -96,6 +96,16 @@ export default function SettingsModalHost() {
     setLastTab(target.tab);
   }
 
+  // Same reason: falling back to "required" the moment the param is stripped
+  // made the close button pop out of the header a frame before a replay wizard
+  // finished fading, since ModalShell drives showCloseButton off preventClose.
+  const [lastOnboardingMode, setLastOnboardingMode] = useState<
+    "required" | "replay"
+  >("required");
+  if (target?.name === "onboarding" && target.mode !== lastOnboardingMode) {
+    setLastOnboardingMode(target.mode);
+  }
+
   // The security tab's form/data lives here so the shared footer can drive it.
   const security = useSecuritySettings(open && lastTab === "sigurnost");
 
@@ -122,7 +132,7 @@ export default function SettingsModalHost() {
 
         <OnboardingWizard
           open={target?.name === "onboarding"}
-          mode={target?.name === "onboarding" ? target.mode : "required"}
+          mode={lastOnboardingMode}
           save={saveOnboarding}
           saving={saving}
         />

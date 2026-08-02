@@ -23,7 +23,7 @@ export default function FeatureCardAction({
 }: IFeatureCardActionProps) {
   const { openScanner } = useCameraScanner();
   const { requestOpenMenu } = useNotifications();
-  const { isAuthenticated } = useUser();
+  const { isAuthenticated, isInitializing } = useUser();
   const router = useRouter();
 
   const handleScan = useCallback(
@@ -36,6 +36,10 @@ export default function FeatureCardAction({
 
   // Guests have no notifications dropdown mounted, so send them to login first
   function openNotifications() {
+    // Ignored until auth resolves: isAuthenticated is false in that window, so
+    // acting on it showed the login modal to someone already signed in.
+    if (isInitializing) return;
+
     if (isAuthenticated) requestOpenMenu();
     else openModalUrl({ name: "login" });
   }

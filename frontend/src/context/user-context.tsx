@@ -32,6 +32,12 @@ interface IUserContext {
   hasSession: boolean;
   refreshUser: () => Promise<UserDto | undefined>;
   setUser: (user: UserDto | null) => void;
+  /**
+   * Folds a profile response into the current user instead of replacing it.
+   * The backend's convertToUserDto omits pinnedStores and pinnedPlaces, so a
+   * wholesale setUser after any profile PATCH drops them until a hard reload.
+   */
+  mergeUser: (patch: Partial<UserDto>) => void;
   logout: () => Promise<void>;
   updatePinnedStores: (stores: PinnedStoreDto[]) => void;
   updatePinnedPlaces: (places: PinnedPlaceDto[]) => void;
@@ -124,6 +130,10 @@ export function UserProvider({ children }: IUserProviderProps) {
     setUser((prev) => (prev ? { ...prev, pinnedPlaces: places } : null));
   }, []);
 
+  const mergeUser = useCallback((patch: Partial<UserDto>) => {
+    setUser((prev) => (prev ? { ...prev, ...patch } : null));
+  }, []);
+
   // Prefer the session's name and email at render, keeping the app profile's other fields.
   const mergedUser: UserDto | null = user
     ? {
@@ -142,6 +152,7 @@ export function UserProvider({ children }: IUserProviderProps) {
     hasSession: !!session?.user,
     refreshUser,
     setUser,
+    mergeUser,
     logout: handleLogout,
     updatePinnedStores,
     updatePinnedPlaces,

@@ -1,5 +1,6 @@
 package disscount.digitalCard.service;
 
+import disscount.util.Timestamps;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +14,6 @@ import disscount.exceptions.UnauthorizedException;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -88,7 +88,7 @@ public class DigitalCardService {
         DigitalCard card = digitalCardRepository.findActiveByIdAndUser(cardId, user)
                 .orElseThrow(() -> new BadRequestException("Card not found"));
 
-        card.setDeletedAt(LocalDateTime.now());
+        card.setDeletedAt(Timestamps.nowUtc());
         digitalCardRepository.save(card);
     }
 

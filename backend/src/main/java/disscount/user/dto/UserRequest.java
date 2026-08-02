@@ -22,6 +22,9 @@ public class UserRequest {
     @Size(max = 400_000, message = "Slika je prevelika")
     private String image;
 
-    @Pattern(regexp = "completed|skipped:\\d+", message = "Neispravan ishod vodiča")
+    // Bounded: the column is a plain varchar(255), and skipped:\\d+ accepted any
+    // number of digits, so an oversized value passed validation and then died as a
+    // constraint violation, turning a 400 into a 500. The wizard has five steps.
+    @Pattern(regexp = "completed|skipped:\\d{1,3}", message = "Neispravan ishod vodiča")
     private String onboardingOutcome;
 }

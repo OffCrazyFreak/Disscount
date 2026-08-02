@@ -11,9 +11,8 @@ interface IBlockLoadingSpinnerProps {
  * The blocks travel x/y 1 to 23, so on a plain 24 viewBox they paint edge to
  * edge and read heavier than the Lucide icon they replace, whose stroke sits
  * inset by about an eighth on each side. The viewBox is padded to match that
- * inset optically, which holds at any rendered size: `size` sets the width and
- * height attributes, but inside a Button the size variant's `[&_svg]:size-*`
- * overrides both, so the correction cannot live in the caller's size prop.
+ * inset optically. It belongs here rather than in a caller's `size`, because it
+ * is a ratio correction: it has to hold at every rendered size, not one.
  */
 export default function BlockLoadingSpinner({
   size = 64,
@@ -21,9 +20,13 @@ export default function BlockLoadingSpinner({
 }: IBlockLoadingSpinnerProps) {
   return (
     <div className={cn("inline-block text-primary", className)}>
+      {/* Inline, because width and height are only attributes: a button variant
+          sizing its descendant svgs would otherwise override them and stretch a
+          spinner that asked for a specific size. */}
       <svg
         width={size}
         height={size}
+        style={{ width: size, height: size }}
         viewBox="-2.67 -2.67 29.33 29.33"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden

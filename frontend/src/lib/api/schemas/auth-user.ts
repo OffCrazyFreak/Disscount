@@ -3,6 +3,9 @@ import { z } from "zod";
 const PASSWORD_ERROR =
   "Lozinka mora imati barem 12 znakova i treba sadržavati najmanje jedno veliko slovo, jedno malo slovo te broj (0-9).";
 
+/** The only outcome that satisfies the onboarding gate. */
+export const ONBOARDING_COMPLETED = "completed";
+
 // New passwords only: login must still accept any existing password.
 export const passwordSchema = z
   .string()
@@ -62,7 +65,7 @@ export const userRequestSchema = z.object({
   image: z.string().nullable().optional(),
   // "completed" or "skipped:<step>"; sent only when the onboarding wizard ends
   onboardingOutcome: z
-    .union([z.literal("completed"), z.string().regex(/^skipped:\d+$/)])
+    .union([z.literal(ONBOARDING_COMPLETED), z.string().regex(/^skipped:\d+$/)])
     .optional(),
 });
 

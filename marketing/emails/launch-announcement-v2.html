@@ -18,12 +18,10 @@
     <meta name="supported-color-schemes" content="light" />
     <title>Disscount je konačno dostupan - tebi</title>
 
-    <!--[if !mso]><!-->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Huninn&display=swap"
-      rel="stylesheet"
-    />
-    <!--<![endif]-->
+    <!-- No webfont CDN: a remote stylesheet hands the recipient's IP and user
+         agent to a third party the moment the mail is opened, with no consent,
+         which is a transfer this audience should not be making. The stacks below
+         fall back to system faces, and most clients ignore @font-face anyway. -->
 
     <!--[if mso]>
       <noscript>
@@ -41,9 +39,9 @@
         font-style: normal;
         font-weight: 600;
         font-display: swap;
-        src: url(data:font/woff2;base64,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) format('woff2'),
-          url(https://disscount.me/fonts/saira-stencil-semibold.woff2)
-          format('woff2');
+        /* Hosted only: the base64 copy duplicated this same file, and
+           Outlook and Gmail ignore @font-face in mail regardless. */
+        src: url(https://disscount.me/fonts/saira-stencil-semibold.woff2) format('woff2');
       }
       html,
       body {
@@ -88,6 +86,7 @@
           height: auto !important;
         }
       }
+
     </style>
   </head>
 
@@ -144,6 +143,7 @@
                 <img
                   src="https://disscount.me/brand/logo/lockup-horizontal/lockup-horizontal-rgb-animated.gif"
                   width="240"
+                          height="39"
                   alt="Disscount"
                   style="
                     display: block;
@@ -272,6 +272,7 @@
                   class="shot"
                   src="https://disscount.me/email/search.png"
                   width="240"
+                          height="519"
                   alt="Pretraga proizvoda s rasponom cijena kroz trgovine"
                   style="
                     display: block;
@@ -314,6 +315,7 @@
                   class="shot"
                   src="https://disscount.me/email/product-detail.png"
                   width="240"
+                          height="519"
                   alt="Detalji proizvoda s grafom povijesti cijena"
                   style="
                     display: block;
@@ -363,6 +365,7 @@
                         class="shot"
                         src="https://disscount.me/email/shopping-list-detail.png"
                         width="230"
+                        height="498"
                         alt="Popis za kupnju s ukupnim iznosom košarice"
                         style="
                           display: block;
@@ -379,6 +382,7 @@
                         class="shot"
                         src="https://disscount.me/email/watchlist.png"
                         width="230"
+                        height="498"
                         alt="Praćeni proizvodi s cijenama na oku"
                         style="
                           display: block;

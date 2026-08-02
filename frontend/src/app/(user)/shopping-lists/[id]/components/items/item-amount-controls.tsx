@@ -17,8 +17,12 @@ export default function ItemAmountControls({
   // No spinner here on purpose: the write is optimistic, so the new amount is
   // already rendered and swapping in a loader would flicker on every tap.
   return (
+    // The wrapper itself takes pointer events. Leaving it inert and re-enabling
+    // only its buttons lost to Button's own disabled:pointer-events-none, which
+    // is the higher specificity, so a press on a greyed-out control fell through
+    // to the row's link and navigated to the product instead of doing nothing.
     <div
-      className="pointer-events-none relative z-20 flex items-center gap-2 [&_button]:pointer-events-auto"
+      className="relative z-20 flex items-center gap-2"
       aria-busy={isUpdating}
     >
       <Button
@@ -34,7 +38,7 @@ export default function ItemAmountControls({
         }
         disabled={(item.amount || 1) <= 1 || item.isChecked}
       >
-        <Minus />
+        <Minus aria-hidden="true" />
       </Button>
 
       <span className="text-center min-w-8">{item.amount}</span>
@@ -52,7 +56,7 @@ export default function ItemAmountControls({
         }
         disabled={item.isChecked}
       >
-        <Plus />
+        <Plus aria-hidden="true" />
       </Button>
     </div>
   );

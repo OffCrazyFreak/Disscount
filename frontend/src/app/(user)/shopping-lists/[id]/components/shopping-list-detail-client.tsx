@@ -49,7 +49,9 @@ export default function ShoppingListDetailClient({
       <LoginRequired
         title="Popis za kupnju"
         description="Popisi za kupnju ti omogućuju da organiziraš kupovinu i na jednom mjestu usporediš cijene po trgovinama."
-        icon={<ListChecks className="size-12 text-primary" />}
+        icon={
+          <ListChecks aria-hidden="true" className="size-12 text-primary" />
+        }
       />
     );
   }

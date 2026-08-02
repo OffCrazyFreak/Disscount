@@ -34,7 +34,6 @@ export default function WatchlistDiscountRow({
       <StorePriceTooltip stores={stores} side={tooltipSide}>
         <button
           type="button"
-          aria-label="Otvori preference trgovina"
           onClick={onOpenPreferences}
           className={cn(
             "relative z-20 flex cursor-pointer items-center gap-2 rounded-sm text-sm transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
@@ -44,6 +43,13 @@ export default function WatchlistDiscountRow({
         >
           <Icon className="size-4 sm:size-5" aria-hidden="true" />
           <span>{text}</span>
+          {/* The price is the visible label, so it has to lead the accessible
+              name: an aria-label replaced it outright, which hid the figure from
+              screen readers and left voice control unable to say it. infoLabel
+              also tells the two rows on a card apart. */}
+          <span className="sr-only">
+            , {infoLabel}, otvori preference trgovina
+          </span>
         </button>
       </StorePriceTooltip>
 

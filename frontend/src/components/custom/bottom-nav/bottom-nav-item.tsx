@@ -5,9 +5,10 @@ import { isKeyboardClick } from "@/utils/events";
 import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
 import BottomNavIndicator from "@/components/custom/bottom-nav/bottom-nav-indicator";
 import BottomNavItemGlyph from "@/components/custom/bottom-nav/bottom-nav-item-glyph";
-import BottomNavRing from "@/components/custom/bottom-nav/bottom-nav-ring";
+import HoldProgressRing from "@/components/custom/common/hold-progress-ring";
 import {
   CELL_BUTTON_CLASS,
+  CELL_DISC_CLASS,
   CELL_ITEM_CLASS,
   CELL_LABEL_CLASS,
 } from "@/components/custom/bottom-nav/bottom-nav-classes";
@@ -85,16 +86,16 @@ export default function BottomNavItem({
         {showsDisc && <BottomNavIndicator opacity={indicatorOpacity} />}
 
         {listProgress !== undefined && (
-          <BottomNavRing
+          <HoldProgressRing
             progress={listProgress}
-            className="stroke-primary/50"
+            className={cn(CELL_DISC_CLASS, "stroke-primary/50")}
           />
         )}
 
         {hasHold && (
-          <BottomNavRing
+          <HoldProgressRing
             progress="var(--press-progress, 0)"
-            className="stroke-primary"
+            className={cn(CELL_DISC_CLASS, "stroke-primary")}
           />
         )}
 

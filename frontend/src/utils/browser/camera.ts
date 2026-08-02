@@ -13,11 +13,16 @@ function scoreCamera(label: string, index: number): number {
 
 // Labels exist only after permission is granted, so this can return null.
 export function pickBackCamera(devices: MediaDeviceInfo[]): string | null {
+  // Counted before filtering: some browsers label only the granted device, so
+  // counting labels treated a multi-camera phone as single-camera and handed the
+  // choice back to the platform, which on Android often means the front lens.
+  if (devices.length < 2) return null;
+
   const labeledDevices = devices.filter((device) => device.label);
 
   // The browser already has to use the only camera. Waiting for its label and
   // then selecting it explicitly would just restart the same stream.
-  if (labeledDevices.length < 2) return null;
+  if (labeledDevices.length === 0) return null;
 
   const scored = labeledDevices
     .map((device, index) => ({
@@ -26,7 +31,13 @@ export function pickBackCamera(devices: MediaDeviceInfo[]): string | null {
     }))
     .sort((a, b) => b.score - a.score);
 
-  return scored[0]?.deviceId ?? null;
+  // A negative score means the best label we can see is a front or specialty
+  // lens, which happens when the browser labels only the granted device. Naming
+  // it explicitly would pin the scanner to it; null falls back to facingMode,
+  // which is the whole reason this can return null.
+  const best = scored[0];
+
+  return best && best.score >= 0 ? best.deviceId : null;
 }
 
 interface INamedCamera {

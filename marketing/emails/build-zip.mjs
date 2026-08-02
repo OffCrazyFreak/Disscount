@@ -1,13 +1,14 @@
 import { execFileSync } from "node:child_process";
 import {
   copyFileSync,
+  existsSync,
   mkdirSync,
   readFileSync,
   readdirSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { basename, dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -18,6 +19,25 @@ const ORIGIN = "https://disscount.me";
 // Outlook-only blocks are real HTML comments, so MailerLite's importer never
 // rewrites the src inside them. Those stay absolute; everything else is bundled.
 const MSO_BLOCK = /<!--\[if mso\]>[\s\S]*?<!\[endif\]-->/g;
+
+/**
+ * Resolves an asset inside frontend/public and refuses anything that escapes it.
+ * The src is repo-owned so this is not a live vulnerability; the realistic case
+ * is a typo'd relative path quietly bundling a file from outside public/.
+ */
+function resolveAsset(path) {
+  const full = resolve(PUBLIC_DIR, `.${path}`);
+
+  if (full !== PUBLIC_DIR && !full.startsWith(PUBLIC_DIR + sep)) {
+    throw new Error(`asset escapes frontend/public: ${path}`);
+  }
+
+  if (!existsSync(full)) {
+    throw new Error(`asset not found in frontend/public: ${path}`);
+  }
+
+  return full;
+}
 
 function collectAndRewrite(html) {
   const assets = new Set();
@@ -58,9 +78,24 @@ function buildZip(file) {
   );
 
   writeFileSync(join(stage, `${name}.html`), html);
-  assets.forEach((path) =>
-    copyFileSync(join(PUBLIC_DIR, path), join(stage, basename(path))),
-  );
+
+  // Flattened to a basename in the zip, so two assets sharing one filename would
+  // silently overwrite each other while both src values pointed at the survivor.
+  const seen = new Map();
+
+  assets.forEach((path) => {
+    const file = basename(path);
+    const previous = seen.get(file);
+
+    if (previous && previous !== path) {
+      throw new Error(
+        `asset name collision in ${name}: ${previous} and ${path} both flatten to ${file}`,
+      );
+    }
+
+    seen.set(file, path);
+    copyFileSync(resolveAsset(path), join(stage, file));
+  });
 
   const zip = join(DIST, `${name}.zip`);
 

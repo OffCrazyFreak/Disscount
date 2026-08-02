@@ -46,7 +46,10 @@ export default function BackToTopButton() {
             // alone leaves behind.
             inert={!isVisible}
             className={cn(
-              "pointer-events-auto size-[3.5rem] rounded-full shadow-lg sm:size-[3.5rem] [&_svg]:size-[1.75rem]! sm:[&_svg]:size-[1.75rem]!",
+              // No sm: variants here: the base classes already apply at every
+              // width, so restating them at a breakpoint only read as if some
+              // rule existed for them to override.
+              "pointer-events-auto size-[3.5rem] rounded-full shadow-lg [&_svg]:size-[1.75rem]!",
               "transition duration-300 motion-reduce:transition-none",
               isVisible ? "scale-100 opacity-100" : "scale-75 opacity-0",
             )}

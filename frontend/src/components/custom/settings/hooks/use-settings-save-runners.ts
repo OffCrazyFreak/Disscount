@@ -5,14 +5,16 @@ import { useUser } from "@/context/user-context";
 import type { ISaveJobRunners } from "@/components/custom/settings/settings-save-jobs";
 
 export function useSettingsSaveRunners() {
-  const { setUser, updatePinnedStores, updatePinnedPlaces } = useUser();
+  const { mergeUser, updatePinnedStores, updatePinnedPlaces } = useUser();
 
   const userMutation = userService.useUpdateCurrentUser();
   const storesMutation = preferencesService.useUpdatePinnedStores();
   const placesMutation = preferencesService.useUpdatePinnedPlaces();
 
   const runners: ISaveJobRunners = {
-    saveUser: async (patch) => setUser(await userMutation.mutateAsync(patch)),
+    // Merged, not replaced: the profile response carries no pinned stores or
+    // places, and this job races the ones that just saved them.
+    saveUser: async (patch) => mergeUser(await userMutation.mutateAsync(patch)),
     saveStores: async (chainCodes) =>
       updatePinnedStores(
         await storesMutation.mutateAsync({

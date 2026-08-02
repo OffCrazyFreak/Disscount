@@ -40,8 +40,13 @@ export default function ProductInfoDisplay({
         <div className="flex-1 flex items-center gap-4">
           {/* Back button only on the standalone product page, not inside modals */}
           {enableActionButtons && (
-            <Button variant="ghost" size="icon" onClick={handleBackClick}>
-              <ChevronLeft />
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Natrag"
+              onClick={handleBackClick}
+            >
+              <ChevronLeft aria-hidden="true" />
             </Button>
           )}
 
