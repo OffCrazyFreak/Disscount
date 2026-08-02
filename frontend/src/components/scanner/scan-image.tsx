@@ -89,10 +89,15 @@ export default function ScanImageButton({
         Učitaj sliku s kodom
       </Button>
 
+      {/* The visible button is the real control. sr-only keeps this rendered and
+          focusable, so tabbing landed on an unnamed file input that opened a
+          second picker. */}
       <input
         ref={inputRef}
         type="file"
         accept="image/*"
+        tabIndex={-1}
+        aria-hidden="true"
         className="sr-only"
         onChange={(e) => {
           const file = e.target.files?.[0];

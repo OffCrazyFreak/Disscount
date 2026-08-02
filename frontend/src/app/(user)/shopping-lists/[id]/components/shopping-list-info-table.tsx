@@ -44,7 +44,13 @@ export default function ShoppingListInfoTable({
   }, [moneySpent, potentialCostForChecked]);
 
   return (
-    <div className="border border-gray-300 rounded-lg overflow-hidden bg-background shadow-2xs">
+    // One live region for the whole table, so the totals are announced once when
+    // they land rather than each skeleton competing to say nothing.
+    <div
+      role="status"
+      aria-live="polite"
+      className="border border-gray-300 rounded-lg overflow-hidden bg-background shadow-2xs"
+    >
       <table aria-busy={isPricesLoading} className="w-full text-sm">
         <tbody>
           <tr className="flex flex-col sm:table-row">

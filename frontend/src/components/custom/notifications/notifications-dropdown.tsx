@@ -67,7 +67,7 @@ export default function NotificationsDropdown({
               : "Obavijesti"
           }
         >
-          <BellRingIcon />
+          <BellRingIcon aria-hidden="true" />
 
           {hasNotifications && (
             <Badge size="count" className="absolute -top-0.5 -right-1">
