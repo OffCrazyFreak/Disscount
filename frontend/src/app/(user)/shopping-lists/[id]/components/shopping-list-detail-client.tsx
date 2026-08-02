@@ -48,12 +48,12 @@ export default function ShoppingListDetailClient({
             <p>Popis za kupnju nije pronađen ili se dogodila greška.</p>
           </div>
 
-          <Link href="/shopping-lists">
-            <Button variant="ghost">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+          <Button asChild variant="ghost">
+            <Link href="/shopping-lists">
+              <ArrowLeft aria-hidden="true" className="size-4" />
               Natrag na popise za kupnju
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </div>
     );

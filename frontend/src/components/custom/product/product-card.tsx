@@ -3,9 +3,10 @@
 import { type ComponentProps, type ReactNode } from "react";
 
 import { Card } from "@/components/ui/card";
-import ProductOverlayLink from "@/components/custom/product/product-overlay-link";
+import HoldProgressRing from "@/components/custom/common/hold-progress-ring";
 import ProductSummary from "@/components/custom/product/product-summary";
 import { cn } from "@/lib/utils";
+import { productPath } from "@/utils/product-links";
 
 interface IProductCardProps {
   ean: string;
@@ -20,7 +21,7 @@ interface IProductCardProps {
   trailing?: ReactNode;
   actions?: ReactNode;
   className?: string;
-  /** Pointer handlers from useLongPress, for the quick-actions gesture */
+  /** Pointer handlers from useCardLongPress, for the quick-actions gesture */
   pressProps?: Pick<
     ComponentProps<"div">,
     | "onPointerDown"
@@ -30,10 +31,11 @@ interface IProductCardProps {
     | "onPointerLeave"
     | "onContextMenu"
   >;
-}
-
-function stopEvent(event: { stopPropagation: () => void }) {
-  event.stopPropagation();
+  /** Shields action controls from the card's own gesture */
+  actionProps?: Pick<
+    ComponentProps<"div">,
+    "onClick" | "onPointerDown" | "onPointerUp"
+  >;
 }
 
 /**
@@ -54,18 +56,8 @@ export default function ProductCard({
   actions,
   className,
   pressProps,
+  actionProps,
 }: IProductCardProps) {
-  // The card owns the long-press gesture, so a press on its action controls
-  // must not reach it. Stopping click alone still let a hold there open the sheet
-  // and then run the button on release.
-  const actionProps = pressProps
-    ? {
-        onClick: stopEvent,
-        onPointerDown: stopEvent,
-        onPointerUp: stopEvent,
-      }
-    : undefined;
-
   return (
     <Card
       {...pressProps}
@@ -77,8 +69,6 @@ export default function ProductCard({
         className,
       )}
     >
-      <ProductOverlayLink ean={ean} name={name} onNavigate={onNavigate} />
-
       <ProductSummary
         name={name}
         brand={brand}
@@ -89,7 +79,19 @@ export default function ProductCard({
         trailing={trailing}
         actions={actions}
         actionProps={actionProps}
+        href={productPath(ean)}
+        onNavigate={onNavigate}
       />
+
+      {/* Draws nothing until a hold starts, so it can stay mounted. This is the
+          only cue that holding the card does anything, since the row shows no
+          inline actions on touch. */}
+      {pressProps && (
+        <HoldProgressRing
+          progress="var(--press-progress, 0)"
+          className="absolute top-1/2 left-1/2 size-[3.6rem] -translate-x-1/2 -translate-y-1/2 stroke-primary"
+        />
+      )}
     </Card>
   );
 }

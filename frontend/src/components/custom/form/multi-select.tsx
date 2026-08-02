@@ -70,9 +70,18 @@ export function MultiSelect({
     });
   }, []);
 
+  // Clearing on close, not only when a value is added: a search left behind
+  // reopened the list still filtered, which reads as the facet having no other
+  // options. This is what the context hands out, so the paths that close the
+  // list themselves (Escape on the inline one) clear it too.
+  function handleOpenChange(next: boolean) {
+    setOpen(next);
+    if (!next) setSearchValue("");
+  }
+
   const context = {
     open,
-    setOpen,
+    setOpen: handleOpenChange,
     selectedValues: currentValues,
     toggleValue,
     searchValue,
@@ -86,11 +95,11 @@ export function MultiSelect({
   return (
     <MultiSelectContext value={context}>
       {presentation === "inline" ? (
-        <Collapsible open={open} onOpenChange={setOpen}>
+        <Collapsible open={open} onOpenChange={handleOpenChange}>
           {children}
         </Collapsible>
       ) : (
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover open={open} onOpenChange={handleOpenChange}>
           {children}
         </Popover>
       )}

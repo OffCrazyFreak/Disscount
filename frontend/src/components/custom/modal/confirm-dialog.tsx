@@ -55,7 +55,11 @@ export function ConfirmDialog({
       preventClose={isLoading}
       title={title}
       description={description}
-      onSubmit={onConfirm}
+      // Enter confirms only when the action is reversible. ModalShell focuses the
+      // dialog container rather than a control, so nothing looks armed, and every
+      // destructive caller here deletes an account or a list. Two ordinary Enter
+      // presses, one to open and one on the still-unfocused dialog, would run it.
+      onSubmit={isDestructive ? undefined : onConfirm}
       submitLoading={isLoading}
       hero={
         <motion.div

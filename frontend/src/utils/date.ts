@@ -45,6 +45,25 @@ export function buildDateWindow(
   return dates;
 }
 
+// A date and time carrying neither "Z" nor a numeric offset.
+const ZONELESS_DATE_TIME =
+  /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2})?(\.\d+)?$/;
+
+/**
+ * Parses a timestamp the way the backend meant it.
+ *
+ * Spring serialises LocalDateTime columns without a zone, and the backend stamps them
+ * in UTC, but JS reads a zone-less date and time as *local*. Left alone, every server
+ * timestamp renders shifted by the reader's offset, which in Croatia means an hour or
+ * two. Date-only strings and anything already carrying an offset pass through, since
+ * the spec already reads those as UTC and as written respectively.
+ */
+export function parseServerDate(value: string | number | Date): Date {
+  if (typeof value !== "string") return new Date(value);
+
+  return new Date(ZONELESS_DATE_TIME.test(value) ? `${value}Z` : value);
+}
+
 const relativeTimeFormatters = new Map<string, Intl.RelativeTimeFormat>();
 
 function getRelativeTimeFormatter(locale: string) {

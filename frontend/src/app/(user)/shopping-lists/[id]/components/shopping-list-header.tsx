@@ -2,6 +2,7 @@ import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
+import { useUser } from "@/context/user-context";
 import ShoppingListActionButtons from "@/app/(user)/shopping-lists/[id]/components/shopping-list-action-buttons";
 import ShoppingListVisibilityIndicator from "@/app/(user)/shopping-lists/components/shopping-list-visibility-indicator";
 import {
@@ -17,6 +18,13 @@ interface IShoppingListHeaderProps {
 export default function ShoppingListHeader({
   shoppingList,
 }: IShoppingListHeaderProps) {
+  const { user } = useUser();
+
+  // A public list is readable by anyone with the link, but updateShoppingList
+  // and deleteShoppingList both resolve through findActiveByIdAndOwner, so for a
+  // recipient those two controls open a modal that can only fail.
+  const isOwner = !!user && shoppingList.ownerId === user.id;
+
   return (
     <div className="mb-6 space-y-4">
       <div className="flex items-center justify-between gap-4">
@@ -49,8 +57,8 @@ export default function ShoppingListHeader({
             shoppingList={shoppingList}
             showCopyButton={true}
             showShareButton={true}
-            showEditButton={true}
-            showDeleteButton={true}
+            showEditButton={isOwner}
+            showDeleteButton={isOwner}
             mobilePresentation="buttons"
           />
         </div>

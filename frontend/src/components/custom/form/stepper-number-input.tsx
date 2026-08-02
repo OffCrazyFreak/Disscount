@@ -58,7 +58,9 @@ export function StepperNumberInput({
         type="button"
         size="icon"
         variant={isSecondary ? "outline" : "primary"}
-        aria-label={`${sign > 0 ? "Povećaj" : "Smanji"} za ${amount}`}
+        // Announced the way Croatian writes it, so the spoken label matches the
+        // visible one rather than reading a dot-decimal the button never shows.
+        aria-label={`${sign > 0 ? "Povećaj" : "Smanji"} za ${amount.toLocaleString("hr-HR")}`}
         className={cn(
           "shrink-0 rounded-full text-lg font-bold",
           isSecondary

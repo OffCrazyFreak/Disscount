@@ -1,7 +1,7 @@
 "use client";
 
 import { useMinuteTick } from "@/hooks/use-minute-tick";
-import { formatRelativeTime } from "@/utils/date";
+import { formatRelativeTime, parseServerDate } from "@/utils/date";
 import { formatDateTime } from "@/utils/strings";
 
 interface IRelativeTimeProps {
@@ -16,7 +16,7 @@ export default function RelativeTime({
 }: IRelativeTimeProps) {
   const mounted = useMinuteTick();
 
-  const timestamp = value ? new Date(value).getTime() : Number.NaN;
+  const timestamp = value ? parseServerDate(value).getTime() : Number.NaN;
   if (Number.isNaN(timestamp)) return <>{fallback}</>;
 
   const absolute = formatDateTime(value);
