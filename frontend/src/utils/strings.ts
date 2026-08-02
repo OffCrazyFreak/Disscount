@@ -1,5 +1,7 @@
 // Utility helpers used across the app
 
+import { parseServerDate } from "@/utils/date";
+
 /**
  * Normalize strings for search: remove diacritics and apply language-specific replacements.
  * Works well for Croatian and German diacritics.
@@ -41,7 +43,7 @@ export function normalizeForSearch(s: string) {
 export function formatDate(dateString?: string | null) {
   if (!dateString) return "";
   try {
-    const d = new Date(dateString);
+    const d = parseServerDate(dateString);
     if (Number.isNaN(d.getTime())) return dateString;
 
     const day = String(d.getDate()).padStart(2, "0");
@@ -61,7 +63,7 @@ export function formatDate(dateString?: string | null) {
 export function formatDateTime(dateString?: string | null) {
   if (!dateString) return "";
 
-  const d = new Date(dateString);
+  const d = parseServerDate(dateString);
   if (Number.isNaN(d.getTime())) return dateString;
 
   const hours = String(d.getHours()).padStart(2, "0");

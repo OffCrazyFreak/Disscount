@@ -110,6 +110,7 @@ Before wiring an API call, confirm the endpoint exists in `backend/` or in https
 - Versions come from the `spring-boot-starter-parent` BOM, so most dependencies carry no `<version>`. Only the ones outside the BOM pin their own, and `lombok.version` is pinned because the compiler's annotation processor path needs it explicitly.
 - Swagger UI is at `/api-docs`, and springdoc's major has to track the Spring Boot major.
 - `ddl-auto=update` never drops anything, so changing an enum column to String leaves a stale CHECK constraint that 500s on write.
+- Every zone-less timestamp column is stamped through `Timestamps.nowUtc()`, never `LocalDateTime.now()`, and JPA auditing is pointed at the same clock by `JpaConfig`. The columns carry no offset, so the JVM zone would otherwise leak into the wire format. The frontend's `parseServerDate` reads them back as UTC, and the two halves have to agree.
 
 ## Branches and releases
 

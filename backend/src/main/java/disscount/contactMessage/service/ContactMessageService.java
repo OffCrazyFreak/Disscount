@@ -1,5 +1,6 @@
 package disscount.contactMessage.service;
 
+import disscount.util.Timestamps;
 import disscount.contactMessage.dao.ContactMessageRepository;
 import disscount.contactMessage.domain.ContactMessage;
 import disscount.contactMessage.dto.ContactMessageDto;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -70,7 +70,7 @@ public class ContactMessageService {
     }
 
     public ContactMessageDto markRead(UUID id) {
-        return mutate(id, msg -> msg.setReadAt(LocalDateTime.now()));
+        return mutate(id, msg -> msg.setReadAt(Timestamps.nowUtc()));
     }
 
     public ContactMessageDto markUnread(UUID id) {
@@ -78,7 +78,7 @@ public class ContactMessageService {
     }
 
     public ContactMessageDto softDelete(UUID id) {
-        return mutate(id, msg -> msg.setDeletedAt(LocalDateTime.now()));
+        return mutate(id, msg -> msg.setDeletedAt(Timestamps.nowUtc()));
     }
 
     public ContactMessageDto restore(UUID id) {

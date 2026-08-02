@@ -12,6 +12,11 @@ import java.time.ZoneOffset;
  * change moving from UTC to Europe/Zagreb would shift rows by an hour against
  * their neighbours and jumble the order for good. Europe/Zagreb also repeats the
  * 02:00 hour every autumn.
+ *
+ * <p>Every zone-less column goes through here, including the audited ones: JpaConfig
+ * points Spring Data's DateTimeProvider at this method rather than its default, which
+ * would otherwise read the JVM zone. The frontend parses these values as UTC, so a
+ * stamp taken in any other zone would render an hour or two off.
  */
 public final class Timestamps {
 
