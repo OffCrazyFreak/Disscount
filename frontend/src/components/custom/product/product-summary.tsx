@@ -17,6 +17,11 @@ interface IProductSummaryProps {
   /** Passive details, such as prices, shown opposite the product identity */
   trailing?: ReactNode;
   actions?: ReactNode;
+  /**
+   * Applied to the actions wrapper, so a surface that hides its actions hides
+   * the element the row's gap is measured against too.
+   */
+  actionsClassName?: string;
   /** Keeps a press on actions from reaching a card-level gesture */
   actionProps?: Pick<
     ComponentProps<"div">,
@@ -42,6 +47,7 @@ export default function ProductSummary({
   isLoading = false,
   trailing,
   actions,
+  actionsClassName,
   actionProps,
   href,
   onNavigate,
@@ -93,7 +99,10 @@ export default function ProductSummary({
             {trailing && <div className="relative z-10">{trailing}</div>}
 
             {actions && (
-              <div className="relative z-20" {...actionProps}>
+              <div
+                className={cn("relative z-20", actionsClassName)}
+                {...actionProps}
+              >
                 {actions}
               </div>
             )}

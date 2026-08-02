@@ -104,12 +104,14 @@ const buttonVariants = cva(
 );
 
 const LABEL_FROM_CLASSES = {
+  // The :not() guard matches the icon size variants, so an icon sized by hand
+  // is not silently overridden once past the breakpoint.
   sm: {
-    button: "sm:h-10 sm:w-auto sm:px-4 sm:[&_svg]:size-5",
+    button: "sm:h-10 sm:w-auto sm:px-4 sm:[&_svg:not([class*='size-'])]:size-5",
     label: "hidden sm:inline",
   },
   md: {
-    button: "md:h-10 md:w-auto md:px-4 md:[&_svg]:size-5",
+    button: "md:h-10 md:w-auto md:px-4 md:[&_svg:not([class*='size-'])]:size-5",
     label: "hidden md:inline",
   },
 } as const;
