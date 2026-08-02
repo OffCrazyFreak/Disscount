@@ -126,14 +126,14 @@ The split is enforced in the repo, not in the dashboard, by `frontend/netlify.to
   ignore = 'case "$PULL_REQUEST:$BRANCH" in true:main|true:dev) exit 0 ;; true:*) exit 1 ;; *) exit 0 ;; esac'
 ```
 
-| Detail                               | Why it is like that                                                                                                                                                                                               |
-| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PULL_REQUEST` is the primary gate   | Netlify sets this read-only variable to `true` only for pull or merge request builds. Production and ordinary branch deploys therefore stop before the build command.                                             |
-| `main` and `dev` are still excluded  | On a PR preview, `$BRANCH` is the PR's head branch. A `dev` to `main` release PR is skipped, while a `fix/x` into `dev` PR builds exactly once.                                                                   |
-| `build.ignore`, not a UI branch list | Netlify always attempts to deploy its production branch. The ignore command is the supported repository-controlled opt-out and also prevents duplicate branch deploys alongside PR previews.                      |
-| Exit `0` skips, exit `1` builds      | Inverted from normal shell convention. This is the usual trap when editing the rule.                                                                                                                              |
-| File lives in `frontend/`            | Netlify's base directory is `frontend`, and it looks for `netlify.toml` there. Paths inside `ignore` also resolve from the base directory.                                                                        |
-| **Branch deploys** is set to `All`   | A PR targeting `dev` needs its base branch enabled for branch deploys. The repository rule still cancels every ordinary branch deployment, including `dev`, so the only completed Netlify builds are PR previews. |
+| Detail                               | Why it is like that                                                                                                                                                                              |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `PULL_REQUEST` is the primary gate   | Netlify sets this read-only variable to `true` only for pull or merge request builds. Production and ordinary branch deploys therefore stop before the build command.                            |
+| `main` and `dev` are still excluded  | On a PR preview, `$BRANCH` is the PR's head branch. A `dev` to `main` release PR is skipped, while a `fix/x` into `dev` PR builds exactly once.                                                  |
+| `build.ignore`, not a UI branch list | Netlify always attempts to deploy its production branch. The ignore command is the supported repository-controlled opt-out and also prevents duplicate branch deploys alongside PR previews.     |
+| Exit `0` skips, exit `1` builds      | Inverted from normal shell convention. This is the usual trap when editing the rule.                                                                                                             |
+| File lives in `frontend/`            | Netlify's base directory is `frontend`, and it looks for `netlify.toml` there. Paths inside `ignore` also resolve from the base directory.                                                       |
+| **Branch deploys** is set to `dev`   | A PR targeting `dev` needs its base branch enabled for branch deploys. This dashboard setting prevents feature-branch deploys, while the repository rule cancels the `dev` branch deploy itself. |
 
 Skipped production and branch deploys still appear in Netlify's deploy list, marked **Canceled**, with the ignore command in the log. That is the expected result, not a completed build.
 
