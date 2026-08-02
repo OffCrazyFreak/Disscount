@@ -13,8 +13,8 @@ interface IProductCardSkeletonProps {
 }
 
 /**
- * The loading shape of ProductCard. Same Card wrapper, minus the overlay link,
- * since there is nothing to navigate to yet.
+ * The loading shape of ProductCard. Same Card wrapper, minus the title link and
+ * the hold gesture, since there is nothing to navigate to or act on yet.
  */
 export default function ProductCardSkeleton({
   withImage = false,
