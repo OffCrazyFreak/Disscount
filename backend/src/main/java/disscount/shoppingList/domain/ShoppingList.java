@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import disscount.shoppingListItem.domain.ShoppingListItem;
 import disscount.user.domain.User;
+import disscount.util.Timestamps;
 
 @Entity
 @Table(name = "shopping_list")
@@ -64,13 +65,13 @@ public class ShoppingList {
 
     @PrePersist
     protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = Timestamps.nowUtc();
         createdAt = now;
         updatedAt = now;
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = Timestamps.nowUtc();
     }
 }

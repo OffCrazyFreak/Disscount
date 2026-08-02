@@ -17,8 +17,8 @@ import disscount.shoppingListItem.dto.ShoppingListItemDto;
 import disscount.shoppingListItem.dto.ShoppingListItemRequest;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
+import disscount.util.Timestamps;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -64,7 +64,7 @@ public class SharedShoppingListService {
 
             return shoppingListItemRepository.findActiveByIdAndShoppingList(itemId, list).map(item -> {
                 applyItemUpdate(item, request, access);
-                item.setUpdatedAt(LocalDateTime.now());
+                item.setUpdatedAt(Timestamps.nowUtc());
                 item.setUpdatedByUser(actor);
 
                 ShoppingListItem saved = shoppingListItemRepository.save(item);
@@ -79,7 +79,7 @@ public class SharedShoppingListService {
             requireAccess(list, userId, ListAccess::canEditItems);
 
             return shoppingListItemRepository.findActiveByIdAndShoppingList(itemId, list).map(item -> {
-                item.setDeletedAt(LocalDateTime.now());
+                item.setDeletedAt(Timestamps.nowUtc());
                 shoppingListItemRepository.save(item);
                 touchList(list);
                 return true;
@@ -142,7 +142,7 @@ public class SharedShoppingListService {
 
     /** Item activity reorders the owner's list index, which sorts by updatedAt. */
     private void touchList(ShoppingList list) {
-        list.setUpdatedAt(LocalDateTime.now());
+        list.setUpdatedAt(Timestamps.nowUtc());
         shoppingListRepository.save(list);
     }
 }

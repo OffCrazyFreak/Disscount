@@ -1,7 +1,7 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 
-import ProductOverlayLink from "@/components/custom/product/product-overlay-link";
+import StretchedLink from "@/components/custom/common/stretched-link";
 import StoreChainSelect from "@/components/custom/store-chain/store-chain-select";
 
 import type { ShoppingListItemDto } from "@/lib/api/types";
@@ -10,6 +10,7 @@ import ItemAmountControls from "@/app/(user)/shopping-lists/[id]/components/item
 import ItemPriceDisplay from "@/app/(user)/shopping-lists/[id]/components/items/item-price-display";
 import type { IShoppingListItemUpdate } from "@/app/(user)/shopping-lists/[id]/typings/shopping-list-item-types";
 import { cn } from "@/lib/utils";
+import { productPath } from "@/utils/product-links";
 
 interface IShoppingListItemProps {
   item: ShoppingListItemDto;
@@ -45,16 +46,6 @@ export default function ShoppingListItem({
   return (
     <>
       <div className="relative flex flex-wrap items-center justify-between gap-6 py-1 sm:flex-nowrap">
-        <ProductOverlayLink
-          ean={item.ean}
-          name={item.name}
-          className={cn(
-            "-left-4 -right-4",
-            isFirst ? "-top-4 rounded-t-xl" : "top-0",
-            isLast ? "-bottom-4 rounded-b-xl" : "bottom-0",
-          )}
-        />
-
         {/* Left side: Checkbox, item name, and delete button (mobile) */}
         <div className="flex items-center gap-4 w-full sm:w-auto">
           <Checkbox
@@ -80,10 +71,23 @@ export default function ShoppingListItem({
                 item.isChecked ? "line-through text-gray-500" : ""
               }`}
             >
-              {item.name}
+              <StretchedLink
+                href={productPath(item.ean)}
+                // The row is padded by its container, so the hit area bleeds past
+                // it to cover the whole strip, rounding off at the list's ends.
+                className={cn(
+                  "after:-left-4 after:-right-4",
+                  isFirst ? "after:-top-4 after:rounded-t-xl" : "after:top-0",
+                  isLast
+                    ? "after:-bottom-4 after:rounded-b-xl"
+                    : "after:bottom-0",
+                )}
+              >
+                {item.name}
+              </StretchedLink>
             </p>
             {item.brand && (
-              <p className="text-xs sm:text-sm text-gray-600 text-pretty">
+              <p className="relative z-10 w-fit text-xs sm:text-sm text-gray-600 text-pretty">
                 {item.brand}
               </p>
             )}

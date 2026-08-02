@@ -7,7 +7,7 @@ import { shoppingListService } from "@/lib/api";
 import type { LinkAccess } from "@/lib/api/types";
 import { shareOrCopy } from "@/utils/browser/share";
 import { formatShoppingListForSharing } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
-import { shareListUrl } from "@/app/(user)/shopping-lists/utils/share-list-url";
+import { shareListUrl } from "@/utils/shopping-list-links";
 
 /**
  * Share settings save on change rather than behind a submit button: the server mints the

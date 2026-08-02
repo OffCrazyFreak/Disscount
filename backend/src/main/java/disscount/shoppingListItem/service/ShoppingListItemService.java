@@ -15,8 +15,8 @@ import disscount.shoppingListItem.dto.ShoppingListItemDto;
 import disscount.shoppingListItem.dto.ShoppingListItemRequest;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
+import disscount.util.Timestamps;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -67,7 +67,7 @@ public class ShoppingListItemService {
             if (request.getStorePrice() != null) item.setStorePrice(request.getStorePrice());
 
             // Update tracking fields
-            item.setUpdatedAt(LocalDateTime.now());
+            item.setUpdatedAt(Timestamps.nowUtc());
             item.setUpdatedByUser(owner);
         } else {
             // Create new item
@@ -90,7 +90,7 @@ public class ShoppingListItemService {
         item = shoppingListItemRepository.save(item);
 
         // Update the shopping list's updatedAt timestamp
-        shoppingList.setUpdatedAt(LocalDateTime.now());
+        shoppingList.setUpdatedAt(Timestamps.nowUtc());
         shoppingListRepository.save(shoppingList);
 
         return shoppingListMapper.toItemDto(item);
@@ -115,13 +115,13 @@ public class ShoppingListItemService {
         item.setStorePrice(request.getStorePrice());
 
         // Update tracking fields
-        item.setUpdatedAt(LocalDateTime.now());
+        item.setUpdatedAt(Timestamps.nowUtc());
         item.setUpdatedByUser(owner);
 
         item = shoppingListItemRepository.save(item);
 
         // Update the shopping list's updatedAt timestamp
-        item.getShoppingList().setUpdatedAt(LocalDateTime.now());
+        item.getShoppingList().setUpdatedAt(Timestamps.nowUtc());
         shoppingListRepository.save(item.getShoppingList());
 
         return shoppingListMapper.toItemDto(item);
@@ -133,11 +133,11 @@ public class ShoppingListItemService {
 
         ShoppingListItem item = findOwnedItem(listId, itemId, owner);
 
-        item.setDeletedAt(LocalDateTime.now());
+        item.setDeletedAt(Timestamps.nowUtc());
         shoppingListItemRepository.save(item);
 
         // Update the shopping list's updatedAt timestamp
-        item.getShoppingList().setUpdatedAt(LocalDateTime.now());
+        item.getShoppingList().setUpdatedAt(Timestamps.nowUtc());
         shoppingListRepository.save(item.getShoppingList());
     }
 

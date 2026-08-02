@@ -7,6 +7,7 @@ import indexFromPoint, {
   navCells,
 } from "@/components/custom/bottom-nav/bar-hit-test";
 import useLongPressTimer from "@/hooks/use-long-press-timer";
+import useSettlingNavPreview from "@/components/custom/bottom-nav/use-settling-nav-preview";
 
 /** The rounded pill's own corners, where a press is more likely a swipe home */
 const BAR_EDGE_EXCLUSION_PX = 16;
@@ -16,11 +17,6 @@ interface IUseBottomNavPointerOptions {
   /** What a hold on this cell does, or null when the cell has none */
   holdFor: (index: number) => (() => void) | null;
   /** Changes when a requested route has landed */
-  routeKey: string;
-}
-
-interface ISettlingNavigation {
-  index: number;
   routeKey: string;
 }
 
@@ -40,7 +36,8 @@ export default function useBottomNavPointer({
   routeKey,
 }: IUseBottomNavPointerOptions) {
   const [scrubIndex, setScrubIndex] = useState<number | null>(null);
-  const [settling, setSettling] = useState<ISettlingNavigation | null>(null);
+  const { settlingIndex, markNavigated, clear } =
+    useSettlingNavPreview(routeKey);
   const hold = useLongPressTimer();
   const pressedIndex = useRef<number | null>(null);
   const pointerId = useRef<number | null>(null);
@@ -142,16 +139,14 @@ export default function useBottomNavPointer({
         index !== null &&
         latest.current.onActivate(index);
 
-      setSettling(
-        didNavigate && index !== null
-          ? { index, routeKey: latest.current.routeKey }
-          : null,
-      );
+      if (didNavigate && index !== null) {
+        markNavigated(index, latest.current.routeKey);
+      } else {
+        clear();
+      }
     },
-    [hold],
+    [hold, markNavigated, clear],
   );
-
-  const settlingIndex = settling?.routeKey === routeKey ? settling.index : null;
 
   return {
     /** The cell under a dragging thumb, so the disc can preview it */

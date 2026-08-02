@@ -15,7 +15,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import InstallSidebarBanner from "@/components/custom/pwa/install-sidebar-banner";
+import InstallCard from "@/components/custom/pwa/install-card";
 import SidebarUser from "@/components/custom/sidebar/sidebar-user";
 import SidebarMainNav from "@/components/custom/sidebar/sidebar-main-nav";
 import SidebarProductNav from "@/components/custom/sidebar/sidebar-product-nav";
@@ -97,7 +97,7 @@ export default function AppSidebar() {
       </div>
 
       <SidebarFooter>
-        <InstallSidebarBanner />
+        <InstallCard />
 
         <SidebarUser />
       </SidebarFooter>

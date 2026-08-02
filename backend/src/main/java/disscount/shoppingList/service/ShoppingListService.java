@@ -13,6 +13,7 @@ import disscount.shoppingList.dto.ShoppingListDto;
 import disscount.shoppingList.dto.ShoppingListRequest;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
+import disscount.util.Timestamps;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -48,6 +49,9 @@ public class ShoppingListService {
         return shoppingListMapper.toDto(shoppingList, ListAccess.OWNER);
     }
 
+    // Read-only: the class-level @Transactional would otherwise keep a dirty-checking
+    // flush at commit for a query that never writes.
+    @Transactional(readOnly = true)
     public List<ShoppingListDto> getUserShoppingLists(UUID ownerId) {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new UnauthorizedException("User not found"));
@@ -58,6 +62,7 @@ public class ShoppingListService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public Optional<ShoppingListDto> getShoppingListById(UUID listId, UUID ownerId) {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new UnauthorizedException("User not found"));
@@ -87,7 +92,7 @@ public class ShoppingListService {
         ShoppingList shoppingList = shoppingListRepository.findActiveByIdAndOwner(listId, owner)
                 .orElseThrow(() -> new BadRequestException("Shopping list not found"));
 
-        shoppingList.setDeletedAt(LocalDateTime.now());
+        shoppingList.setDeletedAt(Timestamps.nowUtc());
         shoppingListRepository.save(shoppingList);
     }
 

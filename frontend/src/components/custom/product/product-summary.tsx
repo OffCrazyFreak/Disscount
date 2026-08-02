@@ -22,6 +22,9 @@ interface IProductSummaryProps {
     ComponentProps<"div">,
     "onClick" | "onPointerDown" | "onPointerUp"
   >;
+  /** When set, the product name carries the card's link. */
+  href?: string;
+  onNavigate?: (viaKeyboard: boolean) => boolean | void;
   className?: string;
 }
 
@@ -40,6 +43,8 @@ export default function ProductSummary({
   trailing,
   actions,
   actionProps,
+  href,
+  onNavigate,
   className,
 }: IProductSummaryProps) {
   const displayName = name && quantity ? `${name} (${quantity})` : name;
@@ -70,19 +75,25 @@ export default function ProductSummary({
               <Skeleton className="h-3.5 w-32" />
             </div>
           ) : (
-            <ProductInfo name={displayName} brand={brand} category={category} />
+            <ProductInfo
+              name={displayName}
+              brand={brand}
+              category={category}
+              href={href}
+              onNavigate={onNavigate}
+            />
           )}
         </div>
 
         {(trailing || actions) && (
           <div className="flex shrink-0 items-center justify-between gap-4">
-            {trailing}
+            {/* Raised above the name link's stretched pseudo-element so prices
+                stay selectable; actions go a layer higher again so they keep
+                receiving pointer events without opting in class by class. */}
+            {trailing && <div className="relative z-10">{trailing}</div>}
 
             {actions && (
-              <div
-                className="pointer-events-none relative z-20 [&_a]:pointer-events-auto [&_button]:pointer-events-auto"
-                {...actionProps}
-              >
+              <div className="relative z-20" {...actionProps}>
                 {actions}
               </div>
             )}

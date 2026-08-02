@@ -24,6 +24,8 @@ export default function ShoppingListHeader({
   shoppingList,
   isSignedIn = true,
 }: IShoppingListHeaderProps) {
+  // The server resolves this, so it stays right for a link recipient too. Editing and
+  // deleting are owner-only on the backend, so a recipient must not see those controls.
   const { isOwner } = resolveShoppingListAccess(shoppingList.myAccess);
 
   return (
