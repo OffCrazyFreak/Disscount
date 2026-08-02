@@ -26,6 +26,7 @@ export type ModalTarget =
   | { name: "shopping-list"; action: "edit"; id: string }
   | { name: "digital-card"; action: "new" }
   | { name: "digital-card"; action: "edit"; id: string }
+  | { name: "shopping-list-actions"; id: string }
   | { name: "add-to-list"; ean: string }
   | { name: "product-actions"; ean: string }
   | { name: "watchlist"; ean: string; watchType?: WatchTypeParam };
@@ -82,6 +83,8 @@ export function parseModalParam(
       if (sub === "new") return { name, action: "new" };
       if (sub === "edit" && id) return { name, action: "edit", id };
       return null;
+    case "shopping-list-actions":
+      return id ? { name, id } : null;
     case "add-to-list":
     case "product-actions":
       return ean ? { name, ean } : null;

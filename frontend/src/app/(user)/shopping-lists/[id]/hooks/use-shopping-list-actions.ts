@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
-import { openModalUrl } from "@/lib/modal/modal-navigation";
+import {
+  openModalUrl,
+  type IOpenModalOptions,
+} from "@/lib/modal/modal-navigation";
 import { shareOrCopy } from "@/utils/browser/share";
 import { shoppingListPageUrl } from "@/utils/shopping-list-links";
 import { useShoppingListMutations } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-mutations";
@@ -33,12 +36,18 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
     setIsDeleteDialogOpen(false);
   }
 
-  function handleEdit() {
-    openModalUrl({
-      name: "shopping-list",
-      action: "edit",
-      id: shoppingList.id,
-    });
+  // Takes options so a caller already inside a modal can replace its history
+  // entry: closeModalUrl pops with history.back(), which is async, so closing
+  // first and pushing straight after would land the push and then lose it.
+  function handleEdit(options?: IOpenModalOptions) {
+    openModalUrl(
+      {
+        name: "shopping-list",
+        action: "edit",
+        id: shoppingList.id,
+      },
+      options,
+    );
   }
 
   async function handleShare() {
