@@ -19,6 +19,7 @@ export type ModalTarget =
   | { name: "email-verified" }
   | { name: "email-changed" }
   | { name: "contact" }
+  | { name: "donate" }
   | { name: "onboarding"; mode: "required" | "replay" }
   | { name: "settings"; tab: SettingsTab }
   | { name: "shopping-list"; action: "new" }
@@ -39,6 +40,7 @@ export const PUBLIC_MODAL_NAMES = [
   "email-verified",
   "email-changed",
   "contact",
+  "donate",
   // Two of its four actions need no account, and the gated two gate themselves.
   "product-actions",
 ] as const;
@@ -65,6 +67,7 @@ export function parseModalParam(
     case "email-verified":
     case "email-changed":
     case "contact":
+    case "donate":
       return { name };
     case "onboarding":
       return { name, mode: sub === "replay" ? "replay" : "required" };

@@ -7,7 +7,7 @@ const LIVE_CLASS =
   "text-muted-foreground hover:text-primary transition-all hover:scale-110";
 const DISABLED_CLASS = "text-muted-foreground/50";
 
-/** Feedback entry icons, sharing supportNavItems with the sidebar group. */
+/** Support entry icons, sharing supportNavItems with the sidebar group. */
 export default function FooterSupportIcons() {
   return (
     <div className="flex items-center gap-4">

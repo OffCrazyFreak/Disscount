@@ -340,6 +340,7 @@ export function MultiSelectItem({
   children,
   badgeLabel,
   onSelect,
+  onMouseDown,
   ...props
 }: IMultiSelectItemProps) {
   const { toggleValue, selectedValues, setSearchValue, onItemAdded } =
@@ -354,6 +355,13 @@ export function MultiSelectItem({
     <CommandItem
       {...props}
       value={value}
+      // An item is a div, so pressing on it would move focus off the search
+      // input and stop you typing after a pick. Blocking the default keeps the
+      // caret in the input; the click still fires and selects.
+      onMouseDown={(e) => {
+        e.preventDefault();
+        onMouseDown?.(e);
+      }}
       onSelect={(v) => {
         toggleValue(v);
         if (!isSelected) setSearchValue("");

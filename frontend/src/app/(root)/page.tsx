@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <div className="space-y-14 sm:space-y-20 pb-16">
+    <div className="space-y-14 pb-10">
       <LandingJsonLd />
 
       <HeroSection />
@@ -30,6 +30,7 @@ export default function Home() {
       <StoresSection />
       <PwaSection />
       <PricingSection />
+      {/* TODO: Add the "Zajedno gradimo Disscount" contributor and opted-in supporter section here. */}
       <FaqSection />
       <FinalCtaSection />
     </div>
