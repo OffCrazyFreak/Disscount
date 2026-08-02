@@ -13,8 +13,14 @@ import InstallInstructionsSheet from "@/components/custom/pwa/install-instructio
  * plain copy for the frame before client detection has run.
  */
 export default function InstallPerk() {
-  const { ready, isIOS, canPromoteInstall, promptInstall, canInstall } =
-    useInstallPrompt();
+  const {
+    ready,
+    isIOS,
+    isMacSafari,
+    canPromoteInstall,
+    promptInstall,
+    canInstall,
+  } = useInstallPrompt();
   const [instructionsOpen, setInstructionsOpen] = useState(false);
 
   // Nothing to advertise to someone already running the installed app, or to
@@ -65,6 +71,7 @@ export default function InstallPerk() {
         open={instructionsOpen}
         onOpenChange={setInstructionsOpen}
         isIOS={isIOS}
+        isMacSafari={isMacSafari}
       />
     </>
   );

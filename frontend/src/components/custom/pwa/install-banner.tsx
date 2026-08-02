@@ -14,7 +14,7 @@ import {
 
 // Dismissible with a 7-day snooze, shown only on browsers that can install.
 export default function InstallBanner() {
-  const { canShowInstallUI, canInstall, isIOS, promptInstall } =
+  const { canShowInstallUI, canInstall, isIOS, isMacSafari, promptInstall } =
     useInstallPrompt();
   const [dismissed, setDismissed] = useState(true);
   const [instructionsOpen, setInstructionsOpen] = useState(false);
@@ -81,6 +81,7 @@ export default function InstallBanner() {
         open={instructionsOpen}
         onOpenChange={setInstructionsOpen}
         isIOS={isIOS}
+        isMacSafari={isMacSafari}
       />
     </>
   );
