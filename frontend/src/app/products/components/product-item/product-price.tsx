@@ -8,18 +8,36 @@ import {
   getMaxPricePerUnit,
 } from "@/app/products/utils/product-utils";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
+import type { IProductListPrice } from "@/app/products/typings/product-list-price";
+import ProductPriceScopeInfo from "@/app/products/components/product-item/product-price-scope-info";
 
 interface IProductUnitPriceDetailsProps {
   product: ProductResponse;
+  /** List-only override. Omit outside a filtered product card. */
+  price?: IProductListPrice | null;
 }
 
 const ProductUnitPriceDetails = memo(
-  ({ product }: IProductUnitPriceDetailsProps) => {
-    const minPrice = getMinPrice(product);
-    const maxPrice = getMaxPrice(product);
+  ({ product, price }: IProductUnitPriceDetailsProps) => {
+    const minPrice =
+      price === undefined ? getMinPrice(product) : (price?.minPrice ?? null);
+    const maxPrice =
+      price === undefined ? getMaxPrice(product) : (price?.maxPrice ?? null);
 
-    const minPricePerUnit = getMinPricePerUnit(product);
-    const maxPricePerUnit = getMaxPricePerUnit(product);
+    const quantity = Number(product.quantity);
+    const canCalculateUnitPrice = Number.isFinite(quantity) && quantity > 0;
+    const minPricePerUnit =
+      price === undefined
+        ? getMinPricePerUnit(product)
+        : minPrice !== null && canCalculateUnitPrice
+          ? minPrice / quantity
+          : undefined;
+    const maxPricePerUnit =
+      price === undefined
+        ? getMaxPricePerUnit(product)
+        : maxPrice !== null && canCalculateUnitPrice
+          ? maxPrice / quantity
+          : undefined;
 
     return (
       <div>
@@ -33,7 +51,7 @@ const ProductUnitPriceDetails = memo(
 
           {minPrice != null && maxPrice != null ? (
             <div className="font-bold text-md text-center">
-              <div className="text-sm sm:text-md flex items-center gap-1 ">
+              <div className="text-sm sm:text-md flex items-center gap-1">
                 {minPrice === maxPrice ? (
                   <span className="text-gray-700">{minPrice.toFixed(2)}€</span>
                 ) : (
@@ -45,6 +63,8 @@ const ProductUnitPriceDetails = memo(
                     <span className="text-red-700">{maxPrice.toFixed(2)}€</span>
                   </>
                 )}
+
+                {price && <ProductPriceScopeInfo scope={price.scope} />}
               </div>
 
               {/* <div className="text-green-600">{minPrice.toFixed(2)}€</div>

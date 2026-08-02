@@ -85,9 +85,13 @@ export function useGetProductByName(params: SearchProductsParams) {
   });
 }
 
+export function storePricesQueryKey(params: GetPricesParams) {
+  return ["cijene", "prices", JSON.stringify(params)];
+}
+
 export function useGetPrices(params: GetPricesParams) {
   return useQuery<StorePricesResponse, Error>({
-    queryKey: ["cijene", "prices", JSON.stringify(params)],
+    queryKey: storePricesQueryKey(params),
     queryFn: () => getPrices(params),
     enabled: Boolean(params.eans),
     staleTime: 6 * 60 * 60 * 1000, // 6 hours

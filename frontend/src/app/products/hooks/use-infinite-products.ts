@@ -2,21 +2,24 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useGetProductByName } from "@/lib/cijene-api";
-import type { ProductResponse } from "@/lib/cijene-api/schemas";
+import type { IProductListItem } from "@/app/products/typings/product-list-price";
 import { productMatchesFilters } from "@/app/products/utils/product-filters";
 import sortProductsByRelevance from "@/app/products/utils/product-relevance";
 import { PRODUCT_SEARCH_LIMIT } from "@/constants/products";
+import useFilteredProductPrices from "@/app/products/hooks/use-filtered-product-prices";
 
 interface IUseInfiniteProductsOptions {
   /** Resolved chain+location filter (null = unfiltered, empty = no overlap) */
   allowedChains?: string[] | null;
   selectedCategories?: string[];
   selectedBrands?: string[];
+  selectedLocations?: string[];
+  selectedSourceCities?: string[];
   batchSize?: number;
 }
 
 interface IUseInfiniteProductsResult {
-  visibleProducts: ProductResponse[];
+  visibleItems: IProductListItem[];
   total: number;
   /** The search filled the API's result cap, so further matches may exist */
   isTruncated: boolean;
@@ -34,6 +37,8 @@ export default function useInfiniteProducts(
     allowedChains = null,
     selectedCategories = EMPTY_SELECTION,
     selectedBrands = EMPTY_SELECTION,
+    selectedLocations = EMPTY_SELECTION,
+    selectedSourceCities = EMPTY_SELECTION,
     batchSize = 50,
   } = options ?? {};
 
@@ -74,26 +79,37 @@ export default function useInfiniteProducts(
     [filteredProducts, q],
   );
 
-  const batchedProducts = useMemo(() => {
-    const batches: ProductResponse[][] = [];
-    for (let i = 0; i < rankedProducts.length; i += safeBatchSize) {
-      batches.push(rankedProducts.slice(i, i + safeBatchSize));
+  const {
+    items: pricedItems,
+    isLoading: pricesLoading,
+    error: pricesError,
+  } = useFilteredProductPrices({
+    products: rankedProducts,
+    allowedChains,
+    selectedLocations,
+    selectedSourceCities,
+  });
+
+  const batchedItems = useMemo(() => {
+    const batches: IProductListItem[][] = [];
+    for (let i = 0; i < pricedItems.length; i += safeBatchSize) {
+      batches.push(pricedItems.slice(i, i + safeBatchSize));
     }
     return batches;
-  }, [rankedProducts, safeBatchSize]);
+  }, [pricedItems, safeBatchSize]);
 
   const [batchesToShow, setBatchesToShow] = useState<number>(
-    batchedProducts.length > 0 ? 1 : 0,
+    batchedItems.length > 0 ? 1 : 0,
   );
 
   // Keyed on the batches, not their count, so an equal-length change still resets.
   useEffect(() => {
-    setBatchesToShow(batchedProducts.length > 0 ? 1 : 0);
-  }, [batchedProducts, q]);
+    setBatchesToShow(batchedItems.length > 0 ? 1 : 0);
+  }, [batchedItems, q]);
 
   // Load more when user scrolls near bottom of page
   useEffect(() => {
-    if (batchesToShow >= batchedProducts.length) return;
+    if (batchesToShow >= batchedItems.length) return;
 
     const onScroll = () => {
       const scrollY = window.scrollY || window.pageYOffset;
@@ -101,23 +117,23 @@ export default function useInfiniteProducts(
       const fullHeight = document.documentElement.scrollHeight;
 
       if (scrollY + viewport >= fullHeight - 10000) {
-        setBatchesToShow((prev) => Math.min(prev + 1, batchedProducts.length));
+        setBatchesToShow((prev) => Math.min(prev + 1, batchedItems.length));
       }
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [batchesToShow, batchedProducts.length]);
+  }, [batchesToShow, batchedItems.length]);
 
-  const visibleProducts = useMemo(() => {
-    return batchedProducts.slice(0, batchesToShow).flatMap((b) => b);
-  }, [batchedProducts, batchesToShow]);
+  const visibleItems = useMemo(() => {
+    return batchedItems.slice(0, batchesToShow).flatMap((batch) => batch);
+  }, [batchedItems, batchesToShow]);
 
   return {
-    visibleProducts,
-    total: filteredProducts.length,
+    visibleItems,
+    total: pricedItems.length,
     isTruncated,
-    isLoading,
-    error,
+    isLoading: isLoading || pricesLoading,
+    error: error || pricesError,
   };
 }

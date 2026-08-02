@@ -28,17 +28,21 @@ export default function ProductsClient({ query }: IProductsClientProps) {
   const {
     selectedCategories,
     selectedBrands,
+    selectedLocations,
+    selectedSourceCities,
     allowedChains,
     locationsReady,
     activeFilterCount,
     clearFilters,
   } = filters;
 
-  const { visibleProducts, total, isTruncated, isLoading, error } =
+  const { visibleItems, total, isTruncated, isLoading, error } =
     useInfiniteProducts(query, {
       allowedChains,
       selectedCategories,
       selectedBrands,
+      selectedLocations,
+      selectedSourceCities,
     });
 
   // A location filter is set but the city -> chains mapping is still loading
@@ -110,14 +114,14 @@ export default function ProductsClient({ query }: IProductsClientProps) {
                 : "grid grid-cols-2 sm:grid-cols-3 gap-4"
             }`}
           >
-            {visibleProducts.map((product) => (
+            {visibleItems.map(({ product, price }) => (
               <div
                 key={product.ean}
                 className={`${
                   viewMode !== "grid" || isMobile ? "w-full" : "w-76"
                 }`}
               >
-                <ProductItem product={product} />
+                <ProductItem product={product} price={price} />
               </div>
             ))}
           </div>

@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { readListParam } from "@/utils/generic";
+import { normalizeForSearch } from "@/utils/strings";
 import {
   canonicalizeSelection,
   normalizeChainCode,
@@ -19,6 +20,8 @@ export type { ProductFilterKey } from "@/app/products/hooks/use-filter-params";
 export interface IUseProductFiltersResult extends IFilterParamsResult {
   selectedChains: string[];
   selectedLocations: string[];
+  /** Raw upstream city values represented by the selected locations */
+  selectedSourceCities: string[];
   selectedCategories: string[];
   selectedBrands: string[];
   activeFilterCount: number;
@@ -35,8 +38,8 @@ interface IUseProductFiltersOptions {
 
 /**
  * URL-backed filter state for the products page: shareable and
- * back/forward-safe. All four filters apply client-side: the endpoint's
- * `chains` filter runs after its limit, so it would starve the facets.
+ * back/forward-safe. Product identity and category/brand facets use the full
+ * search response; store-level prices resolve the exact chain/location scope.
  */
 export default function useProductFilters({
   seedPreferred = true,
@@ -73,6 +76,14 @@ export default function useProductFilters({
     [searchParams],
   );
 
+  const selectedSourceCities = useMemo(() => {
+    const selected = new Set(selectedLocations.map(normalizeForSearch));
+
+    return locations
+      .filter((location) => selected.has(normalizeForSearch(location.name)))
+      .flatMap((location) => location.sourceCities);
+  }, [locations, selectedLocations]);
+
   const selectedBrands = useMemo(
     () => readListParam(searchParams, "brand"),
     [searchParams],
@@ -90,6 +101,7 @@ export default function useProductFilters({
   return {
     selectedChains,
     selectedLocations,
+    selectedSourceCities,
     selectedCategories,
     selectedBrands,
     activeFilterCount:
