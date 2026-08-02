@@ -2,7 +2,8 @@ import Image from "next/image";
 import { CloudOff, RefreshCw } from "lucide-react";
 import { ScrollReveal } from "@/components/custom/animation/scroll-reveal";
 import TextGlow from "@/components/custom/common/text-glow";
-import InstallSidebarBanner from "@/components/custom/pwa/install-sidebar-banner";
+import InstallCard from "@/components/custom/pwa/install-card";
+import InstallPerk from "@/components/custom/pwa/install-perk";
 
 const perks = [
   {
@@ -52,7 +53,7 @@ export default function PwaSection() {
             </h2>
 
             <div className="space-y-5">
-              <InstallSidebarBanner presentation="perk" />
+              <InstallPerk />
 
               {perks.map((perk) => (
                 <div key={perk.title} className="flex items-center gap-4">
@@ -72,7 +73,7 @@ export default function PwaSection() {
               ))}
             </div>
 
-            <InstallSidebarBanner permanent />
+            <InstallCard permanent />
           </div>
         </div>
       </ScrollReveal>

@@ -36,17 +36,20 @@ export function useShoppingListData(listId: string) {
       staleTime: 6 * 60 * 60 * 1000,
     })),
     combine: (results) => ({
+      // Paired with the requested EAN, not the one echoed back. useQueries keeps
+      // results index-aligned with `eans`, and upstream is free to normalise the
+      // value it returns, which would silently miss the lookup below.
       productsData: results
-        .map((result) => result.data)
-        .filter((data): data is ProductResponse => data !== undefined),
+        .map((result, index) => [eans[index], result.data] as const)
+        .filter((entry): entry is readonly [string, ProductResponse] => {
+          return entry[1] !== undefined;
+        }),
       isPricesLoading: results.some((result) => result.isLoading),
     }),
   });
 
   const { cheapestStores, averagePrices, storePrices } = useMemo(() => {
-    const productsByEan = new Map(
-      productsData.map((product) => [product.ean, product]),
-    );
+    const productsByEan = new Map(productsData);
     const nextCheapestStores: Record<string, string> = {};
     const nextAveragePrices: Record<string, number> = {};
     const nextStorePrices: Record<string, Record<string, number>> = {};

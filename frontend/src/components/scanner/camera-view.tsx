@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import { SCAN_FORMATS_BY_PRESET } from "@/constants/scanner";
 import { IScannedCode, ScanPreset } from "@/typings/scanned-code";
 import ScanOverlay from "@/components/scanner/scan-overlay";
+import usePageVisible from "@/hooks/use-page-visible";
 import "@/components/scanner/scanner.css";
 
-const CAMERA_SCAN_RETRY_DELAY = 750;
+// The library defaults to 500 without a tracker; 750 measurably slowed
+// decoding of a real barcode, which is this feature's whole job.
+const CAMERA_SCAN_RETRY_DELAY = 400;
 const CAMERA_TRACK_POLL_INTERVAL = 300;
 const CAMERA_TRACK_POLL_LIMIT = 20;
 
@@ -58,13 +61,19 @@ export default function CameraView({
   onCameraReady,
 }: ICameraViewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [isPageVisible, setIsPageVisible] = useState(true);
+  const isPageVisible = usePageVisible();
 
-  // exact, because a bare deviceId is only an "ideal" hint the browser may ignore.
+  // Ideals only on the axes: min and max are both mandatory, so either one lets a
+  // device with no conforming mode raise OverconstrainedError, and the error copy
+  // blames the camera choice, which is not what went wrong. Capping at 720p also
+  // cost real detail across an EAN-13's bars at arm's length. frameRate keeps its
+  // max because every camera has a mode at or under 30fps, and uncapped means
+  // 60fps of decode work for no extra accuracy. exact on deviceId stays, since a
+  // bare id is only a hint.
   const constraints = useMemo(
     () => ({
-      width: { ideal: 1280, max: 1280 },
-      height: { ideal: 720, max: 720 },
+      width: { ideal: 1920 },
+      height: { ideal: 1080 },
       frameRate: { ideal: 24, max: 30 },
       ...(deviceId
         ? { deviceId: { exact: deviceId } }
@@ -72,17 +81,6 @@ export default function CameraView({
     }),
     [deviceId],
   );
-
-  useEffect(() => {
-    function handleVisibilityChange() {
-      setIsPageVisible(document.visibilityState === "visible");
-    }
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () =>
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, []);
 
   // Some devices remember the torch across streams, so force it off on start.
   useEffect(() => {
@@ -94,10 +92,16 @@ export default function CameraView({
     function handleCameraReady() {
       const track = getVideoTrack(video);
 
-      if (!track || hasNotifiedReady) return;
+      if (!track) return;
+
+      // The torch is reset per stream, the notification only once. Latching both
+      // together skipped the reset on the stream rebuilt after a tab switch, so
+      // a device that remembers the torch came back with it still lit.
+      turnTorchOff(track);
+
+      if (hasNotifiedReady) return;
 
       hasNotifiedReady = true;
-      turnTorchOff(track);
       onCameraReady();
     }
 

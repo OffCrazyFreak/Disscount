@@ -41,7 +41,7 @@ export default function ShoppingListMobileActions({
             variant="primary"
             {...triggerProps}
           >
-            <MoreVertical />
+            <MoreVertical aria-hidden="true" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-max">
@@ -54,7 +54,7 @@ export default function ShoppingListMobileActions({
               {isSharing ? (
                 <BlockLoadingSpinner size={24} className="text-inherit" />
               ) : (
-                <Share2 className="size-6" />
+                <Share2 aria-hidden="true" className="size-6" />
               )}
               <span>Podijeli popis</span>
             </DropdownMenuItem>
@@ -71,7 +71,7 @@ export default function ShoppingListMobileActions({
               {isCopying ? (
                 <BlockLoadingSpinner size={24} className="text-inherit" />
               ) : (
-                <Copy className="size-6" />
+                <Copy aria-hidden="true" className="size-6" />
               )}
               <span>Kopiraj popis</span>
             </DropdownMenuItem>
@@ -82,7 +82,7 @@ export default function ShoppingListMobileActions({
               onSelect={onEdit}
               className="cursor-pointer flex items-center gap-4"
             >
-              <LucideClipboardEdit className="size-6" />
+              <LucideClipboardEdit aria-hidden="true" className="size-6" />
               <span>Uredi popis</span>
             </DropdownMenuItem>
           )}
@@ -98,7 +98,7 @@ export default function ShoppingListMobileActions({
               {isDeleting ? (
                 <BlockLoadingSpinner size={24} className="text-inherit" />
               ) : (
-                <Trash2 className="size-6 text-red-600" />
+                <Trash2 aria-hidden="true" className="size-6 text-red-600" />
               )}
               <span>Obriši popis</span>
             </DropdownMenuItem>

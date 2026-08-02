@@ -1,5 +1,6 @@
 package disscount.watchlistItem.domain;
 
+import disscount.util.Timestamps;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -51,12 +52,12 @@ public class WatchlistItem {
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        createdAt = Timestamps.nowUtc();
+        updatedAt = Timestamps.nowUtc();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = Timestamps.nowUtc();
     }
 }

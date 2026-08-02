@@ -1,8 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import SheetShell from "@/components/custom/modal/sheet-shell";
-import SheetDivider from "@/components/custom/modal/sheet-divider";
+
+import QuickActionsSheet from "@/components/custom/common/quick-actions-sheet";
 import ProductQuickActionsList from "@/components/custom/product/product-quick-actions-list";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 
@@ -30,36 +30,22 @@ export default function ProductQuickActions({
   onOpenChange,
 }: IProductQuickActionsProps) {
   return (
-    <SheetShell
+    <QuickActionsSheet
       open={open}
       onOpenChange={onOpenChange}
       title={product?.name ?? product?.ean ?? "Radnje za proizvod"}
-      // The summary names the product better than a truncated title row could.
-      srOnlyTitle
       description="Radnje za odabrani proizvod."
-      // Without a product there are no action buttons, so the header's button is
-      // the only way out of a sheet a shared link opened.
-      showCloseButton={!product}
-      bodyClassName="gap-2"
+      summary={summary}
+      hasEntity={!!product}
+      isLoading={isLoading}
+      emptyMessage="Nismo našli taj proizvod. Možda više nije u ponudi."
     >
-      {summary}
-
-      {product ? (
-        <>
-          <SheetDivider className="mb-1" />
-
-          <ProductQuickActionsList
-            product={product}
-            onClose={() => onOpenChange(false)}
-          />
-        </>
-      ) : (
-        !isLoading && (
-          <p className="text-sm text-muted-foreground">
-            Nismo našli taj proizvod. Možda više nije u ponudi.
-          </p>
-        )
+      {product && (
+        <ProductQuickActionsList
+          product={product}
+          onClose={() => onOpenChange(false)}
+        />
       )}
-    </SheetShell>
+    </QuickActionsSheet>
   );
 }

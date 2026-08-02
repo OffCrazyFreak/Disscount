@@ -22,6 +22,8 @@ interface IUseAddToListSubmitProps {
   pricing: IProductPricing;
   clearDraft: () => void;
   resetForm: () => void;
+  /** Points the form at a list that now exists, so a retry cannot create another. */
+  onListCreated: (listId: string) => void;
 }
 
 export function useAddToListSubmit({
@@ -32,6 +34,7 @@ export function useAddToListSubmit({
   pricing,
   clearDraft,
   resetForm,
+  onListCreated,
 }: IUseAddToListSubmitProps) {
   const router = useRouter();
   const createShoppingListMutation =
@@ -42,8 +45,13 @@ export function useAddToListSubmit({
     return {
       id: list.id,
       name: list.title,
+      // Compared against the value that actually goes on the wire. The backend
+      // merges on name, and buildShoppingListItemRequest sends `name ?? ""`, so
+      // a null-named product never matched and the toast claimed a new row while
+      // the server had bumped an existing one.
       isQuantityIncrease:
-        list.items?.some((item) => item.name === product?.name) ?? false,
+        list.items?.some((item) => item.name === (product?.name ?? "")) ??
+        false,
     };
   }
 
@@ -61,17 +69,22 @@ export function useAddToListSubmit({
 
     const title = data.customListTitle.trim();
 
-    if (title) {
-      const created = await createShoppingListMutation.mutateAsync({
-        title,
-        isPublic: false,
-      });
-      return { id: created.id, name: title, isQuantityIncrease: false };
-    }
+    // A legacy draft can restore "new" with no title. Falling through to the
+    // newest existing list silently filed the product somewhere the user never
+    // chose, so refuse instead and let the caller surface it.
+    if (!title) return null;
 
-    // An older restored draft can keep "new" without a persisted title.
-    const newestList = lists[0];
-    return newestList ? targetFromList(newestList) : null;
+    const created = await createShoppingListMutation.mutateAsync({
+      title,
+      isPublic: false,
+    });
+
+    // Recorded before the item is added. If that add fails the modal reopens
+    // from the draft, and leaving "new" selected made every retry create another
+    // empty list before retrying the item.
+    onListCreated(created.id);
+
+    return { id: created.id, name: title, isQuantityIncrease: false };
   }
 
   // Optimistic close: the modal closes immediately and reopens only on failure.

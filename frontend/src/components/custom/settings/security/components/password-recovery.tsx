@@ -8,14 +8,12 @@ export default function PasswordRecovery() {
 
   if (!recovery.sentTo) return null;
 
+  // InboxNotice owns the live region now, so every call site is announced.
   return (
-    // Appears with no navigation, so it has to be announced.
-    <div role="status" aria-live="polite">
-      <InboxNotice
-        title="Provjeri svoj inbox"
-        description="Poslali smo ti poveznicu za promjenu lozinke. Nakon promjene odjavit ćemo te sa svih uređaja."
-        email={recovery.sentTo}
-      />
-    </div>
+    <InboxNotice
+      title="Provjeri svoj inbox"
+      description="Poslali smo ti poveznicu za promjenu lozinke. Nakon promjene odjavit ćemo te sa svih uređaja."
+      email={recovery.sentTo}
+    />
   );
 }
