@@ -115,26 +115,27 @@ flowchart LR
 
 > ⚠️ **After any deploy, hard-refresh the browser** (Ctrl/Cmd+Shift+R). Otherwise you may see Next.js `Failed to find Server Action ...`, which is just your old cached page hitting the new build.
 
-### Netlify branch previews
+### Netlify PR previews
 
-**Dokploy owns `main` and `dev`. Netlify previews every other branch.** The old Netlify waitlist site is retired, but the project itself is kept and repurposed as a throwaway preview environment for feature branches, so you can share a URL before opening a PR.
+**Dokploy owns `main` and `dev`. Netlify builds only PR previews whose head branch is neither `main` nor `dev`.** The old Netlify waitlist site is retired, but the project itself is kept and repurposed as a throwaway PR preview environment. Ordinary feature-branch pushes do not build on Netlify, so a preview URL becomes available only after opening a PR.
 
 The split is enforced in the repo, not in the dashboard, by `frontend/netlify.toml`:
 
 ```toml
 [build]
-  ignore = 'case "$BRANCH" in main|dev) exit 0 ;; *) exit 1 ;; esac'
+  ignore = 'case "$PULL_REQUEST:$BRANCH" in true:main|true:dev) exit 0 ;; true:*) exit 1 ;; *) exit 0 ;; esac'
 ```
 
-| Detail                               | Why it is like that                                                                                                                                                              |
-| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `build.ignore`, not a UI branch list | Netlify **always** builds its production branch, so there is no dashboard toggle for "production branch, but do not build it". The ignore command is the only supported opt-out. |
-| Exit `0` skips, exit `1` builds      | Inverted from normal shell convention. This is the usual trap when editing the rule.                                                                                             |
-| File lives in `frontend/`            | Netlify's **base directory** is `frontend`, and it looks for `netlify.toml` there. Paths inside `ignore` also resolve from the base directory.                                   |
-| **Branch deploys** is set to `All`   | The toml is the single source of truth for exclusions. A dashboard branch list would be a second, competing one, and it silently misses prefixes such as `refactor/`.            |
-| Deploy previews skip too             | On a deploy preview `$BRANCH` is the PR's **head** branch, so a `dev` to `main` PR is skipped, while a `fix/x` into `dev` PR still previews.                                     |
+| Detail                               | Why it is like that                                                                                                                                                                                               |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PULL_REQUEST` is the primary gate   | Netlify sets this read-only variable to `true` only for pull or merge request builds. Production and ordinary branch deploys therefore stop before the build command.                                             |
+| `main` and `dev` are still excluded  | On a PR preview, `$BRANCH` is the PR's head branch. A `dev` to `main` release PR is skipped, while a `fix/x` into `dev` PR builds exactly once.                                                                   |
+| `build.ignore`, not a UI branch list | Netlify always attempts to deploy its production branch. The ignore command is the supported repository-controlled opt-out and also prevents duplicate branch deploys alongside PR previews.                      |
+| Exit `0` skips, exit `1` builds      | Inverted from normal shell convention. This is the usual trap when editing the rule.                                                                                                                              |
+| File lives in `frontend/`            | Netlify's base directory is `frontend`, and it looks for `netlify.toml` there. Paths inside `ignore` also resolve from the base directory.                                                                        |
+| **Branch deploys** is set to `All`   | A PR targeting `dev` needs its base branch enabled for branch deploys. The repository rule still cancels every ordinary branch deployment, including `dev`, so the only completed Netlify builds are PR previews. |
 
-Skipped builds still appear in Netlify's deploy list, marked **Canceled**, with the ignore command in the log. That is the expected result, not a failure.
+Skipped production and branch deploys still appear in Netlify's deploy list, marked **Canceled**, with the ignore command in the log. That is the expected result, not a completed build.
 
 > ⚠️ **Netlify has its own environment variables, and it cannot see Dokploy's.** Previews are built from the same code, so `requireEnv` still throws at module load if anything is missing (see [§5](#5-environment-variables-the-1-gotcha)), and `NEXT_PUBLIC_*` is still baked at build time. A preview with an incomplete env either fails the build or quietly ships a bundle pointing at the wrong API. Keep Netlify's env in sync with Dokploy's **dev** values.
 
@@ -190,7 +191,7 @@ There are **two kinds** of env vars, and mixing them up causes the most confusin
 
 Keep the CNAMEs **Proxied** so Cloudflare answers for the names and the rule fires at the edge (before Netlify is reached). This fixed a Google Search Console _"Duplicate without user-selected canonical"_ flag caused by one page served under four hostnames.
 
-> The waitlist **site** is retired, but do **not** delete the Netlify project: it now builds branch previews for every branch except `main` and `dev`. See [Netlify branch previews](#netlify-branch-previews).
+> The waitlist **site** is retired, but do **not** delete the Netlify project: it now builds PR previews whose head branch is neither `main` nor `dev`. See [Netlify PR previews](#netlify-pr-previews).
 
 **Email anti-spoofing (SPF/DKIM/DMARC):** SPF + DKIM already exist (Resend, Cloudflare, SES on `send.`). DMARC is set as a `_dmarc` TXT record: `v=DMARC1; p=none; rua=mailto:dmarc@disscount.me; fo=1`. It starts in **monitor mode** (`p=none`, aggregate reports forwarded via Email Routing to the owner's inbox); tighten to `p=quarantine` then `p=reject` once reports confirm legitimate senders pass alignment.
 
@@ -288,7 +289,7 @@ Set in **Dokploy → service → Environment**, per environment. Both DSNs live 
 | ---------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------ |
 | Build & deploy on `git push`                               | ✅ auto    | Dokploy autodeploy (per branch)                                                            |
 | CI checks (typecheck, lint, format, build, backend verify) | ✅ auto    | `.github/workflows/ci.yml` on every push + PR; required to merge to `main`                 |
-| Branch previews (every branch except `main`/`dev`)         | ✅ auto    | Netlify, gated by `frontend/netlify.toml` (see [§4](#netlify-branch-previews))             |
+| PR previews (head branch is not `main` or `dev`)           | ✅ auto    | Netlify, gated by `frontend/netlify.toml` (see [§4](#netlify-pr-previews))                 |
 | HTTPS certificate issuance + renewal                       | ✅ auto    | Traefik + Let's Encrypt                                                                    |
 | HTTP to HTTPS redirect                                     | ✅ auto    | Cloudflare                                                                                 |
 | DB migrations (auth tables + app tables)                   | ✅ auto    | `migrate` service (drizzle) + Hibernate `ddl-auto=update` on each deploy                   |
