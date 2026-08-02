@@ -9,9 +9,12 @@ import { IStoreLocation } from "@/typings/store-location";
  */
 export function useAllLocations() {
   // Get all stores from all chains in one request
+  // isPending, not isLoading: PersistQueryClientProvider parks queries at an
+  // idle fetchStatus while restoring, and isLoading reads false there, which
+  // would report "locations ready" with none loaded and filter every product out.
   const {
     data: storesData,
-    isLoading: storesLoading,
+    isPending: storesLoading,
     error: storesError,
   } = cijeneService.useSearchStores();
 

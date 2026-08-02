@@ -5,7 +5,6 @@ import { Eye, Save, TriangleAlert } from "lucide-react";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
-import { Skeleton } from "@/components/ui/skeleton";
 import RemoveIconButton from "@/components/custom/common/remove-icon-button";
 import { WatchType } from "@/lib/api";
 import cijeneService from "@/lib/cijene-api";
@@ -13,6 +12,7 @@ import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { LOADING_LABELS } from "@/constants/loading-labels";
 import type { WatchTypeParam } from "@/lib/modal/modal-registry";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
+import ProductInfoDisplaySkeleton from "@/app/products/components/product-info-display-skeleton";
 import { Banner } from "@/components/custom/common/banner";
 import {
   getAveragePrice,
@@ -123,8 +123,8 @@ export default function WatchlistItemModal({
         form.reset();
       }}
     >
-      {productQuery.isLoading ? (
-        <Skeleton className="h-24 w-full" />
+      {productQuery.isPending ? (
+        <ProductInfoDisplaySkeleton />
       ) : !product ? (
         <p className="text-sm text-muted-foreground">Proizvod nije pronađen.</p>
       ) : (

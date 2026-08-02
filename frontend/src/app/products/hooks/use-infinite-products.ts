@@ -42,7 +42,11 @@ export default function useInfiniteProducts(
     Number.isInteger(batchSize) && batchSize > 0 ? batchSize : 50;
 
   // One unfiltered request, filtered client-side, so facet counts match results.
-  const { data, isLoading, error } = useGetProductByName({
+  const {
+    data,
+    isPending: isLoading,
+    error,
+  } = useGetProductByName({
     q,
     limit: PRODUCT_SEARCH_LIMIT, // Raising this needs paging upstream: >100 is a 422.
   });
