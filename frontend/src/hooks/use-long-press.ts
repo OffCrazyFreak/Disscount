@@ -58,10 +58,13 @@ export default function useLongPress({ onLongPress }: IUseLongPressOptions) {
     onPointerUp: timer.cancel,
     onPointerCancel: timer.cancel,
     onPointerLeave: timer.cancel,
-    // Suppressed only while a hold is in flight, so a desktop right-click, which
-    // never starts one, keeps its menu.
+    // Suppressed for the whole gesture, not just while it is pending. The hold
+    // fires at 450ms and Chrome on Android raises its link menu at roughly 500,
+    // so checking isPending alone let the menu open on top of the sheet that had
+    // just opened. hasFired stays true until the next start(), and a desktop
+    // right-click never starts one, so its menu is untouched.
     onContextMenu: (event: ReactMouseEvent<HTMLElement>) => {
-      if (timer.isPending()) event.preventDefault();
+      if (timer.isPending() || timer.hasFired()) event.preventDefault();
     },
     /** True once the press fired, so a click handler can skip its own action */
     hasFired: timer.hasFired,

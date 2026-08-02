@@ -12,9 +12,13 @@ export default function BlockLoadingSpinner({
 }: IBlockLoadingSpinnerProps) {
   return (
     <div className={cn("px-1 inline-block text-primary", className)}>
+      {/* Inline, because width and height are only attributes: a button variant
+          sizing its descendant svgs would otherwise override them and stretch a
+          spinner that asked for a specific size. */}
       <svg
         width={size}
         height={size}
+        style={{ width: size, height: size }}
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden
