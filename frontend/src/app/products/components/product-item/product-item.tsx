@@ -38,12 +38,14 @@ const ProductItem = memo(function ProductItem({ product }: IProductItemProps) {
       pressProps={pressProps}
       actionProps={actionProps}
       trailing={<ProductUnitPriceDetails product={product} />}
-      // Desktop only. Touch reaches the same four actions by holding the card,
-      // which the progress ring advertises; four 40px buttons would crowd a
-      // phone-width row that already carries the price block.
-      actions={
-        <ProductActionButtons product={product} className="hidden sm:flex" />
-      }
+      // Precise pointers only. Touch reaches the same four actions by holding
+      // the card, which the progress ring advertises; four 40px buttons would
+      // crowd a phone-width row that already carries the price block. Keyed off
+      // the pointer rather than the viewport because the long-press fallback
+      // ignores a mouse, so a narrow desktop window would otherwise have no
+      // route to these actions at all.
+      actions={<ProductActionButtons product={product} />}
+      actionsClassName="hidden pointer-fine:flex"
     />
   );
 });

@@ -24,16 +24,15 @@ interface IInstallCardProps {
  */
 export default function InstallCard({ permanent = false }: IInstallCardProps) {
   const {
-    ready,
     canShowInstallUI,
+    canPromoteInstall,
     canInstall,
     isIOS,
-    isStandalone,
     promptInstall,
   } = useInstallPrompt();
   const [instructionsOpen, setInstructionsOpen] = useState(false);
 
-  const shouldShow = permanent ? ready && !isStandalone : canShowInstallUI;
+  const shouldShow = permanent ? canPromoteInstall : canShowInstallUI;
 
   if (!shouldShow) return null;
 

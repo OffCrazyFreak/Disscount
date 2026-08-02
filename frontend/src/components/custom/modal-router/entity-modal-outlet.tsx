@@ -79,7 +79,16 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
         />
       );
     case "add-to-list":
-      return <AddToShoppingListModal open={open} ean={rendered.ean} />;
+      // Keyed so a second product gets its own instance. The form restores its
+      // saved draft once, at mount, and this outlet stays mounted between
+      // openings, so a reused instance handed product B product A's draft.
+      return (
+        <AddToShoppingListModal
+          key={rendered.ean}
+          open={open}
+          ean={rendered.ean}
+        />
+      );
     case "watchlist":
       return (
         <WatchlistItemModal
