@@ -43,9 +43,11 @@ export function useSettingsDefaults() {
     [user, storesQuery.data, placesQuery.data],
   );
 
+  // `pending`, not `isLoading`: under the persister a restoring query reports
+  // isLoading false with no data yet, so the form would arm itself with empty
+  // pins and a save would write that emptiness back over the real ones.
   const isReady =
-    !!user &&
-    (!needsPins || (!storesQuery.isLoading && !placesQuery.isLoading));
+    !!user && (!needsPins || (!storesQuery.pending && !placesQuery.pending));
 
   return { defaults, isReady };
 }

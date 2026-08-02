@@ -115,10 +115,10 @@ export default function ShoppingListModal({
     onSubmit(data);
   }
 
-  const loading = isEdit && !shoppingList && byIdQuery.isLoading;
+  const loading = isEdit && !shoppingList && byIdQuery.pending;
   const loadError = isEdit && !shoppingList && byIdQuery.isError;
   const notFound =
-    isEdit && !shoppingList && !byIdQuery.isLoading && !byIdQuery.isError;
+    isEdit && !shoppingList && !byIdQuery.pending && !byIdQuery.isError;
 
   return (
     <ModalShell

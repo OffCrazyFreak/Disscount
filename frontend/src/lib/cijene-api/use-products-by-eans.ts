@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useQueries, type UseQueryResult } from "@tanstack/react-query";
 
 import { getProductByEan } from "@/lib/cijene-api/queries";
@@ -20,9 +21,14 @@ export interface IProductsByEans {
   updatedAt: number;
 }
 
+type CombinedProductQueries = Omit<IProductsByEans, "productsByEan">;
+
 // Declared at module scope so TanStack can memoise the combined result rather
-// than rebuilding it on every render.
-function combineProductQueries(results: ProductQueryResult[]): IProductsByEans {
+// than rebuilding it on every render. The by-EAN map is not built here: it needs
+// the requested EANs, which `combine` is not handed.
+function combineProductQueries(
+  results: ProductQueryResult[],
+): CombinedProductQueries {
   const products = results
     .map((result) => result.data)
     .filter((data): data is ProductResponse => data !== undefined);
@@ -30,7 +36,6 @@ function combineProductQueries(results: ProductQueryResult[]): IProductsByEans {
   return {
     results,
     products,
-    productsByEan: new Map(products.map((product) => [product.ean, product])),
     pending: results.some((result) => result.isPending),
     isError: results.some((result) => result.isError),
     updatedAt: results.reduce(
@@ -53,7 +58,7 @@ export function useProductsByEans(
   eans: string[],
   { enabled = true }: { enabled?: boolean } = {},
 ): IProductsByEans {
-  return useQueries({
+  const combined = useQueries({
     queries: eans.map((ean) => ({
       queryKey: CIJENE_QUERY_KEYS.productByEan({ ean }),
       queryFn: () => getProductByEan({ ean }),
@@ -62,4 +67,20 @@ export function useProductsByEans(
     })),
     combine: combineProductQueries,
   });
+
+  // Keyed by the requested EAN, not the one echoed back. useQueries keeps
+  // results index-aligned with `eans`, and upstream is free to normalise the
+  // value it returns, which would silently miss every lookup by the caller.
+  const productsByEan = useMemo(() => {
+    const map = new Map<string, ProductResponse>();
+
+    combined.results.forEach((result, index) => {
+      const ean = eans[index];
+      if (ean && result.data) map.set(ean, result.data);
+    });
+
+    return map;
+  }, [combined.results, eans]);
+
+  return { ...combined, productsByEan };
 }

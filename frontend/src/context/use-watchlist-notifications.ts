@@ -67,7 +67,7 @@ export function useWatchlistNotifications(): INotificationsContext {
     ],
   );
 
-  const isLoading = watchlistLoading || productQueries.some((q) => q.isLoading);
+  const isLoading = watchlistLoading || productQueries.some((q) => q.isPending);
 
   return {
     notifications,

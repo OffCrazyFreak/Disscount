@@ -50,7 +50,7 @@ export function useWatchlistData(query: string) {
   const enrichedItems = useMemo<IWatchlistItemWithProduct[]>(() => {
     return groupedWatchlistItems.map((groupedItem, index) => {
       const productQuery = productQueries[index];
-      const isProductLoading = Boolean(productQuery?.isLoading);
+      const isProductLoading = Boolean(productQuery?.isPending);
       const product = isProductLoading ? undefined : productQuery?.data;
       const queryError = productQuery?.error;
 
