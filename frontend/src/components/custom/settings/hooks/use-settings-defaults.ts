@@ -2,9 +2,10 @@
 
 import { useMemo } from "react";
 
-import { preferencesService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
+import { preferencesQueries } from "@/lib/api/preferences/hooks";
+import { useAuthedQuery } from "@/lib/query/use-authed-query";
 
 /**
  * Builds the settings form's server baseline. Pinned data prefers the user
@@ -15,10 +16,12 @@ export function useSettingsDefaults() {
   const { user } = useUser();
 
   const needsPins = !!user && (!user.pinnedStores || !user.pinnedPlaces);
-  const storesQuery = preferencesService.useGetPinnedStores({
+  const storesQuery = useAuthedQuery({
+    ...preferencesQueries.pinnedStores(),
     enabled: needsPins,
   });
-  const placesQuery = preferencesService.useGetPinnedPlaces({
+  const placesQuery = useAuthedQuery({
+    ...preferencesQueries.pinnedPlaces(),
     enabled: needsPins,
   });
 

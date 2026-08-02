@@ -1,16 +1,23 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import AsyncSection from "@/components/custom/common/async-section";
+import ErrorState from "@/components/custom/common/error-state";
+import LoginRequired from "@/components/custom/common/login-required";
 import ShoppingListStoreSummary from "@/app/(user)/shopping-lists/[id]/components/stores/shopping-list-stores-list";
 import ShoppingListHeader from "@/app/(user)/shopping-lists/[id]/components/shopping-list-header";
 import ShoppingListItems from "@/app/(user)/shopping-lists/[id]/components/items/shopping-list-items";
 import ShoppingListPriceHistory from "@/app/(user)/shopping-lists/[id]/components/shopping-list-price-history";
 import ShoppingListInfoTable from "@/app/(user)/shopping-lists/[id]/components/shopping-list-info-table";
+import ShoppingListDetailSkeleton from "@/app/(user)/shopping-lists/[id]/components/shopping-list-detail-skeleton";
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
 import { useShoppingListData } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-data";
+import {
+  useRememberedRowCount,
+  useRememberRowCount,
+} from "@/hooks/use-remembered-row-count";
 
 interface IShoppingListDetailClientProps {
   listId: string;
@@ -19,11 +26,11 @@ interface IShoppingListDetailClientProps {
 export default function ShoppingListDetailClient({
   listId,
 }: IShoppingListDetailClientProps) {
-  // Use custom hooks for data and mutations
   const {
     shoppingList,
     isLoading,
     error,
+    requiresAuth,
     listUpdatedAt,
     cheapestStores,
     averagePrices,
@@ -31,77 +38,84 @@ export default function ShoppingListDetailClient({
     isPricesLoading,
   } = useShoppingListData(listId);
 
-  if (isLoading) {
-    return (
-      <div className="grid place-items-center">
-        <BlockLoadingSpinner size={96} />
-      </div>
-    );
-  }
+  // Reserves close to the real height on a cold load, instead of a generic four
+  // rows that then jumps once the list arrives.
+  const rowCountKey = `shoppingList:${listId}`;
+  const itemRows = useRememberedRowCount(rowCountKey, 4);
+  useRememberRowCount(rowCountKey, shoppingList?.items?.length);
 
-  if (error || !shoppingList) {
+  if (requiresAuth) {
     return (
-      <div className="mx-auto">
-        <div className="text-center py-12">
-          <div className="text-red-700 mb-4">
-            <h3 className="text-lg font-semibold mb-2">Greška</h3>
-            <p>Popis za kupnju nije pronađen ili se dogodila greška.</p>
-          </div>
-
-          <Link href="/shopping-lists">
-            <Button variant="ghost">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Natrag na popise za kupnju
-            </Button>
-          </Link>
-        </div>
-      </div>
+      <LoginRequired
+        title="Popis za kupnju"
+        description="Popisi za kupnju ti omogućuju da organiziraš kupovinu i na jednom mjestu usporediš cijene po trgovinama."
+        icon={<ListChecks className="size-12 text-primary" />}
+      />
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header Section */}
-      <section>
-        <ShoppingListHeader shoppingList={shoppingList} />
-
-        {listUpdatedAt > 0 && (
-          <LastSyncedLabel
-            updatedAt={listUpdatedAt}
-            prefix="Popis osvježen"
-            className="mt-1 block"
-          />
-        )}
-      </section>
-
-      {/* Info Display Section */}
-      <section>
-        <ShoppingListInfoTable
-          shoppingList={shoppingList}
-          averagePrices={averagePrices}
-          isPricesLoading={isPricesLoading}
+    <AsyncSection
+      pending={isLoading}
+      // A settled fetch with no list means it is gone or not yours. Different
+      // cause from a thrown error, same dead end, so they share a way back.
+      error={error ?? (shoppingList ? undefined : new Error("Nije pronađeno"))}
+      errorState={
+        <ErrorState
+          title="Popis nije pronađen"
+          fallbackMessage="Popis za kupnju ne postoji ili mu nemaš pristup."
+          action={
+            <Button asChild variant="ghost">
+              <Link href="/shopping-lists">
+                <ArrowLeft aria-hidden="true" className="h-4 w-4 mr-2" />
+                Natrag na popise za kupnju
+              </Link>
+            </Button>
+          }
         />
-      </section>
+      }
+      skeleton={<ShoppingListDetailSkeleton itemRows={itemRows} />}
+    >
+      {shoppingList && (
+        <div className="space-y-8">
+          <section>
+            <ShoppingListHeader shoppingList={shoppingList} />
 
-      {/* Shopping List Items Section */}
-      <section>
-        <ShoppingListItems
-          shoppingList={shoppingList}
-          cheapestStores={cheapestStores}
-          averagePrices={averagePrices}
-          storePrices={storePrices}
-        />
-      </section>
+            {listUpdatedAt > 0 && (
+              <LastSyncedLabel
+                updatedAt={listUpdatedAt}
+                prefix="Popis osvježen"
+                className="mt-1 block"
+              />
+            )}
+          </section>
 
-      {/* Price History Section */}
-      <section>
-        <ShoppingListPriceHistory shoppingList={shoppingList} />
-      </section>
+          <section>
+            <ShoppingListInfoTable
+              shoppingList={shoppingList}
+              averagePrices={averagePrices}
+              isPricesLoading={isPricesLoading}
+            />
+          </section>
 
-      {/* Store Summary Section */}
-      <section>
-        <ShoppingListStoreSummary shoppingList={shoppingList} />
-      </section>
-    </div>
+          <section>
+            <ShoppingListItems
+              shoppingList={shoppingList}
+              cheapestStores={cheapestStores}
+              averagePrices={averagePrices}
+              storePrices={storePrices}
+            />
+          </section>
+
+          <section>
+            <ShoppingListPriceHistory shoppingList={shoppingList} />
+          </section>
+
+          <section>
+            <ShoppingListStoreSummary shoppingList={shoppingList} />
+          </section>
+        </div>
+      )}
+    </AsyncSection>
   );
 }

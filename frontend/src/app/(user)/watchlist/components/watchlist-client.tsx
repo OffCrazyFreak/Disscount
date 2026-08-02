@@ -10,6 +10,12 @@ import WatchlistHeader from "@/app/(user)/watchlist/components/watchlist-header"
 import WatchlistList from "@/app/(user)/watchlist/components/watchlist-list";
 import WatchlistSuggestions from "@/app/(user)/watchlist/components/watchlist-suggestions";
 import { useWatchlistData } from "@/app/(user)/watchlist/hooks/use-watchlist-data";
+import {
+  useRememberedRowCount,
+  useRememberRowCount,
+} from "@/hooks/use-remembered-row-count";
+
+const ROW_COUNT_KEY = "watchlist:me";
 
 interface IWatchlistClientProps {
   query: string;
@@ -19,7 +25,7 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
   const pathname = usePathname();
 
   const {
-    isAuthenticated,
+    requiresAuth,
     userLoading,
     watchlistLoading,
     hasWatchedProducts,
@@ -32,7 +38,13 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
     filteredSuggestionItems,
   } = useWatchlistData(query);
 
-  if (!userLoading && !isAuthenticated) {
+  const listLoading = userLoading || watchlistLoading;
+
+  // Above the auth gate: hooks cannot sit after an early return.
+  const rows = useRememberedRowCount(ROW_COUNT_KEY, 3);
+  useRememberRowCount(ROW_COUNT_KEY, filteredItems.length);
+
+  if (requiresAuth) {
     return (
       <LoginRequired
         title="Praćeni proizvodi"
@@ -41,8 +53,6 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
       />
     );
   }
-
-  const listLoading = userLoading || watchlistLoading;
 
   return (
     <div className="space-y-4">
@@ -71,6 +81,7 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
         isLoading={listLoading}
         query={query}
         hasPinnedStores={hasPinnedStores}
+        skeletonRows={rows}
       />
 
       {!listLoading &&

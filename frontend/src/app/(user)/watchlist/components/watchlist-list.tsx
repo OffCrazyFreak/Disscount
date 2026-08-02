@@ -2,7 +2,8 @@ import Link from "next/link";
 import { Search, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import NoResults from "@/components/custom/common/no-results";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import RepeatSkeleton from "@/components/custom/skeleton/repeat-skeleton";
+import ProductCardSkeleton from "@/components/custom/product/product-card-skeleton";
 import WatchlistItem from "@/app/(user)/watchlist/components/watchlist-item";
 import { sortWatchlistItemsByDiscount } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import { IWatchlistSearchItem } from "@/app/(user)/watchlist/typings/watchlist-types";
@@ -12,6 +13,8 @@ interface IWatchlistListProps {
   isLoading: boolean;
   query: string;
   hasPinnedStores: boolean;
+  /** Placeholder rows to draw, remembered from the previous visit. */
+  skeletonRows?: number;
 }
 
 export default function WatchlistList({
@@ -19,12 +22,13 @@ export default function WatchlistList({
   isLoading,
   query,
   hasPinnedStores,
+  skeletonRows = 3,
 }: IWatchlistListProps) {
   if (isLoading) {
     return (
-      <div className="grid place-items-center">
-        <BlockLoadingSpinner />
-      </div>
+      <RepeatSkeleton className="space-y-3" count={skeletonRows}>
+        <ProductCardSkeleton />
+      </RepeatSkeleton>
     );
   }
 

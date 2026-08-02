@@ -1,8 +1,7 @@
 import { useMemo } from "react";
-import { useQueries } from "@tanstack/react-query";
-import { shoppingListService } from "@/lib/api";
-import cijeneService, { productByEanQueryKey } from "@/lib/cijene-api";
-import type { ProductResponse } from "@/lib/cijene-api/schemas";
+import { shoppingListQueries } from "@/lib/api/shopping-lists/hooks";
+import { useProductsByEans } from "@/lib/cijene-api/use-products-by-eans";
+import { useAuthedQuery } from "@/lib/query/use-authed-query";
 import { useUser } from "@/context/user-context";
 import {
   findCheapestStoreFromProduct,
@@ -15,10 +14,11 @@ export function useShoppingListData(listId: string) {
 
   const {
     data: shoppingList,
-    isLoading,
+    pending: isLoading,
     error,
+    requiresAuth,
     dataUpdatedAt: listUpdatedAt,
-  } = shoppingListService.useGetShoppingListById(listId);
+  } = useAuthedQuery(shoppingListQueries.byId(listId));
 
   const eans = useMemo(
     () => [
@@ -29,24 +29,9 @@ export function useShoppingListData(listId: string) {
     [shoppingList?.items],
   );
 
-  const { productsData, isPricesLoading } = useQueries({
-    queries: eans.map((ean) => ({
-      queryKey: productByEanQueryKey(ean),
-      queryFn: () => cijeneService.getProductByEan({ ean }),
-      staleTime: 6 * 60 * 60 * 1000,
-    })),
-    combine: (results) => ({
-      productsData: results
-        .map((result) => result.data)
-        .filter((data): data is ProductResponse => data !== undefined),
-      isPricesLoading: results.some((result) => result.isLoading),
-    }),
-  });
+  const { productsByEan, pending: isPricesLoading } = useProductsByEans(eans);
 
   const { cheapestStores, averagePrices, storePrices } = useMemo(() => {
-    const productsByEan = new Map(
-      productsData.map((product) => [product.ean, product]),
-    );
     const nextCheapestStores: Record<string, string> = {};
     const nextAveragePrices: Record<string, number> = {};
     const nextStorePrices: Record<string, Record<string, number>> = {};
@@ -80,7 +65,7 @@ export function useShoppingListData(listId: string) {
       averagePrices: nextAveragePrices,
       storePrices: nextStorePrices,
     };
-  }, [productsData, shoppingList?.items, user?.pinnedStores]);
+  }, [productsByEan, shoppingList?.items, user?.pinnedStores]);
 
   // Calculate total savings from checked items
   const { totalSavings, totalPotentialCost } = shoppingList?.items
@@ -106,6 +91,7 @@ export function useShoppingListData(listId: string) {
     shoppingList,
     isLoading,
     error,
+    requiresAuth,
     listUpdatedAt,
     cheapestStores,
     averagePrices,

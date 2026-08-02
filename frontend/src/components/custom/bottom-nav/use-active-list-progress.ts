@@ -1,7 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useGetShoppingListById } from "@/lib/api/shopping-lists/hooks";
+import { shoppingListQueries } from "@/lib/api/shopping-lists/hooks";
+import { useAuthedQuery } from "@/lib/query/use-authed-query";
 import { shoppingListIdFromPath } from "@/utils/routes";
 
 /**
@@ -14,8 +15,8 @@ import { shoppingListIdFromPath } from "@/utils/routes";
 export default function useActiveListProgress(): number | undefined {
   const pathname = usePathname();
 
-  const { data: list } = useGetShoppingListById(
-    shoppingListIdFromPath(pathname) ?? "",
+  const { data: list } = useAuthedQuery(
+    shoppingListQueries.byId(shoppingListIdFromPath(pathname) ?? ""),
   );
 
   if (!list?.items.length) return undefined;

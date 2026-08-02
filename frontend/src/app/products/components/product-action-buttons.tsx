@@ -14,7 +14,8 @@ import { openExternal } from "@/utils/browser/open-external";
 import WatchlistActionButton from "@/app/products/components/watchlist-action-button";
 import useProductModals from "@/hooks/use-product-modals";
 import useProductShare from "@/hooks/use-product-share";
-import { watchlistService } from "@/lib/api";
+import { watchlistQueries } from "@/lib/api/watchlist/hooks";
+import { useAuthedQuery } from "@/lib/query/use-authed-query";
 
 interface IProductActionButtonsProps {
   product: ProductResponse;
@@ -35,8 +36,9 @@ export default function ProductActionButtons({
   grouped = false,
   className,
 }: IProductActionButtonsProps) {
-  const { data: currentUserWatchlist = [] } =
-    watchlistService.useGetCurrentUserWatchlist();
+  const { data: currentUserWatchlist = [] } = useAuthedQuery(
+    watchlistQueries.me(),
+  );
 
   const { openAddToList } = useProductModals(product);
   const share = useProductShare(product);

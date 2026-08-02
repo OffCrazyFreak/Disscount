@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/form";
 import type { ShoppingListDto, ShoppingListRequest } from "@/lib/api/types";
 import { shoppingListRequestSchema } from "@/lib/api/types";
-import { shoppingListService } from "@/lib/api";
+import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import { applyProblemToForm } from "@/lib/api/problem-details";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { takeModalError } from "@/lib/modal/modal-error-bus";
@@ -27,6 +27,8 @@ import { LOADING_LABELS } from "@/constants/loading-labels";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import { getFormDraft } from "@/utils/browser/local-storage";
 import { useShoppingListModal } from "@/app/(user)/shopping-lists/hooks/use-shopping-list-modal";
+import { shoppingListQueries } from "@/lib/api/shopping-lists/hooks";
+import { useAuthedQuery } from "@/lib/query/use-authed-query";
 
 interface IShoppingListModalProps {
   open: boolean;
@@ -43,14 +45,14 @@ export default function ShoppingListModal({
   const isEdit = action === "edit" && !!id;
 
   // Only seeds an instant value while the reactive by-id query settles; by-id wins
-  // once loaded, since edits invalidate ["shoppingLists"] and refetch it.
+  // once loaded, since edits invalidate the shopping list root and refetch it.
   const cachedList = queryClient
-    .getQueryData<ShoppingListDto[]>(["shoppingLists", "me"])
+    .getQueryData<ShoppingListDto[]>(SHOPPING_LIST_QUERY_KEYS.me)
     ?.find((list) => list.id === id);
-  const byIdQuery = shoppingListService.useGetShoppingListById(
-    isEdit ? (id as string) : "",
+  const byIdQuery = useAuthedQuery(
+    shoppingListQueries.byId(isEdit ? (id as string) : ""),
   );
-  const seededList = byIdQuery.isLoading ? cachedList : undefined;
+  const seededList = byIdQuery.pending ? cachedList : undefined;
   const shoppingList = isEdit ? (byIdQuery.data ?? seededList ?? null) : null;
 
   const draftKey = isEdit ? `shopping-list.edit.${id}` : "shopping-list.new";

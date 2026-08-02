@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import { useDataPending } from "@/lib/query/use-data-pending";
+import AsyncSection from "@/components/custom/common/async-section";
 import CollapsibleSection from "@/components/custom/common/collapsible-section";
+import ProductChainsListSkeleton from "@/app/products/[id]/components/product-chains-list-skeleton";
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
 import StoreItem from "@/app/products/[id]/components/store-item/store-item";
 import ProductChainSortSelect from "@/app/products/[id]/components/product-chain-sort-select";
@@ -28,6 +30,8 @@ export default function ProductChainsSection({
   const [isOpen, setIsOpen] = useState(() => getProductStoresOpen(ean));
   const [expandedChain, setExpandedChain] = useState<string | null>(null);
 
+  const pricesPending = useDataPending(detail.pricesPending);
+
   const toggleChain = useCallback((chainCode: string) => {
     setExpandedChain((previous) => (previous === chainCode ? null : chainCode));
   }, []);
@@ -51,19 +55,22 @@ export default function ProductChainsSection({
         />
       )}
 
-      {detail.pricesLoading ? (
-        <div className="grid place-items-center">
-          <BlockLoadingSpinner />
-        </div>
-      ) : detail.pricesError ? (
-        <p className="p-2 text-gray-600 text-center">
-          Greška pri učitavanju cijena. Pokušaj ponovno.
-        </p>
-      ) : detail.sortedChains.length === 0 ? (
-        <p className="p-2 text-gray-600 text-center">
-          Nema dostupnih cijena za ovaj proizvod.
-        </p>
-      ) : (
+      <AsyncSection
+        pending={pricesPending}
+        error={detail.pricesError}
+        errorState={
+          <p className="p-2 text-gray-600 text-center">
+            Greška pri učitavanju cijena. Pokušaj ponovno.
+          </p>
+        }
+        isEmpty={detail.sortedChains.length === 0}
+        empty={
+          <p className="p-2 text-gray-600 text-center">
+            Nema dostupnih cijena za ovaj proizvod.
+          </p>
+        }
+        skeleton={<ProductChainsListSkeleton />}
+      >
         <div className="space-y-4">
           <ProductChainSortSelect
             value={detail.sortBy}
@@ -81,7 +88,7 @@ export default function ProductChainsSection({
             />
           ))}
         </div>
-      )}
+      </AsyncSection>
     </CollapsibleSection>
   );
 }

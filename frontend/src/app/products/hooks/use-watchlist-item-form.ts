@@ -14,6 +14,8 @@ import {
   WatchlistFormData,
   watchlistFormSchema,
 } from "@/app/products/typings/watchlist-form";
+import { watchlistQueries } from "@/lib/api/watchlist/hooks";
+import { useAuthedQuery } from "@/lib/query/use-authed-query";
 
 // A restored pair looks like a type switch, so match it to keep the value.
 function matchesDraft(draftKey: string, values: WatchlistFormData): boolean {
@@ -37,8 +39,8 @@ export function useWatchlistItemForm(
 
   const addMutation = watchlistService.useAddToWatchlist();
   const removeMutation = watchlistService.useRemoveFromWatchlist();
-  const { data: existingItems = [], isLoading: isCheckingWatchlist } =
-    watchlistService.useGetWatchlistItemsByProductApiId(ean);
+  const { data: existingItems = [], pending: isCheckingWatchlist } =
+    useAuthedQuery(watchlistQueries.byProduct(ean));
 
   const form = useForm<WatchlistFormData>({
     resolver: zodResolver(watchlistFormSchema),

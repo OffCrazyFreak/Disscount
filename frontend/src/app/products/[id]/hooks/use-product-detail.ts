@@ -16,13 +16,13 @@ export function useProductDetail(ean: string) {
 
   const {
     data: product,
-    isLoading: productLoading,
+    isPending: productPending,
     error: productError,
   } = cijeneService.useGetProductByEan({ ean });
 
   const {
     data: pricesData,
-    isLoading: pricesLoading,
+    isPending: pricesPending,
     error: pricesError,
     dataUpdatedAt: pricesUpdatedAt,
   } = cijeneService.useGetPrices({ eans: ean });
@@ -53,10 +53,10 @@ export function useProductDetail(ean: string) {
 
   return {
     product,
-    productLoading,
+    productPending,
     productError,
     pricesByChain,
-    pricesLoading,
+    pricesPending,
     pricesError,
     pricesUpdatedAt,
     sortedChains,

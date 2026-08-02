@@ -22,21 +22,23 @@ import {
   getChainStats,
   healthCheck,
 } from "@/lib/cijene-api/queries";
+import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
+import { CACHE_TIMES } from "@/lib/query/cache-times";
 
 export function useListChains() {
   return useQuery<ListChainsResponse, Error>({
-    queryKey: ["cijene", "chains"],
+    queryKey: CIJENE_QUERY_KEYS.chains,
     queryFn: listChains,
-    staleTime: 60 * 60 * 1000, // 1 hour - chains don't change often
+    staleTime: CACHE_TIMES.chains,
   });
 }
 
 export function useListStoresByChain(chainCode: string) {
   return useQuery<ListStoresResponse, Error>({
-    queryKey: ["cijene", "stores", "chain", chainCode],
+    queryKey: CIJENE_QUERY_KEYS.storesByChain(chainCode),
     queryFn: () => listStoresByChain(chainCode),
     enabled: Boolean(chainCode),
-    staleTime: 30 * 60 * 1000, // 30 minutes
+    staleTime: CACHE_TIMES.stores,
   });
 }
 
@@ -47,66 +49,56 @@ export function useListStoresByChain(chainCode: string) {
  */
 export function useSearchStores(params?: SearchStoresParams) {
   return useQuery<ListStoresResponse, Error>({
-    queryKey: ["cijene", "stores", params ? JSON.stringify(params) : "all"],
+    queryKey: CIJENE_QUERY_KEYS.stores(params),
     queryFn: () => searchStores(params),
     // enable when no params or when any non-empty filter provided
     enabled:
       params === undefined ||
       Object.keys(params).length === 0 ||
       Object.values(params).some((v) => v != null && v !== ""),
-    staleTime: 30 * 60 * 1000,
+    staleTime: CACHE_TIMES.stores,
   });
-}
-
-/**
- * Cache key for a single product by EAN. Shared so callers that already hold a
- * product (e.g. product cards) can seed the cache under the exact same key that
- * useGetProductByEan reads, making a URL-driven modal open instantly.
- */
-export function productByEanQueryKey(ean: string) {
-  return ["cijene", "product", "ean", JSON.stringify({ ean })];
 }
 
 export function useGetProductByEan(params: GetProductParams) {
   return useQuery<ProductResponse, Error>({
-    queryKey: ["cijene", "product", "ean", JSON.stringify(params)],
+    queryKey: CIJENE_QUERY_KEYS.productByEan(params),
     queryFn: () => getProductByEan(params),
     enabled: Boolean(params.ean),
-    staleTime: 6 * 60 * 60 * 1000, // 6 hours
+    staleTime: CACHE_TIMES.products,
   });
 }
 
 export function useGetProductByName(params: SearchProductsParams) {
   return useQuery<ProductSearchResponse, Error>({
-    queryKey: ["cijene", "products", "search", JSON.stringify(params)],
+    queryKey: CIJENE_QUERY_KEYS.productSearch(params),
     queryFn: () => getProductByName(params),
     enabled: Boolean(params.q),
-    staleTime: 6 * 60 * 60 * 1000, // 6 hours
+    staleTime: CACHE_TIMES.products,
   });
 }
 
 export function useGetPrices(params: GetPricesParams) {
   return useQuery<StorePricesResponse, Error>({
-    queryKey: ["cijene", "prices", JSON.stringify(params)],
+    queryKey: CIJENE_QUERY_KEYS.prices(params),
     queryFn: () => getPrices(params),
     enabled: Boolean(params.eans),
-    staleTime: 6 * 60 * 60 * 1000, // 6 hours
+    staleTime: CACHE_TIMES.products,
   });
 }
 
 export function useGetChainStats() {
   return useQuery<ChainStatsResponse, Error>({
-    queryKey: ["cijene", "chain-stats"],
+    queryKey: CIJENE_QUERY_KEYS.chainStats,
     queryFn: getChainStats,
-    staleTime: 6 * 60 * 60 * 1000, // 6 hours
+    staleTime: CACHE_TIMES.products,
   });
 }
 
 export function useHealthCheck() {
   return useQuery<HealthCheckResponse, Error>({
-    queryKey: ["cijene", "health"],
+    queryKey: CIJENE_QUERY_KEYS.health,
     queryFn: healthCheck,
-    staleTime: 30 * 1000, // 30 seconds
-    retry: 1, // Only retry once for health checks
+    staleTime: CACHE_TIMES.health,
   });
 }

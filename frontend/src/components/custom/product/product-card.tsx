@@ -16,7 +16,6 @@ interface IProductCardProps {
   imageUrl?: string | null;
   /** Returning false cancels navigation, for example after a long press */
   onNavigate?: (viaKeyboard: boolean) => boolean | void;
-  isLoading?: boolean;
   trailing?: ReactNode;
   actions?: ReactNode;
   className?: string;
@@ -49,7 +48,6 @@ export default function ProductCard({
   quantity,
   imageUrl,
   onNavigate,
-  isLoading = false,
   trailing,
   actions,
   className,
@@ -85,7 +83,6 @@ export default function ProductCard({
         category={category}
         quantity={quantity}
         imageUrl={imageUrl}
-        isLoading={isLoading}
         trailing={trailing}
         actions={actions}
         actionProps={actionProps}

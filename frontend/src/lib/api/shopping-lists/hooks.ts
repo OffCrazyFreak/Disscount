@@ -1,4 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 import {
   ShoppingListRequest,
@@ -17,36 +21,45 @@ import {
   deleteShoppingListItem,
   getAllUserShoppingListItems,
 } from "@/lib/api/shopping-lists/queries";
-
-const LISTS_KEY = ["shoppingLists"];
-const LIST_ITEMS_KEY = ["shoppingListItems"];
+import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 
 export function useCreateShoppingList() {
   const queryClient = useQueryClient();
   return useMutation<ShoppingListDto, Error, ShoppingListRequest>({
     mutationKey: OFFLINE_MUTATION_KEYS.shoppingListCreate,
     mutationFn: createShoppingList,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: LISTS_KEY }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: SHOPPING_LIST_QUERY_KEYS.all }),
   });
 }
 
-export function useGetCurrentUserShoppingLists({
-  enabled = true,
-}: { enabled?: boolean } = {}) {
-  return useQuery<ShoppingListDto[], Error>({
-    queryKey: ["shoppingLists", "me"],
-    queryFn: getCurrentUserShoppingLists,
-    enabled,
-  });
-}
+/**
+ * Read descriptors rather than hooks, so the React layer decides how to consume
+ * them: useAuthedQuery on a page, useQueries in a batch, prefetch or
+ * getQueryData elsewhere. It also keeps this module free of the auth context,
+ * which imports the lib/api barrel and would otherwise close an import cycle.
+ */
+export const shoppingListQueries = {
+  me: () =>
+    queryOptions({
+      queryKey: SHOPPING_LIST_QUERY_KEYS.me,
+      queryFn: getCurrentUserShoppingLists,
+    }),
 
-export function useGetShoppingListById(id: string) {
-  return useQuery<ShoppingListDto, Error>({
-    queryKey: ["shoppingLists", id],
-    queryFn: () => getShoppingListById(id),
-    enabled: !!id && id !== "new", // Only fetch if id is valid and not "new"
-  });
-}
+  byId: (id: string) =>
+    queryOptions({
+      queryKey: SHOPPING_LIST_QUERY_KEYS.byId(id),
+      queryFn: () => getShoppingListById(id),
+      // "new" is the create route's placeholder, not a real list.
+      enabled: !!id && id !== "new",
+    }),
+
+  myItems: () =>
+    queryOptions({
+      queryKey: SHOPPING_LIST_QUERY_KEYS.myItems,
+      queryFn: getAllUserShoppingListItems,
+    }),
+};
 
 export function useUpdateShoppingList() {
   const queryClient = useQueryClient();
@@ -57,7 +70,8 @@ export function useUpdateShoppingList() {
   >({
     mutationKey: OFFLINE_MUTATION_KEYS.shoppingListUpdate,
     mutationFn: ({ id, data }) => updateShoppingList(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: LISTS_KEY }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: SHOPPING_LIST_QUERY_KEYS.all }),
   });
 }
 
@@ -74,8 +88,10 @@ function useInvalidateListsAndItems() {
   const queryClient = useQueryClient();
   return () =>
     Promise.all([
-      queryClient.invalidateQueries({ queryKey: LISTS_KEY }),
-      queryClient.invalidateQueries({ queryKey: LIST_ITEMS_KEY }),
+      queryClient.invalidateQueries({ queryKey: SHOPPING_LIST_QUERY_KEYS.all }),
+      queryClient.invalidateQueries({
+        queryKey: SHOPPING_LIST_QUERY_KEYS.itemsAll,
+      }),
     ]);
 }
 
@@ -112,13 +128,5 @@ export function useDeleteShoppingListItem() {
     mutationKey: OFFLINE_MUTATION_KEYS.shoppingListItemDelete,
     mutationFn: ({ listId, itemId }) => deleteShoppingListItem(listId, itemId),
     onSuccess: invalidate,
-  });
-}
-
-export function useGetAllUserShoppingListItems({ enabled = true } = {}) {
-  return useQuery<ShoppingListItemDto[], Error>({
-    queryKey: ["shoppingListItems", "me"],
-    queryFn: getAllUserShoppingListItems,
-    enabled,
   });
 }

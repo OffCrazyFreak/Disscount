@@ -3,7 +3,7 @@ import { useQueries } from "@tanstack/react-query";
 import { ShoppingListDto } from "@/lib/api/types";
 import { PeriodOption } from "@/typings/history-period-options";
 import { periodOptions } from "@/constants/price-history";
-import cijeneService from "@/lib/cijene-api";
+import cijeneService, { CIJENE_QUERY_KEYS } from "@/lib/cijene-api";
 import { useUser } from "@/context/user-context";
 import { usePriceHistoryChains } from "@/app/(user)/shopping-lists/[id]/hooks/use-price-history-chains";
 import {
@@ -37,7 +37,7 @@ export function useShoppingListPriceHistory(
   const queries = useQueries({
     queries: eans.flatMap((ean) =>
       dates.map((date, index) => ({
-        queryKey: ["cijene", "product", "history", ean, date],
+        queryKey: CIJENE_QUERY_KEYS.productHistory(ean, date),
         queryFn: () => cijeneService.getProductByEan({ ean, date }),
         enabled: !!ean,
         staleTime:

@@ -10,6 +10,7 @@ import {
   OFFLINE_CACHE_MAX_AGE_MS,
 } from "@/lib/offline/persister";
 import { registerOfflineMutationDefaults } from "@/lib/offline/offline-mutations";
+import { CACHE_TIMES } from "@/lib/query/cache-times";
 
 interface IReactQueryProviderWrapperProps {
   children: ReactNode;
@@ -25,6 +26,10 @@ export default function ReactQueryProviderWrapper({
         queries: {
           // Must be >= the persister's maxAge, or entries evict before restoring.
           gcTime: OFFLINE_CACHE_MAX_AGE_MS,
+          // Without this every backend query refetches on each mount, so moving
+          // between pages refetches a list the user just looked at. The longer
+          // per-query windows in lib/api and lib/cijene-api still win.
+          staleTime: CACHE_TIMES.default,
           // One retry: a blip gets a second chance, a real failure surfaces fast.
           retry: 1,
         },

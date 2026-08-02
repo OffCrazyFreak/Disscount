@@ -1,4 +1,4 @@
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import ChartSkeleton from "@/components/custom/skeleton/chart-skeleton";
 import PriceHistoryChart from "@/app/products/[id]/components/price-history/price-history-chart";
 import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";
 
@@ -18,11 +18,7 @@ export default function PriceHistoryPanel({
   selectedChains,
 }: IPriceHistoryPanelProps) {
   if (historyLoading) {
-    return (
-      <div className="grid place-items-center">
-        <BlockLoadingSpinner />
-      </div>
-    );
+    return <ChartSkeleton />;
   }
 
   if (priceHistoryData.length === 0 || historyError) {

@@ -24,6 +24,12 @@ interface IUserContext {
   /** True only until auth first resolves; stays false through later refreshes */
   isInitializing: boolean;
   isAuthenticated: boolean;
+  /**
+   * A session exists, which is all an authed request needs. Resolves a round
+   * trip before `isAuthenticated`, which additionally waits on the profile, so
+   * data queries gate on this and start in parallel with /api/users/me.
+   */
+  hasSession: boolean;
   refreshUser: () => Promise<UserDto | undefined>;
   setUser: (user: UserDto | null) => void;
   logout: () => Promise<void>;
@@ -133,6 +139,7 @@ export function UserProvider({ children }: IUserProviderProps) {
     isLoading: isLoading || sessionPending,
     isInitializing: !hasResolvedAuth,
     isAuthenticated: !!mergedUser,
+    hasSession: !!session?.user,
     refreshUser,
     setUser,
     logout: handleLogout,

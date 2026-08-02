@@ -14,15 +14,15 @@ import type {
   ShoppingListItemRequest,
   WatchlistItemRequest,
 } from "@/lib/api/types";
+import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
+import { WATCHLIST_QUERY_KEYS } from "@/lib/api/watchlist/keys";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
-
-const SHOPPING_LISTS_ME: QueryKey = ["shoppingLists", "me"];
 
 function listAndItemsKeys(listId: string): QueryKey[] {
   return [
-    ["shoppingLists", listId],
-    SHOPPING_LISTS_ME,
-    ["shoppingListItems", "me"],
+    SHOPPING_LIST_QUERY_KEYS.byId(listId),
+    SHOPPING_LIST_QUERY_KEYS.me,
+    SHOPPING_LIST_QUERY_KEYS.myItems,
   ];
 }
 
@@ -46,20 +46,23 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
   defineOfflineMutation(
     OFFLINE_MUTATION_KEYS.shoppingListCreate,
     (data: ShoppingListRequest) => createShoppingList(data),
-    () => [SHOPPING_LISTS_ME],
+    () => [SHOPPING_LIST_QUERY_KEYS.me],
   );
 
   defineOfflineMutation(
     OFFLINE_MUTATION_KEYS.shoppingListUpdate,
     ({ id, data }: { id: string; data: ShoppingListRequest }) =>
       updateShoppingList(id, data),
-    ({ id }) => [["shoppingLists", id], SHOPPING_LISTS_ME],
+    ({ id }) => [
+      SHOPPING_LIST_QUERY_KEYS.byId(id),
+      SHOPPING_LIST_QUERY_KEYS.me,
+    ],
   );
 
   defineOfflineMutation(
     OFFLINE_MUTATION_KEYS.shoppingListDelete,
     (id: string) => deleteShoppingList(id),
-    (id) => [["shoppingLists", id], SHOPPING_LISTS_ME],
+    (id) => [SHOPPING_LIST_QUERY_KEYS.byId(id), SHOPPING_LIST_QUERY_KEYS.me],
   );
 
   defineOfflineMutation(
@@ -93,12 +96,12 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
   defineOfflineMutation(
     OFFLINE_MUTATION_KEYS.watchlistAdd,
     (data: WatchlistItemRequest) => addToWatchlist(data),
-    () => [["watchlist"]],
+    () => [WATCHLIST_QUERY_KEYS.all],
   );
 
   defineOfflineMutation(
     OFFLINE_MUTATION_KEYS.watchlistRemove,
     (id: string) => removeFromWatchlist(id),
-    () => [["watchlist"]],
+    () => [WATCHLIST_QUERY_KEYS.all],
   );
 }

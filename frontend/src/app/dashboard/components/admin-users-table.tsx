@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import TableSkeleton from "@/components/custom/skeleton/table-skeleton";
 import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import { LOADING_LABELS } from "@/constants/loading-labels";
 import {
@@ -17,10 +17,16 @@ import AdminUserRow from "@/app/dashboard/components/admin-user-row";
 import { adminService } from "@/lib/api";
 import { AccountType, UserDto } from "@/lib/api/schemas/auth-user";
 import { useUser } from "@/context/user-context";
+import { adminQueries } from "@/lib/api/admin/hooks";
+import { useAuthedQuery } from "@/lib/query/use-authed-query";
 
 export default function AdminUsersTable() {
   const { user: currentUser } = useUser();
-  const { data: users, isLoading, isError } = adminService.useGetAllUsers();
+  const {
+    data: users,
+    pending: isLoading,
+    isError,
+  } = useAuthedQuery(adminQueries.users());
   const updateAccountType = adminService.useUpdateUserAccountType();
   const deleteUser = adminService.useDeleteUser();
 
@@ -53,11 +59,7 @@ export default function AdminUsersTable() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center py-12">
-        <BlockLoadingSpinner size={24} />
-      </div>
-    );
+    return <TableSkeleton columns={4} />;
   }
 
   if (isError) {

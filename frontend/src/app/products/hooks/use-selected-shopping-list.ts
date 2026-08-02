@@ -5,6 +5,8 @@ import type { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 
 import { shoppingListService } from "@/lib/api";
+import { shoppingListQueries } from "@/lib/api/shopping-lists/hooks";
+import { useAuthedQuery } from "@/lib/query/use-authed-query";
 import type { AddToListFormData } from "@/app/products/typings/add-to-list";
 
 export function useSelectedShoppingList(
@@ -13,8 +15,10 @@ export function useSelectedShoppingList(
   enabled: boolean,
   restoredListId: string | null,
 ) {
-  const { data: shoppingLists = [], isLoading: isLoadingLists } =
-    shoppingListService.useGetCurrentUserShoppingLists({ enabled });
+  const { data: shoppingLists = [], pending: isLoadingLists } = useAuthedQuery({
+    ...shoppingListQueries.me(),
+    enabled,
+  });
   const removeItemMutation = shoppingListService.useDeleteShoppingListItem();
 
   const sortedShoppingLists = shoppingLists.slice().sort((a, b) => {
@@ -30,8 +34,9 @@ export function useSelectedShoppingList(
   });
 
   const selectedListId = form.watch("shoppingListId");
-  const { data: selectedShoppingList } =
-    shoppingListService.useGetShoppingListById(selectedListId);
+  const { data: selectedShoppingList } = useAuthedQuery(
+    shoppingListQueries.byId(selectedListId),
+  );
 
   const duplicateItem = selectedShoppingList?.items?.find(
     (item) => item.ean === ean,

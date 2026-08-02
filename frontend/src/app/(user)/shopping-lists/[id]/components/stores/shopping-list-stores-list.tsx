@@ -1,15 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import { ShoppingListDto } from "@/lib/api/types";
 import ShoppingListStoreItem from "@/app/(user)/shopping-lists/[id]/components/stores/shopping-list-store-card";
 import { useUser } from "@/context/user-context";
+import { useDataPending } from "@/lib/query/use-data-pending";
 import {
   STORE_OPTIMIZE_MODES,
   type StoreOptimizeMode,
 } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
+import AsyncSection from "@/components/custom/common/async-section";
 import CollapsibleSection from "@/components/custom/common/collapsible-section";
+import ShoppingListStoresSkeleton from "@/app/(user)/shopping-lists/[id]/components/stores/shopping-list-stores-skeleton";
 import {
   getShoppingListStoresOpen,
   setShoppingListStoresOpen,
@@ -67,18 +69,16 @@ export default function ShoppingListStoreSummary({
     optimizeBy,
   });
 
+  const pending = useDataPending(productsLoading);
+
   return (
     <CollapsibleSection
       title="Cijene po lancima trgovina"
       open={isStoresOpen}
       onOpenChange={handleToggleStores}
     >
-      <>
-        {productsLoading ? (
-          <div className="grid place-items-center">
-            <BlockLoadingSpinner />
-          </div>
-        ) : !shoppingList.items || shoppingList.items.length === 0 ? (
+      <AsyncSection pending={pending} skeleton={<ShoppingListStoresSkeleton />}>
+        {!shoppingList.items || shoppingList.items.length === 0 ? (
           <p className="p-2 text-gray-600 text-center">
             Ovaj popis još ne sadrži proizvode. Probaj pretražiti proizvode pa
             ih dodaj na ovaj popis.
@@ -118,7 +118,7 @@ export default function ShoppingListStoreSummary({
             ))}
           </div>
         )}
-      </>
+      </AsyncSection>
     </CollapsibleSection>
   );
 }

@@ -5,11 +5,16 @@ import {
   MONTHLY_WINDOW_DAYS,
   WEEKLY_WINDOW_DAYS,
 } from "@/app/dashboard/utils/user-activity";
-import { adminService } from "@/lib/api";
+import { adminQueries } from "@/lib/api/admin/hooks";
+import { useAuthedQuery } from "@/lib/query/use-authed-query";
 
 /** Active-user counters above the user list; shares its cached query, so no extra request. */
 export default function AdminUsersStats() {
-  const { data: users, isLoading, isError } = adminService.useGetAllUsers();
+  const {
+    data: users,
+    pending: isLoading,
+    isError,
+  } = useAuthedQuery(adminQueries.users());
 
   return (
     <div className="grid gap-4 sm:grid-cols-2">

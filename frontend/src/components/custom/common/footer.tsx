@@ -8,6 +8,7 @@ import FooterSupportIcons from "@/components/custom/common/footer-support-icons"
 import LinkedInIcon from "@/components/icons/linkedin-icon";
 import GithubIcon from "@/components/icons/github-icon";
 import CopyrightIcon from "@/components/icons/copyright-icon";
+import { Separator } from "@/components/ui/separator";
 import { GITHUB_REPO_URL, LINKEDIN_URL } from "@/constants/contact";
 
 export default function FooterSection() {
@@ -25,7 +26,7 @@ export default function FooterSection() {
               {/* App logo */}
               <CartLogo className="size-8 sm:size-10 text-primary" />
 
-              <span className="font-saira-stencil-semibold text-primary text-md sm:text-lg">
+              <span className="font-saira-stencil-semibold text-primary">
                 disscount
               </span>
             </Link>
@@ -40,8 +41,10 @@ export default function FooterSection() {
           <div className="flex items-center justify-center sm:justify-end gap-4 flex-wrap">
             <FooterSupportIcons />
 
-            {/* Divider: horizontal between the two rows on mobile, vertical on desktop */}
-            <span className="bg-border h-px w-4 sm:h-4 sm:w-px" aria-hidden />
+            <Separator
+              orientation="vertical"
+              className="data-[orientation=vertical]:h-4"
+            />
 
             <div className="flex items-center gap-4">
               {/* Language Switcher */}
@@ -68,7 +71,7 @@ export default function FooterSection() {
                 aria-label="GitHub"
                 className="text-muted-foreground hover:text-primary block hover:scale-110 transition-all"
               >
-                <GithubIcon size={16} />
+                <GithubIcon size={20} />
               </Link>
 
               <Link
@@ -78,7 +81,7 @@ export default function FooterSection() {
                 aria-label="LinkedIn"
                 className="text-muted-foreground hover:text-primary block hover:scale-110 transition-all"
               >
-                <LinkedInIcon size={16} />
+                <LinkedInIcon size={20} />
               </Link>
             </div>
           </div>

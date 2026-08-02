@@ -7,7 +7,7 @@ import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import StoreChainMultiSelect from "@/components/custom/store-chain/store-chain-multi-select";
 import PriceHistoryPeriodSelect from "@/components/custom/price/price-history-period-select";
 import PriceChangeDisplay from "@/components/custom/price/price-change-display";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import ChartSkeleton from "@/components/custom/skeleton/chart-skeleton";
 import { ShoppingListDto } from "@/lib/api/types";
 import { PeriodOption } from "@/typings/history-period-options";
 import { DISABLED_PERIODS, getEnabledPeriod } from "@/constants/price-history";
@@ -95,9 +95,7 @@ export default function ShoppingListPriceHistory({
 
               <TabsContent value={period} className="mt-4">
                 {isLoading ? (
-                  <div className="grid place-items-center">
-                    <BlockLoadingSpinner />
-                  </div>
+                  <ChartSkeleton />
                 ) : chartData.length === 0 || hasError ? (
                   <div className="text-center py-8">
                     <p className="text-gray-600">

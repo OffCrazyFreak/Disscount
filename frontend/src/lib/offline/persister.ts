@@ -12,7 +12,9 @@ import { shouldPersistMutation } from "@/lib/offline/offline-mutation-keys";
 const IDB_CACHE_KEY = "disscount-react-query-cache";
 
 // Bump on a breaking cache-shape change to discard stale persisted data.
-const CACHE_BUSTER = "1";
+// "2": query keys moved from stringified params to explicit tuples, so entries
+// written under the old shape would never be read again.
+const CACHE_BUSTER = "2";
 
 export const OFFLINE_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 

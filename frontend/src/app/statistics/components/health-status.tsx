@@ -1,21 +1,22 @@
 "use client";
 
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import cijeneService from "@/lib/cijene-api";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useDataPending } from "@/lib/query/use-data-pending";
 
 export default function HealthStatus() {
-  const {
-    data: health,
-    isLoading: healthLoading,
-    error,
-  } = cijeneService.useHealthCheck();
+  const { data: health, isPending, error } = cijeneService.useHealthCheck();
 
-  if (healthLoading) {
+  const pending = useDataPending(isPending);
+
+  if (pending) {
     return (
-      <div className="flex items-center gap-2">
-        <BlockLoadingSpinner size={16} />
-        Provjera stanja...
-      </div>
+      <>
+        <span className="sr-only" role="status">
+          Provjera stanja
+        </span>
+        <Skeleton aria-hidden="true" className="h-[1lh] w-52" />
+      </>
     );
   }
 
