@@ -8,13 +8,17 @@ import { Button } from "@/components/ui/button";
 import { useInstallPrompt } from "@/components/custom/pwa/use-install-prompt";
 import InstallInstructionsSheet from "@/components/custom/pwa/install-instructions-sheet";
 import {
+  installActionLabel,
+  installPitch,
+} from "@/components/custom/pwa/install-copy";
+import {
   isInstallBannerSnoozed,
   snoozeInstallBanner,
 } from "@/utils/browser/local-storage";
 
 // Dismissible with a 7-day snooze, shown only on browsers that can install.
 export default function InstallBanner() {
-  const { canShowInstallUI, canInstall, isIOS, isMacSafari, promptInstall } =
+  const { canShowInstallUI, canInstall, platform, promptInstall } =
     useInstallPrompt();
   const [dismissed, setDismissed] = useState(true);
   const [instructionsOpen, setInstructionsOpen] = useState(false);
@@ -56,7 +60,7 @@ export default function InstallBanner() {
             />
 
             <p className="min-w-0 flex-1 text-sm leading-tight">
-              Dodaj Disscount na početni zaslon za brži pristup.
+              {installPitch(platform)}
             </p>
 
             <Button
@@ -72,7 +76,7 @@ export default function InstallBanner() {
 
           <Button className="w-full" onClick={handleInstall}>
             <Plus aria-hidden="true" className="size-4" />
-            Dodaj na početni zaslon
+            {installActionLabel(platform)}
           </Button>
         </div>
       </div>
@@ -80,8 +84,7 @@ export default function InstallBanner() {
       <InstallInstructionsSheet
         open={instructionsOpen}
         onOpenChange={setInstructionsOpen}
-        isIOS={isIOS}
-        isMacSafari={isMacSafari}
+        platform={platform}
       />
     </>
   );

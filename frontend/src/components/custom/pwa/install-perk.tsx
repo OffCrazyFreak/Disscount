@@ -6,6 +6,7 @@ import { MonitorSmartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useInstallPrompt } from "@/components/custom/pwa/use-install-prompt";
 import InstallInstructionsSheet from "@/components/custom/pwa/install-instructions-sheet";
+import { isDesktopPlatform } from "@/components/custom/pwa/install-copy";
 
 /**
  * The landing page's "install as an app" perk row. A button wherever an install
@@ -13,14 +14,8 @@ import InstallInstructionsSheet from "@/components/custom/pwa/install-instructio
  * plain copy for the frame before client detection has run.
  */
 export default function InstallPerk() {
-  const {
-    ready,
-    isIOS,
-    isMacSafari,
-    canPromoteInstall,
-    promptInstall,
-    canInstall,
-  } = useInstallPrompt();
+  const { ready, platform, canPromoteInstall, promptInstall, canInstall } =
+    useInstallPrompt();
   const [instructionsOpen, setInstructionsOpen] = useState(false);
 
   // Nothing to advertise to someone already running the installed app, or to
@@ -38,8 +33,11 @@ export default function InstallPerk() {
           Instaliraj kao aplikaciju
         </span>
         <span className="block text-sm font-normal text-muted-foreground text-pretty">
-          Bez trgovine aplikacija - dodaj Disscount na početni zaslon izravno iz
-          preglednika.
+          Bez trgovine aplikacija -{" "}
+          {isDesktopPlatform(platform)
+            ? "instaliraj Disscount izravno iz preglednika"
+            : "dodaj Disscount na početni zaslon izravno iz preglednika"}
+          .
         </span>
       </span>
     </>
@@ -70,8 +68,7 @@ export default function InstallPerk() {
       <InstallInstructionsSheet
         open={instructionsOpen}
         onOpenChange={setInstructionsOpen}
-        isIOS={isIOS}
-        isMacSafari={isMacSafari}
+        platform={platform}
       />
     </>
   );

@@ -8,6 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Banner } from "@/components/custom/common/banner";
 import { useInstallPrompt } from "@/components/custom/pwa/use-install-prompt";
 import InstallInstructionsSheet from "@/components/custom/pwa/install-instructions-sheet";
+import {
+  installActionLabel,
+  installPitch,
+} from "@/components/custom/pwa/install-copy";
 import { cn } from "@/lib/utils";
 
 interface IInstallCardProps {
@@ -29,8 +33,7 @@ export default function InstallCard({ permanent = false }: IInstallCardProps) {
     canPromoteInstall,
     showUnsupportedNotice,
     canInstall,
-    isIOS,
-    isMacSafari,
+    platform,
     promptInstall,
   } = useInstallPrompt();
   const [instructionsOpen, setInstructionsOpen] = useState(false);
@@ -89,21 +92,20 @@ export default function InstallCard({ permanent = false }: IInstallCardProps) {
               !permanent && "text-muted-foreground",
             )}
           >
-            Dodaj Disscount na početni zaslon za brži pristup.
+            {installPitch(platform)}
           </p>
         </div>
 
         <Button className="w-full" onClick={handleInstall}>
           <Plus aria-hidden="true" className="size-4" />
-          Dodaj na početni zaslon
+          {installActionLabel(platform)}
         </Button>
       </div>
 
       <InstallInstructionsSheet
         open={instructionsOpen}
         onOpenChange={setInstructionsOpen}
-        isIOS={isIOS}
-        isMacSafari={isMacSafari}
+        platform={platform}
       />
     </>
   );

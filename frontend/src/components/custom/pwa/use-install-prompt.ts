@@ -73,6 +73,21 @@ function detectMacSafari(): boolean {
   );
 }
 
+/**
+ * Which set of manual steps to show. Four, because the wording genuinely differs:
+ * a share sheet, a menu bar, a phone menu, and an address-bar icon are four
+ * different things to press, and naming the wrong one is worse than saying nothing.
+ */
+export type InstallPlatform = "ios" | "macSafari" | "android" | "desktop";
+
+function detectPlatform(): InstallPlatform {
+  if (detectIOS()) return "ios";
+  if (detectMacSafari()) return "macSafari";
+  if (/Android/i.test(window.navigator.userAgent)) return "android";
+
+  return "desktop";
+}
+
 // Firefox on the desktop is the one mainstream browser with no install route at
 // all: no beforeinstallprompt, and no menu entry either, so its taskbar-tabs
 // work is still experimental. Firefox on Android installs fine, hence the split.
@@ -90,9 +105,8 @@ function detectNoInstallRoute(): boolean {
 interface IInstallState {
   deferredPrompt: IBeforeInstallPromptEvent | null;
   isStandalone: boolean;
-  isIOS: boolean;
   isIOSInstallCapable: boolean;
-  isMacSafari: boolean;
+  platform: InstallPlatform;
   hasInstallRoute: boolean;
   ready: boolean;
 }
@@ -100,9 +114,8 @@ interface IInstallState {
 const SERVER_STATE: IInstallState = {
   deferredPrompt: null,
   isStandalone: false,
-  isIOS: false,
   isIOSInstallCapable: false,
-  isMacSafari: false,
+  platform: "desktop",
   // Assumed until detection runs, so nothing flashes an unsupported notice.
   hasInstallRoute: true,
   ready: false,
@@ -133,9 +146,8 @@ function init() {
 
   setState({
     isStandalone: detectStandalone(),
-    isIOS: detectIOS(),
     isIOSInstallCapable: detectIOSInstallCapable(),
-    isMacSafari: detectMacSafari(),
+    platform: detectPlatform(),
     hasInstallRoute: !detectNoInstallRoute(),
     ready: true,
   });
@@ -173,9 +185,8 @@ export function useInstallPrompt() {
   const {
     deferredPrompt,
     isStandalone,
-    isIOS,
     isIOSInstallCapable,
-    isMacSafari,
+    platform,
     hasInstallRoute,
     ready,
   } = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
@@ -208,8 +219,7 @@ export function useInstallPrompt() {
     canShowInstallUI,
     canPromoteInstall,
     showUnsupportedNotice,
-    isIOS,
-    isMacSafari,
+    platform,
     promptInstall,
   };
 }
