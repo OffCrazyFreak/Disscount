@@ -31,9 +31,11 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
   const { deleteShoppingListMutation, confirmDelete, handleCopy, isCopying } =
     useShoppingListMutations(shoppingList.id, shoppingList);
 
-  function handleConfirmDelete() {
-    confirmDelete();
+  // Returns the promise so a caller that unmounts on completion can await the
+  // request instead of tearing the mutation down mid-flight.
+  async function handleConfirmDelete() {
     setIsDeleteDialogOpen(false);
+    await confirmDelete();
   }
 
   // Takes options so a caller already inside a modal can replace its history

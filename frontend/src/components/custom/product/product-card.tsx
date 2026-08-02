@@ -20,6 +20,8 @@ interface IProductCardProps {
   isLoading?: boolean;
   trailing?: ReactNode;
   actions?: ReactNode;
+  /** Applied to the actions wrapper, so hiding them hides the row gap too. */
+  actionsClassName?: string;
   className?: string;
   /** Pointer handlers from useCardLongPress, for the quick-actions gesture */
   pressProps?: Pick<
@@ -54,6 +56,7 @@ export default function ProductCard({
   isLoading = false,
   trailing,
   actions,
+  actionsClassName,
   className,
   pressProps,
   actionProps,
@@ -78,6 +81,7 @@ export default function ProductCard({
         isLoading={isLoading}
         trailing={trailing}
         actions={actions}
+        actionsClassName={actionsClassName}
         actionProps={actionProps}
         href={productPath(ean)}
         onNavigate={onNavigate}

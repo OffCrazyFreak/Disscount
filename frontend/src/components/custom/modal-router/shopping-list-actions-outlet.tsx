@@ -78,8 +78,10 @@ function DeleteConfirm({ shoppingList, onDone }: IDeleteConfirmProps) {
       description={`Sigurno želiš obrisati popis "${shoppingList.title}"? Ova akcija se ne može poništiti.`}
       confirmLabel="Obriši"
       variant="destructive"
-      onConfirm={() => {
-        handleConfirmDelete();
+      // Stays mounted until the request settles, so the rollback and the toasts
+      // still have a live observer to run on.
+      onConfirm={async () => {
+        await handleConfirmDelete();
         onDone();
       }}
       isLoading={isDeleting}

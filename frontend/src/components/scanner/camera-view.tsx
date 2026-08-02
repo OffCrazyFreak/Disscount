@@ -63,14 +63,17 @@ export default function CameraView({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const isPageVisible = usePageVisible();
 
-  // Floors and ideals rather than a hard cap: a max on both axes is a mandatory
-  // constraint, so a device with no conforming mode raises OverconstrainedError,
-  // and capping at 720p costs real detail across an EAN-13's bars at arm's
-  // length. exact on deviceId stays, since a bare id is only a hint.
+  // Ideals only on the axes: min and max are both mandatory, so either one lets a
+  // device with no conforming mode raise OverconstrainedError, and the error copy
+  // blames the camera choice, which is not what went wrong. Capping at 720p also
+  // cost real detail across an EAN-13's bars at arm's length. frameRate keeps its
+  // max because every camera has a mode at or under 30fps, and uncapped means
+  // 60fps of decode work for no extra accuracy. exact on deviceId stays, since a
+  // bare id is only a hint.
   const constraints = useMemo(
     () => ({
-      width: { min: 640, ideal: 1920 },
-      height: { min: 400, ideal: 1080 },
+      width: { ideal: 1920 },
+      height: { ideal: 1080 },
       frameRate: { ideal: 24, max: 30 },
       ...(deviceId
         ? { deviceId: { exact: deviceId } }
