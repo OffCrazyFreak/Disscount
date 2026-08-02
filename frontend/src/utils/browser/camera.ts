@@ -31,7 +31,13 @@ export function pickBackCamera(devices: MediaDeviceInfo[]): string | null {
     }))
     .sort((a, b) => b.score - a.score);
 
-  return scored[0]?.deviceId ?? null;
+  // A negative score means the best label we can see is a front or specialty
+  // lens, which happens when the browser labels only the granted device. Naming
+  // it explicitly would pin the scanner to it; null falls back to facingMode,
+  // which is the whole reason this can return null.
+  const best = scored[0];
+
+  return best && best.score >= 0 ? best.deviceId : null;
 }
 
 interface INamedCamera {
