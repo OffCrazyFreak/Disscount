@@ -8,16 +8,18 @@ import { useInstallPrompt } from "@/components/custom/pwa/use-install-prompt";
 import InstallInstructionsSheet from "@/components/custom/pwa/install-instructions-sheet";
 
 /**
- * The landing page's "install as an app" perk row. Interactive wherever an
- * install is actually possible, and plain copy where it is not.
+ * The landing page's "install as an app" perk row. A button wherever an install
+ * is possible, whether that is a native prompt or the browser's own menu, and
+ * plain copy for the frame before client detection has run.
  */
 export default function InstallPerk() {
-  const { ready, isIOS, isStandalone, promptInstall, canInstall } =
+  const { ready, isIOS, canPromoteInstall, promptInstall, canInstall } =
     useInstallPrompt();
   const [instructionsOpen, setInstructionsOpen] = useState(false);
 
-  // Nothing to advertise to someone already running the installed app.
-  if (isStandalone) return null;
+  // Nothing to advertise to someone already running the installed app, or to
+  // someone inside a webview that has nowhere to install it.
+  if (ready && !canPromoteInstall) return null;
 
   const content = (
     <>
