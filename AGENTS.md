@@ -55,7 +55,7 @@ If a check fails for a reason unrelated to your change, report the command and t
 - Never use em dashes or en dashes, anywhere: chat, code comments, UI copy, docs, commit messages, PR text. Use a comma, a colon, parentheses, or rewrite the sentence.
 - In Markdown, write one physical line per paragraph and per bullet. Never hard-wrap prose to a column width.
 - If a task has a standard-but-optional dimension, either do it or name it with a one-line recommendation and rough effort. Do not quietly drop it.
-- Do not rewrite `docs/*.md` as you go. Track what went stale and land it as one `docs:` commit when I ask to push.
+- Do not rewrite `docs/*.md` as you go, while the behaviour can still change. Track what went stale, then land it all as one `docs:` commit when I ask you to push, open a PR, or close one, so the docs match what actually shipped. Remind me if I forget to ask.
 - Prefer the smallest change that does the job. Merge code because it means the same thing, never because it looks the same.
 - Keep files focused and short. I aim for roughly 50 to 100 lines and would rather have one more file than one long one. Split by concern, not to hit a number.
 - Before writing a shared helper, hook, or component, look for an existing one in `utils/`, `hooks/`, and the relevant feature folder. If I ask you to extract something and nothing similar exists, give it its own new file rather than inlining it.
