@@ -33,11 +33,21 @@ export default function StoreChainMultiSelect({
         <MultiSelectGroup>
           {[...chains]
             .sort((a, b) => compareHr(getChainLabel(a), getChainLabel(b)))
-            .map((chainCode) => (
-              <MultiSelectItem key={chainCode} value={chainCode}>
-                {getChainLabel(chainCode)}
-              </MultiSelectItem>
-            ))}
+            .map((chainCode) => {
+              const label = getChainLabel(chainCode);
+
+              return (
+                // The value is a chain code, so the visible label has to be
+                // named as a keyword or it cannot be searched for.
+                <MultiSelectItem
+                  key={chainCode}
+                  value={chainCode}
+                  keywords={[label]}
+                >
+                  {label}
+                </MultiSelectItem>
+              );
+            })}
         </MultiSelectGroup>
       </MultiSelectContent>
     </MultiSelect>

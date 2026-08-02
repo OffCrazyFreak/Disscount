@@ -102,7 +102,10 @@ export function ModalShell({
       >
         <DialogHeader
           className={cn(
-            "gap-1.5 px-6 pt-6",
+            // shrink-0 here and on the footer leaves the body as the only
+            // flexible track, so a long list or a large font size scrolls
+            // instead of squeezing the title and the buttons out of shape.
+            "shrink-0 gap-1.5 px-6 pt-6",
             centered ? "items-center text-center sm:text-center" : "text-left",
           )}
         >
@@ -121,7 +124,10 @@ export function ModalShell({
 
         {children && (
           <div
-            className={cn("min-h-0 overflow-y-auto px-6 py-4", bodyClassName)}
+            className={cn(
+              "min-h-0 flex-1 overflow-y-auto px-6 py-4",
+              bodyClassName,
+            )}
           >
             {/* Centralized reveal: the body cascades in on every open (Radix
                 remounts the content), so modals don't animate themselves. */}
@@ -129,12 +135,16 @@ export function ModalShell({
           </div>
         )}
 
-        {footer ?? (
-          <ModalShellFooter
-            onCancel={() => handleOpenChange(false)}
-            {...footerProps}
-          />
-        )}
+        {/* Wraps the slot rather than the composed footer, so a caller passing
+            its own footer node is held to the same contract. */}
+        <div className="shrink-0">
+          {footer ?? (
+            <ModalShellFooter
+              onCancel={() => handleOpenChange(false)}
+              {...footerProps}
+            />
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
