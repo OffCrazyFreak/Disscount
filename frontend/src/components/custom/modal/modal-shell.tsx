@@ -31,7 +31,7 @@ export interface IModalShellProps extends IModalShellFooterProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: ReactNode;
-  description?: string;
+  description?: ReactNode;
   srOnlyDescription?: boolean;
   size?: keyof typeof SIZE_CLASSES;
   // Blocks ESC, overlay clicks and the X while a critical action is running.

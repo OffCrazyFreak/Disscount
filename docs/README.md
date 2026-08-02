@@ -11,3 +11,4 @@ one part of the system.
 - [DATA-FETCHING.md](DATA-FETCHING.md) - data layer, query keys, cache times, loading states and the skeleton system.
 - [LANDING.md](LANDING.md) - landing page composition, server-vs-client rendering, SEO, fonts.
 - [BRAND.md](BRAND.md) - brand image system (logo, favicon, PWA icons, splash screens, social kit).
+- [SUPPORT.md](SUPPORT.md) - Ko-fi support flow, GitHub funding links, and future recognition rules.

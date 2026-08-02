@@ -167,7 +167,7 @@ export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
               </Suspense>
             </aside>
 
-            <main className="max-w-4xl mx-auto p-4 mt-24 w-full overflow-clip">
+            <main className="max-w-4xl mx-auto px-4 pt-4 mt-24 w-full overflow-clip">
               {children}
             </main>
 
