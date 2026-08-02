@@ -14,7 +14,7 @@ Never:
 - Run deploy, Docker, or Dokploy commands. Deploys happen automatically on push.
 - Commit or push unless I explicitly ask. When asked, include only the requested task's changes.
 - Commit secrets, credentials, the server IP, or the SSH user. Use placeholders in docs.
-- Reference `docs/disscount_*` from any tracked file. Those are gitignored because they hold credentials and strategy, and a link to them leaks that they exist.
+- Reference the gitignored private notes under `docs/` from any tracked file, or quote their contents. The ignore rules in `.gitignore` name them; a reference from anywhere else does not belong in a public repository.
 - Hand-edit dependency entries or lockfiles, use npm, or generate a `package-lock.json`.
 - Touch unrelated changes already sitting in the worktree. Do not revert, reformat, stage, or describe them as yours.
 - Drive a browser for visual verification unless I ask for it in that same message.

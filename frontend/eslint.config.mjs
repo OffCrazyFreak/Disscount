@@ -22,8 +22,11 @@ const eslintConfig = defineConfig([
     rules: {
       "react-hooks/set-state-in-effect": "warn",
       "@typescript-eslint/no-explicit-any": "error",
+      // An error, not a warning: pnpm lint exits 0 on warnings, so at warn level
+      // this surfaced in the editor and never blocked anything, and dead imports
+      // accumulated unnoticed. The ^_ patterns below are the escape hatch.
       "@typescript-eslint/no-unused-vars": [
-        "warn",
+        "error",
         {
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^_",

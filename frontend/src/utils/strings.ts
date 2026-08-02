@@ -25,7 +25,7 @@ export function normalizeForSearch(s: string) {
         .replace(/ü/g, "u")
         .toLowerCase()
     );
-  } catch (error) {
+  } catch {
     // Fallback: strip common diacritics via combining marks removal
     return s
       .normalize("NFD")
@@ -49,7 +49,7 @@ export function formatDate(dateString?: string | null) {
     const year = d.getFullYear();
 
     return `${day}.${month}.${year}.`;
-  } catch (error) {
+  } catch {
     return String(dateString);
   }
 }

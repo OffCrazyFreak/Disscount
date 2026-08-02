@@ -12,8 +12,8 @@ export function useViewMode(path: string, defaultMode: ViewMode = "list") {
     try {
       const stored = getViewMode(path, defaultMode);
       if (stored && stored !== mode) setModeInternal(stored);
-    } catch (error) {
-      // ignore
+    } catch {
+      // Storage can be unavailable or corrupt; the default mode is fine.
     }
   }, []);
 
@@ -21,8 +21,8 @@ export function useViewMode(path: string, defaultMode: ViewMode = "list") {
   useEffect(() => {
     try {
       setViewMode(path, mode);
-    } catch (error) {
-      // ignore
+    } catch {
+      // Storage can be unavailable or full; losing the preference is acceptable.
     }
   }, [path, mode]);
 
