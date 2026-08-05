@@ -19,6 +19,7 @@ import {
   getShoppingListItemsOpen,
   setShoppingListItemsOpen,
 } from "@/utils/browser/local-storage";
+import { compareHr } from "@/utils/strings";
 
 interface IShoppingListItemsProps {
   shoppingList: ShoppingList;
@@ -46,7 +47,7 @@ export default function ShoppingListItems({
   };
 
   const sortedItems = [...shoppingList.items].sort((a, b) =>
-    a.name.localeCompare(b.name, "hr", { sensitivity: "base" }),
+    compareHr(a.name, b.name),
   );
 
   const checkedCount =
