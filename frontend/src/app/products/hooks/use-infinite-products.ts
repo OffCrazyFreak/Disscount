@@ -106,14 +106,18 @@ export default function useInfiniteProducts(
     return batches;
   }, [filteredItems, safeBatchSize]);
 
-  const [batchesToShow, setBatchesToShow] = useState<number>(
-    batchedItems.length > 0 ? 1 : 0,
-  );
-
-  // Keyed on the batches, not their count, so an equal-length change still resets.
-  useEffect(() => {
-    setBatchesToShow(batchedItems.length > 0 ? 1 : 0);
-  }, [batchedItems, q]);
+  const batchKey = `${q}\0${filteredItems
+    .map(({ product }) => product.ean)
+    .join("\0")}`;
+  const initialBatchesToShow = batchedItems.length > 0 ? 1 : 0;
+  const [batchState, setBatchState] = useState({
+    key: batchKey,
+    count: initialBatchesToShow,
+  });
+  const batchesToShow =
+    batchState.key === batchKey
+      ? Math.min(batchState.count, batchedItems.length)
+      : initialBatchesToShow;
 
   useEffect(() => {
     if (batchesToShow >= batchedItems.length) return;
@@ -124,13 +128,21 @@ export default function useInfiniteProducts(
       const fullHeight = document.documentElement.scrollHeight;
 
       if (scrollY + viewport >= fullHeight - 10000) {
-        setBatchesToShow((prev) => Math.min(prev + 1, batchedItems.length));
+        setBatchState((previous) => ({
+          key: batchKey,
+          count: Math.min(
+            (previous.key === batchKey
+              ? previous.count
+              : initialBatchesToShow) + 1,
+            batchedItems.length,
+          ),
+        }));
       }
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [batchesToShow, batchedItems.length]);
+  }, [batchKey, batchesToShow, batchedItems.length, initialBatchesToShow]);
 
   const visibleItems = useMemo(() => {
     return batchedItems.slice(0, batchesToShow).flatMap((batch) => batch);

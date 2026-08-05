@@ -101,7 +101,13 @@ export default function useProductFilters({
       selectedLocations.length > 0 && (locationsLoading || locationsError)
         ? null
         : resolveAllowedChains(selectedChains, selectedLocations, locations),
-    [selectedChains, selectedLocations, locations, locationsLoading],
+    [
+      selectedChains,
+      selectedLocations,
+      locations,
+      locationsLoading,
+      locationsError,
+    ],
   );
 
   return {
