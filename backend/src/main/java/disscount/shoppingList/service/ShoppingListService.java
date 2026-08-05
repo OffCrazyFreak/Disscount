@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.UnauthorizedException;
 import disscount.shoppingList.dao.ShoppingListRepository;
+import disscount.shoppingList.domain.LinkAccess;
 import disscount.shoppingList.domain.ListAccess;
 import disscount.shoppingList.domain.ShoppingList;
 import disscount.shoppingList.dto.ShoppingListDto;
@@ -15,7 +16,6 @@ import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.util.Timestamps;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -101,21 +101,23 @@ public class ShoppingListService {
      * revoke. Merely changing the level leaves the token alone, since the people already
      * holding the link are meant to keep working at the new level.
      */
-    private void applyLinkAccess(ShoppingList list, ListAccess requested) {
-        if (requested == null || requested == list.resolvedLinkAccess()) {
+    private void applyLinkAccess(ShoppingList list, LinkAccess requested) {
+        if (requested == null) {
             return;
         }
-        if (requested == ListAccess.OWNER) {
-            throw new BadRequestException("OWNER is not a link access level");
+
+        ListAccess next = requested.toListAccess();
+        if (next == list.resolvedLinkAccess()) {
+            return;
         }
 
-        if (requested == ListAccess.NONE) {
+        if (next == ListAccess.NONE) {
             list.setLinkAccess(null);
             list.setShareToken(null);
             return;
         }
 
-        list.setLinkAccess(requested);
+        list.setLinkAccess(next);
         if (list.getShareToken() == null) {
             list.setShareToken(UUID.randomUUID());
         }

@@ -3,7 +3,7 @@ package disscount.shoppingList.dto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-import disscount.shoppingList.domain.ListAccess;
+import disscount.shoppingList.domain.LinkAccess;
 
 @Data
 public class ShoppingListRequest {
@@ -13,5 +13,6 @@ public class ShoppingListRequest {
 
     // Owner-only, and ignored on create: sharing is turned on from an existing list,
     // because there is no id to bind a token to until the list has been saved.
-    private ListAccess linkAccess;
+    // LinkAccess rather than ListAccess, so OWNER cannot be sent at all.
+    private LinkAccess linkAccess;
 }
