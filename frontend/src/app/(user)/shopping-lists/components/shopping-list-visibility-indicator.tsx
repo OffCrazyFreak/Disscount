@@ -1,4 +1,4 @@
-import { Globe, Lock, ShoppingCart } from "lucide-react";
+import { Globe, Lock } from "lucide-react";
 
 import {
   Tooltip,
@@ -13,51 +13,49 @@ interface IShoppingListVisibilityIndicatorProps {
   className?: string;
 }
 
-// Absent link access means the list is not shared. Non-owners are sent null on purpose,
-// so they see the private icon rather than a level they cannot change.
-const VISIBILITY = {
-  NONE: {
-    label: "Popis je privatan",
-    icon: Lock,
-    className: "text-muted-foreground",
-  },
-  VIEW: {
-    label: "Svatko s poveznicom može vidjeti popis",
-    icon: Globe,
-    className: "text-primary",
-  },
-  SHOP: {
-    label: "Svatko s poveznicom može označavati stavke",
-    icon: ShoppingCart,
-    className: "text-primary",
-  },
-  EDIT: {
-    label: "Svatko s poveznicom može uređivati popis",
-    icon: Globe,
-    className: "text-primary",
-  },
-} as const;
+// Deliberately binary: the icon answers "is this shared", not "at what level". Three
+// levels cannot be told apart at a glance without teaching three new glyphs, and this is
+// a control whose only mode is a glance. The level lives in the tooltip and the
+// accessible name, and is set in the share modal. Google Docs draws the same line.
+const SHARED_LABELS: Record<LinkAccess, string> = {
+  NONE: "Popis je privatan",
+  VIEW: "Svatko s poveznicom može vidjeti popis",
+  SHOP: "Svatko s poveznicom može označavati stavke",
+  EDIT: "Svatko s poveznicom može uređivati popis",
+};
 
 export default function ShoppingListVisibilityIndicator({
   linkAccess,
   className,
 }: IShoppingListVisibilityIndicatorProps) {
-  const {
-    label,
-    icon: Icon,
-    className: iconClassName,
-  } = VISIBILITY[linkAccess ?? "NONE"];
+  // Non-owners are sent null on purpose, so they see private rather than a level they
+  // cannot change.
+  const access = linkAccess ?? "NONE";
+  const isShared = access !== "NONE";
+  const label = SHARED_LABELS[access];
+  const Icon = isShared ? Globe : Lock;
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
+        {/* Focusable so the tooltip is reachable without a pointer: hover-only would
+            hide the level from keyboard and touch users entirely. */}
         <span
-          className={cn("inline-flex shrink-0", className)}
+          className={cn(
+            "inline-flex shrink-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            className,
+          )}
           tabIndex={0}
           role="img"
           aria-label={label}
         >
-          <Icon className={cn("size-6", iconClassName)} aria-hidden="true" />
+          <Icon
+            className={cn(
+              "size-6",
+              isShared ? "text-primary" : "text-muted-foreground",
+            )}
+            aria-hidden="true"
+          />
         </span>
       </TooltipTrigger>
 

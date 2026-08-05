@@ -1,36 +1,24 @@
 "use client";
 
-import { Share2 } from "lucide-react";
+import { useState } from "react";
+import { Share2, Unlink } from "lucide-react";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
+import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-import CopyButton from "@/components/custom/common/copy-button";
-import LabeledSelect from "@/components/custom/common/labeled-select";
 import SettingRow from "@/components/custom/settings/ui/setting-row";
 import { LOADING_LABELS } from "@/constants/loading-labels";
-import type { LinkAccess } from "@/lib/api/types";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useShareListModal } from "@/app/(user)/shopping-lists/hooks/use-share-list-modal";
+import ShareLinkRow from "@/app/(user)/shopping-lists/components/forms/share-link-row";
 
 interface IShareListModalProps {
   open: boolean;
   id: string;
 }
-
-const LEVEL_OPTIONS = [
-  { value: "VIEW", label: "Samo pregled" },
-  { value: "SHOP", label: "Kupovina" },
-  { value: "EDIT", label: "Uređivanje" },
-] as const satisfies readonly { value: LinkAccess; label: string }[];
-
-const LEVEL_HINTS: Record<string, string> = {
-  VIEW: "Mogu vidjeti popis i cijene, ali ništa mijenjati.",
-  SHOP: "Mogu označavati stavke kao kupljene i birati trgovinu.",
-  EDIT: "Mogu mijenjati količine, brisati stavke i promijeniti naziv popisa.",
-};
 
 export default function ShareListModal({ open, id }: IShareListModalProps) {
   const {
@@ -40,11 +28,14 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
     linkAccess,
     setLinkAccess,
     isSaving,
+    isOffline,
+    savedMessage,
     shareUrl,
     handleTextShare,
     isSharingText,
   } = useShareListModal(id);
 
+  const [isRevokeOpen, setIsRevokeOpen] = useState(false);
   const isShared = linkAccess !== "NONE";
 
   return (
@@ -65,7 +56,13 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
           Popis nije pronađen. Možda je obrisan ili nemaš pristup.
         </p>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-6" aria-busy={isSaving}>
+          {/* Nothing here navigates, and the switch has no submit button, so the save
+              result would otherwise be silent for a screen reader. */}
+          <p role="status" className="sr-only">
+            {isSaving ? "Spremanje postavki dijeljenja..." : savedMessage}
+          </p>
+
           <SettingRow
             label="Svatko s poveznicom"
             description={
@@ -78,47 +75,33 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
                 aria-label="Svatko s poveznicom"
                 checked={isShared}
                 disabled={isSaving}
-                // Turning this back on mints a new token, so the previous link stays dead.
                 onCheckedChange={(next) =>
-                  setLinkAccess(next ? "VIEW" : "NONE")
+                  next ? setLinkAccess("VIEW") : setIsRevokeOpen(true)
                 }
               />
             }
           />
 
           {isShared && (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <LabeledSelect<LinkAccess>
-                  label="Što mogu raditi"
-                  value={linkAccess}
-                  onValueChange={setLinkAccess}
-                  options={LEVEL_OPTIONS}
-                  className="justify-between"
-                />
-                <p className="text-xs text-muted-foreground">
-                  {LEVEL_HINTS[linkAccess]}
-                </p>
-              </div>
+            <ShareLinkRow
+              linkAccess={linkAccess}
+              onLevelChange={setLinkAccess}
+              shareUrl={shareUrl}
+              isSaving={isSaving}
+            />
+          )}
 
-              {shareUrl && (
-                <div className="flex items-center gap-2 rounded-md border bg-muted/40 p-2">
-                  <p className="min-w-0 flex-1 truncate font-mono text-xs">
-                    {shareUrl}
-                  </p>
-                  <CopyButton
-                    value={shareUrl}
-                    label="Kopiraj poveznicu"
-                    successMessage="Poveznica je kopirana"
-                  />
-                </div>
-              )}
+          {/* Outside the isShared branch on purpose: it used to unmount at the exact
+              moment it became true, so nothing ever told the owner the link had died. */}
+          <p className="text-xs text-muted-foreground">
+            Isključivanjem dijeljenja poveznica prestaje vrijediti. Ako ponovno
+            uključiš dijeljenje, dobit ćeš novu poveznicu.
+          </p>
 
-              <p className="text-xs text-muted-foreground">
-                Isključivanjem dijeljenja poveznica prestaje vrijediti. Ako
-                ponovno uključiš dijeljenje, dobit ćeš novu poveznicu.
-              </p>
-            </div>
+          {isOffline && (
+            <p className="text-xs text-muted-foreground">
+              Nisi na mreži. Promjena će se spremiti kad se veza vrati.
+            </p>
           )}
 
           <Button
@@ -137,6 +120,20 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
           </Button>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={isRevokeOpen}
+        onOpenChange={setIsRevokeOpen}
+        title="Prestani dijeliti popis"
+        description="Postojeća poveznica prestat će vrijediti i nitko je više neće moći otvoriti. Ako kasnije ponovno uključiš dijeljenje, dobit ćeš novu poveznicu."
+        confirmLabel="Prestani dijeliti"
+        variant="destructive"
+        icon={Unlink}
+        onConfirm={() => {
+          setIsRevokeOpen(false);
+          setLinkAccess("NONE");
+        }}
+      />
     </ModalShell>
   );
 }

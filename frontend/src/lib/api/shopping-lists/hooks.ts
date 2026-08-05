@@ -24,7 +24,6 @@ import {
   deleteShoppingListItem,
   getAllUserShoppingListItems,
   getSharedShoppingList,
-  updateSharedShoppingList,
   updateSharedShoppingListItem,
   deleteSharedShoppingListItem,
 } from "@/lib/api/shopping-lists/queries";
@@ -51,11 +50,13 @@ export function useGetCurrentUserShoppingLists({
   });
 }
 
-export function useGetShoppingListById(id: string) {
+// enabled is explicit so a caller that does not want this query can say so, rather than
+// passing an empty id and minting a ["shoppingLists", ""] entry shaped like a real one.
+export function useGetShoppingListById(id: string, { enabled = true } = {}) {
   return useQuery<ShoppingListDto, Error>({
     queryKey: SHOPPING_LIST_QUERY_KEYS.byId(id),
     queryFn: () => getShoppingListById(id),
-    enabled: !!id && id !== "new", // Only fetch if id is valid and not "new"
+    enabled: enabled && !!id && id !== "new",
   });
 }
 
@@ -200,18 +201,6 @@ function useInvalidateSharedList() {
     queryClient.invalidateQueries({
       queryKey: SHOPPING_LIST_QUERY_KEYS.byToken(token),
     });
-}
-
-export function useUpdateSharedShoppingList() {
-  const invalidate = useInvalidateSharedList();
-  return useMutation<
-    ShoppingListDto,
-    Error,
-    { token: string; data: ShoppingListRequest }
-  >({
-    mutationFn: ({ token, data }) => updateSharedShoppingList(token, data),
-    onSuccess: (_data, { token }) => invalidate(token),
-  });
 }
 
 export function useUpdateSharedShoppingListItem() {

@@ -106,17 +106,6 @@ export async function getSharedShoppingList(
   return response.data;
 }
 
-export async function updateSharedShoppingList(
-  token: string,
-  data: ShoppingListRequest,
-): Promise<ShoppingListDto> {
-  const response = await apiClient.put<ShoppingListDto>(
-    sharedPath(token),
-    data,
-  );
-  return response.data;
-}
-
 export async function updateSharedShoppingListItem(
   token: string,
   itemId: string,

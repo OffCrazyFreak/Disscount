@@ -8,6 +8,14 @@ import type { LinkAccess } from "@/lib/api/types";
 import { shareOrCopy } from "@/utils/browser/share";
 import { formatShoppingListForSharing } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
 import { shareListUrl } from "@/utils/shopping-list-links";
+import { useOnlineStatus } from "@/hooks/use-online-status";
+
+const SAVED_MESSAGE: Record<LinkAccess, string> = {
+  NONE: "Dijeljenje je isključeno. Poveznica više ne vrijedi.",
+  VIEW: "Dijeljenje je uključeno. Poveznica je spremna.",
+  SHOP: "Dijeljenje je uključeno. Poveznica je spremna.",
+  EDIT: "Dijeljenje je uključeno. Poveznica je spremna.",
+};
 
 /**
  * Share settings save on change rather than behind a submit button: the server mints the
@@ -15,26 +23,40 @@ import { shareListUrl } from "@/utils/shopping-list-links";
  */
 export function useShareListModal(id: string) {
   const [isSharingText, setIsSharingText] = useState(false);
+  const [pendingAccess, setPendingAccess] = useState<LinkAccess | null>(null);
+  const [savedMessage, setSavedMessage] = useState("");
+  const isOnline = useOnlineStatus();
 
   const listQuery = shoppingListService.useGetShoppingListById(id);
   const updateMutation = shoppingListService.useUpdateShoppingList();
 
   const shoppingList = listQuery.data ?? null;
-  const linkAccess: LinkAccess = shoppingList?.linkAccess ?? "NONE";
+  // The pending value wins while the save is in flight, so the control stays where the
+  // user put it instead of snapping back for the whole round trip.
+  const linkAccess: LinkAccess =
+    pendingAccess ?? shoppingList?.linkAccess ?? "NONE";
   const shareUrl = shoppingList?.shareToken
     ? shareListUrl(shoppingList.shareToken)
     : null;
 
   function setLinkAccess(next: LinkAccess) {
-    if (!shoppingList || next === linkAccess) return;
+    // Also guards against a second change while one is in flight: two overlapping PUTs
+    // can settle in either order, leaving the server on the earlier of the two.
+    if (!shoppingList || next === linkAccess || updateMutation.isPending)
+      return;
+
+    setPendingAccess(next);
+    setSavedMessage("");
 
     // PUT carries the whole request, so the current title has to ride along or the
     // server would reject it as blank.
     updateMutation.mutate(
       { id, data: { title: shoppingList.title, linkAccess: next } },
       {
+        onSuccess: () => setSavedMessage(SAVED_MESSAGE[next]),
         onError: () =>
           toast.error("Promjena dijeljenja nije spremljena. Pokušaj ponovno."),
+        onSettled: () => setPendingAccess(null),
       },
     );
   }
@@ -51,6 +73,11 @@ export function useShareListModal(id: string) {
 
       if (outcome === "copied") toast.success("Tekst popisa je kopiran");
       if (outcome === "failed") toast.error("Dijeljenje nije uspjelo");
+    } catch {
+      // shareOrCopy resolves an outcome rather than throwing, but appUrl() throws on a
+      // misconfigured NEXT_PUBLIC_APP_URL. Wired to onClick and never awaited, so
+      // without this the failure is invisible.
+      toast.error("Dijeljenje nije uspjelo");
     } finally {
       setIsSharingText(false);
     }
@@ -62,7 +89,11 @@ export function useShareListModal(id: string) {
     isError: listQuery.isError,
     linkAccess,
     setLinkAccess,
-    isSaving: updateMutation.isPending,
+    // Offline this mutation pauses rather than rejects, so isPending would never clear
+    // and the control would spin forever with nothing said.
+    isSaving: updateMutation.isPending && isOnline,
+    isOffline: !isOnline,
+    savedMessage,
     shareUrl,
     handleTextShare,
     isSharingText,

@@ -44,5 +44,25 @@ export const shoppingListDtoSchema = z.object({
 // Type exports
 export type LinkAccess = z.infer<typeof linkAccessSchema>;
 export type ListAccess = z.infer<typeof listAccessSchema>;
+
+/** The levels an owner can pick, in the order they are offered. */
+export const SHAREABLE_LEVELS = ["VIEW", "SHOP", "EDIT"] as const;
+
+export const LINK_ACCESS_LABELS: Record<LinkAccess, string> = {
+  NONE: "Privatno",
+  VIEW: "Samo pregled",
+  SHOP: "Kupovina",
+  EDIT: "Uređivanje",
+};
+
+/** What each level lets a recipient actually do, in the second person. */
+export const LINK_ACCESS_HINTS: Record<LinkAccess, string> = {
+  NONE: "Popis je privatan i vidiš ga samo ti.",
+  VIEW: "Mogu vidjeti popis i cijene, ali ne mogu ništa mijenjati.",
+  SHOP: "Mogu označavati stavke kao kupljene i birati trgovinu.",
+  // Renaming is deliberately absent: the backend allows it, but no rename control is
+  // rendered for a recipient, so promising it would be a dead end.
+  EDIT: "Mogu mijenjati količine i brisati stavke.",
+};
 export type ShoppingListRequest = z.infer<typeof shoppingListRequestSchema>;
 export type ShoppingListDto = z.infer<typeof shoppingListDtoSchema>;
