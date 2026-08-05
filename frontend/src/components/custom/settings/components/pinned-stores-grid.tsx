@@ -8,6 +8,7 @@ import cijeneService from "@/lib/cijene-api";
 import { getChainLabel } from "@/utils/labels";
 import { cn } from "@/lib/utils";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
+import { compareHr } from "@/utils/strings";
 
 export default function PinnedStoresGrid() {
   const form = useFormContext<SettingsFormValues>();
@@ -34,11 +35,7 @@ export default function PinnedStoresGrid() {
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
           {chainStats?.chain_stats
             .slice()
-            .sort((a, b) =>
-              a.chain_code.localeCompare(b.chain_code, "hr", {
-                sensitivity: "base",
-              }),
-            )
+            .sort((a, b) => compareHr(a.chain_code, b.chain_code))
             .map((chain) => {
               const isSelected = selected.includes(chain.chain_code);
               return (

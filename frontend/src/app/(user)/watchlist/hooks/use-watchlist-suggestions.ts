@@ -2,7 +2,8 @@ import { useMemo } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { shoppingListService } from "@/lib/api";
 import { getProductByEan, productByEanQueryKey } from "@/lib/cijene-api";
-import { filterByFields } from "@/utils/generic";
+import { rankByFields, type IRankedItem } from "@/utils/generic";
+import { byDesc, chainComparators } from "@/utils/search/rank";
 import {
   calculateDiscountInfo,
   getMaxDiscountPercentage,
@@ -109,26 +110,30 @@ export function useWatchlistSuggestions({
       brand: item.product?.brand || "",
     }));
 
-    const filteredItems = filterByFields(searchableItems, query, [
+    // Relevance leads, then how often the product appears, then the discount.
+    // Sorting straight by occurrence used to discard the match score entirely,
+    // so searching here ranked differently from searching anywhere else.
+    // Scores tie readily, so the other two still decide most of the order.
+    const ranked = rankByFields(searchableItems, query, [
       "productName",
       "brand",
     ]);
 
-    return [...filteredItems].sort((a, b) => {
-      const occurrenceA =
-        suggestionOccurrenceByProductApiId.get(a.productApiId) || 0;
-      const occurrenceB =
-        suggestionOccurrenceByProductApiId.get(b.productApiId) || 0;
-
-      if (occurrenceB !== occurrenceA) {
-        return occurrenceB - occurrenceA;
-      }
-
-      return (
-        getMaxDiscountPercentage(b.discountInfo, hasPinnedStores) -
-        getMaxDiscountPercentage(a.discountInfo, hasPinnedStores)
-      );
-    });
+    return ranked
+      .sort(
+        chainComparators<IRankedItem<IWatchlistSearchItem>>(
+          byDesc((rated) => rated.score),
+          byDesc(
+            (rated) =>
+              suggestionOccurrenceByProductApiId.get(rated.item.productApiId) ||
+              0,
+          ),
+          byDesc((rated) =>
+            getMaxDiscountPercentage(rated.item.discountInfo, hasPinnedStores),
+          ),
+        ),
+      )
+      .map((rated) => rated.item);
   }, [
     suggestionItems,
     query,

@@ -19,7 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ShoppingListDto } from "@/lib/api/types";
-import { normalizeForSearch } from "@/utils/strings";
+import { commandFilter } from "@/utils/search/command-filter";
 import { UseFormReturn } from "react-hook-form";
 import { AddToListFormData } from "@/app/products/typings/add-to-list";
 import ShoppingListTrigger from "@/app/products/components/forms/shopping-list-trigger";
@@ -70,18 +70,7 @@ export default function ShoppingListSelector({
             </PopoverTrigger>
 
             <PopoverContent className="w-sm max-w-[75dvw]">
-              <Command
-                // Scores the keywords only. Each item's value is its UUID, and
-                // cmdk scores the value too, so a short hex query matched lists
-                // whose id merely contained those characters.
-                filter={(_value, search, keywords) => {
-                  const haystack = normalizeForSearch(
-                    keywords?.join(" ") ?? "",
-                  );
-
-                  return haystack.includes(normalizeForSearch(search)) ? 1 : 0;
-                }}
-              >
+              <Command filter={commandFilter}>
                 <CommandInput
                   placeholder="Pretraži svoje popise ili stvori novi..."
                   value={customListTitle}
