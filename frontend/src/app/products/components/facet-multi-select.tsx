@@ -61,6 +61,9 @@ export default function FacetMultiSelect({
                 key={value}
                 value={value}
                 badgeLabel={optionLabel}
+                // Chains are listed by code, so the visible label has to be
+                // named as a keyword or it cannot be searched for.
+                keywords={[optionLabel]}
                 disabled={isDisabled}
               >
                 <span className="flex w-full items-center justify-between gap-2">

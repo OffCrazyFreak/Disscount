@@ -1,47 +1,23 @@
 "use client";
 
-import { CheckIcon, ChevronsUpDownIcon, XIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import ScrollFade from "@/components/custom/common/scroll-fade";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ComponentPropsWithoutRef,
-  type ReactNode,
-} from "react";
-import { Badge } from "@/components/ui/badge";
+import { useCallback, useRef, useState, type ReactNode } from "react";
 
-interface IMultiSelectContext {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  selectedValues: Set<string>;
-  toggleValue: (value: string) => void;
-  searchValue: string;
-  setSearchValue: (value: string) => void;
-  items: Map<string, ReactNode>;
-  onItemAdded: (value: string, label: ReactNode) => void;
-}
-const MultiSelectContext = createContext<IMultiSelectContext | null>(null);
+import { Collapsible } from "@/components/ui/collapsible";
+import { Popover } from "@/components/ui/popover";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  MultiSelectContext,
+  type MultiSelectPresentation,
+} from "@/components/custom/form/multi-select-context";
+
+// One component per file, named back up here so this stays the single import
+// path and no call site has to know the layout.
+export { default as MultiSelectTrigger } from "@/components/custom/form/multi-select-trigger";
+export { default as MultiSelectValue } from "@/components/custom/form/multi-select-value";
+export { default as MultiSelectContent } from "@/components/custom/form/multi-select-content";
+export { default as MultiSelectItem } from "@/components/custom/form/multi-select-item";
+export { default as MultiSelectGroup } from "@/components/custom/form/multi-select-group";
+export { default as MultiSelectSeparator } from "@/components/custom/form/multi-select-separator";
 
 interface IMultiSelectProps {
   children: ReactNode;
@@ -62,6 +38,28 @@ export function MultiSelect({
   );
   const [searchValue, setSearchValue] = useState("");
   const [items, setItems] = useState<Map<string, ReactNode>>(new Map());
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  // Below md the list drops into the page instead of floating, so a viewport
+  // shrinking for the software keyboard has nothing to push it behind.
+  // useIsMobile reports false on the server and the list only mounts on a tap,
+  // so the swap at hydration is never on screen.
+  const presentation: MultiSelectPresentation = useIsMobile()
+    ? "inline"
+    : "popover";
+
+  // Crossing the breakpoint swaps Popover for Collapsible, which remounts the
+  // list and re-fires the search field's autoFocus. Rotating a tablet with a
+  // facet open would otherwise pop the keyboard nobody asked for.
+  //
+  // Adjusted during render rather than in an effect, which is React's own
+  // guidance for resetting state when a derived value changes: an effect would
+  // paint the wrong presentation open for one frame first.
+  const [lastPresentation, setLastPresentation] = useState(presentation);
+  if (presentation !== lastPresentation) {
+    setLastPresentation(presentation);
+    setOpen(false);
+  }
 
   // A controlled owner can change `values` behind our back, so the toggle reads
   // them rather than the internal set, which is only ever seeded once.
@@ -84,325 +82,39 @@ export function MultiSelect({
     });
   }, []);
 
+  // Clearing on close, not only when a value is added: a search left behind
+  // reopened the list still filtered, which reads as the facet having no other
+  // options. This is what the context hands out, so the paths that close the
+  // list themselves (Escape on the inline one) clear it too.
+  function handleOpenChange(next: boolean) {
+    setOpen(next);
+    if (!next) setSearchValue("");
+  }
+
+  const context = {
+    open,
+    setOpen: handleOpenChange,
+    selectedValues: currentValues,
+    toggleValue,
+    searchValue,
+    setSearchValue,
+    items,
+    onItemAdded,
+    presentation,
+    triggerRef,
+  };
+
   return (
-    <MultiSelectContext
-      value={{
-        open,
-        setOpen,
-        selectedValues: currentValues,
-        toggleValue,
-        searchValue,
-        setSearchValue,
-        items,
-        onItemAdded,
-      }}
-    >
-      {/* Clearing on close, not only when a value is added: a search left behind
-          reopened the list still filtered, which reads as the facet having no
-          other options. */}
-      <Popover
-        open={open}
-        onOpenChange={(next) => {
-          setOpen(next);
-          if (!next) setSearchValue("");
-        }}
-      >
-        {children}
-      </Popover>
+    <MultiSelectContext value={context}>
+      {presentation === "inline" ? (
+        <Collapsible open={open} onOpenChange={handleOpenChange}>
+          {children}
+        </Collapsible>
+      ) : (
+        <Popover open={open} onOpenChange={handleOpenChange}>
+          {children}
+        </Popover>
+      )}
     </MultiSelectContext>
   );
-}
-
-// Button's props are a union, so this cannot be an interface.
-type IMultiSelectTriggerProps = {
-  className?: string;
-  children?: ReactNode;
-} & ComponentPropsWithoutRef<typeof Button>;
-
-export function MultiSelectTrigger({
-  className,
-  children,
-  ...props
-}: IMultiSelectTriggerProps) {
-  const { open } = useMultiSelectContext();
-
-  return (
-    <PopoverTrigger asChild>
-      <Button
-        {...props}
-        variant={props.variant ?? "outline"}
-        role={props.role ?? "combobox"}
-        aria-expanded={props["aria-expanded"] ?? open}
-        className={cn(
-          "flex h-auto min-h-10 w-fit items-center justify-between gap-2 overflow-hidden rounded-md border border-input bg-transparent px-3 py-1.5 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[placeholder]:text-muted-foreground dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground",
-          className,
-        )}
-      >
-        {children}
-        <ChevronsUpDownIcon className="size-4 shrink-0 opacity-50" />
-      </Button>
-    </PopoverTrigger>
-  );
-}
-
-interface IMultiSelectValueProps extends Omit<
-  ComponentPropsWithoutRef<"div">,
-  "children"
-> {
-  placeholder?: string;
-  clickToRemove?: boolean;
-  overflowBehavior?: "wrap" | "wrap-when-open" | "cutoff";
-}
-
-export function MultiSelectValue({
-  placeholder,
-  clickToRemove = true,
-  className,
-  overflowBehavior = "wrap-when-open",
-  ...props
-}: IMultiSelectValueProps) {
-  const { selectedValues, toggleValue, items, open } = useMultiSelectContext();
-  const [overflowAmount, setOverflowAmount] = useState(0);
-  const valueRef = useRef<HTMLDivElement>(null);
-  const overflowRef = useRef<HTMLDivElement>(null);
-
-  const shouldWrap =
-    overflowBehavior === "wrap" ||
-    (overflowBehavior === "wrap-when-open" && open);
-
-  const checkOverflow = useCallback(() => {
-    if (valueRef.current == null) return;
-
-    const containerElement = valueRef.current;
-    const overflowElement = overflowRef.current;
-    const items = containerElement.querySelectorAll<HTMLElement>(
-      "[data-selected-item]",
-    );
-
-    if (overflowElement != null) overflowElement.style.display = "none";
-    items.forEach((child) => child.style.removeProperty("display"));
-    let amount = 0;
-    for (let i = items.length - 1; i >= 0; i--) {
-      const child = items[i];
-      if (containerElement.scrollWidth <= containerElement.clientWidth) {
-        break;
-      }
-      amount = items.length - i;
-      child.style.display = "none";
-      overflowElement?.style.removeProperty("display");
-    }
-    setOverflowAmount(amount);
-  }, []);
-
-  useLayoutEffect(() => {
-    checkOverflow();
-  }, [selectedValues, checkOverflow, shouldWrap]);
-
-  const handleResize = useCallback(
-    (node: HTMLDivElement) => {
-      valueRef.current = node;
-
-      const observer = new ResizeObserver(checkOverflow);
-      observer.observe(node);
-
-      return () => {
-        observer.disconnect();
-        valueRef.current = null;
-      };
-    },
-    [checkOverflow],
-  );
-
-  if (selectedValues.size === 0 && placeholder) {
-    return (
-      <span className="min-w-0 overflow-hidden font-normal text-muted-foreground">
-        {placeholder}
-      </span>
-    );
-  }
-
-  return (
-    <div
-      {...props}
-      ref={handleResize}
-      className={cn(
-        "flex w-full gap-1.5 overflow-hidden",
-        shouldWrap && "h-full flex-wrap",
-        className,
-      )}
-    >
-      {[...selectedValues]
-        .filter((value) => items.has(value))
-        .map((value) => (
-          <Badge
-            variant="outline"
-            data-selected-item
-            className="group"
-            key={value}
-            onClick={
-              clickToRemove
-                ? (e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-
-                    toggleValue(value);
-                  }
-                : undefined
-            }
-          >
-            {items.get(value)}
-            {clickToRemove && (
-              <XIcon className="size-3.5 shrink-0 text-muted-foreground group-hover:text-destructive" />
-            )}
-          </Badge>
-        ))}
-      <Badge
-        style={{
-          display: overflowAmount > 0 && !shouldWrap ? "block" : "none",
-        }}
-        variant="outline"
-        ref={overflowRef}
-      >
-        +{overflowAmount}
-      </Badge>
-    </div>
-  );
-}
-
-interface IMultiSelectContentProps extends Omit<
-  ComponentPropsWithoutRef<typeof Command>,
-  "children"
-> {
-  search?: boolean | { placeholder?: string; emptyMessage?: string };
-  children: ReactNode;
-}
-
-export function MultiSelectContent({
-  search = true,
-  children,
-  ...props
-}: IMultiSelectContentProps) {
-  const canSearch = typeof search === "object" ? true : search;
-  const listRef = useRef<HTMLDivElement>(null);
-  const { searchValue, setSearchValue } = useMultiSelectContext();
-
-  return (
-    <>
-      <div style={{ display: "none" }}>
-        <Command>
-          <CommandList>{children}</CommandList>
-        </Command>
-      </div>
-      <PopoverContent className="min-w-[var(--radix-popover-trigger-width)] p-0">
-        <Command {...props}>
-          {canSearch ? (
-            <CommandInput
-              value={searchValue}
-              onValueChange={setSearchValue}
-              placeholder={
-                typeof search === "object" ? search.placeholder : undefined
-              }
-            />
-          ) : (
-            <button autoFocus className="sr-only" />
-          )}
-
-          {/* Wraps only the list, so the top fade sits under the search box
-              rather than over it */}
-          <div className="relative">
-            <ScrollFade
-              targetRef={listRef}
-              side="top"
-              className="from-popover h-10"
-            />
-
-            <CommandList ref={listRef}>
-              {canSearch && (
-                <CommandEmpty>
-                  {typeof search === "object" ? search.emptyMessage : undefined}
-                </CommandEmpty>
-              )}
-              {children}
-            </CommandList>
-
-            <ScrollFade
-              targetRef={listRef}
-              className="from-popover h-10 rounded-b-md"
-            />
-          </div>
-        </Command>
-      </PopoverContent>
-    </>
-  );
-}
-
-interface IMultiSelectItemProps extends Omit<
-  ComponentPropsWithoutRef<typeof CommandItem>,
-  "value"
-> {
-  badgeLabel?: ReactNode;
-  value: string;
-}
-
-export function MultiSelectItem({
-  value,
-  children,
-  badgeLabel,
-  onSelect,
-  onMouseDown,
-  ...props
-}: IMultiSelectItemProps) {
-  const { toggleValue, selectedValues, setSearchValue, onItemAdded } =
-    useMultiSelectContext();
-  const isSelected = selectedValues.has(value);
-
-  useEffect(() => {
-    onItemAdded(value, badgeLabel ?? children);
-  }, [value, children, onItemAdded, badgeLabel]);
-
-  return (
-    <CommandItem
-      {...props}
-      value={value}
-      // An item is a div, so pressing on it would move focus off the search
-      // input and stop you typing after a pick. Blocking the default keeps the
-      // caret in the input; the click still fires and selects.
-      onMouseDown={(e) => {
-        e.preventDefault();
-        onMouseDown?.(e);
-      }}
-      onSelect={(v) => {
-        toggleValue(v);
-        if (!isSelected) setSearchValue("");
-        onSelect?.(v);
-      }}
-    >
-      <CheckIcon
-        className={cn("mr-2 size-4", isSelected ? "opacity-100" : "opacity-0")}
-      />
-      {children}
-    </CommandItem>
-  );
-}
-
-export function MultiSelectGroup(
-  props: ComponentPropsWithoutRef<typeof CommandGroup>,
-) {
-  return <CommandGroup {...props} />;
-}
-
-export function MultiSelectSeparator(
-  props: ComponentPropsWithoutRef<typeof CommandSeparator>,
-) {
-  return <CommandSeparator {...props} />;
-}
-
-function useMultiSelectContext() {
-  const context = useContext(MultiSelectContext);
-  if (context == null) {
-    throw new Error(
-      "useMultiSelectContext must be used within a MultiSelectContext",
-    );
-  }
-  return context;
 }

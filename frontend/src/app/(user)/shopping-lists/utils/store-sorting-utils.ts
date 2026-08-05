@@ -4,6 +4,7 @@ import {
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
 import { getChainAvgPriceRange } from "@/app/products/utils/product-utils";
+import { compareHr } from "@/utils/strings";
 
 /**
  * Modes for optimising the store list on a shopping list.
@@ -63,9 +64,7 @@ export function compareStoreChains(
   }
 
   // 3. Tie-breaker: alphabetical (Croatian locale)
-  return a.chain.localeCompare(b.chain, "hr", {
-    sensitivity: "base",
-  });
+  return compareHr(a.chain, b.chain);
 }
 
 /**
@@ -110,7 +109,5 @@ export function sortShoppingListItemsByPurchaseAndSaving(
   if (savingA !== savingB) return savingB - savingA;
 
   // 3. Alphabetical (Croatian locale)
-  return a.name.localeCompare(b.name, "hr", {
-    sensitivity: "base",
-  });
+  return compareHr(a.name, b.name);
 }
