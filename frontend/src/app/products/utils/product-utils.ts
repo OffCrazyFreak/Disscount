@@ -8,6 +8,7 @@ export {
 } from "@/app/products/utils/product-price-utils";
 
 export {
+  getPricePerUnit,
   getMinPricePerUnit,
   getMaxPricePerUnit,
   getAveragePricePerUnit,

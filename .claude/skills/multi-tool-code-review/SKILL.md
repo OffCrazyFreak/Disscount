@@ -88,6 +88,8 @@ Follow `04-fix-protocol.md`. If the harness supports plan mode, enter it first a
 ## Conventions (apply throughout)
 
 - Ask if you are unsure of anything rather than assuming. Follow the host repo's `AGENTS.md` / `CLAUDE.md` closely.
+- **Always hand back full absolute paths, on their own line.** Every artifact you write (the triage doc in each format, and any raw runner output you point at) gets its real path via `realpath`, never a bare filename or a repo-relative fragment buried in a sentence. The user clicks these to open them, and a path that is not absolute is not clickable. Reviews often run from a git worktree while the user sits in the main checkout, so resolve the path instead of assuming a shared working directory, and say which checkout it is in. See "Delivering the doc" in `03-triage-doc-format.md`.
+- **The HTML variant follows the system colour scheme, dark by default.** Base palette dark in `:root`, light via `@media (prefers-color-scheme: light)`, print forced light, every colour a CSS variable. Full rules in `03-triage-doc-format.md`.
 - No em dashes anywhere (chat, docs, commits, comments).
 - Do not hardcode any model; ask the user each run and recommend from a fresh online check.
 - Frontend gate: `pnpm exec prettier --write <files>` then `pnpm exec tsc --noEmit`. Run `pnpm exec next typegen` first and the typecheck is clean; without it, `tsc` reports `PageProps` / `RouteContext` errors that are missing generated route types rather than real defects. Before pushing, reproduce the full CI job from `.github/workflows/`, production build included.

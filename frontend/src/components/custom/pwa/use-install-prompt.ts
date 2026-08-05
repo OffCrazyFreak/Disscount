@@ -59,23 +59,65 @@ function detectIOSInstallCapable(): boolean {
   return detectIOS() && !detectInAppBrowser();
 }
 
+// Desktop Safari installs through the menu bar (File > Add to Dock, Sonoma and
+// later), which is a different instruction from the browser menu everyone else
+// uses. iPadOS reports the same UA, so detectIOS has to rule it out first.
+function detectMacSafari(): boolean {
+  const ua = window.navigator.userAgent;
+
+  return (
+    !detectIOS() &&
+    /Macintosh/.test(ua) &&
+    /Safari/.test(ua) &&
+    !/Chrome|Chromium|Edg|OPR/.test(ua)
+  );
+}
+
+/**
+ * Which set of manual steps to show. Four, because the wording genuinely differs:
+ * a share sheet, a menu bar, a phone menu, and an address-bar icon are four
+ * different things to press, and naming the wrong one is worse than saying nothing.
+ */
+export type InstallPlatform = "ios" | "macSafari" | "android" | "desktop";
+
+function detectPlatform(): InstallPlatform {
+  if (detectIOS()) return "ios";
+  if (detectMacSafari()) return "macSafari";
+  if (/Android/i.test(window.navigator.userAgent)) return "android";
+
+  return "desktop";
+}
+
+// Firefox on the desktop is the one mainstream browser with no install route at
+// all: no beforeinstallprompt, and no menu entry either, so its taskbar-tabs
+// work is still experimental. Firefox on Android installs fine, hence the split.
+function detectNoInstallRoute(): boolean {
+  const ua = window.navigator.userAgent;
+  const isFirefoxDesktop =
+    /Firefox\//.test(ua) && !/Android|Mobile|Tablet/.test(ua);
+
+  // A webview has no home screen to add to and no menu to reach.
+  return isFirefoxDesktop || detectInAppBrowser();
+}
+
 // Module scope, so both banners share one prompt and consuming it clears both.
 // ready stays false until client detection runs, so SSR and first paint never flash install UI.
 interface IInstallState {
   deferredPrompt: IBeforeInstallPromptEvent | null;
   isStandalone: boolean;
-  isIOS: boolean;
   isIOSInstallCapable: boolean;
-  isInAppBrowser: boolean;
+  platform: InstallPlatform;
+  hasInstallRoute: boolean;
   ready: boolean;
 }
 
 const SERVER_STATE: IInstallState = {
   deferredPrompt: null,
   isStandalone: false,
-  isIOS: false,
   isIOSInstallCapable: false,
-  isInAppBrowser: false,
+  platform: "desktop",
+  // Assumed until detection runs, so nothing flashes an unsupported notice.
+  hasInstallRoute: true,
   ready: false,
 };
 
@@ -104,9 +146,9 @@ function init() {
 
   setState({
     isStandalone: detectStandalone(),
-    isIOS: detectIOS(),
     isIOSInstallCapable: detectIOSInstallCapable(),
-    isInAppBrowser: detectInAppBrowser(),
+    platform: detectPlatform(),
+    hasInstallRoute: !detectNoInstallRoute(),
     ready: true,
   });
 }
@@ -143,35 +185,41 @@ export function useInstallPrompt() {
   const {
     deferredPrompt,
     isStandalone,
-    isIOS,
     isIOSInstallCapable,
-    isInAppBrowser,
+    platform,
+    hasInstallRoute,
     ready,
   } = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   const canInstall = deferredPrompt !== null;
+  const notInstalled = ready && !isStandalone;
 
-  // Two tiers, and both rule out an install that has already happened.
+  // Three tiers, all of which rule out an install that has already happened.
   //
-  // Unprompted surfaces (banner, sidebar) wait for evidence that an install is
-  // one tap away: either a captured prompt event or iOS's share-sheet route.
+  // Unprompted surfaces (the floating banner, the sidebar) wait for evidence
+  // that an install is one tap away: a captured prompt event, or iOS's share
+  // sheet.
   //
   // Promotional surfaces (the landing page) show wherever an install is possible
-  // at all, which is wider than it looks: beforeinstallprompt is Chromium-only,
-  // so gating on it would wrongly write off macOS Safari and Firefox on Android,
-  // both of which install through their own menus. Only an embedded webview is
-  // genuinely a dead end.
-  const canShowInstallUI =
-    ready && !isStandalone && (canInstall || isIOSInstallCapable);
-  const canPromoteInstall = ready && !isStandalone && !isInAppBrowser;
+  // at all, which is wider than a captured prompt: beforeinstallprompt is
+  // Chromium-only, so gating on it writes off macOS Safari, which installs
+  // through File > Add to Dock, and Firefox on Android, which installs through
+  // its own menu. Both would be told to go and fetch Chrome for no reason.
+  //
+  // The unsupported notice is the narrow remainder: somewhere a person genuinely
+  // cannot install however hard they look, so pointing them at another browser
+  // is the only useful thing left to say.
+  const canShowInstallUI = notInstalled && (canInstall || isIOSInstallCapable);
+  const canPromoteInstall = notInstalled && hasInstallRoute;
+  const showUnsupportedNotice = notInstalled && !hasInstallRoute;
 
   return {
     ready,
     canInstall,
     canShowInstallUI,
     canPromoteInstall,
-    isIOS,
-    isStandalone,
+    showUnsupportedNotice,
+    platform,
     promptInstall,
   };
 }
