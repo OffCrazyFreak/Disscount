@@ -41,7 +41,7 @@ export default function WatchlistDiscountRow({
             color,
           )}
         >
-          <Icon className="size-4 sm:size-5" aria-hidden="true" />
+          <Icon className="size-6" aria-hidden="true" />
           <span>{text}</span>
           {/* The price is the visible label, so it has to lead the accessible
               name: an aria-label replaced it outright, which hid the figure from

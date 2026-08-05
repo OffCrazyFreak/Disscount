@@ -16,7 +16,6 @@ export interface IShoppingListActionGroupProps {
   showCopyButton: boolean;
   showEditButton: boolean;
   showDeleteButton: boolean;
-  isSharing: boolean;
   isCopying: boolean;
   isDeleting: boolean;
   onShare: () => void;
@@ -27,7 +26,6 @@ export interface IShoppingListActionGroupProps {
 
 export function useShoppingListActions(shoppingList: ShoppingList) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isSharing, setIsSharing] = useState(false);
 
   const { deleteShoppingListMutation, confirmDelete, handleCopy, isCopying } =
     useShoppingListMutations(shoppingList.id, shoppingList);
@@ -55,6 +53,9 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
 
   const { canManageShare } = resolveShoppingListAccess(shoppingList.myAccess);
 
+  // No pending state on purpose. Nothing here is fetched, and shareOrCopy
+  // documents why a flag cleared on completion strands the button spinning.
+  //
   // Takes the same options as handleEdit, and for the same reason: when the owner's
   // branch opens a modal from inside another one, that has to replace rather than push.
   async function handleShare(options?: IOpenModalOptions) {
@@ -72,7 +73,6 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
       return;
     }
 
-    setIsSharing(true);
     try {
       const text = formatShoppingListForSharing(shoppingList);
       const url = shoppingList.shareToken
@@ -95,8 +95,6 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
       // throw on a misconfigured NEXT_PUBLIC_APP_URL. This is wired straight to
       // onClick and never awaited, so without a catch the failure is invisible.
       toast.error("Dijeljenje nije uspjelo");
-    } finally {
-      setIsSharing(false);
     }
   }
 
@@ -105,7 +103,6 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
     isDeleting: deleteShoppingListMutation.isPending,
-    isSharing,
     isCopying,
     handleConfirmDelete,
     handleEdit,

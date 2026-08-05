@@ -20,7 +20,6 @@ export default function ShoppingListDesktopActions({
   showCopyButton,
   showEditButton,
   showDeleteButton,
-  isSharing,
   isCopying,
   isDeleting,
   onShare,
@@ -32,7 +31,8 @@ export default function ShoppingListDesktopActions({
 }: IShoppingListDesktopActionsProps) {
   // Icon-only, so the spinner is the whole visual and the accessible name carries the
   // pending copy. The tooltip has to say the same thing or the two contradict each other.
-  const shareLabel = isSharing ? LOADING_LABELS.sharing : "Podijeli popis";
+  // Share has no pending state: it either opens a modal or hands off to the OS sheet.
+  const shareLabel = "Podijeli popis";
   const copyLabel = isCopying ? LOADING_LABELS.copying : "Kopiraj popis";
   const deleteLabel = isDeleting ? LOADING_LABELS.deleting : "Obriši popis";
 
@@ -52,13 +52,8 @@ export default function ShoppingListDesktopActions({
               aria-label={shareLabel}
               className="shrink-0"
               onClick={onShare}
-              disabled={isSharing}
             >
-              {isSharing ? (
-                <BlockLoadingSpinner size={24} className="text-inherit" />
-              ) : (
-                <Share2 aria-hidden="true" />
-              )}
+              <Share2 aria-hidden="true" />
             </Button>
           </TooltipTrigger>
 

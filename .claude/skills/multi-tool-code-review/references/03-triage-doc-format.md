@@ -88,13 +88,23 @@ Drive it entirely through CSS custom properties. Declare every colour once in `:
 
 ```css
 :root {
-  --bg: #161614; --fg: #e8e6e1; --line: #2f2d29; /* ...dark is the base... */
+  --bg: #161614;
+  --fg: #e8e6e1;
+  --line: #2f2d29; /* ...dark is the base... */
 }
 @media (prefers-color-scheme: light) {
-  :root { --bg:#fbfbfa; --fg:#1a1a19; --line:#e4e2dd; /* ...light overrides... */ }
+  :root {
+    --bg: #fbfbfa;
+    --fg: #1a1a19;
+    --line: #e4e2dd; /* ...light overrides... */
+  }
 }
 @media print {
-  :root { --bg:#fff; --fg:#1a1a19; /* force light so PDF export is legible */ }
+  :root {
+    --bg: #fff;
+    --fg: #1a1a19;
+    --line: #e4e2dd; /* complete light palette for legible PDF export */
+  }
 }
 ```
 
@@ -104,11 +114,19 @@ Verify before handing it over, since a stray literal is invisible until the user
 
 ```bash
 python3 - <<'PY'
-h = open("reviews/<file>.html", encoding="utf-8").read()
-css = h.split("<style>")[1].split("</style>")[0]
-body = css.split("*{box-sizing")[1]          # everything after the :root blocks
 import re
-print("literals left:", re.findall(r"(?:background|color)\s*:\s*#[0-9a-f]{3,6}", body) or "none")
+
+h = open("reviews/<file>.html", encoding="utf-8").read()
+style = re.search(r"<style(?:\s[^>]*)?>(.*?)</style>", h, re.IGNORECASE | re.DOTALL)
+if not style:
+    raise SystemExit("No <style> block found")
+
+css = re.sub(r"/\*.*?\*/", "", style.group(1), flags=re.DOTALL)
+rules = re.sub(r"--[\w-]+\s*:\s*[^;{}]+;", "", css)
+literals = re.findall(r"#[0-9a-f]{3,8}\b", rules, re.IGNORECASE)
+if literals:
+    raise SystemExit(f"Hardcoded color literals found: {literals}")
+print("literals left: none")
 PY
 ```
 

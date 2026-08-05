@@ -3,6 +3,7 @@ import { PinnedStoreDto } from "@/lib/api/schemas/preferences";
 import cijenesApi from "@/lib/cijene-api";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { getAveragePrice } from "@/app/products/utils/product-utils";
+import { isPinnedChain } from "@/utils/pinned-stores";
 
 // getStorePricesForItem guards chains before use, so the upstream response can
 // carry a nullish value despite the declared type. These two are called straight
@@ -105,16 +106,10 @@ export function findCheapestStoreFromProduct(
   }
 
   if (pinnedStores && pinnedStores.length > 0) {
-    const pinnedNames = pinnedStores.map((store) =>
-      store.storeName.toUpperCase(),
+    const pinnedNames = pinnedStores.map((store) => store.storeName);
+    const pinnedChains = productData.chains.filter((chainProduct) =>
+      isPinnedChain(chainProduct.chain, pinnedNames),
     );
-    const pinnedChains = productData.chains.filter((chainProduct) => {
-      const chainName = chainProduct.chain.toUpperCase();
-
-      return pinnedNames.some(
-        (name) => chainName.includes(name) || name.includes(chainName),
-      );
-    });
 
     const cheapestPinned = pickCheapestChain(pinnedChains);
     if (cheapestPinned) return cheapestPinned;

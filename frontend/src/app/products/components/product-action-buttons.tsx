@@ -63,32 +63,6 @@ export default function ProductActionButtons({
         </Tooltip>
       )}
 
-      {showAddToList && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="icon"
-              aria-label="Dodaj na popis za kupnju"
-              className="shrink-0"
-              onClick={() => openAddToList()}
-            >
-              <ListPlus />
-            </Button>
-          </TooltipTrigger>
-
-          <TooltipContent className="px-2 py-1 text-xs">
-            Dodaj na popis za kupnju
-          </TooltipContent>
-        </Tooltip>
-      )}
-
-      {showAddToWatchlist && (
-        <WatchlistActionButton
-          product={product}
-          isInWatchlist={isInWatchlist}
-        />
-      )}
-
       {showShare && (
         <Tooltip>
           <TooltipTrigger asChild>
@@ -104,6 +78,32 @@ export default function ProductActionButtons({
 
           <TooltipContent className="px-2 py-1 text-xs">
             Podijeli proizvod
+          </TooltipContent>
+        </Tooltip>
+      )}
+
+      {showAddToWatchlist && (
+        <WatchlistActionButton
+          product={product}
+          isInWatchlist={isInWatchlist}
+        />
+      )}
+
+      {showAddToList && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              aria-label="Dodaj na popis za kupnju"
+              className="shrink-0"
+              onClick={() => openAddToList()}
+            >
+              <ListPlus />
+            </Button>
+          </TooltipTrigger>
+
+          <TooltipContent className="px-2 py-1 text-xs">
+            Dodaj na popis za kupnju
           </TooltipContent>
         </Tooltip>
       )}

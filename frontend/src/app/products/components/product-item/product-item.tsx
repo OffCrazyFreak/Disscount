@@ -10,12 +10,17 @@ import ProductActionButtons from "@/app/products/components/product-action-butto
 import useCardLongPress from "@/hooks/use-card-long-press";
 import useProductModals from "@/hooks/use-product-modals";
 import { usePrimeProductNavigation } from "@/hooks/use-product-navigation";
+import type { IProductListPrice } from "@/app/products/typings/product-list-price-types";
 
 interface IProductItemProps {
   product: ProductResponse;
+  price: IProductListPrice | null;
 }
 
-const ProductItem = memo(function ProductItem({ product }: IProductItemProps) {
+const ProductItem = memo(function ProductItem({
+  product,
+  price,
+}: IProductItemProps) {
   const primeProductNavigation = usePrimeProductNavigation();
   const { openQuickActions } = useProductModals(product);
 
@@ -37,7 +42,7 @@ const ProductItem = memo(function ProductItem({ product }: IProductItemProps) {
       }}
       pressProps={pressProps}
       actionProps={actionProps}
-      trailing={<ProductUnitPriceDetails product={product} />}
+      trailing={<ProductUnitPriceDetails product={product} price={price} />}
       // Precise pointers only. Touch reaches the same four actions by holding
       // the card, which the progress ring advertises; four 40px buttons would
       // crowd a phone-width row that already carries the price block. Keyed off

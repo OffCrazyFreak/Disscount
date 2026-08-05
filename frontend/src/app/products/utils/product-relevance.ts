@@ -1,16 +1,12 @@
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
-import { normalizeForSearch } from "@/utils/strings";
-
-/** How well the whole query sits in the text, best tier first. */
-const MATCH_TIER = {
-  exact: 0,
-  prefix: 1,
-  wordPrefix: 2,
-  contains: 3,
-  none: 4,
-};
-
-const NO_POSITION = Number.MAX_SAFE_INTEGER;
+import { findWholeQuery } from "@/utils/search/match";
+import { normalizeCached, prepareQuery } from "@/utils/search/normalize";
+import {
+  byAsc,
+  byDesc,
+  chainComparators,
+  type Comparator,
+} from "@/utils/search/rank";
 
 interface IProductRelevance {
   product: ProductResponse;
@@ -19,20 +15,6 @@ interface IProductRelevance {
   position: number;
   chainCount: number;
   nameLength: number;
-}
-
-function findWholeQuery(haystack: string, query: string) {
-  if (haystack === query) return { tier: MATCH_TIER.exact, position: 0 };
-
-  const position = haystack.indexOf(query);
-  if (position === -1) return { tier: MATCH_TIER.none, position: NO_POSITION };
-  if (position === 0) return { tier: MATCH_TIER.prefix, position };
-
-  const startsWord = /[^a-z0-9]/.test(haystack[position - 1]);
-  return {
-    tier: startsWord ? MATCH_TIER.wordPrefix : MATCH_TIER.contains,
-    position,
-  };
 }
 
 function findBestWholeQuery(name: string, brand: string, query: string) {
@@ -47,8 +29,8 @@ function rate(
   query: string,
   tokens: string[],
 ): IProductRelevance {
-  const name = normalizeForSearch(product.name ?? "");
-  const brand = normalizeForSearch(product.brand ?? "");
+  const name = normalizeCached(product.name ?? "");
+  const brand = normalizeCached(product.brand ?? "");
 
   return {
     product,
@@ -62,32 +44,28 @@ function rate(
 }
 
 /**
- * Tie-breaking comparison in priority order, the way a search engine ranks:
- * text relevance first, then how widely stocked the product is, then the
- * shorter name, which is usually the plain product rather than a bundle.
+ * Tie-breaking in priority order, the way a search engine ranks: text relevance
+ * first, then how widely stocked the product is, then the shorter name, which is
+ * usually the plain product rather than a bundle.
  */
-function compareRelevance(a: IProductRelevance, b: IProductRelevance): number {
-  return (
-    b.matchedTokens - a.matchedTokens ||
-    a.tier - b.tier ||
-    a.position - b.position ||
-    b.chainCount - a.chainCount ||
-    a.nameLength - b.nameLength
-  );
-}
+const compareRelevance: Comparator<IProductRelevance> = chainComparators(
+  byDesc((rated) => rated.matchedTokens),
+  byAsc((rated) => rated.tier),
+  byAsc((rated) => rated.position),
+  byDesc((rated) => rated.chainCount),
+  byAsc((rated) => rated.nameLength),
+);
 
 /** Orders search hits by relevance to the query, leaving them untouched without one. */
 export default function sortProductsByRelevance(
   products: ProductResponse[],
   query: string,
 ): ProductResponse[] {
-  const normalizedQuery = normalizeForSearch(query).trim();
-  if (!normalizedQuery) return products;
-
-  const tokens = normalizedQuery.split(/\s+/);
+  const prepared = prepareQuery(query);
+  if (!prepared) return products;
 
   return products
-    .map((product) => rate(product, normalizedQuery, tokens))
+    .map((product) => rate(product, prepared.normalized, prepared.tokens))
     .sort(compareRelevance)
     .map((rated) => rated.product);
 }

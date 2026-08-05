@@ -82,7 +82,7 @@ Shareable and back/forward-safe. Everything here can be pasted into a new tab an
 
 - **Search query (`?q=`).** The global `SearchBar` writes `q` through `useSearchNavigation`. Every search-backed page (`/products`, `/watchlist`, `/shopping-lists`, `/digital-cards`) reads `q` on the server (`readSearchParam`) and hydrates the input from it, so a reload or a shared link keeps the query. Searching from the route itself preserves other params (active filters); searching from elsewhere starts clean.
 
-- **Product filters.** Chain, location, category, and brand are stored as repeated query params by `useFilterParams` / `useProductFilters`. They are written with `router.replace` (so they do not spam browser history) and read back on load. All four apply client-side because the upstream Cijene search endpoint only accepts `q`.
+- **Product filters.** Chain, location, category, and brand are stored as repeated query params by `useFilterParams` / `useProductFilters`. They are written with `router.replace` (so they do not spam browser history) and read back on load. Product search first fetches the upstream result set for `q`, narrows chain candidates, and requests current store prices for a stable candidate set when a location is selected. Category and brand filtering then applies client-side without repeating the location-price request. A location filter keeps only products with a published price in the selected source cities and resolved chain intersection, and derives each card's range from those exact store rows. Without a location filter, card ranges come from the matching chain summaries in the search response. The URL-driven quick-actions sheet resolves the same filters, so its range still matches the card after a reload or direct link. Multiple source-city requests may produce a visibly labelled partial result when only some succeed; a complete store or price lookup failure remains an error rather than silently widening the scope. The upstream search cap still bounds the candidate set, and products with no published price in the exact location and chain scope are deliberately omitted rather than shown with a Croatia-wide range.
 
 - **Open modal (`?modal=`).** Which modal is open is itself a URL param (`use-modal-url` + `modal-registry`), so modals are deep-linkable and survive a reload. Required onboarding uses `?modal=onboarding`, while the optional Settings replay uses `?modal=onboarding/replay`. The full modal-URL flow and onboarding gate are documented in [AUTH.md](AUTH.md).
 
@@ -149,7 +149,7 @@ The shape of the whole object is declared in `typings/local-storage.ts` (`AppDat
 
 ## 5. Layer 3: IndexedDB offline cache
 
-The persisted React Query cache (shopping lists, watchlist, viewed products, profile, and public price data) lives in IndexedDB and is what makes authed screens work offline. It is a **data cache**, not "resume where you left off" form state, and it is purged on logout. It is fully documented in [PWA.md](PWA.md#5-offline-reads-caching-and-persistence); this guide only cross-references it so the full persistence picture is in one place.
+The persisted React Query cache (shopping lists, watchlist, viewed products, profile, and selected public price data) lives in IndexedDB and is what makes authed screens work offline. Bulk product-list price queries are deliberately excluded because every search and filter combination can carry prices for up to the full candidate set; canonical single-product price queries remain persisted for product-detail offline reads. It is a **data cache**, not "resume where you left off" form state, and its stored snapshot is purged on logout before retained public in-memory queries are persisted again. It is fully documented in [PWA.md](PWA.md#5-offline-reads-caching-and-persistence); this guide only cross-references it so the full persistence picture is in one place.
 
 ---
 
@@ -272,6 +272,8 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
 ---
 
 ## 12. Future improvements & TODOs
+
+- **Automated product-filter regression coverage.** The scoped price summarizers and filter contract are verified by TypeScript, the production build, and manual API requests, but the frontend has no approved unit-test framework. [Issue #153](https://github.com/OffCrazyFreak/Disscount/issues/153) records the cases to cover after a framework and dependency are approved; tests were deliberately excluded from PR #151.
 
 - **Draft indicator UX.** When a draft is restored, the modal shows it as unsaved and offers a "Resetiraj" button, but there is no explicit "restored a draft" banner. A small notice could make it clearer why fields are prefilled.
 

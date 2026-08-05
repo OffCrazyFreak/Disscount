@@ -70,10 +70,7 @@ export default function WatchlistItemDiscountInfo({
             className="relative z-20 flex cursor-pointer items-center gap-2 rounded-sm text-xs text-muted-foreground italic transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             onClick={openPreferences}
           >
-            <Star
-              className="size-4 text-gray-700 sm:size-5"
-              aria-hidden="true"
-            />
+            <Star className="size-6 text-gray-700" aria-hidden="true" />
             <span>Postavi preference</span>
           </button>
         </div>

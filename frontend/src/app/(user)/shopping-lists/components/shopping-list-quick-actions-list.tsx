@@ -6,7 +6,6 @@ import QuickActionItem from "@/components/custom/common/quick-action-item";
 
 interface IShoppingListQuickActionsListProps {
   isOwner: boolean;
-  isSharing: boolean;
   isCopying: boolean;
   onShare: () => void;
   onCopy: () => void;
@@ -21,7 +20,6 @@ interface IShoppingListQuickActionsListProps {
  */
 export default function ShoppingListQuickActionsList({
   isOwner,
-  isSharing,
   isCopying,
   onShare,
   onCopy,
@@ -34,7 +32,6 @@ export default function ShoppingListQuickActionsList({
         icon={Share2}
         label="Podijeli popis"
         onSelect={onShare}
-        loading={isSharing}
       />
 
       <QuickActionItem

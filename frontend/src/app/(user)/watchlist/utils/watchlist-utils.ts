@@ -17,7 +17,9 @@ export {
 
 export {
   isWatchThresholdReached,
+  isAnyWatchThresholdReached,
   isDiscountValueAboveThreshold,
   getMaxDiscountPercentage,
-  sortWatchlistItemsByDiscount,
 } from "@/app/(user)/watchlist/utils/watchlist-threshold-utils";
+
+export { sortWatchlistItemsByDiscount } from "@/app/(user)/watchlist/utils/watchlist-sort-utils";

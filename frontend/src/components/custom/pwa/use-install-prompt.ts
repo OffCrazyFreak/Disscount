@@ -13,6 +13,14 @@ interface IOSNavigator extends Navigator {
   standalone?: boolean;
 }
 
+// Where the beforeInteractive script in the root layout stashes the event it
+// catches before hydration.
+declare global {
+  interface Window {
+    __installPrompt?: IBeforeInstallPromptEvent;
+  }
+}
+
 // Every display mode that means "already installed". Checking only standalone
 // missed two: the spec falls standalone back to minimal-ui where it is not
 // supported, and a desktop install can report window-controls-overlay.
@@ -59,23 +67,65 @@ function detectIOSInstallCapable(): boolean {
   return detectIOS() && !detectInAppBrowser();
 }
 
+// Desktop Safari installs through the menu bar (File > Add to Dock, Sonoma and
+// later), which is a different instruction from the browser menu everyone else
+// uses. iPadOS reports the same UA, so detectIOS has to rule it out first.
+function detectMacSafari(): boolean {
+  const ua = window.navigator.userAgent;
+
+  return (
+    !detectIOS() &&
+    /Macintosh/.test(ua) &&
+    /Safari/.test(ua) &&
+    !/Chrome|Chromium|Edg|OPR/.test(ua)
+  );
+}
+
+/**
+ * Which set of manual steps to show. Four, because the wording genuinely differs:
+ * a share sheet, a menu bar, a phone menu, and an address-bar icon are four
+ * different things to press, and naming the wrong one is worse than saying nothing.
+ */
+export type InstallPlatform = "ios" | "macSafari" | "android" | "desktop";
+
+function detectPlatform(): InstallPlatform {
+  if (detectIOS()) return "ios";
+  if (detectMacSafari()) return "macSafari";
+  if (/Android/i.test(window.navigator.userAgent)) return "android";
+
+  return "desktop";
+}
+
+// Firefox on the desktop is the one mainstream browser with no install route at
+// all: no beforeinstallprompt, and no menu entry either, so its taskbar-tabs
+// work is still experimental. Firefox on Android installs fine, hence the split.
+function detectNoInstallRoute(): boolean {
+  const ua = window.navigator.userAgent;
+  const isFirefoxDesktop =
+    /Firefox\//.test(ua) && !/Android|Mobile|Tablet/.test(ua);
+
+  // A webview has no home screen to add to and no menu to reach.
+  return isFirefoxDesktop || detectInAppBrowser();
+}
+
 // Module scope, so both banners share one prompt and consuming it clears both.
 // ready stays false until client detection runs, so SSR and first paint never flash install UI.
 interface IInstallState {
   deferredPrompt: IBeforeInstallPromptEvent | null;
   isStandalone: boolean;
-  isIOS: boolean;
   isIOSInstallCapable: boolean;
-  isInAppBrowser: boolean;
+  platform: InstallPlatform;
+  hasInstallRoute: boolean;
   ready: boolean;
 }
 
 const SERVER_STATE: IInstallState = {
   deferredPrompt: null,
   isStandalone: false,
-  isIOS: false,
   isIOSInstallCapable: false,
-  isInAppBrowser: false,
+  platform: "desktop",
+  // Assumed until detection runs, so nothing flashes an unsupported notice.
+  hasInstallRoute: true,
   ready: false,
 };
 
@@ -88,25 +138,38 @@ function setState(patch: Partial<IInstallState>) {
   listeners.forEach((listener) => listener());
 }
 
+// Drop the event from both places it lives. The stash outlives the module under
+// Fast Refresh, so leaving it behind lets the next init() re-adopt a spent
+// event, and a second prompt() on one of those only ever throws.
+function clearPrompt() {
+  delete window.__installPrompt;
+  setState({ deferredPrompt: null });
+}
+
 // Attach the window listeners exactly once, on the first subscription.
 function init() {
   if (initialized || typeof window === "undefined") return;
   initialized = true;
 
+  // Still needed for events that arrive after hydration: the early script is
+  // only the safety net for the ones that arrive before it.
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
+    window.__installPrompt = event as IBeforeInstallPromptEvent;
     setState({ deferredPrompt: event as IBeforeInstallPromptEvent });
   });
 
   window.addEventListener("appinstalled", () => {
-    setState({ deferredPrompt: null, isStandalone: true });
+    clearPrompt();
+    setState({ isStandalone: true });
   });
 
   setState({
+    deferredPrompt: window.__installPrompt ?? null,
     isStandalone: detectStandalone(),
-    isIOS: detectIOS(),
     isIOSInstallCapable: detectIOSInstallCapable(),
-    isInAppBrowser: detectInAppBrowser(),
+    platform: detectPlatform(),
+    hasInstallRoute: !detectNoInstallRoute(),
     ready: true,
   });
 }
@@ -128,50 +191,72 @@ function getServerSnapshot() {
   return SERVER_STATE;
 }
 
+let prompting = false;
+
 async function promptInstall() {
   const { deferredPrompt } = state;
-  if (!deferredPrompt) return;
+  if (!deferredPrompt || prompting) return;
 
-  // One-shot: clear before awaiting so a second banner can't reuse the event.
-  setState({ deferredPrompt: null });
+  // Deduped with a flag rather than by clearing, so the surfaces stay honest
+  // while the native sheet is open: three of them can be mounted at once, and
+  // clearing first would flip them to the manual instructions mid-prompt.
+  prompting = true;
 
-  await deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
+  try {
+    await deferredPrompt.prompt();
+
+    // prompt() may only be called once per event, so a dismissal spends it just
+    // as an accept does. Clearing here rather than up front means the surfaces
+    // fall through to the manual instructions on the very next click, with no
+    // dead click on a spent event in between.
+    await deferredPrompt.userChoice;
+  } catch {
+    // An already-spent or invalid event rejects; same outcome either way.
+  } finally {
+    clearPrompt();
+    prompting = false;
+  }
 }
 
 export function useInstallPrompt() {
   const {
     deferredPrompt,
     isStandalone,
-    isIOS,
     isIOSInstallCapable,
-    isInAppBrowser,
+    platform,
+    hasInstallRoute,
     ready,
   } = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   const canInstall = deferredPrompt !== null;
+  const notInstalled = ready && !isStandalone;
 
-  // Two tiers, and both rule out an install that has already happened.
+  // Three tiers, all of which rule out an install that has already happened.
   //
-  // Unprompted surfaces (banner, sidebar) wait for evidence that an install is
-  // one tap away: either a captured prompt event or iOS's share-sheet route.
+  // Unprompted surfaces (the floating banner, the sidebar) wait for evidence
+  // that an install is one tap away: a captured prompt event, or iOS's share
+  // sheet.
   //
   // Promotional surfaces (the landing page) show wherever an install is possible
-  // at all, which is wider than it looks: beforeinstallprompt is Chromium-only,
-  // so gating on it would wrongly write off macOS Safari and Firefox on Android,
-  // both of which install through their own menus. Only an embedded webview is
-  // genuinely a dead end.
-  const canShowInstallUI =
-    ready && !isStandalone && (canInstall || isIOSInstallCapable);
-  const canPromoteInstall = ready && !isStandalone && !isInAppBrowser;
+  // at all, which is wider than a captured prompt: beforeinstallprompt is
+  // Chromium-only, so gating on it writes off macOS Safari, which installs
+  // through File > Add to Dock, and Firefox on Android, which installs through
+  // its own menu. Both would be told to go and fetch Chrome for no reason.
+  //
+  // The unsupported notice is the narrow remainder: somewhere a person genuinely
+  // cannot install however hard they look, so pointing them at another browser
+  // is the only useful thing left to say.
+  const canShowInstallUI = notInstalled && (canInstall || isIOSInstallCapable);
+  const canPromoteInstall = notInstalled && hasInstallRoute;
+  const showUnsupportedNotice = notInstalled && !hasInstallRoute;
 
   return {
     ready,
     canInstall,
     canShowInstallUI,
     canPromoteInstall,
-    isIOS,
-    isStandalone,
+    showUnsupportedNotice,
+    platform,
     promptInstall,
   };
 }

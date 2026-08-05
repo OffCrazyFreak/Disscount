@@ -22,7 +22,6 @@ export default function ShoppingListMobileActions({
   showCopyButton,
   showEditButton,
   showDeleteButton,
-  isSharing,
   isCopying,
   isDeleting,
   onShare,
@@ -34,7 +33,6 @@ export default function ShoppingListMobileActions({
 
   // The label is the whole affordance here, so it swaps rather than sitting still
   // behind a spinner.
-  const shareLabel = isSharing ? LOADING_LABELS.sharing : "Podijeli popis";
   const copyLabel = isCopying ? LOADING_LABELS.copying : "Kopiraj popis";
   const deleteLabel = isDeleting ? LOADING_LABELS.deleting : "Obriši popis";
 
@@ -56,14 +54,9 @@ export default function ShoppingListMobileActions({
             <DropdownMenuItem
               onSelect={onShare}
               className="cursor-pointer flex items-center gap-4"
-              disabled={isSharing}
             >
-              {isSharing ? (
-                <BlockLoadingSpinner size={24} className="text-inherit" />
-              ) : (
-                <Share2 aria-hidden="true" className="size-6" />
-              )}
-              <span>{shareLabel}</span>
+              <Share2 aria-hidden="true" className="size-6" />
+              <span>Podijeli popis</span>
             </DropdownMenuItem>
           )}
 
