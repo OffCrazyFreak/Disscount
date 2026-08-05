@@ -2,7 +2,6 @@
 
 import { Badge } from "@/components/ui/badge";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
-import type { CardType } from "@/constants/card-codes";
 import type { DigitalCardDto } from "@/lib/api/types";
 import { getCardTypeLabel } from "@/app/(user)/digital-cards/utils/card-labels";
 
@@ -20,9 +19,7 @@ export default function CardDetailRows({ card }: ICardDetailRowsProps) {
           </span>
         )}
         <p className="text-sm text-muted-foreground">{card.storeName}</p>
-        <Badge variant="outline">
-          {getCardTypeLabel(card.cardType as CardType)}
-        </Badge>
+        <Badge variant="outline">{getCardTypeLabel(card.cardType)}</Badge>
       </div>
 
       {card.note && (

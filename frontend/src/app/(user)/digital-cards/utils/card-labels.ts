@@ -7,8 +7,12 @@ const CARD_TYPE_LABELS: Record<CardType, string> = {
   other: "Ostalo",
 };
 
-export function getCardTypeLabel(cardType: CardType): string {
-  return CARD_TYPE_LABELS[cardType];
+/**
+ * Takes the DTO's plain string rather than the union: the value comes off the wire, so a
+ * backend that gains a type before the frontend does would otherwise render "undefined".
+ */
+export function getCardTypeLabel(cardType: string): string {
+  return CARD_TYPE_LABELS[cardType as CardType] ?? CARD_TYPE_LABELS.other;
 }
 
 export function getCardTypeOptions(): { value: CardType; label: string }[] {

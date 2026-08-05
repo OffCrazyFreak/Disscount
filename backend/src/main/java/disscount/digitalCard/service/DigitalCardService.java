@@ -18,7 +18,6 @@ import disscount.user.domain.User;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -60,7 +59,7 @@ public class DigitalCardService {
         return digitalCardRepository.findActiveByUser(user)
                 .stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public DigitalCardDto updateCard(UUID cardId, UUID userId, DigitalCardRequest request) {

@@ -35,6 +35,9 @@ export default function CardImageSlot({
 
   async function handleChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
+    // Clearing it now means picking the same file again still fires onChange, which it
+    // would not after a remove or a rejected upload.
+    event.currentTarget.value = "";
     if (!file) return;
 
     if (file.size > MAX_SOURCE_BYTES) {

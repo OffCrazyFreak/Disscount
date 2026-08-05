@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { TriangleAlert } from "lucide-react";
 
 import type { CodeType } from "@/constants/card-codes";
@@ -22,7 +23,11 @@ export default function CardCodePanel({
   codeValue,
   codeType,
 }: ICardCodePanelProps) {
-  const result = generateCodeSvg(codeValue, codeType);
+  // Only to decide whether the warning shows; CardCode memoizes its own encode.
+  const isRenderable = useMemo(
+    () => generateCodeSvg(codeValue, codeType).ok,
+    [codeValue, codeType],
+  );
   const twoDimensional = isTwoDimensional(codeType);
 
   return (
@@ -33,7 +38,7 @@ export default function CardCodePanel({
         </div>
       </div>
 
-      {!result.ok && (
+      {!isRenderable && (
         <p className="flex items-start gap-1.5 text-xs text-amber-700">
           <TriangleAlert
             aria-hidden="true"

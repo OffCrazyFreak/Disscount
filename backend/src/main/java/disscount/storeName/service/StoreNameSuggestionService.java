@@ -12,7 +12,6 @@ import disscount.storeName.domain.StoreNameSuggestion;
 import disscount.storeName.dto.StoreNameSuggestionDto;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -72,6 +71,6 @@ public class StoreNameSuggestionService {
                         .name(suggestion.getName())
                         .usageCount(suggestion.getUsageCount())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 }

@@ -1,6 +1,5 @@
 import type { DigitalCardDto } from "@/lib/api/types";
 import { compareHr } from "@/utils/strings";
-import type { CardType } from "@/constants/card-codes";
 import { hueFromHex } from "@/app/(user)/digital-cards/utils/card-colors";
 import { getCardTypeLabel } from "@/app/(user)/digital-cards/utils/card-labels";
 
@@ -59,8 +58,8 @@ function compareBy(mode: CardSortMode) {
         return compareHr(a.storeName, b.storeName);
       case "cardType":
         return compareHr(
-          getCardTypeLabel(a.cardType as CardType),
-          getCardTypeLabel(b.cardType as CardType),
+          getCardTypeLabel(a.cardType),
+          getCardTypeLabel(b.cardType),
         );
       case "updatedAt":
         return byNewestFirst(a.updatedAt, b.updatedAt);

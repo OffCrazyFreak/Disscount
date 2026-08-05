@@ -27,7 +27,14 @@ export default function PinToggleButton({
     try {
       await setPinned.mutateAsync({ id: card.id, pinned: !isPinned });
     } catch (error) {
-      toast.error(problemMessage(error, "Greška pri prikvačivanju kartice."));
+      toast.error(
+        problemMessage(
+          error,
+          isPinned
+            ? "Greška pri otkvačivanju kartice."
+            : "Greška pri prikvačivanju kartice.",
+        ),
+      );
     }
   }
 

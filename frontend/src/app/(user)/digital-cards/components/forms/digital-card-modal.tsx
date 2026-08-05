@@ -198,6 +198,8 @@ export default function DigitalCardModal({
         clearDraft();
         resetImages();
         form.reset();
+        // Back to a blank card, so the chain and image suggestions become welcome again.
+        setColorCustomized(isEdit);
       }}
     >
       {loading ? (
