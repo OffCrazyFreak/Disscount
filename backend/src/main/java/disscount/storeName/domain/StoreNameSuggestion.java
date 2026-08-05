@@ -6,6 +6,8 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import disscount.util.Timestamps;
+
 /**
  * Community store-name vocabulary, offered to everyone in the card form's autocomplete.
  * Deliberately carries no user reference of any kind: suggestions are public, so
@@ -53,13 +55,13 @@ public class StoreNameSuggestion {
 
     @PrePersist
     protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = Timestamps.nowUtc();
         createdAt = now;
         updatedAt = now;
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = Timestamps.nowUtc();
     }
 }

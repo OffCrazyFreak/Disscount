@@ -106,7 +106,7 @@ public class DigitalCardService {
         User user = requireUser(userId);
         DigitalCard card = requireCard(cardId, user);
 
-        card.setPinnedAt(pinned ? LocalDateTime.now() : null);
+        card.setPinnedAt(pinned ? Timestamps.nowUtc() : null);
         card = digitalCardRepository.save(card);
 
         return convertToDto(card);
