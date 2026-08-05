@@ -1,5 +1,6 @@
 package disscount.notification.service;
 
+import disscount.util.Timestamps;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +15,6 @@ import disscount.notification.dto.NotificationRequest;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -62,7 +62,7 @@ public class NotificationService {
         Notification notification = notificationRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Notification not found"));
 
-        notification.setDeletedAt(LocalDateTime.now());
+        notification.setDeletedAt(Timestamps.nowUtc());
         notificationRepository.save(notification);
     }
 

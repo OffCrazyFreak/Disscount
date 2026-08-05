@@ -4,16 +4,36 @@ import cijenesApi from "@/lib/cijene-api";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { getAveragePrice } from "@/app/products/utils/product-utils";
 
+// getStorePricesForItem guards chains before use, so the upstream response can
+// carry a nullish value despite the declared type. These two are called straight
+// from useShoppingListData with no wrapping guard, and a throw there takes the
+// whole price calculation down.
 export function getStorePricesFromProduct(
   productData: ProductResponse,
 ): Record<string, number> {
   const storePrices: Record<string, number> = {};
 
-  for (const chain of productData.chains) {
+  for (const chain of productData.chains ?? []) {
     storePrices[chain.chain] = parseFloat(chain.avg_price);
   }
 
   return storePrices;
+}
+
+function pickCheapestChain(chains: ProductResponse["chains"]): string | null {
+  let cheapestChain: string | null = null;
+  let cheapestPrice = Infinity;
+
+  for (const chainProduct of chains) {
+    const price = parseFloat(chainProduct.avg_price);
+
+    if (price < cheapestPrice) {
+      cheapestPrice = price;
+      cheapestChain = chainProduct.chain;
+    }
+  }
+
+  return cheapestChain;
 }
 
 /**
@@ -80,47 +100,25 @@ export function findCheapestStoreFromProduct(
   productData: ProductResponse,
   pinnedStores: PinnedStoreDto[] | null | undefined,
 ): string | null {
-  if (productData.chains.length === 0) {
+  if (!productData.chains || productData.chains.length === 0) {
     return null;
   }
 
   if (pinnedStores && pinnedStores.length > 0) {
-    let cheapestChain = null;
-    let cheapestPrice = Infinity;
+    const pinnedNames = pinnedStores.map((store) =>
+      store.storeName.toUpperCase(),
+    );
+    const pinnedChains = productData.chains.filter((chainProduct) => {
+      const chainName = chainProduct.chain.toUpperCase();
 
-    for (const pinnedStore of pinnedStores) {
-      const pinnedStoreName = pinnedStore.storeName.toUpperCase();
+      return pinnedNames.some(
+        (name) => chainName.includes(name) || name.includes(chainName),
+      );
+    });
 
-      for (const chainProduct of productData.chains) {
-        const isPinnedStore =
-          chainProduct.chain.toUpperCase().includes(pinnedStoreName) ||
-          pinnedStoreName.includes(chainProduct.chain.toUpperCase());
-
-        if (isPinnedStore) {
-          const price = parseFloat(chainProduct.avg_price);
-          if (price < cheapestPrice) {
-            cheapestPrice = price;
-            cheapestChain = chainProduct.chain;
-          }
-        }
-      }
-    }
-
-    if (cheapestChain) {
-      return cheapestChain;
-    }
+    const cheapestPinned = pickCheapestChain(pinnedChains);
+    if (cheapestPinned) return cheapestPinned;
   }
 
-  let cheapestChain = null;
-  let cheapestPrice = Infinity;
-
-  for (const chainProduct of productData.chains) {
-    const price = parseFloat(chainProduct.avg_price);
-    if (price < cheapestPrice) {
-      cheapestPrice = price;
-      cheapestChain = chainProduct.chain;
-    }
-  }
-
-  return cheapestChain;
+  return pickCheapestChain(productData.chains);
 }

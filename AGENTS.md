@@ -14,7 +14,7 @@ Never:
 - Run deploy, Docker, or Dokploy commands. Deploys happen automatically on push.
 - Commit or push unless I explicitly ask. When asked, include only the requested task's changes.
 - Commit secrets, credentials, the server IP, or the SSH user. Use placeholders in docs.
-- Reference `docs/disscount_*` from any tracked file. Those are gitignored because they hold credentials and strategy, and a link to them leaks that they exist.
+- Reference the gitignored private notes under `docs/` from any tracked file, or quote their contents. The ignore rules in `.gitignore` name them; a reference from anywhere else does not belong in a public repository.
 - Hand-edit dependency entries or lockfiles, use npm, or generate a `package-lock.json`.
 - Touch unrelated changes already sitting in the worktree. Do not revert, reformat, stage, or describe them as yours.
 - Drive a browser for visual verification unless I ask for it in that same message.
@@ -110,6 +110,7 @@ Before wiring an API call, confirm the endpoint exists in `backend/` or in https
 - Versions come from the `spring-boot-starter-parent` BOM, so most dependencies carry no `<version>`. Only the ones outside the BOM pin their own, and `lombok.version` is pinned because the compiler's annotation processor path needs it explicitly.
 - Swagger UI is at `/api-docs`, and springdoc's major has to track the Spring Boot major.
 - `ddl-auto=update` never drops anything, so changing an enum column to String leaves a stale CHECK constraint that 500s on write.
+- Every zone-less timestamp column is stamped through `Timestamps.nowUtc()`, never `LocalDateTime.now()`, and JPA auditing is pointed at the same clock by `JpaConfig`. The columns carry no offset, so the JVM zone would otherwise leak into the wire format. The frontend's `parseServerDate` reads them back as UTC, and the two halves have to agree.
 
 ## Branches and releases
 

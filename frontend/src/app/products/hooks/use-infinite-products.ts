@@ -2,26 +2,30 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useGetProductByName } from "@/lib/cijene-api";
-import type { ProductResponse } from "@/lib/cijene-api/schemas";
+import type { IProductListItem } from "@/app/products/typings/product-list-price-types";
 import { productMatchesFilters } from "@/app/products/utils/product-filters";
 import sortProductsByRelevance from "@/app/products/utils/product-relevance";
 import { PRODUCT_SEARCH_LIMIT } from "@/constants/products";
+import useFilteredProductPrices from "@/app/products/hooks/use-filtered-product-prices";
 
 interface IUseInfiniteProductsOptions {
   /** Resolved chain+location filter (null = unfiltered, empty = no overlap) */
   allowedChains?: string[] | null;
   selectedCategories?: string[];
   selectedBrands?: string[];
+  selectedLocations?: string[];
+  selectedSourceCities?: string[];
   batchSize?: number;
 }
 
 interface IUseInfiniteProductsResult {
-  visibleProducts: ProductResponse[];
+  visibleItems: IProductListItem[];
   total: number;
   /** The search filled the API's result cap, so further matches may exist */
   isTruncated: boolean;
   isLoading: boolean;
   error: unknown;
+  hasPartialPriceData: boolean;
 }
 
 const EMPTY_SELECTION: string[] = [];
@@ -34,6 +38,8 @@ export default function useInfiniteProducts(
     allowedChains = null,
     selectedCategories = EMPTY_SELECTION,
     selectedBrands = EMPTY_SELECTION,
+    selectedLocations = EMPTY_SELECTION,
+    selectedSourceCities = EMPTY_SELECTION,
     batchSize = 50,
   } = options ?? {};
 
@@ -51,49 +57,79 @@ export default function useInfiniteProducts(
 
   const isTruncated = allProducts.length >= PRODUCT_SEARCH_LIMIT;
 
-  const filteredProducts = useMemo(() => {
-    const unfiltered =
-      allowedChains === null &&
-      selectedCategories.length === 0 &&
-      selectedBrands.length === 0;
-    if (unfiltered) return allProducts;
+  const chainProducts = useMemo(() => {
+    if (allowedChains === null) return allProducts;
 
     return allProducts.filter((product) =>
       productMatchesFilters(
         product,
         allowedChains,
-        selectedCategories,
-        selectedBrands,
+        EMPTY_SELECTION,
+        EMPTY_SELECTION,
       ),
     );
-  }, [allProducts, allowedChains, selectedCategories, selectedBrands]);
+  }, [allProducts, allowedChains]);
 
   // The API returns hits in its own order, so the best match can land anywhere.
   const rankedProducts = useMemo(
-    () => sortProductsByRelevance(filteredProducts, q),
-    [filteredProducts, q],
+    () => sortProductsByRelevance(chainProducts, q),
+    [chainProducts, q],
   );
 
-  const batchedProducts = useMemo(() => {
-    const batches: ProductResponse[][] = [];
-    for (let i = 0; i < rankedProducts.length; i += safeBatchSize) {
-      batches.push(rankedProducts.slice(i, i + safeBatchSize));
+  const {
+    items: pricedItems,
+    isLoading: pricesLoading,
+    error: pricesError,
+    hasPartialError,
+  } = useFilteredProductPrices({
+    products: rankedProducts,
+    allowedChains,
+    selectedLocations,
+    selectedSourceCities,
+  });
+
+  const filteredItems = useMemo(() => {
+    if (selectedCategories.length === 0 && selectedBrands.length === 0) {
+      return pricedItems;
+    }
+
+    return pricedItems.filter(({ product }) =>
+      productMatchesFilters(product, null, selectedCategories, selectedBrands),
+    );
+  }, [pricedItems, selectedBrands, selectedCategories]);
+
+  const batchedItems = useMemo(() => {
+    const batches: IProductListItem[][] = [];
+    for (let i = 0; i < filteredItems.length; i += safeBatchSize) {
+      batches.push(filteredItems.slice(i, i + safeBatchSize));
     }
     return batches;
-  }, [rankedProducts, safeBatchSize]);
+  }, [filteredItems, safeBatchSize]);
 
-  const [batchesToShow, setBatchesToShow] = useState<number>(
-    batchedProducts.length > 0 ? 1 : 0,
-  );
+  // A background price refresh may change the items, but should not collapse
+  // batches the user already revealed for the same search and filters.
+  const batchKey = [
+    q,
+    allowedChains?.join(",") ?? "*",
+    selectedCategories.join(","),
+    selectedBrands.join(","),
+    selectedLocations.join(","),
+    selectedSourceCities.join(","),
+  ].join("\0");
+  const initialBatchesToShow = batchedItems.length > 0 ? 1 : 0;
+  const [batchState, setBatchState] = useState({
+    key: batchKey,
+    count: initialBatchesToShow,
+  });
+  const batchesToShow =
+    batchState.key === batchKey
+      ? batchedItems.length > 0
+        ? Math.max(1, Math.min(batchState.count, batchedItems.length))
+        : 0
+      : initialBatchesToShow;
 
-  // Keyed on the batches, not their count, so an equal-length change still resets.
   useEffect(() => {
-    setBatchesToShow(batchedProducts.length > 0 ? 1 : 0);
-  }, [batchedProducts, q]);
-
-  // Load more when user scrolls near bottom of page
-  useEffect(() => {
-    if (batchesToShow >= batchedProducts.length) return;
+    if (batchesToShow >= batchedItems.length) return;
 
     const onScroll = () => {
       const scrollY = window.scrollY || window.pageYOffset;
@@ -101,23 +137,32 @@ export default function useInfiniteProducts(
       const fullHeight = document.documentElement.scrollHeight;
 
       if (scrollY + viewport >= fullHeight - 10000) {
-        setBatchesToShow((prev) => Math.min(prev + 1, batchedProducts.length));
+        setBatchState((previous) => ({
+          key: batchKey,
+          count: Math.min(
+            (previous.key === batchKey
+              ? previous.count
+              : initialBatchesToShow) + 1,
+            batchedItems.length,
+          ),
+        }));
       }
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [batchesToShow, batchedProducts.length]);
+  }, [batchKey, batchesToShow, batchedItems.length, initialBatchesToShow]);
 
-  const visibleProducts = useMemo(() => {
-    return batchedProducts.slice(0, batchesToShow).flatMap((b) => b);
-  }, [batchedProducts, batchesToShow]);
+  const visibleItems = useMemo(() => {
+    return batchedItems.slice(0, batchesToShow).flatMap((batch) => batch);
+  }, [batchedItems, batchesToShow]);
 
   return {
-    visibleProducts,
-    total: filteredProducts.length,
+    visibleItems,
+    total: filteredItems.length,
     isTruncated,
-    isLoading,
-    error,
+    isLoading: isLoading || pricesLoading,
+    error: error || pricesError,
+    hasPartialPriceData: hasPartialError,
   };
 }

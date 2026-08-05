@@ -1,16 +1,14 @@
 "use client";
 
 import { Eye, Image as ImageIcon, ListPlus, Share2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
+import QuickActionItem from "@/components/custom/common/quick-action-item";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import useProductModals from "@/hooks/use-product-modals";
 import useProductShare from "@/hooks/use-product-share";
 import { productImageSearchUrl } from "@/utils/product-links";
 import { openExternal } from "@/utils/browser/open-external";
 import type { IOpenModalOptions } from "@/lib/modal/modal-navigation";
-
-/** Full width and stacked, left-aligned so the labels read as a list */
-const ACTION_CLASS = "w-full justify-start gap-3";
 
 interface IProductQuickActionsListProps {
   product: ProductResponse;
@@ -42,43 +40,31 @@ export default function ProductQuickActionsList({
 
   return (
     <>
-      <Button
-        type="button"
-        onClick={() => swapToModal(openAddToList)}
-        className={ACTION_CLASS}
-      >
-        <ListPlus className="size-5" />
-        Dodaj na popis
-      </Button>
+      <QuickActionItem
+        icon={ListPlus}
+        label="Dodaj na popis"
+        onSelect={() => swapToModal(openAddToList)}
+      />
 
-      <Button
-        type="button"
-        onClick={() => swapToModal(openWatchlist)}
-        className={ACTION_CLASS}
-      >
-        <Eye className="size-5" />
-        Prati cijenu
-      </Button>
+      <QuickActionItem
+        icon={Eye}
+        label="Prati cijenu"
+        onSelect={() => swapToModal(openWatchlist)}
+      />
 
-      <Button
-        type="button"
-        onClick={() =>
+      <QuickActionItem
+        icon={ImageIcon}
+        label="Pretraži sliku proizvoda"
+        onSelect={() =>
           runAndClose(() => openExternal(productImageSearchUrl(product)))
         }
-        className={ACTION_CLASS}
-      >
-        <ImageIcon className="size-5" />
-        Pretraži sliku proizvoda
-      </Button>
+      />
 
-      <Button
-        type="button"
-        onClick={() => runAndClose(share)}
-        className={ACTION_CLASS}
-      >
-        <Share2 className="size-5" />
-        Podijeli proizvod
-      </Button>
+      <QuickActionItem
+        icon={Share2}
+        label="Podijeli proizvod"
+        onSelect={() => runAndClose(share)}
+      />
     </>
   );
 }

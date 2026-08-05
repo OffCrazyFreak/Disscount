@@ -1,5 +1,6 @@
 package disscount.digitalCard.domain;
 
+import disscount.util.Timestamps;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -78,13 +79,13 @@ public class DigitalCard {
 
     @PrePersist
     protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = Timestamps.nowUtc();
         createdAt = now;
         updatedAt = now;
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = Timestamps.nowUtc();
     }
 }

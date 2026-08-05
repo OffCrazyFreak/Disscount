@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowLeft, ArrowRight, Check, LogOut } from "lucide-react";
+import { toast } from "sonner";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Button } from "@/components/ui/button";
@@ -53,7 +54,14 @@ export default function OnboardingWizard({
   // lingering ?modal=onboarding would reopen as the "prijavi se" auth gate.
   async function handleLogout() {
     closeModalUrl();
-    await logout();
+    try {
+      await logout();
+    } catch {
+      // The wizard is already gone, so there is nowhere left to surface this.
+      // Swallowed deliberately: the alternative is an unhandled rejection, since
+      // the caller invokes this as void handleLogout().
+      toast.error("Odjava nije uspjela. Pokušaj ponovno.");
+    }
   }
 
   return (

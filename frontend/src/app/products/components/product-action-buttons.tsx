@@ -1,7 +1,6 @@
 import { Image as ImageIcon, ListPlus, Share2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import {
   Tooltip,
   TooltipContent,
@@ -22,7 +21,6 @@ interface IProductActionButtonsProps {
   showAddToList?: boolean;
   showAddToWatchlist?: boolean;
   showShare?: boolean;
-  grouped?: boolean;
   className?: string;
 }
 
@@ -32,7 +30,6 @@ export default function ProductActionButtons({
   showAddToList = true,
   showAddToWatchlist = true,
   showShare = true,
-  grouped = false,
   className,
 }: IProductActionButtonsProps) {
   const { data: currentUserWatchlist = [] } =
@@ -53,7 +50,7 @@ export default function ProductActionButtons({
             <Button
               size="icon"
               aria-label="Pretraži sliku proizvoda"
-              className={cn("shrink-0", grouped && "rounded-r-none!")}
+              className="shrink-0"
               onClick={() => openExternal(productImageSearchUrl(product))}
             >
               <ImageIcon />
@@ -72,11 +69,7 @@ export default function ProductActionButtons({
             <Button
               size="icon"
               aria-label="Dodaj na popis za kupnju"
-              className={cn(
-                "shrink-0",
-                grouped &&
-                  "rounded-none! border-l! border-primary-foreground/30",
-              )}
+              className="shrink-0"
               onClick={() => openAddToList()}
             >
               <ListPlus />
@@ -93,11 +86,6 @@ export default function ProductActionButtons({
         <WatchlistActionButton
           product={product}
           isInWatchlist={isInWatchlist}
-          className={
-            grouped
-              ? "rounded-none! border-l! border-primary-foreground/30"
-              : undefined
-          }
         />
       )}
 
@@ -107,11 +95,7 @@ export default function ProductActionButtons({
             <Button
               size="icon"
               aria-label="Podijeli proizvod"
-              className={cn(
-                "shrink-0",
-                grouped &&
-                  "rounded-l-none! border-l! border-primary-foreground/30",
-              )}
+              className="shrink-0"
               onClick={share}
             >
               <Share2 />
@@ -126,19 +110,12 @@ export default function ProductActionButtons({
     </>
   );
 
-  if (grouped) {
-    return (
-      <ButtonGroup
-        aria-label="Radnje proizvoda"
-        className={cn("hidden gap-0 sm:flex", className)}
-      >
-        {actions}
-      </ButtonGroup>
-    );
-  }
-
   return (
-    <div className={cn("flex items-center gap-1 sm:gap-2", className)}>
+    <div
+      role="group"
+      aria-label="Radnje proizvoda"
+      className={cn("flex items-center gap-1 sm:gap-2", className)}
+    >
       {actions}
     </div>
   );

@@ -1,5 +1,6 @@
 package disscount.digitalCard.service;
 
+import disscount.util.Timestamps;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +16,6 @@ import disscount.storeName.service.StoreNameSuggestionService;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -98,7 +98,7 @@ public class DigitalCardService {
         User user = requireUser(userId);
         DigitalCard card = requireCard(cardId, user);
 
-        card.setDeletedAt(LocalDateTime.now());
+        card.setDeletedAt(Timestamps.nowUtc());
         digitalCardRepository.save(card);
     }
 

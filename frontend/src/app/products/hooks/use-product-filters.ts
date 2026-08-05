@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { readListParam } from "@/utils/generic";
+import { normalizeForSearch } from "@/utils/strings";
 import {
   canonicalizeSelection,
   normalizeChainCode,
@@ -19,6 +20,8 @@ export type { ProductFilterKey } from "@/app/products/hooks/use-filter-params";
 export interface IUseProductFiltersResult extends IFilterParamsResult {
   selectedChains: string[];
   selectedLocations: string[];
+  /** Raw upstream city values represented by the selected locations */
+  selectedSourceCities: string[];
   selectedCategories: string[];
   selectedBrands: string[];
   activeFilterCount: number;
@@ -26,6 +29,8 @@ export interface IUseProductFiltersResult extends IFilterParamsResult {
   allowedChains: string[] | null;
   /** False only while a location filter is set and stores are still loading */
   locationsReady: boolean;
+  /** Store lookup failure, relevant only while a location filter is selected */
+  locationsError: unknown;
 }
 
 interface IUseProductFiltersOptions {
@@ -35,14 +40,18 @@ interface IUseProductFiltersOptions {
 
 /**
  * URL-backed filter state for the products page: shareable and
- * back/forward-safe. All four filters apply client-side: the endpoint's
- * `chains` filter runs after its limit, so it would starve the facets.
+ * back/forward-safe. Product identity and category/brand facets use the full
+ * search response; store-level prices resolve the exact chain/location scope.
  */
 export default function useProductFilters({
   seedPreferred = true,
 }: IUseProductFiltersOptions = {}): IUseProductFiltersResult {
   const searchParams = useSearchParams();
-  const { data: locations, isLoading: locationsLoading } = useAllLocations();
+  const {
+    data: locations,
+    isLoading: locationsLoading,
+    error: locationsError,
+  } = useAllLocations();
   const filterParams = useFilterParams();
 
   useSeedPreferredFilters(seedPreferred);
@@ -73,6 +82,14 @@ export default function useProductFilters({
     [searchParams],
   );
 
+  const selectedSourceCities = useMemo(() => {
+    const selected = new Set(selectedLocations.map(normalizeForSearch));
+
+    return locations
+      .filter((location) => selected.has(normalizeForSearch(location.name)))
+      .flatMap((location) => location.sourceCities);
+  }, [locations, selectedLocations]);
+
   const selectedBrands = useMemo(
     () => readListParam(searchParams, "brand"),
     [searchParams],
@@ -81,15 +98,22 @@ export default function useProductFilters({
   // An unresolved location filter stays unfiltered rather than matching nothing.
   const allowedChains = useMemo(
     () =>
-      selectedLocations.length > 0 && locationsLoading
+      selectedLocations.length > 0 && (locationsLoading || locationsError)
         ? null
         : resolveAllowedChains(selectedChains, selectedLocations, locations),
-    [selectedChains, selectedLocations, locations, locationsLoading],
+    [
+      selectedChains,
+      selectedLocations,
+      locations,
+      locationsLoading,
+      locationsError,
+    ],
   );
 
   return {
     selectedChains,
     selectedLocations,
+    selectedSourceCities,
     selectedCategories,
     selectedBrands,
     activeFilterCount:
@@ -99,6 +123,7 @@ export default function useProductFilters({
       selectedBrands.length,
     allowedChains,
     locationsReady: selectedLocations.length === 0 || !locationsLoading,
+    locationsError: selectedLocations.length > 0 ? locationsError : null,
     ...filterParams,
   };
 }

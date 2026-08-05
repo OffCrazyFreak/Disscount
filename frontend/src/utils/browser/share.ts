@@ -1,6 +1,6 @@
 export type ShareOutcome = "shared" | "dismissed" | "copied" | "failed";
 
-type IShareData =
+type ShareData =
   | { title: string; text: string; url?: string }
   | { title: string; text?: string; url: string };
 
@@ -13,7 +13,7 @@ function isDismissal(error: unknown): boolean {
   return error instanceof DOMException && error.name === "AbortError";
 }
 
-export async function shareOrCopy(data: IShareData): Promise<ShareOutcome> {
+export async function shareOrCopy(data: ShareData): Promise<ShareOutcome> {
   if (typeof navigator === "undefined") return "failed";
 
   if (navigator.share) {

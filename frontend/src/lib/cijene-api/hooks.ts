@@ -27,6 +27,7 @@ export function useAllLocations() {
       {
         storeCount: number;
         chains: Set<string>;
+        sourceCities: Set<string>;
       }
     >();
 
@@ -42,12 +43,14 @@ export function useAllLocations() {
         cityMap.set(standardizedLocationName, {
           storeCount: 0,
           chains: new Set(),
+          sourceCities: new Set(),
         });
       }
 
       const cityData = cityMap.get(standardizedLocationName)!;
       cityData.storeCount++;
       cityData.chains.add(store.chain_code);
+      cityData.sourceCities.add(city);
     });
 
     // Convert to array and sort
@@ -56,6 +59,7 @@ export function useAllLocations() {
         name: standardizedLocationName,
         storeCount: data.storeCount,
         chains: Array.from(data.chains).sort(),
+        sourceCities: Array.from(data.sourceCities).sort(),
       }))
       .sort((a, b) => b.storeCount - a.storeCount);
   }, [storesData, storesLoading]);

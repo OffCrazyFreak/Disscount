@@ -33,27 +33,27 @@ export function useShoppingListMutations(
         old ? old.filter((l) => l.id !== listId) : [],
     );
 
-    // Fire the delete request
-    deleteShoppingListMutation.mutate(listId, {
-      onError: (error: Error) => {
-        // Rollback cache so UI reflects server state
-        if (previous) {
-          queryClient.setQueryData(["shoppingLists", "me"], previous);
-        }
-        toast.error(
-          error.message ||
-            "Greška pri brisanju popisa za kupnju. Pokušaj ponovno.",
-        );
-      },
-      onSuccess: () => {
-        toast.success("Popis za kupnju je uspješno obrisan!");
-        queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
-        router.push("/shopping-lists");
-      },
-      onSettled: () => {
-        queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
-      },
-    });
+    // Awaited rather than handed per-call callbacks: those are gated behind the
+    // observer still having listeners, and the caller in the actions sheet
+    // unmounts as soon as it fires. The rollback and both toasts were dropped
+    // silently, leaving a failed delete looking like a successful one.
+    try {
+      await deleteShoppingListMutation.mutateAsync(listId);
+
+      toast.success("Popis za kupnju je uspješno obrisan!");
+      router.push("/shopping-lists");
+    } catch (error) {
+      // Rollback cache so UI reflects server state
+      if (previous) {
+        queryClient.setQueryData(["shoppingLists", "me"], previous);
+      }
+      toast.error(
+        (error instanceof Error && error.message) ||
+          "Greška pri brisanju popisa za kupnju. Pokušaj ponovno.",
+      );
+    } finally {
+      queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
+    }
   };
 
   async function handleCopy() {
