@@ -77,13 +77,12 @@ function SheetActions({
   isOwner,
   onRequestDelete,
 }: ISheetActionsProps) {
-  const { isSharing, isCopying, handleShare, handleCopy, handleEdit } =
+  const { isCopying, handleShare, handleCopy, handleEdit } =
     useShoppingListActions(shoppingList);
 
   return (
     <ShoppingListQuickActionsList
       isOwner={isOwner}
-      isSharing={isSharing}
       isCopying={isCopying}
       // The OS share sheet reads better over the page than over this one.
       onShare={() => {

@@ -19,7 +19,6 @@ export default function ShoppingListDesktopActions({
   showCopyButton,
   showEditButton,
   showDeleteButton,
-  isSharing,
   isCopying,
   isDeleting,
   onShare,
@@ -45,13 +44,8 @@ export default function ShoppingListDesktopActions({
               aria-label="Podijeli popis"
               className="shrink-0"
               onClick={onShare}
-              disabled={isSharing}
             >
-              {isSharing ? (
-                <BlockLoadingSpinner size={24} className="text-inherit" />
-              ) : (
-                <Share2 aria-hidden="true" />
-              )}
+              <Share2 aria-hidden="true" />
             </Button>
           </TooltipTrigger>
 

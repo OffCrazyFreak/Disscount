@@ -21,7 +21,6 @@ export default function ShoppingListMobileActions({
   showCopyButton,
   showEditButton,
   showDeleteButton,
-  isSharing,
   isCopying,
   isDeleting,
   onShare,
@@ -49,13 +48,8 @@ export default function ShoppingListMobileActions({
             <DropdownMenuItem
               onSelect={onShare}
               className="cursor-pointer flex items-center gap-4"
-              disabled={isSharing}
             >
-              {isSharing ? (
-                <BlockLoadingSpinner size={24} className="text-inherit" />
-              ) : (
-                <Share2 aria-hidden="true" className="size-6" />
-              )}
+              <Share2 aria-hidden="true" className="size-6" />
               <span>Podijeli popis</span>
             </DropdownMenuItem>
           )}

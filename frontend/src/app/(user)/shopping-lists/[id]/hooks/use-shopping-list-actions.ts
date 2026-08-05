@@ -15,7 +15,6 @@ export interface IShoppingListActionGroupProps {
   showCopyButton: boolean;
   showEditButton: boolean;
   showDeleteButton: boolean;
-  isSharing: boolean;
   isCopying: boolean;
   isDeleting: boolean;
   onShare: () => void;
@@ -26,7 +25,6 @@ export interface IShoppingListActionGroupProps {
 
 export function useShoppingListActions(shoppingList: ShoppingList) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isSharing, setIsSharing] = useState(false);
 
   const { deleteShoppingListMutation, confirmDelete, handleCopy, isCopying } =
     useShoppingListMutations(shoppingList.id, shoppingList);
@@ -52,8 +50,10 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
     );
   }
 
+  // Carries no pending state on purpose. Nothing here is fetched, and
+  // navigator.share does not reliably settle when the OS sheet is dismissed, so
+  // a flag cleared on completion would strand the button spinning until reload.
   async function handleShare() {
-    setIsSharing(true);
     try {
       const text = formatShoppingListForSharing(shoppingList);
       const url = shoppingList.isPublic
@@ -78,8 +78,6 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
       // throw on a misconfigured NEXT_PUBLIC_APP_URL. This is wired straight to
       // onClick and never awaited, so without a catch the failure is invisible.
       toast.error("Dijeljenje nije uspjelo");
-    } finally {
-      setIsSharing(false);
     }
   }
 
@@ -87,7 +85,6 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
     isDeleting: deleteShoppingListMutation.isPending,
-    isSharing,
     isCopying,
     handleConfirmDelete,
     handleEdit,
