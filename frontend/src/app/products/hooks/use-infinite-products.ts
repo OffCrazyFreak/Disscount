@@ -106,9 +106,15 @@ export default function useInfiniteProducts(
     return batches;
   }, [filteredItems, safeBatchSize]);
 
-  const batchKey = `${q}\0${filteredItems
-    .map(({ product }) => product.ean)
-    .join("\0")}`;
+  // A background price refresh may change the items, but should not collapse
+  // batches the user already revealed for the same search and filters.
+  const batchKey = [
+    q,
+    allowedChains?.join(",") ?? "*",
+    selectedCategories.join(","),
+    selectedBrands.join(","),
+    selectedLocations.join(","),
+  ].join("\0");
   const initialBatchesToShow = batchedItems.length > 0 ? 1 : 0;
   const [batchState, setBatchState] = useState({
     key: batchKey,
@@ -116,7 +122,9 @@ export default function useInfiniteProducts(
   });
   const batchesToShow =
     batchState.key === batchKey
-      ? Math.min(batchState.count, batchedItems.length)
+      ? batchedItems.length > 0
+        ? Math.max(1, Math.min(batchState.count, batchedItems.length))
+        : 0
       : initialBatchesToShow;
 
   useEffect(() => {
