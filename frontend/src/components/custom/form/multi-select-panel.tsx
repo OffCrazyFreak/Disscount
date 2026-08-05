@@ -58,7 +58,16 @@ export default function MultiSelectPanel({
           }
         />
       ) : (
-        <button autoFocus className="sr-only" />
+        // Parks focus inside the list when there is no field to hold it.
+        // Needs an explicit type: inline, this button is in the page's own form,
+        // where an untyped button is a submit button and would become the form's
+        // default one.
+        <button
+          type="button"
+          autoFocus
+          aria-label="Popis opcija"
+          className="sr-only"
+        />
       )}
 
       {/* Wraps only the list, so the top fade sits under the search box

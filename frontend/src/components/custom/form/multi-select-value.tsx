@@ -43,24 +43,33 @@ export function MultiSelectValue({
 
     const containerElement = valueRef.current;
     const overflowElement = overflowRef.current;
-    const items = containerElement.querySelectorAll<HTMLElement>(
+    const itemElements = containerElement.querySelectorAll<HTMLElement>(
       "[data-selected-item]",
     );
 
     if (overflowElement != null) overflowElement.style.display = "none";
-    items.forEach((child) => child.style.removeProperty("display"));
+    itemElements.forEach((child) => child.style.removeProperty("display"));
+
+    // Wrapping already shows every badge, and a single badge wider than the box
+    // still reports scrollWidth > clientWidth, so without this the loop would
+    // hide badges and reveal a "+N" that contradicts what is on screen.
+    if (shouldWrap) {
+      setOverflowAmount(0);
+      return;
+    }
+
     let amount = 0;
-    for (let i = items.length - 1; i >= 0; i--) {
-      const child = items[i];
+    for (let i = itemElements.length - 1; i >= 0; i--) {
+      const child = itemElements[i];
       if (containerElement.scrollWidth <= containerElement.clientWidth) {
         break;
       }
-      amount = items.length - i;
+      amount = itemElements.length - i;
       child.style.display = "none";
       overflowElement?.style.removeProperty("display");
     }
     setOverflowAmount(amount);
-  }, []);
+  }, [shouldWrap]);
 
   useLayoutEffect(() => {
     checkOverflow();
@@ -120,7 +129,10 @@ export function MultiSelectValue({
           >
             {items.get(value)}
             {clickToRemove && (
-              <XIcon className="size-3.5 shrink-0 text-muted-foreground group-hover:text-destructive" />
+              <XIcon
+                aria-hidden="true"
+                className="size-3.5 shrink-0 text-muted-foreground group-hover:text-destructive"
+              />
             )}
           </Badge>
         ))}
@@ -133,6 +145,16 @@ export function MultiSelectValue({
       >
         +{overflowAmount}
       </Badge>
+
+      {/* The X on a badge is pointer-only: a badge sits inside the trigger
+          button, so it cannot be a control of its own without nesting one. This
+          says so, and names the equivalent path, which the list already offers. */}
+      {clickToRemove && selectedValues.size > 0 && (
+        <span className="sr-only">
+          Odabrano ih je {selectedValues.size}. Otvori popis i odaberi stavku da
+          je ukloniš.
+        </span>
+      )}
     </div>
   );
 }

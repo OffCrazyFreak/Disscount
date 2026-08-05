@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 
 /**
  * Closes an inline list on Escape, before anything around it reacts.
@@ -12,9 +12,16 @@ import { useEffect, useRef } from "react";
  *
  * The capture phase reaches `window` one step before `document`, which is the
  * only place left to stop that. The popover path needs none of this.
+ *
+ * Only the list holding focus acts. Without that test every open list would
+ * answer the same keypress, so two open facets would both close and focus would
+ * land on whichever mounted last, and an Escape meant for the sheet around them
+ * would be swallowed no matter where the user was typing.
  */
 export default function useMultiSelectEscape(
   active: boolean,
+  contentRef: RefObject<HTMLElement | null>,
+  triggerRef: RefObject<HTMLElement | null>,
   onEscape: () => void,
 ): void {
   // Held in a ref so a caller re-creating the callback does not resubscribe.
@@ -30,6 +37,14 @@ export default function useMultiSelectEscape(
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
 
+      const target = event.target;
+      const inside =
+        target instanceof Node &&
+        (contentRef.current?.contains(target) ||
+          triggerRef.current?.contains(target));
+
+      if (!inside) return;
+
       event.preventDefault();
       event.stopPropagation();
       onEscapeRef.current();
@@ -39,5 +54,5 @@ export default function useMultiSelectEscape(
 
     return () =>
       window.removeEventListener("keydown", handleKeyDown, { capture: true });
-  }, [active]);
+  }, [active, contentRef, triggerRef]);
 }
