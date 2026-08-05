@@ -88,13 +88,22 @@ Drive it entirely through CSS custom properties. Declare every colour once in `:
 
 ```css
 :root {
-  --bg: #161614; --fg: #e8e6e1; --line: #2f2d29; /* ...dark is the base... */
+  --bg: #161614;
+  --fg: #e8e6e1;
+  --line: #2f2d29; /* ...dark is the base... */
 }
 @media (prefers-color-scheme: light) {
-  :root { --bg:#fbfbfa; --fg:#1a1a19; --line:#e4e2dd; /* ...light overrides... */ }
+  :root {
+    --bg: #fbfbfa;
+    --fg: #1a1a19;
+    --line: #e4e2dd; /* ...light overrides... */
+  }
 }
 @media print {
-  :root { --bg:#fff; --fg:#1a1a19; /* force light so PDF export is legible */ }
+  :root {
+    --bg: #fff;
+    --fg: #1a1a19; /* force light so PDF export is legible */
+  }
 }
 ```
 
