@@ -124,7 +124,8 @@ Mapped codes: `email_not_found`, `email_doesn't_match`, `account_already_linked_
 
 - A `NimbusJwtDecoder` is built with the JWKS URI and pinned to `ES256`, and it validates the token issuer (`better.auth.issuer`).
 - The session policy is `STATELESS` (no server session; the JWT is the whole story) and CSRF is disabled (there is no cookie-based auth to protect).
-- Public endpoints: `/actuator/health`, Swagger, and the OpenAPI docs. Everything else requires a valid token.
+- Public endpoints: `/actuator/health`, Swagger, the OpenAPI docs, `POST /api/contact`, and `/api/shared/**`. Everything else requires a valid token.
+- `/api/shared/**` (shopping list sharing) has its own `@Order(1)` filter chain. It is the one place where a bearer token is **optional**: the caller may legitimately be anonymous, and authorization is done in application code against the list's `share_token` and `link_access` via `SharedShoppingListService` / `ShoppingListAccessService`. `permitAll` on the main chain would not be enough, because `BearerTokenAuthenticationFilter` answers 401 for an expired or malformed token before authorization is consulted, so a stale cached token would lock a visitor out of a link that works. An `OptionalBearerAuthenticationFilter` decodes the token when it can and falls through to anonymous when it cannot.
 - A `UserProvisioningFilter` runs after the bearer-token filter. On the first authenticated request it lazily upserts the `app_user` profile row (same UUID as the Better Auth user) via `UserService.ensureActiveProfile`, seeding the username from the provider name (falling back to the email local-part). `app_user.username` is deliberately **not unique**; only email is.
 
 ## 8. Password reset, set password, and change email
