@@ -158,13 +158,10 @@ export function ModalShell({
             its own footer node is held to the same contract. Rendered only when
             there is something to wrap, because ModalShellFooter returns null
             with no buttons and an empty flex child would still take a gap.
-            The safe-area padding is for the shortest viewports, where 90dvh
-            leaves less below the dialog than the home indicator needs. */}
-        {footerNode && (
-          <div className="shrink-0 pb-[env(safe-area-inset-bottom)]">
-            {footerNode}
-          </div>
-        )}
+            No safe-area padding here: the dialog is centred with a transform,
+            so padding grows it about its centre and pushes the bottom edge
+            toward the home indicator rather than away from it. */}
+        {footerNode && <div className="shrink-0">{footerNode}</div>}
       </DialogContent>
     </Dialog>
   );

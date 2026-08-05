@@ -82,6 +82,12 @@ export default function MultiSelectValue({
             }
           >
             {items.get(value)}
+            {/* Decorative, and the click behind it is pointer-only on purpose: a
+                badge renders inside the trigger button, so it cannot become a
+                control without nesting one. Deselecting in the list is the
+                keyboard and screen-reader path. Nothing is announced from in
+                here, because text inside the button becomes part of the
+                button's own accessible name. */}
             {clickToRemove && (
               <XIcon
                 aria-hidden="true"
@@ -99,21 +105,6 @@ export default function MultiSelectValue({
       >
         +{overflowAmount}
       </Badge>
-
-      {/* The X on a badge is pointer-only: a badge sits inside the trigger
-          button, so it cannot be a control of its own without nesting one. This
-          says so, and names the equivalent path, which the list already offers. */}
-      {clickToRemove && selectedValues.size > 0 && (
-        <span
-          role="status"
-          aria-live="polite"
-          aria-atomic="true"
-          className="sr-only"
-        >
-          Odabrano ih je {selectedValues.size}. Otvori popis i odaberi stavku da
-          je ukloniš.
-        </span>
-      )}
     </div>
   );
 }

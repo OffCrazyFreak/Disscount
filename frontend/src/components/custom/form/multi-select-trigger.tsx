@@ -1,7 +1,11 @@
 "use client";
 
 import { ChevronsUpDownIcon } from "lucide-react";
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import {
+  useCallback,
+  type ComponentPropsWithoutRef,
+  type ReactNode,
+} from "react";
 
 import { Button } from "@/components/ui/button";
 import { CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -18,9 +22,23 @@ type IMultiSelectTriggerProps = {
 export default function MultiSelectTrigger({
   className,
   children,
+  ref,
   ...props
-}: IMultiSelectTriggerProps) {
+}: IMultiSelectTriggerProps & { ref?: React.Ref<HTMLButtonElement> }) {
   const { presentation, triggerRef } = useMultiSelectContext();
+
+  // Composed, not overwritten: FormControl is a Slot, so a caller wiring
+  // react-hook-form's field.ref for setFocus would otherwise be dropped here
+  // and validation focus would silently do nothing.
+  const setTrigger = useCallback(
+    (node: HTMLButtonElement | null) => {
+      triggerRef.current = node;
+
+      if (typeof ref === "function") ref(node);
+      else if (ref) ref.current = node;
+    },
+    [ref, triggerRef],
+  );
 
   // Both render as a Slot around the button, so the button below is the same
   // element either way and only the disclosure wiring differs.
@@ -31,7 +49,7 @@ export default function MultiSelectTrigger({
     <Trigger asChild>
       <Button
         {...props}
-        ref={triggerRef}
+        ref={setTrigger}
         variant={props.variant ?? "outline"}
         role={props.role ?? "combobox"}
         // aria-expanded is deliberately absent: both Triggers inject it through

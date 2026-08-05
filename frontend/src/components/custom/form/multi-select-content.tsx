@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 import { Command, CommandList } from "@/components/ui/command";
@@ -38,6 +38,20 @@ export default function MultiSelectContent({
 
   useMultiSelectEscape(isInline && open, contentRef, triggerRef, close);
 
+  // The animationend touch-up below cannot be the only correction: under
+  // prefers-reduced-motion there is no animation and so no event, which would
+  // leave exactly the users most likely to need it with the keyboard over the
+  // list. Scrolling on open covers that, and is a no-op when already in view.
+  useEffect(() => {
+    if (!isInline || !open) return;
+
+    const frame = requestAnimationFrame(() =>
+      contentRef.current?.scrollIntoView({ block: "nearest" }),
+    );
+
+    return () => cancelAnimationFrame(frame);
+  }, [isInline, open]);
+
   // No focus move on an outside press: the user is already on their way
   // somewhere else, and pulling focus back to the trigger would fight them.
   useMultiSelectOutsidePointer(isInline && open, contentRef, triggerRef, () =>
@@ -59,13 +73,16 @@ export default function MultiSelectContent({
           // The global class animates the height, so the surrounding scroller
           // grows rather than jumping. `my-0` drops the primitive's own margin.
           className="CollapsibleContent my-0"
-          // The field is focused at mount, while this box is still animating up
-          // from zero height, so the browser scrolls to where it was rather than
-          // where it lands. Re-doing it once the height settles is what keeps the
-          // list above the keyboard on a phone.
-          onAnimationEnd={() =>
-            contentRef.current?.scrollIntoView({ block: "nearest" })
-          }
+          // Touch-up after the height settles. Guarded twice: animationend
+          // bubbles, so a child's own animation would otherwise yank the
+          // surrounding scroller back here, and the close animation would scroll
+          // to a box that is collapsing to nothing.
+          onAnimationEnd={(event) => {
+            if (event.target !== event.currentTarget) return;
+            if (event.currentTarget.dataset.state !== "open") return;
+
+            contentRef.current?.scrollIntoView({ block: "nearest" });
+          }}
         >
           <div className="mt-2 rounded-md border bg-popover text-popover-foreground shadow-xs">
             <MultiSelectPanel

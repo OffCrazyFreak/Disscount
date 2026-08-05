@@ -48,6 +48,19 @@ export function MultiSelect({
     ? "inline"
     : "popover";
 
+  // Crossing the breakpoint swaps Popover for Collapsible, which remounts the
+  // list and re-fires the search field's autoFocus. Rotating a tablet with a
+  // facet open would otherwise pop the keyboard nobody asked for.
+  //
+  // Adjusted during render rather than in an effect, which is React's own
+  // guidance for resetting state when a derived value changes: an effect would
+  // paint the wrong presentation open for one frame first.
+  const [lastPresentation, setLastPresentation] = useState(presentation);
+  if (presentation !== lastPresentation) {
+    setLastPresentation(presentation);
+    setOpen(false);
+  }
+
   // A controlled owner can change `values` behind our back, so the toggle reads
   // them rather than the internal set, which is only ever seeded once.
   const currentValues = values ? new Set(values) : selectedValues;
