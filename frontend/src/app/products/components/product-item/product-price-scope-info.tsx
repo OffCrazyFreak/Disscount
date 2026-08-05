@@ -21,7 +21,7 @@ interface IProductPriceScopeInfoProps {
 
 const SCOPE_TEXT: Record<ProductPriceScope, string> = {
   all: "Raspon objavljenih cijena u svim trgovinama.",
-  chains: "Raspon objavljenih cijena u odabranim trgovinama.",
+  chains: "Raspon objavljenih cijena u filtriranim trgovinama.",
   locations: "Raspon objavljenih cijena koje odgovaraju odabranim filterima.",
 };
 
@@ -40,7 +40,7 @@ export default function ProductPriceScopeInfo({
       variant="ghost"
       size="icon-sm"
       aria-label="Informacije o rasponu cijena"
-      className="size-7 text-gray-500 hover:text-gray-700 [&_svg]:size-4"
+      className="size-7 text-gray-700 hover:text-gray-900 [&_svg]:size-4"
       onClick={stopPropagation}
       onPointerDown={stopPropagation}
       onPointerUp={stopPropagation}

@@ -59,7 +59,11 @@ export default function ProductUnitPriceDetails({
                 </>
               )}
 
-              {price && <ProductPriceScopeInfo scope={price.scope} />}
+              {/* A single figure is not a range, so there is no scope to explain.
+                  One store always reports the same min and max. */}
+              {price && minPrice !== maxPrice && (
+                <ProductPriceScopeInfo scope={price.scope} />
+              )}
             </div>
 
             {/* <div className="text-green-600">{minPrice.toFixed(2)}€</div>
