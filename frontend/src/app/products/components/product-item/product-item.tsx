@@ -10,7 +10,7 @@ import ProductActionButtons from "@/app/products/components/product-action-butto
 import useCardLongPress from "@/hooks/use-card-long-press";
 import useProductModals from "@/hooks/use-product-modals";
 import { usePrimeProductNavigation } from "@/hooks/use-product-navigation";
-import type { IProductListPrice } from "@/app/products/typings/product-list-price";
+import type { IProductListPrice } from "@/app/products/typings/product-list-price-types";
 
 interface IProductItemProps {
   product: ProductResponse;

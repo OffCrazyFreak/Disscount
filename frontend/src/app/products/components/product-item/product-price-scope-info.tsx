@@ -12,7 +12,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import type { ProductPriceScope } from "@/app/products/typings/product-list-price";
+import type { ProductPriceScope } from "@/app/products/typings/product-list-price-types";
 import { useFinePointer } from "@/hooks/use-fine-pointer";
 
 interface IProductPriceScopeInfoProps {

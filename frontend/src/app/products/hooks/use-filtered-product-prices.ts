@@ -12,7 +12,7 @@ import {
   storePricesQueryKey,
 } from "@/lib/cijene-api/query-hooks";
 import type { GetPricesParams } from "@/lib/cijene-api/schemas";
-import type { IProductListItem } from "@/app/products/typings/product-list-price";
+import type { IProductListItem } from "@/app/products/typings/product-list-price-types";
 import {
   summarizeChainPrices,
   summarizeLocationPrices,

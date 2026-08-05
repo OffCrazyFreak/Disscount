@@ -8,7 +8,7 @@ import {
   getMaxPricePerUnit,
 } from "@/app/products/utils/product-utils";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
-import type { IProductListPrice } from "@/app/products/typings/product-list-price";
+import type { IProductListPrice } from "@/app/products/typings/product-list-price-types";
 import ProductPriceScopeInfo from "@/app/products/components/product-item/product-price-scope-info";
 
 interface IProductUnitPriceDetailsProps {

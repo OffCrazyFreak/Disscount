@@ -2,7 +2,7 @@ import type { ProductResponse, StorePrice } from "@/lib/cijene-api/schemas";
 import type {
   IProductListPrice,
   ProductPriceScope,
-} from "@/app/products/typings/product-list-price";
+} from "@/app/products/typings/product-list-price-types";
 import { parsePrice } from "@/app/products/utils/product-price-utils";
 import { normalizeChainCode } from "@/app/products/utils/product-filters";
 import { getLocationLabel } from "@/utils/labels";

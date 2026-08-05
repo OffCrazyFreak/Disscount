@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useGetProductByName } from "@/lib/cijene-api";
-import type { IProductListItem } from "@/app/products/typings/product-list-price";
+import type { IProductListItem } from "@/app/products/typings/product-list-price-types";
 import { productMatchesFilters } from "@/app/products/utils/product-filters";
 import sortProductsByRelevance from "@/app/products/utils/product-relevance";
 import { PRODUCT_SEARCH_LIMIT } from "@/constants/products";
