@@ -2,6 +2,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import {
+  patchItemOptimistically,
+  removeItemOptimistically,
+  restoreItem,
+  type IItemRollback,
+} from "@/lib/api/shopping-lists/optimistic-items";
+import {
   ShoppingListRequest,
   ShoppingListDto,
   ShoppingListItemRequest,
@@ -62,10 +68,18 @@ export function useUpdateShoppingList() {
   >({
     mutationKey: OFFLINE_MUTATION_KEYS.shoppingListUpdate,
     mutationFn: ({ id, data }) => updateShoppingList(id, data),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: SHOPPING_LIST_QUERY_KEYS.all,
-      }),
+    onSuccess: (_result, { data }) => {
+      queryClient.invalidateQueries({ queryKey: SHOPPING_LIST_QUERY_KEYS.all });
+
+      // Turning sharing off kills the token server-side, but a copy of the list read
+      // through it can sit in this browser's cache for the whole staleTime. Drop it so
+      // revoking takes effect here immediately too.
+      if (data.linkAccess === "NONE") {
+        queryClient.removeQueries({
+          queryKey: SHOPPING_LIST_QUERY_KEYS.sharedRoot,
+        });
+      }
+    },
   });
 }
 
@@ -105,25 +119,56 @@ export function useAddItemToShoppingList() {
 }
 
 export function useUpdateShoppingListItem() {
+  const queryClient = useQueryClient();
   const invalidate = useInvalidateListsAndItems();
+
   return useMutation<
     ShoppingListItemDto,
     Error,
-    { listId: string; itemId: string; data: ShoppingListItemRequest }
+    { listId: string; itemId: string; data: ShoppingListItemRequest },
+    IItemRollback | undefined
   >({
     mutationKey: OFFLINE_MUTATION_KEYS.shoppingListItemUpdate,
     mutationFn: ({ listId, itemId, data }) =>
       updateShoppingListItem(listId, itemId, data),
-    onSuccess: invalidate,
+    // In onMutate rather than at the call site so a write restored from disk and
+    // replayed after a reload still applies its optimistic state: React Query only
+    // re-runs the optimism it owns.
+    onMutate: ({ listId, itemId, data }) =>
+      patchItemOptimistically(
+        queryClient,
+        SHOPPING_LIST_QUERY_KEYS.byId(listId),
+        itemId,
+        data,
+      ),
+    onError: (_error, { listId }, rollback) =>
+      restoreItem(queryClient, SHOPPING_LIST_QUERY_KEYS.byId(listId), rollback),
+    // onSettled, not onSuccess: a rolled-back cache has to reconcile with the server too.
+    onSettled: invalidate,
   });
 }
 
 export function useDeleteShoppingListItem() {
+  const queryClient = useQueryClient();
   const invalidate = useInvalidateListsAndItems();
-  return useMutation<void, Error, { listId: string; itemId: string }>({
+
+  return useMutation<
+    void,
+    Error,
+    { listId: string; itemId: string },
+    IItemRollback | undefined
+  >({
     mutationKey: OFFLINE_MUTATION_KEYS.shoppingListItemDelete,
     mutationFn: ({ listId, itemId }) => deleteShoppingListItem(listId, itemId),
-    onSuccess: invalidate,
+    onMutate: ({ listId, itemId }) =>
+      removeItemOptimistically(
+        queryClient,
+        SHOPPING_LIST_QUERY_KEYS.byId(listId),
+        itemId,
+      ),
+    onError: (_error, { listId }, rollback) =>
+      restoreItem(queryClient, SHOPPING_LIST_QUERY_KEYS.byId(listId), rollback),
+    onSettled: invalidate,
   });
 }
 
@@ -170,25 +215,60 @@ export function useUpdateSharedShoppingList() {
 }
 
 export function useUpdateSharedShoppingListItem() {
+  const queryClient = useQueryClient();
   const invalidate = useInvalidateSharedList();
+
   return useMutation<
     ShoppingListItemDto,
     Error,
-    { token: string; itemId: string; data: ShoppingListItemRequest }
+    { token: string; itemId: string; data: ShoppingListItemRequest },
+    IItemRollback | undefined
   >({
     mutationKey: OFFLINE_MUTATION_KEYS.sharedItemUpdate,
     mutationFn: ({ token, itemId, data }) =>
       updateSharedShoppingListItem(token, itemId, data),
-    onSuccess: (_data, { token }) => invalidate(token),
+    onMutate: ({ token, itemId, data }) =>
+      patchItemOptimistically(
+        queryClient,
+        SHOPPING_LIST_QUERY_KEYS.byToken(token),
+        itemId,
+        data,
+      ),
+    onError: (_error, { token }, rollback) =>
+      restoreItem(
+        queryClient,
+        SHOPPING_LIST_QUERY_KEYS.byToken(token),
+        rollback,
+      ),
+    onSettled: (_data, _error, { token }) => invalidate(token),
   });
 }
 
 export function useDeleteSharedShoppingListItem() {
+  const queryClient = useQueryClient();
   const invalidate = useInvalidateSharedList();
-  return useMutation<void, Error, { token: string; itemId: string }>({
+
+  return useMutation<
+    void,
+    Error,
+    { token: string; itemId: string },
+    IItemRollback | undefined
+  >({
     mutationKey: OFFLINE_MUTATION_KEYS.sharedItemDelete,
     mutationFn: ({ token, itemId }) =>
       deleteSharedShoppingListItem(token, itemId),
-    onSuccess: (_data, { token }) => invalidate(token),
+    onMutate: ({ token, itemId }) =>
+      removeItemOptimistically(
+        queryClient,
+        SHOPPING_LIST_QUERY_KEYS.byToken(token),
+        itemId,
+      ),
+    onError: (_error, { token }, rollback) =>
+      restoreItem(
+        queryClient,
+        SHOPPING_LIST_QUERY_KEYS.byToken(token),
+        rollback,
+      ),
+    onSettled: (_data, _error, { token }) => invalidate(token),
   });
 }

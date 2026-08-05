@@ -12,6 +12,7 @@ import {
   deleteSharedShoppingListItem,
 } from "@/lib/api/shopping-lists";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
+import { parseProblem } from "@/lib/api/problem-details";
 import { addToWatchlist, removeFromWatchlist } from "@/lib/api/watchlist";
 import type {
   ShoppingListRequest,
@@ -20,13 +21,11 @@ import type {
 } from "@/lib/api/types";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 
-const SHOPPING_LISTS_ME: QueryKey = ["shoppingLists", "me"];
-
 function listAndItemsKeys(listId: string): QueryKey[] {
   return [
-    ["shoppingLists", listId],
-    SHOPPING_LISTS_ME,
-    ["shoppingListItems", "me"],
+    SHOPPING_LIST_QUERY_KEYS.byId(listId),
+    SHOPPING_LIST_QUERY_KEYS.me,
+    SHOPPING_LIST_QUERY_KEYS.myItems,
   ];
 }
 
@@ -39,7 +38,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
     // A reload also loses the onError passed at mutate() time, so a write that fails on
     // replay reverts with no explanation. Only pass this for mutations whose call sites
     // do NOT handle errors themselves, or the user gets the same toast twice.
-    onError?: () => void,
+    onError?: (error: Error) => void,
   ) {
     queryClient.setMutationDefaults<TData, Error, TVariables>(mutationKey, {
       mutationFn,
@@ -55,20 +54,23 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
   defineOfflineMutation(
     OFFLINE_MUTATION_KEYS.shoppingListCreate,
     (data: ShoppingListRequest) => createShoppingList(data),
-    () => [SHOPPING_LISTS_ME],
+    () => [SHOPPING_LIST_QUERY_KEYS.me],
   );
 
   defineOfflineMutation(
     OFFLINE_MUTATION_KEYS.shoppingListUpdate,
     ({ id, data }: { id: string; data: ShoppingListRequest }) =>
       updateShoppingList(id, data),
-    ({ id }) => [["shoppingLists", id], SHOPPING_LISTS_ME],
+    ({ id }) => [
+      SHOPPING_LIST_QUERY_KEYS.byId(id),
+      SHOPPING_LIST_QUERY_KEYS.me,
+    ],
   );
 
   defineOfflineMutation(
     OFFLINE_MUTATION_KEYS.shoppingListDelete,
     (id: string) => deleteShoppingList(id),
-    (id) => [["shoppingLists", id], SHOPPING_LISTS_ME],
+    (id) => [SHOPPING_LIST_QUERY_KEYS.byId(id), SHOPPING_LIST_QUERY_KEYS.me],
   );
 
   defineOfflineMutation(
@@ -138,9 +140,19 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
 /**
  * Access to a shared list can be withdrawn between queuing a write and replaying it, and
  * the owner is under no obligation to warn anyone. Saying so beats a silent revert.
+ *
+ * Only for 403 and 404 though. This default also runs for live online failures, so
+ * blaming access loss for every error told a collaborator with perfectly good access
+ * that they had lost it because a request happened to time out. A 404 additionally
+ * covers a replayed delete for an item that is already gone, which is harmless.
  */
-function sharedWriteFailed() {
+function sharedWriteFailed(error: Error) {
+  const status = parseProblem(error)?.status;
+  const lostAccess = status === 403 || status === 404;
+
   toast.error(
-    "Promjena nije spremljena. Možda više nemaš pristup ovom popisu.",
+    lostAccess
+      ? "Promjena nije spremljena. Možda više nemaš pristup ovom popisu."
+      : "Promjena nije spremljena. Pokušaj ponovno.",
   );
 }

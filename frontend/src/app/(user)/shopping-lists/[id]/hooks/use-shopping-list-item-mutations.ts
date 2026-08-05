@@ -39,89 +39,37 @@ export function useShoppingListItemMutations(
     },
   ) => {
     const shoppingList = queryClient.getQueryData<ShoppingList>(queryKey);
-
     const item = shoppingList?.items?.find((i) => i.id === itemId);
-    if (!item) return;
+    if (!item || updatedItem.amount < 1) return;
 
-    // Validate amount
-    if (updatedItem.amount < 1) return;
+    // Prices are captured at the moment of ticking, so they have to be resolved here
+    // where the component's price maps live, not inside the mutation. They travel in the
+    // request, which is also what the optimistic patch applies.
+    const data = { ...item, ...updatedItem };
 
-    // Optimistic update
-    await queryClient.cancelQueries({ queryKey });
-    const previousData = queryClient.getQueryData<ShoppingList>(queryKey);
-
-    queryClient.setQueryData<ShoppingList | undefined>(queryKey, (old) => {
-      if (!old) return old;
-      return {
-        ...old,
-        items: old.items?.map((i) => {
-          if (i.id === itemId) {
-            const updated = { ...i, ...updatedItem };
-            // If checking the item, include the current average price
-            if (updatedItem.isChecked) {
-              const currentAvgPrice = averagePrices[i.id];
-              if (currentAvgPrice !== undefined) {
-                updated.avgPrice = currentAvgPrice;
-              }
-            }
-            return updated;
-          }
-          return i;
-        }),
-      };
-    });
-
-    // Prepare update data
-    const updateData = {
-      ...item,
-      ...updatedItem,
-    };
-
-    // If checking the item, include the current average price and store price
     if (updatedItem.isChecked) {
-      const currentAvgPrice = averagePrices[item.id];
-      if (currentAvgPrice !== undefined) {
-        updateData.avgPrice = currentAvgPrice;
-      }
+      const avgPrice = averagePrices[item.id];
+      if (avgPrice !== undefined) data.avgPrice = avgPrice;
 
-      // Include the store price from the selected store
-      if (
-        updatedItem.chainCode &&
-        storePrices[item.id]?.[updatedItem.chainCode]
-      ) {
-        updateData.storePrice = storePrices[item.id][updatedItem.chainCode];
-      }
-    }
-
-    function rollback() {
-      if (previousData) {
-        queryClient.setQueryData(queryKey, previousData);
-      }
+      const storePrice =
+        updatedItem.chainCode && storePrices[item.id]?.[updatedItem.chainCode];
+      if (storePrice) data.storePrice = storePrice;
     }
 
     if (shareToken) {
-      updateSharedItemMutation.mutate(
-        { token: shareToken, itemId, data: updateData },
-        // No toast here: the shared mutation's offline defaults already carry one, and it
-        // is the only handler that survives a replay after a reload.
-        { onError: rollback },
-      );
+      // No toast: the offline defaults carry one, and they are the only handler that
+      // survives a replay after a reload.
+      updateSharedItemMutation.mutate({ token: shareToken, itemId, data });
       return;
     }
 
     updateItemMutation.mutate(
+      { listId, itemId, data },
       {
-        listId,
-        itemId,
-        data: updateData,
-      },
-      {
-        onError: (error: Error) => {
-          rollback();
+        onError: (error: Error) =>
           toast.error(
             error.message || "Greška pri ažuriranju stavke. Pokušaj ponovno.",
-          );
-        },
+          ),
       },
     );
   };
@@ -129,29 +77,10 @@ export function useShoppingListItemMutations(
   const handleDeleteItem = async (itemId: string) => {
     setDeletingItemId(itemId);
 
-    // Optimistic update
-    await queryClient.cancelQueries({ queryKey });
-    const previousData = queryClient.getQueryData<ShoppingList>(queryKey);
-
-    queryClient.setQueryData<ShoppingList | undefined>(queryKey, (old) => {
-      if (!old) return old;
-      return {
-        ...old,
-        items: old.items?.filter((i) => i.id !== itemId),
-      };
-    });
-
-    function rollback() {
-      if (previousData) {
-        queryClient.setQueryData(queryKey, previousData);
-      }
-    }
-
     if (shareToken) {
       deleteSharedItemMutation.mutate(
         { token: shareToken, itemId },
         {
-          onError: rollback,
           onSuccess: () => toast.success("Stavka je uspješno obrisana!"),
           onSettled: () => setDeletingItemId(null),
         },
@@ -159,22 +88,15 @@ export function useShoppingListItemMutations(
       return;
     }
 
-    // Delete the item
     deleteItemMutation.mutate(
       { listId, itemId },
       {
-        onError: (error: Error) => {
-          rollback();
+        onError: (error: Error) =>
           toast.error(
             error.message || "Greška pri brisanju stavke. Pokušaj ponovno.",
-          );
-        },
-        onSuccess: () => {
-          toast.success("Stavka je uspješno obrisana!");
-        },
-        onSettled: () => {
-          setDeletingItemId(null);
-        },
+          ),
+        onSuccess: () => toast.success("Stavka je uspješno obrisana!"),
+        onSettled: () => setDeletingItemId(null),
       },
     );
   };
