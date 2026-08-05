@@ -50,9 +50,8 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
     );
   }
 
-  // Carries no pending state on purpose. Nothing here is fetched, and
-  // navigator.share does not reliably settle when the OS sheet is dismissed, so
-  // a flag cleared on completion would strand the button spinning until reload.
+  // No pending state on purpose. Nothing here is fetched, and shareOrCopy
+  // documents why a flag cleared on completion strands the button spinning.
   async function handleShare() {
     try {
       const text = formatShoppingListForSharing(shoppingList);
