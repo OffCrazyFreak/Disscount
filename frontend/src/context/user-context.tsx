@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useRef,
   ReactNode,
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -14,6 +15,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { authClient, useSession } from "@/lib/auth/client";
 import { clearAuthToken, resetAuthToken } from "@/lib/api/api-base";
 import { purgeOfflineCache } from "@/lib/offline/purge";
+import {
+  getCacheIdentity,
+  setCacheIdentity,
+} from "@/lib/offline/cache-identity";
 import { userService, preferencesService } from "@/lib/api";
 import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
 import { isProtectedRoute } from "@/constants/protected-routes";
@@ -48,6 +53,11 @@ export function UserProvider({ children }: IUserProviderProps) {
   const [user, setUser] = useState<UserDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasResolvedAuth, setHasResolvedAuth] = useState(false);
+  // Seeded from the persisted value so a reload as the same account is not read as a
+  // change of identity, which would purge the cache it just restored.
+  const cacheIdentityRef = useRef<string | null>(
+    getCacheIdentity() === "anon" ? null : getCacheIdentity(),
+  );
 
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -86,12 +96,22 @@ export function UserProvider({ children }: IUserProviderProps) {
   useEffect(() => {
     if (sessionPending) return;
 
+    const identity = session?.user?.id ?? null;
+
+    // Purge on a change of identity, not on every anonymous load. This effect runs on
+    // mount, so purging whenever there is no session wiped the cache and the queued
+    // write replay on every single page load for a visitor who is not logged in, which
+    // silently dropped anything they had ticked off while offline.
+    if (identity !== cacheIdentityRef.current) {
+      void purgeOfflineCache(queryClient);
+      setCacheIdentity(identity);
+      cacheIdentityRef.current = identity;
+    }
+
     if (session?.user) {
       refreshUser();
     } else {
-      // Wipe the cache so a previous user never lingers on a shared device.
       clearAuthToken();
-      void purgeOfflineCache(queryClient);
       setUser(null);
       setIsLoading(false);
       setHasResolvedAuth(true);
