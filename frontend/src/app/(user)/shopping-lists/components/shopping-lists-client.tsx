@@ -34,7 +34,14 @@ export default function ShoppingListsClient({
 
   const isUserLoading = userLoading || isLoading;
 
-  const matchingShoppingLists = filterByFields(shoppingLists, query, ["title"]);
+  // Most recently touched first. The API returns these in no defined order, so
+  // without this the list can silently reshuffle between fetches. filterByFields
+  // sorts stably on coarse scores, so this order survives among equal matches.
+  const matchingShoppingLists = filterByFields(
+    [...shoppingLists].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)),
+    query,
+    ["title"],
+  );
 
   if (!userLoading && !isAuthenticated) {
     return (
