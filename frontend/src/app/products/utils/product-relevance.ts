@@ -1,6 +1,12 @@
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
-import { normalizeForSearch } from "@/utils/strings";
-import { findWholeQuery } from "@/utils/search-relevance";
+import { findWholeQuery } from "@/utils/search/match";
+import { normalizeCached, prepareQuery } from "@/utils/search/normalize";
+import {
+  byAsc,
+  byDesc,
+  chainComparators,
+  type Comparator,
+} from "@/utils/search/rank";
 
 interface IProductRelevance {
   product: ProductResponse;
@@ -23,8 +29,8 @@ function rate(
   query: string,
   tokens: string[],
 ): IProductRelevance {
-  const name = normalizeForSearch(product.name ?? "");
-  const brand = normalizeForSearch(product.brand ?? "");
+  const name = normalizeCached(product.name ?? "");
+  const brand = normalizeCached(product.brand ?? "");
 
   return {
     product,
@@ -38,32 +44,28 @@ function rate(
 }
 
 /**
- * Tie-breaking comparison in priority order, the way a search engine ranks:
- * text relevance first, then how widely stocked the product is, then the
- * shorter name, which is usually the plain product rather than a bundle.
+ * Tie-breaking in priority order, the way a search engine ranks: text relevance
+ * first, then how widely stocked the product is, then the shorter name, which is
+ * usually the plain product rather than a bundle.
  */
-function compareRelevance(a: IProductRelevance, b: IProductRelevance): number {
-  return (
-    b.matchedTokens - a.matchedTokens ||
-    a.tier - b.tier ||
-    a.position - b.position ||
-    b.chainCount - a.chainCount ||
-    a.nameLength - b.nameLength
-  );
-}
+const compareRelevance: Comparator<IProductRelevance> = chainComparators(
+  byDesc((rated) => rated.matchedTokens),
+  byAsc((rated) => rated.tier),
+  byAsc((rated) => rated.position),
+  byDesc((rated) => rated.chainCount),
+  byAsc((rated) => rated.nameLength),
+);
 
 /** Orders search hits by relevance to the query, leaving them untouched without one. */
 export default function sortProductsByRelevance(
   products: ProductResponse[],
   query: string,
 ): ProductResponse[] {
-  const normalizedQuery = normalizeForSearch(query).trim();
-  if (!normalizedQuery) return products;
-
-  const tokens = normalizedQuery.split(/\s+/);
+  const prepared = prepareQuery(query);
+  if (!prepared) return products;
 
   return products
-    .map((product) => rate(product, normalizedQuery, tokens))
+    .map((product) => rate(product, prepared.normalized, prepared.tokens))
     .sort(compareRelevance)
     .map((rated) => rated.product);
 }

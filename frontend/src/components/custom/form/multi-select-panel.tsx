@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/command";
 import ScrollFade from "@/components/custom/common/scroll-fade";
 import { useMultiSelectContext } from "@/components/custom/form/multi-select-context";
-import { scoreOption } from "@/utils/search-relevance";
+import { commandFilter } from "@/utils/search/command-filter";
 import { cn } from "@/lib/utils";
 
 export type MultiSelectSearch =
@@ -18,7 +18,7 @@ export type MultiSelectSearch =
 
 interface IMultiSelectPanelProps extends Omit<
   ComponentPropsWithoutRef<typeof Command>,
-  "children"
+  "children" | "filter"
 > {
   search: MultiSelectSearch;
   /** Caps the list where the surrounding presentation cannot do it itself. */
@@ -42,9 +42,7 @@ export default function MultiSelectPanel({
   return (
     <Command
       {...props}
-      // Case- and diacritic-blind on both sides, so "baska" offers "Baška".
-      // cmdk orders by the score it gets back, so this ranks as well as filters.
-      filter={scoreOption}
+      filter={commandFilter}
       className={cn("min-h-0 flex-1", className)}
     >
       {canSearch ? (

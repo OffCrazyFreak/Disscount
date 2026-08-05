@@ -13,7 +13,7 @@ import useMultiSelectEscape from "@/components/custom/form/use-multi-select-esca
 
 interface IMultiSelectContentProps extends Omit<
   ComponentPropsWithoutRef<typeof Command>,
-  "children"
+  "children" | "filter"
 > {
   search?: MultiSelectSearch;
   children: ReactNode;

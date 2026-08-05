@@ -1,4 +1,5 @@
-import { normalizeForSearch } from "@/utils/strings";
+import { scoreFields } from "@/utils/search/match";
+import { prepareQuery } from "@/utils/search/normalize";
 
 /**
  * Read one value out of a page's resolved searchParams, keeping the first
@@ -67,7 +68,11 @@ export function readListParam(
 }
 
 /**
- * Generic field-based filter helper.
+ * Generic field-based filter helper, ordered best match first.
+ *
+ * Runs the app's one matcher, so a list page ranks the same way a dropdown
+ * does: diacritic-blind, every word has to land somewhere, and an abbreviation
+ * still finds its target.
  *
  * Example: filterByFields(products, q, ["name", "brand", "category"])
  */
@@ -76,24 +81,23 @@ export function filterByFields<T extends Record<string, unknown>>(
   query: string | null,
   fields: Array<keyof T>,
 ): T[] {
-  const q = (query || "").trim();
-  if (!q) return items;
+  const prepared = prepareQuery(query ?? "");
+  if (!prepared) return items;
 
-  const qNorm = normalizeForSearch(q);
-
-  return items.filter((item) => {
-    for (const field of fields) {
-      const raw = item[field];
-      if (raw == null) continue;
-
-      const value = normalizeForSearch(String(raw));
-
-      // normalized match (case-insensitive + diacritic-insensitive)
-      if (value.includes(qNorm)) return true;
-    }
-
-    return false;
-  });
+  return items
+    .map((item) => ({
+      item,
+      score: scoreFields(
+        fields.map((field) => {
+          const raw = item[field];
+          return raw == null ? "" : String(raw);
+        }),
+        prepared,
+      ),
+    }))
+    .filter((rated) => rated.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map((rated) => rated.item);
 }
 
 /** Constrain a number to the inclusive [min, max] range. */
