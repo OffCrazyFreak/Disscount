@@ -6,6 +6,7 @@ import type { ShoppingListDto, ShoppingListRequest } from "@/lib/api/types";
 import { stashModalError } from "@/lib/modal/modal-error-bus";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import { removeFormDraft } from "@/utils/browser/local-storage";
+import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 
 interface IUseShoppingListModalProps {
   shoppingList?: ShoppingListDto | null;
@@ -42,7 +43,9 @@ export function useShoppingListModal({
       }
 
       removeFormDraft(draftKey);
-      await queryClient.invalidateQueries({ queryKey: ["shoppingLists"] });
+      await queryClient.invalidateQueries({
+        queryKey: SHOPPING_LIST_QUERY_KEYS.all,
+      });
     } catch (error) {
       stashModalError(draftKey, error);
       openModalUrl(

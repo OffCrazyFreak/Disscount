@@ -8,6 +8,7 @@ import type {
   ShoppingListRequest,
   ShoppingListItemRequest,
 } from "@/lib/api/types";
+import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 
 export function useShoppingListMutations(
   listId: string,
@@ -22,13 +23,13 @@ export function useShoppingListMutations(
 
   const confirmDelete = async () => {
     // Prepare optimistic update: remove item from cache immediately
-    await queryClient.cancelQueries({ queryKey: ["shoppingLists", "me"] });
+    await queryClient.cancelQueries({ queryKey: SHOPPING_LIST_QUERY_KEYS.me });
     const previous = queryClient.getQueryData<ShoppingList[]>([
       "shoppingLists",
       "me",
     ]);
     queryClient.setQueryData<ShoppingList[] | undefined>(
-      ["shoppingLists", "me"],
+      SHOPPING_LIST_QUERY_KEYS.me,
       (old: ShoppingList[] | undefined) =>
         old ? old.filter((l) => l.id !== listId) : [],
     );
@@ -45,14 +46,14 @@ export function useShoppingListMutations(
     } catch (error) {
       // Rollback cache so UI reflects server state
       if (previous) {
-        queryClient.setQueryData(["shoppingLists", "me"], previous);
+        queryClient.setQueryData(SHOPPING_LIST_QUERY_KEYS.me, previous);
       }
       toast.error(
         (error instanceof Error && error.message) ||
           "Greška pri brisanju popisa za kupnju. Pokušaj ponovno.",
       );
     } finally {
-      queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
+      queryClient.invalidateQueries({ queryKey: SHOPPING_LIST_QUERY_KEYS.me });
     }
   };
 
@@ -96,10 +97,16 @@ export function useShoppingListMutations(
         await Promise.all(copyPromises);
       }
 
-      // Invalidate queries to refresh data
-      await queryClient.invalidateQueries({
-        queryKey: ["shoppingLists"],
-      });
+      // Both roots: the copy creates items, and the flat item list feeds watchlist
+      // suggestions, which would otherwise not see them until something else refetched.
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: SHOPPING_LIST_QUERY_KEYS.all,
+        }),
+        queryClient.invalidateQueries({
+          queryKey: SHOPPING_LIST_QUERY_KEYS.itemsAll,
+        }),
+      ]);
 
       // Say the copy is private rather than leaving it to be discovered: someone copying
       // a shared list may well assume the same people can still reach it.

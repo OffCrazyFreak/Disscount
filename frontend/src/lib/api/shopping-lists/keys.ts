@@ -16,5 +16,6 @@ export const SHOPPING_LIST_QUERY_KEYS = {
    * its own persistence and purge story. See lib/offline/cache-identity.ts, which is what
    * makes persisting someone else's list acceptable.
    */
+  sharedRoot: ["sharedShoppingList"] as const,
   byToken: (token: string) => ["sharedShoppingList", token] as const,
 };

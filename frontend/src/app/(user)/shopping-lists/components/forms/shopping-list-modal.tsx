@@ -26,6 +26,7 @@ import { takeModalError } from "@/lib/modal/modal-error-bus";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import { getFormDraft } from "@/utils/browser/local-storage";
 import { useShoppingListModal } from "@/app/(user)/shopping-lists/hooks/use-shopping-list-modal";
+import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 
 interface IShoppingListModalProps {
   open: boolean;
@@ -44,7 +45,7 @@ export default function ShoppingListModal({
   // Only seeds an instant value while the reactive by-id query settles; by-id wins
   // once loaded, since edits invalidate ["shoppingLists"] and refetch it.
   const cachedList = queryClient
-    .getQueryData<ShoppingListDto[]>(["shoppingLists", "me"])
+    .getQueryData<ShoppingListDto[]>(SHOPPING_LIST_QUERY_KEYS.me)
     ?.find((list) => list.id === id);
   const byIdQuery = shoppingListService.useGetShoppingListById(
     isEdit ? (id as string) : "",

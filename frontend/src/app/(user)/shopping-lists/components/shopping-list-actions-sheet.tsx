@@ -9,6 +9,7 @@ import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useShoppingListActions } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-actions";
 import ShoppingListQuickActionsList from "@/app/(user)/shopping-lists/components/shopping-list-quick-actions-list";
 import ShoppingListSummary from "@/app/(user)/shopping-lists/components/shopping-list-summary";
+import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 
 interface IShoppingListActionsSheetProps {
   open: boolean;
@@ -30,7 +31,7 @@ export default function ShoppingListActionsSheet({
   const queryClient = useQueryClient();
 
   const cachedList = queryClient
-    .getQueryData<ShoppingListDto[]>(["shoppingLists", "me"])
+    .getQueryData<ShoppingListDto[]>(SHOPPING_LIST_QUERY_KEYS.me)
     ?.find((list) => list.id === id);
   const byIdQuery = shoppingListService.useGetShoppingListById(id);
   const shoppingList =

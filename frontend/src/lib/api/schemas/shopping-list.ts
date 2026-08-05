@@ -21,11 +21,17 @@ export const shoppingListRequestSchema = z.object({
   linkAccess: linkAccessSchema.optional(),
 });
 
-export const shoppingListDtoSchema = shoppingListRequestSchema.extend({
+// Its own object rather than an extension of the request schema. The request's title
+// rules are form validation, which the backend does not enforce, so inheriting them here
+// would make a response the server considers valid fail to parse.
+export const shoppingListDtoSchema = z.object({
   id: z.string(),
-  ownerId: z.string(),
-  // Both owner-only: the server sends null to anyone who arrived through a link, so
-  // they cannot reshare the list at a level its owner never granted.
+  title: z.string(),
+  // Owner-only, like the two below: an account id is a stable identifier and a share
+  // link can travel anywhere.
+  ownerId: z.string().nullable().optional(),
+  // The server sends null to anyone who arrived through a link, so they cannot reshare
+  // the list at a level its owner never granted.
   linkAccess: linkAccessSchema.nullable().optional(),
   shareToken: z.string().nullable().optional(),
   // The caller's resolved access, so the client never re-derives the backend rule.

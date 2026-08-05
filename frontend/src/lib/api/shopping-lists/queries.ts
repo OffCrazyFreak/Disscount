@@ -92,10 +92,17 @@ export async function getAllUserShoppingListItems(): Promise<
 // list's id is never enough. apiClient omits the Authorization header when there is no
 // session, which is exactly the anonymous read path.
 
+// Both are server-generated UUIDs today, so nothing can currently break out of a path
+// segment. Encoded anyway, to match shareListUrl and to stay correct if the token format
+// ever changes.
+function sharedPath(token: string, suffix = ""): string {
+  return `/api/shared/${encodeURIComponent(token)}${suffix}`;
+}
+
 export async function getSharedShoppingList(
   token: string,
 ): Promise<ShoppingListDto> {
-  const response = await apiClient.get<ShoppingListDto>(`/api/shared/${token}`);
+  const response = await apiClient.get<ShoppingListDto>(sharedPath(token));
   return response.data;
 }
 
@@ -104,7 +111,7 @@ export async function updateSharedShoppingList(
   data: ShoppingListRequest,
 ): Promise<ShoppingListDto> {
   const response = await apiClient.put<ShoppingListDto>(
-    `/api/shared/${token}`,
+    sharedPath(token),
     data,
   );
   return response.data;
@@ -116,7 +123,7 @@ export async function updateSharedShoppingListItem(
   data: ShoppingListItemRequest,
 ): Promise<ShoppingListItemDto> {
   const response = await apiClient.put<ShoppingListItemDto>(
-    `/api/shared/${token}/items/${itemId}`,
+    sharedPath(token, `/items/${encodeURIComponent(itemId)}`),
     data,
   );
   return response.data;
@@ -126,5 +133,7 @@ export async function deleteSharedShoppingListItem(
   token: string,
   itemId: string,
 ): Promise<void> {
-  await apiClient.delete(`/api/shared/${token}/items/${itemId}`);
+  await apiClient.delete(
+    sharedPath(token, `/items/${encodeURIComponent(itemId)}`),
+  );
 }
