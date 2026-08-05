@@ -7,6 +7,7 @@ import type {
 import {
   CacheableResponsePlugin,
   ExpirationPlugin,
+  NetworkFirst,
   NetworkOnly,
   Serwist,
   StaleWhileRevalidate,
@@ -44,13 +45,23 @@ const runtimeCaching: RuntimeCaching[] = [
       sameOrigin && url.pathname.startsWith("/api/"),
     handler: new NetworkOnly(),
   },
-  // Shared lists server-render someone else's list title for the link preview, and
-  // defaultCache would keep that document for 24 days keyed by URL alone, with no notion
-  // of who asked. Must stay above defaultCache, which is matched in order.
+  // Shared lists server-render someone else's list title for the link preview, so the
+  // document is not public data. NetworkOnly kept it off disk but sent every offline
+  // reload to the /offline fallback, which made the offline write queue unreachable in
+  // exactly the shop-with-no-signal case it exists for. NetworkFirst with a short life
+  // plus purgeOfflineCache deleting this bucket on a change of identity is the trade.
+  // Must stay above defaultCache, which is matched in order.
   {
     matcher: ({ url, sameOrigin }) =>
       sameOrigin && url.pathname.startsWith("/s/"),
-    handler: new NetworkOnly(),
+    handler: new NetworkFirst({
+      cacheName: "pages",
+      networkTimeoutSeconds: 5,
+      plugins: [
+        new CacheableResponsePlugin({ statuses: [0, 200] }),
+        new ExpirationPlugin({ maxEntries: 20, maxAgeSeconds: 24 * 60 * 60 }),
+      ],
+    }),
   },
   ...defaultCache,
 ];
