@@ -16,13 +16,19 @@ interface IShoppingListHeaderProps {
   /**
    * False for a logged-out link visitor: copying creates a list on their own account,
    * and the list index they would go back to is itself behind a login.
+   *
+   * Required rather than defaulting to true. This header is shared between an authed
+   * page and a public one, so the dangerous value must not be the implicit one.
    */
-  isSignedIn?: boolean;
+  isSignedIn: boolean;
+  /** Present when the page was reached through a share link. */
+  shareToken?: string;
 }
 
 export default function ShoppingListHeader({
   shoppingList,
-  isSignedIn = true,
+  isSignedIn,
+  shareToken,
 }: IShoppingListHeaderProps) {
   // The server resolves this, so it stays right for a link recipient too. Editing and
   // deleting are owner-only on the backend, so a recipient must not see those controls.
@@ -70,6 +76,7 @@ export default function ShoppingListHeader({
             showShareButton={true}
             showEditButton={isOwner}
             showDeleteButton={isOwner}
+            shareToken={shareToken}
             mobilePresentation="buttons"
           />
         </div>

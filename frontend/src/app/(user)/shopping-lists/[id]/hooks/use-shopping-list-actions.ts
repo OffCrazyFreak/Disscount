@@ -18,13 +18,21 @@ export interface IShoppingListActionGroupProps {
   showDeleteButton: boolean;
   isCopying: boolean;
   isDeleting: boolean;
-  onShare: () => void;
+  onShare: (options?: IOpenModalOptions) => void;
   onCopy: () => void;
   onEdit: () => void;
   onDeleteClick: () => void;
 }
 
-export function useShoppingListActions(shoppingList: ShoppingList) {
+/**
+ * @param shareToken the token this page was reached through, when it was reached through
+ *   a link. The DTO's own shareToken is null for anyone but the owner, so without this a
+ *   recipient standing on /s/<token> cannot pass on the very link they are looking at.
+ */
+export function useShoppingListActions(
+  shoppingList: ShoppingList,
+  shareToken?: string,
+) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const { deleteShoppingListMutation, confirmDelete, handleCopy, isCopying } =
@@ -75,9 +83,8 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
 
     try {
       const text = formatShoppingListForSharing(shoppingList);
-      const url = shoppingList.shareToken
-        ? shareListUrl(shoppingList.shareToken)
-        : undefined;
+      const token = shareToken ?? shoppingList.shareToken;
+      const url = token ? shareListUrl(token) : undefined;
       const outcome = await shareOrCopy({
         title: shoppingList.title,
         text,

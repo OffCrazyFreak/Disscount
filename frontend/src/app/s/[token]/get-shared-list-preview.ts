@@ -2,6 +2,8 @@ import "server-only";
 
 import type { ShoppingListDto } from "@/lib/api/types";
 
+const PREVIEW_TIMEOUT_MS = 3000;
+
 /**
  * Server-side read used only for the link preview. It goes straight to the backend origin
  * rather than through the Next rewrite, which only rewrites browser requests.
@@ -17,7 +19,12 @@ export async function getSharedListPreview(
   try {
     const response = await fetch(
       `${origin}/api/shared/${encodeURIComponent(token)}`,
-      { cache: "no-store" },
+      {
+        cache: "no-store",
+        // This route is public and dynamic, so anyone can loop it with arbitrary tokens.
+        // Without a deadline a degraded backend pins a Next server request per hit.
+        signal: AbortSignal.timeout(PREVIEW_TIMEOUT_MS),
+      },
     );
 
     if (!response.ok) return null;
@@ -27,17 +34,4 @@ export async function getSharedListPreview(
     // A preview is a nicety; a backend blip must not take the page down with it.
     return null;
   }
-}
-
-/** Croatian counts: 1 stavka, 2 to 4 stavke, 5 or more stavki, ignoring the teens. */
-export function formatItemCount(count: number): string {
-  const lastTwo = count % 100;
-  const last = count % 10;
-
-  if (lastTwo < 11 || lastTwo > 14) {
-    if (last === 1) return `${count} stavka`;
-    if (last >= 2 && last <= 4) return `${count} stavke`;
-  }
-
-  return `${count} stavki`;
 }

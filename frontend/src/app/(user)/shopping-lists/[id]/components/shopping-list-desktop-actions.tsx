@@ -51,7 +51,7 @@ export default function ShoppingListDesktopActions({
               size="icon"
               aria-label={shareLabel}
               className="shrink-0"
-              onClick={onShare}
+              onClick={() => onShare()}
             >
               <Share2 aria-hidden="true" />
             </Button>

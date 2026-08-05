@@ -52,7 +52,7 @@ export default function ShoppingListMobileActions({
         <DropdownMenuContent align="end" className="w-max">
           {showShareButton && (
             <DropdownMenuItem
-              onSelect={onShare}
+              onSelect={() => onShare()}
               className="cursor-pointer flex items-center gap-4"
             >
               <Share2 aria-hidden="true" className="size-6" />

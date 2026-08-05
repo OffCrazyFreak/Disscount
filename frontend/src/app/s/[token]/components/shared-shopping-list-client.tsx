@@ -2,16 +2,12 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, LogIn, Lock } from "lucide-react";
-import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
-import { Banner } from "@/components/custom/common/banner";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-import NoResults from "@/components/custom/common/no-results";
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
-import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { useUser } from "@/context/user-context";
+import SharedListAccessBanner from "@/app/s/[token]/components/shared-list-access-banner";
+import SharedListUnavailable from "@/app/s/[token]/components/shared-list-unavailable";
 import ShoppingListHeader from "@/app/(user)/shopping-lists/[id]/components/shopping-list-header";
 import ShoppingListInfoTable from "@/app/(user)/shopping-lists/[id]/components/shopping-list-info-table";
 import ShoppingListItems from "@/app/(user)/shopping-lists/[id]/components/items/shopping-list-items";
@@ -33,6 +29,7 @@ export default function SharedShoppingListClient({
     shoppingList,
     isLoading,
     error,
+    refetch,
     listUpdatedAt,
     cheapestStores,
     averagePrices,
@@ -57,51 +54,26 @@ export default function SharedShoppingListClient({
     );
   }
 
-  // A dead token and a token that never existed are the same 404 on purpose, so the
-  // wording cannot be used to confirm that a list is there.
   if (error || !shoppingList) {
     return (
-      <div className="mx-auto">
-        <NoResults
-          icon={<Lock className="size-12 text-gray-400 mx-auto mb-4" />}
-          title="Poveznica više ne vrijedi"
-          description="Vlasnik je prestao dijeliti ovaj popis ili je poveznica netočna."
-        />
-
-        <div className="text-center">
-          <Button asChild variant="ghost">
-            <Link href="/products">
-              <ArrowLeft className="h-4 w-4 mr-2" aria-hidden="true" />
-              Istraži proizvode
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <SharedListUnavailable error={error} onRetry={() => void refetch()} />
     );
   }
 
   return (
     <div className="space-y-8">
-      {!isUserLoading && !isAuthenticated && (
-        <Banner variant="primarySoft" size="md" icon={LogIn}>
-          <p className="text-xs text-primary/90">
-            Prijavi se za uređivanje ovog popisa.
-          </p>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mt-1 h-7 px-2"
-            onClick={() => openModalUrl({ name: "login" })}
-          >
-            Prijava
-          </Button>
-        </Banner>
+      {!isUserLoading && (
+        <SharedListAccessBanner
+          myAccess={shoppingList.myAccess}
+          isSignedIn={isAuthenticated}
+        />
       )}
 
       <section>
         <ShoppingListHeader
           shoppingList={shoppingList}
           isSignedIn={isAuthenticated}
+          shareToken={token}
         />
 
         {listUpdatedAt > 0 && (

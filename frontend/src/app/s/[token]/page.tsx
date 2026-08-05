@@ -1,10 +1,8 @@
 import { Metadata } from "next";
 
 import SharedShoppingListClient from "@/app/s/[token]/components/shared-shopping-list-client";
-import {
-  formatItemCount,
-  getSharedListPreview,
-} from "@/app/s/[token]/get-shared-list-preview";
+import { getSharedListPreview } from "@/app/s/[token]/get-shared-list-preview";
+import { pluralizeCroatian } from "@/utils/strings";
 
 // A shared list is unlisted, not public: it should preview nicely when pasted into a chat
 // and never turn up in a search result. next.config.ts sends X-Robots-Tag for the same
@@ -24,7 +22,8 @@ export async function generateMetadata(
     };
   }
 
-  const description = `Popis za kupnju, ${formatItemCount(shoppingList.items.length)}.`;
+  const itemCount = shoppingList.items.length;
+  const description = `Popis za kupnju, ${itemCount} ${pluralizeCroatian(itemCount, "stavka", "stavke", "stavki")}.`;
 
   return {
     title: shoppingList.title,

@@ -17,11 +17,11 @@ import { getAveragePrice } from "@/app/products/utils/product-utils";
 export function useShoppingListData(listId: string, shareToken?: string) {
   const { user } = useUser();
 
-  // Both hooks always run, since hook order cannot be conditional. Each disables itself
-  // on an empty argument, so exactly one of them ever fetches.
-  const ownedQuery = shoppingListService.useGetShoppingListById(
-    shareToken ? "" : listId,
-  );
+  // Both hooks always run, since hook order cannot be conditional. Exactly one is
+  // enabled, so only one ever fetches.
+  const ownedQuery = shoppingListService.useGetShoppingListById(listId, {
+    enabled: !shareToken,
+  });
   const sharedQuery = shoppingListService.useGetSharedShoppingList(
     shareToken ?? "",
   );
@@ -30,6 +30,7 @@ export function useShoppingListData(listId: string, shareToken?: string) {
     data: shoppingList,
     isLoading,
     error,
+    refetch,
     dataUpdatedAt: listUpdatedAt,
   } = shareToken ? sharedQuery : ownedQuery;
 
@@ -122,6 +123,7 @@ export function useShoppingListData(listId: string, shareToken?: string) {
     shoppingList,
     isLoading,
     error,
+    refetch,
     listUpdatedAt,
     cheapestStores,
     averagePrices,

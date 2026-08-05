@@ -11,6 +11,7 @@ import ItemPriceDisplay from "@/app/(user)/shopping-lists/[id]/components/items/
 import type { IShoppingListItemUpdate } from "@/app/(user)/shopping-lists/[id]/typings/shopping-list-item-types";
 import { cn } from "@/lib/utils";
 import { productPath } from "@/utils/product-links";
+import { SHARED_ACCESS_BANNER_ID } from "@/app/s/[token]/components/shared-list-access-banner";
 
 interface IShoppingListItemProps {
   item: ShoppingListItemDto;
@@ -57,6 +58,7 @@ export default function ShoppingListItem({
             className="relative z-20"
             checked={item.isChecked}
             disabled={!canCheck}
+            aria-describedby={canCheck ? undefined : SHARED_ACCESS_BANNER_ID}
             onCheckedChange={(checked) =>
               onUpdate({
                 isChecked: checked as boolean,
@@ -127,6 +129,7 @@ export default function ShoppingListItem({
                 })
               }
               disabled={item.isChecked || !canCheck}
+              describedById={canCheck ? undefined : SHARED_ACCESS_BANNER_ID}
               defaultValue={cheapestStore}
               storePrices={storePrices}
               averagePrice={averagePrice}
