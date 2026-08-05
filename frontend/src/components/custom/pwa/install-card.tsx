@@ -2,11 +2,16 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Plus } from "lucide-react";
+import { CircleAlert, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Banner } from "@/components/custom/common/banner";
 import { useInstallPrompt } from "@/components/custom/pwa/use-install-prompt";
 import InstallInstructionsSheet from "@/components/custom/pwa/install-instructions-sheet";
+import {
+  installActionLabel,
+  installPitch,
+} from "@/components/custom/pwa/install-copy";
 import { cn } from "@/lib/utils";
 
 interface IInstallCardProps {
@@ -26,11 +31,27 @@ export default function InstallCard({ permanent = false }: IInstallCardProps) {
   const {
     canShowInstallUI,
     canPromoteInstall,
+    showUnsupportedNotice,
     canInstall,
-    isIOS,
+    platform,
     promptInstall,
   } = useInstallPrompt();
   const [instructionsOpen, setInstructionsOpen] = useState(false);
+
+  // The landing page promises the app is installable, so it owes an explanation
+  // where it is not. The sidebar just stays quiet.
+  if (permanent && showUnsupportedNotice) {
+    return (
+      <Banner
+        variant="primarySoft"
+        size="lg"
+        icon={CircleAlert}
+        title="Ovaj preglednik ne podržava instalaciju"
+        text="Otvori Disscount u drugom pregledniku, npr. Google Chromeu, da ga dodaš na uređaj."
+        className="mb-0"
+      />
+    );
+  }
 
   const shouldShow = permanent ? canPromoteInstall : canShowInstallUI;
 
@@ -71,20 +92,20 @@ export default function InstallCard({ permanent = false }: IInstallCardProps) {
               !permanent && "text-muted-foreground",
             )}
           >
-            Dodaj Disscount na početni zaslon za brži pristup.
+            {installPitch(platform)}
           </p>
         </div>
 
         <Button className="w-full" onClick={handleInstall}>
           <Plus aria-hidden="true" className="size-4" />
-          Dodaj na početni zaslon
+          {installActionLabel(platform)}
         </Button>
       </div>
 
       <InstallInstructionsSheet
         open={instructionsOpen}
         onOpenChange={setInstructionsOpen}
-        isIOS={isIOS}
+        platform={platform}
       />
     </>
   );
