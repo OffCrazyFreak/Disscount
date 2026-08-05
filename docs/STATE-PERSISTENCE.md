@@ -273,6 +273,8 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
 
 ## 12. Future improvements & TODOs
 
+- **Automated product-filter regression coverage.** The scoped price summarizers and filter contract are verified by TypeScript, the production build, and manual API requests, but the frontend has no approved unit-test framework. [Issue #153](https://github.com/OffCrazyFreak/Disscount/issues/153) records the cases to cover after a framework and dependency are approved; tests were deliberately excluded from PR #151.
+
 - **Draft indicator UX.** When a draft is restored, the modal shows it as unsaved and offers a "Resetiraj" button, but there is no explicit "restored a draft" banner. A small notice could make it clearer why fields are prefilled.
 
 - **Cross-device drafts.** Drafts are per-device by design. If users ever expect an unsaved message or list to follow them across devices, that would mean moving drafts server-side, which is a much bigger change and probably not worth it for short-lived modal input.
