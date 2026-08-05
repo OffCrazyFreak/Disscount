@@ -273,6 +273,15 @@
   animation: dis-collapse-up 200ms ease-out;
 }
 
+/* Radix's Presence reads the computed animation-name, so `none` makes it unmount
+   straight away rather than waiting for an animationend that never fires. */
+@media (prefers-reduced-motion: reduce) {
+  .CollapsibleContent[data-state="open"],
+  .CollapsibleContent[data-state="closed"] {
+    animation: none;
+  }
+}
+
 @keyframes dis-collapse-down {
   from {
     height: 0;

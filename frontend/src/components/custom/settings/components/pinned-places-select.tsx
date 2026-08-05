@@ -18,6 +18,7 @@ import {
 } from "@/components/custom/form/multi-select";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
+import { compareHr } from "@/utils/strings";
 
 export default function PinnedPlacesSelect() {
   const form = useFormContext<SettingsFormValues>();
@@ -39,9 +40,7 @@ export default function PinnedPlacesSelect() {
               <MultiSelectGroup>
                 {locations
                   .slice()
-                  .sort((a, b) =>
-                    a.name.localeCompare(b.name, "hr", { sensitivity: "base" }),
-                  )
+                  .sort((a, b) => compareHr(a.name, b.name))
                   .map((location) => (
                     <MultiSelectItem key={location.name} value={location.name}>
                       {location.name}

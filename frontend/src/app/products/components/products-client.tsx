@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, TriangleAlert } from "lucide-react";
 import { useViewMode } from "@/hooks/use-view-mode";
 import NoResults from "@/components/custom/common/no-results";
 import useInfiniteProducts from "@/app/products/hooks/use-infinite-products";
@@ -24,6 +24,8 @@ import {
   useRememberRowCount,
 } from "@/hooks/use-remembered-row-count";
 
+import { Banner } from "@/components/custom/common/banner";
+
 const ROW_COUNT_KEY = "products:results";
 
 interface IProductsClientProps {
@@ -39,21 +41,33 @@ export default function ProductsClient({ query }: IProductsClientProps) {
   const {
     selectedCategories,
     selectedBrands,
+    selectedLocations,
+    selectedSourceCities,
     allowedChains,
     locationsReady,
+    locationsError,
     activeFilterCount,
     clearFilters,
   } = filters;
 
-  const { visibleProducts, total, isTruncated, isLoading, error } =
-    useInfiniteProducts(query, {
-      allowedChains,
-      selectedCategories,
-      selectedBrands,
-    });
+  const {
+    visibleItems,
+    total,
+    isTruncated,
+    isLoading,
+    error,
+    hasPartialPriceData,
+  } = useInfiniteProducts(query, {
+    allowedChains,
+    selectedCategories,
+    selectedBrands,
+    selectedLocations,
+    selectedSourceCities,
+  });
 
   // A location filter is set but the city -> chains mapping is still loading
   const waitingForLocations = Boolean(query) && !locationsReady;
+  const pageError = error || locationsError;
 
   // Results only exist once a query is typed, so an empty search box is not a
   // pending state, it is the prompt below.
@@ -62,10 +76,7 @@ export default function ProductsClient({ query }: IProductsClientProps) {
   );
 
   const rows = useRememberedRowCount(ROW_COUNT_KEY, 6);
-  useRememberRowCount(
-    ROW_COUNT_KEY,
-    query ? visibleProducts.length : undefined,
-  );
+  useRememberRowCount(ROW_COUNT_KEY, query ? visibleItems.length : undefined);
 
   return (
     <div className="space-y-4">
@@ -101,9 +112,20 @@ export default function ProductsClient({ query }: IProductsClientProps) {
         {/* <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} /> */}
       </div>
 
+      {hasPartialPriceData && !pending && !pageError && (
+        <Banner
+          role="status"
+          aria-live="polite"
+          variant="warningSoft"
+          icon={TriangleAlert}
+          title="Neke cijene nisu dostupne"
+          text="Prikazujemo dostupne cijene, ali jednu ili više odabranih lokacija trenutno nismo uspjeli dohvatiti."
+        />
+      )}
+
       <AsyncSection
         pending={pending}
-        error={error}
+        error={pageError}
         errorState={
           <ErrorState
             icon={<Search className="size-12 text-red-700 mx-auto mb-4" />}
@@ -134,26 +156,24 @@ export default function ProductsClient({ query }: IProductsClientProps) {
             icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
           />
         ) : query ? (
-          <>
-            <div
-              className={`${
-                viewMode !== "grid" || isMobile
-                  ? "space-y-4"
-                  : "grid grid-cols-2 sm:grid-cols-3 gap-4"
-              }`}
-            >
-              {visibleProducts.map((product) => (
-                <div
-                  key={product.ean}
-                  className={`${
-                    viewMode !== "grid" || isMobile ? "w-full" : "w-76"
-                  }`}
-                >
-                  <ProductItem product={product} />
-                </div>
-              ))}
-            </div>
-          </>
+          <div
+            className={`${
+              viewMode !== "grid" || isMobile
+                ? "space-y-4"
+                : "grid grid-cols-2 sm:grid-cols-3 gap-4"
+            }`}
+          >
+            {visibleItems.map(({ product, price }) => (
+              <div
+                key={product.ean}
+                className={`${
+                  viewMode !== "grid" || isMobile ? "w-full" : "w-76"
+                }`}
+              >
+                <ProductItem product={product} price={price} />
+              </div>
+            ))}
+          </div>
         ) : activeFilterCount > 0 ? (
           <div className="text-center py-12">
             <SlidersHorizontal className="size-12 text-gray-400 mx-auto mb-4" />

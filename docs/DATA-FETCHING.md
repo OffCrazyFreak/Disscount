@@ -119,6 +119,14 @@ productByEan: ({ ean, date, chains }: GetProductParams) =>
 
 This replaced a `JSON.stringify(params)` form that keyed on argument _shape_. React Query hashes object keys in sorted order and skips `undefined` members, so a product card seeding the cache with `{ ean }` now lands on the same key a reader passing `{ ean, date: undefined }` looks up. Under the old form that only worked because every caller happened to pass the same fields.
 
+`prices` is the one factory that takes a **scope** as its first argument:
+
+```ts
+prices: (scope: "product" | "search", params: GetPricesParams) => ...
+```
+
+Two things ride on that. The scope segment is what `lib/offline/cached-query-keys.ts` reads to persist single-product prices and skip bulk list results, which would otherwise fill IndexedDB with every EAN on screen as the user retypes a search. And the factory runs its params through `canonicalizeGetPricesParams` (`lib/cijene-api/params.ts`) first, which sorts and dedupes the CSV members and trims the free-text filters, so the same request assembled in a different selection order is one cache entry rather than several. Callers pass the canonical params to the fetcher too: keying on a canonical form while sending the raw one would cache a response under a request nobody made.
+
 ### Cache times
 
 `staleTime` is never a hand-written number. It comes from `frontend/src/lib/query/cache-times.ts`:
@@ -376,6 +384,7 @@ The persisted cache is documented in full in [PWA.md](PWA.md#5-offline-reads-cac
 | `frontend/src/lib/api/<domain>/hooks.ts`                  | `queryOptions()` descriptors + mutation hooks             |
 | `frontend/src/lib/api/error-message.ts`                   | `toUserMessage`, the one place an error becomes copy      |
 | `frontend/src/lib/cijene-api/keys.ts`                     | Keys for the external price API                           |
+| `frontend/src/lib/cijene-api/params.ts`                   | Canonical form of the price request params                |
 | `frontend/src/lib/cijene-api/use-products-by-eans.ts`     | Batched per-EAN product fetch                             |
 | `frontend/src/lib/skeleton/row-count-store.ts`            | Clamped localStorage map of last list lengths             |
 | `frontend/src/hooks/use-remembered-row-count.ts`          | Read and write hooks for the above                        |

@@ -1,6 +1,12 @@
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { normalizeForSearch } from "@/utils/strings";
 
+/**
+ * Chain codes are machine identifiers, so this deliberately does NOT strip
+ * diacritics the way `normalizeForSearch` does: folding them could collide two
+ * distinct codes. Use this for chains and `normalizeForSearch` for the
+ * human-readable facets, and always normalize both sides of a comparison.
+ */
 export function normalizeChainCode(code: string): string {
   return code.trim().toLowerCase();
 }

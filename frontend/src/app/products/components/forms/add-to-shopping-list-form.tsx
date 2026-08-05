@@ -5,8 +5,8 @@ import { ListPlus, TriangleAlert } from "lucide-react";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
-import { Skeleton } from "@/components/ui/skeleton";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
+import ProductInfoDisplaySkeleton from "@/app/products/components/product-info-display-skeleton";
 import RemoveIconButton from "@/components/custom/common/remove-icon-button";
 import { Banner } from "@/components/custom/common/banner";
 import ShoppingListSelector from "@/app/products/components/forms/shopping-list-selector";
@@ -75,8 +75,8 @@ export default function AddToShoppingListForm({
         resetForm();
       }}
     >
-      {productQuery.isLoading ? (
-        <Skeleton className="h-24 w-full" />
+      {productQuery.isPending ? (
+        <ProductInfoDisplaySkeleton />
       ) : !product ? (
         <p className="text-sm text-muted-foreground">Proizvod nije pronađen.</p>
       ) : (

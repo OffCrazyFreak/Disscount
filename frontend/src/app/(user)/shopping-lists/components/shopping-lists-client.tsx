@@ -42,7 +42,14 @@ export default function ShoppingListsClient({
     requiresAuth,
   } = useAuthedQuery(shoppingListQueries.me());
 
-  const matchingShoppingLists = filterByFields(shoppingLists, query, ["title"]);
+  // Most recently touched first. The API returns these in no defined order, so
+  // without this the list can silently reshuffle between fetches. filterByFields
+  // sorts stably on coarse scores, so this order survives among equal matches.
+  const matchingShoppingLists = filterByFields(
+    [...shoppingLists].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)),
+    query,
+    ["title"],
+  );
 
   const rows = useRememberedRowCount(ROW_COUNT_KEY, 3);
   useRememberRowCount(ROW_COUNT_KEY, shoppingLists.length);

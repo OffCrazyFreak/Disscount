@@ -20,6 +20,10 @@ type PersistedQueryKeyPrefix = (typeof PERSISTED_QUERY_KEY_PREFIXES)[number];
 export function shouldPersistQuery(queryKey: QueryKey): boolean {
   const root = queryKey[0];
 
+  if (root === "cijene" && queryKey[1] === "prices") {
+    return queryKey[2] === "product";
+  }
+
   return (
     typeof root === "string" &&
     PERSISTED_QUERY_KEY_PREFIXES.includes(root as PersistedQueryKeyPrefix)

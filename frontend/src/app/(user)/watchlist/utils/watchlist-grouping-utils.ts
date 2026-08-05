@@ -13,7 +13,7 @@ export function extractPinnedStoreChainCodes(
     .map((store) => {
       const primaryNamePart = store.storeName?.trim().split(/\s+/)[0] || "";
 
-      return normalizeForSearch(primaryNamePart).toUpperCase();
+      return normalizeForSearch(primaryNamePart);
     })
     .filter((chainCode) => chainCode.length > 0);
 }

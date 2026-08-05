@@ -4,6 +4,7 @@ import type {
   SearchProductsParams,
   SearchStoresParams,
 } from "@/lib/cijene-api/schemas";
+import { canonicalizeGetPricesParams } from "@/lib/cijene-api/params";
 
 // Allowlisted for offline persistence in lib/offline/cached-query-keys.ts, and
 // treated as the public root that survives logout in lib/offline/purge.ts.
@@ -49,6 +50,22 @@ export const CIJENE_QUERY_KEYS = {
   productSearch: ({ q, date, chains, fuzzy, limit }: SearchProductsParams) =>
     [ROOT, "products", "search", q, { date, chains, fuzzy, limit }] as const,
 
-  prices: ({ eans, chains, city, address, lat, lon, d }: GetPricesParams) =>
-    [ROOT, "prices", eans, { chains, city, address, lat, lon, d }] as const,
+  /**
+   * The scope segment is load-bearing: lib/offline/cached-query-keys.ts persists
+   * only "product". A "search" response carries every EAN on the current list
+   * page, so persisting those would fill the offline cache with results the user
+   * never asked to keep.
+   */
+  prices: (scope: "product" | "search", params: GetPricesParams) => {
+    const { eans, chains, city, address, lat, lon, d } =
+      canonicalizeGetPricesParams(params);
+
+    return [
+      ROOT,
+      "prices",
+      scope,
+      eans,
+      { chains, city, address, lat, lon, d },
+    ] as const;
+  },
 };

@@ -23,6 +23,7 @@ import {
   healthCheck,
 } from "@/lib/cijene-api/queries";
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
+import { canonicalizeGetPricesParams } from "@/lib/cijene-api/params";
 import { CACHE_TIMES } from "@/lib/query/cache-times";
 
 export function useListChains() {
@@ -79,10 +80,12 @@ export function useGetProductByName(params: SearchProductsParams) {
 }
 
 export function useGetPrices(params: GetPricesParams) {
+  const canonicalParams = canonicalizeGetPricesParams(params);
+
   return useQuery<StorePricesResponse, Error>({
-    queryKey: CIJENE_QUERY_KEYS.prices(params),
-    queryFn: () => getPrices(params),
-    enabled: Boolean(params.eans),
+    queryKey: CIJENE_QUERY_KEYS.prices("product", canonicalParams),
+    queryFn: () => getPrices(canonicalParams),
+    enabled: Boolean(canonicalParams.eans),
     staleTime: CACHE_TIMES.products,
   });
 }

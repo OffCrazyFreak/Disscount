@@ -1,6 +1,6 @@
 import { ShoppingListDto } from "@/lib/api/types";
 import { getChainLabel } from "@/utils/labels";
-import { formatDate } from "@/utils/strings";
+import { compareHr, formatDate } from "@/utils/strings";
 
 // Open-ended rules, so a long title never has to line up with a closing corner.
 const RULE = "═".repeat(18);
@@ -42,18 +42,18 @@ export function formatShoppingListForSharing(
     const shopA = a.chainCode || "";
     const shopB = b.chainCode || "";
     if (shopA !== shopB) {
-      return shopA.localeCompare(shopB);
+      return compareHr(shopA, shopB);
     }
 
     // Then by brand
     const brandA = a.brand || "";
     const brandB = b.brand || "";
     if (brandA !== brandB) {
-      return brandA.localeCompare(brandB);
+      return compareHr(brandA, brandB);
     }
 
     // Then by name
-    return a.name.localeCompare(b.name);
+    return compareHr(a.name, b.name);
   });
 
   let shareText = `╔${RULE}\n`;

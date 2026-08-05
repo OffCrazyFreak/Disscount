@@ -32,7 +32,7 @@ export function buildWatchlistNotifications(
     const queryResult = productQueries[index];
     const product = queryResult?.data as ProductResponse | undefined;
 
-    if (!product || queryResult?.isLoading) return;
+    if (!product || queryResult?.isPending) return;
 
     const discountInfo = calculateDiscountInfo(product, pinnedStoreChainCodes);
 

@@ -31,7 +31,14 @@ export function resolveAllowedChains(
     );
   }
 
+  // Both branches emit canonical codes. Comparing a raw selection against
+  // normalized keys used to drop any chain whose casing came from a hand-edited
+  // URL, and returning the raw spelling from one branch and normalized from the
+  // other gave two cache keys for one filter, because callers build those keys
+  // by joining this array.
   return selectedChains.length > 0
-    ? selectedChains.filter((chain) => locationChains.has(chain))
+    ? selectedChains
+        .map(normalizeChainCode)
+        .filter((chain) => locationChains.has(chain))
     : [...locationChains];
 }
