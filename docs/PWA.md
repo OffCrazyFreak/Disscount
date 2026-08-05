@@ -38,7 +38,7 @@ _Last verified on branch `feat/pwa`, 2026-07-04: installable on Android/iOS, off
 | Offline data store           | IndexedDB via a persisted React Query cache (`idb-keyval` + `@tanstack/react-query-persist-client`)                       |
 | Build command                | `next build --webpack` (Serwist needs webpack; dev stays on Turbopack)                                                    |
 | Status-bar / theme color     | `#ffffff` (neutral white, set in both `manifest.ts` and the `viewport` export)                                            |
-| Install UX                   | floating dismissible banner + persistent sidebar banner + iOS/Android instructions sheet                                  |
+| Install UX                   | floating dismissible banner + sidebar and landing cards + a four-platform instructions sheet                              |
 | Icons / splash / screenshots | `public/brand/icons`, `public/splash` (18 iOS sizes), `public/screenshots` (2); see `docs/BRAND.md`                       |
 | What is NOT built yet        | push notifications, app badging, service-worker update prompt, wake lock (see [TODOs](#14-future-improvements-and-todos)) |
 
@@ -193,18 +193,32 @@ The tricky part of install UX is that support varies wildly by browser, so a sha
 ```mermaid
 flowchart TD
     A["useInstallPrompt (module-level store via useSyncExternalStore)"] --> B{Installed already?}
-    B -->|yes standalone| Z[Show nothing]
+    B -->|yes standalone or TWA| Z[Show nothing]
     B -->|no| C{Captured a beforeinstallprompt event?}
-    C -->|yes Chromium| D["Show install UI, native prompt"]
-    C -->|no| E{iOS Safari?}
-    E -->|yes| F["Show install UI -> Add-to-Home-Screen instructions sheet"]
-    E -->|no| Z2["Show nothing (Firefox desktop, iOS Chrome/Firefox, in-app webviews)"]
+    C -->|yes Chromium| D["Any surface, one tap fires the native prompt"]
+    C -->|no| E{Any install route at all?}
+    E -->|yes| F["Promotional surfaces only, opens the instructions sheet"]
+    E -->|no| Z2["Landing shows an unsupported notice, the rest show nothing"]
 ```
 
-- `use-install-prompt.ts` keeps a **single shared** captured `beforeinstallprompt` event at module scope (read via `useSyncExternalStore`), so the floating banner and the sidebar banner never hold separate, stale copies. It also exposes a `ready` flag so nothing flashes before client-side detection runs.
-- `install-banner.tsx`: a one-time **dismissible floating banner** (dismissal persisted in the existing `Disscount_app` localStorage object). Mounted in `layout.tsx`.
-- `install-sidebar-banner.tsx`: a **persistent banner** in the sidebar footer, shown whenever the app is installable but not installed. Mounted in `app-sidebar.tsx`.
-- `install-instructions-sheet.tsx`: platform-aware manual steps (iOS Safari "Share, then Add to Home Screen", or the browser-menu path elsewhere), for when there is no native prompt.
+The store exposes three gates rather than one, because "can install" is not a single question.
+
+| Gate                    | Means                                                 | Used by                                        |
+| ----------------------- | ----------------------------------------------------- | ---------------------------------------------- |
+| `canShowInstallUI`      | an install is one tap away: a captured prompt, or iOS | unprompted surfaces (floating banner, sidebar) |
+| `canPromoteInstall`     | an install is possible at all, prompt or browser menu | promotional surfaces (the landing page)        |
+| `showUnsupportedNotice` | genuinely no route, so name another browser           | the landing page only                          |
+
+The split exists because `beforeinstallprompt` is Chromium-only. Gating everything on it wrote off macOS Safari (File, then Add to Dock), Firefox on Android, and Opera on Android, all of which install fine from their own menus and would otherwise be told to go and fetch Chrome for no reason. Opera Android is the common case: it is Chromium and is listed as supporting the event, but does not fire it in practice, so it lands in the middle tier.
+
+- `use-install-prompt.ts` keeps a **single shared** captured `beforeinstallprompt` event at module scope (read via `useSyncExternalStore`), so no two surfaces hold separate, stale copies. It also exposes a `ready` flag so nothing flashes before client-side detection runs, and a `platform` value (`ios`, `macSafari`, `android`, `desktop`) that picks the instruction wording.
+- The event is captured **twice over**. A `beforeInteractive` script in `layout.tsx` stashes it on `window.__installPrompt`, and the store adopts that stash on init. Without it, an event that fires before hydration is lost for the whole page, and since Chrome never re-fires it the button silently degrades to manual instructions when a one-tap install was available. The store keeps its own listener for events that arrive after hydration.
+- `promptInstall` dedupes concurrent clicks with a flag and clears the event only once the choice resolves. `prompt()` may only be called once per event, so a dismissal spends it exactly as an accept does; clearing up front instead would flip every mounted surface to the instructions branch while the native sheet is still open.
+- `install-banner.tsx`: a one-time **dismissible floating banner** (dismissal persisted in the existing `Disscount_app` localStorage object, 7-day snooze). Mounted in `layout.tsx`.
+- `install-card.tsx`: the shared card, in the sidebar footer and, with `permanent`, on the landing page. `permanent` is what switches it from `canShowInstallUI` to `canPromoteInstall` and gives it the unsupported notice.
+- `install-perk.tsx`: the landing page's "Instaliraj kao aplikaciju" perk row, clickable wherever an install is possible.
+- `install-copy.ts`: the button label and pitch, shared so the banner, the card and the sheet cannot contradict each other.
+- `install-instructions-sheet.tsx`: manual steps for when there is no native prompt, with four separate step lists. A share sheet, a menu bar, a phone menu and an address-bar icon are four different things to press, and naming the wrong one is worse than saying nothing.
 
 The service worker registration is handled automatically by `@serwist/next` (no hand-written registration component). In development the service worker is disabled, so there is no `/sw.js` and no install prompt locally; test installability against a production build.
 
@@ -308,9 +322,12 @@ The screenshot generator script was removed after the images were generated, so 
 | `frontend/next.config.ts`                                                   | wraps the config with `withSerwistInit` (composed around Sentry); disables the SW in dev    |
 | `frontend/src/app/offline/page.tsx` + `components/offline-retry-button.tsx` | the offline fallback page and its reload button                                             |
 | `frontend/src/components/custom/pwa/use-install-prompt.ts`                  | shared install-state store + platform/support detection                                     |
+| `frontend/src/app/layout.tsx`                                               | `beforeInteractive` script that captures `beforeinstallprompt` before hydration             |
 | `frontend/src/components/custom/pwa/install-banner.tsx`                     | one-time dismissible floating install banner                                                |
-| `frontend/src/components/custom/pwa/install-sidebar-banner.tsx`             | persistent sidebar install banner                                                           |
-| `frontend/src/components/custom/pwa/install-instructions-sheet.tsx`         | manual install steps (iOS / other)                                                          |
+| `frontend/src/components/custom/pwa/install-card.tsx`                       | install card, in the sidebar and (with `permanent`) on the landing page                     |
+| `frontend/src/components/custom/pwa/install-perk.tsx`                       | the landing page's clickable install perk row                                               |
+| `frontend/src/components/custom/pwa/install-copy.ts`                        | shared button label and pitch copy, keyed by platform                                       |
+| `frontend/src/components/custom/pwa/install-instructions-sheet.tsx`         | manual install steps (iOS / macOS Safari / Android / desktop)                               |
 | `frontend/src/components/custom/pwa/apple-splash-screens.tsx`               | emits `apple-touch-startup-image` links                                                     |
 | `frontend/src/components/custom/pwa/request-persistent-storage.tsx`         | requests durable storage                                                                    |
 | `frontend/src/components/custom/pwa/scan-shortcut.tsx`                      | serves the Skeniraj app shortcut: consumes `?scan=1` and opens the camera                   |
@@ -374,7 +391,7 @@ Read from `frontend/package.json`.
 | Service-worker registration + precache      | ✅ auto    | `@serwist/next`, **production builds only**                                                              |
 | Offline read cache (dynamic + private data) | ✅ auto    | persisted React Query cache in IndexedDB                                                                 |
 | Offline write queue + replay                | ✅ auto    | on reconnect, and after reload once the cache restores                                                   |
-| Capturing the install prompt                | ✅ auto    | `beforeinstallprompt` captured into a shared store                                                       |
+| Capturing the install prompt                | ✅ auto    | `beforeinstallprompt` captured pre-hydration by a `beforeInteractive` script, into a shared store        |
 | Purging offline data on logout              | ✅ auto    | `purgeOfflineCache` in `handleLogout`                                                                    |
 | iOS splash links in `<head>`                | ✅ auto    | server-rendered via provider tree, React hoists them                                                     |
 | **Service worker in development**           | ❌ no      | disabled on purpose; use a production build to test the SW                                               |
