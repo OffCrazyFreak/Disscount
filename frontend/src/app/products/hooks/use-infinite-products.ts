@@ -114,6 +114,7 @@ export default function useInfiniteProducts(
     selectedCategories.join(","),
     selectedBrands.join(","),
     selectedLocations.join(","),
+    selectedSourceCities.join(","),
   ].join("\0");
   const initialBatchesToShow = batchedItems.length > 0 ? 1 : 0;
   const [batchState, setBatchState] = useState({

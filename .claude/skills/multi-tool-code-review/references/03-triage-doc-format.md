@@ -123,7 +123,10 @@ if not style:
 
 css = re.sub(r"/\*.*?\*/", "", style.group(1), flags=re.DOTALL)
 rules = re.sub(r"--[\w-]+\s*:\s*[^;{}]+;", "", css)
-print("literals left:", re.findall(r"#[0-9a-f]{3,8}\b", rules, re.IGNORECASE) or "none")
+literals = re.findall(r"#[0-9a-f]{3,8}\b", rules, re.IGNORECASE)
+if literals:
+    raise SystemExit(f"Hardcoded color literals found: {literals}")
+print("literals left: none")
 PY
 ```
 
