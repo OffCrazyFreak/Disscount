@@ -31,7 +31,13 @@ export function resolveAllowedChains(
     );
   }
 
+  // Probe with the same normalization the set was built with. Comparing a raw
+  // selection against normalized keys dropped any chain whose casing or spacing
+  // came from a hand-edited URL. The caller's own spelling is returned, because
+  // productMatchesFilters normalizes both sides again anyway.
   return selectedChains.length > 0
-    ? selectedChains.filter((chain) => locationChains.has(chain))
+    ? selectedChains.filter((chain) =>
+        locationChains.has(normalizeChainCode(chain)),
+      )
     : [...locationChains];
 }

@@ -1,5 +1,5 @@
 import { ChainProductResponse } from "@/lib/cijene-api/schemas";
-import { normalizeForSearch } from "@/utils/strings";
+import { isPinnedChain } from "@/utils/pinned-stores";
 
 export interface IPriceComparison {
   difference: number;
@@ -34,9 +34,5 @@ export function isPreferredChain(
     return false;
   }
 
-  const chainIdentifier = normalizeForSearch(chain.chain);
-
-  return pinnedStoreChainCodes.some((preferredCode) =>
-    chainIdentifier.includes(normalizeForSearch(preferredCode)),
-  );
+  return isPinnedChain(chain.chain, pinnedStoreChainCodes);
 }
