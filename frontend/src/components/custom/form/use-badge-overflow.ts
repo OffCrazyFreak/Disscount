@@ -20,6 +20,10 @@ interface IBadgeOverflow {
 export default function useBadgeOverflow(
   selectedValues: Set<string>,
   shouldWrap: boolean,
+  // Items register their labels in an effect, so the first layout pass can
+  // measure an empty row. The registry is a new Map on every registration,
+  // which is what re-triggers the measurement once the badges exist.
+  items: Map<string, unknown>,
 ): IBadgeOverflow {
   const [overflowAmount, setOverflowAmount] = useState(0);
   const valueRef = useRef<HTMLDivElement>(null);
@@ -60,7 +64,7 @@ export default function useBadgeOverflow(
 
   useLayoutEffect(() => {
     checkOverflow();
-  }, [selectedValues, checkOverflow]);
+  }, [selectedValues, checkOverflow, items]);
 
   const containerRef = useCallback(
     (node: HTMLDivElement) => {

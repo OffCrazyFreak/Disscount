@@ -31,13 +31,14 @@ export function resolveAllowedChains(
     );
   }
 
-  // Probe with the same normalization the set was built with. Comparing a raw
-  // selection against normalized keys dropped any chain whose casing or spacing
-  // came from a hand-edited URL. The caller's own spelling is returned, because
-  // productMatchesFilters normalizes both sides again anyway.
+  // Both branches emit canonical codes. Comparing a raw selection against
+  // normalized keys used to drop any chain whose casing came from a hand-edited
+  // URL, and returning the raw spelling from one branch and normalized from the
+  // other gave two cache keys for one filter, because callers build those keys
+  // by joining this array.
   return selectedChains.length > 0
-    ? selectedChains.filter((chain) =>
-        locationChains.has(normalizeChainCode(chain)),
-      )
+    ? selectedChains
+        .map(normalizeChainCode)
+        .filter((chain) => locationChains.has(chain))
     : [...locationChains];
 }

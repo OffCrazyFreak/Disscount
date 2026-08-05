@@ -43,7 +43,10 @@ export default function MultiSelectTrigger({
         )}
       >
         {children}
-        <ChevronsUpDownIcon className="size-4 shrink-0 opacity-50" />
+        <ChevronsUpDownIcon
+          aria-hidden="true"
+          className="size-4 shrink-0 opacity-50"
+        />
       </Button>
     </Trigger>
   );

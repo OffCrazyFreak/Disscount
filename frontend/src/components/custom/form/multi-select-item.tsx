@@ -53,6 +53,7 @@ export default function MultiSelectItem({
       }}
     >
       <CheckIcon
+        aria-hidden="true"
         className={cn("mr-2 size-4", isSelected ? "opacity-100" : "opacity-0")}
       />
       {children}

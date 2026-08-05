@@ -2,6 +2,18 @@
 const WORD_BOUNDARY = /[^a-z0-9]/;
 
 /**
+ * How much of the haystack the query has to account for before a sub-sequence
+ * counts as a match at all.
+ *
+ * Without a floor this is not a search, it is a coincidence detector: the eight
+ * letters of "kupovina" appear in order somewhere inside any paragraph of
+ * Croatian prose, so every blog post and every contact message matched every
+ * query. An abbreviation of a label is dense ("vgorica" is more than half of
+ * "velika gorica"); letters scattered through 600 characters are not.
+ */
+const MIN_DENSITY = 0.15;
+
+/**
  * Scores a sub-sequence match: every character of the query appears in the
  * haystack in order, with gaps allowed. This is what lets "vgorica" find
  * "Velika Gorica", which the literal matcher cannot do.
@@ -15,6 +27,9 @@ const WORD_BOUNDARY = /[^a-z0-9]/;
 export function subsequenceScore(haystack: string, query: string): number {
   if (!query) return 1;
   if (query.length > haystack.length) return 0;
+
+  const density = query.length / haystack.length;
+  if (density < MIN_DENSITY) return 0;
 
   let cursor = 0;
   let contiguous = 0;
@@ -34,7 +49,6 @@ export function subsequenceScore(haystack: string, query: string): number {
 
   // The three terms are each 0..1 and the weights sum to 1, so the result is
   // already bounded and needs no clamping.
-  const density = query.length / haystack.length;
   const runs = contiguous / query.length;
   const starts = wordStarts / query.length;
 

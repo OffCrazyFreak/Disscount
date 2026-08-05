@@ -33,11 +33,20 @@ export default function MultiSelectValue({
   const { containerRef, overflowRef, overflowAmount } = useBadgeOverflow(
     selectedValues,
     shouldWrap,
+    items,
   );
 
   if (selectedValues.size === 0 && placeholder) {
+    // Keeps the caller's props: an id or aria attribute that vanished until
+    // something was selected would break whatever pointed at it.
     return (
-      <span className="min-w-0 overflow-hidden font-normal text-muted-foreground">
+      <span
+        {...props}
+        className={cn(
+          "min-w-0 overflow-hidden font-normal text-muted-foreground",
+          className,
+        )}
+      >
         {placeholder}
       </span>
     );
@@ -95,7 +104,12 @@ export default function MultiSelectValue({
           button, so it cannot be a control of its own without nesting one. This
           says so, and names the equivalent path, which the list already offers. */}
       {clickToRemove && selectedValues.size > 0 && (
-        <span className="sr-only">
+        <span
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className="sr-only"
+        >
           Odabrano ih je {selectedValues.size}. Otvori popis i odaberi stavku da
           je ukloniš.
         </span>

@@ -12,6 +12,12 @@ import { normalizeForSearch } from "@/utils/strings";
  * diacritics and tested one direction, one uppercased and tested both without
  * folding at all, so the same pinned store matched on one screen and not another.
  */
+/**
+ * Below this, a containment test stops meaning anything: a store pinned as
+ * "K plus" yields the key "k", which is inside konzum, kaufland and ktc alike.
+ */
+const MIN_CONTAINMENT_LENGTH = 3;
+
 export function chainMatchesPinnedStore(
   chain: string,
   pinnedStoreName: string,
@@ -20,6 +26,14 @@ export function chainMatchesPinnedStore(
   const pinnedKey = normalizeForSearch(pinnedStoreName).trim();
 
   if (!chainKey || !pinnedKey) return false;
+  if (chainKey === pinnedKey) return true;
+
+  if (
+    chainKey.length < MIN_CONTAINMENT_LENGTH ||
+    pinnedKey.length < MIN_CONTAINMENT_LENGTH
+  ) {
+    return false;
+  }
 
   return chainKey.includes(pinnedKey) || pinnedKey.includes(chainKey);
 }
