@@ -9,6 +9,7 @@ import disscount.shoppingListItem.domain.ShoppingListItem;
 import disscount.shoppingListItem.dto.ShoppingListItemDto;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -19,16 +20,19 @@ import java.util.stream.Collectors;
 public class ShoppingListMapper {
 
     public ShoppingListDto toDto(ShoppingList list, ListAccess access) {
+        boolean isOwner = access == ListAccess.OWNER;
+
         List<ShoppingListItemDto> items = list.getItems().stream()
                 .filter(item -> item.getDeletedAt() == null)
-                .map(this::toItemDto)
+                .map(item -> toItemDto(item, access))
                 .collect(Collectors.toList());
-
-        boolean isOwner = access == ListAccess.OWNER;
 
         return ShoppingListDto.builder()
                 .id(list.getId())
-                .ownerId(list.getOwner().getId())
+                // Account ids are for the owner only. They are stable cross-request
+                // identifiers, and a share link can travel anywhere, so a recipient
+                // would otherwise be able to correlate two links as the same person.
+                .ownerId(isOwner ? list.getOwner().getId() : null)
                 .title(list.getTitle())
                 .linkAccess(isOwner ? list.resolvedLinkAccess() : null)
                 .shareToken(isOwner ? list.getShareToken() : null)
@@ -39,7 +43,7 @@ public class ShoppingListMapper {
                 .build();
     }
 
-    public ShoppingListItemDto toItemDto(ShoppingListItem item) {
+    public ShoppingListItemDto toItemDto(ShoppingListItem item, ListAccess access) {
         return ShoppingListItemDto.builder()
                 .id(item.getId())
                 .shoppingListId(item.getShoppingList().getId())
@@ -55,7 +59,18 @@ public class ShoppingListMapper {
                 .storePrice(item.getStorePrice())
                 .createdAt(item.getCreatedAt())
                 .updatedAt(item.getUpdatedAt())
-                .updatedByUserId(item.getUpdatedByUser() != null ? item.getUpdatedByUser().getId() : null)
+                // Same reason as ownerId. On a SHOP or EDIT list several accounts touch
+                // items, so this would hand a link visitor the account id of everyone
+                // shopping it. Nothing renders attribution yet; version 2 adds it as a
+                // name, not an id.
+                .updatedByUserId(updatedByUserId(item, access))
                 .build();
+    }
+
+    private UUID updatedByUserId(ShoppingListItem item, ListAccess access) {
+        if (access != ListAccess.OWNER || item.getUpdatedByUser() == null) {
+            return null;
+        }
+        return item.getUpdatedByUser().getId();
     }
 }

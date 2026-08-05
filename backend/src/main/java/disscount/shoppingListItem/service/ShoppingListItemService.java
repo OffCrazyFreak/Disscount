@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.UnauthorizedException;
 import disscount.shoppingList.dao.ShoppingListRepository;
+import disscount.shoppingList.domain.ListAccess;
 import disscount.shoppingList.domain.ShoppingList;
 import disscount.shoppingList.service.ShoppingListMapper;
 import disscount.shoppingListItem.dao.ShoppingListItemRepository;
@@ -93,7 +94,7 @@ public class ShoppingListItemService {
         shoppingList.setUpdatedAt(Timestamps.nowUtc());
         shoppingListRepository.save(shoppingList);
 
-        return shoppingListMapper.toItemDto(item);
+        return shoppingListMapper.toItemDto(item, ListAccess.OWNER);
     }
 
     public ShoppingListItemDto updateShoppingListItem(UUID listId, UUID itemId, UUID ownerId, ShoppingListItemRequest request) {
@@ -124,7 +125,7 @@ public class ShoppingListItemService {
         item.getShoppingList().setUpdatedAt(Timestamps.nowUtc());
         shoppingListRepository.save(item.getShoppingList());
 
-        return shoppingListMapper.toItemDto(item);
+        return shoppingListMapper.toItemDto(item, ListAccess.OWNER);
     }
 
     public void deleteShoppingListItem(UUID listId, UUID itemId, UUID ownerId) {
@@ -147,7 +148,7 @@ public class ShoppingListItemService {
 
         return shoppingListItemRepository.findAllActiveItemsByUser(owner)
                 .stream()
-                .map(shoppingListMapper::toItemDto)
+                .map(item -> shoppingListMapper.toItemDto(item, ListAccess.OWNER))
                 .collect(Collectors.toList());
     }
 

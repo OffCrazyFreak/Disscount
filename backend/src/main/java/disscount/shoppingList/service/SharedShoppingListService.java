@@ -69,7 +69,7 @@ public class SharedShoppingListService {
 
                 ShoppingListItem saved = shoppingListItemRepository.save(item);
                 touchList(list);
-                return shoppingListMapper.toItemDto(saved);
+                return shoppingListMapper.toItemDto(saved, access);
             });
         });
     }
