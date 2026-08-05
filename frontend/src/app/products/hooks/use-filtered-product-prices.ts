@@ -1,16 +1,23 @@
 "use client";
 
 import { useMemo } from "react";
-import { useQueries } from "@tanstack/react-query";
-import type { ProductResponse } from "@/lib/cijene-api/schemas";
+import { useQueries, type UseQueryResult } from "@tanstack/react-query";
+import type {
+  ProductResponse,
+  StorePricesResponse,
+} from "@/lib/cijene-api/schemas";
 import { getPrices } from "@/lib/cijene-api/queries";
-import { storePricesQueryKey } from "@/lib/cijene-api/query-hooks";
+import {
+  canonicalizeStorePricesParams,
+  storePricesQueryKey,
+} from "@/lib/cijene-api/query-hooks";
 import type { GetPricesParams } from "@/lib/cijene-api/schemas";
 import type { IProductListItem } from "@/app/products/typings/product-list-price";
 import {
   summarizeChainPrices,
   summarizeLocationPrices,
 } from "@/app/products/utils/product-list-prices";
+import { normalizeChainCode } from "@/app/products/utils/product-filters";
 
 interface IUseFilteredProductPricesOptions {
   products: ProductResponse[];
@@ -19,22 +26,58 @@ interface IUseFilteredProductPricesOptions {
   selectedSourceCities: string[];
 }
 
+function combinePriceQueries(
+  results: UseQueryResult<StorePricesResponse, Error>[],
+) {
+  const unavailable = results.filter(
+    (result) => result.isError && !result.data,
+  );
+
+  return {
+    storePrices: results.flatMap((result) => result.data?.store_prices ?? []),
+    isPending: results.some((result) => result.isPending),
+    error:
+      results.length > 0 && unavailable.length === results.length
+        ? (unavailable[0]?.error ?? null)
+        : null,
+    hasPartialError:
+      unavailable.length > 0 && unavailable.length < results.length,
+  };
+}
+
 export default function useFilteredProductPrices({
   products,
   allowedChains,
   selectedLocations,
   selectedSourceCities,
 }: IUseFilteredProductPricesOptions) {
-  const eans = products.map((product) => product.ean).join(",");
-  const chains = allowedChains?.join(",") ?? "";
+  const eans = [...new Set(products.map((product) => product.ean))]
+    .sort()
+    .join(",");
+  const chains = [...new Set(allowedChains ?? [])].sort().join(",");
+  const allowedChainKeys = useMemo(
+    () =>
+      allowedChains === null
+        ? null
+        : new Set(allowedChains.map(normalizeChainCode)),
+    [allowedChains],
+  );
   const needsLocationPrices = selectedLocations.length > 0;
-  const sourceCities = [...new Set(selectedSourceCities)];
+  const sourceCities = [
+    ...new Set(selectedSourceCities.map((city) => city.trim())),
+  ]
+    .filter(Boolean)
+    .sort();
 
   const priceQueries = useQueries({
     queries:
       needsLocationPrices && eans && chains
         ? sourceCities.map((city) => {
-            const params: GetPricesParams = { eans, chains, city };
+            const params: GetPricesParams = canonicalizeStorePricesParams({
+              eans,
+              chains,
+              city,
+            });
 
             return {
               queryKey: storePricesQueryKey(params),
@@ -43,22 +86,18 @@ export default function useFilteredProductPrices({
             };
           })
         : [],
-    combine: (results) => ({
-      storePrices: results.flatMap((result) => result.data?.store_prices ?? []),
-      isLoading: results.some((result) => result.isLoading),
-      error: results.find((result) => result.error)?.error ?? null,
-    }),
+    combine: combinePriceQueries,
   });
 
   const items = useMemo<IProductListItem[]>(() => {
     if (!needsLocationPrices) {
       return products.map((product) => ({
         product,
-        price: summarizeChainPrices(product, allowedChains),
+        price: summarizeChainPrices(product, allowedChainKeys),
       }));
     }
 
-    if (priceQueries.isLoading || priceQueries.error || !allowedChains) {
+    if (priceQueries.isPending || priceQueries.error || !allowedChains) {
       return [];
     }
 
@@ -73,10 +112,11 @@ export default function useFilteredProductPrices({
       return price ? [{ product, price }] : [];
     });
   }, [
+    allowedChainKeys,
     allowedChains,
     needsLocationPrices,
     priceQueries.error,
-    priceQueries.isLoading,
+    priceQueries.isPending,
     priceQueries.storePrices,
     products,
     selectedLocations,
@@ -84,7 +124,8 @@ export default function useFilteredProductPrices({
 
   return {
     items,
-    isLoading: priceQueries.isLoading,
+    isLoading: priceQueries.isPending,
     error: priceQueries.error,
+    hasPartialError: priceQueries.hasPartialError,
   };
 }

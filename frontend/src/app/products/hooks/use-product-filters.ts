@@ -29,6 +29,8 @@ export interface IUseProductFiltersResult extends IFilterParamsResult {
   allowedChains: string[] | null;
   /** False only while a location filter is set and stores are still loading */
   locationsReady: boolean;
+  /** Store lookup failure, relevant only while a location filter is selected */
+  locationsError: unknown;
 }
 
 interface IUseProductFiltersOptions {
@@ -45,7 +47,11 @@ export default function useProductFilters({
   seedPreferred = true,
 }: IUseProductFiltersOptions = {}): IUseProductFiltersResult {
   const searchParams = useSearchParams();
-  const { data: locations, isLoading: locationsLoading } = useAllLocations();
+  const {
+    data: locations,
+    isLoading: locationsLoading,
+    error: locationsError,
+  } = useAllLocations();
   const filterParams = useFilterParams();
 
   useSeedPreferredFilters(seedPreferred);
@@ -92,7 +98,7 @@ export default function useProductFilters({
   // An unresolved location filter stays unfiltered rather than matching nothing.
   const allowedChains = useMemo(
     () =>
-      selectedLocations.length > 0 && locationsLoading
+      selectedLocations.length > 0 && (locationsLoading || locationsError)
         ? null
         : resolveAllowedChains(selectedChains, selectedLocations, locations),
     [selectedChains, selectedLocations, locations, locationsLoading],
@@ -111,6 +117,7 @@ export default function useProductFilters({
       selectedBrands.length,
     allowedChains,
     locationsReady: selectedLocations.length === 0 || !locationsLoading,
+    locationsError: selectedLocations.length > 0 ? locationsError : null,
     ...filterParams,
   };
 }

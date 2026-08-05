@@ -23,14 +23,12 @@ function summarizePrices(
 
 export function summarizeChainPrices(
   product: ProductResponse,
-  allowedChains: string[] | null,
+  allowedChainKeys: ReadonlySet<string> | null,
 ): IProductListPrice | null {
-  const allowed =
-    allowedChains === null
-      ? null
-      : new Set(allowedChains.map(normalizeChainCode));
   const chains = product.chains.filter(
-    (chain) => allowed === null || allowed.has(normalizeChainCode(chain.chain)),
+    (chain) =>
+      allowedChainKeys === null ||
+      allowedChainKeys.has(normalizeChainCode(chain.chain)),
   );
   const prices = chains.flatMap((chain) =>
     [parsePrice(chain.min_price), parsePrice(chain.max_price)].filter(
@@ -38,7 +36,7 @@ export function summarizeChainPrices(
     ),
   );
 
-  return summarizePrices(prices, allowed === null ? "all" : "chains");
+  return summarizePrices(prices, allowedChainKeys === null ? "all" : "chains");
 }
 
 export function summarizeLocationPrices(
@@ -54,15 +52,15 @@ export function summarizeLocationPrices(
 
   for (const storePrice of storePrices) {
     const locationKey = normalizeForSearch(
-      getLocationLabel(storePrice.store.city),
+      getLocationLabel(storePrice.store.city?.trim()),
     );
 
     if (!selectedLocationKeys.has(locationKey)) continue;
     if (!allowedChainKeys.has(normalizeChainCode(storePrice.chain))) continue;
 
-    const price = parsePrice(
-      storePrice.special_price ?? storePrice.regular_price ?? "",
-    );
+    const price =
+      parsePrice(storePrice.special_price ?? "") ??
+      parsePrice(storePrice.regular_price ?? "");
     if (price === null) continue;
 
     const prices = pricesByEan.get(storePrice.ean) ?? [];

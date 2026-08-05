@@ -25,6 +25,7 @@ interface IUseInfiniteProductsResult {
   isTruncated: boolean;
   isLoading: boolean;
   error: unknown;
+  hasPartialPriceData: boolean;
 }
 
 const EMPTY_SELECTION: string[] = [];
@@ -56,33 +57,30 @@ export default function useInfiniteProducts(
 
   const isTruncated = allProducts.length >= PRODUCT_SEARCH_LIMIT;
 
-  const filteredProducts = useMemo(() => {
-    const unfiltered =
-      allowedChains === null &&
-      selectedCategories.length === 0 &&
-      selectedBrands.length === 0;
-    if (unfiltered) return allProducts;
+  const chainProducts = useMemo(() => {
+    if (allowedChains === null) return allProducts;
 
     return allProducts.filter((product) =>
       productMatchesFilters(
         product,
         allowedChains,
-        selectedCategories,
-        selectedBrands,
+        EMPTY_SELECTION,
+        EMPTY_SELECTION,
       ),
     );
-  }, [allProducts, allowedChains, selectedCategories, selectedBrands]);
+  }, [allProducts, allowedChains]);
 
   // The API returns hits in its own order, so the best match can land anywhere.
   const rankedProducts = useMemo(
-    () => sortProductsByRelevance(filteredProducts, q),
-    [filteredProducts, q],
+    () => sortProductsByRelevance(chainProducts, q),
+    [chainProducts, q],
   );
 
   const {
     items: pricedItems,
     isLoading: pricesLoading,
     error: pricesError,
+    hasPartialError,
   } = useFilteredProductPrices({
     products: rankedProducts,
     allowedChains,
@@ -90,13 +88,23 @@ export default function useInfiniteProducts(
     selectedSourceCities,
   });
 
+  const filteredItems = useMemo(() => {
+    if (selectedCategories.length === 0 && selectedBrands.length === 0) {
+      return pricedItems;
+    }
+
+    return pricedItems.filter(({ product }) =>
+      productMatchesFilters(product, null, selectedCategories, selectedBrands),
+    );
+  }, [pricedItems, selectedBrands, selectedCategories]);
+
   const batchedItems = useMemo(() => {
     const batches: IProductListItem[][] = [];
-    for (let i = 0; i < pricedItems.length; i += safeBatchSize) {
-      batches.push(pricedItems.slice(i, i + safeBatchSize));
+    for (let i = 0; i < filteredItems.length; i += safeBatchSize) {
+      batches.push(filteredItems.slice(i, i + safeBatchSize));
     }
     return batches;
-  }, [pricedItems, safeBatchSize]);
+  }, [filteredItems, safeBatchSize]);
 
   const [batchesToShow, setBatchesToShow] = useState<number>(
     batchedItems.length > 0 ? 1 : 0,
@@ -107,7 +115,6 @@ export default function useInfiniteProducts(
     setBatchesToShow(batchedItems.length > 0 ? 1 : 0);
   }, [batchedItems, q]);
 
-  // Load more when user scrolls near bottom of page
   useEffect(() => {
     if (batchesToShow >= batchedItems.length) return;
 
@@ -131,9 +138,10 @@ export default function useInfiniteProducts(
 
   return {
     visibleItems,
-    total: pricedItems.length,
+    total: filteredItems.length,
     isTruncated,
     isLoading: isLoading || pricesLoading,
     error: error || pricesError,
+    hasPartialPriceData: hasPartialError,
   };
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, TriangleAlert } from "lucide-react";
 import { useViewMode } from "@/hooks/use-view-mode";
 import NoResults from "@/components/custom/common/no-results";
 import useInfiniteProducts from "@/app/products/hooks/use-infinite-products";
@@ -14,6 +14,7 @@ import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import { Banner } from "@/components/custom/common/banner";
 
 interface IProductsClientProps {
   query: string;
@@ -32,21 +33,29 @@ export default function ProductsClient({ query }: IProductsClientProps) {
     selectedSourceCities,
     allowedChains,
     locationsReady,
+    locationsError,
     activeFilterCount,
     clearFilters,
   } = filters;
 
-  const { visibleItems, total, isTruncated, isLoading, error } =
-    useInfiniteProducts(query, {
-      allowedChains,
-      selectedCategories,
-      selectedBrands,
-      selectedLocations,
-      selectedSourceCities,
-    });
+  const {
+    visibleItems,
+    total,
+    isTruncated,
+    isLoading,
+    error,
+    hasPartialPriceData,
+  } = useInfiniteProducts(query, {
+    allowedChains,
+    selectedCategories,
+    selectedBrands,
+    selectedLocations,
+    selectedSourceCities,
+  });
 
   // A location filter is set but the city -> chains mapping is still loading
   const waitingForLocations = Boolean(query) && !locationsReady;
+  const pageError = error || locationsError;
 
   return (
     <div className="space-y-4">
@@ -75,11 +84,25 @@ export default function ProductsClient({ query }: IProductsClientProps) {
         {/* <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} /> */}
       </div>
 
+      {hasPartialPriceData &&
+        !isLoading &&
+        !waitingForLocations &&
+        !pageError && (
+          <Banner
+            role="status"
+            aria-live="polite"
+            variant="warningSoft"
+            icon={TriangleAlert}
+            title="Neke cijene nisu dostupne"
+            text="Prikazujemo dostupne cijene, ali jednu ili više odabranih lokacija trenutno nismo uspjeli dohvatiti."
+          />
+        )}
+
       {isLoading || waitingForLocations ? (
         <div className="flex items-center justify-center py-12">
           <BlockLoadingSpinner />
         </div>
-      ) : error ? (
+      ) : pageError ? (
         <div className="text-center py-12">
           <Search className="size-12 text-red-700 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-foreground mb-2">
