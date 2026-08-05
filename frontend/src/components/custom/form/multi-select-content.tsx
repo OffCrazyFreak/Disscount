@@ -21,7 +21,7 @@ interface IMultiSelectContentProps extends Omit<
   children: ReactNode;
 }
 
-export function MultiSelectContent({
+export default function MultiSelectContent({
   search = true,
   children,
   ...props

@@ -1,16 +1,11 @@
 "use client";
 
-import {
-  useCallback,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ComponentPropsWithoutRef,
-} from "react";
+import type { ComponentPropsWithoutRef } from "react";
 import { XIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { useMultiSelectContext } from "@/components/custom/form/multi-select-context";
+import useBadgeOverflow from "@/components/custom/form/use-badge-overflow";
 import { cn } from "@/lib/utils";
 
 interface IMultiSelectValueProps extends Omit<
@@ -22,7 +17,7 @@ interface IMultiSelectValueProps extends Omit<
   overflowBehavior?: "wrap" | "wrap-when-open" | "cutoff";
 }
 
-export function MultiSelectValue({
+export default function MultiSelectValue({
   placeholder,
   clickToRemove = true,
   className,
@@ -30,64 +25,14 @@ export function MultiSelectValue({
   ...props
 }: IMultiSelectValueProps) {
   const { selectedValues, toggleValue, items, open } = useMultiSelectContext();
-  const [overflowAmount, setOverflowAmount] = useState(0);
-  const valueRef = useRef<HTMLDivElement>(null);
-  const overflowRef = useRef<HTMLDivElement>(null);
 
   const shouldWrap =
     overflowBehavior === "wrap" ||
     (overflowBehavior === "wrap-when-open" && open);
 
-  const checkOverflow = useCallback(() => {
-    if (valueRef.current == null) return;
-
-    const containerElement = valueRef.current;
-    const overflowElement = overflowRef.current;
-    const itemElements = containerElement.querySelectorAll<HTMLElement>(
-      "[data-selected-item]",
-    );
-
-    if (overflowElement != null) overflowElement.style.display = "none";
-    itemElements.forEach((child) => child.style.removeProperty("display"));
-
-    // Wrapping already shows every badge, and a single badge wider than the box
-    // still reports scrollWidth > clientWidth, so without this the loop would
-    // hide badges and reveal a "+N" that contradicts what is on screen.
-    if (shouldWrap) {
-      setOverflowAmount(0);
-      return;
-    }
-
-    let amount = 0;
-    for (let i = itemElements.length - 1; i >= 0; i--) {
-      const child = itemElements[i];
-      if (containerElement.scrollWidth <= containerElement.clientWidth) {
-        break;
-      }
-      amount = itemElements.length - i;
-      child.style.display = "none";
-      overflowElement?.style.removeProperty("display");
-    }
-    setOverflowAmount(amount);
-  }, [shouldWrap]);
-
-  useLayoutEffect(() => {
-    checkOverflow();
-  }, [selectedValues, checkOverflow, shouldWrap]);
-
-  const handleResize = useCallback(
-    (node: HTMLDivElement) => {
-      valueRef.current = node;
-
-      const observer = new ResizeObserver(checkOverflow);
-      observer.observe(node);
-
-      return () => {
-        observer.disconnect();
-        valueRef.current = null;
-      };
-    },
-    [checkOverflow],
+  const { containerRef, overflowRef, overflowAmount } = useBadgeOverflow(
+    selectedValues,
+    shouldWrap,
   );
 
   if (selectedValues.size === 0 && placeholder) {
@@ -101,7 +46,7 @@ export function MultiSelectValue({
   return (
     <div
       {...props}
-      ref={handleResize}
+      ref={containerRef}
       className={cn(
         "flex w-full gap-1.5 overflow-hidden",
         shouldWrap && "h-full flex-wrap",

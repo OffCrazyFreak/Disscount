@@ -15,7 +15,7 @@ type IMultiSelectTriggerProps = {
   children?: ReactNode;
 } & ComponentPropsWithoutRef<typeof Button>;
 
-export function MultiSelectTrigger({
+export default function MultiSelectTrigger({
   className,
   children,
   ...props

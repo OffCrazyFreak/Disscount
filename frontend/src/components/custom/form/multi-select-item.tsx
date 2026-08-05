@@ -7,11 +7,7 @@ import {
 } from "react";
 import { CheckIcon } from "lucide-react";
 
-import {
-  CommandGroup,
-  CommandItem,
-  CommandSeparator,
-} from "@/components/ui/command";
+import { CommandItem } from "@/components/ui/command";
 import { useMultiSelectContext } from "@/components/custom/form/multi-select-context";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +19,7 @@ interface IMultiSelectItemProps extends Omit<
   value: string;
 }
 
-export function MultiSelectItem({
+export default function MultiSelectItem({
   value,
   children,
   badgeLabel,
@@ -62,16 +58,4 @@ export function MultiSelectItem({
       {children}
     </CommandItem>
   );
-}
-
-export function MultiSelectGroup(
-  props: ComponentPropsWithoutRef<typeof CommandGroup>,
-) {
-  return <CommandGroup {...props} />;
-}
-
-export function MultiSelectSeparator(
-  props: ComponentPropsWithoutRef<typeof CommandSeparator>,
-) {
-  return <CommandSeparator {...props} />;
 }

@@ -10,15 +10,14 @@ import {
   type MultiSelectPresentation,
 } from "@/components/custom/form/multi-select-context";
 
-// The compound parts live in their own files; this stays the single import path.
-export { MultiSelectTrigger } from "@/components/custom/form/multi-select-trigger";
-export { MultiSelectValue } from "@/components/custom/form/multi-select-value";
-export { MultiSelectContent } from "@/components/custom/form/multi-select-content";
-export {
-  MultiSelectItem,
-  MultiSelectGroup,
-  MultiSelectSeparator,
-} from "@/components/custom/form/multi-select-item";
+// One component per file, named back up here so this stays the single import
+// path and no call site has to know the layout.
+export { default as MultiSelectTrigger } from "@/components/custom/form/multi-select-trigger";
+export { default as MultiSelectValue } from "@/components/custom/form/multi-select-value";
+export { default as MultiSelectContent } from "@/components/custom/form/multi-select-content";
+export { default as MultiSelectItem } from "@/components/custom/form/multi-select-item";
+export { default as MultiSelectGroup } from "@/components/custom/form/multi-select-group";
+export { default as MultiSelectSeparator } from "@/components/custom/form/multi-select-separator";
 
 interface IMultiSelectProps {
   children: ReactNode;
