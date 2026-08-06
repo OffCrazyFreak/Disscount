@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { toast } from "sonner";
 
 import { shoppingListService } from "@/lib/api";
@@ -10,19 +9,11 @@ import { formatShoppingListForSharing } from "@/app/(user)/shopping-lists/utils/
 import { shareListUrl } from "@/utils/shopping-list-links";
 import { useOnlineStatus } from "@/hooks/use-online-status";
 
-const SAVED_MESSAGE: Record<LinkAccess, string> = {
-  NONE: "Dijeljenje je isključeno. Poveznica više ne vrijedi.",
-  VIEW: "Dijeljenje je uključeno. Poveznica je spremna.",
-  SHOP: "Dijeljenje je uključeno. Poveznica je spremna.",
-  EDIT: "Dijeljenje je uključeno. Poveznica je spremna.",
-};
-
 /**
  * Share settings save on change rather than behind a submit button: the server mints the
  * token, so there is no link to show until a save has come back.
  */
 export function useShareListModal(id: string) {
-  const [savedMessage, setSavedMessage] = useState("");
   const isOnline = useOnlineStatus();
 
   const listQuery = shoppingListService.useGetShoppingListById(id);
@@ -45,14 +36,14 @@ export function useShareListModal(id: string) {
   function setLinkAccess(next: LinkAccess) {
     if (!shoppingList || next === linkAccess || isSaving) return;
 
-    setSavedMessage("");
-
     // PUT carries the whole request, so the current title has to ride along or the
     // server would reject it as blank.
     updateMutation.mutate(
       { id, data: { title: shoppingList.title, linkAccess: next } },
       {
-        onSuccess: () => setSavedMessage(SAVED_MESSAGE[next]),
+        // The toast is the confirmation. It carries its own live region, so the modal does
+        // not also announce success and make a screen reader say it twice.
+        onSuccess: () => toast.success("Postavke dijeljenja popisa ažurirane."),
         onError: () =>
           toast.error("Promjena dijeljenja nije spremljena. Pokušaj ponovno."),
       },
@@ -107,7 +98,6 @@ export function useShareListModal(id: string) {
     setLinkAccess,
     isSaving,
     isOffline: !isOnline,
-    savedMessage,
     shareUrl,
     handleLinkShare,
     handleTextShare,

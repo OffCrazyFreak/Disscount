@@ -1,9 +1,15 @@
 "use client";
 
 import { useId } from "react";
-import { Globe, Lock } from "lucide-react";
 
-import LabeledSelect from "@/components/custom/common/labeled-select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import type { LinkAccess } from "@/lib/api/types";
 import {
   LINK_ACCESS_HINTS,
@@ -11,12 +17,8 @@ import {
   LINK_ACCESS_LEVELS,
   LINK_ACCESS_ROW_TITLES,
 } from "@/app/(user)/shopping-lists/utils/link-access-copy";
+import { LINK_ACCESS_ICONS } from "@/app/(user)/shopping-lists/utils/link-access-icons";
 import { cn } from "@/lib/utils";
-
-const LEVEL_OPTIONS = LINK_ACCESS_LEVELS.map((value) => ({
-  value,
-  label: LINK_ACCESS_LABELS[value],
-}));
 
 interface IShareAccessRowProps {
   linkAccess: LinkAccess;
@@ -38,10 +40,11 @@ export default function ShareAccessRow({
   hintId,
 }: IShareAccessRowProps) {
   const fallbackHintId = useId();
+  const labelId = useId();
   const describedById = hintId ?? fallbackHintId;
 
   const isShared = linkAccess !== "NONE";
-  const Icon = isShared ? Globe : Lock;
+  const Icon = LINK_ACCESS_ICONS[linkAccess];
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -55,7 +58,7 @@ export default function ShareAccessRow({
           )}
         >
           {/* size-6 matches the bottom nav glyph and the list card's own visibility
-              indicator, so the same lock and globe read at one size across the app. */}
+              indicator, so the same icons read at one size across the app. */}
           <Icon className="size-6" aria-hidden="true" />
         </span>
 
@@ -69,17 +72,43 @@ export default function ShareAccessRow({
         </div>
       </div>
 
-      <LabeledSelect<LinkAccess>
-        label="Tko ima pristup popisu"
-        srOnlyLabel
+      <span id={labelId} className="sr-only">
+        Tko ima pristup popisu
+      </span>
+
+      <Select
         value={linkAccess}
-        onValueChange={onLevelChange}
-        options={LEVEL_OPTIONS}
         disabled={isSaving}
-        describedById={describedById}
-        className="sm:shrink-0"
-        triggerClassName="sm:w-44"
-      />
+        onValueChange={(next) => onLevelChange(next as LinkAccess)}
+      >
+        <SelectTrigger
+          aria-labelledby={labelId}
+          aria-describedby={describedById}
+          className="w-full bg-background sm:w-48 sm:shrink-0"
+        >
+          {/* The icon lives on the trigger rather than inside SelectValue, so the spinner
+              can take its place while a save is in flight. Both occupy size-4, so the
+              swap moves nothing. */}
+          {isSaving ? (
+            <BlockLoadingSpinner size={16} className="px-0 text-current" />
+          ) : (
+            <Icon className="size-4 shrink-0 text-current" aria-hidden="true" />
+          )}
+          <SelectValue />
+        </SelectTrigger>
+
+        <SelectContent>
+          {LINK_ACCESS_LEVELS.map((level) => (
+            <SelectItem
+              key={level}
+              value={level}
+              icon={LINK_ACCESS_ICONS[level]}
+            >
+              {LINK_ACCESS_LABELS[level]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }

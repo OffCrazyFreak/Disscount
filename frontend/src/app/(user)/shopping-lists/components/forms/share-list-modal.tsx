@@ -25,7 +25,6 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
     setLinkAccess,
     isSaving,
     isOffline,
-    savedMessage,
     shareUrl,
     handleLinkShare,
     handleTextShare,
@@ -39,7 +38,7 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
       open={open}
       onOpenChange={(isOpen) => !isOpen && closeModalUrl()}
       title="Podijeli popis"
-      description="Svatko s poveznicom može otvoriti popis. Poveznicu možeš ukinuti u bilo kojem trenutku."
+      description="Pošalji poveznicu i neka ti netko pomogne u kupnji."
     >
       {isLoading ? (
         <div className="space-y-4">
@@ -52,9 +51,10 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
         </p>
       ) : (
         <div className="space-y-6" aria-busy={isSaving}>
-          {/* The only confirmation there is, since the modal saves on change. */}
+          {/* Announces the in-flight state only. Success is the toast, which carries its
+              own live region, so saying it here too would announce it twice. */}
           <p role="status" className="sr-only">
-            {isSaving ? "Spremanje postavki dijeljenja..." : savedMessage}
+            {isSaving ? "Spremanje postavki dijeljenja..." : ""}
           </p>
 
           <ShareAccessRow
