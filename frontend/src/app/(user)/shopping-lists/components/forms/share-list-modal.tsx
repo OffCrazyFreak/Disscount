@@ -1,24 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { Share2, Unlink } from "lucide-react";
+import { useId } from "react";
+import { FileText, Link2 } from "lucide-react";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
-import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
-import SettingRow from "@/components/custom/settings/ui/setting-row";
-import { LINK_ACCESS_HINTS } from "@/lib/api/schemas/shopping-list";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useShareListModal } from "@/app/(user)/shopping-lists/hooks/use-share-list-modal";
-import ShareLinkRow from "@/app/(user)/shopping-lists/components/forms/share-link-row";
+import ShareAccessRow from "@/app/(user)/shopping-lists/components/forms/share-access-row";
 
 interface IShareListModalProps {
   open: boolean;
   id: string;
 }
 
+/** No footer on purpose: every change saves itself, so there is nothing to confirm. */
 export default function ShareListModal({ open, id }: IShareListModalProps) {
   const {
     shoppingList,
@@ -30,11 +27,12 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
     isOffline,
     savedMessage,
     shareUrl,
+    handleLinkShare,
     handleTextShare,
   } = useShareListModal(id);
 
-  const [isRevokeOpen, setIsRevokeOpen] = useState(false);
-  const isShared = linkAccess !== "NONE";
+  const hintId = useId();
+  const canShareLink = linkAccess !== "NONE" && !!shareUrl;
 
   return (
     <ModalShell
@@ -42,7 +40,6 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
       onOpenChange={(isOpen) => !isOpen && closeModalUrl()}
       title="Podijeli popis"
       description="Svatko s poveznicom može otvoriti popis. Poveznicu možeš ukinuti u bilo kojem trenutku."
-      cancelLabel="Zatvori"
     >
       {isLoading ? (
         <div className="space-y-4">
@@ -55,46 +52,17 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
         </p>
       ) : (
         <div className="space-y-6" aria-busy={isSaving}>
-          {/* Nothing here navigates, and the switch has no submit button, so the save
-              result would otherwise be silent for a screen reader. */}
+          {/* The only confirmation there is, since the modal saves on change. */}
           <p role="status" className="sr-only">
             {isSaving ? "Spremanje postavki dijeljenja..." : savedMessage}
           </p>
 
-          <SettingRow
-            label="Svatko s poveznicom"
-            description={
-              isShared
-                ? "Popis je dostupan svakome tko ima poveznicu."
-                : LINK_ACCESS_HINTS.NONE
-            }
-            control={
-              <Switch
-                aria-label="Svatko s poveznicom"
-                checked={isShared}
-                disabled={isSaving}
-                onCheckedChange={(next) =>
-                  next ? setLinkAccess("VIEW") : setIsRevokeOpen(true)
-                }
-              />
-            }
+          <ShareAccessRow
+            linkAccess={linkAccess}
+            onLevelChange={setLinkAccess}
+            isSaving={isSaving}
+            hintId={hintId}
           />
-
-          {isShared && (
-            <ShareLinkRow
-              linkAccess={linkAccess}
-              onLevelChange={setLinkAccess}
-              shareUrl={shareUrl}
-              isSaving={isSaving}
-            />
-          )}
-
-          {/* Outside the isShared branch on purpose: it used to unmount at the exact
-              moment it became true, so nothing ever told the owner the link had died. */}
-          <p className="text-xs text-muted-foreground">
-            Isključivanjem dijeljenja poveznica prestaje vrijediti. Ako ponovno
-            uključiš dijeljenje, dobit ćeš novu poveznicu.
-          </p>
 
           {isOffline && (
             <p className="text-xs text-muted-foreground">
@@ -102,31 +70,36 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
             </p>
           )}
 
-          <Button
-            type="button"
-            variant="secondary"
-            className="w-full"
-            onClick={handleTextShare}
-          >
-            <Share2 aria-hidden="true" />
-            Podijeli kao tekst
-          </Button>
+          {/* Reversed on desktop so the primary action sits on the right, while the column
+              keeps it on top. DOM order stays primary-first, so it is also the first of the
+              two a keyboard or screen reader reaches at either width. */}
+          <div className="flex flex-col gap-2 sm:flex-row-reverse">
+            <Button
+              type="button"
+              variant="primary"
+              className="flex-1"
+              onClick={handleLinkShare}
+              disabled={!canShareLink}
+              // Points at the access hint, so the reason it is unavailable is readable
+              // rather than something the user has to infer from the select.
+              aria-describedby={canShareLink ? undefined : hintId}
+            >
+              <Link2 aria-hidden="true" />
+              Podijeli poveznicu
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              onClick={handleTextShare}
+            >
+              <FileText aria-hidden="true" />
+              Podijeli tekst
+            </Button>
+          </div>
         </div>
       )}
-
-      <ConfirmDialog
-        isOpen={isRevokeOpen}
-        onOpenChange={setIsRevokeOpen}
-        title="Prestani dijeliti popis"
-        description="Postojeća poveznica prestat će vrijediti i nitko je više neće moći otvoriti. Ako kasnije ponovno uključiš dijeljenje, dobit ćeš novu poveznicu."
-        confirmLabel="Prestani dijeliti"
-        variant="destructive"
-        icon={Unlink}
-        onConfirm={() => {
-          setIsRevokeOpen(false);
-          setLinkAccess("NONE");
-        }}
-      />
     </ModalShell>
   );
 }

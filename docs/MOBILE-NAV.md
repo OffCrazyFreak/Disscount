@@ -425,7 +425,7 @@ Both gain tap-outside-to-close from it, which is the dismissal users try first.
 
 The shell therefore **defaults to modal**, and the products sheet is the single explicit `modal={false}`. It was the other way round at first, which meant a new sheet that simply forgot the prop silently lost its scrim, its scroll lock and tap-outside-to-close. Non-modal is also the buggier path in vaul (see [§18](#18-gotchas--lessons-learned)), so the fewer sheets that take it, the better. The one opt-out is the one that earns it.
 
-That split also matches `ModalShell`'s own line: all 12 of its consumers are self-contained tasks with their own submit (`shopping-list-modal`, `settings-modal` and its four tabs, `onboarding-wizard`, `confirm-dialog`, the auth modals, ...). Dialogs are a mini page; a non-modal sheet changes the page you are on.
+That split also matches `ModalShell`'s own line: its consumers are self-contained tasks you finish and leave (`shopping-list-modal`, `settings-modal` and its four tabs, `onboarding-wizard`, `confirm-dialog`, the auth modals, ...). Most carry their own submit; `share-list-modal` is the exception that saves on change and renders no footer, which is a different way of being self-contained rather than a counter-example. Dialogs are a mini page; a non-modal sheet changes the page you are on.
 
 What non-modal costs the products sheet, and what had to be paid for it:
 

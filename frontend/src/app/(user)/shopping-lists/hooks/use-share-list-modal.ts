@@ -22,7 +22,6 @@ const SAVED_MESSAGE: Record<LinkAccess, string> = {
  * token, so there is no link to show until a save has come back.
  */
 export function useShareListModal(id: string) {
-  const [pendingAccess, setPendingAccess] = useState<LinkAccess | null>(null);
   const [savedMessage, setSavedMessage] = useState("");
   const isOnline = useOnlineStatus();
 
@@ -30,23 +29,22 @@ export function useShareListModal(id: string) {
   const updateMutation = shoppingListService.useUpdateShoppingList();
 
   const shoppingList = listQuery.data ?? null;
-  // The pending value wins while the save is in flight, so the control stays where the
-  // user put it instead of snapping back for the whole round trip.
-  const linkAccess: LinkAccess =
-    pendingAccess ?? shoppingList?.linkAccess ?? "NONE";
+
+  // Read straight from the cache, with no local mirror. useUpdateShoppingList writes the
+  // new value optimistically in onMutate, so the cache is already correct here and there
+  // is no second source to fall back to mid-save.
+  const linkAccess: LinkAccess = shoppingList?.linkAccess ?? "NONE";
   const shareUrl = shoppingList?.shareToken
     ? shareListUrl(shoppingList.shareToken)
     : null;
 
+  // isSaving, not isPending: offline the mutation pauses rather than settles, so isPending
+  // stays true forever and the controls would sit disabled with nothing explaining why.
   const isSaving = updateMutation.isPending && isOnline;
 
   function setLinkAccess(next: LinkAccess) {
-    // isSaving, not isPending: offline the mutation pauses rather than settles, so
-    // isPending stays true forever and this guard would swallow every later change
-    // while the controls stayed enabled and said nothing.
     if (!shoppingList || next === linkAccess || isSaving) return;
 
-    setPendingAccess(next);
     setSavedMessage("");
 
     // PUT carries the whole request, so the current title has to ride along or the
@@ -57,17 +55,35 @@ export function useShareListModal(id: string) {
         onSuccess: () => setSavedMessage(SAVED_MESSAGE[next]),
         onError: () =>
           toast.error("Promjena dijeljenja nije spremljena. Pokušaj ponovno."),
-        onSettled: () => setPendingAccess(null),
       },
     );
   }
 
-  // No pending state on purpose. Nothing here is fetched, and shareOrCopy
+  // No pending state on either handler. Nothing here is fetched, and shareOrCopy
   // documents why a flag cleared on completion strands the button spinning.
+  async function handleLinkShare() {
+    if (!shareUrl || !shoppingList) return;
+
+    try {
+      const outcome = await shareOrCopy({
+        title: shoppingList.title,
+        url: shareUrl,
+      });
+
+      if (outcome === "copied") toast.success("Poveznica je kopirana");
+      if (outcome === "failed") toast.error("Dijeljenje nije uspjelo");
+    } catch {
+      toast.error("Dijeljenje nije uspjelo");
+    }
+  }
+
   async function handleTextShare() {
     if (!shoppingList) return;
 
     try {
+      // Text only, deliberately. Adding a url would flip shareOrCopy's clipboard fallback,
+      // which prefers url over text, so the button would copy a bare link instead of the
+      // list it promises.
       const outcome = await shareOrCopy({
         title: shoppingList.title,
         text: formatShoppingListForSharing(shoppingList),
@@ -93,6 +109,7 @@ export function useShareListModal(id: string) {
     isOffline: !isOnline,
     savedMessage,
     shareUrl,
+    handleLinkShare,
     handleTextShare,
   };
 }

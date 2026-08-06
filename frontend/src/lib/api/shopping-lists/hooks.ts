@@ -8,6 +8,12 @@ import {
   type IItemRollback,
 } from "@/lib/api/shopping-lists/optimistic-items";
 import {
+  applyListResult,
+  patchListOptimistically,
+  restoreList,
+  type IListRollback,
+} from "@/lib/api/shopping-lists/optimistic-list";
+import {
   ShoppingListRequest,
   ShoppingListDto,
   ShoppingListItemRequest,
@@ -65,12 +71,22 @@ export function useUpdateShoppingList() {
   return useMutation<
     ShoppingListDto,
     Error,
-    { id: string; data: ShoppingListRequest }
+    { id: string; data: ShoppingListRequest },
+    IListRollback | undefined
   >({
     mutationKey: OFFLINE_MUTATION_KEYS.shoppingListUpdate,
     mutationFn: ({ id, data }) => updateShoppingList(id, data),
-    onSuccess: (_result, { data }) => {
-      queryClient.invalidateQueries({ queryKey: SHOPPING_LIST_QUERY_KEYS.all });
+    // The cache is the single source of truth, written before the request leaves. Callers
+    // used to mirror the new value in component state and clear it once the mutation
+    // settled, which lands while the refetch invalidateQueries started is still in flight,
+    // so the control fell back to the pre-save value and visibly flickered.
+    onMutate: ({ id, data }) => patchListOptimistically(queryClient, id, data),
+    onError: (_error, { id }, rollback) =>
+      restoreList(queryClient, id, rollback),
+    onSuccess: (result, { id, data }) => {
+      // The response is the only place a freshly minted share token appears, so writing it
+      // in is what makes the link available now rather than a refetch later.
+      applyListResult(queryClient, id, result);
 
       // Turning sharing off kills the token server-side, but a copy of the list read
       // through it can sit in this browser's cache for the whole staleTime. Drop it so
@@ -81,6 +97,9 @@ export function useUpdateShoppingList() {
         });
       }
     },
+    // onSettled, not onSuccess: a rolled-back cache has to reconcile with the server too.
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: SHOPPING_LIST_QUERY_KEYS.all }),
   });
 }
 

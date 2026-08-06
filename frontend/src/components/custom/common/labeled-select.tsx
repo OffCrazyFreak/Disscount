@@ -24,7 +24,14 @@ interface ILabeledSelectProps<TValue extends string> {
    * hears only the bare option labels and never the consequence of picking one.
    */
   describedById?: string;
+  /**
+   * Hides the label visually but keeps it as the trigger's accessible name. For a control
+   * that already sits under a visible heading, where repeating it would be noise on screen
+   * and the bare options would be meaningless to a screen reader.
+   */
+  srOnlyLabel?: boolean;
   className?: string;
+  triggerClassName?: string;
 }
 
 /** Leading label and dropdown, shared by every control that narrows or reorders a list. */
@@ -35,7 +42,9 @@ export default function LabeledSelect<TValue extends string>({
   options,
   disabled = false,
   describedById,
+  srOnlyLabel = false,
   className,
+  triggerClassName,
 }: ILabeledSelectProps<TValue>) {
   const labelId = useId();
 
@@ -43,7 +52,13 @@ export default function LabeledSelect<TValue extends string>({
     <div
       className={cn("flex flex-wrap items-center justify-end gap-2", className)}
     >
-      <span id={labelId} className="shrink-0 text-sm text-muted-foreground">
+      <span
+        id={labelId}
+        className={cn(
+          "shrink-0 text-sm text-muted-foreground",
+          srOnlyLabel && "sr-only",
+        )}
+      >
         {label}
       </span>
 
@@ -58,7 +73,9 @@ export default function LabeledSelect<TValue extends string>({
         <SelectTrigger
           aria-labelledby={labelId}
           aria-describedby={describedById}
-          className="w-full bg-white sm:w-60"
+          // bg-background, not bg-white: the trigger sits on the surface it is placed on,
+          // so a hardcoded white stayed white in dark mode.
+          className={cn("w-full bg-background sm:w-60", triggerClassName)}
         >
           <SelectValue />
         </SelectTrigger>

@@ -41,8 +41,14 @@ caller resolved to, which adds `OWNER`:
 | `OWNER` | yes  | yes                   | yes            | yes    | yes            |
 
 \* The backend allows an `EDIT` caller to rename, but no rename control is rendered for a
-non-owner, so the share modal's copy does not promise it. Wiring it is a small piece of
-work; until then the copy and the UI agree with each other rather than with the API.
+non-owner: `shopping-list-header.tsx` passes `showEditButton={isOwner}` and the prop
+defaults to `false`, so neither the desktop nor the mobile action group offers it. The
+shared page renders that same header, which is what gates it there too.
+
+The modal's `EDIT` hint reads "Može uređivati cijeli popis, ali ne može dodavati nove
+proizvode." It names the one limitation people actually trip over, item creation, and does
+not enumerate renaming either way. Both renaming and adding are deferred to the membership
+work, where per-person revocation makes unbounded additions safe to grant.
 
 `OWNER` is never stored. It is what `ShoppingListAccessService.resolve` returns when the
 caller owns the list, and the request DTO is bound to a separate `LinkAccess` enum that
@@ -152,7 +158,10 @@ Worth knowing before changing any of this:
 | Optional auth | `backend/.../config/OptionalBearerAuthenticationFilter.java`                   |
 | Public page   | `frontend/src/app/s/[token]/`                                                  |
 | Share modal   | `frontend/src/app/(user)/shopping-lists/components/forms/share-list-modal.tsx` |
-| Level labels  | `frontend/src/lib/api/schemas/shopping-list.ts`                                |
+| Access row    | `frontend/src/app/(user)/shopping-lists/components/forms/share-access-row.tsx` |
+| Modal state   | `frontend/src/app/(user)/shopping-lists/hooks/use-share-list-modal.ts`         |
+| Level copy    | `frontend/src/app/(user)/shopping-lists/utils/link-access-copy.ts`             |
+| Optimism      | `frontend/src/lib/api/shopping-lists/optimistic-list.ts`                       |
 | Client access | `frontend/src/app/(user)/shopping-lists/utils/shopping-list-access.ts`         |
 | Token scrub   | `frontend/src/lib/sentry/scrub-share-token.ts`                                 |
 
@@ -169,7 +178,20 @@ Worth knowing before changing any of this:
   may reasonably assume the same people can still reach the copy.
 - **The share modal saves on change**, with no submit button, because the server mints the
   token and there is no link to show until a save returns. That is why it needs a live
-  region: there is no submit button whose disappearance would signal success.
+  region: there is no submit button whose disappearance would signal success, and why it
+  renders no footer at all (omitting `cancelLabel` is what drops it, since
+  `hasFooterContent` keys off labels rather than handlers).
+- **Private is a level, not an off switch.** One select carries all four values, so turning
+  sharing off is picking `Privatno` rather than flipping a control that then reveals a
+  second one. The row beside it restates the current level in words, following the shape
+  Google Drive uses.
+- **The list mutation must write the cache, not just invalidate it.** `useUpdateShoppingList`
+  patches `byId` and `me` in `onMutate` and writes the response in `onSuccess`
+  (`optimistic-list.ts`). `invalidateQueries` only _starts_ a refetch, so when the modal
+  mirrored the pending level in component state and cleared it on settle, the control fell
+  back to the pre-save value for a whole round trip and visibly flickered new, old, new.
+  The response is also the only place a freshly minted `shareToken` appears, so discarding
+  it delayed the link by a second request.
 
 ## 10. Not built yet
 
