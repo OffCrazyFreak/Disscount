@@ -23,7 +23,7 @@ export default function SharedShoppingListClient({
   token,
 }: ISharedShoppingListClientProps) {
   const router = useRouter();
-  const { isAuthenticated, isLoading: isUserLoading } = useUser();
+  const { isAuthenticated } = useUser();
 
   const {
     shoppingList,
@@ -62,12 +62,12 @@ export default function SharedShoppingListClient({
 
   return (
     <div className="space-y-8">
-      {!isUserLoading && (
-        <SharedListAccessBanner
-          myAccess={shoppingList.myAccess}
-          isSignedIn={isAuthenticated}
-        />
-      )}
+      {/* Unconditional: the disabled controls point at this with aria-describedby, and
+          gating it on the user context left a window where that IDREF dangled. */}
+      <SharedListAccessBanner
+        myAccess={shoppingList.myAccess}
+        isSignedIn={isAuthenticated}
+      />
 
       <section>
         <ShoppingListHeader

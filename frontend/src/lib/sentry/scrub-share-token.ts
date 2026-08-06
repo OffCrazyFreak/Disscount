@@ -15,19 +15,47 @@ export function scrubShareToken<T>(value: T): T {
   return value.replace(TOKEN_PATHS, "/$1/[token]") as T;
 }
 
-/** Rewrites the string-valued URL fields Sentry puts on an event or breadcrumb. */
-export function scrubEventUrls<
-  T extends {
-    request?: { url?: string } | undefined;
-    breadcrumbs?: { data?: Record<string, unknown> }[] | undefined;
-  },
->(event: T): T {
+interface IScrubbableEvent {
+  request?: { url?: string };
+  breadcrumbs?: { data?: Record<string, unknown> }[];
+  spans?: { description?: string; data?: Record<string, unknown> }[];
+  contexts?: { trace?: { data?: Record<string, unknown> } };
+  exception?: { values?: { value?: string }[] };
+  transaction?: string;
+  message?: string;
+}
+
+/**
+ * Rewrites every field Sentry can carry a URL in, not just `request.url`.
+ *
+ * A transaction event carries the URL again on each span (browser tracing records fetch
+ * and resource spans), on `contexts.trace.data`, and in the transaction name. A failed
+ * fetch puts it in the exception message. Missing any one of those leaks the token just
+ * as effectively as missing all of them.
+ */
+export function scrubEventUrls<T extends IScrubbableEvent>(event: T): T {
   if (event.request?.url) {
     event.request.url = scrubShareToken(event.request.url);
   }
+  if (event.transaction) event.transaction = scrubShareToken(event.transaction);
+  if (event.message) event.message = scrubShareToken(event.message);
 
   for (const breadcrumb of event.breadcrumbs ?? []) {
     if (breadcrumb.data) breadcrumb.data = scrubCrumbData(breadcrumb.data);
+  }
+
+  for (const span of event.spans ?? []) {
+    if (span.description) span.description = scrubShareToken(span.description);
+    if (span.data) span.data = scrubCrumbData(span.data);
+  }
+
+  const traceData = event.contexts?.trace?.data;
+  if (traceData && event.contexts?.trace) {
+    event.contexts.trace.data = scrubCrumbData(traceData);
+  }
+
+  for (const value of event.exception?.values ?? []) {
+    if (value.value) value.value = scrubShareToken(value.value);
   }
 
   return event;

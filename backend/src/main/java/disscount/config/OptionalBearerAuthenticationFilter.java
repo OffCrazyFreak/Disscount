@@ -27,6 +27,13 @@ import java.io.IOException;
  * by a caller whose cached token has gone stale. Dropping the resource server from the shared
  * chain instead would fix that but break the other half: a signed-in recipient would be seen
  * as anonymous and capped at VIEW however generous the link is.
+ *
+ * <p>Validation itself is unchanged and is not hand-rolled. This injects the same
+ * {@code JwtDecoder} bean the resource server uses, so a token is still checked against the
+ * better-auth JWKS, pinned to ES256, and validated for issuer and expiry. Only the response to
+ * a failed check differs: continue anonymously instead of committing a 401. Spring's OAuth2
+ * resource-server DSL has no supported way to express that, because its entry point commits
+ * the response rather than continuing the chain.
  */
 @Component
 @RequiredArgsConstructor
@@ -45,7 +52,11 @@ public class OptionalBearerAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (header != null && header.startsWith(BEARER_PREFIX)) {
+        // RFC 7235 makes the scheme name case-insensitive. Our own client always sends
+        // "Bearer", but a recipient arriving from anything else should not be silently
+        // demoted to anonymous over capitalisation.
+        if (header != null
+                && header.regionMatches(true, 0, BEARER_PREFIX, 0, BEARER_PREFIX.length())) {
             try {
                 Jwt jwt = jwtDecoder.decode(header.substring(BEARER_PREFIX.length()));
                 SecurityContextHolder.getContext().setAuthentication(converter.convert(jwt));

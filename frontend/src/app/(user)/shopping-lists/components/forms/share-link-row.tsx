@@ -34,7 +34,9 @@ export default function ShareLinkRow({
     <div className="space-y-4">
       <div className="space-y-2">
         <LabeledSelect<LinkAccess>
-          label="Što mogu raditi"
+          // Third person throughout: this panel is owner-only, and the hints describe what
+          // the people holding the link can do, not what the owner can.
+          label="Što drugi mogu raditi"
           value={linkAccess}
           onValueChange={onLevelChange}
           options={LEVEL_OPTIONS}

@@ -31,6 +31,11 @@ export function getCacheIdentity(): string {
   return currentIdentity;
 }
 
+/** The stored form of an account id, so callers can name an identity that is not current. */
+export function toCacheIdentity(userId: string | null): string {
+  return userId ?? ANONYMOUS;
+}
+
 export function setCacheIdentity(userId: string | null): void {
   currentIdentity = userId ?? ANONYMOUS;
 
@@ -43,7 +48,12 @@ export function setCacheIdentity(userId: string | null): void {
   }
 }
 
-/** Appends the current identity, so one account's cache is unreadable under another. */
-export function scopedCacheKey(baseKey: string): string {
-  return `${baseKey}:${getCacheIdentity()}`;
+/**
+ * Appends an identity, so one account's cache is unreadable under another.
+ *
+ * `identity` is explicit for the purge, which has to clear the account that is leaving
+ * rather than whichever one happens to be current by the time it awaits.
+ */
+export function scopedCacheKey(baseKey: string, identity?: string): string {
+  return `${baseKey}:${identity ?? getCacheIdentity()}`;
 }

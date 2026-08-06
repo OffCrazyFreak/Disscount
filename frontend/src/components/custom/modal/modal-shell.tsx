@@ -126,7 +126,9 @@ export function ModalShell({
           e.preventDefault();
 
           const opener = openerRef.current;
-          if (opener?.isConnected) opener.focus();
+          // preventScroll, as Radix's own restore does: the scroll lock has just been
+          // released, so a bare focus() scrolls the opener into view and jumps the page.
+          if (opener?.isConnected) opener.focus({ preventScroll: true });
         }}
       >
         <DialogHeader

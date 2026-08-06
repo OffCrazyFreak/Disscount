@@ -11,7 +11,7 @@ import ItemPriceDisplay from "@/app/(user)/shopping-lists/[id]/components/items/
 import type { IShoppingListItemUpdate } from "@/app/(user)/shopping-lists/[id]/typings/shopping-list-item-types";
 import { cn } from "@/lib/utils";
 import { productPath } from "@/utils/product-links";
-import { SHARED_ACCESS_BANNER_ID } from "@/app/s/[token]/components/shared-list-access-banner";
+import { SHARED_ACCESS_BANNER_ID } from "@/app/(user)/shopping-lists/utils/shopping-list-access";
 
 interface IShoppingListItemProps {
   item: ShoppingListItemDto;

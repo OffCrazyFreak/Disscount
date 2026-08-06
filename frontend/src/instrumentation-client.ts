@@ -11,9 +11,15 @@ import {
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
-  // Replay masks text by default but not URLs, so a navigation to a shared list would
-  // otherwise carry a working capability token into the recording.
-  integrations: [Sentry.replayIntegration()],
+  // Replay masks text by default but not URLs, and its envelopes do not pass through
+  // beforeSend, so the scrubbing below does not reach them. Shared-list pages are
+  // excluded from recording instead.
+  integrations: [
+    Sentry.replayIntegration({
+      beforeAddRecordingEvent: (event) =>
+        window.location.pathname.startsWith("/s/") ? null : event,
+    }),
+  ],
 
   beforeSend: scrubEventUrls,
   beforeSendTransaction: scrubEventUrls,

@@ -36,6 +36,17 @@ export const offlinePersister = createAsyncStoragePersister({
   key: IDB_CACHE_KEY,
 });
 
+/**
+ * Deletes one identity's snapshot by name.
+ *
+ * `offlinePersister.removeClient()` resolves the key when it runs, which is the wrong
+ * moment for a purge: the identity has already moved on by then, so it would delete the
+ * arriving account's cache and leave the departing one's behind.
+ */
+export function removePersistedCacheFor(identity: string): Promise<void> {
+  return del(scopedCacheKey(IDB_CACHE_KEY, identity));
+}
+
 export const persistOptions: Omit<PersistQueryClientOptions, "queryClient"> = {
   persister: offlinePersister,
   maxAge: OFFLINE_CACHE_MAX_AGE_MS,

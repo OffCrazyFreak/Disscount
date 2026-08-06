@@ -29,7 +29,8 @@ surface, and a spam vector.
 
 ## 2. The access model
 
-One enum, `ListAccess`, covers both what a link grants and what a caller resolved to:
+Two enums. `LinkAccess` is what an owner can set a link to, and `ListAccess` is what a
+caller resolved to, which adds `OWNER`:
 
 | Level   | Read | Tick off, pick a shop | Amount, remove | Rename | Manage sharing |
 | ------- | ---- | --------------------- | -------------- | ------ | -------------- |

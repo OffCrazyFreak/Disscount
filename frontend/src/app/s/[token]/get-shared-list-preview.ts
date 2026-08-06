@@ -1,6 +1,9 @@
 import "server-only";
 
-import type { ShoppingListDto } from "@/lib/api/types";
+import {
+  shoppingListDtoSchema,
+  type ShoppingListDto,
+} from "@/lib/api/schemas/shopping-list";
 
 const PREVIEW_TIMEOUT_MS = 3000;
 
@@ -29,7 +32,12 @@ export async function getSharedListPreview(
 
     if (!response.ok) return null;
 
-    return (await response.json()) as ShoppingListDto;
+    // Parsed, not cast. generateMetadata reads title and items.length outside this
+    // function's try, so a 200 carrying anything else would throw there and turn a
+    // public route into a 500 instead of taking the null fallback.
+    const parsed = shoppingListDtoSchema.safeParse(await response.json());
+
+    return parsed.success ? parsed.data : null;
   } catch {
     // A preview is a nicety; a backend blip must not take the page down with it.
     return null;

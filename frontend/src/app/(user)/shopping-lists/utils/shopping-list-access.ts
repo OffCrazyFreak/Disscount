@@ -27,3 +27,12 @@ export function resolveShoppingListAccess(
     canManageShare: isOwner,
   };
 }
+
+/**
+ * Id of the element explaining what the current caller may do, so a control this resolver
+ * disables can point at the reason with aria-describedby. Lives here rather than in the
+ * banner component: it is a contract between the owner-side item row and the public
+ * shared page, and importing it from a "use client" component would pull that whole
+ * component's tree in for a string.
+ */
+export const SHARED_ACCESS_BANNER_ID = "shared-list-access";

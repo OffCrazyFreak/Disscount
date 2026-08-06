@@ -132,9 +132,11 @@ export function useUpdateShoppingListItem() {
     mutationKey: OFFLINE_MUTATION_KEYS.shoppingListItemUpdate,
     mutationFn: ({ listId, itemId, data }) =>
       updateShoppingListItem(listId, itemId, data),
-    // In onMutate rather than at the call site so a write restored from disk and
-    // replayed after a reload still applies its optimistic state: React Query only
-    // re-runs the optimism it owns.
+    // In onMutate rather than at the call site so React Query owns the optimism and its
+    // rollback. Note it does NOT re-run on replay: query-core skips onMutate for a
+    // mutation restored as already pending. What survives a reload is the query snapshot
+    // that onMutate wrote, which is why the shopping-list roots have to stay in
+    // cached-query-keys.ts.
     onMutate: ({ listId, itemId, data }) =>
       patchItemOptimistically(
         queryClient,

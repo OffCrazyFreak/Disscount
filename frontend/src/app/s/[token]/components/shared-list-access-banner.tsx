@@ -6,9 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Banner } from "@/components/custom/common/banner";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import type { ListAccess } from "@/lib/api/schemas/shopping-list";
-
-/** The id the disabled controls point at, so a screen reader gets the reason with them. */
-export const SHARED_ACCESS_BANNER_ID = "shared-list-access";
+import { SHARED_ACCESS_BANNER_ID } from "@/app/(user)/shopping-lists/utils/shopping-list-access";
 
 const ACCESS_TEXT: Record<string, { icon: typeof Eye; text: string }> = {
   VIEW: { icon: Eye, text: "Ovaj popis samo pregledavaš." },

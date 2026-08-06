@@ -50,12 +50,14 @@ const runtimeCaching: RuntimeCaching[] = [
   // reload to the /offline fallback, which made the offline write queue unreachable in
   // exactly the shop-with-no-signal case it exists for. NetworkFirst with a short life
   // plus purgeOfflineCache deleting this bucket on a change of identity is the trade.
+  // Its own bucket, not defaultCache's "pages": two ExpirationPlugins over one cache
+  // each trim it to their own maxEntries and then disagree about what is still there.
   // Must stay above defaultCache, which is matched in order.
   {
     matcher: ({ url, sameOrigin }) =>
       sameOrigin && url.pathname.startsWith("/s/"),
     handler: new NetworkFirst({
-      cacheName: "pages",
+      cacheName: "shared-list-pages",
       networkTimeoutSeconds: 5,
       plugins: [
         new CacheableResponsePlugin({ statuses: [0, 200] }),

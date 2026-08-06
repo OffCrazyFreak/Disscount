@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import SettingRow from "@/components/custom/settings/ui/setting-row";
 import { LOADING_LABELS } from "@/constants/loading-labels";
+import { LINK_ACCESS_HINTS } from "@/lib/api/schemas/shopping-list";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useShareListModal } from "@/app/(user)/shopping-lists/hooks/use-share-list-modal";
 import ShareLinkRow from "@/app/(user)/shopping-lists/components/forms/share-link-row";
@@ -68,7 +69,7 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
             description={
               isShared
                 ? "Popis je dostupan svakome tko ima poveznicu."
-                : "Popis je privatan i vidiš ga samo ti."
+                : LINK_ACCESS_HINTS.NONE
             }
             control={
               <Switch

@@ -39,11 +39,13 @@ export function useShareListModal(id: string) {
     ? shareListUrl(shoppingList.shareToken)
     : null;
 
+  const isSaving = updateMutation.isPending && isOnline;
+
   function setLinkAccess(next: LinkAccess) {
-    // Also guards against a second change while one is in flight: two overlapping PUTs
-    // can settle in either order, leaving the server on the earlier of the two.
-    if (!shoppingList || next === linkAccess || updateMutation.isPending)
-      return;
+    // isSaving, not isPending: offline the mutation pauses rather than settles, so
+    // isPending stays true forever and this guard would swallow every later change
+    // while the controls stayed enabled and said nothing.
+    if (!shoppingList || next === linkAccess || isSaving) return;
 
     setPendingAccess(next);
     setSavedMessage("");
@@ -89,9 +91,7 @@ export function useShareListModal(id: string) {
     isError: listQuery.isError,
     linkAccess,
     setLinkAccess,
-    // Offline this mutation pauses rather than rejects, so isPending would never clear
-    // and the control would spin forever with nothing said.
-    isSaving: updateMutation.isPending && isOnline,
+    isSaving,
     isOffline: !isOnline,
     savedMessage,
     shareUrl,

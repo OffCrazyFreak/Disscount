@@ -18,6 +18,7 @@ import { purgeOfflineCache } from "@/lib/offline/purge";
 import {
   getCacheIdentity,
   setCacheIdentity,
+  toCacheIdentity,
 } from "@/lib/offline/cache-identity";
 import { userService, preferencesService } from "@/lib/api";
 import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
@@ -62,7 +63,11 @@ export function UserProvider({ children }: IUserProviderProps) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const pathname = usePathname();
-  const { data: session, isPending: sessionPending } = useSession();
+  const {
+    data: session,
+    isPending: sessionPending,
+    error: sessionError,
+  } = useSession();
 
   const refreshUser = useCallback(async () => {
     try {
@@ -102,8 +107,19 @@ export function UserProvider({ children }: IUserProviderProps) {
     // mount, so purging whenever there is no session wiped the cache and the queued
     // write replay on every single page load for a visitor who is not logged in, which
     // silently dropped anything they had ticked off while offline.
-    if (identity !== cacheIdentityRef.current) {
-      void purgeOfflineCache(queryClient);
+    // A failed session lookup is not a logout. /api/auth/get-session is NetworkOnly in
+    // the service worker, so offline it rejects and useSession settles to data: null with
+    // an error set. Purging on that would wipe the signed-in user's cache and every
+    // queued write on the first offline reload, which is the failure this branch exists
+    // to prevent.
+    if (!sessionError && identity !== cacheIdentityRef.current) {
+      // Pass the departing identity, not the arriving one. The purge awaits an IndexedDB
+      // delete, and setCacheIdentity below runs first, so a key resolved inside the purge
+      // would name the account that just arrived.
+      void purgeOfflineCache(
+        queryClient,
+        toCacheIdentity(cacheIdentityRef.current),
+      );
       setCacheIdentity(identity);
       cacheIdentityRef.current = identity;
     }
@@ -116,7 +132,13 @@ export function UserProvider({ children }: IUserProviderProps) {
       setIsLoading(false);
       setHasResolvedAuth(true);
     }
-  }, [session?.user?.id, sessionPending, refreshUser, queryClient]);
+  }, [
+    session?.user?.id,
+    sessionPending,
+    sessionError,
+    refreshUser,
+    queryClient,
+  ]);
 
   const handleLogout = useCallback(async () => {
     try {
@@ -124,7 +146,9 @@ export function UserProvider({ children }: IUserProviderProps) {
     } finally {
       clearAuthToken();
       setUser(null);
-      await purgeOfflineCache(queryClient);
+      // Awaited here, and the identity has not moved yet, so the current one is the
+      // account being signed out.
+      await purgeOfflineCache(queryClient, getCacheIdentity());
       // Staying on a protected route signed out would just show a login gate.
       if (isProtectedRoute(pathname)) router.push("/");
     }

@@ -24,10 +24,9 @@ export function useShoppingListMutations(
   const confirmDelete = async () => {
     // Prepare optimistic update: remove item from cache immediately
     await queryClient.cancelQueries({ queryKey: SHOPPING_LIST_QUERY_KEYS.me });
-    const previous = queryClient.getQueryData<ShoppingList[]>([
-      "shoppingLists",
-      "me",
-    ]);
+    const previous = queryClient.getQueryData<ShoppingList[]>(
+      SHOPPING_LIST_QUERY_KEYS.me,
+    );
     queryClient.setQueryData<ShoppingList[] | undefined>(
       SHOPPING_LIST_QUERY_KEYS.me,
       (old: ShoppingList[] | undefined) =>

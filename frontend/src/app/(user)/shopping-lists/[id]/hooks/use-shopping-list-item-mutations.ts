@@ -54,6 +54,12 @@ export function useShoppingListItemMutations(
       const storePrice =
         updatedItem.chainCode && storePrices[item.id]?.[updatedItem.chainCode];
       if (storePrice) data.storePrice = storePrice;
+    } else {
+      // data starts as a copy of the cached item, so without this an earlier capture
+      // survives the uncheck and gets re-sent. An item unchecked and re-checked at a
+      // different shop would keep the first shop's price until a new one overwrote it.
+      data.avgPrice = null;
+      data.storePrice = null;
     }
 
     if (shareToken) {
