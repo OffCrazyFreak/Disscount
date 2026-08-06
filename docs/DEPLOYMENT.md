@@ -262,7 +262,22 @@ docker exec pg-test psql -U postgres -d restoretest -c '\dt'   # verify
 
 - The UptimeRobot checks are published as a **public status page** at https://stats.uptimerobot.com/ej4ROz2eMo, linked from the README so anyone can see uptime and response times without an account.
 - `/health` (frontend) is a lightweight liveness route; the backend also has `/actuator/health` (internal only, used by the container healthcheck).
-- Sentry `send-default-pii=false` (privacy). Source-map upload is **not** enabled yet (see TODOs).
+- Sentry `send-default-pii=false` (privacy). Source-map upload is **not** enabled yet (see TODOs), so frontend stack traces arrive minified: expect frames like `app:///_next/static/chunks/6506-….js:1:34191 (o.register)` and be ready to grep the built chunk in `.next/static` to place them.
+
+#### Staying inside the free plan
+
+The Developer plan's binding limit is **50 replays a month**, not errors (5,000) or spans (5M). Replay sampling is two independent rolls and the session one runs first, so `replaysSessionSampleRate` spends quota on sessions where nothing went wrong. It sat at `0.1` until 2026-08-06, which exhausted the month's replays partway through the period and then dropped **every** later replay, error ones included. It is now `0.01` in `frontend/src/instrumentation-client.ts`, which keeps the replay-derived detectors (hydration errors, rage and dead clicks) alive without crowding out `replaysOnErrorSampleRate: 1.0`. Sampling changes only take effect on the next **redeploy**, since the SDK config is baked into the bundle.
+
+Noise control, in the order it is worth reaching for:
+
+| Lever               | Where                                                        | Use it for                                                                                                             |
+| ------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `beforeSend` filter | `frontend/src/lib/sentry/*`                                  | Noise we can fingerprint precisely. Never leaves the browser, so it costs no quota.                                    |
+| **Inbound Filters** | Project → Settings → Inbound Filters                         | "known errors from web crawlers" and "browser extensions". Dropped at Sentry's edge and not billed.                    |
+| **Mute the issue**  | the issue page, or `update_issue` over the Sentry MCP server | Real findings that are parked on someone else, so they stop padding the weekly report. Leave a comment saying why.     |
+| **Alert throttle**  | the issue alert rule → Edit Rule                             | Email volume. Note the throttle is **per issue**, not global: three issues escalating in a week is still three emails. |
+
+Currently muted, all with a comment on the issue explaining the call: the price-history **N+1** (tracked in [#62](https://github.com/OffCrazyFreak/Disscount/issues/62) and [#45](https://github.com/OffCrazyFreak/Disscount/issues/45), both blocked on the upstream API gaining a batched endpoint, and already capped at 30 days by `DISABLED_PERIODS`), a replay **hydration error** seen only in headless-scanner sessions, and an `insertBefore` **NotFoundError** caused by Google Translate wrapping our text nodes in `<font>` elements under React.
 
 ### Sentry env vars (production)
 
