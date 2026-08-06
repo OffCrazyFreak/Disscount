@@ -23,6 +23,8 @@ interface IProductsClientProps {
 export default function ProductsClient({ query }: IProductsClientProps) {
   const isMobile = useIsMobile();
   const pathname = usePathname();
+  // TODO(#61): take the setter here once ViewSwitcher is unparked below; until then
+  // the mode is read-only and always the default.
   const [viewMode] = useViewMode(pathname);
 
   const filters = useProductFilters();

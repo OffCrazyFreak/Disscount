@@ -5,6 +5,11 @@ import { ViewMode } from "@/typings/view-mode";
 import { getViewMode, setViewMode } from "@/utils/browser/local-storage";
 
 // Persists per page path inside the single app storage object.
+//
+// TODO(#61): the returned setter has no callers yet, so nothing is written to
+// storage today. Both consumers destructure the mode alone while ViewSwitcher stays
+// parked (see view-switcher.tsx). The read and write paths below are written for
+// that switcher landing, not for present behaviour, so review them together with it.
 export function useViewMode(path: string, defaultMode: ViewMode = "list") {
   const [mode, setMode] = useState<ViewMode>(defaultMode);
 

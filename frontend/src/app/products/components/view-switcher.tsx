@@ -1,5 +1,6 @@
 // TODO(#61): parked until list views become user-personalisable, not dead. Call
-// site is commented out in products-client.tsx.
+// site is commented out in products-client.tsx, and /digital-cards needs one too.
+// Unparking means taking useViewMode's setter, which has no callers until then.
 import { Grid, List } from "lucide-react";
 import {
   Tooltip,
