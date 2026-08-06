@@ -92,13 +92,13 @@ export default function ShareAccessRow({
               chevron on the right.
 
               The icon sits here rather than inside SelectValue so the spinner can take its
-              place while a save is in flight. Both occupy size-4, so the swap moves nothing. */}
+              place while a save is in flight. Both occupy size-5, so the swap moves nothing. */}
           <span className="flex min-w-0 items-center gap-2">
             {isSaving ? (
-              <BlockLoadingSpinner size={16} className="px-0 text-primary" />
+              <BlockLoadingSpinner size={20} className="px-0 text-primary" />
             ) : (
               <Icon
-                className="size-4 shrink-0 text-current"
+                className="size-5 shrink-0 text-current"
                 aria-hidden="true"
               />
             )}
