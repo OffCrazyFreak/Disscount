@@ -77,7 +77,7 @@ export default function ShoppingListHeader({
             showEditButton={isOwner}
             showDeleteButton={isOwner}
             shareToken={shareToken}
-            mobilePresentation="buttons"
+            showOnMobile={true}
           />
         </div>
       </div>

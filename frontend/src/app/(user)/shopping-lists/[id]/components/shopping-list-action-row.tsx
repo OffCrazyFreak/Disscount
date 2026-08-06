@@ -11,12 +11,12 @@ import { cn } from "@/lib/utils";
 import { LOADING_LABELS } from "@/constants/loading-labels";
 import type { IShoppingListActionGroupProps } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-actions";
 
-interface IShoppingListDesktopActionsProps extends IShoppingListActionGroupProps {
+interface IShoppingListActionRowProps extends IShoppingListActionGroupProps {
   visibleOnMobile?: boolean;
   className?: string;
 }
 
-export default function ShoppingListDesktopActions({
+export default function ShoppingListActionRow({
   showShareButton,
   isShared,
   showCopyButton,
@@ -30,7 +30,7 @@ export default function ShoppingListDesktopActions({
   onDeleteClick,
   visibleOnMobile = false,
   className,
-}: IShoppingListDesktopActionsProps) {
+}: IShoppingListActionRowProps) {
   // Icon-only, so the spinner is the whole visual and the accessible name carries the
   // pending copy. The tooltip has to say the same thing or the two contradict each other.
   // Share has no pending state: it either opens a modal or hands off to the OS sheet.
