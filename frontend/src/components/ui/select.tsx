@@ -114,8 +114,16 @@ function SelectLabel({
 function SelectItem({
   className,
   children,
+  icon: Icon,
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Item>) {
+}: React.ComponentProps<typeof SelectPrimitive.Item> & {
+  /**
+   * Leading glyph for the option. Rendered outside `ItemText` on purpose: `SelectValue`
+   * re-renders the selected item's `ItemText`, so an icon inside it would appear a second
+   * time in the trigger.
+   */
+  icon?: React.ElementType;
+}) {
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
@@ -135,6 +143,10 @@ function SelectItem({
           <CheckIcon className="size-4 text-primary" />
         </SelectPrimitive.ItemIndicator>
       </span>
+      {/* text-current, not a colour of its own: the class still contains "text-", which is
+          what keeps the muted rule above off it, so the glyph tracks whatever the row's
+          text is doing, including turning primary when checked. */}
+      {Icon && <Icon className="size-4 text-current" aria-hidden="true" />}
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
     </SelectPrimitive.Item>
   );

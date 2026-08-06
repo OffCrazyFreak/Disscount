@@ -11,16 +11,21 @@ const bannerVariants = cva(
     variants: {
       variant: {
         primary: "border-transparent bg-primary text-white",
-        primarySoft: "border-primary/40 bg-primary/10 text-primary",
+        // The soft variants tint whatever they sit on rather than covering it, so they take
+        // the header's backdrop-blur treatment. Alpha fills also mean one value works in
+        // both themes, which is why they no longer carry dark: background overrides; only
+        // the text keeps one, since contrast has to be chosen per theme.
+        primarySoft:
+          "border-primary/40 bg-primary/10 text-primary backdrop-blur-sm",
         destructive: "border-transparent bg-destructive text-white",
         destructiveSoft:
-          "border-red-200 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950 dark:text-red-300",
+          "border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-300 backdrop-blur-sm",
         warning: "border-transparent bg-amber-200 text-amber-700",
         warningSoft:
-          "border-amber-200 bg-amber-50 text-amber-600 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300",
+          "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 backdrop-blur-sm",
         info: "border-transparent bg-blue-500 text-white",
         infoSoft:
-          "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300",
+          "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300 backdrop-blur-sm",
         outline: "text-foreground",
       },
       size: {
@@ -80,11 +85,10 @@ function Banner({
       <div className="min-w-0 space-y-0.5">
         {title && <h4 className="font-bold">{title}</h4>}
         {text && (
-          <p
-            className={cn("text-xs", BANNER_TEXT_COLORS[variant ?? "primary"])}
-          >
-            {text}
-          </p>
+          // No size of its own: the size variant already sets one on the container, and a
+          // hardcoded text-xs here quietly overrode it, so every banner rendered its body
+          // at the smallest size no matter which size was asked for.
+          <p className={cn(BANNER_TEXT_COLORS[variant ?? "primary"])}>{text}</p>
         )}
         {children}
       </div>
