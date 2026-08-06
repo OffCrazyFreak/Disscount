@@ -37,8 +37,10 @@ Sentry.init({
   enableLogs: true,
 
   // Session Replay: 1% of sessions, 100% of sessions with an error. The two rates are
-  // independent rolls and the session one runs first, so it spends quota on healthy
-  // sessions. At 10% it exhausted the plan's 50 replays mid-period and every later replay
+  // decided in sequence rather than independently: the session one runs first, and the
+  // error buffer only applies to the sessions it skipped. So the session rate is the one
+  // that spends quota on sessions where nothing went wrong.
+  // At 10% it exhausted the plan's 50 replays mid-period and every later replay
   // was dropped, error ones included. 1% keeps enough healthy sessions for the replay-derived
   // detectors (hydration errors, rage and dead clicks) without crowding out the error path.
   replaysSessionSampleRate: 0.01,

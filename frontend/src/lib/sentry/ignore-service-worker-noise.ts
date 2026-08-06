@@ -2,10 +2,11 @@
  * Drops the errors Serwist's service-worker registration throws in environments that
  * cannot have a service worker at all.
  *
- * `@serwist/next` injects the `navigator.serviceWorker.register()` call itself, so there is
- * no call site of ours to catch these on. Registration legitimately fails for Google's
- * renderer (which stubs `register`) and in storage-restricted browsers, and the failure is
- * harmless: the app runs without offline caching.
+ * `@serwist/next` injects the entry point itself (`window.serwist = new Serwist(...)` then
+ * `window.serwist.register()`, which reaches `navigator.serviceWorker.register()` inside
+ * Serwist), so there is no call site of ours to catch these on. Registration legitimately
+ * fails for Google's renderer (which stubs `register`) and in storage-restricted browsers,
+ * and the failure is harmless: the app runs without offline caching.
  *
  * Serwist's `register()` does `this._registration = await this._registerScript()` and then
  * reads `this._registration.waiting`, so how the environment stubs `register` decides which
