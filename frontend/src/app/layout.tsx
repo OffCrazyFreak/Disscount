@@ -174,7 +174,9 @@ export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
               </Suspense>
             </aside>
 
-            <main className="max-w-4xl mx-auto px-4 pt-4 mt-24 w-full overflow-clip">
+            {/* Clip the x axis only. Clipping both axes cut the last child's
+                bottom border and shadow off, since main has no bottom padding. */}
+            <main className="max-w-4xl mx-auto px-4 pt-4 mt-24 w-full overflow-x-clip">
               {children}
             </main>
 
