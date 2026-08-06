@@ -86,7 +86,11 @@ export function UserProvider({ children }: IUserProviderProps) {
   useEffect(() => {
     if (sessionPending) return;
 
+    // The directive covers this whole effect, not just the line under it: the else
+    // branch clears user state synchronously too. Both sides react to an auth result
+    // that only exists after the session resolves, so neither is derivable.
     if (session?.user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       refreshUser();
     } else {
       // Wipe the cache so a previous user never lingers on a shared device.
@@ -96,6 +100,11 @@ export function UserProvider({ children }: IUserProviderProps) {
       setIsLoading(false);
       setHasResolvedAuth(true);
     }
+    // Keyed on the user id, not the user object the lint asks for: better-auth hands
+    // back a new session object on every poll, so depending on it would refetch the
+    // profile and re-purge the offline cache on a cadence rather than on a real
+    // sign-in or sign-out.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.user?.id, sessionPending, refreshUser, queryClient]);
 
   const handleLogout = useCallback(async () => {

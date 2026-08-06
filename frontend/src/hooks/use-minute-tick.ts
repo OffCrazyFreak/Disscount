@@ -9,6 +9,10 @@ export function useMinuteTick(): boolean {
   const [, setTick] = useState(0);
 
   useEffect(() => {
+    // The mount gate cannot be derived: the server has no way to agree with a
+    // Date.now()-based label, so the first client render has to match the server's
+    // and only then start ticking.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
 
     const intervalId = setInterval(() => setTick((tick) => tick + 1), 60_000);

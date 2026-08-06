@@ -47,7 +47,14 @@ export default function StoreChainSelect({
   const [displayValue, setDisplayValue] = useState<string>(value || "");
   const autoSelectedForRef = useRef<string | null>(null);
 
-  // The guard stops a mutation rollback from re-firing onChange in a toast storm.
+  // The effect is here for onChange, which is a real side effect and cannot move
+  // into render. The ref guard is what stops a mutation rollback, where `value`
+  // reverts to empty, from re-firing it in a toast storm.
+  //
+  // The two setDisplayValue branches below are just `value || ""` and could be
+  // derived. They are kept so the select shows the auto-selected chain in the same
+  // commit as the onChange, rather than blank until the parent echoes the value
+  // back. That is the only behavioural difference, and it is worth one directive.
   useEffect(() => {
     if (
       !value &&
@@ -59,6 +66,7 @@ export default function StoreChainSelect({
       setDisplayValue(defaultValue);
       onChange(defaultValue);
     } else if (value) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDisplayValue(value);
     } else {
       setDisplayValue("");
