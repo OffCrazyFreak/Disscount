@@ -95,7 +95,7 @@ export default function ShareAccessRow({
               place while a save is in flight. Both occupy size-4, so the swap moves nothing. */}
           <span className="flex min-w-0 items-center gap-2">
             {isSaving ? (
-              <BlockLoadingSpinner size={16} className="px-0 text-current" />
+              <BlockLoadingSpinner size={16} className="px-0 text-primary" />
             ) : (
               <Icon
                 className="size-4 shrink-0 text-current"

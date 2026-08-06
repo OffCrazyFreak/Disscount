@@ -42,7 +42,10 @@ function SelectTrigger({
     >
       {children}
       <SelectPrimitive.Icon asChild>
-        <ChevronDownIcon className="size-4 opacity-50" />
+        {/* opacity-50 on the inherited colour left it barely visible. A real colour and a
+            size to match the search bar's leading icon, so the one affordance saying "this
+            opens" is actually findable. */}
+        <ChevronDownIcon className="size-5 text-muted-foreground" />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   );
