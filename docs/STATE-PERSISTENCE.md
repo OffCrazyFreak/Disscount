@@ -120,14 +120,14 @@ sequenceDiagram
 
 Forms wired to drafts:
 
-| Form                      | File                       | Notes                                                                       |
-| ------------------------- | -------------------------- | --------------------------------------------------------------------------- |
-| Watchlist item modal      | `watchlist-item-modal.tsx` | restore handled by the hook                                                 |
-| Add to shopping list      | `use-add-to-list-form.ts`  | restore handled by the hook                                                 |
-| Shopping list create/edit | `shopping-list-modal.tsx`  | prefill-then-merge (`restore: false`)                                       |
-| Digital card create/edit  | `digital-card-modal.tsx`   | prefill-then-merge; also feeds scan-to-fill                                 |
-| Settings and onboarding   | `settings-modal-host.tsx`  | one shared draft, cleared after a successful save and onboarding completion |
-| Contact                   | `contact-modal.tsx`        | prefill from profile, then merge draft on top                               |
+| Form                      | File                       | Notes                                                                        |
+| ------------------------- | -------------------------- | ---------------------------------------------------------------------------- |
+| Watchlist item modal      | `watchlist-item-modal.tsx` | restore handled by the hook; one number per watch mode, `watchType` excluded |
+| Add to shopping list      | `use-add-to-list-form.ts`  | restore handled by the hook                                                  |
+| Shopping list create/edit | `shopping-list-modal.tsx`  | prefill-then-merge (`restore: false`)                                        |
+| Digital card create/edit  | `digital-card-modal.tsx`   | prefill-then-merge; also feeds scan-to-fill                                  |
+| Settings and onboarding   | `settings-modal-host.tsx`  | one shared draft, cleared after a successful save and onboarding completion  |
+| Contact                   | `contact-modal.tsx`        | prefill from profile, then merge draft on top                                |
 
 ### 4b. Device preferences
 
@@ -185,18 +185,19 @@ Not everything should be remembered. These are intentionally **not** persisted, 
 
 ## 8. What's automatic vs manual
 
-| Thing                                        | Auto / manual | Notes                                                                      |
-| -------------------------------------------- | ------------- | -------------------------------------------------------------------------- |
-| Saving a modal draft while typing            | Auto          | `useFormDraft` watches the form and debounces writes                       |
-| Restoring a draft on reopen                  | Auto          | hook restores, or the modal merges it (`restore: false`)                   |
-| Expiring stale drafts (24h)                  | Auto          | dropped on read                                                            |
-| Clearing a draft after a successful submit   | Auto          | submit handlers call `clearDraft()` / the mutation clears it               |
-| Keeping search + filters in the URL          | Auto          | the search and filter hooks own it                                         |
-| Persisting a preference (camera, periods...) | Auto          | the relevant `storage/*` helper writes on change                           |
-| Persisting the view mode                     | Parked        | `useViewMode` writes on the setter, which has no callers yet (see below)   |
-| Adding a NEW modal form to the draft system  | Manual        | call `useFormDraft` with a unique `draftKey`; pick `restore` and `exclude` |
-| Adding a NEW preference                      | Manual        | add the field to `AppData` and a helper in `utils/browser/storage/`        |
-| Excluding a sensitive field from a draft     | Manual        | pass it in `exclude` (do this for passwords and base64 images)             |
+| Thing                                         | Auto / manual | Notes                                                                      |
+| --------------------------------------------- | ------------- | -------------------------------------------------------------------------- |
+| Saving a modal draft while typing             | Auto          | `useFormDraft` watches the form and debounces writes                       |
+| Restoring a draft on reopen                   | Auto          | hook restores, or the modal merges it (`restore: false`)                   |
+| Expiring stale drafts (24h)                   | Auto          | dropped on read                                                            |
+| Clearing a draft after a successful submit    | Auto          | submit handlers call `clearDraft()` / the mutation clears it               |
+| Dropping a draft field the form no longer has | Auto          | restore skips unknown keys, so a shape change cannot strand one for 24h    |
+| Keeping search + filters in the URL           | Auto          | the search and filter hooks own it                                         |
+| Persisting a preference (camera, periods...)  | Auto          | the relevant `storage/*` helper writes on change                           |
+| Persisting the view mode                      | Parked        | `useViewMode` writes on the setter, which has no callers yet (see below)   |
+| Adding a NEW modal form to the draft system   | Manual        | call `useFormDraft` with a unique `draftKey`; pick `restore` and `exclude` |
+| Adding a NEW preference                       | Manual        | add the field to `AppData` and a helper in `utils/browser/storage/`        |
+| Excluding a sensitive field from a draft      | Manual        | pass it in `exclude` (do this for passwords and base64 images)             |
 
 ---
 
@@ -256,7 +257,9 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
 
 - **Never draft passwords, base64 images, or card codes.** Pass them in `exclude`. Passwords must not touch disk, a base64 avatar would blow the localStorage quota, and the digital-card code (`value`) is excluded so a card number never persists. The avatar field lives outside forms and drafts entirely for this reason.
 
-- **Old drafts are type-guarded on restore.** If a field's type changed since a draft was written (for example a number where the field is now a string), the restore skips it so a stale draft cannot poison validation.
+- **Old drafts are type-guarded on restore.** If a field's type changed since a draft was written (for example a number where the field is now a string), the restore skips it so a stale draft cannot poison validation. Keys the form no longer has at all are skipped too, so renaming or splitting a field cannot strand a dead entry for the rest of the TTL.
+
+- **A prefill has to become the form's `defaultValue`, or the draft engine saves it as a change.** Drafts diff against the defaults, so seeding a server-loaded value with `setValue` writes a draft for a number the user never typed, and makes the reset button offer to clear a field the user never touched. Seed with `reset(values, { keepDirtyValues: true })`, which updates values and defaults together and leaves in-progress edits alone. `resetField` does the same thing for one field but only works on a field that is registered right now, so it silently does nothing while the modal is still loading or for a field the current branch does not render (the watchlist modal renders only the selected watch mode). Note that `keepDirtyValues` keeps the dirty flags as they were rather than recomputing them, so a flag can outlive the edit that set it: gate buttons on a value-vs-baseline comparison, not on `dirtyFields`.
 
 - **Closing mid-debounce still saves, but a submit never re-persists.** The watch effect's cleanup flushes the last keystrokes on unmount unless the form is submitting or submitted. The `isSubmitting` guard matters for the optimistic-close pattern: the modal unmounts before the mutation resolves and `clearDraft` runs, so without it a late flush could rewrite a draft that was just cleared and a reopen would show stale data.
 
