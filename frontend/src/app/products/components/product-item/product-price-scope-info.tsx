@@ -1,7 +1,6 @@
 "use client";
 
-import { Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import PriceInfoButton from "@/components/custom/price/price-info-button";
 import {
   Tooltip,
   TooltipContent,
@@ -35,18 +34,13 @@ export default function ProductPriceScopeInfo({
   const hasFinePointer = useFinePointer();
   const text = SCOPE_TEXT[scope];
   const trigger = (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon-sm"
-      aria-label="Informacije o rasponu cijena"
-      className="size-7 text-gray-700 hover:text-gray-900 [&_svg]:size-4"
+    <PriceInfoButton
+      label="Informacije o rasponu cijena"
+      className="text-gray-700 hover:text-gray-900"
       onClick={stopPropagation}
       onPointerDown={stopPropagation}
       onPointerUp={stopPropagation}
-    >
-      <Info aria-hidden="true" />
-    </Button>
+    />
   );
 
   return hasFinePointer ? (
