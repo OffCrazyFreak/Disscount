@@ -353,8 +353,6 @@ git push
 ALTER TABLE <table> DROP COLUMN <column>;
 ```
 
-**In flight: `shopping_list.is_public`,** replaced by `link_access` and `share_token`. It was `NOT NULL` with no default, so it needed exactly the sequence above. Step 1 has been run against dev and prod, and step 2 shipped with the sharing release. **Step 3 is still outstanding:** run `ALTER TABLE shopping_list DROP COLUMN is_public;` on both databases once the release has settled, then delete this paragraph.
-
 Open a DB shell the same way as for a restore, see [§8](#8-backups--restore).
 
 ## 11. Common operations (how-to)
