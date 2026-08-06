@@ -31,6 +31,7 @@ export default function ShoppingListActionButtons({
     setIsDeleteDialogOpen,
     isDeleting,
     isCopying,
+    isShared,
     handleConfirmDelete,
     handleEdit,
     handleShare,
@@ -39,6 +40,7 @@ export default function ShoppingListActionButtons({
 
   const groupProps = {
     showShareButton,
+    isShared,
     showCopyButton,
     showEditButton,
     showDeleteButton,

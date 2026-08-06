@@ -70,12 +70,19 @@ interface ISheetActionsProps {
  * to render its pending and missing states before one exists.
  */
 function SheetActions({ shoppingList, onRequestDelete }: ISheetActionsProps) {
-  const { canManageShare, isCopying, handleShare, handleCopy, handleEdit } =
-    useShoppingListActions(shoppingList);
+  const {
+    canManageShare,
+    isShared,
+    isCopying,
+    handleShare,
+    handleCopy,
+    handleEdit,
+  } = useShoppingListActions(shoppingList);
 
   return (
     <ShoppingListQuickActionsList
       isOwner={canManageShare}
+      isShared={isShared}
       isCopying={isCopying}
       // Two different destinations. The owner opens the share settings modal, which
       // replaces this one for the history reason below. Everyone else gets the OS

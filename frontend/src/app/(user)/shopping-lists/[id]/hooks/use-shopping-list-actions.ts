@@ -13,6 +13,8 @@ import { resolveShoppingListAccess } from "@/app/(user)/shopping-lists/utils/sho
 
 export interface IShoppingListActionGroupProps {
   showShareButton: boolean;
+  /** Marks the share control as "already shared, this edits it" rather than "share this". */
+  isShared: boolean;
   showCopyButton: boolean;
   showEditButton: boolean;
   showDeleteButton: boolean;
@@ -105,8 +107,14 @@ export function useShoppingListActions(
     }
   }
 
+  // linkAccess comes back null for anyone but the owner, so a recipient passing the link
+  // on stays on the plain share icon, which is exactly what their button does.
+  const isShared =
+    !!shoppingList.linkAccess && shoppingList.linkAccess !== "NONE";
+
   return {
     canManageShare,
+    isShared,
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
     isDeleting: deleteShoppingListMutation.isPending,

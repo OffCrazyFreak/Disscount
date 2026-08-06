@@ -1,5 +1,6 @@
 import { LucideClipboardEdit, Trash2, Copy, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Share2Pen from "@/components/custom/icons/share-2-pen";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import {
   Tooltip,
@@ -17,6 +18,7 @@ interface IShoppingListDesktopActionsProps extends IShoppingListActionGroupProps
 
 export default function ShoppingListDesktopActions({
   showShareButton,
+  isShared,
   showCopyButton,
   showEditButton,
   showDeleteButton,
@@ -32,7 +34,7 @@ export default function ShoppingListDesktopActions({
   // Icon-only, so the spinner is the whole visual and the accessible name carries the
   // pending copy. The tooltip has to say the same thing or the two contradict each other.
   // Share has no pending state: it either opens a modal or hands off to the OS sheet.
-  const shareLabel = "Podijeli popis";
+  const shareLabel = isShared ? "Uredi dijeljenje popisa" : "Podijeli popis";
   const copyLabel = isCopying ? LOADING_LABELS.copying : "Kopiraj popis";
   const deleteLabel = isDeleting ? LOADING_LABELS.deleting : "Obriši popis";
 
@@ -53,7 +55,11 @@ export default function ShoppingListDesktopActions({
               className="shrink-0"
               onClick={() => onShare()}
             >
-              <Share2 aria-hidden="true" />
+              {isShared ? (
+                <Share2Pen aria-hidden="true" />
+              ) : (
+                <Share2 aria-hidden="true" />
+              )}
             </Button>
           </TooltipTrigger>
 

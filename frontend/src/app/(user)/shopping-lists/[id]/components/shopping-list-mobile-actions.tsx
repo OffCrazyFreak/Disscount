@@ -6,6 +6,7 @@ import {
   MoreVertical,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Share2Pen from "@/components/custom/icons/share-2-pen";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import {
   DropdownMenu,
@@ -19,6 +20,7 @@ import type { IShoppingListActionGroupProps } from "@/app/(user)/shopping-lists/
 
 export default function ShoppingListMobileActions({
   showShareButton,
+  isShared,
   showCopyButton,
   showEditButton,
   showDeleteButton,
@@ -55,8 +57,14 @@ export default function ShoppingListMobileActions({
               onSelect={() => onShare()}
               className="cursor-pointer flex items-center gap-4"
             >
-              <Share2 aria-hidden="true" className="size-6" />
-              <span>Podijeli popis</span>
+              {isShared ? (
+                <Share2Pen aria-hidden="true" className="size-6" />
+              ) : (
+                <Share2 aria-hidden="true" className="size-6" />
+              )}
+              <span>
+                {isShared ? "Uredi dijeljenje popisa" : "Podijeli popis"}
+              </span>
             </DropdownMenuItem>
           )}
 
