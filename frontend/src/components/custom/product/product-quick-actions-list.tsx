@@ -3,7 +3,11 @@
 import { Eye, Image as ImageIcon, ListPlus, Share2 } from "lucide-react";
 
 import QuickActionItem from "@/components/custom/common/quick-action-item";
+import EyePen from "@/components/custom/icons/eye-pen";
+import ListPen from "@/components/custom/icons/list-pen";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
+import { watchlistService } from "@/lib/api";
+import { useIsOnNewestShoppingList } from "@/lib/api/shopping-lists/use-newest-list-membership";
 import useProductModals from "@/hooks/use-product-modals";
 import useProductShare from "@/hooks/use-product-share";
 import { productImageSearchUrl } from "@/utils/product-links";
@@ -25,6 +29,15 @@ export default function ProductQuickActionsList({
 }: IProductQuickActionsListProps) {
   const { openAddToList, openWatchlist } = useProductModals(product);
   const share = useProductShare(product);
+
+  // The same two reads the product row's buttons make, so the sheet and the buttons
+  // behind it never disagree about whether this product is already tracked or listed.
+  const { data: currentUserWatchlist = [] } =
+    watchlistService.useGetCurrentUserWatchlist();
+  const isInWatchlist = currentUserWatchlist.some(
+    (watchlistItem) => watchlistItem.productApiId === product.ean,
+  );
+  const isOnList = useIsOnNewestShoppingList(product.ean);
 
   // The two modal actions replace this sheet's history entry rather than closing
   // first: closeModalUrl pops with history.back(), which is async, so a push
@@ -55,14 +68,14 @@ export default function ProductQuickActionsList({
       />
 
       <QuickActionItem
-        icon={Eye}
-        label="Prati cijenu"
+        icon={isInWatchlist ? EyePen : Eye}
+        label={isInWatchlist ? "Uredi praćenje cijene" : "Prati cijenu"}
         onSelect={() => swapToModal(openWatchlist)}
       />
 
       <QuickActionItem
-        icon={ListPlus}
-        label="Dodaj na popis"
+        icon={isOnList ? ListPen : ListPlus}
+        label={isOnList ? "Uredi unos na popisu" : "Dodaj na popis"}
         onSelect={() => swapToModal(openAddToList)}
       />
     </>

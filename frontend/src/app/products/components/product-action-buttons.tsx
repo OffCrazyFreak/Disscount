@@ -1,6 +1,8 @@
 import { Image as ImageIcon, ListPlus, Share2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import ListPen from "@/components/custom/icons/list-pen";
+import { useIsOnNewestShoppingList } from "@/lib/api/shopping-lists/use-newest-list-membership";
 import {
   Tooltip,
   TooltipContent,
@@ -41,6 +43,12 @@ export default function ProductActionButtons({
   const isInWatchlist = currentUserWatchlist.some(
     (watchlistItem) => watchlistItem.productApiId === product.ean,
   );
+
+  // The modal preselects the newest list, so that is the one this can speak for.
+  const isOnList = useIsOnNewestShoppingList(product.ean);
+  const addToListLabel = isOnList
+    ? "Uredi unos na popisu za kupnju"
+    : "Dodaj na popis za kupnju";
 
   const actions = (
     <>
@@ -94,16 +102,16 @@ export default function ProductActionButtons({
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              aria-label="Dodaj na popis za kupnju"
+              aria-label={addToListLabel}
               className="shrink-0"
               onClick={() => openAddToList()}
             >
-              <ListPlus />
+              {isOnList ? <ListPen /> : <ListPlus />}
             </Button>
           </TooltipTrigger>
 
           <TooltipContent className="px-2 py-1 text-xs">
-            Dodaj na popis za kupnju
+            {addToListLabel}
           </TooltipContent>
         </Tooltip>
       )}

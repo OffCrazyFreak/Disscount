@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { Eye, Save, TriangleAlert } from "lucide-react";
+import { Eye, TriangleAlert } from "lucide-react";
+
+import EyePen from "@/components/custom/icons/eye-pen";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
@@ -106,7 +108,9 @@ export default function WatchlistItemModal({
       dirty={form.formState.isDirty}
       formId="watchlist-form"
       submitLabel={existingItemForType ? "Spremi" : "Prati"}
-      submitIcon={existingItemForType ? Save : Eye}
+      // EyePen rather than a generic Save, so editing an existing alert is marked the
+      // same way here as on the product row that opened this.
+      submitIcon={existingItemForType ? EyePen : Eye}
       submitLoading={isSaving}
       submitDisabled={
         isCheckingWatchlist || !product || !form.formState.isValid

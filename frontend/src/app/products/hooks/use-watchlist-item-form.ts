@@ -10,6 +10,7 @@ import { applyProblemToForm } from "@/lib/api/problem-details";
 import { stashModalError, takeModalError } from "@/lib/modal/modal-error-bus";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import { getFormDraft, removeFormDraft } from "@/utils/browser/local-storage";
+import type { WatchlistItemDto } from "@/lib/api/schemas/watchlist";
 import {
   WatchlistFormData,
   watchlistFormSchema,
@@ -25,6 +26,19 @@ function matchesDraft(draftKey: string, values: WatchlistFormData): boolean {
     draft.watchType === values.watchType &&
     draft.thresholdValue === values.thresholdValue
   );
+}
+
+// The tracked value when there is one, otherwise a suggestion to start from.
+function seedThreshold(
+  existingItemForType: WatchlistItemDto | undefined,
+  watchType: WatchType,
+  avgPrice: number,
+): string {
+  if (existingItemForType) return existingItemForType.thresholdValue.toString();
+  if (watchType === WatchType.percentage) return "10";
+
+  const suggested = avgPrice > 0 ? Math.round(avgPrice * 0.1 * 100) / 100 : 0;
+  return suggested > 0 ? suggested.toString() : "";
 }
 
 export function useWatchlistItemForm(
@@ -73,25 +87,13 @@ export function useWatchlistItemForm(
 
     if (!watchTypeChanged && form.formState.dirtyFields.thresholdValue) return;
 
-    if (existingItemForType) {
-      form.setValue(
-        "thresholdValue",
-        existingItemForType.thresholdValue.toString(),
-        { shouldValidate: true },
-      );
-    } else if (watchType === WatchType.percentage) {
-      form.setValue("thresholdValue", "10", { shouldValidate: true });
-    } else {
-      const suggested =
-        avgPrice > 0 ? Math.round(avgPrice * 0.1 * 100) / 100 : 0;
-      form.setValue(
-        "thresholdValue",
-        suggested > 0 ? suggested.toString() : "",
-        {
-          shouldValidate: true,
-        },
-      );
-    }
+    // reset, not setValue: the seed is the form's baseline, so Resetiraj returns to
+    // the tracked threshold instead of clearing it, and the draft engine does not
+    // persist a value the user never typed.
+    form.reset({
+      watchType,
+      thresholdValue: seedThreshold(existingItemForType, watchType, avgPrice),
+    });
   }, [watchType, existingItemForType, avgPrice, form, draftKey]);
 
   // A failed optimistic save reopened this modal: surface the server error.
