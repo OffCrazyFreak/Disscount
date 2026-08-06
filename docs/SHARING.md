@@ -118,7 +118,9 @@ mechanism was a destructive purge. See `docs/PWA.md` §5b for `cache-identity.ts
 
 The `/s/` service worker rule is `NetworkFirst`, not `NetworkOnly`, so an offline reload
 boots the app instead of the `/offline` fallback. That is only acceptable because the
-purge now deletes the `pages` and `cijene-api` buckets on a change of identity.
+purge now deletes the `shared-list-pages`, `cijene-api` and `others` buckets on a change of
+identity. Those names are matched by exact equality, not by substring: a substring match on
+`pages` would also take out `pages-rsc` and `pages-rsc-prefetch`, every RSC payload in the app.
 
 ## 7. Privacy decisions
 
@@ -130,9 +132,11 @@ Worth knowing before changing any of this:
 - **`linkAccess` and `shareToken` are owner-only**, so a recipient cannot reshare a list at
   a level its owner never granted.
 - **The token is scrubbed from telemetry.** It sits in the URL path, and Sentry attaches
-  page URLs to events, records fetch breadcrumbs and replays navigations, none of which
-  `sendDefaultPii: false` covers. `lib/sentry/scrub-share-token.ts` rewrites it in
-  `beforeSend`, `beforeSendTransaction` and `beforeBreadcrumb`, client and server.
+  page URLs to events and records fetch breadcrumbs, neither of which `sendDefaultPii: false`
+  covers. `lib/sentry/scrub-share-token.ts` rewrites it in `beforeSend` and
+  `beforeSendTransaction` on both client and server, plus `beforeBreadcrumb` on the client.
+  Replay is the exception: its envelopes never pass through `beforeSend`, so `/s/` pages are
+  excluded from recording outright rather than scrubbed.
 - **Proxy access logs still record the full path.** Not fixed in the app, because it is a
   Traefik log-format change on the Dokploy side. Worth doing.
 

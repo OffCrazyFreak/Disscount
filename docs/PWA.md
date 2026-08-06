@@ -232,12 +232,12 @@ Two mechanisms cooperate, split by data sensitivity.
 
 Runtime caching rules, evaluated top to bottom (first match wins):
 
-| Request                                             | Strategy                                   | Notes                                                                                                      |
-| --------------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| `GET /api/cijene/*` (public price data)             | **StaleWhileRevalidate**                   | cache `cijene-api`, `CacheableResponsePlugin` (statuses 0 + 200), `ExpirationPlugin` (200 entries, 7 days) |
-| any other `/api/*` (authed, proxied to Spring)      | **NetworkOnly**                            | deliberately never cached; private data lives in IndexedDB instead                                         |
-| `/s/*` (shared shopping list pages)                 | **NetworkFirst**                           | cache `pages`, 5s network timeout, 20 entries, 1 day. Must stay above `defaultCache`. See the note below   |
-| everything else (app shell, `_next`, fonts, images) | `defaultCache` from `@serwist/next/worker` | Next.js-tuned precache + runtime rules                                                                     |
+| Request                                             | Strategy                                   | Notes                                                                                                                |
+| --------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/cijene/*` (public price data)             | **StaleWhileRevalidate**                   | cache `cijene-api`, `CacheableResponsePlugin` (statuses 0 + 200), `ExpirationPlugin` (200 entries, 7 days)           |
+| any other `/api/*` (authed, proxied to Spring)      | **NetworkOnly**                            | deliberately never cached; private data lives in IndexedDB instead                                                   |
+| `/s/*` (shared shopping list pages)                 | **NetworkFirst**                           | cache `shared-list-pages`, 5s network timeout, 20 entries, 1 day. Must stay above `defaultCache`. See the note below |
+| everything else (app shell, `_next`, fonts, images) | `defaultCache` from `@serwist/next/worker` | Next.js-tuned precache + runtime rules                                                                               |
 
 The `/s/*` rule is a privacy decision as much as a caching one. Those documents are
 server-rendered with someone else's list title for the link preview, and `defaultCache`
@@ -258,16 +258,16 @@ This is what makes authed screens (shopping lists, watchlist) and previously vie
 flowchart LR
     Q["React Query queries"] -->|"dehydrate: success + whitelist"| P["createAsyncStoragePersister"]
     P -->|get/set/del| K["idb-keyval"]
-    K --> IDB[("IndexedDB: disscount-react-query-cache")]
+    K --> IDB[("IndexedDB: disscount-react-query-cache:&lt;userId|anon&gt;")]
     IDB -->|restore on load| Q
-    Logout["Logout"] -->|purgeOfflineCache| Clear["remove user-specific queries + persister.removeClient()"]
+    Logout["Identity change"] -->|purgeOfflineCache| Clear["remove user-specific queries + removePersistedCacheFor(departing identity) + delete scoped SW buckets"]
 ```
 
 - `react-query-provider.tsx` uses `PersistQueryClientProvider`. The `QueryClient` sets a default `gcTime` equal to the persister `maxAge` (7 days), so entries are not garbage-collected out of memory before they can be restored from disk.
 - `persister.ts` builds a `createAsyncStoragePersister` backed by `idb-keyval` (IndexedDB, larger and safer than localStorage). `maxAge` 7 days, `buster` `"3"` (bump to invalidate all persisted caches after a breaking data-shape change; `"2"` was the `ShoppingListDto` reshape for sharing, `"3"` the move to a per-identity key).
 - `cache-identity.ts` scopes the IndexedDB entry to the signed-in account (`disscount-react-query-cache:<userId>`, or `:anon`). Before this there was one browser-wide blob shared by every account on a device, with a destructive purge as the only defence, which is why a shared list could not be persisted at all. The identity is mirrored in localStorage because the persister has to pick a key synchronously at boot, before the session resolves.
 - `cached-query-keys.ts` is the **whitelist**: only successful queries whose top-level key is in `cijene`, `shoppingLists`, `shoppingListItems`, `sharedShoppingList`, `watchlist`, `digitalCards`, `pinnedStores`, `pinnedPlaces`, or `users` are persisted. Keys under `cijene/prices` have a narrower allowlist: only `cijene/prices/product` is persisted, while every other `cijene/prices/*` key is excluded. Bulk product-list results under `cijene/prices/search`, for example, stay in the in-memory React Query cache and the bounded service-worker cache instead of accumulating in IndexedDB as searches and facets change. Canonical single-product price keys remain persisted for product-detail offline reads. Everything else (for example admin data) is never written to disk. Coming-soon features carry `TODO(offline)` markers here to be added when they ship.
-- `purge.ts` (`purgeOfflineCache`) removes user-specific queries from the in-memory cache, wipes the persisted snapshot, and deletes the `pages` and `cijene-api` service worker buckets, guarded so a failed clear never blocks logout. Public `cijene` queries remain in memory and are persisted again on the next successful save, while in-flight cancellation is scoped to user-specific queries so logging out cannot abort a public price fetch. `user-context.tsx` calls it on **any change of identity**, which covers explicit logout, session expiry, a revoked cookie, sign-out in another tab, and one account replacing another. It deliberately does **not** fire merely because there is no session: that condition is true on every page load for a visitor who never logs in, and firing there wiped their queued offline writes on the next boot with no error and nothing left to replay.
+- `purge.ts` (`purgeOfflineCache`) removes user-specific queries from the in-memory cache, wipes the persisted snapshot, and deletes the `shared-list-pages`, `cijene-api` and `others` service worker buckets, matched by exact name rather than by substring so a bucket like `pages-rsc` is never caught by accident, guarded so a failed clear never blocks logout. Public `cijene` queries remain in memory and are persisted again on the next successful save, while in-flight cancellation is scoped to user-specific queries so logging out cannot abort a public price fetch. `user-context.tsx` calls it on **any change of identity**, which covers explicit logout, session expiry, a revoked cookie, sign-out in another tab, and one account replacing another. It deliberately does **not** fire merely because there is no session: that condition is true on every page load for a visitor who never logs in, and firing there wiped their queued offline writes on the next boot with no error and nothing left to replay.
 
 ### 5c. Offline UX
 
