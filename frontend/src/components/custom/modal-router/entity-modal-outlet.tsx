@@ -10,6 +10,10 @@ const ShoppingListModal = dynamic(
     import("@/app/(user)/shopping-lists/components/forms/shopping-list-modal"),
   { ssr: false },
 );
+const ShareListModal = dynamic(
+  () => import("@/app/(user)/shopping-lists/components/forms/share-list-modal"),
+  { ssr: false },
+);
 const DigitalCardModal = dynamic(
   () =>
     import("@/app/(user)/digital-cards/components/forms/digital-card-modal"),
@@ -54,19 +58,26 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
 
   switch (rendered.name) {
     case "shopping-list":
-    case "digital-card": {
-      const Modal =
-        rendered.name === "shopping-list"
-          ? ShoppingListModal
-          : DigitalCardModal;
+      // Sharing is its own modal: it saves on change rather than behind a submit button,
+      // because the server has to mint the token before there is a link to show.
+      if (rendered.action === "share") {
+        return <ShareListModal open={open} id={rendered.id} />;
+      }
       return (
-        <Modal
+        <ShoppingListModal
           open={open}
           action={rendered.action}
           id={rendered.action === "edit" ? rendered.id : undefined}
         />
       );
-    }
+    case "digital-card":
+      return (
+        <DigitalCardModal
+          open={open}
+          action={rendered.action}
+          id={rendered.action === "edit" ? rendered.id : undefined}
+        />
+      );
     case "add-to-list":
       // Keyed so a second product gets its own instance. The form restores its
       // saved draft once, at mount, and this outlet stays mounted between

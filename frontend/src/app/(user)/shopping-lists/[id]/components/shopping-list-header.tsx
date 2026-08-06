@@ -2,9 +2,9 @@ import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
-import { useUser } from "@/context/user-context";
 import ShoppingListActionButtons from "@/app/(user)/shopping-lists/[id]/components/shopping-list-action-buttons";
 import ShoppingListVisibilityIndicator from "@/app/(user)/shopping-lists/components/shopping-list-visibility-indicator";
+import { resolveShoppingListAccess } from "@/app/(user)/shopping-lists/utils/shopping-list-access";
 import {
   Tooltip,
   TooltipContent,
@@ -13,38 +13,49 @@ import {
 
 interface IShoppingListHeaderProps {
   shoppingList: ShoppingList;
+  /**
+   * False for a logged-out link visitor: copying creates a list on their own account,
+   * and the list index they would go back to is itself behind a login.
+   *
+   * Required rather than defaulting to true. This header is shared between an authed
+   * page and a public one, so the dangerous value must not be the implicit one.
+   */
+  isSignedIn: boolean;
+  /** Present when the page was reached through a share link. */
+  shareToken?: string;
 }
 
 export default function ShoppingListHeader({
   shoppingList,
+  isSignedIn,
+  shareToken,
 }: IShoppingListHeaderProps) {
-  const { user } = useUser();
-
-  // A public list is readable by anyone with the link, but updateShoppingList
-  // and deleteShoppingList both resolve through findActiveByIdAndOwner, so for a
-  // recipient those two controls open a modal that can only fail.
-  const isOwner = !!user && shoppingList.ownerId === user.id;
+  // The server resolves this, so it stays right for a link recipient too. Editing and
+  // deleting are owner-only on the backend, so a recipient must not see those controls.
+  const { isOwner } = resolveShoppingListAccess(shoppingList.myAccess);
 
   return (
     <div className="mb-6 space-y-4">
       <div className="flex items-center justify-between gap-4">
         <div className="flex min-w-0 flex-1 items-center gap-0 sm:gap-1">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" asChild>
-                <Link
-                  href="/shopping-lists"
-                  aria-label="Natrag na popise za kupnju"
-                >
-                  <ChevronLeft aria-hidden="true" />
-                </Link>
-              </Button>
-            </TooltipTrigger>
+          {isSignedIn && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" asChild>
+                  <Link
+                    href="/shopping-lists"
+                    aria-label="Natrag na popise za kupnju"
+                  >
+                    <ChevronLeft aria-hidden="true" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
 
-            <TooltipContent className="px-2 py-1 text-xs">
-              Natrag na popise za kupnju
-            </TooltipContent>
-          </Tooltip>
+              <TooltipContent className="px-2 py-1 text-xs">
+                Natrag na popise za kupnju
+              </TooltipContent>
+            </Tooltip>
+          )}
 
           <h1 className="min-w-0 flex-1 break-words text-pretty text-xl font-bold sm:text-2xl">
             {shoppingList.title}
@@ -52,13 +63,20 @@ export default function ShoppingListHeader({
         </div>
 
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-          <ShoppingListVisibilityIndicator isPublic={shoppingList.isPublic} />
+          {/* Non-owners are sent a null linkAccess, so this reads as private for them
+              rather than advertising a setting they cannot change. */}
+          {isOwner && (
+            <ShoppingListVisibilityIndicator
+              linkAccess={shoppingList.linkAccess}
+            />
+          )}
           <ShoppingListActionButtons
             shoppingList={shoppingList}
-            showCopyButton={true}
+            showCopyButton={isSignedIn}
             showShareButton={true}
             showEditButton={isOwner}
             showDeleteButton={isOwner}
+            shareToken={shareToken}
             mobilePresentation="buttons"
           />
         </div>

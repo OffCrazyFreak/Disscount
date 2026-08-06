@@ -20,6 +20,8 @@ interface IStoreChainSelectProps {
   averagePrice?: number;
   isChecked?: boolean; // Whether the item is checked
   storePriceFromDb?: number; // Store price from database when item is checked
+  /** Id of an element saying why this is disabled, when it is. */
+  describedById?: string;
   className?: string;
 }
 
@@ -42,6 +44,7 @@ export default function StoreChainSelect({
   averagePrice,
   isChecked = false,
   storePriceFromDb,
+  describedById,
   className,
 }: IStoreChainSelectProps) {
   const [displayValue, setDisplayValue] = useState<string>(value || "");
@@ -103,7 +106,10 @@ export default function StoreChainSelect({
 
   return (
     <Select value={displayValue} onValueChange={onChange} disabled={disabled}>
-      <SelectTrigger className={cn("min-w-0 text-xs sm:text-sm", className)}>
+      <SelectTrigger
+        aria-describedby={describedById}
+        className={cn("min-w-0 text-xs sm:text-sm", className)}
+      >
         <SelectValue placeholder="Trgovina" />
       </SelectTrigger>
 

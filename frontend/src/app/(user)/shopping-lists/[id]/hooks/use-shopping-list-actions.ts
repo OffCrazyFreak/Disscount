@@ -6,9 +6,10 @@ import {
   type IOpenModalOptions,
 } from "@/lib/modal/modal-navigation";
 import { shareOrCopy } from "@/utils/browser/share";
-import { shoppingListPageUrl } from "@/utils/shopping-list-links";
 import { useShoppingListMutations } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-mutations";
 import { formatShoppingListForSharing } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
+import { shareListUrl } from "@/utils/shopping-list-links";
+import { resolveShoppingListAccess } from "@/app/(user)/shopping-lists/utils/shopping-list-access";
 
 export interface IShoppingListActionGroupProps {
   showShareButton: boolean;
@@ -17,13 +18,21 @@ export interface IShoppingListActionGroupProps {
   showDeleteButton: boolean;
   isCopying: boolean;
   isDeleting: boolean;
-  onShare: () => void;
+  onShare: (options?: IOpenModalOptions) => void;
   onCopy: () => void;
   onEdit: () => void;
   onDeleteClick: () => void;
 }
 
-export function useShoppingListActions(shoppingList: ShoppingList) {
+/**
+ * @param shareToken the token this page was reached through, when it was reached through
+ *   a link. The DTO's own shareToken is null for anyone but the owner, so without this a
+ *   recipient standing on /s/<token> cannot pass on the very link they are looking at.
+ */
+export function useShoppingListActions(
+  shoppingList: ShoppingList,
+  shareToken?: string,
+) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const { deleteShoppingListMutation, confirmDelete, handleCopy, isCopying } =
@@ -50,14 +59,32 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
     );
   }
 
+  const { canManageShare } = resolveShoppingListAccess(shoppingList.myAccess);
+
   // No pending state on purpose. Nothing here is fetched, and shareOrCopy
   // documents why a flag cleared on completion strands the button spinning.
-  async function handleShare() {
+  //
+  // Takes the same options as handleEdit, and for the same reason: when the owner's
+  // branch opens a modal from inside another one, that has to replace rather than push.
+  async function handleShare(options?: IOpenModalOptions) {
+    // The owner gets the settings panel, where the link is created and revoked. Everyone
+    // else can still pass the list on: either the link they already hold, or plain text.
+    if (canManageShare) {
+      openModalUrl(
+        {
+          name: "shopping-list",
+          action: "share",
+          id: shoppingList.id,
+        },
+        options,
+      );
+      return;
+    }
+
     try {
       const text = formatShoppingListForSharing(shoppingList);
-      const url = shoppingList.isPublic
-        ? shoppingListPageUrl(shoppingList.id)
-        : undefined;
+      const token = shareToken ?? shoppingList.shareToken;
+      const url = token ? shareListUrl(token) : undefined;
       const outcome = await shareOrCopy({
         title: shoppingList.title,
         text,
@@ -66,9 +93,7 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
 
       if (outcome === "copied") {
         toast.success(
-          shoppingList.isPublic
-            ? "URL veza je kopirana"
-            : "Tekst popisa je kopiran",
+          url ? "Poveznica je kopirana" : "Tekst popisa je kopiran",
         );
       }
       if (outcome === "failed") toast.error("Dijeljenje nije uspjelo");
@@ -81,6 +106,7 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
   }
 
   return {
+    canManageShare,
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
     isDeleting: deleteShoppingListMutation.isPending,

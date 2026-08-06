@@ -36,4 +36,7 @@ public interface ShoppingListRepository extends JpaRepository<ShoppingList, UUID
 
     @Query("SELECT sl FROM ShoppingList sl WHERE sl.id = :id AND sl.owner = :owner AND sl.deletedAt IS NULL")
     Optional<ShoppingList> findActiveByIdAndOwner(UUID id, User owner);
+
+    @Query("SELECT sl FROM ShoppingList sl WHERE sl.shareToken = :shareToken AND sl.deletedAt IS NULL")
+    Optional<ShoppingList> findActiveByShareToken(UUID shareToken);
 }

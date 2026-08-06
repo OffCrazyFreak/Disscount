@@ -21,6 +21,7 @@ Under the hood it is a full production stack: a Next.js frontend that also acts 
 - Product search across 29 Croatian retail chains (with barcode scanning)
 - Price comparison per store and price history charts ("is the discount real?")
 - Smart shopping lists with per-store basket totals
+- Shared shopping lists via a private link, with view, shop or edit access and a revocable token
 - Product watchlist
 - Installable PWA that works offline (IndexedDB reads, background-sync writes)
 - Google + email/password auth with account linking
@@ -31,7 +32,6 @@ Under the hood it is a full production stack: a Next.js frontend that also acts 
 - Digital loyalty cards
 - Store map with working hours
 - Spending analysis and market statistics
-- Shopping list sharing
 
 ## Tech stack
 

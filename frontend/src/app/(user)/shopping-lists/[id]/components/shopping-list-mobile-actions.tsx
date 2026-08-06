@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import useTapToOpen from "@/hooks/use-tap-to-open";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import type { IShoppingListActionGroupProps } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-actions";
 
 export default function ShoppingListMobileActions({
@@ -29,6 +30,11 @@ export default function ShoppingListMobileActions({
   onDeleteClick,
 }: IShoppingListActionGroupProps) {
   const { rootProps, triggerProps } = useTapToOpen();
+
+  // The label is the whole affordance here, so it swaps rather than sitting still
+  // behind a spinner.
+  const copyLabel = isCopying ? LOADING_LABELS.copying : "Kopiraj popis";
+  const deleteLabel = isDeleting ? LOADING_LABELS.deleting : "Obriši popis";
 
   return (
     <div className="flex sm:hidden">
@@ -46,7 +52,7 @@ export default function ShoppingListMobileActions({
         <DropdownMenuContent align="end" className="w-max">
           {showShareButton && (
             <DropdownMenuItem
-              onSelect={onShare}
+              onSelect={() => onShare()}
               className="cursor-pointer flex items-center gap-4"
             >
               <Share2 aria-hidden="true" className="size-6" />
@@ -67,7 +73,7 @@ export default function ShoppingListMobileActions({
               ) : (
                 <Copy aria-hidden="true" className="size-6" />
               )}
-              <span>Kopiraj popis</span>
+              <span>{copyLabel}</span>
             </DropdownMenuItem>
           )}
 
@@ -94,7 +100,7 @@ export default function ShoppingListMobileActions({
               ) : (
                 <Trash2 aria-hidden="true" className="size-6 text-red-600" />
               )}
-              <span>Obriši popis</span>
+              <span>{deleteLabel}</span>
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>

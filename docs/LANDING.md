@@ -141,14 +141,15 @@ Because `faqItems` feeds both the visible accordion and the structured data, the
 
 The landing is the app's most SEO-sensitive surface, so several layers work together.
 
-| Layer                    | Where                                              | Notes                                                                                   |
-| ------------------------ | -------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| Page title + description | `page.tsx` `metadata`                              | Title fills the `Disscount - %s` template from the layout; Croatian description         |
-| Site-wide metadata       | `app/layout.tsx`                                   | `openGraph` (`hr_HR`), `twitter` (`summary_large_image`), keywords, robots index/follow |
-| Structured data          | `components/json-ld.tsx`                           | One `<script type="application/ld+json">` with a `@graph`                               |
-| Sitemap                  | `app/sitemap.ts`                                   | Public routes only; pulls `/updates/<id>` from `templatePosts`                          |
-| Robots                   | `app/robots.ts`                                    | Allows `/`, disallows user/admin/auth routes; points at the sitemap                     |
-| Social images            | `app/opengraph-image.tsx`, `app/twitter-image.tsx` | Generated with `next/og` (see the OG-image work)                                        |
+| Layer                    | Where                                              | Notes                                                                                                                |
+| ------------------------ | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Page title + description | `page.tsx` `metadata`                              | Title fills the `Disscount - %s` template from the layout; Croatian description                                      |
+| Site-wide metadata       | `app/layout.tsx`                                   | `openGraph` (`hr_HR`), `twitter` (`summary_large_image`), keywords, robots index/follow                              |
+| Structured data          | `components/json-ld.tsx`                           | One `<script type="application/ld+json">` with a `@graph`                                                            |
+| Sitemap                  | `app/sitemap.ts`                                   | Public routes only; pulls `/updates/<id>` from `templatePosts`                                                       |
+| Robots                   | `app/robots.ts`                                    | Allows `/`, disallows user/admin/auth routes; points at the sitemap                                                  |
+| Noindex headers          | `next.config.ts` `headers()`                       | `X-Robots-Tag: noindex, nofollow` on `/s/*` and `/shopping-lists/*`; `/s/*` also gets `Referrer-Policy: no-referrer` |
+| Social images            | `app/opengraph-image.tsx`, `app/twitter-image.tsx` | Generated with `next/og` (see the OG-image work)                                                                     |
 
 The JSON-LD `@graph` contains a `WebSite` node with a `SearchAction` (`/products?q={search_term_string}`), an `Organization` node (logo, `sameAs` socials), a `SoftwareApplication` node (category `ShoppingApplication`, a free `Offer`, screenshots), and a `FAQPage` node built from `faqItems`. Heading semantics matter: the hero `<h1>` carries the keyword copy ("Pronađi najbolje cijene u Hrvatskoj"), the wordmark is a styled `<p>`, and each section contributes exactly one `<h2>`.
 
@@ -266,7 +267,7 @@ The exact chain count is never hardcoded. The number of covered retail chains gr
 
 ## Future improvements and TODOs
 
-- Wire the coming-soon feature cards (Dijeljenje popisa, Analiza potrošnje, Digitalne kartice, Karta trgovina) once their pages ship, by uncommenting the `href` in `features.ts` and dropping `comingSoon`.
+- Wire the remaining coming-soon feature cards (Analiza potrošnje, Digitalne kartice, Karta trgovina) once their pages ship, by uncommenting the `href` in `features.ts` and dropping `comingSoon`.
 - Move `ScrollReveal` and `StaggerChildren` out of `components/ui/` (AGENTS.md reserves that folder for unedited shadcn primitives) into `components/custom/` (e.g. an `animation/` folder) with default exports, matching the convention for hand-written components.
 - Consider an FAQ-driven long-tail SEO expansion and a real testimonials/social-proof section once there is content for it.
 - The landing is Croatian-only; if the app adds `next-intl`, the landing copy in the `data/*` files is the natural first surface to translate.

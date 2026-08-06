@@ -10,15 +10,29 @@ import {
 } from "@/app/(user)/shopping-lists/utils/shopping-list-utils";
 import { getAveragePrice } from "@/app/products/utils/product-utils";
 
-export function useShoppingListData(listId: string) {
+/**
+ * @param shareToken when set, the list is read through /api/shared/{token} instead of by
+ *   id, which is the only path an anonymous visitor has.
+ */
+export function useShoppingListData(listId: string, shareToken?: string) {
   const { user } = useUser();
+
+  // Both hooks always run, since hook order cannot be conditional. Exactly one is
+  // enabled, so only one ever fetches.
+  const ownedQuery = shoppingListService.useGetShoppingListById(listId, {
+    enabled: !shareToken,
+  });
+  const sharedQuery = shoppingListService.useGetSharedShoppingList(
+    shareToken ?? "",
+  );
 
   const {
     data: shoppingList,
     isLoading,
     error,
+    refetch,
     dataUpdatedAt: listUpdatedAt,
-  } = shoppingListService.useGetShoppingListById(listId);
+  } = shareToken ? sharedQuery : ownedQuery;
 
   const eans = useMemo(
     () => [
@@ -109,6 +123,7 @@ export function useShoppingListData(listId: string) {
     shoppingList,
     isLoading,
     error,
+    refetch,
     listUpdatedAt,
     cheapestStores,
     averagePrices,

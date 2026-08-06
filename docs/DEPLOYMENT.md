@@ -285,25 +285,61 @@ Set in **Dokploy → service → Environment**, per environment. Both DSNs live 
 
 ## 10. What's automatic vs manual
 
-| Task                                                       | Automatic? | Notes                                                                                      |
-| ---------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------ |
-| Build & deploy on `git push`                               | ✅ auto    | Dokploy autodeploy (per branch)                                                            |
-| CI checks (typecheck, lint, format, build, backend verify) | ✅ auto    | `.github/workflows/ci.yml` on every push + PR; required to merge to `main`                 |
-| PR previews (head branch is not `main` or `dev`)           | ✅ auto    | Netlify, gated by `frontend/netlify.toml` (see [§4](#netlify-pr-previews))                 |
-| HTTPS certificate issuance + renewal                       | ✅ auto    | Traefik + Let's Encrypt                                                                    |
-| HTTP to HTTPS redirect                                     | ✅ auto    | Cloudflare                                                                                 |
-| DB migrations (auth tables + app tables)                   | ✅ auto    | `migrate` service (drizzle) + Hibernate `ddl-auto=update` on each deploy                   |
-| Nightly DB backups (R2 + local) + rotation                 | ✅ auto    | Dokploy Backups + Schedule                                                                 |
-| OS security updates                                        | ✅ auto    | unattended-upgrades                                                                        |
-| Uptime checks                                              | ✅ auto    | UptimeRobot, published as a [public status page](https://stats.uptimerobot.com/ej4ROz2eMo) |
-| **Adding/Changing a `NEXT_PUBLIC_*` var**                  | ❌ manual  | edit in Dokploy env **+ redeploy**                                                         |
-| **Adding a new domain/subdomain**                          | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                                  |
-| **New OAuth provider redirect URIs**                       | ❌ manual  | add in Google/Meta consoles                                                                |
-| **Hard-refresh after deploy**                              | ❌ manual  | avoids stale-bundle errors                                                                 |
-| **Restoring a backup**                                     | ❌ manual  | see [§8](#8-backups--restore)                                                              |
-| **Rotating secrets / tokens**                              | ❌ manual  | as needed                                                                                  |
+| Task                                                       | Automatic? | Notes                                                                                                                         |
+| ---------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Build & deploy on `git push`                               | ✅ auto    | Dokploy autodeploy (per branch)                                                                                               |
+| CI checks (typecheck, lint, format, build, backend verify) | ✅ auto    | `.github/workflows/ci.yml` on every push + PR; required to merge to `main`                                                    |
+| PR previews (head branch is not `main` or `dev`)           | ✅ auto    | Netlify, gated by `frontend/netlify.toml` (see [§4](#netlify-pr-previews))                                                    |
+| HTTPS certificate issuance + renewal                       | ✅ auto    | Traefik + Let's Encrypt                                                                                                       |
+| HTTP to HTTPS redirect                                     | ✅ auto    | Cloudflare                                                                                                                    |
+| DB migrations (auth tables + app tables)                   | ✅ auto    | `migrate` service (drizzle) + Hibernate `ddl-auto=update` on each deploy. **Additive only**: see the dropped-column row below |
+| Nightly DB backups (R2 + local) + rotation                 | ✅ auto    | Dokploy Backups + Schedule                                                                                                    |
+| OS security updates                                        | ✅ auto    | unattended-upgrades                                                                                                           |
+| Uptime checks                                              | ✅ auto    | UptimeRobot, published as a [public status page](https://stats.uptimerobot.com/ej4ROz2eMo)                                    |
+| **Adding/Changing a `NEXT_PUBLIC_*` var**                  | ❌ manual  | edit in Dokploy env **+ redeploy**                                                                                            |
+| **Adding a new domain/subdomain**                          | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                                                                     |
+| **New OAuth provider redirect URIs**                       | ❌ manual  | add in Google/Meta consoles                                                                                                   |
+| **Hard-refresh after deploy**                              | ❌ manual  | avoids stale-bundle errors                                                                                                    |
+| **Restoring a backup**                                     | ❌ manual  | see [§8](#8-backups--restore)                                                                                                 |
+| **Rotating secrets / tokens**                              | ❌ manual  | as needed                                                                                                                     |
+| **Dropping or narrowing a column**                         | ❌ manual  | `ddl-auto=update` never drops, so the column outlives the code. See [§10.1](#101-dropping-a-column)                           |
 
 ---
+
+### 10.1 Dropping a column
+
+`ddl-auto=update` is additive. It adds tables and columns, and never removes or narrows
+one. So when an entity stops mapping a column, the column stays in the database with
+whatever constraints it had, and a `NOT NULL` column with no default then rejects every
+insert the new code makes, because Hibernate has stopped supplying a value for it.
+
+Deploys fire automatically on push, so there is no window in which you control which
+image is running. That makes the order matter, and a single `DROP COLUMN` cannot be
+ordered safely: run it before the push and the still-running old image breaks, run it
+after and every insert fails until you do.
+
+Three steps, in this order:
+
+```sql
+-- 1. Before pushing. The old image still writes the column, the new one omits it.
+ALTER TABLE <table> ALTER COLUMN <column> DROP NOT NULL;
+```
+
+```bash
+# 2. Push. Both images can now write, so the rollout window is safe either way.
+git push
+```
+
+```sql
+-- 3. After the deploy has settled.
+ALTER TABLE <table> DROP COLUMN <column>;
+```
+
+**Pending for the shopping list sharing release:** `shopping_list.is_public`, replaced by
+`link_access` and `share_token`. It is `NOT NULL` with no default, so it needs exactly the
+sequence above.
+
+Open a DB shell the same way as for a restore, see [§8](#8-backups--restore).
 
 ## 11. Common operations (how-to)
 

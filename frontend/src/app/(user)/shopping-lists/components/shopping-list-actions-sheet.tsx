@@ -6,10 +6,10 @@ import QuickActionsSheet from "@/components/custom/common/quick-actions-sheet";
 import { shoppingListService } from "@/lib/api";
 import type { ShoppingListDto } from "@/lib/api/types";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
-import { useUser } from "@/context/user-context";
 import { useShoppingListActions } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-actions";
 import ShoppingListQuickActionsList from "@/app/(user)/shopping-lists/components/shopping-list-quick-actions-list";
 import ShoppingListSummary from "@/app/(user)/shopping-lists/components/shopping-list-summary";
+import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 
 interface IShoppingListActionsSheetProps {
   open: boolean;
@@ -29,10 +29,9 @@ export default function ShoppingListActionsSheet({
   onRequestDelete,
 }: IShoppingListActionsSheetProps) {
   const queryClient = useQueryClient();
-  const { user } = useUser();
 
   const cachedList = queryClient
-    .getQueryData<ShoppingListDto[]>(["shoppingLists", "me"])
+    .getQueryData<ShoppingListDto[]>(SHOPPING_LIST_QUERY_KEYS.me)
     ?.find((list) => list.id === id);
   const byIdQuery = shoppingListService.useGetShoppingListById(id);
   const shoppingList =
@@ -54,7 +53,6 @@ export default function ShoppingListActionsSheet({
       {shoppingList && (
         <SheetActions
           shoppingList={shoppingList}
-          isOwner={!!user && shoppingList.ownerId === user.id}
           onRequestDelete={onRequestDelete}
         />
       )}
@@ -64,7 +62,6 @@ export default function ShoppingListActionsSheet({
 
 interface ISheetActionsProps {
   shoppingList: ShoppingListDto;
-  isOwner: boolean;
   onRequestDelete: (shoppingList: ShoppingListDto) => void;
 }
 
@@ -72,20 +69,23 @@ interface ISheetActionsProps {
  * Split out because useShoppingListActions needs a list, and the sheet above has
  * to render its pending and missing states before one exists.
  */
-function SheetActions({
-  shoppingList,
-  isOwner,
-  onRequestDelete,
-}: ISheetActionsProps) {
-  const { isCopying, handleShare, handleCopy, handleEdit } =
+function SheetActions({ shoppingList, onRequestDelete }: ISheetActionsProps) {
+  const { canManageShare, isCopying, handleShare, handleCopy, handleEdit } =
     useShoppingListActions(shoppingList);
 
   return (
     <ShoppingListQuickActionsList
-      isOwner={isOwner}
+      isOwner={canManageShare}
       isCopying={isCopying}
-      // The OS share sheet reads better over the page than over this one.
+      // Two different destinations. The owner opens the share settings modal, which
+      // replaces this one for the history reason below. Everyone else gets the OS
+      // share sheet, which reads better over the page than over this one.
       onShare={() => {
+        if (canManageShare) {
+          void handleShare({ replace: true });
+          return;
+        }
+
         closeModalUrl();
         void handleShare();
       }}

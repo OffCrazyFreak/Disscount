@@ -10,6 +10,8 @@ interface IShoppingListActionButtonsProps {
   showEditButton?: boolean;
   showDeleteButton?: boolean;
   showShareButton?: boolean;
+  /** Set when the page was reached through a share link, so share can offer that link. */
+  shareToken?: string;
   mobilePresentation?: "menu" | "buttons" | "none";
   className?: string;
 }
@@ -20,6 +22,7 @@ export default function ShoppingListActionButtons({
   showEditButton = false,
   showDeleteButton = false,
   showShareButton = false,
+  shareToken,
   mobilePresentation = "menu",
   className,
 }: IShoppingListActionButtonsProps) {
@@ -32,7 +35,7 @@ export default function ShoppingListActionButtons({
     handleEdit,
     handleShare,
     handleCopy,
-  } = useShoppingListActions(shoppingList);
+  } = useShoppingListActions(shoppingList, shareToken);
 
   const groupProps = {
     showShareButton,
