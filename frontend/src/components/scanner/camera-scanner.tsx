@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { ScanBarcode, TriangleAlert } from "lucide-react";
-import { useDevices } from "@yudiel/react-qr-scanner";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Banner } from "@/components/custom/common/banner";
 import {
   clearPreferredCamera,
   getPreferredCamera,
@@ -19,6 +19,7 @@ import { IScannedCode, ScanPreset } from "@/typings/scanned-code";
 import CameraView from "@/components/scanner/camera-view";
 import CameraSelect from "@/components/scanner/camera-select";
 import ScanImageButton from "@/components/scanner/scan-image";
+import useCameraDevices from "@/components/scanner/hooks/use-camera-devices";
 
 interface ICameraScannerProps {
   isOpen: boolean;
@@ -33,7 +34,7 @@ export default function CameraScanner({
   onClose,
   onScan,
 }: ICameraScannerProps) {
-  const devices = useDevices();
+  const { devices, refreshDevices } = useCameraDevices();
   const [manualDeviceId, setManualDeviceId] = useState<string | undefined>(() =>
     getPreferredCamera(),
   );
@@ -64,35 +65,39 @@ export default function CameraScanner({
       <DialogContent>
         <DialogHeader className="text-left">
           <DialogTitle className="flex items-center gap-2">
-            <ScanBarcode className="size-6" />
+            <ScanBarcode aria-hidden="true" className="size-6" />
             Skeniraj kod
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           {error ? (
-            <p className="flex items-start gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
-              <TriangleAlert className="mt-0.5 size-4 shrink-0" />
+            <Banner
+              role="alert"
+              variant="warningSoft"
+              size="md"
+              icon={TriangleAlert}
+              className="mb-0"
+            >
               {error}
-            </p>
+            </Banner>
           ) : (
             <CameraView
               preset={preset}
               deviceId={activeDeviceId}
               onScan={onScan}
               onError={(err) => setError(describeScannerError(err))}
+              onCameraReady={refreshDevices}
             />
           )}
 
-          {(devices.length > 1 || hasManualChoice) && (
-            <CameraSelect
-              devices={devices}
-              value={activeDeviceId}
-              hasManualChoice={hasManualChoice}
-              onSelect={handleSelect}
-              onReset={handleReset}
-            />
-          )}
+          <CameraSelect
+            devices={devices}
+            value={activeDeviceId}
+            hasManualChoice={hasManualChoice}
+            onSelect={handleSelect}
+            onReset={handleReset}
+          />
 
           <ScanImageButton preset={preset} onScan={onScan} />
         </div>

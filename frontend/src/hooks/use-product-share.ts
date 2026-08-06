@@ -17,7 +17,7 @@ export default function useProductShare(product: ProductResponse) {
       url: productPageUrl(product.ean),
     });
 
-    if (outcome === "copied") toast.success("Veza je kopirana");
+    if (outcome === "copied") toast.success("URL veza je kopirana");
     if (outcome === "failed") toast.error("Dijeljenje nije uspjelo");
   }
 

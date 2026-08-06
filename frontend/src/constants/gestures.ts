@@ -12,3 +12,9 @@ export const HOLD_CANCEL_PX = 10;
 
 /** An abandoned ring retracts over this, rather than vanishing between frames */
 export const HOLD_DRAIN_MS = 120;
+
+/** Past this, a horizontal drag is a deliberate swipe rather than a slipped tap */
+export const SWIPE_COMMIT_PX = 60;
+
+/** How much a swipe must out-travel its vertical drift, so scrolling is never hijacked */
+export const SWIPE_AXIS_RATIO = 1.5;

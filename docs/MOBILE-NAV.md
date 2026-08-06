@@ -2,7 +2,7 @@
 
 A complete reference for the mobile bottom navigation bar, its gestures, and the shared bottom-sheet shell it opens, written to be understandable even if you're new to this. Keep it up to date as the setup changes.
 
-_Last verified end-to-end on 2026-07-26 against `feat/mobile-bottom-nav`, measured in a real browser at 360x740 and 320x740. Still unverified on real iOS or Android hardware, see [§19](#19-future-improvements--todos)._
+_Last verified end-to-end on 2026-07-26 against `feat/mobile-bottom-nav`, measured in a real browser at 360x740 and 320x740. The persistent labels and `space-between` layout added on 2026-07-27 passed formatting and type checks but have not been remeasured in a browser. Still unverified on real iOS or Android hardware, see [§19](#19-future-improvements--todos)._
 
 > **Mental model in one sentence:** below the `md` breakpoint the app grows a five-cell **tab bar** pinned to the bottom of the screen, and that bar becomes the primary navigation a phone user needs, because the hamburger sidebar stays on as overflow, the create actions hang off **long presses**, and back-to-top becomes **re-tapping the tab you are already on**.
 
@@ -41,8 +41,8 @@ _Last verified end-to-end on 2026-07-26 against `feat/mobile-bottom-nav`, measur
 | Cells, left to right  | Karta (USKORO), Praćenje, Proizvodi (search), Popisi, Kartice (USKORO)                                                                                                                                                                                  |
 | USKORO cells          | disabled for everyone but admins, as in the sidebar                                                                                                                                                                                                     |
 | Bar height            | 72px of content, plus `env(safe-area-inset-bottom)`                                                                                                                                                                                                     |
-| Cell width (measured) | 65.8px at a 360px viewport, 57.8px at 320px                                                                                                                                                                                                             |
-| Icon / label          | 24px icon, 10.4px label, labels visible until the scroll compaction collapses them                                                                                                                                                                      |
+| Cell distribution     | five fixed 57.6px cells with the remaining horizontal room distributed between them                                                                                                                                                                     |
+| Icon / label          | 24px icon, 10.4px label, always visible                                                                                                                                                                                                                 |
 | Active indicator      | a 57.6px disc enclosing icon and label, sliding between cells and fading out on the search cell                                                                                                                                                         |
 | Surface               | a floating pill matching the scrolled header's translucent blurred treatment                                                                                                                                                                            |
 | z-index               | scroll fade 40, install banner 41, FAB 42, sheet scrim 43, bottom sheets 44, **bar 45**, dialogs and popovers 50, offline indicator 60. Tokens live in `globals.css`                                                                                    |
@@ -205,13 +205,13 @@ A floating pill, taking the scrolled header's treatment verbatim so the app's tw
 mx-[0.5rem] px-[0.4rem] rounded-full border backdrop-blur-sm
 ```
 
-The horizontal inset and inner padding are explicit rem values rather than spacing utilities, because of the `--spacing` trap in [§10](#10-layout-safe-areas-and-css-tokens). Together they hold the 57.6px active disc **11.5px** clear of the pill's edges at a 360px viewport and **7.5px** at 320px, so the first and last cell's disc never touches the border.
+The horizontal inset and inner padding are explicit rem values rather than spacing utilities, because of the `--spacing` trap in [§10](#10-layout-safe-areas-and-css-tokens). Each cell is fixed at the active disc's 57.6px width, and `justify-between` puts all remaining horizontal room between cells. The 0.4rem inner padding therefore keeps the first and last disc clear of the pill's border at every supported width.
 
 One trade-off, flagged and then accepted deliberately: this is a second blurred fixed layer over the header's own `backdrop-blur-sm`. Stacked blurs are Apple's "glass sandwich" and the main scroll-jank source on mid-range Android, so it is worth watching on real hardware.
 
-### Compaction on scroll
+### Surface change on scroll
 
-Once the page is scrolled, the labels fade and collapse and the surface's alpha drops from 50% to 45% of the background colour. That is the same trigger the header already uses via `useScrolledPast(50)`, but driven by a **scroll timeline**, so there is no scroll listener, no jank and no hydration behaviour:
+Once the page is scrolled, the surface's alpha eases from 50% to 45% of the background colour while every icon and label stays fully visible. It is driven by a **scroll timeline**, so there is no scroll listener, no jank and no hydration behaviour. Note this is a progressive range rather than a threshold: `animation-range: 40px 180px` interpolates the whole way, so it is not the same trigger as the header's `useScrolledPast(50)`, which flips once at 50px.
 
 ```css
 @supports (animation-timeline: scroll()) {
@@ -225,11 +225,10 @@ Once the page is scrolled, the labels fade and collapse and the surface's alpha 
 }
 ```
 
-Three things to know:
+Two things to know:
 
-- The three animated values are registered with `@property`. **Unregistered custom properties animate discretely** and would snap at the halfway point instead of fading.
+- The animated surface alpha is registered with `@property`. **Unregistered custom properties animate discretely** and would snap at the halfway point instead of fading.
 - The bar's outer height never changes, so the pill does not resize mid-scroll and the page's padding never shifts.
-- It **compacts, it never hides.** Hiding navigation is the roughly 21% task-completion penalty this whole feature exists to avoid. Browsers without scroll-driven animations keep the full-size bar, which is the correct fallback.
 
 ---
 
@@ -322,7 +321,7 @@ Five things make this work without touching the controls:
 - **`useProductFilters({ seedPreferred: false })`.** `ProductsClient` already owns the pinned-store seeding on that route; two readers racing it would double-append params.
 - **The expanded state lives in `ProductsSheetContext`**, not in the panel and not in `ProductsSheet`, because two entry points have to decide it. `open()` collapses the filters and `openFilters()` expands them, each in the same batch that flips `isOpen`, so the sheet never renders at the wrong size for a frame and no effect is needed. The centre cell therefore always lands on the compact sheet, whatever you left expanded last time.
 
-No extra request either way: `useProductFacets` reuses the query key the page already holds, and `useGetProductByName` is gated on `enabled: Boolean(params.q)`, so an empty query fetches nothing. The popover each select opens portals **into** the sheet via `PortalContainerProvider`, so touch scrolling inside it survives.
+No extra request either way: `useProductFacets` reuses the query key the page already holds, and `useGetProductByName` is gated on `enabled: Boolean(params.q)`, so an empty query fetches nothing. Below `md`, which is the only width this sheet exists at, each select expands its list **inline** rather than opening a popover, so there is nothing floating to scroll and nothing to portal. `PortalContainerProvider` is now unused by these selects: it exists for popovers opened inside a vaul drawer, and no drawer above `md` hosts one.
 
 **Očisti filtere is icon-only**, an outlined X naming itself through a tooltip, shared by all three filter surfaces. It reuses `RemoveIconButton`, which already was a tooltip wrapped around an icon button and gained a `tone` so a reset outlines where a deletion stays red. Beside the `flex-1` Filteri button on a 360px screen, a labelled button took as much room as the control it sat next to.
 
@@ -391,9 +390,10 @@ The whole ladder lives in `globals.css` as `--z-*` tokens, in descending order, 
 | 50  | -                        | mobile sidebar drawer, modal and deliberately above the bar |
 | 45  | `--z-bottom-nav`         | bottom nav                                                  |
 | 44  | `--z-bottom-sheet`       | bottom sheets                                               |
-| 43  | `--z-bottom-sheet-scrim` | a modal sheet's scrim, below the bar by design              |
+| 43  | `--z-bottom-sheet-scrim` | a modal sheet's scrim                                       |
 | 41  | `--z-install-banner`     | PWA install banner                                          |
 | 40  | `--z-scroll-fade`        | window scroll fade                                          |
+| 39  | `--z-bottom-nav-covered` | what `--z-bottom-nav` becomes while a modal sheet is open   |
 | 30  | `--z-fab`                | back-to-top FAB                                             |
 | 20  | `--z-header`             | header                                                      |
 | 10  | `--z-sidebar`            | desktop sidebar                                             |
@@ -404,7 +404,9 @@ Two moves made room for the bar: the FAB dropped from `z-50` (it is desktop-only
 
 The **mobile sidebar** stays out of `SheetShell` and keeps `z-50`. It is a `direction={side}` drawer covering the full height, and unlike the sheets it really is modal, so its scrim should cover the bar rather than leave it poking through.
 
-`DrawerOverlay` is rendered by `DrawerContent` with no props, so its `z-50` was unreachable from outside. `DrawerContent` now takes an `overlayClassName` that forwards to it, which is what keeps a modal sheet's scrim at 43 instead of silently landing above the bar.
+`DrawerOverlay` is rendered by `DrawerContent` with no props, so its `z-50` was unreachable from outside. `DrawerContent` now takes an `overlayClassName` that forwards to it, which is what pins a modal sheet's scrim to 43 instead of letting it land above everything at 50.
+
+43 is still below the bar's resting 45, so the bar is not left poking through the scrim: a rule in `globals.css` keyed on `body:has([data-vaul-drawer][data-state="open"]:not([data-sheet-non-modal]))` swaps `--z-bottom-nav` to `--z-bottom-nav-covered` (39) for as long as a modal sheet is open. Leaving the bar on top would keep it fully visible while Radix's body lock made it inert, which reads as a frozen UI. The non-modal products sheet carries the `data-sheet-non-modal` marker and is the deliberate exception, so the bar stays above it and its centre cell remains the way out.
 
 ### Why only the products sheet is non-modal
 
@@ -518,21 +520,24 @@ The timer lives outside React because the bar and the product cards own very dif
 
 ## 9. Live state on the bar
 
-| Indicator                     | Source                                                        | Behaviour                                                             |
-| ----------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Badge on **Praćenje**         | `useNotifications()`, the same count the desktop header shows | only when the count is above zero                                     |
-| Completion ring on **Popisi** | `useGetShoppingListById`, keyed off the pathname              | only on `/shopping-lists/[id]`, and only for a list that has items    |
-| Active disc                   | `isRouteActive(pathname, item.href)`, or the scrubbed cell    | slides between cells via `layoutId`, and fades out on the search cell |
-| Chevron on the active icon    | `useTabReentry`                                               | only while a return position is held                                  |
+| Indicator                     | Source                                                                            | Behaviour                                                             |
+| ----------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Badge on **Praćenje**         | `useNotifications()`, the same count the desktop header shows                     | only when the count is above zero                                     |
+| Completion ring on **Popisi** | `useGetShoppingListById`, keyed off the pathname                                  | only on `/shopping-lists/[id]`, and only for a list that has items    |
+| Active disc                   | `isRouteActive(pathname, item.href)`, the scrubbed cell, or a settling navigation | slides between cells via `layoutId`, and fades out on the search cell |
+| Chevron on the active icon    | `useTabReentry`                                                                   | only while a return position is held                                  |
 
 Which cell renders the disc is one expression in `bottom-nav.tsx`:
 
 ```ts
+const previewedDisc =
+  previewIndex !== null && !cells[previewIndex].isLocked ? previewIndex : null;
+
 const discIndex =
-  scrubbedDisc ?? cells.findIndex((cell) => cell.isActive && !cell.isLocked);
+  previewedDisc ?? cells.findIndex((cell) => cell.isActive && !cell.isLocked);
 ```
 
-So a thumb borrows the disc while it scrubs, and the route takes it back on release. `isRouteActive` matches on a segment boundary, so a future `/watchlisting` could never light Praćenje.
+So a thumb borrows the disc while it scrubs. When release starts a route navigation, that destination keeps the disc until `usePathname()` changes, preventing the disc from returning briefly to the old route while `router.push()` settles. Search toggles, locked cells, active-tab re-entry, cancelled gestures and consumed long presses clear the preview immediately because none starts a route change. `isRouteActive` matches on a segment boundary, so a future `/watchlisting` could never light Praćenje.
 
 ### Why the disc fades on the search cell
 
@@ -592,17 +597,7 @@ Targets to hit: 72px content height, 24px icons, 10-11px labels, at least 48px o
 
 Worked out by measuring, not by eye. Labels are 10.4px, and the active one is **bold**, which widens it, so sizing the disc against an unbolded width leaves the active cell (the one you actually look at) touching its own edges. Re-measured after `Potrošnja` (45.9px unbolded) gave way to `Karta`: the widest unbolded is now `Praćenje` at 42px, and the widest bold is `Proizvodi` at 44.7px. So the constraint eased slightly and the 57.6px disc is unchanged.
 
-The resulting numbers, verified in the browser:
-
-| Measure                        | 360px viewport | 320px viewport |
-| ------------------------------ | -------------- | -------------- |
-| Cell width                     | 65.8px         | 57.8px         |
-| Disc                           | 57.6px         | 57.6px         |
-| Padding around the bold label  | 7.8px          | 7.8px          |
-| Padding inside the bar         | 7.2px          | 7.2px          |
-| Clearance from the pill's edge | 11.5px         | 7.5px          |
-
-At 320px the disc essentially fills its cell, which is fine because only one cell carries a disc at a time.
+Each cell and its disc are now 57.6px wide at every viewport. At 320px they nearly touch, while wider screens place the available room between them. The 0.4rem inner padding keeps the outer discs away from the pill border, and taps or scrubs in a distributed gap resolve to the nearest cell.
 
 ### Viewport changes this required
 
@@ -891,6 +886,8 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 
 **Route match and activation are different questions.** `isActiveIndex` originally short-circuited on `!entry.isSearch`, so the centre cell could never be active and `/products` had no `aria-current` at all. It also lit up merely because the sheet opened, which is not a route change. Keep the styling predicate pure and let a separate flag decide behaviour.
 
+**Clearing the scrub preview before the route changes makes the disc bounce.** A pointer release used to clear `scrubIndex`, return the disc to the old active route, call `router.push()`, then move it to the destination after `usePathname()` updated. Activation now reports whether it started a navigation, and the pointer hook keeps that destination as a settling preview only until the pathname changes.
+
 **Bold widens the active label.** Sizing the active disc against the unbolded label leaves the active cell touching its own edges, and the active cell is the one you actually look at. Size against the widest label _once bold_.
 
 **Capturing the pointer on the list retargets the click.** Because `setPointerCapture` is called on the `<ul>`, a click no longer lands on the button that was pressed. That is why activation runs on `pointerup` and cells handle only keyboard clicks, discriminated by `detail === 0`.
@@ -918,7 +915,7 @@ Two smaller things that make those holes worse: `touch-action: none` is set on t
 
 **`sr-only` on a header container takes its padding with it.** `sr-only` is `position: absolute`, so a row marked `sr-only` contributes no height at all, padding included. That is how the products sheet ended up with its grab handle 6.4px above the input: the shell hid the whole header row rather than just the title inside it. Put `sr-only` on the text and let the row keep its padding, and the gap holds whether or not anything is drawn in it.
 
-**A plain `max-h` on the sheet loses to `ui/drawer.tsx`'s data-variant.** The shell asked for `max-h-[85dvh]`, but `drawer.tsx` carries `data-[vaul-drawer-direction=bottom]:max-h-[80vh]`. tailwind-merge keeps both, because the variant prefixes differ, and the compiled compound selector then outranks the plain class on specificity. Measured before the fix: a 735px viewport gave a 588px cap, exactly 80%, not the 625px the shell asked for. Worse, `vh` is the **large** viewport, so it ignores browser chrome and the keyboard entirely, which is the one thing a products sheet cannot afford. The shell now states the cap with the same variant prefix, and it measures 624.75px.
+**A plain `max-h` on the sheet loses to `ui/drawer.tsx`'s data-variant.** The shell asked for `max-h-[85dvh]`, but `drawer.tsx` carries `data-[vaul-drawer-direction=bottom]:max-h-[80vh]`. tailwind-merge keeps both, because the variant prefixes differ, and the compiled compound selector then outranks the plain class on specificity. Measured before the fix: a 735px viewport gave a 588px cap, exactly 80%, not the 625px the shell asked for. Worse, `vh` is the **large** viewport, so it ignores retractable browser chrome, which a sheet measured against the visible area cannot afford. Whether it ignores the **keyboard** depends on the engine, and an earlier version of this line got that wrong in both directions, so it is worth stating carefully. On Chromium `interactive-widget=resizes-content` shrinks the layout viewport itself, so every viewport unit including `vh` shrinks with it. WebKit has never shipped `interactive-widget`, so on iOS the keyboard resizes only the visual viewport and **every** unit, `dvh` included, ignores it. Keeping a sheet clear of the iOS keyboard therefore needs something other than units. The shell now states the cap with the same variant prefix, and it measures 624.75px.
 
 **The grab handle's clearance came from the header's padding, and it was short.** `pt-3` is 9.6px under this project's spacing scale, not the 16px the geometry table claimed; the full 16px only appeared when `sr-only` collapsed the row and its `pb-2` was added in. It is now an explicit `pt-[1rem]`, so a sheet with a visible title gets the same clearance as one without.
 
@@ -940,6 +937,22 @@ Two smaller things that make those holes worse: `touch-action: none` is set on t
 
 **`MultiSelect` emitted stale values when controlled.** Found while testing the panel and fixed in the same pass, though it predated it and reproduced on the products page's own filters sheet too, back when that existed: clear the filters, then pick one chain, and every cleared chain comes back. `toggleValue` derived its payload from an internal `Set` that is seeded once at mount and never re-synced, while the _display_ correctly read the `values` prop. So an owner changing `values` externally desynced the two, and the next toggle emitted `internal ± value` instead of `values ± value`. Both now read one `currentValues`.
 
+**A list anchored to a trigger cannot be rescued from the keyboard by collision handling.** The pinned-places select in the settings dialog slid under the keyboard because its trigger sits in a scroll container that shrinks to a couple of hundred pixels when the keyboard opens, while `CommandList` asks for a flat 300px. Radix was positioning it correctly the whole time; there was simply no room. `MultiSelect` now picks by viewport: a popover from `md` up, and below `md` the list expands **in flow** under the trigger, where the browser's own scroll-focused-input-into-view does the work and there is no anchor left to get wrong. The popover path separately gained a `collisionPadding`, which neither of those sets explicitly, and a cap on `--radix-popover-content-available-height`, which `ui/select.tsx` and `ui/dropdown-menu.tsx` already had and Popover alone never did.
+
+**`ModalShell` gives the body the only flexible track, except when there is no body.** Header and footer are `shrink-0` so a long list or a large font size scrolls instead of squeezing the title and the buttons out of shape. A modal with no `children` (confirm, donation, auth-status) has no such track, and pinning both inside `overflow-hidden` clipped the buttons away with nothing to scroll, which is a reflow failure rather than a cosmetic one. There the header takes the flexible role instead. The cap is `dvh`, not `vh`, so a mobile URL bar does not push the footer off screen.
+
+**`prefers-reduced-motion` has to zero the collapsible animation, not just shorten it.** Radix's `Presence` reads the computed `animation-name` to decide when to unmount, so `animation: none` makes it unmount immediately. Leaving a duration in place and expecting the media query to skip it would strand the content mounted, waiting for an `animationend` that never arrives.
+
+**An inline list has to claim Escape on `window`, not `document`.** Radix's dismissable layers listen for Escape in the **capture** phase on `document` and only the topmost layer acts, which is why a popover closes without taking the dialog behind it. An inline list is not such a layer, so a plain `onKeyDown` fires too late and the dialog closes instead. Capture reaches `window` one step earlier, which is the only place left to stop it (`use-multi-select-escape.ts`).
+
+**A flex item's automatic minimum silently disabled the multi-select's "+N".** `MultiSelectValue` measures overflow rather than capping at a fixed count, because badge widths depend on the label, the font and the user's text size. The measurement read zero every time: the badge row is a flex item inside the trigger button, its `min-width` was left at `auto`, and a flex row of `shrink-0` `whitespace-nowrap` badges resolves that to the combined width of every badge. The row therefore could not shrink below its content, `scrollWidth` never exceeded `clientWidth`, and the badges spilled past the trigger and were clipped by its `overflow-hidden` instead of collapsing into a counter. `min-w-0` on the row is half the fix, and the placeholder branch beside it already had one.
+
+**The other half was the wrapper the inline presentation adds.** `Popover`'s root renders no DOM element, but `Collapsible`'s renders a real unstyled `div`, so below `md` the multi-select gains a box between the caller's layout and the trigger. The trigger's own `overflow-hidden` zeroes its automatic minimum; that wrapper has nothing to do the same, so under the settings modal's `grid` `FormItem` it became a grid item whose `min-width: auto` resolved to the badge row's min-content: a 978px trigger inside a 512px dialog. The row then always had exactly the space it needed and the counter never appeared. Every other call site sits under a block-level parent, where the same `div` just fills its container, which is why only a modal ever showed it. `min-w-0` on the `Collapsible` in `multi-select.tsx` is the guard.
+
+Together those are the general rule: a measured-overflow container can only measure once **every** ancestor between it and the thing constraining it is able to shrink, and swapping one Radix primitive for another can quietly add one of those ancestors.
+
+**cmdk's default filter folds no diacritics.** It is `command-score`, a fuzzy sub-sequence scorer that lowercases but leaves combining marks alone, so `Baška` scored exactly zero against `baska`. The whole search story, including why replacing that filter outright was the wrong fix, now lives in [SEARCH.md](SEARCH.md).
+
 **A non-modal vaul drawer cannot be dismissed from outside itself.** Its `onPointerDownOutside` returns early when `!modal`, and `onFocusOutside` does the same, so no press anywhere on the page closes it. Anything that should close such a sheet has to do it explicitly, which is why the bar closes it on every cell and why the centre cell had to become a toggle.
 
 **Feedback timed inside the "instant" window fires on ordinary taps.** The long press showed its ring from 120ms, which sounds right by Nielsen's numbers and is wrong for a thumb: a deliberate tap on a nav cell runs 150-200ms, so the ring flashed on taps that were never presses. A gesture's feedback threshold has to clear the gesture it is distinguishing itself from, not an abstract perception budget.
@@ -953,6 +966,12 @@ Two smaller things that make those holes worse: `touch-action: none` is set on t
 **`scrollToTop` never honoured reduced motion.** Its comment claimed it did, but browsers apply `prefers-reduced-motion` to the CSS `scroll-behavior` property and never to the JS `behavior` option. `scrollWindowTo` now chooses explicitly.
 
 **The by-ean cache must be seeded before opening a product modal.** Those modals are URL-driven and take no props, so without the seed they refetch what the caller already has and open empty. `useProductModals` is the one place that does it.
+
+**Never give a share action a pending state.** `navigator.share` does not reliably settle when the OS sheet is dismissed on mobile: on several webviews the promise neither resolves nor rejects, so a flag cleared in a `finally` is never cleared and the control stays disabled and spinning until a reload. The shopping-list share shipped with exactly that and had to lose it. Nothing is fetched anyway, since `shareOrCopy` only hands a payload to the OS or the clipboard, so both `useProductShare` and `useShoppingListActions` now report outcomes through toasts and carry no loading state at all. `shareOrCopy` also treats `InvalidStateError` as a dismissal alongside `AbortError`, because that error means a first sheet is still open and handling the share, and falling through to the clipboard there would copy behind the user's back and claim a success the user has not made yet.
+
+**A quick-actions sheet and its button row are one control in two shapes, so they need one order.** A product's four actions read image, share, watchlist, add to list in `product-action-buttons.tsx`, which the details page and the desktop card both mount, and `product-quick-actions-list.tsx` repeats that order for the hold. They drifted apart once already, which costs a returning thumb the muscle memory the sheet exists to reward. A shopping list runs its own sequence, share, copy, edit, destructive last, across all three of its surfaces.
+
+**State owned by a sheet dies before an action that closes the sheet first.** `shopping-list-actions-sheet.tsx` calls `closeModalUrl()` before `handleShare()`, deliberately, because the OS share sheet reads better over the page than over ours. That unmounts the component holding the hook, so anything the action wanted to render back into that sheet, a spinner in this case, never appears and its setters land on an unmounted component. Feedback for such an action has to be a toast.
 
 **Dev overlays sat exactly on the bar.** Next's indicator lands bottom-left over the left cell and the React Query button bottom-right over Kartice, which makes the bar impossible to judge or test. Both are now off by default, see [§14](#14-config-env-vars-and-flags).
 
@@ -1023,7 +1042,7 @@ A four-reviewer sweep (Claude Opus 5 subagents, Codex `gpt-5.6-sol`, CodeRabbit 
 
 **Deliberately not fixed**
 
-- **Poppers inside a sheet are occluded by the bar.** A facet select collision-positioned low in the products sheet can land under the pill. The popper portals into the drawer container on purpose, so touch scrolling works, which puts it inside a `z-44` stacking context its own `z-50` cannot escape. The alternatives are re-portalling it, which breaks the scrolling, or a hardcoded pixel `collisionPadding` that duplicates `--sheet-bottom-clearance`. Tracked as an issue instead.
+- **Resolved: poppers inside a sheet.** A facet select used to be collision-positioned low in the products sheet and could land under the pill, trapped in a `z-44` stacking context its own `z-50` could not escape. Facet selects below `md` now expand in flow instead of opening a popper, so nothing is positioned inside the sheet at all. Any future popper inside a sheet would still hit the same stacking limit.
 - **The install banner and the desktop FAB share the bottom-right corner.** The ladder decides which wins now, rather than paint order. Accepted as-is.
 - **"Obavijesti me" opens a settings tab whose toggles are all `comingSoon`.** A product decision, not a defect, and out of scope for a review pass.
 - **Multi-line explanatory comments.** AGENTS.md discourages them and this subsystem is full of them. Kept deliberately: they record browser and library behaviour that no rename or split can encode, and this document exists for the rest.
@@ -1031,7 +1050,7 @@ A four-reviewer sweep (Claude Opus 5 subagents, Codex `gpt-5.6-sol`, CodeRabbit 
 **Still open**
 
 - **`findNavItem` takes a `string`.** A wrong id is a runtime throw at module evaluation rather than a compile error. A real fix needs the item arrays converted to `as const` assertions, which is wider than this pass.
-- **Relevance ranking only ever sorts one page.** `sortProductsByRelevance` can reorder only what the capped request returned, so a better match beyond the limit cannot surface. Blocked on the price API: filed upstream, asking for relevance-ordered results plus `offset` and `total`.
+- **Relevance ranking only ever sorts one page.** `sortProductsByRelevance` can reorder only what the capped request returned, so a better match beyond the limit cannot surface. Blocked on the price API: raised upstream on [senko/cijene-api#65](https://github.com/senko/cijene-api/issues/65#issuecomment-5083698321), asking for relevance-ordered results before the limit, plus `offset` and `total` so a client can rank across the whole set.
 - **`viewportFit: "cover"` beyond the bottom inset.** The bar now consumes the horizontal insets, which are 0 except on a notched device in landscape, but the fixed header and side controls have not been checked on real hardware.
 
 ---
@@ -1049,7 +1068,7 @@ Carried over from the build spec this feature was written against, which is why 
 - [ ] Five cells, correct order, correct labels, all labels visible
 - [ ] Each cell at least 48px in both axes
 - [ ] The active disc never touches the pill's inner edge on the first or last cell
-- [ ] Scrolling compacts the labels and settles the surface without changing the bar's outer height, and the labels fade rather than snapping
+- [ ] Scrolling eases the surface alpha without changing the bar's outer height, and the labels stay fully visible throughout
 - [ ] Scrolling does **not** dim the icons, the badge or the disc
 - [ ] The bar never hides
 
@@ -1078,7 +1097,7 @@ Carried over from the build spec this feature was written against, which is why 
 - [ ] Escape closes it
 - [ ] Pretraži sits at the bottom whatever the sheet's height, and Enter in the field submits
 - [ ] Pretraži is disabled when the field is empty and when it matches the current query, with no flash after clearing
-- [ ] Submitting from another route lands on the products list with the sheet still open
+- [ ] Submitting from another route lands on the products list and closes the sheet
 - [ ] Scanning a barcode closes it
 - [ ] Popusti is present, disabled, badged, and enabled for an admin
 
@@ -1090,15 +1109,16 @@ Carried over from the build spec this feature was written against, which is why 
 - [ ] Picking a facet on the products list updates the URL and the list behind it, live, without closing the sheet
 - [ ] Picking a facet from another route navigates to the products list carrying both the facet and whatever was typed
 - [ ] Clearing the filters and then picking one option does not resurrect the cleared ones
-- [ ] Očisti filtere is present but disabled with no filters set, icon-only below `md` with a tooltip, labelled above it
-- [ ] A facet's popover scrolls by touch
+- [ ] Očisti filtere is present but disabled with no filters set, and its label remains visible below `md`
+- [ ] A facet expands its list in place, scrolls by touch, and stays clear of the keyboard once you type
+- [ ] Typing `baska` into a facet offers `Baška`, and reopening a facet does not leave it still filtered
 
 ### Sheets and layers
 
 - [ ] All three sheets end the same distance above the bar, and none covers it
 - [ ] Each sheet caps at 85% of the **dynamic** viewport, not 80% of the static one
 - [ ] The gap below the grab handle is 16px in all three, including the one with a hidden title
-- [ ] A modal sheet's scrim leaves the bar visible, and the bar is inert under it
+- [ ] A modal sheet's scrim covers the bar, leaving it inert underneath
 - [ ] The install instructions sheet shows its description, closes on an outside press, and has a visible close control
 - [ ] No sheet's own code sets a layer, a bottom padding or a safe-area value
 

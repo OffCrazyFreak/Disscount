@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import disscount.shoppingListItem.domain.ShoppingListItem;
 import disscount.user.domain.User;
+import disscount.util.Timestamps;
 
 @Entity
 @Table(name = "shopping_list")
@@ -33,9 +34,16 @@ public class ShoppingList {
     @Column(nullable = false)
     private String title;
 
-    @Column(name = "is_public", nullable = false)
-    @Builder.Default
-    private Boolean isPublic = false;
+    // Nullable because ddl-auto=update cannot add a NOT NULL column to a populated table.
+    // Read it through resolvedLinkAccess(), never directly.
+    @Enumerated(EnumType.STRING)
+    @Column(name = "link_access", length = 16)
+    private ListAccess linkAccess;
+
+    // Deliberately not the list id: a token can be rotated, so turning sharing off and on
+    // again actually revokes instead of handing the same URL back to everyone who kept it.
+    @Column(name = "share_token", unique = true)
+    private UUID shareToken;
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
@@ -50,15 +58,20 @@ public class ShoppingList {
     @Builder.Default
     private List<ShoppingListItem> items = new ArrayList<>();
 
+    /** Null link access means the list is not shared at all. */
+    public ListAccess resolvedLinkAccess() {
+        return linkAccess != null ? linkAccess : ListAccess.NONE;
+    }
+
     @PrePersist
     protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = Timestamps.nowUtc();
         createdAt = now;
         updatedAt = now;
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = Timestamps.nowUtc();
     }
 }

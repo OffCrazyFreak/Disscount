@@ -26,6 +26,7 @@ import { takeModalError } from "@/lib/modal/modal-error-bus";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import { getFormDraft } from "@/utils/browser/local-storage";
 import { useShoppingListModal } from "@/app/(user)/shopping-lists/hooks/use-shopping-list-modal";
+import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 
 interface IShoppingListModalProps {
   open: boolean;
@@ -44,7 +45,7 @@ export default function ShoppingListModal({
   // Only seeds an instant value while the reactive by-id query settles; by-id wins
   // once loaded, since edits invalidate ["shoppingLists"] and refetch it.
   const cachedList = queryClient
-    .getQueryData<ShoppingListDto[]>(["shoppingLists", "me"])
+    .getQueryData<ShoppingListDto[]>(SHOPPING_LIST_QUERY_KEYS.me)
     ?.find((list) => list.id === id);
   const byIdQuery = shoppingListService.useGetShoppingListById(
     isEdit ? (id as string) : "",
@@ -58,16 +59,24 @@ export default function ShoppingListModal({
   const form = useForm<ShoppingListRequest>({
     resolver: zodResolver(shoppingListRequestSchema),
     mode: "onChange",
-    defaultValues: { title: "", isPublic: false },
+    // No linkAccess here on purpose: sharing lives in its own modal, and the backend
+    // treats an absent linkAccess on PUT as "leave it alone", so renaming a shared list
+    // from here cannot silently unshare it.
+    defaultValues: { title: "" },
   });
+
+  // Destructured, never read inline: formState is a Proxy that subscribes to a
+  // field the first time it is read during render. Behind a || the read gets
+  // short-circuited away, so RHF never recomputes that field and the button
+  // reacts a keystroke late.
+  const { isDirty, isValid, errors } = form.formState;
 
   // Draft wins over the loaded list, so an in-progress edit is never clobbered.
   useEffect(() => {
-    if (!shoppingList || form.formState.isDirty) return;
+    if (!shoppingList || isDirty) return;
 
     const base = {
       title: shoppingList.title,
-      isPublic: shoppingList.isPublic ?? false,
     };
     form.reset(base);
 
@@ -76,6 +85,9 @@ export default function ShoppingListModal({
     if (draft && Object.keys(draft).length > 0) {
       form.reset({ ...base, ...draft }, { keepDefaultValues: true });
     }
+    // isDirty is read on purpose but must not retrigger the seed: adding it would
+    // reset the form the moment the user's first keystroke flips it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shoppingList, draftKey, form]);
 
   const { restored, clearDraft, flushDraft } = useFormDraft({
@@ -115,20 +127,15 @@ export default function ShoppingListModal({
       title={isEdit ? "Uredi popis za kupnju" : "Novi popis za kupnju"}
       description="Popis možeš dijeliti i uspoređivati cijene po trgovinama."
       srOnlyDescription
-      dirty={form.formState.isDirty}
+      dirty={isDirty}
       formId="shopping-list-form"
       submitLabel={isEdit ? "Spremi" : "Stvori"}
       submitIcon={Save}
       submitLoading={isLoading}
-      submitDisabled={
-        !form.formState.isDirty ||
-        !form.formState.isValid ||
-        notFound ||
-        loadError
-      }
+      submitDisabled={!isDirty || !isValid || notFound || loadError}
       cancelLabel="Odustani"
       resetLabel="Resetiraj"
-      resetDisabled={!form.formState.isDirty && !restored}
+      resetDisabled={!isDirty && !restored}
       onReset={() => {
         clearDraft();
         form.reset();
@@ -151,9 +158,9 @@ export default function ShoppingListModal({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-4"
           >
-            {form.formState.errors.root && (
+            {errors.root && (
               <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
-                {form.formState.errors.root.message}
+                {errors.root.message}
               </div>
             )}
 

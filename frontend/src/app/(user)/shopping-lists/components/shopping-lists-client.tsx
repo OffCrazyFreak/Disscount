@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Search, Plus, ShoppingCart, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,7 +34,14 @@ export default function ShoppingListsClient({
 
   const isUserLoading = userLoading || isLoading;
 
-  const matchingShoppingLists = filterByFields(shoppingLists, query, ["title"]);
+  // Most recently touched first. The API returns these in no defined order, so
+  // without this the list can silently reshuffle between fetches. filterByFields
+  // sorts stably on coarse scores, so this order survives among equal matches.
+  const matchingShoppingLists = filterByFields(
+    [...shoppingLists].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)),
+    query,
+    ["title"],
+  );
 
   if (!userLoading && !isAuthenticated) {
     return (
@@ -55,6 +63,7 @@ export default function ShoppingListsClient({
             clearable={true}
             submitButtonLocation="none"
             autoSearch={true}
+            disabled={!isUserLoading && shoppingLists.length === 0}
           />
         </Suspense>
 
@@ -98,18 +107,28 @@ export default function ShoppingListsClient({
               Nema popisa za kupnju
             </h3>
             <p className="text-gray-600 mb-6">
-              Stvori svoj prvi popis za kupnju…
+              Stvori popis za kupnju ili pretraži proizvode i dodaj ih na novi
+              popis.
             </p>
-            <Button
-              effect="shineHover"
-              icon={Plus}
-              iconPlacement="left"
-              onClick={() =>
-                openModalUrl({ name: "shopping-list", action: "new" })
-              }
-            >
-              Stvori popis za kupnju
-            </Button>
+            <div className="flex flex-wrap justify-center gap-3">
+              <Button
+                effect="shineHover"
+                icon={Plus}
+                iconPlacement="left"
+                onClick={() =>
+                  openModalUrl({ name: "shopping-list", action: "new" })
+                }
+              >
+                Stvori popis za kupnju
+              </Button>
+
+              <Button asChild variant="outline">
+                <Link href="/products">
+                  <Search aria-hidden="true" className="size-5" />
+                  Pretraži proizvode
+                </Link>
+              </Button>
+            </div>
           </div>
         )}
       </div>

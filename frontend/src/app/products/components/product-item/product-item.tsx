@@ -7,52 +7,50 @@ import { getMostFrequentCategory } from "@/app/products/utils/product-utils";
 import ProductCard from "@/components/custom/product/product-card";
 import ProductUnitPriceDetails from "@/app/products/components/product-item/product-price";
 import ProductActionButtons from "@/app/products/components/product-action-buttons";
-import useLongPress from "@/hooks/use-long-press";
+import useCardLongPress from "@/hooks/use-card-long-press";
 import useProductModals from "@/hooks/use-product-modals";
-import useProductNavigation from "@/hooks/use-product-navigation";
+import { usePrimeProductNavigation } from "@/hooks/use-product-navigation";
+import type { IProductListPrice } from "@/app/products/typings/product-list-price-types";
 
 interface IProductItemProps {
   product: ProductResponse;
+  price: IProductListPrice | null;
 }
 
-const ProductItem = memo(function ProductItem({ product }: IProductItemProps) {
-  const navigateToProduct = useProductNavigation();
+const ProductItem = memo(function ProductItem({
+  product,
+  price,
+}: IProductItemProps) {
+  const primeProductNavigation = usePrimeProductNavigation();
   const { openQuickActions } = useProductModals(product);
 
   const category = getMostFrequentCategory(product);
 
-  const { hasFired, ...pressProps } = useLongPress({
-    onLongPress: openQuickActions,
-  });
+  const { pressProps, actionProps, cancelNavigationAfterPress } =
+    useCardLongPress(openQuickActions);
 
   return (
     <ProductCard
+      ean={product.ean}
       name={product.name}
       brand={product.brand}
       category={category}
-      // A press that opened the sheet must not also navigate on release. The
-      // keyboard path skips the guard, since hasFired stays true until the next
-      // pointerdown and Enter would otherwise be swallowed for good.
-      onClick={(viaKeyboard) => {
-        if (viaKeyboard || !hasFired()) navigateToProduct(product.ean, product);
+      onNavigate={(viaKeyboard) => {
+        if (cancelNavigationAfterPress(viaKeyboard) === false) return false;
+
+        primeProductNavigation(product.ean, product);
       }}
       pressProps={pressProps}
-      trailing={
-        <>
-          <ProductUnitPriceDetails product={product} />
-
-          <ProductActionButtons
-            product={product}
-            showSearchImage={true}
-            showAddToList={true}
-            showAddToWatchlist={false}
-            // Sharing lives on the product's own page and in its quick-actions
-            // sheet; a list row does not need a third way in.
-            showShare={false}
-            className="flex-col sm:flex-row"
-          />
-        </>
-      }
+      actionProps={actionProps}
+      trailing={<ProductUnitPriceDetails product={product} price={price} />}
+      // Precise pointers only. Touch reaches the same four actions by holding
+      // the card, which the progress ring advertises; four 40px buttons would
+      // crowd a phone-width row that already carries the price block. Keyed off
+      // the pointer rather than the viewport because the long-press fallback
+      // ignores a mouse, so a narrow desktop window would otherwise have no
+      // route to these actions at all.
+      actions={<ProductActionButtons product={product} />}
+      actionsClassName="hidden pointer-fine:flex"
     />
   );
 });

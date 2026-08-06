@@ -5,17 +5,31 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import { SCAN_FORMATS_BY_PRESET } from "@/constants/scanner";
 import { IScannedCode, ScanPreset } from "@/typings/scanned-code";
 import ScanOverlay from "@/components/scanner/scan-overlay";
+import usePageVisible from "@/hooks/use-page-visible";
 import "@/components/scanner/scanner.css";
+
+// The library defaults to 500 without a tracker; 750 measurably slowed
+// decoding of a real barcode, which is this feature's whole job.
+const CAMERA_SCAN_RETRY_DELAY = 400;
+const CAMERA_TRACK_POLL_INTERVAL = 300;
+const CAMERA_TRACK_POLL_LIMIT = 20;
+
+const CAMERA_COMPONENTS = {
+  finder: true,
+  torch: true,
+  zoom: true,
+  onOff: true,
+};
 
 interface ICameraViewProps {
   preset: ScanPreset;
   deviceId?: string;
   onScan: (code: IScannedCode) => void;
   onError: (error: unknown) => void;
+  onCameraReady: () => void;
 }
 
-function getVideoTrack(container: HTMLElement | null) {
-  const video = container?.querySelector("video");
+function getVideoTrack(video: HTMLVideoElement | null) {
   const stream = (video?.srcObject as MediaStream | null) ?? null;
 
   return stream?.getVideoTracks()[0] ?? null;
@@ -29,40 +43,88 @@ function turnTorchOff(track: MediaStreamTrack | null) {
     .catch(() => {});
 }
 
+function stopVideo(video: HTMLVideoElement | null) {
+  const stream = (video?.srcObject as MediaStream | null) ?? null;
+
+  for (const track of stream?.getTracks() ?? []) {
+    track.stop();
+  }
+
+  if (video) video.srcObject = null;
+}
+
 export default function CameraView({
   preset,
   deviceId,
   onScan,
   onError,
+  onCameraReady,
 }: ICameraViewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const isPageVisible = usePageVisible();
 
-  // exact, because a bare deviceId is only an "ideal" hint the browser may ignore.
+  // Ideals only on the axes: min and max are both mandatory, so either one lets a
+  // device with no conforming mode raise OverconstrainedError, and the error copy
+  // blames the camera choice, which is not what went wrong. Capping at 720p also
+  // cost real detail across an EAN-13's bars at arm's length. frameRate keeps its
+  // max because every camera has a mode at or under 30fps, and uncapped means
+  // 60fps of decode work for no extra accuracy. exact on deviceId stays, since a
+  // bare id is only a hint.
   const constraints = useMemo(
-    () =>
-      deviceId
+    () => ({
+      width: { ideal: 1920 },
+      height: { ideal: 1080 },
+      frameRate: { ideal: 24, max: 30 },
+      ...(deviceId
         ? { deviceId: { exact: deviceId } }
-        : { facingMode: "environment" as const },
+        : { facingMode: "environment" as const }),
+    }),
     [deviceId],
   );
 
   // Some devices remember the torch across streams, so force it off on start.
   useEffect(() => {
-    const container = containerRef.current;
+    const video =
+      containerRef.current?.querySelector<HTMLVideoElement>("video") ?? null;
+    let attempts = 0;
+    let hasNotifiedReady = false;
 
-    const timer = window.setInterval(() => {
-      const track = getVideoTrack(container);
+    function handleCameraReady() {
+      const track = getVideoTrack(video);
+
       if (!track) return;
 
-      window.clearInterval(timer);
+      // The torch is reset per stream, the notification only once. Latching both
+      // together skipped the reset on the stream rebuilt after a tab switch, so
+      // a device that remembers the torch came back with it still lit.
       turnTorchOff(track);
-    }, 300);
+
+      if (hasNotifiedReady) return;
+
+      hasNotifiedReady = true;
+      onCameraReady();
+    }
+
+    video?.addEventListener("playing", handleCameraReady);
+    handleCameraReady();
+
+    const timer = window.setInterval(() => {
+      const track = getVideoTrack(video);
+      attempts += 1;
+
+      if (!track && attempts < CAMERA_TRACK_POLL_LIMIT) return;
+
+      window.clearInterval(timer);
+      handleCameraReady();
+    }, CAMERA_TRACK_POLL_INTERVAL);
 
     return () => {
       window.clearInterval(timer);
-      turnTorchOff(getVideoTrack(container));
+      video?.removeEventListener("playing", handleCameraReady);
+      turnTorchOff(getVideoTrack(video));
+      stopVideo(video);
     };
-  }, [deviceId]);
+  }, [deviceId, onCameraReady]);
 
   return (
     <div
@@ -82,14 +144,10 @@ export default function CameraView({
         onError={onError}
         formats={SCAN_FORMATS_BY_PRESET[preset]}
         constraints={constraints}
-        scanDelay={150}
+        retryDelay={CAMERA_SCAN_RETRY_DELAY}
+        paused={!isPageVisible}
         sound
-        components={{
-          finder: true,
-          torch: true,
-          zoom: true,
-          onOff: true,
-        }}
+        components={CAMERA_COMPONENTS}
       />
     </div>
   );

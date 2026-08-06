@@ -77,3 +77,69 @@ End the doc by telling the user it is easier to name what NOT to fix than what t
 If prettier is available in the repo, run it on the Markdown so the tables align: `./node_modules/.bin/prettier --write "../reviews/REVIEW-<date>-BY-AREA.md"` from the frontend package. Prettier only checks table syntax, not content, so re-read the rows after any scripted (awk/sed) column edit to catch a swapped cell.
 
 For the HTML variant, build a single self-contained page with the `frontend-design` skill if one is available, so it is a readable, well-typeset document rather than a generic dump. Keep the same areas, columns, legend, and row numbering; the only goal of HTML is easier scanning of a long list. Never send the review to any external host; it stays a local file under `reviews/`.
+
+Self-contained means genuinely self-contained: inline the CSS, use system font stacks, and reference no CDN, webfont, or image. The page is opened over `file://`, often with no network, and anything external renders as a broken document.
+
+### The HTML must follow the system colour scheme
+
+Default to **dark**, and let a light system preference override it. Not the other way round: the user's environment is dark nearly all the time, so dark is the right base and the right fallback when the preference is unknown.
+
+Drive it entirely through CSS custom properties. Declare every colour once in `:root` as dark, then re-declare the same names inside `@media (prefers-color-scheme: light)`. Every rule below references `var(--x)` and never a literal, so the two palettes cannot drift:
+
+```css
+:root {
+  --bg: #161614;
+  --fg: #e8e6e1;
+  --line: #2f2d29; /* ...dark is the base... */
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #fbfbfa;
+    --fg: #1a1a19;
+    --line: #e4e2dd; /* ...light overrides... */
+  }
+}
+@media print {
+  :root {
+    --bg: #fff;
+    --fg: #1a1a19;
+    --line: #e4e2dd; /* complete light palette for legible PDF export */
+  }
+}
+```
+
+Severity and recommendation pills need a variable pair each (background and foreground), not one shared set: a light pill background with dark text is unreadable inverted, so the dark palette wants desaturated backgrounds with light text. Do not leave a single hardcoded hex in a rule body.
+
+Verify before handing it over, since a stray literal is invisible until the user's theme flips:
+
+```bash
+python3 - <<'PY'
+import re
+
+h = open("reviews/<file>.html", encoding="utf-8").read()
+style = re.search(r"<style(?:\s[^>]*)?>(.*?)</style>", h, re.IGNORECASE | re.DOTALL)
+if not style:
+    raise SystemExit("No <style> block found")
+
+css = re.sub(r"/\*.*?\*/", "", style.group(1), flags=re.DOTALL)
+rules = re.sub(r"--[\w-]+\s*:\s*[^;{}]+;", "", css)
+literals = re.findall(r"#[0-9a-f]{3,8}\b", rules, re.IGNORECASE)
+if literals:
+    raise SystemExit(f"Hardcoded color literals found: {literals}")
+print("literals left: none")
+PY
+```
+
+## Delivering the doc
+
+Give the user the **full absolute path**, on its own line, for every artifact you wrote. Terminal and desktop chat interfaces turn an absolute path into a clickable link, and clicking is how the user actually opens these. A bare filename, a repo-relative path, or a path in prose is not clickable and forces them to reconstruct it.
+
+Get the directory right, not just the name. Reviews are frequently run from a **git worktree**, and `reviews/` is typically gitignored, so the file exists only under the worktree it was written in and no git operation will ever move it. Resolve the real path rather than assuming the user shares your working directory:
+
+```bash
+realpath reviews/REVIEW-<date>-<slug>-BY-AREA.html
+```
+
+If the repo has a main checkout separate from your worktree, say which copy you are pointing at and note that the worktree copy dies with `git worktree remove`. Offer the `cp` into the main checkout's `reviews/` rather than leaving the user to work it out, and match whatever naming the existing files there already use.
+
+Name files with a slug, not just a date, so they stay distinguishable once several accumulate in one folder: `REVIEW-<date>-<slug>-BY-AREA.md` (for example `REVIEW-2026-08-02-SHOPPING-LIST-SHARING-BY-AREA.md`).

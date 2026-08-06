@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { shoppingListService } from "@/lib/api";
@@ -18,9 +19,11 @@ interface IUseAddToListSubmitProps {
   draftKey: string;
   product: ProductResponse | undefined;
   lists: ShoppingListDto[];
-  customListTitle: string;
   pricing: IProductPricing;
   clearDraft: () => void;
+  resetForm: () => void;
+  /** Points the form at a list that now exists, so a retry cannot create another. */
+  onListCreated: (listId: string) => void;
 }
 
 export function useAddToListSubmit({
@@ -28,34 +31,57 @@ export function useAddToListSubmit({
   draftKey,
   product,
   lists,
-  customListTitle,
   pricing,
   clearDraft,
+  resetForm,
+  onListCreated,
 }: IUseAddToListSubmitProps) {
+  const router = useRouter();
   const createShoppingListMutation =
     shoppingListService.useCreateShoppingList();
   const addItemMutation = shoppingListService.useAddItemToShoppingList();
 
-  async function resolveTargetList(selectedId: string) {
-    if (selectedId !== "new") {
-      const selected = lists.find((list) => list.id === selectedId);
-      return { id: selectedId, name: selected?.title || "popis" };
+  function targetFromList(list: ShoppingListDto) {
+    return {
+      id: list.id,
+      name: list.title,
+      // Compared against the value that actually goes on the wire. The backend
+      // merges on name, and buildShoppingListItemRequest sends `name ?? ""`, so
+      // a null-named product never matched and the toast claimed a new row while
+      // the server had bumped an existing one.
+      isQuantityIncrease:
+        list.items?.some((item) => item.name === (product?.name ?? "")) ??
+        false,
+    };
+  }
+
+  async function resolveTargetList(data: AddToListFormData) {
+    if (data.shoppingListId !== "new") {
+      const selected = lists.find((list) => list.id === data.shoppingListId);
+      return selected
+        ? targetFromList(selected)
+        : {
+            id: data.shoppingListId,
+            name: "popis",
+            isQuantityIncrease: false,
+          };
     }
 
-    const title = customListTitle.trim();
+    const title = data.customListTitle.trim();
 
-    if (title) {
-      const created = await createShoppingListMutation.mutateAsync({
-        title,
-        isPublic: false,
-      });
-      toast.success(`Popis za kupnju "${title}" je stvoren`);
-      return { id: created.id, name: title };
-    }
+    // A legacy draft can restore "new" with no title. Falling through to the
+    // newest existing list silently filed the product somewhere the user never
+    // chose, so refuse instead and let the caller surface it.
+    if (!title) return null;
 
-    // A restored draft can keep "new" without its un-persisted title.
-    const newestList = lists[0];
-    return newestList ? { id: newestList.id, name: newestList.title } : null;
+    const created = await createShoppingListMutation.mutateAsync({ title });
+
+    // Recorded before the item is added. If that add fails the modal reopens
+    // from the draft, and leaving "new" selected made every retry create another
+    // empty list before retrying the item.
+    onListCreated(created.id);
+
+    return { id: created.id, name: title, isQuantityIncrease: false };
   }
 
   // Optimistic close: the modal closes immediately and reopens only on failure.
@@ -64,7 +90,7 @@ export function useAddToListSubmit({
     closeModalUrl();
 
     try {
-      const target = await resolveTargetList(data.shoppingListId);
+      const target = await resolveTargetList(data);
 
       if (!target) {
         toast.error("Odaberi ili stvori popis za kupnju.");
@@ -78,7 +104,23 @@ export function useAddToListSubmit({
       });
 
       clearDraft();
-      toast.success(`Proizvod je dodan u "${target.name}"`);
+      resetForm();
+      toast.success(
+        target.isQuantityIncrease
+          ? `Količina proizvoda je povećana u "${target.name}"`
+          : `Proizvod je dodan u "${target.name}"`,
+        {
+          classNames: {
+            actionButton:
+              "bg-primary! text-primary-foreground! hover:bg-primary/90!",
+          },
+          action: {
+            label: "Otvori",
+            onClick: () =>
+              router.push(`/shopping-lists/${encodeURIComponent(target.id)}`),
+          },
+        },
+      );
     } catch (error) {
       stashModalError(draftKey, error);
       openModalUrl({ name: "add-to-list", ean });

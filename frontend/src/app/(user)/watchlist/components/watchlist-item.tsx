@@ -6,7 +6,7 @@ import WatchlistItemDiscountInfo from "@/app/(user)/watchlist/components/watchli
 import WatchlistActionButton from "@/app/(user)/watchlist/components/watchlist-action-button";
 import WatchlistThresholdBadges from "@/app/(user)/watchlist/components/watchlist-threshold-badges";
 import ProductCard from "@/components/custom/product/product-card";
-import useProductNavigation from "@/hooks/use-product-navigation";
+import { usePrimeProductNavigation } from "@/hooks/use-product-navigation";
 
 interface IWatchlistItemProps {
   item: IWatchlistItemWithProduct;
@@ -44,47 +44,47 @@ export default function WatchlistItem({
     handleOpenWatchlistModal,
   } = useWatchlistItem(item);
 
-  const navigateToProduct = useProductNavigation();
+  const primeProductNavigation = usePrimeProductNavigation();
 
   return (
     <ProductCard
+      ean={productApiId}
       name={productName}
       brand={productBrand}
       category={category}
       quantity={quantityWithUnit}
       isLoading={isLoading}
-      onClick={() => navigateToProduct(productApiId, product)}
+      onNavigate={() => primeProductNavigation(productApiId, product)}
       trailing={
-        <>
-          <WatchlistItemDiscountInfo
-            discountInfo={discountInfo}
-            hasPinnedStores={hasPinnedStores}
-            preferredStores={preferredStores}
-            totalStores={totalStores}
-            isLoading={isLoading}
-            error={error}
+        <WatchlistItemDiscountInfo
+          discountInfo={discountInfo}
+          hasPinnedStores={hasPinnedStores}
+          preferredStores={preferredStores}
+          totalStores={totalStores}
+          isLoading={isLoading}
+          error={error}
+        />
+      }
+      actions={
+        <div className="flex flex-col items-center gap-2 sm:flex-row-reverse">
+          <WatchlistActionButton
+            visibilityClassName="shrink-0"
+            isAddMode={isAddMode}
+            isRemoving={isRemoving}
+            hasProduct={Boolean(product)}
+            onAdd={handleOpenWatchlistModal}
+            onRemove={handleRemove}
           />
 
-          <div className="flex flex-col items-center gap-2 sm:flex-row-reverse">
-            <WatchlistActionButton
-              visibilityClassName="size-8 sm:size-10 shrink-0"
-              isAddMode={isAddMode}
-              isRemoving={isRemoving}
-              hasProduct={Boolean(product)}
-              onAdd={handleOpenWatchlistModal}
-              onRemove={handleRemove}
+          {showThresholdBadges && (
+            <WatchlistThresholdBadges
+              items={watchlistItems}
+              disabled={!product}
+              isAchieved={isWatchRequirementAchieved}
+              onEdit={handleBadgeClick}
             />
-
-            {showThresholdBadges && (
-              <WatchlistThresholdBadges
-                items={watchlistItems}
-                disabled={!product}
-                isAchieved={isWatchRequirementAchieved}
-                onEdit={handleBadgeClick}
-              />
-            )}
-          </div>
-        </>
+          )}
+        </div>
       }
     />
   );

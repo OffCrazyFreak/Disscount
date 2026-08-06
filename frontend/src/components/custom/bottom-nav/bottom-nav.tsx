@@ -19,12 +19,13 @@ import { BOTTOM_NAV_SEARCH_INDEX } from "@/components/custom/bottom-nav/bottom-n
  * The scrolled header's pill treatment, so the two floating bars match.
  *
  * The inset and inner padding are explicit rem values, not spacing utilities,
- * because this project's --spacing is 0.2rem. Together they keep the 57.6px
- * active disc clear of the pill's edges on the first and last cell. The surface
- * colour itself lives in globals.css, since it is what the scroll animates.
+ * because this project's --spacing is 0.2rem. The padding keeps the first and
+ * last 57.6px cells clear of the pill's edges, while justify-between distributes
+ * the remaining room between cells. The surface colour itself lives in
+ * globals.css, since it is what the scroll animates.
  */
 const SURFACE_CLASS =
-  "flex items-stretch h-[var(--bottom-nav-h)] touch-none mx-[0.5rem] px-[0.4rem] mb-[max(var(--bottom-nav-gap),var(--bottom-nav-safe))] rounded-full border backdrop-blur-sm";
+  "flex items-stretch justify-between h-[var(--bottom-nav-h)] touch-none mx-[0.5rem] px-[0.4rem] mb-[max(var(--bottom-nav-gap),var(--bottom-nav-safe))] rounded-full border backdrop-blur-sm";
 
 /**
  * The mobile primary navigation. Hidden from `md` up through CSS rather than a
@@ -51,17 +52,20 @@ export default function BottomNav() {
     });
   }
 
-  const { scrubIndex, listProps } = useBottomNavPointer({
+  const { scrubIndex, previewIndex, listProps } = useBottomNavPointer({
     onActivate: activate,
     holdFor,
+    routeKey: pathname,
   });
 
-  // The disc previews the thumb's cell mid-scrub, then settles back on the
-  // route's, so the gesture says which cell a release would commit.
-  const scrubbedDisc =
-    scrubIndex !== null && !cells[scrubIndex].isLocked ? scrubIndex : null;
+  // A navigation keeps its destination preview until the pathname catches up,
+  // so the disc never returns briefly to the previous route after release.
+  const previewedDisc =
+    previewIndex !== null && !cells[previewIndex].isLocked
+      ? previewIndex
+      : null;
   const discIndex =
-    scrubbedDisc ?? cells.findIndex((cell) => cell.isActive && !cell.isLocked);
+    previewedDisc ?? cells.findIndex((cell) => cell.isActive && !cell.isLocked);
 
   const indicatorOpacity = useIndicatorOpacity(
     discIndex === BOTTOM_NAV_SEARCH_INDEX,

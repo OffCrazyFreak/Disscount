@@ -1,3 +1,7 @@
-# main and dev are deployed by Dokploy, so Netlify only previews other branches.
+# Only PR previews build on Netlify. Dokploy owns main and dev.
+# Test $HEAD and $BRANCH both. On a Deploy Preview Netlify checks out
+# pull/<n>/head, so $BRANCH is that ref and only $HEAD carries the branch name,
+# but Netlify's own docs match branches on $BRANCH. Checking one and guessing
+# wrong fails open and rebuilds silently. Exit 0 skips, exit 1 builds.
 [build]
-  ignore = 'case "$BRANCH" in main|dev) exit 0 ;; *) exit 1 ;; esac'
+  ignore = 'case "$PULL_REQUEST:$HEAD:$BRANCH" in true:dev:*|true:main:*|true:*:dev|true:*:main) exit 0 ;; true:*) exit 1 ;; *) exit 0 ;; esac'

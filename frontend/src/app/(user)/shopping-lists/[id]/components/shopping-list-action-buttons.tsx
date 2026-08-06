@@ -10,6 +10,9 @@ interface IShoppingListActionButtonsProps {
   showEditButton?: boolean;
   showDeleteButton?: boolean;
   showShareButton?: boolean;
+  /** Set when the page was reached through a share link, so share can offer that link. */
+  shareToken?: string;
+  mobilePresentation?: "menu" | "buttons" | "none";
   className?: string;
 }
 
@@ -19,25 +22,26 @@ export default function ShoppingListActionButtons({
   showEditButton = false,
   showDeleteButton = false,
   showShareButton = false,
+  shareToken,
+  mobilePresentation = "menu",
+  className,
 }: IShoppingListActionButtonsProps) {
   const {
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
     isDeleting,
-    isSharing,
     isCopying,
     handleConfirmDelete,
     handleEdit,
     handleShare,
     handleCopy,
-  } = useShoppingListActions(shoppingList);
+  } = useShoppingListActions(shoppingList, shareToken);
 
   const groupProps = {
     showShareButton,
     showCopyButton,
     showEditButton,
     showDeleteButton,
-    isSharing,
     isCopying,
     isDeleting,
     onShare: handleShare,
@@ -59,9 +63,15 @@ export default function ShoppingListActionButtons({
         isLoading={isDeleting}
       />
 
-      <ShoppingListDesktopActions {...groupProps} />
+      <ShoppingListDesktopActions
+        {...groupProps}
+        visibleOnMobile={mobilePresentation === "buttons"}
+        className={className}
+      />
 
-      <ShoppingListMobileActions {...groupProps} />
+      {mobilePresentation === "menu" && (
+        <ShoppingListMobileActions {...groupProps} />
+      )}
     </>
   );
 }

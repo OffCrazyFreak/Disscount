@@ -21,6 +21,7 @@ const FACEBOOK_CLIENT_ID = requireEnv("FACEBOOK_CLIENT_ID");
 const FACEBOOK_CLIENT_SECRET = requireEnv("FACEBOOK_CLIENT_SECRET");
 
 const RESET_TOKEN_TTL_SECONDS = 60 * 30; // 30 minutes
+const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
 
 export const auth = betterAuth({
   baseURL: BETTER_AUTH_URL,
@@ -32,6 +33,13 @@ export const auth = betterAuth({
     database: {
       generateId: "uuid",
     },
+  },
+
+  session: {
+    expiresIn: SESSION_TTL_SECONDS,
+    // Default, set explicitly: the window slides only when the session is used,
+    // and is rewritten at most once a day rather than on every request.
+    updateAge: 60 * 60 * 24,
   },
 
   emailAndPassword: {

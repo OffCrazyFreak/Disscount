@@ -59,8 +59,12 @@ export default function DigitalCardItem({
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <MoreVertical className="h-4 w-4" />
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Dodatne opcije kartice"
+            >
+              <MoreVertical aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -73,7 +77,7 @@ export default function DigitalCardItem({
               onClick={() => handleDelete(digitalCard)}
               className="text-red-700"
             >
-              <Trash2 className="h-4 w-4 mr-2" />
+              <Trash2 aria-hidden="true" className="h-4 w-4 mr-2" />
               Obriši
             </DropdownMenuItem>
           </DropdownMenuContent>

@@ -6,27 +6,46 @@ import {
 import type { PersistQueryClientOptions } from "@tanstack/react-query-persist-client";
 import { get, set, del } from "idb-keyval";
 
+import { scopedCacheKey } from "@/lib/offline/cache-identity";
 import { shouldPersistQuery } from "@/lib/offline/cached-query-keys";
 import { shouldPersistMutation } from "@/lib/offline/offline-mutation-keys";
 
 const IDB_CACHE_KEY = "disscount-react-query-cache";
 
 // Bump on a breaking cache-shape change to discard stale persisted data.
-const CACHE_BUSTER = "1";
+// "2": ShoppingListDto dropped isPublic and gained linkAccess, shareToken and myAccess.
+// A restored pre-change list has no myAccess, which every capability check would read
+// as no access at all.
+// "3": the entry is now keyed per identity, so the old shared blob is orphaned.
+const CACHE_BUSTER = "3";
 
 export const OFFLINE_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 // IndexedDB over localStorage: larger, and safer for cached application data.
+// The key is resolved per call rather than once, so an identity change takes effect on
+// the next read or write without rebuilding the persister.
 const indexedDbStorage = {
-  getItem: async (key: string) => (await get<string>(key)) ?? null,
-  setItem: (key: string, value: string) => set(key, value),
-  removeItem: (key: string) => del(key),
+  getItem: async (key: string) =>
+    (await get<string>(scopedCacheKey(key))) ?? null,
+  setItem: (key: string, value: string) => set(scopedCacheKey(key), value),
+  removeItem: (key: string) => del(scopedCacheKey(key)),
 };
 
 export const offlinePersister = createAsyncStoragePersister({
   storage: indexedDbStorage,
   key: IDB_CACHE_KEY,
 });
+
+/**
+ * Deletes one identity's snapshot by name.
+ *
+ * `offlinePersister.removeClient()` resolves the key when it runs, which is the wrong
+ * moment for a purge: the identity has already moved on by then, so it would delete the
+ * arriving account's cache and leave the departing one's behind.
+ */
+export function removePersistedCacheFor(identity: string): Promise<void> {
+  return del(scopedCacheKey(IDB_CACHE_KEY, identity));
+}
 
 export const persistOptions: Omit<PersistQueryClientOptions, "queryClient"> = {
   persister: offlinePersister,

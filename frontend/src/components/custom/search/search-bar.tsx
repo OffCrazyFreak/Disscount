@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useCallback, useRef, type RefObject } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import SearchBarActions from "@/components/custom/search/search-bar-actions";
@@ -17,6 +17,7 @@ interface ISearchBarProps {
   clearable?: boolean;
   autoSearch?: boolean;
   allowScanning?: boolean;
+  disabled?: boolean;
   submitButtonLocation?: "none" | "auto" | "block";
   submitLabel?: string;
   /** Names the form, so an owner can put the submit button outside it */
@@ -36,6 +37,7 @@ export default function SearchBar({
   submitButtonLocation = "auto",
   autoSearch = false,
   allowScanning = false,
+  disabled = false,
   submitLabel = "Pretraži",
   formId,
   inputRef: exposedInputRef,
@@ -48,14 +50,20 @@ export default function SearchBar({
   const { setOpen } = useSidebar();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { register, handleSubmit, watch, reset, setValue, getValues } =
+  const { register, handleSubmit, control, reset, setValue, getValues } =
     useForm<{
       query: string;
     }>({
       defaultValues: { query: routeQuery },
     });
 
-  const queryValue = watch("query");
+  // useWatch, not form.watch: watch() signals changes outside React state, so the
+  // React Compiler skips memoizing every component that reads it.
+  const queryValue = useWatch({
+    control,
+    name: "query",
+    defaultValue: routeQuery,
+  });
   const { ref: registerRef, ...registerProps } = register("query");
 
   useEffect(() => {
@@ -74,7 +82,7 @@ export default function SearchBar({
   }, [queryValue, onQueryChange]);
 
   useEffect(() => {
-    if (!autoSearch) return;
+    if (!autoSearch || disabled) return;
 
     const query = queryValue ?? "";
 
@@ -83,9 +91,11 @@ export default function SearchBar({
     if (!query && !routeQuery) return;
 
     syncQuery(query);
-  }, [autoSearch, queryValue, routeQuery, syncQuery]);
+  }, [autoSearch, disabled, queryValue, routeQuery, syncQuery]);
 
   function submit(data: { query: string }) {
+    if (disabled) return;
+
     const query = data.query?.trim() ?? "";
 
     setOpen(false);
@@ -116,7 +126,10 @@ export default function SearchBar({
         className="relative flex items-center gap-4 flex-wrap"
       >
         <div className="relative grow-100">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 size-5" />
+          <Search
+            aria-hidden="true"
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 size-5"
+          />
 
           <Input
             ref={(el) => {
@@ -130,7 +143,9 @@ export default function SearchBar({
             enterKeyHint="search"
             placeholder={placeholder}
             aria-label={placeholder || "Pretraži"}
-            className="pl-10 pr-22 py-6 text-gray-500 focus:text-gray-700 bg-white [&::-webkit-search-cancel-button]:hidden"
+            disabled={disabled}
+            size="lg"
+            className="pl-10 pr-22 text-gray-500 focus:text-gray-700 bg-white [&::-webkit-search-cancel-button]:hidden"
             autoComplete="off"
             autoCapitalize="off"
             autoCorrect="off"
@@ -138,9 +153,9 @@ export default function SearchBar({
           />
 
           <SearchBarActions
-            showClear={Boolean(clearable && queryValue)}
+            showClear={Boolean(!disabled && clearable && queryValue)}
             onClear={handleClear}
-            allowScanning={allowScanning}
+            allowScanning={!disabled && allowScanning}
             onScan={() => openScanner({ onScan: handleScan })}
           />
         </div>
@@ -150,6 +165,7 @@ export default function SearchBar({
             label={submitLabel}
             block={submitButtonLocation === "block"}
             isUnchanged={isUnchanged(queryValue ?? "")}
+            disabled={disabled}
           />
         )}
       </form>

@@ -25,6 +25,10 @@ export default function WatchlistItemDiscountInfo({
   isLoading,
   error,
 }: IWatchlistItemDiscountInfoProps) {
+  function openPreferences() {
+    openModalUrl({ name: "settings", tab: "preference" });
+  }
+
   if (isLoading) {
     return (
       <div className="space-y-2">
@@ -56,19 +60,18 @@ export default function WatchlistItemDiscountInfo({
           )}
           stores={preferredStores}
           bold
+          infoLabel="Prikaži trgovine za cijenu u preferiranim trgovinama"
+          onOpenPreferences={openPreferences}
         />
       ) : (
         <div className="flex items-center justify-start gap-2">
-          <Star className="size-4 sm:size-5 text-gray-700" />
-
           <button
             type="button"
-            className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer italic"
-            onClick={() =>
-              openModalUrl({ name: "settings", tab: "preference" })
-            }
+            className="relative z-20 flex cursor-pointer items-center gap-2 rounded-sm text-xs text-muted-foreground italic transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            onClick={openPreferences}
           >
-            Postavi preference
+            <Star className="size-6 text-gray-700" aria-hidden="true" />
+            <span>Postavi preference</span>
           </button>
         </div>
       )}
@@ -85,6 +88,8 @@ export default function WatchlistItemDiscountInfo({
         )}
         stores={totalStores}
         tooltipSide="bottom"
+        infoLabel="Prikaži trgovine za cijenu u svim trgovinama"
+        onOpenPreferences={openPreferences}
       />
     </div>
   );

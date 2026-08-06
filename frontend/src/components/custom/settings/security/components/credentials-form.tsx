@@ -14,12 +14,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import SettingsSection from "@/components/custom/settings/ui/settings-section";
+import ForgotPasswordLink from "@/components/custom/form/forgot-password-link";
+import PasswordRecovery from "@/components/custom/settings/security/components/password-recovery";
 import { useSecurity } from "@/components/custom/settings/security/security-context";
 
 export const CREDENTIALS_FORM_ID = "credentials-form";
 
 export default function CredentialsForm() {
-  const { form, submit, hasPassword, canEditEmail } = useSecurity();
+  const { form, submit, hasPassword, canEditEmail, recovery } = useSecurity();
 
   return (
     <SettingsSection
@@ -89,7 +91,15 @@ export default function CredentialsForm() {
               name="currentPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Trenutna lozinka</FormLabel>
+                  <div className="flex items-center justify-between gap-2">
+                    <FormLabel>Trenutna lozinka</FormLabel>
+                    {!recovery.sentTo && (
+                      <ForgotPasswordLink
+                        onClick={recovery.send}
+                        sending={recovery.sending}
+                      />
+                    )}
+                  </div>
                   <FormControl>
                     <PasswordInput autoComplete="current-password" {...field} />
                   </FormControl>
@@ -103,6 +113,8 @@ export default function CredentialsForm() {
           )}
         </form>
       </Form>
+
+      <PasswordRecovery />
     </SettingsSection>
   );
 }

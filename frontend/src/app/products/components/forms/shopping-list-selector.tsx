@@ -19,6 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ShoppingListDto } from "@/lib/api/types";
+import { commandFilter } from "@/utils/search/command-filter";
 import { UseFormReturn } from "react-hook-form";
 import { AddToListFormData } from "@/app/products/typings/add-to-list";
 import ShoppingListTrigger from "@/app/products/components/forms/shopping-list-trigger";
@@ -29,9 +30,8 @@ interface IShoppingListSelectorProps {
   formField: UseFormReturn<AddToListFormData>;
   isLoadingLists: boolean;
   sortedShoppingLists: ShoppingListDto[];
-  customListTitle: string;
-  setCustomListTitle: (title: string) => void;
   selectedList: ShoppingListDto | undefined;
+  onSelectList: (listId: string) => void;
   disabled?: boolean;
 }
 
@@ -39,12 +39,12 @@ export default function ShoppingListSelector({
   formField,
   isLoadingLists,
   sortedShoppingLists,
-  customListTitle,
-  setCustomListTitle,
   selectedList,
+  onSelectList,
   disabled = false,
 }: IShoppingListSelectorProps) {
   const [open, setOpen] = useState(false);
+  const customListTitle = formField.watch("customListTitle");
 
   return (
     <FormField
@@ -60,6 +60,7 @@ export default function ShoppingListSelector({
                 <ShoppingListTrigger
                   open={open}
                   isLoadingLists={isLoadingLists}
+                  hasShoppingLists={sortedShoppingLists.length > 0}
                   disabled={disabled}
                   isNewList={field.value === "new"}
                   customListTitle={customListTitle}
@@ -69,11 +70,15 @@ export default function ShoppingListSelector({
             </PopoverTrigger>
 
             <PopoverContent className="w-sm max-w-[75dvw]">
-              <Command>
+              <Command filter={commandFilter}>
                 <CommandInput
                   placeholder="Pretraži svoje popise ili stvori novi..."
                   value={customListTitle}
-                  onValueChange={setCustomListTitle}
+                  onValueChange={(title) =>
+                    formField.setValue("customListTitle", title, {
+                      shouldDirty: true,
+                    })
+                  }
                 />
                 <CommandList>
                   <CommandEmpty>
@@ -91,7 +96,7 @@ export default function ShoppingListSelector({
                           list={list}
                           isSelected={selectedList?.id === list.id}
                           onSelect={() => {
-                            field.onChange(list.id);
+                            onSelectList(list.id);
                             setOpen(false);
                           }}
                         />
@@ -104,7 +109,7 @@ export default function ShoppingListSelector({
                       <CreateListOption
                         customListTitle={customListTitle}
                         onSelect={() => {
-                          field.onChange("new");
+                          onSelectList("new");
                           setOpen(false);
                         }}
                       />

@@ -7,20 +7,27 @@ import org.springframework.transaction.annotation.Transactional;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.UnauthorizedException;
 import disscount.shoppingList.dao.ShoppingListRepository;
+import disscount.shoppingList.domain.ListAccess;
 import disscount.shoppingList.domain.ShoppingList;
+import disscount.shoppingList.service.ShoppingListMapper;
 import disscount.shoppingListItem.dao.ShoppingListItemRepository;
 import disscount.shoppingListItem.domain.ShoppingListItem;
 import disscount.shoppingListItem.dto.ShoppingListItemDto;
 import disscount.shoppingListItem.dto.ShoppingListItemRequest;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
+import disscount.util.Timestamps;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * The owner's own items. Writes granted by a share link go through
+ * {@link disscount.shoppingList.service.SharedShoppingListService} instead, so that the token
+ * has to travel with the request.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -29,16 +36,14 @@ public class ShoppingListItemService {
     private final ShoppingListItemRepository shoppingListItemRepository;
     private final ShoppingListRepository shoppingListRepository;
     private final UserRepository userRepository;
+    private final ShoppingListMapper shoppingListMapper;
 
     public ShoppingListItemDto addItemToShoppingList(UUID shoppingListId, UUID ownerId, ShoppingListItemRequest request) {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new UnauthorizedException("User not found"));
 
-        // First try to get as owner, then as public list
         ShoppingList shoppingList = shoppingListRepository.findActiveByIdAndOwner(shoppingListId, owner)
-                .orElseGet(() -> shoppingListRepository.findActiveById(shoppingListId)
-                        .filter(list -> list.getIsPublic())
-                        .orElseThrow(() -> new BadRequestException("Shopping list not found or access denied")));
+                .orElseThrow(() -> new BadRequestException("Shopping list not found or access denied"));
 
         // Check if item with same name already exists in the shopping list
         Optional<ShoppingListItem> existingItem = shoppingListItemRepository
@@ -52,7 +57,7 @@ public class ShoppingListItemService {
             // Cap the merged total at the same limit the request DTO enforces (@Max)
             int newAmount = Math.min(item.getAmount() + requestedAmount, 999);
             item.setAmount(newAmount);
-            
+
             // Update other fields with new values if provided
             if (request.getEan() != null) item.setEan(request.getEan());
             if (request.getBrand() != null) item.setBrand(request.getBrand());
@@ -61,9 +66,9 @@ public class ShoppingListItemService {
             if (request.getChainCode() != null) item.setChainCode(request.getChainCode());
             if (request.getAvgPrice() != null) item.setAvgPrice(request.getAvgPrice());
             if (request.getStorePrice() != null) item.setStorePrice(request.getStorePrice());
-            
+
             // Update tracking fields
-            item.setUpdatedAt(LocalDateTime.now());
+            item.setUpdatedAt(Timestamps.nowUtc());
             item.setUpdatedByUser(owner);
         } else {
             // Create new item
@@ -86,26 +91,17 @@ public class ShoppingListItemService {
         item = shoppingListItemRepository.save(item);
 
         // Update the shopping list's updatedAt timestamp
-        shoppingList.setUpdatedAt(LocalDateTime.now());
+        shoppingList.setUpdatedAt(Timestamps.nowUtc());
         shoppingListRepository.save(shoppingList);
 
-        return convertToDto(item);
+        return shoppingListMapper.toItemDto(item, ListAccess.OWNER);
     }
 
-    public ShoppingListItemDto updateShoppingListItem(UUID itemId, UUID ownerId, ShoppingListItemRequest request) {
-        userRepository.findById(ownerId)
+    public ShoppingListItemDto updateShoppingListItem(UUID listId, UUID itemId, UUID ownerId, ShoppingListItemRequest request) {
+        User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new UnauthorizedException("User not found"));
 
-        ShoppingListItem item = shoppingListItemRepository.findActiveById(itemId)
-                .filter(i -> {
-                    // Allow if user is owner OR if list is public
-                    return i.getShoppingList().getOwner().getId().equals(ownerId) ||
-                           i.getShoppingList().getIsPublic();
-                })
-                .orElseThrow(() -> new BadRequestException("Shopping list item not found or access denied"));
-
-        User currentUser = userRepository.findById(ownerId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+        ShoppingListItem item = findOwnedItem(listId, itemId, owner);
 
         // Update fields
         item.setEan(request.getEan());
@@ -118,37 +114,31 @@ public class ShoppingListItemService {
         item.setChainCode(request.getChainCode());
         item.setAvgPrice(request.getAvgPrice());
         item.setStorePrice(request.getStorePrice());
-        
+
         // Update tracking fields
-        item.setUpdatedAt(LocalDateTime.now());
-        item.setUpdatedByUser(currentUser);
+        item.setUpdatedAt(Timestamps.nowUtc());
+        item.setUpdatedByUser(owner);
 
         item = shoppingListItemRepository.save(item);
 
         // Update the shopping list's updatedAt timestamp
-        item.getShoppingList().setUpdatedAt(LocalDateTime.now());
+        item.getShoppingList().setUpdatedAt(Timestamps.nowUtc());
         shoppingListRepository.save(item.getShoppingList());
 
-        return convertToDto(item);
+        return shoppingListMapper.toItemDto(item, ListAccess.OWNER);
     }
 
-    public void deleteShoppingListItem(UUID itemId, UUID ownerId) {
-        userRepository.findById(ownerId)
+    public void deleteShoppingListItem(UUID listId, UUID itemId, UUID ownerId) {
+        User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new UnauthorizedException("User not found"));
 
-        ShoppingListItem item = shoppingListItemRepository.findActiveById(itemId)
-                .filter(i -> {
-                    // Allow if user is owner OR if list is public
-                    return i.getShoppingList().getOwner().getId().equals(ownerId) ||
-                           i.getShoppingList().getIsPublic();
-                })
-                .orElseThrow(() -> new BadRequestException("Shopping list item not found or access denied"));
+        ShoppingListItem item = findOwnedItem(listId, itemId, owner);
 
-        item.setDeletedAt(LocalDateTime.now());
+        item.setDeletedAt(Timestamps.nowUtc());
         shoppingListItemRepository.save(item);
 
         // Update the shopping list's updatedAt timestamp
-        item.getShoppingList().setUpdatedAt(LocalDateTime.now());
+        item.getShoppingList().setUpdatedAt(Timestamps.nowUtc());
         shoppingListRepository.save(item.getShoppingList());
     }
 
@@ -158,27 +148,16 @@ public class ShoppingListItemService {
 
         return shoppingListItemRepository.findAllActiveItemsByUser(owner)
                 .stream()
-                .map(this::convertToDto)
+                .map(item -> shoppingListMapper.toItemDto(item, ListAccess.OWNER))
                 .collect(Collectors.toList());
     }
 
-    private ShoppingListItemDto convertToDto(ShoppingListItem item) {
-        return ShoppingListItemDto.builder()
-                .id(item.getId())
-                .shoppingListId(item.getShoppingList().getId())
-                .ean(item.getEan())
-                .brand(item.getBrand())
-                .name(item.getName())
-                .quantity(item.getQuantity())
-                .unit(item.getUnit())
-                .amount(item.getAmount())
-                .isChecked(item.getIsChecked())
-                .chainCode(item.getChainCode())
-                .avgPrice(item.getAvgPrice())
-                .storePrice(item.getStorePrice())
-                .createdAt(item.getCreatedAt())
-                .updatedAt(item.getUpdatedAt())
-                .updatedByUserId(item.getUpdatedByUser() != null ? item.getUpdatedByUser().getId() : null)
-                .build();
+    /** The item has to belong both to the list in the path and to the caller. */
+    private ShoppingListItem findOwnedItem(UUID listId, UUID itemId, User owner) {
+        ShoppingList shoppingList = shoppingListRepository.findActiveByIdAndOwner(listId, owner)
+                .orElseThrow(() -> new BadRequestException("Shopping list not found or access denied"));
+
+        return shoppingListItemRepository.findActiveByIdAndShoppingList(itemId, shoppingList)
+                .orElseThrow(() -> new BadRequestException("Shopping list item not found or access denied"));
     }
 }

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import Link from "next/link";
+import { ChevronDown, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   Collapsible,
@@ -13,16 +15,20 @@ import { cn } from "@/lib/utils";
 import ShoppingListItem from "@/app/(user)/shopping-lists/[id]/components/items/shopping-list-item";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import { useShoppingListItemMutations } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-item-mutations";
+import { resolveShoppingListAccess } from "@/app/(user)/shopping-lists/utils/shopping-list-access";
 import {
   getShoppingListItemsOpen,
   setShoppingListItemsOpen,
 } from "@/utils/browser/local-storage";
+import { compareHr } from "@/utils/strings";
 
 interface IShoppingListItemsProps {
   shoppingList: ShoppingList;
   cheapestStores: Record<string, string>;
   averagePrices: Record<string, number>;
   storePrices: Record<string, Record<string, number>>;
+  /** Set when this list was opened through a share link, so writes carry the token. */
+  shareToken?: string;
 }
 
 export default function ShoppingListItems({
@@ -30,9 +36,19 @@ export default function ShoppingListItems({
   cheapestStores,
   averagePrices,
   storePrices,
+  shareToken,
 }: IShoppingListItemsProps) {
+  const { canCheck, canEditItems, isOwner } = resolveShoppingListAccess(
+    shoppingList.myAccess,
+  );
+
   const { handleUpdateItem, handleDeleteItem, deletingItemId } =
-    useShoppingListItemMutations(shoppingList.id, averagePrices, storePrices);
+    useShoppingListItemMutations(
+      shoppingList.id,
+      averagePrices,
+      storePrices,
+      shareToken,
+    );
 
   const [isItemsOpen, setIsItemsOpen] = useState(() =>
     getShoppingListItemsOpen(shoppingList.id),
@@ -44,7 +60,7 @@ export default function ShoppingListItems({
   };
 
   const sortedItems = [...shoppingList.items].sort((a, b) =>
-    a.name.localeCompare(b.name, "hr", { sensitivity: "base" }),
+    compareHr(a.name, b.name),
   );
 
   const checkedCount =
@@ -81,10 +97,23 @@ export default function ShoppingListItems({
 
       <CollapsibleContent>
         {shoppingList.items.length === 0 ? (
-          <p className="p-2 text-gray-600 text-center">
-            Ovaj popis još ne sadrži proizvode. Probaj pretražiti proizvode pa
-            ih dodaj na ovaj popis.
-          </p>
+          <div className="p-4 text-center">
+            <p className="mb-4 text-gray-600">
+              {isOwner
+                ? "Ovaj popis još ne sadrži proizvode. Pretraži proizvode i dodaj ih na ovaj popis."
+                : "Ovaj popis još ne sadrži proizvode."}
+            </p>
+
+            {/* Only the owner can add items, so nobody else gets an invitation to try. */}
+            {isOwner && (
+              <Button asChild effect="shineHover">
+                <Link href="/products">
+                  <Search aria-hidden="true" className="size-5" />
+                  Pretraži proizvode
+                </Link>
+              </Button>
+            )}
+          </div>
         ) : (
           <Card className="p-4">
             <div className="space-y-1">
@@ -100,7 +129,11 @@ export default function ShoppingListItems({
                   cheapestStore={cheapestStores[item.id]}
                   averagePrice={averagePrices[item.id]}
                   storePrices={storePrices[item.id] || {}}
+                  isFirst={index === 0}
+                  isLast={index === sortedItems.length - 1}
                   showSeparator={index < sortedItems.length - 1}
+                  canCheck={canCheck}
+                  canEditItems={canEditItems}
                 />
               ))}
             </div>

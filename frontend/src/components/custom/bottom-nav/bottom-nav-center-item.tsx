@@ -5,9 +5,10 @@ import { cn } from "@/lib/utils";
 import { isKeyboardClick } from "@/utils/events";
 import { useProductsSheet } from "@/context/products-sheet-context";
 import BottomNavIndicator from "@/components/custom/bottom-nav/bottom-nav-indicator";
-import BottomNavRing from "@/components/custom/bottom-nav/bottom-nav-ring";
+import HoldProgressRing from "@/components/custom/common/hold-progress-ring";
 import {
   CELL_BUTTON_CLASS,
+  CELL_DISC_CLASS,
   CELL_ITEM_CLASS,
   CELL_LABEL_CLASS,
 } from "@/components/custom/bottom-nav/bottom-nav-classes";
@@ -31,7 +32,7 @@ interface IBottomNavCenterItemProps {
 
 /**
  * The search cell: raised and filled, so it reads as primary while keeping its
- * equal share of the row.
+ * fixed place in the row.
  *
  * Tap opens the products sheet rather than navigating, and taps again to close it,
  * which is what the glyph animates to say: the chevrons point the way the sheet
@@ -67,9 +68,9 @@ export default function BottomNavCenterItem({
         {showsDisc && <BottomNavIndicator opacity={indicatorOpacity} />}
 
         {/* Always present, since holding this cell always opens the scanner */}
-        <BottomNavRing
+        <HoldProgressRing
           progress="var(--press-progress, 0)"
-          className="stroke-primary"
+          className={cn(CELL_DISC_CLASS, "stroke-primary")}
         />
 
         <span

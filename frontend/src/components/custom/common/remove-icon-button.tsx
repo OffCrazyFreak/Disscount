@@ -43,14 +43,14 @@ export default function RemoveIconButton({
           size="icon"
           variant={isDestructive ? "destructive" : "outline"}
           aria-label={label}
-          className={cn("size-9 shrink-0", className)}
+          className={cn("shrink-0", className)}
           onClick={onClick}
           disabled={loading || disabled}
         >
           {loading ? (
-            <BlockLoadingSpinner size={20} className="text-inherit" />
+            <BlockLoadingSpinner size={24} className="text-inherit" />
           ) : (
-            <X className="size-5" />
+            <X />
           )}
         </Button>
       </TooltipTrigger>

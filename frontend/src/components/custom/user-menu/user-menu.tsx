@@ -36,7 +36,7 @@ export default function UserMenu({ trigger, side }: IUserMenuProps = {}) {
             className="cursor-pointer rounded-full"
           >
             <UserAvatar
-              className="font-bold text-sm"
+              className="border-2 border-primary font-bold text-sm"
               user={avatarUser}
               size={"xl"}
             />

@@ -1,7 +1,41 @@
 import { ShoppingListItemDto } from "@/lib/api/types";
 import { PinnedStoreDto } from "@/lib/api/schemas/preferences";
 import cijenesApi from "@/lib/cijene-api";
+import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { getAveragePrice } from "@/app/products/utils/product-utils";
+import { isPinnedChain } from "@/utils/pinned-stores";
+
+// getStorePricesForItem guards chains before use, so the upstream response can
+// carry a nullish value despite the declared type. These two are called straight
+// from useShoppingListData with no wrapping guard, and a throw there takes the
+// whole price calculation down.
+export function getStorePricesFromProduct(
+  productData: ProductResponse,
+): Record<string, number> {
+  const storePrices: Record<string, number> = {};
+
+  for (const chain of productData.chains ?? []) {
+    storePrices[chain.chain] = parseFloat(chain.avg_price);
+  }
+
+  return storePrices;
+}
+
+function pickCheapestChain(chains: ProductResponse["chains"]): string | null {
+  let cheapestChain: string | null = null;
+  let cheapestPrice = Infinity;
+
+  for (const chainProduct of chains) {
+    const price = parseFloat(chainProduct.avg_price);
+
+    if (price < cheapestPrice) {
+      cheapestPrice = price;
+      cheapestChain = chainProduct.chain;
+    }
+  }
+
+  return cheapestChain;
+}
 
 /**
  * Get store prices for an item by EAN
@@ -19,13 +53,7 @@ export async function getStorePricesForItem(
       return {};
     }
 
-    // Map chain codes (cijene slugs) to prices
-    const storePrices: Record<string, number> = {};
-    for (const chain of productData.chains) {
-      storePrices[chain.chain] = parseFloat(chain.avg_price);
-    }
-
-    return storePrices;
+    return getStorePricesFromProduct(productData);
   } catch (error) {
     console.error("Error fetching store prices:", error);
     return {};
@@ -62,55 +90,30 @@ export async function findCheapestStoreForItem(
     // Fetch product pricing data by EAN
     const productData = await cijenesApi.getProductByEan({ ean: item.ean });
 
-    if (!productData.chains || productData.chains.length === 0) {
-      return null;
-    }
-
-    // If pinnedStores exists and is not empty, find the cheapest among pinned stores
-    if (pinnedStores && pinnedStores.length > 0) {
-      let cheapestChain = null;
-      let cheapestPrice = Infinity;
-
-      // Check all pinned stores and find the cheapest one
-      for (const pinnedStore of pinnedStores) {
-        const pinnedStoreName = pinnedStore.storeName.toUpperCase();
-
-        for (const chainProduct of productData.chains) {
-          const isPinnedStore =
-            chainProduct.chain.toUpperCase().includes(pinnedStoreName) ||
-            pinnedStoreName.includes(chainProduct.chain.toUpperCase());
-
-          if (isPinnedStore) {
-            const price = parseFloat(chainProduct.avg_price);
-            if (price < cheapestPrice) {
-              cheapestPrice = price;
-              cheapestChain = chainProduct.chain;
-            }
-          }
-        }
-      }
-
-      // If we found a pinned store with the item, return the cheapest one
-      if (cheapestChain) {
-        return cheapestChain;
-      }
-    }
-
-    // Fall back to finding the cheapest store across all available stores
-    let cheapestChain = null;
-    let cheapestPrice = Infinity;
-
-    for (const chainProduct of productData.chains) {
-      const price = parseFloat(chainProduct.avg_price);
-      if (price < cheapestPrice) {
-        cheapestPrice = price;
-        cheapestChain = chainProduct.chain;
-      }
-    }
-
-    return cheapestChain;
+    return findCheapestStoreFromProduct(productData, pinnedStores);
   } catch (error) {
     console.error("Error fetching product pricing:", error);
     return null;
   }
+}
+
+export function findCheapestStoreFromProduct(
+  productData: ProductResponse,
+  pinnedStores: PinnedStoreDto[] | null | undefined,
+): string | null {
+  if (!productData.chains || productData.chains.length === 0) {
+    return null;
+  }
+
+  if (pinnedStores && pinnedStores.length > 0) {
+    const pinnedNames = pinnedStores.map((store) => store.storeName);
+    const pinnedChains = productData.chains.filter((chainProduct) =>
+      isPinnedChain(chainProduct.chain, pinnedNames),
+    );
+
+    const cheapestPinned = pickCheapestChain(pinnedChains);
+    if (cheapestPinned) return cheapestPinned;
+  }
+
+  return pickCheapestChain(productData.chains);
 }

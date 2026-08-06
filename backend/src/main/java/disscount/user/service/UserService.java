@@ -15,6 +15,7 @@ import disscount.user.dto.UserRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import disscount.exceptions.ForbiddenException;
+import disscount.util.Timestamps;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -33,14 +34,20 @@ public class UserService {
     // Coarse enough that a browsing session costs one extra write, fine enough for daily buckets.
     private static final Duration ACTIVITY_STAMP_INTERVAL = Duration.ofMinutes(5);
 
+    // The only outcome that satisfies the onboarding gate; "skipped:<step>" is progress, not completion.
+    private static final String ONBOARDING_COMPLETED = "completed";
+
     private final UserRepository userRepository;
     private final AuthIdentityDao authIdentityDao;
 
     // Compared against better-auth's UTC session timestamps, so the JVM zone must not leak in.
     private static LocalDateTime nowUtc() {
-        return LocalDateTime.now(ZoneOffset.UTC);
+        return Timestamps.nowUtc();
     }
 
+    // Read-only: the class-level @Transactional would otherwise keep a dirty-checking
+    // flush at commit for a query that never writes.
+    @Transactional(readOnly = true)
     public Optional<UserDto> findById(UUID id) {
         return userRepository.findById(id)
                 .filter(user -> user.getDeletedAt() == null)
@@ -147,9 +154,22 @@ public class UserService {
 
         // Outcome may be overwritten by re-running the wizard, but the completion
         // timestamp keeps its original value so "first finished" stays meaningful.
-        if (request.getOnboardingOutcome() != null) {
-            user.setOnboardingOutcome(request.getOnboardingOutcome());
-            if (user.getOnboardingCompletedAt() == null) {
+        // Only "completed" stamps it: the wizard writes "skipped:<step>" on every
+        // advance so progress survives a reload, and those must not count as finishing.
+        // A finished account is never downgraded. The wizard fires progress pings
+        // without awaiting them, so a slow "skipped:<step>" can arrive after the
+        // completion it raced and would otherwise lock the user back into the
+        // uncloseable required flow. The client guards this too; this is the copy
+        // that survives a stale tab or a replayed request.
+        String outcome = request.getOnboardingOutcome();
+        boolean isDowngrade = outcome != null
+                && !ONBOARDING_COMPLETED.equals(outcome)
+                && ONBOARDING_COMPLETED.equals(user.getOnboardingOutcome());
+
+        if (outcome != null && !isDowngrade) {
+            user.setOnboardingOutcome(outcome);
+            if (ONBOARDING_COMPLETED.equals(outcome)
+                    && user.getOnboardingCompletedAt() == null) {
                 user.setOnboardingCompletedAt(nowUtc());
             }
         }
@@ -202,6 +222,7 @@ public class UserService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<UserDto> findAllActive() {
         List<UserDto> dtos = userRepository.findByDeletedAtIsNullOrderByCreatedAtAsc()
                 .stream()

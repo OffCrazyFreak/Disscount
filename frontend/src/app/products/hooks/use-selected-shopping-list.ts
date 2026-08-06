@@ -1,27 +1,43 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 
 import { shoppingListService } from "@/lib/api";
+import { parseServerDate } from "@/utils/date";
 import type { AddToListFormData } from "@/app/products/typings/add-to-list";
 
 export function useSelectedShoppingList(
   form: UseFormReturn<AddToListFormData>,
   ean: string | undefined,
   enabled: boolean,
+  restoredListId: string | null,
 ) {
   const { data: shoppingLists = [], isLoading: isLoadingLists } =
     shoppingListService.useGetCurrentUserShoppingLists({ enabled });
   const removeItemMutation = shoppingListService.useDeleteShoppingListItem();
 
-  const sortedShoppingLists = shoppingLists
-    .slice()
-    .sort(
-      (a, b) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-    );
+  // An unparseable timestamp yields NaN, and NaN !== 0 is true, so comparing it
+  // loosely would return NaN and skip the tiebreaks below. The spec coerces that
+  // to 0, leaving the order at whatever the API happened to return.
+  const sortedShoppingLists = shoppingLists.slice().sort((a, b) => {
+    const updatedAtDifference =
+      parseServerDate(b.updatedAt).getTime() -
+      parseServerDate(a.updatedAt).getTime();
+    if (Number.isFinite(updatedAtDifference) && updatedAtDifference !== 0) {
+      return updatedAtDifference;
+    }
+
+    const createdAtDifference =
+      parseServerDate(b.createdAt).getTime() -
+      parseServerDate(a.createdAt).getTime();
+    if (Number.isFinite(createdAtDifference) && createdAtDifference !== 0) {
+      return createdAtDifference;
+    }
+
+    return b.id.localeCompare(a.id);
+  });
 
   const selectedListId = form.watch("shoppingListId");
   const { data: selectedShoppingList } =
@@ -30,20 +46,43 @@ export function useSelectedShoppingList(
   const duplicateItem = selectedShoppingList?.items?.find(
     (item) => item.ean === ean,
   );
+  const isAutomaticSelectionRef = useRef(true);
 
   useEffect(() => {
     const current = form.getValues("shoppingListId");
-    if (current === "new") return;
+    if (current === restoredListId) {
+      isAutomaticSelectionRef.current = false;
+    }
 
-    const needsDefault = current
-      ? !sortedShoppingLists.some((list) => list.id === current)
-      : sortedShoppingLists.length > 0;
-    if (!needsDefault) return;
+    if (!isAutomaticSelectionRef.current && current === "new") {
+      return;
+    }
 
-    form.setValue("shoppingListId", sortedShoppingLists[0]?.id ?? "", {
+    const currentExists = sortedShoppingLists.some(
+      (list) => list.id === current,
+    );
+    if (!isAutomaticSelectionRef.current && currentExists) return;
+    isAutomaticSelectionRef.current = true;
+
+    const newestListId = sortedShoppingLists[0]?.id ?? "";
+    if (current === newestListId) return;
+
+    form.resetField("shoppingListId", {
+      defaultValue: newestListId,
+    });
+  }, [sortedShoppingLists, form, restoredListId]);
+
+  function selectList(listId: string) {
+    isAutomaticSelectionRef.current = false;
+    form.setValue("shoppingListId", listId, {
+      shouldDirty: true,
       shouldValidate: true,
     });
-  }, [sortedShoppingLists, form]);
+  }
+
+  function resetSelection() {
+    isAutomaticSelectionRef.current = true;
+  }
 
   async function removeFromList() {
     if (!duplicateItem || !selectedListId) return;
@@ -67,6 +106,8 @@ export function useSelectedShoppingList(
       (list) => list.id === selectedListId,
     ),
     duplicateItem,
+    selectList,
+    resetSelection,
     removeFromList,
     isRemoving: removeItemMutation.isPending,
   };

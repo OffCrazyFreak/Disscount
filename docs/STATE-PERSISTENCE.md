@@ -82,9 +82,9 @@ Shareable and back/forward-safe. Everything here can be pasted into a new tab an
 
 - **Search query (`?q=`).** The global `SearchBar` writes `q` through `useSearchNavigation`. Every search-backed page (`/products`, `/watchlist`, `/shopping-lists`, `/digital-cards`) reads `q` on the server (`readSearchParam`) and hydrates the input from it, so a reload or a shared link keeps the query. Searching from the route itself preserves other params (active filters); searching from elsewhere starts clean.
 
-- **Product filters.** Chain, location, category, and brand are stored as repeated query params by `useFilterParams` / `useProductFilters`. They are written with `router.replace` (so they do not spam browser history) and read back on load. All four apply client-side because the upstream Cijene search endpoint only accepts `q`.
+- **Product filters.** Chain, location, category, and brand are stored as repeated query params by `useFilterParams` / `useProductFilters`. They are written with `router.replace` (so they do not spam browser history) and read back on load. Product search first fetches the upstream result set for `q`, narrows chain candidates, and requests current store prices for a stable candidate set when a location is selected. Category and brand filtering then applies client-side without repeating the location-price request. A location filter keeps only products with a published price in the selected source cities and resolved chain intersection, and derives each card's range from those exact store rows. Without a location filter, card ranges come from the matching chain summaries in the search response. The URL-driven quick-actions sheet resolves the same filters, so its range still matches the card after a reload or direct link. Multiple source-city requests may produce a visibly labelled partial result when only some succeed; a complete store or price lookup failure remains an error rather than silently widening the scope. The upstream search cap still bounds the candidate set, and products with no published price in the exact location and chain scope are deliberately omitted rather than shown with a Croatia-wide range.
 
-- **Open modal (`?modal=`).** Which modal is open is itself a URL param (`use-modal-url` + `modal-registry`), so modals are deep-linkable and survive a reload. The full modal-URL flow is documented in [AUTH.md](AUTH.md).
+- **Open modal (`?modal=`).** Which modal is open is itself a URL param (`use-modal-url` + `modal-registry`), so modals are deep-linkable and survive a reload. Required onboarding uses `?modal=onboarding`, while the optional Settings replay uses `?modal=onboarding/replay`. The full modal-URL flow and onboarding gate are documented in [AUTH.md](AUTH.md).
 
 - **One-shot tokens.** The reset-password token and OAuth error arrive as URL params and are consumed by the page that handles them. They are transient by nature, not something to persist.
 
@@ -120,14 +120,14 @@ sequenceDiagram
 
 Forms wired to drafts:
 
-| Form                      | File                       | Notes                                         |
-| ------------------------- | -------------------------- | --------------------------------------------- |
-| Watchlist item modal      | `watchlist-item-modal.tsx` | restore handled by the hook                   |
-| Add to shopping list      | `use-add-to-list-form.ts`  | restore handled by the hook                   |
-| Shopping list create/edit | `shopping-list-modal.tsx`  | prefill-then-merge (`restore: false`)         |
-| Digital card create/edit  | `digital-card-modal.tsx`   | prefill-then-merge; also feeds scan-to-fill   |
-| Settings (profile, etc.)  | `settings-modal-host.tsx`  | one draft across the tabbed form              |
-| Contact                   | `contact-modal.tsx`        | prefill from profile, then merge draft on top |
+| Form                      | File                       | Notes                                                                       |
+| ------------------------- | -------------------------- | --------------------------------------------------------------------------- |
+| Watchlist item modal      | `watchlist-item-modal.tsx` | restore handled by the hook                                                 |
+| Add to shopping list      | `use-add-to-list-form.ts`  | restore handled by the hook                                                 |
+| Shopping list create/edit | `shopping-list-modal.tsx`  | prefill-then-merge (`restore: false`)                                       |
+| Digital card create/edit  | `digital-card-modal.tsx`   | prefill-then-merge; also feeds scan-to-fill                                 |
+| Settings and onboarding   | `settings-modal-host.tsx`  | one shared draft, cleared after a successful save and onboarding completion |
+| Contact                   | `contact-modal.tsx`        | prefill from profile, then merge draft on top                               |
 
 ### 4b. Device preferences
 
@@ -135,7 +135,7 @@ Written by the small domain helpers in `utils/browser/storage/*`, each of which 
 
 | Field                      | Meaning                                                     | Helper              |
 | -------------------------- | ----------------------------------------------------------- | ------------------- |
-| `viewModes`                | grid/list toggle, per list key                              | `view-mode.ts`      |
+| `viewModes`                | grid/list toggle, per list key (parked, see below)          | `view-mode.ts`      |
 | `productsPreferences`      | price-history period + chains + open state, per product EAN | `products.ts`       |
 | `shoppingListsPreferences` | section open states + price-history prefs, per list         | `shopping-lists.ts` |
 | `storeOptimizeMode`        | preferred store-list sort, shared across all lists          | `shopping-lists.ts` |
@@ -149,7 +149,7 @@ The shape of the whole object is declared in `typings/local-storage.ts` (`AppDat
 
 ## 5. Layer 3: IndexedDB offline cache
 
-The persisted React Query cache (shopping lists, watchlist, viewed products, profile, and public price data) lives in IndexedDB and is what makes authed screens work offline. It is a **data cache**, not "resume where you left off" form state, and it is purged on logout. It is fully documented in [PWA.md](PWA.md#5-offline-reads-caching-and-persistence); this guide only cross-references it so the full persistence picture is in one place.
+The persisted React Query cache (shopping lists, watchlist, viewed products, profile, and selected public price data) lives in IndexedDB and is what makes authed screens work offline. Bulk product-list price queries are deliberately excluded because every search and filter combination can carry prices for up to the full candidate set; canonical single-product price queries remain persisted for product-detail offline reads. It is a **data cache**, not "resume where you left off" form state, and its stored snapshot is keyed per signed-in account and purged on any change of identity, before retained public in-memory queries are persisted again. It is fully documented in [PWA.md](PWA.md#5-offline-reads-caching-and-persistence); this guide only cross-references it so the full persistence picture is in one place.
 
 ---
 
@@ -165,37 +165,38 @@ Not everything should be remembered. These are intentionally **not** persisted, 
 
 ## 7. Coverage matrix (every input and form)
 
-| Input / form                        | Persisted?    | Where                    |
-| ----------------------------------- | ------------- | ------------------------ |
-| Global search                       | Yes           | URL `?q=`                |
-| Product filters                     | Yes           | URL repeated params      |
-| Open modal                          | Yes           | URL `?modal=`            |
-| Watchlist item modal                | Yes           | localStorage draft       |
-| Add-to-list form                    | Yes           | localStorage draft       |
-| Shopping list modal                 | Yes           | localStorage draft       |
-| Digital card modal                  | Yes           | localStorage draft       |
-| Settings modal                      | Yes           | localStorage draft       |
-| Contact modal                       | Yes           | localStorage draft       |
-| View mode / sort / camera / periods | Yes           | localStorage preferences |
-| Auth + security forms               | No, by design | passwords, never stored  |
-| Avatar upload                       | No, by design | base64, quota-excluded   |
-| Admin dashboard filters             | No, by design | session `useState`       |
+| Input / form                        | Persisted?    | Where                     |
+| ----------------------------------- | ------------- | ------------------------- |
+| Global search                       | Yes           | URL `?q=`                 |
+| Product filters                     | Yes           | URL repeated params       |
+| Open modal                          | Yes           | URL `?modal=`             |
+| Watchlist item modal                | Yes           | localStorage draft        |
+| Add-to-list form                    | Yes           | localStorage draft        |
+| Shopping list modal                 | Yes           | localStorage draft        |
+| Digital card modal                  | Yes           | localStorage draft        |
+| Settings modal and onboarding       | Yes           | shared localStorage draft |
+| Contact modal                       | Yes           | localStorage draft        |
+| View mode / sort / camera / periods | Yes           | localStorage preferences  |
+| Auth + security forms               | No, by design | passwords, never stored   |
+| Avatar upload                       | No, by design | base64, quota-excluded    |
+| Admin dashboard filters             | No, by design | session `useState`        |
 
 ---
 
 ## 8. What's automatic vs manual
 
-| Thing                                          | Auto / manual | Notes                                                                      |
-| ---------------------------------------------- | ------------- | -------------------------------------------------------------------------- |
-| Saving a modal draft while typing              | Auto          | `useFormDraft` watches the form and debounces writes                       |
-| Restoring a draft on reopen                    | Auto          | hook restores, or the modal merges it (`restore: false`)                   |
-| Expiring stale drafts (24h)                    | Auto          | dropped on read                                                            |
-| Clearing a draft after a successful submit     | Auto          | submit handlers call `clearDraft()` / the mutation clears it               |
-| Keeping search + filters in the URL            | Auto          | the search and filter hooks own it                                         |
-| Persisting a preference (view mode, camera...) | Auto          | the relevant `storage/*` helper writes on change                           |
-| Adding a NEW modal form to the draft system    | Manual        | call `useFormDraft` with a unique `draftKey`; pick `restore` and `exclude` |
-| Adding a NEW preference                        | Manual        | add the field to `AppData` and a helper in `utils/browser/storage/`        |
-| Excluding a sensitive field from a draft       | Manual        | pass it in `exclude` (do this for passwords and base64 images)             |
+| Thing                                        | Auto / manual | Notes                                                                      |
+| -------------------------------------------- | ------------- | -------------------------------------------------------------------------- |
+| Saving a modal draft while typing            | Auto          | `useFormDraft` watches the form and debounces writes                       |
+| Restoring a draft on reopen                  | Auto          | hook restores, or the modal merges it (`restore: false`)                   |
+| Expiring stale drafts (24h)                  | Auto          | dropped on read                                                            |
+| Clearing a draft after a successful submit   | Auto          | submit handlers call `clearDraft()` / the mutation clears it               |
+| Keeping search + filters in the URL          | Auto          | the search and filter hooks own it                                         |
+| Persisting a preference (camera, periods...) | Auto          | the relevant `storage/*` helper writes on change                           |
+| Persisting the view mode                     | Parked        | `useViewMode` writes on the setter, which has no callers yet (see below)   |
+| Adding a NEW modal form to the draft system  | Manual        | call `useFormDraft` with a unique `draftKey`; pick `restore` and `exclude` |
+| Adding a NEW preference                      | Manual        | add the field to `AppData` and a helper in `utils/browser/storage/`        |
+| Excluding a sensitive field from a draft     | Manual        | pass it in `exclude` (do this for passwords and base64 images)             |
 
 ---
 
@@ -267,11 +268,15 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
 
   The cost is easy to miss: during a static prerender the boundary emits its **fallback**, not the component, so anything inside disappears from the served HTML. That is fine for a filter panel and wrong for navigation, which is how the sidebar's product links briefly stopped being crawlable. When a subtree only needs the query string for cosmetic state such as an active highlight, use `useClientSearchParams` (`frontend/src/hooks/use-client-search-params.ts`) instead: it reads the query string after mount, so the caller stays in the prerender, and it returns `null` until then. Keep `useSearchParams` wherever the URL genuinely drives what renders.
 
-- **localStorage preferences are per-device and are NOT purged on logout.** Only the IndexedDB data cache is wiped when the session ends. Preferences like view mode or the install-banner snooze are intentionally device-level and survive a logout.
+- **localStorage preferences are per-device and are NOT purged on logout.** The IndexedDB data cache and the scoped service worker buckets are wiped when the identity changes. Preferences like view mode or the install-banner snooze are intentionally device-level and survive a logout.
+
+- **`viewModes` is wired but never written yet.** `useViewMode` returns `[mode, setMode]`, and both consumers (`products-client.tsx`, `digital-cards-client.tsx`) destructure the mode alone, because `ViewSwitcher` is parked behind [issue #61](https://github.com/OffCrazyFreak/Disscount/issues/61). So the key exists in the storage shape and in the hook, but nothing writes it and every list renders its default. Unparking the switcher means taking the setter at both call sites. Read the hook's own comment before changing it: the storage read is deliberately deferred to an effect, because `getViewMode` returns the default when there is no `window`, so seeding state from it directly would be a hydration mismatch.
 
 ---
 
 ## 12. Future improvements & TODOs
+
+- **Automated product-filter regression coverage.** The scoped price summarizers and filter contract are verified by TypeScript, the production build, and manual API requests, but the frontend has no approved unit-test framework. [Issue #153](https://github.com/OffCrazyFreak/Disscount/issues/153) records the cases to cover after a framework and dependency are approved; tests were deliberately excluded from PR #151.
 
 - **Draft indicator UX.** When a draft is restored, the modal shows it as unsaved and offers a "Resetiraj" button, but there is no explicit "restored a draft" banner. A small notice could make it clearer why fields are prefilled.
 

@@ -1,23 +1,29 @@
 "use client";
 
-import { KeyboardEvent, ReactNode, type ComponentProps } from "react";
+import { type ComponentProps, type ReactNode } from "react";
 
 import { Card } from "@/components/ui/card";
+import HoldProgressRing from "@/components/custom/common/hold-progress-ring";
 import ProductSummary from "@/components/custom/product/product-summary";
 import { cn } from "@/lib/utils";
+import { productPath } from "@/utils/product-links";
 
 interface IProductCardProps {
+  ean: string;
   name: string | null;
   brand?: string | null;
   category: string | null;
   quantity?: string | null;
   imageUrl?: string | null;
-  /** `viaKeyboard` lets a consumer skip a gesture guard that only pointers need */
-  onClick?: (viaKeyboard?: boolean) => void;
+  /** Returning false cancels navigation, for example after a long press */
+  onNavigate?: (viaKeyboard: boolean) => boolean | void;
   isLoading?: boolean;
   trailing?: ReactNode;
+  actions?: ReactNode;
+  /** Applied to the actions wrapper, so hiding them hides the row gap too. */
+  actionsClassName?: string;
   className?: string;
-  /** Pointer handlers from useLongPress, for the quick-actions gesture */
+  /** Pointer handlers from useCardLongPress, for the quick-actions gesture */
   pressProps?: Pick<
     ComponentProps<"div">,
     | "onPointerDown"
@@ -27,10 +33,11 @@ interface IProductCardProps {
     | "onPointerLeave"
     | "onContextMenu"
   >;
-}
-
-function stopEvent(event: { stopPropagation: () => void }) {
-  event.stopPropagation();
+  /** Shields action controls from the card's own gesture */
+  actionProps?: Pick<
+    ComponentProps<"div">,
+    "onClick" | "onPointerDown" | "onPointerUp"
+  >;
 }
 
 /**
@@ -39,52 +46,27 @@ function stopEvent(event: { stopPropagation: () => void }) {
  * the quick-actions sheet, takes that instead of restyling this.
  */
 export default function ProductCard({
+  ean,
   name,
   brand,
   category,
   quantity,
   imageUrl,
-  onClick,
+  onNavigate,
   isLoading = false,
   trailing,
+  actions,
+  actionsClassName,
   className,
   pressProps,
+  actionProps,
 }: IProductCardProps) {
-  // The card owns the long-press gesture, so a press on the trailing controls
-  // must not reach it. Stopping click alone still let a hold there open the sheet
-  // and then run the button on release.
-  const trailingProps =
-    onClick || pressProps
-      ? {
-          onClick: stopEvent,
-          onPointerDown: stopEvent,
-          onPointerUp: stopEvent,
-        }
-      : undefined;
-
-  function handleCardKeyDown(event: KeyboardEvent) {
-    if (!onClick) return;
-    // Ignore keydowns bubbled from focusable controls inside the card.
-    if (event.target !== event.currentTarget) return;
-
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      onClick(true);
-    }
-  }
-
   return (
     <Card
-      onClick={onClick ? () => onClick() : undefined}
-      role={onClick ? "button" : undefined}
-      tabIndex={onClick ? 0 : undefined}
-      onKeyDown={onClick ? handleCardKeyDown : undefined}
       {...pressProps}
       className={cn(
-        "shadow-sm hover:shadow-lg transition-shadow",
-        onClick && "cursor-pointer",
-        // Suppresses the iOS selection callout a long press would raise, on touch
-        // only, so a pointer user can still select the product's name.
+        "relative shadow-sm hover:shadow-lg transition-shadow",
+        // Suppresses the iOS selection callout a long press would raise on touch.
         pressProps &&
           "[@media(hover:none)]:select-none [-webkit-touch-callout:none]",
         className,
@@ -98,8 +80,22 @@ export default function ProductCard({
         imageUrl={imageUrl}
         isLoading={isLoading}
         trailing={trailing}
-        trailingProps={trailingProps}
+        actions={actions}
+        actionsClassName={actionsClassName}
+        actionProps={actionProps}
+        href={productPath(ean)}
+        onNavigate={onNavigate}
       />
+
+      {/* Draws nothing until a hold starts, so it can stay mounted. This is the
+          only cue that holding the card does anything, since the row shows no
+          inline actions on touch. */}
+      {pressProps && (
+        <HoldProgressRing
+          progress="var(--press-progress, 0)"
+          className="absolute top-1/2 left-1/2 size-[3.6rem] -translate-x-1/2 -translate-y-1/2 stroke-primary"
+        />
+      )}
     </Card>
   );
 }

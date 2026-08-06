@@ -27,6 +27,8 @@ export default function DigitalCardsClient({
   query,
 }: IDigitalCardsClientProps) {
   const pathname = usePathname();
+  // TODO(#61): no switcher on this route at all yet, so the mode is always "grid".
+  // Take the setter and render one alongside the products page's.
   const [viewMode] = useViewMode(pathname, "grid");
 
   const { isAuthenticated, isLoading: userLoading } = useUser();
@@ -69,6 +71,7 @@ export default function DigitalCardsClient({
             clearable={true}
             submitButtonLocation="none"
             autoSearch={true}
+            disabled={!isUserLoading && digitalCards.length === 0}
           />
         </Suspense>
 

@@ -32,8 +32,8 @@ export default function AddToShoppingListForm({
     isLoadingLists,
     sortedShoppingLists,
     customListTitle,
-    setCustomListTitle,
     selectedList,
+    selectList,
     duplicateItem,
     isChecked,
     storePrices,
@@ -45,6 +45,7 @@ export default function AddToShoppingListForm({
     isSubmitting,
     restored,
     clearDraft,
+    resetForm,
   } = useAddToListForm(open, ean);
 
   return (
@@ -69,7 +70,7 @@ export default function AddToShoppingListForm({
       resetDisabled={!form.formState.isDirty && !restored}
       onReset={() => {
         clearDraft();
-        form.reset();
+        resetForm();
       }}
     >
       {productQuery.isLoading ? (
@@ -108,9 +109,8 @@ export default function AddToShoppingListForm({
                 formField={form}
                 isLoadingLists={isLoadingLists}
                 sortedShoppingLists={sortedShoppingLists}
-                customListTitle={customListTitle}
-                setCustomListTitle={setCustomListTitle}
                 selectedList={selectedList}
+                onSelectList={selectList}
               />
 
               {duplicateItem && (

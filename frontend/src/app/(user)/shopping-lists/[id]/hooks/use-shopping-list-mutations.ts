@@ -8,6 +8,7 @@ import type {
   ShoppingListRequest,
   ShoppingListItemRequest,
 } from "@/lib/api/types";
+import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 
 export function useShoppingListMutations(
   listId: string,
@@ -22,38 +23,37 @@ export function useShoppingListMutations(
 
   const confirmDelete = async () => {
     // Prepare optimistic update: remove item from cache immediately
-    await queryClient.cancelQueries({ queryKey: ["shoppingLists", "me"] });
-    const previous = queryClient.getQueryData<ShoppingList[]>([
-      "shoppingLists",
-      "me",
-    ]);
+    await queryClient.cancelQueries({ queryKey: SHOPPING_LIST_QUERY_KEYS.me });
+    const previous = queryClient.getQueryData<ShoppingList[]>(
+      SHOPPING_LIST_QUERY_KEYS.me,
+    );
     queryClient.setQueryData<ShoppingList[] | undefined>(
-      ["shoppingLists", "me"],
+      SHOPPING_LIST_QUERY_KEYS.me,
       (old: ShoppingList[] | undefined) =>
         old ? old.filter((l) => l.id !== listId) : [],
     );
 
-    // Fire the delete request
-    deleteShoppingListMutation.mutate(listId, {
-      onError: (error: Error) => {
-        // Rollback cache so UI reflects server state
-        if (previous) {
-          queryClient.setQueryData(["shoppingLists", "me"], previous);
-        }
-        toast.error(
-          error.message ||
-            "Greška pri brisanju popisa za kupnju. Pokušaj ponovno.",
-        );
-      },
-      onSuccess: () => {
-        toast.success("Popis za kupnju je uspješno obrisan!");
-        queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
-        router.push("/shopping-lists");
-      },
-      onSettled: () => {
-        queryClient.invalidateQueries({ queryKey: ["shoppingLists", "me"] });
-      },
-    });
+    // Awaited rather than handed per-call callbacks: those are gated behind the
+    // observer still having listeners, and the caller in the actions sheet
+    // unmounts as soon as it fires. The rollback and both toasts were dropped
+    // silently, leaving a failed delete looking like a successful one.
+    try {
+      await deleteShoppingListMutation.mutateAsync(listId);
+
+      toast.success("Popis za kupnju je uspješno obrisan!");
+      router.push("/shopping-lists");
+    } catch (error) {
+      // Rollback cache so UI reflects server state
+      if (previous) {
+        queryClient.setQueryData(SHOPPING_LIST_QUERY_KEYS.me, previous);
+      }
+      toast.error(
+        (error instanceof Error && error.message) ||
+          "Greška pri brisanju popisa za kupnju. Pokušaj ponovno.",
+      );
+    } finally {
+      queryClient.invalidateQueries({ queryKey: SHOPPING_LIST_QUERY_KEYS.me });
+    }
   };
 
   async function handleCopy() {
@@ -61,10 +61,11 @@ export function useShoppingListMutations(
 
     setIsCopying(true);
     try {
-      // Create new shopping list with copied title
+      // Create new shopping list with copied title. Sharing is deliberately not carried
+      // over: a copy is a new object, and inheriting a capability token would mint a live
+      // secret nobody had chosen to hand out. Matches AnyList, Todoist, Notion and Drive.
       const newListData: ShoppingListRequest = {
         title: `${shoppingList.title} (Kopija)`,
-        isPublic: false,
       };
 
       const newList = await shoppingListService.createShoppingList(newListData);
@@ -95,13 +96,26 @@ export function useShoppingListMutations(
         await Promise.all(copyPromises);
       }
 
-      // Invalidate queries to refresh data
-      await queryClient.invalidateQueries({
-        queryKey: ["shoppingLists"],
-      });
+      // Both roots: the copy creates items, and the flat item list feeds watchlist
+      // suggestions, which would otherwise not see them until something else refetched.
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: SHOPPING_LIST_QUERY_KEYS.all,
+        }),
+        queryClient.invalidateQueries({
+          queryKey: SHOPPING_LIST_QUERY_KEYS.itemsAll,
+        }),
+      ]);
 
-      // Show success toast
-      toast.success("Popis za kupnju je uspješno kopiran!");
+      // Say the copy is private rather than leaving it to be discovered: someone copying
+      // a shared list may well assume the same people can still reach it.
+      const wasShared =
+        !!shoppingList.linkAccess && shoppingList.linkAccess !== "NONE";
+      toast.success(
+        wasShared
+          ? "Popis je kopiran. Kopija nije podijeljena."
+          : "Popis za kupnju je uspješno kopiran!",
+      );
 
       // Navigate to new shopping list
       router.push(`/shopping-lists/${newList.id}`);

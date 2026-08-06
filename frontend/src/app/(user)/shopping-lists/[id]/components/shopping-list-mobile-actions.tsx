@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import useTapToOpen from "@/hooks/use-tap-to-open";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import type { IShoppingListActionGroupProps } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-actions";
 
 export default function ShoppingListMobileActions({
@@ -21,7 +22,6 @@ export default function ShoppingListMobileActions({
   showCopyButton,
   showEditButton,
   showDeleteButton,
-  isSharing,
   isCopying,
   isDeleting,
   onShare,
@@ -30,6 +30,11 @@ export default function ShoppingListMobileActions({
   onDeleteClick,
 }: IShoppingListActionGroupProps) {
   const { rootProps, triggerProps } = useTapToOpen();
+
+  // The label is the whole affordance here, so it swaps rather than sitting still
+  // behind a spinner.
+  const copyLabel = isCopying ? LOADING_LABELS.copying : "Kopiraj popis";
+  const deleteLabel = isDeleting ? LOADING_LABELS.deleting : "Obriši popis";
 
   return (
     <div className="flex sm:hidden">
@@ -41,21 +46,16 @@ export default function ShoppingListMobileActions({
             variant="primary"
             {...triggerProps}
           >
-            <MoreVertical className="size-6" />
+            <MoreVertical aria-hidden="true" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-max">
           {showShareButton && (
             <DropdownMenuItem
-              onSelect={onShare}
+              onSelect={() => onShare()}
               className="cursor-pointer flex items-center gap-4"
-              disabled={isSharing}
             >
-              {isSharing ? (
-                <BlockLoadingSpinner size={20} className="text-inherit" />
-              ) : (
-                <Share2 className="size-5" />
-              )}
+              <Share2 aria-hidden="true" className="size-6" />
               <span>Podijeli popis</span>
             </DropdownMenuItem>
           )}
@@ -69,11 +69,11 @@ export default function ShoppingListMobileActions({
               disabled={isCopying}
             >
               {isCopying ? (
-                <BlockLoadingSpinner size={20} className="text-inherit" />
+                <BlockLoadingSpinner size={24} className="text-inherit" />
               ) : (
-                <Copy className="size-5" />
+                <Copy aria-hidden="true" className="size-6" />
               )}
-              <span>Kopiraj popis</span>
+              <span>{copyLabel}</span>
             </DropdownMenuItem>
           )}
 
@@ -82,7 +82,7 @@ export default function ShoppingListMobileActions({
               onSelect={onEdit}
               className="cursor-pointer flex items-center gap-4"
             >
-              <LucideClipboardEdit className="size-5" />
+              <LucideClipboardEdit aria-hidden="true" className="size-6" />
               <span>Uredi popis</span>
             </DropdownMenuItem>
           )}
@@ -96,11 +96,11 @@ export default function ShoppingListMobileActions({
               disabled={isDeleting}
             >
               {isDeleting ? (
-                <BlockLoadingSpinner size={20} className="text-inherit" />
+                <BlockLoadingSpinner size={24} className="text-inherit" />
               ) : (
-                <Trash2 className="size-5 text-red-600" />
+                <Trash2 aria-hidden="true" className="size-6 text-red-600" />
               )}
-              <span>Obriši popis</span>
+              <span>{deleteLabel}</span>
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>

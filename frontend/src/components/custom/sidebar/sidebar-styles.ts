@@ -1,6 +1,6 @@
 /**
  * Overrides the size-4 icons baked into SidebarMenuButton, which read too small
- * next to the labels. size-5 matches the text-sm line box, so rows keep their height.
+ * next to the labels. Reduced vertical padding fits size-6 within the existing rows.
  */
 export const SIDEBAR_ICON_CLASS =
-  "[&>svg]:size-5 group-data-[collapsible=icon]:p-1!";
+  "py-1 [&>svg]:size-6 group-data-[collapsible=icon]:p-1!";

@@ -7,43 +7,58 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import type { IShoppingListActionGroupProps } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-actions";
+
+interface IShoppingListDesktopActionsProps extends IShoppingListActionGroupProps {
+  visibleOnMobile?: boolean;
+  className?: string;
+}
 
 export default function ShoppingListDesktopActions({
   showShareButton,
   showCopyButton,
   showEditButton,
   showDeleteButton,
-  isSharing,
   isCopying,
   isDeleting,
   onShare,
   onCopy,
   onEdit,
   onDeleteClick,
-}: IShoppingListActionGroupProps) {
+  visibleOnMobile = false,
+  className,
+}: IShoppingListDesktopActionsProps) {
+  // Icon-only, so the spinner is the whole visual and the accessible name carries the
+  // pending copy. The tooltip has to say the same thing or the two contradict each other.
+  // Share has no pending state: it either opens a modal or hands off to the OS sheet.
+  const shareLabel = "Podijeli popis";
+  const copyLabel = isCopying ? LOADING_LABELS.copying : "Kopiraj popis";
+  const deleteLabel = isDeleting ? LOADING_LABELS.deleting : "Obriši popis";
+
   return (
-    <div className={cn("hidden sm:flex items-center gap-1 sm:gap-2")}>
+    <div
+      className={cn(
+        "items-center gap-1 sm:gap-2",
+        visibleOnMobile ? "flex" : "hidden sm:flex",
+        className,
+      )}
+    >
       {showShareButton && (
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              aria-label="Podijeli popis"
-              className="size-10 sm:size-12 shrink-0"
-              onClick={onShare}
-              disabled={isSharing}
+              aria-label={shareLabel}
+              className="shrink-0"
+              onClick={() => onShare()}
             >
-              {isSharing ? (
-                <BlockLoadingSpinner size={26} className="text-inherit" />
-              ) : (
-                <Share2 className="size-6 sm:size-7" />
-              )}
+              <Share2 aria-hidden="true" />
             </Button>
           </TooltipTrigger>
 
           <TooltipContent className="px-2 py-1 text-xs">
-            Podijeli popis
+            {shareLabel}
           </TooltipContent>
         </Tooltip>
       )}
@@ -53,23 +68,23 @@ export default function ShoppingListDesktopActions({
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              aria-label="Kopiraj popis"
-              className="size-10 sm:size-12 shrink-0"
+              aria-label={copyLabel}
+              className="shrink-0"
               onClick={() => {
                 onCopy();
               }}
               disabled={isCopying}
             >
               {isCopying ? (
-                <BlockLoadingSpinner size={26} className="text-inherit" />
+                <BlockLoadingSpinner size={24} className="text-inherit" />
               ) : (
-                <Copy className="size-6 sm:size-7" />
+                <Copy aria-hidden="true" />
               )}
             </Button>
           </TooltipTrigger>
 
           <TooltipContent className="px-2 py-1 text-xs">
-            Kopiraj popis
+            {copyLabel}
           </TooltipContent>
         </Tooltip>
       )}
@@ -80,10 +95,10 @@ export default function ShoppingListDesktopActions({
             <Button
               size="icon"
               aria-label="Uredi popis"
-              className="size-10 sm:size-12 shrink-0"
+              className="shrink-0"
               onClick={onEdit}
             >
-              <LucideClipboardEdit className="size-6 sm:size-7" />
+              <LucideClipboardEdit aria-hidden="true" />
             </Button>
           </TooltipTrigger>
 
@@ -98,23 +113,23 @@ export default function ShoppingListDesktopActions({
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              aria-label="Obriši popis"
-              className="size-10 sm:size-12 shrink-0 bg-red-600 hover:bg-red-700"
+              aria-label={deleteLabel}
+              className="shrink-0 bg-red-600 hover:bg-red-700"
               onClick={() => {
                 onDeleteClick();
               }}
               disabled={isDeleting}
             >
               {isDeleting ? (
-                <BlockLoadingSpinner size={26} className="text-inherit" />
+                <BlockLoadingSpinner size={24} className="text-inherit" />
               ) : (
-                <Trash2 className="size-6 sm:size-7" />
+                <Trash2 aria-hidden="true" />
               )}
             </Button>
           </TooltipTrigger>
 
           <TooltipContent variant="destructive" className="px-2 py-1 text-xs">
-            Obriši popis
+            {deleteLabel}
           </TooltipContent>
         </Tooltip>
       )}

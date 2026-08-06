@@ -42,73 +42,81 @@ export default function ProductActionButtons({
     (watchlistItem) => watchlistItem.productApiId === product.ean,
   );
 
-  return (
+  const actions = (
     <>
-      <div className={cn("flex items-center gap-1 sm:gap-2", className)}>
-        {showSearchImage && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                aria-label="Pretraži sliku proizvoda"
-                className="size-10 sm:size-12 shrink-0"
-                onClick={() => openExternal(productImageSearchUrl(product))}
-              >
-                <ImageIcon className="size-6 sm:size-7" />
-              </Button>
-            </TooltipTrigger>
+      {showSearchImage && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              aria-label="Pretraži sliku proizvoda"
+              className="shrink-0"
+              onClick={() => openExternal(productImageSearchUrl(product))}
+            >
+              <ImageIcon />
+            </Button>
+          </TooltipTrigger>
 
-            <TooltipContent className="px-2 py-1 text-xs">
-              Pretraži sliku proizvoda
-            </TooltipContent>
-          </Tooltip>
-        )}
+          <TooltipContent className="px-2 py-1 text-xs">
+            Pretraži sliku proizvoda
+          </TooltipContent>
+        </Tooltip>
+      )}
 
-        {showAddToList && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                aria-label="Dodaj na popis za kupnju"
-                className="size-10 sm:size-12 shrink-0"
-                onClick={() => openAddToList()}
-              >
-                <ListPlus className="size-6 sm:size-7" />
-              </Button>
-            </TooltipTrigger>
+      {showShare && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              aria-label="Podijeli proizvod"
+              className="shrink-0"
+              onClick={share}
+            >
+              <Share2 />
+            </Button>
+          </TooltipTrigger>
 
-            <TooltipContent className="px-2 py-1 text-xs">
-              Dodaj na popis za kupnju
-            </TooltipContent>
-          </Tooltip>
-        )}
+          <TooltipContent className="px-2 py-1 text-xs">
+            Podijeli proizvod
+          </TooltipContent>
+        </Tooltip>
+      )}
 
-        {showAddToWatchlist && (
-          <WatchlistActionButton
-            product={product}
-            isInWatchlist={isInWatchlist}
-          />
-        )}
+      {showAddToWatchlist && (
+        <WatchlistActionButton
+          product={product}
+          isInWatchlist={isInWatchlist}
+        />
+      )}
 
-        {showShare && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                aria-label="Podijeli proizvod"
-                className="size-10 sm:size-12 shrink-0"
-                onClick={share}
-              >
-                <Share2 className="size-6 sm:size-7" />
-              </Button>
-            </TooltipTrigger>
+      {showAddToList && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              aria-label="Dodaj na popis za kupnju"
+              className="shrink-0"
+              onClick={() => openAddToList()}
+            >
+              <ListPlus />
+            </Button>
+          </TooltipTrigger>
 
-            <TooltipContent className="px-2 py-1 text-xs">
-              Podijeli proizvod
-            </TooltipContent>
-          </Tooltip>
-        )}
-      </div>
+          <TooltipContent className="px-2 py-1 text-xs">
+            Dodaj na popis za kupnju
+          </TooltipContent>
+        </Tooltip>
+      )}
     </>
+  );
+
+  return (
+    <div
+      role="group"
+      aria-label="Radnje proizvoda"
+      className={cn("flex items-center gap-1 sm:gap-2", className)}
+    >
+      {actions}
+    </div>
   );
 }

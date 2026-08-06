@@ -33,10 +33,12 @@ export function useCursorPose(
   const [engaged, setEngaged] = useState(false);
 
   useEffect(() => {
+    // Motion values only. `engaged` is not reset here: this branch returns before
+    // the pointermove subscription exists, so there is no external state to mirror
+    // and the disabled case is derived from `enabled` at the return instead.
     if (!enabled) {
       facing.set(1);
       aim.set(0);
-      setEngaged(false);
       return;
     }
 
@@ -88,5 +90,5 @@ export function useCursorPose(
     };
   }, [anchorRef, enabled, facing, aim]);
 
-  return { scaleX, rotate, engaged };
+  return { scaleX, rotate, engaged: enabled && engaged };
 }

@@ -13,6 +13,7 @@ import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { closeModalUrl, swapModalUrl } from "@/lib/modal/modal-navigation";
 import type { SettingsTab } from "@/lib/modal/modal-registry";
+import useSwipeHorizontal from "@/hooks/use-swipe-horizontal";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
 import { dirtySections } from "@/components/custom/settings/settings-dirty";
 import { useSettingsUi } from "@/components/custom/settings/settings-context";
@@ -48,6 +49,18 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
   const anyDirty = dirty.size > 0;
 
   const isSecurityTab = tab === "sigurnost";
+
+  // Clamped at both ends, so a swipe past the last tab is a no-op rather than a wrap.
+  function stepTab(offset: number) {
+    const index = TAB_CONFIG.findIndex(({ value }) => value === tab) + offset;
+    const next = TAB_CONFIG[index];
+    if (next) swapModalUrl({ name: "settings", tab: next.value });
+  }
+
+  const swipe = useSwipeHorizontal({
+    onSwipeLeft: () => stepTab(1),
+    onSwipeRight: () => stepTab(-1),
+  });
 
   // The security tab drives its own credentials form through the shared footer.
   const securityFooter = {
@@ -103,6 +116,7 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
         onValueChange={(value) =>
           swapModalUrl({ name: "settings", tab: value as SettingsTab })
         }
+        {...swipe}
       >
         <TabsList className="w-full mb-4">
           {TAB_CONFIG.map(({ value, label, icon: Icon }) => (

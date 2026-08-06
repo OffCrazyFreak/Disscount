@@ -31,10 +31,11 @@ export default function SearchBarActions({
               type="button"
               variant="ghost"
               size="icon"
+              className="size-8 [&_svg]:size-5"
               onClick={onClear}
               aria-label="Očisti pretragu"
             >
-              <X className="size-5" />
+              <X aria-hidden="true" />
             </Button>
           </TooltipTrigger>
 
@@ -51,10 +52,11 @@ export default function SearchBarActions({
               type="button"
               variant="primary"
               size="icon"
+              className="size-8 [&_svg]:size-5"
               onClick={onScan}
               aria-label="Skeniraj barkod"
             >
-              <ScanBarcode className="size-5" />
+              <ScanBarcode aria-hidden="true" />
             </Button>
           </TooltipTrigger>
 

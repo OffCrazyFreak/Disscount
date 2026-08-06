@@ -27,16 +27,16 @@ export default function RemoveItemButton({
           size="icon"
           aria-label="Makni proizvod"
           className={cn(
-            "size-8 sm:size-10 shrink-0 bg-red-600 hover:bg-red-700",
+            "shrink-0 bg-red-600 hover:bg-red-700",
             visibilityClassName,
           )}
           onClick={onDelete}
           disabled={isDeleting}
         >
           {isDeleting ? (
-            <BlockLoadingSpinner size={22} className="text-inherit" />
+            <BlockLoadingSpinner size={24} className="text-inherit" />
           ) : (
-            <X className="size-5 sm:size-6" />
+            <X aria-hidden="true" />
           )}
         </Button>
       </TooltipTrigger>

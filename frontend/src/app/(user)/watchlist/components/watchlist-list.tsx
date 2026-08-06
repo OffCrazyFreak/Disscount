@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { Search, Eye } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import NoResults from "@/components/custom/common/no-results";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import WatchlistItem from "@/app/(user)/watchlist/components/watchlist-item";
@@ -52,8 +54,16 @@ export default function WatchlistList({
       </h3>
 
       <p className="text-gray-600 mb-6">
-        Dodaj proizvode na popis za praćenje i primaj obavijesti o popustima.
+        Pretraži proizvode, odaberi “Prati proizvod” i primaj obavijesti o
+        popustima.
       </p>
+
+      <Button asChild effect="shineHover">
+        <Link href="/products">
+          <Search aria-hidden="true" className="size-5" />
+          Pretraži proizvode
+        </Link>
+      </Button>
     </div>
   );
 }

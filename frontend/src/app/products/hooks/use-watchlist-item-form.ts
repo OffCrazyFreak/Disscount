@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
@@ -49,7 +49,15 @@ export function useWatchlistItemForm(
     },
   });
 
-  const watchType = form.watch("watchType");
+  // useWatch, not form.watch: watch() signals changes outside React state, so the
+  // React Compiler skips memoizing every component that reads it. defaultValue has
+  // to match useForm's, because useWatch reports it before the form has mounted and
+  // the effect below treats any change as a deliberate mode switch.
+  const watchType = useWatch({
+    control: form.control,
+    name: "watchType",
+    defaultValue: initialWatchType ?? WatchType.percentage,
+  });
   const existingItemForType = existingItems.find(
     (item) => item.watchType === watchType,
   );
@@ -84,7 +92,7 @@ export function useWatchlistItemForm(
         },
       );
     }
-  }, [watchType, existingItemForType, avgPrice, form]);
+  }, [watchType, existingItemForType, avgPrice, form, draftKey]);
 
   // A failed optimistic save reopened this modal: surface the server error.
   useEffect(() => {

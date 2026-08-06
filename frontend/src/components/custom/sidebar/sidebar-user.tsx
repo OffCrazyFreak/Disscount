@@ -37,7 +37,7 @@ export default function SidebarUser() {
               className="flex-1 cursor-pointer data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <UserAvatar
-                className="text-sm font-bold"
+                className="border-2 border-primary text-sm font-bold"
                 user={avatarUser}
                 size="lg"
               />

@@ -19,12 +19,15 @@ export type ModalTarget =
   | { name: "email-verified" }
   | { name: "email-changed" }
   | { name: "contact" }
+  | { name: "donate" }
   | { name: "onboarding"; mode: "required" | "replay" }
   | { name: "settings"; tab: SettingsTab }
   | { name: "shopping-list"; action: "new" }
   | { name: "shopping-list"; action: "edit"; id: string }
+  | { name: "shopping-list"; action: "share"; id: string }
   | { name: "digital-card"; action: "new" }
   | { name: "digital-card"; action: "edit"; id: string }
+  | { name: "shopping-list-actions"; id: string }
   | { name: "add-to-list"; ean: string }
   | { name: "product-actions"; ean: string }
   | { name: "watchlist"; ean: string; watchType?: WatchTypeParam };
@@ -38,9 +41,15 @@ export const PUBLIC_MODAL_NAMES = [
   "email-verified",
   "email-changed",
   "contact",
+  "donate",
   // Two of its four actions need no account, and the gated two gate themselves.
   "product-actions",
 ] as const;
+
+/** Reachable without an account, so nothing may pre-empt one of these. */
+export function isPublicModal(name: string): boolean {
+  return (PUBLIC_MODAL_NAMES as readonly string[]).includes(name);
+}
 
 function isSettingsTab(value: string): value is SettingsTab {
   return (SETTINGS_TABS as readonly string[]).includes(value);
@@ -64,16 +73,23 @@ export function parseModalParam(
     case "email-verified":
     case "email-changed":
     case "contact":
+    case "donate":
       return { name };
     case "onboarding":
       return { name, mode: sub === "replay" ? "replay" : "required" };
     case "settings":
       return { name, tab: sub && isSettingsTab(sub) ? sub : "profil" };
     case "shopping-list":
+      if (sub === "new") return { name, action: "new" };
+      if (sub === "edit" && id) return { name, action: "edit", id };
+      if (sub === "share" && id) return { name, action: "share", id };
+      return null;
     case "digital-card":
       if (sub === "new") return { name, action: "new" };
       if (sub === "edit" && id) return { name, action: "edit", id };
       return null;
+    case "shopping-list-actions":
+      return id ? { name, id } : null;
     case "add-to-list":
     case "product-actions":
       return ean ? { name, ean } : null;

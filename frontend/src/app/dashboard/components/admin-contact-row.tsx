@@ -1,10 +1,10 @@
 "use client";
 
-import { Copy, Mail, MailOpen, RotateCcw, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { Mail, MailOpen, RotateCcw, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import CopyButton from "@/components/custom/common/copy-button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { formatDate } from "@/utils/strings";
 import { ContactMessageDto } from "@/lib/api/types";
@@ -27,15 +27,6 @@ export default function AdminContactRow({
   const unread = !message.readAt;
   const isDeleted = !!message.deletedAt;
   const email = message.email ?? "";
-
-  async function copyEmail() {
-    try {
-      await navigator.clipboard.writeText(email);
-      toast.success("E-mail adresa je kopirana!");
-    } catch {
-      toast.error("Greška pri kopiranju e-maila");
-    }
-  }
 
   return (
     <TableRow className={unread ? "font-medium" : undefined}>
@@ -80,23 +71,16 @@ export default function AdminContactRow({
             aria-label={unread ? "Označi pročitano" : "Označi nepročitano"}
             onClick={() => onToggleRead(message)}
           >
-            {unread ? (
-              <MailOpen className="size-4" />
-            ) : (
-              <Mail className="size-4" />
-            )}
+            {unread ? <MailOpen /> : <Mail />}
           </Button>
 
           {email && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label="Kopiraj e-mail"
-              onClick={copyEmail}
-            >
-              <Copy className="size-4" />
-            </Button>
+            <CopyButton
+              value={email}
+              label="Kopiraj e-mail"
+              successMessage="E-mail adresa je kopirana!"
+              errorMessage="Greška pri kopiranju e-maila"
+            />
           )}
 
           {isDeleted ? (
@@ -107,7 +91,7 @@ export default function AdminContactRow({
               aria-label="Vrati poruku"
               onClick={() => onRestore(message)}
             >
-              <RotateCcw className="size-4" />
+              <RotateCcw />
             </Button>
           ) : (
             <Button
@@ -118,7 +102,7 @@ export default function AdminContactRow({
               className="text-destructive hover:text-destructive"
               onClick={() => onDelete(message)}
             >
-              <Trash2 className="size-4" />
+              <Trash2 />
             </Button>
           )}
         </div>

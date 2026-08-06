@@ -1,10 +1,9 @@
 import { cn } from "@/lib/utils";
-import { CELL_DISC_CLASS } from "@/components/custom/bottom-nav/bottom-nav-classes";
 
 const RADIUS = 17;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
-interface IBottomNavRingProps {
+interface IHoldProgressRingProps {
   /**
    * A number for a settled value, or a CSS expression such as
    * `var(--press-progress, 0)` to track a value written outside React.
@@ -14,30 +13,43 @@ interface IBottomNavRingProps {
 }
 
 /**
- * A ring enclosing a whole cell's icon and label, sharing the active disc's
- * geometry. Used both for long-press feedback and for list completion, which are
- * the same shape at different speeds.
+ * A progress ring drawn from a single circle. Positioning and colour belong to
+ * the caller, since a nav cell and a card want very different geometry; the
+ * viewBox scales, so no size prop is needed.
  *
  * stroke-dasharray is the right tool here because a circle has a known length,
  * unlike the multi-path Lucide glyphs where one dash value draws each icon at a
  * visibly different rate.
+ *
+ * At a progress of 0 the offset equals the full circumference, so nothing is
+ * painted and the ring can stay mounted rather than being conditionally rendered.
+ *
+ * A string progress is driven straight from a CSS custom property, which the
+ * long-press timer rewrites every frame. That path deliberately carries no
+ * reduced-motion guard: it is progress feedback for a gesture the user is
+ * actively performing, and hiding it would remove the only cue that a hold is
+ * being registered.
  */
-export default function BottomNavRing({
+export default function HoldProgressRing({
   progress,
   className,
-}: IBottomNavRingProps) {
+}: IHoldProgressRingProps) {
   const fraction = typeof progress === "number" ? `${progress}` : progress;
 
   return (
     <svg
       viewBox="0 0 36 36"
       aria-hidden="true"
-      className={cn(CELL_DISC_CLASS, "pointer-events-none", className)}
+      className={cn("pointer-events-none", className)}
     >
       <circle
         cx="18"
         cy="18"
         r={RADIUS}
+        className={cn(
+          typeof progress === "number" &&
+            "transition-[stroke-dashoffset] duration-500 ease-out motion-reduce:transition-none",
+        )}
         fill="none"
         strokeWidth="1.75"
         strokeLinecap="round"

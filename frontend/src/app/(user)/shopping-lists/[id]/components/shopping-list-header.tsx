@@ -1,8 +1,10 @@
-import { ChevronLeft, Globe, Lock } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import ShoppingListActionButtons from "@/app/(user)/shopping-lists/[id]/components/shopping-list-action-buttons";
+import ShoppingListVisibilityIndicator from "@/app/(user)/shopping-lists/components/shopping-list-visibility-indicator";
+import { resolveShoppingListAccess } from "@/app/(user)/shopping-lists/utils/shopping-list-access";
 import {
   Tooltip,
   TooltipContent,
@@ -11,66 +13,71 @@ import {
 
 interface IShoppingListHeaderProps {
   shoppingList: ShoppingList;
+  /**
+   * False for a logged-out link visitor: copying creates a list on their own account,
+   * and the list index they would go back to is itself behind a login.
+   *
+   * Required rather than defaulting to true. This header is shared between an authed
+   * page and a public one, so the dangerous value must not be the implicit one.
+   */
+  isSignedIn: boolean;
+  /** Present when the page was reached through a share link. */
+  shareToken?: string;
 }
 
 export default function ShoppingListHeader({
   shoppingList,
+  isSignedIn,
+  shareToken,
 }: IShoppingListHeaderProps) {
+  // The server resolves this, so it stays right for a link recipient too. Editing and
+  // deleting are owner-only on the backend, so a recipient must not see those controls.
+  const { isOwner } = resolveShoppingListAccess(shoppingList.myAccess);
+
   return (
     <div className="mb-6 space-y-4">
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-0 sm:gap-1 min-w-0">
-          <Link href="/shopping-lists">
-            <Button variant="ghost" className="" size={"icon"}>
-              <ChevronLeft className="size-6 sm:size-7" />
-            </Button>
-          </Link>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex min-w-0 flex-1 items-center gap-0 sm:gap-1">
+          {isSignedIn && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" asChild>
+                  <Link
+                    href="/shopping-lists"
+                    aria-label="Natrag na popise za kupnju"
+                  >
+                    <ChevronLeft aria-hidden="true" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <h1 className="text-xl sm:text-2xl font-bold truncate min-w-0">
-                {shoppingList.title}
-              </h1>
-            </TooltipTrigger>
+              <TooltipContent className="px-2 py-1 text-xs">
+                Natrag na popise za kupnju
+              </TooltipContent>
+            </Tooltip>
+          )}
 
-            <TooltipContent>
-              <p>{shoppingList.title}</p>
-            </TooltipContent>
-          </Tooltip>
+          <h1 className="min-w-0 flex-1 break-words text-pretty text-xl font-bold sm:text-2xl">
+            {shoppingList.title}
+          </h1>
         </div>
 
-        <div className="flex items-center gap-2 ml-auto">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div
-                className="mr-2"
-                tabIndex={0}
-                role="img"
-                aria-label={
-                  shoppingList.isPublic ? "Popis je javan" : "Popis je privatan"
-                }
-              >
-                {shoppingList.isPublic ? (
-                  <Globe
-                    className="h-5 w-5 text-green-600"
-                    aria-hidden="true"
-                  />
-                ) : (
-                  <Lock className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                )}
-              </div>
-            </TooltipTrigger>
-
-            <TooltipContent>
-              {shoppingList.isPublic ? "Popis je javan" : "Popis je privatan"}
-            </TooltipContent>
-          </Tooltip>
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+          {/* Non-owners are sent a null linkAccess, so this reads as private for them
+              rather than advertising a setting they cannot change. */}
+          {isOwner && (
+            <ShoppingListVisibilityIndicator
+              linkAccess={shoppingList.linkAccess}
+            />
+          )}
           <ShoppingListActionButtons
             shoppingList={shoppingList}
-            showCopyButton={true}
+            showCopyButton={isSignedIn}
             showShareButton={true}
-            showEditButton={true}
-            showDeleteButton={true}
+            showEditButton={isOwner}
+            showDeleteButton={isOwner}
+            shareToken={shareToken}
+            mobilePresentation="buttons"
           />
         </div>
       </div>

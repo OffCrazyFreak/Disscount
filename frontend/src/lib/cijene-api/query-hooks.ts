@@ -85,11 +85,48 @@ export function useGetProductByName(params: SearchProductsParams) {
   });
 }
 
+function canonicalizeCsv(value: string | undefined): string | undefined {
+  if (value === undefined) return undefined;
+
+  return [
+    ...new Set(
+      value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+    ),
+  ]
+    .sort()
+    .join(",");
+}
+
+export function canonicalizeStorePricesParams(
+  params: GetPricesParams,
+): GetPricesParams {
+  return {
+    ...params,
+    eans: canonicalizeCsv(params.eans) ?? "",
+    chains: canonicalizeCsv(params.chains),
+    city: params.city?.trim(),
+    address: params.address?.trim(),
+  };
+}
+
+export function storePricesQueryKey(params: GetPricesParams) {
+  return ["cijene", "prices", "search", canonicalizeStorePricesParams(params)];
+}
+
+function productStorePricesQueryKey(params: GetPricesParams) {
+  return ["cijene", "prices", "product", canonicalizeStorePricesParams(params)];
+}
+
 export function useGetPrices(params: GetPricesParams) {
+  const canonicalParams = canonicalizeStorePricesParams(params);
+
   return useQuery<StorePricesResponse, Error>({
-    queryKey: ["cijene", "prices", JSON.stringify(params)],
-    queryFn: () => getPrices(params),
-    enabled: Boolean(params.eans),
+    queryKey: productStorePricesQueryKey(canonicalParams),
+    queryFn: () => getPrices(canonicalParams),
+    enabled: Boolean(canonicalParams.eans),
     staleTime: 6 * 60 * 60 * 1000, // 6 hours
   });
 }

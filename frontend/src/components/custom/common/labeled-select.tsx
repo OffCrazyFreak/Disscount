@@ -18,6 +18,12 @@ interface ILabeledSelectProps<TValue extends string> {
   value: TValue;
   onValueChange: (value: TValue) => void;
   options: readonly ILabeledSelectOption<TValue>[];
+  disabled?: boolean;
+  /**
+   * Id of an element explaining what the choice means. Without it a screen reader user
+   * hears only the bare option labels and never the consequence of picking one.
+   */
+  describedById?: string;
   className?: string;
 }
 
@@ -27,6 +33,8 @@ export default function LabeledSelect<TValue extends string>({
   value,
   onValueChange,
   options,
+  disabled = false,
+  describedById,
   className,
 }: ILabeledSelectProps<TValue>) {
   const labelId = useId();
@@ -41,6 +49,7 @@ export default function LabeledSelect<TValue extends string>({
 
       <Select
         value={value}
+        disabled={disabled}
         onValueChange={(next) => {
           const selected = options.find((option) => option.value === next);
           if (selected) onValueChange(selected.value);
@@ -48,7 +57,7 @@ export default function LabeledSelect<TValue extends string>({
       >
         <SelectTrigger
           aria-labelledby={labelId}
-          size="sm"
+          aria-describedby={describedById}
           className="w-full bg-white sm:w-60"
         >
           <SelectValue />

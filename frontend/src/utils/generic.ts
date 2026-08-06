@@ -1,4 +1,5 @@
-import { normalizeForSearch } from "@/utils/strings";
+import { scoreFields } from "@/utils/search/match";
+import { prepareQuery } from "@/utils/search/normalize";
 
 /**
  * Read one value out of a page's resolved searchParams, keeping the first
@@ -66,8 +67,51 @@ export function readListParam(
   );
 }
 
+export interface IRankedItem<T> {
+  item: T;
+  /** 0 when there is no query, so it never disturbs a caller's own ordering. */
+  score: number;
+}
+
 /**
- * Generic field-based filter helper.
+ * Matches items and hands back their relevance scores, for callers that need
+ * relevance as one term of a larger ordering rather than the whole of it.
+ *
+ * Scores are coarse on purpose (a tier ladder, not a continuum), so equally
+ * good matches tie and a caller's own tie-breakers still decide between them.
+ */
+export function rankByFields<T extends Record<string, unknown>>(
+  items: T[],
+  query: string | null,
+  fields: Array<keyof T>,
+): Array<IRankedItem<T>> {
+  const prepared = prepareQuery(query ?? "");
+  if (!prepared) return items.map((item) => ({ item, score: 0 }));
+
+  return items
+    .map((item) => ({
+      item,
+      score: scoreFields(
+        fields.map((field) => {
+          const raw = item[field];
+          return raw == null ? "" : String(raw);
+        }),
+        prepared,
+      ),
+    }))
+    .filter((rated) => rated.score > 0);
+}
+
+/**
+ * Generic field-based filter helper, ordered best match first.
+ *
+ * Runs the app's one matcher, so a list page ranks the same way a dropdown
+ * does: diacritic-blind, every word has to land somewhere, and an abbreviation
+ * still finds its target.
+ *
+ * The sort is stable and the scores are coarse, so whatever order the caller
+ * passed in survives among equally good matches. Sort the input the way you
+ * want it and relevance will layer on top.
  *
  * Example: filterByFields(products, q, ["name", "brand", "category"])
  */
@@ -76,24 +120,11 @@ export function filterByFields<T extends Record<string, unknown>>(
   query: string | null,
   fields: Array<keyof T>,
 ): T[] {
-  const q = (query || "").trim();
-  if (!q) return items;
+  if (!prepareQuery(query ?? "")) return items;
 
-  const qNorm = normalizeForSearch(q);
-
-  return items.filter((item) => {
-    for (const field of fields) {
-      const raw = item[field];
-      if (raw == null) continue;
-
-      const value = normalizeForSearch(String(raw));
-
-      // normalized match (case-insensitive + diacritic-insensitive)
-      if (value.includes(qNorm)) return true;
-    }
-
-    return false;
-  });
+  return rankByFields(items, query, fields)
+    .sort((a, b) => b.score - a.score)
+    .map((rated) => rated.item);
 }
 
 /** Constrain a number to the inclusive [min, max] range. */
