@@ -18,7 +18,6 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -88,12 +87,15 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz.anyRequest().permitAll())
-            // Provisioning is anchored on the bearer filter rather than sharing the
-            // anonymous anchor with it. Two addFilterBefore calls against one anchor get the
-            // same order and only stay in sequence because the sort happens to be stable,
-            // which is not something to depend on: provisioning has to see the
-            // authentication the bearer filter produced.
-            .addFilterBefore(optionalBearerAuthenticationFilter, AnonymousAuthenticationFilter.class)
+            // Both are anchored on the slot where a bearer token is normally decoded, which
+            // is where these two belong and which leaves them 98 places of headroom before
+            // the next registered filter. addFilterAfter is order + 1, so this is bearer at
+            // +1 and provisioning at +2: a strict sequence, which provisioning needs because
+            // it acts on the authentication the bearer filter produced. Anchoring either one
+            // on AnonymousAuthenticationFilter instead lands exactly on top of it, since a
+            // before is order - 1 and the following after adds the 1 straight back, and the
+            // resulting tie is broken only by the sort happening to be stable.
+            .addFilterAfter(optionalBearerAuthenticationFilter, BearerTokenAuthenticationFilter.class)
             .addFilterAfter(userProvisioningFilter, OptionalBearerAuthenticationFilter.class);
 
         return http.build();

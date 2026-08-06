@@ -55,7 +55,12 @@ export const LINK_ACCESS_LABELS: Record<LinkAccess, string> = {
   EDIT: "Uređivanje",
 };
 
-/** What each level lets a recipient actually do, in the second person. */
+/**
+ * What each level lets a recipient actually do. Third person, because these render only in
+ * the owner-only sharing panel, under "Što drugi mogu raditi": they describe the people
+ * holding the link, not the owner reading them. NONE is second person for the same reason,
+ * since an unshared list really is about the owner.
+ */
 export const LINK_ACCESS_HINTS: Record<LinkAccess, string> = {
   NONE: "Popis je privatan i vidiš ga samo ti.",
   VIEW: "Mogu vidjeti popis i cijene, ali ne mogu ništa mijenjati.",
