@@ -86,15 +86,24 @@ export default function ShareAccessRow({
           aria-describedby={describedById}
           className="w-full bg-background sm:w-48 sm:shrink-0"
         >
-          {/* The icon lives on the trigger rather than inside SelectValue, so the spinner
-              can take its place while a save is in flight. Both occupy size-4, so the
-              swap moves nothing. */}
-          {isSaving ? (
-            <BlockLoadingSpinner size={16} className="px-0 text-current" />
-          ) : (
-            <Icon className="size-4 shrink-0 text-current" aria-hidden="true" />
-          )}
-          <SelectValue />
+          {/* Grouped, because the trigger is justify-between: as three loose children the
+              icon, the label and the chevron would spread across the full width. One group
+              keeps them gap-2 apart, the same spacing the options use, and leaves the
+              chevron on the right.
+
+              The icon sits here rather than inside SelectValue so the spinner can take its
+              place while a save is in flight. Both occupy size-4, so the swap moves nothing. */}
+          <span className="flex min-w-0 items-center gap-2">
+            {isSaving ? (
+              <BlockLoadingSpinner size={16} className="px-0 text-current" />
+            ) : (
+              <Icon
+                className="size-4 shrink-0 text-current"
+                aria-hidden="true"
+              />
+            )}
+            <SelectValue />
+          </span>
         </SelectTrigger>
 
         <SelectContent>
