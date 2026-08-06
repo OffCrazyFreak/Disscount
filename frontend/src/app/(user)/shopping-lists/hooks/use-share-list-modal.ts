@@ -22,7 +22,6 @@ const SAVED_MESSAGE: Record<LinkAccess, string> = {
  * token, so there is no link to show until a save has come back.
  */
 export function useShareListModal(id: string) {
-  const [isSharingText, setIsSharingText] = useState(false);
   const [pendingAccess, setPendingAccess] = useState<LinkAccess | null>(null);
   const [savedMessage, setSavedMessage] = useState("");
   const isOnline = useOnlineStatus();
@@ -63,10 +62,11 @@ export function useShareListModal(id: string) {
     );
   }
 
+  // No pending state on purpose. Nothing here is fetched, and shareOrCopy
+  // documents why a flag cleared on completion strands the button spinning.
   async function handleTextShare() {
     if (!shoppingList) return;
 
-    setIsSharingText(true);
     try {
       const outcome = await shareOrCopy({
         title: shoppingList.title,
@@ -80,8 +80,6 @@ export function useShareListModal(id: string) {
       // misconfigured NEXT_PUBLIC_APP_URL. Wired to onClick and never awaited, so
       // without this the failure is invisible.
       toast.error("Dijeljenje nije uspjelo");
-    } finally {
-      setIsSharingText(false);
     }
   }
 
@@ -96,6 +94,5 @@ export function useShareListModal(id: string) {
     savedMessage,
     shareUrl,
     handleTextShare,
-    isSharingText,
   };
 }

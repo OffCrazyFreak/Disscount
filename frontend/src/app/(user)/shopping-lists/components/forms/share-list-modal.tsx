@@ -8,9 +8,7 @@ import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import SettingRow from "@/components/custom/settings/ui/setting-row";
-import { LOADING_LABELS } from "@/constants/loading-labels";
 import { LINK_ACCESS_HINTS } from "@/lib/api/schemas/shopping-list";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useShareListModal } from "@/app/(user)/shopping-lists/hooks/use-share-list-modal";
@@ -33,7 +31,6 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
     savedMessage,
     shareUrl,
     handleTextShare,
-    isSharingText,
   } = useShareListModal(id);
 
   const [isRevokeOpen, setIsRevokeOpen] = useState(false);
@@ -110,14 +107,9 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
             variant="secondary"
             className="w-full"
             onClick={handleTextShare}
-            disabled={isSharingText}
           >
-            {isSharingText ? (
-              <BlockLoadingSpinner size={20} className="text-inherit" />
-            ) : (
-              <Share2 aria-hidden="true" />
-            )}
-            {isSharingText ? LOADING_LABELS.sharing : "Podijeli kao tekst"}
+            <Share2 aria-hidden="true" />
+            Podijeli kao tekst
           </Button>
         </div>
       )}

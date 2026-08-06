@@ -14,6 +14,7 @@ import ShoppingListItems from "@/app/(user)/shopping-lists/[id]/components/items
 import ShoppingListPriceHistory from "@/app/(user)/shopping-lists/[id]/components/shopping-list-price-history";
 import ShoppingListStoreSummary from "@/app/(user)/shopping-lists/[id]/components/stores/shopping-list-stores-list";
 import { useShoppingListData } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-data";
+import { shoppingListPath } from "@/utils/shopping-list-links";
 
 interface ISharedShoppingListClientProps {
   token: string;
@@ -42,7 +43,7 @@ export default function SharedShoppingListClient({
   const isOwner = shoppingList?.myAccess === "OWNER";
   useEffect(() => {
     if (isOwner && shoppingList) {
-      router.replace(`/shopping-lists/${shoppingList.id}`);
+      router.replace(shoppingListPath(shoppingList.id));
     }
   }, [isOwner, shoppingList, router]);
 
