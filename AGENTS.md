@@ -37,7 +37,7 @@ Safe without asking, run from `frontend/`:
 - `pnpm build`
 - `pnpm add <name>@<version>` and `pnpm remove <name>`, once I have approved the dependency
 
-Inside a git worktree, call the binaries directly (`./node_modules/.bin/tsc`) instead of `pnpm exec`, which purges the main tree's `node_modules` through the symlink.
+Inside a git worktree, call the binaries directly (`./node_modules/.bin/tsc`) instead of `pnpm exec`, which purges the main tree's `node_modules` through the symlink. A `PreToolUse` hook, `.claude/hooks/guard-commands.py`, now blocks `pnpm` in a worktree rather than trusting anyone to remember, and blocks the dev-server goals that the prefix patterns in `.claude/settings.json` miss (`mvn -B spring-boot:run`, `pnpm --filter frontend dev`). Its cases live in `guard-commands.test.py`; run it after editing either file.
 
 Safe without asking, run from `backend/`:
 

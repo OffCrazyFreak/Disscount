@@ -4,26 +4,22 @@
     "allow": [
       "Bash(./node_modules/.bin/tsc --noEmit)",
       "Bash(pnpm exec tsc --noEmit)",
-      "Bash(pnpm lint)",
       "Bash(./node_modules/.bin/eslint *)",
       "Bash(pnpm exec eslint *)",
       "Bash(./node_modules/.bin/next lint *)",
+      "Bash(pnpm lint)",
       "Bash(./node_modules/.bin/prettier --check *)",
       "Bash(pnpm exec prettier --check *)",
       "Bash(git fetch *)",
       "Bash(git merge-base *)",
-      "mcp__context7__get-library-docs",
-      "mcp__context7__resolve-library-id",
+      "Bash(gh pr checks *)",
+      "mcp__context7",
+      "mcp__playwright",
       "mcp__cloudflare-api__docs",
-      "mcp__playwright__browser_snapshot",
-      "mcp__playwright__browser_console_messages",
-      "mcp__playwright__browser_network_requests",
-      "mcp__playwright__browser_network_request",
-      "mcp__playwright__browser_take_screenshot",
-      "mcp__playwright__browser_find",
-      "mcp__playwright__browser_tabs"
+      "mcp__cloudflare-api__search"
     ],
     "deny": [
+      "mcp__playwright__browser_run_code_unsafe",
       "Bash(pnpm dev)",
       "Bash(pnpm dev:*)",
       "Bash(pnpm run dev)",
@@ -39,9 +35,21 @@
       "Bash(./mvnw spring-boot:run)",
       "Bash(./mvnw spring-boot:run:*)",
       "Bash(docker:*)",
-      "Bash(docker compose:*)",
       "Bash(docker-compose:*)",
       "Bash(dokploy:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/guard-commands.py"
+          }
+        ]
+      }
     ]
   }
 }
