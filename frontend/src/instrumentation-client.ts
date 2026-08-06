@@ -2,6 +2,7 @@
 // redeploy) and no-ops cleanly when unset.
 import * as Sentry from "@sentry/nextjs";
 
+import { isServiceWorkerRegistrationNoise } from "@/lib/sentry/ignore-service-worker-noise";
 import {
   scrubCrumbData,
   scrubEventUrls,
@@ -21,7 +22,8 @@ Sentry.init({
     }),
   ],
 
-  beforeSend: scrubEventUrls,
+  beforeSend: (event) =>
+    isServiceWorkerRegistrationNoise(event) ? null : scrubEventUrls(event),
   beforeSendTransaction: scrubEventUrls,
   beforeBreadcrumb(breadcrumb) {
     breadcrumb.message = scrubShareToken(breadcrumb.message);
@@ -34,8 +36,12 @@ Sentry.init({
 
   enableLogs: true,
 
-  // Session Replay: 10% of sessions, 100% of sessions with an error
-  replaysSessionSampleRate: 0.1,
+  // Session Replay: 1% of sessions, 100% of sessions with an error. The two rates are
+  // independent rolls and the session one runs first, so it spends quota on healthy
+  // sessions. At 10% it exhausted the plan's 50 replays mid-period and every later replay
+  // was dropped, error ones included. 1% keeps enough healthy sessions for the replay-derived
+  // detectors (hydration errors, rage and dead clicks) without crowding out the error path.
+  replaysSessionSampleRate: 0.01,
   replaysOnErrorSampleRate: 1.0,
 
   // App is privacy-conscious (EU/DE) - keep IPs/headers/user data out of events by default.
