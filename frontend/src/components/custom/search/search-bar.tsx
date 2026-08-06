@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useCallback, useRef, type RefObject } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import SearchBarActions from "@/components/custom/search/search-bar-actions";
@@ -50,14 +50,20 @@ export default function SearchBar({
   const { setOpen } = useSidebar();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { register, handleSubmit, watch, reset, setValue, getValues } =
+  const { register, handleSubmit, control, reset, setValue, getValues } =
     useForm<{
       query: string;
     }>({
       defaultValues: { query: routeQuery },
     });
 
-  const queryValue = watch("query");
+  // useWatch, not form.watch: watch() signals changes outside React state, so the
+  // React Compiler skips memoizing every component that reads it.
+  const queryValue = useWatch({
+    control,
+    name: "query",
+    defaultValue: routeQuery,
+  });
   const { ref: registerRef, ...registerProps } = register("query");
 
   useEffect(() => {

@@ -62,7 +62,11 @@ export default function useBadgeOverflow(
     setOverflowAmount(amount);
   }, [shouldWrap]);
 
+  // useLayoutEffect, and the setState is the whole point: the overflow count comes
+  // from scrollWidth against clientWidth on real laid-out nodes, so it cannot exist
+  // until after layout. Running before paint stops the "+N" flickering.
   useLayoutEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     checkOverflow();
   }, [selectedValues, checkOverflow, items]);
 

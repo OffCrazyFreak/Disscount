@@ -124,7 +124,11 @@ export function UserProvider({ children }: IUserProviderProps) {
       cacheIdentityRef.current = identity;
     }
 
+    // The directive covers this whole effect, not just the line under it: the else
+    // branch clears user state synchronously too. Both sides react to an auth result
+    // that only exists after the session resolves, so neither is derivable.
     if (session?.user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       refreshUser();
     } else {
       clearAuthToken();
@@ -132,6 +136,11 @@ export function UserProvider({ children }: IUserProviderProps) {
       setIsLoading(false);
       setHasResolvedAuth(true);
     }
+    // Keyed on the user id, not the user object the lint asks for: better-auth hands
+    // back a new session object on every poll, so depending on it would refetch the
+    // profile on a cadence rather than on a real sign-in or sign-out. The purge itself
+    // is guarded by the identity check above, so it would not re-fire either way.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     session?.user?.id,
     sessionPending,
