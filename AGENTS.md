@@ -10,7 +10,7 @@ The repository is public but the licence is BUSL-1.1, so it is source-available,
 Never:
 
 - Run a dev server. Mine is already running. That includes `pnpm dev`, `pnpm email`, and any Maven or Docker equivalent. No exceptions, including during migrations.
-- Run any Maven command. Not `spring-boot:run`, not build, not test, not package. Ask if you think you need one.
+- Run `spring-boot:run` or any other Maven goal that starts the app. Building and testing are fine (see below), running it is not.
 - Run deploy, Docker, or Dokploy commands. Deploys happen automatically on push.
 - Commit or push unless I explicitly ask. When asked, include only the requested task's changes.
 - Commit secrets, credentials, the server IP, or the SSH user. Use placeholders in docs.
@@ -39,13 +39,23 @@ Safe without asking, run from `frontend/`:
 
 Inside a git worktree, call the binaries directly (`./node_modules/.bin/tsc`) instead of `pnpm exec`, which purges the main tree's `node_modules` through the symlink.
 
+Safe without asking, run from `backend/`:
+
+- `mvn -B verify`, the gate CI runs: compile, package, and whatever tests exist.
+- `mvn -B -DskipTests package` for a build-only check while iterating.
+- `mvn -B test` to run the suite alone.
+
+Tests are meant to run on H2 and touch nothing outside the module, so none of these need a nod. Starting the app still does.
+
+There is no `backend/src/test` yet, so `verify` currently proves only that it compiles and packages. Do not report a green `verify` as evidence that behaviour works until a suite exists.
+
 ## Definition of done
 
-Prettier and `tsc --noEmit` must pass; run `pnpm build` only for migrations, dependency version changes, or newly added dependencies.
+Prettier and `tsc --noEmit` must pass; run `pnpm build` only for migrations, dependency version changes, or newly added dependencies. For backend work, `mvn -B verify` must pass, the same way: it is the gate, not an optional extra. Say plainly that it only compiles today, rather than letting a green run imply tested behaviour.
 
-Type errors are yours to fix in `src/`. Do not chase errors coming out of generated types or dependencies, and never re-run a check I interrupted.
+Type errors are yours to fix in `frontend/src/`, and compile and test failures in `backend/src/`. Do not chase errors coming out of generated types or dependencies, and never re-run a check I interrupted.
 
-Say which checks passed, which failed, and which you did not run. For backend work, say what you verified by reading and which command I should run.
+Say which checks passed, which failed, and which you did not run, frontend and backend alike. Never report backend work as verified by reading when you could have run `mvn -B verify`.
 
 If a check fails for a reason unrelated to your change, report the command and the error, say it looks pre-existing, and leave it alone.
 
