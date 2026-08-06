@@ -2,7 +2,7 @@ import { Image as ImageIcon, ListPlus, Share2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import ListPen from "@/components/custom/icons/list-pen";
-import { useIsOnNewestShoppingList } from "@/lib/api/shopping-lists/use-newest-list-membership";
+import { useIsOnPreselectedShoppingList } from "@/lib/api/shopping-lists/use-preselected-list-membership";
 import {
   Tooltip,
   TooltipContent,
@@ -44,8 +44,9 @@ export default function ProductActionButtons({
     (watchlistItem) => watchlistItem.productApiId === product.ean,
   );
 
-  // The modal preselects the newest list, so that is the one this can speak for.
-  const isOnList = useIsOnNewestShoppingList(product.ean);
+  // Speaks for whichever list the modal will preselect: a drafted choice if there
+  // is one, the newest list otherwise.
+  const isOnList = useIsOnPreselectedShoppingList(product.ean);
   const addToListLabel = isOnList
     ? "Uredi unos na popisu za kupnju"
     : "Dodaj na popis za kupnju";

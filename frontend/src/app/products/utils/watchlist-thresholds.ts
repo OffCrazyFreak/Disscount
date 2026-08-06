@@ -1,5 +1,6 @@
 import { WatchType } from "@/lib/api";
 import type { WatchlistItemDto } from "@/lib/api/schemas/watchlist";
+import { watchlistLimits } from "@/app/products/typings/watchlist-form";
 
 const PERCENTAGE_SUGGESTION = "10";
 const PRICE_FALLBACK = 1;
@@ -36,8 +37,14 @@ export function thresholdBaselines(
 ): IThresholdBaselines {
   // A tenth off the average price, so the suggestion sits near a real discount.
   // With no price data to go on, 1€ keeps the field filled and the form savable.
-  const suggested =
+  const tenth =
     avgPrice > 0 ? Math.round(avgPrice * 0.1 * 100) / 100 : PRICE_FALLBACK;
+
+  // Clamped to what the schema accepts: a tenth off anything under 1€ lands below
+  // the 0.1€ minimum, which would open the modal already invalid, with the save
+  // button dead and no message explaining why until the field is touched.
+  const { min, max } = watchlistLimits(WatchType.absolute);
+  const suggested = Math.min(max, Math.max(min, tenth));
 
   return {
     percentageValue:

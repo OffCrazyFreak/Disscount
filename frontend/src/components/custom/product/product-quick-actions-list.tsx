@@ -7,7 +7,7 @@ import EyePen from "@/components/custom/icons/eye-pen";
 import ListPen from "@/components/custom/icons/list-pen";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { watchlistService } from "@/lib/api";
-import { useIsOnNewestShoppingList } from "@/lib/api/shopping-lists/use-newest-list-membership";
+import { useIsOnPreselectedShoppingList } from "@/lib/api/shopping-lists/use-preselected-list-membership";
 import useProductModals from "@/hooks/use-product-modals";
 import useProductShare from "@/hooks/use-product-share";
 import { productImageSearchUrl } from "@/utils/product-links";
@@ -37,7 +37,7 @@ export default function ProductQuickActionsList({
   const isInWatchlist = currentUserWatchlist.some(
     (watchlistItem) => watchlistItem.productApiId === product.ean,
   );
-  const isOnList = useIsOnNewestShoppingList(product.ean);
+  const isOnList = useIsOnPreselectedShoppingList(product.ean);
 
   // The two modal actions replace this sheet's history entry rather than closing
   // first: closeModalUrl pops with history.back(), which is async, so a push
