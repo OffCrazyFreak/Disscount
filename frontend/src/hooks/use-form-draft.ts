@@ -72,6 +72,9 @@ export function useFormDraft<T extends FieldValues>({
 
     for (const [field, value] of Object.entries(draft.values)) {
       if (stateRef.current.exclude.includes(field as Path<T>)) continue;
+      // A field the form no longer has, from a draft written before the shape
+      // changed. Restoring it would keep the dead key alive for the whole TTL.
+      if (!(field in values)) continue;
       const current = values[field];
       if (typeChanged(current, value)) continue;
       if (JSON.stringify(current) === JSON.stringify(value)) continue;

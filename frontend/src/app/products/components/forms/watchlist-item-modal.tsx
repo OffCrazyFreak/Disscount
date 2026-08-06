@@ -70,6 +70,9 @@ export default function WatchlistItemModal({
     existingItems,
     existingItemForType,
     isCheckingWatchlist,
+    isEdited,
+    hasSavableChange,
+    resetForm,
     onSubmit,
     onRemove,
     isSaving,
@@ -81,10 +84,14 @@ export default function WatchlistItemModal({
     watchType === "absolute" ? WatchType.absolute : WatchType.percentage,
   );
 
-  const { restored, clearDraft } = useFormDraft({
+  const { clearDraft } = useFormDraft({
     draftKey,
     form,
     enabled: open && !isCheckingWatchlist,
+    // The mode comes from the button that opened the modal, so it is never drafted:
+    // arriving from the € button must not land you on % because that is where you
+    // left off. The numbers are drafted per mode, so neither one is lost.
+    exclude: ["watchType"],
   });
 
   // Stays mounted between opens, so the URL's type must sync on change too.
@@ -105,7 +112,7 @@ export default function WatchlistItemModal({
       title="Dodaj na popis za praćenje"
       description="Postavi prag sniženja i javit ćemo ti kad se dosegne."
       srOnlyDescription
-      dirty={form.formState.isDirty}
+      dirty={isEdited}
       formId="watchlist-form"
       submitLabel={existingItemForType ? "Spremi" : "Prati"}
       // EyePen rather than a generic Save, so editing an existing alert is marked the
@@ -113,14 +120,19 @@ export default function WatchlistItemModal({
       submitIcon={existingItemForType ? EyePen : Eye}
       submitLoading={isSaving}
       submitDisabled={
-        isCheckingWatchlist || !product || !form.formState.isValid
+        isCheckingWatchlist ||
+        !product ||
+        !form.formState.isValid ||
+        !hasSavableChange
       }
       cancelLabel="Odustani"
       resetLabel="Resetiraj"
-      resetDisabled={!form.formState.isDirty && !restored}
+      // Enabled while either mode's number differs from what is tracked, including
+      // the one not on screen, because reset puts both of them back.
+      resetDisabled={!isEdited}
       onReset={() => {
         clearDraft();
-        form.reset();
+        resetForm();
       }}
     >
       {productQuery.isLoading ? (
@@ -167,6 +179,7 @@ export default function WatchlistItemModal({
               <WatchlistThresholdInput
                 minPrice={minPrice}
                 existingItemForType={existingItemForType}
+                loading={isCheckingWatchlist}
               />
             </form>
           </Form>
