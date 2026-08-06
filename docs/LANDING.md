@@ -242,7 +242,7 @@ The RSC boundary is the big one. Passing a non-serializable value (a Lucide icon
 
 The Tailwind spacing scale is rescaled. `globals.css` sets `--spacing: 0.2rem` (Tailwind's default is `0.25rem`), so every spacing/size utility is 0.8x: `w-64` is `205px`, not `256px`; `p-2.5` is `8px`. Any pixel math for positioning (the PWA screenshot overlap, marquee tile sizes) has to account for this. `max-w-*` uses a separate rem scale and is not affected.
 
-`useReducedMotion` from `motion` reads `matchMedia` during hydration and can cause a server/client markup mismatch. Use `useReducedMotionSafe` (returns `false` until mounted) for anything that branches markup on reduced motion.
+`useReducedMotion` from `motion` reads `matchMedia` during render, not in an effect, and can cause a server/client markup mismatch. Verified against framer-motion 12.42.2: it calls `initPrefersReducedMotion()` in the render body, which returns early when there is no `window`, so the hook returns `null` on the server and the visitor's real preference on the very first client render. Use `useReducedMotionSafe` (returns `false` until mounted) for anything that branches markup on reduced motion. Motion does not document this either way, so recheck the source on a `motion` major before assuming the wrapper can go.
 
 A `drop-shadow` filter on the same element as a `clip-path` gets clipped away, because the browser applies `filter` before `clip-path`. The pricing receipt's torn (zigzag) bottom needs its shadow on the outer wrapper, not on the clipped element, or the tear is invisible on the white card.
 

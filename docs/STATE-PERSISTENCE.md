@@ -135,7 +135,7 @@ Written by the small domain helpers in `utils/browser/storage/*`, each of which 
 
 | Field                      | Meaning                                                     | Helper              |
 | -------------------------- | ----------------------------------------------------------- | ------------------- |
-| `viewModes`                | grid/list toggle, per list key                              | `view-mode.ts`      |
+| `viewModes`                | grid/list toggle, per list key (parked, see below)          | `view-mode.ts`      |
 | `productsPreferences`      | price-history period + chains + open state, per product EAN | `products.ts`       |
 | `shoppingListsPreferences` | section open states + price-history prefs, per list         | `shopping-lists.ts` |
 | `storeOptimizeMode`        | preferred store-list sort, shared across all lists          | `shopping-lists.ts` |
@@ -185,17 +185,18 @@ Not everything should be remembered. These are intentionally **not** persisted, 
 
 ## 8. What's automatic vs manual
 
-| Thing                                          | Auto / manual | Notes                                                                      |
-| ---------------------------------------------- | ------------- | -------------------------------------------------------------------------- |
-| Saving a modal draft while typing              | Auto          | `useFormDraft` watches the form and debounces writes                       |
-| Restoring a draft on reopen                    | Auto          | hook restores, or the modal merges it (`restore: false`)                   |
-| Expiring stale drafts (24h)                    | Auto          | dropped on read                                                            |
-| Clearing a draft after a successful submit     | Auto          | submit handlers call `clearDraft()` / the mutation clears it               |
-| Keeping search + filters in the URL            | Auto          | the search and filter hooks own it                                         |
-| Persisting a preference (view mode, camera...) | Auto          | the relevant `storage/*` helper writes on change                           |
-| Adding a NEW modal form to the draft system    | Manual        | call `useFormDraft` with a unique `draftKey`; pick `restore` and `exclude` |
-| Adding a NEW preference                        | Manual        | add the field to `AppData` and a helper in `utils/browser/storage/`        |
-| Excluding a sensitive field from a draft       | Manual        | pass it in `exclude` (do this for passwords and base64 images)             |
+| Thing                                        | Auto / manual | Notes                                                                      |
+| -------------------------------------------- | ------------- | -------------------------------------------------------------------------- |
+| Saving a modal draft while typing            | Auto          | `useFormDraft` watches the form and debounces writes                       |
+| Restoring a draft on reopen                  | Auto          | hook restores, or the modal merges it (`restore: false`)                   |
+| Expiring stale drafts (24h)                  | Auto          | dropped on read                                                            |
+| Clearing a draft after a successful submit   | Auto          | submit handlers call `clearDraft()` / the mutation clears it               |
+| Keeping search + filters in the URL          | Auto          | the search and filter hooks own it                                         |
+| Persisting a preference (camera, periods...) | Auto          | the relevant `storage/*` helper writes on change                           |
+| Persisting the view mode                     | Parked        | `useViewMode` writes on the setter, which has no callers yet (see below)   |
+| Adding a NEW modal form to the draft system  | Manual        | call `useFormDraft` with a unique `draftKey`; pick `restore` and `exclude` |
+| Adding a NEW preference                      | Manual        | add the field to `AppData` and a helper in `utils/browser/storage/`        |
+| Excluding a sensitive field from a draft     | Manual        | pass it in `exclude` (do this for passwords and base64 images)             |
 
 ---
 
@@ -268,6 +269,8 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
   The cost is easy to miss: during a static prerender the boundary emits its **fallback**, not the component, so anything inside disappears from the served HTML. That is fine for a filter panel and wrong for navigation, which is how the sidebar's product links briefly stopped being crawlable. When a subtree only needs the query string for cosmetic state such as an active highlight, use `useClientSearchParams` (`frontend/src/hooks/use-client-search-params.ts`) instead: it reads the query string after mount, so the caller stays in the prerender, and it returns `null` until then. Keep `useSearchParams` wherever the URL genuinely drives what renders.
 
 - **localStorage preferences are per-device and are NOT purged on logout.** Only the IndexedDB data cache is wiped when the session ends. Preferences like view mode or the install-banner snooze are intentionally device-level and survive a logout.
+
+- **`viewModes` is wired but never written yet.** `useViewMode` returns `[mode, setMode]`, and both consumers (`products-client.tsx`, `digital-cards-client.tsx`) destructure the mode alone, because `ViewSwitcher` is parked behind [issue #61](https://github.com/OffCrazyFreak/Disscount/issues/61). So the key exists in the storage shape and in the hook, but nothing writes it and every list renders its default. Unparking the switcher means taking the setter at both call sites. Read the hook's own comment before changing it: the storage read is deliberately deferred to an effect, because `getViewMode` returns the default when there is no `window`, so seeding state from it directly would be a hydration mismatch.
 
 ---
 
