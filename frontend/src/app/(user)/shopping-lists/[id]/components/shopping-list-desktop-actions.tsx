@@ -46,25 +46,21 @@ export default function ShoppingListDesktopActions({
         className,
       )}
     >
-      {showShareButton && (
+      {showEditButton && (
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              aria-label={shareLabel}
+              aria-label="Uredi popis"
               className="shrink-0"
-              onClick={() => onShare()}
+              onClick={onEdit}
             >
-              {isShared ? (
-                <Share2Pen aria-hidden="true" />
-              ) : (
-                <Share2 aria-hidden="true" />
-              )}
+              <LucideClipboardEdit aria-hidden="true" />
             </Button>
           </TooltipTrigger>
 
           <TooltipContent className="px-2 py-1 text-xs">
-            {shareLabel}
+            Uredi popis
           </TooltipContent>
         </Tooltip>
       )}
@@ -95,21 +91,25 @@ export default function ShoppingListDesktopActions({
         </Tooltip>
       )}
 
-      {showEditButton && (
+      {showShareButton && (
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              aria-label="Uredi popis"
+              aria-label={shareLabel}
               className="shrink-0"
-              onClick={onEdit}
+              onClick={() => onShare()}
             >
-              <LucideClipboardEdit aria-hidden="true" />
+              {isShared ? (
+                <Share2Pen aria-hidden="true" />
+              ) : (
+                <Share2 aria-hidden="true" />
+              )}
             </Button>
           </TooltipTrigger>
 
           <TooltipContent className="px-2 py-1 text-xs">
-            Uredi popis
+            {shareLabel}
           </TooltipContent>
         </Tooltip>
       )}

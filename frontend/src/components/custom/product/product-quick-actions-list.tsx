@@ -54,17 +54,9 @@ export default function ProductQuickActionsList({
   return (
     <>
       <QuickActionItem
-        icon={ImageIcon}
-        label="Pretraži sliku proizvoda"
-        onSelect={() =>
-          runAndClose(() => openExternal(productImageSearchUrl(product)))
-        }
-      />
-
-      <QuickActionItem
-        icon={Share2}
-        label="Podijeli proizvod"
-        onSelect={() => runAndClose(share)}
+        icon={isOnList ? ListPen : ListPlus}
+        label={isOnList ? "Uredi unos na popisu" : "Dodaj na popis"}
+        onSelect={() => swapToModal(openAddToList)}
       />
 
       <QuickActionItem
@@ -74,9 +66,17 @@ export default function ProductQuickActionsList({
       />
 
       <QuickActionItem
-        icon={isOnList ? ListPen : ListPlus}
-        label={isOnList ? "Uredi unos na popisu" : "Dodaj na popis"}
-        onSelect={() => swapToModal(openAddToList)}
+        icon={Share2}
+        label="Podijeli proizvod"
+        onSelect={() => runAndClose(share)}
+      />
+
+      <QuickActionItem
+        icon={ImageIcon}
+        label="Pretraži sliku proizvoda"
+        onSelect={() =>
+          runAndClose(() => openExternal(productImageSearchUrl(product)))
+        }
       />
     </>
   );

@@ -32,11 +32,13 @@ export default function ShoppingListQuickActionsList({
 }: IShoppingListQuickActionsListProps) {
   return (
     <>
-      <QuickActionItem
-        icon={isShared ? Share2Pen : Share2}
-        label={isShared ? "Uredi dijeljenje popisa" : "Podijeli popis"}
-        onSelect={onShare}
-      />
+      {isOwner && (
+        <QuickActionItem
+          icon={LucideClipboardEdit}
+          label="Uredi popis"
+          onSelect={onEdit}
+        />
+      )}
 
       <QuickActionItem
         icon={Copy}
@@ -45,13 +47,11 @@ export default function ShoppingListQuickActionsList({
         loading={isCopying}
       />
 
-      {isOwner && (
-        <QuickActionItem
-          icon={LucideClipboardEdit}
-          label="Uredi popis"
-          onSelect={onEdit}
-        />
-      )}
+      <QuickActionItem
+        icon={isShared ? Share2Pen : Share2}
+        label={isShared ? "Uredi dijeljenje popisa" : "Podijeli popis"}
+        onSelect={onShare}
+      />
 
       {isOwner && (
         <QuickActionItem

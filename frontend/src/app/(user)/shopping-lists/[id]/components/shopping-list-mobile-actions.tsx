@@ -52,19 +52,13 @@ export default function ShoppingListMobileActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-max">
-          {showShareButton && (
+          {showEditButton && (
             <DropdownMenuItem
-              onSelect={() => onShare()}
+              onSelect={onEdit}
               className="cursor-pointer flex items-center gap-4"
             >
-              {isShared ? (
-                <Share2Pen aria-hidden="true" className="size-6" />
-              ) : (
-                <Share2 aria-hidden="true" className="size-6" />
-              )}
-              <span>
-                {isShared ? "Uredi dijeljenje popisa" : "Podijeli popis"}
-              </span>
+              <LucideClipboardEdit aria-hidden="true" className="size-6" />
+              <span>Uredi popis</span>
             </DropdownMenuItem>
           )}
 
@@ -85,13 +79,19 @@ export default function ShoppingListMobileActions({
             </DropdownMenuItem>
           )}
 
-          {showEditButton && (
+          {showShareButton && (
             <DropdownMenuItem
-              onSelect={onEdit}
+              onSelect={() => onShare()}
               className="cursor-pointer flex items-center gap-4"
             >
-              <LucideClipboardEdit aria-hidden="true" className="size-6" />
-              <span>Uredi popis</span>
+              {isShared ? (
+                <Share2Pen aria-hidden="true" className="size-6" />
+              ) : (
+                <Share2 aria-hidden="true" className="size-6" />
+              )}
+              <span>
+                {isShared ? "Uredi dijeljenje popisa" : "Podijeli popis"}
+              </span>
             </DropdownMenuItem>
           )}
 

@@ -52,23 +52,30 @@ export default function ProductActionButtons({
 
   const actions = (
     <>
-      {showSearchImage && (
+      {showAddToList && (
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              aria-label="Pretraži sliku proizvoda"
+              aria-label={addToListLabel}
               className="shrink-0"
-              onClick={() => openExternal(productImageSearchUrl(product))}
+              onClick={() => openAddToList()}
             >
-              <ImageIcon />
+              {isOnList ? <ListPen /> : <ListPlus />}
             </Button>
           </TooltipTrigger>
 
           <TooltipContent className="px-2 py-1 text-xs">
-            Pretraži sliku proizvoda
+            {addToListLabel}
           </TooltipContent>
         </Tooltip>
+      )}
+
+      {showAddToWatchlist && (
+        <WatchlistActionButton
+          product={product}
+          isInWatchlist={isInWatchlist}
+        />
       )}
 
       {showShare && (
@@ -90,28 +97,21 @@ export default function ProductActionButtons({
         </Tooltip>
       )}
 
-      {showAddToWatchlist && (
-        <WatchlistActionButton
-          product={product}
-          isInWatchlist={isInWatchlist}
-        />
-      )}
-
-      {showAddToList && (
+      {showSearchImage && (
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              aria-label={addToListLabel}
+              aria-label="Pretraži sliku proizvoda"
               className="shrink-0"
-              onClick={() => openAddToList()}
+              onClick={() => openExternal(productImageSearchUrl(product))}
             >
-              {isOnList ? <ListPen /> : <ListPlus />}
+              <ImageIcon />
             </Button>
           </TooltipTrigger>
 
           <TooltipContent className="px-2 py-1 text-xs">
-            {addToListLabel}
+            Pretraži sliku proizvoda
           </TooltipContent>
         </Tooltip>
       )}
