@@ -70,13 +70,13 @@ interface ISheetActionsProps {
  * to render its pending and missing states before one exists.
  */
 function SheetActions({ shoppingList, onRequestDelete }: ISheetActionsProps) {
-  const { canManageShare, isCopying, handleShare, handleCopy, handleEdit } =
+  const { canManageShare, isShared, handleShare, handleCopy, handleEdit } =
     useShoppingListActions(shoppingList);
 
   return (
     <ShoppingListQuickActionsList
       isOwner={canManageShare}
-      isCopying={isCopying}
+      isShared={isShared}
       // Two different destinations. The owner opens the share settings modal, which
       // replaces this one for the history reason below. Everyone else gets the OS
       // share sheet, which reads better over the page than over this one.
@@ -91,7 +91,7 @@ function SheetActions({ shoppingList, onRequestDelete }: ISheetActionsProps) {
       }}
       // Left open deliberately: a successful copy routes to the new list, which
       // drops the modal param anyway, and a failed one keeps its error in view.
-      onCopy={() => void handleCopy()}
+      onCopy={() => handleCopy({ replace: true })}
       // Replaces rather than closing first, for the history reason above.
       onEdit={() => handleEdit({ replace: true })}
       onDelete={() => {

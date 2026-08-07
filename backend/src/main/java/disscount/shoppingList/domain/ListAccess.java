@@ -32,4 +32,13 @@ public enum ListAccess {
     public boolean canManageShare() {
         return this == OWNER;
     }
+
+    /**
+     * Kept separate from {@link #canManageShare()} even though the two agree today. Deleting
+     * a list and adding items to it are ownership questions, not sharing ones, so a future
+     * decision to let some link level manage sharing must not quietly grant either.
+     */
+    public boolean isOwner() {
+        return this == OWNER;
+    }
 }

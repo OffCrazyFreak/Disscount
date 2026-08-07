@@ -54,9 +54,16 @@ export default function MultiSelectItem({
     >
       <CheckIcon
         aria-hidden="true"
-        className={cn("mr-2 size-4", isSelected ? "opacity-100" : "opacity-0")}
+        // text-primary beats CommandItem's [&_svg:not([class*='text-'])] muted rule, so a
+        // picked option reads as picked rather than as a grey tick you have to hunt for.
+        className={cn(
+          "mr-2 size-4 text-primary",
+          isSelected ? "opacity-100" : "opacity-0",
+        )}
       />
-      {children}
+      <span className={cn(isSelected && "font-medium text-primary")}>
+        {children}
+      </span>
     </CommandItem>
   );
 }

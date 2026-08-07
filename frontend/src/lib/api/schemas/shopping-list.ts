@@ -16,8 +16,8 @@ export const listAccessSchema = z.enum([
 export const shoppingListRequestSchema = z.object({
   title: z
     .string()
-    .min(3, "Naziv mora imati najmanje 3 znaka")
-    .max(100, "Naziv može imati najviše 100 znakova"),
+    .min(3, "Upiši naziv s najmanje 3 znaka")
+    .max(100, "Upiši naziv s najviše 100 znakova"),
   linkAccess: linkAccessSchema.optional(),
 });
 
@@ -33,7 +33,6 @@ export const shoppingListDtoSchema = z.object({
   // The server sends null to anyone who arrived through a link, so they cannot reshare
   // the list at a level its owner never granted.
   linkAccess: linkAccessSchema.nullable().optional(),
-  shareToken: z.string().nullable().optional(),
   // The caller's resolved access, so the client never re-derives the backend rule.
   myAccess: listAccessSchema,
   updatedAt: z.string(),
@@ -41,33 +40,23 @@ export const shoppingListDtoSchema = z.object({
   items: z.array(shoppingListItemDtoSchema),
 });
 
+/** Independent flags, so a copy can take the products without the shopping progress. */
+export const shoppingListCopyRequestSchema = z.object({
+  title: z
+    .string()
+    .min(3, "Upiši naziv s najmanje 3 znaka")
+    .max(100, "Upiši naziv s najviše 100 znakova"),
+  includeItems: z.boolean(),
+  includeProgress: z.boolean(),
+  includeSharing: z.boolean(),
+});
+
 // Type exports
 export type LinkAccess = z.infer<typeof linkAccessSchema>;
 export type ListAccess = z.infer<typeof listAccessSchema>;
 
-/** The levels an owner can pick, in the order they are offered. */
-export const SHAREABLE_LEVELS = ["VIEW", "SHOP", "EDIT"] as const;
-
-export const LINK_ACCESS_LABELS: Record<LinkAccess, string> = {
-  NONE: "Privatno",
-  VIEW: "Samo pregled",
-  SHOP: "Kupovina",
-  EDIT: "Uređivanje",
-};
-
-/**
- * What each level lets a recipient actually do. Third person, because these render only in
- * the owner-only sharing panel, under "Što drugi mogu raditi": they describe the people
- * holding the link, not the owner reading them. NONE is second person for the same reason,
- * since an unshared list really is about the owner.
- */
-export const LINK_ACCESS_HINTS: Record<LinkAccess, string> = {
-  NONE: "Popis je privatan i vidiš ga samo ti.",
-  VIEW: "Mogu vidjeti popis i cijene, ali ne mogu ništa mijenjati.",
-  SHOP: "Mogu označavati stavke kao kupljene i birati trgovinu.",
-  // Renaming is deliberately absent: the backend allows it, but no rename control is
-  // rendered for a recipient, so promising it would be a dead end.
-  EDIT: "Mogu mijenjati količine i brisati stavke.",
-};
 export type ShoppingListRequest = z.infer<typeof shoppingListRequestSchema>;
+export type ShoppingListCopyRequest = z.infer<
+  typeof shoppingListCopyRequestSchema
+>;
 export type ShoppingListDto = z.infer<typeof shoppingListDtoSchema>;

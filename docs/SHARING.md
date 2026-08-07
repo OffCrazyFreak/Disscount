@@ -1,15 +1,15 @@
 # Shopping list sharing
 
-How a shopping list is shared with someone else: the access model, the capability token,
-the public route, and the privacy decisions that fall out of all three.
+How a shopping list is shared with someone else: the access model, the URL that
+carries it, and the privacy decisions that fall out of both.
 
 ## Contents
 
 1. [What it is](#1-what-it-is)
 2. [The access model](#2-the-access-model)
-3. [The token, and why it is not the list id](#3-the-token-and-why-it-is-not-the-list-id)
+3. [The id is the link, and what that costs](#3-the-id-is-the-link-and-what-that-costs)
 4. [Backend](#4-backend)
-5. [The public route](#5-the-public-route)
+5. [The route](#5-the-route)
 6. [Offline](#6-offline)
 7. [Privacy decisions](#7-privacy-decisions)
 8. [Key files](#8-key-files)
@@ -19,7 +19,7 @@ the public route, and the privacy decisions that fall out of all three.
 ## 1. What it is
 
 An owner turns on a link for one of their lists and picks what it grants. Anyone holding
-the link can open it at `/s/<token>`, with no account. Signing in raises what they can do,
+the link can open it at `/shopping-lists/<id>`, with no account. Signing in raises what they can do,
 up to the level the link grants. The owner can change the level or revoke the link at any
 time, from the share modal at `?modal=shopping-list/share`.
 
@@ -41,8 +41,15 @@ caller resolved to, which adds `OWNER`:
 | `OWNER` | yes  | yes                   | yes            | yes    | yes            |
 
 \* The backend allows an `EDIT` caller to rename, but no rename control is rendered for a
-non-owner, so the share modal's copy does not promise it. Wiring it is a small piece of
-work; until then the copy and the UI agree with each other rather than with the API.
+non-owner: `shopping-list-header.tsx` passes `showEditButton={isOwner}` and the prop
+defaults to `false`, so the single action row (`shopping-list-action-row.tsx`) never
+renders it at any width. The
+shared page renders that same header, which is what gates it there too.
+
+The modal's `EDIT` hint reads "Može uređivati cijeli popis, ali ne može dodavati nove
+proizvode." It names the one limitation people actually trip over, item creation, and does
+not enumerate renaming either way. Both renaming and adding are deferred to the membership
+work, where per-person revocation makes unbounded additions safe to grant.
 
 `OWNER` is never stored. It is what `ShoppingListAccessService.resolve` returns when the
 caller owns the list, and the request DTO is bound to a separate `LinkAccess` enum that
@@ -51,61 +58,45 @@ cannot express it, so it is rejected at deserialization rather than by a service
 **Anonymous callers are capped at `VIEW`** however generous the link is. That is the rule
 that keeps every write attributable to an account.
 
-## 3. The token, and why it is not the list id
+## 3. The id is the link, and what that costs
 
-`shopping_list.share_token` is a random UUID, separate from the list's primary key.
+A shopping list is shared at its own URL, `/shopping-lists/<id>`. There is no separate share token: `link_access` says what holding that URL grants, and the URL an owner sees in the address bar is the one worth sending.
 
-Reusing the list id would have been simpler and is wrong: turning sharing off and back on
-would hand out the same URL, so everyone who kept the old link would silently regain
-access. With a separate token, disabling sharing nulls it and re-enabling mints a fresh
-one, which makes off-then-on a real revoke. Changing the level alone deliberately keeps
-the token, because the people already holding the link are meant to keep working.
+This replaced a rotating capability token in August 2026. The token existed for revocation: turning sharing off nulled it, turning it back on minted a new one, so everyone holding the old link genuinely lost access. That is real, and it was given up on purpose. A grocery list is shared once, used for a week and abandoned, so the scenario rotation protects against does not arrive often enough to pay for. What it cost in exchange was that an owner copying their own URL handed out something that failed for everybody else, with nothing in the URL to explain why. Google Docs works the same way and cannot rotate a link at all.
 
-The list's own id never appears in a shared URL.
+Two consequences to hold on to:
 
-122 bits of entropy from `UUID.randomUUID()` (SecureRandom-backed) is an adequate
-capability token. There is no expiry and no rate limiting on `/api/shared/**` yet; both are
-listed in [§10](#10-not-built-yet).
+**Off then on is not a revoke.** Re-enabling sharing hands back the same URL, so anyone who kept it is back in. The share modal's copy says so rather than implying a clean break.
+
+**A shared list's id is a capability, and it is not scrubbed.** While `link_access` is set, holding the id is enough. That id also appears in ordinary places: Sentry events, the Traefik access log, browser history, React Query keys, IndexedDB. Unlike the token it replaced it cannot be redacted, because it is the application's identifier everywhere and scrubbing it would blind every shopping-list trace rather than protect one route. **This is an accepted trade, not an oversight.** It is bounded by the id being inert the moment the list is not shared, and by both leak surfaces being ours.
 
 ## 4. Backend
 
-`/api/shared/**` has its own `@Order(1)` `SecurityFilterChain`. It is the only place where
-a bearer token is **optional**, so it uses `OptionalBearerAuthenticationFilter` rather than
-`oauth2ResourceServer`: the standard `BearerTokenAuthenticationFilter` answers 401 for an
-expired or malformed token before authorization is consulted, which would lock a visitor
-with a stale cached token out of a link that works. See `docs/AUTH.md` §7.
+The by-id routes have their own `@Order(1)` `SecurityFilterChain`. They are the only place where a bearer token is **optional**, so it uses `OptionalBearerAuthenticationFilter` rather than `oauth2ResourceServer`: the standard `BearerTokenAuthenticationFilter` answers 401 for an expired or malformed token before authorization is consulted, which would lock a visitor with a stale cached token out of a link that works. See `docs/AUTH.md` §7.
 
-| Method | Path                             | Required access                                    |
-| ------ | -------------------------------- | -------------------------------------------------- |
-| GET    | `/api/shared/{token}`            | `VIEW`                                             |
-| PUT    | `/api/shared/{token}`            | `EDIT` (title only)                                |
-| PUT    | `/api/shared/{token}/items/{id}` | `SHOP` for the in-shop fields, `EDIT` for the rest |
-| DELETE | `/api/shared/{token}/items/{id}` | `EDIT`                                             |
+| Method | Path                                      | Required access                                      |
+| ------ | ----------------------------------------- | ---------------------------------------------------- |
+| GET    | `/api/shopping-lists/{id}`                | `VIEW`                                               |
+| PUT    | `/api/shopping-lists/{id}`                | `EDIT` for the title, `OWNER` to change `linkAccess` |
+| DELETE | `/api/shopping-lists/{id}`                | `OWNER`                                              |
+| POST   | `/api/shopping-lists/{id}/items`          | `OWNER`                                              |
+| POST   | `/api/shopping-lists/{id}/copy`           | `VIEW`, and `OWNER` to carry the sharing across      |
+| PUT    | `/api/shopping-lists/{id}/items/{itemId}` | `SHOP` for the in-shop fields, `EDIT` for the rest   |
+| DELETE | `/api/shopping-lists/{id}/items/{itemId}` | `EDIT`                                               |
 
-An unknown, malformed or revoked token is a **404, never a 403**, so the response cannot be
-used to confirm that a list exists. `SharedShoppingListService.findShared` returns an empty
-`Optional` for all three cases and the controller turns that into a 404.
+A list the caller may not see is a **404, never a 403**, so the response cannot be used to confirm that a list exists. The branch lives in `ShoppingListService.findVisible`, which is the only caller of `findActiveById` and runs before every other check. There is deliberately no `findActiveByIdAndOwner`: that was the old authorization mechanism, and a future method reaching for it would silently get owner-only semantics and the 400 that tells a stranger the id was real.
 
-`applyItemUpdate` splits the item fields by level: a `SHOP` caller can change `isChecked`,
-`chainCode` and the captured prices, and everything structural is left as the server has
-it, so a fuller payload cannot rename or resize an item.
+`applyItemUpdate` splits the item fields by level: a `SHOP` caller can change `isChecked`, `chainCode` and the captured prices, and everything structural is left as the server has it, so a fuller payload cannot rename or resize an item.
 
-## 5. The public route
+**Only these seven routes take an optional bearer token**, eight matcher entries counting the `HEAD` variant of the `GET`, which link unfurlers probe with and which `AntPathRequestMatcher` compares exactly. `SecurityConfig` matches them by method plus a UUID-shaped id, which is an allowlist on both axes: `/api/shopping-lists/me` and `/api/shopping-lists/items` stay authenticated because they are not UUIDs, not because they are named as exceptions, and a future literal route is excluded by the same property. The chain's own rule is `permitAll`, so the checks in `ShoppingListService` are an authentication boundary rather than a convenience.
 
-`/s/[token]` is a real public route, outside the `(user)` group and not in
-`PROTECTED_ROUTE_PREFIXES`. It renders the same section components as the owner's list
-page, gated on the resolved access, so there is one set of components rather than two.
+## 5. The route
 
-`generateMetadata` fetches the list server-side for the link preview title and item count,
-with a 3 second timeout. The page sets `robots: { index: false }` and `next.config.ts`
-sends `X-Robots-Tag: noindex, nofollow` plus `Referrer-Policy: no-referrer`.
+`/shopping-lists/[id]` serves the owner and any link visitor from one page, gated on the access the server resolved into `myAccess`. There is no second route and no second set of components.
 
-The header is deliberately a **header, not a robots.txt disallow**: a disallowed URL is
-never fetched, so the crawler would never read the directive. A shared link only leaks by
-being pasted somewhere crawlable, which is exactly the case the header covers.
+It is therefore reachable signed out, and nothing on it may assume ownership. `shopping-list-detail-client.tsx` reads the session rather than hardcoding it, and the access banner renders unconditionally: it falls silent for an owner on its own, and the disabled item controls point at its id with `aria-describedby`, so gating it would leave that IDREF dangling for exactly the people who need the explanation. It emits an empty element carrying the id when it has nothing to say, because a DTO persisted before `myAccess` existed replays with it undefined.
 
-An owner opening their own link is redirected to `/shopping-lists/<id>`, where sharing,
-editing and deleting live.
+`next.config.ts` sends `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer` on `/shopping-lists/:path*`. The header is deliberate rather than a `robots.txt` disallow: a disallowed URL is never fetched, so a crawler would never read the directive, and a shared link only leaks by being pasted somewhere crawlable. `app/robots.ts` therefore stops deriving its disallow list from `PROTECTED_ROUTE_PREFIXES`, which still carries `/shopping-lists` for the logout redirect.
 
 ## 6. Offline
 
@@ -116,9 +107,9 @@ device**. Making it safe required the offline cache to gain per-identity scoping
 had never had: one browser-wide IndexedDB blob served every account, and the only
 mechanism was a destructive purge. See `docs/PWA.md` §5b for `cache-identity.ts`.
 
-The `/s/` service worker rule is `NetworkFirst`, not `NetworkOnly`, so an offline reload
+The `/shopping-lists/` service worker rule is `NetworkFirst`, not `NetworkOnly`, so an offline reload
 boots the app instead of the `/offline` fallback. That is only acceptable because the
-purge now deletes the `shared-list-pages`, `cijene-api` and `others` buckets on a change of
+purge now deletes the `shopping-list-pages`, `cijene-api` and `others` buckets on a change of
 identity. Those names are matched by exact equality, not by substring: a substring match on
 `pages` would also take out `pages-rsc` and `pages-rsc-prefetch`, every RSC payload in the app.
 
@@ -129,32 +120,34 @@ Worth knowing before changing any of this:
 - **Account ids are owner-only.** `ownerId` and each item's `updatedByUserId` are nulled
   for anyone else. They are stable cross-request identifiers, so a forwarded link would
   otherwise let a recipient correlate two links as belonging to one person.
-- **`linkAccess` and `shareToken` are owner-only**, so a recipient cannot reshare a list at
-  a level its owner never granted.
-- **The token is scrubbed from telemetry.** It sits in the URL path, and Sentry attaches
-  page URLs to events and records fetch breadcrumbs, neither of which `sendDefaultPii: false`
-  covers. `lib/sentry/scrub-share-token.ts` rewrites it in `beforeSend` and
-  `beforeSendTransaction` on both client and server, plus `beforeBreadcrumb` on the client.
-  Replay is the exception: its envelopes never pass through `beforeSend`, so `/s/` pages are
-  excluded from recording outright rather than scrubbed.
-- **Proxy access logs still record the full path.** Not fixed in the app, because it is a
-  Traefik log-format change on the Dokploy side. Worth doing.
+- **`linkAccess` is owner-only**, so a recipient cannot read or change the level its owner
+  granted. The share and edit modals additionally refuse to render for a non-owner, since
+  the by-id read they sit on now succeeds for link visitors too.
+- **The list id is not scrubbed from telemetry, on purpose.** See [§3](#3-the-id-is-the-link-and-what-that-costs). Sentry attaches page URLs and records fetch breadcrumbs, so a shared list's id reaches it. Redacting the app's own identifier would blind every shopping-list trace, and the id is inert once the list is not shared.
+- **Proxy access logs record the full path** for the same reason. A Traefik log-format
+  change on the Dokploy side could drop it, and the same trade applies.
 
 ## 8. Key files
 
-| Area          | Path                                                                           |
-| ------------- | ------------------------------------------------------------------------------ |
-| Access rule   | `backend/.../shoppingList/service/ShoppingListAccessService.java`              |
-| Levels        | `backend/.../shoppingList/domain/ListAccess.java`, `LinkAccess.java`           |
-| Shared API    | `backend/.../shoppingList/rest/SharedShoppingListController.java`              |
-| Shared logic  | `backend/.../shoppingList/service/SharedShoppingListService.java`              |
-| Redaction     | `backend/.../shoppingList/service/ShoppingListMapper.java`                     |
-| Optional auth | `backend/.../config/OptionalBearerAuthenticationFilter.java`                   |
-| Public page   | `frontend/src/app/s/[token]/`                                                  |
-| Share modal   | `frontend/src/app/(user)/shopping-lists/components/forms/share-list-modal.tsx` |
-| Level labels  | `frontend/src/lib/api/schemas/shopping-list.ts`                                |
-| Client access | `frontend/src/app/(user)/shopping-lists/utils/shopping-list-access.ts`         |
-| Token scrub   | `frontend/src/lib/sentry/scrub-share-token.ts`                                 |
+| Area          | Path                                                                                     |
+| ------------- | ---------------------------------------------------------------------------------------- |
+| Access rule   | `backend/.../shoppingList/service/ShoppingListAccessService.java`                        |
+| Levels        | `backend/.../shoppingList/domain/ListAccess.java`, `LinkAccess.java`                     |
+| List API      | `backend/.../shoppingList/rest/ShoppingListController.java`                              |
+| List logic    | `backend/.../shoppingList/service/ShoppingListService.java`                              |
+| Redaction     | `backend/.../shoppingList/service/ShoppingListMapper.java`                               |
+| Optional auth | `backend/.../config/OptionalBearerAuthenticationFilter.java`                             |
+| Route matcher | `backend/.../config/UuidScopedRequestMatcher.java`                                       |
+| List page     | `frontend/src/app/(user)/shopping-lists/[id]/`                                           |
+| Access banner | `frontend/src/app/(user)/shopping-lists/[id]/components/shopping-list-access-banner.tsx` |
+| Share modal   | `frontend/src/app/(user)/shopping-lists/components/forms/share-list-modal.tsx`           |
+| Access row    | `frontend/src/app/(user)/shopping-lists/components/forms/share-access-row.tsx`           |
+| Modal state   | `frontend/src/app/(user)/shopping-lists/hooks/use-share-list-modal.ts`                   |
+| Level copy    | `frontend/src/app/(user)/shopping-lists/utils/link-access-copy.ts`                       |
+| Level icons   | `frontend/src/app/(user)/shopping-lists/utils/link-access-icons.ts`                      |
+| Copy modal    | `frontend/src/app/(user)/shopping-lists/components/forms/copy-list-modal.tsx`            |
+| Optimism      | `frontend/src/lib/api/shopping-lists/optimistic-list.ts`                                 |
+| Client access | `frontend/src/app/(user)/shopping-lists/utils/shopping-list-access.ts`                   |
 
 ## 9. Gotchas
 
@@ -164,30 +157,44 @@ Worth knowing before changing any of this:
 - **`link_access` must stay nullable.** `ddl-auto=update` cannot add a `NOT NULL` column to
   a populated table. Read it through `resolvedLinkAccess()`, which maps null to `NONE`,
   never directly.
-- **Copying a shared list produces a private list**, by construction: `createShoppingList`
-  reads no sharing field at all. The toast says so, because someone copying a shared list
-  may reasonably assume the same people can still reach the copy.
-- **The share modal saves on change**, with no submit button, because the server mints the
-  token and there is no link to show until a save returns. That is why it needs a live
-  region: there is no submit button whose disappearance would signal success.
+- **Copying a list asks what to carry**, through `POST /api/shopping-lists/{id}/copy`.
+  Products default on; the ticks with their captured prices, and the sharing settings,
+  default off. One endpoint rather than a create followed by an add per item, because
+  those were separate transactions: a failure partway left a half-populated copy behind
+  that no retry could tidy up, and pressing the button again made another one.
+- **The sharing option on a copy is owner-only, enforced server side.** A recipient could
+  otherwise copy a list they were merely shown and hand the owner's people a link at a
+  level the owner never chose. Nothing else about a copy needs a check, since the caller
+  is the new list's owner by construction.
+- **The share modal saves on change**, with no submit button, because there is nothing to
+  confirm once the URL is the list's own. That is why it needs a live
+  region: there is no submit button whose disappearance would signal success, and why it
+  renders no footer at all (omitting `cancelLabel` is what drops it, since
+  `hasFooterContent` keys off labels rather than handlers).
+- **Private is a level, not an off switch.** One select carries all four values, so turning
+  sharing off is picking `Privatno` rather than flipping a control that then reveals a
+  second one. The row beside it restates the current level in words, following the shape
+  Google Drive uses.
+- **The list mutation must write the cache, not just invalidate it.** `useUpdateShoppingList`
+  patches `byId` and `me` in `onMutate` and writes the response in `onSuccess`
+  (`optimistic-list.ts`). `invalidateQueries` only _starts_ a refetch, so when the modal
+  mirrored the pending level in component state and cleared it on settle, the control fell
+  back to the pre-save value for a whole round trip and visibly flickered new, old, new.
 
 ## 10. Not built yet
 
-- **Named members** (version 2): a `shopping_list_member` table, single-use invite links at
-  `/p/<token>`, per-person revocation, and a "limit access to current members" freeze. The
-  resolver is already the single place that would need the `max(member, link)` branch.
+- **Named members** (version 2): a `shopping_list_member` table, invite links, per-person
+  revocation, and a "limit access to current members" freeze. The resolver is already the
+  single place that would need the `max(member, link)` branch. Invite by username is part
+  of it now rather than a later version, since `app_user.username` became unique in the
+  same release as this rework; email invites still wait on the notifications work.
 - **Adding items through a link.** `EDIT` covers amounts, removal, ticking, store choice
   and renaming, but not adding. Membership is the natural place for it.
 - **Renaming from a shared link.** The endpoint exists; no UI reaches it.
 - **Attribution in the UI.** `updated_by_user_id` is already stamped by shared writes, so
   version 2 starts with real history rather than an empty column. It will need a
   denormalised name, since account deletion nulls `username`.
-- **Token rotation without revoking.** Today the only way to invalidate a leaked link while
-  staying shared is to turn sharing off and on, which is two requests and loses access for
-  everyone in between if the second fails.
-- **An expiry, and rate limiting on `/api/shared/{token}`.** Recommended by the W3C TAG for
-  capability URLs. Brute-forcing 122 bits is infeasible, so this is hygiene.
-- **Invite by email or username** (version 3): blocked on `app_user.username` being
-  nullable and non-unique, on email living in the better-auth tables, and on the
-  notifications rework, since searching by identifier reintroduces the spam vector the
-  link model avoids.
+- **Rate limiting on the by-id routes.** Recommended by the W3C TAG for capability URLs.
+  Brute-forcing a version 4 UUID is infeasible, so this is hygiene rather than a hole.
+- **Link expiry.** There is none, and with rotation gone there is no way to invalidate a
+  shared URL except making the list private, which affects everyone at once.

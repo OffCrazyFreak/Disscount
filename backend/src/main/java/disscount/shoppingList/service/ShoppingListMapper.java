@@ -35,7 +35,6 @@ public class ShoppingListMapper {
                 .ownerId(isOwner ? list.getOwner().getId() : null)
                 .title(list.getTitle())
                 .linkAccess(isOwner ? list.resolvedLinkAccess() : null)
-                .shareToken(isOwner ? list.getShareToken() : null)
                 .myAccess(access)
                 .updatedAt(list.getUpdatedAt())
                 .createdAt(list.getCreatedAt())

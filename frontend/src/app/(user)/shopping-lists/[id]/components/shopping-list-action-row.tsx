@@ -1,5 +1,6 @@
 import { LucideClipboardEdit, Trash2, Copy, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Share2Pen from "@/components/custom/icons/share-2-pen";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import {
   Tooltip,
@@ -10,17 +11,17 @@ import { cn } from "@/lib/utils";
 import { LOADING_LABELS } from "@/constants/loading-labels";
 import type { IShoppingListActionGroupProps } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-actions";
 
-interface IShoppingListDesktopActionsProps extends IShoppingListActionGroupProps {
+interface IShoppingListActionRowProps extends IShoppingListActionGroupProps {
   visibleOnMobile?: boolean;
   className?: string;
 }
 
-export default function ShoppingListDesktopActions({
+export default function ShoppingListActionRow({
   showShareButton,
+  isShared,
   showCopyButton,
   showEditButton,
   showDeleteButton,
-  isCopying,
   isDeleting,
   onShare,
   onCopy,
@@ -28,12 +29,12 @@ export default function ShoppingListDesktopActions({
   onDeleteClick,
   visibleOnMobile = false,
   className,
-}: IShoppingListDesktopActionsProps) {
+}: IShoppingListActionRowProps) {
   // Icon-only, so the spinner is the whole visual and the accessible name carries the
-  // pending copy. The tooltip has to say the same thing or the two contradict each other.
-  // Share has no pending state: it either opens a modal or hands off to the OS sheet.
-  const shareLabel = "Podijeli popis";
-  const copyLabel = isCopying ? LOADING_LABELS.copying : "Kopiraj popis";
+  // pending state. The tooltip has to say the same thing or the two contradict each
+  // other. Neither share nor copy has one: both only open something.
+  const shareLabel = isShared ? "Uredi dijeljenje popisa" : "Podijeli popis";
+  const copyLabel = "Kopiraj popis";
   const deleteLabel = isDeleting ? LOADING_LABELS.deleting : "Obriši popis";
 
   return (
@@ -44,51 +45,6 @@ export default function ShoppingListDesktopActions({
         className,
       )}
     >
-      {showShareButton && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="icon"
-              aria-label={shareLabel}
-              className="shrink-0"
-              onClick={() => onShare()}
-            >
-              <Share2 aria-hidden="true" />
-            </Button>
-          </TooltipTrigger>
-
-          <TooltipContent className="px-2 py-1 text-xs">
-            {shareLabel}
-          </TooltipContent>
-        </Tooltip>
-      )}
-
-      {showCopyButton && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="icon"
-              aria-label={copyLabel}
-              className="shrink-0"
-              onClick={() => {
-                onCopy();
-              }}
-              disabled={isCopying}
-            >
-              {isCopying ? (
-                <BlockLoadingSpinner size={24} className="text-inherit" />
-              ) : (
-                <Copy aria-hidden="true" />
-              )}
-            </Button>
-          </TooltipTrigger>
-
-          <TooltipContent className="px-2 py-1 text-xs">
-            {copyLabel}
-          </TooltipContent>
-        </Tooltip>
-      )}
-
       {showEditButton && (
         <Tooltip>
           <TooltipTrigger asChild>
@@ -108,6 +64,50 @@ export default function ShoppingListDesktopActions({
         </Tooltip>
       )}
 
+      {showCopyButton && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              aria-label={copyLabel}
+              className="shrink-0"
+              onClick={() => {
+                onCopy();
+              }}
+            >
+              <Copy aria-hidden="true" />
+            </Button>
+          </TooltipTrigger>
+
+          <TooltipContent className="px-2 py-1 text-xs">
+            {copyLabel}
+          </TooltipContent>
+        </Tooltip>
+      )}
+
+      {showShareButton && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              aria-label={shareLabel}
+              className="shrink-0"
+              onClick={() => onShare()}
+            >
+              {isShared ? (
+                <Share2Pen aria-hidden="true" />
+              ) : (
+                <Share2 aria-hidden="true" />
+              )}
+            </Button>
+          </TooltipTrigger>
+
+          <TooltipContent className="px-2 py-1 text-xs">
+            {shareLabel}
+          </TooltipContent>
+        </Tooltip>
+      )}
+
       {showDeleteButton && (
         <Tooltip>
           <TooltipTrigger asChild>
@@ -121,7 +121,7 @@ export default function ShoppingListDesktopActions({
               disabled={isDeleting}
             >
               {isDeleting ? (
-                <BlockLoadingSpinner size={24} className="text-inherit" />
+                <BlockLoadingSpinner size={16} className="text-inherit" />
               ) : (
                 <Trash2 aria-hidden="true" />
               )}

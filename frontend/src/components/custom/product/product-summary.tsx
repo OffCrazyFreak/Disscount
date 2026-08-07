@@ -59,7 +59,7 @@ export default function ProductSummary({
     <div className="@container">
       <div
         className={cn(
-          "flex flex-col justify-between gap-3 px-3 py-2 @min-[300px]:flex-row @min-[300px]:items-center @md:gap-4 @md:px-6 @md:py-4",
+          "flex flex-col justify-between gap-3 px-3 py-2 @min-[300px]:flex-row @min-[300px]:items-center @md:gap-4 @md:px-4 @md:py-3",
           className,
         )}
       >
@@ -70,7 +70,7 @@ export default function ProductSummary({
               alt={name ?? ""}
               width={80}
               height={80}
-              className="hidden @md:block size-16 @lg:size-20 shrink-0 rounded-lg object-contain"
+              className="hidden @md:block size-16 shrink-0 rounded-lg object-contain"
             />
           )}
 

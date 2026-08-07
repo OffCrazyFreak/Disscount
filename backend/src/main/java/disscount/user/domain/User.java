@@ -27,7 +27,11 @@ public class User {
     @Id
     private UUID id;
 
-    @Column(nullable = true)
+    // Unique, so version 2 can invite somebody by name and mean one person. Nullable
+    // rather than required, because deleteAccount nulls it to free the name, and Postgres
+    // lets a unique index hold as many nulls as it likes. Presence is the frontend's job:
+    // the settings form will not save without one.
+    @Column(nullable = true, unique = true)
     private String username;
 
     // Preference toggles are stored as timestamps instead of booleans: null = off,

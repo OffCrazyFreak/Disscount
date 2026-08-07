@@ -1,8 +1,7 @@
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import { useShoppingListActions } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-actions";
-import ShoppingListDesktopActions from "@/app/(user)/shopping-lists/[id]/components/shopping-list-desktop-actions";
-import ShoppingListMobileActions from "@/app/(user)/shopping-lists/[id]/components/shopping-list-mobile-actions";
+import ShoppingListActionRow from "@/app/(user)/shopping-lists/[id]/components/shopping-list-action-row";
 
 interface IShoppingListActionButtonsProps {
   shoppingList: ShoppingList;
@@ -10,9 +9,8 @@ interface IShoppingListActionButtonsProps {
   showEditButton?: boolean;
   showDeleteButton?: boolean;
   showShareButton?: boolean;
-  /** Set when the page was reached through a share link, so share can offer that link. */
-  shareToken?: string;
-  mobilePresentation?: "menu" | "buttons" | "none";
+  /** Off, the row hides below `sm` and the surface has to carry the actions itself, the way the card does with its long press. */
+  showOnMobile?: boolean;
   className?: string;
 }
 
@@ -22,27 +20,26 @@ export default function ShoppingListActionButtons({
   showEditButton = false,
   showDeleteButton = false,
   showShareButton = false,
-  shareToken,
-  mobilePresentation = "menu",
+  showOnMobile = false,
   className,
 }: IShoppingListActionButtonsProps) {
   const {
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
     isDeleting,
-    isCopying,
+    isShared,
     handleConfirmDelete,
     handleEdit,
     handleShare,
     handleCopy,
-  } = useShoppingListActions(shoppingList, shareToken);
+  } = useShoppingListActions(shoppingList);
 
   const groupProps = {
     showShareButton,
+    isShared,
     showCopyButton,
     showEditButton,
     showDeleteButton,
-    isCopying,
     isDeleting,
     onShare: handleShare,
     onCopy: handleCopy,
@@ -63,15 +60,11 @@ export default function ShoppingListActionButtons({
         isLoading={isDeleting}
       />
 
-      <ShoppingListDesktopActions
+      <ShoppingListActionRow
         {...groupProps}
-        visibleOnMobile={mobilePresentation === "buttons"}
+        visibleOnMobile={showOnMobile}
         className={className}
       />
-
-      {mobilePresentation === "menu" && (
-        <ShoppingListMobileActions {...groupProps} />
-      )}
     </>
   );
 }

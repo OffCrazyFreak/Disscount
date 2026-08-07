@@ -128,7 +128,7 @@ export default function SearchBar({
         <div className="relative grow-100">
           <Search
             aria-hidden="true"
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 size-5"
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground size-5"
           />
 
           <Input

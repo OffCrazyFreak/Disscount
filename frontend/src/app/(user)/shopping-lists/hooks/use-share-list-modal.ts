@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { toast } from "sonner";
 
 import { shoppingListService } from "@/lib/api";
@@ -10,64 +9,75 @@ import { formatShoppingListForSharing } from "@/app/(user)/shopping-lists/utils/
 import { shareListUrl } from "@/utils/shopping-list-links";
 import { useOnlineStatus } from "@/hooks/use-online-status";
 
-const SAVED_MESSAGE: Record<LinkAccess, string> = {
-  NONE: "Dijeljenje je isključeno. Poveznica više ne vrijedi.",
-  VIEW: "Dijeljenje je uključeno. Poveznica je spremna.",
-  SHOP: "Dijeljenje je uključeno. Poveznica je spremna.",
-  EDIT: "Dijeljenje je uključeno. Poveznica je spremna.",
-};
-
 /**
- * Share settings save on change rather than behind a submit button: the server mints the
- * token, so there is no link to show until a save has come back.
+ * Share settings save on change rather than behind a submit button. There is nothing to
+ * confirm: the URL is the list's own and exists either way, so the only question the
+ * modal asks is what holding it grants.
  */
 export function useShareListModal(id: string) {
-  const [pendingAccess, setPendingAccess] = useState<LinkAccess | null>(null);
-  const [savedMessage, setSavedMessage] = useState("");
   const isOnline = useOnlineStatus();
 
   const listQuery = shoppingListService.useGetShoppingListById(id);
   const updateMutation = shoppingListService.useUpdateShoppingList();
 
   const shoppingList = listQuery.data ?? null;
-  // The pending value wins while the save is in flight, so the control stays where the
-  // user put it instead of snapping back for the whole round trip.
-  const linkAccess: LinkAccess =
-    pendingAccess ?? shoppingList?.linkAccess ?? "NONE";
-  const shareUrl = shoppingList?.shareToken
-    ? shareListUrl(shoppingList.shareToken)
-    : null;
 
+  // Read straight from the cache, with no local mirror. useUpdateShoppingList writes the
+  // new value optimistically in onMutate, so the cache is already correct here and there
+  // is no second source to fall back to mid-save.
+  const linkAccess: LinkAccess = shoppingList?.linkAccess ?? "NONE";
+
+  // Not built during render. shareListUrl calls appUrl(), which throws on a misconfigured
+  // NEXT_PUBLIC_APP_URL, and a throw here would take the whole modal down rather than the
+  // one button that needs an origin. The handlers below build it inside their try/catch.
+  const canShareLink = linkAccess !== "NONE";
+
+  // isSaving, not isPending: offline the mutation pauses rather than settles, so isPending
+  // stays true forever and the controls would sit disabled with nothing explaining why.
   const isSaving = updateMutation.isPending && isOnline;
 
   function setLinkAccess(next: LinkAccess) {
-    // isSaving, not isPending: offline the mutation pauses rather than settles, so
-    // isPending stays true forever and this guard would swallow every later change
-    // while the controls stayed enabled and said nothing.
     if (!shoppingList || next === linkAccess || isSaving) return;
-
-    setPendingAccess(next);
-    setSavedMessage("");
 
     // PUT carries the whole request, so the current title has to ride along or the
     // server would reject it as blank.
     updateMutation.mutate(
       { id, data: { title: shoppingList.title, linkAccess: next } },
       {
-        onSuccess: () => setSavedMessage(SAVED_MESSAGE[next]),
+        // The toast is the confirmation. It carries its own live region, so the modal does
+        // not also announce success and make a screen reader say it twice.
+        onSuccess: () => toast.success("Postavke dijeljenja popisa ažurirane."),
         onError: () =>
           toast.error("Promjena dijeljenja nije spremljena. Pokušaj ponovno."),
-        onSettled: () => setPendingAccess(null),
       },
     );
   }
 
-  // No pending state on purpose. Nothing here is fetched, and shareOrCopy
+  // No pending state on either handler. Nothing here is fetched, and shareOrCopy
   // documents why a flag cleared on completion strands the button spinning.
+  async function handleLinkShare() {
+    if (!canShareLink || !shoppingList) return;
+
+    try {
+      const outcome = await shareOrCopy({
+        title: shoppingList.title,
+        url: shareListUrl(shoppingList.id),
+      });
+
+      if (outcome === "copied") toast.success("Poveznica je kopirana");
+      if (outcome === "failed") toast.error("Dijeljenje nije uspjelo");
+    } catch {
+      toast.error("Dijeljenje nije uspjelo");
+    }
+  }
+
   async function handleTextShare() {
     if (!shoppingList) return;
 
     try {
+      // Text only, deliberately. Adding a url would flip shareOrCopy's clipboard fallback,
+      // which prefers url over text, so the button would copy a bare link instead of the
+      // list it promises.
       const outcome = await shareOrCopy({
         title: shoppingList.title,
         text: formatShoppingListForSharing(shoppingList),
@@ -91,8 +101,8 @@ export function useShareListModal(id: string) {
     setLinkAccess,
     isSaving,
     isOffline: !isOnline,
-    savedMessage,
-    shareUrl,
+    canShareLink,
+    handleLinkShare,
     handleTextShare,
   };
 }

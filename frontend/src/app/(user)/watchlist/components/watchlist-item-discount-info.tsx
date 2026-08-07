@@ -1,7 +1,7 @@
 import { Star, Store } from "lucide-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
+import PriceStack from "@/components/custom/price/price-stack";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import WatchlistDiscountRow from "@/app/(user)/watchlist/components/watchlist-discount-row";
 import { formatDifference } from "@/app/(user)/watchlist/utils/discount-display-utils";
@@ -31,11 +31,10 @@ export default function WatchlistItemDiscountInfo({
 
   if (isLoading) {
     return (
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-24 ml-auto" />
-        <Separator />
-        <Skeleton className="h-4 w-20 ml-auto" />
-      </div>
+      <PriceStack
+        primary={<Skeleton className="h-4 w-24" />}
+        secondary={<Skeleton className="h-4 w-20" />}
+      />
     );
   }
 
@@ -48,49 +47,48 @@ export default function WatchlistItemDiscountInfo({
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      {hasPinnedStores ? (
-        <WatchlistDiscountRow
-          icon={Star}
-          difference={discountInfo.preferredDifference}
-          text={formatDifference(
-            discountInfo.preferredDifference,
-            discountInfo.preferredPercentage,
-            "Nedostupno",
-          )}
-          stores={preferredStores}
-          bold
-          infoLabel="Prikaži trgovine za cijenu u preferiranim trgovinama"
-          onOpenPreferences={openPreferences}
-        />
-      ) : (
-        <div className="flex items-center justify-start gap-2">
+    <PriceStack
+      primary={
+        hasPinnedStores ? (
+          <WatchlistDiscountRow
+            icon={Star}
+            difference={discountInfo.preferredDifference}
+            text={formatDifference(
+              discountInfo.preferredDifference,
+              discountInfo.preferredPercentage,
+              "Nedostupno",
+            )}
+            stores={preferredStores}
+            bold
+            infoLabel="Prikaži trgovine za cijenu u preferiranim trgovinama"
+            onOpenPreferences={openPreferences}
+          />
+        ) : (
           <button
             type="button"
-            className="relative z-20 flex cursor-pointer items-center gap-2 rounded-sm text-xs text-muted-foreground italic transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="relative z-20 flex cursor-pointer items-center gap-2 rounded-sm text-muted-foreground italic transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             onClick={openPreferences}
           >
             <Star className="size-6 text-gray-700" aria-hidden="true" />
             <span>Postavi preference</span>
           </button>
-        </div>
-      )}
-
-      <Separator />
-
-      <WatchlistDiscountRow
-        icon={Store}
-        difference={discountInfo.totalDifference}
-        text={formatDifference(
-          discountInfo.totalDifference,
-          discountInfo.totalPercentage,
-          "Nema podataka",
-        )}
-        stores={totalStores}
-        tooltipSide="bottom"
-        infoLabel="Prikaži trgovine za cijenu u svim trgovinama"
-        onOpenPreferences={openPreferences}
-      />
-    </div>
+        )
+      }
+      secondary={
+        <WatchlistDiscountRow
+          icon={Store}
+          difference={discountInfo.totalDifference}
+          text={formatDifference(
+            discountInfo.totalDifference,
+            discountInfo.totalPercentage,
+            "Nema podataka",
+          )}
+          stores={totalStores}
+          tooltipSide="bottom"
+          infoLabel="Prikaži trgovine za cijenu u svim trgovinama"
+          onOpenPreferences={openPreferences}
+        />
+      }
+    />
   );
 }

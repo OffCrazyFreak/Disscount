@@ -29,8 +29,10 @@ export default function WatchlistDiscountRow({
 }: IWatchlistDiscountRowProps) {
   const color = priceDeltaColorClass(difference);
 
+  // No row wrapper of its own: PriceStack lays the tier out, so the row cannot
+  // drift from the product card's spacing.
   return (
-    <div className="flex items-center justify-start gap-1">
+    <>
       <StorePriceTooltip stores={stores} side={tooltipSide}>
         <button
           type="button"
@@ -60,6 +62,6 @@ export default function WatchlistDiscountRow({
           className={color}
         />
       )}
-    </div>
+    </>
   );
 }

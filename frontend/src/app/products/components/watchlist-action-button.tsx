@@ -1,6 +1,8 @@
-import { Eye, EyeOff } from "lucide-react";
+import { Eye } from "lucide-react";
 
+import { PRODUCT_ACTION_LABELS } from "@/constants/product-action-labels";
 import { Button } from "@/components/ui/button";
+import EyePen from "@/components/custom/icons/eye-pen";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import {
   Tooltip,
@@ -23,7 +25,9 @@ export default function WatchlistActionButton({
 }: IWatchlistActionButtonProps) {
   const { openWatchlist } = useProductModals(product);
 
-  const actionLabel = isInWatchlist ? "Ažuriraj praćenje" : "Prati proizvod";
+  const actionLabel = isInWatchlist
+    ? PRODUCT_ACTION_LABELS.editWatch
+    : PRODUCT_ACTION_LABELS.watch;
 
   return (
     <Tooltip>
@@ -34,7 +38,9 @@ export default function WatchlistActionButton({
           className={cn("shrink-0", className)}
           onClick={() => openWatchlist()}
         >
-          {isInWatchlist ? <EyeOff /> : <Eye />}
+          {/* A pen, not an eye-off: the button opens the tracking settings, it never
+              stops the tracking, which is what a slashed eye promises. */}
+          {isInWatchlist ? <EyePen /> : <Eye />}
         </Button>
       </TooltipTrigger>
 

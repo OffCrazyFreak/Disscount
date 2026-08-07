@@ -13,10 +13,11 @@ import { resolveShoppingListAccess } from "@/app/(user)/shopping-lists/utils/sho
 
 export interface IShoppingListActionGroupProps {
   showShareButton: boolean;
+  /** Marks the share control as "already shared, this edits it" rather than "share this". */
+  isShared: boolean;
   showCopyButton: boolean;
   showEditButton: boolean;
   showDeleteButton: boolean;
-  isCopying: boolean;
   isDeleting: boolean;
   onShare: (options?: IOpenModalOptions) => void;
   onCopy: () => void;
@@ -24,18 +25,10 @@ export interface IShoppingListActionGroupProps {
   onDeleteClick: () => void;
 }
 
-/**
- * @param shareToken the token this page was reached through, when it was reached through
- *   a link. The DTO's own shareToken is null for anyone but the owner, so without this a
- *   recipient standing on /s/<token> cannot pass on the very link they are looking at.
- */
-export function useShoppingListActions(
-  shoppingList: ShoppingList,
-  shareToken?: string,
-) {
+export function useShoppingListActions(shoppingList: ShoppingList) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const { deleteShoppingListMutation, confirmDelete, handleCopy, isCopying } =
+  const { deleteShoppingListMutation, confirmDelete, handleCopy } =
     useShoppingListMutations(shoppingList.id, shoppingList);
 
   // Returns the promise so a caller that unmounts on completion can await the
@@ -82,20 +75,18 @@ export function useShoppingListActions(
     }
 
     try {
+      // Every viewer can pass the list on, because the URL is simply the list's own and
+      // they are already looking at it. Whether it opens for the recipient is the owner's
+      // call through the share modal, not something to withhold here.
       const text = formatShoppingListForSharing(shoppingList);
-      const token = shareToken ?? shoppingList.shareToken;
-      const url = token ? shareListUrl(token) : undefined;
+      const url = shareListUrl(shoppingList.id);
       const outcome = await shareOrCopy({
         title: shoppingList.title,
         text,
-        ...(url ? { url } : {}),
+        url,
       });
 
-      if (outcome === "copied") {
-        toast.success(
-          url ? "Poveznica je kopirana" : "Tekst popisa je kopiran",
-        );
-      }
+      if (outcome === "copied") toast.success("Poveznica je kopirana");
       if (outcome === "failed") toast.error("Dijeljenje nije uspjelo");
     } catch {
       // shareOrCopy resolves an outcome rather than throwing, but appUrl() does
@@ -105,12 +96,17 @@ export function useShoppingListActions(
     }
   }
 
+  // linkAccess comes back null for anyone but the owner, so a recipient passing the link
+  // on stays on the plain share icon, which is exactly what their button does.
+  const isShared =
+    !!shoppingList.linkAccess && shoppingList.linkAccess !== "NONE";
+
   return {
     canManageShare,
+    isShared,
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
     isDeleting: deleteShoppingListMutation.isPending,
-    isCopying,
     handleConfirmDelete,
     handleEdit,
     handleShare,

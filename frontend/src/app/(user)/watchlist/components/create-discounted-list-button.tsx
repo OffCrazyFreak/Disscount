@@ -108,9 +108,20 @@ export default function CreateDiscountedListButton({
         <ResponsiveLabel full={buttonText} short="Stvori popis" />
 
         {/* Visual only: inside the label it would leave the visible text outside
-            the accessible name, and re-announce on every change. */}
-        <span aria-hidden="true">({addableProducts.length})</span>
+            the accessible name, and re-announce on every change. The margin is
+            explicit because expandIcon zeroes the button's gap, so the count
+            would otherwise sit flush against the label. */}
+        <span aria-hidden="true" className="ml-1">
+          ({addableProducts.length})
+        </span>
       </Button>
+
+      {/* The count is hidden from the button's own name so it does not re-announce the
+          whole control on every change. It still has to be announced somehow, so it is
+          mirrored here, outside the button, where a polite region can carry it alone. */}
+      <span aria-live="polite" className="sr-only">
+        Proizvoda za novi popis: {addableProducts.length}.
+      </span>
     </>
   );
 }

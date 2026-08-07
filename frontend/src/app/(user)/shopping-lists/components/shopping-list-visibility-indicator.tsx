@@ -1,11 +1,10 @@
-import { Globe, Lock } from "lucide-react";
-
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { LinkAccess } from "@/lib/api/types";
+import { LINK_ACCESS_ICONS } from "@/app/(user)/shopping-lists/utils/link-access-icons";
 import { cn } from "@/lib/utils";
 
 interface IShoppingListVisibilityIndicatorProps {
@@ -13,10 +12,11 @@ interface IShoppingListVisibilityIndicatorProps {
   className?: string;
 }
 
-// Deliberately binary: the icon answers "is this shared", not "at what level". Three
-// levels cannot be told apart at a glance without teaching three new glyphs, and this is
-// a control whose only mode is a glance. The level lives in the tooltip and the
-// accessible name, and is set in the share modal. Google Docs draws the same line.
+// One glyph per level, the same map the share modal and the shared-list banner use, so a
+// list shows the same picture wherever you meet it. This was binary Lock and Globe at
+// first, on the reasoning that a glance only needs to answer "is this shared"; carrying
+// the level costs nothing once the glyphs are already taught elsewhere, and the tooltip
+// still spells it out.
 const SHARED_LABELS: Record<LinkAccess, string> = {
   NONE: "Popis je privatan",
   VIEW: "Svatko s poveznicom može vidjeti popis",
@@ -33,7 +33,7 @@ export default function ShoppingListVisibilityIndicator({
   const access = linkAccess ?? "NONE";
   const isShared = access !== "NONE";
   const label = SHARED_LABELS[access];
-  const Icon = isShared ? Globe : Lock;
+  const Icon = LINK_ACCESS_ICONS[access];
 
   return (
     <Tooltip>

@@ -27,8 +27,6 @@ interface IShoppingListItemsProps {
   cheapestStores: Record<string, string>;
   averagePrices: Record<string, number>;
   storePrices: Record<string, Record<string, number>>;
-  /** Set when this list was opened through a share link, so writes carry the token. */
-  shareToken?: string;
 }
 
 export default function ShoppingListItems({
@@ -36,19 +34,13 @@ export default function ShoppingListItems({
   cheapestStores,
   averagePrices,
   storePrices,
-  shareToken,
 }: IShoppingListItemsProps) {
   const { canCheck, canEditItems, isOwner } = resolveShoppingListAccess(
     shoppingList.myAccess,
   );
 
   const { handleUpdateItem, handleDeleteItem, deletingItemId } =
-    useShoppingListItemMutations(
-      shoppingList.id,
-      averagePrices,
-      storePrices,
-      shareToken,
-    );
+    useShoppingListItemMutations(shoppingList.id, averagePrices, storePrices);
 
   const [isItemsOpen, setIsItemsOpen] = useState(() =>
     getShoppingListItemsOpen(shoppingList.id),

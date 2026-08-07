@@ -1,6 +1,10 @@
 import { Image as ImageIcon, ListPlus, Share2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import ListPen from "@/components/custom/icons/list-pen";
+import { useUser } from "@/context/user-context";
+import { PRODUCT_ACTION_LABELS } from "@/constants/product-action-labels";
+import { useIsOnPreselectedShoppingList } from "@/hooks/use-preselected-list-membership";
 import {
   Tooltip,
   TooltipContent,
@@ -32,8 +36,11 @@ export default function ProductActionButtons({
   showShare = true,
   className,
 }: IProductActionButtonsProps) {
+  // Guarded on a session, like the hold sheet's copy of this read: /products is public,
+  // so an unguarded read is a 401 plus retries for every signed-out visitor.
+  const { user } = useUser();
   const { data: currentUserWatchlist = [] } =
-    watchlistService.useGetCurrentUserWatchlist();
+    watchlistService.useGetCurrentUserWatchlist({ enabled: !!user });
 
   const { openAddToList } = useProductModals(product);
   const share = useProductShare(product);
@@ -42,25 +49,39 @@ export default function ProductActionButtons({
     (watchlistItem) => watchlistItem.productApiId === product.ean,
   );
 
+  // Speaks for whichever list the modal will preselect: a drafted choice if there
+  // is one, the newest list otherwise.
+  const isOnList = useIsOnPreselectedShoppingList(product.ean);
+  const addToListLabel = isOnList
+    ? PRODUCT_ACTION_LABELS.editListEntry
+    : PRODUCT_ACTION_LABELS.addToList;
+
   const actions = (
     <>
-      {showSearchImage && (
+      {showAddToList && (
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              aria-label="Pretraži sliku proizvoda"
+              aria-label={addToListLabel}
               className="shrink-0"
-              onClick={() => openExternal(productImageSearchUrl(product))}
+              onClick={() => openAddToList()}
             >
-              <ImageIcon />
+              {isOnList ? <ListPen /> : <ListPlus />}
             </Button>
           </TooltipTrigger>
 
           <TooltipContent className="px-2 py-1 text-xs">
-            Pretraži sliku proizvoda
+            {addToListLabel}
           </TooltipContent>
         </Tooltip>
+      )}
+
+      {showAddToWatchlist && (
+        <WatchlistActionButton
+          product={product}
+          isInWatchlist={isInWatchlist}
+        />
       )}
 
       {showShare && (
@@ -82,28 +103,21 @@ export default function ProductActionButtons({
         </Tooltip>
       )}
 
-      {showAddToWatchlist && (
-        <WatchlistActionButton
-          product={product}
-          isInWatchlist={isInWatchlist}
-        />
-      )}
-
-      {showAddToList && (
+      {showSearchImage && (
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              aria-label="Dodaj na popis za kupnju"
+              aria-label="Pretraži sliku proizvoda"
               className="shrink-0"
-              onClick={() => openAddToList()}
+              onClick={() => openExternal(productImageSearchUrl(product))}
             >
-              <ListPlus />
+              <ImageIcon />
             </Button>
           </TooltipTrigger>
 
           <TooltipContent className="px-2 py-1 text-xs">
-            Dodaj na popis za kupnju
+            Pretraži sliku proizvoda
           </TooltipContent>
         </Tooltip>
       )}

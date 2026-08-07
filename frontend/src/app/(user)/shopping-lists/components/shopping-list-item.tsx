@@ -80,7 +80,6 @@ export default function ShoppingListListItem({
             showShareButton={true}
             showEditButton={true}
             showDeleteButton={true}
-            mobilePresentation="none"
           />
         </div>
       </div>

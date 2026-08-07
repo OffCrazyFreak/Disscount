@@ -31,12 +31,13 @@ public interface ShoppingListRepository extends JpaRepository<ShoppingList, UUID
             + "ORDER BY sl.updatedAt DESC, sl.createdAt DESC, sl.id DESC")
     List<ShoppingList> findActiveByOwner(User owner);
 
+    /**
+     * The only way a by-id request loads a list, deliberately. There is no
+     * "...AndOwner" variant, because that was the old authorization mechanism and a
+     * future method reaching for it would silently get owner-only semantics back plus
+     * the 400-not-404 answer that tells a stranger the id was real. Authorization now
+     * belongs to ShoppingListService.findVisible, which is this method's one caller.
+     */
     @Query("SELECT sl FROM ShoppingList sl WHERE sl.id = :id AND sl.deletedAt IS NULL")
     Optional<ShoppingList> findActiveById(UUID id);
-
-    @Query("SELECT sl FROM ShoppingList sl WHERE sl.id = :id AND sl.owner = :owner AND sl.deletedAt IS NULL")
-    Optional<ShoppingList> findActiveByIdAndOwner(UUID id, User owner);
-
-    @Query("SELECT sl FROM ShoppingList sl WHERE sl.shareToken = :shareToken AND sl.deletedAt IS NULL")
-    Optional<ShoppingList> findActiveByShareToken(UUID shareToken);
 }

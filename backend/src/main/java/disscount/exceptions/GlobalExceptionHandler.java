@@ -1,5 +1,8 @@
 package disscount.exceptions;
 
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -7,10 +10,12 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,9 +45,66 @@ public class GlobalExceptionHandler {
         return problem(HttpStatus.FORBIDDEN, "forbidden", "Zabranjeno", ex.getMessage());
     }
 
+    @ExceptionHandler(NotFoundException.class)
+    public ProblemDetail handleNotFoundException(NotFoundException ex) {
+        return problem(HttpStatus.NOT_FOUND, "not-found", "Nije pronađeno", ex.getMessage());
+    }
+
     @ExceptionHandler(ConflictException.class)
     public ProblemDetail handleConflictException(ConflictException ex) {
         return problem(HttpStatus.CONFLICT, "conflict", "Sukob", ex.getMessage());
+    }
+
+    /**
+     * Hibernate reports a unique-index violation as DataIntegrityViolationException, not
+     * DuplicateKeyException, so both are caught and narrowed here. Not-null, check and
+     * foreign-key violations are bugs rather than conflicts and rethrow to the 500.
+     * Nothing from the driver message is logged: PostgreSQL puts the colliding value in it.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ProblemDetail handleDuplicateKey(DataIntegrityViolationException ex) {
+        // Rethrowing would bypass this advice entirely and surface a container 500, so the
+        // non-conflict case is answered here instead.
+        if (!(ex instanceof DuplicateKeyException) && !isUniqueViolation(ex)) {
+            return handleGenericException(ex);
+        }
+
+        String constraint = constraintNameOf(ex);
+        log.warn("Duplicate key violation on constraint: {}", constraint);
+
+        boolean isUsername = constraint.toLowerCase().contains("username");
+
+        ProblemDetail detail = problem(HttpStatus.CONFLICT, "conflict", "Sukob",
+                isUsername ? "Korisničko ime je već zauzeto." : "Vrijednost je već zauzeta.");
+
+        if (isUsername) {
+            detail.setProperty("fieldErrors", Map.of("username", "Korisničko ime je već zauzeto."));
+        }
+
+        return detail;
+    }
+
+    /** SQLState 23505 is unique_violation in both PostgreSQL and the H2 the tests run on. */
+    private static boolean isUniqueViolation(Throwable ex) {
+        for (Throwable cause = ex; cause != null; cause = cause.getCause()) {
+            if (cause instanceof SQLException sql && "23505".equals(sql.getSQLState())) {
+                return true;
+            }
+            if (cause.getCause() == cause) {
+                break;
+            }
+        }
+        return false;
+    }
+
+    /** The constraint name only; the message around it carries the colliding value. */
+    private static String constraintNameOf(DataIntegrityViolationException ex) {
+        Throwable cause = ex.getCause();
+        if (cause instanceof ConstraintViolationException violation
+                && violation.getConstraintName() != null) {
+            return violation.getConstraintName();
+        }
+        return ex.getClass().getSimpleName();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -59,6 +121,13 @@ public class GlobalExceptionHandler {
                 problem(HttpStatus.BAD_REQUEST, "validation", "Neispravni podaci", "Invalid input data");
         problemDetail.setProperty("fieldErrors", fieldErrors);
         return problemDetail;
+    }
+
+    /** Without this a malformed UUID is a logged 500, free for anyone to trigger. */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ProblemDetail handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        return problem(HttpStatus.BAD_REQUEST, "bad-request", "Neispravan zahtjev",
+                "Neispravan format parametra: " + ex.getName());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
