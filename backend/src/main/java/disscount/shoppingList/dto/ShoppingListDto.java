@@ -18,10 +18,9 @@ public class ShoppingListDto {
     private UUID ownerId;
     private String title;
 
-    // Both owner-only: a link visitor handed the token could reshare the list at a level
-    // its owner never granted.
+    // Owner-only: a link visitor who could read this would learn the list is shared more
+    // widely than their own access shows, and the share control keys off it.
     private ListAccess linkAccess;
-    private UUID shareToken;
 
     /** The caller's resolved access, echoed back so the frontend never re-derives the rule. */
     private ListAccess myAccess;

@@ -1,5 +1,6 @@
 package disscount.exceptions;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -40,9 +41,40 @@ public class GlobalExceptionHandler {
         return problem(HttpStatus.FORBIDDEN, "forbidden", "Zabranjeno", ex.getMessage());
     }
 
+    @ExceptionHandler(NotFoundException.class)
+    public ProblemDetail handleNotFoundException(NotFoundException ex) {
+        return problem(HttpStatus.NOT_FOUND, "not-found", "Nije pronađeno", ex.getMessage());
+    }
+
     @ExceptionHandler(ConflictException.class)
     public ProblemDetail handleConflictException(ConflictException ex) {
         return problem(HttpStatus.CONFLICT, "conflict", "Sukob", ex.getMessage());
+    }
+
+    /**
+     * The race that slips past an application-level uniqueness check: two requests both see a
+     * free value and both insert. Rendered as a 409 rather than the 500 an unhandled
+     * constraint violation would produce.
+     *
+     * <p>The field error is attached only when the violated constraint is recognisable,
+     * because the frontend maps fieldErrors straight onto form fields and naming the wrong
+     * one is worse than naming none.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ProblemDetail handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        log.warn("Data integrity violation", ex);
+
+        String cause = ex.getMostSpecificCause().getMessage();
+        boolean isUsername = cause != null && cause.toLowerCase().contains("username");
+
+        ProblemDetail detail = problem(HttpStatus.CONFLICT, "conflict", "Sukob",
+                isUsername ? "Korisničko ime je već zauzeto." : "Vrijednost je već zauzeta.");
+
+        if (isUsername) {
+            detail.setProperty("fieldErrors", Map.of("username", "Korisničko ime je već zauzeto."));
+        }
+
+        return detail;
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

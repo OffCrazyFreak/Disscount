@@ -18,6 +18,8 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -46,7 +48,7 @@ public class SecurityConfig {
      * {@code @Component} filter meant only for a security chain runs twice: once where it was
      * placed and once for every request that never reaches that chain. Both of these extend
      * {@code OncePerRequestFilter}, whose already-filtered attribute makes the second run a
-     * no-op only when the first one happened, so on any path outside {@code /api/shared/**}
+     * no-op only when the first one happened, so on any path outside the optional-auth chain
      * the optional bearer filter would decode the token again after the real chain had
      * finished with it. These beans turn the servlet registration off and leave the security
      * chains as the only place either filter runs.
@@ -70,20 +72,32 @@ public class SecurityConfig {
     }
 
     /**
-     * Shared lists get their own chain because they are the one place where a bearer token is
-     * optional. Authorization happens on the share token plus ShoppingListAccessService, and
-     * the caller may legitimately be anonymous, so a token that fails to decode must degrade
-     * to anonymous rather than 401. permitAll on the main chain cannot express that: its
-     * bearer filter rejects a stale token before authorization is ever consulted.
+     * The by-id shopping list routes, which are the one place a bearer token is optional.
+     * A list is shared by its own id, so the caller may legitimately be anonymous and a token
+     * that fails to decode must degrade to anonymous rather than 401. permitAll on the main
+     * chain cannot express that: its bearer filter rejects a stale token before authorization
+     * is ever consulted.
+     *
+     * <p><b>Nothing here authorizes anything.</b> The rule above is {@code permitAll}, so the
+     * only thing between an anonymous request and a list deletion is the access check in
+     * {@link disscount.shoppingList.service.ShoppingListService}. Every method reachable from
+     * this chain resolves the caller through
+     * {@link disscount.shoppingList.service.ShoppingListAccessService} before it touches
+     * anything, and relaxing one of those checks removes an authentication boundary rather
+     * than a convenience.
+     *
+     * <p>The matcher is an allowlist of method plus path plus a UUID-shaped id, so
+     * {@code /me} and {@code /items} stay on the authenticated chain by virtue of not being
+     * UUIDs rather than by being listed as exceptions. See {@link UuidScopedRequestMatcher}.
      */
     @Bean
     @Order(1)
-    public SecurityFilterChain sharedShoppingListChain(
+    public SecurityFilterChain optionalAuthShoppingListChain(
             HttpSecurity http,
             OptionalBearerAuthenticationFilter optionalBearerAuthenticationFilter
     ) throws Exception {
         http
-            .securityMatcher("/api/shared/**")
+            .securityMatcher(shoppingListByIdMatcher())
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz.anyRequest().permitAll())
@@ -99,6 +113,21 @@ public class SecurityConfig {
             .addFilterAfter(userProvisioningFilter, OptionalBearerAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    /**
+     * Exactly the six routes an anonymous caller may reach. Listing methods explicitly means
+     * anything else, including PATCH and OPTIONS, falls through to the authenticated chain,
+     * so the default is deny.
+     */
+    private static RequestMatcher shoppingListByIdMatcher() {
+        return new OrRequestMatcher(
+                new UuidScopedRequestMatcher(HttpMethod.GET, "/api/shopping-lists/{id}"),
+                new UuidScopedRequestMatcher(HttpMethod.PUT, "/api/shopping-lists/{id}"),
+                new UuidScopedRequestMatcher(HttpMethod.DELETE, "/api/shopping-lists/{id}"),
+                new UuidScopedRequestMatcher(HttpMethod.POST, "/api/shopping-lists/{id}/items"),
+                new UuidScopedRequestMatcher(HttpMethod.PUT, "/api/shopping-lists/{id}/items/{itemId}"),
+                new UuidScopedRequestMatcher(HttpMethod.DELETE, "/api/shopping-lists/{id}/items/{itemId}"));
     }
 
     @Bean
