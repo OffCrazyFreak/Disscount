@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,12 +56,19 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Duplicate keys only. Not-null, check and foreign-key violations are bugs, not
-     * conflicts, and fall through to the 500. Nothing from the driver message is logged:
-     * PostgreSQL puts the colliding value in it.
+     * Hibernate reports a unique-index violation as DataIntegrityViolationException, not
+     * DuplicateKeyException, so both are caught and narrowed here. Not-null, check and
+     * foreign-key violations are bugs rather than conflicts and rethrow to the 500.
+     * Nothing from the driver message is logged: PostgreSQL puts the colliding value in it.
      */
-    @ExceptionHandler(DuplicateKeyException.class)
-    public ProblemDetail handleDuplicateKey(DuplicateKeyException ex) {
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ProblemDetail handleDuplicateKey(DataIntegrityViolationException ex) {
+        // Rethrowing would bypass this advice entirely and surface a container 500, so the
+        // non-conflict case is answered here instead.
+        if (!(ex instanceof DuplicateKeyException) && !isUniqueViolation(ex)) {
+            return handleGenericException(ex);
+        }
+
         String constraint = constraintNameOf(ex);
         log.warn("Duplicate key violation on constraint: {}", constraint);
 
@@ -74,6 +82,19 @@ public class GlobalExceptionHandler {
         }
 
         return detail;
+    }
+
+    /** SQLState 23505 is unique_violation in both PostgreSQL and the H2 the tests run on. */
+    private static boolean isUniqueViolation(Throwable ex) {
+        for (Throwable cause = ex; cause != null; cause = cause.getCause()) {
+            if (cause instanceof SQLException sql && "23505".equals(sql.getSQLState())) {
+                return true;
+            }
+            if (cause.getCause() == cause) {
+                break;
+            }
+        }
+        return false;
     }
 
     /** The constraint name only; the message around it carries the colliding value. */

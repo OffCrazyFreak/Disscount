@@ -40,6 +40,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final AuthIdentityDao authIdentityDao;
+    private final UserProfileCreator profileCreator;
 
     // Compared against better-auth's UTC session timestamps, so the JVM zone must not leak in.
     private static LocalDateTime nowUtc() {
@@ -91,33 +92,25 @@ public class UserService {
             String username = seedUsername(name, email);
             // Every switch starts ON; the stamped timestamp is what the settings form reads back.
             LocalDateTime now = nowUtc();
+            User.UserBuilder profile = User.builder()
+                    .id(id)
+                    .image(image)
+                    .accountType(accountType)
+                    .notificationsPushEnabledAt(now)
+                    .notificationsEmailEnabledAt(now)
+                    .newsletterEnabledAt(now)
+                    .feedbackContactEnabledAt(now)
+                    .lastActiveAt(now);
+
             try {
-                // saveAndFlush, not save: the id is assigned, so save() merges and defers
-                // the insert to commit, past this catch.
-                userRepository.saveAndFlush(User.builder()
-                        .id(id)
-                        .username(username)
-                        .image(image)
-                        .accountType(accountType)
-                        .notificationsPushEnabledAt(now)
-                        .notificationsEmailEnabledAt(now)
-                        .newsletterEnabledAt(now)
-                        .feedbackContactEnabledAt(now)
-                        .lastActiveAt(now)
-                        .build());
+                profileCreator.create(profile.username(username).build());
             } catch (DataIntegrityViolationException collision) {
-                // A concurrent first login, or two accounts seeding one username. Retry
-                // nameless rather than fail: the settings form asks for one immediately.
-                userRepository.saveAndFlush(User.builder()
-                        .id(id)
-                        .image(image)
-                        .accountType(accountType)
-                        .notificationsPushEnabledAt(now)
-                        .notificationsEmailEnabledAt(now)
-                        .newsletterEnabledAt(now)
-                        .feedbackContactEnabledAt(now)
-                        .lastActiveAt(now)
-                        .build());
+                // A concurrent first login, or two accounts seeding one username. The insert
+                // ran in its own transaction, so this one is still usable and can retry.
+                if (userRepository.existsById(id)) return;
+
+                // Nameless rather than fail: the settings form asks for one immediately.
+                profileCreator.create(profile.username(null).build());
             }
         }
     }
