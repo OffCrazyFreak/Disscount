@@ -121,7 +121,7 @@ Calling `localeCompare` with no locale collates them as plain `c`, `s`, `z`, whi
 | Add to shopping list                                   | `app/products/components/forms/shopping-list-selector.tsx`       | list title via `keywords`           |
 | Updates / blog                                         | `app/updates/page.tsx`                                           | title, excerpt, content             |
 | Suggestions                                            | `app/suggestions/components/suggestions-client.tsx`              | suggestion fields                   |
-| Digital cards                                          | `app/(user)/digital-cards/components/digital-cards-client.tsx`   | title, type, note                   |
+| Digital cards                                          | `app/(user)/digital-cards/components/digital-cards-client.tsx`   | cardName, storeName, note           |
 | Shopping lists index                                   | `app/(user)/shopping-lists/components/shopping-lists-client.tsx` | title                               |
 | Watchlist                                              | `app/(user)/watchlist/hooks/use-watchlist-data.ts`               | product name, brand                 |
 | Watchlist suggestions                                  | `app/(user)/watchlist/hooks/use-watchlist-suggestions.ts`        | product name, brand                 |

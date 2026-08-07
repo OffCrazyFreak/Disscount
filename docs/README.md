@@ -11,4 +11,5 @@ Reference documentation for Disscount. Each file is a standalone deep-dive into 
 - [SEARCH.md](SEARCH.md) - the shared matcher, diacritic folding, ranking, Croatian collation, and why there is no search library.
 - [LANDING.md](LANDING.md) - landing page composition, server-vs-client rendering, SEO, fonts.
 - [BRAND.md](BRAND.md) - brand image system (logo, favicon, PWA icons, splash screens, social kit).
+- [DIGITAL-CARDS.md](DIGITAL-CARDS.md) - the loyalty card wallet: code scanning and drawing, store autocomplete, colour contrast, offline.
 - [SUPPORT.md](SUPPORT.md) - Ko-fi support flow, GitHub funding links, and future recognition rules.

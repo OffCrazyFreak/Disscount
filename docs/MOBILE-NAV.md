@@ -126,7 +126,7 @@ A locked cell is a `disabled` button in `text-muted-foreground/70`, so it takes 
 Two things worth knowing:
 
 - This runs **against** Apple's Human Interface Guidelines, which are emphatic that a tab must never be disabled (in iOS 26 `UITabBarItem.isEnabled` has no effect at all). Consistency with the app's other two navigations won, since a bar that walks you into a teaser page the header refuses to open is the more confusing inconsistency.
-- The admin escape exists so `/digital-cards`, which is a working page carrying the badge only until barcode rendering lands, stays reachable from a phone.
+- The admin escape was there so `/digital-cards` stayed reachable while it carried the coming-soon badge. The page has since shipped and dropped the flag, so the escape no longer applies to it.
 
 The same rule now applies to `HeaderNavItem`, which previously blocked coming-soon items for admins too. Note that the escape is unreachable there today: `HeaderNav` swaps the whole list for a single dashboard link whenever `canAccessDashboard` is true, which covers every admin. It is there for consistency and for whenever that layout changes.
 
@@ -445,14 +445,14 @@ A sheet can also decline the field: `ProductsSheet` withholds `initialFocusRef` 
 
 Long press is strictly an **accelerator**, never the only way to reach something. Every target is a `?modal=` URL that a visible, tappable control also reaches, which is what keeps it keyboard and screen-reader accessible.
 
-| Gesture                  | On `/products/<ean>`       | Everywhere else            | Enabled?                                                |
-| ------------------------ | -------------------------- | -------------------------- | ------------------------------------------------------- |
-| Hold **Karta**           | store preferences          | store preferences          | admins only, until the map drops `comingSoon`           |
-| Hold **Praćenje**        | `?modal=watchlist&ean=…`   | nothing                    | yes                                                     |
-| Hold the **centre cell** | the barcode scanner        | the barcode scanner        | yes                                                     |
-| Hold **Popisi**          | `?modal=add-to-list&ean=…` | `?modal=shopping-list/new` | yes                                                     |
-| Hold **Kartice**         | `?modal=digital-card/new`  | `?modal=digital-card/new`  | wired, off until digital cards ship, cell locked anyway |
-| Hold a **product card**  | the quick-actions sheet    | the quick-actions sheet    | yes                                                     |
+| Gesture                  | On `/products/<ean>`       | Everywhere else            | Enabled?                                      |
+| ------------------------ | -------------------------- | -------------------------- | --------------------------------------------- |
+| Hold **Karta**           | store preferences          | store preferences          | admins only, until the map drops `comingSoon` |
+| Hold **Praćenje**        | `?modal=watchlist&ean=…`   | nothing                    | yes                                           |
+| Hold the **centre cell** | the barcode scanner        | the barcode scanner        | yes                                           |
+| Hold **Popisi**          | `?modal=add-to-list&ean=…` | `?modal=shopping-list/new` | yes                                           |
+| Hold **Kartice**         | `?modal=digital-card/new`  | `?modal=digital-card/new`  | live                                          |
+| Hold a **product card**  | the quick-actions sheet    | the quick-actions sheet    | yes                                           |
 
 ### Targets that depend on the route
 
