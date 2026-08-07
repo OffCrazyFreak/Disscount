@@ -98,7 +98,10 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
     ({ listId, itemId }: { listId: string; itemId: string }) =>
       deleteShoppingListItem(listId, itemId),
     ({ listId }) => listAndItemsKeys(listId),
-    listWriteFailed,
+    // Deletes get their own handler: a replayed delete for an item that is already gone
+    // answers 404, which is the desired end state rather than a failure, and the shared
+    // handler would blame it on lost access.
+    deleteWriteFailed,
   );
 
   defineOfflineMutation(
@@ -131,6 +134,22 @@ function listWriteFailed(error: Error) {
 
   toast.error(
     lostAccess
+      ? "Promjena nije spremljena. Možda više nemaš pristup ovom popisu."
+      : "Promjena nije spremljena. Pokušaj ponovno.",
+  );
+}
+
+/**
+ * A delete cannot tell "the item is already gone" from "the list is gone" by status
+ * alone, and the first is a success. So 404 says nothing at all, and only a 403 is
+ * reported as lost access.
+ */
+function deleteWriteFailed(error: Error) {
+  const status = parseProblem(error)?.status;
+  if (status === 404) return;
+
+  toast.error(
+    status === 403
       ? "Promjena nije spremljena. Možda više nemaš pristup ovom popisu."
       : "Promjena nije spremljena. Pokušaj ponovno.",
   );

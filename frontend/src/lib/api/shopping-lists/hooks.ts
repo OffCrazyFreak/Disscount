@@ -60,9 +60,12 @@ export function useGetShoppingListById(id: string, { enabled = true } = {}) {
     queryKey: SHOPPING_LIST_QUERY_KEYS.byId(id),
     queryFn: () => getShoppingListById(id),
     enabled: enabled && !!id && id !== "new",
-    // Two people shopping off one list need each other's ticks without a manual reload,
-    // which is a shorter window than the rest of the app wants. This route serves link
-    // visitors as well as the owner now, so the refresh belongs on every read of it.
+    // Shorter than the rest of the app wants, because this route serves link visitors as
+    // well as the owner and two people can be shopping off one list. It is not live: with
+    // both tabs focused and untouched nothing refetches, since staleTime only marks the
+    // data stale and the refetch needs focus, a remount or an invalidation. Making it live
+    // needs refetchInterval or a push channel, and neither is worth the battery until
+    // somebody asks.
     staleTime: 30_000,
     refetchOnWindowFocus: true,
   });

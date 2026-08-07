@@ -14,7 +14,17 @@ Sentry.init({
   // would blind every shopping-list trace rather than protect one route. The exposure is
   // Sentry and the proxy access log, both of which are ours, and the id is inert once the
   // list is not shared. This is a recorded trade in docs/SHARING.md, not an oversight.
-  integrations: [Sentry.replayIntegration()],
+  //
+  // Replay is the exception, and it is not the same question. It records the DOM, so a
+  // recording of a list page carries the list's contents, which on a shared list belong
+  // to somebody else. That is not covered by accepting the id in a URL, so those pages
+  // stay excluded from recording as they were when they lived under /s/.
+  integrations: [
+    Sentry.replayIntegration({
+      beforeAddRecordingEvent: (event) =>
+        window.location.pathname.startsWith("/shopping-lists/") ? null : event,
+    }),
+  ],
 
   beforeSend: (event) =>
     isServiceWorkerRegistrationNoise(event) ? null : event,

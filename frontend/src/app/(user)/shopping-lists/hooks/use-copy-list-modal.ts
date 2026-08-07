@@ -68,8 +68,13 @@ export function useCopyListModal(id: string) {
 
       const copy = await shoppingListService.createShoppingList(request);
 
+      // allSettled, not all: the list is already created by this point, so a rejected
+      // item cannot un-create it. Failing the whole thing would report an error while a
+      // partial copy sits on the server, which is worse than saying what happened. There
+      // is no server-side copy endpoint to make this one transaction.
+      let failedItems = 0;
       if (options.items && shoppingList.items.length > 0) {
-        await Promise.all(
+        const results = await Promise.allSettled(
           shoppingList.items.map((item) => {
             const data: ShoppingListItemRequest = {
               ean: item.ean,
@@ -90,6 +95,10 @@ export function useCopyListModal(id: string) {
             return shoppingListService.addItemToShoppingList(copy.id, data);
           }),
         );
+
+        failedItems = results.filter(
+          (result) => result.status === "rejected",
+        ).length;
       }
 
       // Both roots: the copy creates items, and the flat item list feeds watchlist
@@ -104,7 +113,13 @@ export function useCopyListModal(id: string) {
       ]);
 
       closeModalUrl();
-      toast.success("Popis za kupnju je uspješno kopiran!");
+      if (failedItems > 0) {
+        toast.warning(
+          `Popis je kopiran, ali ${failedItems} proizvoda nije preneseno.`,
+        );
+      } else {
+        toast.success("Popis za kupnju je uspješno kopiran!");
+      }
       router.push(shoppingListPath(copy.id));
     } catch {
       toast.error("Greška pri kopiranju popisa za kupnju");

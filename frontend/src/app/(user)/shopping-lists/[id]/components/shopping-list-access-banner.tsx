@@ -33,7 +33,15 @@ export default function ShoppingListAccessBanner({
   isSignedIn,
 }: IShoppingListAccessBannerProps) {
   const text = myAccess ? ACCESS_TEXT[myAccess] : undefined;
-  if (!text) return <span id={SHARED_ACCESS_BANNER_ID} className="sr-only" />;
+  if (!text) {
+    return (
+      <span id={SHARED_ACCESS_BANNER_ID} className="sr-only">
+        {/* An owner needs no explanation and hears nothing. Unknown access does need
+            one, because the controls pointing here are disabled meanwhile. */}
+        {myAccess ? "" : "Ovlasti za ovaj popis još se provjeravaju."}
+      </span>
+    );
+  }
 
   // An owner never reaches the branch above, so the remaining levels all exist in the map.
   const Icon = LINK_ACCESS_ICONS[myAccess as LinkAccess];
