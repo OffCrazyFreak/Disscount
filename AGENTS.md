@@ -98,7 +98,7 @@ Conventions:
 - `I`-prefixed Props interfaces, in the same file as the component. One component per file, default export.
 - `function name() {}`, not `const name = () => {}`, except for small inline callbacks.
 - `import { useState } from "react"`, never `React.useState`.
-- `components/ui/` is shadcn output, so do not hand-edit it. Our components live in `components/custom/`, grouped by concern.
+- `components/ui/` is shadcn output. Editing it is allowed where the primitive is the natural home for the change, such as a prop the component itself should own or a sizing rule our `--spacing` override breaks. Our components live in `components/custom/`, grouped by concern.
 - Types: API and domain go in `lib/api/schemas/*` as zod `*Dto` / `*Response`; external price API types in `lib/cijene-api/schemas.ts`; shared UI types in `@/typings`; feature-only types stay colocated in `*-types.ts`.
 - React Query hooks live next to their service in `lib/api/<domain>/`. Feature composition hooks go in the feature's `hooks/`.
 - Before generating or redesigning UI, read `frontend/.github/skills/frontend-design/SKILL.md` and follow it.
