@@ -93,23 +93,34 @@ export function formatQuantity(q?: string | null): string | null {
 }
 
 /**
- * Pluralize Croatian nouns based on number (handles 12-14, 112-114, etc.).
- * @param n The number to check
- * @param singular The singular form (e.g., "cijena")
- * @param plural The plural form (e.g., "cijene")
- * @returns The appropriate form
+ * Pluralize a Croatian noun. The language has three forms, not two: 1 stavka,
+ * 2 to 4 stavke, 5 and up stavki, with 11 to 14 taking the last form despite
+ * ending in 1 to 4.
+ *
+ * `many` defaults to `one` because for many feminine nouns the genitive plural
+ * happens to match the nominative singular (1 cijena, 5 cijena). That is a
+ * coincidence of those words, not a rule, so pass the third form explicitly for
+ * anything where it differs.
+ *
+ * @param n the count
+ * @param one form for 1, 21, 31 (e.g. "stavka")
+ * @param few form for 2 to 4, 22 to 24 (e.g. "stavke")
+ * @param many form for 0 and 5 and up (e.g. "stavki")
  */
 export function pluralizeCroatian(
   n: number,
-  singular: string,
-  plural: string,
+  one: string,
+  few: string,
+  many: string = one,
 ): string {
   const last = n % 10;
   const lastTwo = n % 100;
-  if (last === 1 && lastTwo !== 11) return singular;
-  if (last >= 2 && last <= 4 && !(lastTwo >= 12 && lastTwo <= 14))
-    return plural;
-  return singular;
+
+  if (lastTwo >= 11 && lastTwo <= 14) return many;
+  if (last === 1) return one;
+  if (last >= 2 && last <= 4) return few;
+
+  return many;
 }
 
 /**

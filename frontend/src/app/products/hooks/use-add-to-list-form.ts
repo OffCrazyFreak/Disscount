@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import cijeneService from "@/lib/cijene-api";
@@ -55,7 +55,13 @@ export function useAddToListForm(open: boolean, ean: string) {
     !!user,
     restoredListId,
   );
-  const customListTitle = form.watch("customListTitle");
+  // useWatch, not form.watch: watch() signals changes outside React state, so the
+  // React Compiler skips memoizing every component that reads it.
+  const customListTitle = useWatch({
+    control: form.control,
+    name: "customListTitle",
+  });
+  const isChecked = useWatch({ control: form.control, name: "isChecked" });
 
   function resetForm() {
     selection.resetSelection();
@@ -104,7 +110,7 @@ export function useAddToListForm(open: boolean, ean: string) {
     selectedList: selection.selectedList,
     selectList: selection.selectList,
     duplicateItem: selection.duplicateItem,
-    isChecked: form.watch("isChecked"),
+    isChecked,
     ...pricing,
     handleRemoveFromList: selection.removeFromList,
     isRemoving: selection.isRemoving,

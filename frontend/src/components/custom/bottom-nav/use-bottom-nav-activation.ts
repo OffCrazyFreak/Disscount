@@ -20,7 +20,8 @@ export default function useBottomNavActivation(cells: IBottomNavCell[]) {
     // The sheet is non-modal, which vaul takes to mean no press outside it may
     // dismiss it, so the bar is the only thing that can close it again.
     if (entry.isSearch) {
-      isOpen ? close() : open();
+      if (isOpen) close();
+      else open();
 
       return false;
     }

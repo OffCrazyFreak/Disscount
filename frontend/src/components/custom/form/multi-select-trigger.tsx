@@ -61,9 +61,11 @@ export default function MultiSelectTrigger({
         )}
       >
         {children}
+        {/* Matches the single Select's chevron: opacity-50 over an inherited colour left
+            the one affordance saying "this opens" barely visible. */}
         <ChevronsUpDownIcon
           aria-hidden="true"
-          className="size-4 shrink-0 opacity-50"
+          className="size-5 shrink-0 text-muted-foreground"
         />
       </Button>
     </Trigger>

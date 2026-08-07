@@ -74,10 +74,7 @@ export function useAddToListSubmit({
     // chose, so refuse instead and let the caller surface it.
     if (!title) return null;
 
-    const created = await createShoppingListMutation.mutateAsync({
-      title,
-      isPublic: false,
-    });
+    const created = await createShoppingListMutation.mutateAsync({ title });
 
     // Recorded before the item is added. If that add fails the modal reopens
     // from the draft, and leaving "new" selected made every retry create another

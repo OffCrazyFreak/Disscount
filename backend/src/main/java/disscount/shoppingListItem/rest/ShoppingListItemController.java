@@ -35,19 +35,21 @@ public class ShoppingListItemController {
     @Operation(summary = "Update shopping list item")
     @PutMapping("/{itemId}")
     public ResponseEntity<ShoppingListItemDto> updateShoppingListItem(
+            @PathVariable UUID listId,
             @PathVariable UUID itemId,
             @Valid @RequestBody ShoppingListItemRequest request) {
         UUID ownerId = SecurityUtils.getCurrentUserId();
-        ShoppingListItemDto updated = shoppingListItemService.updateShoppingListItem(itemId, ownerId, request);
+        ShoppingListItemDto updated = shoppingListItemService.updateShoppingListItem(listId, itemId, ownerId, request);
         return ResponseEntity.ok(updated);
     }
 
     @Operation(summary = "Delete shopping list item")
     @DeleteMapping("/{itemId}")
     public ResponseEntity<Void> deleteShoppingListItem(
+            @PathVariable UUID listId,
             @PathVariable UUID itemId) {
         UUID ownerId = SecurityUtils.getCurrentUserId();
-        shoppingListItemService.deleteShoppingListItem(itemId, ownerId);
+        shoppingListItemService.deleteShoppingListItem(listId, itemId, ownerId);
         return ResponseEntity.noContent().build();
     }
 }

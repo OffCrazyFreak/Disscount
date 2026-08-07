@@ -10,7 +10,7 @@ The repository is public but the licence is BUSL-1.1, so it is source-available,
 Never:
 
 - Run a dev server. Mine is already running. That includes `pnpm dev`, `pnpm email`, and any Maven or Docker equivalent. No exceptions, including during migrations.
-- Run any Maven command. Not `spring-boot:run`, not build, not test, not package. Ask if you think you need one.
+- Run `spring-boot:run` or any other Maven goal that starts the app. Building and testing are fine (see below), running it is not.
 - Run deploy, Docker, or Dokploy commands. Deploys happen automatically on push.
 - Commit or push unless I explicitly ask. When asked, include only the requested task's changes.
 - Commit secrets, credentials, the server IP, or the SSH user. Use placeholders in docs.
@@ -37,15 +37,25 @@ Safe without asking, run from `frontend/`:
 - `pnpm build`
 - `pnpm add <name>@<version>` and `pnpm remove <name>`, once I have approved the dependency
 
-Inside a git worktree, call the binaries directly (`./node_modules/.bin/tsc`) instead of `pnpm exec`, which purges the main tree's `node_modules` through the symlink.
+Inside a git worktree, call the binaries directly (`./node_modules/.bin/tsc`) instead of `pnpm exec`, which purges the main tree's `node_modules` through the symlink. A `PreToolUse` hook, `.claude/hooks/guard-commands.py`, now blocks `pnpm` in a worktree rather than trusting anyone to remember, and blocks the dev-server goals that the prefix patterns in `.claude/settings.json` miss (`mvn -B spring-boot:run`, `pnpm --filter frontend dev`). Its cases live in `guard-commands.test.py`; run it after editing either file.
+
+Safe without asking, run from `backend/`:
+
+- `mvn -B verify`, the gate CI runs: compile, package, and whatever tests exist.
+- `mvn -B -DskipTests package` for a build-only check while iterating.
+- `mvn -B test` to run the suite alone.
+
+Tests are meant to run on H2 and touch nothing outside the module, so none of these need a nod. Starting the app still does.
+
+There is no `backend/src/test` yet, so `verify` currently proves only that it compiles and packages. Do not report a green `verify` as evidence that behaviour works until a suite exists.
 
 ## Definition of done
 
-Prettier and `tsc --noEmit` must pass; run `pnpm build` only for migrations, dependency version changes, or newly added dependencies.
+Prettier and `tsc --noEmit` must pass; run `pnpm build` only for migrations, dependency version changes, or newly added dependencies. For backend work, `mvn -B verify` must pass, the same way: it is the gate, not an optional extra. Say plainly that it only compiles today, rather than letting a green run imply tested behaviour.
 
-Type errors are yours to fix in `src/`. Do not chase errors coming out of generated types or dependencies, and never re-run a check I interrupted.
+Type errors are yours to fix in `frontend/src/`, and compile and test failures in `backend/src/`. Do not chase errors coming out of generated types or dependencies, and never re-run a check I interrupted.
 
-Say which checks passed, which failed, and which you did not run. For backend work, say what you verified by reading and which command I should run.
+Say which checks passed, which failed, and which you did not run, frontend and backend alike. Never report backend work as verified by reading when you could have run `mvn -B verify`.
 
 If a check fails for a reason unrelated to your change, report the command and the error, say it looks pre-existing, and leave it alone.
 
@@ -55,7 +65,8 @@ If a check fails for a reason unrelated to your change, report the command and t
 - Never use em dashes or en dashes, anywhere: chat, code comments, UI copy, docs, commit messages, PR text. Use a comma, a colon, parentheses, or rewrite the sentence.
 - In Markdown, write one physical line per paragraph and per bullet. Never hard-wrap prose to a column width.
 - If a task has a standard-but-optional dimension, either do it or name it with a one-line recommendation and rough effort. Do not quietly drop it.
-- Do not rewrite `docs/*.md` as you go, while the behaviour can still change. Track what went stale, then land the docs for the work in flight as one `docs:` commit when I ask you to push, open a PR, or close one, so the docs match what actually shipped. This is the one exception to the boundary above about a commit carrying only the requested task's changes. Remind me if I forget to ask.
+- Do not rewrite `docs/*.md` as you go, while the behaviour can still change. Track what went stale, then land the docs for the work in flight as one `docs:` commit. This is the one exception to the boundary above about a commit carrying only the requested task's changes.
+- Do that docs commit without being asked, as part of pushing, opening a PR, or closing one. Do not wait for me to ask and do not ask permission for it, so the docs match what actually shipped. Say in your summary which files you touched and which you checked and left alone. If nothing went stale, say that instead of inventing an edit.
 - Prefer the smallest change that does the job. Merge code because it means the same thing, never because it looks the same.
 - Keep files focused and short. I aim for roughly 50 to 100 lines and would rather have one more file than one long one. Split by concern, not to hit a number.
 - Before writing a shared helper, hook, or component, look for an existing one in `utils/`, `hooks/`, and the relevant feature folder. If I ask you to extract something and nothing similar exists, give it its own new file rather than inlining it.

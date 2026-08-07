@@ -29,8 +29,10 @@ export default function WatchlistDiscountRow({
 }: IWatchlistDiscountRowProps) {
   const color = priceDeltaColorClass(difference);
 
+  // No row wrapper of its own: PriceStack lays the tier out, so the row cannot
+  // drift from the product card's spacing.
   return (
-    <div className="flex items-center justify-start gap-1">
+    <>
       <StorePriceTooltip stores={stores} side={tooltipSide}>
         <button
           type="button"
@@ -41,7 +43,7 @@ export default function WatchlistDiscountRow({
             color,
           )}
         >
-          <Icon className="size-4 sm:size-5" aria-hidden="true" />
+          <Icon className="size-6" aria-hidden="true" />
           <span>{text}</span>
           {/* The price is the visible label, so it has to lead the accessible
               name: an aria-label replaced it outright, which hid the figure from
@@ -60,6 +62,6 @@ export default function WatchlistDiscountRow({
           className={color}
         />
       )}
-    </div>
+    </>
   );
 }

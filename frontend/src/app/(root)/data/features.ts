@@ -56,8 +56,7 @@ export const featureItems: IFeatureItem[] = [
     title: "Dijeljenje popisa",
     description: "Podijeli popis s obitelji pa kupuj zajedno bez dupliciranja.",
     icon: Share2,
-    comingSoon: true,
-    // href: "/shopping-lists",
+    href: "/shopping-lists",
   },
   {
     title: "Analiza potrošnje",

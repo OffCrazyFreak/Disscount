@@ -29,8 +29,12 @@ const buttonVariants = cva(
         info: "bg-blue-500 text-white hover:bg-blue-500/90 shadow-xs",
         infoSoft:
           "border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900",
+        // Tokens rather than bg-white and green-50, which stayed light in dark mode and
+        // left the label inheriting a near-white foreground onto white. No outline colour
+        // here on purpose: globals.css gives every element `outline-ring/50`, which is
+        // where this button's green edge comes from.
         outline:
-          "outline-2 -outline-offset-2 bg-white hover:outline-secondary hover:bg-green-50 hover:text-accent-foreground shadow-sm",
+          "outline-2 -outline-offset-2 bg-background text-foreground hover:outline-secondary hover:bg-primary/10 hover:text-accent-foreground shadow-sm",
         // Functional-only variants with no colour-scheme equivalent.
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-xs",

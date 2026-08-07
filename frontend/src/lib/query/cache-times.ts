@@ -22,4 +22,9 @@ export const CACHE_TIMES = {
   priceHistoryArchived: 6 * HOUR,
   /** A health probe that is cached is not a health probe. */
   health: 30 * 1000,
+  /**
+   * A list two people are shopping at once. Each other's ticks have to land without a
+   * manual reload, which is a shorter window than anything else here wants.
+   */
+  sharedList: 30 * 1000,
 } as const;

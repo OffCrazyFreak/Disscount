@@ -3,6 +3,7 @@
 import { Activity } from "react";
 import { ListPlus, TriangleAlert } from "lucide-react";
 
+import ListPen from "@/components/custom/icons/list-pen";
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
 import ProductInfoDisplay from "@/app/products/components/product-info-display";
@@ -59,7 +60,9 @@ export default function AddToShoppingListForm({
       dirty={form.formState.isDirty}
       formId="add-to-list-form"
       submitLabel="Dodaj"
-      submitIcon={ListPlus}
+      // The product is already on the chosen list, so submitting edits that entry
+      // rather than adding a second one.
+      submitIcon={duplicateItem ? ListPen : ListPlus}
       submitLoading={isSubmitting}
       submitLoadingLabel={LOADING_LABELS.adding}
       submitDisabled={

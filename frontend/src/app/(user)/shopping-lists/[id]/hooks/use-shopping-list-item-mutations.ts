@@ -5,17 +5,59 @@ import { shoppingListService } from "@/lib/api";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 
+interface IItemMutationState {
+  isPending: boolean;
+  isPaused: boolean;
+  variables?: { itemId: string };
+}
+
+/**
+ * Which item is mid-write, read off the mutation rather than mirrored in state.
+ *
+ * A stored flag has to be cleared, and there are two write paths with an early return
+ * between them, so a flag cleared in onSettled is one refactor away from stranding a row
+ * spinning. Derived, there is nothing to strand.
+ *
+ * isPaused, not just isPending: offline a mutation parks rather than settles, so
+ * isPending stays true indefinitely and the row would spin with nothing explaining why.
+ *
+ * TODO: useMutation keeps only the latest variables, so two ticks in flight at once mark
+ * the newer row only. Per-row accuracy needs useMutationState filtered by mutationKey.
+ */
+function pendingItemId(mutation: IItemMutationState): string | null {
+  if (!mutation.isPending || mutation.isPaused) return null;
+
+  return mutation.variables?.itemId ?? null;
+}
+
+/**
+ * @param shareToken present when the list was reached through a share link, in which case
+ *   writes go to /api/shared/{token}: the token is the capability, so knowing the list id
+ *   is never enough on its own.
+ */
 export function useShoppingListItemMutations(
   listId: string,
   averagePrices: Record<string, number>,
   storePrices: Record<string, Record<string, number>>,
+  shareToken?: string,
 ) {
   const queryClient = useQueryClient();
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
-  const [updatingItemId, setUpdatingItemId] = useState<string | null>(null);
 
   const updateItemMutation = shoppingListService.useUpdateShoppingListItem();
   const deleteItemMutation = shoppingListService.useDeleteShoppingListItem();
+  const updateSharedItemMutation =
+    shoppingListService.useUpdateSharedShoppingListItem();
+  const deleteSharedItemMutation =
+    shoppingListService.useDeleteSharedShoppingListItem();
+
+  const queryKey = shareToken
+    ? SHOPPING_LIST_QUERY_KEYS.byToken(shareToken)
+    : SHOPPING_LIST_QUERY_KEYS.byId(listId);
+
+  const updatingItemId =
+    pendingItemId(updateItemMutation) ??
+    pendingItemId(updateSharedItemMutation);
 
   const handleUpdateItem = async (
     itemId: string,
@@ -25,92 +67,44 @@ export function useShoppingListItemMutations(
       chainCode: string | null;
     },
   ) => {
-    const shoppingList = queryClient.getQueryData<ShoppingList>(
-      SHOPPING_LIST_QUERY_KEYS.byId(listId),
-    );
-
+    const shoppingList = queryClient.getQueryData<ShoppingList>(queryKey);
     const item = shoppingList?.items?.find((i) => i.id === itemId);
-    if (!item) return;
+    if (!item || updatedItem.amount < 1) return;
 
-    // Validate amount
-    if (updatedItem.amount < 1) return;
+    // Prices are captured at the moment of ticking, so they have to be resolved here
+    // where the component's price maps live, not inside the mutation. They travel in the
+    // request, which is also what the optimistic patch applies.
+    const data = { ...item, ...updatedItem };
 
-    setUpdatingItemId(itemId);
-
-    // Optimistic update
-    await queryClient.cancelQueries({
-      queryKey: SHOPPING_LIST_QUERY_KEYS.byId(listId),
-    });
-    const previousData = queryClient.getQueryData<ShoppingList>(
-      SHOPPING_LIST_QUERY_KEYS.byId(listId),
-    );
-
-    queryClient.setQueryData<ShoppingList | undefined>(
-      SHOPPING_LIST_QUERY_KEYS.byId(listId),
-      (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          items: old.items?.map((i) => {
-            if (i.id === itemId) {
-              const updated = { ...i, ...updatedItem };
-              // If checking the item, include the current average price
-              if (updatedItem.isChecked) {
-                const currentAvgPrice = averagePrices[i.id];
-                if (currentAvgPrice !== undefined) {
-                  updated.avgPrice = currentAvgPrice;
-                }
-              }
-              return updated;
-            }
-            return i;
-          }),
-        };
-      },
-    );
-
-    // Prepare update data
-    const updateData = {
-      ...item,
-      ...updatedItem,
-    };
-
-    // If checking the item, include the current average price and store price
     if (updatedItem.isChecked) {
-      const currentAvgPrice = averagePrices[item.id];
-      if (currentAvgPrice !== undefined) {
-        updateData.avgPrice = currentAvgPrice;
-      }
+      const avgPrice = averagePrices[item.id];
+      if (avgPrice !== undefined) data.avgPrice = avgPrice;
 
-      // Include the store price from the selected store
-      if (
-        updatedItem.chainCode &&
-        storePrices[item.id]?.[updatedItem.chainCode]
-      ) {
-        updateData.storePrice = storePrices[item.id][updatedItem.chainCode];
-      }
+      const storePrice =
+        updatedItem.chainCode && storePrices[item.id]?.[updatedItem.chainCode];
+      if (storePrice) data.storePrice = storePrice;
+    } else {
+      // data starts as a copy of the cached item, so without this an earlier capture
+      // survives the uncheck and gets re-sent. An item unchecked and re-checked at a
+      // different shop would keep the first shop's price until a new one overwrote it.
+      data.avgPrice = null;
+      data.storePrice = null;
+    }
+
+    if (shareToken) {
+      // No toast: the offline defaults carry one, and they are the only handler that
+      // survives a replay after a reload.
+      updateSharedItemMutation.mutate({ token: shareToken, itemId, data });
+      return;
     }
 
     updateItemMutation.mutate(
+      { listId, itemId, data },
       {
-        listId,
-        itemId,
-        data: updateData,
-      },
-      {
-        onError: (error: Error) => {
-          if (previousData) {
-            queryClient.setQueryData(
-              SHOPPING_LIST_QUERY_KEYS.byId(listId),
-              previousData,
-            );
-          }
+        onError: (error: Error) =>
           toast.error(
             error.message || "Greška pri ažuriranju stavke. Pokušaj ponovno.",
-          );
-        },
-        // Clears the busy flag only; dev deliberately dropped the invalidation here.
-        onSettled: () => setUpdatingItemId(null),
+          ),
       },
     );
   };
@@ -118,46 +112,26 @@ export function useShoppingListItemMutations(
   const handleDeleteItem = async (itemId: string) => {
     setDeletingItemId(itemId);
 
-    // Optimistic update
-    await queryClient.cancelQueries({
-      queryKey: SHOPPING_LIST_QUERY_KEYS.byId(listId),
-    });
-    const previousData = queryClient.getQueryData<ShoppingList>(
-      SHOPPING_LIST_QUERY_KEYS.byId(listId),
-    );
+    if (shareToken) {
+      deleteSharedItemMutation.mutate(
+        { token: shareToken, itemId },
+        {
+          onSuccess: () => toast.success("Stavka je uspješno obrisana!"),
+          onSettled: () => setDeletingItemId(null),
+        },
+      );
+      return;
+    }
 
-    queryClient.setQueryData<ShoppingList | undefined>(
-      SHOPPING_LIST_QUERY_KEYS.byId(listId),
-      (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          items: old.items?.filter((i) => i.id !== itemId),
-        };
-      },
-    );
-
-    // Delete the item
     deleteItemMutation.mutate(
       { listId, itemId },
       {
-        onError: (error: Error) => {
-          if (previousData) {
-            queryClient.setQueryData(
-              SHOPPING_LIST_QUERY_KEYS.byId(listId),
-              previousData,
-            );
-          }
+        onError: (error: Error) =>
           toast.error(
             error.message || "Greška pri brisanju stavke. Pokušaj ponovno.",
-          );
-        },
-        onSuccess: () => {
-          toast.success("Stavka je uspješno obrisana!");
-        },
-        onSettled: () => {
-          setDeletingItemId(null);
-        },
+          ),
+        onSuccess: () => toast.success("Stavka je uspješno obrisana!"),
+        onSettled: () => setDeletingItemId(null),
       },
     );
   };

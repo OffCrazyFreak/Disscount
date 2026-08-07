@@ -3,12 +3,12 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { shoppingListService } from "@/lib/api";
-import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import type {
   ShoppingListDto as ShoppingList,
   ShoppingListRequest,
   ShoppingListItemRequest,
 } from "@/lib/api/types";
+import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 
 export function useShoppingListMutations(
   listId: string,
@@ -61,10 +61,11 @@ export function useShoppingListMutations(
 
     setIsCopying(true);
     try {
-      // Create new shopping list with copied title
+      // Create new shopping list with copied title. Sharing is deliberately not carried
+      // over: a copy is a new object, and inheriting a capability token would mint a live
+      // secret nobody had chosen to hand out. Matches AnyList, Todoist, Notion and Drive.
       const newListData: ShoppingListRequest = {
         title: `${shoppingList.title} (Kopija)`,
-        isPublic: false,
       };
 
       const newList = await shoppingListService.createShoppingList(newListData);
@@ -95,13 +96,26 @@ export function useShoppingListMutations(
         await Promise.all(copyPromises);
       }
 
-      // Invalidate queries to refresh data
-      await queryClient.invalidateQueries({
-        queryKey: SHOPPING_LIST_QUERY_KEYS.all,
-      });
+      // Both roots: the copy creates items, and the flat item list feeds watchlist
+      // suggestions, which would otherwise not see them until something else refetched.
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: SHOPPING_LIST_QUERY_KEYS.all,
+        }),
+        queryClient.invalidateQueries({
+          queryKey: SHOPPING_LIST_QUERY_KEYS.itemsAll,
+        }),
+      ]);
 
-      // Show success toast
-      toast.success("Popis za kupnju je uspješno kopiran!");
+      // Say the copy is private rather than leaving it to be discovered: someone copying
+      // a shared list may well assume the same people can still reach it.
+      const wasShared =
+        !!shoppingList.linkAccess && shoppingList.linkAccess !== "NONE";
+      toast.success(
+        wasShared
+          ? "Popis je kopiran. Kopija nije podijeljena."
+          : "Popis za kupnju je uspješno kopiran!",
+      );
 
       // Navigate to new shopping list
       router.push(`/shopping-lists/${newList.id}`);

@@ -16,7 +16,10 @@ export default function useIndicatorOpacity(isSearchActive: boolean) {
   const [wasSearchActive, setWasSearchActive] = useState(isSearchActive);
 
   // Deliberately after the commit, not during render: the disc has to mount with
-  // the previous value to have something to animate away from.
+  // the previous value to have something to animate away from. Adjusting during
+  // render, which is what the lint wants, would land the new value in the same
+  // commit as the new disc and there would be no transition left to play.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setWasSearchActive(isSearchActive), [isSearchActive]);
 
   return { from: wasSearchActive ? 0 : 1, to: isSearchActive ? 0 : 1 };

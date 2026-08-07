@@ -28,7 +28,11 @@ export default function useTabReentry() {
   const [saved, setSaved] = useState<ISavedPosition | null>(null);
   const pathname = usePathname();
 
-  // A position saved on one route means nothing on the next one.
+  // A position saved on one route means nothing on the next one. React's documented
+  // alternative, adjusting during render against a previous-pathname state, would
+  // work here and buys nothing: it trades this line for a second piece of state, and
+  // `saved` is only ever read by `reenter`, which cannot run during that render.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setSaved(null), [pathname]);
 
   const reenter = useCallback(() => {

@@ -11,9 +11,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { StepperNumberInput } from "@/components/custom/form/stepper-number-input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { WatchType } from "@/lib/api";
 import type { WatchlistItemDto } from "@/lib/api/schemas/watchlist";
 import {
+  thresholdField,
   WatchlistFormData,
   watchlistLimits,
 } from "@/app/products/typings/watchlist-form";
@@ -27,15 +29,21 @@ function thresholdSteps(watchType: WatchType, minPrice: number) {
 interface IWatchlistThresholdInputProps {
   minPrice: number;
   existingItemForType?: WatchlistItemDto;
+  // The tracked threshold is still being fetched, so any number shown now would be
+  // a guess that changes under the user a moment later.
+  loading?: boolean;
 }
 
 export default function WatchlistThresholdInput({
   minPrice,
   existingItemForType,
+  loading = false,
 }: IWatchlistThresholdInputProps) {
   const form = useFormContext<WatchlistFormData>();
   const watchType = form.watch("watchType");
-  const rawValue = form.watch("thresholdValue");
+  // Each mode keeps its own number, so this renders whichever one is selected.
+  const name = thresholdField(watchType);
+  const rawValue = form.watch(name);
 
   const { min, max } = watchlistLimits(watchType);
   const steps = thresholdSteps(watchType, minPrice);
@@ -44,7 +52,7 @@ export default function WatchlistThresholdInput({
   return (
     <FormField
       control={form.control}
-      name="thresholdValue"
+      name={name}
       render={({ field }) => (
         <FormItem>
           <FormLabel>
@@ -53,18 +61,22 @@ export default function WatchlistThresholdInput({
           </FormLabel>
 
           <FormControl>
-            <StepperNumberInput
-              value={field.value}
-              onChange={field.onChange}
-              steps={steps}
-              min={min}
-              max={max}
-              integer={watchType === WatchType.percentage}
-              placeholder={
-                watchType === WatchType.absolute ? "Npr. 12" : "Npr. 15"
-              }
-              ariaLabel="Prag sniženja"
-            />
+            {loading ? (
+              <Skeleton className="my-2 h-14 w-full" />
+            ) : (
+              <StepperNumberInput
+                value={field.value}
+                onChange={field.onChange}
+                steps={steps}
+                min={min}
+                max={max}
+                integer={watchType === WatchType.percentage}
+                placeholder={
+                  watchType === WatchType.absolute ? "Npr. 12" : "Npr. 15"
+                }
+                ariaLabel="Prag sniženja"
+              />
+            )}
           </FormControl>
 
           {existingItemForType &&

@@ -18,8 +18,13 @@ interface ISettlingNavigation {
 export default function useSettlingNavPreview(routeKey: string) {
   const [settling, setSettling] = useState<ISettlingNavigation | null>(null);
 
-  // Spent as soon as the route it was waiting on is no longer current.
+  // Spent as soon as the route it was waiting on is no longer current. The read
+  // below already ignores a stale record, so this is the release, not the
+  // correctness guard: it stops a spent record re-matching when the user returns to
+  // the same routeKey later. A previous-routeKey render adjustment would also cover
+  // that, at the cost of a second piece of state.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (settling && settling.routeKey !== routeKey) setSettling(null);
   }, [settling, routeKey]);
 

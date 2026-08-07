@@ -1,4 +1,4 @@
-import { Separator } from "@/components/ui/separator";
+import PriceStack from "@/components/custom/price/price-stack";
 import { formatQuantity } from "@/utils/strings";
 import {
   getMinPrice,
@@ -36,68 +36,72 @@ export default function ProductUnitPriceDetails({
       ? getMaxPricePerUnit(product)
       : getPricePerUnit(maxPrice, quantity);
 
+  const hasUnitPrices =
+    minPricePerUnit !== undefined &&
+    maxPricePerUnit !== undefined &&
+    !!product.unit;
+
   return (
-    <div>
-      <div className="text-sm sm:text-md flex items-center justify-center flex-col sm:flex-row gap-2">
-        {product.quantity && product.unit && (
-          <div className="flex gap-2">
-            {formatQuantity(product.quantity) + " " + product.unit}
-            <span className="text-gray-700 hidden sm:inline">~</span>
-          </div>
-        )}
+    <PriceStack
+      primaryClassName="max-sm:flex-col"
+      primary={
+        <>
+          {product.quantity && product.unit && (
+            <span className="flex items-center gap-2">
+              {formatQuantity(product.quantity) + " " + product.unit}
+              <span className="text-gray-700 hidden sm:inline">~</span>
+            </span>
+          )}
 
-        {minPrice != null && maxPrice != null ? (
-          <div className="font-bold text-md text-center">
-            <div className="text-sm sm:text-md flex items-center gap-1">
-              {minPrice === maxPrice ? (
-                <span className="text-gray-700">{minPrice.toFixed(2)}€</span>
-              ) : (
-                <>
-                  <span className="text-green-700">{minPrice.toFixed(2)}€</span>
-                  <span className="text-gray-700"> - </span>
-                  <span className="text-red-700">{maxPrice.toFixed(2)}€</span>
-                </>
+          {minPrice != null && maxPrice != null ? (
+            // Groups the figures with their info button, so the icon cannot drop
+            // to a line of its own where the tier stacks on a narrow card.
+            <span className="flex items-center gap-2">
+              {/* Tighter than the group's gap, since the dash already spaces the
+                  two figures. */}
+              <span className="flex items-center gap-1 font-bold">
+                {minPrice === maxPrice ? (
+                  <span className="text-gray-700">{minPrice.toFixed(2)}€</span>
+                ) : (
+                  <>
+                    <span className="text-green-700">
+                      {minPrice.toFixed(2)}€
+                    </span>
+                    <span className="text-gray-700"> - </span>
+                    <span className="text-red-700">{maxPrice.toFixed(2)}€</span>
+                  </>
+                )}
+              </span>
+
+              {/* A single figure is not a range, so there is no scope to explain.
+                  One store always reports the same min and max. */}
+              {price && minPrice !== maxPrice && (
+                <ProductPriceScopeInfo scope={price.scope} />
               )}
-
-              {price && <ProductPriceScopeInfo scope={price.scope} />}
-            </div>
-
-            {/* <div className="text-green-600">{minPrice.toFixed(2)}€</div>
-          <Separator className="px-10 mb-1" />
-          <div className="text-xs text-gray-500">
-            {averagePrice.toFixed(2)}€
-          </div> */}
-          </div>
+            </span>
+          ) : (
+            <span className="text-gray-500">Nepoznata cijena</span>
+          )}
+        </>
+      }
+      secondary={
+        hasUnitPrices &&
+        (minPricePerUnit === maxPricePerUnit ? (
+          <span className="text-gray-700">
+            {`${minPricePerUnit.toFixed(2)}€/${product.unit}`}
+          </span>
         ) : (
-          <div className="text-gray-500 text-sm">Nepoznata cijena</div>
-        )}
-      </div>
-
-      {minPricePerUnit !== undefined &&
-        maxPricePerUnit !== undefined &&
-        product.unit && (
           <>
-            <Separator className="px-10 mb-1" />
-
-            <div className="text-sm sm:text-md flex items-center justify-center gap-1">
-              {minPricePerUnit === maxPricePerUnit ? (
-                <span className="text-gray-700">
-                  {`${minPricePerUnit.toFixed(2)}€/${product.unit}`}
-                </span>
-              ) : (
-                <>
-                  <span className="text-green-700">
-                    {`${minPricePerUnit.toFixed(2)}€/${product.unit}`}
-                  </span>
-                  <span className="text-gray-700"> - </span>
-                  <span className="text-red-700">
-                    {`${maxPricePerUnit.toFixed(2)}€/${product.unit}`}
-                  </span>
-                </>
-              )}
-            </div>
+            <span className="text-green-700">
+              {`${minPricePerUnit.toFixed(2)}€/${product.unit}`}
+            </span>
+            <span className="text-gray-700"> - </span>
+            <span className="text-red-700">
+              {`${maxPricePerUnit.toFixed(2)}€/${product.unit}`}
+            </span>
           </>
-        )}
-    </div>
+        ))
+      }
+    />
   );
 }

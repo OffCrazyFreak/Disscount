@@ -126,6 +126,13 @@ export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
       data-scroll-behavior="smooth"
       className="scroll-pb-[var(--bottom-nav-total)] md:scroll-pb-0"
     >
+      {/* Chrome fires beforeinstallprompt before React hydrates, and never
+          re-fires it, so the React-side listener alone can miss it and lose the
+          native prompt. use-install-prompt.ts adopts whatever this catches. */}
+      <Script id="install-prompt-capture" strategy="beforeInteractive">
+        {`window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__installPrompt=e;});`}
+      </Script>
+
       {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
         <Script
           defer
@@ -167,7 +174,9 @@ export default function RootLayout({ children }: Readonly<IRootLayoutProps>) {
               </Suspense>
             </aside>
 
-            <main className="max-w-4xl mx-auto px-4 pt-4 mt-24 w-full overflow-clip">
+            {/* Clip the x axis only. Clipping both axes cut the last child's
+                bottom border and shadow off, since main has no bottom padding. */}
+            <main className="max-w-4xl mx-auto px-4 pt-4 mt-24 w-full overflow-x-clip">
               {children}
             </main>
 

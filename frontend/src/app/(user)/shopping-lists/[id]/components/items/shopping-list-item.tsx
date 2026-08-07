@@ -11,6 +11,7 @@ import ItemPriceDisplay from "@/app/(user)/shopping-lists/[id]/components/items/
 import type { IShoppingListItemUpdate } from "@/app/(user)/shopping-lists/[id]/typings/shopping-list-item-types";
 import { cn } from "@/lib/utils";
 import { productPath } from "@/utils/product-links";
+import { SHARED_ACCESS_BANNER_ID } from "@/app/(user)/shopping-lists/utils/shopping-list-access";
 
 interface IShoppingListItemProps {
   item: ShoppingListItemDto;
@@ -24,6 +25,10 @@ interface IShoppingListItemProps {
   isFirst: boolean;
   isLast: boolean;
   showSeparator: boolean;
+  /** Ticking off and switching store: the in-the-shop actions. */
+  canCheck: boolean;
+  /** Amount and removal. */
+  canEditItems: boolean;
 }
 
 export default function ShoppingListItem({
@@ -38,6 +43,8 @@ export default function ShoppingListItem({
   isFirst,
   isLast,
   showSeparator,
+  canCheck,
+  canEditItems,
 }: IShoppingListItemProps) {
   return (
     <>
@@ -52,6 +59,8 @@ export default function ShoppingListItem({
             }
             className="relative z-20"
             checked={item.isChecked}
+            disabled={!canCheck}
+            aria-describedby={canCheck ? undefined : SHARED_ACCESS_BANNER_ID}
             onCheckedChange={(checked) =>
               onUpdate({
                 isChecked: checked as boolean,
@@ -89,11 +98,13 @@ export default function ShoppingListItem({
           </div>
 
           {/* Delete button - shown on mobile in same row as item name */}
-          <RemoveItemButton
-            visibilityClassName="relative z-20 sm:hidden"
-            onDelete={onDelete}
-            isDeleting={isDeleting}
-          />
+          {canEditItems && (
+            <RemoveItemButton
+              visibilityClassName="relative z-20 sm:hidden"
+              onDelete={onDelete}
+              isDeleting={isDeleting}
+            />
+          )}
         </div>
 
         {/* Right side: Amount controls, price, and remove button */}
@@ -105,6 +116,7 @@ export default function ShoppingListItem({
               <ItemAmountControls
                 item={item}
                 onUpdate={onUpdate}
+                canEdit={canEditItems}
                 isUpdating={isUpdating}
               />
             </div>
@@ -119,7 +131,8 @@ export default function ShoppingListItem({
                   chainCode,
                 })
               }
-              disabled={item.isChecked}
+              disabled={item.isChecked || !canCheck}
+              describedById={canCheck ? undefined : SHARED_ACCESS_BANNER_ID}
               defaultValue={cheapestStore}
               storePrices={storePrices}
               averagePrice={averagePrice}
@@ -130,11 +143,13 @@ export default function ShoppingListItem({
           </div>
 
           {/* Remove button - hidden on mobile, shown on larger screens */}
-          <RemoveItemButton
-            visibilityClassName="relative z-20 hidden sm:flex"
-            onDelete={onDelete}
-            isDeleting={isDeleting}
-          />
+          {canEditItems && (
+            <RemoveItemButton
+              visibilityClassName="relative z-20 hidden sm:flex"
+              onDelete={onDelete}
+              isDeleting={isDeleting}
+            />
+          )}
         </div>
       </div>
 

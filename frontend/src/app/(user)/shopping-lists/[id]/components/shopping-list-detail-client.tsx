@@ -81,7 +81,8 @@ export default function ShoppingListDetailClient({
       {shoppingList && (
         <div className="space-y-8">
           <section>
-            <ShoppingListHeader shoppingList={shoppingList} />
+            {/* This route is behind the auth gate, so the caller is always signed in. */}
+            <ShoppingListHeader shoppingList={shoppingList} isSignedIn={true} />
 
             {listUpdatedAt > 0 && (
               <LastSyncedLabel

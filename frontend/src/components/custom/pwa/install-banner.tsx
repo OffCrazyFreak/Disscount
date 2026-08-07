@@ -24,7 +24,11 @@ export default function InstallBanner() {
   const [instructionsOpen, setInstructionsOpen] = useState(false);
 
   useEffect(() => {
-    // Read the persisted snooze on the client to avoid a hydration mismatch.
+    // Read the persisted snooze on the client to avoid a hydration mismatch. It
+    // compares a stored timestamp against Date.now(), so neither the value nor the
+    // comparison exists on the server. Starts dismissed, so the banner cannot flash
+    // before the snooze is known.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDismissed(isInstallBannerSnoozed());
   }, []);
 

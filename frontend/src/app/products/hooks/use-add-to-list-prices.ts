@@ -29,10 +29,14 @@ export function useAddToListPrices(
     if (!product) return;
     let ignore = false;
 
-    // Drop the previous product's prices so switching products can't submit stale data mid-fetch.
+    // Drop the previous product's prices so switching products can't submit stale
+    // data mid-fetch. This clears state the async fetch below owns, so it belongs
+    // with the fetch and its `ignore` cleanup rather than in render.
+    /* eslint-disable react-hooks/set-state-in-effect */
     setStorePrices({});
     setAveragePrice(null);
     setCheapestStore(null);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     async function fetchPrices() {
       if (!product) return;

@@ -6,16 +6,29 @@ import type { IShoppingListItemUpdate } from "@/app/(user)/shopping-lists/[id]/t
 interface IItemAmountControlsProps {
   item: ShoppingListItemDto;
   onUpdate: (updatedItem: IShoppingListItemUpdate) => void;
+  canEdit: boolean;
   isUpdating: boolean;
 }
 
 export default function ItemAmountControls({
   item,
   onUpdate,
+  canEdit,
   isUpdating,
 }: IItemAmountControlsProps) {
-  // No spinner here on purpose: the write is optimistic, so the new amount is
-  // already rendered and swapping in a loader would flicker on every tap.
+  // The amount is information, not just a control, so a read-only visitor still sees it.
+  // Only the buttons go away, rather than sitting there permanently disabled.
+  if (!canEdit) {
+    return (
+      <span className="relative z-20 text-center min-w-8">
+        <span className="sr-only">Količina: </span>
+        {item.amount}
+      </span>
+    );
+  }
+
+  // No spinner below on purpose: the write is optimistic, so the new amount is already
+  // rendered and swapping in a loader would flicker on every tap. aria-busy carries it.
   return (
     // The wrapper itself takes pointer events. Leaving it inert and re-enabling
     // only its buttons lost to Button's own disabled:pointer-events-none, which

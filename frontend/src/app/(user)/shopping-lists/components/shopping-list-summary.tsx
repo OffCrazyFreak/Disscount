@@ -28,7 +28,7 @@ export default function ShoppingListSummary({
           {shoppingList.title}
         </h3>
 
-        <ShoppingListVisibilityIndicator isPublic={shoppingList.isPublic} />
+        <ShoppingListVisibilityIndicator linkAccess={shoppingList.linkAccess} />
       </div>
 
       <div className="flex items-center gap-6 text-sm text-muted-foreground">

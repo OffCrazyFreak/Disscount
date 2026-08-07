@@ -11,10 +11,10 @@ import { cn } from "@/lib/utils";
  * its placeholder having identical geometry is the whole reason nothing shifts.
  */
 export const PRODUCT_SUMMARY_ROW_CLASSES =
-  "flex flex-col justify-between gap-3 px-3 py-2 @min-[300px]:flex-row @min-[300px]:items-center @md:gap-4 @md:px-6 @md:py-4";
+  "flex flex-col justify-between gap-3 px-3 py-2 @min-[300px]:flex-row @min-[300px]:items-center @md:gap-4 @md:px-4 @md:py-3";
 
 export const PRODUCT_SUMMARY_IMAGE_CLASSES =
-  "hidden @md:block size-16 @lg:size-20 shrink-0 rounded-lg object-contain";
+  "hidden @md:block size-16 shrink-0 rounded-lg object-contain";
 
 interface IProductSummaryProps {
   name: string | null;

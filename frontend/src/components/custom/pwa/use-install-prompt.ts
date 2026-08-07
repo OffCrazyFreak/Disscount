@@ -13,6 +13,14 @@ interface IOSNavigator extends Navigator {
   standalone?: boolean;
 }
 
+// Where the beforeInteractive script in the root layout stashes the event it
+// catches before hydration.
+declare global {
+  interface Window {
+    __installPrompt?: IBeforeInstallPromptEvent;
+  }
+}
+
 // Every display mode that means "already installed". Checking only standalone
 // missed two: the spec falls standalone back to minimal-ui where it is not
 // supported, and a desktop install can report window-controls-overlay.
@@ -130,21 +138,34 @@ function setState(patch: Partial<IInstallState>) {
   listeners.forEach((listener) => listener());
 }
 
+// Drop the event from both places it lives. The stash outlives the module under
+// Fast Refresh, so leaving it behind lets the next init() re-adopt a spent
+// event, and a second prompt() on one of those only ever throws.
+function clearPrompt() {
+  delete window.__installPrompt;
+  setState({ deferredPrompt: null });
+}
+
 // Attach the window listeners exactly once, on the first subscription.
 function init() {
   if (initialized || typeof window === "undefined") return;
   initialized = true;
 
+  // Still needed for events that arrive after hydration: the early script is
+  // only the safety net for the ones that arrive before it.
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
+    window.__installPrompt = event as IBeforeInstallPromptEvent;
     setState({ deferredPrompt: event as IBeforeInstallPromptEvent });
   });
 
   window.addEventListener("appinstalled", () => {
-    setState({ deferredPrompt: null, isStandalone: true });
+    clearPrompt();
+    setState({ isStandalone: true });
   });
 
   setState({
+    deferredPrompt: window.__installPrompt ?? null,
     isStandalone: detectStandalone(),
     isIOSInstallCapable: detectIOSInstallCapable(),
     platform: detectPlatform(),
@@ -170,15 +191,31 @@ function getServerSnapshot() {
   return SERVER_STATE;
 }
 
+let prompting = false;
+
 async function promptInstall() {
   const { deferredPrompt } = state;
-  if (!deferredPrompt) return;
+  if (!deferredPrompt || prompting) return;
 
-  // One-shot: clear before awaiting so a second banner can't reuse the event.
-  setState({ deferredPrompt: null });
+  // Deduped with a flag rather than by clearing, so the surfaces stay honest
+  // while the native sheet is open: three of them can be mounted at once, and
+  // clearing first would flip them to the manual instructions mid-prompt.
+  prompting = true;
 
-  await deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
+  try {
+    await deferredPrompt.prompt();
+
+    // prompt() may only be called once per event, so a dismissal spends it just
+    // as an accept does. Clearing here rather than up front means the surfaces
+    // fall through to the manual instructions on the very next click, with no
+    // dead click on a spent event in between.
+    await deferredPrompt.userChoice;
+  } catch {
+    // An already-spent or invalid event rejects; same outcome either way.
+  } finally {
+    clearPrompt();
+    prompting = false;
+  }
 }
 
 export function useInstallPrompt() {

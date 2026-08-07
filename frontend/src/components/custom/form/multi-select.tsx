@@ -107,7 +107,16 @@ export function MultiSelect({
   return (
     <MultiSelectContext value={context}>
       {presentation === "inline" ? (
-        <Collapsible open={open} onOpenChange={handleOpenChange}>
+        // Only this branch puts a box between the caller's layout and the
+        // trigger, since Collapsible's root is a real div where Popover's is
+        // nothing. It has no overflow-hidden of its own to zero the automatic
+        // minimum a flex or grid parent gives it, so it would size to the badge
+        // row's min-content, and a row that cannot shrink never overflows.
+        <Collapsible
+          className="min-w-0"
+          open={open}
+          onOpenChange={handleOpenChange}
+        >
           {children}
         </Collapsible>
       ) : (

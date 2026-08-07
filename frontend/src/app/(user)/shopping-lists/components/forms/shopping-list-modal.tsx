@@ -61,7 +61,10 @@ export default function ShoppingListModal({
   const form = useForm<ShoppingListRequest>({
     resolver: zodResolver(shoppingListRequestSchema),
     mode: "onChange",
-    defaultValues: { title: "", isPublic: false },
+    // No linkAccess here on purpose: sharing lives in its own modal, and the backend
+    // treats an absent linkAccess on PUT as "leave it alone", so renaming a shared list
+    // from here cannot silently unshare it.
+    defaultValues: { title: "" },
   });
 
   // Destructured, never read inline: formState is a Proxy that subscribes to a
@@ -76,7 +79,6 @@ export default function ShoppingListModal({
 
     const base = {
       title: shoppingList.title,
-      isPublic: shoppingList.isPublic ?? false,
     };
     form.reset(base);
 

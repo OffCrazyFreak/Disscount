@@ -21,6 +21,18 @@ export function setFormDraft(key: string, values: Record<string, unknown>) {
   setAppStorage({ formDrafts: drafts });
 }
 
+// For a form whose fields are saved one at a time: dropping the saved field must
+// not throw away what the user typed into the others.
+export function removeFormDraftField(key: string, field: string) {
+  const draft = getFormDraft(key);
+  if (!draft || !(field in draft.values)) return;
+
+  const { [field]: _saved, ...rest } = draft.values;
+
+  if (Object.keys(rest).length === 0) removeFormDraft(key);
+  else setFormDraft(key, rest);
+}
+
 export function removeFormDraft(key: string) {
   const drafts = { ...getAppStorage().formDrafts };
   if (!(key in drafts)) return;

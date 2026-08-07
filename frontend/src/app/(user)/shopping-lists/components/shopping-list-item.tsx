@@ -47,7 +47,9 @@ export default function ShoppingListListItem({
         </h3>
 
         <div className="relative z-20 flex items-center gap-1 sm:hidden">
-          <ShoppingListVisibilityIndicator isPublic={shoppingList.isPublic} />
+          <ShoppingListVisibilityIndicator
+            linkAccess={shoppingList.linkAccess}
+          />
         </div>
 
         <div className="relative z-10 col-span-2 flex items-center justify-between gap-4 text-sm text-gray-600 sm:col-span-1 sm:justify-start sm:gap-6">
@@ -69,14 +71,15 @@ export default function ShoppingListListItem({
           className="relative z-20 hidden items-center gap-1 sm:flex sm:gap-2"
           {...actionProps}
         >
-          <ShoppingListVisibilityIndicator isPublic={shoppingList.isPublic} />
+          <ShoppingListVisibilityIndicator
+            linkAccess={shoppingList.linkAccess}
+          />
           <ShoppingListActionButtons
             shoppingList={shoppingList}
             showCopyButton={true}
             showShareButton={true}
             showEditButton={true}
             showDeleteButton={true}
-            mobilePresentation="none"
           />
         </div>
       </div>

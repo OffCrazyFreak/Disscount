@@ -1,10 +1,10 @@
 "use client";
 
-import { Copy, Mail, MailOpen, RotateCcw, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { Mail, MailOpen, RotateCcw, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import CopyButton from "@/components/custom/common/copy-button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import { LOADING_LABELS } from "@/constants/loading-labels";
@@ -44,15 +44,6 @@ export default function AdminContactRow({
       : "Označi nepročitano";
   const deleteLabel = isDeleting ? LOADING_LABELS.deleting : "Obriši poruku";
   const restoreLabel = isRestoring ? LOADING_LABELS.restoring : "Vrati poruku";
-
-  async function copyEmail() {
-    try {
-      await navigator.clipboard.writeText(email);
-      toast.success("E-mail adresa je kopirana!");
-    } catch {
-      toast.error("Greška pri kopiranju e-maila");
-    }
-  }
 
   return (
     <TableRow className={unread ? "font-medium" : undefined}>
@@ -108,15 +99,12 @@ export default function AdminContactRow({
           </Button>
 
           {email && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label="Kopiraj e-mail"
-              onClick={copyEmail}
-            >
-              <Copy />
-            </Button>
+            <CopyButton
+              value={email}
+              label="Kopiraj e-mail"
+              successMessage="E-mail adresa je kopirana!"
+              errorMessage="Greška pri kopiranju e-maila"
+            />
           )}
 
           {isDeleted ? (
