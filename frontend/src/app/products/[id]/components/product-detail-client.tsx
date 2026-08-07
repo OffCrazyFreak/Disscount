@@ -17,7 +17,7 @@ export default function ProductDetailClient({
   ean,
 }: IProductDetailClientProps) {
   const detail = useProductDetail(ean);
-  const { product, productPending, productError } = detail;
+  const { product, productPending, pricesPending, productError } = detail;
 
   const pending = useDataPending(productPending);
 
@@ -43,7 +43,14 @@ export default function ProductDetailClient({
           </section>
 
           <section>
-            <PriceHistory key={product.ean} product={product} />
+            {/* Last on the page on purpose. This section issues one request per day
+                in the window, so starting it before the product's own prices land
+                would put them behind seven or thirty competing requests. */}
+            <PriceHistory
+              key={product.ean}
+              product={product}
+              enabled={!pricesPending}
+            />
           </section>
 
           <section>

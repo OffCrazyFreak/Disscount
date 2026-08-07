@@ -105,7 +105,12 @@ export default function SharedShoppingListClient({
           </section>
 
           <section>
-            <ShoppingListPriceHistory shoppingList={shoppingList} />
+            {/* Gated for the same reason as the owner's page: one request per item per
+                day would otherwise race the items' own prices. */}
+            <ShoppingListPriceHistory
+              shoppingList={shoppingList}
+              enabled={!isPricesLoading}
+            />
           </section>
 
           <section>

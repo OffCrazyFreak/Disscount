@@ -74,14 +74,34 @@ export function useAllLocations() {
   };
 }
 
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, type UseQueryResult } from "@tanstack/react-query";
 import { formatDate } from "@/utils/strings";
+import { useDataPending } from "@/lib/query/use-data-pending";
+import { useSettledOnce } from "@/lib/query/use-settled-once";
 import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";
 import type { IUsePriceHistoryArgs } from "@/lib/cijene-api/hooks-types";
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import { CACHE_TIMES } from "@/lib/query/cache-times";
 import { buildDateWindow } from "@/utils/date";
 import { PRICE_ARCHIVE_START } from "@/constants/price-history";
+
+interface ICombinedHistoryQueries {
+  results: UseQueryResult<ProductResponse, Error>[];
+  isPending: boolean;
+  isError: boolean;
+}
+
+// Module scope so TanStack can memoise the combined result. One request per day means
+// this array is long, and rebuilding it every render re-ran every downstream useMemo.
+function combineHistoryQueries(
+  results: UseQueryResult<ProductResponse, Error>[],
+): ICombinedHistoryQueries {
+  return {
+    results,
+    isPending: results.some((result) => result.isPending),
+    isError: results.some((result) => result.isError),
+  };
+}
 
 /**
  * Fetch product price snapshots for the last N days in parallel
@@ -91,27 +111,40 @@ import { PRICE_ARCHIVE_START } from "@/constants/price-history";
  * @returns Object containing history data, chains, loading/error states
  */
 
-export function usePriceHistory({ ean, days = 7 }: IUsePriceHistoryArgs) {
+export function usePriceHistory({
+  ean,
+  days = 7,
+  enabled = true,
+}: IUsePriceHistoryArgs) {
   const dates = useMemo(
     () => buildDateWindow(days, PRICE_ARCHIVE_START),
     [days],
   );
 
-  const queries = useQueries({
+  // Latched, so a background refetch of the page's own data cannot close the gate again
+  // and blank a chart that is already on screen.
+  const gate = useSettledOnce(enabled);
+
+  const combined = useQueries({
     queries: dates.map((date, index) => ({
       queryKey: CIJENE_QUERY_KEYS.productHistory(ean, date),
       queryFn: () => cijeneService.getProductByEan({ ean, date }),
-      enabled: !!ean,
+      enabled: gate && !!ean,
       // Only the window's edges can still be revised upstream.
       staleTime:
         index === 0 || index === dates.length - 1
           ? CACHE_TIMES.priceHistoryEdge
           : CACHE_TIMES.priceHistoryArchived,
     })),
+    combine: combineHistoryQueries,
   });
+  const queries = combined.results;
 
-  const isLoading = queries.some((q) => q.isLoading);
-  const isError = queries.some((q) => q.isError);
+  // isPending, not isLoading, and the gate folded in: a disabled query reports isFetching
+  // false, so isLoading would read false with no data and the panel would render its
+  // "no history" branch instead of a skeleton while it waits its turn.
+  const isLoading = useDataPending(!gate || combined.isPending);
+  const isError = combined.isError;
 
   const { data, chains } = useMemo(() => {
     // collect all chain codes seen across all days

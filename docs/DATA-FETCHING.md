@@ -140,8 +140,22 @@ Two things ride on that. The scope segment is what `lib/offline/cached-query-key
 | `priceHistoryEdge`     | 1 min  | The newest archived day can still be revised upstream                              |
 | `priceHistoryArchived` | 6 h    | Older archived days never change again                                             |
 | `health`               | 30 s   | A health probe that is cached is not a health probe                                |
+| `sharedList`           | 30 s   | Two people shopping one list need each other's ticks without a reload              |
 
 `staleTime` is how long data counts as fresh. Retention is `gcTime`, set once in the provider to match the persister's `maxAge`.
+
+### Deferring a fan-out until the page settles
+
+Price history is the app's widest fetch: one request per day on a product page (7 on the default `1W`), and one per EAN per day on a shopping list, so a ten-item list is 70 parallel requests and 300 on `1M`. It never fed a page's `pending` flag, but it saturated the connection pool and everything else queued behind it.
+
+Both hooks now take an `enabled` flag, and each detail page passes whatever it still has in flight after its own skeleton clears: `!pricesPending` on `/products/[id]`, `!isPricesLoading` on the two shopping list routes. Price history renders last in the section order for the same reason.
+
+`lib/query/use-settled-once.ts` latches that flag. The flags describing a settled page go back to pending when it refetches (adding a list item refires the per-EAN price queries), and a gate that followed them would disable a query that already has data, which paints a skeleton over a chart the user is reading.
+
+Two things are easy to get wrong here:
+
+- The gate has to be folded into the hook's own pending flag, the way `useAuthedQuery` does with `enabled && query.isPending`. A disabled query reports `isFetching: false`, so a plain `isLoading` reads `false` with no data and the panel renders "no history" while it is still waiting its turn.
+- Both fan-outs pass a module-scope `combine` to `useQueries`. Without it every result object is a new identity each render, and at 70 results that re-ran the entire chart pipeline downstream.
 
 ---
 
@@ -307,6 +321,7 @@ Each data-driven route has its own `loading.tsx` rendering that route's page ske
 | `/products`            | `ProductsSkeleton` (also the page's Suspense fallback) |
 | `/products/[id]`       | `ProductDetailSkeleton`                                |
 | `/watchlist`           | `WatchlistSkeleton`                                    |
+| `/s/[token]`           | `SharedShoppingListSkeleton`                           |
 | everything else        | `app/loading.tsx` renders `PageShellSkeleton`          |
 
 A page skeleton must mirror the **stored default open state** of its collapsible sections, or the page height jumps as soon as the real component reads localStorage:
@@ -351,7 +366,7 @@ Counts are clamped to 1 to 8, so a long list does not paint a wall of grey. `use
 The persisted cache is documented in full in [PWA.md](PWA.md#5-offline-reads-caching-and-persistence). Two things bind it to this layer:
 
 1. **Key roots are load-bearing.** `lib/offline/cached-query-keys.ts` allowlists dehydration by the _top-level_ key string (`cijene`, `shoppingLists`, `watchlist`, and so on), and `lib/offline/purge.ts` treats `cijene` as the public root that survives logout. The key factories deliberately keep those roots spelled exactly as before, and each `keys.ts` says so in a comment.
-2. **Changing key shapes needs a buster bump.** Entries written under the old shape would never be read again, so `CACHE_BUSTER` in `lib/offline/persister.ts` went from `"1"` to `"2"`. Every existing user takes one cold load after that deploys, then it is back to normal.
+2. **Changing key shapes needs a buster bump.** Entries written under the old shape would never be read again, so `CACHE_BUSTER` in `lib/offline/persister.ts` was bumped. It is at `"4"`, sharing a counter with two unrelated breaking changes the sharing work made (`"2"` reshaped `ShoppingListDto`, `"3"` moved the entry to a per-identity key). Every existing user takes one cold load after that deploys, then it is back to normal.
 
 ---
 
@@ -379,6 +394,7 @@ The persisted cache is documented in full in [PWA.md](PWA.md#5-offline-reads-cac
 | `frontend/src/lib/query/cache-times.ts`                   | Named `staleTime` windows                                 |
 | `frontend/src/lib/query/use-authed-query.ts`              | Session-gated query, returns `pending` and `requiresAuth` |
 | `frontend/src/lib/query/use-data-pending.ts`              | Restore-aware pending flag                                |
+| `frontend/src/lib/query/use-settled-once.ts`              | One-way latch that gates a fan-out until the page settles |
 | `frontend/src/lib/api/<domain>/keys.ts`                   | Query key factory per domain                              |
 | `frontend/src/lib/api/<domain>/queries.ts`                | axios fetchers                                            |
 | `frontend/src/lib/api/<domain>/hooks.ts`                  | `queryOptions()` descriptors + mutation hooks             |
@@ -465,9 +481,19 @@ Not specific to this layer, but it bit during the work. The worktree's `node_mod
 
 ---
 
+### 13.8 A disabled query reports `isLoading: false`
+
+**The trap.** `isLoading` is `isPending && isFetching`, and a query with `enabled: false` never fetches. So the moment you gate a fan-out, its `isLoading` reads `false` with no data, and the section renders its empty or error branch while it is still waiting for the gate to open. This is the same shape as the restore-window bug, from a different cause.
+
+**The fix.** Fold the gate into the pending flag, the way `useAuthedQuery` does: `useDataPending(!gate || combined.isPending)`. Both price-history hooks do this.
+
+---
+
 ## 14. Future improvements & TODOs
 
 - **Prefetch on hover or viewport entry.** `useProductNavigation` already seeds the product cache before pushing a route. The same trick would suit shopping list cards, so opening one is a cache hit.
+- **Deduplicate the two price-history hooks.** `usePriceHistory` and `useShoppingListPriceHistory` implement the same day-window fan-out twice, and neither reuses `useProductsByEans`, so today's snapshot is fetched twice per EAN under two different keys (`productHistory(ean, today)` and `productByEan({ ean })`). Folding them together means reworking the chart data pipeline that sits on top, so it wants its own commit. Roughly one to two hours.
+- **Fetch a day window in one request.** `1Y` and `ALL` are disabled in `constants/price-history.ts` purely because the fan-out would be 365 requests. An upstream range endpoint (senko/cijene-api #62 and #45) would retire both the disabling and the gate above.
 
 ### TODO: server-side prefetch with `HydrationBoundary`
 

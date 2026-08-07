@@ -8,6 +8,7 @@ import StoreChainMultiSelect from "@/components/custom/store-chain/store-chain-m
 import PriceHistoryPeriodSelect from "@/components/custom/price/price-history-period-select";
 import PriceChangeDisplay from "@/components/custom/price/price-change-display";
 import ChartSkeleton from "@/components/custom/skeleton/chart-skeleton";
+import AsyncSection from "@/components/custom/common/async-section";
 import { ShoppingListDto } from "@/lib/api/types";
 import { PeriodOption } from "@/typings/history-period-options";
 import { DISABLED_PERIODS, getEnabledPeriod } from "@/constants/price-history";
@@ -21,12 +22,24 @@ import { useShoppingListPriceHistory } from "@/app/(user)/shopping-lists/[id]/ho
 import ShoppingListPriceHistoryChart from "@/app/(user)/shopping-lists/[id]/components/price-history/shopping-list-price-history-chart";
 import PriceHistoryToggleHeader from "@/app/(user)/shopping-lists/[id]/components/price-history/price-history-toggle-header";
 
+/** Same copy whether a day failed or the list simply has no history behind it. */
+function NoPriceHistory() {
+  return (
+    <div className="text-center py-8">
+      <p className="text-gray-600">Nema dostupnih povijesnih podataka.</p>
+    </div>
+  );
+}
+
 interface IShoppingListPriceHistoryProps {
   shoppingList: ShoppingListDto;
+  /** False until the page's own price fetches have settled. See useSettledOnce. */
+  enabled?: boolean;
 }
 
 export default function ShoppingListPriceHistory({
   shoppingList,
+  enabled = true,
 }: IShoppingListPriceHistoryProps) {
   const [period, setPeriod] = useState<PeriodOption>(() =>
     getEnabledPeriod(getShoppingListPriceHistoryPeriod(shoppingList.id)),
@@ -47,7 +60,7 @@ export default function ShoppingListPriceHistory({
     isLoading,
     hasError,
     priceChange,
-  } = useShoppingListPriceHistory(shoppingList, period);
+  } = useShoppingListPriceHistory(shoppingList, period, enabled);
 
   const handlePeriodChange = useCallback(
     (value: string) => {
@@ -94,22 +107,23 @@ export default function ShoppingListPriceHistory({
               </div>
 
               <TabsContent value={period} className="mt-4">
-                {isLoading ? (
-                  <ChartSkeleton />
-                ) : chartData.length === 0 || hasError ? (
-                  <div className="text-center py-8">
-                    <p className="text-gray-600">
-                      Nema dostupnih povijesnih podataka.
-                    </p>
-                  </div>
-                ) : (
+                <AsyncSection
+                  pending={isLoading}
+                  error={hasError ? new Error("Nema podataka") : undefined}
+                  isEmpty={chartData.length === 0}
+                  skeleton={<ChartSkeleton />}
+                  // A failed day and a genuinely flat history are the same dead end
+                  // here, so they read the same rather than blaming the user's list.
+                  errorState={<NoPriceHistory />}
+                  empty={<NoPriceHistory />}
+                >
                   <ShoppingListPriceHistoryChart
                     chartData={chartData}
                     chartConfig={chartConfig}
                     eans={eans}
                     yAxisTicks={yAxisTicks}
                   />
-                )}
+                </AsyncSection>
               </TabsContent>
             </Tabs>
           </CardContent>

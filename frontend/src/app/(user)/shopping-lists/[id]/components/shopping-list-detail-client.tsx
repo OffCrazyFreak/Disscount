@@ -111,7 +111,13 @@ export default function ShoppingListDetailClient({
           </section>
 
           <section>
-            <ShoppingListPriceHistory shoppingList={shoppingList} />
+            {/* Last on the page on purpose. This section issues one request per item
+                per day, so a ten-item list on the default period is seventy requests;
+                starting them before the items' own prices land would starve the page. */}
+            <ShoppingListPriceHistory
+              shoppingList={shoppingList}
+              enabled={!isPricesLoading}
+            />
           </section>
 
           <section>

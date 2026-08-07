@@ -18,7 +18,7 @@ interface IChartPrefs {
   chains: string[];
 }
 
-export function usePriceHistoryChart(product: ProductResponse) {
+export function usePriceHistoryChart(product: ProductResponse, enabled = true) {
   const { user } = useUser();
 
   const [chartPrefs, setChartPrefs] = useState<IChartPrefs>(() => {
@@ -81,7 +81,7 @@ export function usePriceHistoryChart(product: ProductResponse) {
     chains: priceHistoryChains,
     isLoading: historyLoading,
     isError: historyError,
-  } = usePriceHistory({ ean: product.ean, days: daysToShow });
+  } = usePriceHistory({ ean: product.ean, days: daysToShow, enabled });
 
   const handlePeriodChange = useCallback((period: string) => {
     setChartPrefs((p) => ({

@@ -15,9 +15,14 @@ import { usePriceHistoryChart } from "@/app/products/[id]/hooks/use-price-histor
 
 interface IPriceHistoryProps {
   product: ProductResponse;
+  /** False until the page's own price fetch has settled. See useSettledOnce. */
+  enabled?: boolean;
 }
 
-export default function PriceHistory({ product }: IPriceHistoryProps) {
+export default function PriceHistory({
+  product,
+  enabled = true,
+}: IPriceHistoryProps) {
   const {
     chartPrefs,
     isPriceHistoryOpen,
@@ -29,7 +34,7 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
     handlePeriodChange,
     handleChainsChange,
     priceChange,
-  } = usePriceHistoryChart(product);
+  } = usePriceHistoryChart(product, enabled);
 
   return (
     <Collapsible open={isPriceHistoryOpen} onOpenChange={setIsPriceHistoryOpen}>
