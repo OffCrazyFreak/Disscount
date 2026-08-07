@@ -6,6 +6,11 @@
 **/.next
 **/target
 
+# Agent worktrees are full copies of the repo, gitignored so CI never sees them.
+# Without this the docs check sweeps up whichever worktree happens to be open
+# and fails locally on files that are not in the repo, so local and CI disagree.
+.claude/worktrees/
+
 # Lockfiles
 **/pnpm-lock.yaml
 

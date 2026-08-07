@@ -72,6 +72,27 @@ const nextConfig: NextConfig = {
         source: "/((?!api/|_next/|favicon|robots).*)",
         headers: [{ key: "Content-Security-Policy", value: csp }],
       },
+      {
+        // Shared and personal lists are unlisted, not public. Deliberately a header and
+        // not a robots.txt rule: a disallow stops the crawler fetching the page at all,
+        // so it would never see the directive. A shared link only leaks by being pasted
+        // somewhere crawlable, which is exactly the case this covers.
+        source: "/s/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          // The token is in the path, so the default strict-origin-when-cross-origin
+          // would still hand the whole URL to any same-origin subresource and the
+          // origin to third parties. Nothing on this page needs a referrer.
+          { key: "Referrer-Policy", value: "no-referrer" },
+        ],
+      },
+      {
+        // Belt and braces: robots.ts already disallows this prefix, so a compliant
+        // crawler never fetches the page and never reads this header. It is here for
+        // one that ignores robots.txt.
+        source: "/shopping-lists/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
     ];
   },
 };

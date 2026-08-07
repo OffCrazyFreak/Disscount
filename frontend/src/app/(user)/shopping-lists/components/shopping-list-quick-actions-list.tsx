@@ -3,10 +3,12 @@
 import { Copy, LucideClipboardEdit, Share2, Trash2 } from "lucide-react";
 
 import QuickActionItem from "@/components/custom/common/quick-action-item";
+import Share2Pen from "@/components/custom/icons/share-2-pen";
 
 interface IShoppingListQuickActionsListProps {
   isOwner: boolean;
-  isSharing: boolean;
+  /** Marks the share row as "already shared, this edits it" rather than "share this". */
+  isShared: boolean;
   isCopying: boolean;
   onShare: () => void;
   onCopy: () => void;
@@ -21,7 +23,7 @@ interface IShoppingListQuickActionsListProps {
  */
 export default function ShoppingListQuickActionsList({
   isOwner,
-  isSharing,
+  isShared,
   isCopying,
   onShare,
   onCopy,
@@ -30,12 +32,13 @@ export default function ShoppingListQuickActionsList({
 }: IShoppingListQuickActionsListProps) {
   return (
     <>
-      <QuickActionItem
-        icon={Share2}
-        label="Podijeli popis"
-        onSelect={onShare}
-        loading={isSharing}
-      />
+      {isOwner && (
+        <QuickActionItem
+          icon={LucideClipboardEdit}
+          label="Uredi popis"
+          onSelect={onEdit}
+        />
+      )}
 
       <QuickActionItem
         icon={Copy}
@@ -44,13 +47,11 @@ export default function ShoppingListQuickActionsList({
         loading={isCopying}
       />
 
-      {isOwner && (
-        <QuickActionItem
-          icon={LucideClipboardEdit}
-          label="Uredi popis"
-          onSelect={onEdit}
-        />
-      )}
+      <QuickActionItem
+        icon={isShared ? Share2Pen : Share2}
+        label={isShared ? "Uredi dijeljenje popisa" : "Podijeli popis"}
+        onSelect={onShare}
+      />
 
       {isOwner && (
         <QuickActionItem

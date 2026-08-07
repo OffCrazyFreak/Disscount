@@ -141,14 +141,15 @@ Because `faqItems` feeds both the visible accordion and the structured data, the
 
 The landing is the app's most SEO-sensitive surface, so several layers work together.
 
-| Layer                    | Where                                              | Notes                                                                                   |
-| ------------------------ | -------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| Page title + description | `page.tsx` `metadata`                              | Title fills the `Disscount - %s` template from the layout; Croatian description         |
-| Site-wide metadata       | `app/layout.tsx`                                   | `openGraph` (`hr_HR`), `twitter` (`summary_large_image`), keywords, robots index/follow |
-| Structured data          | `components/json-ld.tsx`                           | One `<script type="application/ld+json">` with a `@graph`                               |
-| Sitemap                  | `app/sitemap.ts`                                   | Public routes only; pulls `/updates/<id>` from `templatePosts`                          |
-| Robots                   | `app/robots.ts`                                    | Allows `/`, disallows user/admin/auth routes; points at the sitemap                     |
-| Social images            | `app/opengraph-image.tsx`, `app/twitter-image.tsx` | Generated with `next/og` (see the OG-image work)                                        |
+| Layer                    | Where                                              | Notes                                                                                                                |
+| ------------------------ | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Page title + description | `page.tsx` `metadata`                              | Title fills the `Disscount - %s` template from the layout; Croatian description                                      |
+| Site-wide metadata       | `app/layout.tsx`                                   | `openGraph` (`hr_HR`), `twitter` (`summary_large_image`), keywords, robots index/follow                              |
+| Structured data          | `components/json-ld.tsx`                           | One `<script type="application/ld+json">` with a `@graph`                                                            |
+| Sitemap                  | `app/sitemap.ts`                                   | Public routes only; pulls `/updates/<id>` from `templatePosts`                                                       |
+| Robots                   | `app/robots.ts`                                    | Allows `/`, disallows user/admin/auth routes; points at the sitemap                                                  |
+| Noindex headers          | `next.config.ts` `headers()`                       | `X-Robots-Tag: noindex, nofollow` on `/s/*` and `/shopping-lists/*`; `/s/*` also gets `Referrer-Policy: no-referrer` |
+| Social images            | `app/opengraph-image.tsx`, `app/twitter-image.tsx` | Generated with `next/og` (see the OG-image work)                                                                     |
 
 The JSON-LD `@graph` contains a `WebSite` node with a `SearchAction` (`/products?q={search_term_string}`), an `Organization` node (logo, `sameAs` socials), a `SoftwareApplication` node (category `ShoppingApplication`, a free `Offer`, screenshots), and a `FAQPage` node built from `faqItems`. Heading semantics matter: the hero `<h1>` carries the keyword copy ("Pronađi najbolje cijene u Hrvatskoj"), the wordmark is a styled `<p>`, and each section contributes exactly one `<h2>`.
 
@@ -242,7 +243,7 @@ The RSC boundary is the big one. Passing a non-serializable value (a Lucide icon
 
 The Tailwind spacing scale is rescaled. `globals.css` sets `--spacing: 0.2rem` (Tailwind's default is `0.25rem`), so every spacing/size utility is 0.8x: `w-64` is `205px`, not `256px`; `p-2.5` is `8px`. Any pixel math for positioning (the PWA screenshot overlap, marquee tile sizes) has to account for this. `max-w-*` uses a separate rem scale and is not affected.
 
-`useReducedMotion` from `motion` reads `matchMedia` during hydration and can cause a server/client markup mismatch. Use `useReducedMotionSafe` (returns `false` until mounted) for anything that branches markup on reduced motion.
+`useReducedMotion` from `motion` reads `matchMedia` during render, not in an effect, and can cause a server/client markup mismatch. Verified against framer-motion 12.42.2: it calls `initPrefersReducedMotion()` in the render body, which returns early when there is no `window`, so the hook returns `null` on the server and the visitor's real preference on the very first client render. Use `useReducedMotionSafe` (returns `false` until mounted) for anything that branches markup on reduced motion. Motion does not document this either way, so recheck the source on a `motion` major before assuming the wrapper can go.
 
 A `drop-shadow` filter on the same element as a `clip-path` gets clipped away, because the browser applies `filter` before `clip-path`. The pricing receipt's torn (zigzag) bottom needs its shadow on the outer wrapper, not on the clipped element, or the tear is invisible on the white card.
 
@@ -260,13 +261,13 @@ CSS transform order mirrors rotation. With `scaleX(-1)` before `rotate(r)`, the 
 
 Mixing an `animate` prop with `style` MotionValues on one element makes them fight over the same transforms. `HeroCart` and `CartChaser` both nest two `motion.div`s instead: the outer one owns `animate` (opacity/scale/rotateY enter-exit states), the inner one owns the continuous `style` springs (`scaleX`, `rotate`).
 
-Decorative overflow becomes a horizontal scrollbar unless it is clipped. `TextGlow` is positioned with negative insets (`-inset-6`/`-inset-8`) so its halo intentionally sits ~25px outside its text box; on a narrow viewport a near-full-width heading pushes that transparent overhang past the right edge (~13px at 390px). The doodle glows do the same to a smaller degree. This surfaces as a scrollbar because of a CSS rule: when one overflow axis is `hidden` (not `visible`/`clip`), the other axis computes to `auto`. `<main>` in `app/layout.tsx` therefore uses `overflow-clip` (both axes clip, no scroll container) rather than `overflow-y-hidden`, which had silently made the x-axis scrollable. `overflow-clip` clips the transparent glow edge with zero visible loss and does not affect page (body) vertical scroll. Prefer `overflow-*-clip` over `overflow-*-hidden` for containing decorative bleed.
+Decorative overflow becomes a horizontal scrollbar unless it is clipped. `TextGlow` is positioned with negative insets (`-inset-6`/`-inset-8`) so its halo intentionally sits ~25px outside its text box; on a narrow viewport a near-full-width heading pushes that transparent overhang past the right edge (~13px at 390px). The doodle glows do the same to a smaller degree. This surfaces as a scrollbar because of a CSS rule: when one overflow axis is `hidden` (not `visible`/`clip`), the other axis computes to `auto`. `<main>` in `app/layout.tsx` therefore uses `overflow-x-clip` (clips, no scroll container) rather than `overflow-y-hidden`, which had silently made the x-axis scrollable. Clip the x axis only. This started as `overflow-clip`, which clips both axes, and the vertical half was not free: `main` carries `px-4 pt-4` and no bottom padding, so the last child sits flush against the content edge and its bottom border and shadow were sliced off. Restoring `pb-4` is the wrong fix, since 809441bb694ec5ecfc4e57c4aa2358ce2aab6637 removed that padding deliberately to let the footer supply the spacing. Prefer `overflow-*-clip` over `overflow-*-hidden` for containing decorative bleed, and clip only the axis that actually bleeds.
 
 The exact chain count is never hardcoded. The number of covered retail chains grows over time (the price API already lists 30 while `storeNamesMap` has 28 keys), so the copy, metadata, OG image, and FAQ all say `25+ trgovačkih lanaca` rather than a fixed number. The marquee derives its logos from `storeNamesMap` directly, so it always matches the data.
 
 ## Future improvements and TODOs
 
-- Wire the coming-soon feature cards (Dijeljenje popisa, Analiza potrošnje, Digitalne kartice, Karta trgovina) once their pages ship, by uncommenting the `href` in `features.ts` and dropping `comingSoon`.
+- Wire the remaining coming-soon feature cards (Analiza potrošnje, Digitalne kartice, Karta trgovina) once their pages ship, by uncommenting the `href` in `features.ts` and dropping `comingSoon`.
 - Move `ScrollReveal` and `StaggerChildren` out of `components/ui/` (AGENTS.md reserves that folder for unedited shadcn primitives) into `components/custom/` (e.g. an `animation/` folder) with default exports, matching the convention for hand-written components.
 - Consider an FAQ-driven long-tail SEO expansion and a real testimonials/social-proof section once there is content for it.
 - The landing is Croatian-only; if the app adds `next-intl`, the landing copy in the `data/*` files is the natural first surface to translate.

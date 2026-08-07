@@ -34,6 +34,18 @@ const EMPTY_VALUES: ContactMessageRequest = {
 
 const DRAFT_KEY = "contact";
 
+// Module level, so both the prefill effect and the reset handler share one source
+// without an object literal that changes identity on every render.
+function profileValues(
+  user: { email?: string | null; name?: string | null } | null | undefined,
+): ContactMessageRequest {
+  return {
+    ...EMPTY_VALUES,
+    email: user?.email ?? "",
+    fullName: user?.name ?? "",
+  };
+}
+
 interface IContactModalProps {
   open: boolean;
 }
@@ -49,15 +61,11 @@ export default function ContactModal({ open }: IContactModalProps) {
     defaultValues: EMPTY_VALUES,
   });
 
-  const profileBase = {
-    ...EMPTY_VALUES,
-    email: user?.email ?? "",
-    fullName: user?.name ?? "",
-  };
-
   // Draft wins over the profile prefill, and neither runs mid-edit.
   useEffect(() => {
     if (!open || form.formState.isDirty) return;
+
+    const profileBase = profileValues(user);
 
     form.reset(profileBase);
 
@@ -113,7 +121,7 @@ export default function ContactModal({ open }: IContactModalProps) {
       resetDisabled={!form.formState.isDirty && !restored}
       onReset={() => {
         clearDraft();
-        form.reset(profileBase);
+        form.reset(profileValues(user));
       }}
     >
       <ContactChannels />

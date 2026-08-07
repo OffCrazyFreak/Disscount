@@ -1,6 +1,8 @@
 import { Image as ImageIcon, ListPlus, Share2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import ListPen from "@/components/custom/icons/list-pen";
+import { useIsOnPreselectedShoppingList } from "@/lib/api/shopping-lists/use-preselected-list-membership";
 import {
   Tooltip,
   TooltipContent,
@@ -42,42 +44,30 @@ export default function ProductActionButtons({
     (watchlistItem) => watchlistItem.productApiId === product.ean,
   );
 
+  // Speaks for whichever list the modal will preselect: a drafted choice if there
+  // is one, the newest list otherwise.
+  const isOnList = useIsOnPreselectedShoppingList(product.ean);
+  const addToListLabel = isOnList
+    ? "Uredi unos na popisu za kupnju"
+    : "Dodaj na popis za kupnju";
+
   const actions = (
     <>
-      {showSearchImage && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="icon"
-              aria-label="Pretraži sliku proizvoda"
-              className="shrink-0"
-              onClick={() => openExternal(productImageSearchUrl(product))}
-            >
-              <ImageIcon />
-            </Button>
-          </TooltipTrigger>
-
-          <TooltipContent className="px-2 py-1 text-xs">
-            Pretraži sliku proizvoda
-          </TooltipContent>
-        </Tooltip>
-      )}
-
       {showAddToList && (
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              aria-label="Dodaj na popis za kupnju"
+              aria-label={addToListLabel}
               className="shrink-0"
               onClick={() => openAddToList()}
             >
-              <ListPlus />
+              {isOnList ? <ListPen /> : <ListPlus />}
             </Button>
           </TooltipTrigger>
 
           <TooltipContent className="px-2 py-1 text-xs">
-            Dodaj na popis za kupnju
+            {addToListLabel}
           </TooltipContent>
         </Tooltip>
       )}
@@ -104,6 +94,25 @@ export default function ProductActionButtons({
 
           <TooltipContent className="px-2 py-1 text-xs">
             Podijeli proizvod
+          </TooltipContent>
+        </Tooltip>
+      )}
+
+      {showSearchImage && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              aria-label="Pretraži sliku proizvoda"
+              className="shrink-0"
+              onClick={() => openExternal(productImageSearchUrl(product))}
+            >
+              <ImageIcon />
+            </Button>
+          </TooltipTrigger>
+
+          <TooltipContent className="px-2 py-1 text-xs">
+            Pretraži sliku proizvoda
           </TooltipContent>
         </Tooltip>
       )}

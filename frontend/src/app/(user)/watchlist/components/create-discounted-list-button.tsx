@@ -43,7 +43,6 @@ export default function CreateDiscountedListButton({
 
       const createdList = await shoppingListService.createShoppingList({
         title: `Sniženo ${today}`,
-        isPublic: false,
       });
 
       const createItemResults = await Promise.allSettled(
@@ -109,8 +108,12 @@ export default function CreateDiscountedListButton({
         <ResponsiveLabel full={buttonText} short="Stvori popis" />
 
         {/* Visual only: inside the label it would leave the visible text outside
-            the accessible name, and re-announce on every change. */}
-        <span aria-hidden="true">({addableProducts.length})</span>
+            the accessible name, and re-announce on every change. The margin is
+            explicit because expandIcon zeroes the button's gap, so the count
+            would otherwise sit flush against the label. */}
+        <span aria-hidden="true" className="ml-1">
+          ({addableProducts.length})
+        </span>
       </Button>
     </>
   );

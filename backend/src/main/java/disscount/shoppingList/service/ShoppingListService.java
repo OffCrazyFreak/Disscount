@@ -7,20 +7,24 @@ import org.springframework.transaction.annotation.Transactional;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.UnauthorizedException;
 import disscount.shoppingList.dao.ShoppingListRepository;
+import disscount.shoppingList.domain.LinkAccess;
+import disscount.shoppingList.domain.ListAccess;
 import disscount.shoppingList.domain.ShoppingList;
 import disscount.shoppingList.dto.ShoppingListDto;
 import disscount.shoppingList.dto.ShoppingListRequest;
-import disscount.shoppingListItem.dto.ShoppingListItemDto;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.util.Timestamps;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * The owner's view of their own lists. Everything here is owner-only; access granted by a
+ * share link runs through {@link SharedShoppingListService} instead.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -28,19 +32,21 @@ public class ShoppingListService {
 
     private final ShoppingListRepository shoppingListRepository;
     private final UserRepository userRepository;
+    private final ShoppingListMapper shoppingListMapper;
 
     public ShoppingListDto createShoppingList(UUID ownerId, ShoppingListRequest request) {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new UnauthorizedException("User not found"));
 
+        // New lists are always private, which also makes "copy list" private by construction.
+        // Sharing needs a persisted id to bind a token to, so it is turned on afterwards.
         ShoppingList shoppingList = ShoppingList.builder()
                 .owner(owner)
                 .title(request.getTitle())
-                .isPublic(request.getIsPublic() != null ? request.getIsPublic() : false)
                 .build();
 
         shoppingList = shoppingListRepository.save(shoppingList);
-        return convertToDto(shoppingList);
+        return shoppingListMapper.toDto(shoppingList, ListAccess.OWNER);
     }
 
     // Read-only: the class-level @Transactional would otherwise keep a dirty-checking
@@ -52,7 +58,7 @@ public class ShoppingListService {
 
         return shoppingListRepository.findActiveByOwner(owner)
                 .stream()
-                .map(this::convertToDto)
+                .map(list -> shoppingListMapper.toDto(list, ListAccess.OWNER))
                 .collect(Collectors.toList());
     }
 
@@ -61,16 +67,8 @@ public class ShoppingListService {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new UnauthorizedException("User not found"));
 
-        // First try to get as owner
-        Optional<ShoppingList> shoppingListOpt = shoppingListRepository.findActiveByIdAndOwner(listId, owner);
-        
-        // If not found and not owner, try to get public list
-        if (shoppingListOpt.isEmpty()) {
-            shoppingListOpt = shoppingListRepository.findActiveById(listId)
-                    .filter(list -> list.getIsPublic());
-        }
-
-        return shoppingListOpt.map(this::convertToDto);
+        return shoppingListRepository.findActiveByIdAndOwner(listId, owner)
+                .map(list -> shoppingListMapper.toDto(list, ListAccess.OWNER));
     }
 
     public ShoppingListDto updateShoppingList(UUID listId, UUID ownerId, ShoppingListRequest request) {
@@ -80,12 +78,11 @@ public class ShoppingListService {
         ShoppingList shoppingList = shoppingListRepository.findActiveByIdAndOwner(listId, owner)
                 .orElseThrow(() -> new BadRequestException("Shopping list not found"));
 
-        // Update fields
         shoppingList.setTitle(request.getTitle());
-        shoppingList.setIsPublic(request.getIsPublic() != null ? request.getIsPublic() : false);
+        applyLinkAccess(shoppingList, request.getLinkAccess());
 
         shoppingList = shoppingListRepository.save(shoppingList);
-        return convertToDto(shoppingList);
+        return shoppingListMapper.toDto(shoppingList, ListAccess.OWNER);
     }
 
     public void deleteShoppingList(UUID listId, UUID ownerId) {
@@ -99,36 +96,30 @@ public class ShoppingListService {
         shoppingListRepository.save(shoppingList);
     }
 
-    private ShoppingListDto convertToDto(ShoppingList shoppingList) {
-        List<ShoppingListItemDto> itemDtos = shoppingList.getItems().stream()
-                .filter(item -> item.getDeletedAt() == null)
-                .map(item -> ShoppingListItemDto.builder()
-                        .id(item.getId())
-                        .shoppingListId(item.getShoppingList().getId())
-                        .ean(item.getEan())
-                        .brand(item.getBrand())
-                        .name(item.getName())
-                        .quantity(item.getQuantity())
-                        .unit(item.getUnit())
-                        .amount(item.getAmount())
-                        .isChecked(item.getIsChecked())
-                        .chainCode(item.getChainCode())
-                        .avgPrice(item.getAvgPrice())
-                        .storePrice(item.getStorePrice())
-                        .createdAt(item.getCreatedAt())
-                        .updatedAt(item.getUpdatedAt())
-                        .updatedByUserId(item.getUpdatedByUser() != null ? item.getUpdatedByUser().getId() : null)
-                        .build())
-                .collect(Collectors.toList());
+    /**
+     * Re-enabling a link mints a fresh token, so turning sharing off and on again is a real
+     * revoke. Merely changing the level leaves the token alone, since the people already
+     * holding the link are meant to keep working at the new level.
+     */
+    private void applyLinkAccess(ShoppingList list, LinkAccess requested) {
+        if (requested == null) {
+            return;
+        }
 
-        return ShoppingListDto.builder()
-                .id(shoppingList.getId())
-                .ownerId(shoppingList.getOwner().getId())
-                .title(shoppingList.getTitle())
-                .isPublic(shoppingList.getIsPublic())
-                .updatedAt(shoppingList.getUpdatedAt())
-                .createdAt(shoppingList.getCreatedAt())
-                .items(itemDtos)
-                .build();
+        ListAccess next = requested.toListAccess();
+        if (next == list.resolvedLinkAccess()) {
+            return;
+        }
+
+        if (next == ListAccess.NONE) {
+            list.setLinkAccess(null);
+            list.setShareToken(null);
+            return;
+        }
+
+        list.setLinkAccess(next);
+        if (list.getShareToken() == null) {
+            list.setShareToken(UUID.randomUUID());
+        }
     }
 }

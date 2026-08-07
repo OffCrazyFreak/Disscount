@@ -10,6 +10,10 @@ const ShoppingListModal = dynamic(
     import("@/app/(user)/shopping-lists/components/forms/shopping-list-modal"),
   { ssr: false },
 );
+const ShareListModal = dynamic(
+  () => import("@/app/(user)/shopping-lists/components/forms/share-list-modal"),
+  { ssr: false },
+);
 const DigitalCardModal = dynamic(
   () =>
     import("@/app/(user)/digital-cards/components/forms/digital-card-modal"),
@@ -59,6 +63,11 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
 
   switch (rendered.name) {
     case "shopping-list":
+      // Sharing is its own modal: it saves on change rather than behind a submit button,
+      // because the server has to mint the token before there is a link to show.
+      if (rendered.action === "share") {
+        return <ShareListModal open={open} id={rendered.id} />;
+      }
       return (
         <ShoppingListModal
           open={open}
@@ -95,8 +104,14 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
         />
       );
     case "watchlist":
+      // Keyed for the same reason as add-to-list, and because its seeding keeps
+      // dirty values so a refetch cannot overwrite a number mid-edit: a reused
+      // instance would carry product A's edited threshold into product B. Keyed on
+      // the ean only, so switching watch mode reuses the instance and keeps both
+      // numbers, which is what the mode toggle does anyway.
       return (
         <WatchlistItemModal
+          key={rendered.ean}
           open={open}
           ean={rendered.ean}
           watchType={rendered.watchType}

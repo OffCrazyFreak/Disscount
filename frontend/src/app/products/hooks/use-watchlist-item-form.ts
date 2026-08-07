@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
@@ -9,23 +9,16 @@ import { watchlistService, WatchType } from "@/lib/api";
 import { applyProblemToForm } from "@/lib/api/problem-details";
 import { stashModalError, takeModalError } from "@/lib/modal/modal-error-bus";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
-import { getFormDraft, removeFormDraft } from "@/utils/browser/local-storage";
+import { removeFormDraftField } from "@/utils/browser/local-storage";
 import {
+  isSameThreshold,
+  thresholdBaselines,
+} from "@/app/products/utils/watchlist-thresholds";
+import {
+  thresholdField,
   WatchlistFormData,
   watchlistFormSchema,
 } from "@/app/products/typings/watchlist-form";
-
-// A restored pair looks like a type switch, so match it to keep the value.
-function matchesDraft(draftKey: string, values: WatchlistFormData): boolean {
-  const draft = getFormDraft(draftKey)?.values as
-    Partial<WatchlistFormData> | undefined;
-
-  return (
-    !!draft &&
-    draft.watchType === values.watchType &&
-    draft.thresholdValue === values.thresholdValue
-  );
-}
 
 export function useWatchlistItemForm(
   open: boolean,
@@ -34,6 +27,7 @@ export function useWatchlistItemForm(
   initialWatchType?: WatchType,
 ) {
   const draftKey = `watchlist.${ean}`;
+  const openingWatchType = initialWatchType ?? WatchType.percentage;
 
   const addMutation = watchlistService.useAddToWatchlist();
   const removeMutation = watchlistService.useRemoveFromWatchlist();
@@ -44,47 +38,52 @@ export function useWatchlistItemForm(
     resolver: zodResolver(watchlistFormSchema),
     mode: "onChange",
     defaultValues: {
-      watchType: initialWatchType ?? WatchType.percentage,
-      thresholdValue: "",
+      watchType: openingWatchType,
+      percentageValue: "",
+      absoluteValue: "",
     },
   });
 
-  const watchType = form.watch("watchType");
+  // useWatch, not form.watch: watch() signals changes outside React state, so the
+  // React Compiler skips memoizing every component that reads it.
+  const watchType = useWatch({
+    control: form.control,
+    name: "watchType",
+    defaultValue: openingWatchType,
+  });
+  const percentageValue = useWatch({
+    control: form.control,
+    name: "percentageValue",
+  });
+  const absoluteValue = useWatch({
+    control: form.control,
+    name: "absoluteValue",
+  });
+
+  const baselines = thresholdBaselines(existingItems, avgPrice);
   const existingItemForType = existingItems.find(
     (item) => item.watchType === watchType,
   );
 
-  const prevWatchTypeRef = useRef(watchType);
-
-  // A mode switch changes what the value means, so only that forces a reload.
+  // reset, not resetField: resetField only works on a name that is registered right
+  // now, and neither number is while the product loads, nor is the mode that is not
+  // on screen. So the prefill landed on nothing. reset writes both values and both
+  // defaults regardless, which is what makes an untouched prefill not a change, and
+  // keepDirtyValues leaves a number the user (or a restored draft) has already
+  // edited alone. It also refreshes isValid without filling in errors, so the submit
+  // button is live for a valid prefill and nothing is marked red before it is
+  // touched.
   useEffect(() => {
-    const watchTypeChanged = prevWatchTypeRef.current !== watchType;
-    prevWatchTypeRef.current = watchType;
-
-    if (watchTypeChanged && matchesDraft(draftKey, form.getValues())) return;
-
-    if (!watchTypeChanged && form.formState.dirtyFields.thresholdValue) return;
-
-    if (existingItemForType) {
-      form.setValue(
-        "thresholdValue",
-        existingItemForType.thresholdValue.toString(),
-        { shouldValidate: true },
-      );
-    } else if (watchType === WatchType.percentage) {
-      form.setValue("thresholdValue", "10", { shouldValidate: true });
-    } else {
-      const suggested =
-        avgPrice > 0 ? Math.round(avgPrice * 0.1 * 100) / 100 : 0;
-      form.setValue(
-        "thresholdValue",
-        suggested > 0 ? suggested.toString() : "",
-        {
-          shouldValidate: true,
-        },
-      );
-    }
-  }, [watchType, existingItemForType, avgPrice, form]);
+    form.reset(
+      {
+        watchType: form.getValues("watchType"),
+        percentageValue: baselines.percentageValue,
+        absoluteValue: baselines.absoluteValue,
+      },
+      { keepDirtyValues: true },
+    );
+    // baselines is rebuilt every render, so depend on its values, not its identity.
+  }, [baselines.percentageValue, baselines.absoluteValue, form]);
 
   // A failed optimistic save reopened this modal: surface the server error.
   useEffect(() => {
@@ -93,24 +92,38 @@ export function useWatchlistItemForm(
     if (error) applyProblemToForm(error, form);
   }, [open, draftKey, form]);
 
+  // Undoes the whole session: both numbers and the mode the modal opened in. No
+  // keepDirtyValues here, unlike the seed above, because discarding the edits is
+  // the entire point.
+  function resetForm() {
+    form.reset({
+      watchType: openingWatchType,
+      percentageValue: baselines.percentageValue,
+      absoluteValue: baselines.absoluteValue,
+    });
+  }
+
   // Optimistic close: the modal closes immediately and reopens only on failure.
   async function onSubmit(data: WatchlistFormData) {
     closeModalUrl();
 
-    const isUpdate = !!existingItemForType;
-    const oldValue = existingItemForType?.thresholdValue;
+    const field = thresholdField(data.watchType);
+    const value = Number.parseFloat(data[field]);
+    const saved = existingItems.find(
+      (item) => item.watchType === data.watchType,
+    );
 
     try {
       await addMutation.mutateAsync({
         productApiId: ean,
         watchType: data.watchType,
-        thresholdValue: Number.parseFloat(data.thresholdValue),
+        thresholdValue: value,
       });
 
-      removeFormDraft(draftKey);
+      removeFormDraftField(draftKey, field);
       toast.success(
-        isUpdate
-          ? `Prag ažuriran s ${oldValue} na ${Number.parseFloat(data.thresholdValue)}`
+        saved
+          ? `Prag ažuriran s ${saved.thresholdValue} na ${value}`
           : "Proizvod dodan na popis za praćenje",
       );
     } catch (error) {
@@ -124,7 +137,7 @@ export function useWatchlistItemForm(
     }
   }
 
-  // Falls back to the other tracked entry, so the red X works from either tab.
+  // Falls back to the other tracked entry, so the red X works from either mode.
   async function onRemove() {
     const target = existingItemForType ?? existingItems[0];
     if (!target) return;
@@ -132,7 +145,7 @@ export function useWatchlistItemForm(
 
     try {
       await removeMutation.mutateAsync(target.id);
-      removeFormDraft(draftKey);
+      removeFormDraftField(draftKey, thresholdField(target.watchType));
       toast.success(
         `Za proizvod se više ne prati ${
           target.watchType === WatchType.percentage ? "postotak" : "cijena"
@@ -143,12 +156,29 @@ export function useWatchlistItemForm(
     }
   }
 
+  const activeValue =
+    watchType === WatchType.absolute ? absoluteValue : percentageValue;
+
   return {
     form,
     draftKey,
     existingItems,
     existingItemForType,
     isCheckingWatchlist,
+    // Compared against the baselines rather than read off RHF's dirtyFields: the
+    // seed keeps dirty flags so an in-progress edit survives a refetch, which means
+    // a flag can outlive the edit itself (a saved value equals its new baseline but
+    // stays flagged). The comparison cannot drift that way. Only the numbers count,
+    // so switching mode is never a change.
+    isEdited:
+      !isSameThreshold(percentageValue, baselines.percentageValue) ||
+      !isSameThreshold(absoluteValue, baselines.absoluteValue),
+    // Re-saving the tracked threshold unchanged is a no-op, so the button waits
+    // for a different number. A mode with nothing tracked yet is always savable.
+    hasSavableChange:
+      !existingItemForType ||
+      Number.parseFloat(activeValue) !== existingItemForType.thresholdValue,
+    resetForm,
     onSubmit,
     onRemove,
     isSaving: addMutation.isPending,

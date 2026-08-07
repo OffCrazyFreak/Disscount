@@ -43,14 +43,13 @@ const ProductItem = memo(function ProductItem({
       pressProps={pressProps}
       actionProps={actionProps}
       trailing={<ProductUnitPriceDetails product={product} price={price} />}
-      // Precise pointers only. Touch reaches the same four actions by holding
-      // the card, which the progress ring advertises; four 40px buttons would
-      // crowd a phone-width row that already carries the price block. Keyed off
-      // the pointer rather than the viewport because the long-press fallback
-      // ignores a mouse, so a narrow desktop window would otherwise have no
-      // route to these actions at all.
+      // Precise pointers on a wide enough viewport. Four 40px buttons crowd a
+      // phone-width row that already carries the price block, and a narrow
+      // window looks the same whatever is driving it, so the viewport has to
+      // count as well as the pointer. Everywhere else the card opens, and the
+      // product page carries the same four actions.
       actions={<ProductActionButtons product={product} />}
-      actionsClassName="hidden pointer-fine:flex"
+      actionsClassName="hidden pointer-fine:sm:flex"
     />
   );
 });

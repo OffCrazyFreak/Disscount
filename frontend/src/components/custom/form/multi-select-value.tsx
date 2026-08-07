@@ -57,7 +57,11 @@ export default function MultiSelectValue({
       {...props}
       ref={containerRef}
       className={cn(
-        "flex w-full gap-1.5 overflow-hidden",
+        // min-w-0 undoes a flex item's automatic minimum, which here is the
+        // combined width of every badge, since each one is shrink-0 and
+        // nowrap. Without it the row cannot shrink, so it never scrolls, the
+        // overflow measurement always reads zero and the badges just spill.
+        "flex w-full min-w-0 gap-1.5 overflow-hidden",
         shouldWrap && "h-full flex-wrap",
         className,
       )}

@@ -11,6 +11,11 @@ export const OFFLINE_MUTATION_KEYS = {
   shoppingListItemDelete: ["shoppingLists", "items", "delete"],
   watchlistAdd: ["watchlist", "add"],
   watchlistRemove: ["watchlist", "remove"],
+  // Ticking items off a list someone shared with you is the offline case that matters
+  // most: it happens in a shop, on a phone, with bad signal.
+  sharedItemUpdate: ["sharedShoppingList", "items", "update"],
+  sharedItemDelete: ["sharedShoppingList", "items", "delete"],
+  // A wallet is used in the same place, so its writes queue too.
   digitalCardCreate: ["digitalCards", "create"],
   digitalCardUpdate: ["digitalCards", "update"],
   digitalCardDelete: ["digitalCards", "delete"],

@@ -2,6 +2,7 @@ import { onlineManager, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { digitalCardService } from "@/lib/api";
+import { DIGITAL_CARD_QUERY_KEYS } from "@/lib/api/digital-cards/keys";
 import type { DigitalCardDto, DigitalCardRequest } from "@/lib/api/types";
 import { stashModalError } from "@/lib/modal/modal-error-bus";
 import { stashModalValues } from "@/lib/modal/modal-retry-bus";
@@ -43,7 +44,9 @@ export function useDigitalCardModal({
       }
 
       removeFormDraft(draftKey);
-      await queryClient.invalidateQueries({ queryKey: ["digitalCards"] });
+      await queryClient.invalidateQueries({
+        queryKey: DIGITAL_CARD_QUERY_KEYS.all,
+      });
     } catch (error) {
       stashModalError(draftKey, error);
       // The code is excluded from the draft, so without this the retry would come back

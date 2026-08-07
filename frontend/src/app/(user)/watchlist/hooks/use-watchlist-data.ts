@@ -8,7 +8,7 @@ import {
   calculateDiscountInfo,
   extractPinnedStoreChainCodes,
   groupWatchlistItemsByProduct,
-  isWatchThresholdReached,
+  isAnyWatchThresholdReached,
 } from "@/app/(user)/watchlist/utils/watchlist-utils";
 import type {
   IWatchlistItemWithProduct,
@@ -90,22 +90,9 @@ export function useWatchlistData(query: string) {
       return [];
     }
 
-    return enrichedItems.filter((item) => {
-      if (!item.discountInfo || !item.product) {
-        return false;
-      }
-
-      const discountInfo = item.discountInfo;
-
-      return item.watchlistItems.some((watchlistItem) =>
-        isWatchThresholdReached(
-          discountInfo,
-          watchlistItem.watchType,
-          watchlistItem.thresholdValue,
-          hasPinnedStores,
-        ),
-      );
-    });
+    return enrichedItems.filter((item) =>
+      isAnyWatchThresholdReached(item, hasPinnedStores),
+    );
   }, [enrichedItems, hasPinnedStores, productsLoading]);
 
   const watchedProductApiIds = useMemo(() => {

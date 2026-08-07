@@ -26,6 +26,7 @@ import { takeModalError } from "@/lib/modal/modal-error-bus";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import { getFormDraft } from "@/utils/browser/local-storage";
 import { useShoppingListModal } from "@/app/(user)/shopping-lists/hooks/use-shopping-list-modal";
+import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 
 interface IShoppingListModalProps {
   open: boolean;
@@ -44,7 +45,7 @@ export default function ShoppingListModal({
   // Only seeds an instant value while the reactive by-id query settles; by-id wins
   // once loaded, since edits invalidate ["shoppingLists"] and refetch it.
   const cachedList = queryClient
-    .getQueryData<ShoppingListDto[]>(["shoppingLists", "me"])
+    .getQueryData<ShoppingListDto[]>(SHOPPING_LIST_QUERY_KEYS.me)
     ?.find((list) => list.id === id);
   const byIdQuery = shoppingListService.useGetShoppingListById(
     isEdit ? (id as string) : "",
@@ -58,7 +59,10 @@ export default function ShoppingListModal({
   const form = useForm<ShoppingListRequest>({
     resolver: zodResolver(shoppingListRequestSchema),
     mode: "onChange",
-    defaultValues: { title: "", isPublic: false },
+    // No linkAccess here on purpose: sharing lives in its own modal, and the backend
+    // treats an absent linkAccess on PUT as "leave it alone", so renaming a shared list
+    // from here cannot silently unshare it.
+    defaultValues: { title: "" },
   });
 
   // Destructured, never read inline: formState is a Proxy that subscribes to a
@@ -73,7 +77,6 @@ export default function ShoppingListModal({
 
     const base = {
       title: shoppingList.title,
-      isPublic: shoppingList.isPublic ?? false,
     };
     form.reset(base);
 

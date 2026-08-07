@@ -123,19 +123,22 @@ The split is enforced in the repo, not in the dashboard, by `frontend/netlify.to
 
 ```toml
 [build]
-  ignore = 'case "$PULL_REQUEST:$BRANCH" in true:main|true:dev) exit 0 ;; true:*) exit 1 ;; *) exit 0 ;; esac'
+  ignore = 'case "$PULL_REQUEST:$HEAD:$BRANCH" in true:dev:*|true:main:*|true:*:dev|true:*:main) exit 0 ;; true:*) exit 1 ;; *) exit 0 ;; esac'
 ```
 
-| Detail                               | Why it is like that                                                                                                                                                                              |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `PULL_REQUEST` is the primary gate   | Netlify sets this read-only variable to `true` only for pull or merge request builds. Production and ordinary branch deploys therefore stop before the build command.                            |
-| `main` and `dev` are still excluded  | On a PR preview, `$BRANCH` is the PR's head branch. A `dev` to `main` release PR is skipped, while a `fix/x` into `dev` PR builds exactly once.                                                  |
-| `build.ignore`, not a UI branch list | Netlify always attempts to deploy its production branch. The ignore command is the supported repository-controlled opt-out and also prevents duplicate branch deploys alongside PR previews.     |
-| Exit `0` skips, exit `1` builds      | Inverted from normal shell convention. This is the usual trap when editing the rule.                                                                                                             |
-| File lives in `frontend/`            | Netlify's base directory is `frontend`, and it looks for `netlify.toml` there. Paths inside `ignore` also resolve from the base directory.                                                       |
-| **Branch deploys** is set to `dev`   | A PR targeting `dev` needs its base branch enabled for branch deploys. This dashboard setting prevents feature-branch deploys, while the repository rule cancels the `dev` branch deploy itself. |
+| Detail                               | Why it is like that                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PULL_REQUEST` is the primary gate   | Netlify sets this read-only variable to `true` only for pull or merge request builds. Production and ordinary branch deploys therefore stop before the build command.                                                                                                                                                                                                                       |
+| `$HEAD` **and** `$BRANCH`            | Netlify defines `$BRANCH` as the "reference to check out" and `$HEAD` as the "name of the head branch received from a Git provider". On a Deploy Preview the checkout is `pull/<n>/head`, so `$BRANCH` is that ref and only `$HEAD` holds `dev`. Netlify's own branch-skipping example still uses `$BRANCH`, so the rule tests both: matching one and guessing wrong fails open and builds. |
+| `main` and `dev` are still excluded  | A `dev` to `main` release PR is skipped, while a `fix/x` into `dev` PR builds exactly once.                                                                                                                                                                                                                                                                                                 |
+| `build.ignore`, not a UI branch list | Netlify always attempts to deploy its production branch. The ignore command is the supported repository-controlled opt-out and also prevents duplicate branch deploys alongside PR previews.                                                                                                                                                                                                |
+| Exit `0` skips, exit `1` builds      | Inverted from normal shell convention. This is the usual trap when editing the rule.                                                                                                                                                                                                                                                                                                        |
+| File lives in `frontend/`            | Netlify's base directory is `frontend`, and it looks for `netlify.toml` there. Paths inside `ignore` also resolve from the base directory.                                                                                                                                                                                                                                                  |
+| **Branch deploys** is set to `dev`   | Do not remove this. Netlify only creates a Deploy Preview when "the base branch must either be a production branch, or a branch that has branch deploys enabled". Production here is `main`, so PRs targeting `dev` get a preview only because `dev` is on that list. The `dev` branch deploys it also creates are cancelled by the rule above and cost nothing.                            |
 
-Skipped production and branch deploys still appear in Netlify's deploy list, marked **Canceled**, with the ignore command in the log. That is the expected result, not a completed build.
+Skipped production and branch deploys still appear in Netlify's deploy list, marked **Canceled**, with `Canceled build due to no content change` as the reason. That is what a successful skip looks like, not a completed build.
+
+> ⚠️ **How to tell the rule has regressed.** The first version of this file matched `$BRANCH` instead of `$HEAD`, so the long-lived `dev` into `main` release PR rebuilt its preview on every single push to `dev`: 17 full builds and 47 build minutes in the first six days of August 2026, about a third of the project's usage against a 300 minute monthly team allowance. The tell is a **Deploy Preview** in the deploy list whose branch is `dev` and whose deploy time is a real number rather than `Canceled`. Branch deploys of `dev` showing up **Canceled** are fine and cost nothing. Confirm from the deploy list after changing this rule, because a rule that silently never matches looks identical to no rule at all.
 
 > ⚠️ **Netlify has its own environment variables, and it cannot see Dokploy's.** Previews are built from the same code, so `requireEnv` still throws at module load if anything is missing (see [§5](#5-environment-variables-the-1-gotcha)), and `NEXT_PUBLIC_*` is still baked at build time. A preview with an incomplete env either fails the build or quietly ships a bundle pointing at the wrong API. Keep Netlify's env in sync with Dokploy's **dev** values.
 
@@ -262,7 +265,22 @@ docker exec pg-test psql -U postgres -d restoretest -c '\dt'   # verify
 
 - The UptimeRobot checks are published as a **public status page** at https://stats.uptimerobot.com/ej4ROz2eMo, linked from the README so anyone can see uptime and response times without an account.
 - `/health` (frontend) is a lightweight liveness route; the backend also has `/actuator/health` (internal only, used by the container healthcheck).
-- Sentry `send-default-pii=false` (privacy). Source-map upload is **not** enabled yet (see TODOs).
+- Sentry `send-default-pii=false` (privacy). Source-map upload is **not** enabled yet (see TODOs), so frontend stack traces arrive minified: expect frames like `app:///_next/static/chunks/6506-….js:1:34191 (o.register)` and be ready to grep the built chunk in `.next/static` to place them.
+
+#### Staying inside the free plan
+
+The Developer plan's binding limit is **50 replays a month**, not errors (5,000) or spans (5M). Replay sampling is two decisions taken in sequence, not two independent rolls: Sentry evaluates `replaysSessionSampleRate` first, and only for the sessions it does **not** pick does `replaysOnErrorSampleRate` buffer against a possible error. So the session rate is the one that spends quota on sessions where nothing went wrong. It sat at `0.1` until 2026-08-06, which exhausted the month's replays partway through the period and then dropped **every** later replay, error ones included. It is now `0.01` in `frontend/src/instrumentation-client.ts`, which keeps the replay-derived detectors (hydration errors, rage and dead clicks) alive without crowding out `replaysOnErrorSampleRate: 1.0`. Sampling changes only take effect on the next **redeploy**, since the SDK config is baked into the bundle.
+
+Noise control, in the order it is worth reaching for:
+
+| Lever               | Where                                                        | Use it for                                                                                                             |
+| ------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `beforeSend` filter | `frontend/src/lib/sentry/*`                                  | Noise we can fingerprint precisely. Never leaves the browser, so it costs no quota.                                    |
+| **Inbound Filters** | Project → Settings → Inbound Filters                         | "known errors from web crawlers" and "browser extensions". Dropped at Sentry's edge and not billed.                    |
+| **Mute the issue**  | the issue page, or `update_issue` over the Sentry MCP server | Real findings that are parked on someone else, so they stop padding the weekly report. Leave a comment saying why.     |
+| **Alert throttle**  | the issue alert rule → Edit Rule                             | Email volume. Note the throttle is **per issue**, not global: three issues escalating in a week is still three emails. |
+
+Currently muted, all with a comment on the issue explaining the call: the price-history **N+1** (tracked in [#62](https://github.com/OffCrazyFreak/Disscount/issues/62) and [#45](https://github.com/OffCrazyFreak/Disscount/issues/45), both blocked on the upstream API gaining a batched endpoint, and already capped at 30 days by `DISABLED_PERIODS`), a replay **hydration error** seen only in headless-scanner sessions, and an `insertBefore` **NotFoundError** caused by Google Translate wrapping our text nodes in `<font>` elements under React.
 
 ### Sentry env vars (production)
 
@@ -285,25 +303,57 @@ Set in **Dokploy → service → Environment**, per environment. Both DSNs live 
 
 ## 10. What's automatic vs manual
 
-| Task                                                       | Automatic? | Notes                                                                                      |
-| ---------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------ |
-| Build & deploy on `git push`                               | ✅ auto    | Dokploy autodeploy (per branch)                                                            |
-| CI checks (typecheck, lint, format, build, backend verify) | ✅ auto    | `.github/workflows/ci.yml` on every push + PR; required to merge to `main`                 |
-| PR previews (head branch is not `main` or `dev`)           | ✅ auto    | Netlify, gated by `frontend/netlify.toml` (see [§4](#netlify-pr-previews))                 |
-| HTTPS certificate issuance + renewal                       | ✅ auto    | Traefik + Let's Encrypt                                                                    |
-| HTTP to HTTPS redirect                                     | ✅ auto    | Cloudflare                                                                                 |
-| DB migrations (auth tables + app tables)                   | ✅ auto    | `migrate` service (drizzle) + Hibernate `ddl-auto=update` on each deploy                   |
-| Nightly DB backups (R2 + local) + rotation                 | ✅ auto    | Dokploy Backups + Schedule                                                                 |
-| OS security updates                                        | ✅ auto    | unattended-upgrades                                                                        |
-| Uptime checks                                              | ✅ auto    | UptimeRobot, published as a [public status page](https://stats.uptimerobot.com/ej4ROz2eMo) |
-| **Adding/Changing a `NEXT_PUBLIC_*` var**                  | ❌ manual  | edit in Dokploy env **+ redeploy**                                                         |
-| **Adding a new domain/subdomain**                          | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                                  |
-| **New OAuth provider redirect URIs**                       | ❌ manual  | add in Google/Meta consoles                                                                |
-| **Hard-refresh after deploy**                              | ❌ manual  | avoids stale-bundle errors                                                                 |
-| **Restoring a backup**                                     | ❌ manual  | see [§8](#8-backups--restore)                                                              |
-| **Rotating secrets / tokens**                              | ❌ manual  | as needed                                                                                  |
+| Task                                                       | Automatic? | Notes                                                                                                                         |
+| ---------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Build & deploy on `git push`                               | ✅ auto    | Dokploy autodeploy (per branch)                                                                                               |
+| CI checks (typecheck, lint, format, build, backend verify) | ✅ auto    | `.github/workflows/ci.yml` on every push + PR; required to merge to `main`                                                    |
+| PR previews (head branch is not `main` or `dev`)           | ✅ auto    | Netlify, gated by `frontend/netlify.toml` (see [§4](#netlify-pr-previews))                                                    |
+| HTTPS certificate issuance + renewal                       | ✅ auto    | Traefik + Let's Encrypt                                                                                                       |
+| HTTP to HTTPS redirect                                     | ✅ auto    | Cloudflare                                                                                                                    |
+| DB migrations (auth tables + app tables)                   | ✅ auto    | `migrate` service (drizzle) + Hibernate `ddl-auto=update` on each deploy. **Additive only**: see the dropped-column row below |
+| Nightly DB backups (R2 + local) + rotation                 | ✅ auto    | Dokploy Backups + Schedule                                                                                                    |
+| OS security updates                                        | ✅ auto    | unattended-upgrades                                                                                                           |
+| Uptime checks                                              | ✅ auto    | UptimeRobot, published as a [public status page](https://stats.uptimerobot.com/ej4ROz2eMo)                                    |
+| **Adding/Changing a `NEXT_PUBLIC_*` var**                  | ❌ manual  | edit in Dokploy env **+ redeploy**                                                                                            |
+| **Adding a new domain/subdomain**                          | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                                                                     |
+| **New OAuth provider redirect URIs**                       | ❌ manual  | add in Google/Meta consoles                                                                                                   |
+| **Hard-refresh after deploy**                              | ❌ manual  | avoids stale-bundle errors                                                                                                    |
+| **Restoring a backup**                                     | ❌ manual  | see [§8](#8-backups--restore)                                                                                                 |
+| **Rotating secrets / tokens**                              | ❌ manual  | as needed                                                                                                                     |
+| **Dropping or narrowing a column**                         | ❌ manual  | `ddl-auto=update` never drops, so the column outlives the code. See [§10.1](#101-dropping-a-column)                           |
 
 ---
+
+### 10.1 Dropping a column
+
+`ddl-auto=update` is additive. It adds tables and columns, and never removes or narrows
+one. So when an entity stops mapping a column, the column stays in the database with
+whatever constraints it had, and a `NOT NULL` column with no default then rejects every
+insert the new code makes, because Hibernate has stopped supplying a value for it.
+
+Deploys fire automatically on push, so there is no window in which you control which
+image is running. That makes the order matter, and a single `DROP COLUMN` cannot be
+ordered safely: run it before the push and the still-running old image breaks, run it
+after and every insert fails until you do.
+
+Three steps, in this order:
+
+```sql
+-- 1. Before pushing. The old image still writes the column, the new one omits it.
+ALTER TABLE <table> ALTER COLUMN <column> DROP NOT NULL;
+```
+
+```bash
+# 2. Push. Both images can now write, so the rollout window is safe either way.
+git push
+```
+
+```sql
+-- 3. After the deploy has settled.
+ALTER TABLE <table> DROP COLUMN <column>;
+```
+
+Open a DB shell the same way as for a restore, see [§8](#8-backups--restore).
 
 ## 11. Common operations (how-to)
 

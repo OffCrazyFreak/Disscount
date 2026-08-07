@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import PinToggleButton from "@/app/(user)/digital-cards/components/pin-toggle-button";
 import { digitalCardService } from "@/lib/api";
+import { DIGITAL_CARD_QUERY_KEYS } from "@/lib/api/digital-cards/keys";
 import { problemMessage } from "@/lib/api/problem-details";
 import type { DigitalCardDto } from "@/lib/api/types";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
@@ -35,7 +36,9 @@ export default function CardViewActions({ card }: ICardViewActionsProps) {
     try {
       await deleteMutation.mutateAsync(card.id);
       toast.success("Kartica je uspješno obrisana!");
-      await queryClient.invalidateQueries({ queryKey: ["digitalCards"] });
+      await queryClient.invalidateQueries({
+        queryKey: DIGITAL_CARD_QUERY_KEYS.all,
+      });
     } catch (error) {
       toast.error(problemMessage(error, "Greška pri brisanju kartice."));
     }

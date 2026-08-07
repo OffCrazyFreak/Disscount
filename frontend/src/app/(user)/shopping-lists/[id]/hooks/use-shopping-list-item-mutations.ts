@@ -2,18 +2,33 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { shoppingListService } from "@/lib/api";
+import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 
+/**
+ * @param shareToken present when the list was reached through a share link, in which case
+ *   writes go to /api/shared/{token}: the token is the capability, so knowing the list id
+ *   is never enough on its own.
+ */
 export function useShoppingListItemMutations(
   listId: string,
   averagePrices: Record<string, number>,
   storePrices: Record<string, Record<string, number>>,
+  shareToken?: string,
 ) {
   const queryClient = useQueryClient();
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
 
   const updateItemMutation = shoppingListService.useUpdateShoppingListItem();
   const deleteItemMutation = shoppingListService.useDeleteShoppingListItem();
+  const updateSharedItemMutation =
+    shoppingListService.useUpdateSharedShoppingListItem();
+  const deleteSharedItemMutation =
+    shoppingListService.useDeleteSharedShoppingListItem();
+
+  const queryKey = shareToken
+    ? SHOPPING_LIST_QUERY_KEYS.byToken(shareToken)
+    : SHOPPING_LIST_QUERY_KEYS.byId(listId);
 
   const handleUpdateItem = async (
     itemId: string,
@@ -23,85 +38,44 @@ export function useShoppingListItemMutations(
       chainCode: string | null;
     },
   ) => {
-    const shoppingList = queryClient.getQueryData<ShoppingList>([
-      "shoppingLists",
-      listId,
-    ]);
-
+    const shoppingList = queryClient.getQueryData<ShoppingList>(queryKey);
     const item = shoppingList?.items?.find((i) => i.id === itemId);
-    if (!item) return;
+    if (!item || updatedItem.amount < 1) return;
 
-    // Validate amount
-    if (updatedItem.amount < 1) return;
+    // Prices are captured at the moment of ticking, so they have to be resolved here
+    // where the component's price maps live, not inside the mutation. They travel in the
+    // request, which is also what the optimistic patch applies.
+    const data = { ...item, ...updatedItem };
 
-    // Optimistic update
-    await queryClient.cancelQueries({ queryKey: ["shoppingLists", listId] });
-    const previousData = queryClient.getQueryData<ShoppingList>([
-      "shoppingLists",
-      listId,
-    ]);
-
-    queryClient.setQueryData<ShoppingList | undefined>(
-      ["shoppingLists", listId],
-      (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          items: old.items?.map((i) => {
-            if (i.id === itemId) {
-              const updated = { ...i, ...updatedItem };
-              // If checking the item, include the current average price
-              if (updatedItem.isChecked) {
-                const currentAvgPrice = averagePrices[i.id];
-                if (currentAvgPrice !== undefined) {
-                  updated.avgPrice = currentAvgPrice;
-                }
-              }
-              return updated;
-            }
-            return i;
-          }),
-        };
-      },
-    );
-
-    // Prepare update data
-    const updateData = {
-      ...item,
-      ...updatedItem,
-    };
-
-    // If checking the item, include the current average price and store price
     if (updatedItem.isChecked) {
-      const currentAvgPrice = averagePrices[item.id];
-      if (currentAvgPrice !== undefined) {
-        updateData.avgPrice = currentAvgPrice;
-      }
+      const avgPrice = averagePrices[item.id];
+      if (avgPrice !== undefined) data.avgPrice = avgPrice;
 
-      // Include the store price from the selected store
-      if (
-        updatedItem.chainCode &&
-        storePrices[item.id]?.[updatedItem.chainCode]
-      ) {
-        updateData.storePrice = storePrices[item.id][updatedItem.chainCode];
-      }
+      const storePrice =
+        updatedItem.chainCode && storePrices[item.id]?.[updatedItem.chainCode];
+      if (storePrice) data.storePrice = storePrice;
+    } else {
+      // data starts as a copy of the cached item, so without this an earlier capture
+      // survives the uncheck and gets re-sent. An item unchecked and re-checked at a
+      // different shop would keep the first shop's price until a new one overwrote it.
+      data.avgPrice = null;
+      data.storePrice = null;
+    }
+
+    if (shareToken) {
+      // No toast: the offline defaults carry one, and they are the only handler that
+      // survives a replay after a reload.
+      updateSharedItemMutation.mutate({ token: shareToken, itemId, data });
+      return;
     }
 
     updateItemMutation.mutate(
+      { listId, itemId, data },
       {
-        listId,
-        itemId,
-        data: updateData,
-      },
-      {
-        onError: (error: Error) => {
-          if (previousData) {
-            queryClient.setQueryData(["shoppingLists", listId], previousData);
-          }
+        onError: (error: Error) =>
           toast.error(
             error.message || "Greška pri ažuriranju stavke. Pokušaj ponovno.",
-          );
-        },
+          ),
       },
     );
   };
@@ -109,42 +83,26 @@ export function useShoppingListItemMutations(
   const handleDeleteItem = async (itemId: string) => {
     setDeletingItemId(itemId);
 
-    // Optimistic update
-    await queryClient.cancelQueries({ queryKey: ["shoppingLists", listId] });
-    const previousData = queryClient.getQueryData<ShoppingList>([
-      "shoppingLists",
-      listId,
-    ]);
+    if (shareToken) {
+      deleteSharedItemMutation.mutate(
+        { token: shareToken, itemId },
+        {
+          onSuccess: () => toast.success("Stavka je uspješno obrisana!"),
+          onSettled: () => setDeletingItemId(null),
+        },
+      );
+      return;
+    }
 
-    queryClient.setQueryData<ShoppingList | undefined>(
-      ["shoppingLists", listId],
-      (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          items: old.items?.filter((i) => i.id !== itemId),
-        };
-      },
-    );
-
-    // Delete the item
     deleteItemMutation.mutate(
       { listId, itemId },
       {
-        onError: (error: Error) => {
-          if (previousData) {
-            queryClient.setQueryData(["shoppingLists", listId], previousData);
-          }
+        onError: (error: Error) =>
           toast.error(
             error.message || "Greška pri brisanju stavke. Pokušaj ponovno.",
-          );
-        },
-        onSuccess: () => {
-          toast.success("Stavka je uspješno obrisana!");
-        },
-        onSettled: () => {
-          setDeletingItemId(null);
-        },
+          ),
+        onSuccess: () => toast.success("Stavka je uspješno obrisana!"),
+        onSettled: () => setDeletingItemId(null),
       },
     );
   };
