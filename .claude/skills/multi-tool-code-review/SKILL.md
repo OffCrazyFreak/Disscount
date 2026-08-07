@@ -93,6 +93,8 @@ A run leaves debris in three places: scratch output and triage docs under `revie
 
 Offer cleanup once, when the cycle is genuinely over: the PR merged, or the user says they are done. Do not offer it while a PR is open, and do not fold it into another question as a default-on extra.
 
+Record what this cycle creates as it creates it: the exact review directory, report paths, branch names, their remote counterparts, and any worktree. That manifest, not the detection below, is what may be proposed for removal. The commands find everything matching a shape, including branches and worktrees from unrelated work that happen to be named the same way, so intersect their output with the manifest and keep anything whose owner you cannot establish, naming it in the question as retained.
+
 Build the proposal by detecting what exists, then put it to the user with `AskUserQuestion`, one question per category, options built from what you actually found:
 
 ```bash
@@ -107,7 +109,7 @@ Rules that hold regardless of the answer:
 
 - **Only ever propose what this cycle created.** Other branches and worktrees belong to unrelated in-flight work, and the host repo's `AGENTS.md` forbids touching it. List them in the question as explicitly excluded rather than leaving the user to wonder whether you swept them up.
 - **Scratch and reports are different questions.** `_review-run*` folders are pure working output and are the safe default to remove. `REVIEW-*.md` and `.html` are the deliverable; offer keeping them, archiving them, or deleting them, and default to keeping.
-- **Never delete a branch with unpushed commits, or one behind an open PR**, even if the user selects it. Check `git log <remote>..<branch>` and `gh pr list --head <branch>` first, and report back instead of deleting.
+- **Never delete a branch with unpushed commits, or one associated with an open PR**, even if the user selects it, whether the branch is that PR's head or its base. Check `git log <remote>..<branch>`, then `gh pr list --head <branch>` and `gh pr list --base <branch>` as separate calls, since the two filters combine as AND rather than OR. Report back instead of deleting. If either check cannot be run, keep the branch and say why.
 - **Say what a report is still referenced by.** A PR body that cites a triage doc by path leaves a dangling reference once it is gone. Mention it, then let the user decide.
 - Report exactly what was removed and what was left standing.
 

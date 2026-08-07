@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
@@ -76,7 +76,16 @@ export function useCopyListModal(id: string) {
     defaultValues: { title: "" },
   });
 
-  const { isDirty, isValid } = form.formState;
+  const { isDirty } = form.formState;
+  // useWatch, not form.watch: watch() is a function the React Compiler cannot memoize,
+  // so reading it here would opt the whole hook out of compilation.
+  const title = useWatch({ control: form.control, name: "title" });
+
+  // Parsed rather than read off formState.isValid, the same way the watchlist form does
+  // it: the flag only refreshes when the resolver runs, and the seeding reset below does
+  // not run it, so an untouched valid prefill would read as invalid and leave Kopiraj
+  // dead until the user typed. The resolver still owns the message under the field.
+  const isValid = shoppingListRequestSchema.safeParse({ title }).success;
 
   // Seeds the suggested name once the list lands, and never again after the first
   // keystroke, so a late refetch cannot overwrite what the user typed.

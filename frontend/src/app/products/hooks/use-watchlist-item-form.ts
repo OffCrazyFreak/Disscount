@@ -71,9 +71,9 @@ export function useWatchlistItemForm(
   // on screen. So the prefill landed on nothing. reset writes both values and both
   // defaults regardless, which is what makes an untouched prefill not a change, and
   // keepDirtyValues leaves a number the user (or a restored draft) has already
-  // edited alone. It also refreshes isValid without filling in errors, so the submit
-  // button is live for a valid prefill and nothing is marked red before it is
-  // touched.
+  // edited alone. What it does not do is re-run the resolver, so formState.isValid is
+  // still the mount pass over the empty defaults afterwards. That is why isFormValid
+  // below parses the schema itself rather than reading the flag.
   useEffect(() => {
     form.reset(
       {
