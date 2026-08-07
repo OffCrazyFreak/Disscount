@@ -46,12 +46,21 @@ export async function purgeOfflineCache(
   queryClient.removeQueries({ predicate: isUserSpecific });
   queryClient.getMutationCache().clear();
 
-  try {
-    // Wipe the snapshot so no authed data lingers; public data re-persists on next save.
-    await removePersistedCacheFor(identity);
-    await purgeServiceWorkerCaches();
-  } catch (error) {
-    // Never let a failed IndexedDB purge block logout / auth-loss handling.
-    console.error("Failed to clear the persisted offline cache", error);
+  // Wipe the snapshot so no authed data lingers; public data re-persists on next save.
+  // allSettled, not sequential awaits: one failing delete must not cancel the other and
+  // leave the departing account's data in the buckets it did not reach.
+  const results = await Promise.allSettled([
+    removePersistedCacheFor(identity),
+    purgeServiceWorkerCaches(),
+  ]);
+
+  // Never let a failed purge block logout / auth-loss handling.
+  for (const result of results) {
+    if (result.status === "rejected") {
+      console.error(
+        "Failed to clear the persisted offline cache",
+        result.reason,
+      );
+    }
   }
 }
