@@ -17,7 +17,10 @@ import { takeModalError } from "@/lib/modal/modal-error-bus";
 import { takeModalValues } from "@/lib/modal/modal-retry-bus";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useFormDraft } from "@/hooks/use-form-draft";
-import { getFormDraft, removeFormDraft } from "@/utils/browser/local-storage";
+import {
+  getFormDraft,
+  removeFormDraftField,
+} from "@/utils/browser/local-storage";
 import { LOADING_LABELS } from "@/constants/loading-labels";
 import extractDominantColor from "@/utils/browser/extract-dominant-color";
 import CardNameField from "@/app/(user)/digital-cards/components/forms/card-name-field";
@@ -43,14 +46,12 @@ interface IDigitalCardModalProps {
   id?: string;
 }
 
-// Drafts written before the code was excluded still hold a card number under the old
-// "value" field. Deleting the whole key is safer than trusting the shape of a draft
-// written by a build we no longer have.
-function dropLegacyDraft(draftKey: string): void {
-  const draft = getFormDraft(draftKey)?.values;
-  if (draft && ("value" in draft || "codeValue" in draft)) {
-    removeFormDraft(draftKey);
-  }
+// Drafts written before the code was excluded still hold a card number, under the old
+// "value" field or the current one. Only those fields go: the rest of a half-finished
+// card is the user's work and there is no reason to throw it away with them.
+function dropLegacyCode(draftKey: string): void {
+  removeFormDraftField(draftKey, "value");
+  removeFormDraftField(draftKey, "codeValue");
 }
 
 const EMPTY_VALUES: DigitalCardFormData = {
@@ -98,7 +99,7 @@ export default function DigitalCardModal({
   // Draft precedence controls restore order; the isDirty guard is what stops a
   // reload from clobbering an in-progress edit.
   useEffect(() => {
-    dropLegacyDraft(draftKey);
+    dropLegacyCode(draftKey);
   }, [draftKey]);
 
   useEffect(() => {
