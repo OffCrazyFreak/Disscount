@@ -78,7 +78,7 @@ export default function ShoppingListActionRow({
               disabled={isCopying}
             >
               {isCopying ? (
-                <BlockLoadingSpinner size={24} className="text-inherit" />
+                <BlockLoadingSpinner size={16} className="text-inherit" />
               ) : (
                 <Copy aria-hidden="true" />
               )}
@@ -127,7 +127,7 @@ export default function ShoppingListActionRow({
               disabled={isDeleting}
             >
               {isDeleting ? (
-                <BlockLoadingSpinner size={24} className="text-inherit" />
+                <BlockLoadingSpinner size={16} className="text-inherit" />
               ) : (
                 <Trash2 aria-hidden="true" />
               )}
