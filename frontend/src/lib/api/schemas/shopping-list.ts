@@ -16,8 +16,8 @@ export const listAccessSchema = z.enum([
 export const shoppingListRequestSchema = z.object({
   title: z
     .string()
-    .min(3, "Naziv mora imati najmanje 3 znaka")
-    .max(100, "Naziv može imati najviše 100 znakova"),
+    .min(3, "Upiši naziv s najmanje 3 znaka")
+    .max(100, "Upiši naziv s najviše 100 znakova"),
   linkAccess: linkAccessSchema.optional(),
 });
 
@@ -44,8 +44,8 @@ export const shoppingListDtoSchema = z.object({
 export const shoppingListCopyRequestSchema = z.object({
   title: z
     .string()
-    .min(3, "Naziv mora imati najmanje 3 znaka")
-    .max(100, "Naziv može imati najviše 100 znakova"),
+    .min(3, "Upiši naziv s najmanje 3 znaka")
+    .max(100, "Upiši naziv s najviše 100 znakova"),
   includeItems: z.boolean(),
   includeProgress: z.boolean(),
   includeSharing: z.boolean(),

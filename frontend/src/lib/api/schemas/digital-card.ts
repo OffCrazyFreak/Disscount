@@ -5,7 +5,7 @@ export const digitalCardRequestSchema = z.object({
   title: z
     .string()
     .min(1, "Naziv je obavezan")
-    .max(100, "Naziv može imati najviše 100 znakova"),
+    .max(100, "Upiši naziv s najviše 100 znakova"),
   value: z
     .string()
     .min(1, "Vrijednost je obavezna")
