@@ -12,18 +12,14 @@ import { shouldPersistMutation } from "@/lib/offline/offline-mutation-keys";
 
 const IDB_CACHE_KEY = "disscount-react-query-cache";
 
-// Bump on a breaking cache-shape change to discard stale persisted data.
-// "2": ShoppingListDto dropped isPublic and gained linkAccess, shareToken and myAccess.
-// A restored pre-change list has no myAccess, which every capability check would read
-// as no access at all.
-// "3": the entry is now keyed per identity, so the old shared blob is orphaned.
+// Bumping is heavier than it looks: a mismatch calls removeClient(), discarding queued
+// writes under EVERY key, not just the changed one. Prefer tombstone defaults in
+// offline-mutations.ts. History and reasoning in docs/PWA.md.
 const CACHE_BUSTER = "3";
 
 export const OFFLINE_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-// IndexedDB over localStorage: larger, and safer for cached application data.
-// The key is resolved per call rather than once, so an identity change takes effect on
-// the next read or write without rebuilding the persister.
+// Key resolved per call, so an identity change takes effect without rebuilding this.
 const indexedDbStorage = {
   getItem: async (key: string) =>
     (await get<string>(scopedCacheKey(key))) ?? null,

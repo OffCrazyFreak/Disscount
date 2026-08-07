@@ -36,14 +36,13 @@ public class ShoppingList {
 
     // Nullable because ddl-auto=update cannot add a NOT NULL column to a populated table.
     // Read it through resolvedLinkAccess(), never directly.
+    //
+    // This is the whole of sharing: the list's own id is the shareable URL, and this says
+    // what holding that URL grants. There is no separate token, so turning sharing off and
+    // on again hands back the same URL, which is the Google Docs behaviour and is intended.
     @Enumerated(EnumType.STRING)
     @Column(name = "link_access", length = 16)
     private ListAccess linkAccess;
-
-    // Deliberately not the list id: a token can be rotated, so turning sharing off and on
-    // again actually revokes instead of handing the same URL back to everyone who kept it.
-    @Column(name = "share_token", unique = true)
-    private UUID shareToken;
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;

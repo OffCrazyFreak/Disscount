@@ -14,6 +14,11 @@ const ShareListModal = dynamic(
   () => import("@/app/(user)/shopping-lists/components/forms/share-list-modal"),
   { ssr: false },
 );
+
+const CopyListModal = dynamic(
+  () => import("@/app/(user)/shopping-lists/components/forms/copy-list-modal"),
+  { ssr: false },
+);
 const DigitalCardModal = dynamic(
   () =>
     import("@/app/(user)/digital-cards/components/forms/digital-card-modal"),
@@ -64,9 +69,12 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
   switch (rendered.name) {
     case "shopping-list":
       // Sharing is its own modal: it saves on change rather than behind a submit button,
-      // because the server has to mint the token before there is a link to show.
+      // since there is nothing to confirm once the URL is the list's own.
       if (rendered.action === "share") {
         return <ShareListModal open={open} id={rendered.id} />;
+      }
+      if (rendered.action === "copy") {
+        return <CopyListModal open={open} id={rendered.id} />;
       }
       return (
         <ShoppingListModal
@@ -109,6 +117,10 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
       // instance would carry product A's edited threshold into product B. Keyed on
       // the ean only, so switching watch mode reuses the instance and keeps both
       // numbers, which is what the mode toggle does anyway.
+      //
+      // Reuse happens when the target swaps straight to another product, or on a
+      // reopen inside useLingeringTarget's exit window. An ordinary close unmounts
+      // the outlet, so this is not guarding every reopen.
       return (
         <WatchlistItemModal
           key={rendered.ean}

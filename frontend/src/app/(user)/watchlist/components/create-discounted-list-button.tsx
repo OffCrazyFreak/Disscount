@@ -115,6 +115,13 @@ export default function CreateDiscountedListButton({
           ({addableProducts.length})
         </span>
       </Button>
+
+      {/* The count is hidden from the button's own name so it does not re-announce the
+          whole control on every change. It still has to be announced somehow, so it is
+          mirrored here, outside the button, where a polite region can carry it alone. */}
+      <span aria-live="polite" className="sr-only">
+        Proizvoda za novi popis: {addableProducts.length}.
+      </span>
     </>
   );
 }

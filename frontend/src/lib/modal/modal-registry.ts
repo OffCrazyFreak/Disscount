@@ -25,6 +25,7 @@ export type ModalTarget =
   | { name: "shopping-list"; action: "new" }
   | { name: "shopping-list"; action: "edit"; id: string }
   | { name: "shopping-list"; action: "share"; id: string }
+  | { name: "shopping-list"; action: "copy"; id: string }
   | { name: "digital-card"; action: "new" }
   | { name: "digital-card"; action: "edit"; id: string }
   | { name: "digital-card"; action: "view"; id: string }
@@ -84,6 +85,7 @@ export function parseModalParam(
       if (sub === "new") return { name, action: "new" };
       if (sub === "edit" && id) return { name, action: "edit", id };
       if (sub === "share" && id) return { name, action: "share", id };
+      if (sub === "copy" && id) return { name, action: "copy", id };
       return null;
     case "digital-card":
       if (sub === "new") return { name, action: "new" };

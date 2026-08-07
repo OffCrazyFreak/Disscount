@@ -8,12 +8,9 @@ import {
   addItemToShoppingList,
   updateShoppingListItem,
   deleteShoppingListItem,
-  updateSharedShoppingListItem,
-  deleteSharedShoppingListItem,
 } from "@/lib/api/shopping-lists";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import { DIGITAL_CARD_QUERY_KEYS } from "@/lib/api/digital-cards/keys";
-import { parseProblem } from "@/lib/api/problem-details";
 import { addToWatchlist, removeFromWatchlist } from "@/lib/api/watchlist";
 import {
   createDigitalCard,
@@ -28,6 +25,14 @@ import type {
   DigitalCardRequest,
 } from "@/lib/api/types";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
+import {
+  deleteWriteFailed,
+  listWriteFailed,
+} from "@/lib/offline/list-write-failed";
+import {
+  cardDeleteFailed,
+  cardWriteFailed,
+} from "@/lib/offline/card-write-failed";
 
 function listAndItemsKeys(listId: string): QueryKey[] {
   return [
@@ -100,6 +105,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
       data: ShoppingListItemRequest;
     }) => updateShoppingListItem(listId, itemId, data),
     ({ listId }) => listAndItemsKeys(listId),
+    listWriteFailed,
   );
 
   defineOfflineMutation(
@@ -107,7 +113,28 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
     ({ listId, itemId }: { listId: string; itemId: string }) =>
       deleteShoppingListItem(listId, itemId),
     ({ listId }) => listAndItemsKeys(listId),
+    // Deletes get their own handler: a replayed delete for an item that is already gone
+    // answers 404, which is the desired end state rather than a failure, and the shared
+    // handler would blame it on lost access.
+    deleteWriteFailed,
   );
+
+  // Tombstones for the two keys sharing used before it moved from a token to the list id.
+  // A write queued by the previous build hydrates under one of these, and without a
+  // mutationFn resuming it throws. Nothing can replay them: they carry a token, and the
+  // endpoint behind it no longer exists. So they resolve, say what happened, and stop.
+  for (const retiredKey of [
+    ["sharedShoppingList", "items", "update"],
+    ["sharedShoppingList", "items", "delete"],
+  ]) {
+    queryClient.setMutationDefaults(retiredKey, {
+      mutationFn: async () => undefined,
+      onSuccess: () =>
+        toast.error(
+          "Promjena s prošle verzije nije spremljena. Otvori popis i provjeri.",
+        ),
+    });
+  }
 
   defineOfflineMutation(
     OFFLINE_MUTATION_KEYS.watchlistAdd,
@@ -119,29 +146,6 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
     OFFLINE_MUTATION_KEYS.watchlistRemove,
     (id: string) => removeFromWatchlist(id),
     () => [["watchlist"]],
-  );
-
-  defineOfflineMutation(
-    OFFLINE_MUTATION_KEYS.sharedItemUpdate,
-    ({
-      token,
-      itemId,
-      data,
-    }: {
-      token: string;
-      itemId: string;
-      data: ShoppingListItemRequest;
-    }) => updateSharedShoppingListItem(token, itemId, data),
-    ({ token }) => [SHOPPING_LIST_QUERY_KEYS.byToken(token)],
-    sharedWriteFailed,
-  );
-
-  defineOfflineMutation(
-    OFFLINE_MUTATION_KEYS.sharedItemDelete,
-    ({ token, itemId }: { token: string; itemId: string }) =>
-      deleteSharedShoppingListItem(token, itemId),
-    ({ token }) => [SHOPPING_LIST_QUERY_KEYS.byToken(token)],
-    sharedWriteFailed,
   );
 
   defineOfflineMutation(
@@ -159,11 +163,11 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
     cardWriteFailed,
   );
 
-  // No handler: the only caller is the view modal's delete, which toasts its own failure.
   defineOfflineMutation(
     OFFLINE_MUTATION_KEYS.digitalCardDelete,
     (id: string) => deleteDigitalCard(id),
     () => [DIGITAL_CARD_QUERY_KEYS.me],
+    cardDeleteFailed,
   );
 
   defineOfflineMutation(
@@ -172,43 +176,5 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
       setDigitalCardPinned(id, pinned),
     () => [DIGITAL_CARD_QUERY_KEYS.me],
     cardWriteFailed,
-  );
-}
-
-/**
- * Access to a shared list can be withdrawn between queuing a write and replaying it, and
- * the owner is under no obligation to warn anyone. Saying so beats a silent revert.
- *
- * Only for 403 and 404 though. This default also runs for live online failures, so
- * blaming access loss for every error told a collaborator with perfectly good access
- * that they had lost it because a request happened to time out. A 404 additionally
- * covers a replayed delete for an item that is already gone, which is harmless.
- */
-function sharedWriteFailed(error: Error) {
-  const status = parseProblem(error)?.status;
-  const lostAccess = status === 403 || status === 404;
-
-  toast.error(
-    lostAccess
-      ? "Promjena nije spremljena. Možda više nemaš pristup ovom popisu."
-      : "Promjena nije spremljena. Pokušaj ponovno.",
-  );
-}
-
-/**
- * A card write that fails on replay has no modal left to show the error in: create and
- * update close optimistically, and pinning fires straight from the grid. Without this the
- * card silently reverts.
- *
- * A 404 means the card is already gone, which needs no alarm, so it is reported as the
- * plain outcome rather than a failure to retry.
- */
-function cardWriteFailed(error: Error) {
-  const status = parseProblem(error)?.status;
-
-  toast.error(
-    status === 404
-      ? "Kartica više ne postoji."
-      : "Promjena kartice nije spremljena. Pokušaj ponovno.",
   );
 }

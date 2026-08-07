@@ -1,14 +1,13 @@
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { shoppingListService } from "@/lib/api";
-import type {
-  ShoppingListDto as ShoppingList,
-  ShoppingListRequest,
-  ShoppingListItemRequest,
-} from "@/lib/api/types";
+import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
+import {
+  openModalUrl,
+  type IOpenModalOptions,
+} from "@/lib/modal/modal-navigation";
 
 export function useShoppingListMutations(
   listId: string,
@@ -16,7 +15,6 @@ export function useShoppingListMutations(
 ) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [isCopying, setIsCopying] = useState(false);
 
   const deleteShoppingListMutation =
     shoppingListService.useDeleteShoppingList();
@@ -56,81 +54,24 @@ export function useShoppingListMutations(
     }
   };
 
-  async function handleCopy() {
+  /**
+   * Opens the options modal rather than copying on the spot. What a copy should carry is
+   * a real question (products, what was already ticked, the sharing settings) and guessing
+   * it produced a copy that was wrong on arrival for the common case of shopping the same
+   * list again next week.
+   */
+  function handleCopy(options?: IOpenModalOptions) {
     if (!shoppingList) return;
 
-    setIsCopying(true);
-    try {
-      // Create new shopping list with copied title. Sharing is deliberately not carried
-      // over: a copy is a new object, and inheriting a capability token would mint a live
-      // secret nobody had chosen to hand out. Matches AnyList, Todoist, Notion and Drive.
-      const newListData: ShoppingListRequest = {
-        title: `${shoppingList.title} (Kopija)`,
-      };
-
-      const newList = await shoppingListService.createShoppingList(newListData);
-
-      // Copy items with only the necessary fields
-      if (shoppingList.items && shoppingList.items.length > 0) {
-        const copyPromises = shoppingList.items.map((item) => {
-          const newItemData: ShoppingListItemRequest = {
-            ean: item.ean,
-            name: item.name,
-            brand: item.brand,
-            quantity: item.quantity,
-            unit: item.unit,
-            amount: item.amount,
-            // Default values (not copying these from original)
-            isChecked: false,
-            chainCode: null,
-            avgPrice: null,
-            storePrice: null,
-          };
-
-          return shoppingListService.addItemToShoppingList(
-            newList.id,
-            newItemData,
-          );
-        });
-
-        await Promise.all(copyPromises);
-      }
-
-      // Both roots: the copy creates items, and the flat item list feeds watchlist
-      // suggestions, which would otherwise not see them until something else refetched.
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: SHOPPING_LIST_QUERY_KEYS.all,
-        }),
-        queryClient.invalidateQueries({
-          queryKey: SHOPPING_LIST_QUERY_KEYS.itemsAll,
-        }),
-      ]);
-
-      // Say the copy is private rather than leaving it to be discovered: someone copying
-      // a shared list may well assume the same people can still reach it.
-      const wasShared =
-        !!shoppingList.linkAccess && shoppingList.linkAccess !== "NONE";
-      toast.success(
-        wasShared
-          ? "Popis je kopiran. Kopija nije podijeljena."
-          : "Popis za kupnju je uspješno kopiran!",
-      );
-
-      // Navigate to new shopping list
-      router.push(`/shopping-lists/${newList.id}`);
-    } catch (error) {
-      console.error("Error copying shopping list:", error);
-      toast.error("Greška pri kopiranju popisa za kupnju");
-    } finally {
-      setIsCopying(false);
-    }
+    openModalUrl(
+      { name: "shopping-list", action: "copy", id: shoppingList.id },
+      options,
+    );
   }
 
   return {
     deleteShoppingListMutation,
     confirmDelete,
     handleCopy,
-    isCopying,
   };
 }

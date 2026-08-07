@@ -85,10 +85,36 @@ Follow `04-fix-protocol.md`. If the harness supports plan mode, enter it first a
 2. File GitHub issues (labeled) for every finding the user excluded, and for anything you deferred. Surface deferrals with a recommendation; never silently skip.
 3. Offer a recap and to watch CI settle.
 
+## Stage 4: Clean up after the cycle
+
+A run leaves debris in three places: scratch output and triage docs under `reviews/`, the fix branch locally and on the remote, and a worktree if the review used one. Clear it once the PR is merged, so the next run starts from a clean detection.
+
+**Never delete anything without asking first.** Everything here looks disposable and is not: a triage doc is the only record of the findings the user chose to skip, a fix branch may hold the only copy of unpushed commits, and disk state is what this skill's own resume detection reads. A user who has not finished reading the doc, or who wants to re-review next week, will not get any of it back. So propose, then wait.
+
+Offer cleanup once, when the cycle is genuinely over: the PR merged, or the user says they are done. Do not offer it while a PR is open, and do not fold it into another question as a default-on extra.
+
+Build the proposal by detecting what exists, then put it to the user with `AskUserQuestion`, one question per category, options built from what you actually found:
+
+```bash
+ls -d reviews/_review-run* reviews/_archive 2>/dev/null   # scratch, safe to drop
+ls reviews/REVIEW-*.md reviews/REVIEW-*.html 2>/dev/null  # triage docs, the user's record
+git worktree list                                          # which are this run's
+git branch --merged <base> | grep -E 'fix/.*review'        # merged fix branches
+git ls-remote --heads origin 'fix/*review*'                # their remote counterparts
+```
+
+Rules that hold regardless of the answer:
+
+- **Only ever propose what this cycle created.** Other branches and worktrees belong to unrelated in-flight work, and the host repo's `AGENTS.md` forbids touching it. List them in the question as explicitly excluded rather than leaving the user to wonder whether you swept them up.
+- **Scratch and reports are different questions.** `_review-run*` folders are pure working output and are the safe default to remove. `REVIEW-*.md` and `.html` are the deliverable; offer keeping them, archiving them, or deleting them, and default to keeping.
+- **Never delete a branch with unpushed commits, or one behind an open PR**, even if the user selects it. Check `git log <remote>..<branch>` and `gh pr list --head <branch>` first, and report back instead of deleting.
+- **Say what a report is still referenced by.** A PR body that cites a triage doc by path leaves a dangling reference once it is gone. Mention it, then let the user decide.
+- Report exactly what was removed and what was left standing.
+
 ## Conventions (apply throughout)
 
 - Ask if you are unsure of anything rather than assuming. Follow the host repo's `AGENTS.md` / `CLAUDE.md` closely.
-- **Always hand back full absolute paths, on their own line.** Every artifact you write (the triage doc in each format, and any raw runner output you point at) gets its real path via `realpath`, never a bare filename or a repo-relative fragment buried in a sentence. The user clicks these to open them, and a path that is not absolute is not clickable. Reviews often run from a git worktree while the user sits in the main checkout, so resolve the path instead of assuming a shared working directory, and say which checkout it is in. See "Delivering the doc" in `03-triage-doc-format.md`.
+- **Always hand back artifacts as `[filename](file:///absolute/path)` Markdown links, one per line.** Every artifact you write (the triage doc in each format, and any raw runner output you point at) gets its real path via `realpath`, wrapped in a Markdown link with a `file://` target. That is the only form the user can click; a bare absolute path, a bare `file://` URI, and any `vscode://` variant were all tested and none of them work. Reviews often run from a git worktree while the user sits in the main checkout, so resolve the path instead of assuming a shared working directory, and say which checkout it is in. See "Delivering the doc" in `03-triage-doc-format.md`.
 - **The HTML variant follows the system colour scheme, dark by default.** Base palette dark in `:root`, light via `@media (prefers-color-scheme: light)`, print forced light, every colour a CSS variable. Full rules in `03-triage-doc-format.md`.
 - No em dashes anywhere (chat, docs, commits, comments).
 - Do not hardcode any model; ask the user each run and recommend from a fresh online check.
@@ -96,4 +122,5 @@ Follow `04-fix-protocol.md`. If the harness supports plan mode, enter it first a
 - In a **worktree with symlinked `node_modules`**, do not use `pnpm exec` or `pnpm run`: both run a deps-status check, see the symlink as out of sync, and try to purge the main tree's real `node_modules` through it. Call the binary directly there instead. In a normal checkout `pnpm exec` is fine.
 - If `pnpm` is not on PATH, prepend it: `export PATH="$HOME/.local/share/pnpm/bin:$HOME/.local/share/nvm/*/bin:$PATH"`.
 - Never run the dev server or any deploy/Docker command. The production build is allowed, and Stage 3 expects it.
-- Runner outputs and the triage doc live under `reviews/` (gitignored). Keep them out of commits; `git add` explicit files, never `-A`.
+- Runner outputs and the triage doc live under `reviews/` (gitignored). Keep them out of commits; `git add` explicit files, never `-A`. The runners recreate the folder, so a deleted `reviews/` is not a broken state.
+- Deleting artifacts, branches or worktrees is always a question for the user, never a tidy-up you perform on your own initiative. See Stage 4.

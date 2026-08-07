@@ -10,8 +10,9 @@ import { shareListUrl } from "@/utils/shopping-list-links";
 import { useOnlineStatus } from "@/hooks/use-online-status";
 
 /**
- * Share settings save on change rather than behind a submit button: the server mints the
- * token, so there is no link to show until a save has come back.
+ * Share settings save on change rather than behind a submit button. There is nothing to
+ * confirm: the URL is the list's own and exists either way, so the only question the
+ * modal asks is what holding it grants.
  */
 export function useShareListModal(id: string) {
   const isOnline = useOnlineStatus();
@@ -25,9 +26,11 @@ export function useShareListModal(id: string) {
   // new value optimistically in onMutate, so the cache is already correct here and there
   // is no second source to fall back to mid-save.
   const linkAccess: LinkAccess = shoppingList?.linkAccess ?? "NONE";
-  const shareUrl = shoppingList?.shareToken
-    ? shareListUrl(shoppingList.shareToken)
-    : null;
+
+  // Not built during render. shareListUrl calls appUrl(), which throws on a misconfigured
+  // NEXT_PUBLIC_APP_URL, and a throw here would take the whole modal down rather than the
+  // one button that needs an origin. The handlers below build it inside their try/catch.
+  const canShareLink = linkAccess !== "NONE";
 
   // isSaving, not isPending: offline the mutation pauses rather than settles, so isPending
   // stays true forever and the controls would sit disabled with nothing explaining why.
@@ -53,12 +56,12 @@ export function useShareListModal(id: string) {
   // No pending state on either handler. Nothing here is fetched, and shareOrCopy
   // documents why a flag cleared on completion strands the button spinning.
   async function handleLinkShare() {
-    if (!shareUrl || !shoppingList) return;
+    if (!canShareLink || !shoppingList) return;
 
     try {
       const outcome = await shareOrCopy({
         title: shoppingList.title,
-        url: shareUrl,
+        url: shareListUrl(shoppingList.id),
       });
 
       if (outcome === "copied") toast.success("Poveznica je kopirana");
@@ -98,7 +101,7 @@ export function useShareListModal(id: string) {
     setLinkAccess,
     isSaving,
     isOffline: !isOnline,
-    shareUrl,
+    canShareLink,
     handleLinkShare,
     handleTextShare,
   };

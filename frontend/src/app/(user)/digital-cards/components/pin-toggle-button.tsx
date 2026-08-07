@@ -1,11 +1,9 @@
 "use client";
 
 import { Pin, PinOff } from "lucide-react";
-import { toast } from "sonner";
 
 import { digitalCardService } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { problemMessage } from "@/lib/api/problem-details";
 import type { DigitalCardDto } from "@/lib/api/types";
 
 interface IPinToggleButtonProps {
@@ -26,15 +24,9 @@ export default function PinToggleButton({
   async function handleClick() {
     try {
       await setPinned.mutateAsync({ id: card.id, pinned: !isPinned });
-    } catch (error) {
-      toast.error(
-        problemMessage(
-          error,
-          isPinned
-            ? "Greška pri otkvačivanju kartice."
-            : "Greška pri prikvačivanju kartice.",
-        ),
-      );
+    } catch {
+      // Reported by the mutation's onError, which also covers an offline replay where
+      // this button is long gone. Caught only so the rejection is not unhandled.
     }
   }
 

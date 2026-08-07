@@ -12,6 +12,7 @@ import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import { removeFormDraftField } from "@/utils/browser/local-storage";
 import {
   isSameThreshold,
+  parseThreshold,
   thresholdBaselines,
 } from "@/app/products/utils/watchlist-thresholds";
 import {
@@ -108,7 +109,7 @@ export function useWatchlistItemForm(
     closeModalUrl();
 
     const field = thresholdField(data.watchType);
-    const value = Number.parseFloat(data[field]);
+    const value = parseThreshold(data[field]);
     const saved = existingItems.find(
       (item) => item.watchType === data.watchType,
     );
@@ -170,14 +171,25 @@ export function useWatchlistItemForm(
     // a flag can outlive the edit itself (a saved value equals its new baseline but
     // stays flagged). The comparison cannot drift that way. Only the numbers count,
     // so switching mode is never a change.
-    isEdited:
+    // Scoped to the mode on screen. Comparing both modes lit the unsaved marker for a
+    // number the user cannot see and cannot save from here: a draft restores the other
+    // mode's value, and onSubmit only clears the field it saved, so the marker stuck for
+    // the whole 24h draft life. resetDisabled keeps the both-modes comparison, because
+    // reset genuinely clears both.
+    isEdited: !isSameThreshold(
+      activeValue,
+      watchType === WatchType.absolute
+        ? baselines.absoluteValue
+        : baselines.percentageValue,
+    ),
+    isEditedInAnyMode:
       !isSameThreshold(percentageValue, baselines.percentageValue) ||
       !isSameThreshold(absoluteValue, baselines.absoluteValue),
     // Re-saving the tracked threshold unchanged is a no-op, so the button waits
     // for a different number. A mode with nothing tracked yet is always savable.
     hasSavableChange:
       !existingItemForType ||
-      Number.parseFloat(activeValue) !== existingItemForType.thresholdValue,
+      parseThreshold(activeValue) !== existingItemForType.thresholdValue,
     resetForm,
     onSubmit,
     onRemove,

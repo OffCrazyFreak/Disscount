@@ -129,6 +129,10 @@ Forms wired to drafts:
 | Settings and onboarding   | `settings-modal-host.tsx`  | one shared draft, cleared after a successful save and onboarding completion  |
 | Contact                   | `contact-modal.tsx`        | prefill from profile, then merge draft on top                                |
 
+**Clearing one field, not the whole draft.** The watchlist modal keeps a number per watch mode and submits only the active one, so a submit calls `removeFormDraftField(key, field)` rather than `clearDraft()`. The unsaved mode's number deliberately survives, because someone typing a euro threshold, switching to percentage and saving that has not abandoned the euro one. `removeFormDraftField` carries the draft's original `savedAt` forward, so clearing one field does not restart the 24h clock on the others.
+
+**Drafts are observable.** `subscribeToFormDrafts` bumps a version on every write, which anything outside the form can read through `useSyncExternalStore`. A product row uses it: the row stays mounted while the add-to-list modal opens over it, so without a subscription its "already on a list" icon would keep describing the list that was drafted when the row first rendered rather than the one the modal will actually preselect. Readers on a render path must call `peekFormDraft`, not `getFormDraft`: the latter evicts an expired draft, and that write plus its subscriber notification during render would schedule updates on sibling components mid-render.
+
 ### 4b. Device preferences
 
 Written by the small domain helpers in `utils/browser/storage/*`, each of which reads, merges its own field, and writes back through the core wrapper.
@@ -191,6 +195,8 @@ Not everything should be remembered. These are intentionally **not** persisted, 
 | Restoring a draft on reopen                   | Auto          | hook restores, or the modal merges it (`restore: false`)                   |
 | Expiring stale drafts (24h)                   | Auto          | dropped on read                                                            |
 | Clearing a draft after a successful submit    | Auto          | submit handlers call `clearDraft()` / the mutation clears it               |
+| Clearing only the field a submit saved        | Auto          | `removeFormDraftField`, so the other watch mode's number survives          |
+| Telling other surfaces a draft changed        | Auto          | `subscribeToFormDrafts` bumps a version, read via `useSyncExternalStore`   |
 | Dropping a draft field the form no longer has | Auto          | restore skips unknown keys, so a shape change cannot strand one for 24h    |
 | Keeping search + filters in the URL           | Auto          | the search and filter hooks own it                                         |
 | Persisting a preference (camera, periods...)  | Auto          | the relevant `storage/*` helper writes on change                           |

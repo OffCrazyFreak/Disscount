@@ -10,7 +10,6 @@ import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import PinToggleButton from "@/app/(user)/digital-cards/components/pin-toggle-button";
 import { digitalCardService } from "@/lib/api";
 import { DIGITAL_CARD_QUERY_KEYS } from "@/lib/api/digital-cards/keys";
-import { problemMessage } from "@/lib/api/problem-details";
 import type { DigitalCardDto } from "@/lib/api/types";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import { LOADING_LABELS } from "@/constants/loading-labels";
@@ -40,8 +39,8 @@ export default function CardViewActions({ card }: ICardViewActionsProps) {
       await queryClient.invalidateQueries({
         queryKey: DIGITAL_CARD_QUERY_KEYS.all,
       });
-    } catch (error) {
-      toast.error(problemMessage(error, "Greška pri brisanju kartice."));
+    } catch {
+      // Reported by the mutation's onError, which also covers an offline replay.
     }
   }
 

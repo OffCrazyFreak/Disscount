@@ -1,5 +1,6 @@
 import { Eye } from "lucide-react";
 
+import { PRODUCT_ACTION_LABELS } from "@/constants/product-action-labels";
 import { Button } from "@/components/ui/button";
 import EyePen from "@/components/custom/icons/eye-pen";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
@@ -24,7 +25,9 @@ export default function WatchlistActionButton({
 }: IWatchlistActionButtonProps) {
   const { openWatchlist } = useProductModals(product);
 
-  const actionLabel = isInWatchlist ? "Ažuriraj praćenje" : "Prati proizvod";
+  const actionLabel = isInWatchlist
+    ? PRODUCT_ACTION_LABELS.editWatch
+    : PRODUCT_ACTION_LABELS.watch;
 
   return (
     <Tooltip>

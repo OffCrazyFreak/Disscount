@@ -7,8 +7,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import disscount.shoppingList.dto.ShoppingListCopyRequest;
 import disscount.shoppingList.dto.ShoppingListDto;
 import disscount.shoppingList.dto.ShoppingListRequest;
+import disscount.shoppingList.service.ShoppingListCopyService;
 import disscount.shoppingList.service.ShoppingListService;
 import disscount.shoppingListItem.dto.ShoppingListItemDto;
 import disscount.util.SecurityUtils;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 public class ShoppingListController {
 
     private final ShoppingListService shoppingListService;
+    private final ShoppingListCopyService shoppingListCopyService;
 
     @Operation(summary = "Create a new shopping list")
     @PostMapping
@@ -41,13 +44,23 @@ public class ShoppingListController {
         return ResponseEntity.ok(lists);
     }
 
-    @Operation(summary = "Get shopping list by ID")
+    // The three by-id endpoints run on the chain where a bearer token is optional, so the
+    // caller may be anonymous and currentUserId() may be null. Authorization is entirely
+    // ShoppingListService's job; nothing here may assume an owner.
+
+    @Operation(summary = "Get shopping list by ID, for its owner or anyone holding a share link")
     @GetMapping("/{id}")
     public ResponseEntity<ShoppingListDto> getShoppingListById(@PathVariable UUID id) {
-        UUID ownerId = SecurityUtils.getCurrentUserId();
-        return shoppingListService.getShoppingListById(id, ownerId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(shoppingListService.getShoppingListById(id, currentUserId()));
+    }
+
+    @Operation(summary = "Copy a shopping list into a new list the caller owns")
+    @PostMapping("/{id}/copy")
+    public ResponseEntity<ShoppingListDto> copyShoppingList(
+            @PathVariable UUID id,
+            @Valid @RequestBody ShoppingListCopyRequest request) {
+        ShoppingListDto copy = shoppingListCopyService.copy(id, currentUserId(), request);
+        return ResponseEntity.ok(copy);
     }
 
     @Operation(summary = "Update shopping list")
@@ -55,16 +68,14 @@ public class ShoppingListController {
     public ResponseEntity<ShoppingListDto> updateShoppingList(
             @PathVariable UUID id,
             @Valid @RequestBody ShoppingListRequest request) {
-        UUID ownerId = SecurityUtils.getCurrentUserId();
-        ShoppingListDto updated = shoppingListService.updateShoppingList(id, ownerId, request);
+        ShoppingListDto updated = shoppingListService.updateShoppingList(id, currentUserId(), request);
         return ResponseEntity.ok(updated);
     }
 
     @Operation(summary = "Delete shopping list")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteShoppingList(@PathVariable UUID id) {
-        UUID ownerId = SecurityUtils.getCurrentUserId();
-        shoppingListService.deleteShoppingList(id, ownerId);
+        shoppingListService.deleteShoppingList(id, currentUserId());
         return ResponseEntity.noContent().build();
     }
     
@@ -78,5 +89,10 @@ public class ShoppingListController {
                 .flatMap(list -> list.getItems().stream())
                 .collect(Collectors.toList());
         return ResponseEntity.ok(items);
+    }
+
+    /** Null for an anonymous caller on the by-id routes, which is a legitimate state there. */
+    private UUID currentUserId() {
+        return SecurityUtils.getCurrentUserIdOptional().orElse(null);
     }
 }

@@ -27,6 +27,8 @@ Ask first:
 - Widening scope beyond what I asked for.
 - Any instruction of mine that has two plausible readings. Ask before you edit, do not pick one and start.
 
+**Ask means ask.** Every item above is a question to put to me, not a reason to pick the lesser option and move on. Do not work around a missing endpoint, skip the dependency and hand-roll it, or narrow the task to avoid the question. I say yes far more often than no, so quietly choosing the workaround costs me the better answer and I never learn the choice was there. If you are mid-task and cannot stop, do the parts that do not depend on the answer, then ask before you finish. Never let "I did not want to widen scope" be the reason something shipped worse.
+
 Hand back interactive installers and `init` wizards, except `pnpm dlx shadcn@latest add <component>`, which you may run.
 
 Safe without asking, run from `frontend/`:
@@ -96,7 +98,7 @@ Conventions:
 - `I`-prefixed Props interfaces, in the same file as the component. One component per file, default export.
 - `function name() {}`, not `const name = () => {}`, except for small inline callbacks.
 - `import { useState } from "react"`, never `React.useState`.
-- `components/ui/` is shadcn output, so do not hand-edit it. Our components live in `components/custom/`, grouped by concern.
+- `components/ui/` is shadcn output. Editing it is allowed where the primitive is the natural home for the change, such as a prop the component itself should own or a sizing rule our `--spacing` override breaks. Our components live in `components/custom/`, grouped by concern.
 - Types: API and domain go in `lib/api/schemas/*` as zod `*Dto` / `*Response`; external price API types in `lib/cijene-api/schemas.ts`; shared UI types in `@/typings`; feature-only types stay colocated in `*-types.ts`.
 - React Query hooks live next to their service in `lib/api/<domain>/`. Feature composition hooks go in the feature's `hooks/`.
 - Before generating or redesigning UI, read `frontend/.github/skills/frontend-design/SKILL.md` and follow it.

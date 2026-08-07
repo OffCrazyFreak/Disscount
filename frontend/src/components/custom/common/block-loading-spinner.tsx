@@ -15,12 +15,18 @@ export default function BlockLoadingSpinner({
       {/* Inline, because width and height are only attributes: a button variant
           sizing its descendant svgs would otherwise override them and stretch a
           spinner that asked for a specific size. */}
+      {/* text-inherit is load-bearing, not decoration. Containers like ui/select style
+          their descendant svgs with [&_svg:not([class*='text-'])]:text-muted-foreground,
+          which outranks the colour on the wrapper div above, so without a text- class of
+          its own the spinner renders muted wherever it is dropped. Carrying one opts out
+          of that rule and lets the wrapper's colour inherit as intended. */}
       <svg
         width={size}
         height={size}
         style={{ width: size, height: size }}
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"
+        className="text-inherit"
         aria-hidden
       >
         <rect

@@ -6,14 +6,14 @@ export const digitalCardRequestSchema = z.object({
   cardName: z
     .string()
     .trim()
-    .min(2, "Naziv kartice mora imati najmanje 2 znaka")
-    .max(60, "Naziv kartice može imati najviše 60 znakova"),
+    .min(2, "Upiši naziv kartice s najmanje 2 znaka")
+    .max(60, "Upiši naziv kartice s najviše 60 znakova"),
   cardType: z.enum(CARD_TYPES, { message: "Odaberi tip kartice" }),
   storeName: z
     .string()
     .trim()
-    .min(2, "Naziv trgovine mora imati najmanje 2 znaka")
-    .max(60, "Naziv trgovine može imati najviše 60 znakova"),
+    .min(2, "Upiši naziv trgovine s najmanje 2 znaka")
+    .max(60, "Upiši naziv trgovine s najviše 60 znakova"),
   chainCode: z.string().max(40).nullable(),
   codeValue: z
     .string()
@@ -34,7 +34,7 @@ export const digitalCardRequestSchema = z.object({
   note: z
     .string()
     .trim()
-    .max(500, "Bilješka može imati najviše 500 znakova")
+    .max(500, "Upiši bilješku s najviše 500 znakova")
     .nullable(),
 });
 
