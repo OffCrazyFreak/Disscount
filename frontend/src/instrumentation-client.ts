@@ -3,33 +3,21 @@
 import * as Sentry from "@sentry/nextjs";
 
 import { isServiceWorkerRegistrationNoise } from "@/lib/sentry/ignore-service-worker-noise";
-import {
-  scrubCrumbData,
-  scrubEventUrls,
-  scrubShareToken,
-} from "@/lib/sentry/scrub-share-token";
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
-  // Replay masks text by default but not URLs, and its envelopes do not pass through
-  // beforeSend, so the scrubbing below does not reach them. Shared-list pages are
-  // excluded from recording instead.
-  integrations: [
-    Sentry.replayIntegration({
-      beforeAddRecordingEvent: (event) =>
-        window.location.pathname.startsWith("/s/") ? null : event,
-    }),
-  ],
+  // A shopping list id now travels in the URL of every list page and every list API
+  // call, and while a list is shared that id is what grants access. Nothing scrubs it,
+  // deliberately: unlike the share token it used to replace, the id is the app's ordinary
+  // identifier and appears in paths, query keys and offline storage, so redacting it
+  // would blind every shopping-list trace rather than protect one route. The exposure is
+  // Sentry and the proxy access log, both of which are ours, and the id is inert once the
+  // list is not shared. This is a recorded trade in docs/SHARING.md, not an oversight.
+  integrations: [Sentry.replayIntegration()],
 
   beforeSend: (event) =>
-    isServiceWorkerRegistrationNoise(event) ? null : scrubEventUrls(event),
-  beforeSendTransaction: scrubEventUrls,
-  beforeBreadcrumb(breadcrumb) {
-    breadcrumb.message = scrubShareToken(breadcrumb.message);
-    if (breadcrumb.data) breadcrumb.data = scrubCrumbData(breadcrumb.data);
-    return breadcrumb;
-  },
+    isServiceWorkerRegistrationNoise(event) ? null : event,
 
   // 100% of traces in dev, 10% in production
   tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
