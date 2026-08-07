@@ -99,12 +99,6 @@ export default function CopyListModal({ open, id }: ICopyListModalProps) {
               disabled={!canCopySharing}
               onCheckedChange={(next) => setOption("sharing", next)}
             />
-
-            {!options.items && (
-              <p className="text-xs text-muted-foreground">
-                Kopirat će se samo naziv popisa.
-              </p>
-            )}
           </form>
         </Form>
       )}
