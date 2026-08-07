@@ -9,7 +9,6 @@ interface IShoppingListQuickActionsListProps {
   isOwner: boolean;
   /** Marks the share row as "already shared, this edits it" rather than "share this". */
   isShared: boolean;
-  isCopying: boolean;
   onShare: () => void;
   onCopy: () => void;
   onEdit: () => void;
@@ -24,7 +23,6 @@ interface IShoppingListQuickActionsListProps {
 export default function ShoppingListQuickActionsList({
   isOwner,
   isShared,
-  isCopying,
   onShare,
   onCopy,
   onEdit,
@@ -40,12 +38,7 @@ export default function ShoppingListQuickActionsList({
         />
       )}
 
-      <QuickActionItem
-        icon={Copy}
-        label="Kopiraj popis"
-        onSelect={onCopy}
-        loading={isCopying}
-      />
+      <QuickActionItem icon={Copy} label="Kopiraj popis" onSelect={onCopy} />
 
       <QuickActionItem
         icon={isShared ? Share2Pen : Share2}

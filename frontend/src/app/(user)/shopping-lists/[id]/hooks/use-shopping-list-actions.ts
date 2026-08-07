@@ -18,7 +18,6 @@ export interface IShoppingListActionGroupProps {
   showCopyButton: boolean;
   showEditButton: boolean;
   showDeleteButton: boolean;
-  isCopying: boolean;
   isDeleting: boolean;
   onShare: (options?: IOpenModalOptions) => void;
   onCopy: () => void;
@@ -29,7 +28,7 @@ export interface IShoppingListActionGroupProps {
 export function useShoppingListActions(shoppingList: ShoppingList) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const { deleteShoppingListMutation, confirmDelete, handleCopy, isCopying } =
+  const { deleteShoppingListMutation, confirmDelete, handleCopy } =
     useShoppingListMutations(shoppingList.id, shoppingList);
 
   // Returns the promise so a caller that unmounts on completion can await the
@@ -108,7 +107,6 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
     isDeleting: deleteShoppingListMutation.isPending,
-    isCopying,
     handleConfirmDelete,
     handleEdit,
     handleShare,
