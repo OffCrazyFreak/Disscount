@@ -15,6 +15,7 @@ import { filterByFields } from "@/utils/generic";
 import { shoppingListService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
+import { sortShoppingListsByRecency } from "@/lib/api/shopping-lists/sort-lists";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 
 interface IShoppingListsClientProps {
@@ -38,7 +39,7 @@ export default function ShoppingListsClient({
   // without this the list can silently reshuffle between fetches. filterByFields
   // sorts stably on coarse scores, so this order survives among equal matches.
   const matchingShoppingLists = filterByFields(
-    [...shoppingLists].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)),
+    sortShoppingListsByRecency(shoppingLists),
     query,
     ["title"],
   );

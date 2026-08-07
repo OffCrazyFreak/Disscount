@@ -20,6 +20,11 @@ const BASE_STROKE_WIDTH = "2.857";
 
 export type PenBadgeBase = ["path" | "circle" | "line", Record<string, string>];
 
+/**
+ * @param name kebab-case, as lucide's own icons pass it. createLucideIcon emits
+ *   `lucide-${toKebabCase(toPascalCase(name))} lucide-${name}`, so a PascalCase name
+ *   produces a malformed pair like "lucide-share2-pen lucide-Share2Pen".
+ */
 export function createPenBadgeIcon(name: string, base: PenBadgeBase[]) {
   return createLucideIcon(name, [
     ...base.map(([element, attrs]): PenBadgeBase => [

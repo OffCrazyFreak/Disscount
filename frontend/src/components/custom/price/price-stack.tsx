@@ -35,7 +35,10 @@ export default function PriceStack({
         {primary}
       </div>
 
-      {secondary && (
+      {/* Neither a truthiness check nor a plain null check. 0 is a legitimate price that
+          truthiness would drop, while false is what `condition && <Price/>` yields and
+          renders nothing, so it would draw a separator above an empty tier. */}
+      {secondary != null && typeof secondary !== "boolean" && (
         <>
           {/* Margin on both sides: a 24px icon overhangs the 20px line box it
               sits in, so a divider flush to the tier touches the glyph. */}

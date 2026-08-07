@@ -5,6 +5,11 @@ import type { LinkAccess, ListAccess } from "@/lib/api/schemas/shopping-list";
 import { LINK_ACCESS_ICONS } from "@/app/(user)/shopping-lists/utils/link-access-icons";
 import { SHARED_ACCESS_BANNER_ID } from "@/app/(user)/shopping-lists/utils/shopping-list-access";
 
+interface IShoppingListAccessBannerProps {
+  myAccess: ListAccess | undefined;
+  isSignedIn: boolean;
+}
+
 /** What this visitor may do, in the same terms the owner picked in the share modal. */
 const ACCESS_TEXT: Partial<Record<ListAccess, string>> = {
   VIEW: "Ovaj popis možeš samo pregledavati.",
@@ -17,23 +22,27 @@ const ACCESS_TEXT: Partial<Record<ListAccess, string>> = {
  * controls with no stated reason, which a screen reader renders as "dimmed" and nothing
  * else. The level is only knowable from myAccess, since linkAccess is nulled for anyone
  * who is not the owner.
+ *
+ * <p>Always renders the element, even when silent: disabled item controls point at its id
+ * with aria-describedby, and a cached DTO with no myAccess would leave that dangling.
  */
-export default function SharedListAccessBanner({
+export default function ShoppingListAccessBanner({
   myAccess,
   isSignedIn,
-}: {
-  myAccess: ListAccess;
-  isSignedIn: boolean;
-}) {
-  const text = ACCESS_TEXT[myAccess];
-  if (!text) return null;
+}: IShoppingListAccessBannerProps) {
+  const text = myAccess ? ACCESS_TEXT[myAccess] : undefined;
+  if (!text) {
+    return (
+      <span id={SHARED_ACCESS_BANNER_ID} className="sr-only">
+        {myAccess ? "" : "Ovlasti za ovaj popis još se provjeravaju."}
+      </span>
+    );
+  }
 
-  // OWNER never reaches this page, so the remaining levels all exist in LINK_ACCESS_ICONS.
+  // An owner never reaches the branch above, so the remaining levels all exist in the map.
   const Icon = LINK_ACCESS_ICONS[myAccess as LinkAccess];
 
-  // Where to go for more, rather than leaving a dead end. Anonymous callers are capped at
-  // VIEW whatever the link grants, so the offer is to sign in; EDIT is the most a link can
-  // give, so there is nothing left to ask for.
+  // EDIT is the most a link can give, so there is nothing left to ask for.
   const nextStep = !isSignedIn
     ? "Prijavi se za uređivanje."
     : myAccess === "EDIT"
@@ -45,8 +54,6 @@ export default function SharedListAccessBanner({
       variant="primarySoft"
       size="md"
       icon={Icon}
-      // One sentence, so the next step reads as part of the same thought rather than a
-      // second line the eye has to find.
       text={nextStep ? `${text} ${nextStep}` : text}
       id={SHARED_ACCESS_BANNER_ID}
     />

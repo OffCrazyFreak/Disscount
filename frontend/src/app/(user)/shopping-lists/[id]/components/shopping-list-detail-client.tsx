@@ -1,29 +1,36 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import ShoppingListStoreSummary from "@/app/(user)/shopping-lists/[id]/components/stores/shopping-list-stores-list";
 import ShoppingListHeader from "@/app/(user)/shopping-lists/[id]/components/shopping-list-header";
 import ShoppingListItems from "@/app/(user)/shopping-lists/[id]/components/items/shopping-list-items";
 import ShoppingListPriceHistory from "@/app/(user)/shopping-lists/[id]/components/shopping-list-price-history";
 import ShoppingListInfoTable from "@/app/(user)/shopping-lists/[id]/components/shopping-list-info-table";
+import ShoppingListAccessBanner from "@/app/(user)/shopping-lists/[id]/components/shopping-list-access-banner";
+import ShoppingListUnavailable from "@/app/(user)/shopping-lists/[id]/components/shopping-list-unavailable";
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
+import { useUser } from "@/context/user-context";
 import { useShoppingListData } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-data";
 
 interface IShoppingListDetailClientProps {
   listId: string;
 }
 
+/**
+ * One page for the owner and for anyone holding the link. The list id is the shareable
+ * URL, so this route is reachable signed out and nothing here may assume ownership: every
+ * control is gated on the access the server resolved into myAccess.
+ */
 export default function ShoppingListDetailClient({
   listId,
 }: IShoppingListDetailClientProps) {
-  // Use custom hooks for data and mutations
+  const { isAuthenticated } = useUser();
+
   const {
     shoppingList,
     isLoading,
     error,
+    refetch,
     listUpdatedAt,
     cheapestStores,
     averagePrices,
@@ -41,30 +48,29 @@ export default function ShoppingListDetailClient({
 
   if (error || !shoppingList) {
     return (
-      <div className="mx-auto">
-        <div className="text-center py-12">
-          <div className="text-red-700 mb-4">
-            <h3 className="text-lg font-semibold mb-2">Greška</h3>
-            <p>Popis za kupnju nije pronađen ili se dogodila greška.</p>
-          </div>
-
-          <Button asChild variant="ghost">
-            <Link href="/shopping-lists">
-              <ArrowLeft aria-hidden="true" className="size-4" />
-              Natrag na popise za kupnju
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <ShoppingListUnavailable
+        error={error}
+        onRetry={() => void refetch()}
+        isSignedIn={isAuthenticated}
+      />
     );
   }
 
   return (
     <div className="space-y-8">
-      {/* Header Section */}
+      {/* Unconditional: it falls silent for an owner on its own, and the disabled item
+          controls point at its id with aria-describedby, so gating it here would leave
+          that IDREF dangling for exactly the people who need the explanation. */}
+      <ShoppingListAccessBanner
+        myAccess={shoppingList.myAccess}
+        isSignedIn={isAuthenticated}
+      />
+
       <section>
-        {/* This route is behind the auth gate, so the caller is always signed in. */}
-        <ShoppingListHeader shoppingList={shoppingList} isSignedIn={true} />
+        <ShoppingListHeader
+          shoppingList={shoppingList}
+          isSignedIn={isAuthenticated}
+        />
 
         {listUpdatedAt > 0 && (
           <LastSyncedLabel
@@ -75,7 +81,6 @@ export default function ShoppingListDetailClient({
         )}
       </section>
 
-      {/* Info Display Section */}
       <section>
         <ShoppingListInfoTable
           shoppingList={shoppingList}
@@ -84,7 +89,6 @@ export default function ShoppingListDetailClient({
         />
       </section>
 
-      {/* Shopping List Items Section */}
       <section>
         <ShoppingListItems
           shoppingList={shoppingList}
@@ -94,12 +98,10 @@ export default function ShoppingListDetailClient({
         />
       </section>
 
-      {/* Price History Section */}
       <section>
         <ShoppingListPriceHistory shoppingList={shoppingList} />
       </section>
 
-      {/* Store Summary Section */}
       <section>
         <ShoppingListStoreSummary shoppingList={shoppingList} />
       </section>

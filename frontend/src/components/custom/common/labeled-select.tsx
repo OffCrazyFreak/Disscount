@@ -29,9 +29,7 @@ interface ILabeledSelectProps<TValue extends string> {
    * that already sits under a visible heading, where repeating it would be noise on screen
    * and the bare options would be meaningless to a screen reader.
    */
-  srOnlyLabel?: boolean;
   className?: string;
-  triggerClassName?: string;
 }
 
 /** Leading label and dropdown, shared by every control that narrows or reorders a list. */
@@ -42,9 +40,7 @@ export default function LabeledSelect<TValue extends string>({
   options,
   disabled = false,
   describedById,
-  srOnlyLabel = false,
   className,
-  triggerClassName,
 }: ILabeledSelectProps<TValue>) {
   const labelId = useId();
 
@@ -54,10 +50,7 @@ export default function LabeledSelect<TValue extends string>({
     >
       <span
         id={labelId}
-        className={cn(
-          "shrink-0 text-sm text-muted-foreground",
-          srOnlyLabel && "sr-only",
-        )}
+        className={cn("shrink-0 text-sm text-muted-foreground")}
       >
         {label}
       </span>
@@ -75,7 +68,7 @@ export default function LabeledSelect<TValue extends string>({
           aria-describedby={describedById}
           // bg-background, not bg-white: the trigger sits on the surface it is placed on,
           // so a hardcoded white stayed white in dark mode.
-          className={cn("w-full bg-background sm:w-60", triggerClassName)}
+          className="w-full bg-background sm:w-60"
         >
           <SelectValue />
         </SelectTrigger>

@@ -12,11 +12,6 @@ const PERSISTED_QUERY_KEY_PREFIXES = [
   "pinnedStores",
   "pinnedPlaces",
   "users", // current user profile (["users", "me"])
-  // Someone else's list, reached by share token. Safe to persist now that the store is
-  // keyed per identity and purged when that identity changes; before that it would have
-  // sat in one browser-wide blob for the full seven days.
-  "sharedShoppingList",
-  // TODO(offline): add /spending, /updates and /map keys when those ship.
 ] as const;
 
 type PersistedQueryKeyPrefix = (typeof PERSISTED_QUERY_KEY_PREFIXES)[number];
