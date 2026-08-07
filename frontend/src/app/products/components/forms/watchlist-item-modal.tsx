@@ -71,6 +71,7 @@ export default function WatchlistItemModal({
     existingItemForType,
     isCheckingWatchlist,
     isEdited,
+    isEditedInAnyMode,
     hasSavableChange,
     resetForm,
     onSubmit,
@@ -129,7 +130,7 @@ export default function WatchlistItemModal({
       resetLabel="Resetiraj"
       // Enabled while either mode's number differs from what is tracked, including
       // the one not on screen, because reset puts both of them back.
-      resetDisabled={!isEdited}
+      resetDisabled={!isEditedInAnyMode}
       onReset={() => {
         clearDraft();
         resetForm();

@@ -3,6 +3,29 @@ import type { IFormDraft } from "@/typings/local-storage";
 
 const DRAFT_TTL_MS = 24 * 60 * 60 * 1000;
 
+// Anything reading a draft outside a form needs to know when one changes, because a draft
+// written in a modal decides what a row behind it renders. A counter rather than the value
+// itself: useSyncExternalStore needs a stable snapshot, and the drafts blob is rebuilt on
+// every write, so returning it directly would loop.
+const listeners = new Set<() => void>();
+let version = 0;
+
+export function subscribeToFormDrafts(onChange: () => void) {
+  listeners.add(onChange);
+  return () => {
+    listeners.delete(onChange);
+  };
+}
+
+export function getFormDraftsVersion() {
+  return version;
+}
+
+function notify() {
+  version += 1;
+  listeners.forEach((listener) => listener());
+}
+
 export function getFormDraft(key: string): IFormDraft | null {
   const draft = getAppStorage().formDrafts?.[key];
   if (!draft) return null;
@@ -19,6 +42,7 @@ export function setFormDraft(key: string, values: Record<string, unknown>) {
   const drafts = { ...getAppStorage().formDrafts };
   drafts[key] = { savedAt: Date.now(), values };
   setAppStorage({ formDrafts: drafts });
+  notify();
 }
 
 // For a form whose fields are saved one at a time: dropping the saved field must
@@ -39,4 +63,5 @@ export function removeFormDraft(key: string) {
 
   delete drafts[key];
   setAppStorage({ formDrafts: drafts });
+  notify();
 }

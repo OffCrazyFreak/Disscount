@@ -1,10 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
 
 import { useGetCurrentUserShoppingLists } from "@/lib/api/shopping-lists/hooks";
 import { sortShoppingListsByRecency } from "@/lib/api/shopping-lists/sort-lists";
-import { getFormDraft } from "@/utils/browser/local-storage";
+import {
+  getFormDraft,
+  getFormDraftsVersion,
+  subscribeToFormDrafts,
+} from "@/utils/browser/local-storage";
 import { useUser } from "@/context/user-context";
 
 /**
@@ -24,17 +28,18 @@ export function useIsOnPreselectedShoppingList(
     enabled: !!user,
   });
 
-  // Read once on mount, not every render: getFormDraft parses the whole app blob
-  // and removes the entry when its TTL has passed, so calling it in the hook body
-  // would make a localStorage write part of rendering every row.
-  const [draftedListId] = useState(() => {
-    if (!ean) return null;
-    const drafted = getFormDraft(`add-to-list.${ean}`)?.values.shoppingListId;
-
-    return typeof drafted === "string" ? drafted : null;
-  });
+  // Subscribed, not snapshotted at mount. Product rows stay mounted while the add-to-list
+  // modal opens over them, so a drafted choice made in that modal has to reach the row
+  // behind it: without this the icon claims one list while the modal reopens on another,
+  // which is the exact contradiction this hook exists to prevent. The version counter is
+  // what changes, so the localStorage read still happens once per change rather than once
+  // per render.
+  useSyncExternalStore(subscribeToFormDrafts, getFormDraftsVersion, () => 0);
 
   if (!ean) return false;
+
+  const drafted = getFormDraft(`add-to-list.${ean}`)?.values.shoppingListId;
+  const draftedListId = typeof drafted === "string" ? drafted : null;
 
   // The same rule useSelectedShoppingList applies, or the icon would describe a
   // list the modal is not going to open on: a drafted choice wins while that list

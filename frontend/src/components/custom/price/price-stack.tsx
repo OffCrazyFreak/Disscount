@@ -35,7 +35,9 @@ export default function PriceStack({
         {primary}
       </div>
 
-      {secondary && (
+      {/* Not a truthiness check: the prop is a ReactNode, and 0 is a legitimate
+          price that would otherwise render as nothing at all. */}
+      {secondary != null && (
         <>
           {/* Margin on both sides: a 24px icon overhangs the 20px line box it
               sits in, so a divider flush to the tier touches the glyph. */}

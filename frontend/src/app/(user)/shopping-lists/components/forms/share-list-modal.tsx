@@ -6,6 +6,7 @@ import { FileText, Link2 } from "lucide-react";
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useShareListModal } from "@/app/(user)/shopping-lists/hooks/use-share-list-modal";
 import ShareAccessRow from "@/app/(user)/shopping-lists/components/forms/share-access-row";
@@ -87,9 +88,12 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
             <Button
               type="button"
               variant="primary"
-              className="flex-1"
-              onClick={handleLinkShare}
-              disabled={!canShareLink}
+              onClick={canShareLink ? handleLinkShare : undefined}
+              // aria-disabled, not disabled: a natively disabled button leaves the tab
+              // order, so a keyboard user never lands on it and never hears the
+              // description explaining why the action went away.
+              aria-disabled={!canShareLink}
+              className={cn("flex-1", !canShareLink && "opacity-50")}
               // Points at the access hint, so the reason it is unavailable is readable
               // rather than something the user has to infer from the select.
               aria-describedby={canShareLink ? undefined : hintId}

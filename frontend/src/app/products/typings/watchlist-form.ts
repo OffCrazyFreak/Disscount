@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { parseThreshold } from "@/app/products/utils/watchlist-thresholds";
+
 import { WatchType } from "@/lib/api";
 
 export function watchlistLimits(watchType: WatchType) {
@@ -28,7 +30,7 @@ export const watchlistFormSchema = z
     // Only the selected mode is submitted, so an unfinished number left in the
     // other one must not hold the form invalid.
     const path = thresholdField(data.watchType);
-    const value = Number.parseFloat(data[path]);
+    const value = parseThreshold(data[path]);
 
     if (!Number.isFinite(value)) {
       ctx.addIssue({

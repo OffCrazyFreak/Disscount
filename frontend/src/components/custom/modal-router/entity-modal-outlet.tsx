@@ -103,6 +103,10 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
       // instance would carry product A's edited threshold into product B. Keyed on
       // the ean only, so switching watch mode reuses the instance and keeps both
       // numbers, which is what the mode toggle does anyway.
+      //
+      // Reuse happens when the target swaps straight to another product, or on a
+      // reopen inside useLingeringTarget's exit window. An ordinary close unmounts
+      // the outlet, so this is not guarding every reopen.
       return (
         <WatchlistItemModal
           key={rendered.ean}

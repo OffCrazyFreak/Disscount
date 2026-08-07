@@ -3,11 +3,13 @@
 import { Eye, Image as ImageIcon, ListPlus, Share2 } from "lucide-react";
 
 import QuickActionItem from "@/components/custom/common/quick-action-item";
+import { PRODUCT_ACTION_LABELS } from "@/constants/product-action-labels";
 import EyePen from "@/components/custom/icons/eye-pen";
 import ListPen from "@/components/custom/icons/list-pen";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { watchlistService } from "@/lib/api";
-import { useIsOnPreselectedShoppingList } from "@/lib/api/shopping-lists/use-preselected-list-membership";
+import { useUser } from "@/context/user-context";
+import { useIsOnPreselectedShoppingList } from "@/hooks/use-preselected-list-membership";
 import useProductModals from "@/hooks/use-product-modals";
 import useProductShare from "@/hooks/use-product-share";
 import { productImageSearchUrl } from "@/utils/product-links";
@@ -27,13 +29,16 @@ export default function ProductQuickActionsList({
   product,
   onClose,
 }: IProductQuickActionsListProps) {
+  const { user } = useUser();
   const { openAddToList, openWatchlist } = useProductModals(product);
   const share = useProductShare(product);
 
   // The same two reads the product row's buttons make, so the sheet and the buttons
   // behind it never disagree about whether this product is already tracked or listed.
+  // Both are guarded on a session: /products is public and holding a card opens this
+  // sheet, so an unguarded read is a 401 plus retries for every signed-out visitor.
   const { data: currentUserWatchlist = [] } =
-    watchlistService.useGetCurrentUserWatchlist();
+    watchlistService.useGetCurrentUserWatchlist({ enabled: !!user });
   const isInWatchlist = currentUserWatchlist.some(
     (watchlistItem) => watchlistItem.productApiId === product.ean,
   );
@@ -55,13 +60,21 @@ export default function ProductQuickActionsList({
     <>
       <QuickActionItem
         icon={isOnList ? ListPen : ListPlus}
-        label={isOnList ? "Uredi unos na popisu" : "Dodaj na popis"}
+        label={
+          isOnList
+            ? PRODUCT_ACTION_LABELS.editListEntry
+            : PRODUCT_ACTION_LABELS.addToList
+        }
         onSelect={() => swapToModal(openAddToList)}
       />
 
       <QuickActionItem
         icon={isInWatchlist ? EyePen : Eye}
-        label={isInWatchlist ? "Uredi praćenje cijene" : "Prati cijenu"}
+        label={
+          isInWatchlist
+            ? PRODUCT_ACTION_LABELS.editWatch
+            : PRODUCT_ACTION_LABELS.watch
+        }
         onSelect={() => swapToModal(openWatchlist)}
       />
 
