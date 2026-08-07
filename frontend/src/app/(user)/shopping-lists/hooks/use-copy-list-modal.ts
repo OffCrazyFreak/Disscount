@@ -37,12 +37,22 @@ const TITLE_MAX_LENGTH = shoppingListRequestSchema.shape.title.maxLength ?? 100;
 /**
  * The name the copy starts with. The original is shortened so the suffix always fits:
  * a prefill that lands over the limit would open the modal on a validation error the
- * user did not cause. Sliced by code point, so the cut cannot split an emoji in half.
+ * user did not cause.
+ *
+ * Taken a code point at a time so the cut cannot split an emoji in half, but budgeted in
+ * UTF-16 units, because that is what zod's max() counts: slicing to 91 code points would
+ * leave an emoji title twice that long by the schema's reckoning.
  */
 function suggestCopyTitle(title: string) {
   const room = TITLE_MAX_LENGTH - COPY_SUFFIX.length;
 
-  return `${[...title].slice(0, room).join("")}${COPY_SUFFIX}`;
+  let head = "";
+  for (const character of title) {
+    if (head.length + character.length > room) break;
+    head += character;
+  }
+
+  return `${head}${COPY_SUFFIX}`;
 }
 
 export function useCopyListModal(id: string) {

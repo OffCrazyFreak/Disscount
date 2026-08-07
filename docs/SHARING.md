@@ -164,8 +164,10 @@ Worth knowing before changing any of this:
   default off. The name is an input rather than a fixed `<title> (Kopija)`, prefilled with
   that suggestion so renaming and copying are one action. It shares
   `shopping-list-title-field.tsx` with the create and edit modals, and the prefill shortens
-  the original by code point so the suffix always fits inside the schema's 100-character
-  ceiling, which it reads off the schema rather than restating. One endpoint rather than a
+  the original so the suffix always fits inside the schema's 100-character ceiling, which
+  it reads off the schema rather than restating. It takes whole code points so the cut
+  cannot split an emoji, but budgets in UTF-16 units, because that is what zod's `max()`
+  counts. One endpoint rather than a
   create followed by an add per item, because
   those were separate transactions: a failure partway left a half-populated copy behind
   that no retry could tidy up, and pressing the button again made another one.
