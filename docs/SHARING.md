@@ -146,6 +146,8 @@ Worth knowing before changing any of this:
 | Level copy    | `frontend/src/app/(user)/shopping-lists/utils/link-access-copy.ts`                       |
 | Level icons   | `frontend/src/app/(user)/shopping-lists/utils/link-access-icons.ts`                      |
 | Copy modal    | `frontend/src/app/(user)/shopping-lists/components/forms/copy-list-modal.tsx`            |
+| Copy state    | `frontend/src/app/(user)/shopping-lists/hooks/use-copy-list-modal.ts`                    |
+| Title field   | `frontend/src/app/(user)/shopping-lists/components/forms/shopping-list-title-field.tsx`  |
 | Optimism      | `frontend/src/lib/api/shopping-lists/optimistic-list.ts`                                 |
 | Client access | `frontend/src/app/(user)/shopping-lists/utils/shopping-list-access.ts`                   |
 
@@ -159,7 +161,14 @@ Worth knowing before changing any of this:
   never directly.
 - **Copying a list asks what to carry**, through `POST /api/shopping-lists/{id}/copy`.
   Products default on; the ticks with their captured prices, and the sharing settings,
-  default off. One endpoint rather than a create followed by an add per item, because
+  default off. The name is an input rather than a fixed `<title> (Kopija)`, prefilled with
+  that suggestion so renaming and copying are one action. It shares
+  `shopping-list-title-field.tsx` with the create and edit modals, and the prefill shortens
+  the original so the suffix always fits inside the schema's 100-character ceiling, which
+  it reads off the schema rather than restating. It takes whole code points so the cut
+  cannot split an emoji, but budgets in UTF-16 units, because that is what zod's `max()`
+  counts. One endpoint rather than a
+  create followed by an add per item, because
   those were separate transactions: a failure partway left a half-populated copy behind
   that no retry could tidy up, and pressing the button again made another one.
 - **The sharing option on a copy is owner-only, enforced server side.** A recipient could

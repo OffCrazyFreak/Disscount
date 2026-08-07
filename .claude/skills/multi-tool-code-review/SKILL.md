@@ -85,6 +85,34 @@ Follow `04-fix-protocol.md`. If the harness supports plan mode, enter it first a
 2. File GitHub issues (labeled) for every finding the user excluded, and for anything you deferred. Surface deferrals with a recommendation; never silently skip.
 3. Offer a recap and to watch CI settle.
 
+## Stage 4: Clean up after the cycle
+
+A run leaves debris in three places: scratch output and triage docs under `reviews/`, the fix branch locally and on the remote, and a worktree if the review used one. Clear it once the PR is merged, so the next run starts from a clean detection.
+
+**Never delete anything without asking first.** Everything here looks disposable and is not: a triage doc is the only record of the findings the user chose to skip, a fix branch may hold the only copy of unpushed commits, and disk state is what this skill's own resume detection reads. A user who has not finished reading the doc, or who wants to re-review next week, will not get any of it back. So propose, then wait.
+
+Offer cleanup once, when the cycle is genuinely over: the PR merged, or the user says they are done. Do not offer it while a PR is open, and do not fold it into another question as a default-on extra.
+
+Record what this cycle creates as it creates it: the exact review directory, report paths, branch names, their remote counterparts, and any worktree. That manifest, not the detection below, is what may be proposed for removal. The commands find everything matching a shape, including branches and worktrees from unrelated work that happen to be named the same way, so intersect their output with the manifest and keep anything whose owner you cannot establish, naming it in the question as retained.
+
+Build the proposal by detecting what exists, then put it to the user with `AskUserQuestion`, one question per category, options built from what you actually found:
+
+```bash
+ls -d reviews/_review-run* reviews/_archive 2>/dev/null   # scratch, safe to drop
+ls reviews/REVIEW-*.md reviews/REVIEW-*.html 2>/dev/null  # triage docs, the user's record
+git worktree list                                          # which are this run's
+git branch --merged <base> | grep -E 'fix/.*review'        # merged fix branches
+git ls-remote --heads origin 'fix/*review*'                # their remote counterparts
+```
+
+Rules that hold regardless of the answer:
+
+- **Only ever propose what this cycle created.** Other branches and worktrees belong to unrelated in-flight work, and the host repo's `AGENTS.md` forbids touching it. List them in the question as explicitly excluded rather than leaving the user to wonder whether you swept them up.
+- **Scratch and reports are different questions.** `_review-run*` folders are pure working output and are the safe default to remove. `REVIEW-*.md` and `.html` are the deliverable; offer keeping them, archiving them, or deleting them, and default to keeping.
+- **Never delete a branch with unpushed commits, or one associated with an open PR**, even if the user selects it, whether the branch is that PR's head or its base. Check `git log <remote>..<branch>`, then `gh pr list --head <branch>` and `gh pr list --base <branch>` as separate calls, since the two filters combine as AND rather than OR. Report back instead of deleting. If either check cannot be run, keep the branch and say why.
+- **Say what a report is still referenced by.** A PR body that cites a triage doc by path leaves a dangling reference once it is gone. Mention it, then let the user decide.
+- Report exactly what was removed and what was left standing.
+
 ## Conventions (apply throughout)
 
 - Ask if you are unsure of anything rather than assuming. Follow the host repo's `AGENTS.md` / `CLAUDE.md` closely.
@@ -96,4 +124,5 @@ Follow `04-fix-protocol.md`. If the harness supports plan mode, enter it first a
 - In a **worktree with symlinked `node_modules`**, do not use `pnpm exec` or `pnpm run`: both run a deps-status check, see the symlink as out of sync, and try to purge the main tree's real `node_modules` through it. Call the binary directly there instead. In a normal checkout `pnpm exec` is fine.
 - If `pnpm` is not on PATH, prepend it: `export PATH="$HOME/.local/share/pnpm/bin:$HOME/.local/share/nvm/*/bin:$PATH"`.
 - Never run the dev server or any deploy/Docker command. The production build is allowed, and Stage 3 expects it.
-- Runner outputs and the triage doc live under `reviews/` (gitignored). Keep them out of commits; `git add` explicit files, never `-A`.
+- Runner outputs and the triage doc live under `reviews/` (gitignored). Keep them out of commits; `git add` explicit files, never `-A`. The runners recreate the folder, so a deleted `reviews/` is not a broken state.
+- Deleting artifacts, branches or worktrees is always a question for the user, never a tidy-up you perform on your own initiative. See Stage 4.

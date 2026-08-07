@@ -71,9 +71,9 @@ export function useWatchlistItemForm(
   // on screen. So the prefill landed on nothing. reset writes both values and both
   // defaults regardless, which is what makes an untouched prefill not a change, and
   // keepDirtyValues leaves a number the user (or a restored draft) has already
-  // edited alone. It also refreshes isValid without filling in errors, so the submit
-  // button is live for a valid prefill and nothing is marked red before it is
-  // touched.
+  // edited alone. What it does not do is re-run the resolver, so formState.isValid is
+  // still the mount pass over the empty defaults afterwards. That is why isFormValid
+  // below parses the schema itself rather than reading the flag.
   useEffect(() => {
     form.reset(
       {
@@ -160,12 +160,25 @@ export function useWatchlistItemForm(
   const activeValue =
     watchType === WatchType.absolute ? absoluteValue : percentageValue;
 
+  // Parsed here rather than read off formState.isValid, for the same reason isEdited
+  // does not read dirtyFields: the flag only refreshes when RHF runs the resolver,
+  // and seeding the prefill through reset does not. The one validation that had run
+  // was the mount pass over the empty defaults, so a prefilled first-time watch was
+  // held invalid until an unrelated change (switching mode) triggered a fresh pass.
+  // The resolver stays in place and still owns the messages under the field.
+  const isFormValid = watchlistFormSchema.safeParse({
+    watchType,
+    percentageValue,
+    absoluteValue,
+  }).success;
+
   return {
     form,
     draftKey,
     existingItems,
     existingItemForType,
     isCheckingWatchlist,
+    isFormValid,
     // Compared against the baselines rather than read off RHF's dirtyFields: the
     // seed keeps dirty flags so an in-progress edit survives a refetch, which means
     // a flag can outlive the edit itself (a saved value equals its new baseline but

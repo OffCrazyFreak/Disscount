@@ -41,7 +41,9 @@ export default function CopyOptionRow({
             : "bg-muted text-muted-foreground",
         )}
       >
-        <Icon aria-hidden="true" className="size-5" />
+        {/* size-6 matches the share modal's access row, the bottom nav glyph and the
+            list card's visibility indicator, so the same icons read at one size. */}
+        <Icon aria-hidden="true" className="size-6" />
       </span>
 
       {/* The description sits outside the label on purpose. Accessible-name computation
@@ -74,7 +76,9 @@ export default function CopyOptionRow({
           disabled ? undefined : (next) => onCheckedChange(next === true)
         }
         aria-describedby={descriptionId}
-        className="size-6 shrink-0 [&_svg]:size-4"
+        // A step below the default size-10 the list items use: these are settings on a
+        // form row, not the primary target of the screen.
+        className="size-8 shrink-0 [&_svg]:size-6"
       />
     </div>
   );

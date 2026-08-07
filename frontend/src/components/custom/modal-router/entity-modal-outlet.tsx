@@ -69,7 +69,10 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
         return <ShareListModal open={open} id={rendered.id} />;
       }
       if (rendered.action === "copy") {
-        return <CopyListModal open={open} id={rendered.id} />;
+        // Keyed like the modals below: this outlet lingers 200ms after close, and the
+        // copy form now holds a typed name, which a reused instance would carry over to
+        // the next list instead of re-seeding from it.
+        return <CopyListModal key={rendered.id} open={open} id={rendered.id} />;
       }
       return (
         <ShoppingListModal

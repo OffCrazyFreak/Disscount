@@ -14,8 +14,12 @@ export const listAccessSchema = z.enum([
 
 // Shopping List schemas
 export const shoppingListRequestSchema = z.object({
+  // Trimmed before the length checks, so three spaces cannot pass min(3) and reach the
+  // backend as the blank title its @NotBlank rejects. zodResolver hands the trimmed
+  // value to the submit handler, so the form validates exactly what it sends.
   title: z
     .string()
+    .trim()
     .min(3, "Upiši naziv s najmanje 3 znaka")
     .max(100, "Upiši naziv s najviše 100 znakova"),
   linkAccess: linkAccessSchema.optional(),
@@ -42,8 +46,12 @@ export const shoppingListDtoSchema = z.object({
 
 /** Independent flags, so a copy can take the products without the shopping progress. */
 export const shoppingListCopyRequestSchema = z.object({
+  // Trimmed before the length checks, so three spaces cannot pass min(3) and reach the
+  // backend as the blank title its @NotBlank rejects. zodResolver hands the trimmed
+  // value to the submit handler, so the form validates exactly what it sends.
   title: z
     .string()
+    .trim()
     .min(3, "Upiši naziv s najmanje 3 znaka")
     .max(100, "Upiši naziv s najviše 100 znakova"),
   includeItems: z.boolean(),

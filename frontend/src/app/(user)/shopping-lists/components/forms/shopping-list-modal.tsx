@@ -8,16 +8,9 @@ import { Save } from "lucide-react";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { resolveShoppingListAccess } from "@/app/(user)/shopping-lists/utils/shopping-list-access";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
+import ShoppingListTitleField from "@/app/(user)/shopping-lists/components/forms/shopping-list-title-field";
 import type { ShoppingListDto, ShoppingListRequest } from "@/lib/api/types";
 import { shoppingListRequestSchema } from "@/lib/api/types";
 import { shoppingListService } from "@/lib/api";
@@ -177,23 +170,7 @@ export default function ShoppingListModal({
               </div>
             )}
 
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Naziv popisa</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Roštilj 01.05.2026."
-                      autoFocus
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <ShoppingListTitleField control={form.control} />
           </form>
         </Form>
       )}
