@@ -5,7 +5,7 @@ import { createPenBadgeIcon } from "@/components/custom/icons/pen-badge";
  * the settings rather than starting a share. Only the owner ever sees it, because
  * linkAccess comes back null for everyone else.
  */
-const Share2Pen = createPenBadgeIcon("Share2Pen", [
+const Share2Pen = createPenBadgeIcon("share-2-pen", [
   ["circle", { cx: "18", cy: "5", r: "3", key: "node-top" }],
   ["circle", { cx: "6", cy: "12", r: "3", key: "node-left" }],
   ["circle", { cx: "18", cy: "19", r: "3", key: "node-bottom" }],

@@ -12,4 +12,11 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, UUID> {
 
     List<User> findByDeletedAtIsNullOrderByCreatedAtAsc();
+
+    /**
+     * Spans soft-deleted rows too, matching the unique index, which does not care that an
+     * account is gone. In practice they never collide: deleteAccount nulls the username,
+     * which is what frees the name for somebody else.
+     */
+    boolean existsByUsername(String username);
 }

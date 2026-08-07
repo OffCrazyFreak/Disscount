@@ -1,18 +1,16 @@
 "use client";
 
-import { ArrowLeft, ListChecks } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import AsyncSection from "@/components/custom/common/async-section";
-import ErrorState from "@/components/custom/common/error-state";
-import LoginRequired from "@/components/custom/common/login-required";
 import ShoppingListStoreSummary from "@/app/(user)/shopping-lists/[id]/components/stores/shopping-list-stores-list";
 import ShoppingListHeader from "@/app/(user)/shopping-lists/[id]/components/shopping-list-header";
 import ShoppingListItems from "@/app/(user)/shopping-lists/[id]/components/items/shopping-list-items";
 import ShoppingListPriceHistory from "@/app/(user)/shopping-lists/[id]/components/shopping-list-price-history";
 import ShoppingListInfoTable from "@/app/(user)/shopping-lists/[id]/components/shopping-list-info-table";
+import ShoppingListAccessBanner from "@/app/(user)/shopping-lists/[id]/components/shopping-list-access-banner";
+import ShoppingListUnavailable from "@/app/(user)/shopping-lists/[id]/components/shopping-list-unavailable";
 import ShoppingListDetailSkeleton from "@/app/(user)/shopping-lists/[id]/components/shopping-list-detail-skeleton";
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
+import { useUser } from "@/context/user-context";
 import { useShoppingListData } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-data";
 import {
   useRememberedRowCount,
@@ -23,14 +21,21 @@ interface IShoppingListDetailClientProps {
   listId: string;
 }
 
+/**
+ * One page for the owner and for anyone holding the link. The list id is the shareable
+ * URL, so this route is reachable signed out and nothing here may assume ownership: every
+ * control is gated on the access the server resolved into myAccess.
+ */
 export default function ShoppingListDetailClient({
   listId,
 }: IShoppingListDetailClientProps) {
+  const { isAuthenticated } = useUser();
+
   const {
     shoppingList,
     isLoading,
     error,
-    requiresAuth,
+    refetch,
     listUpdatedAt,
     cheapestStores,
     averagePrices,
@@ -44,45 +49,36 @@ export default function ShoppingListDetailClient({
   const itemRows = useRememberedRowCount(rowCountKey, 4);
   useRememberRowCount(rowCountKey, shoppingList?.items?.length);
 
-  if (requiresAuth) {
-    return (
-      <LoginRequired
-        title="Popis za kupnju"
-        description="Popisi za kupnju ti omogućuju da organiziraš kupovinu i na jednom mjestu usporediš cijene po trgovinama."
-        icon={
-          <ListChecks aria-hidden="true" className="size-12 text-primary" />
-        }
-      />
-    );
-  }
-
   return (
     <AsyncSection
       pending={isLoading}
-      // A settled fetch with no list means it is gone or not yours. Different
-      // cause from a thrown error, same dead end, so they share a way back.
+      // A settled fetch with no list means it is gone or was never yours to see. The
+      // server answers not-found rather than forbidden, so those are one dead end here.
       error={error ?? (shoppingList ? undefined : new Error("Nije pronađeno"))}
       errorState={
-        <ErrorState
-          title="Popis nije pronađen"
-          fallbackMessage="Popis za kupnju ne postoji ili mu nemaš pristup."
-          action={
-            <Button asChild variant="ghost">
-              <Link href="/shopping-lists">
-                <ArrowLeft aria-hidden="true" className="h-4 w-4 mr-2" />
-                Natrag na popise za kupnju
-              </Link>
-            </Button>
-          }
+        <ShoppingListUnavailable
+          error={error}
+          onRetry={() => void refetch()}
+          isSignedIn={isAuthenticated}
         />
       }
       skeleton={<ShoppingListDetailSkeleton itemRows={itemRows} />}
     >
       {shoppingList && (
         <div className="space-y-8">
+          {/* Unconditional: it falls silent for an owner on its own, and the disabled item
+              controls point at its id with aria-describedby, so gating it here would leave
+              that IDREF dangling for exactly the people who need the explanation. */}
+          <ShoppingListAccessBanner
+            myAccess={shoppingList.myAccess}
+            isSignedIn={isAuthenticated}
+          />
+
           <section>
-            {/* This route is behind the auth gate, so the caller is always signed in. */}
-            <ShoppingListHeader shoppingList={shoppingList} isSignedIn={true} />
+            <ShoppingListHeader
+              shoppingList={shoppingList}
+              isSignedIn={isAuthenticated}
+            />
 
             {listUpdatedAt > 0 && (
               <LastSyncedLabel

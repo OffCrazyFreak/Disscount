@@ -4,7 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import disscount.exceptions.BadRequestException;
+import disscount.exceptions.ForbiddenException;
+import disscount.exceptions.NotFoundException;
 import disscount.exceptions.UnauthorizedException;
 import disscount.shoppingList.dao.ShoppingListRepository;
 import disscount.shoppingList.domain.LinkAccess;
@@ -17,13 +18,15 @@ import disscount.user.domain.User;
 import disscount.util.Timestamps;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * The owner's view of their own lists. Everything here is owner-only; access granted by a
- * share link runs through {@link SharedShoppingListService} instead.
+ * Every path to a shopping list, for owners and link visitors alike.
+ *
+ * <p>The by-id methods run where a bearer token is optional, so {@code userId} may be null
+ * and the framework guarantees nothing: authorization is this class's job. See
+ * {@code docs/SHARING.md} §4.
  */
 @Service
 @RequiredArgsConstructor
@@ -32,18 +35,18 @@ public class ShoppingListService {
 
     private final ShoppingListRepository shoppingListRepository;
     private final UserRepository userRepository;
+    private final ShoppingListAccessService accessService;
     private final ShoppingListMapper shoppingListMapper;
 
     public ShoppingListDto createShoppingList(UUID ownerId, ShoppingListRequest request) {
-        User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+        User owner = requireUser(ownerId);
 
-        // New lists are always private, which also makes "copy list" private by construction.
-        // Sharing needs a persisted id to bind a token to, so it is turned on afterwards.
         ShoppingList shoppingList = ShoppingList.builder()
                 .owner(owner)
                 .title(request.getTitle())
                 .build();
+
+        applyLinkAccess(shoppingList, request.getLinkAccess());
 
         shoppingList = shoppingListRepository.save(shoppingList);
         return shoppingListMapper.toDto(shoppingList, ListAccess.OWNER);
@@ -53,8 +56,7 @@ public class ShoppingListService {
     // flush at commit for a query that never writes.
     @Transactional(readOnly = true)
     public List<ShoppingListDto> getUserShoppingLists(UUID ownerId) {
-        User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+        User owner = requireUser(ownerId);
 
         return shoppingListRepository.findActiveByOwner(owner)
                 .stream()
@@ -63,63 +65,74 @@ public class ShoppingListService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<ShoppingListDto> getShoppingListById(UUID listId, UUID ownerId) {
-        User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
-
-        return shoppingListRepository.findActiveByIdAndOwner(listId, owner)
-                .map(list -> shoppingListMapper.toDto(list, ListAccess.OWNER));
+    public ShoppingListDto getShoppingListById(UUID listId, UUID userId) {
+        ShoppingList list = findVisible(listId, userId);
+        return shoppingListMapper.toDto(list, accessService.resolve(list, userId));
     }
 
-    public ShoppingListDto updateShoppingList(UUID listId, UUID ownerId, ShoppingListRequest request) {
-        User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+    /** Renaming and resharing are separate rights; folding them lets EDIT reshare. */
+    public ShoppingListDto updateShoppingList(UUID listId, UUID userId, ShoppingListRequest request) {
+        ShoppingList list = findVisible(listId, userId);
+        ListAccess access = accessService.resolve(list, userId);
 
-        ShoppingList shoppingList = shoppingListRepository.findActiveByIdAndOwner(listId, owner)
-                .orElseThrow(() -> new BadRequestException("Shopping list not found"));
+        if (request.getLinkAccess() != null && !access.canManageShare()) {
+            throw new ForbiddenException("Only the owner can change who has access");
+        }
 
-        shoppingList.setTitle(request.getTitle());
-        applyLinkAccess(shoppingList, request.getLinkAccess());
+        requireWriteUser(userId);
+        if (!access.canEditItems()) {
+            throw new ForbiddenException("Insufficient access to this shopping list");
+        }
 
-        shoppingList = shoppingListRepository.save(shoppingList);
-        return shoppingListMapper.toDto(shoppingList, ListAccess.OWNER);
+        list.setTitle(request.getTitle());
+        applyLinkAccess(list, request.getLinkAccess());
+
+        return shoppingListMapper.toDto(shoppingListRepository.save(list), access);
     }
 
-    public void deleteShoppingList(UUID listId, UUID ownerId) {
-        User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+    public void deleteShoppingList(UUID listId, UUID userId) {
+        ShoppingList list = findVisible(listId, userId);
 
-        ShoppingList shoppingList = shoppingListRepository.findActiveByIdAndOwner(listId, owner)
-                .orElseThrow(() -> new BadRequestException("Shopping list not found"));
+        if (!accessService.resolve(list, userId).isOwner()) {
+            throw new ForbiddenException("Only the owner can delete this shopping list");
+        }
 
-        shoppingList.setDeletedAt(Timestamps.nowUtc());
-        shoppingListRepository.save(shoppingList);
+        list.setDeletedAt(Timestamps.nowUtc());
+        shoppingListRepository.save(list);
     }
 
-    /**
-     * Re-enabling a link mints a fresh token, so turning sharing off and on again is a real
-     * revoke. Merely changing the level leaves the token alone, since the people already
-     * holding the link are meant to keep working at the new level.
-     */
+    /** Not-found rather than forbidden, so a 403 cannot confirm an id is real. */
+    public ShoppingList findVisible(UUID listId, UUID userId) {
+        ShoppingList list = shoppingListRepository.findActiveById(listId)
+                .orElseThrow(() -> new NotFoundException("Shopping list not found"));
+
+        if (!accessService.resolve(list, userId).canView()) {
+            throw new NotFoundException("Shopping list not found");
+        }
+
+        return list;
+    }
+
+    /** Anonymous callers cap at VIEW, so every write stays attributable. */
+    public User requireWriteUser(UUID userId) {
+        if (userId == null) {
+            throw new UnauthorizedException("Sign in to change this shopping list");
+        }
+        return requireUser(userId);
+    }
+
+    private User requireUser(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UnauthorizedException("User not found"));
+    }
+
+    /** Off then on hands back the same URL, since the URL is the id. Intended. */
     private void applyLinkAccess(ShoppingList list, LinkAccess requested) {
         if (requested == null) {
             return;
         }
 
         ListAccess next = requested.toListAccess();
-        if (next == list.resolvedLinkAccess()) {
-            return;
-        }
-
-        if (next == ListAccess.NONE) {
-            list.setLinkAccess(null);
-            list.setShareToken(null);
-            return;
-        }
-
-        list.setLinkAccess(next);
-        if (list.getShareToken() == null) {
-            list.setShareToken(UUID.randomUUID());
-        }
+        list.setLinkAccess(next == ListAccess.NONE ? null : next);
     }
 }

@@ -11,8 +11,7 @@ public class ShoppingListRequest {
     @NotBlank(message = "Title is required")
     private String title;
 
-    // Owner-only, and ignored on create: sharing is turned on from an existing list,
-    // because there is no id to bind a token to until the list has been saved.
-    // LinkAccess rather than ListAccess, so OWNER cannot be sent at all.
+    // Owner-only. Honoured on create, so a copy can be born shared, and the caller of a
+    // create is by definition the new list's owner.
     private LinkAccess linkAccess;
 }

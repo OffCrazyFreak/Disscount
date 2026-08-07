@@ -80,6 +80,17 @@ For the HTML variant, build a single self-contained page with the `frontend-desi
 
 Self-contained means genuinely self-contained: inline the CSS, use system font stacks, and reference no CDN, webfont, or image. The page is opened over `file://`, often with no network, and anything external renders as a broken document.
 
+### The HTML layout is built for reading a wide table
+
+The whole point of the HTML variant is that a long table is easier to scan than Markdown, so the layout must give the table room. These rules are not cosmetic preferences; each one fixes a way the page became unreadable in practice:
+
+- **Use the full browser width. Do not put the page in a centred fixed-width container.** A `max-width` on the wrapper squeezes nine columns into a column of text and forces horizontal scrolling on a screen that had plenty of room. Prose blocks can keep their own reading measure, but the tables get the whole viewport.
+- **The Finding column needs roughly three times the width the browser gives it by default.** Left to itself it collapses to one word per line and the table becomes unreadable vertical confetti. Give it a generous `min-width`.
+- **The Where column should be about half its natural width.** It holds a `file:line`, which is the least important cell on the row, and letting it sit `nowrap` lets one long path dictate the whole table's geometry. Let it wrap and break on the path separators.
+- **Never render Now, Expected and Test as one paragraph.** They are three distinct things and a reader scans for one of them at a time. Split the cell into a separate block per part, each with its own label, so the eye can land on Test without reading Now first.
+
+Because the Maintainability tail uses a different, shorter column set, key any positional column rules to the main table only (for example by tagging the nine-column tables with a class), or the tail's cells inherit widths meant for columns it does not have.
+
 ### The HTML must follow the system colour scheme
 
 Default to **dark**, and let a light system preference override it. Not the other way round: the user's environment is dark nearly all the time, so dark is the right base and the right fallback when the preference is unknown.
@@ -132,7 +143,24 @@ PY
 
 ## Delivering the doc
 
-Give the user the **full absolute path**, on its own line, for every artifact you wrote. Terminal and desktop chat interfaces turn an absolute path into a clickable link, and clicking is how the user actually opens these. A bare filename, a repo-relative path, or a path in prose is not clickable and forces them to reconstruct it.
+Hand back every artifact as a **Markdown link whose target is a `file://` URI**, built from the absolute path. This is the only form that is clickable here, confirmed by testing five variants against this user's terminal on 2026-08-06:
+
+```markdown
+[REVIEW-2026-08-06-DEV-VS-MAIN-BY-AREA.md](file:///home/silver/Desktop/Disscount/reviews/REVIEW-2026-08-06-DEV-VS-MAIN-BY-AREA.md)
+```
+
+Use the filename as the link text, and put each artifact on its own line. Do not bury a link mid-sentence.
+
+What does NOT work, so do not fall back to any of it:
+
+- A bare absolute path (`/home/silver/...`). Claude Code does not wrap paths in OSC 8 escapes, so a bare path is clickable only in terminals that auto-detect paths themselves, and this one does not.
+- A bare `file://` URI as plain text.
+- A `vscode://file/...` URI in either form.
+- A bare filename, a repo-relative path, or a path inside prose.
+
+Target the **system default handler** via `file://`, not an editor scheme. The two artifacts want different applications (an editor for the Markdown, a browser for the HTML) and `file://` lets the desktop pick correctly for each.
+
+Note this applies to the artifacts you deliver. Inline `file.ts:42` references to source, which the harness renders as its own clickable reference, keep their existing form.
 
 Get the directory right, not just the name. Reviews are frequently run from a **git worktree**, and `reviews/` is typically gitignored, so the file exists only under the worktree it was written in and no git operation will ever move it. Resolve the real path rather than assuming the user shares your working directory:
 

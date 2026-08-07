@@ -1,10 +1,7 @@
 import { useMemo } from "react";
-import {
-  shoppingListQueries,
-  useGetSharedShoppingList,
-} from "@/lib/api/shopping-lists/hooks";
+import { useQuery } from "@tanstack/react-query";
+import { shoppingListQueries } from "@/lib/api/shopping-lists/hooks";
 import { useProductsByEans } from "@/lib/cijene-api/use-products-by-eans";
-import { useAuthedQuery } from "@/lib/query/use-authed-query";
 import { useDataPending } from "@/lib/query/use-data-pending";
 import { useUser } from "@/context/user-context";
 import {
@@ -14,41 +11,27 @@ import {
 import { getAveragePrice } from "@/app/products/utils/product-utils";
 
 /**
- * @param shareToken when set, the list is read through /api/shared/{token} instead of by
- *   id, which is the only path an anonymous link visitor has.
+ * One read for owners and link visitors alike. The endpoint resolves the caller's access
+ * from the id, so there is no second path and nothing to choose between here.
  */
-export function useShoppingListData(listId: string, shareToken?: string) {
+export function useShoppingListData(listId: string) {
   const { user } = useUser();
-  const isSharedRead = !!shareToken;
 
-  // Both queries always run, since hook order cannot be conditional. Exactly one is
-  // enabled, so only one ever fetches.
-  const ownedQuery = useAuthedQuery({
-    ...shoppingListQueries.byId(listId),
-    enabled: !isSharedRead && !!listId && listId !== "new",
-  });
-
-  // Deliberately not useAuthedQuery: a link visitor has no session, so gating this on one
-  // would leave it disabled and permanently pending for the only reader it exists for.
-  const sharedQuery = useGetSharedShoppingList(shareToken ?? "");
+  // A plain useQuery, not useAuthedQuery: the list id is the shareable link, so this page
+  // is reachable signed out, and folding a session into `enabled` would leave the query
+  // permanently disabled for exactly the visitor the sharing feature exists for.
+  const listQuery = useQuery(shoppingListQueries.byId(listId));
 
   const {
     data: shoppingList,
     error,
     refetch,
     dataUpdatedAt: listUpdatedAt,
-  } = isSharedRead ? sharedQuery : ownedQuery;
+  } = listQuery;
 
-  // useAuthedQuery folds the persister's restore window into `pending` for the owned
-  // read. The shared read has no auth to wait on but the same restore window, which is
-  // what useDataPending covers. The isSharedRead guard matters: a disabled query reports
-  // isPending forever, so on the owned path this must not contribute.
-  const sharedPending = useDataPending(isSharedRead && sharedQuery.isPending);
-  const isLoading = isSharedRead ? sharedPending : ownedQuery.pending;
-
-  // False on a shared read, always. Forwarding the owned query's requiresAuth would put a
-  // login wall in front of the entire share feature.
-  const requiresAuth = isSharedRead ? false : ownedQuery.requiresAuth;
+  // useDataPending rather than the query's isLoading, which reads false with no data for
+  // the whole persister restore window. There is no auth to wait on here.
+  const isLoading = useDataPending(listQuery.isPending);
 
   const eans = useMemo(
     () => [
@@ -122,7 +105,6 @@ export function useShoppingListData(listId: string, shareToken?: string) {
     isLoading,
     error,
     refetch,
-    requiresAuth,
     listUpdatedAt,
     cheapestStores,
     averagePrices,

@@ -23,8 +23,9 @@ export const CACHE_TIMES = {
   /** A health probe that is cached is not a health probe. */
   health: 30 * 1000,
   /**
-   * A list two people are shopping at once. Each other's ticks have to land without a
-   * manual reload, which is a shorter window than anything else here wants.
+   * A single shopping list. Its id is the shareable link, so two people can be shopping
+   * off one list and each other's ticks have to land without a manual reload. Shorter
+   * than anything else here wants, and still not live: see the comment on the descriptor.
    */
   sharedList: 30 * 1000,
 } as const;

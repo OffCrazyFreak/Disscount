@@ -14,11 +14,25 @@ function findItem(items: WatchlistItemDto[], watchType: WatchType) {
   return items.find((item) => item.watchType === watchType);
 }
 
+/**
+ * The whole string or nothing. Number.parseFloat reads "10abc" as 10, which let a
+ * partially numeric entry compare equal to "10" and count as unchanged, so the reset
+ * control stayed disabled on a real edit and the form submitted a number the user had
+ * not typed.
+ */
+export function parseThreshold(value: string): number {
+  const trimmed = value.trim();
+  if (!trimmed) return Number.NaN;
+
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) ? parsed : Number.NaN;
+}
+
 // Compared as numbers so retyping 1 as 1.0 is not a change, and as text while
 // either side is not a number yet, which covers the half-typed and empty cases.
 export function isSameThreshold(value: string, baseline: string): boolean {
-  const left = Number.parseFloat(value);
-  const right = Number.parseFloat(baseline);
+  const left = parseThreshold(value);
+  const right = parseThreshold(baseline);
 
   return Number.isFinite(left) && Number.isFinite(right)
     ? left === right

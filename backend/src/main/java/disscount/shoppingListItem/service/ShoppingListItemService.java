@@ -4,12 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import disscount.exceptions.BadRequestException;
+import disscount.exceptions.ForbiddenException;
+import disscount.exceptions.NotFoundException;
 import disscount.exceptions.UnauthorizedException;
 import disscount.shoppingList.dao.ShoppingListRepository;
 import disscount.shoppingList.domain.ListAccess;
 import disscount.shoppingList.domain.ShoppingList;
+import disscount.shoppingList.service.ShoppingListAccessService;
 import disscount.shoppingList.service.ShoppingListMapper;
+import disscount.shoppingList.service.ShoppingListService;
 import disscount.shoppingListItem.dao.ShoppingListItemRepository;
 import disscount.shoppingListItem.domain.ShoppingListItem;
 import disscount.shoppingListItem.dto.ShoppingListItemDto;
@@ -24,9 +27,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * The owner's own items. Writes granted by a share link go through
- * {@link disscount.shoppingList.service.SharedShoppingListService} instead, so that the token
- * has to travel with the request.
+ * Items on a list, for owners and link visitors alike.
+ *
+ * <p>Like {@link ShoppingListService}, these run where a bearer token is optional, so each
+ * method resolves the caller's access rather than assuming an owner. The list is loaded
+ * through {@code findVisible}, which answers not-found for anything the caller may not see,
+ * so an item endpoint cannot be used to probe for list ids either.
  */
 @Service
 @RequiredArgsConstructor
@@ -36,29 +42,33 @@ public class ShoppingListItemService {
     private final ShoppingListItemRepository shoppingListItemRepository;
     private final ShoppingListRepository shoppingListRepository;
     private final UserRepository userRepository;
+    private final ShoppingListAccessService accessService;
+    private final ShoppingListService shoppingListService;
     private final ShoppingListMapper shoppingListMapper;
 
-    public ShoppingListItemDto addItemToShoppingList(UUID shoppingListId, UUID ownerId, ShoppingListItemRequest request) {
-        User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+    /**
+     * Owner only. No link level grants item creation: an unbounded right to add to someone
+     * else's list waits for per-person revocation, which is version 2's job.
+     */
+    public ShoppingListItemDto addItemToShoppingList(UUID shoppingListId, UUID userId, ShoppingListItemRequest request) {
+        ShoppingList shoppingList = shoppingListService.findVisible(shoppingListId, userId);
+        User actor = shoppingListService.requireWriteUser(userId);
 
-        ShoppingList shoppingList = shoppingListRepository.findActiveByIdAndOwner(shoppingListId, owner)
-                .orElseThrow(() -> new BadRequestException("Shopping list not found or access denied"));
+        if (!accessService.resolve(shoppingList, userId).isOwner()) {
+            throw new ForbiddenException("Only the owner can add items to this shopping list");
+        }
 
-        // Check if item with same name already exists in the shopping list
         Optional<ShoppingListItem> existingItem = shoppingListItemRepository
                 .findActiveByShoppingListAndName(shoppingList, request.getName());
 
         ShoppingListItem item;
         if (existingItem.isPresent()) {
-            // Item exists, increase the amount
             item = existingItem.get();
             int requestedAmount = request.getAmount() != null ? request.getAmount() : 1;
             // Cap the merged total at the same limit the request DTO enforces (@Max)
             int newAmount = Math.min(item.getAmount() + requestedAmount, 999);
             item.setAmount(newAmount);
 
-            // Update other fields with new values if provided
             if (request.getEan() != null) item.setEan(request.getEan());
             if (request.getBrand() != null) item.setBrand(request.getBrand());
             if (request.getQuantity() != null) item.setQuantity(request.getQuantity());
@@ -67,11 +77,9 @@ public class ShoppingListItemService {
             if (request.getAvgPrice() != null) item.setAvgPrice(request.getAvgPrice());
             if (request.getStorePrice() != null) item.setStorePrice(request.getStorePrice());
 
-            // Update tracking fields
             item.setUpdatedAt(Timestamps.nowUtc());
-            item.setUpdatedByUser(owner);
+            item.setUpdatedByUser(actor);
         } else {
-            // Create new item
             item = ShoppingListItem.builder()
                     .shoppingList(shoppingList)
                     .ean(request.getEan())
@@ -84,62 +92,45 @@ public class ShoppingListItemService {
                     .chainCode(request.getChainCode())
                     .avgPrice(request.getAvgPrice())
                     .storePrice(request.getStorePrice())
-                    .updatedByUser(owner)
+                    .updatedByUser(actor)
                     .build();
         }
 
         item = shoppingListItemRepository.save(item);
-
-        // Update the shopping list's updatedAt timestamp
-        shoppingList.setUpdatedAt(Timestamps.nowUtc());
-        shoppingListRepository.save(shoppingList);
+        touchList(shoppingList);
 
         return shoppingListMapper.toItemDto(item, ListAccess.OWNER);
     }
 
-    public ShoppingListItemDto updateShoppingListItem(UUID listId, UUID itemId, UUID ownerId, ShoppingListItemRequest request) {
-        User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+    /** SHOP is enough: ticking off and choosing a store is the in-the-shop level. */
+    public ShoppingListItemDto updateShoppingListItem(
+            UUID listId, UUID itemId, UUID userId, ShoppingListItemRequest request) {
+        ShoppingList list = shoppingListService.findVisible(listId, userId);
+        User actor = shoppingListService.requireWriteUser(userId);
+        ListAccess access = requireAccess(list, userId, ListAccess::canCheck);
 
-        ShoppingListItem item = findOwnedItem(listId, itemId, owner);
+        ShoppingListItem item = findItem(list, itemId);
 
-        // Update fields
-        item.setEan(request.getEan());
-        item.setBrand(request.getBrand());
-        item.setName(request.getName());
-        item.setQuantity(request.getQuantity());
-        item.setUnit(request.getUnit());
-        item.setAmount(request.getAmount() != null ? request.getAmount() : 1);
-        item.setIsChecked(request.getIsChecked() != null ? request.getIsChecked() : false);
-        item.setChainCode(request.getChainCode());
-        item.setAvgPrice(request.getAvgPrice());
-        item.setStorePrice(request.getStorePrice());
-
-        // Update tracking fields
+        applyItemUpdate(item, request, access);
         item.setUpdatedAt(Timestamps.nowUtc());
-        item.setUpdatedByUser(owner);
+        item.setUpdatedByUser(actor);
 
         item = shoppingListItemRepository.save(item);
+        touchList(list);
 
-        // Update the shopping list's updatedAt timestamp
-        item.getShoppingList().setUpdatedAt(Timestamps.nowUtc());
-        shoppingListRepository.save(item.getShoppingList());
-
-        return shoppingListMapper.toItemDto(item, ListAccess.OWNER);
+        return shoppingListMapper.toItemDto(item, access);
     }
 
-    public void deleteShoppingListItem(UUID listId, UUID itemId, UUID ownerId) {
-        User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+    public void deleteShoppingListItem(UUID listId, UUID itemId, UUID userId) {
+        ShoppingList list = shoppingListService.findVisible(listId, userId);
+        shoppingListService.requireWriteUser(userId);
+        requireAccess(list, userId, ListAccess::canEditItems);
 
-        ShoppingListItem item = findOwnedItem(listId, itemId, owner);
+        ShoppingListItem item = findItem(list, itemId);
 
         item.setDeletedAt(Timestamps.nowUtc());
         shoppingListItemRepository.save(item);
-
-        // Update the shopping list's updatedAt timestamp
-        item.getShoppingList().setUpdatedAt(Timestamps.nowUtc());
-        shoppingListRepository.save(item.getShoppingList());
+        touchList(list);
     }
 
     public List<ShoppingListItemDto> getUserShoppingListItems(UUID ownerId) {
@@ -152,12 +143,46 @@ public class ShoppingListItemService {
                 .collect(Collectors.toList());
     }
 
-    /** The item has to belong both to the list in the path and to the caller. */
-    private ShoppingListItem findOwnedItem(UUID listId, UUID itemId, User owner) {
-        ShoppingList shoppingList = shoppingListRepository.findActiveByIdAndOwner(listId, owner)
-                .orElseThrow(() -> new BadRequestException("Shopping list not found or access denied"));
+    private ShoppingListItem findItem(ShoppingList list, UUID itemId) {
+        return shoppingListItemRepository.findActiveByIdAndShoppingList(itemId, list)
+                .orElseThrow(() -> new NotFoundException("Shopping list item not found"));
+    }
 
-        return shoppingListItemRepository.findActiveByIdAndShoppingList(itemId, shoppingList)
-                .orElseThrow(() -> new BadRequestException("Shopping list item not found or access denied"));
+    private ListAccess requireAccess(
+            ShoppingList list, UUID userId, java.util.function.Predicate<ListAccess> allowed) {
+        ListAccess access = accessService.resolve(list, userId);
+        if (!allowed.test(access)) {
+            throw new ForbiddenException("Insufficient access to this shopping list");
+        }
+        return access;
+    }
+
+    /**
+     * SHOP is the in-the-shop level: what got ticked, which store it is coming from, and the
+     * prices captured at that moment. Everything structural is left as the server has it, so a
+     * SHOP-level caller cannot rename or resize an item by sending a fuller payload.
+     */
+    private void applyItemUpdate(ShoppingListItem item, ShoppingListItemRequest request, ListAccess access) {
+        item.setIsChecked(request.getIsChecked() != null ? request.getIsChecked() : false);
+        item.setChainCode(request.getChainCode());
+        item.setAvgPrice(request.getAvgPrice());
+        item.setStorePrice(request.getStorePrice());
+
+        if (!access.canEditItems()) {
+            return;
+        }
+
+        item.setEan(request.getEan());
+        item.setBrand(request.getBrand());
+        item.setName(request.getName());
+        item.setQuantity(request.getQuantity());
+        item.setUnit(request.getUnit());
+        item.setAmount(request.getAmount() != null ? request.getAmount() : 1);
+    }
+
+    /** Item activity reorders the owner's list index, which sorts by updatedAt. */
+    private void touchList(ShoppingList list) {
+        list.setUpdatedAt(Timestamps.nowUtc());
+        shoppingListRepository.save(list);
     }
 }

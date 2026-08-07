@@ -6,9 +6,11 @@ import { FileText, Link2 } from "lucide-react";
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useShareListModal } from "@/app/(user)/shopping-lists/hooks/use-share-list-modal";
 import ShareAccessRow from "@/app/(user)/shopping-lists/components/forms/share-access-row";
+import { resolveShoppingListAccess } from "@/app/(user)/shopping-lists/utils/shopping-list-access";
 
 interface IShareListModalProps {
   open: boolean;
@@ -25,13 +27,22 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
     setLinkAccess,
     isSaving,
     isOffline,
-    shareUrl,
+    canShareLink: isLevelShareable,
     handleLinkShare,
     handleTextShare,
   } = useShareListModal(id);
 
   const hintId = useId();
-  const canShareLink = linkAccess !== "NONE" && !!shareUrl;
+
+  // The list route serves link visitors as well as its owner, so a signed-in recipient can
+  // reach this modal by URL. Only the owner may see or change who else has access.
+  const canManageShare = resolveShoppingListAccess(
+    shoppingList?.myAccess,
+  ).canManageShare;
+
+  // Gated on the save too: the level updates optimistically, so between picking a level
+  // and the server granting it the button would hand out a link that does not open yet.
+  const canShareLink = isLevelShareable && !isSaving;
 
   return (
     <ModalShell
@@ -45,7 +56,7 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
         </div>
-      ) : isError || !shoppingList ? (
+      ) : isError || !shoppingList || !canManageShare ? (
         <p className="text-sm text-muted-foreground">
           Popis nije pronađen. Možda je obrisan ili nemaš pristup.
         </p>
@@ -77,9 +88,12 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
             <Button
               type="button"
               variant="primary"
-              className="flex-1"
-              onClick={handleLinkShare}
-              disabled={!canShareLink}
+              onClick={canShareLink ? handleLinkShare : undefined}
+              // aria-disabled, not disabled: a natively disabled button leaves the tab
+              // order, so a keyboard user never lands on it and never hears the
+              // description explaining why the action went away.
+              aria-disabled={!canShareLink}
+              className={cn("flex-1", !canShareLink && "opacity-50")}
               // Points at the access hint, so the reason it is unavailable is readable
               // rather than something the user has to infer from the select.
               aria-describedby={canShareLink ? undefined : hintId}

@@ -10,10 +10,11 @@ export function shoppingListPath(id: string): string {
 }
 
 /**
- * The public address of a shared list. Deliberately built from the share token and not
- * the list id, so the list's own URL never travels in a forwarded link and revoking is a
- * matter of rotating the token rather than making the whole list private.
+ * The address to hand someone else, which is simply the list's own URL. There is no
+ * separate share token: the id is the capability while the list is shared, and it grants
+ * nothing once it is not, so the URL an owner sees in the address bar is the one worth
+ * sending. Turning sharing off and on again therefore hands back the same URL.
  */
-export function shareListUrl(shareToken: string): string {
-  return `${appUrl()}/s/${encodeURIComponent(shareToken)}`;
+export function shareListUrl(id: string): string {
+  return `${appUrl()}${shoppingListPath(id)}`;
 }

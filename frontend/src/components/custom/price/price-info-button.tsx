@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import type { ComponentProps } from "react";
 import { Info } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 // collapses once they are spread through a wrapper, and this trigger never
 // takes a leading icon anyway.
 interface IPriceInfoButtonProps extends Omit<
-  React.ComponentProps<"button">,
+  ComponentProps<"button">,
   "children"
 > {
   label: string;
@@ -27,25 +27,26 @@ interface IPriceInfoButtonProps extends Omit<
  * on the icon rather than through a [&_svg] variant, because the button's own
  * icon rule guards on :not([class*='size-']) and would otherwise outrank it.
  *
- * Forwards its ref, since both callers hand it to a Radix trigger as a child.
+ * Both callers hand this to a Radix trigger as a child, so it has to forward a ref.
+ * React is 19 here, where ref is an ordinary prop, so no forwardRef wrapper is needed.
  */
-const PriceInfoButton = React.forwardRef<
-  HTMLButtonElement,
-  IPriceInfoButtonProps
->(({ label, className, ...props }, ref) => (
-  <Button
-    ref={ref}
-    type="button"
-    variant="ghost"
-    size="icon-sm"
-    aria-label={label}
-    className={cn("size-6 p-0", className)}
-    {...props}
-  >
-    <Info aria-hidden="true" className="size-6" />
-  </Button>
-));
-
-PriceInfoButton.displayName = "PriceInfoButton";
-
-export default PriceInfoButton;
+export default function PriceInfoButton({
+  label,
+  className,
+  ref,
+  ...props
+}: IPriceInfoButtonProps) {
+  return (
+    <Button
+      ref={ref}
+      type="button"
+      variant="ghost"
+      size="icon-sm"
+      aria-label={label}
+      className={cn("size-6 p-0", className)}
+      {...props}
+    >
+      <Info aria-hidden="true" className="size-6" />
+    </Button>
+  );
+}

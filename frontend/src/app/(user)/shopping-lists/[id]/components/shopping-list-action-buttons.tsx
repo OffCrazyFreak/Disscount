@@ -10,8 +10,6 @@ interface IShoppingListActionButtonsProps {
   showEditButton?: boolean;
   showDeleteButton?: boolean;
   showShareButton?: boolean;
-  /** Set when the page was reached through a share link, so share can offer that link. */
-  shareToken?: string;
   /** Off, the row hides below `sm` and the surface has to carry the actions itself, the way the card does with its long press. */
   showOnMobile?: boolean;
   className?: string;
@@ -23,7 +21,6 @@ export default function ShoppingListActionButtons({
   showEditButton = false,
   showDeleteButton = false,
   showShareButton = false,
-  shareToken,
   showOnMobile = false,
   className,
 }: IShoppingListActionButtonsProps) {
@@ -31,13 +28,12 @@ export default function ShoppingListActionButtons({
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
     isDeleting,
-    isCopying,
     isShared,
     handleConfirmDelete,
     handleEdit,
     handleShare,
     handleCopy,
-  } = useShoppingListActions(shoppingList, shareToken);
+  } = useShoppingListActions(shoppingList);
 
   const groupProps = {
     showShareButton,
@@ -45,7 +41,6 @@ export default function ShoppingListActionButtons({
     showCopyButton,
     showEditButton,
     showDeleteButton,
-    isCopying,
     isDeleting,
     onShare: handleShare,
     onCopy: handleCopy,

@@ -33,13 +33,13 @@ export const addToListFormSchema = z
       context.addIssue({
         code: "custom",
         path: ["customListTitle"],
-        message: "Naziv mora imati najmanje 3 znaka",
+        message: "Upiši naziv s najmanje 3 znaka",
       });
     } else if (title.length > 100) {
       context.addIssue({
         code: "custom",
         path: ["customListTitle"],
-        message: "Naziv može imati najviše 100 znakova",
+        message: "Upiši naziv s najviše 100 znakova",
       });
     }
   });

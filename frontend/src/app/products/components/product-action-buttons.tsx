@@ -2,7 +2,8 @@ import { Image as ImageIcon, ListPlus, Share2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import ListPen from "@/components/custom/icons/list-pen";
-import { useIsOnPreselectedShoppingList } from "@/lib/api/shopping-lists/use-preselected-list-membership";
+import { PRODUCT_ACTION_LABELS } from "@/constants/product-action-labels";
+import { useIsOnPreselectedShoppingList } from "@/hooks/use-preselected-list-membership";
 import {
   Tooltip,
   TooltipContent,
@@ -35,6 +36,9 @@ export default function ProductActionButtons({
   showShare = true,
   className,
 }: IProductActionButtonsProps) {
+  // Session-gated, like the hold sheet's copy of this read: /products is public, so an
+  // unguarded read is a 401 plus retries for every signed-out visitor. useAuthedQuery
+  // folds that in, and gates on the session rather than the resolved profile.
   const { data: currentUserWatchlist = [] } = useAuthedQuery(
     watchlistQueries.me(),
   );
@@ -50,8 +54,8 @@ export default function ProductActionButtons({
   // is one, the newest list otherwise.
   const isOnList = useIsOnPreselectedShoppingList(product.ean);
   const addToListLabel = isOnList
-    ? "Uredi unos na popisu za kupnju"
-    : "Dodaj na popis za kupnju";
+    ? PRODUCT_ACTION_LABELS.editListEntry
+    : PRODUCT_ACTION_LABELS.addToList;
 
   const actions = (
     <>

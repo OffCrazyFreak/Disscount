@@ -125,7 +125,11 @@ function SelectItem({
    * re-renders the selected item's `ItemText`, so an icon inside it would appear a second
    * time in the trigger.
    */
-  icon?: React.ElementType;
+  // Constrained rather than a bare ElementType: the render below hands the component a
+  // className and aria-hidden, and an unconstrained type promises nothing about either.
+  icon?: React.ElementType<
+    Pick<React.SVGProps<SVGSVGElement>, "className" | "aria-hidden">
+  >;
 }) {
   return (
     <SelectPrimitive.Item

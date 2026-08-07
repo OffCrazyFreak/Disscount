@@ -92,10 +92,13 @@ export default function ShareAccessRow({
               chevron on the right.
 
               The icon sits here rather than inside SelectValue so the spinner can take its
-              place while a save is in flight. Both occupy size-5, so the swap moves nothing. */}
+              place while a save is in flight. Both render at 16px, so the swap moves the
+              label by nothing: size-5 is 1rem here, because --spacing is 0.2rem rather
+              than Tailwind's stock 0.25rem, and passing the spinner 20 made it 4px wider
+              than the icon it replaces. */}
           <span className="flex min-w-0 items-center gap-2">
             {isSaving ? (
-              <BlockLoadingSpinner size={20} className="px-0 text-primary" />
+              <BlockLoadingSpinner size={16} className="px-0 text-primary" />
             ) : (
               <Icon
                 className="size-5 shrink-0 text-current"

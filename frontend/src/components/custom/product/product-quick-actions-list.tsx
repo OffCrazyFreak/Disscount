@@ -3,12 +3,13 @@
 import { Eye, Image as ImageIcon, ListPlus, Share2 } from "lucide-react";
 
 import QuickActionItem from "@/components/custom/common/quick-action-item";
+import { PRODUCT_ACTION_LABELS } from "@/constants/product-action-labels";
 import EyePen from "@/components/custom/icons/eye-pen";
 import ListPen from "@/components/custom/icons/list-pen";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { watchlistQueries } from "@/lib/api/watchlist/hooks";
 import { useAuthedQuery } from "@/lib/query/use-authed-query";
-import { useIsOnPreselectedShoppingList } from "@/lib/api/shopping-lists/use-preselected-list-membership";
+import { useIsOnPreselectedShoppingList } from "@/hooks/use-preselected-list-membership";
 import useProductModals from "@/hooks/use-product-modals";
 import useProductShare from "@/hooks/use-product-share";
 import { productImageSearchUrl } from "@/utils/product-links";
@@ -33,6 +34,8 @@ export default function ProductQuickActionsList({
 
   // The same two reads the product row's buttons make, so the sheet and the buttons
   // behind it never disagree about whether this product is already tracked or listed.
+  // Session-gated: /products is public and holding a card opens this sheet, so an
+  // unguarded read is a 401 plus retries for every signed-out visitor.
   const { data: currentUserWatchlist = [] } = useAuthedQuery(
     watchlistQueries.me(),
   );
@@ -57,13 +60,21 @@ export default function ProductQuickActionsList({
     <>
       <QuickActionItem
         icon={isOnList ? ListPen : ListPlus}
-        label={isOnList ? "Uredi unos na popisu" : "Dodaj na popis"}
+        label={
+          isOnList
+            ? PRODUCT_ACTION_LABELS.editListEntry
+            : PRODUCT_ACTION_LABELS.addToList
+        }
         onSelect={() => swapToModal(openAddToList)}
       />
 
       <QuickActionItem
         icon={isInWatchlist ? EyePen : Eye}
-        label={isInWatchlist ? "Uredi praćenje cijene" : "Prati cijenu"}
+        label={
+          isInWatchlist
+            ? PRODUCT_ACTION_LABELS.editWatch
+            : PRODUCT_ACTION_LABELS.watch
+        }
         onSelect={() => swapToModal(openWatchlist)}
       />
 

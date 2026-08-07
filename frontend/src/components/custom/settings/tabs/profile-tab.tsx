@@ -42,7 +42,12 @@ export default function ProfileTab() {
               <FormControl>
                 <Input {...field} value={field.value || ""} />
               </FormControl>
-              <FormDescription>Kako ćemo te zvati?</FormDescription>
+              {/* Says it is taken up front, so a rejection on save is not a surprise.
+                  The server has the last word and answers 409, which lands on this
+                  field through problem-details. */}
+              <FormDescription>
+                Kako ćemo te zvati? Mora biti jedinstveno.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

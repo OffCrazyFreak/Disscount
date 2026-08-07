@@ -141,15 +141,15 @@ Because `faqItems` feeds both the visible accordion and the structured data, the
 
 The landing is the app's most SEO-sensitive surface, so several layers work together.
 
-| Layer                    | Where                                              | Notes                                                                                                                |
-| ------------------------ | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Page title + description | `page.tsx` `metadata`                              | Title fills the `Disscount - %s` template from the layout; Croatian description                                      |
-| Site-wide metadata       | `app/layout.tsx`                                   | `openGraph` (`hr_HR`), `twitter` (`summary_large_image`), keywords, robots index/follow                              |
-| Structured data          | `components/json-ld.tsx`                           | One `<script type="application/ld+json">` with a `@graph`                                                            |
-| Sitemap                  | `app/sitemap.ts`                                   | Public routes only; pulls `/updates/<id>` from `templatePosts`                                                       |
-| Robots                   | `app/robots.ts`                                    | Allows `/`, disallows user/admin/auth routes; points at the sitemap                                                  |
-| Noindex headers          | `next.config.ts` `headers()`                       | `X-Robots-Tag: noindex, nofollow` on `/s/*` and `/shopping-lists/*`; `/s/*` also gets `Referrer-Policy: no-referrer` |
-| Social images            | `app/opengraph-image.tsx`, `app/twitter-image.tsx` | Generated with `next/og` (see the OG-image work)                                                                     |
+| Layer                    | Where                                              | Notes                                                                                                                           |
+| ------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Page title + description | `page.tsx` `metadata`                              | Title fills the `Disscount - %s` template from the layout; Croatian description                                                 |
+| Site-wide metadata       | `app/layout.tsx`                                   | `openGraph` (`hr_HR`), `twitter` (`summary_large_image`), keywords, robots index/follow                                         |
+| Structured data          | `components/json-ld.tsx`                           | One `<script type="application/ld+json">` with a `@graph`                                                                       |
+| Sitemap                  | `app/sitemap.ts`                                   | Public routes only; pulls `/updates/<id>` from `templatePosts`                                                                  |
+| Robots                   | `app/robots.ts`                                    | Allows `/`, disallows user/admin/auth routes; points at the sitemap                                                             |
+| Noindex headers          | `next.config.ts` `headers()`                       | `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer` on `/shopping-lists/*`, which is where a shared list lives |
+| Social images            | `app/opengraph-image.tsx`, `app/twitter-image.tsx` | Generated with `next/og` (see the OG-image work)                                                                                |
 
 The JSON-LD `@graph` contains a `WebSite` node with a `SearchAction` (`/products?q={search_term_string}`), an `Organization` node (logo, `sameAs` socials), a `SoftwareApplication` node (category `ShoppingApplication`, a free `Offer`, screenshots), and a `FAQPage` node built from `faqItems`. Heading semantics matter: the hero `<h1>` carries the keyword copy ("Pronađi najbolje cijene u Hrvatskoj"), the wordmark is a styled `<p>`, and each section contributes exactly one `<h2>`.
 

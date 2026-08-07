@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.exceptions.BadRequestException;
+import disscount.exceptions.ConflictException;
 import disscount.user.dao.AuthIdentityDao;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
@@ -39,6 +40,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final AuthIdentityDao authIdentityDao;
+    private final UserProfileCreator profileCreator;
 
     // Compared against better-auth's UTC session timestamps, so the JVM zone must not leak in.
     private static LocalDateTime nowUtc() {
@@ -90,20 +92,25 @@ public class UserService {
             String username = seedUsername(name, email);
             // Every switch starts ON; the stamped timestamp is what the settings form reads back.
             LocalDateTime now = nowUtc();
+            User.UserBuilder profile = User.builder()
+                    .id(id)
+                    .image(image)
+                    .accountType(accountType)
+                    .notificationsPushEnabledAt(now)
+                    .notificationsEmailEnabledAt(now)
+                    .newsletterEnabledAt(now)
+                    .feedbackContactEnabledAt(now)
+                    .lastActiveAt(now);
+
             try {
-                userRepository.save(User.builder()
-                        .id(id)
-                        .username(username)
-                        .image(image)
-                        .accountType(accountType)
-                        .notificationsPushEnabledAt(now)
-                        .notificationsEmailEnabledAt(now)
-                        .newsletterEnabledAt(now)
-                        .feedbackContactEnabledAt(now)
-                        .lastActiveAt(now)
-                        .build());
-            } catch (DataIntegrityViolationException ignored) {
-                // Concurrent first-login race: the other request won - profile already exists
+                profileCreator.create(profile.username(username).build());
+            } catch (DataIntegrityViolationException collision) {
+                // A concurrent first login, or two accounts seeding one username. The insert
+                // ran in its own transaction, so this one is still usable and can retry.
+                if (userRepository.existsById(id)) return;
+
+                // Nameless rather than fail: the settings form asks for one immediately.
+                profileCreator.create(profile.username(null).build());
             }
         }
     }
@@ -114,17 +121,34 @@ public class UserService {
     }
 
     /**
-     * Seeds a username for a brand-new profile from the provider display name,
-     * falling back to the email local-part when the name is missing.
-     * Usernames are not unique, so no de-duplication is needed.
+     * Seeds a username for a brand-new profile from the provider display name, falling back
+     * to the email local-part when the name is missing.
+     *
+     * <p>Suffixes on a collision rather than refusing: nobody is present to choose on a
+     * first login. The user-facing edit refuses instead.
      */
     private String seedUsername(String name, String email) {
-        if (name != null && !name.isBlank()) {
-            return name.trim();
+        String base = (name != null && !name.isBlank())
+                ? name.trim()
+                : email.split("@")[0];
+
+        if (base.isBlank()) {
+            return null;
         }
 
-        String localPart = email.split("@")[0];
-        return localPart.isBlank() ? null : localPart;
+        if (!userRepository.existsByUsername(base)) {
+            return base;
+        }
+
+        // Bounded: past the cap a null name beats a slow loop, and the form will ask.
+        for (int suffix = 1; suffix <= 100; suffix++) {
+            String candidate = base + suffix;
+            if (!userRepository.existsByUsername(candidate)) {
+                return candidate;
+            }
+        }
+
+        return null;
     }
 
     public UserDto updateProfile(UUID userId, UserRequest request) {
@@ -134,6 +158,11 @@ public class UserService {
 
         String username = request.getUsername();
         if (username != null && !username.equals(user.getUsername())) {
+            // Checked here so the answer carries fieldErrors; the unique index catches the
+            // race and renders the same 409.
+            if (userRepository.existsByUsername(username)) {
+                throw new ConflictException("Korisničko ime je već zauzeto.");
+            }
             user.setUsername(username);
         }
 

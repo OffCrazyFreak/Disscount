@@ -119,6 +119,8 @@ productByEan: ({ ean, date, chains }: GetProductParams) =>
 
 This replaced a `JSON.stringify(params)` form that keyed on argument _shape_. React Query hashes object keys in sorted order and skips `undefined` members, so a product card seeding the cache with `{ ean }` now lands on the same key a reader passing `{ ean, date: undefined }` looks up. Under the old form that only worked because every caller happened to pass the same fields.
 
+`byId` is the one descriptor consumers must **not** always wrap in `useAuthedQuery`. A list id is its own share link, so `/shopping-lists/[id]` is reachable signed out, and folding a session into `enabled` there leaves a link visitor with a query that never fires. That page reads it through a plain `useQuery`; the owner-only share, copy and edit modals still use `useAuthedQuery`.
+
 `prices` is the one factory that takes a **scope** as its first argument:
 
 ```ts
@@ -140,7 +142,7 @@ Two things ride on that. The scope segment is what `lib/offline/cached-query-key
 | `priceHistoryEdge`     | 1 min  | The newest archived day can still be revised upstream                              |
 | `priceHistoryArchived` | 6 h    | Older archived days never change again                                             |
 | `health`               | 30 s   | A health probe that is cached is not a health probe                                |
-| `sharedList`           | 30 s   | Two people shopping one list need each other's ticks without a reload              |
+| `sharedList`           | 30 s   | A list id is its share link, so two people may be shopping one list                |
 
 `staleTime` is how long data counts as fresh. Retention is `gcTime`, set once in the provider to match the persister's `maxAge`.
 
@@ -321,7 +323,6 @@ Each data-driven route has its own `loading.tsx` rendering that route's page ske
 | `/products`            | `ProductsSkeleton` (also the page's Suspense fallback) |
 | `/products/[id]`       | `ProductDetailSkeleton`                                |
 | `/watchlist`           | `WatchlistSkeleton`                                    |
-| `/s/[token]`           | `SharedShoppingListSkeleton`                           |
 | everything else        | `app/loading.tsx` renders `PageShellSkeleton`          |
 
 A page skeleton must mirror the **stored default open state** of its collapsible sections, or the page height jumps as soon as the real component reads localStorage:

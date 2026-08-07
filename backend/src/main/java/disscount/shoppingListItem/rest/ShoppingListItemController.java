@@ -22,13 +22,16 @@ public class ShoppingListItemController {
 
     private final ShoppingListItemService shoppingListItemService;
 
+    // These run on the chain where a bearer token is optional, so the caller may be
+    // anonymous and currentUserId() may be null. ShoppingListItemService resolves the
+    // caller's access on every one of them; nothing here may assume an owner.
+
     @Operation(summary = "Add item to shopping list")
     @PostMapping
     public ResponseEntity<ShoppingListItemDto> addItemToShoppingList(
             @PathVariable UUID listId,
             @Valid @RequestBody ShoppingListItemRequest request) {
-        UUID ownerId = SecurityUtils.getCurrentUserId();
-        ShoppingListItemDto created = shoppingListItemService.addItemToShoppingList(listId, ownerId, request);
+        ShoppingListItemDto created = shoppingListItemService.addItemToShoppingList(listId, currentUserId(), request);
         return ResponseEntity.ok(created);
     }
 
@@ -38,8 +41,7 @@ public class ShoppingListItemController {
             @PathVariable UUID listId,
             @PathVariable UUID itemId,
             @Valid @RequestBody ShoppingListItemRequest request) {
-        UUID ownerId = SecurityUtils.getCurrentUserId();
-        ShoppingListItemDto updated = shoppingListItemService.updateShoppingListItem(listId, itemId, ownerId, request);
+        ShoppingListItemDto updated = shoppingListItemService.updateShoppingListItem(listId, itemId, currentUserId(), request);
         return ResponseEntity.ok(updated);
     }
 
@@ -48,8 +50,12 @@ public class ShoppingListItemController {
     public ResponseEntity<Void> deleteShoppingListItem(
             @PathVariable UUID listId,
             @PathVariable UUID itemId) {
-        UUID ownerId = SecurityUtils.getCurrentUserId();
-        shoppingListItemService.deleteShoppingListItem(listId, itemId, ownerId);
+        shoppingListItemService.deleteShoppingListItem(listId, itemId, currentUserId());
         return ResponseEntity.noContent().build();
+    }
+
+    /** Null for an anonymous caller, which is a legitimate state on these routes. */
+    private UUID currentUserId() {
+        return SecurityUtils.getCurrentUserIdOptional().orElse(null);
     }
 }

@@ -19,6 +19,12 @@ interface IStepperNumberInputProps {
   max: number;
   integer?: boolean;
   placeholder?: string;
+  /**
+   * Only for a field with no visible label. aria-label replaces the accessible name
+   * rather than adding to it, so passing one alongside a FormLabel gives the control a
+   * name that shares no words with the text beside it, and speaking the visible label
+   * then fails to reach the field.
+   */
   ariaLabel?: string;
   className?: string;
 }

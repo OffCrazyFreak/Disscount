@@ -23,6 +23,7 @@ import {
   useRememberRowCount,
 } from "@/hooks/use-remembered-row-count";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
+import { sortShoppingListsByRecency } from "@/lib/api/shopping-lists/sort-lists";
 
 const ROW_COUNT_KEY = "shoppingLists:me";
 
@@ -46,7 +47,7 @@ export default function ShoppingListsClient({
   // without this the list can silently reshuffle between fetches. filterByFields
   // sorts stably on coarse scores, so this order survives among equal matches.
   const matchingShoppingLists = filterByFields(
-    [...shoppingLists].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)),
+    sortShoppingListsByRecency(shoppingLists),
     query,
     ["title"],
   );

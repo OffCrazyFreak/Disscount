@@ -22,7 +22,6 @@ export default function ShoppingListActionRow({
   showCopyButton,
   showEditButton,
   showDeleteButton,
-  isCopying,
   isDeleting,
   onShare,
   onCopy,
@@ -32,10 +31,10 @@ export default function ShoppingListActionRow({
   className,
 }: IShoppingListActionRowProps) {
   // Icon-only, so the spinner is the whole visual and the accessible name carries the
-  // pending copy. The tooltip has to say the same thing or the two contradict each other.
-  // Share has no pending state: it either opens a modal or hands off to the OS sheet.
+  // pending state. The tooltip has to say the same thing or the two contradict each
+  // other. Neither share nor copy has one: both only open something.
   const shareLabel = isShared ? "Uredi dijeljenje popisa" : "Podijeli popis";
-  const copyLabel = isCopying ? LOADING_LABELS.copying : "Kopiraj popis";
+  const copyLabel = "Kopiraj popis";
   const deleteLabel = isDeleting ? LOADING_LABELS.deleting : "Obriši popis";
 
   return (
@@ -75,13 +74,8 @@ export default function ShoppingListActionRow({
               onClick={() => {
                 onCopy();
               }}
-              disabled={isCopying}
             >
-              {isCopying ? (
-                <BlockLoadingSpinner size={24} className="text-inherit" />
-              ) : (
-                <Copy aria-hidden="true" />
-              )}
+              <Copy aria-hidden="true" />
             </Button>
           </TooltipTrigger>
 
@@ -127,7 +121,7 @@ export default function ShoppingListActionRow({
               disabled={isDeleting}
             >
               {isDeleting ? (
-                <BlockLoadingSpinner size={24} className="text-inherit" />
+                <BlockLoadingSpinner size={16} className="text-inherit" />
               ) : (
                 <Trash2 aria-hidden="true" />
               )}

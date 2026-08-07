@@ -19,6 +19,7 @@ import {
   WatchlistFormData,
   watchlistLimits,
 } from "@/app/products/typings/watchlist-form";
+import { parseThreshold } from "@/app/products/utils/watchlist-thresholds";
 
 function thresholdSteps(watchType: WatchType, minPrice: number) {
   if (watchType === WatchType.percentage) return { primary: 5, secondary: 10 };
@@ -47,7 +48,7 @@ export default function WatchlistThresholdInput({
 
   const { min, max } = watchlistLimits(watchType);
   const steps = thresholdSteps(watchType, minPrice);
-  const current = Number.parseFloat(rawValue);
+  const current = parseThreshold(rawValue);
 
   return (
     <FormField
@@ -60,10 +61,17 @@ export default function WatchlistThresholdInput({
             {watchType === WatchType.absolute ? "(€)" : "(%)"}:
           </FormLabel>
 
-          <FormControl>
-            {loading ? (
-              <Skeleton className="my-2 h-14 w-full" />
-            ) : (
+          {/* The skeleton sits outside FormControl on purpose. FormControl is a Slot
+              that injects the field id, aria-describedby and aria-invalid onto its
+              child, so wrapping a plain div made the label point at a non-labelable
+              element for the length of the fetch. */}
+          {loading ? (
+            <div role="status" aria-live="polite" className="my-2">
+              <Skeleton aria-hidden="true" className="h-14 w-full" />
+              <span className="sr-only">Učitavanje praga sniženja</span>
+            </div>
+          ) : (
+            <FormControl>
               <StepperNumberInput
                 value={field.value}
                 onChange={field.onChange}
@@ -74,10 +82,9 @@ export default function WatchlistThresholdInput({
                 placeholder={
                   watchType === WatchType.absolute ? "Npr. 12" : "Npr. 15"
                 }
-                ariaLabel="Prag sniženja"
               />
-            )}
-          </FormControl>
+            </FormControl>
+          )}
 
           {existingItemForType &&
             existingItemForType.thresholdValue !== current && (

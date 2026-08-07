@@ -5,7 +5,7 @@ import { createPenBadgeIcon } from "@/components/custom/icons/pen-badge";
  * that", where the eye-off it replaced read as "stop watching", which the button does
  * not do.
  */
-const EyePen = createPenBadgeIcon("EyePen", [
+const EyePen = createPenBadgeIcon("eye-pen", [
   [
     "path",
     {
