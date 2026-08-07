@@ -70,6 +70,7 @@ export default function WatchlistItemModal({
     existingItems,
     existingItemForType,
     isCheckingWatchlist,
+    isFormValid,
     isEdited,
     isEditedInAnyMode,
     hasSavableChange,
@@ -121,10 +122,7 @@ export default function WatchlistItemModal({
       submitIcon={existingItemForType ? EyePen : Eye}
       submitLoading={isSaving}
       submitDisabled={
-        isCheckingWatchlist ||
-        !product ||
-        !form.formState.isValid ||
-        !hasSavableChange
+        isCheckingWatchlist || !product || !isFormValid || !hasSavableChange
       }
       cancelLabel="Odustani"
       resetLabel="Resetiraj"

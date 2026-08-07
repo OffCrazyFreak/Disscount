@@ -160,12 +160,25 @@ export function useWatchlistItemForm(
   const activeValue =
     watchType === WatchType.absolute ? absoluteValue : percentageValue;
 
+  // Parsed here rather than read off formState.isValid, for the same reason isEdited
+  // does not read dirtyFields: the flag only refreshes when RHF runs the resolver,
+  // and seeding the prefill through reset does not. The one validation that had run
+  // was the mount pass over the empty defaults, so a prefilled first-time watch was
+  // held invalid until an unrelated change (switching mode) triggered a fresh pass.
+  // The resolver stays in place and still owns the messages under the field.
+  const isFormValid = watchlistFormSchema.safeParse({
+    watchType,
+    percentageValue,
+    absoluteValue,
+  }).success;
+
   return {
     form,
     draftKey,
     existingItems,
     existingItemForType,
     isCheckingWatchlist,
+    isFormValid,
     // Compared against the baselines rather than read off RHF's dirtyFields: the
     // seed keeps dirty flags so an in-progress edit survives a refetch, which means
     // a flag can outlive the edit itself (a saved value equals its new baseline but
