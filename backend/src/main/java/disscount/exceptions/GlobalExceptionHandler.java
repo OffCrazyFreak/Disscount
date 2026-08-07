@@ -1,6 +1,8 @@
 package disscount.exceptions;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -53,20 +55,16 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * The race that slips past an application-level uniqueness check: two requests both see a
-     * free value and both insert. Rendered as a 409 rather than the 500 an unhandled
-     * constraint violation would produce.
-     *
-     * <p>The field error is attached only when the violated constraint is recognisable,
-     * because the frontend maps fieldErrors straight onto form fields and naming the wrong
-     * one is worse than naming none.
+     * Duplicate keys only. Not-null, check and foreign-key violations are bugs, not
+     * conflicts, and fall through to the 500. Nothing from the driver message is logged:
+     * PostgreSQL puts the colliding value in it.
      */
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ProblemDetail handleDataIntegrityViolation(DataIntegrityViolationException ex) {
-        log.warn("Data integrity violation", ex);
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ProblemDetail handleDuplicateKey(DuplicateKeyException ex) {
+        String constraint = constraintNameOf(ex);
+        log.warn("Duplicate key violation on constraint: {}", constraint);
 
-        String cause = ex.getMostSpecificCause().getMessage();
-        boolean isUsername = cause != null && cause.toLowerCase().contains("username");
+        boolean isUsername = constraint.toLowerCase().contains("username");
 
         ProblemDetail detail = problem(HttpStatus.CONFLICT, "conflict", "Sukob",
                 isUsername ? "Korisničko ime je već zauzeto." : "Vrijednost je već zauzeta.");
@@ -76,6 +74,16 @@ public class GlobalExceptionHandler {
         }
 
         return detail;
+    }
+
+    /** The constraint name only; the message around it carries the colliding value. */
+    private static String constraintNameOf(DataIntegrityViolationException ex) {
+        Throwable cause = ex.getCause();
+        if (cause instanceof ConstraintViolationException violation
+                && violation.getConstraintName() != null) {
+            return violation.getConstraintName();
+        }
+        return ex.getClass().getSimpleName();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -94,11 +102,7 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /**
-     * A path variable that will not convert, most often a malformed UUID. Without this it
-     * falls to the catch-all below and becomes a logged 500, which on the anonymous
-     * shopping list routes is a free way for anybody to fill the error log.
-     */
+    /** Without this a malformed UUID is a logged 500, free for anyone to trigger. */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ProblemDetail handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
         return problem(HttpStatus.BAD_REQUEST, "bad-request", "Neispravan zahtjev",

@@ -92,12 +92,8 @@ public class UserService {
             // Every switch starts ON; the stamped timestamp is what the settings form reads back.
             LocalDateTime now = nowUtc();
             try {
-                // saveAndFlush, not save. The id is assigned rather than generated, so
-                // save() merges: Hibernate queues the insert and executes it when the
-                // transaction commits, which is after this method returns and after this
-                // catch is out of scope. The violation then escapes into
-                // UserProvisioningFilter and becomes a 500 on whatever request happened to
-                // be the user's first. Flushing here puts it back where it can be handled.
+                // saveAndFlush, not save: the id is assigned, so save() merges and defers
+                // the insert to commit, past this catch.
                 userRepository.saveAndFlush(User.builder()
                         .id(id)
                         .username(username)
@@ -110,12 +106,8 @@ public class UserService {
                         .lastActiveAt(now)
                         .build());
             } catch (DataIntegrityViolationException collision) {
-                // Either a concurrent first login for the same account, where the other
-                // request won and the profile now exists, or two new accounts seeding the
-                // same username at once, since seedUsername checks and inserts without a
-                // lock. Retry once without a username rather than failing the request: the
-                // settings form requires one before anything else saves, so the user is
-                // asked for it immediately anyway.
+                // A concurrent first login, or two accounts seeding one username. Retry
+                // nameless rather than fail: the settings form asks for one immediately.
                 userRepository.saveAndFlush(User.builder()
                         .id(id)
                         .image(image)
@@ -139,11 +131,8 @@ public class UserService {
      * Seeds a username for a brand-new profile from the provider display name, falling back
      * to the email local-part when the name is missing.
      *
-     * <p>De-duplicates with a numeric suffix, because usernames are unique now and the
-     * sources collide readily: two Google accounts both called "Ivan Horvat", or
-     * ivan@gmail.com and ivan@yahoo.com both seeding "ivan". Nobody is present to choose at
-     * this point, so a suffix is the only answer that does not fail the first login. The
-     * user-facing edit path refuses a taken name instead, where there is somebody to ask.
+     * <p>Suffixes on a collision rather than refusing: nobody is present to choose on a
+     * first login. The user-facing edit refuses instead.
      */
     private String seedUsername(String name, String email) {
         String base = (name != null && !name.isBlank())
@@ -158,8 +147,7 @@ public class UserService {
             return base;
         }
 
-        // Bounded: past the cap a null username is better than a slow loop, and the user
-        // can set one themselves. The settings form requires it before anything else saves.
+        // Bounded: past the cap a null name beats a slow loop, and the form will ask.
         for (int suffix = 1; suffix <= 100; suffix++) {
             String candidate = base + suffix;
             if (!userRepository.existsByUsername(candidate)) {
@@ -177,13 +165,8 @@ public class UserService {
 
         String username = request.getUsername();
         if (username != null && !username.equals(user.getUsername())) {
-            // Checked rather than left to the unique index so the answer is a 409 carrying
-            // fieldErrors, which the settings form puts on the username field itself. Two
-            // requests can still both pass this check, in which case the index refuses one
-            // and GlobalExceptionHandler renders the same 409 -- but only if the index
-            // actually exists. ddl-auto=update will not add it to a table that already
-            // holds duplicates, and it logs the failure rather than refusing to start, so
-            // the index has to be created by hand. See docs/AUTH.md.
+            // Checked here so the answer carries fieldErrors; the unique index catches the
+            // race and renders the same 409.
             if (userRepository.existsByUsername(username)) {
                 throw new ConflictException("Korisničko ime je već zauzeto.");
             }

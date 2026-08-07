@@ -78,17 +78,9 @@ public class SecurityConfig {
      * chain cannot express that: its bearer filter rejects a stale token before authorization
      * is ever consulted.
      *
-     * <p><b>Nothing here authorizes anything.</b> The rule above is {@code permitAll}, so the
-     * only thing between an anonymous request and a list deletion is the access check in
-     * {@link disscount.shoppingList.service.ShoppingListService}. Every method reachable from
-     * this chain resolves the caller through
-     * {@link disscount.shoppingList.service.ShoppingListAccessService} before it touches
-     * anything, and relaxing one of those checks removes an authentication boundary rather
-     * than a convenience.
-     *
-     * <p>The matcher is an allowlist of method plus path plus a UUID-shaped id, so
-     * {@code /me} and {@code /items} stay on the authenticated chain by virtue of not being
-     * UUIDs rather than by being listed as exceptions. See {@link UuidScopedRequestMatcher}.
+     * <p><b>Nothing here authorizes anything.</b> The rule is {@code permitAll}, so the
+     * access checks in {@link disscount.shoppingList.service.ShoppingListService} are an
+     * authentication boundary: relaxing one removes authentication, not a convenience.
      */
     @Bean
     @Order(1)
@@ -101,35 +93,25 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz.anyRequest().permitAll())
-            // Both are anchored on the slot where a bearer token is normally decoded, which
-            // is where these two belong and which leaves them 98 places of headroom before
-            // the next registered filter. addFilterAfter is order + 1, so this is bearer at
-            // +1 and provisioning at +2: a strict sequence, which provisioning needs because
-            // it acts on the authentication the bearer filter produced. Anchoring either one
-            // on AnonymousAuthenticationFilter instead lands exactly on top of it, since a
-            // before is order - 1 and the following after adds the 1 straight back, and the
-            // resulting tie is broken only by the sort happening to be stable.
+            // Anchored on the bearer slot so provisioning lands strictly after it. Anchoring
+            // on AnonymousAuthenticationFilter ties with it, since before is -1 and the
+            // following after adds the 1 straight back.
             .addFilterAfter(optionalBearerAuthenticationFilter, BearerTokenAuthenticationFilter.class)
             .addFilterAfter(userProvisioningFilter, OptionalBearerAuthenticationFilter.class);
 
         return http.build();
     }
 
-    /**
-     * Exactly the six routes an anonymous caller may reach. Listing methods explicitly means
-     * anything else, including PATCH and OPTIONS, falls through to the authenticated chain,
-     * so the default is deny.
-     */
+    /** Unlisted methods fall through to the authenticated chain, so the default is deny. */
     private static RequestMatcher shoppingListByIdMatcher() {
         return new OrRequestMatcher(
                 new UuidScopedRequestMatcher(HttpMethod.GET, "/api/shopping-lists/{id}"),
-                // HEAD as well as GET: link unfurlers and crawlers probe a shared URL with
-                // it, and AntPathRequestMatcher compares the method exactly, so without
-                // this a publicly viewable list answers 401 to a HEAD.
+                // Link unfurlers probe with HEAD, which the matcher compares exactly.
                 new UuidScopedRequestMatcher(HttpMethod.HEAD, "/api/shopping-lists/{id}"),
                 new UuidScopedRequestMatcher(HttpMethod.PUT, "/api/shopping-lists/{id}"),
                 new UuidScopedRequestMatcher(HttpMethod.DELETE, "/api/shopping-lists/{id}"),
                 new UuidScopedRequestMatcher(HttpMethod.POST, "/api/shopping-lists/{id}/items"),
+                new UuidScopedRequestMatcher(HttpMethod.POST, "/api/shopping-lists/{id}/copy"),
                 new UuidScopedRequestMatcher(HttpMethod.PUT, "/api/shopping-lists/{id}/items/{itemId}"),
                 new UuidScopedRequestMatcher(HttpMethod.DELETE, "/api/shopping-lists/{id}/items/{itemId}"));
     }

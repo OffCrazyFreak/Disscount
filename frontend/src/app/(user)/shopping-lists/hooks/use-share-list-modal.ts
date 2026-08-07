@@ -27,9 +27,10 @@ export function useShareListModal(id: string) {
   // is no second source to fall back to mid-save.
   const linkAccess: LinkAccess = shoppingList?.linkAccess ?? "NONE";
 
-  // Always the same URL, shared or not, because it is the list's own address. Whether it
-  // opens for anyone else is linkAccess's job, which is what canShareLink reads.
-  const shareUrl = shoppingList ? shareListUrl(shoppingList.id) : null;
+  // Not built during render. shareListUrl calls appUrl(), which throws on a misconfigured
+  // NEXT_PUBLIC_APP_URL, and a throw here would take the whole modal down rather than the
+  // one button that needs an origin. The handlers below build it inside their try/catch.
+  const canShareLink = linkAccess !== "NONE";
 
   // isSaving, not isPending: offline the mutation pauses rather than settles, so isPending
   // stays true forever and the controls would sit disabled with nothing explaining why.
@@ -55,12 +56,12 @@ export function useShareListModal(id: string) {
   // No pending state on either handler. Nothing here is fetched, and shareOrCopy
   // documents why a flag cleared on completion strands the button spinning.
   async function handleLinkShare() {
-    if (!shareUrl || !shoppingList) return;
+    if (!canShareLink || !shoppingList) return;
 
     try {
       const outcome = await shareOrCopy({
         title: shoppingList.title,
-        url: shareUrl,
+        url: shareListUrl(shoppingList.id),
       });
 
       if (outcome === "copied") toast.success("Poveznica je kopirana");
@@ -100,7 +101,7 @@ export function useShareListModal(id: string) {
     setLinkAccess,
     isSaving,
     isOffline: !isOnline,
-    shareUrl,
+    canShareLink,
     handleLinkShare,
     handleTextShare,
   };

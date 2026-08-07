@@ -91,7 +91,7 @@ function SheetActions({ shoppingList, onRequestDelete }: ISheetActionsProps) {
       }}
       // Left open deliberately: a successful copy routes to the new list, which
       // drops the modal param anyway, and a failed one keeps its error in view.
-      onCopy={() => void handleCopy()}
+      onCopy={() => handleCopy({ replace: true })}
       // Replaces rather than closing first, for the history reason above.
       onEdit={() => handleEdit({ replace: true })}
       onDelete={() => {

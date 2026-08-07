@@ -27,7 +27,7 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
     setLinkAccess,
     isSaving,
     isOffline,
-    shareUrl,
+    canShareLink: isLevelShareable,
     handleLinkShare,
     handleTextShare,
   } = useShareListModal(id);
@@ -42,7 +42,7 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
 
   // Gated on the save too: the level updates optimistically, so between picking a level
   // and the server granting it the button would hand out a link that does not open yet.
-  const canShareLink = linkAccess !== "NONE" && !!shareUrl && !isSaving;
+  const canShareLink = isLevelShareable && !isSaving;
 
   return (
     <ModalShell

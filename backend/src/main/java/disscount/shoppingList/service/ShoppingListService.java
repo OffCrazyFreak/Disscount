@@ -24,10 +24,9 @@ import java.util.stream.Collectors;
 /**
  * Every path to a shopping list, for owners and link visitors alike.
  *
- * <p>The by-id methods run on a chain where a bearer token is optional, so {@code userId} may
- * be null and the framework guarantees nothing. Authorization is therefore this class's job:
- * each one loads the list, resolves the caller's access through
- * {@link ShoppingListAccessService}, and refuses before touching anything.
+ * <p>The by-id methods run where a bearer token is optional, so {@code userId} may be null
+ * and the framework guarantees nothing: authorization is this class's job. See
+ * {@code docs/SHARING.md} §4.
  */
 @Service
 @RequiredArgsConstructor
@@ -47,7 +46,6 @@ public class ShoppingListService {
                 .title(request.getTitle())
                 .build();
 
-        // A new list can be born shared, which is what the copy modal's sharing option needs.
         applyLinkAccess(shoppingList, request.getLinkAccess());
 
         shoppingList = shoppingListRepository.save(shoppingList);
@@ -66,24 +64,13 @@ public class ShoppingListService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * The caller may be anonymous, so this resolves rather than assuming ownership.
-     *
-     * <p>A list the caller cannot see answers {@link NotFoundException}, never
-     * {@link ForbiddenException}: a 403 would confirm the list exists, and since the id is
-     * now the shareable URL, that is exactly what must not leak.
-     */
     @Transactional(readOnly = true)
     public ShoppingListDto getShoppingListById(UUID listId, UUID userId) {
         ShoppingList list = findVisible(listId, userId);
         return shoppingListMapper.toDto(list, accessService.resolve(list, userId));
     }
 
-    /**
-     * Two different checks in one endpoint, deliberately kept apart: renaming needs
-     * {@code canEditItems}, but changing who can reach the list needs {@code canManageShare}.
-     * Folding them together would let an EDIT recipient reshare a list they do not own.
-     */
+    /** Renaming and resharing are separate rights; folding them lets EDIT reshare. */
     public ShoppingListDto updateShoppingList(UUID listId, UUID userId, ShoppingListRequest request) {
         ShoppingList list = findVisible(listId, userId);
         ListAccess access = accessService.resolve(list, userId);
@@ -114,12 +101,7 @@ public class ShoppingListService {
         shoppingListRepository.save(list);
     }
 
-    /**
-     * Loads a list the caller is allowed to know about, or throws not-found.
-     *
-     * <p>The visibility branch comes first, before any other check, so no later code path can
-     * answer differently and reveal that an id was real.
-     */
+    /** Not-found rather than forbidden, so a 403 cannot confirm an id is real. */
     public ShoppingList findVisible(UUID listId, UUID userId) {
         ShoppingList list = shoppingListRepository.findActiveById(listId)
                 .orElseThrow(() -> new NotFoundException("Shopping list not found"));
@@ -131,10 +113,7 @@ public class ShoppingListService {
         return list;
     }
 
-    /**
-     * Anonymous callers are capped at VIEW, so every write needs a real account behind it and
-     * every write stays attributable.
-     */
+    /** Anonymous callers cap at VIEW, so every write stays attributable. */
     public User requireWriteUser(UUID userId) {
         if (userId == null) {
             throw new UnauthorizedException("Sign in to change this shopping list");
@@ -147,11 +126,7 @@ public class ShoppingListService {
                 .orElseThrow(() -> new UnauthorizedException("User not found"));
     }
 
-    /**
-     * Turning sharing off and back on hands back the same URL, because the URL is the list's
-     * own id. That is the accepted cost of dropping the rotating token: a link that was once
-     * shared works again if sharing is re-enabled.
-     */
+    /** Off then on hands back the same URL, since the URL is the id. Intended. */
     private void applyLinkAccess(ShoppingList list, LinkAccess requested) {
         if (requested == null) {
             return;

@@ -1,5 +1,6 @@
 import apiClient from "@/lib/api/api-base";
 import {
+  ShoppingListCopyRequest,
   ShoppingListRequest,
   ShoppingListDto,
   ShoppingListItemRequest,
@@ -77,6 +78,18 @@ export async function deleteShoppingListItem(
   itemId: string,
 ): Promise<void> {
   await apiClient.delete(`/api/shopping-lists/${listId}/items/${itemId}`);
+}
+
+/** One request, one transaction: the copy and its items commit together or not at all. */
+export async function copyShoppingList(
+  id: string,
+  data: ShoppingListCopyRequest,
+): Promise<ShoppingListDto> {
+  const response = await apiClient.post<ShoppingListDto>(
+    `/api/shopping-lists/${id}/copy`,
+    data,
+  );
+  return response.data;
 }
 
 export async function getAllUserShoppingListItems(): Promise<

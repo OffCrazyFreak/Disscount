@@ -23,10 +23,8 @@ const ACCESS_TEXT: Partial<Record<ListAccess, string>> = {
  * else. The level is only knowable from myAccess, since linkAccess is nulled for anyone
  * who is not the owner.
  *
- * <p>Renders an empty element rather than null when there is nothing to say, because the
- * disabled item controls point at this id with aria-describedby. The owner is the expected
- * silent case, but a list DTO persisted to IndexedDB before myAccess existed replays with
- * it undefined, which makes the controls disabled and the description absent at once.
+ * <p>Always renders the element, even when silent: disabled item controls point at its id
+ * with aria-describedby, and a cached DTO with no myAccess would leave that dangling.
  */
 export default function ShoppingListAccessBanner({
   myAccess,
@@ -36,8 +34,6 @@ export default function ShoppingListAccessBanner({
   if (!text) {
     return (
       <span id={SHARED_ACCESS_BANNER_ID} className="sr-only">
-        {/* An owner needs no explanation and hears nothing. Unknown access does need
-            one, because the controls pointing here are disabled meanwhile. */}
         {myAccess ? "" : "Ovlasti za ovaj popis još se provjeravaju."}
       </span>
     );
@@ -46,9 +42,7 @@ export default function ShoppingListAccessBanner({
   // An owner never reaches the branch above, so the remaining levels all exist in the map.
   const Icon = LINK_ACCESS_ICONS[myAccess as LinkAccess];
 
-  // Where to go for more, rather than leaving a dead end. Anonymous callers are capped at
-  // VIEW whatever the link grants, so the offer is to sign in; EDIT is the most a link can
-  // give, so there is nothing left to ask for.
+  // EDIT is the most a link can give, so there is nothing left to ask for.
   const nextStep = !isSignedIn
     ? "Prijavi se za uređivanje."
     : myAccess === "EDIT"
@@ -60,8 +54,6 @@ export default function ShoppingListAccessBanner({
       variant="primarySoft"
       size="md"
       icon={Icon}
-      // One sentence, so the next step reads as part of the same thought rather than a
-      // second line the eye has to find.
       text={nextStep ? `${text} ${nextStep}` : text}
       id={SHARED_ACCESS_BANNER_ID}
     />

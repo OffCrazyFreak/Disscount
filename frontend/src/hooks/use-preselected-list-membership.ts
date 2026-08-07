@@ -28,14 +28,7 @@ export function useIsOnPreselectedShoppingList(
     enabled: !!user,
   });
 
-  // Subscribed, not snapshotted at mount. Product rows stay mounted while the add-to-list
-  // modal opens over them, so a drafted choice made in that modal has to reach the row
-  // behind it: without this the icon claims one list while the modal reopens on another,
-  // which is the exact contradiction this hook exists to prevent. The version counter is
-  // what changes, so the localStorage read still happens once per change rather than once
-  // per render. peekFormDraft, not getFormDraft: the latter evicts an expired draft, and a
-  // write plus a subscriber notification during render would schedule updates on the other
-  // rows mid-render. Eviction is left to the write paths.
+  // Subscribed, not snapshotted: rows outlive the modal that writes the draft.
   useSyncExternalStore(subscribeToFormDrafts, getFormDraftsVersion, () => 0);
 
   if (!ean) return false;

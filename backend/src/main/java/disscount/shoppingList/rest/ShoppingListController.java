@@ -7,8 +7,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import disscount.shoppingList.dto.ShoppingListCopyRequest;
 import disscount.shoppingList.dto.ShoppingListDto;
 import disscount.shoppingList.dto.ShoppingListRequest;
+import disscount.shoppingList.service.ShoppingListCopyService;
 import disscount.shoppingList.service.ShoppingListService;
 import disscount.shoppingListItem.dto.ShoppingListItemDto;
 import disscount.util.SecurityUtils;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 public class ShoppingListController {
 
     private final ShoppingListService shoppingListService;
+    private final ShoppingListCopyService shoppingListCopyService;
 
     @Operation(summary = "Create a new shopping list")
     @PostMapping
@@ -49,6 +52,15 @@ public class ShoppingListController {
     @GetMapping("/{id}")
     public ResponseEntity<ShoppingListDto> getShoppingListById(@PathVariable UUID id) {
         return ResponseEntity.ok(shoppingListService.getShoppingListById(id, currentUserId()));
+    }
+
+    @Operation(summary = "Copy a shopping list into a new list the caller owns")
+    @PostMapping("/{id}/copy")
+    public ResponseEntity<ShoppingListDto> copyShoppingList(
+            @PathVariable UUID id,
+            @Valid @RequestBody ShoppingListCopyRequest request) {
+        ShoppingListDto copy = shoppingListCopyService.copy(id, currentUserId(), request);
+        return ResponseEntity.ok(copy);
     }
 
     @Operation(summary = "Update shopping list")

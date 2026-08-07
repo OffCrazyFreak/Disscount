@@ -18,6 +18,7 @@ import {
   type IListRollback,
 } from "@/lib/api/shopping-lists/optimistic-list";
 import {
+  ShoppingListCopyRequest,
   ShoppingListRequest,
   ShoppingListDto,
   ShoppingListItemRequest,
@@ -28,6 +29,7 @@ import {
   getCurrentUserShoppingLists,
   getShoppingListById,
   updateShoppingList,
+  copyShoppingList,
   deleteShoppingList,
   addItemToShoppingList,
   updateShoppingListItem,
@@ -96,6 +98,18 @@ export function useUpdateShoppingList() {
     // onSettled, not onSuccess: a rolled-back cache has to reconcile with the server too.
     onSettled: () =>
       queryClient.invalidateQueries({ queryKey: SHOPPING_LIST_QUERY_KEYS.all }),
+  });
+}
+
+export function useCopyShoppingList() {
+  const invalidate = useInvalidateListsAndItems();
+  return useMutation<
+    ShoppingListDto,
+    Error,
+    { id: string; data: ShoppingListCopyRequest }
+  >({
+    mutationFn: ({ id, data }) => copyShoppingList(id, data),
+    onSettled: invalidate,
   });
 }
 

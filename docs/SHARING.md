@@ -156,10 +156,15 @@ Worth knowing before changing any of this:
 - **`link_access` must stay nullable.** `ddl-auto=update` cannot add a `NOT NULL` column to
   a populated table. Read it through `resolvedLinkAccess()`, which maps null to `NONE`,
   never directly.
-- **Copying a list asks what to carry.** Products default on; the ticks with their captured
-  prices, and the sharing settings, default off. The sharing option is owner-only, or a
-  recipient could copy a shared list and hand the owner's people a link at a level the
-  owner never chose. That client gate is the only one: a create runs as the new list's owner by definition, so the server has nothing to refuse.
+- **Copying a list asks what to carry**, through `POST /api/shopping-lists/{id}/copy`.
+  Products default on; the ticks with their captured prices, and the sharing settings,
+  default off. One endpoint rather than a create followed by an add per item, because
+  those were separate transactions: a failure partway left a half-populated copy behind
+  that no retry could tidy up, and pressing the button again made another one.
+- **The sharing option on a copy is owner-only, enforced server side.** A recipient could
+  otherwise copy a list they were merely shown and hand the owner's people a link at a
+  level the owner never chose. Nothing else about a copy needs a check, since the caller
+  is the new list's owner by construction.
 - **The share modal saves on change**, with no submit button, because there is nothing to
   confirm once the URL is the list's own. That is why it needs a live
   region: there is no submit button whose disappearance would signal success, and why it
