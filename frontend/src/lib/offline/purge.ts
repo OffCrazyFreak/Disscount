@@ -6,13 +6,13 @@ import { removePersistedCacheFor } from "@/lib/offline/persister";
 const PUBLIC_QUERY_ROOT = "cijene";
 
 // Service worker buckets that can hold data belonging to whoever was just here.
-// "shared-list-pages" holds the server-rendered /s/ documents, which carry someone
-// else's list title. "cijene-api" keeps one entry per product looked at, so the set of
+// "shopping-list-pages" holds server-rendered list documents, which can carry someone
+// else's list title, since a list is shared by its own URL. "cijene-api" keeps one entry per product looked at, so the set of
 // cached EANs is a list's contents even though each product is public on its own.
 // "others" is where serwist's defaultCache actually puts navigations: its "pages" rule
 // matches on a request Content-Type header that browsers do not send on a navigation,
 // so every authenticated document falls through to it.
-const SCOPED_CACHE_NAMES = ["shared-list-pages", "cijene-api", "others"];
+const SCOPED_CACHE_NAMES = ["shopping-list-pages", "cijene-api", "others"];
 
 // Everything outside the public root is user-specific and gets purged.
 function isUserSpecific(query: Query): boolean {

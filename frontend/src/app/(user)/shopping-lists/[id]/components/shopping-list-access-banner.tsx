@@ -5,6 +5,11 @@ import type { LinkAccess, ListAccess } from "@/lib/api/schemas/shopping-list";
 import { LINK_ACCESS_ICONS } from "@/app/(user)/shopping-lists/utils/link-access-icons";
 import { SHARED_ACCESS_BANNER_ID } from "@/app/(user)/shopping-lists/utils/shopping-list-access";
 
+interface IShoppingListAccessBannerProps {
+  myAccess: ListAccess | undefined;
+  isSignedIn: boolean;
+}
+
 /** What this visitor may do, in the same terms the owner picked in the share modal. */
 const ACCESS_TEXT: Partial<Record<ListAccess, string>> = {
   VIEW: "Ovaj popis možeš samo pregledavati.",
@@ -17,18 +22,20 @@ const ACCESS_TEXT: Partial<Record<ListAccess, string>> = {
  * controls with no stated reason, which a screen reader renders as "dimmed" and nothing
  * else. The level is only knowable from myAccess, since linkAccess is nulled for anyone
  * who is not the owner.
+ *
+ * <p>Renders an empty element rather than null when there is nothing to say, because the
+ * disabled item controls point at this id with aria-describedby. The owner is the expected
+ * silent case, but a list DTO persisted to IndexedDB before myAccess existed replays with
+ * it undefined, which makes the controls disabled and the description absent at once.
  */
-export default function SharedListAccessBanner({
+export default function ShoppingListAccessBanner({
   myAccess,
   isSignedIn,
-}: {
-  myAccess: ListAccess;
-  isSignedIn: boolean;
-}) {
-  const text = ACCESS_TEXT[myAccess];
-  if (!text) return null;
+}: IShoppingListAccessBannerProps) {
+  const text = myAccess ? ACCESS_TEXT[myAccess] : undefined;
+  if (!text) return <span id={SHARED_ACCESS_BANNER_ID} className="sr-only" />;
 
-  // OWNER never reaches this page, so the remaining levels all exist in LINK_ACCESS_ICONS.
+  // An owner never reaches the branch above, so the remaining levels all exist in the map.
   const Icon = LINK_ACCESS_ICONS[myAccess as LinkAccess];
 
   // Where to go for more, rather than leaving a dead end. Anonymous callers are capped at

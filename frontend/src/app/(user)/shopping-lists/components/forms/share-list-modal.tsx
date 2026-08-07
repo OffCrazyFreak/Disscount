@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useShareListModal } from "@/app/(user)/shopping-lists/hooks/use-share-list-modal";
 import ShareAccessRow from "@/app/(user)/shopping-lists/components/forms/share-access-row";
+import { resolveShoppingListAccess } from "@/app/(user)/shopping-lists/utils/shopping-list-access";
 
 interface IShareListModalProps {
   open: boolean;
@@ -31,7 +32,16 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
   } = useShareListModal(id);
 
   const hintId = useId();
-  const canShareLink = linkAccess !== "NONE" && !!shareUrl;
+
+  // The list route serves link visitors as well as its owner, so a signed-in recipient can
+  // reach this modal by URL. Only the owner may see or change who else has access.
+  const canManageShare = resolveShoppingListAccess(
+    shoppingList?.myAccess,
+  ).canManageShare;
+
+  // Gated on the save too: the level updates optimistically, so between picking a level
+  // and the server granting it the button would hand out a link that does not open yet.
+  const canShareLink = linkAccess !== "NONE" && !!shareUrl && !isSaving;
 
   return (
     <ModalShell
@@ -45,7 +55,7 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
         </div>
-      ) : isError || !shoppingList ? (
+      ) : isError || !shoppingList || !canManageShare ? (
         <p className="text-sm text-muted-foreground">
           Popis nije pronađen. Možda je obrisan ili nemaš pristup.
         </p>

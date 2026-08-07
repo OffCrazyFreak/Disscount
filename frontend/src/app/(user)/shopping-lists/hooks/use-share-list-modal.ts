@@ -10,8 +10,9 @@ import { shareListUrl } from "@/utils/shopping-list-links";
 import { useOnlineStatus } from "@/hooks/use-online-status";
 
 /**
- * Share settings save on change rather than behind a submit button: the server mints the
- * token, so there is no link to show until a save has come back.
+ * Share settings save on change rather than behind a submit button. There is nothing to
+ * confirm: the URL is the list's own and exists either way, so the only question the
+ * modal asks is what holding it grants.
  */
 export function useShareListModal(id: string) {
   const isOnline = useOnlineStatus();
@@ -25,9 +26,10 @@ export function useShareListModal(id: string) {
   // new value optimistically in onMutate, so the cache is already correct here and there
   // is no second source to fall back to mid-save.
   const linkAccess: LinkAccess = shoppingList?.linkAccess ?? "NONE";
-  const shareUrl = shoppingList?.shareToken
-    ? shareListUrl(shoppingList.shareToken)
-    : null;
+
+  // Always the same URL, shared or not, because it is the list's own address. Whether it
+  // opens for anyone else is linkAccess's job, which is what canShareLink reads.
+  const shareUrl = shoppingList ? shareListUrl(shoppingList.id) : null;
 
   // isSaving, not isPending: offline the mutation pauses rather than settles, so isPending
   // stays true forever and the controls would sit disabled with nothing explaining why.

@@ -5,30 +5,19 @@ import { shoppingListService } from "@/lib/api";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 
-/**
- * @param shareToken present when the list was reached through a share link, in which case
- *   writes go to /api/shared/{token}: the token is the capability, so knowing the list id
- *   is never enough on its own.
- */
+/** One write path, whether the caller owns the list or reached it by link. */
 export function useShoppingListItemMutations(
   listId: string,
   averagePrices: Record<string, number>,
   storePrices: Record<string, Record<string, number>>,
-  shareToken?: string,
 ) {
   const queryClient = useQueryClient();
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
 
   const updateItemMutation = shoppingListService.useUpdateShoppingListItem();
   const deleteItemMutation = shoppingListService.useDeleteShoppingListItem();
-  const updateSharedItemMutation =
-    shoppingListService.useUpdateSharedShoppingListItem();
-  const deleteSharedItemMutation =
-    shoppingListService.useDeleteSharedShoppingListItem();
 
-  const queryKey = shareToken
-    ? SHOPPING_LIST_QUERY_KEYS.byToken(shareToken)
-    : SHOPPING_LIST_QUERY_KEYS.byId(listId);
+  const queryKey = SHOPPING_LIST_QUERY_KEYS.byId(listId);
 
   const handleUpdateItem = async (
     itemId: string,
@@ -62,45 +51,17 @@ export function useShoppingListItemMutations(
       data.storePrice = null;
     }
 
-    if (shareToken) {
-      // No toast: the offline defaults carry one, and they are the only handler that
-      // survives a replay after a reload.
-      updateSharedItemMutation.mutate({ token: shareToken, itemId, data });
-      return;
-    }
-
-    updateItemMutation.mutate(
-      { listId, itemId, data },
-      {
-        onError: (error: Error) =>
-          toast.error(
-            error.message || "Greška pri ažuriranju stavke. Pokušaj ponovno.",
-          ),
-      },
-    );
+    // No per-call onError: the offline default carries the message, and it is the only
+    // handler that survives a replay after a reload.
+    updateItemMutation.mutate({ listId, itemId, data });
   };
 
   const handleDeleteItem = async (itemId: string) => {
     setDeletingItemId(itemId);
 
-    if (shareToken) {
-      deleteSharedItemMutation.mutate(
-        { token: shareToken, itemId },
-        {
-          onSuccess: () => toast.success("Stavka je uspješno obrisana!"),
-          onSettled: () => setDeletingItemId(null),
-        },
-      );
-      return;
-    }
-
     deleteItemMutation.mutate(
       { listId, itemId },
       {
-        onError: (error: Error) =>
-          toast.error(
-            error.message || "Greška pri brisanju stavke. Pokušaj ponovno.",
-          ),
         onSuccess: () => toast.success("Stavka je uspješno obrisana!"),
         onSettled: () => setDeletingItemId(null),
       },

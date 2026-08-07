@@ -117,8 +117,14 @@ export default function ShoppingListModal({
 
   const loading = isEdit && !shoppingList && byIdQuery.isLoading;
   const loadError = isEdit && !shoppingList && byIdQuery.isError;
+  // Renaming is an owner capability, and the by-id read now succeeds for link visitors
+  // too, so a signed-in recipient reaching this modal by URL must land on the same dead
+  // end as a stranger rather than on a form whose save would 403.
+  const notOwner =
+    isEdit && !!shoppingList && shoppingList.myAccess !== "OWNER";
   const notFound =
-    isEdit && !shoppingList && !byIdQuery.isLoading && !byIdQuery.isError;
+    notOwner ||
+    (isEdit && !shoppingList && !byIdQuery.isLoading && !byIdQuery.isError);
 
   return (
     <ModalShell
