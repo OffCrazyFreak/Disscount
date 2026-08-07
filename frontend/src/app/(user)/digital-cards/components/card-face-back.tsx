@@ -1,7 +1,6 @@
 "use client";
 
 import CardCode from "@/app/(user)/digital-cards/components/card-code";
-import type { CodeType } from "@/constants/card-codes";
 import type { DigitalCardDto } from "@/lib/api/types";
 
 interface ICardFaceBackProps {
@@ -11,6 +10,9 @@ interface ICardFaceBackProps {
 /**
  * Decorative quick access for a mouse, so it is hidden from assistive tech: the code's
  * real home is the detail modal, which every input method can reach.
+ *
+ * The white face is literal rather than a theme token: a scanner reads contrast, so a
+ * dark-mode card back would not scan.
  */
 export default function CardFaceBack({ card }: ICardFaceBackProps) {
   return (
@@ -30,7 +32,7 @@ export default function CardFaceBack({ card }: ICardFaceBackProps) {
       <div className="grid size-full place-items-center pt-2">
         <CardCode
           codeValue={card.codeValue}
-          codeType={card.codeType as CodeType}
+          codeType={card.codeType}
           className="max-h-full [&_p]:text-sm"
         />
       </div>

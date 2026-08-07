@@ -13,10 +13,17 @@ const SAMPLE_SIZE = 48;
  * whitespace, and letting that win would make every suggestion grey.
  */
 export default async function extractDominantColor(
-  source: Blob,
+  source: Blob | string,
 ): Promise<string | null> {
+  let bitmap: ImageBitmap | null = null;
+
   try {
-    const bitmap = await createImageBitmap(source);
+    // A data URI is the already-downscaled WebP the compressor produced, so sampling it
+    // avoids decoding a multi-megapixel original a second time.
+    const blob =
+      typeof source === "string" ? await (await fetch(source)).blob() : source;
+
+    bitmap = await createImageBitmap(blob);
     const canvas = document.createElement("canvas");
     canvas.width = SAMPLE_SIZE;
     canvas.height = SAMPLE_SIZE;
@@ -25,7 +32,6 @@ export default async function extractDominantColor(
     if (!context) return null;
 
     context.drawImage(bitmap, 0, 0, SAMPLE_SIZE, SAMPLE_SIZE);
-    bitmap.close();
 
     const { data } = context.getImageData(0, 0, SAMPLE_SIZE, SAMPLE_SIZE);
     const buckets = new Map<number, number>();
@@ -71,5 +77,9 @@ export default async function extractDominantColor(
     return hexForHue(dominant * 15);
   } catch {
     return null;
+  } finally {
+    // Drawing and getImageData can both throw, and an unclosed bitmap holds its decoded
+    // pixels until GC gets round to it.
+    bitmap?.close();
   }
 }

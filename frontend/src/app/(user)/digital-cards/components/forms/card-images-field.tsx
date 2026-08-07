@@ -10,7 +10,7 @@ interface ICardImagesFieldProps {
   images: ICardImages;
   onImageChange: (slot: SlotName, value: string | null) => void;
   /** Fires for the icon and front slots, which can suggest the card's colour. */
-  onColorSource: (file: File) => void;
+  onColorSource: (encoded: string) => void;
 }
 
 // The icon is a small medallion, so 256px is plenty. The card faces are the backup a

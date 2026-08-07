@@ -1,7 +1,12 @@
 /**
- * Card colours are locked to one saturation and lightness pair, so every hue the user can
- * reach stays legible under white text and the wallet reads as one designed set. The hue
- * slider and the swatches are therefore the same system: a swatch is just a hue stop.
+ * Card colours are locked to one saturation and lightness pair, so the wallet reads as one
+ * designed set. The hue slider and the swatches are therefore the same system: a swatch is
+ * just a hue stop.
+ *
+ * Locking them does NOT make white text legible everywhere. Yellow and green sit far
+ * brighter than blue at the same lightness, so hue 55 lands near 2.7:1 against white
+ * against a 4.5:1 minimum. Text colour is chosen per card by foregroundFor() instead,
+ * which also covers the chain brand colours, several of which are lighter still.
  */
 const CARD_SATURATION = 62;
 const CARD_LIGHTNESS = 42;
@@ -33,16 +38,6 @@ export function hslToHex(hue: number, saturation: number, lightness: number) {
   return `#${channel(0)}${channel(8)}${channel(4)}`;
 }
 
-/** The hex a given hue produces, which is what both the slider and the swatches emit. */
-export function hexForHue(hue: number): string {
-  return hslToHex(hue, CARD_SATURATION, CARD_LIGHTNESS);
-}
-
-export const CARD_SWATCHES: string[] = [
-  ...SWATCH_HUES.map(hexForHue),
-  ...NEUTRAL_CARD_COLORS,
-];
-
 export function hexToRgb(hex: string): [number, number, number] {
   const normalized = hex.replace("#", "");
 
@@ -52,6 +47,74 @@ export function hexToRgb(hex: string): [number, number, number] {
     parseInt(normalized.slice(4, 6), 16),
   ];
 }
+
+/** Ink for a coloured card, dark enough to clear 4.5:1 wherever white cannot. */
+export const CARD_INK_LIGHT = "#ffffff";
+export const CARD_INK_DARK = "#1c1917";
+
+/** Any card colour must clear this against whichever ink foregroundFor picks. */
+const MIN_CONTRAST = 4.5;
+const LIGHTNESS_STEP = 2;
+const MIN_LIGHTNESS = 20;
+
+function channelLuminance(channel: number): number {
+  const c = channel / 255;
+
+  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+}
+
+/** WCAG relative luminance, the basis of every contrast ratio below. */
+export function relativeLuminance(hex: string): number {
+  const [r, g, b] = hexToRgb(hex).map(channelLuminance);
+
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+export function contrastRatio(a: string, b: string): number {
+  const [lighter, darker] = [relativeLuminance(a), relativeLuminance(b)].sort(
+    (x, y) => y - x,
+  );
+
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+/**
+ * The readable ink for a given card colour. Picks whichever of the two clears 4.5:1 by
+ * more, so a freeform hue and a curated brand colour are both covered by one rule rather
+ * than by trusting the palette.
+ */
+export function foregroundFor(background: string): string {
+  return contrastRatio(background, CARD_INK_LIGHT) >=
+    contrastRatio(background, CARD_INK_DARK)
+    ? CARD_INK_LIGHT
+    : CARD_INK_DARK;
+}
+
+/**
+ * The hex a given hue produces, which is what both the slider and the swatches emit.
+ *
+ * Most hues are legible at the base lightness under one ink or the other, but a band
+ * around cyan (hue 200 or so) sits in a dead zone where neither clears 4.5. Darkening
+ * only ever raises contrast against white, so those hues step down until one ink works.
+ * In practice that is a two point drop on a handful of hues, invisible beside them.
+ */
+export function hexForHue(hue: number): string {
+  for (
+    let lightness = CARD_LIGHTNESS;
+    lightness > MIN_LIGHTNESS;
+    lightness -= LIGHTNESS_STEP
+  ) {
+    const hex = hslToHex(hue, CARD_SATURATION, lightness);
+    if (contrastRatio(hex, foregroundFor(hex)) >= MIN_CONTRAST) return hex;
+  }
+
+  return hslToHex(hue, CARD_SATURATION, MIN_LIGHTNESS);
+}
+
+export const CARD_SWATCHES: string[] = [
+  ...SWATCH_HUES.map(hexForHue),
+  ...NEUTRAL_CARD_COLORS,
+];
 
 export interface IHueInfo {
   hue: number;

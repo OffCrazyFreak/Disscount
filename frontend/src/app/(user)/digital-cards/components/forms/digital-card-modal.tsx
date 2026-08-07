@@ -18,6 +18,7 @@ import { takeModalValues } from "@/lib/modal/modal-retry-bus";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import { getFormDraft, removeFormDraft } from "@/utils/browser/local-storage";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 import extractDominantColor from "@/utils/browser/extract-dominant-color";
 import CardNameField from "@/app/(user)/digital-cards/components/forms/card-name-field";
 import CardTypeField from "@/app/(user)/digital-cards/components/forms/card-type-field";
@@ -159,9 +160,9 @@ export default function DigitalCardModal({
     form.setValue("cardColor", hex, { shouldDirty: true });
   }
 
-  async function handleColorSource(file: File) {
+  async function handleColorSource(encoded: string) {
     if (colorCustomized) return;
-    const extracted = await extractDominantColor(file);
+    const extracted = await extractDominantColor(encoded);
     if (extracted) suggestColor(extracted);
   }
 
@@ -182,7 +183,17 @@ export default function DigitalCardModal({
       size="lg"
       dirty={form.formState.isDirty || imagesDirty}
       formId="digital-card-form"
-      submitLabel={isEdit ? "Spremi" : "Stvori"}
+      // The label carries the pending state: the spinner alone says something is
+      // happening, not what.
+      submitLabel={
+        isSaving
+          ? isEdit
+            ? LOADING_LABELS.saving
+            : LOADING_LABELS.creating
+          : isEdit
+            ? "Spremi"
+            : "Stvori"
+      }
       submitIcon={Save}
       submitLoading={isSaving}
       submitDisabled={

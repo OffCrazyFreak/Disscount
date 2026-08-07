@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 import { FormDescription, FormLabel, FormMessage } from "@/components/ui/form";
 import type { DigitalCardFormData } from "@/lib/api/types";
@@ -25,7 +25,7 @@ export default function CardColorField({
   const form = useFormContext<DigitalCardFormData>();
   const [variant, setVariant] = useState<ColorPickerVariant>("swatch-slider");
 
-  const value = form.watch("cardColor");
+  const value = useWatch({ control: form.control, name: "cardColor" });
 
   function handleChange(hex: string) {
     form.setValue("cardColor", hex, {

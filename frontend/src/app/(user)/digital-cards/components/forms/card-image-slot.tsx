@@ -18,7 +18,8 @@ interface ICardImageSlotProps {
   /** Character cap the backend enforces on the data URI. */
   maxLength: number;
   onChange: (value: string | null) => void;
-  onPicked?: (file: File) => void;
+  /** The compressed result, not the original file: the colour sampler reuses this decode. */
+  onPicked?: (encoded: string) => void;
   className?: string;
 }
 
@@ -56,7 +57,7 @@ export default function CardImageSlot({
       }
 
       onChange(encoded);
-      onPicked?.(file);
+      onPicked?.(encoded);
     } catch {
       toast.error("Sliku nije moguće učitati, probaj JPG ili PNG.");
     }

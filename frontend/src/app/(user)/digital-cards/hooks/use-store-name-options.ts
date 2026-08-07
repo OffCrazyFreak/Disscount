@@ -18,7 +18,7 @@ interface IUseStoreNameOptionsResult {
   isLoading: boolean;
 }
 
-export function useStoreNameOptions({
+export default function useStoreNameOptions({
   enabled = true,
 }: { enabled?: boolean } = {}): IUseStoreNameOptionsResult {
   // Chain stats are public and cached for six hours, so they carry no enabled gate.

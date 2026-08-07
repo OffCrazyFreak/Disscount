@@ -10,6 +10,7 @@ import {
 interface IDigitalCardsSortSelectProps {
   value: CardSortMode;
   onValueChange: (value: CardSortMode) => void;
+  disabled?: boolean;
 }
 
 const OPTIONS = CARD_SORT_MODES.map((value) => ({
@@ -20,6 +21,7 @@ const OPTIONS = CARD_SORT_MODES.map((value) => ({
 export default function DigitalCardsSortSelect({
   value,
   onValueChange,
+  disabled,
 }: IDigitalCardsSortSelectProps) {
   return (
     <LabeledSelect
@@ -27,6 +29,7 @@ export default function DigitalCardsSortSelect({
       value={value}
       onValueChange={onValueChange}
       options={OPTIONS}
+      disabled={disabled}
     />
   );
 }

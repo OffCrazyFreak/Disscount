@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { TriangleAlert } from "lucide-react";
 
 import type { CodeType } from "@/constants/card-codes";
+import CopyButton from "@/components/custom/common/copy-button";
 import CardCode from "@/app/(user)/digital-cards/components/card-code";
 import {
   generateCodeSvg,
@@ -32,10 +33,21 @@ export default function CardCodePanel({
 
   return (
     <div className="space-y-2">
+      {/* bg-white is literal on purpose: a dark-mode panel would not scan at the till. */}
       <div className="rounded-lg bg-white px-4 py-5 shadow-inner ring-1 ring-black/10">
         <div className={twoDimensional ? "mx-auto max-w-56" : "w-full"}>
           <CardCode codeValue={codeValue} codeType={codeType} showValue />
         </div>
+      </div>
+
+      {/* A cashier sometimes has to key the number in, and reading it off a screen is
+          where digits get transposed. */}
+      <div className="flex justify-center">
+        <CopyButton
+          value={codeValue}
+          label="Kopiraj broj kartice"
+          successMessage="Broj kartice je kopiran!"
+        />
       </div>
 
       {!isRenderable && (

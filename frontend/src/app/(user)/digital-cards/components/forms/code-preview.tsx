@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import { TriangleAlert } from "lucide-react";
 
 import type { DigitalCardFormData } from "@/lib/api/types";
@@ -13,8 +13,8 @@ import { generateCodeSvg } from "@/app/(user)/digital-cards/utils/generate-code-
  */
 export default function CodePreview() {
   const form = useFormContext<DigitalCardFormData>();
-  const codeValue = form.watch("codeValue");
-  const codeType = form.watch("codeType");
+  const codeValue = useWatch({ control: form.control, name: "codeValue" });
+  const codeType = useWatch({ control: form.control, name: "codeType" });
 
   if (!codeValue?.trim()) return null;
 
@@ -24,6 +24,7 @@ export default function CodePreview() {
     <div className="space-y-2">
       <p className="text-sm font-medium">Prikaz koda</p>
 
+      {/* bg-white is literal on purpose: it shows what a scanner will actually see. */}
       <div className="grid min-h-24 place-items-center rounded-md border bg-white p-3">
         {result.ok ? (
           <div

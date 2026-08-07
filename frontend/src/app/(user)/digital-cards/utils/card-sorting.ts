@@ -32,6 +32,11 @@ export const CARD_SORT_LABELS: Record<CardSortMode, string> = {
   cardColor: "Boja",
 };
 
+/**
+ * Compared as strings, not parsed dates. The server sends ISO-8601, which already sorts
+ * chronologically byte by byte, so this cannot produce the NaN that date arithmetic can
+ * when a timestamp is malformed.
+ */
 function byNewestFirst(a: string, b: string): number {
   return b.localeCompare(a);
 }

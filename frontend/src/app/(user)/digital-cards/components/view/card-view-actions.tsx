@@ -13,6 +13,7 @@ import { DIGITAL_CARD_QUERY_KEYS } from "@/lib/api/digital-cards/keys";
 import { problemMessage } from "@/lib/api/problem-details";
 import type { DigitalCardDto } from "@/lib/api/types";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
+import { LOADING_LABELS } from "@/constants/loading-labels";
 
 interface ICardViewActionsProps {
   card: DigitalCardDto;
@@ -86,7 +87,9 @@ export default function CardViewActions({ card }: ICardViewActionsProps) {
         onOpenChange={setConfirmOpen}
         title="Obriši karticu"
         description={`Sigurno želiš obrisati karticu "${card.cardName}"? Ova akcija se ne može poništiti.`}
-        confirmLabel="Obriši"
+        confirmLabel={
+          deleteMutation.isPending ? LOADING_LABELS.deleting : "Obriši"
+        }
         variant="destructive"
         onConfirm={handleDelete}
         isLoading={deleteMutation.isPending}

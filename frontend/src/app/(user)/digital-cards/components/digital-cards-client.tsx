@@ -84,9 +84,12 @@ export default function DigitalCardsClient({
         <CreateDigitalCardButton />
       </div>
 
-      {!isUserLoading && cards.length > 1 && (
-        <DigitalCardsSortSelect value={sort} onValueChange={setSort} />
-      )}
+      {/* Always mounted, so the control does not appear and vanish under the user. */}
+      <DigitalCardsSortSelect
+        value={sort}
+        onValueChange={setSort}
+        disabled={isUserLoading || cards.length < 2}
+      />
 
       {isUserLoading ? (
         <div className="grid place-items-center">
@@ -96,7 +99,9 @@ export default function DigitalCardsClient({
         <DigitalCardsGrid pinned={pinned} rest={rest} />
       ) : query ? (
         <NoResults
-          icon={<Search className="mx-auto mb-4 size-12 text-gray-400" />}
+          icon={
+            <Search className="mx-auto mb-4 size-12 text-muted-foreground" />
+          }
         />
       ) : (
         <DigitalCardsEmpty />

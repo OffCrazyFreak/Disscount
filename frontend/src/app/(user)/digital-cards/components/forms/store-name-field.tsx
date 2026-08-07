@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 import {
   Command,
@@ -25,7 +25,7 @@ import {
 import type { DigitalCardFormData } from "@/lib/api/types";
 import StoreNameOption from "@/app/(user)/digital-cards/components/forms/store-name-option";
 import StoreNameTrigger from "@/app/(user)/digital-cards/components/forms/store-name-trigger";
-import { useStoreNameOptions } from "@/app/(user)/digital-cards/hooks/use-store-name-options";
+import useStoreNameOptions from "@/app/(user)/digital-cards/hooks/use-store-name-options";
 
 interface IStoreNameFieldProps {
   /** Fires only for an official chain, so the caller can offer its logo and brand colour. */
@@ -43,7 +43,7 @@ export default function StoreNameField({
     enabled: open,
   });
 
-  const chainCode = form.watch("chainCode");
+  const chainCode = useWatch({ control: form.control, name: "chainCode" });
 
   function select(label: string, nextChainCode: string | null) {
     form.setValue("storeName", label, {

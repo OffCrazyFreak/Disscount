@@ -16,7 +16,8 @@ export function useCreateDigitalCard() {
   return useMutation<DigitalCardDto, Error, DigitalCardRequest>({
     mutationKey: OFFLINE_MUTATION_KEYS.digitalCardCreate,
     mutationFn: createDigitalCard,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: DIGITAL_CARD_QUERY_KEYS.all }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: DIGITAL_CARD_QUERY_KEYS.all }),
   });
 }
 
@@ -39,7 +40,8 @@ export function useUpdateDigitalCard() {
   >({
     mutationKey: OFFLINE_MUTATION_KEYS.digitalCardUpdate,
     mutationFn: ({ id, data }) => updateDigitalCard(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: DIGITAL_CARD_QUERY_KEYS.all }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: DIGITAL_CARD_QUERY_KEYS.all }),
   });
 }
 
@@ -48,7 +50,8 @@ export function useDeleteDigitalCard() {
   return useMutation<void, Error, string>({
     mutationKey: OFFLINE_MUTATION_KEYS.digitalCardDelete,
     mutationFn: deleteDigitalCard,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: DIGITAL_CARD_QUERY_KEYS.all }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: DIGITAL_CARD_QUERY_KEYS.all }),
   });
 }
 
@@ -57,6 +60,7 @@ export function useSetDigitalCardPinned() {
   return useMutation<DigitalCardDto, Error, { id: string; pinned: boolean }>({
     mutationKey: OFFLINE_MUTATION_KEYS.digitalCardSetPinned,
     mutationFn: ({ id, pinned }) => setDigitalCardPinned(id, pinned),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: DIGITAL_CARD_QUERY_KEYS.all }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: DIGITAL_CARD_QUERY_KEYS.all }),
   });
 }

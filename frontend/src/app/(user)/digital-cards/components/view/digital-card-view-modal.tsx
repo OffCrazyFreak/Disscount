@@ -2,7 +2,6 @@
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { CodeType } from "@/constants/card-codes";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useWakeLock } from "@/hooks/use-wake-lock";
 import CardIcon from "@/app/(user)/digital-cards/components/card-icon";
@@ -66,10 +65,7 @@ export default function DigitalCardViewModal({
         <div className="space-y-4">
           <CardDetailRows card={card} />
 
-          <CardCodePanel
-            codeValue={card.codeValue}
-            codeType={card.codeType as CodeType}
-          />
+          <CardCodePanel codeValue={card.codeValue} codeType={card.codeType} />
 
           <CardFaceImages
             frontImage={card.frontImage}

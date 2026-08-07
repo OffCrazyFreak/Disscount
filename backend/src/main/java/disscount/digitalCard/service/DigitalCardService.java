@@ -130,6 +130,9 @@ public class DigitalCardService {
         }
     }
 
+    // Kept private rather than extracted into a @Component mapper the way shopping lists
+    // did: that split exists so an owner view and a shared view cannot drift on what they
+    // expose, and a card has exactly one viewer. Extract it the day cards gain a second.
     private DigitalCardDto convertToDto(DigitalCard card) {
         return DigitalCardDto.builder()
                 .id(card.getId())

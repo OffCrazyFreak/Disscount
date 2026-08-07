@@ -93,6 +93,12 @@ const nextConfig: NextConfig = {
         source: "/shopping-lists/:path*",
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
+      {
+        // Same belt and braces for the wallet, which holds loyalty card numbers and so
+        // has even less business in an index than a shopping list does.
+        source: "/digital-cards/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
     ];
   },
 };

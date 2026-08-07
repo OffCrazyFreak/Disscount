@@ -17,6 +17,9 @@ export function useDigitalCardsSort() {
   // Hydrated after mount, so the server render and the first client render agree.
   useEffect(() => {
     const stored = getDigitalCardSort();
+    // Not derivable during render: localStorage does not exist on the server, so the
+    // first client render has to match the server's default before correcting itself.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (isCardSortMode(stored)) setSort(stored);
   }, []);
 
