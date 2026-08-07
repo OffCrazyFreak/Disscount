@@ -6,8 +6,8 @@ import { removePersistedCacheFor } from "@/lib/offline/persister";
 const PUBLIC_QUERY_ROOT = "cijene";
 
 // Service worker buckets that can hold data belonging to whoever was just here.
-// "shopping-list-pages" holds server-rendered list documents, which can carry someone
-// else's list title, since a list is shared by its own URL. "cijene-api" keeps one entry per product looked at, so the set of
+// "shopping-list-pages" holds list documents. The payload carries no list content, but
+// the set of cached URLs reveals which lists this device opened, someone else's included. "cijene-api" keeps one entry per product looked at, so the set of
 // cached EANs is a list's contents even though each product is public on its own.
 // "others" is where serwist's defaultCache actually puts navigations: its "pages" rule
 // matches on a request Content-Type header that browsers do not send on a navigation,

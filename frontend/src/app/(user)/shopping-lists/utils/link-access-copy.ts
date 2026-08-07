@@ -42,8 +42,9 @@ export const LINK_ACCESS_HINTS: Record<LinkAccess, string> = {
   NONE: "Dijeljenje je isključeno, samo ti možeš otvoriti ovaj popis.",
   VIEW: "Vidi cijeli popis, ali ga ne može uređivati.",
   SHOP: "Vidi cijeli popis, no može i birati trgovinu te označiti što je kupljeno.",
-  // The limit is stated rather than left to be discovered: /api/shared has no endpoint for
-  // creating items at all, and renaming has one but no control. Both wait for the
-  // membership work, where per-person revocation makes unbounded additions safe to grant.
+  // The limit is stated rather than left to be discovered: POST /api/shopping-lists/{id}
+  // /items is owner-only, so no link level can add, and renaming is allowed by the API but
+  // has no control. Both wait for the membership work, where per-person revocation makes
+  // unbounded additions safe to grant.
   EDIT: "Može uređivati cijeli popis, ali ne može dodavati nove proizvode.",
 };

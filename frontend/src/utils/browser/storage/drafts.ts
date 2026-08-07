@@ -26,21 +26,39 @@ function notify() {
   listeners.forEach((listener) => listener());
 }
 
+/**
+ * Reads and evicts. Only call it where a write is acceptable: it is not safe during
+ * render, because the eviction writes localStorage and notifies subscribers, which
+ * schedules updates on other components mid-render. Use peekFormDraft there.
+ */
 export function getFormDraft(key: string): IFormDraft | null {
-  const draft = getAppStorage().formDrafts?.[key];
-  if (!draft) return null;
-
-  if (Date.now() - draft.savedAt > DRAFT_TTL_MS) {
+  const draft = peekFormDraft(key);
+  if (draft === null && getAppStorage().formDrafts?.[key]) {
     removeFormDraft(key);
-    return null;
   }
 
   return draft;
 }
 
-export function setFormDraft(key: string, values: Record<string, unknown>) {
+/** The same read with no eviction, so it is pure and safe to call while rendering. */
+export function peekFormDraft(key: string): IFormDraft | null {
+  const draft = getAppStorage().formDrafts?.[key];
+  if (!draft) return null;
+
+  return Date.now() - draft.savedAt > DRAFT_TTL_MS ? null : draft;
+}
+
+/**
+ * @param savedAt when carrying an existing draft's timestamp forward. Removing one field
+ *   must not restart the 24h clock on the fields left behind, which a fresh stamp would.
+ */
+export function setFormDraft(
+  key: string,
+  values: Record<string, unknown>,
+  savedAt: number = Date.now(),
+) {
   const drafts = { ...getAppStorage().formDrafts };
-  drafts[key] = { savedAt: Date.now(), values };
+  drafts[key] = { savedAt, values };
   setAppStorage({ formDrafts: drafts });
   notify();
 }
@@ -54,7 +72,7 @@ export function removeFormDraftField(key: string, field: string) {
   const { [field]: _saved, ...rest } = draft.values;
 
   if (Object.keys(rest).length === 0) removeFormDraft(key);
-  else setFormDraft(key, rest);
+  else setFormDraft(key, rest, draft.savedAt);
 }
 
 export function removeFormDraft(key: string) {

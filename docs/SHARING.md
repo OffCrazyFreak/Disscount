@@ -159,7 +159,7 @@ Worth knowing before changing any of this:
 - **Copying a list asks what to carry.** Products default on; the ticks with their captured
   prices, and the sharing settings, default off. The sharing option is owner-only, or a
   recipient could copy a shared list and hand the owner's people a link at a level the
-  owner never chose. The server refuses `linkAccess` from a non-owner regardless.
+  owner never chose. That client gate is the only one: a create runs as the new list's owner by definition, so the server has nothing to refuse.
 - **The share modal saves on change**, with no submit button, because there is nothing to
   confirm once the URL is the list's own. That is why it needs a live
   region: there is no submit button whose disappearance would signal success, and why it

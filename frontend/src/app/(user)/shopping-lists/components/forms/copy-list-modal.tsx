@@ -66,8 +66,9 @@ export default function CopyListModal({ open, id }: ICopyListModalProps) {
             icon={ListChecks}
             label="Označeno i spremljene cijene"
             description="Zadrži što je kupljeno, u kojoj trgovini i po kojoj cijeni."
-            checked={options.progress}
-            // Nothing to carry without the products it belongs to.
+            // Coerced, not just disabled: a box that stays ticked while inert states a
+            // choice the copy will not honour.
+            checked={options.progress && options.items}
             disabled={!options.items}
             onCheckedChange={(next) => setOption("progress", next)}
           />

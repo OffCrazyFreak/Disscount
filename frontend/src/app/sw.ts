@@ -45,8 +45,9 @@ const runtimeCaching: RuntimeCaching[] = [
       sameOrigin && url.pathname.startsWith("/api/"),
     handler: new NetworkOnly(),
   },
-  // A list document can belong to someone else, since the same route serves its owner
-  // and anyone holding the link, so it is not public data. NetworkOnly kept it off disk
+  // The cached set of list URLs reveals which lists this device opened, including
+  // someone else's reached by link, so it is not public data. The documents themselves
+  // carry no list content: the page renders a client component from the id alone. NetworkOnly kept it off disk
   // but sent every offline reload to the /offline fallback, which made the offline write
   // queue unreachable in exactly the shop-with-no-signal case it exists for. NetworkFirst
   // with a short life plus purgeOfflineCache deleting this bucket on a change of identity

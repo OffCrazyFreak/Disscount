@@ -8,6 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,6 +92,17 @@ public class GlobalExceptionHandler {
                 problem(HttpStatus.BAD_REQUEST, "validation", "Neispravni podaci", "Invalid input data");
         problemDetail.setProperty("fieldErrors", fieldErrors);
         return problemDetail;
+    }
+
+    /**
+     * A path variable that will not convert, most often a malformed UUID. Without this it
+     * falls to the catch-all below and becomes a logged 500, which on the anonymous
+     * shopping list routes is a free way for anybody to fill the error log.
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ProblemDetail handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        return problem(HttpStatus.BAD_REQUEST, "bad-request", "Neispravan zahtjev",
+                "Neispravan format parametra: " + ex.getName());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

@@ -2,6 +2,7 @@ import { Image as ImageIcon, ListPlus, Share2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import ListPen from "@/components/custom/icons/list-pen";
+import { useUser } from "@/context/user-context";
 import { PRODUCT_ACTION_LABELS } from "@/constants/product-action-labels";
 import { useIsOnPreselectedShoppingList } from "@/hooks/use-preselected-list-membership";
 import {
@@ -35,8 +36,11 @@ export default function ProductActionButtons({
   showShare = true,
   className,
 }: IProductActionButtonsProps) {
+  // Guarded on a session, like the hold sheet's copy of this read: /products is public,
+  // so an unguarded read is a 401 plus retries for every signed-out visitor.
+  const { user } = useUser();
   const { data: currentUserWatchlist = [] } =
-    watchlistService.useGetCurrentUserWatchlist();
+    watchlistService.useGetCurrentUserWatchlist({ enabled: !!user });
 
   const { openAddToList } = useProductModals(product);
   const share = useProductShare(product);

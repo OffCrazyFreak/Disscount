@@ -7,6 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Save } from "lucide-react";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
+import { resolveShoppingListAccess } from "@/app/(user)/shopping-lists/utils/shopping-list-access";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -120,8 +121,14 @@ export default function ShoppingListModal({
   // Renaming is an owner capability, and the by-id read now succeeds for link visitors
   // too, so a signed-in recipient reaching this modal by URL must land on the same dead
   // end as a stranger rather than on a form whose save would 403.
+  // Through the resolver, not a literal, so the ownership rule lives in one place.
+  // Deliberately stricter than the API, which allows an EDIT recipient to rename: no
+  // rename control is offered to a non-owner anywhere, and docs/SHARING.md records that
+  // as the product decision rather than an oversight.
   const notOwner =
-    isEdit && !!shoppingList && shoppingList.myAccess !== "OWNER";
+    isEdit &&
+    !!shoppingList &&
+    !resolveShoppingListAccess(shoppingList.myAccess).isOwner;
   const notFound =
     notOwner ||
     (isEdit && !shoppingList && !byIdQuery.isLoading && !byIdQuery.isError);

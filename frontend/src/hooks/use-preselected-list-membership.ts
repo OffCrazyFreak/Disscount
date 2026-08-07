@@ -5,7 +5,7 @@ import { useSyncExternalStore } from "react";
 import { useGetCurrentUserShoppingLists } from "@/lib/api/shopping-lists/hooks";
 import { sortShoppingListsByRecency } from "@/lib/api/shopping-lists/sort-lists";
 import {
-  getFormDraft,
+  peekFormDraft,
   getFormDraftsVersion,
   subscribeToFormDrafts,
 } from "@/utils/browser/local-storage";
@@ -33,12 +33,14 @@ export function useIsOnPreselectedShoppingList(
   // behind it: without this the icon claims one list while the modal reopens on another,
   // which is the exact contradiction this hook exists to prevent. The version counter is
   // what changes, so the localStorage read still happens once per change rather than once
-  // per render.
+  // per render. peekFormDraft, not getFormDraft: the latter evicts an expired draft, and a
+  // write plus a subscriber notification during render would schedule updates on the other
+  // rows mid-render. Eviction is left to the write paths.
   useSyncExternalStore(subscribeToFormDrafts, getFormDraftsVersion, () => 0);
 
   if (!ean) return false;
 
-  const drafted = getFormDraft(`add-to-list.${ean}`)?.values.shoppingListId;
+  const drafted = peekFormDraft(`add-to-list.${ean}`)?.values.shoppingListId;
   const draftedListId = typeof drafted === "string" ? drafted : null;
 
   // The same rule useSelectedShoppingList applies, or the icon would describe a

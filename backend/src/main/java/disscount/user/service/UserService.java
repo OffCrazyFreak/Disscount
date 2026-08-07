@@ -92,7 +92,13 @@ public class UserService {
             // Every switch starts ON; the stamped timestamp is what the settings form reads back.
             LocalDateTime now = nowUtc();
             try {
-                userRepository.save(User.builder()
+                // saveAndFlush, not save. The id is assigned rather than generated, so
+                // save() merges: Hibernate queues the insert and executes it when the
+                // transaction commits, which is after this method returns and after this
+                // catch is out of scope. The violation then escapes into
+                // UserProvisioningFilter and becomes a 500 on whatever request happened to
+                // be the user's first. Flushing here puts it back where it can be handled.
+                userRepository.saveAndFlush(User.builder()
                         .id(id)
                         .username(username)
                         .image(image)
@@ -103,8 +109,23 @@ public class UserService {
                         .feedbackContactEnabledAt(now)
                         .lastActiveAt(now)
                         .build());
-            } catch (DataIntegrityViolationException ignored) {
-                // Concurrent first-login race: the other request won - profile already exists
+            } catch (DataIntegrityViolationException collision) {
+                // Either a concurrent first login for the same account, where the other
+                // request won and the profile now exists, or two new accounts seeding the
+                // same username at once, since seedUsername checks and inserts without a
+                // lock. Retry once without a username rather than failing the request: the
+                // settings form requires one before anything else saves, so the user is
+                // asked for it immediately anyway.
+                userRepository.saveAndFlush(User.builder()
+                        .id(id)
+                        .image(image)
+                        .accountType(accountType)
+                        .notificationsPushEnabledAt(now)
+                        .notificationsEmailEnabledAt(now)
+                        .newsletterEnabledAt(now)
+                        .feedbackContactEnabledAt(now)
+                        .lastActiveAt(now)
+                        .build());
             }
         }
     }
@@ -157,9 +178,12 @@ public class UserService {
         String username = request.getUsername();
         if (username != null && !username.equals(user.getUsername())) {
             // Checked rather than left to the unique index so the answer is a 409 carrying
-            // fieldErrors, which the settings form puts on the username field itself. The
-            // index still backs it up: two requests can both pass this check, and
-            // GlobalExceptionHandler turns that race into the same 409.
+            // fieldErrors, which the settings form puts on the username field itself. Two
+            // requests can still both pass this check, in which case the index refuses one
+            // and GlobalExceptionHandler renders the same 409 -- but only if the index
+            // actually exists. ddl-auto=update will not add it to a table that already
+            // holds duplicates, and it logs the failure rather than refusing to start, so
+            // the index has to be created by hand. See docs/AUTH.md.
             if (userRepository.existsByUsername(username)) {
                 throw new ConflictException("Korisničko ime je već zauzeto.");
             }

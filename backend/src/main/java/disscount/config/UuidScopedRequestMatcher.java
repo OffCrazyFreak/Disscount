@@ -18,15 +18,16 @@ import java.util.regex.Pattern;
  * every such literal automatically, including today's {@code /me} and {@code /items}, and
  * anything unlisted falls through to the authenticated chain rather than past it.
  *
- * <p>The shape test is stricter than {@link java.util.UUID#fromString}, which accepts
- * "1-1-1-1-1". Both forms Spring binds to a UUID are allowed: canonical dashed, and bare
- * 32-hex.
+ * <p>Canonical dashed form only, and stricter than {@link java.util.UUID#fromString},
+ * which accepts "1-1-1-1-1". Bare 32-hex is deliberately excluded: Spring's
+ * StringToUUIDConverter is UUID.fromString, which rejects it, so admitting it here would
+ * let an anonymous caller reach the permitAll chain and get a logged 500 from a binding
+ * failure on the one route with no token requirement.
  */
 final class UuidScopedRequestMatcher implements RequestMatcher {
 
     private static final Pattern UUID_SHAPE = Pattern.compile(
-            "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
-                    + "|^[0-9a-fA-F]{32}$");
+            "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
     private final AntPathRequestMatcher delegate;
 

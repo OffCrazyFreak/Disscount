@@ -17,11 +17,13 @@ const IDB_CACHE_KEY = "disscount-react-query-cache";
 // A restored pre-change list has no myAccess, which every capability check would read
 // as no access at all.
 // "3": the entry is now keyed per identity, so the old shared blob is orphaned.
-// "4": sharing moved from a token to the list id. ShoppingListDto lost shareToken, the
-// "sharedShoppingList" query root is gone, and the two shared item mutation keys were
-// retired. A queued write still carrying an old key would fail isOfflineMutationKey and
-// be dropped in silence, which is somebody's ticks in a shop.
-const CACHE_BUSTER = "4";
+// Deliberately NOT bumped for the token-to-id sharing move. A mismatch makes
+// persistQueryClient call removeClient(), which throws away the whole persisted client,
+// queued writes included, under every key rather than the two that were retired. That
+// would lose someone's ticks under keys this change never touched. The retired shared
+// keys are handled by tombstone defaults in offline-mutations.ts instead, and stale
+// ShoppingListDto entries carrying a shareToken are harmless: the field is simply unread.
+const CACHE_BUSTER = "3";
 
 export const OFFLINE_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 

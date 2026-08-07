@@ -44,21 +44,35 @@ export default function CopyOptionRow({
         <Icon aria-hidden="true" className="size-5" />
       </span>
 
-      <label htmlFor={id} className="min-w-0 flex-1 cursor-pointer space-y-0.5">
-        <span className="block text-sm font-medium">{label}</span>
+      {/* The description sits outside the label on purpose. Accessible-name computation
+          walks the whole label subtree, so wrapping both would name the checkbox
+          "Proizvodi Prenesi sve proizvode s popisa." and aria-describedby would then
+          announce that sentence a second time. */}
+      <div className="min-w-0 flex-1 space-y-0.5">
+        <label
+          htmlFor={id}
+          className="block cursor-pointer text-sm font-medium"
+        >
+          {label}
+        </label>
         <span
           id={descriptionId}
           className="block text-xs text-muted-foreground"
         >
           {description}
         </span>
-      </label>
+      </div>
 
+      {/* aria-disabled rather than disabled, matching the share modal: a natively
+          disabled control leaves the tab order, taking the description that explains
+          why it is unavailable with it. */}
       <Checkbox
         id={id}
         checked={checked}
-        disabled={disabled}
-        onCheckedChange={(next) => onCheckedChange(next === true)}
+        aria-disabled={disabled}
+        onCheckedChange={
+          disabled ? undefined : (next) => onCheckedChange(next === true)
+        }
         aria-describedby={descriptionId}
         className="size-6 shrink-0 [&_svg]:size-4"
       />

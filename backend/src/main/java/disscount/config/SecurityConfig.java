@@ -123,6 +123,10 @@ public class SecurityConfig {
     private static RequestMatcher shoppingListByIdMatcher() {
         return new OrRequestMatcher(
                 new UuidScopedRequestMatcher(HttpMethod.GET, "/api/shopping-lists/{id}"),
+                // HEAD as well as GET: link unfurlers and crawlers probe a shared URL with
+                // it, and AntPathRequestMatcher compares the method exactly, so without
+                // this a publicly viewable list answers 401 to a HEAD.
+                new UuidScopedRequestMatcher(HttpMethod.HEAD, "/api/shopping-lists/{id}"),
                 new UuidScopedRequestMatcher(HttpMethod.PUT, "/api/shopping-lists/{id}"),
                 new UuidScopedRequestMatcher(HttpMethod.DELETE, "/api/shopping-lists/{id}"),
                 new UuidScopedRequestMatcher(HttpMethod.POST, "/api/shopping-lists/{id}/items"),

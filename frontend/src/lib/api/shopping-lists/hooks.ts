@@ -2,6 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import {
+  deleteWriteFailed,
+  listWriteFailed,
+} from "@/lib/offline/list-write-failed";
+import {
   patchItemOptimistically,
   removeItemOptimistically,
   restoreItem,
@@ -155,8 +159,14 @@ export function useUpdateShoppingListItem() {
         itemId,
         data,
       ),
-    onError: (_error, { listId }, rollback) =>
-      restoreItem(queryClient, SHOPPING_LIST_QUERY_KEYS.byId(listId), rollback),
+    // Reports as well as rolls back. A hook-level onError replaces the mutation
+    // default's rather than running alongside it, so without calling the shared handler
+    // here a live failure reverted the tick in silence and only a replay after a reload
+    // ever explained itself.
+    onError: (error, { listId }, rollback) => {
+      restoreItem(queryClient, SHOPPING_LIST_QUERY_KEYS.byId(listId), rollback);
+      listWriteFailed(error);
+    },
     // onSettled, not onSuccess: a rolled-back cache has to reconcile with the server too.
     onSettled: invalidate,
   });
@@ -180,8 +190,10 @@ export function useDeleteShoppingListItem() {
         SHOPPING_LIST_QUERY_KEYS.byId(listId),
         itemId,
       ),
-    onError: (_error, { listId }, rollback) =>
-      restoreItem(queryClient, SHOPPING_LIST_QUERY_KEYS.byId(listId), rollback),
+    onError: (error, { listId }, rollback) => {
+      restoreItem(queryClient, SHOPPING_LIST_QUERY_KEYS.byId(listId), rollback);
+      deleteWriteFailed(error);
+    },
     onSettled: invalidate,
   });
 }

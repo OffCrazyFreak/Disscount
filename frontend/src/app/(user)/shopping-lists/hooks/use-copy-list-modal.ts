@@ -59,8 +59,10 @@ export function useCopyListModal(id: string) {
     try {
       const request: ShoppingListRequest = {
         title: `${shoppingList.title} (Kopija)`,
-        // Only when asked and only when allowed. The server refuses linkAccess from a
-        // non-owner anyway, so this keeps the request honest rather than being the guard.
+        // This gate is the only one. A create runs as the new list's owner by
+        // definition, so the server has nothing to refuse: it honours whatever linkAccess
+        // the request carries. Widening canCopySharing widens who can carry an owner's
+        // sharing into a list of their own.
         ...(options.sharing && canCopySharing && shoppingList.linkAccess
           ? { linkAccess: shoppingList.linkAccess }
           : {}),
