@@ -5,13 +5,10 @@ import { removePersistedCacheFor } from "@/lib/offline/persister";
 // Public data is identical logged in or out, so it survives logout.
 const PUBLIC_QUERY_ROOT = "cijene";
 
-// Service worker buckets that can hold data belonging to whoever was just here.
-// "shopping-list-pages" holds list documents. The payload carries no list content, but
-// the set of cached URLs reveals which lists this device opened, someone else's included. "cijene-api" keeps one entry per product looked at, so the set of
-// cached EANs is a list's contents even though each product is public on its own.
-// "others" is where serwist's defaultCache actually puts navigations: its "pages" rule
-// matches on a request Content-Type header that browsers do not send on a navigation,
-// so every authenticated document falls through to it.
+// Buckets holding data belonging to whoever was just here. Each leaks by its key set
+// rather than its payload: which lists this device opened, which EANs were looked at.
+// "others" is where serwist actually puts navigations, since its "pages" rule matches a
+// Content-Type header browsers omit on one.
 const SCOPED_CACHE_NAMES = ["shopping-list-pages", "cijene-api", "others"];
 
 // Everything outside the public root is user-specific and gets purged.
@@ -19,11 +16,7 @@ function isUserSpecific(query: Query): boolean {
   return query.queryKey[0] !== PUBLIC_QUERY_ROOT;
 }
 
-/**
- * Cache Storage is not identity-scoped and nothing else in the app ever deletes from it,
- * so without this a shared list's documents and product lookups outlive the session that
- * fetched them.
- */
+/** Cache Storage is not identity-scoped and nothing else here ever deletes from it. */
 async function purgeServiceWorkerCaches() {
   if (typeof caches === "undefined") return;
 

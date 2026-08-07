@@ -7,18 +7,8 @@ import { isServiceWorkerRegistrationNoise } from "@/lib/sentry/ignore-service-wo
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
-  // A shopping list id now travels in the URL of every list page and every list API
-  // call, and while a list is shared that id is what grants access. Nothing scrubs it,
-  // deliberately: unlike the share token it used to replace, the id is the app's ordinary
-  // identifier and appears in paths, query keys and offline storage, so redacting it
-  // would blind every shopping-list trace rather than protect one route. The exposure is
-  // Sentry and the proxy access log, both of which are ours, and the id is inert once the
-  // list is not shared. This is a recorded trade in docs/SHARING.md, not an oversight.
-  //
-  // Replay is the exception, and it is not the same question. It records the DOM, so a
-  // recording of a list page carries the list's contents, which on a shared list belong
-  // to somebody else. That is not covered by accepting the id in a URL, so those pages
-  // stay excluded from recording as they were when they lived under /s/.
+  // List ids reach Sentry unscrubbed by decision, recorded in docs/SHARING.md. Replay is
+  // not covered by that: it records the DOM, so a shared list's contents would go with it.
   integrations: [
     Sentry.replayIntegration({
       beforeAddRecordingEvent: (event) =>
