@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.exceptions.BadRequestException;
+import disscount.exceptions.ConflictException;
 import disscount.user.dao.AuthIdentityDao;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
@@ -114,17 +115,38 @@ public class UserService {
     }
 
     /**
-     * Seeds a username for a brand-new profile from the provider display name,
-     * falling back to the email local-part when the name is missing.
-     * Usernames are not unique, so no de-duplication is needed.
+     * Seeds a username for a brand-new profile from the provider display name, falling back
+     * to the email local-part when the name is missing.
+     *
+     * <p>De-duplicates with a numeric suffix, because usernames are unique now and the
+     * sources collide readily: two Google accounts both called "Ivan Horvat", or
+     * ivan@gmail.com and ivan@yahoo.com both seeding "ivan". Nobody is present to choose at
+     * this point, so a suffix is the only answer that does not fail the first login. The
+     * user-facing edit path refuses a taken name instead, where there is somebody to ask.
      */
     private String seedUsername(String name, String email) {
-        if (name != null && !name.isBlank()) {
-            return name.trim();
+        String base = (name != null && !name.isBlank())
+                ? name.trim()
+                : email.split("@")[0];
+
+        if (base.isBlank()) {
+            return null;
         }
 
-        String localPart = email.split("@")[0];
-        return localPart.isBlank() ? null : localPart;
+        if (!userRepository.existsByUsername(base)) {
+            return base;
+        }
+
+        // Bounded: past the cap a null username is better than a slow loop, and the user
+        // can set one themselves. The settings form requires it before anything else saves.
+        for (int suffix = 1; suffix <= 100; suffix++) {
+            String candidate = base + suffix;
+            if (!userRepository.existsByUsername(candidate)) {
+                return candidate;
+            }
+        }
+
+        return null;
     }
 
     public UserDto updateProfile(UUID userId, UserRequest request) {
@@ -134,6 +156,13 @@ public class UserService {
 
         String username = request.getUsername();
         if (username != null && !username.equals(user.getUsername())) {
+            // Checked rather than left to the unique index so the answer is a 409 carrying
+            // fieldErrors, which the settings form puts on the username field itself. The
+            // index still backs it up: two requests can both pass this check, and
+            // GlobalExceptionHandler turns that race into the same 409.
+            if (userRepository.existsByUsername(username)) {
+                throw new ConflictException("Korisničko ime je već zauzeto.");
+            }
             user.setUsername(username);
         }
 
