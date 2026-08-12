@@ -1,10 +1,12 @@
 import { Metadata } from "next";
+
 import DigitalCardsClient from "@/app/(user)/digital-cards/components/digital-cards-client";
 import { readSearchParam } from "@/utils/generic";
 
 export const metadata: Metadata = {
-  title: "Moje digitalne kartice",
-  description: "Pregled i upravljanje digitalnim karticama.",
+  title: "Digitalne kartice",
+  description:
+    "Sve kartice vjernosti na jednom mjestu, dostupne i bez interneta.",
 };
 
 export default async function DigitalCardsPage(

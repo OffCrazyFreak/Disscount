@@ -83,8 +83,7 @@ export const featureItems: IFeatureItem[] = [
     description:
       "Sve kartice trgovina u mobitelu - novčanik konačno na dijeti.",
     icon: CreditCard,
-    comingSoon: true,
-    // href: "/digital-cards",
+    href: "/digital-cards",
   },
   {
     title: "Bez interneta",

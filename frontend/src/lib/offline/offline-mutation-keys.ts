@@ -14,6 +14,11 @@ export const OFFLINE_MUTATION_KEYS = {
   shoppingListItemDelete: ["shoppingLists", "items", "delete"],
   watchlistAdd: ["watchlist", "add"],
   watchlistRemove: ["watchlist", "remove"],
+  // A wallet is used in a shop, on a phone, with bad signal, so its writes queue too.
+  digitalCardCreate: ["digitalCards", "create"],
+  digitalCardUpdate: ["digitalCards", "update"],
+  digitalCardDelete: ["digitalCards", "delete"],
+  digitalCardSetPinned: ["digitalCards", "setPinned"],
 } as const satisfies Record<string, MutationKey>;
 
 const OFFLINE_MUTATION_KEY_HASHES = new Set(

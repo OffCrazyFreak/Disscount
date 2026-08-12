@@ -96,8 +96,6 @@ export const userNavItems: INavigationItem[] = [
     shortLabel: "Kartice",
     icon: CreditCard,
     shortcutDescription: "Otvori svoje digitalne kartice",
-    // TODO(#127): generate its PWA shortcut icon before dropping this flag.
-    comingSoon: true,
 
     showInHeader: true,
   },

@@ -1,29 +1,23 @@
 "use client";
 
 import { Plus } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import ResponsiveLabel from "@/components/custom/common/responsive-label";
+import { openModalUrl } from "@/lib/modal/modal-navigation";
 
-interface ICreateDigitalCardButtonProps {
-  onCreateClick: () => void;
-}
-
-export default function CreateDigitalCardButton({
-  onCreateClick,
-}: ICreateDigitalCardButtonProps) {
-  const buttonText = "Dodaj digitalnu karticu";
-
+export default function CreateDigitalCardButton() {
   return (
-    <>
-      <Button
-        type="button"
-        effect="expandIcon"
-        onClick={onCreateClick}
-        icon={Plus}
-        iconPlacement="left"
-      >
-        <ResponsiveLabel full={buttonText} short="Dodaj karticu" />
-      </Button>
-    </>
+    <Button
+      type="button"
+      variant="primary"
+      icon={Plus}
+      iconPlacement="left"
+      effect="shineHover"
+      // No aria-label: ResponsiveLabel already supplies the accessible name per breakpoint.
+      onClick={() => openModalUrl({ name: "digital-card", action: "new" })}
+    >
+      <ResponsiveLabel full="Dodaj digitalnu karticu" short="Dodaj karticu" />
+    </Button>
   );
 }

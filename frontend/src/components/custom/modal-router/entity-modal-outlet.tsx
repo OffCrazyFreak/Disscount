@@ -24,6 +24,11 @@ const DigitalCardModal = dynamic(
     import("@/app/(user)/digital-cards/components/forms/digital-card-modal"),
   { ssr: false },
 );
+const DigitalCardViewModal = dynamic(
+  () =>
+    import("@/app/(user)/digital-cards/components/view/digital-card-view-modal"),
+  { ssr: false },
+);
 const AddToShoppingListModal = dynamic(
   () => import("@/app/products/components/forms/add-to-shopping-list-form"),
   { ssr: false },
@@ -82,8 +87,17 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
         />
       );
     case "digital-card":
-      return (
+      // View is a separate modal rather than a mode of the form: it is a different job,
+      // reached by a different action, and shares only the card it reads.
+      //
+      // Keyed per card for the same reason add-to-list is: the outlet stays mounted
+      // between openings, and the form's draft merge bails out while it is dirty, so a
+      // reused instance would show card A's edits under card B's title.
+      return rendered.action === "view" ? (
+        <DigitalCardViewModal key={rendered.id} open={open} id={rendered.id} />
+      ) : (
         <DigitalCardModal
+          key={rendered.action === "edit" ? rendered.id : "new"}
           open={open}
           action={rendered.action}
           id={rendered.action === "edit" ? rendered.id : undefined}

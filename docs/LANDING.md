@@ -267,7 +267,7 @@ The exact chain count is never hardcoded. The number of covered retail chains gr
 
 ## Future improvements and TODOs
 
-- Wire the remaining coming-soon feature cards (Analiza potrošnje, Digitalne kartice, Karta trgovina) once their pages ship, by uncommenting the `href` in `features.ts` and dropping `comingSoon`.
+- Wire the remaining coming-soon feature cards (Analiza potrošnje, Karta trgovina) once their pages ship, by uncommenting the `href` in `features.ts` and dropping `comingSoon`.
 - Move `ScrollReveal` and `StaggerChildren` out of `components/ui/` (AGENTS.md reserves that folder for unedited shadcn primitives) into `components/custom/` (e.g. an `animation/` folder) with default exports, matching the convention for hand-written components.
 - Consider an FAQ-driven long-tail SEO expansion and a real testimonials/social-proof section once there is content for it.
 - The landing is Croatian-only; if the app adds `next-intl`, the landing copy in the `data/*` files is the natural first surface to translate.

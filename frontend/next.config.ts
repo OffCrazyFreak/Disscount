@@ -87,6 +87,13 @@ const nextConfig: NextConfig = {
           { key: "Referrer-Policy", value: "no-referrer" },
         ],
       },
+      {
+        // Same reasoning as the lists above, for a route that holds loyalty card numbers
+        // and so has even less business in an index. No Referrer-Policy override here:
+        // the card id in the URL grants nothing on its own, unlike a shared list id.
+        source: "/digital-cards/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
     ];
   },
 };

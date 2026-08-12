@@ -11,11 +11,12 @@ import disscount.digitalCard.dto.DigitalCardDto;
 import disscount.digitalCard.dto.DigitalCardRequest;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.UnauthorizedException;
+import disscount.storeName.service.StoreNameNormalizer;
+import disscount.storeName.service.StoreNameSuggestionService;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -25,28 +26,35 @@ public class DigitalCardService {
 
     private final DigitalCardRepository digitalCardRepository;
     private final UserRepository userRepository;
+    private final StoreNameSuggestionService storeNameSuggestionService;
 
     public DigitalCardDto createCard(UUID userId, DigitalCardRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+        User user = requireUser(userId);
 
         DigitalCard card = DigitalCard.builder()
                 .user(user)
-                .title(request.getTitle())
-                .value(request.getValue())
-                .type(request.getType())
+                .cardName(request.getCardName())
+                .cardType(request.getCardType())
+                .storeName(request.getStoreName())
+                .chainCode(request.getChainCode())
+                .codeValue(request.getCodeValue())
                 .codeType(request.getCodeType())
-                .color(request.getColor())
+                .cardColor(request.getCardColor())
+                .iconImage(request.getIconImage())
+                .frontImage(request.getFrontImage())
+                .backImage(request.getBackImage())
                 .note(request.getNote())
                 .build();
 
         card = digitalCardRepository.save(card);
+        recordStoreNameIfCustom(request.getChainCode(), request.getStoreName());
+
         return convertToDto(card);
     }
 
+    @Transactional(readOnly = true)
     public List<DigitalCardDto> getUserCards(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+        User user = requireUser(userId);
 
         return digitalCardRepository.findActiveByUser(user)
                 .stream()
@@ -54,54 +62,95 @@ public class DigitalCardService {
                 .toList();
     }
 
-    public Optional<DigitalCardDto> getCardById(UUID cardId, UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
-
-        return digitalCardRepository.findActiveByIdAndUser(cardId, user)
-                .map(this::convertToDto);
-    }
-
     public DigitalCardDto updateCard(UUID cardId, UUID userId, DigitalCardRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+        User user = requireUser(userId);
+        DigitalCard card = requireCard(cardId, user);
 
-        DigitalCard card = digitalCardRepository.findActiveByIdAndUser(cardId, user)
-                .orElseThrow(() -> new BadRequestException("Card not found"));
+        String previousStoreName = card.getStoreName();
 
-        // Replace full resource (PUT semantics)
-        card.setTitle(request.getTitle());
-        card.setValue(request.getValue());
-        card.setType(request.getType());
+        card.setCardName(request.getCardName());
+        card.setCardType(request.getCardType());
+        card.setStoreName(request.getStoreName());
+        card.setChainCode(request.getChainCode());
+        card.setCodeValue(request.getCodeValue());
         card.setCodeType(request.getCodeType());
-        card.setColor(request.getColor());
+        card.setCardColor(request.getCardColor());
+        card.setIconImage(request.getIconImage());
+        card.setFrontImage(request.getFrontImage());
+        card.setBackImage(request.getBackImage());
         card.setNote(request.getNote());
 
         card = digitalCardRepository.save(card);
+
+        // Only a genuinely new name counts, so re-saving a card does not inflate its
+        // suggestion's usage count.
+        boolean nameChanged = !StoreNameNormalizer.normalize(previousStoreName)
+                .equals(StoreNameNormalizer.normalize(request.getStoreName()));
+        if (nameChanged) {
+            recordStoreNameIfCustom(request.getChainCode(), request.getStoreName());
+        }
+
         return convertToDto(card);
     }
 
     public void deleteCard(UUID cardId, UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
-
-        DigitalCard card = digitalCardRepository.findActiveByIdAndUser(cardId, user)
-                .orElseThrow(() -> new BadRequestException("Card not found"));
+        User user = requireUser(userId);
+        DigitalCard card = requireCard(cardId, user);
 
         card.setDeletedAt(Timestamps.nowUtc());
         digitalCardRepository.save(card);
     }
 
+    public DigitalCardDto setPinned(UUID cardId, UUID userId, boolean pinned) {
+        User user = requireUser(userId);
+        DigitalCard card = requireCard(cardId, user);
+
+        card.setPinnedAt(pinned ? Timestamps.nowUtc() : null);
+        card = digitalCardRepository.save(card);
+
+        return convertToDto(card);
+    }
+
+    private User requireUser(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UnauthorizedException("User not found"));
+    }
+
+    /** Ownership is enforced by the query itself, so there is no separate check to forget. */
+    private DigitalCard requireCard(UUID cardId, User user) {
+        return digitalCardRepository.findActiveByIdAndUser(cardId, user)
+                .orElseThrow(() -> new BadRequestException("Digital card not found"));
+    }
+
+    // Official chains already have their own autocomplete group, so only free text is
+    // worth offering back to other users.
+    private void recordStoreNameIfCustom(String chainCode, String storeName) {
+        if (chainCode == null || chainCode.isBlank()) {
+            storeNameSuggestionService.record(storeName);
+        }
+    }
+
+    // Kept private rather than extracted into a @Component mapper the way shopping lists
+    // did: that split exists so an owner view and a shared view cannot drift on what they
+    // expose, and a card has exactly one viewer. Extract it the day cards gain a second.
     private DigitalCardDto convertToDto(DigitalCard card) {
         return DigitalCardDto.builder()
                 .id(card.getId())
-                .title(card.getTitle())
-                .value(card.getValue())
-                .type(card.getType())
+                .userId(card.getUser().getId())
+                .cardName(card.getCardName())
+                .cardType(card.getCardType())
+                .storeName(card.getStoreName())
+                .chainCode(card.getChainCode())
+                .codeValue(card.getCodeValue())
                 .codeType(card.getCodeType())
-                .color(card.getColor())
+                .cardColor(card.getCardColor())
+                .iconImage(card.getIconImage())
+                .frontImage(card.getFrontImage())
+                .backImage(card.getBackImage())
                 .note(card.getNote())
+                .pinnedAt(card.getPinnedAt())
                 .createdAt(card.getCreatedAt())
+                .updatedAt(card.getUpdatedAt())
                 .build();
     }
 }

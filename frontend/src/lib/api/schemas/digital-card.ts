@@ -1,41 +1,59 @@
 import { z } from "zod";
 
-// Digital Card schemas
+import { CARD_TYPES, CODE_TYPES } from "@/constants/card-codes";
+
 export const digitalCardRequestSchema = z.object({
-  title: z
+  cardName: z
     .string()
-    .min(1, "Naziv je obavezan")
-    .max(100, "Upiši naziv s najviše 100 znakova"),
-  value: z
+    .trim()
+    .min(2, "Upiši naziv kartice s najmanje 2 znaka")
+    .max(60, "Upiši naziv kartice s najviše 60 znakova"),
+  cardType: z.enum(CARD_TYPES, { message: "Odaberi tip kartice" }),
+  storeName: z
     .string()
-    .min(1, "Vrijednost je obavezna")
-    .max(500, "Vrijednost može imati najviše 500 znakova"),
-  type: z
+    .trim()
+    .min(2, "Upiši naziv trgovine s najmanje 2 znaka")
+    .max(60, "Upiši naziv trgovine s najviše 60 znakova"),
+  chainCode: z.string().max(40).nullable(),
+  codeValue: z
     .string()
-    .min(1, "Tip je obavezan")
-    .max(50, "Tip može imati najviše 50 znakova"),
-  codeType: z
+    .trim()
+    .min(1, "Unesi ili skeniraj kod kartice")
+    .max(4096, "Kod kartice je predug"),
+  codeType: z.enum(CODE_TYPES, { message: "Odaberi tip koda" }),
+  cardColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Neispravna boja kartice"),
+  iconImage: z.string().max(400_000, "Ikona je prevelika").nullable(),
+  frontImage: z
     .string()
-    .min(1, "Tip koda je obavezan")
-    .max(50, "Tip koda može imati najviše 50 znakova"),
-  color: z
+    .max(1_200_000, "Slika prednje strane je prevelika")
+    .nullable(),
+  backImage: z
     .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/, "Boja mora biti u HEX formatu (#ffffff)")
-    .nullable()
-    .optional(),
+    .max(1_200_000, "Slika stražnje strane je prevelika")
+    .nullable(),
   note: z
     .string()
-    .max(500, "Napomena može imati najviše 500 znakova")
-    .nullable()
-    .optional(),
+    .trim()
+    .max(500, "Upiši bilješku s najviše 500 znakova")
+    .nullable(),
 });
 
-// DTO schema extends request schema
+// The three images live outside react-hook-form (see use-card-images.ts), so the form
+// validates a narrower shape and the submit hook merges them back in.
+export const digitalCardFormSchema = digitalCardRequestSchema.omit({
+  iconImage: true,
+  frontImage: true,
+  backImage: true,
+});
+
 export const digitalCardDtoSchema = digitalCardRequestSchema.extend({
   id: z.string(),
+  userId: z.string(),
+  pinnedAt: z.string().nullable(),
   createdAt: z.string(),
+  updatedAt: z.string(),
 });
 
-// Type exports
 export type DigitalCardRequest = z.infer<typeof digitalCardRequestSchema>;
+export type DigitalCardFormData = z.infer<typeof digitalCardFormSchema>;
 export type DigitalCardDto = z.infer<typeof digitalCardDtoSchema>;

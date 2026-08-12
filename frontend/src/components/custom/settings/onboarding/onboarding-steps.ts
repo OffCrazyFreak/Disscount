@@ -17,6 +17,8 @@ export interface IOnboardingStep {
 }
 
 // The middle steps ARE the settings tabs - same components, same form context.
+// TODO(onboarding-v2): add a step that nudges the user to save the loyalty cards they
+// already carry, seeded from the chains they pick in preferences. Suggest, never require.
 export const ONBOARDING_STEPS: IOnboardingStep[] = [
   {
     id: "welcome",

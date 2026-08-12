@@ -10,17 +10,29 @@ import {
   deleteShoppingListItem,
 } from "@/lib/api/shopping-lists";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
+import { DIGITAL_CARD_QUERY_KEYS } from "@/lib/api/digital-cards/keys";
 import { addToWatchlist, removeFromWatchlist } from "@/lib/api/watchlist";
+import {
+  createDigitalCard,
+  updateDigitalCard,
+  deleteDigitalCard,
+  setDigitalCardPinned,
+} from "@/lib/api/digital-cards";
 import type {
   ShoppingListRequest,
   ShoppingListItemRequest,
   WatchlistItemRequest,
+  DigitalCardRequest,
 } from "@/lib/api/types";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 import {
   deleteWriteFailed,
   listWriteFailed,
 } from "@/lib/offline/list-write-failed";
+import {
+  cardDeleteFailed,
+  cardWriteFailed,
+} from "@/lib/offline/card-write-failed";
 
 function listAndItemsKeys(listId: string): QueryKey[] {
   return [
@@ -134,5 +146,35 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
     OFFLINE_MUTATION_KEYS.watchlistRemove,
     (id: string) => removeFromWatchlist(id),
     () => [["watchlist"]],
+  );
+
+  defineOfflineMutation(
+    OFFLINE_MUTATION_KEYS.digitalCardCreate,
+    (data: DigitalCardRequest) => createDigitalCard(data),
+    () => [DIGITAL_CARD_QUERY_KEYS.me],
+    cardWriteFailed,
+  );
+
+  defineOfflineMutation(
+    OFFLINE_MUTATION_KEYS.digitalCardUpdate,
+    ({ id, data }: { id: string; data: DigitalCardRequest }) =>
+      updateDigitalCard(id, data),
+    () => [DIGITAL_CARD_QUERY_KEYS.me],
+    cardWriteFailed,
+  );
+
+  defineOfflineMutation(
+    OFFLINE_MUTATION_KEYS.digitalCardDelete,
+    (id: string) => deleteDigitalCard(id),
+    () => [DIGITAL_CARD_QUERY_KEYS.me],
+    cardDeleteFailed,
+  );
+
+  defineOfflineMutation(
+    OFFLINE_MUTATION_KEYS.digitalCardSetPinned,
+    ({ id, pinned }: { id: string; pinned: boolean }) =>
+      setDigitalCardPinned(id, pinned),
+    () => [DIGITAL_CARD_QUERY_KEYS.me],
+    cardWriteFailed,
   );
 }

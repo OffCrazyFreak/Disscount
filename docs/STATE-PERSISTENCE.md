@@ -125,7 +125,7 @@ Forms wired to drafts:
 | Watchlist item modal      | `watchlist-item-modal.tsx` | restore handled by the hook; one number per watch mode, `watchType` excluded |
 | Add to shopping list      | `use-add-to-list-form.ts`  | restore handled by the hook                                                  |
 | Shopping list create/edit | `shopping-list-modal.tsx`  | prefill-then-merge (`restore: false`)                                        |
-| Digital card create/edit  | `digital-card-modal.tsx`   | prefill-then-merge; also feeds scan-to-fill                                  |
+| Digital card create/edit  | `digital-card-modal.tsx`   | prefill-then-merge; `codeValue` excluded, retried through `modal-retry-bus`  |
 | Settings and onboarding   | `settings-modal-host.tsx`  | one shared draft, cleared after a successful save and onboarding completion  |
 | Contact                   | `contact-modal.tsx`        | prefill from profile, then merge draft on top                                |
 
@@ -261,7 +261,7 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
 
 - **New-entity modals auto-restore; edit modals merge the draft themselves.** The shopping-list and digital-card modals pass `restore: !isEdit`: a brand-new list or card is rehydrated by the hook (its own effect re-runs when the draft key changes), while an edit modal loads its base record first and merges the draft on top with `restore: false` (draft wins). The contact modal is prefill-then-merge (`restore: false`). Letting the hook auto-restore an edit modal would double-reset and fight the prefill.
 
-- **Never draft passwords, base64 images, or card codes.** Pass them in `exclude`. Passwords must not touch disk, a base64 avatar would blow the localStorage quota, and the digital-card code (`value`) is excluded so a card number never persists. The avatar field lives outside forms and drafts entirely for this reason.
+- **Never draft passwords, base64 images, or card codes.** Pass them in `exclude`. Passwords must not touch disk, a base64 avatar would blow the localStorage quota, and the digital-card code (`codeValue`) is excluded so a card number never persists. Because that also means a failed save would come back without it, the in-flight code is stashed in `lib/modal/modal-retry-bus.ts`, an in-memory sibling of the error bus that dies with the tab: never on disk, fine in memory until the submit settles. The avatar field lives outside forms and drafts entirely for this reason.
 
 - **Old drafts are type-guarded on restore.** If a field's type changed since a draft was written (for example a number where the field is now a string), the restore skips it so a stale draft cannot poison validation. Keys the form no longer has at all are skipped too, so renaming or splitting a field cannot strand a dead entry for the rest of the TTL.
 
@@ -279,7 +279,7 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
 
 - **localStorage preferences are per-device and are NOT purged on logout.** The IndexedDB data cache and the scoped service worker buckets are wiped when the identity changes. Preferences like view mode or the install-banner snooze are intentionally device-level and survive a logout.
 
-- **`viewModes` is wired but never written yet.** `useViewMode` returns `[mode, setMode]`, and both consumers (`products-client.tsx`, `digital-cards-client.tsx`) destructure the mode alone, because `ViewSwitcher` is parked behind [issue #61](https://github.com/OffCrazyFreak/Disscount/issues/61). So the key exists in the storage shape and in the hook, but nothing writes it and every list renders its default. Unparking the switcher means taking the setter at both call sites. Read the hook's own comment before changing it: the storage read is deliberately deferred to an effect, because `getViewMode` returns the default when there is no `window`, so seeding state from it directly would be a hydration mismatch.
+- **`viewModes` is wired but never written yet.** `useViewMode` returns `[mode, setMode]`, and its one consumer (`products-client.tsx`) destructures the mode alone, because `ViewSwitcher` is parked behind [issue #61](https://github.com/OffCrazyFreak/Disscount/issues/61). So the key exists in the storage shape and in the hook, but nothing writes it and every list renders its default. Unparking the switcher means taking the setter at both call sites. Read the hook's own comment before changing it: the storage read is deliberately deferred to an effect, because `getViewMode` returns the default when there is no `window`, so seeding state from it directly would be a hydration mismatch.
 
 ---
 

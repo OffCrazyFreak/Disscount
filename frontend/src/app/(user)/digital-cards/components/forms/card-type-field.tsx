@@ -16,34 +16,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { DigitalCardRequest } from "@/lib/api/types";
+import type { DigitalCardFormData } from "@/lib/api/types";
+import { getCardTypeOptions } from "@/app/(user)/digital-cards/utils/card-labels";
 
-interface IDigitalCardSelectFieldProps {
-  name: "type" | "codeType";
-  label: string;
-  placeholder: string;
-  options: { value: string; label: string }[];
-}
-
-export default function DigitalCardSelectField({
-  name,
-  label,
-  placeholder,
-  options,
-}: IDigitalCardSelectFieldProps) {
-  const form = useFormContext<DigitalCardRequest>();
+export default function CardTypeField() {
+  const form = useFormContext<DigitalCardFormData>();
+  const options = getCardTypeOptions();
 
   return (
     <FormField
       control={form.control}
-      name={name}
+      name="cardType"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel>Tip kartice</FormLabel>
           <Select onValueChange={field.onChange} value={field.value}>
             <FormControl>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder={placeholder} />
+                <SelectValue placeholder="Odaberi tip" />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
