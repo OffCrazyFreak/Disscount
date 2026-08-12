@@ -6,7 +6,8 @@
     },
     "context7": {
       "command": "npx",
-      "args": ["@upstash/context7-mcp@1.0.31"]
+      "args": ["@upstash/context7-mcp@1.0.31"],
+      "env": { "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}" }
     },
     "supabase": {
       "url": "https://mcp.supabase.com/mcp"
@@ -16,7 +17,7 @@
       "args": ["--registry", "https://registry.npmjs.org", "chrome-devtools-mcp@1.4.0"]
     },
     "sentry": {
-      "url": "https://mcp.sentry.dev/mcp/disscount/disscount-frontend"
+      "url": "https://mcp.sentry.dev/mcp/disscount"
     }
   }
 }

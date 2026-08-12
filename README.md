@@ -226,9 +226,11 @@ The repo ships pre-configured MCP servers so an AI editor picks them up on clone
 | `context7`        | Up-to-date library docs    |
 | `supabase`        | Supabase project access    |
 | `chrome-devtools` | Chrome DevTools debugging  |
-| `sentry`          | Error tracking (Disscount) |
+| `sentry`          | Error tracking (org scope) |
 
-No secrets are committed: `supabase` and `sentry` authenticate via browser OAuth on first use, and `context7` runs keyless (set `CONTEXT7_API_KEY` in your environment to raise rate limits). Never put keys in these files - use env vars or your editor's secret store.
+`sentry` is scoped to the `disscount` org rather than one project, so it reaches both `disscount-frontend` and `disscount-backend`.
+
+No secrets are committed: `supabase` and `sentry` authenticate via browser OAuth on first use, and `context7` reads `CONTEXT7_API_KEY` from your environment (it still runs keyless if that is unset, at the lower anonymous rate limit). Never put keys in these files - use env vars or your editor's secret store.
 
 `playwright` needs a browser at runtime: run `npx playwright install chromium` once per machine, or point it at an existing browser via `PLAYWRIGHT_MCP_EXECUTABLE_PATH` (e.g. `/opt/helium/chrome`). Both are machine-local, so keep the browser path out of the committed config.
 
