@@ -96,7 +96,7 @@ A list the caller may not see is a **404, never a 403**, so the response cannot 
 
 It is therefore reachable signed out, and nothing on it may assume ownership. `shopping-list-detail-client.tsx` reads the session rather than hardcoding it, and the access banner renders unconditionally: it falls silent for an owner on its own, and the disabled item controls point at its id with `aria-describedby`, so gating it would leave that IDREF dangling for exactly the people who need the explanation. It emits an empty element carrying the id when it has nothing to say, because a DTO persisted before `myAccess` existed replays with it undefined.
 
-`next.config.ts` sends `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer` on `/shopping-lists/:path*`. The header is deliberate rather than a `robots.txt` disallow: a disallowed URL is never fetched, so a crawler would never read the directive, and a shared link only leaks by being pasted somewhere crawlable. `app/robots.ts` therefore stops deriving its disallow list from `PROTECTED_ROUTE_PREFIXES`, which still carries `/shopping-lists` for the logout redirect.
+`next.config.ts` sends `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer` on `/shopping-lists/:path*`. The header is deliberate rather than a `robots.txt` disallow: a disallowed URL is never fetched, so a crawler would never read the directive, and a shared link only leaks by being pasted somewhere crawlable. `app/robots.ts` therefore still derives its disallow list from `PROTECTED_ROUTE_PREFIXES` but filters `/shopping-lists` back out, since that constant also drives the logout redirect and the two questions stopped having the same answer.
 
 ## 6. Offline
 
@@ -110,8 +110,11 @@ mechanism was a destructive purge. See `docs/PWA.md` §5b for `cache-identity.ts
 The `/shopping-lists/` service worker rule is `NetworkFirst`, not `NetworkOnly`, so an offline reload
 boots the app instead of the `/offline` fallback. That is only acceptable because the
 purge now deletes the `shopping-list-pages`, `cijene-api` and `others` buckets on a change of
-identity. Those names are matched by exact equality, not by substring: a substring match on
-`pages` would also take out `pages-rsc` and `pages-rsc-prefetch`, every RSC payload in the app.
+identity (`SCOPED_CACHE_NAMES` in `lib/offline/purge.ts`). Those names are matched by exact
+equality, not by substring: a substring match on `pages` would also take out `pages-rsc` and
+`pages-rsc-prefetch`, every RSC payload in the app. `others` is on the list because that is
+where serwist actually files navigations, its `pages` rule keying off a Content-Type header
+browsers omit on one.
 
 ## 7. Privacy decisions
 
@@ -149,6 +152,7 @@ Worth knowing before changing any of this:
 | Copy state    | `frontend/src/app/(user)/shopping-lists/hooks/use-copy-list-modal.ts`                    |
 | Title field   | `frontend/src/app/(user)/shopping-lists/components/forms/shopping-list-title-field.tsx`  |
 | Optimism      | `frontend/src/lib/api/shopping-lists/optimistic-list.ts`                                 |
+| Cache purge   | `frontend/src/lib/offline/purge.ts`                                                      |
 | Client access | `frontend/src/app/(user)/shopping-lists/utils/shopping-list-access.ts`                   |
 
 ## 9. Gotchas

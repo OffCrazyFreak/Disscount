@@ -232,19 +232,19 @@ flowchart LR
 
 The 11 files in `brand/social/` are sized and safe-area-checked to current platform specs. Unlike everything else, these are **built from a live-font Playwright artboard, not from `sharp`** (a browser is needed to render Saira Stencil and lay out the banners), so the artboard script is not committed. Upload them by hand in each platform's settings.
 
-| File                    | Platform                                                                         | Size                          | Where to upload                                |
-| ----------------------- | -------------------------------------------------------------------------------- | ----------------------------- | ---------------------------------------------- |
-| `avatar.png`            | Any profile photo (FB, IG, LinkedIn, YouTube, Reddit, X, Gmail/Google, WhatsApp) | 1000 x 1000                   | Profile picture (circle-cropped)               |
-| `og-image.png`          | Link previews (FB, LinkedIn, X, Discord, WhatsApp, Gmail)                        | 1200 x 630                    | Also served automatically as the site OG image |
-| `github-social.png`     | GitHub repo                                                                      | 1280 x 640                    | Repo -> Settings -> Social preview             |
-| `kofi-cover.png`        | Ko-fi                                                                            | 1920 x 640 (3:1)              | Ko-fi page -> Edit cover                       |
-| `youtube-banner.png`    | YouTube channel                                                                  | 2560 x 1440 (safe 1546 x 423) | Channel -> Customize -> Branding -> Banner     |
-| `youtube-thumbnail.png` | YouTube video                                                                    | 1280 x 720                    | Per-video thumbnail                            |
-| `linkedin-banner.png`   | LinkedIn profile                                                                 | 1584 x 396                    | Profile -> Edit background                     |
-| `facebook-cover.png`    | Facebook page                                                                    | 1640 x 624                    | Page -> Edit cover                             |
-| `reddit-banner.png`     | Reddit                                                                           | 1920 x 384                    | Community/profile -> Banner                    |
-| `post-square.png`       | Feed post (IG, FB, LinkedIn)                                                     | 1080 x 1080                   | New post                                       |
-| `story.png`             | Story / status (IG, FB, WhatsApp status)                                         | 1080 x 1920 (9:16)            | New story/status                               |
+| File                    | Platform                                                                         | Size                          | Where to upload                                                                                         |
+| ----------------------- | -------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `avatar.png`            | Any profile photo (FB, IG, LinkedIn, YouTube, Reddit, X, Gmail/Google, WhatsApp) | 1000 x 1000                   | Profile picture (circle-cropped)                                                                        |
+| `og-image.png`          | Link previews (FB, LinkedIn, X, Discord, WhatsApp, Gmail)                        | 1200 x 630                    | Manual uploads, plus the README banner. The site's own OG image is the dynamic one below, not this file |
+| `github-social.png`     | GitHub repo                                                                      | 1280 x 640                    | Repo -> Settings -> Social preview                                                                      |
+| `kofi-cover.png`        | Ko-fi                                                                            | 1920 x 640 (3:1)              | Ko-fi page -> Edit cover                                                                                |
+| `youtube-banner.png`    | YouTube channel                                                                  | 2560 x 1440 (safe 1546 x 423) | Channel -> Customize -> Branding -> Banner                                                              |
+| `youtube-thumbnail.png` | YouTube video                                                                    | 1280 x 720                    | Per-video thumbnail                                                                                     |
+| `linkedin-banner.png`   | LinkedIn profile                                                                 | 1584 x 396                    | Profile -> Edit background                                                                              |
+| `facebook-cover.png`    | Facebook page                                                                    | 1640 x 624                    | Page -> Edit cover                                                                                      |
+| `reddit-banner.png`     | Reddit                                                                           | 1920 x 384                    | Community/profile -> Banner                                                                             |
+| `post-square.png`       | Feed post (IG, FB, LinkedIn)                                                     | 1080 x 1080                   | New post                                                                                                |
+| `story.png`             | Story / status (IG, FB, WhatsApp status)                                         | 1080 x 1920 (9:16)            | New story/status                                                                                        |
 
 **Gmail / WhatsApp** need no bespoke files: profile photo = `avatar.png`, WhatsApp status = `story.png`, chat/email link previews = `og-image.png`, email signature = `logo/lockup-horizontal/lockup-horizontal-rgb`.
 
@@ -281,6 +281,8 @@ node scripts/generate-shortcut-icons.mjs  # PWA app-shortcut tiles
 ```
 
 The social kit (`brand/social/`) is not regenerated by these; it comes from the separate, uncommitted Playwright artboard.
+
+`frontend/scripts/` holds one more script, `optimize-store-logos.mjs`, which is **not** part of the brand pipeline and is listed here only so the folder has no unexplained file. It resizes the third-party retail-chain logos in `public/store-chains/` to fit 256px and re-encodes them losslessly, overwriting only when that saves at least 5%, so it is safe to re-run. Run it after adding a chain logo.
 
 ---
 

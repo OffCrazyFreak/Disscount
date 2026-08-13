@@ -43,7 +43,7 @@ flowchart LR
   Url --> Router[ModalRouter]
   Router --> Modal[DonationModal]
   Modal --> External[Ko-fi checkout in a new tab]
-  Modal --> Close[Close, Escape, overlay, Back, or Ne sada]
+  Modal --> Close[Close control, Escape, overlay, or Back]
   Close --> Page[Original app page and focus trigger]
 ```
 
@@ -53,11 +53,11 @@ The modal is public by design. `PUBLIC_MODAL_NAMES` prevents the authentication 
 
 ### Sidebar
 
-`supportNavItems` drives the `Pomoć i podrška` group in the app sidebar. The `donate` item comes after `Kontakt`, so it is discoverable without competing with shopping and account navigation. It deliberately has no PWA shortcut metadata because voluntary support is not a core app task.
+`supportNavItems` drives the `Pomoć i podrška` group in the app sidebar. The `donate` item comes after `Kontakt`, so it is discoverable without competing with shopping and account navigation. It deliberately carries no `shortcutDescription`, the field whose presence opts an item into a PWA shortcut, because voluntary support is not a core app task.
 
 ### Footer
 
-`FooterSupportIcons` maps the same `supportNavItems` data. When it sees a live item, it renders an icon-only button link with the item's label as its accessible name. That makes `Podrži Disscount` compact visually while remaining understandable to screen-reader and keyboard users.
+`FooterSupportIcons` maps the same `supportNavItems` data. A live item becomes an icon-only button link carrying the item's label as its accessible name, so `Podrži Disscount` stays compact visually while remaining understandable to screen-reader and keyboard users. An item still marked `comingSoon`, or pointing at the placeholder href, renders as a disabled button named `<label> (uskoro)` instead, so the row never silently drops an entry the sidebar shows.
 
 ### Deep links
 
@@ -83,7 +83,7 @@ The modal is public by design. `PUBLIC_MODAL_NAMES` prevents the authentication 
 | `frontend/src/constants/donation.ts`                             | Holds the live Ko-fi URL and the GitHub Sponsors follow-up TODO.                |
 | `frontend/src/constants/navigation.ts`                           | Declares the `donate` support-navigation item and the landing recognition TODO. |
 | `frontend/src/lib/modal/modal-registry.ts`                       | Defines, parses, and publicly exposes the `donate` modal target.                |
-| `frontend/src/components/custom/donation/donation-modal.tsx`     | Renders the support copy, Ko-fi link, dismiss action, and focus restoration.    |
+| `frontend/src/components/custom/donation/donation-modal.tsx`     | Renders the support copy, the Ko-fi link, and focus restoration.                |
 | `frontend/src/components/custom/modal-router/modal-router.tsx`   | Mounts the modal once for the whole app.                                        |
 | `frontend/src/components/custom/sidebar/sidebar-support-nav.tsx` | Renders the sidebar support group from shared navigation data.                  |
 | `frontend/src/components/custom/common/footer-support-icons.tsx` | Renders compact footer controls from the same navigation data.                  |
@@ -114,7 +114,7 @@ The modal's support icon is decorative and hidden from the accessibility tree. T
 
 - [ ] Open `?modal=donate` while signed out and confirm no login prompt appears.
 - [ ] Open the sidebar and footer controls and confirm they show the same modal.
-- [ ] Close the modal with `Ne sada`, the close control, Escape, the overlay, and browser Back.
+- [ ] Close the modal with the close control, Escape, the overlay, and browser Back. Ko-fi is the only button, so there is no separate dismiss action to test.
 - [ ] Confirm closing keeps unrelated query parameters and the URL hash.
 - [ ] Use the keyboard to open and close the modal, then confirm focus returns to the original sidebar or footer control.
 - [ ] Confirm the Ko-fi control opens `https://ko-fi.com/disscount` in a separate tab.

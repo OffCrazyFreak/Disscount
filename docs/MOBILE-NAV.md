@@ -121,7 +121,7 @@ Both teaser cells are **dead ends for everyone but an admin**, which is the rule
 const isLocked = Boolean(item.comingSoon) && !isAdmin(user?.accountType);
 ```
 
-A locked cell is a `disabled` button in `text-muted-foreground/70`, so it takes no tap, no keyboard focus, no scrub tint and no long press. It keeps its USKORO chip, and `activate()` in `bottom-nav.tsx` guards the pointer path separately, because a disabled button does not stop the `<ul>` from resolving that cell.
+A locked cell carries `aria-disabled` plus `tabIndex={-1}` in `text-muted-foreground/70`, so it takes no tap, no keyboard focus, no scrub tint and no long press. It is deliberately **not** the `disabled` attribute: browsers suppress pointer events on a disabled control, so a press starting on one would never reach the list and a scrub could not begin there. It keeps its USKORO chip, and `activate()` in `bottom-nav.tsx` guards the pointer path separately, since `aria-disabled` carries no behaviour of its own and does not stop the `<ul>` from resolving that cell.
 
 Two things worth knowing:
 
@@ -580,8 +580,10 @@ So the bar expresses none of its dimensions through the spacing scale. They live
   --bottom-nav-h: 4.5rem; /* 72px of content */
   --bottom-nav-gap: 0.75rem; /* the pill's inset from the bottom edge */
   --bottom-nav-safe: env(safe-area-inset-bottom, 0px);
+  /* max, not a sum: the bar's own margin is max(gap, safe), so adding both
+     over-reserves 12px on a notched phone. See the gotcha in §18. */
   --bottom-nav-total: calc(
-    var(--bottom-nav-h) + var(--bottom-nav-gap) + var(--bottom-nav-safe)
+    var(--bottom-nav-h) + max(var(--bottom-nav-gap), var(--bottom-nav-safe))
   );
 
   /* Where every bottom sheet ends, so no sheet has to know the bar exists */
@@ -827,7 +829,7 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Landmark             | A real `<nav>` with `aria-label="Glavna navigacija"`, plus `role="list"` on the `<ul>` because Tailwind's `list-style: none` drops list semantics in Safari. The header carries the only other `<nav>`                                     |
 | Current page         | `aria-current="page"` on the active cell, the only thing that conveys "you are here" to a screen reader                                                                                                                                    |
-| Locked cells         | A `disabled` button, so it is skipped by tab order and announced as unavailable, with its USKORO chip still readable                                                                                                                       |
+| Locked cells         | `aria-disabled` announces it as unavailable and `tabIndex={-1}` takes it out of tab order, with its USKORO chip still readable. Not the `disabled` attribute, which would swallow the pointer events the bar's gesture needs               |
 | Toggling controls    | The centre cell carries `aria-expanded`, and its accessible name changes to `Zatvori traženje` while the sheet is open                                                                                                                     |
 | Not colour alone     | Active state is the disc **plus** the tint **plus** a bold label, satisfying WCAG 1.4.1                                                                                                                                                    |
 | Touch targets        | Measured 65.8px wide at a 360px viewport and 57.8px at 320px, by 72px tall, both over the 48px practical minimum                                                                                                                           |
@@ -872,7 +874,7 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 
 ## 18. Gotchas & lessons learned
 
-**Cells must be `<button>`, never `<a href>`.** iOS shows a link-preview popover, a callout and a drag affordance on a long-pressed anchor, and `-webkit-touch-callout: none` is unreliable (an open Apple report against iOS 26.1). A button has none of those. SEO is unaffected because the prerendered header and sidebar already carry the crawlable links for these routes, which commit `c0c050ce` specifically preserved.
+**Cells must be `<button>`, never `<a href>`.** iOS shows a link-preview popover, a callout and a drag affordance on a long-pressed anchor, and `-webkit-touch-callout: none` is unreliable (an open Apple report against iOS 26.1). A button has none of those. SEO is unaffected because the prerendered header and sidebar already carry the crawlable links for these routes, which commit `c0c050cec155668199f7752787c7e8ece423d953` specifically preserved.
 
 **`contextmenu` never fires on iOS long press.** It has not since iOS 13.1, so the gesture cannot be built on it and has to be a `pointerdown` timer.
 
@@ -1038,7 +1040,7 @@ A four-reviewer sweep (Claude Opus 5 subagents, Codex `gpt-5.6-sol`, CodeRabbit 
 | Locked cells used the `disabled` attribute                   | `aria-disabled` plus `tabIndex={-1}`, because a disabled control swallows pointer events and a scrub could not start on one       |
 | The FAB sat below `--z-scroll-fade`                          | Raised to `--z-fab` (42). It was painting under an always-mounted 89.6px gradient exactly when visible                            |
 | The FAB was 44.8px with a 19.2px inset                       | Material's 56px / 24px / 24px, in explicit rem, because `--spacing: 0.2rem` made the utilities lie                                |
-| Every `navigator.share` rejection read as a dismissal        | Only `AbortError` does; the rest fall through to the clipboard                                                                    |
+| Every `navigator.share` rejection read as a dismissal        | Only `AbortError` and `InvalidStateError` do; the rest fall through to the clipboard                                              |
 | Six surfaces each derived the coming-soon rule               | One `isNavItemLocked`                                                                                                             |
 | Seven places built a `/products/<ean>` path, three unencoded | One `productPath`                                                                                                                 |
 

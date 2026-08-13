@@ -18,7 +18,7 @@ Under the hood it is a full production stack: a Next.js frontend that also acts 
 
 **Live:**
 
-- Product search across 29 Croatian retail chains (with barcode scanning)
+- Product search across 25+ Croatian retail chains (with barcode scanning)
 - Price comparison per store and price history charts ("is the discount real?")
 - Smart shopping lists with per-store basket totals
 - Shared shopping lists via a private link, with view, shop or edit access and a revocable token
@@ -77,7 +77,7 @@ Landing page ([full-page screenshot](docs/screenshots/desktop/pages/landing.webp
 ### Features
 
 <p align="center">
-  <img width="45%" src="docs/screenshots/desktop/pages/search.webp" alt="Disscount - Product search across 29 chains"/>
+  <img width="45%" src="docs/screenshots/desktop/pages/search.webp" alt="Disscount - Product search across 25+ chains"/>
   <img width="45%" src="docs/screenshots/desktop/pages/product-detail.webp" alt="Disscount - Product details with price history"/>
 </p>
 

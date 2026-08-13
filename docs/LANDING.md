@@ -37,18 +37,18 @@ flowchart TD
 
 `page.tsx` renders these sections top to bottom inside a `space-y-14 sm:space-y-20 pb-16` wrapper. Each has its own file under `app/(root)/components/sections/`.
 
-| #   | Section       | File                        | Purpose                                                  | Client islands inside                                       |
-| --- | ------------- | --------------------------- | -------------------------------------------------------- | ----------------------------------------------------------- |
-| 1   | Hero          | `hero-section.tsx`          | Logo, wordmark, rotating tagline, search + scan card     | `HeroActions`, `HeroTagline`, `HeroCart`, `StaggerChildren` |
-| 2   | Stats band    | `stats-band.tsx`            | Green band with real numbers (29 lanaca, 100% besplatno) | `ScrollReveal`                                              |
-| 3   | How it works  | `how-it-works-section.tsx`  | Three steps with animated doodles                        | `ScrollReveal`, doodles                                     |
-| 4   | Features      | `features-section.tsx`      | Grid of feature cards, live and USKORO                   | `ScrollReveal`, `FeatureCardAction`                         |
-| 5   | Price history | `price-history-section.tsx` | "Is the discount real?" with a chart doodle              | `ScrollReveal`, `PriceLineDoodle`                           |
-| 6   | Stores        | `stores-section.tsx`        | Marquee of 29 real chain logos, link to discounts        | `StoresMarquee`                                             |
-| 7   | PWA           | `pwa-section.tsx`           | Install + offline perks, phone + desktop screenshots     | `ScrollReveal`                                              |
-| 8   | Pricing       | `pricing-section.tsx`       | Two receipt cards (free + premium USKORO)                | `ScrollReveal`                                              |
-| 9   | FAQ           | `faq-section.tsx`           | Native `<details>` accordion, `FAQPage` schema source    | `ScrollReveal`                                              |
-| 10  | Final CTA     | `final-cta-section.tsx`     | Green block, two CTA buttons                             | `ScrollReveal`                                              |
+| #   | Section       | File                        | Purpose                                                      | Client islands inside                                       |
+| --- | ------------- | --------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- |
+| 1   | Hero          | `hero-section.tsx`          | Logo, wordmark, rotating tagline, search + scan card         | `HeroActions`, `HeroTagline`, `HeroCart`, `StaggerChildren` |
+| 2   | Stats band    | `stats-band.tsx`            | Green band with real numbers (25+ lanaca, 100% besplatno)    | `ScrollReveal`                                              |
+| 3   | How it works  | `how-it-works-section.tsx`  | Three steps with animated doodles                            | `ScrollReveal`, doodles                                     |
+| 4   | Features      | `features-section.tsx`      | Grid of feature cards, live and USKORO                       | `ScrollReveal`, `FeatureCardAction`                         |
+| 5   | Price history | `price-history-section.tsx` | "Is the discount real?" with a chart doodle                  | `ScrollReveal`, `PriceLineDoodle`                           |
+| 6   | Stores        | `stores-section.tsx`        | Marquee of every chain in `storeNamesMap`, link to discounts | `StoresMarquee`                                             |
+| 7   | PWA           | `pwa-section.tsx`           | Install + offline perks, phone + desktop screenshots         | `ScrollReveal`                                              |
+| 8   | Pricing       | `pricing-section.tsx`       | Two receipt cards (free + premium USKORO)                    | `ScrollReveal`                                              |
+| 9   | FAQ           | `faq-section.tsx`           | Native `<details>` accordion, `FAQPage` schema source        | `ScrollReveal`                                              |
+| 10  | Final CTA     | `final-cta-section.tsx`     | Green block, two CTA buttons                                 | `ScrollReveal`                                              |
 
 `SectionHeading` (`section-heading.tsx`) is the shared title + subtitle block used by the How it works, Features, Stores, Pricing, and FAQ sections. It also carries the white `TextGlow` behind the heading, so adding the glow in one place covers every heading. The Stats band and the Final CTA style their own headings instead, and the Stats band's `<h2>` is `sr-only` (visually the numbers are the heading), which keeps the one-`<h2>`-per-section rule intact for crawlers.
 
@@ -121,7 +121,7 @@ These generic, presentational components live in `components/custom/common/` and
 | `DoodleCanvas`     | `doodles/doodle-canvas.tsx`      | `motion.svg` shell whose child paths draw on when scrolled into view   | Client        |
 | `SparkleField`     | `doodles/sparkle-field.tsx`      | Seeded scatter of twinkling sparkles                                   | Server        |
 
-The doodles (`barcode`, `price-tag`, `cart`, `receipt`, `price-line`, `scale`) are hand-drawn SVGs built on `DoodleCanvas` with `drawVariants`, so their strokes draw themselves on scroll. `squiggle-underline` and `sparkle-doodle` are pure CSS-animated Server Components. `WindowScrollFade` is mounted once in `app/layout.tsx`, so every page gets a bottom fade that self-hides when there is nothing more to scroll.
+Three doodles (`barcode-doodle`, `price-line-doodle`, `scale-doodle`) are hand-drawn SVGs built on `DoodleCanvas` with `drawVariants`, so their strokes draw themselves on scroll. `squiggle-underline` and `sparkle-doodle` are pure CSS-animated Server Components. `WindowScrollFade` is mounted once in `app/layout.tsx`, so every page gets a bottom fade that self-hides when there is nothing more to scroll.
 
 `TextGlow` uses `radial-gradient(ellipse closest-side ...)` so the glow reaches full transparency exactly at the wrapper edges (no hard rectangular cut-off), plus a solid `spread` core so it reads strongly while still showing the dot pattern faintly through it. It must sit as the first child of a `relative isolate` wrapper; the `isolate` keeps its `-z-10` contained behind the section text instead of escaping behind the page background.
 
@@ -184,14 +184,14 @@ Every CSS animation is disabled under `@media (prefers-reduced-motion: reduce)`,
 
 ## Automatic vs manual
 
-| Thing                              | Automatic                                                        | Manual                                                    |
-| ---------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------- |
-| Metadata, JSON-LD, sitemap, robots | Regenerate from code on every build                              | Editing the copy/routes they list                         |
-| FAQ structured data                | Built from `faqItems`                                            | Editing the questions/answers                             |
-| Store logos grid                   | Derived from `storeNamesMap` keys + `/public/store-chains/*.png` | Adding a new chain (add the PNG + map entry)              |
-| Feature grid                       | Rendered from `featureItems`                                     | Adding/reordering/retiring a feature                      |
-| Coming-soon card links             | Render as non-clickable divs                                     | Uncomment the `href` in `features.ts` when the page ships |
-| OG / social images                 | Rendered by the image routes                                     | Redesigning the artwork                                   |
+| Thing                              | Automatic                                                        | Manual                                                                                              |
+| ---------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Metadata, JSON-LD, sitemap, robots | Regenerate from code on every build                              | Editing the copy/routes they list                                                                   |
+| FAQ structured data                | Built from `faqItems`                                            | Editing the questions/answers                                                                       |
+| Store logos grid                   | Derived from `storeNamesMap` keys + `/public/store-chains/*.png` | Adding a new chain: add the PNG and the map entry, then run `node scripts/optimize-store-logos.mjs` |
+| Feature grid                       | Rendered from `featureItems`                                     | Adding/reordering/retiring a feature                                                                |
+| Coming-soon card links             | Render as non-clickable divs                                     | Uncomment the `href` in `features.ts` when the page ships                                           |
+| OG / social images                 | Rendered by the image routes                                     | Redesigning the artwork                                                                             |
 
 ## Key files
 
@@ -231,10 +231,10 @@ Versions come from `frontend/package.json`.
 
 | Library           | Version     | Use on the landing                                              |
 | ----------------- | ----------- | --------------------------------------------------------------- |
-| next              | `16.2.9`    | App Router, RSC, metadata, `next/font`, `next/og`, `next/image` |
-| react / react-dom | `19.2.4`    | Server + client components                                      |
+| next              | `16.2.11`   | App Router, RSC, metadata, `next/font`, `next/og`, `next/image` |
+| react / react-dom | `19.2.8`    | Server + client components                                      |
 | motion            | `^12.23.26` | Scroll reveals, doodle path-draws, tagline cross-fade           |
-| lucide-react      | `^0.561.0`  | Feature and perk icons                                          |
+| lucide-react      | `^1.26.0`   | Feature and perk icons                                          |
 | tailwindcss       | `^4`        | Styling, CSS-first theme, keyframes                             |
 
 ## Gotchas
@@ -268,7 +268,6 @@ The exact chain count is never hardcoded. The number of covered retail chains gr
 ## Future improvements and TODOs
 
 - Wire the remaining coming-soon feature cards (Analiza potrošnje, Digitalne kartice, Karta trgovina) once their pages ship, by uncommenting the `href` in `features.ts` and dropping `comingSoon`.
-- Move `ScrollReveal` and `StaggerChildren` out of `components/ui/` (AGENTS.md reserves that folder for unedited shadcn primitives) into `components/custom/` (e.g. an `animation/` folder) with default exports, matching the convention for hand-written components.
 - Consider an FAQ-driven long-tail SEO expansion and a real testimonials/social-proof section once there is content for it.
 - The landing is Croatian-only; if the app adds `next-intl`, the landing copy in the `data/*` files is the natural first surface to translate.
 - Revisit the notifications-from-guest flow: today it opens the login modal, but a dedicated "sign in to get price alerts" nudge could convert better.

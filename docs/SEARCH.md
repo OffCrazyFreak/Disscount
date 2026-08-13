@@ -71,7 +71,7 @@ The important idea, and the one that took two wrong attempts to get right: **fol
 1. **Fold both sides.** `normalizeForSearch` lowercases, strips combining marks, and maps the letters that are not decompositions (`đ` to `d`, `ß` to `ss`, the German umlauts).
 2. **Require every token.** Each whitespace-separated word of the query must appear in at least one field, so `bas put` still finds `Baška Krivi Put`.
 3. **Score by where the whole query sits.** The tier ladder, best first: exact, prefix, word-prefix, contains.
-4. **Fall back to sub-sequence matching** when nothing literal hit, so the letters of `vgorica` can be found in order across `Velika Gorica`.
+4. **Fall back to sub-sequence matching** when nothing literal hit, so the letters of `vgorica` can be found in order across `Velika Gorica`, but only above a density floor: the query must account for at least `MIN_DENSITY` (0.15) of the haystack. Without it the fallback is a coincidence detector rather than a search, since the letters of any query appear in order somewhere inside any paragraph of Croatian prose. An abbreviation is dense (`vgorica` is more than half of `velika gorica`); eight letters scattered through 600 characters are not.
 
 The score bands are kept disjoint on purpose, so a weaker kind of match can never outrank a stronger one:
 
@@ -151,7 +151,7 @@ The seven `filterByFields` callers gained tokenized, ranked, abbreviation-tolera
 
 Worth stating plainly, because it is easy to assume otherwise.
 
-Across all ten Spring controllers the only query parameters are `includeDeleted` on the admin contact list and a `Pageable` on notifications. There is **no** `LIKE`, no `ILIKE`, no `tsvector`, no `pg_trgm`, no derived `Containing` method, and no pagination anywhere else.
+Across all eleven Spring controllers the only query parameters are `includeDeleted` on the admin contact list and a `Pageable` on notifications. There is **no** `LIKE`, no `ILIKE`, no `tsvector`, no `pg_trgm`, no derived `Containing` method, and no pagination anywhere else.
 
 So every "search" outside products is the browser filtering an array it already downloaded. That is fine at the current sizes and would not be at ten thousand rows.
 
@@ -167,6 +167,12 @@ Also note **email is not on the JPA `User` entity**; it lives in better-auth's o
 **Folding is not a substitute for fuzzy matching.** This is the mistake that created the system. cmdk's default filter scores `Baška` against `baska` at exactly **zero**, so diacritics genuinely were broken. But replacing that filter with a fold-and-substring matcher scored `Velika Gorica` against `vgorica` at zero, losing a capability nobody asked to lose. Fold first, then match; the two are layers, not alternatives.
 
 **cmdk scores the item's `value`, not just what you see.** Where the value is a code or a UUID, that produces hits with nothing visible to explain them. Pass the label as `keywords` and `commandFilter` will search those instead of the value.
+
+**A containment test on a short string means nothing.** `chainMatchesPinnedStore` requires `MIN_CONTAINMENT_LENGTH` (3) on both sides before falling back to `includes`, because a store pinned as "K plus" normalizes to `k`, which sits inside konzum, kaufland and ktc alike. Exact equality is still checked first, so a genuinely short code is unaffected.
+
+**The prepared query is shared, so it is frozen.** `prepareQuery` memoizes one entry, and that object is handed to every caller in the process, module state included on the server. It is `Object.freeze`d rather than copied, so a caller that sorted or pushed to `tokens` cannot corrupt the query for whoever holds it next.
+
+**The normalize cache evicts, it does not clear.** `normalizeCached` is bounded at 8192 entries and drops the oldest half when it fills, because products are scored through it too and a loaded list holds thousands of distinct names. A wholesale clear mid-pass would leave the rest of that same pass missing every lookup.
 
 **Normalize both sides of every comparison, or neither.** `resolveAllowedChains` filtered raw selections against a set built with `normalizeChainCode`, so a chain whose casing came from a hand-edited URL silently vanished from the filter with no sign anything had been dropped.
 
@@ -185,7 +191,7 @@ Also note **email is not on the JPA `User` entity**; it lives in better-auth's o
 - **Sorting rework** (in sprint on the roadmap). The comparator layer in `rank.ts` exists for this. The item asks for sort-by controls on products, the watchlist and shopping lists, with the default product order being match ranking, then popularity, then chain count, then location count. The first three terms are already expressible; **popularity does not exist yet** and needs a backend counter over watchlists and shopping lists, deduplicated per user so one person cannot inflate it.
 - **Server-side search and pagination.** Nothing exists. See [§9](#9-the-backend-has-no-search) for the portability notes. This becomes urgent the moment the admin panel grows past its two current tabs.
 - **`GET /api/admin/users` is unbounded** and WAU/MAU is counted client-side over every user row, which structurally prevents ever paginating that endpoint. Recorded here rather than fixed.
-- **The admin contact inbox silently truncates at 500.** Rows past it are unreachable and unsearchable, with no indication in the UI.
-- **`components/ui/chart.tsx` sorts labels with a locale-less `localeCompare`**, so Croatian diacritics collate wrongly in chart tooltips. Not fixed because it is shadcn output, which `AGENTS.md` forbids hand-editing.
+- **The admin contact inbox silently truncates at 500.** The cap is server-side, `MAX_ADMIN_MESSAGES` in `ContactMessageService`, so rows past it never reach the browser and are unreachable and unsearchable, with no indication in the UI.
+- **`components/ui/chart.tsx` sorts labels with a locale-less `localeCompare`**, so Croatian diacritics collate wrongly in chart tooltips. It is shadcn output, but `AGENTS.md` allows editing that folder where the primitive is the natural home for the change, and a comparator the whole app needs in Croatian qualifies. Swapping it for `compareHr` is a one-line fix nobody has taken.
 - **Two surfaces have a search box that matches nothing.** The map page renders one as a stub, and `sidebar-filter-menu.tsx` lists several hundred options with no filter box at all. Both are obvious consumers for this system.
 - **Consider a library only if a surface really holds 10k+ rows client-side.** None does today. If one ever does, `MiniSearch` (7kB, zero dependencies, a `processTerm` hook that takes `normalizeForSearch` directly) is the closest fit; `uFuzzy` is faster and smaller but has a much smaller user base.

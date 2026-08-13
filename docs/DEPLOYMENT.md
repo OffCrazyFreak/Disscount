@@ -153,7 +153,7 @@ There are **two kinds** of env vars, and mixing them up causes the most confusin
 | **Build-time, baked** (`NEXT_PUBLIC_*`) | `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `NEXT_PUBLIC_SENTRY_DSN`                    | compiled **into the JS bundle** during `next build`    | you **must REDEPLOY** (rebuild): editing the value alone does nothing |
 | **Runtime, secret**                     | `DATABASE_URL`, `BETTER_AUTH_SECRET`, `GOOGLE_CLIENT_SECRET`, `RESEND_API_KEY`, `SENTRY_DSN`, etc. | read by the server **when it starts/handles requests** | takes effect on the next container restart                            |
 
-- **Where they're set:** in **Dokploy, your service, Environment** (one set per environment). The local `.env` / `example.env` files are only for local dev.
+- **Where they're set:** in **Dokploy, your service, Environment** (one set per environment). The local `.env` files, seeded from the tracked `.env.example` / `frontend/.env.local.example` / `backend/.env.example`, are only for local dev.
 - **Production vs dev difference:** prod uses `https://disscount.me`, dev uses `https://dev.disscount.me` for `BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL` / `BETTER_AUTH_ISSUER`; each has its **own** strong `POSTGRES_PASSWORD` + `BETTER_AUTH_SECRET`.
 - **Internal URLs stay the same** in every environment (they're Docker service names): `NEXT_PUBLIC_API_URL=http://backend:8080`, `BETTER_AUTH_JWKS_URI=http://frontend:3000/api/auth/jwks`, `...@db:5432/disscount`.
 
@@ -196,7 +196,13 @@ Keep the CNAMEs **Proxied** so Cloudflare answers for the names and the rule fir
 
 > The waitlist **site** is retired, but do **not** delete the Netlify project: it now builds PR previews whose head branch is neither `main` nor `dev`. See [Netlify PR previews](#netlify-pr-previews).
 
-**Email anti-spoofing (SPF/DKIM/DMARC):** SPF + DKIM already exist (Resend, Cloudflare, SES on `send.`). DMARC is set as a `_dmarc` TXT record: `v=DMARC1; p=none; rua=mailto:dmarc@disscount.me; fo=1`. It starts in **monitor mode** (`p=none`, aggregate reports forwarded via Email Routing to the owner's inbox); tighten to `p=quarantine` then `p=reject` once reports confirm legitimate senders pass alignment.
+**Email anti-spoofing (SPF/DKIM/DMARC):** SPF + DKIM already exist (Resend, Cloudflare, SES on `send.`). DMARC is a `_dmarc` TXT record, currently:
+
+```
+v=DMARC1; p=quarantine; np=reject; rua=mailto:<id>@dmarc-reports.cloudflare.net
+```
+
+It began in monitor mode (`p=none`) and moved to `p=quarantine` once the aggregate reports confirmed the legitimate senders align. `np=reject` is stricter than the main policy on purpose: it covers non-existent subdomains, which never send legitimate mail, so nothing can break by rejecting them outright. Aggregate reports go to Cloudflare's hosted DMARC Management rather than an inbox. The remaining step is `p=reject`, which should wait until the reports stay clean across all three senders (Resend for transactional, Cloudflare, SES on `send.`), since any one of them falling out of alignment under `reject` means silent delivery failure rather than a spam-folder warning.
 
 ---
 

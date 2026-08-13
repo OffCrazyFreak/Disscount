@@ -147,7 +147,7 @@ Written by the small domain helpers in `utils/browser/storage/*`, each of which 
 | `installBannerDismissedAt` | "install app" banner snooze (7 days)                        | `pwa.ts`            |
 | `lastLoginMethod`          | drives the "last used" sign-in badge                        | `auth.ts`           |
 
-The shape of the whole object is declared in `typings/local-storage.ts` (`AppData`).
+The shape of the whole object is declared in `typings/local-storage.ts` as `IAppData`.
 
 ---
 
@@ -202,7 +202,7 @@ Not everything should be remembered. These are intentionally **not** persisted, 
 | Persisting a preference (camera, periods...)  | Auto          | the relevant `storage/*` helper writes on change                           |
 | Persisting the view mode                      | Parked        | `useViewMode` writes on the setter, which has no callers yet (see below)   |
 | Adding a NEW modal form to the draft system   | Manual        | call `useFormDraft` with a unique `draftKey`; pick `restore` and `exclude` |
-| Adding a NEW preference                       | Manual        | add the field to `AppData` and a helper in `utils/browser/storage/`        |
+| Adding a NEW preference                       | Manual        | add the field to `IAppData` and a helper in `utils/browser/storage/`       |
 | Excluding a sensitive field from a draft      | Manual        | pass it in `exclude` (do this for passwords and base64 images)             |
 
 ---
@@ -285,7 +285,7 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
 
 ## 12. Future improvements & TODOs
 
-- **Automated product-filter regression coverage.** The scoped price summarizers and filter contract are verified by TypeScript, the production build, and manual API requests, but the frontend has no approved unit-test framework. [Issue #153](https://github.com/OffCrazyFreak/Disscount/issues/153) records the cases to cover after a framework and dependency are approved; tests were deliberately excluded from PR #151.
+- **Automated product-filter regression coverage.** The scoped price summarizers and filter contract are verified by TypeScript, the production build, and manual API requests, and the frontend still has no test framework installed. [Issue #153](https://github.com/OffCrazyFreak/Disscount/issues/153), which recorded the cases to cover, was closed as not planned on 2026-08-05, so the gap is real but untracked. Tests were deliberately excluded from [PR #151](https://github.com/OffCrazyFreak/Disscount/pull/151).
 
 - **Draft indicator UX.** When a draft is restored, the modal shows it as unsaved and offers a "Resetiraj" button, but there is no explicit "restored a draft" banner. A small notice could make it clearer why fields are prefilled.
 
