@@ -508,7 +508,7 @@ Typing a product name and scanning its barcode answer the same question, "what d
 flowchart TB
     gest["constants/gestures.ts<br/>every timing and threshold"] --> util
     util["utils/long-press.ts<br/>framework-free timer"] --> hook["hooks/use-long-press.ts<br/>one element (product cards)"]
-    util --> cell["bottom-nav/use-long-press-timer.ts<br/>timing plus the ring's progress"]
+    util --> cell["hooks/use-long-press-timer.ts<br/>timing plus the ring's progress"]
     cell --> bar["bottom-nav/use-bottom-nav-pointer.ts<br/>the whole bar, plus scrubbing"]
     hit["bottom-nav/bar-hit-test.ts<br/>a point to a cell, or none"] --> bar
     res["bottom-nav/resolve-hold-target.ts<br/>what a hold does, or null"] --> bar
@@ -712,14 +712,14 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 | `components/custom/bottom-nav/bottom-nav-center-item.tsx`   | The raised filled search cell with its `Proizvodi` label            |
 | `components/custom/bottom-nav/bottom-nav-item-glyph.tsx`    | The icon with its badge and return chevron                          |
 | `components/custom/bottom-nav/bottom-nav-indicator.tsx`     | The `layoutId` active disc                                          |
-| `components/custom/bottom-nav/bottom-nav-ring.tsx`          | One ring, shared by long-press feedback and list completion         |
+| `components/custom/common/hold-progress-ring.tsx`           | One ring, shared by long-press feedback and list completion         |
 | `components/custom/bottom-nav/bottom-nav-classes.ts`        | The class strings both cell components share                        |
 | `components/custom/bottom-nav/bottom-nav-items.ts`          | The five-cell order and the long-press mapping                      |
 | `components/custom/bottom-nav/use-bottom-nav-cells.ts`      | Route and lock state per cell                                       |
 | `components/custom/bottom-nav/use-bottom-nav-activation.ts` | What a press commits to                                             |
 | `components/custom/bottom-nav/use-bottom-nav-pointer.ts`    | One pointer stream for tap, scrub and long press                    |
 | `components/custom/bottom-nav/bar-hit-test.ts`              | A point to a cell index, or none if it left the bar                 |
-| `components/custom/bottom-nav/use-long-press-timer.ts`      | Hold timing, and the ring progress written to the pressed cell      |
+| `hooks/use-long-press-timer.ts`                             | Hold timing, and the ring progress written to the pressed cell      |
 | `components/custom/bottom-nav/resolve-hold-target.ts`       | What a hold does, or null if the cell has none                      |
 | `components/custom/bottom-nav/use-active-list-progress.ts`  | Completion of the list on screen                                    |
 | `components/custom/bottom-nav/use-indicator-opacity.ts`     | The disc's fade pair, tracking the route it is coming from          |

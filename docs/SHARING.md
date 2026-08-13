@@ -167,7 +167,11 @@ Worth knowing before changing any of this:
   the original so the suffix always fits inside the schema's 100-character ceiling, which
   it reads off the schema rather than restating. It takes whole code points so the cut
   cannot split an emoji, but budgets in UTF-16 units, because that is what zod's `max()`
-  counts. One endpoint rather than a
+  counts. Kopiraj is gated on `schema.safeParse(values).success`, not on
+  `formState.isValid`, because the prefilled name is valid the moment the modal opens and
+  `isValid` does not refresh until the resolver runs again, which would leave the button
+  dead until the user typed something (see
+  [STATE-PERSISTENCE.md](STATE-PERSISTENCE.md#11-gotchas--lessons-learned)). One endpoint rather than a
   create followed by an add per item, because
   those were separate transactions: a failure partway left a half-populated copy behind
   that no retry could tidy up, and pressing the button again made another one.

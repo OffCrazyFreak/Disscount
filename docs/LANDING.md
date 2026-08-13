@@ -108,18 +108,18 @@ The chaser activates once `useScrolledPast(10)` trips. `useCursorFollow` `.jump(
 
 ## Shared visual primitives
 
-These generic, presentational components live in `components/custom/common/` (and `components/ui/`), and are reused across the landing (and elsewhere).
+These generic, presentational components live in `components/custom/common/` and `components/custom/animation/`, and are reused across the landing (and elsewhere).
 
-| Component          | File                            | What it does                                                           | Server/client |
-| ------------------ | ------------------------------- | ---------------------------------------------------------------------- | ------------- |
-| `EdgeFade`         | `common/edge-fade.tsx`          | Gradient overlay that fades content against one edge                   | Server        |
-| `ScrollFade`       | `common/scroll-fade.tsx`        | Scroll-aware `EdgeFade` for an overflow container (sidebar, dropdowns) | Client        |
-| `WindowScrollFade` | `common/window-scroll-fade.tsx` | Fixed bottom fade for the whole page; hides at the end of the document | Client        |
-| `TextGlow`         | `common/text-glow.tsx`          | Soft white radial glow behind a text block                             | Server        |
-| `ScrollReveal`     | `ui/scroll-reveal.tsx`          | Staggered scroll-in reveal (spring), reduced-motion safe               | Client        |
-| `StaggerChildren`  | `ui/stagger-children.tsx`       | Staggered fade/rise of children on mount (hero)                        | Client        |
-| `DoodleCanvas`     | `doodles/doodle-canvas.tsx`     | `motion.svg` shell whose child paths draw on when scrolled into view   | Client        |
-| `SparkleField`     | `doodles/sparkle-field.tsx`     | Seeded scatter of twinkling sparkles                                   | Server        |
+| Component          | File                             | What it does                                                           | Server/client |
+| ------------------ | -------------------------------- | ---------------------------------------------------------------------- | ------------- |
+| `EdgeFade`         | `common/edge-fade.tsx`           | Gradient overlay that fades content against one edge                   | Server        |
+| `ScrollFade`       | `common/scroll-fade.tsx`         | Scroll-aware `EdgeFade` for an overflow container (sidebar, dropdowns) | Client        |
+| `WindowScrollFade` | `common/window-scroll-fade.tsx`  | Fixed bottom fade for the whole page; hides at the end of the document | Client        |
+| `TextGlow`         | `common/text-glow.tsx`           | Soft white radial glow behind a text block                             | Server        |
+| `ScrollReveal`     | `animation/scroll-reveal.tsx`    | Staggered scroll-in reveal (spring), reduced-motion safe               | Client        |
+| `StaggerChildren`  | `animation/stagger-children.tsx` | Staggered fade/rise of children on mount (hero)                        | Client        |
+| `DoodleCanvas`     | `doodles/doodle-canvas.tsx`      | `motion.svg` shell whose child paths draw on when scrolled into view   | Client        |
+| `SparkleField`     | `doodles/sparkle-field.tsx`      | Seeded scatter of twinkling sparkles                                   | Server        |
 
 The doodles (`barcode`, `price-tag`, `cart`, `receipt`, `price-line`, `scale`) are hand-drawn SVGs built on `DoodleCanvas` with `drawVariants`, so their strokes draw themselves on scroll. `squiggle-underline` and `sparkle-doodle` are pure CSS-animated Server Components. `WindowScrollFade` is mounted once in `app/layout.tsx`, so every page gets a bottom fade that self-hides when there is nothing more to scroll.
 
@@ -210,7 +210,7 @@ Every CSS animation is disabled under `@media (prefers-reduced-motion: reduce)`,
 | `app/(root)/components/doodles/*`                                                       | Hand-drawn animated SVGs + `DoodleCanvas`, `SparkleField` |
 | `app/(root)/components/json-ld.tsx`                                                     | Structured data `@graph`                                  |
 | `components/custom/common/{edge-fade,scroll-fade,window-scroll-fade,text-glow}.tsx`     | Shared fade/glow primitives                               |
-| `components/ui/scroll-reveal.tsx`                                                       | Scroll-in reveal wrapper                                  |
+| `components/custom/animation/{scroll-reveal,stagger-children}.tsx`                      | Scroll-in reveal and mount stagger wrappers               |
 | `app/{sitemap,robots}.ts`, `app/{opengraph,twitter}-image.tsx`                          | SEO plumbing                                              |
 | `app/fonts/index.ts`                                                                    | Huninn + Saira Stencil                                    |
 | `context/{notifications-context,notifications-types,use-watchlist-notifications}.ts(x)` | Lifted notifications open state                           |

@@ -24,7 +24,7 @@ flowchart LR
     Next -->|"transactional email"| Resend["Resend"]
 ```
 
-**Why this split?** Better Auth is TypeScript only, so it has to live with the frontend. Keeping Spring as a resource server let the existing Java business entities (which foreign-key to `app_user`) stay untouched. See the identity-vs-profile split in more detail in [Section 7](#7-the-spring-side-resource-server--profile-provisioning).
+**Why this split?** Better Auth is TypeScript only, so it has to live with the frontend. Keeping Spring as a resource server let the existing Java business entities (which foreign-key to `app_user`) stay untouched. See the identity-vs-profile split in more detail in [Section 7](#7-the-spring-side-resource-server-and-profile-provisioning).
 
 ## 2. How a backend request gets authenticated
 
