@@ -25,9 +25,9 @@ Ask first:
 - Adding a dependency the task does not strictly require.
 - Anything that needs a backend endpoint that does not exist yet.
 - Widening scope beyond what I asked for.
-- Any instruction of mine that has two plausible readings. Ask before you edit, do not pick one and start.
+- A reading of my instruction that would lead to materially different work. Routine judgment calls are yours to make.
 
-**Ask means ask.** Every item above is a question to put to me, not a reason to pick the lesser option and move on. Do not work around a missing endpoint, skip the dependency and hand-roll it, or narrow the task to avoid the question. I say yes far more often than no, so quietly choosing the workaround costs me the better answer and I never learn the choice was there. If you are mid-task and cannot stop, do the parts that do not depend on the answer, then ask before you finish. Never let "I did not want to widen scope" be the reason something shipped worse.
+**Ask means ask.** Every item above is a question to put to me, not a reason to pick the lesser option and move on. Do not work around a missing endpoint, skip the dependency and hand-roll it, or narrow the task to avoid the question. I say yes far more often than no, so quietly choosing the workaround costs me the better answer. Anything not on that list is yours to decide: make the call, finish the whole task, and say in your summary what you decided and why.
 
 Hand back interactive installers and `init` wizards, except `pnpm dlx shadcn@latest add <component>`, which you may run.
 
