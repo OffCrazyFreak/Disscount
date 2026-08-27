@@ -1,0 +1,27 @@
+# Project-scoped MCP servers for Disscount.
+
+[mcp_servers.playwright]
+command = "npx"
+args = ["@playwright/mcp@latest", "--browser", "chromium", "--executable-path", "/opt/helium/chrome"]
+
+[mcp_servers.context7]
+command = "npx"
+args = ["@upstash/context7-mcp@1.0.31"]
+env_vars = ["CONTEXT7_API_KEY"]
+
+[mcp_servers.postgres]
+command = "npx"
+args = ["-y", "@microsoft/postgres-mcp@0.1.0-rc.9", "run", "--no-telemetry"]
+
+[mcp_servers.chrome-devtools]
+command = "npx"
+args = ["--registry", "https://registry.npmjs.org", "chrome-devtools-mcp@1.4.0", "--executablePath", "/opt/helium/chrome"]
+
+[mcp_servers.sentry]
+url = "https://mcp.sentry.dev/mcp/disscount"
+
+[mcp_servers.resend]
+url = "https://mcp.resend.com/mcp"
+
+[mcp_servers.netlify]
+url = "https://netlify-mcp.netlify.app/mcp"

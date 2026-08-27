@@ -1,6 +1,6 @@
 ---
 name: document-subsystem
-description: Write a detailed reference doc (docs/<NAME>.md) for one part of the Disscount app (auth, PWA, i18n, shopping-lists, price-history, etc.), in the style of docs/DEPLOYMENT.md. Explore the code first, then document what it is, how it works, automatic vs manual, key files, config/env, libraries, gotchas, and future TODOs. Use when the user asks to document, write docs for, or create a reference for a feature or subsystem.
+description: Write a detailed reference doc under docs for one part of the Disscount app, in the style of docs/DEPLOYMENT.md. Explore the code first, then document what it is, how it works, automatic vs manual, key files, config/env, libraries, gotchas, and future TODOs. Use when the user asks to document, write docs for, or create a reference for a feature or subsystem.
 ---
 
 # Document a subsystem

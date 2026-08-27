@@ -2,22 +2,32 @@
   "mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": ["@playwright/mcp@latest"]
+      "args": ["@playwright/mcp@latest", "--browser", "chromium", "--executable-path", "/opt/helium/chrome"]
     },
     "context7": {
       "command": "npx",
       "args": ["@upstash/context7-mcp@1.0.31"],
       "env": { "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}" }
     },
-    "supabase": {
-      "url": "https://mcp.supabase.com/mcp"
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@microsoft/postgres-mcp@0.1.0-rc.9", "run", "--no-telemetry"]
     },
     "chrome-devtools": {
       "command": "npx",
-      "args": ["--registry", "https://registry.npmjs.org", "chrome-devtools-mcp@1.4.0"]
+      "args": ["--registry", "https://registry.npmjs.org", "chrome-devtools-mcp@1.4.0", "--executablePath", "/opt/helium/chrome"]
     },
     "sentry": {
+      "type": "http",
       "url": "https://mcp.sentry.dev/mcp/disscount"
+    },
+    "resend": {
+      "type": "http",
+      "url": "https://mcp.resend.com/mcp"
+    },
+    "netlify": {
+      "type": "http",
+      "url": "https://netlify-mcp.netlify.app/mcp"
     }
   }
 }

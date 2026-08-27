@@ -65,6 +65,7 @@ If a check fails for a reason unrelated to your change, report the command and t
 
 - Explain what you changed and why at the end. I am still learning, so the explanation is the point, not a formality.
 - Never use em dashes or en dashes, anywhere: chat, code comments, UI copy, docs, commit messages, PR text. Use a comma, a colon, parentheses, or rewrite the sentence.
+- Apply the `unslop` skill whenever communicating with me, including progress updates, reports, explanations, and final handoffs. It also applies to user-facing product copy. Keep the writing direct, specific, and natural.
 - In Markdown, write one physical line per paragraph and per bullet. Never hard-wrap prose to a column width.
 - If a task has a standard-but-optional dimension, either do it or name it with a one-line recommendation and rough effort. Do not quietly drop it.
 - Do not rewrite `docs/*.md` as you go, while the behaviour can still change. Track what went stale, then land the docs for the work in flight as one `docs:` commit. This is the one exception to the boundary above about a commit carrying only the requested task's changes.
