@@ -25,13 +25,15 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5433:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
-    # No host port published - reach it via the compose network (db:5432) or
-    # `docker compose exec db psql`. Add `ports: ["5433:5432"]` if you want host access.
+    # Loopback-only access lets local database tools connect without exposing Postgres
+    # to the network. Containers still reach it through the compose network at db:5432.
 
   # One-shot: apply better-auth/drizzle migrations, then exit. Uses the frontend `build`
   # stage (it has drizzle-kit + the drizzle/ folder). Hibernate creates the backend tables.

@@ -22,30 +22,6 @@ metadata:
         links:
             repository: https://github.com/resend/resend-skills
             documentation: https://resend.com/docs/resend-skill
-inputs:
-    - name: RESEND_API_KEY
-      description: Resend API key for sending and receiving emails. Get yours at https://resend.com/api-keys
-      required: true
-    - name: RESEND_WEBHOOK_SECRET
-      description: Webhook signing secret for verifying event payloads. Found in the Resend dashboard under Webhooks after creating an endpoint.
-      required: false
-references:
-    - sending
-    - receiving.md
-    - templates.md
-    - webhooks.md
-    - domains.md
-    - contacts.md
-    - broadcasts.md
-    - api-keys.md
-    - logs.md
-    - contact-properties.md
-    - segments.md
-    - topics.md
-    - automations.md
-    - events.md
-    - installation.md
-    - fetch-all-templates.mjs
 ---
 
 # Resend

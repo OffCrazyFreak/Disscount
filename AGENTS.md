@@ -18,6 +18,8 @@ These principles apply across the whole repo (frontend and backend).
 
 - After every code generation, ALWAYS provide a brief explanation of the code changes you made and why because I'm still learning and I want to become a better developer.
 
+- Apply the `unslop` skill whenever communicating with me, including progress updates, reports, explanations, and final handoffs. It also applies to user-facing product copy. Keep the writing direct, specific, and natural.
+
 - Always fetch and follow proper and most recent documentation, especially for libraries. Fetch it from the official website or repository, instead of searching in node modules or other places.
 
 - If you need to add env variables, first notify the user and then update both the .env file and the example.env file. Always make sure they are in sync.
