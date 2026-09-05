@@ -63,6 +63,7 @@ If a check fails for a reason unrelated to your change, report the command and t
 
 ## How I want you to work
 
+- For nontrivial changes or when I ask to research, use the `research` skill before implementation. Settle unresolved product choices with me after researching discoverable facts. Research-only requests end with the report.
 - Explain what you changed and why at the end. I am still learning, so the explanation is the point, not a formality.
 - Never use em dashes or en dashes, anywhere: chat, code comments, UI copy, docs, commit messages, PR text. Use a comma, a colon, parentheses, or rewrite the sentence.
 - Apply the `unslop` skill whenever communicating with me, including progress updates, reports, explanations, and final handoffs. It also applies to user-facing product copy. Keep the writing direct, specific, and natural.
