@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 """PreToolUse guard for Bash commands.
 
-The permission rules in settings.json are prefix matches, so `Bash(pnpm dev:*)`
-misses `pnpm --filter frontend dev` and `Bash(mvn spring-boot:run)` misses
-`mvn -B spring-boot:run`. Every dev-server deny entry leaks the same way. This
-closes all of them at once by parsing each command instead of matching a prefix.
-
-It also blocks pnpm inside a git worktree: pnpm resolves the workspace through
+It blocks pnpm inside a git worktree: pnpm resolves the workspace through
 the symlinked node_modules and offers to purge the MAIN tree's copy. It aborts
 on a missing TTY today, so with CI=true set it would delete the real one.
+The permission rules in settings.json are prefix matches, so this parses each
+command instead of matching a prefix.
 
 A guard is only worth having if it cannot be stepped around, so parsing is
 deliberately paranoid: it follows command substitutions, `sh -c` payloads, and
@@ -25,13 +22,6 @@ import re
 import shlex
 import subprocess
 import sys
-
-# Package managers and build tools whose args we inspect for a dev-server goal.
-RUNNERS = {"pnpm", "npm", "yarn", "bun", "npx", "next", "mvn", "./mvnw", "mvnw"}
-
-# Goals that start a long-running server. Matched against a runner's arguments,
-# never against the raw string, so `grep -rn "pnpm dev"` stays allowed.
-SERVER_GOALS = {"dev", "email", "spring-boot:run", "start"}
 
 WRAPPERS = {"sudo", "timeout", "env", "nice", "nohup", "command", "time", "xargs"}
 
@@ -193,20 +183,6 @@ def basename(token):
     return token.rsplit("/", 1)[-1] if "/" in token else token
 
 
-def names_a_server(tokens):
-    """True when these tokens invoke a runner with a dev-server goal."""
-    for index, token in enumerate(tokens):
-        if basename(token) not in RUNNERS and token not in RUNNERS:
-            continue
-        for arg in tokens[index + 1 :]:
-            if arg.startswith("-"):
-                continue
-            if arg in SERVER_GOALS or arg.endswith(":run"):
-                return True
-
-    return False
-
-
 def shell_payloads(tokens):
     """Strings a shell invocation would execute, e.g. the `-c` of `bash -c`."""
     payloads = []
@@ -317,14 +293,6 @@ def check(command, cwd, depth=0):
 
         # A wrapper whose options we could not parse may have hidden the real
         # command, so judge the whole segment rather than just its head.
-        if names_a_server(tokens if not wrapped else tokens_of(segment)):
-            return (
-                f"Blocked: `{segment}` starts a dev server or long-running app.\n"
-                "AGENTS.md: the dev server is already running, so never start "
-                "another. Prefix matching in settings.json missed this spelling, "
-                "which is why this hook exists."
-            )
-
         if name == "pnpm" or (wrapped and "pnpm" in [basename(t) for t in tokens]):
             if effective_cwd is None:
                 return (

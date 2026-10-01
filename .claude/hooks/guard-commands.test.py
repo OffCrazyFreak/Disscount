@@ -41,34 +41,29 @@ def build_real_worktree(root):
 
 def cases(real_repo, real_worktree):
     return [
-        # BLOCK: dev servers, including the spellings prefix matching misses
-        ("pnpm dev", MAIN, True),
-        ("pnpm run dev", MAIN, True),
-        ("pnpm --filter frontend dev", MAIN, True),
-        ("cd frontend && pnpm dev", MAIN, True),
-        ("mvn spring-boot:run", MAIN, True),
-        ("mvn -B spring-boot:run", MAIN, True),
-        ("mvn -f backend/pom.xml spring-boot:run", MAIN, True),
-        ("./mvnw -B spring-boot:run", MAIN, True),
-        ("next dev", MAIN, True),
-        ("pnpm email", MAIN, True),
-        ("CI=true pnpm dev", MAIN, True),
-        ("sudo pnpm dev", MAIN, True),
-        ("timeout 30 pnpm dev", MAIN, True),
+        # ALLOW: dev servers and Docker run in the main tree
+        ("pnpm dev", MAIN, False),
+        ("pnpm --filter frontend dev", MAIN, False),
+        ("cd frontend && pnpm dev", MAIN, False),
+        ("mvn -B spring-boot:run", MAIN, False),
+        ("next dev", MAIN, False),
+        ("docker compose up -d --build", MAIN, False),
         # BLOCK: wrapper flags that take a value used to hide the command
-        ("sudo -u root pnpm dev", MAIN, True),
-        ("env -i pnpm dev", MAIN, True),
-        ("nice -n 10 pnpm dev", MAIN, True),
-        ("env FOO=bar pnpm dev", MAIN, True),
-        ("nohup pnpm dev", MAIN, True),
+        ("sudo -u root pnpm install", WT, True),
+        ("env -i pnpm install", WT, True),
+        ("nice -n 10 pnpm install", WT, True),
+        ("env FOO=bar pnpm install", WT, True),
+        ("nohup pnpm install", WT, True),
+        ("CI=true pnpm install", WT, True),
+        ("timeout 30 pnpm install", WT, True),
         # BLOCK: re-entering a shell used to hide the command in a string
-        ('bash -c "pnpm dev"', MAIN, True),
-        ("sh -c 'pnpm dev'", MAIN, True),
-        ('bash -lc "pnpm dev"', MAIN, True),
-        ('sh -c "cd frontend && pnpm dev"', MAIN, True),
+        ('bash -c "pnpm install"', WT, True),
+        ("sh -c 'pnpm install'", WT, True),
+        ('bash -lc "pnpm install"', WT, True),
+        ('sh -c "cd frontend && pnpm install"', WT, True),
         # BLOCK: command substitution used to hide the command
-        ("echo $(pnpm dev)", MAIN, True),
-        ("echo `pnpm dev`", MAIN, True),
+        ("echo $(pnpm install)", WT, True),
+        ("echo `pnpm install`", WT, True),
         # BLOCK: pnpm inside a worktree, by convention and by git metadata
         ("pnpm lint", WT, True),
         ("pnpm exec tsc --noEmit", WT, True),
@@ -95,13 +90,13 @@ def cases(real_repo, real_worktree):
         # ALLOW: a real repo that is not a linked worktree
         ("pnpm install", real_repo, False),
         # ALLOW: a quoted heredoc body is data, so prose may quote a blocked command
-        ("git commit -F - <<'EOF'\nfix: stop `pnpm dev`\n\nWas `sh -c \"cd f && pnpm dev\"`.\nEOF", MAIN, False),
-        ("cat <<'SQL' > q.sql\nselect 'pnpm dev';\nSQL", MAIN, False),
+        ("git commit -F - <<'EOF'\nfix: stop `pnpm install`\n\nWas `sh -c \"cd f && pnpm install\"`.\nEOF", WT, False),
+        ("cat <<'SQL' > q.sql\nselect 'pnpm install';\nSQL", WT, False),
         # BLOCK: an UNQUOTED heredoc still expands, so its body is live
-        ("cat <<EOF\n$(pnpm dev)\nEOF", MAIN, True),
+        ("cat <<EOF\n$(pnpm install)\nEOF", WT, True),
         # ALLOW: the word appears but nothing is executed
-        ('grep -rn "pnpm dev" docs/', MAIN, False),
-        ('echo "run pnpm dev yourself"', MAIN, False),
+        ('grep -rn "pnpm install" docs/', WT, False),
+        ('echo "run pnpm install yourself"', WT, False),
         ("git push origin dev", MAIN, False),
         ("git checkout dev", MAIN, False),
         ("git log --oneline dev", MAIN, False),

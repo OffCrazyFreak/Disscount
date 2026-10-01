@@ -9,9 +9,7 @@ The repository is public but the licence is BUSL-1.1, so it is source-available,
 
 Never:
 
-- Run a dev server. Mine is already running. That includes `pnpm dev`, `pnpm email`, and any Maven or Docker equivalent. No exceptions, including during migrations.
-- Run `spring-boot:run` or any other Maven goal that starts the app. Building and testing are fine (see below), running it is not.
-- Run deploy, Docker, or Dokploy commands. Deploys happen automatically on push.
+- Run deploy or Dokploy commands. Deploys happen automatically on push.
 - Commit or push unless I explicitly ask. When asked, include only the requested task's changes.
 - Commit secrets, credentials, the server IP, or the SSH user. Use placeholders in docs.
 - Reference the gitignored private notes under `docs/` from any tracked file, or quote their contents. The ignore rules in `.gitignore` name them; a reference from anywhere else does not belong in a public repository.
@@ -39,7 +37,7 @@ Safe without asking, run from `frontend/`:
 - `pnpm build`
 - `pnpm add <name>@<version>` and `pnpm remove <name>`, once I have approved the dependency
 
-Inside a git worktree, call the binaries directly (`./node_modules/.bin/tsc`) instead of `pnpm exec`, which purges the main tree's `node_modules` through the symlink. A `PreToolUse` hook, `.claude/hooks/guard-commands.py`, now blocks `pnpm` in a worktree rather than trusting anyone to remember, and blocks the dev-server goals that the prefix patterns in `.claude/settings.json` miss (`mvn -B spring-boot:run`, `pnpm --filter frontend dev`). Its cases live in `guard-commands.test.py`; run it after editing either file.
+Inside a git worktree, call the binaries directly (`./node_modules/.bin/tsc`) instead of `pnpm exec`, which purges the main tree's `node_modules` through the symlink. A `PreToolUse` hook, `.claude/hooks/guard-commands.py`, now blocks `pnpm` in a worktree rather than trusting anyone to remember. Its cases live in `guard-commands.test.py`; run it after editing either file.
 
 Safe without asking, run from `backend/`:
 
@@ -47,7 +45,7 @@ Safe without asking, run from `backend/`:
 - `mvn -B -DskipTests package` for a build-only check while iterating.
 - `mvn -B test` to run the suite alone.
 
-Tests are meant to run on H2 and touch nothing outside the module, so none of these need a nod. Starting the app still does.
+Tests are meant to run on H2 and touch nothing outside the module, so none of these need a nod.
 
 There is no `backend/src/test` yet, so `verify` currently proves only that it compiles and packages. Do not report a green `verify` as evidence that behaviour works until a suite exists.
 

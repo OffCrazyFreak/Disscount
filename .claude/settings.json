@@ -20,22 +20,6 @@
     ],
     "deny": [
       "mcp__playwright__browser_run_code_unsafe",
-      "Bash(pnpm dev)",
-      "Bash(pnpm dev:*)",
-      "Bash(pnpm run dev)",
-      "Bash(pnpm run dev:*)",
-      "Bash(next dev)",
-      "Bash(next dev:*)",
-      "Bash(pnpm email)",
-      "Bash(pnpm email:*)",
-      "Bash(pnpm run email)",
-      "Bash(pnpm run email:*)",
-      "Bash(mvn spring-boot:run)",
-      "Bash(mvn spring-boot:run:*)",
-      "Bash(./mvnw spring-boot:run)",
-      "Bash(./mvnw spring-boot:run:*)",
-      "Bash(docker:*)",
-      "Bash(docker-compose:*)",
       "Bash(dokploy:*)"
     ]
   },
