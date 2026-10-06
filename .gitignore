@@ -110,3 +110,6 @@ marketing/emails/dist/
 
 # agent worktrees
 .t3-worktrees/
+
+# Brainstorming skill scratch: mockups, logs and its server session token.
+.superpowers/
