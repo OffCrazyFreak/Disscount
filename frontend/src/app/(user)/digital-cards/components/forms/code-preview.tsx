@@ -28,7 +28,11 @@ export default function CodePreview() {
       >
         {value ? (
           <div className="w-full max-w-xs">
-            <CardCode value={value} codeType={codeType} textFallback={false} />
+            <CardCode
+              value={value}
+              codeType={codeType}
+              textFallback={codeType === "unknown"}
+            />
           </div>
         ) : (
           <p className="text-center text-sm text-neutral-500">
@@ -37,19 +41,19 @@ export default function CodePreview() {
         )}
       </div>
 
-      {cannotEncode && (
-        <p
-          role="status"
-          className="flex items-start gap-2 text-sm text-amber-700 dark:text-amber-300"
-        >
-          <TriangleAlert
-            className="mt-0.5 size-4 shrink-0"
-            aria-hidden="true"
-          />
-          Ovaj tip koda ne može prikazati upisani broj. Odaberi drugi tip ili
-          &quot;Samo broj/tekst&quot;.
-        </p>
-      )}
+      {/* Always mounted: a region inserted together with its text is often not announced. */}
+      <div role="status" aria-live="polite">
+        {cannotEncode && (
+          <p className="flex items-start gap-2 text-sm text-amber-700 dark:text-amber-300">
+            <TriangleAlert
+              className="mt-0.5 size-4 shrink-0"
+              aria-hidden="true"
+            />
+            Ovaj tip koda ne može prikazati upisani broj. Odaberi drugi tip ili
+            &quot;Samo broj/tekst&quot;.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

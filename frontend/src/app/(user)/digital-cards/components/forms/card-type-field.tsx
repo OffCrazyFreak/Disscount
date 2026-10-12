@@ -30,7 +30,19 @@ export default function CardTypeField() {
         <FormItem>
           <FormLabel>Vrsta kartice</FormLabel>
 
-          <Select value={field.value} onValueChange={field.onChange}>
+          <Select
+            value={field.value}
+            onValueChange={(value) => {
+              field.onChange(value);
+              if (value === "gift") return;
+
+              // Hidden balance fields keep their errors and block Save; drop both.
+              const options = { shouldDirty: true, shouldValidate: true };
+              form.setValue("balance", null, options);
+              form.setValue("balanceUnit", null, options);
+              form.clearErrors(["balance", "balanceUnit"]);
+            }}
+          >
             <FormControl>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Odaberi vrstu" />

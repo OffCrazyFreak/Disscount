@@ -1,20 +1,26 @@
 import { useEffect, useState } from "react";
 
+interface IObjectUrl {
+  file: File;
+  url: string;
+}
+
 /** Object URL for a picked file, revoked when the file changes or the component unmounts. */
 export function useObjectUrl(
   file: File | null | undefined,
 ): string | undefined {
-  const [url, setUrl] = useState<string>();
+  const [current, setCurrent] = useState<IObjectUrl>();
 
   useEffect(() => {
     if (!file) return;
 
-    const objectUrl = URL.createObjectURL(file);
+    const url = URL.createObjectURL(file);
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setUrl(objectUrl);
+    setCurrent({ file, url });
 
-    return () => URL.revokeObjectURL(objectUrl);
+    return () => URL.revokeObjectURL(url);
   }, [file]);
 
-  return file ? url : undefined;
+  // After a file change the old url is already revoked, so it is never handed out.
+  return file && current?.file === file ? current.url : undefined;
 }

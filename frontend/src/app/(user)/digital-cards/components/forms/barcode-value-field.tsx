@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 
 import {
@@ -23,18 +23,15 @@ export default function BarcodeValueField() {
     name: "barcodeValue",
   });
 
-  // Once opened it stays open while the text is emptied, or the input would vanish mid-edit.
-  const [opened, setOpened] = useState(false);
-  const enabled = opened || !!barcodeValue;
+  // Derived from the value: an empty string keeps the input open mid-edit, null closes it,
+  // and a form reset turns the toggle off with no extra state to clear.
+  const enabled = barcodeValue != null;
 
   function handleToggle(checked: boolean) {
-    setOpened(checked);
-    if (!checked) {
-      form.setValue("barcodeValue", null, {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-    }
+    form.setValue("barcodeValue", checked ? "" : null, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
   }
 
   return (
@@ -61,10 +58,7 @@ export default function BarcodeValueField() {
                 <Input
                   {...field}
                   value={field.value ?? ""}
-                  onChange={(event) => {
-                    setOpened(true);
-                    field.onChange(event.target.value);
-                  }}
+                  onChange={(event) => field.onChange(event.target.value)}
                   autoComplete="off"
                   spellCheck={false}
                   className="font-mono"

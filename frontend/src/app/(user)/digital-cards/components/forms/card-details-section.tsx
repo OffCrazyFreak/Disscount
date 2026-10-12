@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { useFormContext, useWatch } from "react-hook-form";
+import { useFormContext, useFormState, useWatch } from "react-hook-form";
 
 import CardBalanceFields from "@/app/(user)/digital-cards/components/forms/card-balance-fields";
 import CardDatesFields from "@/app/(user)/digital-cards/components/forms/card-dates-fields";
@@ -21,10 +21,20 @@ export default function CardDetailsSection() {
     name: ["cardType", "validFrom", "expiresOn", "balance"],
   });
 
+  const { errors } = useFormState({
+    control: form.control,
+    name: ["validFrom", "expiresOn", "balance", "balanceUnit"],
+  });
+
   // Starts open when the card already has details; the user's own toggle wins after that.
   const [toggled, setToggled] = useState<boolean | null>(null);
   const hasDetails = !!validFrom || !!expiresOn || balance != null;
-  const open = toggled ?? hasDetails;
+  // A collapsed field with an error would block Save with no visible reason.
+  const hasError =
+    !!errors.validFrom ||
+    !!errors.expiresOn ||
+    (cardType === "gift" && (!!errors.balance || !!errors.balanceUnit));
+  const open = hasError || (toggled ?? hasDetails);
 
   return (
     <Collapsible open={open} onOpenChange={setToggled}>

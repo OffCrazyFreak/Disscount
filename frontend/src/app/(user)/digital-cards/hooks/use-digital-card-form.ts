@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import type { CardPhotoChanges } from "@/app/(user)/digital-cards/components/forms/digital-card-form-types";
 import {
   EMPTY_CARD_VALUES,
   cardToFormValues,
@@ -22,6 +23,7 @@ interface IUseDigitalCardFormProps {
   isEdit: boolean;
   card: DigitalCardDto | null;
   draftKey: string;
+  onRestorePhotos: (photos: CardPhotoChanges) => void;
 }
 
 export function useDigitalCardForm({
@@ -29,6 +31,7 @@ export function useDigitalCardForm({
   isEdit,
   card,
   draftKey,
+  onRestorePhotos,
 }: IUseDigitalCardFormProps) {
   const form = useForm<DigitalCardRequest>({
     resolver: zodResolver(digitalCardRequestSchema),
@@ -51,6 +54,9 @@ export function useDigitalCardForm({
     if (draft && Object.keys(draft).length > 0) {
       form.reset({ ...base, ...draft }, { keepDefaultValues: true });
     }
+
+    // A saved card with a bad value would otherwise show only a disabled Save.
+    void form.trigger();
     // isDirty is read on purpose but must not retrigger the seed: adding it would
     // reset the form the moment the user's first keystroke flips it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,11 +87,12 @@ export function useDigitalCardForm({
           shouldDirty: true,
         });
         // Validated before the server error lands, or that validation would wipe it.
+        if (pending.photos) onRestorePhotos(pending.photos);
         await form.trigger(["codeValue", "barcodeValue"]);
       }
       if (error) applyProblemToForm(error, form);
     })();
-  }, [open, draftKey, form]);
+  }, [open, draftKey, form, onRestorePhotos]);
 
   return { form, ...draftControls };
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Save } from "lucide-react";
+import { useFormState } from "react-hook-form";
 
 import DigitalCardFields from "@/app/(user)/digital-cards/components/forms/digital-card-fields";
 import type { CardPhotoChanges } from "@/app/(user)/digital-cards/components/forms/digital-card-form-types";
@@ -46,15 +47,18 @@ export default function DigitalCardModal({
   );
   const cardId = isEdit ? id : newCardId;
 
+  const [photoChanges, setPhotoChanges] = useState<CardPhotoChanges>({});
+
   const { form, restored, clearDraft, flushDraft } = useDigitalCardForm({
     open,
     isEdit,
     card,
     draftKey,
+    onRestorePhotos: setPhotoChanges,
   });
-  const { isDirty, isValid, errors } = form.formState;
+  // This component did not call useForm, so it subscribes instead of reading form.formState.
+  const { isDirty, isValid, errors } = useFormState({ control: form.control });
 
-  const [photoChanges, setPhotoChanges] = useState<CardPhotoChanges>({});
   const hasPhotoChanges = Object.keys(photoChanges).length > 0;
   const photoActions = useCardPhotoActions(cardId);
 
@@ -69,6 +73,8 @@ export default function DigitalCardModal({
   function handleSubmit(data: DigitalCardRequest) {
     flushDraft();
     void onSubmit(data, photoChanges);
+    // The submit owns these files now; a failed save puts them back via the pending stash.
+    setPhotoChanges({});
   }
 
   function handlePhotoChange(
@@ -81,10 +87,16 @@ export default function DigitalCardModal({
     });
   }
 
-  const loading = isEdit && !card && cardsQuery.isLoading;
-  const loadError = isEdit && !card && cardsQuery.isError;
-  const notFound =
-    isEdit && !card && !cardsQuery.isLoading && !cardsQuery.isError;
+  // isPending, not isLoading: a paused offline fetch is pending but not loading, and
+  // would otherwise read as "not found" on a cold deep link.
+  const offlineWaiting =
+    isEdit &&
+    !card &&
+    cardsQuery.isPending &&
+    cardsQuery.fetchStatus === "paused";
+  const loading = isEdit && !card && cardsQuery.isPending && !offlineWaiting;
+  const loadError = isEdit && !card && (cardsQuery.isError || offlineWaiting);
+  const notFound = isEdit && !card && !cardsQuery.isPending && !loadError;
   const changed = isDirty || hasPhotoChanges;
 
   return (
@@ -113,7 +125,9 @@ export default function DigitalCardModal({
         <Skeleton className="h-64 w-full" />
       ) : loadError ? (
         <p className="text-sm text-muted-foreground">
-          Greška pri učitavanju kartice. Pokušaj ponovo.
+          {offlineWaiting
+            ? "Izvan si mreže, a ova kartica još nije spremljena na uređaju. Spoji se na mrežu i pokušaj ponovo."
+            : "Greška pri učitavanju kartice. Pokušaj ponovo."}
         </p>
       ) : notFound ? (
         <p className="text-sm text-muted-foreground">

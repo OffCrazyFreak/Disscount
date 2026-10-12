@@ -46,8 +46,30 @@ export default function CardPhotoSlotRow({
   onChange,
 }: ICardPhotoSlotProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const pickRef = useRef<HTMLButtonElement>(null);
   const label = CARD_PHOTO_SLOT_LABELS[slot];
   const hasImage = change ? true : change === undefined && !!saved;
+
+  // One button for remove, restore and discard keeps the focused element mounted as the
+  // label changes; discarding a not-yet-saved photo hides it, so focus moves to Dodaj.
+  const actionLabel =
+    change === null
+      ? "Vrati sliku"
+      : change
+        ? "Odbaci novu sliku"
+        : saved
+          ? "Ukloni sliku"
+          : null;
+
+  function handleAction() {
+    if (change === undefined) {
+      onChange(null);
+      return;
+    }
+
+    onChange(undefined);
+    if (!saved) pickRef.current?.focus();
+  }
 
   function handlePick(file: File | undefined, input: HTMLInputElement) {
     // Cleared so picking the same file again still fires a change.
@@ -83,6 +105,7 @@ export default function CardPhotoSlotRow({
       />
 
       <Button
+        ref={pickRef}
         type="button"
         variant="outline"
         size="sm"
@@ -92,31 +115,19 @@ export default function CardPhotoSlotRow({
         {hasImage ? "Zamijeni" : "Dodaj"}
       </Button>
 
-      {change !== undefined && (
+      {actionLabel && (
         <Button
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label={
-            change === null
-              ? `Vrati sliku: ${label}`
-              : `Odbaci novu sliku: ${label}`
-          }
-          onClick={() => onChange(undefined)}
+          aria-label={`${actionLabel}: ${label}`}
+          onClick={handleAction}
         >
-          <Undo2 aria-hidden="true" />
-        </Button>
-      )}
-
-      {change === undefined && saved && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label={`Ukloni sliku: ${label}`}
-          onClick={() => onChange(null)}
-        >
-          <Trash2 aria-hidden="true" />
+          {change === undefined ? (
+            <Trash2 aria-hidden="true" />
+          ) : (
+            <Undo2 aria-hidden="true" />
+          )}
         </Button>
       )}
     </div>

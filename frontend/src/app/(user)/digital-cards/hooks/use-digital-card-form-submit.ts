@@ -9,7 +9,11 @@ import { digitalCardService } from "@/lib/api";
 import type { DigitalCardRequest } from "@/lib/api/types";
 import { stashModalError } from "@/lib/modal/modal-error-bus";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
-import { removeFormDraft } from "@/utils/browser/local-storage";
+import {
+  getFormDraft,
+  removeFormDraft,
+  setFormDraft,
+} from "@/utils/browser/local-storage";
 
 interface IUseDigitalCardFormSubmitProps {
   cardId: string;
@@ -35,6 +39,10 @@ export function useDigitalCardFormSubmit({
   // Optimistic close: the modal closes immediately and reopens only on failure.
   async function onSubmit(data: DigitalCardRequest, photos: CardPhotoChanges) {
     closeModalUrl();
+
+    // Cleared now so a pending save cannot prefill the next new card; the catch puts it back.
+    const draft = getFormDraft(draftKey);
+    removeFormDraft(draftKey);
 
     const offline = !onlineManager.isOnline();
     if (offline) {
@@ -69,11 +77,14 @@ export function useDigitalCardFormSubmit({
 
       await saving;
     } catch (error) {
+      if (draft) setFormDraft(draftKey, draft.values, draft.savedAt);
       stashModalError(draftKey, error);
       stashPendingCard(draftKey, {
         id: cardId,
         codeValue: data.codeValue,
         barcodeValue: data.barcodeValue ?? null,
+        // Offline, the uploads already sit in the outbox; stashing them too would send twice.
+        photos: uploading ? undefined : photos,
       });
       openModalUrl(
         isEdit
@@ -84,20 +95,14 @@ export function useDigitalCardFormSubmit({
     }
 
     toast.success("Kartica je spremljena.");
-    removeFormDraft(draftKey);
     onSaved();
 
-    // The card exists server-side only now, so photos can follow.
-    try {
-      await Promise.all([
-        startUploads(),
-        ...removals.map((slot) => photoActions.remove(slot)),
-      ]);
-    } catch {
-      toast.error(
-        "Neke slike nisu spremljene. Otvori karticu i pokušaj ponovno.",
-      );
-    }
+    // The card exists server-side only now, so photos can follow. upload and remove
+    // report and queue their own failures, so nothing here needs a catch.
+    await Promise.all([
+      startUploads(),
+      ...removals.map((slot) => photoActions.remove(slot)),
+    ]);
   }
 
   return { onSubmit, isLoading: saveMutation.isPending };
