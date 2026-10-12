@@ -1,5 +1,6 @@
 "use client";
 
+import { useFormState } from "react-hook-form";
 import { Send } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ export default function ForgotPasswordForm({
   onBackToLogin,
 }: IForgotPasswordFormProps) {
   const { form, onSubmit, submittedEmail } = useForgotPasswordForm();
+  const formState = useFormState({ control: form.control });
 
   if (submittedEmail) {
     return (
@@ -36,7 +38,7 @@ export default function ForgotPasswordForm({
       <EmailField
         id="forgot-email"
         registration={form.register("email")}
-        error={form.formState.errors.email?.message}
+        error={formState.errors.email?.message}
       />
 
       <Button
@@ -45,7 +47,7 @@ export default function ForgotPasswordForm({
         className="w-full"
         icon={Send}
         iconPlacement="left"
-        loading={form.formState.isSubmitting}
+        loading={formState.isSubmitting}
         loadingText="Slanje..."
         loadingIconPlacement="left"
       >

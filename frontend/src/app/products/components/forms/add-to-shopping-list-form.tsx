@@ -1,6 +1,7 @@
 "use client";
 
 import { Activity } from "react";
+import { useFormState, useWatch } from "react-hook-form";
 import { ListPlus, TriangleAlert } from "lucide-react";
 
 import ListPen from "@/components/custom/icons/list-pen";
@@ -48,6 +49,12 @@ export default function AddToShoppingListForm({
     clearDraft,
     resetForm,
   } = useAddToListForm(open, ean);
+  const { isDirty, isValid, errors } = useFormState({ control: form.control });
+  const shoppingListId = useWatch({
+    control: form.control,
+    name: "shoppingListId",
+  });
+  const amount = useWatch({ control: form.control, name: "amount" });
 
   return (
     <ModalShell
@@ -56,7 +63,7 @@ export default function AddToShoppingListForm({
       title="Dodaj proizvod u popis za kupnju"
       description="Odaberi popis, količinu i trgovinu."
       srOnlyDescription
-      dirty={form.formState.isDirty}
+      dirty={isDirty}
       formId="add-to-list-form"
       submitLabel="Dodaj"
       // The product is already on the chosen list, so submitting edits that entry
@@ -65,12 +72,12 @@ export default function AddToShoppingListForm({
       submitLoading={isSubmitting}
       submitDisabled={
         !product ||
-        !form.formState.isValid ||
-        (form.watch("shoppingListId") === "new" && !customListTitle.trim())
+        !isValid ||
+        (shoppingListId === "new" && !customListTitle.trim())
       }
       cancelLabel="Odustani"
       resetLabel="Resetiraj"
-      resetDisabled={!form.formState.isDirty && !restored}
+      resetDisabled={!isDirty && !restored}
       onReset={() => {
         clearDraft();
         resetForm();
@@ -102,9 +109,9 @@ export default function AddToShoppingListForm({
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-4"
             >
-              {form.formState.errors.root && (
+              {errors.root && (
                 <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
-                  {form.formState.errors.root.message}
+                  {errors.root.message}
                 </div>
               )}
 
@@ -122,7 +129,7 @@ export default function AddToShoppingListForm({
                   size="lg"
                   icon={TriangleAlert}
                   title="Proizvod već u popisu za kupnju"
-                  text={`Ovaj proizvod je već dodan u odabran popis za kupnju. Dodavanjem ovog proizvoda će se samo povećati njegova količina u popisu za kupnju sa ${duplicateItem.amount} na ${duplicateItem.amount + (Number.parseInt(form.watch("amount"), 10) || 0)}.`}
+                  text={`Ovaj proizvod je već dodan u odabran popis za kupnju. Dodavanjem ovog proizvoda će se samo povećati njegova količina u popisu za kupnju sa ${duplicateItem.amount} na ${duplicateItem.amount + (Number.parseInt(amount, 10) || 0)}.`}
                 />
               )}
 

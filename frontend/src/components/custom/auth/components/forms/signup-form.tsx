@@ -1,5 +1,6 @@
 "use client";
 
+import { useFormState } from "react-hook-form";
 import { UserPlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ interface ISignUpFormProps {
 
 export default function SignUpForm({ externalDisabled }: ISignUpFormProps) {
   const { form, onSubmit, submittedEmail } = useSignupForm();
+  const formState = useFormState({ control: form.control });
 
   if (submittedEmail) {
     return (
@@ -30,11 +32,11 @@ export default function SignUpForm({ externalDisabled }: ISignUpFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
-        <FormRootError message={form.formState.errors.root?.message} />
+        <FormRootError message={formState.errors.root?.message} />
 
         <EmailField
           registration={form.register("email")}
-          error={form.formState.errors.email?.message}
+          error={formState.errors.email?.message}
         />
 
         <PasswordField
@@ -42,7 +44,7 @@ export default function SignUpForm({ externalDisabled }: ISignUpFormProps) {
           name="password"
           label="Lozinka"
           autoComplete="new-password"
-          hasError={!!form.formState.errors.password}
+          hasError={!!formState.errors.password}
         />
 
         <PasswordField
@@ -50,7 +52,7 @@ export default function SignUpForm({ externalDisabled }: ISignUpFormProps) {
           name="confirmPassword"
           label="Potvrdi lozinku"
           autoComplete="new-password"
-          hasError={!!form.formState.errors.confirmPassword}
+          hasError={!!formState.errors.confirmPassword}
         />
 
         <Button
@@ -60,10 +62,10 @@ export default function SignUpForm({ externalDisabled }: ISignUpFormProps) {
           className="w-full"
           icon={UserPlus}
           iconPlacement="left"
-          loading={form.formState.isSubmitting}
+          loading={formState.isSubmitting}
           loadingText="Registracija..."
           loadingIconPlacement="left"
-          disabled={form.formState.isSubmitting || externalDisabled}
+          disabled={formState.isSubmitting || externalDisabled}
         >
           Registriraj se
         </Button>

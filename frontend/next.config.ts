@@ -1,4 +1,4 @@
-import { withSentryConfig } from "@sentry/nextjs";
+import { withSentryConfig } from "@sentry/nextjs/config";
 import withSerwistInit from "@serwist/next";
 import { randomUUID } from "node:crypto";
 import type { NextConfig } from "next";
@@ -20,6 +20,12 @@ const nextConfig: NextConfig = {
 
   // The dev indicator sits bottom-left, on top of the mobile bottom nav.
   devIndicators: false,
+
+  // Set explicitly because Next warns the default can differ between compiler versions,
+  // and the effects keyed on existing useMemo/useCallback results rely on them staying.
+  reactCompiler: {
+    environment: { enablePreserveExistingMemoizationGuarantees: true },
+  },
 
   async rewrites() {
     const backendOrigin =

@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
@@ -14,7 +14,7 @@ export default function PinnedStoresGrid() {
   const form = useFormContext<SettingsFormValues>();
   const { data: chainStats, isLoading } = cijeneService.useGetChainStats();
 
-  const selected = form.watch("pinnedStores");
+  const selected = useWatch({ control: form.control, name: "pinnedStores" });
 
   function toggleStore(chainCode: string) {
     const updated = selected.includes(chainCode)
