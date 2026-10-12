@@ -3,6 +3,7 @@ import VerificationEmail from "@/emails/verification-email";
 import PasswordResetEmail from "@/emails/password-reset-email";
 import SetPasswordEmail from "@/emails/set-password-email";
 import ChangeEmailConfirmation from "@/emails/change-email-confirmation";
+import BreachedPasswordEmail from "@/emails/breached-password-email";
 
 interface ITokenEmailArgs {
   to: string;
@@ -50,6 +51,16 @@ export class EmailService {
       subject: "Postavi lozinku za svoj račun",
       react: SetPasswordEmail({ setPasswordUrl: url }),
       idempotencyKey: `set-password/${token}`,
+    });
+  }
+
+  // Sent when a correct sign-in is refused because the password is in a known breach.
+  sendBreachedPassword({ to, url, token }: ITokenEmailArgs) {
+    return this.send({
+      to,
+      subject: "Tvoja lozinka pronađena je u curenju podataka",
+      react: BreachedPasswordEmail({ resetUrl: url }),
+      idempotencyKey: `breached-password/${token}`,
     });
   }
 

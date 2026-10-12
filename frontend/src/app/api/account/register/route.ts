@@ -6,7 +6,8 @@ import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { user as userTable } from "@/db/auth-schema";
 import { requireEnv } from "@/lib/env";
-import { passwordSchema } from "@/lib/api/schemas/auth-user";
+import { passwordSchema } from "@/lib/auth/password-policy";
+import { rejectUnacceptablePassword } from "@/lib/auth/password-rejection";
 
 const BETTER_AUTH_URL = requireEnv("BETTER_AUTH_URL");
 
@@ -33,6 +34,11 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
+
+  // Before the account lookup, so the verdict depends on the password alone and can't
+  // reveal whether the address is registered.
+  const rejection = await rejectUnacceptablePassword(parsed.data.password);
+  if (rejection) return rejection;
 
   // Better Auth normalizes stored emails to lowercase, so match on the lowercased input.
   const email = parsed.data.email.toLowerCase();

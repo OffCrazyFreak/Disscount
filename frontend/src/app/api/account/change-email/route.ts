@@ -3,11 +3,21 @@ import { NextResponse } from "next/server";
 import { and, eq, ne } from "drizzle-orm";
 import { z } from "zod";
 
+import { APIError } from "better-auth/api";
+
 import { auth } from "@/lib/auth";
+import {
+  clearPasswordFailures,
+  isPasswordAttemptBlocked,
+  recordPasswordFailure,
+} from "@/lib/auth/password-attempt-limit";
 import { db } from "@/db";
 import { account } from "@/db/auth-schema";
 
-const bodySchema = z.object({ newEmail: z.email() });
+const bodySchema = z.object({
+  newEmail: z.email(),
+  currentPassword: z.string().min(1),
+});
 
 // Enforces the single-email identity invariant: block the change while a social
 // account is linked, so provider login can't later carry a different email.
@@ -46,6 +56,31 @@ export async function POST(request: Request) {
 
   if (linkedSocial.length > 0) {
     return NextResponse.json({ error: "social_linked" }, { status: 409 });
+  }
+
+  // Checked here, not by a client sign-in: that would create a session and trip the
+  // breached-password refusal on what is only a confirmation.
+  const userId = session.user.id;
+  if (isPasswordAttemptBlocked(userId)) {
+    return NextResponse.json({ error: "too_many_attempts" }, { status: 429 });
+  }
+
+  try {
+    await auth.api.verifyPassword({
+      body: { password: parsed.data.currentPassword },
+      headers: requestHeaders,
+    });
+    clearPasswordFailures(userId);
+  } catch (error) {
+    if (error instanceof APIError && error.body?.code === "INVALID_PASSWORD") {
+      recordPasswordFailure(userId);
+      return NextResponse.json({ error: "invalid_password" }, { status: 400 });
+    }
+
+    return NextResponse.json(
+      { error: "Failed to verify password" },
+      { status: 500 },
+    );
   }
 
   try {

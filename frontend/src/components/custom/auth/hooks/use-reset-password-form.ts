@@ -4,7 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { passwordSchema } from "@/lib/api/schemas/auth-user";
+import {
+  isPasswordPolicyCode,
+  passwordSchema,
+} from "@/lib/auth/password-policy";
 import { authClient } from "@/lib/auth/client";
 import { swapModalUrl } from "@/lib/modal/modal-navigation";
 
@@ -59,11 +62,19 @@ export function useResetPasswordForm(open: boolean) {
     });
 
     if (error) {
+      // Refused before the token is consumed, so the same link still works for a retry.
+      if (isPasswordPolicyCode(error.code)) {
+        form.setError("password", { type: "server", message: error.message });
+        return;
+      }
+
       toast.error("Poveznica je nevažeća ili je istekla. Zatraži novu.");
       return;
     }
 
-    toast.success("Lozinka je postavljena. Sada se možeš prijaviti.");
+    toast.success(
+      "Lozinka je postavljena i odjavili smo te sa svih uređaja. Sada se možeš prijaviti.",
+    );
     swapModalUrl({ name: "login" });
   }
 

@@ -7,6 +7,7 @@ import { authClient } from "@/lib/auth/client";
 import { resetAuthToken } from "@/lib/api/api-base";
 import { useUser } from "@/context/user-context";
 import type { CredentialsFormValues } from "@/components/custom/settings/security/credentials-schema";
+import { isPasswordPolicyCode } from "@/lib/auth/password-policy";
 
 interface IUseCredentialsSubmitProps {
   hasPassword: boolean;
@@ -31,8 +32,11 @@ export function useCredentialsSubmit({
     });
 
     if (!response.ok) {
+      const body = (await response.json().catch(() => ({}))) as {
+        message?: string;
+      };
       form.setError("newPassword", {
-        message: "Greška pri postavljanju lozinke.",
+        message: body.message ?? "Greška pri postavljanju lozinke.",
       });
       return;
     }
@@ -61,6 +65,11 @@ export function useCredentialsSubmit({
       });
 
       if (error) {
+        if (isPasswordPolicyCode(error.code)) {
+          form.setError("newPassword", { message: error.message });
+          return;
+        }
+
         form.setError("currentPassword", {
           message:
             error.status === 400
@@ -72,31 +81,37 @@ export function useCredentialsSubmit({
     }
 
     if (emailChanged) {
-      if (!wantPasswordChange) {
-        const { error: passwordError } = await authClient.signIn.email({
-          email: currentEmail,
-          password: data.currentPassword,
-        });
-
-        if (passwordError) {
-          form.setError("currentPassword", {
-            message: "Trenutna lozinka nije točna.",
-          });
-          return;
-        }
-      }
-
-      // Guarded endpoint that enforces "no social linked" server-side.
+      // Guarded endpoint that checks the password and "no social linked" server-side.
       const response = await fetch("/api/account/change-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ newEmail: data.email }),
+        body: JSON.stringify({
+          newEmail: data.email,
+          // A password change above already committed, so the new one is now current.
+          currentPassword: wantPasswordChange
+            ? data.newPassword
+            : data.currentPassword,
+        }),
       });
 
       if (!response.ok) {
         const body = (await response.json().catch(() => ({}))) as {
           error?: string;
         };
+
+        if (
+          body.error === "invalid_password" ||
+          body.error === "too_many_attempts"
+        ) {
+          form.setError("currentPassword", {
+            message:
+              body.error === "too_many_attempts"
+                ? "Previše pogrešnih pokušaja. Pokušaj ponovo za 15 minuta."
+                : "Trenutna lozinka nije točna.",
+          });
+          return;
+        }
+
         form.setError("email", {
           message:
             body.error === "social_linked"
