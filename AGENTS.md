@@ -34,6 +34,7 @@ Safe without asking, run from `frontend/`:
 - `pnpm exec prettier --write --ignore-path ../.prettierignore "../<changed-path>"`
 - `pnpm exec next typegen`, then `pnpm exec tsc --noEmit`
 - `pnpm lint`
+- `pnpm test`, the Vitest suite (pure utilities such as barcode check digits, the colour palette and scan consensus; it runs in Node with no browser)
 - `pnpm build`
 - `pnpm add <name>@<version>` and `pnpm remove <name>`, once I have approved the dependency
 
@@ -47,11 +48,11 @@ Safe without asking, run from `backend/`:
 
 Tests are meant to run on H2 and touch nothing outside the module, so none of these need a nod.
 
-There is no `backend/src/test` yet, so `verify` currently proves only that it compiles and packages. Do not report a green `verify` as evidence that behaviour works until a suite exists.
+`backend/src/test` now holds a suite for digital cards and store names only (photo validation, the card service, the controller). For those features a green `verify` is real evidence. Everywhere else it still proves only that the code compiles and packages, so do not report it as evidence that behaviour works there until that area has tests.
 
 ## Definition of done
 
-Prettier and `tsc --noEmit` must pass; run `pnpm build` only for migrations, dependency version changes, or newly added dependencies. For backend work, `mvn -B verify` must pass, the same way: it is the gate, not an optional extra. Say plainly that it only compiles today, rather than letting a green run imply tested behaviour.
+Prettier, `tsc --noEmit` and `pnpm test` must pass; run `pnpm build` only for migrations, dependency version changes, or newly added dependencies. For backend work, `mvn -B verify` must pass, the same way: it is the gate, not an optional extra. Say plainly which areas it covers: it exercises digital cards and store names, and for any other backend code it only compiles, so a green run must not imply tested behaviour there.
 
 Type errors are yours to fix in `frontend/src/`, and compile and test failures in `backend/src/`. Do not chase errors coming out of generated types or dependencies, and never re-run a check I interrupted.
 
