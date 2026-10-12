@@ -1,10 +1,13 @@
 package disscount.storeName.service;
 
+import disscount.digitalCard.service.CardServiceTestSupport;
 import disscount.exceptions.BadRequestException;
 import disscount.storeName.dao.StoreNameSuggestionRepository;
 import disscount.storeName.dao.StoreNameUsageRepository;
 import disscount.storeName.domain.StoreNameSuggestion;
 import disscount.storeName.dto.StoreNameSuggestionDto;
+import disscount.user.dao.UserRepository;
+import disscount.util.Timestamps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +34,7 @@ class StoreNameServiceTest {
     @Autowired StoreNameService service;
     @Autowired StoreNameSuggestionRepository repository;
     @Autowired StoreNameUsageRepository usages;
+    @Autowired UserRepository users;
 
     @BeforeEach
     void setUp() {
@@ -38,11 +42,27 @@ class StoreNameServiceTest {
         repository.deleteAll();
     }
 
+    private UUID user() {
+        return users.save(CardServiceTestSupport.user()).getId();
+    }
+
+    @Test
+    void aDeletedAccountRecordsNothing() {
+        var gone = CardServiceTestSupport.user();
+        gone.setDeletedAt(Timestamps.nowUtc());
+        UUID id = users.save(gone).getId();
+
+        service.record(id, "Nakon brisanja");
+
+        assertThat(usages.findAll()).isEmpty();
+        assertThat(repository.findAll()).isEmpty();
+    }
+
     @Test
     void recordCountsDistinctUsersCaseAndDiacriticInsensitively() {
-        service.record(UUID.randomUUID(), "Žabac");
-        service.record(UUID.randomUUID(), " zabac ");
-        service.record(UUID.randomUUID(), "ZABAC");
+        service.record(user(), "Žabac");
+        service.record(user(), " zabac ");
+        service.record(user(), "ZABAC");
 
         assertThat(repository.findAll()).singleElement().satisfies(s -> {
             assertThat(s.getName()).isEqualTo("Žabac");
@@ -52,10 +72,10 @@ class StoreNameServiceTest {
 
     @Test
     void searchPutsPrefixMatchesFirstThenPopularityAndHidesHidden() {
-        for (int i = 0; i < 3; i++) service.record(UUID.randomUUID(), "Mali dućan");
-        for (int i = 0; i < 2; i++) service.record(UUID.randomUUID(), "Dućan kod Ive");
-        for (int i = 0; i < 2; i++) service.record(UUID.randomUUID(), "Studenac");
-        for (int i = 0; i < 2; i++) service.record(UUID.randomUUID(), "Sakriven dućan");
+        for (int i = 0; i < 3; i++) service.record(user(), "Mali dućan");
+        for (int i = 0; i < 2; i++) service.record(user(), "Dućan kod Ive");
+        for (int i = 0; i < 2; i++) service.record(user(), "Studenac");
+        for (int i = 0; i < 2; i++) service.record(user(), "Sakriven dućan");
         StoreNameSuggestion hidden = repository.findAll().stream()
                 .filter(s -> s.getName().startsWith("Sakriven")).findFirst().orElseThrow();
         hidden.setHidden(true);
@@ -71,8 +91,8 @@ class StoreNameServiceTest {
     @Test
     void searchTreatsWildcardsLiterally() {
         for (int i = 0; i < 2; i++) {
-            service.record(UUID.randomUUID(), "Pola_pola");
-            service.record(UUID.randomUUID(), "Poladvapola");
+            service.record(user(), "Pola_pola");
+            service.record(user(), "Poladvapola");
         }
 
         assertThat(service.search("a_p")).extracting(StoreNameSuggestionDto::getName).containsExactly("Pola_pola");
@@ -82,8 +102,8 @@ class StoreNameServiceTest {
     @Test
     void searchIsCappedAtFifty() {
         for (int i = 0; i < 60; i++) {
-            service.record(UUID.randomUUID(), "Dućan " + i);
-            service.record(UUID.randomUUID(), "Dućan " + i);
+            service.record(user(), "Dućan " + i);
+            service.record(user(), "Dućan " + i);
         }
 
         assertThat(service.search("dućan")).hasSize(50);
@@ -91,12 +111,12 @@ class StoreNameServiceTest {
 
     @Test
     void aNameUsedOnceIsNotOfferedUntilASecondUse() {
-        service.record(UUID.randomUUID(), "Samo moja trgovina");
+        service.record(user(), "Samo moja trgovina");
 
         assertThat(service.search("")).isEmpty();
         assertThat(service.search("moja")).isEmpty();
 
-        service.record(UUID.randomUUID(), "samo moja trgovina");
+        service.record(user(), "samo moja trgovina");
 
         assertThat(service.search("moja")).extracting(StoreNameSuggestionDto::getName)
                 .containsExactly("Samo moja trgovina");
@@ -106,15 +126,15 @@ class StoreNameServiceTest {
     void nulCharactersAreRejectedInSearchAndIgnoredWhenRecording() {
         assertThatThrownBy(() -> service.search("ab\u0000c")).isInstanceOf(BadRequestException.class);
 
-        service.record(UUID.randomUUID(), "Ab\u0000c dućan");
-        service.record(UUID.randomUUID(), "Ab\u0000c dućan");
+        service.record(user(), "Ab\u0000c dućan");
+        service.record(user(), "Ab\u0000c dućan");
 
         assertThat(repository.findAll()).isEmpty();
     }
 
     @Test
     void oneUserRecordingTheSameNameTwiceCountsOnceAndStaysHidden() {
-        UUID user = UUID.randomUUID();
+        UUID user = user();
         service.record(user, "Moja trgovina");
         service.record(user, " MOJA trgovina ");
 
@@ -126,8 +146,8 @@ class StoreNameServiceTest {
 
     @Test
     void twoDifferentUsersMakeANameVisible() {
-        service.record(UUID.randomUUID(), "Zajednička trgovina");
-        service.record(UUID.randomUUID(), "Zajednička trgovina");
+        service.record(user(), "Zajednička trgovina");
+        service.record(user(), "Zajednička trgovina");
 
         assertThat(service.search("zajed")).extracting(StoreNameSuggestionDto::getName)
                 .containsExactly("Zajednička trgovina");
@@ -135,7 +155,7 @@ class StoreNameServiceTest {
 
     @Test
     void concurrentRecordsByOneUserCountOnce() throws Exception {
-        UUID user = UUID.randomUUID();
+        UUID user = user();
         int threads = 6;
         ExecutorService pool = Executors.newFixedThreadPool(threads);
         CountDownLatch start = new CountDownLatch(1);
@@ -160,9 +180,9 @@ class StoreNameServiceTest {
 
     @Test
     void forgettingAUserRemovesTheirUsageAndTakesBackTheirCount() {
-        UUID leaving = UUID.randomUUID();
+        UUID leaving = user();
         service.record(leaving, "Odlazak trgovina");
-        service.record(UUID.randomUUID(), "Odlazak trgovina");
+        service.record(user(), "Odlazak trgovina");
         assertThat(service.search("odlazak")).hasSize(1);
 
         service.forgetUser(leaving);

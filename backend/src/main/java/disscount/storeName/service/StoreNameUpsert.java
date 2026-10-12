@@ -9,6 +9,7 @@ import disscount.storeName.dao.StoreNameSuggestionRepository;
 import disscount.storeName.dao.StoreNameUsageRepository;
 import disscount.storeName.domain.StoreNameSuggestion;
 import disscount.storeName.domain.StoreNameUsage;
+import disscount.user.dao.UserRepository;
 import disscount.util.Timestamps;
 
 import java.util.UUID;
@@ -20,10 +21,17 @@ public class StoreNameUpsert {
 
     private final StoreNameSuggestionRepository repository;
     private final StoreNameUsageRepository usages;
+    private final UserRepository users;
 
     /** A duplicate usage insert (same user racing itself) throws and rolls back; the caller retries and finds the row. */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void upsert(UUID userId, String name, String normalized) {
+        // Runs after the card commit, so account deletion may have won the race: take its lock and re-check.
+        boolean active = users.findByIdForUpdate(userId).filter(u -> u.getDeletedAt() == null).isPresent();
+        if (!active) {
+            return;
+        }
+
         StoreNameSuggestion suggestion = repository.findByNormalizedName(normalized).orElse(null);
 
         if (suggestion == null) {
