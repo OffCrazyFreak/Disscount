@@ -50,29 +50,12 @@ export default function CardCodePanel({ card }: ICardCodePanelProps) {
     <section aria-label="Kod kartice" className="flex flex-col gap-3">
       {/* Stark white in dark mode too: a scanner needs contrast, not theming. */}
       <div className="rounded-2xl bg-white p-3 text-black ring-1 ring-black/10 dark:ring-white/30">
-        {rotated ? (
-          <div className="relative w-full" style={{ height: ROTATED_LENGTH }}>
-            <div
-              className="absolute left-1/2 top-1/2"
-              style={{
-                width: ROTATED_LENGTH,
-                transform: "translate(-50%, -50%) rotate(90deg)",
-              }}
-            >
-              <CardCode
-                value={drawnValue}
-                codeType={shownType}
-                textFallback={false}
-              />
-            </div>
-          </div>
-        ) : (
-          <CardCode
-            value={drawnValue}
-            codeType={shownType}
-            textFallback={false}
-          />
-        )}
+        <CardCode
+          value={drawnValue}
+          codeType={shownType}
+          textFallback={false}
+          rotatedLength={rotated ? ROTATED_LENGTH : undefined}
+        />
 
         <p className="mt-2 break-all text-center font-mono text-2xl font-semibold tracking-wider">
           {groupCodeValue(card.codeValue)}

@@ -30,7 +30,6 @@ export default function DigitalCardTile({ card }: IDigitalCardTileProps) {
         aria-hidden="true"
         className={cn(
           "absolute inset-0 [transform-style:preserve-3d]",
-          archived && "opacity-60",
           finePointer &&
             "motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover/tile:[transform:rotateY(180deg)]",
         )}
@@ -48,7 +47,11 @@ export default function DigitalCardTile({ card }: IDigitalCardTileProps) {
         className="absolute inset-0 z-[1] cursor-pointer rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       />
 
-      <PinToggleButton cardId={card.id} pinned={Boolean(card.pinnedAt)} />
+      <PinToggleButton
+        cardId={card.id}
+        cardName={card.cardName}
+        pinned={Boolean(card.pinnedAt)}
+      />
     </div>
   );
 }

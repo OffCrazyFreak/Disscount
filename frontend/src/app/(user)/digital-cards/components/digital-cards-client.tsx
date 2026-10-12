@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { CreditCard, Plus, Search } from "lucide-react";
 
+import CardAnnouncer from "@/app/(user)/digital-cards/components/card-announcer";
 import DigitalCardsArchived from "@/app/(user)/digital-cards/components/digital-cards-archived";
 import DigitalCardsEmpty from "@/app/(user)/digital-cards/components/digital-cards-empty";
 import DigitalCardsGrid from "@/app/(user)/digital-cards/components/digital-cards-grid";
@@ -51,8 +52,8 @@ export default function DigitalCardsClient({
 
   const activeCards = cards.filter((card) => !card.archivedAt);
   useAutoOpenSingleCard({
-    singleCardId:
-      !isUserLoading && activeCards.length === 1 ? activeCards[0].id : null,
+    ready: isAuthenticated && !isUserLoading,
+    singleCardId: activeCards.length === 1 ? activeCards[0].id : null,
   });
 
   if (!userLoading && !isAuthenticated) {
@@ -104,13 +105,15 @@ export default function DigitalCardsClient({
         </div>
       </div>
 
-      <p role="status" aria-live="polite" className="sr-only">
-        {query && !isUserLoading
-          ? matching.length === 0
-            ? "Nema rezultata"
-            : `${matching.length} ${pluralizeCroatian(matching.length, "rezultat", "rezultata")}`
-          : ""}
-      </p>
+      <CardAnnouncer
+        extra={
+          query && !isUserLoading
+            ? matching.length === 0
+              ? "Nema rezultata"
+              : `${matching.length} ${pluralizeCroatian(matching.length, "rezultat", "rezultata")}`
+            : ""
+        }
+      />
 
       {isUserLoading ? (
         <div className="grid place-items-center">

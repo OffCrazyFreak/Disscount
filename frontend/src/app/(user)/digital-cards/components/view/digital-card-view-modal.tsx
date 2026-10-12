@@ -23,7 +23,12 @@ export default function DigitalCardViewModal({
   open,
   id,
 }: IDigitalCardViewModalProps) {
-  const { data: cards, isLoading } = digitalCardService.useGetMyDigitalCards();
+  const {
+    data: cards,
+    isPending,
+    isError,
+    fetchStatus,
+  } = digitalCardService.useGetMyDigitalCards();
   const card = cards?.find((candidate) => candidate.id === id);
   const wakeLock = useWakeLock(open && !!card);
   const recorded = useRef(false);
@@ -40,9 +45,18 @@ export default function DigitalCardViewModal({
   }
 
   function renderBody() {
-    if (isLoading) {
+    // Offline with nothing cached, the query sits paused as pending and never resolves.
+    if (isPending && fetchStatus !== "paused") {
       return (
         <p className="text-sm text-muted-foreground">Učitavanje kartice...</p>
+      );
+    }
+
+    if (!cards && (isPending || isError)) {
+      return (
+        <p role="status" className="text-sm text-muted-foreground">
+          Kartice se nisu učitale. Provjeri vezu.
+        </p>
       );
     }
 
@@ -57,7 +71,7 @@ export default function DigitalCardViewModal({
     return (
       <div className="flex flex-col gap-4">
         <CardCodePanel key={card.id} card={card} />
-        <BrightnessHint wakeLockActive={wakeLock.active} />
+        <BrightnessHint mayDim={!wakeLock.supported || wakeLock.failed} />
         <ChainNote chainCode={card.chainCode} />
         <CardPhotos card={card} />
         <CardDetailRows card={card} />

@@ -13,18 +13,20 @@ function detectWakeLock() {
 /**
  * Keeps the screen awake while `enabled`. Browsers drop the lock whenever the tab is
  * hidden, so it is requested again on return. Refusals (low battery, unsupported
- * browser) are swallowed: the caller reads `active` and decides whether to hint.
+ * browser) are swallowed: the caller reads `supported` and `failed` and decides whether
+ * to hint. `failed` stays false while the first request is still in flight.
  */
 export function useWakeLock(enabled: boolean): {
   supported: boolean;
   active: boolean;
+  failed: boolean;
 } {
   const supported = useSyncExternalStore(
     noopSubscribe,
     detectWakeLock,
     () => false,
   );
-  const [held, setHeld] = useState(false);
+  const [state, setState] = useState<"idle" | "held" | "failed">("idle");
 
   useEffect(() => {
     if (!enabled || !supported) return;
@@ -34,7 +36,7 @@ export function useWakeLock(enabled: boolean): {
     let sentinel: WakeLockSentinel | null = null;
 
     function handleRelease() {
-      if (!cancelled) setHeld(false);
+      if (!cancelled) setState("idle");
     }
 
     async function acquire() {
@@ -54,9 +56,9 @@ export function useWakeLock(enabled: boolean): {
 
         sentinel = next;
         next.addEventListener("release", handleRelease);
-        setHeld(true);
+        setState("held");
       } catch {
-        if (!cancelled) setHeld(false);
+        if (!cancelled) setState("failed");
       } finally {
         requesting = false;
       }
@@ -74,8 +76,14 @@ export function useWakeLock(enabled: boolean): {
       document.removeEventListener("visibilitychange", handleVisibility);
       sentinel?.removeEventListener("release", handleRelease);
       void sentinel?.release().catch(() => {});
+      // Otherwise re-enabling would report the old lock as held before the new request settles.
+      setState("idle");
     };
   }, [enabled, supported]);
 
-  return { supported, active: enabled && supported && held };
+  return {
+    supported,
+    active: enabled && supported && state === "held",
+    failed: enabled && supported && state === "failed",
+  };
 }

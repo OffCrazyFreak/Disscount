@@ -5,12 +5,11 @@ import { Sun, X } from "lucide-react";
 import { useBrightnessHintDismissed } from "@/app/(user)/digital-cards/hooks/use-brightness-hint-dismissed";
 
 interface IBrightnessHintProps {
-  wakeLockActive: boolean;
+  /** True when the screen cannot be kept awake, so the person has to do it. */
+  mayDim: boolean;
 }
 
-export default function BrightnessHint({
-  wakeLockActive,
-}: IBrightnessHintProps) {
+export default function BrightnessHint({ mayDim }: IBrightnessHintProps) {
   const [dismissed, dismiss] = useBrightnessHintDismissed();
 
   if (dismissed) return null;
@@ -24,8 +23,7 @@ export default function BrightnessHint({
 
       <p className="flex-1">
         Povećaj svjetlinu ekrana da se kod lakše očita.
-        {!wakeLockActive &&
-          " Ekran se može sam ugasiti, pa ga dotakni prije blagajne."}
+        {mayDim && " Ekran se može sam ugasiti, pa ga dotakni prije blagajne."}
       </p>
 
       <button

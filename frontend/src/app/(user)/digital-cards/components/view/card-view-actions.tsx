@@ -10,6 +10,12 @@ import {
   Trash2,
 } from "lucide-react";
 
+import CardAnnouncer from "@/app/(user)/digital-cards/components/card-announcer";
+import {
+  announceCard,
+  archiveAnnouncement,
+  pinAnnouncement,
+} from "@/app/(user)/digital-cards/utils/card-announcer";
 import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import digitalCardService from "@/lib/api/digital-cards";
@@ -43,6 +49,8 @@ export default function CardViewActions({
 
   return (
     <div className="flex flex-wrap gap-2">
+      <CardAnnouncer />
+
       <Button
         variant="outline"
         size="sm"
@@ -58,7 +66,10 @@ export default function CardViewActions({
         size="sm"
         icon={pinned ? PinOff : Pin}
         iconPlacement="left"
-        onClick={() => pin({ id: card.id, pinned: !pinned })}
+        onClick={() => {
+          announceCard(pinAnnouncement(!pinned));
+          pin({ id: card.id, pinned: !pinned });
+        }}
       >
         {pinned ? "Otkvači" : "Prikvači"}
       </Button>
@@ -68,7 +79,10 @@ export default function CardViewActions({
         size="sm"
         icon={archived ? ArchiveRestore : Archive}
         iconPlacement="left"
-        onClick={() => archive({ id: card.id, archived: !archived })}
+        onClick={() => {
+          announceCard(archiveAnnouncement(!archived));
+          archive({ id: card.id, archived: !archived });
+        }}
       >
         {archived ? "Vrati iz arhive" : "Arhiviraj"}
       </Button>

@@ -1,12 +1,21 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { Pin } from "lucide-react";
 
+import {
+  announceCard,
+  pinAnnouncement,
+  pinButtonId,
+  requestPinFocus,
+  takePinFocus,
+} from "@/app/(user)/digital-cards/utils/card-announcer";
 import { digitalCardService } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 interface IPinToggleButtonProps {
   cardId: string;
+  cardName: string;
   pinned: boolean;
 }
 
@@ -14,17 +23,29 @@ interface IPinToggleButtonProps {
 // here must not also open the card.
 export default function PinToggleButton({
   cardId,
+  cardName,
   pinned,
 }: IPinToggleButtonProps) {
   const pinMutation = digitalCardService.usePinDigitalCard();
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // Pinning moves the tile to the other grid, so this is a fresh mount that must pick
+  // focus back up from the one that was clicked.
+  useEffect(() => {
+    if (takePinFocus(cardId)) buttonRef.current?.focus();
+  }, [cardId]);
 
   return (
     <button
+      ref={buttonRef}
+      id={pinButtonId(cardId)}
       type="button"
       aria-pressed={pinned}
-      aria-label="Prikvači karticu"
+      aria-label={`Prikvači karticu ${cardName}`}
       onClick={(event) => {
         event.stopPropagation();
+        requestPinFocus(cardId);
+        announceCard(pinAnnouncement(!pinned));
         pinMutation.mutate({ id: cardId, pinned: !pinned });
       }}
       className={cn(

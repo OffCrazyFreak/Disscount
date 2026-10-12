@@ -1,5 +1,6 @@
 import CardCode from "@/app/(user)/digital-cards/components/card-code";
 import type { DigitalCardDto } from "@/lib/api/types";
+import { cn } from "@/lib/utils";
 
 interface ICardFaceBackProps {
   card: DigitalCardDto;
@@ -8,11 +9,18 @@ interface ICardFaceBackProps {
 // Always black on white, whatever the card colour: a code needs that contrast to scan.
 export default function CardFaceBack({ card }: ICardFaceBackProps) {
   return (
-    <div className="absolute inset-0 grid place-items-center rounded-2xl bg-white p-3 shadow-sm [backface-visibility:hidden] [transform:rotateY(180deg)]">
+    <div
+      className={cn(
+        "absolute inset-0 grid place-items-center rounded-2xl bg-white p-3 shadow-sm [backface-visibility:hidden] [transform:rotateY(180deg)]",
+        card.archivedAt && "opacity-60",
+      )}
+    >
       <CardCode
-        value={card.barcodeValue ?? card.codeValue}
+        value={card.barcodeValue || card.codeValue}
         codeType={card.codeType}
-        className="max-h-full w-full"
+        className="w-full"
+        labelValue
+        fitParentHeight
       />
     </div>
   );

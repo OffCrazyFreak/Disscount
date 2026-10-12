@@ -1,6 +1,7 @@
 import CardIcon from "@/app/(user)/digital-cards/components/card-icon";
 import { formatTileDate } from "@/app/(user)/digital-cards/utils/card-date";
 import type { DigitalCardDto } from "@/lib/api/types";
+import { cn } from "@/lib/utils";
 
 interface ICardFaceFrontProps {
   card: DigitalCardDto;
@@ -15,7 +16,10 @@ export default function CardFaceFront({
 
   return (
     <div
-      className="absolute inset-0 flex flex-col justify-between rounded-2xl p-3 shadow-sm [backface-visibility:hidden] sm:p-4"
+      className={cn(
+        "absolute inset-0 flex flex-col justify-between rounded-2xl p-3 shadow-sm [backface-visibility:hidden] sm:p-4",
+        card.archivedAt && "opacity-60",
+      )}
       style={{ backgroundColor: card.cardColor, color: textColor }}
     >
       <div className="flex items-center gap-2 pr-9">
