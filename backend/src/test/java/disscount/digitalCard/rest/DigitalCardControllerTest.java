@@ -84,6 +84,22 @@ class DigitalCardControllerTest {
     }
 
     @Test
+    void invalidBodyAnswersInTheRequestLanguage() throws Exception {
+        String body = """
+                {"cardName":"A","cardType":"loyalty","storeName":"Konzum","codeValue":"123",
+                 "codeType":"ean_13","cardColor":"#3F51B5"}
+                """;
+
+        mvc.perform(put("/api/digital-cards/{id}", cardId).with(auth())
+                        .header("Accept-Language", "de")
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.cardName").value("Der Kartenname muss 2 bis 60 Zeichen lang sein"));
+
+        verifyNoInteractions(cardService);
+    }
+
+    @Test
     void invalidBodyIs400WithCroatianFieldErrors() throws Exception {
         String body = """
                 {"cardName":"A","cardType":"vip","storeName":"","codeValue":"","codeType":"nope",

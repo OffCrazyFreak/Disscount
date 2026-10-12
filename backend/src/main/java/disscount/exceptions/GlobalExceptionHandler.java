@@ -210,11 +210,14 @@ public class GlobalExceptionHandler {
     /**
      * Hibernate validates entities with its own factory, which does not read our bundles,
      * so a "{validation.x}" template comes back unresolved and is looked up here instead.
+     * Anything else (a built-in constraint's default) keeps Hibernate's own message.
      */
     private String violationMessage(ConstraintViolation<?> violation) {
         String template = violation.getMessageTemplate();
-        if (template.startsWith("{") && template.endsWith("}")) {
-            return message(template.substring(1, template.length() - 1));
+        if (template.startsWith("{validation.") && template.endsWith("}")) {
+            String code = template.substring(1, template.length() - 1);
+            return messageSource.getMessage(
+                    code, null, violation.getMessage(), LocaleContextHolder.getLocale());
         }
         return violation.getMessage();
     }
