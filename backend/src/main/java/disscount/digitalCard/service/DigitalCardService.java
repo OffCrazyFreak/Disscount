@@ -28,7 +28,7 @@ public class DigitalCardService {
 
     public DigitalCardDto createCard(UUID userId, DigitalCardRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+                .orElseThrow(() -> new UnauthorizedException("error.user.notFound"));
 
         DigitalCard card = DigitalCard.builder()
                 .user(user)
@@ -46,7 +46,7 @@ public class DigitalCardService {
 
     public List<DigitalCardDto> getUserCards(UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+                .orElseThrow(() -> new UnauthorizedException("error.user.notFound"));
 
         return digitalCardRepository.findActiveByUser(user)
                 .stream()
@@ -56,7 +56,7 @@ public class DigitalCardService {
 
     public Optional<DigitalCardDto> getCardById(UUID cardId, UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+                .orElseThrow(() -> new UnauthorizedException("error.user.notFound"));
 
         return digitalCardRepository.findActiveByIdAndUser(cardId, user)
                 .map(this::convertToDto);
@@ -64,10 +64,10 @@ public class DigitalCardService {
 
     public DigitalCardDto updateCard(UUID cardId, UUID userId, DigitalCardRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+                .orElseThrow(() -> new UnauthorizedException("error.user.notFound"));
 
         DigitalCard card = digitalCardRepository.findActiveByIdAndUser(cardId, user)
-                .orElseThrow(() -> new BadRequestException("Card not found"));
+                .orElseThrow(() -> new BadRequestException("error.card.notFound"));
 
         // Replace full resource (PUT semantics)
         card.setTitle(request.getTitle());
@@ -83,10 +83,10 @@ public class DigitalCardService {
 
     public void deleteCard(UUID cardId, UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+                .orElseThrow(() -> new UnauthorizedException("error.user.notFound"));
 
         DigitalCard card = digitalCardRepository.findActiveByIdAndUser(cardId, user)
-                .orElseThrow(() -> new BadRequestException("Card not found"));
+                .orElseThrow(() -> new BadRequestException("error.card.notFound"));
 
         card.setDeletedAt(Timestamps.nowUtc());
         digitalCardRepository.save(card);

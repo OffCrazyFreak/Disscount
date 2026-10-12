@@ -154,7 +154,7 @@ public class UserService {
     public UserDto updateProfile(UUID userId, UserRequest request) {
         User user = userRepository.findById(userId)
                 .filter(u -> u.getDeletedAt() == null)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         String username = request.getUsername();
         if (username != null && !username.equals(user.getUsername())) {
@@ -229,7 +229,7 @@ public class UserService {
      */
     public void deleteAccount(UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         user.setUsername(null);
         user.setImage(null);
@@ -306,7 +306,7 @@ public class UserService {
 
         User user = userRepository.findById(userId)
                 .filter(u -> u.getDeletedAt() == null)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         user.setAccountType(accountType);
         user = userRepository.save(user);

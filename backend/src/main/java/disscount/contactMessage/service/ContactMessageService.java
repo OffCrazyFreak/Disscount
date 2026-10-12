@@ -94,7 +94,7 @@ public class ContactMessageService {
 
     private ContactMessage loadOrThrow(UUID id) {
         return contactMessageRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException("Contact message not found"));
+                .orElseThrow(() -> new BadRequestException("error.contactMessage.notFound"));
     }
 
     private void requireAdmin() {

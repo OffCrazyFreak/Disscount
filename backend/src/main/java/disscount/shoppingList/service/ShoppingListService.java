@@ -107,7 +107,7 @@ public class ShoppingListService {
                 .orElseThrow(() -> new NotFoundException("error.shoppingList.notFound"));
 
         if (!accessService.resolve(list, userId).canView()) {
-            throw new NotFoundException("Shopping list not found");
+            throw new NotFoundException("error.shoppingList.notFound");
         }
 
         return list;
@@ -123,7 +123,7 @@ public class ShoppingListService {
 
     private User requireUser(UUID userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+                .orElseThrow(() -> new UnauthorizedException("error.user.notFound"));
     }
 
     /** Off then on hands back the same URL, since the URL is the id. Intended. */
