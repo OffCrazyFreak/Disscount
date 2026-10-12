@@ -2,9 +2,10 @@
 
 import { useMemo, memo } from "react";
 import { Line } from "recharts";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { ChartConfig, ChartTooltipContent } from "@/components/ui/chart";
 import { getChainLabel } from "@/utils/labels";
+import { formatPrice } from "@/utils/price";
 import { useUser } from "@/context/user-context";
 import { HistoryDataPoint } from "@/app/[locale]/products/[id]/typings/history-data-point";
 import { ChartDataPoint } from "@/typings/chart-data";
@@ -22,6 +23,7 @@ const PriceHistoryChart = memo(function PriceHistoryChart({
   selectedChains,
 }: IPriceHistoryChartProps) {
   const t = useTranslations("productDetail.priceHistory");
+  const locale = useLocale();
   const { user } = useUser();
 
   const pinnedStoreIds = useMemo(
@@ -112,7 +114,12 @@ const PriceHistoryChart = memo(function PriceHistoryChart({
       chartData={chartData}
       chartConfig={chartConfig}
       yAxisTicks={yAxisTicks}
-      tooltipContent={<ChartTooltipContent pinnedStoreIds={pinnedStoreIds} />}
+      tooltipContent={
+        <ChartTooltipContent
+          pinnedStoreIds={pinnedStoreIds}
+          valueFormatter={(value) => formatPrice(value, locale)}
+        />
+      }
     >
       {chainsToDisplay.map((chainCode, index) => {
         const isPinned = pinnedStoreIds.includes(chainCode);

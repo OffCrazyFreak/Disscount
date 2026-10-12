@@ -1,8 +1,10 @@
 "use client";
 
 import { Line } from "recharts";
+import { useLocale } from "next-intl";
 import { ChartConfig, ChartTooltipContent } from "@/components/ui/chart";
 import { ChartDataPoint } from "@/typings/chart-data";
+import { formatPrice } from "@/utils/price";
 import PriceHistoryChartShell from "@/components/custom/price/price-history-chart-shell";
 
 interface IShoppingListPriceHistoryChartProps {
@@ -18,12 +20,18 @@ export default function ShoppingListPriceHistoryChart({
   eans,
   yAxisTicks,
 }: IShoppingListPriceHistoryChartProps) {
+  const locale = useLocale();
+
   return (
     <PriceHistoryChartShell
       chartData={chartData}
       chartConfig={chartConfig}
       yAxisTicks={yAxisTicks}
-      tooltipContent={<ChartTooltipContent />}
+      tooltipContent={
+        <ChartTooltipContent
+          valueFormatter={(value) => formatPrice(value, locale)}
+        />
+      }
     >
       {eans.map((ean, index) => (
         <Line

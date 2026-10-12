@@ -134,6 +134,7 @@ function ChartTooltipContent({
   nameKey,
   labelKey,
   pinnedStoreIds,
+  valueFormatter,
 }: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
   React.ComponentProps<"div"> & {
     hideLabel?: boolean;
@@ -142,6 +143,8 @@ function ChartTooltipContent({
     nameKey?: string;
     labelKey?: string;
     pinnedStoreIds?: string[];
+    // Formats only the value, unlike `formatter`, which replaces the whole row.
+    valueFormatter?: (value: number) => string;
   } & Omit<
     RechartsPrimitive.DefaultTooltipContentProps<
       TooltipValueType,
@@ -288,7 +291,8 @@ function ChartTooltipContent({
                           )}
                         >
                           {typeof item.value === "number"
-                            ? item.value.toLocaleString(locale)
+                            ? (valueFormatter?.(item.value) ??
+                              item.value.toLocaleString(locale))
                             : String(item.value)}
                         </span>
                       )}
