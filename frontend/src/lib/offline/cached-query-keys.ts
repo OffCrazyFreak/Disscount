@@ -8,7 +8,7 @@ const PERSISTED_QUERY_KEY_PREFIXES = [
   "shoppingLists",
   "shoppingListItems",
   "watchlist",
-  "digitalCards",
+  "digitalCards", // metadata only; photo bytes live in card-photo-store.ts
   "pinnedStores",
   "pinnedPlaces",
   "users", // current user profile (["users", "me"])
@@ -18,6 +18,9 @@ type PersistedQueryKeyPrefix = (typeof PERSISTED_QUERY_KEY_PREFIXES)[number];
 
 export function shouldPersistQuery(queryKey: QueryKey): boolean {
   const root = queryKey[0];
+
+  // Image bytes would bloat the single persisted blob; they have their own idb store.
+  if (root === "cardPhoto") return false;
 
   if (root === "cijene" && queryKey[1] === "prices") {
     return queryKey[2] === "product";

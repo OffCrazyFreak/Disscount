@@ -1,5 +1,7 @@
 import type { Query, QueryClient } from "@tanstack/react-query";
 
+import { deleteForIdentity } from "@/lib/offline/card-photo-store";
+import { deleteOutboxForIdentity } from "@/lib/offline/card-photo-outbox";
 import { removePersistedCacheFor } from "@/lib/offline/persister";
 
 // Public data is identical logged in or out, so it survives logout.
@@ -51,6 +53,8 @@ export async function purgeOfflineCache(
   // leave the departing account's data in the buckets it did not reach.
   const results = await Promise.allSettled([
     removePersistedCacheFor(identity),
+    deleteForIdentity(identity),
+    deleteOutboxForIdentity(identity),
     purgeServiceWorkerCaches(),
   ]);
 

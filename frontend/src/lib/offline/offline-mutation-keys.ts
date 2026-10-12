@@ -12,6 +12,12 @@ export const OFFLINE_MUTATION_KEYS = {
   // own, since both are reached by the list's id.
   shoppingListItemUpdate: ["shoppingLists", "items", "update"],
   shoppingListItemDelete: ["shoppingLists", "items", "delete"],
+  // Card ids are minted client-side, so a create and its later edits replay in order
+  // with no temp ids to rewrite.
+  digitalCardSave: ["digitalCards", "save"],
+  digitalCardDelete: ["digitalCards", "delete"],
+  digitalCardPin: ["digitalCards", "pin"],
+  digitalCardArchive: ["digitalCards", "archive"],
   watchlistAdd: ["watchlist", "add"],
   watchlistRemove: ["watchlist", "remove"],
 } as const satisfies Record<string, MutationKey>;
