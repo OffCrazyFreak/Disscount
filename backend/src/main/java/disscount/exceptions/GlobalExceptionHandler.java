@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -170,18 +171,52 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /** Raised by @Validated on a controller for constraints outside a request body, such as a list parameter. */
-    @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
-    public ProblemDetail handleConstraintViolation(jakarta.validation.ConstraintViolationException ex) {
-        Map<String, String> fieldErrors = new HashMap<>();
-        for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
-            fieldErrors.put(violation.getPropertyPath().toString(), violation.getMessage());
+    /**
+     * Raised by @Validated on a controller for constraints outside a request body, such as a
+     * list parameter, and by Hibernate for entity constraints at flush, which Spring wraps in
+     * a TransactionSystemException when they fire on commit.
+     */
+    @ExceptionHandler({jakarta.validation.ConstraintViolationException.class, TransactionSystemException.class})
+    public ProblemDetail handleEntityValidation(Exception ex) {
+        jakarta.validation.ConstraintViolationException violations = entityViolationsOf(ex);
+        if (violations == null) {
+            return handleGenericException(ex);
         }
+
+        Map<String, String> fieldErrors = new HashMap<>();
+        for (ConstraintViolation<?> violation : violations.getConstraintViolations()) {
+            fieldErrors.put(violation.getPropertyPath().toString(), violationMessage(violation));
+        }
+        log.warn("Entity validation failed on fields: {}", fieldErrors.keySet());
 
         ProblemDetail problemDetail =
                 problem(HttpStatus.BAD_REQUEST, "validation", message("problem.detail.validation"));
         problemDetail.setProperty("fieldErrors", fieldErrors);
         return problemDetail;
+    }
+
+    private static jakarta.validation.ConstraintViolationException entityViolationsOf(Throwable ex) {
+        for (Throwable cause = ex; cause != null; cause = cause.getCause()) {
+            if (cause instanceof jakarta.validation.ConstraintViolationException violations) {
+                return violations;
+            }
+            if (cause.getCause() == cause) {
+                break;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Hibernate validates entities with its own factory, which does not read our bundles,
+     * so a "{validation.x}" template comes back unresolved and is looked up here instead.
+     */
+    private String violationMessage(ConstraintViolation<?> violation) {
+        String template = violation.getMessageTemplate();
+        if (template.startsWith("{") && template.endsWith("}")) {
+            return message(template.substring(1, template.length() - 1));
+        }
+        return violation.getMessage();
     }
 
     /** Without this a malformed UUID is a logged 500, free for anyone to trigger. */
