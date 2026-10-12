@@ -99,6 +99,10 @@ export async function hasQueuedCardPhoto(cardId: string, slot: CardPhotoSlot) {
 
 export async function deleteOutboxForIdentity(identity: string) {
   const prefix = `${identity}:`;
+  for (const key of lastHandled.keys()) {
+    if (key.startsWith(prefix)) lastHandled.delete(key);
+  }
+
   const stale = (await keys<string>(outboxStore())).filter((key) =>
     String(key).startsWith(prefix),
   );
@@ -160,8 +164,10 @@ async function replayOnce(queryClient: QueryClient) {
 }
 
 // An earlier waiting send may already have handled the newest choice for a slot, so a
-// later caller still needs to learn which choice that was and how it ended.
+// later caller still needs to learn which choice that was and how it ended. Results are
+// dropped once no caller waits, since an upload error holds both photo blobs.
 const lastHandled = new Map<string, ISendResult>();
+const waiting = new Map<string, number>();
 
 export interface ISendResult {
   outcome: "sent" | "kept" | "dropped";
@@ -182,12 +188,24 @@ export function sendQueuedCardPhoto(
   slot: CardPhotoSlot,
   keepOn404 = false,
 ): Promise<ISendResult> {
-  return runExclusive(photoSlotKey(cardId, slot), async () => {
-    const key = entryKey(getCacheIdentity(), cardId, slot);
-    const result = await sendEntry(queryClient, key, keepOn404);
+  const key = entryKey(getCacheIdentity(), cardId, slot);
+  waiting.set(key, (waiting.get(key) ?? 0) + 1);
 
-    if (result) lastHandled.set(key, result);
-    return result ?? lastHandled.get(key) ?? { outcome: "sent" };
+  return runExclusive(photoSlotKey(cardId, slot), async () => {
+    try {
+      const result = await sendEntry(queryClient, key, keepOn404);
+
+      if (result) lastHandled.set(key, result);
+      return result ?? lastHandled.get(key) ?? { outcome: "sent" as const };
+    } finally {
+      const left = (waiting.get(key) ?? 1) - 1;
+      if (left > 0) {
+        waiting.set(key, left);
+      } else {
+        waiting.delete(key);
+        lastHandled.delete(key);
+      }
+    }
   });
 }
 

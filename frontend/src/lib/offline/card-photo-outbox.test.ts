@@ -91,6 +91,19 @@ describe("sendQueuedCardPhoto", () => {
     expect(db.size).toBe(0);
   });
 
+  it("forgets a send result once no caller is waiting on the slot", async () => {
+    upload.mockRejectedValueOnce(rejectWith(413));
+
+    await enqueueCardPhoto("card", "front", photo("a"));
+    expect((await sendQueuedCardPhoto(client, "card", "front")).outcome).toBe(
+      "dropped",
+    );
+
+    expect(await sendQueuedCardPhoto(client, "card", "front")).toEqual({
+      outcome: "sent",
+    });
+  });
+
   it("puts the sent photo in the cache when no newer choice is waiting", async () => {
     upload.mockResolvedValueOnce({ slot: "front", sha256: "a" });
 
