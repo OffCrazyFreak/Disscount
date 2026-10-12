@@ -120,6 +120,7 @@ A queue of R2 deletes that still have to happen. Columns: `id`, `key_or_prefix` 
 
 - The row is written in the same transaction as the database delete it belongs to (card delete, photo replace or remove, account deletion, the 30-day purge), so the two commit or roll back together.
 - After the commit `PhotoCleanupService` tries the delete and removes the row on success. On failure the row stays.
+- Keys are content-addressed, so re-uploading a replaced photo reuses its old key. Writing a photo row therefore cancels any queued delete for its keys in the same transaction, and every delete attempt first skips (and drops) a key that a live photo row still uses.
 - `DigitalCardCleanupJob.retryPhotoCleanup` retries the oldest 200 rows every 15 minutes. With photos disabled (no R2 config) nothing is deleted and the rows stay queued until storage is configured.
 
 ### `store_name_suggestion` (entity `StoreNameSuggestion`)
@@ -191,7 +192,7 @@ The stored bytes are the sanitized ones. For `icon` the `sha256` is the hash of 
 
 Upload validates both parts, puts them to R2 **outside any transaction** (so no database connection is held during the network call), and only then writes the row in a short transaction (`CardPhotoWriter`). That transaction re-checks that the card is still active, so a delete that committed during the upload wins. If the row write fails, the objects just stored are deleted, unless the live row already references the same keys (the same bytes uploaded twice).
 
-Every card write (upsert, delete, photo replace and remove, account deletion) first takes `UserRepository.findByIdForUpdate` (`PESSIMISTIC_WRITE`), wrapped by `CardUserLock`, which also rejects a deleted user. That serializes one user's writes, which is what makes the 300-card limit exact and turns a concurrent replay of the same id into a plain update. Account deletion takes the lock and flushes the anonymization before the card purge, so it persists.
+Every card write (upsert, delete, pin, archive, photo replace and remove, account deletion) first takes `UserRepository.findByIdForUpdate` (`PESSIMISTIC_WRITE`), wrapped by `CardUserLock`, which also rejects a deleted user. That serializes one user's writes, which is what makes the 300-card limit exact and turns a concurrent replay of the same id into a plain update. Account deletion takes the lock and flushes the anonymization before the card purge, so it persists.
 
 Object deletes (replaced or removed photos, a deleted card, account deletion, the 30-day purge) are queued in `photo_cleanup` in the same transaction, so a crash or an R2 outage cannot orphan an object for good ([§3](#3-data-model)).
 
@@ -238,7 +239,7 @@ Cards have to work in a shop with no signal, so the whole wallet is offline-firs
 
 **Replay order matters.** On reconnect the provider first resumes the paused card saves and only then replays the photo outbox. An upload for a card the server has not seen yet would answer 404 and be dropped. A replay requested while one is running triggers another run afterwards, and the outbox re-reads each entry before sending it.
 
-**Which failures keep or drop** is decided in one place, `lib/offline/failure-policy.ts` (`failureAction`). A network failure, 401, 408, 429, any 5xx (503 included) and any status not listed below **keep** the entry: it stays queued and the replay stops, so the next run retries in order. 400, 404, 409, 413 and 422 **drop** it, because resending can never succeed. A dropped photo shows a toast, except for a 404 (the card is already gone). Direct photo uploads and removals made while online use the same rule: on keep (or a 404 for an upload) they go to the outbox. A 404 when replaying a queued removal counts as done. Rollback of an optimistic card patch is per card, so a failure never undoes other cards.
+**Which failures keep or drop** is decided in one place, `lib/offline/failure-policy.ts` (`failureAction`). A network failure, 401, 408, 429, any 5xx (503 included) and any status not listed below **keep** the entry: it stays queued and the replay stops, so the next run retries in order. 400, 404, 409, 413 and 422 **drop** it, because resending can never succeed. A dropped photo shows a toast, except for a 404 (the card is already gone). Direct photo uploads and removals made while online use the same rule: on keep (or a 404 for an upload) they go to the outbox. A 404 when replaying a queued removal counts as done. Rollback of an optimistic card patch is per card, so a failure never undoes other cards. Card mutations (save, delete, pin, archive) also use this rule for retries (`lib/offline/card-retry.ts`): a keep failure is retried up to 3 times with backoff from 1 s to 8 s, and a mutation that fails because the device is offline pauses and retries once it reconnects. Photo actions on one slot never overlap: direct uploads and removals and the outbox replay all run through `lib/offline/slot-lock.ts`, and the replay re-reads its entry inside the lock, so an older upload cannot finish after a newer choice and undo it. While the card save is paused, photo removals are queued in the outbox together with uploads, so a reload does not lose them.
 
 **Photo blobs are pruned** when a card is deleted and whenever the card list refetches: a blob whose `sha256` no longer matches the card's current photo is removed.
 
@@ -252,7 +253,7 @@ Card numbers are long and a misread is worse than no read, so the shared scanner
 
 - **Consensus.** A code counts only after 3 identical reads within 1.5 seconds, or 4 for the weaker formats (`code_39`, `code_93`, `codabar`, `itf`). Products need 2. Logic: `scan-consensus.ts`, wired by `hooks/use-scan-consensus.ts`.
 - **Check digits.** `utils/barcode/check-digits.ts` validates EAN-13, EAN-8, UPC-A, UPC-E (expanded) and ITF-14. A read that fails its check digit is dropped. After 5 seconds of nothing but rejects, a hint offers manual entry.
-- **Normalization.** `utils/barcode/normalize-code.ts` turns UPC-A into `ean_13` with a leading 0, so the same card does not get two spellings.
+- **Normalization.** `utils/barcode/normalize-code.ts` turns UPC-A into `ean_13` with a leading 0, and a six- or seven-digit UPC-E into its eight-digit form (`upc-e.ts`), so the same card does not get two spellings. The renderer applies the same UPC-E step, so values saved before this rule still draw. Product scans keep the scanned value.
 - **Confirm step.** In the same dialog the user sees the drawn barcode, the value in monospace and the format name, with "Koristi kod", "Skeniraj ponovno" and "Upiši ručno". When two different codes were seen within 800 ms, a radio list lets the user pick.
 - **Feedback.** One vibration and one short beep (Web Audio, `scan-beep.ts`) per stable code, and a polite live region announces it. A still-image scan returns every code found, so the confirm step can offer them all.
 
@@ -318,34 +319,34 @@ A loyalty card number is personal data, and a photo of a card more so.
 
 ## 12. Key files
 
-| Path                                                                               | Role                                                                           |
-| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `backend/.../digitalCard/domain/`                                                  | `DigitalCard`, `DigitalCardPhoto` entities                                     |
-| `backend/.../digitalCard/rest/`                                                    | `DigitalCardController`, `DigitalCardPhotoController`                          |
-| `backend/.../digitalCard/service/DigitalCardService.java`                          | Upsert, ownership checks, soft delete, used-at, account purge                  |
-| `backend/.../digitalCard/service/DigitalCardPhotoService.java`                     | Upload (validate, put to R2), download, delete; calls the validator and store  |
-| `backend/.../digitalCard/service/CardPhotoWriter.java`, `CardUserLock.java`        | The short row-write transaction; the per-user lock                             |
-| `backend/.../digitalCard/service/PhotoCleanupService.java`                         | Queues R2 deletes in `photo_cleanup`, attempts them, retries                   |
-| `backend/.../digitalCard/service/DigitalCardCleanupJob.java`                       | Daily 30-day hard delete; sweeps the rate limiter; retries photo cleanup       |
-| `backend/.../digitalCard/service/PhotoUploadRateLimiter.java`                      | 20 uploads per minute per user                                                 |
-| `backend/.../digitalCard/photo/`                                                   | `PhotoValidator`, `WebpSanitizer`, `JpegSanitizer`                             |
-| `backend/.../digitalCard/storage/`                                                 | `PhotoStore`, `R2PhotoStore`, `DisabledPhotoStore`, `PhotoStoreConfig`         |
-| `backend/.../storeName/`                                                           | Community store-name list, normalizer and controller                           |
-| `backend/.../config/SchedulingConfig.java`                                         | `@EnableScheduling` (the first scheduled job in the app)                       |
-| `frontend/src/lib/api/digital-cards/`                                              | Query keys, queries, hooks, optimistic patches, last-used queue, photo queries |
-| `frontend/src/lib/api/schemas/digital-card.ts`, `store-name.ts`                    | Zod request and response schemas                                               |
-| `frontend/src/lib/offline/card-photo-store.ts`, `card-photo-outbox.ts`, `purge.ts` | Photo blobs, upload outbox, logout purge                                       |
-| `frontend/src/lib/offline/failure-policy.ts`, `purge-gate.ts`                      | Keep or drop rules for failed writes; purge ordering gate                      |
-| `frontend/src/constants/card-codes.ts`                                             | Code types, card types, photo slots and their labels                           |
-| `frontend/src/app/(user)/digital-cards/`                                           | The page, tiles, view and form modals, hooks and utils                         |
-| `frontend/src/app/(user)/digital-cards/utils/generate-code-svg.ts`                 | bwip-js rendering                                                              |
-| `frontend/src/app/(user)/digital-cards/utils/card-palette.ts`                      | The 19 colours                                                                 |
-| `frontend/src/components/scanner/`                                                 | Shared scanner: consensus, confirm step, manual entry                          |
-| `frontend/src/utils/barcode/`                                                      | Check digits and normalization                                                 |
-| `frontend/src/utils/browser/card-image.ts`                                         | Photo resize and WebP or JPEG encoding                                         |
-| `frontend/src/components/reui/autocomplete.tsx`                                    | The store field's Autocomplete (reui, built on `@base-ui/react`)               |
-| `frontend/src/hooks/use-wake-lock.ts`                                              | Keeps the screen on in the view modal                                          |
-| `backend/src/test/`                                                                | The backend suite (H2)                                                         |
+| Path                                                                                           | Role                                                                              |
+| ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `backend/.../digitalCard/domain/`                                                              | `DigitalCard`, `DigitalCardPhoto` entities                                        |
+| `backend/.../digitalCard/rest/`                                                                | `DigitalCardController`, `DigitalCardPhotoController`                             |
+| `backend/.../digitalCard/service/DigitalCardService.java`                                      | Upsert, ownership checks, soft delete, used-at, account purge                     |
+| `backend/.../digitalCard/service/DigitalCardPhotoService.java`                                 | Upload (validate, put to R2), download, delete; calls the validator and store     |
+| `backend/.../digitalCard/service/CardPhotoWriter.java`, `CardUserLock.java`                    | The short row-write transaction; the per-user lock                                |
+| `backend/.../digitalCard/service/PhotoCleanupService.java`                                     | Queues R2 deletes in `photo_cleanup`, attempts them, retries                      |
+| `backend/.../digitalCard/service/DigitalCardCleanupJob.java`                                   | Daily 30-day hard delete; sweeps the rate limiter; retries photo cleanup          |
+| `backend/.../digitalCard/service/PhotoUploadRateLimiter.java`                                  | 20 uploads per minute per user                                                    |
+| `backend/.../digitalCard/photo/`                                                               | `PhotoValidator`, `WebpSanitizer`, `JpegSanitizer`                                |
+| `backend/.../digitalCard/storage/`                                                             | `PhotoStore`, `R2PhotoStore`, `DisabledPhotoStore`, `PhotoStoreConfig`            |
+| `backend/.../storeName/`                                                                       | Community store-name list, normalizer and controller                              |
+| `backend/.../config/SchedulingConfig.java`                                                     | `@EnableScheduling` (the first scheduled job in the app)                          |
+| `frontend/src/lib/api/digital-cards/`                                                          | Query keys, queries, hooks, optimistic patches, last-used queue, photo queries    |
+| `frontend/src/lib/api/schemas/digital-card.ts`, `store-name.ts`                                | Zod request and response schemas                                                  |
+| `frontend/src/lib/offline/card-photo-store.ts`, `card-photo-outbox.ts`, `purge.ts`             | Photo blobs, upload outbox, logout purge                                          |
+| `frontend/src/lib/offline/failure-policy.ts`, `card-retry.ts`, `slot-lock.ts`, `purge-gate.ts` | Keep or drop rules and card retries; per-slot photo ordering; purge ordering gate |
+| `frontend/src/constants/card-codes.ts`                                                         | Code types, card types, photo slots and their labels                              |
+| `frontend/src/app/(user)/digital-cards/`                                                       | The page, tiles, view and form modals, hooks and utils                            |
+| `frontend/src/app/(user)/digital-cards/utils/generate-code-svg.ts`                             | bwip-js rendering                                                                 |
+| `frontend/src/app/(user)/digital-cards/utils/card-palette.ts`                                  | The 19 colours                                                                    |
+| `frontend/src/components/scanner/`                                                             | Shared scanner: consensus, confirm step, manual entry                             |
+| `frontend/src/utils/barcode/`                                                                  | Check digits and normalization                                                    |
+| `frontend/src/utils/browser/card-image.ts`                                                     | Photo resize and WebP or JPEG encoding                                            |
+| `frontend/src/components/reui/autocomplete.tsx`                                                | The store field's Autocomplete (reui, built on `@base-ui/react`)                  |
+| `frontend/src/hooks/use-wake-lock.ts`                                                          | Keeps the screen on in the view modal                                             |
+| `backend/src/test/`                                                                            | The backend suite (H2)                                                            |
 
 ---
 
@@ -413,7 +414,7 @@ The store field's Autocomplete came from the reui registry (`@reui` in `frontend
 | Backend (H2)      | `mvn -B test` from `backend/` | `PhotoValidatorTest` (good WebP and JPEG, PNG, SVG, truncated, oversized, animated, wrong RIFF size, metadata stripped), `DigitalCardServiceTest` (idempotent PUT, ownership 404, soft-deleted 404, delete removes photos, used-at maximum, account purge), `DigitalCardPhotoServiceTest`, `DigitalCardControllerTest` (401, 400 messages, 404), `StoreNameServiceTest`, `StoreNameNormalizerTest` |
 | Frontend (Vitest) | `pnpm test` from `frontend/`  | Palette contrast, check digits, normalization, code alternatives, hex-grid keyboard navigation, sorting, the scan consensus rules, the code SVG generator, the photo type fallback                                                                                                                                                                                                                 |
 
-At the time of writing `mvn -B verify` runs 78 backend tests and `pnpm test` runs 105 frontend tests. CI runs `pnpm test` after the typecheck, and `mvn -B verify` runs the backend suite. These tests cover digital cards and store names only; the rest of the backend still has no tests, so a green `verify` says nothing about other features.
+At the time of writing `mvn -B verify` runs 81 backend tests and `pnpm test` runs 116 frontend tests. CI runs `pnpm test` after the typecheck, and `mvn -B verify` runs the backend suite. These tests cover digital cards and store names only; the rest of the backend still has no tests, so a green `verify` says nothing about other features.
 
 ---
 
