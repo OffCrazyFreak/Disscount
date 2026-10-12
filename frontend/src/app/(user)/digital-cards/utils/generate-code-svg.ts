@@ -16,6 +16,7 @@ import {
 } from "@bwip-js/browser";
 import type { DrawingContext, RenderOptions } from "@bwip-js/browser";
 
+import { toEightDigitUpcE } from "@/utils/barcode/upc-e";
 import {
   TWO_DIMENSIONAL_CODE_TYPES,
   type CodeType,
@@ -76,7 +77,11 @@ export function generateCodeSvg(
 ): CodeSvgResult {
   const spec = SPECS[codeType];
   if (!spec || !value) return { ok: false };
-  if (spec.accepts && !spec.accepts.test(value)) return { ok: false };
+
+  // Cards saved before scans were normalized may still hold the six or seven digit form.
+  const text =
+    codeType === "upc_e" ? (toEightDigitUpcE(value) ?? value) : value;
+  if (spec.accepts && !spec.accepts.test(text)) return { ok: false };
 
   const twoDimensional = TWO_DIMENSIONAL_CODE_TYPES.includes(codeType);
 
@@ -85,7 +90,7 @@ export function generateCodeSvg(
       {
         // Required by the type, ignored by the named encoders.
         bcid: codeType,
-        text: value,
+        text,
         scale: 1,
         includetext: false,
         paddingwidth: spec.padding,

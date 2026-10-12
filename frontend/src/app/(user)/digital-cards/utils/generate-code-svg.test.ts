@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { normalizeScannedCode } from "@/utils/barcode/normalize-code";
 import { generateCodeSvg } from "@/app/(user)/digital-cards/utils/generate-code-svg";
 
 function viewBox(svg: string): number[] {
@@ -37,5 +38,27 @@ describe("generateCodeSvg", () => {
     expect(generateCodeSvg("12345", "unknown").ok).toBe(false);
     expect(generateCodeSvg("abc", "code_39").ok).toBe(false);
     expect(generateCodeSvg("", "code_128").ok).toBe(false);
+  });
+
+  it("draws a scanned UPC-E in any accepted length, identically", () => {
+    const svgs = ["425261", "0425261", "04252614"].map((rawValue) => {
+      const { rawValue: value } = normalizeScannedCode({
+        rawValue,
+        format: "upc_e",
+      });
+      const result = generateCodeSvg(value, "upc_e");
+      expect(result.ok).toBe(true);
+      return result.ok ? result.svg : "";
+    });
+
+    expect(new Set(svgs).size).toBe(1);
+  });
+
+  it("draws already saved six and seven digit UPC-E values", () => {
+    const eight = generateCodeSvg("04252614", "upc_e");
+
+    for (const value of ["425261", "0425261"]) {
+      expect(generateCodeSvg(value, "upc_e")).toEqual(eight);
+    }
   });
 });

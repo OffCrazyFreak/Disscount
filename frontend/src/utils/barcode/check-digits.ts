@@ -1,9 +1,7 @@
 const DIGITS_ONLY = /^\d+$/;
 
 // GS1 mod-10: weights 3,1,3,1... from the digit next to the check digit, leftwards.
-function hasValidGs1CheckDigit(value: string): boolean {
-  const body = value.slice(0, -1);
-  const check = Number(value.slice(-1));
+export function gs1CheckDigit(body: string): number {
   let sum = 0;
 
   for (let i = 0; i < body.length; i += 1) {
@@ -11,12 +9,16 @@ function hasValidGs1CheckDigit(value: string): boolean {
     sum += digit * (i % 2 === 0 ? 3 : 1);
   }
 
-  return (10 - (sum % 10)) % 10 === check;
+  return (10 - (sum % 10)) % 10;
+}
+
+function hasValidGs1CheckDigit(value: string): boolean {
+  return gs1CheckDigit(value.slice(0, -1)) === Number(value.slice(-1));
 }
 
 // Eight digit input is number system + six digits + check; the six digit body is
 // zero-suppressed according to its last digit.
-function expandUpcE(value: string): string {
+export function expandUpcE(value: string): string {
   const numberSystem = value[0];
   const [d1, d2, d3, d4, d5, d6] = value.slice(1, 7);
   const last = Number(d6);

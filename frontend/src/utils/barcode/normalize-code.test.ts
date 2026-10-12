@@ -22,4 +22,25 @@ describe("normalizeScannedCode", () => {
       normalizeScannedCode({ rawValue: "0360002914", format: "upc_a" }),
     ).toEqual({ rawValue: "0360002914", format: "upc_a" });
   });
+
+  it("normalizes 6, 7 and 8 digit UPC-E to the same 8 digit value", () => {
+    for (const rawValue of ["425261", "0425261", "04252614"]) {
+      expect(normalizeScannedCode({ rawValue, format: "upc_e" })).toEqual({
+        rawValue: "04252614",
+        format: "upc_e",
+      });
+    }
+    expect(
+      normalizeScannedCode({ rawValue: "123456", format: "upc_e" }).rawValue,
+    ).toBe("01234565");
+  });
+
+  it("leaves an invalid UPC-E alone", () => {
+    expect(
+      normalizeScannedCode({ rawValue: "2425261", format: "upc_e" }).rawValue,
+    ).toBe("2425261");
+    expect(
+      normalizeScannedCode({ rawValue: "42526", format: "upc_e" }).rawValue,
+    ).toBe("42526");
+  });
 });
