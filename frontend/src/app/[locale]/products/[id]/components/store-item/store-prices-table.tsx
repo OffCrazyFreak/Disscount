@@ -101,11 +101,13 @@ const StorePricesTable = memo(
                       isLocationPreferred ? "text-gray-700" : "text-gray-500",
                     )}
                   >
-                    <TableCell>
+                    <TableCell lang={price.store.city ? "hr" : undefined}>
                       {getLocationLabel(price.store.city, t("unknown"))}
                     </TableCell>
 
-                    <TableCell>{price.store.address || t("unknown")}</TableCell>
+                    <TableCell lang={price.store.address ? "hr" : undefined}>
+                      {price.store.address || t("unknown")}
+                    </TableCell>
 
                     <TableCell className="text-center">
                       {displayPrice != null ? (

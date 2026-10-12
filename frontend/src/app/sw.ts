@@ -12,6 +12,7 @@ import {
   Serwist,
   StaleWhileRevalidate,
 } from "serwist";
+import { DEFAULT_LOCALE, LOCALES } from "@/i18n/locales";
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -21,8 +22,9 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope;
 
-// Mirrors LOCALES in src/i18n/locales.ts; Croatian is the unprefixed default.
-const LOCALE_PREFIXES = ["en", "it", "sl", "de"];
+const LOCALE_PREFIXES: string[] = LOCALES.filter(
+  (locale) => locale !== DEFAULT_LOCALE,
+);
 const SHOPPING_LIST_PATH = new RegExp(
   `^(/(${LOCALE_PREFIXES.join("|")}))?/shopping-lists/`,
 );

@@ -45,7 +45,6 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       type: "website",
       locale: OPEN_GRAPH_LOCALES[locale],
-      url: "/",
       siteName: "Disscount",
       title: t("title"),
       // Social previews truncate near 125 chars, so this is shorter than the meta one.

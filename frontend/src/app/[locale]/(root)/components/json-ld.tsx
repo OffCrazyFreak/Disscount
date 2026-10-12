@@ -1,6 +1,8 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { faqIds } from "@/app/[locale]/(root)/data/faq";
 import { appUrl } from "@/lib/env";
+import { localePath } from "@/i18n/locale-path";
+import { LOCALES } from "@/i18n/locales";
 
 const baseUrl = appUrl();
 
@@ -16,13 +18,14 @@ async function buildGraph() {
         "@id": `${baseUrl}/#website`,
         name: "Disscount",
         url: `${baseUrl}/`,
-        inLanguage: locale,
+        // One site entity for every language; the search below opens in the reader's.
+        inLanguage: [...LOCALES],
         publisher: { "@id": `${baseUrl}/#organization` },
         potentialAction: {
           "@type": "SearchAction",
           target: {
             "@type": "EntryPoint",
-            urlTemplate: `${baseUrl}/products?q={search_term_string}`,
+            urlTemplate: `${baseUrl}${localePath(locale, "/products")}?q={search_term_string}`,
           },
           "query-input": "required name=search_term_string",
         },

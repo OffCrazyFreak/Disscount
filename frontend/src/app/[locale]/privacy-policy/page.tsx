@@ -1,9 +1,13 @@
 import { Metadata } from "next";
+import { localizedUrl } from "@/i18n/alternates";
+import { DEFAULT_LOCALE } from "@/i18n/locales";
 import LegalPage from "@/components/custom/legal/legal-page";
 import LegalSection from "@/components/custom/legal/legal-section";
 import { CONTACT_EMAIL } from "@/constants/contact";
 
 export const metadata: Metadata = {
+  // Croatian only until the rewrite, so every locale points at the one real page.
+  alternates: { canonical: localizedUrl("/privacy-policy", DEFAULT_LOCALE) },
   title: "Pravila privatnosti",
   description: "Kako Disscount prikuplja i koristi tvoje podatke.",
 };
