@@ -232,12 +232,12 @@ Two mechanisms cooperate, split by data sensitivity.
 
 Runtime caching rules, evaluated top to bottom (first match wins):
 
-| Request                                             | Strategy                                   | Notes                                                                                                                  |
-| --------------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| `GET /api/cijene/*` (public price data)             | **StaleWhileRevalidate**                   | cache `cijene-api`, `CacheableResponsePlugin` (statuses 0 + 200), `ExpirationPlugin` (200 entries, 7 days)             |
-| any other `/api/*` (authed, proxied to Spring)      | **NetworkOnly**                            | deliberately never cached; private data lives in IndexedDB instead                                                     |
-| `/shopping-lists/*` (list pages)                    | **NetworkFirst**                           | cache `shopping-list-pages`, 5s network timeout, 20 entries, 1 day. Must stay above `defaultCache`. See the note below |
-| everything else (app shell, `_next`, fonts, images) | `defaultCache` from `@serwist/next/worker` | Next.js-tuned precache + runtime rules                                                                                 |
+| Request                                              | Strategy                                   | Notes                                                                                                                  |
+| ---------------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/cijene/*` (public price data)              | **StaleWhileRevalidate**                   | cache `cijene-api`, `CacheableResponsePlugin` (statuses 0 + 200), `ExpirationPlugin` (200 entries, 7 days)             |
+| any other `/api/*` (authed, proxied to Spring)       | **NetworkOnly**                            | deliberately never cached; private data lives in IndexedDB instead                                                     |
+| `/shopping-lists/*` and `/<locale>/shopping-lists/*` | **NetworkFirst**                           | cache `shopping-list-pages`, 5s network timeout, 20 entries, 1 day. Must stay above `defaultCache`. See the note below |
+| everything else (app shell, `_next`, fonts, images)  | `defaultCache` from `@serwist/next/worker` | Next.js-tuned precache + runtime rules                                                                                 |
 
 The `/shopping-lists/*` rule is a privacy decision as much as a caching one. A list is
 shared at its own URL, so one of those documents can carry someone else's list title, and
@@ -248,7 +248,7 @@ bad-signal case it exists for. NetworkFirst with a one-day expiry is the trade, 
 is only safe because `purgeOfflineCache` now deletes this bucket (and `cijene-api`) when
 the signed-in identity changes. Nothing else in the app has ever called `caches.delete()`.
 
-Plus: `precacheEntries: self.__SW_MANIFEST` (the build-injected app-shell precache), `skipWaiting`, `clientsClaim`, `navigationPreload`, and a `fallbacks` rule that serves the precached `/offline` page for document requests that fail offline.
+Plus: `precacheEntries: self.__SW_MANIFEST` (the build-injected app-shell precache), `skipWaiting`, `clientsClaim`, `navigationPreload`, and a `fallbacks` rule that serves a precached offline page for document requests that fail offline. There is one per language (`/offline`, `/en/offline` and so on), and a failed document gets the one matching its own prefix. `LOCALE_PREFIXES` in `sw.ts` mirrors `LOCALES` in `src/i18n/locales.ts` and has to change with it.
 
 ### 5b. Persisted React Query cache (IndexedDB), works everywhere
 
@@ -329,40 +329,40 @@ The screenshot generator script was removed after the images were generated, so 
 
 ## 8. Key files
 
-| Path                                                                                | Role                                                                                        |
-| ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `frontend/src/app/manifest.ts`                                                      | Web App Manifest (name, display, theme, icons, shortcuts, screenshots, launch_handler)      |
-| `frontend/src/app/sw.ts`                                                            | Serwist service worker source: precache + runtime caching + `/offline` fallback             |
-| `frontend/next.config.ts`                                                           | wraps the config with `withSerwistInit` (composed around Sentry); disables the SW in dev    |
-| `frontend/src/app/offline/page.tsx` + `offline/components/offline-retry-button.tsx` | the offline fallback page and its reload button                                             |
-| `frontend/src/lib/sentry/ignore-service-worker-noise.ts`                            | drops the registration failures Serwist reports from crawlers and restricted browsers       |
-| `frontend/src/components/custom/pwa/use-install-prompt.ts`                          | shared install-state store + platform/support detection                                     |
-| `frontend/src/app/layout.tsx`                                                       | `beforeInteractive` script that captures `beforeinstallprompt` before hydration             |
-| `frontend/src/components/custom/pwa/install-banner.tsx`                             | one-time dismissible floating install banner                                                |
-| `frontend/src/components/custom/pwa/install-card.tsx`                               | install card, in the sidebar and (with `permanent`) on the landing page                     |
-| `frontend/src/components/custom/pwa/install-perk.tsx`                               | the landing page's clickable install perk row                                               |
-| `frontend/src/components/custom/pwa/install-copy.ts`                                | shared button label and pitch copy, keyed by platform                                       |
-| `frontend/src/components/custom/pwa/install-instructions-sheet.tsx`                 | manual install steps (iOS / macOS Safari / Android / desktop)                               |
-| `frontend/src/components/custom/pwa/apple-splash-screens.tsx`                       | emits `apple-touch-startup-image` links                                                     |
-| `frontend/src/components/custom/pwa/request-persistent-storage.tsx`                 | requests durable storage                                                                    |
-| `frontend/src/components/custom/pwa/scan-shortcut.tsx`                              | serves the Skeniraj app shortcut: consumes `?scan=1` and opens the camera                   |
-| `frontend/src/app/providers/react-query-provider.tsx`                               | `PersistQueryClientProvider`, registers offline mutation defaults, resumes paused mutations |
-| `frontend/src/lib/offline/persister.ts`                                             | IndexedDB persister + persist options (maxAge, buster, dehydrate rules)                     |
-| `frontend/src/lib/offline/cached-query-keys.ts`                                     | whitelist of query keys that may be persisted                                               |
-| `frontend/src/lib/offline/offline-mutation-keys.ts`                                 | allowlist of mutation keys that may queue offline                                           |
-| `frontend/src/lib/offline/offline-mutations.ts`                                     | registers replay `mutationFn` + invalidation per key                                        |
-| `frontend/src/lib/offline/purge.ts`                                                 | clears in-memory + IndexedDB cache on logout                                                |
-| `frontend/src/hooks/use-online-status.ts`                                           | online/offline state from `onlineManager`                                                   |
-| `frontend/src/components/custom/offline/offline-indicator.tsx`                      | offline banner + queued-writes count                                                        |
-| `frontend/src/components/custom/offline/last-synced-label.tsx`                      | "last synced" relative-time label                                                           |
-| `frontend/src/utils/date.ts`                                                        | `formatRelativeTime` helper                                                                 |
-| `frontend/src/utils/browser/share.ts`                                               | `shareOrCopy`: OS share sheet with a clipboard fallback                                     |
-| `frontend/src/app/share-target/route.ts`                                            | receives a system share and redirects it into `/products?q=`                                |
-| `frontend/src/constants/ios-splash-screens.json`                                    | iOS device list (single source for the generator and the links)                             |
-| `frontend/scripts/generate-pwa-icons.mjs` / `generate-ios-splash.mjs`               | asset generators (run with `node`)                                                          |
-| `frontend/scripts/generate-shortcut-icons.mjs`                                      | app-shortcut icon generator (white lucide glyph on green; one masked tile + one rounded)    |
-| `frontend/public/brand/{icons,shortcuts}/`                                          | generated icon and app-shortcut PNGs                                                        |
-| `frontend/public/{splash,screenshots}/`                                             | generated splash screens and install-dialog screenshots                                     |
+| Path                                                                                         | Role                                                                                        |
+| -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `frontend/src/app/manifest.ts`                                                               | Web App Manifest (name, display, theme, icons, shortcuts, screenshots, launch_handler)      |
+| `frontend/src/app/sw.ts`                                                                     | Serwist service worker source: precache + runtime caching + `/offline` fallback             |
+| `frontend/next.config.ts`                                                                    | wraps the config with `withSerwistInit` (composed around Sentry); disables the SW in dev    |
+| `frontend/src/app/[locale]/offline/page.tsx` + `offline/components/offline-retry-button.tsx` | the offline fallback page and its reload button                                             |
+| `frontend/src/lib/sentry/ignore-service-worker-noise.ts`                                     | drops the registration failures Serwist reports from crawlers and restricted browsers       |
+| `frontend/src/components/custom/pwa/use-install-prompt.ts`                                   | shared install-state store + platform/support detection                                     |
+| `frontend/src/app/[locale]/layout.tsx`                                                       | `beforeInteractive` script that captures `beforeinstallprompt` before hydration             |
+| `frontend/src/components/custom/pwa/install-banner.tsx`                                      | one-time dismissible floating install banner                                                |
+| `frontend/src/components/custom/pwa/install-card.tsx`                                        | install card, in the sidebar and (with `permanent`) on the landing page                     |
+| `frontend/src/components/custom/pwa/install-perk.tsx`                                        | the landing page's clickable install perk row                                               |
+| `frontend/src/components/custom/pwa/install-copy.ts`                                         | shared button label and pitch copy, keyed by platform                                       |
+| `frontend/src/components/custom/pwa/install-instructions-sheet.tsx`                          | manual install steps (iOS / macOS Safari / Android / desktop)                               |
+| `frontend/src/components/custom/pwa/apple-splash-screens.tsx`                                | emits `apple-touch-startup-image` links                                                     |
+| `frontend/src/components/custom/pwa/request-persistent-storage.tsx`                          | requests durable storage                                                                    |
+| `frontend/src/components/custom/pwa/scan-shortcut.tsx`                                       | serves the Skeniraj app shortcut: consumes `?scan=1` and opens the camera                   |
+| `frontend/src/app/providers/react-query-provider.tsx`                                        | `PersistQueryClientProvider`, registers offline mutation defaults, resumes paused mutations |
+| `frontend/src/lib/offline/persister.ts`                                                      | IndexedDB persister + persist options (maxAge, buster, dehydrate rules)                     |
+| `frontend/src/lib/offline/cached-query-keys.ts`                                              | whitelist of query keys that may be persisted                                               |
+| `frontend/src/lib/offline/offline-mutation-keys.ts`                                          | allowlist of mutation keys that may queue offline                                           |
+| `frontend/src/lib/offline/offline-mutations.ts`                                              | registers replay `mutationFn` + invalidation per key                                        |
+| `frontend/src/lib/offline/purge.ts`                                                          | clears in-memory + IndexedDB cache on logout                                                |
+| `frontend/src/hooks/use-online-status.ts`                                                    | online/offline state from `onlineManager`                                                   |
+| `frontend/src/components/custom/offline/offline-indicator.tsx`                               | offline banner + queued-writes count                                                        |
+| `frontend/src/components/custom/offline/last-synced-label.tsx`                               | "last synced" relative-time label                                                           |
+| `frontend/src/utils/date.ts`                                                                 | `formatRelativeTime` helper                                                                 |
+| `frontend/src/utils/browser/share.ts`                                                        | `shareOrCopy`: OS share sheet with a clipboard fallback                                     |
+| `frontend/src/app/share-target/route.ts`                                                     | receives a system share and redirects it into `/products?q=`                                |
+| `frontend/src/constants/ios-splash-screens.json`                                             | iOS device list (single source for the generator and the links)                             |
+| `frontend/scripts/generate-pwa-icons.mjs` / `generate-ios-splash.mjs`                        | asset generators (run with `node`)                                                          |
+| `frontend/scripts/generate-shortcut-icons.mjs`                                               | app-shortcut icon generator (white lucide glyph on green; one masked tile + one rounded)    |
+| `frontend/public/brand/{icons,shortcuts}/`                                                   | generated icon and app-shortcut PNGs                                                        |
+| `frontend/public/{splash,screenshots}/`                                                      | generated splash screens and install-dialog screenshots                                     |
 
 ---
 
