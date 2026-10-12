@@ -1,1 +1,15 @@
-{}
+{
+  "meta": {
+    "title": "Idee e suggerimenti",
+    "description": "Proponi nuove funzioni e vota quelle che vorresti vedere.",
+    "detailTitle": "Idee e suggerimenti: dettagli",
+    "detailDescription": "Dettagli del suggerimento e commenti della community."
+  },
+  "searchPlaceholder": "Cerca idee e suggerimenti...",
+  "heading": "Idee e suggerimenti ({count})",
+  "searchHeading": "Risultati per «{query}» ({count})",
+  "separator": "·",
+  "backToList": "Torna a idee e suggerimenti",
+  "comments": "Commenti ({count})",
+  "noComments": "Ancora nessun commento. Potrai scrivere il primo quando la funzione sarà disponibile."
+}

@@ -1,1 +1,67 @@
-{}
+{
+  "meta": {
+    "title": "Prodotti seguiti",
+    "description": "Segui i prezzi dei prodotti e ricevi notifiche sulle offerte."
+  },
+  "client": {
+    "loginTitle": "Prodotti seguiti",
+    "loginDescription": "Seguendo i prodotti ricevi una notifica appena il prezzo scende.",
+    "searchPlaceholder": "Cerca tra i prodotti seguiti..."
+  },
+  "header": {
+    "searchResultsTitle": "Risultati per «{query}» ({count})",
+    "title": "Prodotti seguiti",
+    "titleWithCount": "Prodotti seguiti ({count})",
+    "pricesUpdated": "Prezzi aggiornati"
+  },
+  "list": {
+    "emptyTitle": "Non segui ancora nessun prodotto",
+    "emptyDescription": "Cerca un prodotto, scegli «Segui prodotto» e ricevi notifiche sulle offerte.",
+    "searchProducts": "Cerca prodotti"
+  },
+  "suggestions": {
+    "title": "Prodotti suggeriti da seguire ({count})",
+    "hide": "Nascondi",
+    "show": "Mostra"
+  },
+  "actionButton": {
+    "watch": "Segui prodotto",
+    "remove": "Rimuovi prodotto"
+  },
+  "discountRow": {
+    "srSuffix": ", {infoLabel}, apri le preferenze dei negozi"
+  },
+  "discountInfo": {
+    "loadError": "Errore di caricamento",
+    "noData": "Nessun dato",
+    "unavailable": "Non disponibile",
+    "setPreferences": "Imposta preferenze",
+    "preferredStoresInfo": "Mostra i negozi per il prezzo nei negozi preferiti",
+    "allStoresInfo": "Mostra i negozi per il prezzo in tutti i negozi"
+  },
+  "item": {
+    "loading": "Caricamento...",
+    "unavailable": "Prodotto non disponibile"
+  },
+  "removal": {
+    "success": "Prodotto rimosso dai prodotti seguiti",
+    "error": "Non siamo riusciti a rimuovere il prodotto",
+    "partial": "{count, plural, one {Rimozione parziale: non è stato possibile rimuovere # articolo.} other {Rimozione parziale: non è stato possibile rimuovere # articoli.}}"
+  },
+  "createList": {
+    "label": "Crea lista dei prodotti scontati",
+    "short": "Crea lista",
+    "loading": "Creazione lista...",
+    "listTitle": "In offerta il {date}",
+    "productCount": "Prodotti per la nuova lista: {count}.",
+    "success": "Lista dei prodotti scontati creata",
+    "createError": "Non siamo riusciti a creare la lista dei prodotti scontati",
+    "addFailedRemoved": "Non è stato possibile aggiungere alcuni articoli. La lista è stata rimossa automaticamente.",
+    "addFailedKept": "Non è stato possibile aggiungere alcuni articoli e la lista non si può rimuovere automaticamente."
+  },
+  "validation": {
+    "productRequired": "Il prodotto è obbligatorio",
+    "watchTypeRequired": "Il tipo di avviso è obbligatorio",
+    "thresholdPositive": "La soglia deve essere un numero positivo"
+  }
+}

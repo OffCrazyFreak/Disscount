@@ -1,1 +1,80 @@
-{}
+{
+  "meta": {
+    "title": "My digital cards",
+    "description": "View and manage your digital cards."
+  },
+  "list": {
+    "loginTitle": "Digital cards",
+    "loginDescription": "Digital cards let you keep all your loyalty cards in one place, always to hand.",
+    "searchPlaceholder": "Search digital cards...",
+    "searchResultsTitle": "Search results for “{query}” ({count})",
+    "title": "My digital cards",
+    "titleWithCount": "My digital cards ({count})",
+    "emptyTitle": "No digital cards",
+    "emptyDescription": "Create your first digital card…"
+  },
+  "actions": {
+    "add": "Add digital card",
+    "addShort": "Add card"
+  },
+  "item": {
+    "moreOptions": "More card options",
+    "edit": "Edit",
+    "delete": "Delete",
+    "created": "Created {date}",
+    "confirmDelete": "Delete the card “{title}”?",
+    "deleted": "Card deleted.",
+    "deleteError": "Couldn't delete the card: {message}"
+  },
+  "modal": {
+    "editTitle": "Edit digital card",
+    "newTitle": "New digital card",
+    "description": "Save a loyalty card and keep it to hand.",
+    "save": "Save",
+    "create": "Create",
+    "cancel": "Cancel",
+    "reset": "Reset",
+    "loadError": "Couldn't load the card. Try again.",
+    "notFound": "Card not found. It may have been deleted.",
+    "offline": "You're offline. The change will sync when you're back online.",
+    "updated": "Digital card updated!",
+    "created": "Digital card created!"
+  },
+  "fields": {
+    "title": "Card name",
+    "value": "Value or code",
+    "type": "Card type",
+    "typePlaceholder": "Choose a type",
+    "codeType": "Code type",
+    "codeTypePlaceholder": "Choose a code type",
+    "color": "Card colour",
+    "note": "Note",
+    "notePlaceholder": "Enter a note",
+    "noteHelp": "Extra details about your card ({remaining} left)."
+  },
+  "cardTypes": {
+    "loyalty": "Loyalty card",
+    "discount": "Discount card",
+    "membership": "Membership",
+    "gift": "Gift card",
+    "other": "Other"
+  },
+  "codeTypes": {
+    "barcode": "Barcode",
+    "qr": "QR code",
+    "number": "Number",
+    "text": "Text"
+  },
+  "validation": {
+    "titleRequired": "Name is required",
+    "titleMax": "Enter a name of up to 100 characters",
+    "valueRequired": "Value is required",
+    "valueMax": "Value can be up to 500 characters",
+    "typeRequired": "Type is required",
+    "typeMax": "Type can be up to 50 characters",
+    "codeTypeRequired": "Code type is required",
+    "codeTypeMax": "Code type can be up to 50 characters",
+    "colorHex": "Colour must be in HEX format (#ffffff)",
+    "noteMax": "Note can be up to 500 characters"
+  }
+}

@@ -1,1 +1,33 @@
-{}
+{
+  "meta": {
+    "title": "Novice",
+    "description": "Najnovejše objave in novice o Disscountu.",
+    "detailFallbackDescription": "Podrobnosti objave."
+  },
+  "author": "Ekipa Disscount",
+  "separator": "·",
+  "searchPlaceholder": "Išči novice...",
+  "heading": "Novice ({count})",
+  "searchHeading": "Rezultati iskanja za »{query}« ({count})",
+  "newPost": "Nova objava",
+  "newPostSoon": "Ustvarjanje objav bo kmalu na voljo.",
+  "backToList": "Nazaj na novice",
+  "posts": {
+    "disscount-launch": {
+      "title": "Disscount je zaživel! Hvala našim beta testerjem",
+      "excerpt": "Prvih dvesto oseb s čakalnega seznama vabimo, da kot prve preizkusijo Disscount.",
+      "body": {
+        "p1": "Veliki dan je tu: Disscount je uradno zaživel! Najprej vabimo prvih dvesto oseb z našega čakalnega seznama, da kot prve preizkusijo aplikacijo in nam pomagajo, da bo še boljša.",
+        "p2": "Hvala za potrpežljivost in zvestobo. Tvoje zaupanje in podpora od prvega dne nam pomenita zelo veliko. To je šele začetek, najboljše pa šele prihaja. Veseli smo, da tokrat začenjamo skupaj s tabo."
+      }
+    },
+    "whats-next": {
+      "title": "Kaj sledi po zagonu",
+      "excerpt": "Pripravljamo nove funkcije: od zemljevida trgovin do spremljanja porabe. Tvoji predlogi oblikujejo, kaj gradimo naprej.",
+      "body": {
+        "p1": "V naslednjih tednih delamo na več novih funkcijah: interaktivnem zemljevidu trgovin z delovnim časom, pregledu lastne porabe in digitalnih karticah zvestobe.",
+        "p2": "Tvoje mnenje nam največ pomeni: na strani Ideje in predlogi lahko predlagaš nove funkcije in glasuješ za tiste, ki jih želiš videti prve."
+      }
+    }
+  }
+}

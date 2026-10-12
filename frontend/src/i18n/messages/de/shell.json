@@ -1,1 +1,96 @@
-{}
+{
+  "nav": {
+    "home": "Start",
+    "dashboard": "Dashboard",
+    "products": "Produkte",
+    "shoppingLists": "Einkaufslisten",
+    "shoppingListsShort": "Listen",
+    "shoppingListsShortcut": "Öffne deine Einkaufslisten",
+    "watchlist": "Merkliste",
+    "watchlistShort": "Merkliste",
+    "watchlistShortcut": "Sieh dir die Produkte auf deiner Merkliste an",
+    "digitalCards": "Kundenkarten",
+    "digitalCardsShort": "Karten",
+    "digitalCardsShortcut": "Öffne deine digitalen Kundenkarten",
+    "spending": "Ausgaben",
+    "spendingShortcut": "Sieh dir deine Ausgaben an",
+    "discounted": "Angebote",
+    "map": "Karte",
+    "stores": "Märkte",
+    "locations": "Standorte",
+    "statistics": "Statistik",
+    "updates": "Neuigkeiten",
+    "suggestions": "Ideen und Vorschläge",
+    "bugReport": "Fehler melden",
+    "contact": "Kontakt",
+    "donate": "Disscount unterstützen"
+  },
+  "sidebar": {
+    "explore": "Entdecken",
+    "myAccount": "Mein Konto",
+    "support": "Hilfe und Support",
+    "comingSoon": "BALD",
+    "toggle": "Umschalten"
+  },
+  "search": {
+    "productsPlaceholder": "Produkte suchen...",
+    "placeholder": "Suchen...",
+    "submit": "Suchen",
+    "clear": "Suche leeren",
+    "scanBarcode": "Barcode scannen",
+    "backToTop": "Nach oben"
+  },
+  "header": {
+    "login": "Anmelden"
+  },
+  "bottomNav": {
+    "label": "Hauptnavigation",
+    "searchClose": "{label}, schließen",
+    "searchOpen": "{label}, suchen"
+  },
+  "userMenu": {
+    "trigger": "Benutzermenü",
+    "profile": "Profil",
+    "notifications": "Benachrichtigungen",
+    "preferences": "Vorlieben",
+    "security": "Sicherheit",
+    "logout": "Abmelden"
+  },
+  "modalRouter": {
+    "gate": {
+      "addToList": "Melde dich an, um Produkte zu deiner Einkaufsliste hinzuzufügen.",
+      "watchlist": "Melde dich an, um Preissenkungen bei diesem Produkt zu verfolgen.",
+      "manageLists": "Melde dich an, um deine Einkaufslisten zu verwalten.",
+      "manageCards": "Melde dich an, um deine digitalen Kundenkarten zu verwalten.",
+      "settings": "Melde dich an, um die Einstellungen zu öffnen.",
+      "onboarding": "Melde dich an, um loszulegen."
+    },
+    "deleteList": {
+      "title": "Einkaufsliste löschen",
+      "description": "Möchtest du die Liste „{title}“ wirklich löschen? Das kann nicht rückgängig gemacht werden.",
+      "confirm": "Löschen"
+    }
+  },
+  "modal": {
+    "close": "Schließen",
+    "unsavedLabel": "Ungespeicherte Änderungen",
+    "unsavedHint": "Du hast ungespeicherte Änderungen. Klicke auf „Speichern“, um sie zu sichern, oder auf „Zurücksetzen“, um sie zu verwerfen."
+  },
+  "loading": {
+    "saving": "Speichern...",
+    "creating": "Erstellen...",
+    "adding": "Hinzufügen...",
+    "updating": "Aktualisieren...",
+    "deleting": "Löschen...",
+    "restoring": "Zurückholen...",
+    "sending": "Senden...",
+    "copying": "Kopieren...",
+    "sharing": "Teilen...",
+    "settingUp": "Einrichten...",
+    "signingIn": "Anmeldung...",
+    "signingOut": "Abmelden...",
+    "registering": "Registrieren...",
+    "linking": "Verbinden...",
+    "unlinking": "Trennen..."
+  }
+}

@@ -1,1 +1,134 @@
-{}
+{
+  "meta": {
+    "title": "Liste della spesa",
+    "description": "Gestisci le tue liste della spesa."
+  },
+  "client": {
+    "loginTitle": "Liste della spesa",
+    "loginDescription": "Le liste della spesa ti aiutano a organizzare gli acquisti e a confrontare i prezzi dei negozi in un unico posto.",
+    "searchPlaceholder": "Cerca liste della spesa...",
+    "searchResults": "Risultati per «{query}» ({count})",
+    "myLists": "Le mie liste della spesa",
+    "myListsWithCount": "Le mie liste della spesa ({count})",
+    "empty": {
+      "title": "Nessuna lista della spesa",
+      "description": "Crea una lista della spesa o cerca dei prodotti e aggiungili a una nuova lista.",
+      "browseProducts": "Cerca prodotti"
+    }
+  },
+  "createList": {
+    "full": "Crea lista della spesa",
+    "short": "Crea lista"
+  },
+  "actionsSheet": {
+    "fallbackTitle": "Azioni per la lista",
+    "description": "Azioni per la lista della spesa selezionata.",
+    "notFound": "Non troviamo questa lista. Forse è stata eliminata."
+  },
+  "quickActions": {
+    "edit": "Modifica lista",
+    "copy": "Copia lista",
+    "editSharing": "Modifica condivisione",
+    "share": "Condividi lista",
+    "delete": "Elimina lista"
+  },
+  "visibility": {
+    "NONE": "La lista è privata",
+    "VIEW": "Chiunque abbia il link può vedere la lista",
+    "SHOP": "Chiunque abbia il link può segnare gli articoli",
+    "EDIT": "Chiunque abbia il link può modificare la lista"
+  },
+  "linkAccess": {
+    "label": {
+      "NONE": "Privata",
+      "VIEW": "Visualizzazione",
+      "SHOP": "Spesa",
+      "EDIT": "Modifica"
+    },
+    "rowTitle": {
+      "private": "Lista privata",
+      "shared": "Chiunque abbia il link"
+    },
+    "hint": {
+      "NONE": "Condivisione disattivata: solo tu puoi aprire questa lista.",
+      "VIEW": "Può vedere tutta la lista, ma non modificarla.",
+      "SHOP": "Può vedere tutta la lista, scegliere il negozio e segnare cosa è stato preso.",
+      "EDIT": "Può modificare tutta la lista, ma non aggiungere nuovi prodotti."
+    }
+  },
+  "modal": {
+    "cancel": "Annulla",
+    "notFound": "Lista non trovata. Forse è stata eliminata o non hai accesso."
+  },
+  "titleField": {
+    "label": "Nome della lista",
+    "placeholder": "Grigliata 01.05.2026"
+  },
+  "listModal": {
+    "titleEdit": "Modifica lista della spesa",
+    "titleNew": "Nuova lista della spesa",
+    "description": "Puoi condividere la lista e confrontare i prezzi tra i negozi.",
+    "save": "Salva",
+    "create": "Crea",
+    "reset": "Reimposta",
+    "loadError": "Impossibile caricare la lista. Riprova.",
+    "offlineToast": "Sei offline. La modifica si sincronizzerà quando torni online.",
+    "updatedToast": "Lista della spesa aggiornata!",
+    "createdToast": "Lista della spesa creata!"
+  },
+  "copyModal": {
+    "title": "Copia lista",
+    "description": "Scegli cosa portare nella copia.",
+    "submit": "Copia",
+    "titleSuffix": " (copia)",
+    "successToast": "Lista della spesa copiata!",
+    "errorToast": "Non siamo riusciti a copiare la lista della spesa",
+    "options": {
+      "items": {
+        "label": "Prodotti",
+        "description": "Copia tutti i prodotti"
+      },
+      "progress": {
+        "label": "Articoli presi e negozi salvati",
+        "description": "Mantieni cosa è stato preso, in quale negozio e a che prezzo."
+      },
+      "sharing": {
+        "label": "Impostazioni di condivisione",
+        "descriptionOwner": "La copia viene condivisa come l'originale.",
+        "descriptionNotOwner": "Solo chi ha creato la lista può copiare la condivisione."
+      }
+    }
+  },
+  "shareModal": {
+    "title": "Condividi lista",
+    "description": "Invia il link e fatti aiutare da qualcuno con la spesa.",
+    "saving": "Salvataggio delle impostazioni di condivisione...",
+    "offline": "Sei offline. La modifica verrà salvata quando torni online.",
+    "shareLink": "Condividi il link",
+    "shareText": "Condividi il testo",
+    "accessLabel": "Chi ha accesso alla lista",
+    "settingsUpdatedToast": "Impostazioni di condivisione aggiornate.",
+    "settingsFailedToast": "Non siamo riusciti a salvare la modifica. Riprova.",
+    "linkCopiedToast": "Link copiato",
+    "textCopiedToast": "Testo della lista copiato",
+    "failedToast": "Non siamo riusciti a condividere"
+  },
+  "shareText": {
+    "created": "📅 Creata il: {date}",
+    "updated": "🔄 Aggiornata il: {date}",
+    "footerCreatedWith": "✨ *Lista creata con Disscount*",
+    "footerCompare": "💰 Confronta i prezzi e risparmia!",
+    "footerTry": "🌐 Provalo gratis su disscount.me"
+  },
+  "validation": {
+    "titleMin": "Inserisci un nome di almeno 3 caratteri",
+    "titleMax": "Inserisci un nome di al massimo 100 caratteri",
+    "eanRequired": "Il codice EAN è obbligatorio",
+    "nameRequired": "Il nome del prodotto è obbligatorio",
+    "amountMin": "La quantità deve essere maggiore di 0",
+    "amountMax": "La quantità non può superare 999"
+  },
+  "listCard": {
+    "progress": "{checked}/{total}"
+  }
+}

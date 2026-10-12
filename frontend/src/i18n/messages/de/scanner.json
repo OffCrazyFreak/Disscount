@@ -1,1 +1,24 @@
-{}
+{
+  "title": "Code scannen",
+  "camera": {
+    "label": "Kamera",
+    "autoPlaceholder": "Automatisch (Rückkamera)",
+    "reset": "Kamera auf automatische Auswahl zurücksetzen",
+    "name": "{facing, select, front {Frontkamera} back {Rückkamera} other {Kamera}}{lens, select, ultrawide { (Ultraweitwinkel)} telephoto { (Teleobjektiv)} macro { (Makro)} other {}}{ordinal, plural, =0 {} other { #}}"
+  },
+  "image": {
+    "upload": "Bild mit Code hochladen",
+    "loading": "Wird geladen...",
+    "notFound": "Auf dem Bild wurde kein Code gefunden.",
+    "notProductBarcode": "Der Code auf dem Bild ist kein Produkt-Barcode (EAN).",
+    "loadFailed": "Das Bild konnte nicht geladen werden."
+  },
+  "errors": {
+    "permissionDenied": "Der Zugriff auf die Kamera wurde abgelehnt. Erlaube den Kamerazugriff in den Browsereinstellungen und versuche es erneut.",
+    "noCamera": "Auf diesem Gerät wurde keine Kamera gefunden.",
+    "inUse": "Die Kamera wird gerade von einer anderen App genutzt. Schließe sie und versuche es erneut.",
+    "overconstrained": "Die gewählte Kamera ist nicht verfügbar. Setze die Kamera auf automatische Auswahl zurück.",
+    "insecureContext": "Scannen funktioniert nur über eine sichere Verbindung (HTTPS).",
+    "generic": "Die Kamera konnte nicht gestartet werden. Versuche es erneut."
+  }
+}

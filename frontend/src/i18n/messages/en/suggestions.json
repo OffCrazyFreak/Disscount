@@ -1,1 +1,15 @@
-{}
+{
+  "meta": {
+    "title": "Ideas and suggestions",
+    "description": "Suggest new features and vote for the ones you want to see.",
+    "detailTitle": "Ideas and suggestions: details",
+    "detailDescription": "Suggestion details and community comments."
+  },
+  "searchPlaceholder": "Search ideas and suggestions...",
+  "heading": "Ideas and suggestions ({count})",
+  "searchHeading": "Search results for “{query}” ({count})",
+  "separator": "·",
+  "backToList": "Back to ideas and suggestions",
+  "comments": "Comments ({count})",
+  "noComments": "No comments yet. You can leave the first one once the feature is available."
+}

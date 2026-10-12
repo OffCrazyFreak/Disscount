@@ -1,1 +1,86 @@
-{}
+{
+  "meta": {
+    "title": "Nadzorna plošča",
+    "description": "Nadzorna plošča za partnerje, javni sektor in skrbnike."
+  },
+  "content": {
+    "title": "Nadzorna plošča",
+    "tabUsers": "Uporabniki",
+    "tabContact": "Stik",
+    "comingSoon": "Tukaj bodo kmalu na voljo podatki in orodja."
+  },
+  "activity": {
+    "title": "Aktivni uporabniki",
+    "error": "Napaka pri nalaganju uporabnikov.",
+    "windowLabel": "Obdobje:",
+    "window": {
+      "d1": "Zadnji dan",
+      "d7": "Zadnjih 7 dni",
+      "d14": "Zadnjih 14 dni",
+      "d30": "Zadnjih 30 dni",
+      "d90": "Zadnjih 90 dni"
+    },
+    "abbreviation": "({abbreviation})"
+  },
+  "stats": {
+    "weekly": "Tedensko aktivni uporabniki",
+    "monthly": "Mesečno aktivni uporabniki"
+  },
+  "users": {
+    "accountTypeUpdated": "Vrsta računa posodobljena!",
+    "accountTypeError": "Napaka pri spremembi vrste računa.",
+    "deleted": "Račun je izbrisan!",
+    "deleteError": "Napaka pri brisanju računa.",
+    "loadError": "Napaka pri nalaganju uporabnikov.",
+    "colUsername": "Uporabniško ime",
+    "colEmail": "E-naslov",
+    "colLastLogin": "Zadnja prijava",
+    "colAccountType": "Vrsta računa",
+    "deleteTitle": "Brisanje računa",
+    "deleteDescription": "Želiš res izbrisati račun {name}? Tega ni mogoče razveljaviti.",
+    "deleteConfirm": "Izbriši račun"
+  },
+  "userRow": {
+    "you": "Ti",
+    "deleteAccount": "Izbriši račun"
+  },
+  "contact": {
+    "viewAll": "Vsa",
+    "viewUnread": "Neprebrana",
+    "loadError": "Napaka pri nalaganju sporočil.",
+    "searchPlaceholder": "Išči sporočila...",
+    "showDeleted": "Pokaži izbrisana",
+    "colMessage": "Sporočilo",
+    "colSender": "Pošiljatelj",
+    "colSent": "Poslano",
+    "colStatus": "Status",
+    "colActions": "Dejanja",
+    "empty": "Ni sporočil."
+  },
+  "contactRow": {
+    "unreadMarker": "Neprebrano",
+    "deletedBadge": "Izbrisano",
+    "markRead": "Označi kot prebrano",
+    "markUnread": "Označi kot neprebrano",
+    "copyEmail": "Kopiraj e-naslov",
+    "copySuccess": "E-naslov je kopiran!",
+    "copyError": "Napaka pri kopiranju e-naslova",
+    "restore": "Obnovi sporočilo",
+    "delete": "Izbriši sporočilo"
+  },
+  "contactDetail": {
+    "reply": "Odgovori",
+    "close": "Zapri",
+    "from": "Od: {name}",
+    "unknownSender": "Neznano",
+    "sent": "Poslano: {date}",
+    "page": "Stran: {path}"
+  },
+  "inbox": {
+    "error": "Nekaj je šlo narobe.",
+    "markedUnread": "Označeno kot neprebrano.",
+    "markedRead": "Označeno kot prebrano.",
+    "deleted": "Sporočilo je izbrisano.",
+    "restored": "Sporočilo je obnovljeno."
+  }
+}

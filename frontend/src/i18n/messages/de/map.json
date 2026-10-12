@@ -1,1 +1,14 @@
-{}
+{
+  "meta": {
+    "title": "Karte und Öffnungszeiten der Märkte",
+    "description": "Märkte und ihre Öffnungszeiten auf der Karte."
+  },
+  "search": {
+    "placeholder": "Nach Marktname oder Adresse suchen..."
+  },
+  "heading": {
+    "results": "Suchergebnisse für „{query}“",
+    "default": "Karte und Öffnungszeiten der Märkte"
+  },
+  "comingSoon": "Märkte nach Händlername oder Adresse suchen und ihre Öffnungszeiten auf einer interaktiven Karte ansehen: das gibt es bald."
+}

@@ -1,1 +1,80 @@
-{}
+{
+  "meta": {
+    "title": "Le mie carte digitali",
+    "description": "Consulta e gestisci le carte digitali."
+  },
+  "list": {
+    "loginTitle": "Carte digitali",
+    "loginDescription": "Le carte digitali ti permettono di tenere tutte le carte fedeltà in un unico posto, sempre a portata di mano.",
+    "searchPlaceholder": "Cerca carte digitali...",
+    "searchResultsTitle": "Risultati per «{query}» ({count})",
+    "title": "Le mie carte digitali",
+    "titleWithCount": "Le mie carte digitali ({count})",
+    "emptyTitle": "Nessuna carta digitale",
+    "emptyDescription": "Crea la tua prima carta digitale…"
+  },
+  "actions": {
+    "add": "Aggiungi carta digitale",
+    "addShort": "Aggiungi carta"
+  },
+  "item": {
+    "moreOptions": "Altre opzioni per la carta",
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "created": "Creata il {date}",
+    "confirmDelete": "Vuoi davvero eliminare la carta «{title}»?",
+    "deleted": "Carta eliminata.",
+    "deleteError": "Non siamo riusciti a eliminare la carta: {message}"
+  },
+  "modal": {
+    "editTitle": "Modifica carta digitale",
+    "newTitle": "Nuova carta digitale",
+    "description": "Salva la carta fedeltà e tienila sempre a portata di mano.",
+    "save": "Salva",
+    "create": "Crea",
+    "cancel": "Annulla",
+    "reset": "Reimposta",
+    "loadError": "Impossibile caricare la carta. Riprova.",
+    "notFound": "Carta non trovata. Forse è stata eliminata.",
+    "offline": "Sei offline. La modifica verrà sincronizzata quando torni online.",
+    "updated": "Carta digitale aggiornata!",
+    "created": "Carta digitale creata!"
+  },
+  "fields": {
+    "title": "Nome della carta",
+    "value": "Valore o codice",
+    "type": "Tipo di carta",
+    "typePlaceholder": "Scegli il tipo",
+    "codeType": "Tipo di codice",
+    "codeTypePlaceholder": "Scegli il tipo di codice",
+    "color": "Colore della carta",
+    "note": "Nota",
+    "notePlaceholder": "Scrivi una nota",
+    "noteHelp": "Altre informazioni sulla carta ({remaining} caratteri rimasti)."
+  },
+  "cardTypes": {
+    "loyalty": "Carta fedeltà",
+    "discount": "Carta sconto",
+    "membership": "Tessera associativa",
+    "gift": "Carta regalo",
+    "other": "Altro"
+  },
+  "codeTypes": {
+    "barcode": "Codice a barre",
+    "qr": "Codice QR",
+    "number": "Numero",
+    "text": "Testo"
+  },
+  "validation": {
+    "titleRequired": "Il nome è obbligatorio",
+    "titleMax": "Inserisci un nome di al massimo 100 caratteri",
+    "valueRequired": "Il valore è obbligatorio",
+    "valueMax": "Il valore può avere al massimo 500 caratteri",
+    "typeRequired": "Il tipo è obbligatorio",
+    "typeMax": "Il tipo può avere al massimo 50 caratteri",
+    "codeTypeRequired": "Il tipo di codice è obbligatorio",
+    "codeTypeMax": "Il tipo di codice può avere al massimo 50 caratteri",
+    "colorHex": "Il colore deve essere in formato HEX (#ffffff)",
+    "noteMax": "La nota può avere al massimo 500 caratteri"
+  }
+}

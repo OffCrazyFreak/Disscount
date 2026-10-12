@@ -1,1 +1,24 @@
-{}
+{
+  "title": "Skeniraj kodo",
+  "camera": {
+    "label": "Kamera",
+    "autoPlaceholder": "Samodejno (zadnja kamera)",
+    "reset": "Ponastavi kamero na samodejno izbiro",
+    "name": "{facing, select, front {Sprednja kamera} back {Zadnja kamera} other {Kamera}}{lens, select, ultrawide { (ultraširoka)} telephoto { (telefoto)} macro { (makro)} other {}}{ordinal, plural, =0 {} other { #}}"
+  },
+  "image": {
+    "upload": "Naloži sliko s kodo",
+    "loading": "Nalaganje...",
+    "notFound": "Kode na sliki nismo našli.",
+    "notProductBarcode": "Koda na sliki ni črtna koda izdelka (EAN).",
+    "loadFailed": "Slike ni mogoče naložiti."
+  },
+  "errors": {
+    "permissionDenied": "Dostop do kamere je zavrnjen. Omogoči kamero v nastavitvah brskalnika in poskusi znova.",
+    "noCamera": "Na tej napravi kamere nismo našli.",
+    "inUse": "Kamero trenutno uporablja druga aplikacija. Zapri jo in poskusi znova.",
+    "overconstrained": "Izbrana kamera ni na voljo. Ponastavi kamero na samodejno izbiro.",
+    "insecureContext": "Skeniranje deluje samo prek varne povezave (HTTPS).",
+    "generic": "Napaka pri zagonu kamere. Poskusi znova."
+  }
+}

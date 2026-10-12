@@ -1,1 +1,21 @@
-{}
+{
+  "dialog": { "close": "Close" },
+  "command": {
+    "title": "Command palette",
+    "description": "Search for a command to run..."
+  },
+  "sidebar": {
+    "mobileTitle": "Sidebar",
+    "mobileDescription": "Shows the sidebar on mobile.",
+    "toggle": "Toggle sidebar"
+  },
+  "share": {
+    "copied": "Link copied",
+    "failed": "Couldn't share"
+  },
+  "offline": {
+    "writeFailed": "The change wasn't saved. Try again.",
+    "writeFailedLostAccess": "The change wasn't saved. You may no longer have access to this list.",
+    "retiredWriteDropped": "A change from an earlier version wasn't saved. Open the list and check."
+  }
+}

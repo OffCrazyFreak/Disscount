@@ -1,1 +1,24 @@
-{}
+{
+  "title": "Scansiona il codice",
+  "camera": {
+    "label": "Fotocamera",
+    "autoPlaceholder": "Automatica (fotocamera posteriore)",
+    "reset": "Torna alla scelta automatica della fotocamera",
+    "name": "{facing, select, front {Fotocamera anteriore} back {Fotocamera posteriore} other {Fotocamera}}{lens, select, ultrawide { (ultragrandangolare)} telephoto { (teleobiettivo)} macro { (macro)} other {}}{ordinal, plural, =0 {} other { #}}"
+  },
+  "image": {
+    "upload": "Carica un'immagine con il codice",
+    "loading": "Caricamento...",
+    "notFound": "Nessun codice trovato nell'immagine.",
+    "notProductBarcode": "Il codice nell'immagine non è un codice a barre di prodotto (EAN).",
+    "loadFailed": "Non riusciamo a caricare l'immagine."
+  },
+  "errors": {
+    "permissionDenied": "Accesso alla fotocamera negato. Attivala nelle impostazioni del browser e riprova.",
+    "noCamera": "Nessuna fotocamera trovata su questo dispositivo.",
+    "inUse": "La fotocamera è in uso in un'altra app. Chiudila e riprova.",
+    "overconstrained": "La fotocamera scelta non è disponibile. Torna alla scelta automatica.",
+    "insecureContext": "La scansione funziona solo con una connessione sicura (HTTPS).",
+    "generic": "Non siamo riusciti ad avviare la fotocamera. Riprova."
+  }
+}

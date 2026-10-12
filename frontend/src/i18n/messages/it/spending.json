@@ -1,1 +1,13 @@
-{}
+{
+  "meta": {
+    "title": "Spese",
+    "description": "Panoramica e analisi delle tue spese."
+  },
+  "title": "Spese",
+  "loginRequired": {
+    "description": "Con l'accesso vedi quanto spendi per negozio e categoria e tieni traccia dei risparmi mese per mese."
+  },
+  "comingSoon": {
+    "description": "Vedrai quanto spendi per negozio e categoria, su quali prodotti risparmi di più e come cambiano le tue spese nei mesi."
+  }
+}

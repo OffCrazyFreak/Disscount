@@ -1,1 +1,33 @@
-{}
+{
+  "meta": {
+    "title": "Novità",
+    "description": "Gli ultimi aggiornamenti e le novità su Disscount.",
+    "detailFallbackDescription": "Dettagli del post."
+  },
+  "author": "Il team di Disscount",
+  "separator": "·",
+  "searchPlaceholder": "Cerca nelle novità...",
+  "heading": "Novità ({count})",
+  "searchHeading": "Risultati per «{query}» ({count})",
+  "newPost": "Nuovo post",
+  "newPostSoon": "Presto potrai creare nuovi post.",
+  "backToList": "Torna alle novità",
+  "posts": {
+    "disscount-launch": {
+      "title": "Disscount parte! Grazie ai nostri beta tester",
+      "excerpt": "Invitiamo le prime duecento persone in lista d'attesa a provare Disscount per prime.",
+      "body": {
+        "p1": "Il grande giorno è arrivato: Disscount parte ufficialmente! Per cominciare invitiamo le prime duecento persone della nostra lista d'attesa a provare l'app e ad aiutarci a farla ancora migliore.",
+        "p2": "Grazie per la pazienza e la fiducia. Il tuo sostegno fin dal primo giorno conta moltissimo per noi. Questo è solo l'inizio e il meglio deve ancora venire. Siamo felici di partire insieme a te."
+      }
+    },
+    "whats-next": {
+      "title": "Cosa arriva dopo il lancio",
+      "excerpt": "Stiamo preparando nuove funzioni, dalla mappa dei negozi al controllo delle spese. I tuoi suggerimenti decidono cosa costruiamo dopo.",
+      "body": {
+        "p1": "Nelle prossime settimane lavoriamo a diverse novità: una mappa interattiva dei negozi con gli orari di apertura, un riepilogo delle tue spese e le carte fedeltà digitali.",
+        "p2": "La tua opinione conta più di tutto: nella pagina Idee e suggerimenti puoi proporre nuove funzioni e votare quelle che vuoi vedere per prime."
+      }
+    }
+  }
+}

@@ -1,1 +1,12 @@
-{}
+{
+  "meta": {
+    "title": "Mappa e orari dei negozi",
+    "description": "I negozi e i loro orari di apertura sulla mappa."
+  },
+  "search": { "placeholder": "Cerca per nome del negozio o indirizzo..." },
+  "heading": {
+    "results": "Risultati per «{query}»",
+    "default": "Mappa e orari dei negozi"
+  },
+  "comingSoon": "Presto potrai cercare i negozi per catena o indirizzo e vedere i loro orari di apertura sulla mappa interattiva."
+}

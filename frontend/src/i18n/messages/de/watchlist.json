@@ -1,1 +1,67 @@
-{}
+{
+  "meta": {
+    "title": "Merkliste",
+    "description": "Behalte Produktpreise im Blick und werde bei Angeboten benachrichtigt."
+  },
+  "client": {
+    "loginTitle": "Merkliste",
+    "loginDescription": "Mit der Merkliste beobachtest du Produkte und bekommst Bescheid, sobald der Preis sinkt.",
+    "searchPlaceholder": "Merkliste durchsuchen..."
+  },
+  "header": {
+    "searchResultsTitle": "Suchergebnisse für „{query}“ ({count})",
+    "title": "Merkliste",
+    "titleWithCount": "Merkliste ({count})",
+    "pricesUpdated": "Preise aktualisiert"
+  },
+  "list": {
+    "emptyTitle": "Deine Merkliste ist leer",
+    "emptyDescription": "Suche Produkte, wähle „Zur Merkliste“ und werde bei Angeboten benachrichtigt.",
+    "searchProducts": "Produkte suchen"
+  },
+  "suggestions": {
+    "title": "Vorschläge für deine Merkliste ({count})",
+    "hide": "Ausblenden",
+    "show": "Anzeigen"
+  },
+  "actionButton": {
+    "watch": "Zur Merkliste",
+    "remove": "Von der Merkliste entfernen"
+  },
+  "discountRow": {
+    "srSuffix": ", {infoLabel}, Marktauswahl öffnen"
+  },
+  "discountInfo": {
+    "loadError": "Laden hat nicht geklappt",
+    "noData": "Keine Daten",
+    "unavailable": "Nicht verfügbar",
+    "setPreferences": "Märkte auswählen",
+    "preferredStoresInfo": "Märkte für den Preis in bevorzugten Märkten anzeigen",
+    "allStoresInfo": "Märkte für den Preis in allen Märkten anzeigen"
+  },
+  "item": {
+    "loading": "Wird geladen...",
+    "unavailable": "Produkt nicht verfügbar"
+  },
+  "removal": {
+    "success": "Produkt von der Merkliste entfernt",
+    "error": "Das Produkt konnte nicht entfernt werden",
+    "partial": "{count, plural, one {Teilweise entfernt: # Eintrag konnte nicht entfernt werden.} other {Teilweise entfernt: # Einträge konnten nicht entfernt werden.}}"
+  },
+  "createList": {
+    "label": "Liste mit reduzierten Produkten erstellen",
+    "short": "Liste erstellen",
+    "loading": "Liste wird erstellt...",
+    "listTitle": "Reduziert am {date}",
+    "productCount": "Produkte für die neue Liste: {count}.",
+    "success": "Liste mit reduzierten Produkten erstellt",
+    "createError": "Die Liste mit reduzierten Produkten konnte nicht erstellt werden",
+    "addFailedRemoved": "Einige Artikel konnten nicht hinzugefügt werden. Die Liste wurde automatisch entfernt.",
+    "addFailedKept": "Einige Artikel konnten nicht hinzugefügt werden, und die Liste konnte nicht automatisch entfernt werden."
+  },
+  "validation": {
+    "productRequired": "Produkt fehlt",
+    "watchTypeRequired": "Wähle eine Art von Preisalarm",
+    "thresholdPositive": "Die Schwelle muss eine positive Zahl sein"
+  }
+}

@@ -1,1 +1,86 @@
-{}
+{
+  "meta": {
+    "title": "Dashboard",
+    "description": "Dashboard for partners, the public sector and admins."
+  },
+  "content": {
+    "title": "Dashboard",
+    "tabUsers": "Users",
+    "tabContact": "Contact",
+    "comingSoon": "Data and tools will be available here soon."
+  },
+  "activity": {
+    "title": "Active users",
+    "error": "Couldn't load users. Try again.",
+    "windowLabel": "Period:",
+    "window": {
+      "d1": "Last day",
+      "d7": "Last 7 days",
+      "d14": "Last 14 days",
+      "d30": "Last 30 days",
+      "d90": "Last 90 days"
+    },
+    "abbreviation": "({abbreviation})"
+  },
+  "stats": {
+    "weekly": "Weekly active users",
+    "monthly": "Monthly active users"
+  },
+  "users": {
+    "accountTypeUpdated": "Account type updated!",
+    "accountTypeError": "Couldn't change the account type. Try again.",
+    "deleted": "Account deleted!",
+    "deleteError": "Couldn't delete the account. Try again.",
+    "loadError": "Couldn't load users. Try again.",
+    "colUsername": "Username",
+    "colEmail": "Email",
+    "colLastLogin": "Last sign-in",
+    "colAccountType": "Account type",
+    "deleteTitle": "Delete account",
+    "deleteDescription": "Delete the account {name}? This can't be undone.",
+    "deleteConfirm": "Delete account"
+  },
+  "userRow": {
+    "you": "You",
+    "deleteAccount": "Delete account"
+  },
+  "contact": {
+    "viewAll": "All",
+    "viewUnread": "Unread",
+    "loadError": "Couldn't load messages. Try again.",
+    "searchPlaceholder": "Search messages...",
+    "showDeleted": "Show deleted",
+    "colMessage": "Message",
+    "colSender": "Sender",
+    "colSent": "Sent",
+    "colStatus": "Status",
+    "colActions": "Actions",
+    "empty": "No messages."
+  },
+  "contactRow": {
+    "unreadMarker": "Unread",
+    "deletedBadge": "Deleted",
+    "markRead": "Mark as read",
+    "markUnread": "Mark as unread",
+    "copyEmail": "Copy email",
+    "copySuccess": "Email address copied!",
+    "copyError": "Couldn't copy the email address",
+    "restore": "Restore message",
+    "delete": "Delete message"
+  },
+  "contactDetail": {
+    "reply": "Reply",
+    "close": "Close",
+    "from": "From: {name}",
+    "unknownSender": "Unknown",
+    "sent": "Sent: {date}",
+    "page": "Page: {path}"
+  },
+  "inbox": {
+    "error": "Something went wrong.",
+    "markedUnread": "Marked as unread.",
+    "markedRead": "Marked as read.",
+    "deleted": "Message deleted.",
+    "restored": "Message restored."
+  }
+}

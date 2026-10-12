@@ -1,1 +1,5 @@
-{}
+{
+  "label": "Language",
+  "change": "Change language",
+  "dismissSuggestion": "Dismiss language suggestion"
+}

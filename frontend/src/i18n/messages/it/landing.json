@@ -1,1 +1,202 @@
-{}
+{
+  "meta": {
+    "title": "Trova i prezzi migliori in Croazia",
+    "description": "Confronta i prezzi in oltre 25 catene di supermercati in Croazia, segui lo storico prezzi, crea liste della spesa e risparmia a ogni spesa. Gratis."
+  },
+  "jsonLd": {
+    "appDescription": "Confronto dei prezzi nelle catene di supermercati in Croazia: storico prezzi, liste della spesa intelligenti e prodotti seguiti."
+  },
+  "hero": {
+    "title": "Trova i <underline>prezzi migliori</underline> in Croazia",
+    "searchPlaceholder": "Cerca prodotti...",
+    "or": "oppure",
+    "scanBarcode": "Scansiona codice a barre"
+  },
+  "taglines": {
+    "compare": "Confronta negozi e prezzi!",
+    "saveEveryTime": "Risparmia a ogni spesa!",
+    "neverMissDeal": "Non perderti nessuna offerta!",
+    "forgetCards": "Meno carte, portafoglio più leggero!",
+    "shareList": "Crea e condividi la lista della spesa!",
+    "priceHistory": "Segui lo storico prezzi!",
+    "scan": "Scansiona e confronta i prezzi!",
+    "smartShopping": "Spesa intelligente, senza stress!",
+    "bestOffers": "Trova le offerte migliori in Croazia!",
+    "cheapQuality": "Compra bene e spendi meno!",
+    "saveMore": "Compra con la testa, risparmia di più!",
+    "partner": "Il tuo alleato per la spesa!",
+    "noCatalogs": "Dimentica cataloghi e volantini!"
+  },
+  "howItWorks": {
+    "title": "Come funziona?",
+    "subtitle": "Tre passaggi per una spesa più economica, senza cataloghi e volantini da sfogliare.",
+    "steps": {
+      "searchOrScan": {
+        "title": "Cerca o scansiona",
+        "description": "Scrivi il nome del prodotto o scansiona il codice a barre con la fotocamera."
+      },
+      "comparePrices": {
+        "title": "Confronta i prezzi",
+        "description": "Vedi il prezzo in tutti i negozi e come cambia nel tempo."
+      },
+      "save": {
+        "title": "Risparmia sulla spesa",
+        "description": "Scegli il negozio più conveniente e fai la spesa senza sfogliare cataloghi."
+      }
+    }
+  },
+  "stats": {
+    "heading": "Disscount in numeri",
+    "chains": {
+      "value": "25+",
+      "label": "catene di supermercati"
+    },
+    "free": {
+      "value": "100 %",
+      "label": "gratis, per sempre"
+    },
+    "catalogs": {
+      "value": "0",
+      "label": "cataloghi da sfogliare"
+    }
+  },
+  "features": {
+    "title": "Tutto per una spesa intelligente",
+    "subtitle": "Quello che funziona già oggi e quello che arriva presto.",
+    "items": {
+      "scanner": {
+        "title": "Scansione codici a barre",
+        "description": "Inquadra il prodotto e vedi subito i prezzi."
+      },
+      "compare": {
+        "title": "Confronto prezzi",
+        "description": "Stesso prodotto, tutti i negozi: vedi subito dove costa meno."
+      },
+      "history": {
+        "title": "Storico prezzi",
+        "description": "Il grafico dei prezzi nel tempo mostra se un'offerta è davvero un'offerta."
+      },
+      "lists": {
+        "title": "Liste della spesa",
+        "description": "Prepara la lista e scopri in quale negozio il carrello costa meno."
+      },
+      "sharing": {
+        "title": "Condivisione delle liste",
+        "description": "Condividi la lista con la famiglia e fate la spesa insieme, senza doppioni."
+      },
+      "spending": {
+        "title": "Analisi delle spese",
+        "description": "Quanto spendi e quanto risparmi, mese dopo mese."
+      },
+      "watchlist": {
+        "title": "Prodotti seguiti",
+        "description": "Aggiungi i prodotti che compri di solito e tieni d'occhio i prezzi."
+      },
+      "notifications": {
+        "title": "Notifiche intelligenti",
+        "description": "Scegli il prezzo che vuoi e ti avvisiamo quando il prodotto scende."
+      },
+      "cards": {
+        "title": "Carte digitali",
+        "description": "Tutte le carte dei negozi nel telefono. Il portafoglio finalmente a dieta."
+      },
+      "offline": {
+        "title": "Anche offline",
+        "description": "Installa l'app: liste e prodotti sono disponibili anche senza internet."
+      },
+      "map": {
+        "title": "Mappa dei negozi",
+        "description": "Trova il negozio aperto più vicino e i suoi orari di apertura."
+      }
+    }
+  },
+  "priceHistory": {
+    "title": "Un'offerta è davvero un'offerta?",
+    "description": "Certe «offerte» riportano solo il prezzo a quello di prima. Disscount ricorda lo storico prezzi: vedi quanto costava un prodotto la settimana o il mese scorso e se conviene aspettare.",
+    "checks": {
+      "chart": "Grafico dei prezzi per ogni prodotto, negozio per negozio",
+      "realDiscount": "Capisci subito se lo sconto è vero o gonfiato",
+      "average": "Confronto con il prezzo medio delle altre catene"
+    },
+    "cta": "Controlla un prodotto",
+    "chartCaption": "Prezzo nel tempo"
+  },
+  "stores": {
+    "title": "Tutte le grandi catene in un posto solo",
+    "subtitle": "Da Konzum e Lidl ai negozi di quartiere: prezzi di oltre 25 catene in tutta la Croazia.",
+    "viewPrices": "Vedi i prezzi: {chain}"
+  },
+  "pwa": {
+    "screenshotPhoneAlt": "L'app Disscount su un telefono",
+    "screenshotDesktopAlt": "L'app Disscount su un computer",
+    "title": "Un'app che funziona anche senza internet",
+    "perks": {
+      "offline": {
+        "title": "Liste disponibili offline",
+        "description": "Le liste della spesa e i prodotti già visti funzionano anche senza segnale, anche in mezzo al negozio."
+      },
+      "sync": {
+        "title": "Sincronizzazione al ritorno online",
+        "description": "Le modifiche fatte offline si salvano da sole appena torni in rete."
+      }
+    }
+  },
+  "pricing": {
+    "title": "Quanto costa? Niente.",
+    "subtitle": "Disscount è gratis e lo resterà. Stavolta lo scontrino gioca a tuo favore.",
+    "freeSubtitle": "Scontrino · piano gratuito",
+    "premiumSubtitle": "Scontrino · piano premium",
+    "freePrice": "0,00",
+    "freeTotal": "0,00 EUR",
+    "unknownPrice": "?",
+    "total": "TOTALE",
+    "freeRows": {
+      "compare": "Confronto prezzi e storico prezzi",
+      "lists": "Liste della spesa illimitate",
+      "watchlist": "Prodotti seguiti",
+      "alerts": "Avvisi quando il prezzo scende",
+      "scan": "Scansione codici a barre",
+      "install": "Installazione come app"
+    },
+    "premiumRows": {
+      "spending": "Analisi avanzata delle spese",
+      "ai": "Suggerimenti AI per spendere meno"
+    }
+  },
+  "faq": {
+    "title": "Domande frequenti",
+    "subtitle": "Tutto quello che vuoi sapere prima della prima spesa con Disscount.",
+    "items": {
+      "source": {
+        "question": "Da dove prende i prezzi Disscount?",
+        "answer": "Dal 15 maggio 2025 le catene di supermercati in Croazia sono obbligate per legge a pubblicare i prezzi. Disscount li prende dal progetto aperto Cijene API, che ogni giorno raccoglie i listini ufficiali dei negozi."
+      },
+      "free": {
+        "question": "Disscount è davvero gratis?",
+        "answer": "Sì. Ricerca dei prodotti, confronto prezzi, storico prezzi e liste della spesa sono gratis e lo restano."
+      },
+      "stores": {
+        "question": "Quali negozi posso confrontare?",
+        "answer": "Disscount copre oltre 25 catene in tutta la Croazia, tra cui Konzum, Lidl, Plodine, Spar, Kaufland, Tommy, Studenac, Eurospin e dm."
+      },
+      "account": {
+        "question": "Devo creare un account?",
+        "answer": "Non per cercare e confrontare i prezzi: quello funziona subito. L'account serve solo quando vuoi salvare le liste della spesa e seguire i prodotti."
+      },
+      "barcode": {
+        "question": "Come scansiono il codice a barre di un prodotto?",
+        "answer": "Tocca «Scansiona codice a barre», consenti l'accesso alla fotocamera e inquadra il codice sul prodotto. Disscount apre subito quel prodotto con i prezzi in tutti i negozi."
+      },
+      "offline": {
+        "question": "L'app funziona senza internet?",
+        "answer": "Sì. Puoi installare Disscount come app sul telefono o sul computer, e le liste salvate e i prodotti già visti sono disponibili anche offline. Le modifiche si sincronizzano da sole quando torni in rete."
+      }
+    }
+  },
+  "finalCta": {
+    "title": "Vuoi risparmiare?",
+    "description": "La ricerca funziona subito, senza registrazione. L'account serve solo quando vuoi salvare le liste e seguire i prodotti.",
+    "search": "Inizia a cercare",
+    "signup": "Crea un account gratuito"
+  }
+}

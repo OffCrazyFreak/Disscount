@@ -1,1 +1,204 @@
-{}
+{
+  "modal": {
+    "title": "Settings",
+    "description": "Manage your profile, notifications, preferences and security.",
+    "cancel": "Cancel",
+    "save": "Save",
+    "reset": "Reset",
+    "replayGuide": "Replay the guide",
+    "unsavedChanges": "Unsaved changes"
+  },
+  "tabs": {
+    "profile": "Profile",
+    "notifications": "Notifications",
+    "preferences": "Preferences",
+    "security": "Security"
+  },
+  "profile": {
+    "avatar": {
+      "change": "Change photo",
+      "remove": "Remove photo",
+      "formats": "PNG, JPG, WebP or GIF (saved as WebP).",
+      "tooLarge": "That image is too big. The maximum size is 15 MB.",
+      "loadFailed": "Couldn't load that image. Try a JPG or PNG."
+    },
+    "username": {
+      "label": "Username",
+      "description": "What should we call you? It has to be unique."
+    },
+    "acquisition": {
+      "label": "How did you hear about Disscount?",
+      "placeholder": "Choose a source",
+      "description": "It helps us find more people like you."
+    },
+    "channels": {
+      "GOOGLE_SEARCH": "Google search",
+      "INSTAGRAM": "Instagram",
+      "FACEBOOK": "Facebook",
+      "TIKTOK": "TikTok",
+      "YOUTUBE": "YouTube",
+      "FRIEND_OR_FAMILY": "Friend or family",
+      "ONLINE_AD": "Online ad",
+      "BLOG_OR_NEWS": "Blog, article or media",
+      "APP_STORE": "App Store / Google Play",
+      "POSTER_OR_FLYER": "Poster or flyer",
+      "EVENT": "Fair or event",
+      "OTHER": "Other"
+    }
+  },
+  "notifications": {
+    "hint": "Choose how, about what and when you want to hear about offers and news.",
+    "push": {
+      "label": "Allow app notifications",
+      "description": "The mobile app only notifies you about offers on products you choose. No spam."
+    },
+    "email": {
+      "label": "Allow email notifications",
+      "description": "You'll get emails about offers only on products you choose. No spam."
+    },
+    "newsletter": {
+      "label": "News and updates",
+      "description": "Occasional Disscount news by email. No spam."
+    },
+    "feedback": {
+      "label": "Feedback contact",
+      "description": "Let us get in touch to ask for your feedback on the app."
+    }
+  },
+  "preferences": {
+    "stores": {
+      "label": "Stores",
+      "hint": "Choose the stores near you."
+    },
+    "places": {
+      "label": "Locations",
+      "hint": "Choose the locations near you.",
+      "placeholder": "Choose locations..."
+    },
+    "selectedMark": "✓"
+  },
+  "save": {
+    "offline": "You're offline. Changes will sync when you're back online.",
+    "onboardingDone": "You're all set!",
+    "settingsSaved": "Settings saved!",
+    "errors": {
+      "user": "Couldn't save your profile.",
+      "stores": "Couldn't save your stores.",
+      "places": "Couldn't save your locations."
+    }
+  },
+  "validation": {
+    "usernameMin": "Username must be at least 2 characters",
+    "usernameMax": "Username can be at most 40 characters",
+    "emailInvalid": "Enter a valid email",
+    "currentPasswordRequired": "Enter your current password"
+  },
+  "onboarding": {
+    "fallbackDescription": "A quick account setup. You can change everything later.",
+    "progress": "Step {current} of {total}",
+    "logout": "Sign out",
+    "logoutFailed": "Couldn't sign out. Try again.",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "steps": {
+      "welcome": {
+        "title": "Great to have you here!",
+        "titleNamed": "{username}, great to have you here!"
+      },
+      "profile": {
+        "title": "Your profile",
+        "description": "Introduce yourself. You can change everything later in settings."
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Choose how, about what and when you want to hear about offers and news."
+      },
+      "preferences": {
+        "title": "Your stores and locations",
+        "description": "Pick the stores and places near you for more accurate price comparisons."
+      },
+      "done": {
+        "title": "You're all set!"
+      }
+    },
+    "welcome": {
+      "intro": "A few quick steps will set Disscount up for you. You can change everything later in settings.",
+      "profile": {
+        "title": "Make your profile yours",
+        "text": "Add your name and an avatar to make the app your own."
+      },
+      "stores": {
+        "title": "Your stores",
+        "text": "Pick the stores and locations near you so price comparisons fit your budget."
+      },
+      "notifications": {
+        "title": "Notifications without spam",
+        "text": "Choose how, about what and when you want to hear about offers and news."
+      }
+    },
+    "done": {
+      "title": "Disscount is ready for you.",
+      "text": "Select Finish to save your choices. You can change everything later in your account settings."
+    }
+  },
+  "security": {
+    "credentials": {
+      "label": "Sign-in and password",
+      "hintWithPassword": "Confirm your current password to change your email or password.",
+      "hintWithoutPassword": "Set a password so you can also sign in with your email, not only with a social account.",
+      "email": "Email",
+      "emailLockedSocial": "To change your email, first unlink your connected social accounts.",
+      "emailLockedNoPassword": "You'll be able to change your email once you've set a password.",
+      "newPassword": "New password",
+      "password": "Password",
+      "newPasswordPlaceholder": "Leave empty to keep it",
+      "passwordRules": "At least 12 characters, with an uppercase letter, a lowercase letter and a number.",
+      "currentPassword": "Current password",
+      "currentPasswordDescription": "Needed to confirm an email or password change."
+    },
+    "submit": {
+      "setPasswordFailed": "Couldn't set your password.",
+      "passwordSet": "Password set! You can now also sign in with your email.",
+      "noChanges": "No changes to save.",
+      "currentPasswordWrong": "Your current password isn't correct.",
+      "changePasswordFailed": "Couldn't change your password.",
+      "socialLinked": "To change your email, first unlink your connected accounts (Google, Facebook).",
+      "changeEmailFailed": "Couldn't change your email.",
+      "passwordChanged": "Password changed.",
+      "passwordChangedConfirmEmail": "Password changed. To change your email, confirm the link we sent to your current address.",
+      "emailConfirmationSent": "We sent a confirmation link to your current email address. Your email changes once you confirm it.",
+      "generic": "Something went wrong. Try again."
+    },
+    "recovery": {
+      "title": "Check your email",
+      "description": "We sent you a link to change your password. After you change it, we'll sign you out on all devices.",
+      "sendFailed": "Couldn't send the link. Try again."
+    },
+    "linked": {
+      "label": "Linked accounts",
+      "hint": "Link social accounts to sign in faster.",
+      "link": "Link",
+      "unlink": "Unlink",
+      "linkFailed": "Couldn't link the account.",
+      "unlinkFailed": "Couldn't unlink the account.",
+      "unlinked": "Account unlinked."
+    },
+    "actions": {
+      "revokeLabel": "Sign out of other devices",
+      "revokeDescription": "Ends every active session except this one.",
+      "revokeButton": "Sign out",
+      "deleteLabel": "Delete account",
+      "deleteDescription": "Permanently deletes your account and all related data.",
+      "deleteButton": "Delete",
+      "revokeDialogTitle": "Sign out of other devices?",
+      "revokeDialogDescription": "Every active session except this one will be ended.",
+      "deleteDialogTitle": "Delete account?",
+      "deleteDialogDescription": "Your account and all related data will be permanently deleted.",
+      "revokeFailed": "Couldn't sign out of other devices.",
+      "revoked": "Signed out of all other devices.",
+      "deleted": "Your account has been deleted.",
+      "deleteFailed": "Couldn't delete your account. Try again."
+    }
+  }
+}

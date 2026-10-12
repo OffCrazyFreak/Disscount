@@ -1,1 +1,14 @@
-{}
+{
+  "meta": {
+    "title": "Zemljevid in delovni čas trgovin",
+    "description": "Pregled trgovin in njihovega delovnega časa na zemljevidu."
+  },
+  "search": {
+    "placeholder": "Išči po imenu trgovine ali naslovu..."
+  },
+  "heading": {
+    "results": "Rezultati iskanja za »{query}«",
+    "default": "Zemljevid in delovni čas trgovin"
+  },
+  "comingSoon": "Iskanje trgovin po imenu verige ali naslovu in pregled njihovega delovnega časa na interaktivnem zemljevidu bosta kmalu na voljo."
+}

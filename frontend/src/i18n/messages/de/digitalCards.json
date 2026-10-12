@@ -1,1 +1,80 @@
-{}
+{
+  "meta": {
+    "title": "Meine Kundenkarten",
+    "description": "Deine digitalen Kundenkarten ansehen und verwalten."
+  },
+  "list": {
+    "loginTitle": "Kundenkarten",
+    "loginDescription": "Mit digitalen Kundenkarten hast du alle deine Karten an einem Ort, immer griffbereit.",
+    "searchPlaceholder": "Kundenkarten suchen...",
+    "searchResultsTitle": "Suchergebnisse für „{query}“ ({count})",
+    "title": "Meine Kundenkarten",
+    "titleWithCount": "Meine Kundenkarten ({count})",
+    "emptyTitle": "Noch keine Kundenkarten",
+    "emptyDescription": "Erstelle deine erste digitale Kundenkarte…"
+  },
+  "actions": {
+    "add": "Digitale Kundenkarte hinzufügen",
+    "addShort": "Karte hinzufügen"
+  },
+  "item": {
+    "moreOptions": "Weitere Optionen für die Karte",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "created": "Erstellt am {date}",
+    "confirmDelete": "Möchtest du die Karte „{title}“ wirklich löschen?",
+    "deleted": "Karte gelöscht.",
+    "deleteError": "Löschen hat nicht geklappt: {message}"
+  },
+  "modal": {
+    "editTitle": "Kundenkarte bearbeiten",
+    "newTitle": "Neue Kundenkarte",
+    "description": "Speichere deine Kundenkarte, dann hast du sie immer griffbereit.",
+    "save": "Speichern",
+    "create": "Erstellen",
+    "cancel": "Abbrechen",
+    "reset": "Zurücksetzen",
+    "loadError": "Die Karte konnte nicht geladen werden. Versuche es erneut.",
+    "notFound": "Karte nicht gefunden. Vielleicht wurde sie gelöscht.",
+    "offline": "Du bist offline. Die Änderung wird synchronisiert, sobald du wieder online bist.",
+    "updated": "Kundenkarte aktualisiert!",
+    "created": "Kundenkarte erstellt!"
+  },
+  "fields": {
+    "title": "Name der Karte",
+    "value": "Wert oder Code",
+    "type": "Kartenart",
+    "typePlaceholder": "Art wählen",
+    "codeType": "Codeart",
+    "codeTypePlaceholder": "Codeart wählen",
+    "color": "Kartenfarbe",
+    "note": "Notiz",
+    "notePlaceholder": "Notiz eingeben",
+    "noteHelp": "Zusätzliche Infos zu deiner Karte ({remaining} übrig)."
+  },
+  "cardTypes": {
+    "loyalty": "Kundenkarte",
+    "discount": "Rabattkarte",
+    "membership": "Mitgliedschaft",
+    "gift": "Geschenkkarte",
+    "other": "Sonstiges"
+  },
+  "codeTypes": {
+    "barcode": "Barcode",
+    "qr": "QR-Code",
+    "number": "Nummer",
+    "text": "Text"
+  },
+  "validation": {
+    "titleRequired": "Gib einen Namen ein",
+    "titleMax": "Der Name darf höchstens 100 Zeichen lang sein",
+    "valueRequired": "Gib einen Wert ein",
+    "valueMax": "Der Wert darf höchstens 500 Zeichen lang sein",
+    "typeRequired": "Wähle eine Kartenart",
+    "typeMax": "Die Kartenart darf höchstens 50 Zeichen lang sein",
+    "codeTypeRequired": "Wähle eine Codeart",
+    "codeTypeMax": "Die Codeart darf höchstens 50 Zeichen lang sein",
+    "colorHex": "Die Farbe muss im HEX-Format sein (#ffffff)",
+    "noteMax": "Die Notiz darf höchstens 500 Zeichen lang sein"
+  }
+}

@@ -1,1 +1,134 @@
-{}
+{
+  "meta": {
+    "title": "Nakupovalni seznami",
+    "description": "Upravljanje z nakupovalnimi seznami."
+  },
+  "client": {
+    "loginTitle": "Nakupovalni seznami",
+    "loginDescription": "Nakupovalni seznami ti omogočajo, da nakup organiziraš in na enem mestu primerjaš cene po trgovinah.",
+    "searchPlaceholder": "Išči nakupovalne sezname...",
+    "searchResults": "Rezultati iskanja za »{query}« ({count})",
+    "myLists": "Moji nakupovalni seznami",
+    "myListsWithCount": "Moji nakupovalni seznami ({count})",
+    "empty": {
+      "title": "Ni nakupovalnih seznamov",
+      "description": "Ustvari nakupovalni seznam ali poišči izdelke in jih dodaj na nov seznam.",
+      "browseProducts": "Išči izdelke"
+    }
+  },
+  "createList": {
+    "full": "Ustvari nakupovalni seznam",
+    "short": "Ustvari seznam"
+  },
+  "actionsSheet": {
+    "fallbackTitle": "Dejanja za seznam",
+    "description": "Dejanja za izbrani nakupovalni seznam.",
+    "notFound": "Tega seznama nismo našli. Morda je izbrisan."
+  },
+  "quickActions": {
+    "edit": "Uredi seznam",
+    "copy": "Kopiraj seznam",
+    "editSharing": "Uredi deljenje seznama",
+    "share": "Deli seznam",
+    "delete": "Izbriši seznam"
+  },
+  "visibility": {
+    "NONE": "Seznam je zaseben",
+    "VIEW": "Seznam lahko vidi vsak s povezavo",
+    "SHOP": "Izdelke lahko označuje vsak s povezavo",
+    "EDIT": "Seznam lahko ureja vsak s povezavo"
+  },
+  "linkAccess": {
+    "label": {
+      "NONE": "Zasebno",
+      "VIEW": "Ogled",
+      "SHOP": "Nakupovanje",
+      "EDIT": "Urejanje"
+    },
+    "rowTitle": {
+      "private": "Zaseben seznam",
+      "shared": "Vsak s povezavo"
+    },
+    "hint": {
+      "NONE": "Deljenje je izklopljeno, seznam lahko odpreš samo ti.",
+      "VIEW": "Vidijo ves seznam, urejati ga ne morejo.",
+      "SHOP": "Vidijo ves seznam, izberejo lahko trgovino in označijo, kar je kupljeno.",
+      "EDIT": "Urejajo lahko ves seznam, dodajati novih izdelkov pa ne morejo."
+    }
+  },
+  "modal": {
+    "cancel": "Prekliči",
+    "notFound": "Seznam ni najden. Morda je izbrisan ali nimaš dostopa."
+  },
+  "titleField": {
+    "label": "Ime seznama",
+    "placeholder": "Žar 1. 5. 2026"
+  },
+  "listModal": {
+    "titleEdit": "Uredi nakupovalni seznam",
+    "titleNew": "Nov nakupovalni seznam",
+    "description": "Seznam lahko deliš in primerjaš cene po trgovinah.",
+    "save": "Shrani",
+    "create": "Ustvari",
+    "reset": "Ponastavi",
+    "loadError": "Napaka pri nalaganju seznama. Poskusi znova.",
+    "offlineToast": "Brez povezave si. Sprememba bo sinhronizirana, ko se vrneš na splet.",
+    "updatedToast": "Nakupovalni seznam je posodobljen!",
+    "createdToast": "Nakupovalni seznam je ustvarjen!"
+  },
+  "copyModal": {
+    "title": "Kopiraj seznam",
+    "description": "Izberi, kaj se prenese v kopijo.",
+    "submit": "Kopiraj",
+    "titleSuffix": " (kopija)",
+    "successToast": "Nakupovalni seznam je kopiran!",
+    "errorToast": "Napaka pri kopiranju nakupovalnega seznama",
+    "options": {
+      "items": {
+        "label": "Izdelki",
+        "description": "Kopiraj vse izdelke"
+      },
+      "progress": {
+        "label": "Označeno in shranjene trgovine",
+        "description": "Ohrani, kaj je kupljeno, v kateri trgovini in po kakšni ceni."
+      },
+      "sharing": {
+        "label": "Nastavitve deljenja",
+        "descriptionOwner": "Kopija se deli enako kot izvirnik.",
+        "descriptionNotOwner": "Deljenje lahko prenese samo lastnik seznama."
+      }
+    }
+  },
+  "shareModal": {
+    "title": "Deli seznam",
+    "description": "Pošlji povezavo in naj ti kdo pomaga pri nakupu.",
+    "saving": "Shranjevanje nastavitev deljenja...",
+    "offline": "Brez povezave si. Sprememba bo shranjena, ko se povezava vrne.",
+    "shareLink": "Deli povezavo",
+    "shareText": "Deli besedilo",
+    "accessLabel": "Kdo ima dostop do seznama",
+    "settingsUpdatedToast": "Nastavitve deljenja seznama so posodobljene.",
+    "settingsFailedToast": "Sprememba deljenja ni shranjena. Poskusi znova.",
+    "linkCopiedToast": "Povezava je kopirana",
+    "textCopiedToast": "Besedilo seznama je kopirano",
+    "failedToast": "Deljenje ni uspelo"
+  },
+  "shareText": {
+    "created": "📅 Ustvarjeno: {date}",
+    "updated": "🔄 Posodobljeno: {date}",
+    "footerCreatedWith": "✨ *Seznam je nastal v Disscountu*",
+    "footerCompare": "💰 Primerjaj cene in prihrani!",
+    "footerTry": "🌐 Preizkusi brezplačno na disscount.me"
+  },
+  "validation": {
+    "titleMin": "Ime mora imeti vsaj 3 znake",
+    "titleMax": "Ime sme imeti največ 100 znakov",
+    "eanRequired": "Koda EAN je obvezna",
+    "nameRequired": "Ime izdelka je obvezno",
+    "amountMin": "Količina mora biti večja od 0",
+    "amountMax": "Količina ne sme biti večja od 999"
+  },
+  "listCard": {
+    "progress": "{checked}/{total}"
+  }
+}

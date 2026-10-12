@@ -1,1 +1,80 @@
-{}
+{
+  "meta": {
+    "title": "Moje digitalne kartice",
+    "description": "Pregled in upravljanje z digitalnimi karticami."
+  },
+  "list": {
+    "loginTitle": "Digitalne kartice",
+    "loginDescription": "Z digitalnimi karticami imaš vse kartice zvestobe na enem mestu, vedno pri roki.",
+    "searchPlaceholder": "Išči digitalne kartice...",
+    "searchResultsTitle": "Rezultati iskanja za »{query}« ({count})",
+    "title": "Moje digitalne kartice",
+    "titleWithCount": "Moje digitalne kartice ({count})",
+    "emptyTitle": "Ni digitalnih kartic",
+    "emptyDescription": "Ustvari svojo prvo digitalno kartico…"
+  },
+  "actions": {
+    "add": "Dodaj digitalno kartico",
+    "addShort": "Dodaj kartico"
+  },
+  "item": {
+    "moreOptions": "Več možnosti za kartico",
+    "edit": "Uredi",
+    "delete": "Izbriši",
+    "created": "Ustvarjeno {date}",
+    "confirmDelete": "Želiš res izbrisati kartico »{title}«?",
+    "deleted": "Kartica je izbrisana.",
+    "deleteError": "Napaka pri brisanju: {message}"
+  },
+  "modal": {
+    "editTitle": "Uredi digitalno kartico",
+    "newTitle": "Nova digitalna kartica",
+    "description": "Shrani kartico zvestobe in jo imej vedno pri roki.",
+    "save": "Shrani",
+    "create": "Ustvari",
+    "cancel": "Prekliči",
+    "reset": "Ponastavi",
+    "loadError": "Napaka pri nalaganju kartice. Poskusi znova.",
+    "notFound": "Kartice ni mogoče najti. Morda je bila izbrisana.",
+    "offline": "Si brez povezave. Sprememba bo sinhronizirana, ko se vrneš na splet.",
+    "updated": "Digitalna kartica je posodobljena!",
+    "created": "Digitalna kartica je ustvarjena!"
+  },
+  "fields": {
+    "title": "Ime kartice",
+    "value": "Vrednost ali koda",
+    "type": "Vrsta kartice",
+    "typePlaceholder": "Izberi vrsto",
+    "codeType": "Vrsta kode",
+    "codeTypePlaceholder": "Izberi vrsto kode",
+    "color": "Barva kartice",
+    "note": "Opomba",
+    "notePlaceholder": "Vpiši opombo",
+    "noteHelp": "Dodatne informacije o kartici (še {remaining})."
+  },
+  "cardTypes": {
+    "loyalty": "Kartica zvestobe",
+    "discount": "Popustna kartica",
+    "membership": "Članstvo",
+    "gift": "Darilna kartica",
+    "other": "Drugo"
+  },
+  "codeTypes": {
+    "barcode": "Črtna koda",
+    "qr": "Koda QR",
+    "number": "Številka",
+    "text": "Besedilo"
+  },
+  "validation": {
+    "titleRequired": "Ime je obvezno",
+    "titleMax": "Ime sme imeti največ 100 znakov",
+    "valueRequired": "Vrednost je obvezna",
+    "valueMax": "Vrednost ima lahko največ 500 znakov",
+    "typeRequired": "Vrsta je obvezna",
+    "typeMax": "Vrsta ima lahko največ 50 znakov",
+    "codeTypeRequired": "Vrsta kode je obvezna",
+    "codeTypeMax": "Vrsta kode ima lahko največ 50 znakov",
+    "colorHex": "Barva mora biti v formatu HEX (#ffffff)",
+    "noteMax": "Opomba ima lahko največ 500 znakov"
+  }
+}

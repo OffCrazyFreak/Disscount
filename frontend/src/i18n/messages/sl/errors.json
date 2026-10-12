@@ -1,1 +1,5 @@
-{}
+{
+  "auth": {
+    "changeEmailLinkedAccounts": "Za spremembo e-naslova najprej prekini povezavo s povezanimi računi (Google, Facebook)."
+  }
+}

@@ -1,1 +1,24 @@
-{}
+{
+  "title": "Scan code",
+  "camera": {
+    "label": "Camera",
+    "autoPlaceholder": "Automatic (rear camera)",
+    "reset": "Reset the camera to automatic selection",
+    "name": "{facing, select, front {Front camera} back {Rear camera} other {Camera}}{lens, select, ultrawide { (ultra-wide)} telephoto { (telephoto)} macro { (macro)} other {}}{ordinal, plural, =0 {} other { #}}"
+  },
+  "image": {
+    "upload": "Upload an image with a code",
+    "loading": "Loading...",
+    "notFound": "No code found in the image.",
+    "notProductBarcode": "The code in the image isn't a product barcode (EAN).",
+    "loadFailed": "Couldn't load the image."
+  },
+  "errors": {
+    "permissionDenied": "Camera access was denied. Allow the camera in your browser settings and try again.",
+    "noCamera": "No camera found on this device.",
+    "inUse": "Another app is using the camera. Close it and try again.",
+    "overconstrained": "The selected camera isn't available. Reset the camera to automatic selection.",
+    "insecureContext": "Scanning only works over a secure (HTTPS) connection.",
+    "generic": "Couldn't start the camera. Try again."
+  }
+}

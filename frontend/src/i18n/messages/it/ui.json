@@ -1,1 +1,21 @@
-{}
+{
+  "dialog": { "close": "Chiudi" },
+  "command": {
+    "title": "Riquadro comandi",
+    "description": "Cerca un comando da eseguire..."
+  },
+  "sidebar": {
+    "mobileTitle": "Barra laterale",
+    "mobileDescription": "Mostra la barra laterale sul telefono.",
+    "toggle": "Apri o chiudi il menu laterale"
+  },
+  "share": {
+    "copied": "Link copiato",
+    "failed": "Non siamo riusciti a condividere"
+  },
+  "offline": {
+    "writeFailed": "Modifica non salvata. Riprova.",
+    "writeFailedLostAccess": "Modifica non salvata. Forse non hai più accesso a questa lista.",
+    "retiredWriteDropped": "Una modifica di una versione precedente non è stata salvata. Apri la lista e controlla."
+  }
+}

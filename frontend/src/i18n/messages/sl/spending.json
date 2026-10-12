@@ -1,1 +1,13 @@
-{}
+{
+  "meta": {
+    "title": "Poraba",
+    "description": "Pregled in analiza tvoje porabe."
+  },
+  "title": "Poraba",
+  "loginRequired": {
+    "description": "Prijava ti omogoča pregled porabe po trgovinah in kategorijah ter spremljanje prihrankov skozi mesece."
+  },
+  "comingSoon": {
+    "description": "Pokazali ti bomo, koliko porabiš po trgovini in kategoriji, pri katerih izdelkih največ prihraniš in kako se tvoja poraba spreminja skozi mesece."
+  }
+}

@@ -1,1 +1,21 @@
-{}
+{
+  "dialog": { "close": "Schließen" },
+  "command": {
+    "title": "Befehlspalette",
+    "description": "Suche nach einem Befehl..."
+  },
+  "sidebar": {
+    "mobileTitle": "Seitenleiste",
+    "mobileDescription": "Zeigt die Seitenleiste auf dem Handy an.",
+    "toggle": "Seitenleiste umschalten"
+  },
+  "share": {
+    "copied": "Link kopiert",
+    "failed": "Teilen hat nicht geklappt"
+  },
+  "offline": {
+    "writeFailed": "Die Änderung wurde nicht gespeichert. Versuche es erneut.",
+    "writeFailedLostAccess": "Die Änderung wurde nicht gespeichert. Vielleicht hast du keinen Zugriff mehr auf diese Liste.",
+    "retiredWriteDropped": "Eine Änderung aus einer früheren Version wurde nicht gespeichert. Öffne die Liste und prüfe sie."
+  }
+}

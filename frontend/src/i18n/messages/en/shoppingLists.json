@@ -1,1 +1,134 @@
-{}
+{
+  "meta": {
+    "title": "Shopping lists",
+    "description": "Manage your shopping lists."
+  },
+  "client": {
+    "loginTitle": "Shopping lists",
+    "loginDescription": "Shopping lists help you organise your shopping and compare prices across stores in one place.",
+    "searchPlaceholder": "Search shopping lists...",
+    "searchResults": "Search results for “{query}” ({count})",
+    "myLists": "My shopping lists",
+    "myListsWithCount": "My shopping lists ({count})",
+    "empty": {
+      "title": "No shopping lists yet",
+      "description": "Create a shopping list, or search products and add them to a new one.",
+      "browseProducts": "Search products"
+    }
+  },
+  "createList": {
+    "full": "Create shopping list",
+    "short": "Create list"
+  },
+  "actionsSheet": {
+    "fallbackTitle": "List actions",
+    "description": "Actions for the selected shopping list.",
+    "notFound": "We couldn't find that list. It may have been deleted."
+  },
+  "quickActions": {
+    "edit": "Edit list",
+    "copy": "Copy list",
+    "editSharing": "Edit list sharing",
+    "share": "Share list",
+    "delete": "Delete list"
+  },
+  "visibility": {
+    "NONE": "This list is private",
+    "VIEW": "Anyone with the link can view the list",
+    "SHOP": "Anyone with the link can tick off items",
+    "EDIT": "Anyone with the link can edit the list"
+  },
+  "linkAccess": {
+    "label": {
+      "NONE": "Private",
+      "VIEW": "View",
+      "SHOP": "Shop",
+      "EDIT": "Edit"
+    },
+    "rowTitle": {
+      "private": "Private list",
+      "shared": "Anyone with the link"
+    },
+    "hint": {
+      "NONE": "Sharing is off, so only you can open this list.",
+      "VIEW": "Can see the whole list but can't edit it.",
+      "SHOP": "Can see the whole list, choose a store and tick off what's bought.",
+      "EDIT": "Can edit the whole list but can't add new products."
+    }
+  },
+  "modal": {
+    "cancel": "Cancel",
+    "notFound": "List not found. It may have been deleted, or you may not have access."
+  },
+  "titleField": {
+    "label": "List name",
+    "placeholder": "Barbecue, 1 May 2026"
+  },
+  "listModal": {
+    "titleEdit": "Edit shopping list",
+    "titleNew": "New shopping list",
+    "description": "You can share the list and compare prices across stores.",
+    "save": "Save",
+    "create": "Create",
+    "reset": "Reset",
+    "loadError": "Couldn't load the list. Try again.",
+    "offlineToast": "You're offline. The change will sync when you're back online.",
+    "updatedToast": "Shopping list updated!",
+    "createdToast": "Shopping list created!"
+  },
+  "copyModal": {
+    "title": "Copy list",
+    "description": "Choose what goes into the copy.",
+    "submit": "Copy",
+    "titleSuffix": " (Copy)",
+    "successToast": "Shopping list copied!",
+    "errorToast": "Couldn't copy the shopping list",
+    "options": {
+      "items": {
+        "label": "Products",
+        "description": "Copy all products"
+      },
+      "progress": {
+        "label": "Ticked items and saved stores",
+        "description": "Keep what's bought, in which store and at what price."
+      },
+      "sharing": {
+        "label": "Sharing settings",
+        "descriptionOwner": "The copy is shared the same way as the original.",
+        "descriptionNotOwner": "Only the list owner can copy the sharing settings."
+      }
+    }
+  },
+  "shareModal": {
+    "title": "Share list",
+    "description": "Send a link and let someone help you with the shopping.",
+    "saving": "Saving sharing settings...",
+    "offline": "You're offline. The change will be saved when you're back online.",
+    "shareLink": "Share link",
+    "shareText": "Share as text",
+    "accessLabel": "Who has access to the list",
+    "settingsUpdatedToast": "Sharing settings updated.",
+    "settingsFailedToast": "Couldn't save the sharing change. Try again.",
+    "linkCopiedToast": "Link copied",
+    "textCopiedToast": "List text copied",
+    "failedToast": "Couldn't share"
+  },
+  "shareText": {
+    "created": "📅 Created: {date}",
+    "updated": "🔄 Updated: {date}",
+    "footerCreatedWith": "✨ *List created with Disscount*",
+    "footerCompare": "💰 Compare prices and save!",
+    "footerTry": "🌐 Try it for free at disscount.me"
+  },
+  "validation": {
+    "titleMin": "Enter a name with at least 3 characters",
+    "titleMax": "Enter a name of up to 100 characters",
+    "eanRequired": "EAN code is required",
+    "nameRequired": "Product name is required",
+    "amountMin": "Quantity must be greater than 0",
+    "amountMax": "Quantity can't be greater than 999"
+  },
+  "listCard": {
+    "progress": "{checked}/{total}"
+  }
+}

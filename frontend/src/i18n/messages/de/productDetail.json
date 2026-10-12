@@ -1,1 +1,50 @@
-{}
+{
+  "meta": {
+    "title": "Produktdetails",
+    "description": "Preisvergleich für das Produkt."
+  },
+  "notFound": {
+    "title": "Produkt nicht gefunden",
+    "description": "Die Daten für dieses Produkt konnten nicht geladen werden."
+  },
+  "sort": {
+    "label": "Sortieren nach:",
+    "stores": "Händler",
+    "price": "Preis",
+    "distance": "Entfernung"
+  },
+  "chains": {
+    "title": "Preise nach Händlern",
+    "refreshedPrefix": "Preise aktualisiert",
+    "loadError": "Die Preise konnten nicht geladen werden. Versuche es erneut.",
+    "empty": "Für dieses Produkt gibt es keine Preise."
+  },
+  "priceHistory": {
+    "title": "Preisverlauf",
+    "hide": "Ausblenden",
+    "show": "Anzeigen",
+    "empty": "Kein Preisverlauf vorhanden.",
+    "average": "Durchschnitt",
+    "period": {
+      "week": "(letzte 7 Tage)",
+      "month": "(letzte 30 Tage)",
+      "year": "(letzte 365 Tage)",
+      "all": "(seit Beginn)"
+    }
+  },
+  "storeItem": {
+    "dataFrom": "Stand: {date}",
+    "min": "Min.: {price}",
+    "average": "Durchschnitt: {price}",
+    "max": "Max.: {price}",
+    "pricesByLocation": "Preise nach Standort"
+  },
+  "pricesTable": {
+    "empty": "Für diesen Händler gibt es keine Preise",
+    "location": "Standort",
+    "address": "Adresse",
+    "price": "Preis",
+    "unknown": "Unbekannt",
+    "notAvailable": "k. A."
+  }
+}

@@ -1,1 +1,86 @@
-{}
+{
+  "meta": {
+    "title": "Dashboard",
+    "description": "Dashboard für Partner, öffentliche Stellen und die Administration."
+  },
+  "content": {
+    "title": "Dashboard",
+    "tabUsers": "Konten",
+    "tabContact": "Kontakt",
+    "comingSoon": "Hier gibt es bald Daten und Tools."
+  },
+  "activity": {
+    "title": "Aktive Konten",
+    "error": "Die Konten konnten nicht geladen werden.",
+    "windowLabel": "Zeitraum:",
+    "window": {
+      "d1": "Letzter Tag",
+      "d7": "Letzte 7 Tage",
+      "d14": "Letzte 14 Tage",
+      "d30": "Letzte 30 Tage",
+      "d90": "Letzte 90 Tage"
+    },
+    "abbreviation": "({abbreviation})"
+  },
+  "stats": {
+    "weekly": "Wöchentlich aktive Konten",
+    "monthly": "Monatlich aktive Konten"
+  },
+  "users": {
+    "accountTypeUpdated": "Kontotyp aktualisiert!",
+    "accountTypeError": "Der Kontotyp konnte nicht geändert werden.",
+    "deleted": "Konto gelöscht!",
+    "deleteError": "Das Konto konnte nicht gelöscht werden.",
+    "loadError": "Die Konten konnten nicht geladen werden.",
+    "colUsername": "Benutzername",
+    "colEmail": "E-Mail",
+    "colLastLogin": "Letzte Anmeldung",
+    "colAccountType": "Kontotyp",
+    "deleteTitle": "Konto löschen",
+    "deleteDescription": "Möchtest du das Konto {name} wirklich löschen? Das kann nicht rückgängig gemacht werden.",
+    "deleteConfirm": "Konto löschen"
+  },
+  "userRow": {
+    "you": "Du",
+    "deleteAccount": "Konto löschen"
+  },
+  "contact": {
+    "viewAll": "Alle",
+    "viewUnread": "Ungelesen",
+    "loadError": "Die Nachrichten konnten nicht geladen werden.",
+    "searchPlaceholder": "Nachrichten suchen...",
+    "showDeleted": "Gelöschte anzeigen",
+    "colMessage": "Nachricht",
+    "colSender": "Absender",
+    "colSent": "Gesendet",
+    "colStatus": "Status",
+    "colActions": "Optionen",
+    "empty": "Keine Nachrichten."
+  },
+  "contactRow": {
+    "unreadMarker": "Ungelesen",
+    "deletedBadge": "Gelöscht",
+    "markRead": "Als gelesen markieren",
+    "markUnread": "Als ungelesen markieren",
+    "copyEmail": "E-Mail kopieren",
+    "copySuccess": "E-Mail-Adresse kopiert!",
+    "copyError": "E-Mail-Adresse konnte nicht kopiert werden",
+    "restore": "Nachricht wiederherstellen",
+    "delete": "Nachricht löschen"
+  },
+  "contactDetail": {
+    "reply": "Antworten",
+    "close": "Schließen",
+    "from": "Von: {name}",
+    "unknownSender": "Unbekannt",
+    "sent": "Gesendet: {date}",
+    "page": "Seite: {path}"
+  },
+  "inbox": {
+    "error": "Etwas ist schiefgelaufen.",
+    "markedUnread": "Als ungelesen markiert.",
+    "markedRead": "Als gelesen markiert.",
+    "deleted": "Nachricht gelöscht.",
+    "restored": "Nachricht wiederhergestellt."
+  }
+}

@@ -1,1 +1,5 @@
-{}
+{
+  "auth": {
+    "changeEmailLinkedAccounts": "To change your email, first unlink your connected accounts (Google, Facebook)."
+  }
+}
