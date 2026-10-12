@@ -9,6 +9,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
+    "test": "vitest run",
     "email": "email dev --dir src/emails --port 3366"
   },
   "dependencies": {
