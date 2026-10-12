@@ -75,7 +75,12 @@
       "hint": "Izberi lokacije v svoji bližini.",
       "placeholder": "Izberi lokacije..."
     },
-    "selectedMark": "✓"
+    "selectedMark": "✓",
+    "language": {
+      "label": "Jezik",
+      "hint": "Jezik aplikacije in e-poštnih sporočil, ki ti jih pošiljamo.",
+      "locked": "Najprej shrani ali ponastavi spremembe, nato zamenjaj jezik."
+    }
   },
   "save": {
     "offline": "Brez povezave si. Spremembe bodo sinhronizirane, ko se vrneš na splet.",

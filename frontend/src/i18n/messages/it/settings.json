@@ -75,7 +75,12 @@
       "hint": "Scegli i punti vendita vicino a te.",
       "placeholder": "Scegli i punti vendita..."
     },
-    "selectedMark": "✓"
+    "selectedMark": "✓",
+    "language": {
+      "label": "Lingua",
+      "hint": "La lingua dell'app e delle email che ti inviamo.",
+      "locked": "Prima salva o reimposta le modifiche, poi cambia lingua."
+    }
   },
   "save": {
     "offline": "Sei offline. Le modifiche si sincronizzeranno quando torni online.",

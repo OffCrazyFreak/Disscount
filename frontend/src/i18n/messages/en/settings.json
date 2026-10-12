@@ -75,7 +75,12 @@
       "hint": "Choose the locations near you.",
       "placeholder": "Choose locations..."
     },
-    "selectedMark": "✓"
+    "selectedMark": "✓",
+    "language": {
+      "label": "Language",
+      "hint": "The language of the app and the emails we send you.",
+      "locked": "Save or reset your changes first, then switch language."
+    }
   },
   "save": {
     "offline": "You're offline. Changes will sync when you're back online.",

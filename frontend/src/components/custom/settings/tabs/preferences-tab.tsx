@@ -1,12 +1,13 @@
 "use client";
 
-import { Store, MapPin } from "lucide-react";
+import { Languages, Store, MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { StaggerChildren } from "@/components/custom/animation/stagger-children";
 import SettingsSection from "@/components/custom/settings/ui/settings-section";
 import PinnedStoresGrid from "@/components/custom/settings/components/pinned-stores-grid";
 import PinnedPlacesSelect from "@/components/custom/settings/components/pinned-places-select";
+import LanguageSelect from "@/components/custom/settings/components/language-select";
 
 export default function PreferencesTab() {
   const t = useTranslations("settings");
@@ -27,6 +28,14 @@ export default function PreferencesTab() {
         hint={t("preferences.places.hint")}
       >
         <PinnedPlacesSelect />
+      </SettingsSection>
+
+      <SettingsSection
+        icon={Languages}
+        label={t("preferences.language.label")}
+        hint={t("preferences.language.hint")}
+      >
+        <LanguageSelect />
       </SettingsSection>
     </StaggerChildren>
   );

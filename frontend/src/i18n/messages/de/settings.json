@@ -75,7 +75,12 @@
       "hint": "Wähle Standorte in deiner Nähe.",
       "placeholder": "Standorte auswählen..."
     },
-    "selectedMark": "✓"
+    "selectedMark": "✓",
+    "language": {
+      "label": "Sprache",
+      "hint": "Die Sprache der App und der E-Mails, die wir dir schicken.",
+      "locked": "Speichere oder setze deine Änderungen zuerst zurück, dann kannst du die Sprache wechseln."
+    }
   },
   "save": {
     "offline": "Du bist offline. Die Änderungen werden synchronisiert, sobald du wieder online bist.",
