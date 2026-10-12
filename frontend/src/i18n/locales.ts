@@ -18,16 +18,6 @@ export const LOCALE_NAMES: Record<AppLocale, string> = {
   de: "Deutsch",
 };
 
-// The banner offering a switch speaks the language it offers, since the reader may
-// not understand the page they are on.
-export const SHOW_IN_LOCALE: Record<AppLocale, string> = {
-  hr: "Prikaži na hrvatskom",
-  en: "Show in English",
-  it: "Mostra in italiano",
-  sl: "Prikaži v slovenščini",
-  de: "Auf Deutsch anzeigen",
-};
-
 export const OPEN_GRAPH_LOCALES: Record<AppLocale, string> = {
   hr: "hr_HR",
   en: "en_GB",

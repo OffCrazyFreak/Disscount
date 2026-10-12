@@ -7,7 +7,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { useChangeLocale } from "@/components/custom/locale/use-change-locale";
 import { readLocaleCookie } from "@/i18n/locale-cookie";
-import { isLocale, SHOW_IN_LOCALE, type AppLocale } from "@/i18n/locales";
+import { SHOW_IN_LOCALE } from "@/components/custom/locale/show-in-locale";
+import { isLocale, type AppLocale } from "@/i18n/locales";
 import { useSession } from "@/lib/auth/client";
 
 const DISMISSED_KEY = "disscount-locale-suggestion-dismissed";

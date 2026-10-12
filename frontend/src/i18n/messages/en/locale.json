@@ -1,5 +1,7 @@
 {
   "label": "Language",
   "change": "Change language",
-  "dismissSuggestion": "Dismiss language suggestion"
+  "dismissSuggestion": "Dismiss language suggestion",
+  "showInThisLanguage": "Show in English",
+  "saveFailed": "Couldn't save the language to your account. Try again."
 }

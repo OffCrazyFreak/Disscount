@@ -157,7 +157,7 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
             <NotificationsTab />
           </TabsContent>
           <TabsContent value="preference">
-            <PreferencesTab />
+            <PreferencesTab showLanguage />
           </TabsContent>
         </form>
 

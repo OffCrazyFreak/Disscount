@@ -9,7 +9,15 @@ import PinnedStoresGrid from "@/components/custom/settings/components/pinned-sto
 import PinnedPlacesSelect from "@/components/custom/settings/components/pinned-places-select";
 import LanguageSelect from "@/components/custom/settings/components/language-select";
 
-export default function PreferencesTab() {
+interface IPreferencesTabProps {
+  // Onboarding reuses this tab outside the security provider the picker reads, and
+  // the page language there is already the one the account starts with.
+  showLanguage?: boolean;
+}
+
+export default function PreferencesTab({
+  showLanguage = false,
+}: IPreferencesTabProps) {
   const t = useTranslations("settings");
 
   return (
@@ -30,13 +38,15 @@ export default function PreferencesTab() {
         <PinnedPlacesSelect />
       </SettingsSection>
 
-      <SettingsSection
-        icon={Languages}
-        label={t("preferences.language.label")}
-        hint={t("preferences.language.hint")}
-      >
-        <LanguageSelect />
-      </SettingsSection>
+      {showLanguage && (
+        <SettingsSection
+          icon={Languages}
+          label={t("preferences.language.label")}
+          hint={t("preferences.language.hint")}
+        >
+          <LanguageSelect />
+        </SettingsSection>
+      )}
     </StaggerChildren>
   );
 }
