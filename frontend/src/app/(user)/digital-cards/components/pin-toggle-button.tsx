@@ -49,7 +49,7 @@ export default function PinToggleButton({
         pinMutation.mutate({ id: cardId, pinned: !pinned });
       }}
       className={cn(
-        "absolute right-2 top-2 z-10 grid size-8 place-items-center rounded-full bg-white/90 text-gray-900 shadow-sm transition-opacity",
+        "absolute right-2 top-2 z-10 grid size-[26px] place-items-center rounded-full bg-[var(--ink)] text-[var(--opp)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--opp)_18%,transparent),0_1px_1px_rgb(0_0_0/0.16)] transition-opacity",
         "focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         // Touch has no hover, so without this an unpinned card could never be pinned from the list.
         pinned
@@ -59,7 +59,7 @@ export default function PinToggleButton({
     >
       <Pin
         aria-hidden="true"
-        className={cn("size-4", pinned && "fill-current")}
+        className={cn("size-[14px]", pinned && "fill-current")}
       />
     </button>
   );
