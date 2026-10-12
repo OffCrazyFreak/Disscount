@@ -59,9 +59,10 @@ export function useDigitalCardFormSubmit({
 
     let uploading: Promise<unknown> | undefined;
     function startUploads() {
-      uploading ??= Promise.all(
-        uploads.map(({ slot, file }) => photoActions.upload(slot, file)),
-      );
+      uploading ??= Promise.all([
+        ...uploads.map(({ slot, file }) => photoActions.upload(slot, file)),
+        ...removals.map((slot) => photoActions.remove(slot)),
+      ]);
       return uploading;
     }
 
@@ -71,8 +72,8 @@ export function useDigitalCardFormSubmit({
         data: toCardRequest(data),
       });
 
-      // A paused save waits for the network, and the tab may be gone by then. Uploads made
-      // offline land in the outbox, which survives a reload.
+      // A paused save waits for the network, and the tab may be gone by then. Uploads and
+      // removals made offline land in the outbox, which survives a reload.
       if (offline) void startUploads();
 
       await saving;
@@ -83,7 +84,7 @@ export function useDigitalCardFormSubmit({
         id: cardId,
         codeValue: data.codeValue,
         barcodeValue: data.barcodeValue ?? null,
-        // Offline, the uploads already sit in the outbox; stashing them too would send twice.
+        // Offline, the photo changes already sit in the outbox; stashing them too would send twice.
         photos: uploading ? undefined : photos,
       });
       openModalUrl(
@@ -99,10 +100,7 @@ export function useDigitalCardFormSubmit({
 
     // The card exists server-side only now, so photos can follow. upload and remove
     // report and queue their own failures, so nothing here needs a catch.
-    await Promise.all([
-      startUploads(),
-      ...removals.map((slot) => photoActions.remove(slot)),
-    ]);
+    await startUploads();
   }
 
   return { onSubmit, isLoading: saveMutation.isPending };

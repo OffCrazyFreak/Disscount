@@ -32,6 +32,7 @@ import {
   DIGITAL_CARD_MUTATION_SCOPE,
   OFFLINE_MUTATION_KEYS,
 } from "@/lib/offline/offline-mutation-keys";
+import { cardRetryDelay, shouldRetryCardWrite } from "@/lib/offline/card-retry";
 import {
   cardDeleteFailed,
   cardWriteFailed,
@@ -65,6 +66,11 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
     queryClient.setMutationDefaults<TData, Error, TVariables>(mutationKey, {
       mutationFn,
       ...(scope ? { scope } : {}),
+      // A restored paused card write that hits a passing failure must not end as an error,
+      // because the persister keeps only paused mutations.
+      ...(scope === DIGITAL_CARD_MUTATION_SCOPE
+        ? { retry: shouldRetryCardWrite, retryDelay: cardRetryDelay }
+        : {}),
       ...(onError ? { onError } : {}),
       onSettled: (_data, _error, variables) => {
         for (const queryKey of invalidatedKeys(variables)) {

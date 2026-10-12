@@ -13,6 +13,7 @@ import { getCacheIdentity } from "@/lib/offline/cache-identity";
 import { failureAction } from "@/lib/offline/failure-policy";
 import { deleteIf } from "@/lib/offline/idb-transactions";
 import { whenPurgesSettled } from "@/lib/offline/purge-gate";
+import { photoSlotKey, runExclusive } from "@/lib/offline/slot-lock";
 
 interface IBytes {
   buf: ArrayBuffer;
@@ -142,44 +143,65 @@ async function replayOnce(queryClient: QueryClient) {
     // listing above can be stale: re-read, so a dequeued or replaced entry is not sent.
     if (getCacheIdentity() !== identity) return;
 
-    const entry = await get<IOutboxEntry>(key, outboxStore());
-    if (!entry || entry.identity !== identity) continue;
+    const peeked = await get<IOutboxEntry>(key, outboxStore());
+    if (!peeked || peeked.identity !== identity) continue;
 
-    if (entry.op !== "delete" && !entry.full) {
-      await del(key, outboxStore());
-      continue;
+    // Direct photo actions take the same lock, so one cannot be overtaken by a send that
+    // started before it.
+    const keepGoing = await runExclusive(
+      photoSlotKey(peeked.cardId, peeked.slot),
+      () => replayEntry(queryClient, identity, key),
+    );
+    if (!keepGoing) return;
+  }
+}
+
+/** Returns false when the run should stop because the entry must stay queued. */
+async function replayEntry(
+  queryClient: QueryClient,
+  identity: string,
+  key: string,
+) {
+  // Re-read under the lock: a direct action may have replaced or dequeued it meanwhile.
+  const entry = await get<IOutboxEntry>(key, outboxStore());
+  if (!entry || entry.identity !== identity) return true;
+
+  if (entry.op !== "delete" && !entry.full) {
+    await del(key, outboxStore());
+    return true;
+  }
+
+  try {
+    const photo = await send(entry);
+
+    if (getCacheIdentity() === identity) {
+      setCardPhotoInCache(queryClient, entry.cardId, entry.slot, photo);
     }
+    await deleteIf<IOutboxEntry>(
+      key,
+      outboxStore(),
+      (current) => current?.nonce === entry.nonce,
+    );
+  } catch (error) {
+    // Offline, signed out, throttled or a server fault: keep it and stop, so the next
+    // replay retries in order.
+    if (failureAction(error) === "keep") return false;
 
-    try {
-      const photo = await send(entry);
-
-      if (getCacheIdentity() === identity) {
-        setCardPhotoInCache(queryClient, entry.cardId, entry.slot, photo);
-      }
-      await deleteIf<IOutboxEntry>(
-        key,
-        outboxStore(),
-        (current) => current?.nonce === entry.nonce,
+    await deleteIf<IOutboxEntry>(
+      key,
+      outboxStore(),
+      (current) => current?.nonce === entry.nonce,
+    );
+    if (parseProblem(error)?.status !== 404) {
+      toast.error(
+        entry.op === "delete"
+          ? "Slika nije obrisana."
+          : "Slika kartice nije poslana.",
       );
-    } catch (error) {
-      // Offline, signed out, throttled or a server fault: keep it and stop, so the next
-      // replay retries in order.
-      if (failureAction(error) === "keep") return;
-
-      await deleteIf<IOutboxEntry>(
-        key,
-        outboxStore(),
-        (current) => current?.nonce === entry.nonce,
-      );
-      if (parseProblem(error)?.status !== 404) {
-        toast.error(
-          entry.op === "delete"
-            ? "Slika nije obrisana."
-            : "Slika kartice nije poslana.",
-        );
-      }
     }
   }
+
+  return true;
 }
 
 /**

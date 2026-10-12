@@ -18,6 +18,7 @@ import {
 } from "@/lib/offline/card-photo-outbox";
 import { deleteSlotForCard } from "@/lib/offline/card-photo-store";
 import { failureAction } from "@/lib/offline/failure-policy";
+import { photoSlotKey, runExclusive } from "@/lib/offline/slot-lock";
 import {
   prepareCardImage,
   type IPreparedCardImage,
@@ -74,37 +75,45 @@ export function useCardPhotoActions(cardId: string) {
       mark(slot, "queued");
     }
 
-    if (!navigator.onLine) return queue();
+    // Serialized with the outbox replay, whose in-flight send of this slot would otherwise
+    // finish after this choice and restore the older photo.
+    return runExclusive(photoSlotKey(cardId, slot), async () => {
+      if (!navigator.onLine) return queue();
 
-    try {
-      const photo = await uploadCardPhoto(
-        cardId,
-        slot,
-        prepared.full,
-        prepared.thumb,
-      );
-      await dequeueCardPhoto(cardId, slot);
-      setCardPhotoInCache(queryClient, cardId, slot, photo);
-      mark(slot, undefined);
-    } catch (error) {
-      // Offline, signed out, throttled or a server fault will pass, and a 404 means the
-      // card's own save has not reached the server yet: the outbox replays after paused
-      // saves resume.
-      if (
-        failureAction(error) === "keep" ||
-        parseProblem(error)?.status === 404
-      ) {
-        return queue();
+      try {
+        const photo = await uploadCardPhoto(
+          cardId,
+          slot,
+          prepared.full,
+          prepared.thumb,
+        );
+        await dequeueCardPhoto(cardId, slot);
+        setCardPhotoInCache(queryClient, cardId, slot, photo);
+        mark(slot, undefined);
+      } catch (error) {
+        // Offline, signed out, throttled or a server fault will pass, and a 404 means the
+        // card's own save has not reached the server yet: the outbox replays after paused
+        // saves resume.
+        if (
+          failureAction(error) === "keep" ||
+          parseProblem(error)?.status === 404
+        ) {
+          return queue();
+        }
+
+        mark(slot, "error");
+        toast.error(
+          problemMessage(error, "Slika nije spremljena. Pokušaj ponovno."),
+        );
       }
-
-      mark(slot, "error");
-      toast.error(
-        problemMessage(error, "Slika nije spremljena. Pokušaj ponovno."),
-      );
-    }
+    });
   }
 
-  async function remove(slot: CardPhotoSlot): Promise<void> {
+  function remove(slot: CardPhotoSlot): Promise<void> {
+    return runExclusive(photoSlotKey(cardId, slot), () => removeNow(slot));
+  }
+
+  async function removeNow(slot: CardPhotoSlot): Promise<void> {
     try {
       await dequeueCardPhoto(cardId, slot);
 
