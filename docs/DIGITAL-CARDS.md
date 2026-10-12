@@ -37,7 +37,7 @@ _Written against the `feat/digital-cards-rebuild` branch. This is the rebuild; t
 | --------------- | ---------------------------------------------------------------------------------------------------- |
 | Route           | `/digital-cards` (login required), plus the modals `?modal=digital-card/new`, `edit&id=`, `view&id=` |
 | Backend package | `disscount.digitalCard` (cards, photos), `disscount.storeName` (community store-name list)           |
-| Tables          | `wallet_card`, `wallet_card_photo`, `store_name_suggestion`, `photo_cleanup`                         |
+| Tables          | `wallet_card`, `wallet_card_photo`, `store_name_suggestion`, `store_name_usage`, `photo_cleanup`     |
 | Limits          | 300 active cards per user, 60 characters for names, 500 for a note, 4096 for a code                  |
 | Photos          | up to 3 per card (`front`, `back`, `icon`), WebP or JPEG, 512 KB per part, stored in Cloudflare R2   |
 | Photo bucket    | jurisdiction **EU**, endpoint `https://<ACCOUNT_ID>.eu.r2.cloudflarestorage.com`                     |
@@ -127,10 +127,12 @@ A queue of R2 deletes that still have to happen. Columns: `id`, `key_or_prefix` 
 
 The shared, anonymous list of store names that people typed when their store is not an official chain. Columns: `id`, `name`, `normalized_name` (unique), `use_count`, `hidden`, `created_at`, `updated_at`. There is **no user column**: the list is public and carries no link back to who typed a name.
 
+A private companion table, `store_name_usage` (entity `StoreNameUsage`: `id`, `user_id`, `suggestion_id`, `created_at`, unique on `user_id` and `suggestion_id`), records which accounts used a name so `use_count` counts distinct people. It is never exposed by any endpoint, and account deletion removes the account's rows and lowers the counts. Suggestions that existed before this table keep their old counts.
+
 - `StoreNameNormalizer.normalize` lowercases, strips diacritics and maps `đ` to `d`, so "Žabac" and "zabac" are one entry.
 - `StoreNameService.record` runs in its own transaction (`REQUIRES_NEW`) so a concurrent duplicate insert can never roll back the card save, and `DigitalCardService` catches and logs a failure there instead of failing the card.
 - A name is recorded after the card commits, and only when the card has no `chainCode` and is new, has a changed store name, or was a chain card that became custom. Plain edits and replays do not count.
-- A name is shown (in search and in the top list) only once `use_count >= 2`, so one person's custom store never leaks on a single save. The residual: one person with two cards of the same store name also reaches 2.
+- A name is shown (in search and in the top list) only once `use_count >= 2`, that is two different accounts, so one person's custom store never leaks however many of their cards use it.
 - `hidden` exists for moderation; nothing sets it yet (see [§18](#18-future-improvements--todos)).
 
 ---
@@ -302,7 +304,7 @@ A loyalty card number is personal data, and a photo of a card more so.
 | Photo metadata is stripped                 | EXIF, XMP and ICC are removed server side, so a location in a photo never lands in R2                                                                                                                     |
 | The photo URL is private                   | `Cache-Control: private`, authenticated, and the owner is checked on every request                                                                                                                        |
 | Logout wipes the device                    | `purgeOfflineCache` removes the cached list, photo blobs, the photo outbox and the last-used queue of that account                                                                                        |
-| The store-name list is anonymous           | No user reference in `store_name_suggestion`, and a name is shown only after two uses                                                                                                                     |
+| The store-name list is anonymous           | No user reference in `store_name_suggestion`; the private `store_name_usage` is never exposed and is deleted with the account; a name is shown only after two people use it                               |
 | The EU jurisdiction bucket                 | Photos stay in the EU                                                                                                                                                                                     |
 
 ---
@@ -414,7 +416,7 @@ The store field's Autocomplete came from the reui registry (`@reui` in `frontend
 | Backend (H2)      | `mvn -B test` from `backend/` | `PhotoValidatorTest` (good WebP and JPEG, PNG, SVG, truncated, oversized, animated, wrong RIFF size, metadata stripped), `DigitalCardServiceTest` (idempotent PUT, ownership 404, soft-deleted 404, delete removes photos, used-at maximum, account purge), `DigitalCardPhotoServiceTest`, `DigitalCardControllerTest` (401, 400 messages, 404), `StoreNameServiceTest`, `StoreNameNormalizerTest` |
 | Frontend (Vitest) | `pnpm test` from `frontend/`  | Palette contrast, check digits, normalization, code alternatives, hex-grid keyboard navigation, sorting, the scan consensus rules, the code SVG generator, the photo type fallback                                                                                                                                                                                                                 |
 
-At the time of writing `mvn -B verify` runs 81 backend tests and `pnpm test` runs 120 frontend tests. CI runs `pnpm test` after the typecheck, and `mvn -B verify` runs the backend suite. These tests cover digital cards and store names only; the rest of the backend still has no tests, so a green `verify` says nothing about other features.
+At the time of writing `mvn -B verify` runs 86 backend tests and `pnpm test` runs 120 frontend tests. CI runs `pnpm test` after the typecheck, and `mvn -B verify` runs the backend suite. These tests cover digital cards and store names only; the rest of the backend still has no tests, so a green `verify` says nothing about other features.
 
 ---
 
