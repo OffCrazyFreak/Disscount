@@ -42,7 +42,7 @@ jobs:
         run: pnpm exec prettier --check src
 
       - name: Format check (docs & root markdown)
-        run: pnpm exec prettier --check --ignore-path ../.prettierignore "../README.md" "../AGENTS.md" "../CLAUDE.md" "../docs/**/*.md" "../.github/**/*.md" "../.claude/**/*.md"
+        run: pnpm exec prettier --check --ignore-path ../.prettierignore "../README.md" "../AGENTS.md" "../CLAUDE.md" "../docs/**/*.md" "../.github/**/*.md" "../.agents/**/*.md"
 
       - name: Production build
         run: pnpm build
