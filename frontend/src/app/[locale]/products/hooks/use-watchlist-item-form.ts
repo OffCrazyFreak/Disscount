@@ -29,6 +29,7 @@ export function useWatchlistItemForm(
   initialWatchType?: WatchType,
 ) {
   const t = useTranslations("products");
+  const tAuth = useTranslations("auth");
   const draftKey = `watchlist.${ean}`;
   const openingWatchType = initialWatchType ?? WatchType.percentage;
 
@@ -92,8 +93,9 @@ export function useWatchlistItemForm(
   useEffect(() => {
     if (!open) return;
     const error = takeModalError(draftKey);
-    if (error) applyProblemToForm(error, form);
-  }, [open, draftKey, form]);
+    if (error)
+      applyProblemToForm(error, form, undefined, tAuth("errors.checkInput"));
+  }, [open, draftKey, form, tAuth]);
 
   // Undoes the whole session: both numbers and the mode the modal opened in. No
   // keepDirtyValues here, unlike the seed above, because discarding the edits is

@@ -17,6 +17,7 @@ import { takeModalError } from "@/lib/modal/modal-error-bus";
 import { applyProblemToForm } from "@/lib/api/problem-details";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import { getFormDraft } from "@/utils/browser/local-storage";
+import { useTranslations } from "next-intl";
 
 const EMPTY_FORM_VALUES: AddToListFormData = {
   shoppingListId: "",
@@ -27,6 +28,7 @@ const EMPTY_FORM_VALUES: AddToListFormData = {
 };
 
 export function useAddToListForm(open: boolean, ean: string) {
+  const tAuth = useTranslations("auth");
   const { user } = useUser();
   const draftKey = `add-to-list.${ean}`;
 
@@ -97,8 +99,9 @@ export function useAddToListForm(open: boolean, ean: string) {
   useEffect(() => {
     if (!open) return;
     const error = takeModalError(draftKey);
-    if (error) applyProblemToForm(error, form);
-  }, [open, draftKey, form]);
+    if (error)
+      applyProblemToForm(error, form, undefined, tAuth("errors.checkInput"));
+  }, [open, draftKey, form, tAuth]);
 
   return {
     form,

@@ -34,8 +34,9 @@ export function problemMessage(error: unknown, fallback: string): string {
 export function applyProblemToForm<T extends FieldValues>(
   error: unknown,
   form: UseFormReturn<T>,
-  fieldMap?: Partial<Record<string, Path<T>>>,
-  fallbackMessage = "Provjeri unesene podatke.",
+  fieldMap: Partial<Record<string, Path<T>>> | undefined,
+  // Translated by the caller: this runs outside React, with no locale of its own.
+  fallbackMessage: string,
 ): boolean {
   const problem = parseProblem(error);
   const knownFields = new Set(Object.keys(form.getValues()));

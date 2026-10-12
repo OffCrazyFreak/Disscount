@@ -41,6 +41,7 @@ export default function DigitalCardModal({
   id,
 }: IDigitalCardModalProps) {
   const t = useTranslations("digitalCards");
+  const tAuth = useTranslations("auth");
   const isEdit = action === "edit" && !!id;
 
   // Cards have no by-id endpoint; the user's list query covers cold deep links.
@@ -96,8 +97,9 @@ export default function DigitalCardModal({
   useEffect(() => {
     if (!open) return;
     const error = takeModalError(draftKey);
-    if (error) applyProblemToForm(error, form);
-  }, [open, draftKey, form]);
+    if (error)
+      applyProblemToForm(error, form, undefined, tAuth("errors.checkInput"));
+  }, [open, draftKey, form, tAuth]);
 
   const { onSubmit, isLoading } = useDigitalCardModal({
     digitalCard,

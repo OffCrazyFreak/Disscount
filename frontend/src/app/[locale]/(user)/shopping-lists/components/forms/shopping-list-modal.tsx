@@ -35,6 +35,7 @@ export default function ShoppingListModal({
   id,
 }: IShoppingListModalProps) {
   const t = useTranslations("shoppingLists");
+  const tAuth = useTranslations("auth");
   const queryClient = useQueryClient();
   const isEdit = action === "edit" && !!id;
 
@@ -98,8 +99,9 @@ export default function ShoppingListModal({
   useEffect(() => {
     if (!open) return;
     const error = takeModalError(draftKey);
-    if (error) applyProblemToForm(error, form);
-  }, [open, draftKey, form]);
+    if (error)
+      applyProblemToForm(error, form, undefined, tAuth("errors.checkInput"));
+  }, [open, draftKey, form, tAuth]);
 
   const { onSubmit, isLoading } = useShoppingListModal({
     shoppingList,

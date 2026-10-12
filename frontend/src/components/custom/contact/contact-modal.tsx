@@ -53,6 +53,7 @@ interface IContactModalProps {
 
 export default function ContactModal({ open }: IContactModalProps) {
   const t = useTranslations("common");
+  const tAuth = useTranslations("auth");
   const pathname = usePathname();
   const { user } = useUser();
   const createMessage = contactService.useCreateContactMessage();
@@ -99,7 +100,7 @@ export default function ContactModal({ open }: IContactModalProps) {
       form.reset(EMPTY_VALUES);
       closeModalUrl();
     } catch (error) {
-      applyProblemToForm(error, form);
+      applyProblemToForm(error, form, undefined, tAuth("errors.checkInput"));
     }
   }
 
