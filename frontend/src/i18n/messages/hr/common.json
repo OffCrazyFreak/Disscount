@@ -18,8 +18,8 @@
     "description": "Trenutno si izvan mreže. Spremljeni popisi, praćeni proizvodi i nedavno pregledani proizvodi i dalje su dostupni.",
     "hint": "Provjeri vezu pa pokušaj ponovno.",
     "retry": "Pokušaj ponovno",
-    "indicator": "Izvan mreže - prikazujemo spremljene podatke.",
-    "indicatorPending": "Izvan mreže - spremljene promjene ({count}) sinkronizirat će se kasnije."
+    "indicator": "Izvan mreže: prikazujemo spremljene podatke.",
+    "indicatorPending": "Izvan mreže: spremljene promjene ({count}) sinkronizirat će se kasnije."
   },
   "lastSynced": {
     "refreshed": "Osvježeno {time}"
@@ -36,12 +36,12 @@
     "error": "Greška pri kopiranju"
   },
   "footer": {
-    "copyright": "Copyright Jakov Jakovac {year}",
+    "copyright": "© {year} Jakov Jakovac",
     "comingSoonLabel": "{label} (uskoro)",
     "comingSoonTitle": "Uskoro"
   },
   "inboxNotice": {
-    "spamHint": "Ne zaboravi provjeriti i spam / neželjenu poštu."
+    "spamHint": "Ne zaboravi provjeriti i neželjenu poštu (spam)."
   },
   "loginRequired": {
     "description": "Za korištenje ove značajke potrebna je prijava.",
@@ -54,7 +54,7 @@
   "oauthError": {
     "emailNotFound": "Tvoj Facebook račun nije podijelio email adresu. Prijavi se emailom ili Facebook računom koji ima email.",
     "emailMismatch": "Povezivanje nije uspjelo jer taj račun koristi drugu email adresu. Možeš povezati samo račune koji imaju istu email adresu kao tvoj.",
-    "alreadyLinked": "Taj račun je već povezan s drugim Disscount korisnikom. Ne možeš ga povezati s ovim računom.",
+    "alreadyLinked": "Taj račun je već povezan s drugim Disscount računom. Ne možeš ga povezati s ovim.",
     "notLinked": "Ovu prijavu nije moguće automatski povezati s postojećim računom. Prijavi se postojećom metodom pa poveži račun u postavkama sigurnosti.",
     "restart": "Postupak prijave je istekao ili je prekinut. Pokušaj ponovo.",
     "default": "Došlo je do greške pri prijavi. Pokušaj ponovo."
@@ -64,17 +64,17 @@
   },
   "contact": {
     "channels": {
-      "intro": "Pošalji nam poruku kroz obrazac ispod, direktno na <email></email> ili putem <linkedin>LinkedIn-a</linkedin>.",
-      "copyEmailLabel": "Kopiraj e-mail adresu",
-      "copyEmailSuccess": "E-mail adresa je kopirana!",
-      "copyEmailError": "Greška pri kopiranju e-maila",
+      "intro": "Pošalji nam poruku kroz obrazac ispod, direktno na <email></email> ili putem <linkedin>LinkedIna</linkedin>.",
+      "copyEmailLabel": "Kopiraj email adresu",
+      "copyEmailSuccess": "Email adresa je kopirana!",
+      "copyEmailError": "Greška pri kopiranju emaila",
       "suggestIdea": "Predloži ideju",
       "openSuggestions": "Otvori Ideje i prijedloge",
       "reportBug": "Prijavi grešku",
       "openBugReport": "Otvori prijavu greške"
     },
     "form": {
-      "email": "E-mail",
+      "email": "Email",
       "emailPlaceholder": "tvoj@email.com",
       "fullName": "Ime i prezime",
       "fullNamePlaceholder": "Tvoje ime",
@@ -91,7 +91,7 @@
       "cancel": "Odustani",
       "reset": "Resetiraj",
       "sent": "Poruka je poslana. Hvala na javljanju!",
-      "sentWithEmail": "Poruka je poslana. Hvala na javljanju! Po potrebi ćemo ti se javiti na uneseni e-mail.",
+      "sentWithEmail": "Poruka je poslana. Hvala na javljanju! Po potrebi ćemo ti se javiti na uneseni email.",
       "sourceAvailable": "Disscount je source-available. <link>Pogledaj projekt na GitHubu</link>."
     }
   },
@@ -135,13 +135,13 @@
     "unsupportedTitle": "Ovaj preglednik ne podržava instalaciju",
     "unsupportedText": "Otvori Disscount u drugom pregledniku, npr. Google Chromeu, da ga dodaš na uređaj.",
     "perkTitle": "Instaliraj kao aplikaciju",
-    "perkDesktop": "Bez trgovine aplikacija - instaliraj Disscount izravno iz preglednika.",
-    "perkMobile": "Bez trgovine aplikacija - dodaj Disscount na početni zaslon izravno iz preglednika.",
+    "perkDesktop": "Bez preuzimanja iz trgovine aplikacija: instaliraj Disscount izravno iz preglednika.",
+    "perkMobile": "Bez preuzimanja iz trgovine aplikacija: dodaj Disscount na početni zaslon izravno iz preglednika.",
     "sheetDescriptionDesktop": "Instaliraj Disscount na računalo u nekoliko koraka.",
     "sheetDescriptionMobile": "Dodaj Disscount na početni zaslon u nekoliko koraka.",
     "steps": {
       "iosMenu": "Dodirni <ellipsis></ellipsis> pored adresne trake, pa <share></share> <b>Podijeli</b>. Na starijim iPhoneima <b>Podijeli</b> je odmah u alatnoj traci.",
-      "iosAdd": "Klizni prema dolje kroz izbornik i odaberi <plus></plus> <b>Dodaj na početni zaslon</b>.",
+      "iosAdd": "Klizi prema dolje kroz izbornik i odaberi <plus></plus> <b>Dodaj na početni zaslon</b>.",
       "confirmAdd": "Potvrdi s <b>Dodaj</b>.",
       "macFile": "Otvori izbornik <b>Datoteka</b> u traci izbornika na vrhu zaslona.",
       "macDock": "Odaberi <dock></dock> <b>Dodaj u Dock</b>.",
@@ -153,7 +153,7 @@
     }
   },
   "validation": {
-    "emailInvalid": "Neispravan e-mail",
+    "emailInvalid": "Neispravan email",
     "fullNameMax": "Ime može imati najviše 255 znakova",
     "subjectRequired": "Naslov je obavezan",
     "subjectMax": "Naslov može imati najviše 255 znakova",

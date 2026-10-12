@@ -27,17 +27,17 @@
     "monthly": "Mjesečno aktivni korisnici"
   },
   "users": {
-    "accountTypeUpdated": "Tip računa ažuriran!",
-    "accountTypeError": "Greška pri promjeni tipa računa.",
+    "accountTypeUpdated": "Vrsta računa ažurirana!",
+    "accountTypeError": "Greška pri promjeni vrste računa.",
     "deleted": "Račun je obrisan!",
     "deleteError": "Greška pri brisanju računa.",
     "loadError": "Greška pri dohvaćanju korisnika.",
     "colUsername": "Korisničko ime",
     "colEmail": "Email",
     "colLastLogin": "Zadnja prijava",
-    "colAccountType": "Tip računa",
+    "colAccountType": "Vrsta računa",
     "deleteTitle": "Brisanje računa",
-    "deleteDescription": "Sigurno želiš obrisati račun {name}? Ova akcija se ne može poništiti.",
+    "deleteDescription": "Sigurno želiš obrisati račun {name}? Ovo se ne može poništiti.",
     "deleteConfirm": "Obriši račun"
   },
   "userRow": {
@@ -54,7 +54,7 @@
     "colSender": "Pošiljatelj",
     "colSent": "Poslano",
     "colStatus": "Status",
-    "colActions": "Akcije",
+    "colActions": "Radnje",
     "empty": "Nema poruka."
   },
   "contactRow": {
@@ -62,9 +62,9 @@
     "deletedBadge": "Obrisano",
     "markRead": "Označi pročitano",
     "markUnread": "Označi nepročitano",
-    "copyEmail": "Kopiraj e-mail",
-    "copySuccess": "E-mail adresa je kopirana!",
-    "copyError": "Greška pri kopiranju e-maila",
+    "copyEmail": "Kopiraj email",
+    "copySuccess": "Email adresa je kopirana!",
+    "copyError": "Greška pri kopiranju emaila",
     "restore": "Vrati poruku",
     "delete": "Obriši poruku"
   },

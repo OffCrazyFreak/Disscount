@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Popis za praćenje",
+    "title": "Praćeni proizvodi",
     "description": "Prati cijene proizvoda i primi obavijesti o popustima."
   },
   "client": {
@@ -26,7 +26,7 @@
   },
   "actionButton": {
     "watch": "Prati proizvod",
-    "remove": "Makni proizvod"
+    "remove": "Ukloni proizvod"
   },
   "discountRow": {
     "srSuffix": ", {infoLabel}, otvori preference trgovina"
@@ -54,14 +54,14 @@
     "loading": "Stvaranje popisa...",
     "listTitle": "Sniženo {date}",
     "productCount": "Proizvoda za novi popis: {count}.",
-    "success": "Popis sniženih proizvoda je uspješno kreiran",
-    "createError": "Greška pri kreiranju popisa sniženih proizvoda",
+    "success": "Popis sniženih proizvoda je uspješno stvoren",
+    "createError": "Greška pri stvaranju popisa sniženih proizvoda",
     "addFailedRemoved": "Neke stavke nije bilo moguće dodati. Popis je automatski uklonjen.",
     "addFailedKept": "Neke stavke nije bilo moguće dodati, a popis nije moguće automatski ukloniti."
   },
   "validation": {
-    "productRequired": "Product API ID je obavezan",
-    "watchTypeRequired": "Tip praćenja je obavezan",
+    "productRequired": "Proizvod je obavezan",
+    "watchTypeRequired": "Vrsta praćenja je obavezna",
     "thresholdPositive": "Granica mora biti pozitivan broj"
   }
 }

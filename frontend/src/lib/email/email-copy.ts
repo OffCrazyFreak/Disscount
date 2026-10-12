@@ -6,6 +6,7 @@ import type { IActionEmailProps } from "@/emails/components/action-email";
 import { DEFAULT_LOCALE, isLocale, type AppLocale } from "@/i18n/locales";
 import type hrMessages from "@/i18n/messages/hr";
 import { loadMessages } from "@/i18n/load-messages";
+import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://disscount.me";
 
@@ -44,6 +45,9 @@ export async function buildActionEmail(
     namespace: "emails",
   });
 
+  // Only the password links quote their lifetime; the others ignore the value.
+  const timing = { minutes: RESET_TOKEN_TTL_SECONDS / 60 };
+
   const intro =
     kind === "changeEmail"
       ? t.rich("changeEmail.intro", {
@@ -55,13 +59,13 @@ export async function buildActionEmail(
               chunks,
             ),
         })
-      : t(`${kind}.intro`);
+      : t(`${kind}.intro`, timing);
 
   return {
     subject: t(`${kind}.subject`),
     props: {
       locale,
-      preview: t(`${kind}.preview`),
+      preview: t(`${kind}.preview`, timing),
       heading: t(`${kind}.heading`),
       intro,
       buttonLabel: t(`${kind}.button`),

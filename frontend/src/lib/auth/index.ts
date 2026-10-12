@@ -17,6 +17,7 @@ import {
   hasLinkedSocialAccount,
   logEmailFailure,
 } from "@/lib/auth/callbacks";
+import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth";
 
 const BETTER_AUTH_URL = requireEnv("BETTER_AUTH_URL");
 const BETTER_AUTH_SECRET = requireEnv("BETTER_AUTH_SECRET");
@@ -25,7 +26,6 @@ const GOOGLE_CLIENT_SECRET = requireEnv("GOOGLE_CLIENT_SECRET");
 const FACEBOOK_CLIENT_ID = requireEnv("FACEBOOK_CLIENT_ID");
 const FACEBOOK_CLIENT_SECRET = requireEnv("FACEBOOK_CLIENT_SECRET");
 
-const RESET_TOKEN_TTL_SECONDS = 60 * 30; // 30 minutes
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
 
 // input: true lets the client write the field, so anything outside the five

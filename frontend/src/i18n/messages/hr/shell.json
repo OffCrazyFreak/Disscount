@@ -67,7 +67,7 @@
     },
     "deleteList": {
       "title": "Obriši popis za kupnju",
-      "description": "Sigurno želiš obrisati popis \"{title}\"? Ova akcija se ne može poništiti.",
+      "description": "Sigurno želiš obrisati popis \"{title}\"? Ovo se ne može poništiti.",
       "confirm": "Obriši"
     }
   },

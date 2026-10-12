@@ -20,7 +20,7 @@
   },
   "actions": {
     "deleteTitle": "Obriši popis za kupnju",
-    "deleteDescription": "Sigurno želiš obrisati popis \"{title}\"? Ova akcija se ne može poništiti.",
+    "deleteDescription": "Sigurno želiš obrisati popis \"{title}\"? Ovo se ne može poništiti.",
     "deleteConfirm": "Obriši",
     "edit": "Uredi popis",
     "copy": "Kopiraj popis",
@@ -62,7 +62,7 @@
     "searchProducts": "Pretraži proizvode",
     "markUnbought": "Označi {name} kao nekupljeno",
     "markBought": "Označi {name} kao kupljeno",
-    "remove": "Makni proizvod",
+    "remove": "Ukloni proizvod",
     "amountLabel": "Količina:",
     "decreaseAmount": "Smanji količinu za 1",
     "increaseAmount": "Povećaj količinu za 1",
@@ -74,7 +74,7 @@
     "noData": "Nema dostupnih povijesnih podataka."
   },
   "stores": {
-    "title": "Cijene po lancima trgovina",
+    "title": "Cijene po trgovačkim lancima",
     "noItems": "Ovaj popis još ne sadrži proizvode. Probaj pretražiti proizvode pa ih dodaj na ovaj popis.",
     "allChecked": "Svi proizvodi su označeni kao kupljeni.",
     "loadError": "Greška pri učitavanju cijena. Pokušaj ponovno.",
@@ -91,9 +91,9 @@
     "hasLowest": "ima proizvod s najnižom cijenom",
     "hasHighest": "ima proizvod s najvišom cijenom",
     "availability": "Dostupnost proizvoda",
-    "min": "Min",
+    "min": "Najniža",
     "avg": "Prosjek",
-    "max": "Max",
+    "max": "Najviša",
     "stat": "{label}: {price}",
     "lowestAmongChains": "(najniža među lancima)",
     "highestAmongChains": "(najviša među lancima)",

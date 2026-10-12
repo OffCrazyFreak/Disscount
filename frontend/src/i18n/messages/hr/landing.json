@@ -16,20 +16,20 @@
     "compare": "Usporedi trgovine i cijene!",
     "saveEveryTime": "Uštedi pri svakoj kupnji!",
     "neverMissDeal": "Nikad ne propusti akciju!",
-    "forgetCards": "Zaboravi kartice - olakšaj novčanik!",
+    "forgetCards": "Zaboravi kartice, olakšaj novčanik!",
     "shareList": "Izradi i podijeli popis za kupnju!",
     "priceHistory": "Prati povijest cijena!",
     "scan": "Skeniraj barkod i usporedi cijene!",
-    "smartShopping": "Uživaj u pametnom kupovanju!",
+    "smartShopping": "Pametna kupnja bez stresa!",
     "bestOffers": "Pronađi najbolje ponude u Hrvatskoj!",
     "cheapQuality": "Kupuj kvalitetno i jeftino!",
     "saveMore": "Kupuj pametno, uštedi više!",
-    "partner": "Tvoj partner u pametnoj kupovini!",
+    "partner": "Tvoj pomoćnik za pametnu kupnju!",
     "noCatalogs": "Zaboravi na kataloge i letke!"
   },
   "howItWorks": {
     "title": "Kako funkcionira?",
-    "subtitle": "Tri koraka do jeftinije košarice - bez listanja kataloga i letaka.",
+    "subtitle": "Tri koraka do jeftinije košarice, bez listanja kataloga i letaka.",
     "steps": {
       "searchOrScan": {
         "title": "Pretraži ili skeniraj",
@@ -62,7 +62,7 @@
   },
   "features": {
     "title": "Sve za pametnu kupovinu",
-    "subtitle": "Ono što radi već danas - i ono što uskoro stiže.",
+    "subtitle": "Ono što radi već danas i ono što uskoro stiže.",
     "items": {
       "scanner": {
         "title": "Skeniranje barkoda",
@@ -70,7 +70,7 @@
       },
       "compare": {
         "title": "Usporedba cijena",
-        "description": "Isti proizvod, sve trgovine - odmah vidiš gdje je najjeftinije."
+        "description": "Isti proizvod, sve trgovine: odmah vidiš gdje je najjeftinije."
       },
       "history": {
         "title": "Povijest cijena",
@@ -98,11 +98,11 @@
       },
       "cards": {
         "title": "Digitalne kartice",
-        "description": "Sve kartice trgovina u mobitelu - novčanik konačno na dijeti."
+        "description": "Sve kartice trgovina u mobitelu. Novčanik konačno na dijeti."
       },
       "offline": {
         "title": "Bez interneta",
-        "description": "Instaliraj kao aplikaciju - popisi i proizvodi dostupni i offline."
+        "description": "Instaliraj kao aplikaciju: popisi i proizvodi dostupni su i offline."
       },
       "map": {
         "title": "Karta trgovina",
@@ -112,7 +112,7 @@
   },
   "priceHistory": {
     "title": "Je li akcija stvarno akcija?",
-    "description": "Neke \"akcije\" samo vrate cijenu na staru. Disscount pamti povijest cijena pa točno vidiš koliko je proizvod koštao prošli tjedan, prošli mjesec - i isplati li se čekati.",
+    "description": "Neke \"akcije\" samo vrate cijenu na staru. Disscount pamti povijest cijena pa točno vidiš koliko je proizvod koštao prošli tjedan, prošli mjesec, pa i isplati li se čekati.",
     "checks": {
       "chart": "Graf cijene za svaki proizvod, po trgovini",
       "realDiscount": "Odmah vidiš je li popust stvaran ili napuhan",
@@ -123,8 +123,8 @@
   },
   "stores": {
     "title": "Svi veliki lanci na jednom mjestu",
-    "subtitle": "Od Konzuma i Lidla do kvartovskih trgovina - cijene iz 25+ trgovačkih lanaca diljem Hrvatske.",
-    "viewPrices": "Pogledaj cijene - {chain}"
+    "subtitle": "Od Konzuma i Lidla do kvartovskih trgovina: cijene iz 25+ trgovačkih lanaca diljem Hrvatske.",
+    "viewPrices": "Pogledaj cijene: {chain}"
   },
   "pwa": {
     "screenshotPhoneAlt": "Disscount aplikacija na mobitelu",
@@ -177,15 +177,15 @@
       },
       "stores": {
         "question": "Koje trgovine mogu usporediti?",
-        "answer": "Disscount pokriva 25+ trgovačkih lanaca diljem Hrvatske - među njima Konzum, Lidl, Plodine, Spar, Kaufland, Tommy, Studenac, Eurospin i dm."
+        "answer": "Disscount pokriva 25+ trgovačkih lanaca diljem Hrvatske, među njima Konzum, Lidl, Plodine, Spar, Kaufland, Tommy, Studenac, Eurospin i dm."
       },
       "account": {
         "question": "Trebam li napraviti račun?",
-        "answer": "Ne za pretragu i usporedbu cijena - to radi odmah. Račun ti treba tek kad želiš spremati popise za kupnju i pratiti proizvode."
+        "answer": "Ne za pretragu i usporedbu cijena: to radi odmah. Račun ti treba tek kad želiš spremati popise za kupnju i pratiti proizvode."
       },
       "barcode": {
         "question": "Kako skeniram barkod proizvoda?",
-        "answer": "Klikni Skeniraj barkod, dopusti pristup kameri i uperi je u barkod na proizvodu - Disscount odmah otvara taj proizvod s cijenama u svim trgovinama."
+        "answer": "Klikni Skeniraj barkod, dopusti pristup kameri i uperi je u barkod na proizvodu. Disscount odmah otvara taj proizvod s cijenama u svim trgovinama."
       },
       "offline": {
         "question": "Radi li aplikacija bez interneta?",

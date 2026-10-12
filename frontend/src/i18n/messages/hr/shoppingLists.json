@@ -72,9 +72,9 @@
     "create": "Stvori",
     "reset": "Resetiraj",
     "loadError": "Greška pri učitavanju popisa. Pokušaj ponovo.",
-    "offlineToast": "Izvan si mreže - promjena će se sinkronizirati kad se vratiš na mrežu.",
+    "offlineToast": "Izvan si mreže. Promjena će se sinkronizirati kad se vratiš na mrežu.",
     "updatedToast": "Popis za kupnju je uspješno ažuriran!",
-    "createdToast": "Popis za kupnju je uspješno kreiran!"
+    "createdToast": "Popis za kupnju je uspješno stvoren!"
   },
   "copyModal": {
     "title": "Kopiraj popis",
@@ -116,7 +116,7 @@
   "shareText": {
     "created": "📅 Stvoreno: {date}",
     "updated": "🔄 Ažurirano: {date}",
-    "footerCreatedWith": "✨ *Popis stvoren pomoću Disscount*",
+    "footerCreatedWith": "✨ *Popis stvoren pomoću Disscounta*",
     "footerCompare": "💰 Usporedi cijene i uštedi!",
     "footerTry": "🌐 Isprobaj besplatno na disscount.me"
   },

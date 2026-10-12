@@ -36,25 +36,25 @@
     "reset": "Resetiraj",
     "loadError": "Greška pri učitavanju kartice. Pokušaj ponovo.",
     "notFound": "Kartica nije pronađena. Možda je obrisana.",
-    "offline": "Izvan si mreže - promjena će se sinkronizirati kad se vratiš na mrežu.",
+    "offline": "Izvan si mreže. Promjena će se sinkronizirati kad se vratiš na mrežu.",
     "updated": "Digitalna kartica je uspješno ažurirana!",
-    "created": "Digitalna kartica je uspješno kreirana!"
+    "created": "Digitalna kartica je uspješno stvorena!"
   },
   "fields": {
     "title": "Naziv kartice",
-    "value": "Vrijednost/Kod",
-    "type": "Tip kartice",
-    "typePlaceholder": "Odaberi tip",
-    "codeType": "Tip koda",
-    "codeTypePlaceholder": "Odaberi tip koda",
+    "value": "Vrijednost ili kod",
+    "type": "Vrsta kartice",
+    "typePlaceholder": "Odaberi vrstu",
+    "codeType": "Vrsta koda",
+    "codeTypePlaceholder": "Odaberi vrstu koda",
     "color": "Boja kartice",
     "note": "Napomena",
     "notePlaceholder": "Unesi napomenu",
     "noteHelp": "Dodatne informacije o tvojoj kartici ({remaining} preostalo)."
   },
   "cardTypes": {
-    "loyalty": "Loyalty kartica",
-    "discount": "Popust kartica",
+    "loyalty": "Kartica vjernosti",
+    "discount": "Kartica s popustom",
     "membership": "Članstvo",
     "gift": "Poklon kartica",
     "other": "Ostalo"
@@ -70,10 +70,10 @@
     "titleMax": "Upiši naziv s najviše 100 znakova",
     "valueRequired": "Vrijednost je obavezna",
     "valueMax": "Vrijednost može imati najviše 500 znakova",
-    "typeRequired": "Tip je obavezan",
-    "typeMax": "Tip može imati najviše 50 znakova",
-    "codeTypeRequired": "Tip koda je obavezan",
-    "codeTypeMax": "Tip koda može imati najviše 50 znakova",
+    "typeRequired": "Vrsta je obavezna",
+    "typeMax": "Vrsta može imati najviše 50 znakova",
+    "codeTypeRequired": "Vrsta koda je obavezna",
+    "codeTypeMax": "Vrsta koda može imati najviše 50 znakova",
     "colorHex": "Boja mora biti u HEX formatu (#ffffff)",
     "noteMax": "Napomena može imati najviše 500 znakova"
   }

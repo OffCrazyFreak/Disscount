@@ -15,7 +15,7 @@
     "productNotFound": "Proizvod nije pronađen.",
     "removeFromList": "Ukloni s ovog popisa",
     "duplicateTitle": "Proizvod već u popisu za kupnju",
-    "duplicateText": "Ovaj proizvod je već dodan u odabran popis za kupnju. Dodavanjem ovog proizvoda će se samo povećati njegova količina u popisu za kupnju sa {current} na {next}.",
+    "duplicateText": "Ovaj proizvod je već dodan u odabrani popis za kupnju. Dodavanjem ovog proizvoda samo će se povećati njegova količina u popisu za kupnju s {current} na {next}.",
     "toast": {
       "pickList": "Odaberi ili stvori popis za kupnju.",
       "quantityIncreased": "Količina proizvoda je povećana u \"{name}\"",
@@ -31,7 +31,7 @@
   },
   "markAsChecked": {
     "label": "Unaprijed označi proizvod kao kupljen",
-    "description": "Ovo je moguće naknadno izmjeniti u popisu za kupnju"
+    "description": "Ovo je moguće naknadno izmijeniti u popisu za kupnju"
   },
   "actionsSheet": {
     "pricesUnavailableTitle": "Cijene nisu dostupne",
@@ -70,9 +70,9 @@
     "productNotFound": "Proizvod nije pronađen.",
     "removeFromWatchlist": "Ukloni s popisa za praćenje",
     "existingTitle": "Proizvod već na popisu za praćenje",
-    "existingBoth": "Ovaj proizvod je već na popisu za praćenje s minimalnim pragom postotka od {percentage}% te popusta od {amount}€.",
+    "existingBoth": "Ovaj proizvod je već na popisu za praćenje s minimalnim pragom postotka od {percentage}% te popusta od {amount, number, ::currency/EUR}.",
     "existingPercentage": "Ovaj proizvod je već na popisu za praćenje s minimalnim pragom postotka od {percentage}%.",
-    "existingAbsolute": "Ovaj proizvod je već na popisu za praćenje s minimalnim pragom popusta od {amount}€.",
+    "existingAbsolute": "Ovaj proizvod je već na popisu za praćenje s minimalnim pragom popusta od {amount, number, ::currency/EUR}.",
     "toast": {
       "updated": "Prag ažuriran s {from} na {to}",
       "added": "Proizvod dodan na popis za praćenje",
@@ -143,10 +143,10 @@
     "back": "Natrag",
     "unknown": "Nepoznato",
     "brand": "Proizvođač:",
-    "barcode": "Bar kod:",
+    "barcode": "Barkod:",
     "quantity": "Količina:",
     "prices": "Cijene:",
-    "unitPrices": "Jed. cijene:",
+    "unitPrices": "Jedinične cijene:",
     "priceRange": "<low>{lowPrice}</low><mid> | {averagePrice} | </mid><high>{highPrice}</high>",
     "perUnit": "{price}/{unit}",
     "unknownProduct": "Nepoznat proizvod"
@@ -164,7 +164,7 @@
     "listTitleMax": "Upiši naziv s najviše 100 znakova",
     "thresholdInvalid": "Unesi valjanu vrijednost",
     "percentageRange": "Postotak mora biti između 1% i 99%",
-    "absoluteRange": "Iznos mora biti između 0.1€ i 999€"
+    "absoluteRange": "Iznos mora biti između 0,10 € i 999 €"
   },
   "list": {
     "searchPlaceholder": "Pretraži proizvode...",
@@ -198,7 +198,7 @@
   "productsSheet": {
     "submit": "Pretraži",
     "title": "Traži proizvode",
-    "description": "Upiši naziv proizvoda ili skeniraj crtni kod."
+    "description": "Upiši naziv proizvoda ili skeniraj barkod."
   },
   "price": {
     "increase": "+{amount}",
@@ -214,6 +214,6 @@
     "all": "Sve"
   },
   "storeChainSelect": {
-    "multiPlaceholder": "Odaberi trgovinske lance..."
+    "multiPlaceholder": "Odaberi trgovačke lance..."
   }
 }

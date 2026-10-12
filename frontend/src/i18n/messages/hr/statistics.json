@@ -1,17 +1,17 @@
 {
   "meta": {
     "title": "Statistika",
-    "description": "Pregled statistike lanaca trgovina."
+    "description": "Pregled statistike trgovačkih lanaca."
   },
   "page": {
     "title": "Statistika",
-    "subtitle": "Pregled statistike lanaca trgovina."
+    "subtitle": "Pregled statistike trgovačkih lanaca."
   },
   "health": {
     "checking": "Provjera stanja...",
     "error": "❌ Greška pri provjeri dostupnosti API-ja",
-    "available": "✅ Cijene API je dostupan",
-    "unavailable": "❌ Cijene API nije dostupan"
+    "available": "✅ API za cijene je dostupan",
+    "unavailable": "❌ API za cijene nije dostupan"
   },
   "chains": {
     "title": "Statistike po lancima",

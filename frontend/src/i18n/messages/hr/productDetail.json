@@ -14,7 +14,7 @@
     "distance": "Udaljenosti"
   },
   "chains": {
-    "title": "Cijene po lancima trgovina",
+    "title": "Cijene po trgovačkim lancima",
     "refreshedPrefix": "Cijene osvježene",
     "loadError": "Greška pri učitavanju cijena. Pokušaj ponovno.",
     "empty": "Nema dostupnih cijena za ovaj proizvod."
@@ -34,9 +34,9 @@
   },
   "storeItem": {
     "dataFrom": "Podaci od {date}",
-    "min": "Min: {price}",
+    "min": "Najniža: {price}",
     "average": "Prosjek: {price}",
-    "max": "Max: {price}",
+    "max": "Najviša: {price}",
     "pricesByLocation": "Cijene po lokacijama"
   },
   "pricesTable": {
@@ -45,6 +45,6 @@
     "address": "Adresa",
     "price": "Cijena",
     "unknown": "Nepoznato",
-    "notAvailable": "N/A"
+    "notAvailable": "Nema"
   }
 }

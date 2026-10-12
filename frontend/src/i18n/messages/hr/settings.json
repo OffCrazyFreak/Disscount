@@ -78,7 +78,7 @@
     "selectedMark": "✓"
   },
   "save": {
-    "offline": "Izvan si mreže - promjene će se sinkronizirati kad se vratiš na mrežu.",
+    "offline": "Izvan si mreže. Promjene će se sinkronizirati kad se vratiš na mrežu.",
     "onboardingDone": "Sve je spremno!",
     "settingsSaved": "Postavke su spremljene!",
     "errors": {
@@ -88,7 +88,7 @@
     }
   },
   "validation": {
-    "usernameMin": "Korisničko ime mora imati najmanje 2 znakova",
+    "usernameMin": "Korisničko ime mora imati najmanje 2 znaka",
     "usernameMax": "Korisničko ime može imati najviše 40 znakova",
     "emailInvalid": "Unesi važeći email",
     "currentPasswordRequired": "Unesi trenutnu lozinku"
@@ -108,7 +108,7 @@
       },
       "profile": {
         "title": "Tvoj profil",
-        "description": "Predstavi se - sve možeš kasnije promijeniti u postavkama."
+        "description": "Predstavi se. Sve možeš kasnije promijeniti u postavkama."
       },
       "notifications": {
         "title": "Obavijesti",
@@ -133,7 +133,7 @@
         "text": "Odaberi trgovine i lokacije za usporedbe cijena po tvom džepu."
       },
       "notifications": {
-        "title": "Obavijesti - bez spama",
+        "title": "Obavijesti bez spama",
         "text": "Odaberi kako, o čemu, i kada želiš dobiti obavijesti o akcijama i novostima."
       }
     },
@@ -171,7 +171,7 @@
       "generic": "Nešto je pošlo po krivu. Pokušaj ponovo."
     },
     "recovery": {
-      "title": "Provjeri svoj inbox",
+      "title": "Provjeri svoj email",
       "description": "Poslali smo ti poveznicu za promjenu lozinke. Nakon promjene odjavit ćemo te sa svih uređaja.",
       "sendFailed": "Greška pri slanju poveznice. Pokušaj ponovo."
     },
