@@ -63,9 +63,10 @@ async function writeEntry(
   });
 
   await whenPurgesSettled();
-  if (getCacheIdentity() !== identity) return;
+  if (getCacheIdentity() !== identity) return undefined;
 
   await set(entryKey(identity, cardId, slot), entry, outboxStore());
+  return entry.nonce;
 }
 
 /** One entry per slot, so a newer photo replaces one still waiting to be sent. */
@@ -159,8 +160,14 @@ async function replayOnce(queryClient: QueryClient) {
   }
 }
 
+// An earlier waiting send may already have handled the newest choice for a slot, so a
+// later caller still needs to learn which choice that was.
+const lastHandled = new Map<string, string>();
+
 export interface ISendResult {
   outcome: "sent" | "kept" | "dropped";
+  /** The queued choice this send handled, which may be newer than the caller's own. */
+  nonce?: string;
   error?: unknown;
 }
 
@@ -180,11 +187,14 @@ export function sendQueuedCardPhoto(
     const identity = getCacheIdentity();
     const key = entryKey(identity, cardId, slot);
     const entry = await get<IOutboxEntry>(key, outboxStore());
-    if (!entry || entry.identity !== identity) return { outcome: "sent" };
+    if (!entry || entry.identity !== identity) {
+      return { outcome: "sent", nonce: lastHandled.get(key) };
+    }
+    lastHandled.set(key, entry.nonce);
 
     if (entry.op !== "delete" && !entry.full) {
       await del(key, outboxStore());
-      return { outcome: "sent" };
+      return { outcome: "sent", nonce: entry.nonce };
     }
 
     const finished = (current: IOutboxEntry | undefined) =>
@@ -199,15 +209,15 @@ export function sendQueuedCardPhoto(
         setCardPhotoInCache(queryClient, cardId, slot, photo);
       }
       await deleteIf<IOutboxEntry>(key, outboxStore(), finished);
-      return { outcome: "sent" };
+      return { outcome: "sent", nonce: entry.nonce };
     } catch (error) {
       const notFound = parseProblem(error)?.status === 404;
       if (failureAction(error) === "keep" || (keepOn404 && notFound)) {
-        return { outcome: "kept", error };
+        return { outcome: "kept", nonce: entry.nonce, error };
       }
 
       await deleteIf<IOutboxEntry>(key, outboxStore(), finished);
-      return { outcome: "dropped", error };
+      return { outcome: "dropped", nonce: entry.nonce, error };
     }
   });
 }

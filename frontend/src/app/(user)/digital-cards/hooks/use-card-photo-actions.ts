@@ -99,15 +99,14 @@ export function useCardPhotoActions(cardId: string) {
   async function remove(slot: CardPhotoSlot): Promise<void> {
     try {
       // Replaces a waiting upload for the slot, since the removal is the newer choice.
-      await enqueueCardPhotoRemoval(cardId, slot);
+      const nonce = await enqueueCardPhotoRemoval(cardId, slot);
 
       if (navigator.onLine) {
-        const { outcome, error } = await sendQueuedCardPhoto(
-          queryClient,
-          cardId,
-          slot,
-        );
-        if (outcome === "dropped") throw error;
+        const result = await sendQueuedCardPhoto(queryClient, cardId, slot);
+
+        // A newer choice queued while this waited was sent instead and owns the slot.
+        if (result.nonce !== undefined && result.nonce !== nonce) return;
+        if (result.outcome === "dropped") throw result.error;
       }
     } catch {
       toast.error("Slika nije obrisana. Pokušaj ponovno.");
