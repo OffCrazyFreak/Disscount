@@ -13,6 +13,7 @@ import {
 
 const HEX_POINTS = "21,0 42,12 42,36 21,48 0,36 0,12";
 const RING_POINTS = "21,-5 46,9.5 46,38.5 21,53 -4,38.5 -4,9.5";
+const FOCUS_POINTS = "21,-10 51,7 51,41 21,58 -9,41 -9,7";
 const CHECK_PATH = "M13 24.5l5.5 5.5L29.5 19";
 
 interface IColorHexCellProps {
@@ -49,6 +50,8 @@ export default function ColorHexCell({
       }}
       className={cn(
         "group absolute grid cursor-pointer place-items-center p-0 outline-none",
+        "forced-colors:focus-visible:outline-2 forced-colors:focus-visible:outline-solid forced-colors:focus-visible:outline-[Highlight]",
+        "focus:z-10",
         selected && "z-10",
       )}
     >
@@ -61,7 +64,14 @@ export default function ColorHexCell({
           points={RING_POINTS}
           strokeWidth={3}
           strokeLinejoin="round"
-          className="fill-none stroke-foreground opacity-0 group-aria-checked:opacity-100 group-focus-visible:opacity-100"
+          className="fill-none stroke-foreground opacity-0 group-aria-checked:opacity-100"
+        />
+        <polygon
+          points={FOCUS_POINTS}
+          strokeWidth={2.5}
+          strokeLinejoin="round"
+          strokeDasharray="5 4"
+          className="stroke-ring fill-none opacity-0 group-focus-visible:opacity-100"
         />
         {cell.needsDarkOutline && (
           <polygon

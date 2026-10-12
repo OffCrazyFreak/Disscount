@@ -8,10 +8,13 @@ import ScanOverlay from "@/components/scanner/scan-overlay";
 import usePageVisible from "@/hooks/use-page-visible";
 import "@/components/scanner/scanner.css";
 
-// The library defaults to 500 without a tracker; 750 measurably slowed
-// decoding of a real barcode, which is this feature's whole job. Consensus needs up
-// to four reads inside 1.5 s, which 400 ms cannot fit alongside decode time.
-const CAMERA_SCAN_RETRY_DELAY = 200;
+// The library defaults to 500 without a tracker; 750 measurably slowed decoding of a
+// real barcode. Cards ("all") need up to four reads inside 1.5 s, which 400 ms cannot
+// fit alongside decode time. Products need only two, so they spare the battery.
+const RETRY_DELAY_BY_PRESET: Record<ScanPreset, number> = {
+  all: 200,
+  product: 400,
+};
 const CAMERA_TRACK_POLL_INTERVAL = 300;
 const CAMERA_TRACK_POLL_LIMIT = 20;
 
@@ -148,7 +151,7 @@ export default function CameraView({
         onError={onError}
         formats={SCAN_FORMATS_BY_PRESET[preset]}
         constraints={constraints}
-        retryDelay={CAMERA_SCAN_RETRY_DELAY}
+        retryDelay={RETRY_DELAY_BY_PRESET[preset]}
         paused={!isPageVisible}
         sound={false}
         components={CAMERA_COMPONENTS}

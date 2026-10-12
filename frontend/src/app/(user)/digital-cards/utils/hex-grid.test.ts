@@ -39,15 +39,35 @@ describe("nextCellIndex", () => {
     expect(move("Grafit", "End")).toBe("Bosiljak");
   });
 
-  it("goes to the nearest cell by x, preferring the left one on a tie", () => {
+  it("moves Up to the upper-left and Down to the lower-right neighbour", () => {
     expect(move("Grafit", "ArrowUp")).toBe("Trešnjin cvijet");
-    expect(move("Grafit", "ArrowDown")).toBe("Paun");
-    expect(move("Mango", "ArrowUp")).toBe("Flamingo");
+    expect(move("Grafit", "ArrowDown")).toBe("Avokado");
+  });
+
+  it("falls back to the other diagonal when the preferred one is missing", () => {
+    expect(move("Ametist", "ArrowUp")).toBe("Grožđe");
+    expect(move("Pistacija", "ArrowDown")).toBe("Bosiljak");
+  });
+
+  it("undoes Up with Down and Down with Up from every cell that has both", () => {
+    cells.forEach((cell, index) => {
+      const up = nextCellIndex(cells, index, "ArrowUp");
+      const down = nextCellIndex(cells, index, "ArrowDown");
+
+      if (cells.some((c) => c.q === cell.q && c.r === cell.r - 1)) {
+        expect(nextCellIndex(cells, up, "ArrowDown")).toBe(index);
+      }
+      if (cells.some((c) => c.q === cell.q && c.r === cell.r + 1)) {
+        expect(nextCellIndex(cells, down, "ArrowUp")).toBe(index);
+      }
+    });
   });
 
   it("wraps vertically to the opposite edge row", () => {
-    expect(move("Radič", "ArrowUp")).toBe("Kadulja");
-    expect(move("Kadulja", "ArrowDown")).toBe("Radič");
+    expect(cells[nextCellIndex(cells, indexOf("Radič"), "ArrowUp")].r).toBe(2);
+    expect(cells[nextCellIndex(cells, indexOf("Kadulja"), "ArrowDown")].r).toBe(
+      -2,
+    );
   });
 
   it("ignores other keys", () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TriangleAlert } from "lucide-react";
 import { Banner } from "@/components/custom/common/banner";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import type { IScannedCode, ScanPreset } from "@/typings/scanned-code";
 import CameraView from "@/components/scanner/camera-view";
 import CameraSelect from "@/components/scanner/camera-select";
 import ScanImageButton from "@/components/scanner/scan-image";
+import { playBeep, prepareBeep } from "@/components/scanner/scan-beep";
 import useCameraDevices from "@/components/scanner/hooks/use-camera-devices";
 import useScanConsensus from "@/components/scanner/hooks/use-scan-consensus";
 
@@ -31,9 +32,15 @@ export default function ScannerCamera({
   onManual,
 }: IScannerCameraProps) {
   const { devices, refreshDevices } = useCameraDevices();
+
+  function handleStable(codes: IScannedCode[]) {
+    playBeep();
+    onCodes(codes);
+  }
+
   const { handleDetected, showHint } = useScanConsensus({
     preset,
-    onStable: onCodes,
+    onStable: handleStable,
   });
   const [manualDeviceId, setManualDeviceId] = useState<string | undefined>(() =>
     getPreferredCamera(),
@@ -42,6 +49,10 @@ export default function ScannerCamera({
 
   const activeDeviceId = manualDeviceId ?? pickBackCamera(devices) ?? undefined;
   const hasManualChoice = Boolean(manualDeviceId);
+
+  useEffect(() => {
+    prepareBeep();
+  }, []);
 
   function handleSelect(deviceId: string) {
     setManualDeviceId(deviceId);

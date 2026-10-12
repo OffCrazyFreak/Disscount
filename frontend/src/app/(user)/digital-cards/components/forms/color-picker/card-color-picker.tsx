@@ -27,6 +27,7 @@ export default function CardColorPicker({
     event: KeyboardEvent<HTMLButtonElement>,
     index: number,
   ) {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
     if (!NAVIGATION_KEYS.includes(event.key)) return;
 
     event.preventDefault();

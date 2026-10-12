@@ -44,6 +44,12 @@ describe("recordReads", () => {
     expect(state.stable).toEqual([EAN]);
   });
 
+  it("counts a code listed twice in one frame as a single read", () => {
+    const state = recordReads(createConsensusState(), [EAN, EAN], 0, "product");
+    expect(state.stable).toEqual([]);
+    expect(state.reads).toHaveLength(1);
+  });
+
   it("does not mix different values", () => {
     let state = createConsensusState();
     for (const [i, code] of [EAN, OTHER, EAN, OTHER].entries()) {
@@ -75,19 +81,18 @@ describe("recordReads", () => {
 
   it("keeps a product's UPC-A as scanned", () => {
     const upc: IScannedCode = { rawValue: "036000291452", format: "upc_a" };
-    const state = recordReads(createConsensusState(), [upc, upc], 0, "product");
-    expect(readyCodes(state, 0)).toEqual([upc]);
+    let state = recordReads(createConsensusState(), [upc], 0, "product");
+    state = recordReads(state, [upc], 100, "product");
+    expect(readyCodes(state, 100)).toEqual([upc]);
   });
 
   it("normalises a card's UPC-A to EAN-13 before counting", () => {
     const upc: IScannedCode = { rawValue: "036000291452", format: "upc_a" };
-    const state = recordReads(
-      createConsensusState(),
-      [upc, upc, upc],
-      0,
-      "all",
-    );
-    expect(readyCodes(state, COLLECT_WINDOW_MS)).toEqual([
+    let state = createConsensusState();
+    for (const at of [0, 100, 200]) {
+      state = recordReads(state, [upc], at, "all");
+    }
+    expect(readyCodes(state, 200 + COLLECT_WINDOW_MS)).toEqual([
       { rawValue: "0036000291452", format: "ean_13" },
     ]);
   });
@@ -102,6 +107,13 @@ describe("recordReads", () => {
     expect(isRejecting(state, 4000)).toBe(false);
     expect(isRejecting(state, 5000)).toBe(true);
     expect(isRejecting(state, 8000)).toBe(false);
+  });
+
+  it("ends the reject streak when a valid read arrives", () => {
+    let state = recordReads(createConsensusState(), [BAD], 0, "all");
+    state = recordReads(state, [EAN], 100, "all");
+    expect(state.rejectStart).toBeNull();
+    expect(state.lastReject).toBeNull();
   });
 
   it("restarts the reject clock after a pause", () => {

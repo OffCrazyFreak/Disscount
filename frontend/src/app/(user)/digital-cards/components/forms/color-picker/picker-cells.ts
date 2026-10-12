@@ -1,5 +1,5 @@
 import { CARD_PALETTE } from "../../../utils/card-palette";
-import { hexCell } from "../../../utils/hex-grid";
+import { HEX_ROW_HEIGHT, hexCell } from "../../../utils/hex-grid";
 
 // Dark enough to vanish on a near-black modal, so dark mode draws an outline on them.
 const DARK_CELLS = new Set([
@@ -19,4 +19,5 @@ export const PICKER_CELLS = CARD_PALETTE.map((color) => ({
 export const PICKER_WIDTH = 300;
 export const PICKER_HEIGHT = 230;
 export const CELL_WIDTH = 44;
-export const CELL_HEIGHT = 51;
+// Exactly one row pitch tall, so neighbouring rows never overlap and a tap lands on the nearest cell.
+export const CELL_HEIGHT = HEX_ROW_HEIGHT;

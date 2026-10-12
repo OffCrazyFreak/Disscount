@@ -47,7 +47,12 @@ function readingOrder(cells: readonly IHexCell[]) {
     .sort((a, b) => cells[a].r - cells[b].r || cells[a].x - cells[b].x);
 }
 
-function nearestInRow(cells: readonly IHexCell[], row: number, x: number) {
+function nearestInRow(
+  cells: readonly IHexCell[],
+  row: number,
+  x: number,
+  preferRight: boolean,
+) {
   let best = -1;
 
   cells.forEach((cell, index) => {
@@ -57,12 +62,40 @@ function nearestInRow(cells: readonly IHexCell[], row: number, x: number) {
       return;
     }
 
-    // Adjacent rows are offset by half a pitch, so ties are normal: take the left cell.
+    // Wrapped rows can sit half a pitch off, so ties break toward the direction of travel.
     const gap = Math.abs(cell.x - x) - Math.abs(cells[best].x - x);
-    if (gap < 0 || (gap === 0 && cell.x < cells[best].x)) best = index;
+    const closerSide = preferRight
+      ? cell.x > cells[best].x
+      : cell.x < cells[best].x;
+    if (gap < 0 || (gap === 0 && closerSide)) best = index;
   });
 
   return best;
+}
+
+function cellAt(cells: readonly IHexCell[], q: number, r: number) {
+  return cells.findIndex((cell) => cell.q === q && cell.r === r);
+}
+
+// Up goes upper-left and Down goes lower-right, so the two undo each other.
+function verticalIndex(
+  cells: readonly IHexCell[],
+  currentIndex: number,
+  down: boolean,
+) {
+  const { q, r, x } = cells[currentIndex];
+  const dr = down ? 1 : -1;
+  const primary = cellAt(cells, q, r + dr);
+  const secondary = cellAt(cells, down ? q - 1 : q + 1, r + dr);
+
+  if (primary !== -1) return primary;
+  if (secondary !== -1) return secondary;
+
+  const rows = cells.map((cell) => cell.r);
+  const hasRow = rows.includes(r + dr);
+  const target = hasRow ? r + dr : down ? Math.min(...rows) : Math.max(...rows);
+
+  return nearestInRow(cells, target, x + (down ? 22 : -22), down);
 }
 
 /** Index of the cell that should receive focus after `key`, or the current one for other keys. */
@@ -84,16 +117,8 @@ export function nextCellIndex(
     case "End":
       return order[order.length - 1];
     case "ArrowUp":
-    case "ArrowDown": {
-      const rows = [...new Set(cells.map((cell) => cell.r))].sort(
-        (a, b) => a - b,
-      );
-      const rowIndex = rows.indexOf(cells[currentIndex].r);
-      const step = key === "ArrowUp" ? -1 : 1;
-      const target = rows[(rowIndex + step + rows.length) % rows.length];
-
-      return nearestInRow(cells, target, cells[currentIndex].x);
-    }
+    case "ArrowDown":
+      return verticalIndex(cells, currentIndex, key === "ArrowDown");
     default:
       return currentIndex;
   }

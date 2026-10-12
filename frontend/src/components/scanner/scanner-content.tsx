@@ -23,8 +23,13 @@ interface IScannerContentProps {
   onScan: (code: IScannedCode) => void;
 }
 
-function announcement(candidates: IScannedCode[] | null): string {
+function announcement(
+  candidates: IScannedCode[] | null,
+  typed: boolean,
+): string {
   if (!candidates?.length) return "";
+
+  if (typed) return `Upisan kod: ${formatLabel(candidates[0])}`;
 
   return candidates.length === 1
     ? `Pronađen kod: ${formatLabel(candidates[0])}`
@@ -38,12 +43,24 @@ export default function ScannerContent({
 }: IScannerContentProps) {
   const [step, setStep] = useState<ScannerStep>("camera");
   const [candidates, setCandidates] = useState<IScannedCode[] | null>(null);
+  const [typed, setTyped] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const previousStep = useRef(step);
 
-  // The camera view unmounts on a step change and takes focus with it.
+  // The previous step's controls unmount and take focus with them; the first mount keeps the dialog's own focus.
   useEffect(() => {
-    if (step !== "camera") titleRef.current?.focus();
+    if (previousStep.current === step) return;
+
+    previousStep.current = step;
+    titleRef.current?.focus();
   }, [step]);
+
+  function goTo(next: ScannerStep) {
+    // A leftover result would be read out again on the next visit to the live region.
+    if (next !== "confirm") setCandidates(null);
+
+    setStep(next);
+  }
 
   function handleCodes(codes: IScannedCode[]) {
     navigator.vibrate?.(80);
@@ -53,11 +70,13 @@ export default function ScannerContent({
       return;
     }
 
+    setTyped(false);
     setCandidates(codes);
     setStep("confirm");
   }
 
   function handleManual(code: IScannedCode) {
+    setTyped(true);
     setCandidates([code]);
     setStep("confirm");
   }
@@ -76,7 +95,7 @@ export default function ScannerContent({
       </DialogHeader>
 
       <p role="status" aria-live="polite" className="sr-only">
-        {announcement(candidates)}
+        {announcement(candidates, typed)}
       </p>
 
       {step === "camera" && (
@@ -84,14 +103,14 @@ export default function ScannerContent({
           preset={preset}
           canType={confirm}
           onCodes={handleCodes}
-          onManual={() => setStep("manual")}
+          onManual={() => goTo("manual")}
         />
       )}
 
       {step === "manual" && (
         <ScanManualEntry
           onSubmit={handleManual}
-          onBack={() => setStep("camera")}
+          onBack={() => goTo("camera")}
         />
       )}
 
@@ -99,8 +118,8 @@ export default function ScannerContent({
         <ScanConfirm
           candidates={candidates}
           onConfirm={onScan}
-          onRescan={() => setStep("camera")}
-          onManual={() => setStep("manual")}
+          onRescan={() => goTo("camera")}
+          onManual={() => goTo("manual")}
         />
       )}
     </>
