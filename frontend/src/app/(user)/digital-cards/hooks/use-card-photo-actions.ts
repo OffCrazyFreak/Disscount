@@ -64,8 +64,14 @@ export function useCardPhotoActions(cardId: string) {
       return;
     }
 
+    let nonce: string | undefined;
     try {
-      await enqueueCardPhoto(cardId, slot, prepared.full, prepared.thumb);
+      nonce = await enqueueCardPhoto(
+        cardId,
+        slot,
+        prepared.full,
+        prepared.thumb,
+      );
     } catch {
       mark(slot, "error");
       toast.error("Slika nije spremljena. Pokušaj ponovno.");
@@ -79,12 +85,14 @@ export function useCardPhotoActions(cardId: string) {
 
     // A 404 means the card's own save has not reached the server yet; the outbox
     // replays after paused saves resume.
-    const { outcome, error } = await sendQueuedCardPhoto(
-      queryClient,
-      cardId,
-      slot,
-      true,
-    );
+    const {
+      outcome,
+      nonce: handled,
+      error,
+    } = await sendQueuedCardPhoto(queryClient, cardId, slot, true);
+
+    // A newer choice was sent in this one's place; its own caller reports the result.
+    if (handled !== undefined && handled !== nonce) return;
 
     if (outcome === "sent") mark(slot, undefined);
     else if (outcome === "kept") mark(slot, "queued");

@@ -8,9 +8,8 @@ import {
   deleteCardPhoto,
   uploadCardPhoto,
 } from "@/lib/api/digital-cards/photo-queries";
-import { parseProblem } from "@/lib/api/problem-details";
 import { getCacheIdentity } from "@/lib/offline/cache-identity";
-import { failureAction } from "@/lib/offline/failure-policy";
+import { failureAction, httpStatus } from "@/lib/offline/failure-policy";
 import { deleteIf } from "@/lib/offline/idb-transactions";
 import { whenPurgesSettled } from "@/lib/offline/purge-gate";
 import { photoSlotKey, runExclusive } from "@/lib/offline/slot-lock";
@@ -115,7 +114,7 @@ async function send(entry: IOutboxEntry) {
       await deleteCardPhoto(entry.cardId, entry.slot);
     } catch (error) {
       // Already gone is the state the user asked for.
-      if (parseProblem(error)?.status !== 404) throw error;
+      if (httpStatus(error) !== 404) throw error;
     }
     return null;
   }
@@ -150,7 +149,7 @@ async function replayOnce(queryClient: QueryClient) {
     );
     if (outcome === "kept") return;
 
-    if (outcome === "dropped" && parseProblem(error)?.status !== 404) {
+    if (outcome === "dropped" && httpStatus(error) !== 404) {
       toast.error(
         peeked.op === "delete"
           ? "Slika nije obrisana."
@@ -161,8 +160,8 @@ async function replayOnce(queryClient: QueryClient) {
 }
 
 // An earlier waiting send may already have handled the newest choice for a slot, so a
-// later caller still needs to learn which choice that was.
-const lastHandled = new Map<string, string>();
+// later caller still needs to learn which choice that was and how it ended.
+const lastHandled = new Map<string, ISendResult>();
 
 export interface ISendResult {
   outcome: "sent" | "kept" | "dropped";
@@ -184,42 +183,51 @@ export function sendQueuedCardPhoto(
   keepOn404 = false,
 ): Promise<ISendResult> {
   return runExclusive(photoSlotKey(cardId, slot), async () => {
-    const identity = getCacheIdentity();
-    const key = entryKey(identity, cardId, slot);
-    const entry = await get<IOutboxEntry>(key, outboxStore());
-    if (!entry || entry.identity !== identity) {
-      return { outcome: "sent", nonce: lastHandled.get(key) };
-    }
-    lastHandled.set(key, entry.nonce);
+    const key = entryKey(getCacheIdentity(), cardId, slot);
+    const result = await sendEntry(queryClient, key, keepOn404);
 
-    if (entry.op !== "delete" && !entry.full) {
-      await del(key, outboxStore());
-      return { outcome: "sent", nonce: entry.nonce };
-    }
-
-    const finished = (current: IOutboxEntry | undefined) =>
-      current?.nonce === entry.nonce;
-
-    try {
-      const photo = await send(entry);
-
-      // A newer choice queued during the send replays next and owns the cache.
-      const current = await get<IOutboxEntry>(key, outboxStore());
-      if (getCacheIdentity() === identity && finished(current)) {
-        setCardPhotoInCache(queryClient, cardId, slot, photo);
-      }
-      await deleteIf<IOutboxEntry>(key, outboxStore(), finished);
-      return { outcome: "sent", nonce: entry.nonce };
-    } catch (error) {
-      const notFound = parseProblem(error)?.status === 404;
-      if (failureAction(error) === "keep" || (keepOn404 && notFound)) {
-        return { outcome: "kept", nonce: entry.nonce, error };
-      }
-
-      await deleteIf<IOutboxEntry>(key, outboxStore(), finished);
-      return { outcome: "dropped", nonce: entry.nonce, error };
-    }
+    if (result) lastHandled.set(key, result);
+    return result ?? lastHandled.get(key) ?? { outcome: "sent" };
   });
+}
+
+async function sendEntry(
+  queryClient: QueryClient,
+  key: string,
+  keepOn404: boolean,
+): Promise<ISendResult | null> {
+  const identity = getCacheIdentity();
+  const entry = await get<IOutboxEntry>(key, outboxStore());
+  if (!entry || entry.identity !== identity) return null;
+
+  const { nonce, cardId, slot } = entry;
+  const finished = (current: IOutboxEntry | undefined) =>
+    current?.nonce === nonce;
+
+  if (entry.op !== "delete" && !entry.full) {
+    await del(key, outboxStore());
+    return { outcome: "sent", nonce };
+  }
+
+  try {
+    const photo = await send(entry);
+
+    // A newer choice queued during the send replays next and owns the cache.
+    const current = await get<IOutboxEntry>(key, outboxStore());
+    if (getCacheIdentity() === identity && finished(current)) {
+      setCardPhotoInCache(queryClient, cardId, slot, photo);
+    }
+    await deleteIf<IOutboxEntry>(key, outboxStore(), finished);
+    return { outcome: "sent", nonce };
+  } catch (error) {
+    const notFound = httpStatus(error) === 404;
+    if (failureAction(error) === "keep" || (keepOn404 && notFound)) {
+      return { outcome: "kept", nonce, error };
+    }
+
+    await deleteIf<IOutboxEntry>(key, outboxStore(), finished);
+    return { outcome: "dropped", nonce, error };
+  }
 }
 
 /**

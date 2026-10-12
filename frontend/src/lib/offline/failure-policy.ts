@@ -16,19 +16,20 @@ export const CARD_LIMIT_MESSAGE = "Dosegnut je najveći broj kartica.";
 export function failureAction(error: unknown): "keep" | "drop" {
   if (isNetworkFailure(error)) return "keep";
 
-  const status = parseStatus(error);
+  const status = httpStatus(error);
   return status !== undefined && PERMANENT_STATUSES.has(status)
     ? "drop"
     : "keep";
 }
 
-function parseStatus(error: unknown): number | undefined {
+/** The HTTP status itself, since a 404 from a proxy carries no Problem Details body. */
+export function httpStatus(error: unknown): number | undefined {
   return isAxiosError(error) ? error.response?.status : undefined;
 }
 
 /** The toast for a failed card write, or null when the failure needs no message. */
 export function cardWriteMessage(error: unknown): string | null {
-  const status = parseStatus(error);
+  const status = httpStatus(error);
 
   // The card was deleted elsewhere; the invalidation that follows removes it here too.
   if (status === 404) return null;
