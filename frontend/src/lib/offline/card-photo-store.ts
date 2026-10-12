@@ -1,6 +1,9 @@
-import { createStore, delMany, entries, get, set, update } from "idb-keyval";
+import { createStore, delMany, get, keys, set } from "idb-keyval";
 
 import type { CardPhotoSlot } from "@/constants/card-codes";
+import { getCacheIdentity } from "@/lib/offline/cache-identity";
+import { updateIfPresent } from "@/lib/offline/idb-transactions";
+import { whenPurgesSettled } from "@/lib/offline/purge-gate";
 
 export type CardPhotoSize = "full" | "thumb";
 
@@ -14,6 +17,9 @@ interface IPhotoRef {
   id: string;
   photos: { slot: string; sha256: string }[];
 }
+
+// usedAt only orders eviction, so a day of precision spares a full-blob rewrite per read.
+const USED_AT_REFRESH_MS = 24 * 60 * 60 * 1000;
 
 let store: ReturnType<typeof createStore> | undefined;
 
@@ -37,11 +43,12 @@ export async function readPhoto(key: string): Promise<Blob | undefined> {
   const stored = await get<IStoredPhoto>(key, photoStore());
   if (!stored) return undefined;
 
-  void update<IStoredPhoto>(
-    key,
-    (old) => ({ ...(old ?? stored), usedAt: Date.now() }),
-    photoStore(),
-  ).catch(() => undefined);
+  if (Date.now() - stored.usedAt > USED_AT_REFRESH_MS) {
+    void updateIfPresent<IStoredPhoto>(key, photoStore(), (old) => ({
+      ...old,
+      usedAt: Date.now(),
+    })).catch(() => undefined);
+  }
 
   return new Blob([stored.buf], { type: stored.type });
 }
@@ -52,14 +59,18 @@ export async function writePhoto(key: string, blob: Blob): Promise<void> {
     type: blob.type,
     usedAt: Date.now(),
   };
+
+  await whenPurgesSettled();
+  // The fetch can outlive a logout; a blob written for the departed account would sit
+  // there until the next prune.
+  if (!key.startsWith(`${getCacheIdentity()}:`)) return;
+
   await set(key, value, photoStore());
 }
 
 async function deleteMatching(predicate: (key: string) => boolean) {
-  const keys = (await entries(photoStore()))
-    .map(([key]) => String(key))
-    .filter(predicate);
-  await delMany(keys, photoStore());
+  const matching = (await keys(photoStore())).map(String).filter(predicate);
+  await delMany(matching, photoStore());
 }
 
 export function deleteForCard(identity: string, cardId: string) {

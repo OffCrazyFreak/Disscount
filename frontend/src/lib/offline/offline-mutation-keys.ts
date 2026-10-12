@@ -12,8 +12,9 @@ export const OFFLINE_MUTATION_KEYS = {
   // own, since both are reached by the list's id.
   shoppingListItemUpdate: ["shoppingLists", "items", "update"],
   shoppingListItemDelete: ["shoppingLists", "items", "delete"],
-  // Card ids are minted client-side, so a create and its later edits replay in order
-  // with no temp ids to rewrite.
+  // Card ids are minted client-side, so there are no temp ids to rewrite. Replay order
+  // comes from DIGITAL_CARD_MUTATION_SCOPE: mutations sharing a scope run one at a time,
+  // while unscoped paused mutations all resume in parallel.
   digitalCardSave: ["digitalCards", "save"],
   digitalCardDelete: ["digitalCards", "delete"],
   digitalCardPin: ["digitalCards", "pin"],
@@ -21,6 +22,8 @@ export const OFFLINE_MUTATION_KEYS = {
   watchlistAdd: ["watchlist", "add"],
   watchlistRemove: ["watchlist", "remove"],
 } as const satisfies Record<string, MutationKey>;
+
+export const DIGITAL_CARD_MUTATION_SCOPE = { id: "digitalCards" };
 
 const OFFLINE_MUTATION_KEY_HASHES = new Set(
   Object.values(OFFLINE_MUTATION_KEYS).map((key) => JSON.stringify(key)),

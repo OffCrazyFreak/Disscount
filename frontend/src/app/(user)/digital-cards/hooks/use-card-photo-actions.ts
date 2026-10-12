@@ -13,10 +13,11 @@ import { getCacheIdentity } from "@/lib/offline/cache-identity";
 import {
   dequeueCardPhoto,
   enqueueCardPhoto,
+  enqueueCardPhotoRemoval,
   hasQueuedCardPhoto,
 } from "@/lib/offline/card-photo-outbox";
 import { deleteSlotForCard } from "@/lib/offline/card-photo-store";
-import { isNetworkFailure } from "@/lib/offline/is-network-failure";
+import { failureAction } from "@/lib/offline/failure-policy";
 import {
   prepareCardImage,
   type IPreparedCardImage,
@@ -24,8 +25,6 @@ import {
 
 type PhotoStatus = "uploading" | "queued" | "error";
 type StatusMap = Partial<Record<CardPhotoSlot, PhotoStatus>>;
-
-const PHOTOS_DISABLED = "Slike trenutno nisu dostupne.";
 
 export function useCardPhotoActions(cardId: string) {
   const queryClient = useQueryClient();
@@ -88,17 +87,19 @@ export function useCardPhotoActions(cardId: string) {
       setCardPhotoInCache(queryClient, cardId, slot, photo);
       mark(slot, undefined);
     } catch (error) {
-      const httpStatus = parseProblem(error)?.status;
-
-      // 404: the card's own save has not reached the server yet; the outbox replays
-      // after paused saves resume.
-      if (isNetworkFailure(error) || httpStatus === 404) return queue();
+      // Offline, signed out, throttled or a server fault will pass, and a 404 means the
+      // card's own save has not reached the server yet: the outbox replays after paused
+      // saves resume.
+      if (
+        failureAction(error) === "keep" ||
+        parseProblem(error)?.status === 404
+      ) {
+        return queue();
+      }
 
       mark(slot, "error");
       toast.error(
-        httpStatus === 503
-          ? PHOTOS_DISABLED
-          : problemMessage(error, "Slika nije spremljena. Pokušaj ponovno."),
+        problemMessage(error, "Slika nije spremljena. Pokušaj ponovno."),
       );
     }
   }
@@ -106,18 +107,23 @@ export function useCardPhotoActions(cardId: string) {
   async function remove(slot: CardPhotoSlot): Promise<void> {
     try {
       await dequeueCardPhoto(cardId, slot);
-      await deleteCardPhoto(cardId, slot);
-    } catch (error) {
-      const httpStatus = parseProblem(error)?.status;
 
-      if (httpStatus !== 404) {
-        toast.error(
-          httpStatus === 503
-            ? PHOTOS_DISABLED
-            : "Slika nije obrisana. Pokušaj ponovno.",
-        );
-        return;
+      if (!navigator.onLine) {
+        await enqueueCardPhotoRemoval(cardId, slot);
+      } else {
+        try {
+          await deleteCardPhoto(cardId, slot);
+        } catch (error) {
+          if (failureAction(error) === "keep") {
+            await enqueueCardPhotoRemoval(cardId, slot);
+          } else if (parseProblem(error)?.status !== 404) {
+            throw error;
+          }
+        }
       }
+    } catch {
+      toast.error("Slika nije obrisana. Pokušaj ponovno.");
+      return;
     }
 
     setCardPhotoInCache(queryClient, cardId, slot, null);

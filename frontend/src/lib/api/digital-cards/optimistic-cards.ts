@@ -10,26 +10,51 @@ export function zonelessNow(): string {
   return new Date().toISOString().replace("Z", "");
 }
 
+/** Only the card an optimistic write touched, so a rollback cannot undo other cards. */
 export interface ICardsRollback {
-  previous: CardList;
+  cardId: string;
+  previous: DigitalCardDto | undefined;
+  index: number;
 }
 
 /** Cancels in-flight reads first so a late GET cannot overwrite the optimistic write. */
 export async function patchCards(
   queryClient: QueryClient,
+  cardId: string,
   update: (cards: DigitalCardDto[]) => DigitalCardDto[],
 ): Promise<ICardsRollback> {
   await queryClient.cancelQueries({ queryKey: DIGITAL_CARD_QUERY_KEYS.me });
 
-  const previous = queryClient.getQueryData<DigitalCardDto[]>(
-    DIGITAL_CARD_QUERY_KEYS.me,
-  );
+  const cards =
+    queryClient.getQueryData<DigitalCardDto[]>(DIGITAL_CARD_QUERY_KEYS.me) ??
+    [];
+  const index = cards.findIndex((card) => card.id === cardId);
+  const rollback: ICardsRollback = {
+    cardId,
+    previous: cards[index],
+    index,
+  };
 
   queryClient.setQueryData<CardList>(DIGITAL_CARD_QUERY_KEYS.me, (old) =>
     update(old ?? []),
   );
 
-  return { previous };
+  return rollback;
+}
+
+/** Puts one card back (or removes it if it did not exist) and leaves the rest alone. */
+export function restoreCardIn(
+  cards: DigitalCardDto[],
+  { cardId, previous, index }: ICardsRollback,
+): DigitalCardDto[] {
+  if (!previous) return cards.filter((card) => card.id !== cardId);
+
+  if (cards.some((card) => card.id === cardId)) {
+    return cards.map((card) => (card.id === cardId ? previous : card));
+  }
+
+  const at = Math.min(Math.max(index, 0), cards.length);
+  return [...cards.slice(0, at), previous, ...cards.slice(at)];
 }
 
 export function restoreCards(
@@ -37,7 +62,11 @@ export function restoreCards(
   rollback: ICardsRollback | undefined,
 ) {
   if (!rollback) return;
-  queryClient.setQueryData(DIGITAL_CARD_QUERY_KEYS.me, rollback.previous);
+
+  queryClient.setQueryData<CardList>(
+    DIGITAL_CARD_QUERY_KEYS.me,
+    (old) => old && restoreCardIn(old, rollback),
+  );
 }
 
 export function cardFromRequest(

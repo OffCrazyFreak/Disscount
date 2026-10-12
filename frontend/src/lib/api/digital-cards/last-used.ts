@@ -1,5 +1,5 @@
 import type { QueryClient } from "@tanstack/react-query";
-import { createStore, delMany, entries, set } from "idb-keyval";
+import { createStore, delMany, getMany, keys, set } from "idb-keyval";
 
 import { DIGITAL_CARD_QUERY_KEYS } from "@/lib/api/digital-cards/keys";
 import {
@@ -9,6 +9,8 @@ import {
 import { postCardsUsed } from "@/lib/api/digital-cards/queries";
 import type { DigitalCardDto } from "@/lib/api/types";
 import { getCacheIdentity } from "@/lib/offline/cache-identity";
+import { deleteIf } from "@/lib/offline/idb-transactions";
+import { whenPurgesSettled } from "@/lib/offline/purge-gate";
 
 /**
  * Last-used tracking is a local queue, not a paused mutation: opening a card must never
@@ -35,23 +37,53 @@ function queueStore() {
   return store;
 }
 
-async function flush() {
+/** Part of logout: a queued use is a record of which cards the account opened. */
+export async function deleteUsedQueueForIdentity(identity: string) {
+  const prefix = `${identity}:`;
+  const stale = (await keys<string>(queueStore())).filter((key) =>
+    String(key).startsWith(prefix),
+  );
+  await delMany(stale, queueStore());
+}
+
+async function flush(keepalive = false) {
   if (flushing) return;
   flushing = true;
   lastFlushAt = Date.now();
 
+  // Captured once: a flush belongs to the account that queued the uses, even if the
+  // identity switches while a request is in flight.
+  const identity = getCacheIdentity();
+
   try {
-    const prefix = `${getCacheIdentity()}:`;
-    const queued = (await entries<string, IQueuedUse>(queueStore())).filter(
-      ([key]) => key.startsWith(prefix),
+    const prefix = `${identity}:`;
+    const queuedKeys = (await keys<string>(queueStore())).filter((key) =>
+      String(key).startsWith(prefix),
+    );
+    const values = await getMany<IQueuedUse>(queuedKeys, queueStore());
+    const queued = queuedKeys.flatMap((key, i) =>
+      values[i] ? [{ key, use: values[i] }] : [],
     );
 
     for (let i = 0; i < queued.length; i += MAX_BATCH) {
+      if (getCacheIdentity() !== identity) return;
+
       const batch = queued.slice(i, i + MAX_BATCH);
-      await postCardsUsed(batch.map(([, use]) => use));
-      await delMany(
-        batch.map(([key]) => key),
-        queueStore(),
+      await postCardsUsed(
+        batch.map(({ use }) => use),
+        { keepalive },
+      );
+
+      // A card opened again while the request was in flight has a newer usedAt and
+      // stays queued for the next flush.
+      await Promise.all(
+        batch.map(({ key, use }) =>
+          deleteIf<IQueuedUse>(
+            key,
+            queueStore(),
+            (current) => current?.usedAt === use.usedAt,
+          ),
+        ),
       );
     }
   } catch {
@@ -76,7 +108,7 @@ export function bindLastUsedQueryClient(queryClient: QueryClient) {
   boundClient = queryClient;
 
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") void flush();
+    if (document.visibilityState === "hidden") void flush(true);
   });
   void flush();
 }
@@ -93,7 +125,10 @@ export function recordCardUsed(id: string): void {
 
   // The backend reads usedAt as an Instant, so the queue keeps the offset-bearing form.
   const entry: IQueuedUse = { id, usedAt: new Date().toISOString() };
-  void set(`${getCacheIdentity()}:${id}`, entry, queueStore())
+  const key = `${getCacheIdentity()}:${id}`;
+
+  void whenPurgesSettled()
+    .then(() => set(key, entry, queueStore()))
     .then(scheduleFlush)
     .catch(() => undefined);
 }

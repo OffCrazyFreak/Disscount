@@ -1,4 +1,4 @@
-import apiClient from "@/lib/api/api-base";
+import apiClient, { peekFreshAuthToken } from "@/lib/api/api-base";
 import {
   digitalCardDtoSchema,
   digitalCardRequestSchema,
@@ -50,8 +50,31 @@ export async function setDigitalCardArchived(
   await apiClient.put(`${CARDS_PATH}/${id}/archive`, { archived });
 }
 
+/**
+ * `keepalive` lets the request outlive a tab that is going to the background. axios cannot
+ * set it, and a beacon cannot carry the bearer header, so it is a bare fetch with the
+ * token read from cache (a token fetch would not finish in time). Without a fresh cached
+ * token it falls back to the normal client.
+ */
 export async function postCardsUsed(
   entries: { id: string; usedAt: string }[],
+  { keepalive = false }: { keepalive?: boolean } = {},
 ): Promise<void> {
-  await apiClient.post(`${CARDS_PATH}/used`, entries);
+  const token = keepalive ? peekFreshAuthToken() : null;
+
+  if (!token) {
+    await apiClient.post(`${CARDS_PATH}/used`, entries);
+    return;
+  }
+
+  const response = await fetch(`${CARDS_PATH}/used`, {
+    method: "POST",
+    keepalive: true,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(entries),
+  });
+  if (!response.ok) throw new Error(`Used flush failed: ${response.status}`);
 }

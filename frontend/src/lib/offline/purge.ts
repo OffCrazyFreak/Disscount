@@ -1,5 +1,7 @@
 import type { Query, QueryClient } from "@tanstack/react-query";
 
+import { deleteUsedQueueForIdentity } from "@/lib/api/digital-cards/last-used";
+import { trackPurge } from "@/lib/offline/purge-gate";
 import { deleteForIdentity } from "@/lib/offline/card-photo-store";
 import { deleteOutboxForIdentity } from "@/lib/offline/card-photo-outbox";
 import { removePersistedCacheFor } from "@/lib/offline/persister";
@@ -38,10 +40,17 @@ async function purgeServiceWorkerCaches() {
  *   value, because the caller switches identity as soon as this is fired and the delete
  *   happens later, which would otherwise clear the wrong account.
  */
-export async function purgeOfflineCache(
+export function purgeOfflineCache(
   queryClient: QueryClient,
   identity: string,
-) {
+): Promise<void> {
+  const purge = runPurge(queryClient, identity);
+  // Writes wait on it, so a fast re-login is not wiped by the purge of the previous run.
+  trackPurge(purge);
+  return purge;
+}
+
+async function runPurge(queryClient: QueryClient, identity: string) {
   // Cancel in-flight work first so a late-resolving request can't repopulate what we clear.
   await queryClient.cancelQueries({ predicate: isUserSpecific });
 
@@ -55,6 +64,7 @@ export async function purgeOfflineCache(
     removePersistedCacheFor(identity),
     deleteForIdentity(identity),
     deleteOutboxForIdentity(identity),
+    deleteUsedQueueForIdentity(identity),
     purgeServiceWorkerCaches(),
   ]);
 

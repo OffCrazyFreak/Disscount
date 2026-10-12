@@ -44,18 +44,25 @@ async function loadPhoto(
   return pending;
 }
 
+interface IPhotoUrl {
+  key: string;
+  url: string;
+}
+
 /** Object URL of the cached or freshly fetched photo; undefined while loading or unavailable. */
 export function useCardPhoto(
   cardId: string,
   photo: CardPhotoDto | undefined,
   size: CardPhotoSize,
 ): string | undefined {
-  const [url, setUrl] = useState<string>();
+  const [loaded, setLoaded] = useState<IPhotoUrl>();
   const slot = photo?.slot;
   const sha256 = photo?.sha256;
+  const key =
+    slot && sha256 ? `${cardId}:${slot}:${size}:${sha256}` : undefined;
 
   useEffect(() => {
-    if (!slot || !sha256) return;
+    if (!slot || !sha256 || !key) return;
 
     let cancelled = false;
     let objectUrl: string | undefined;
@@ -64,7 +71,7 @@ export function useCardPhoto(
       .then((blob) => {
         if (cancelled) return;
         objectUrl = URL.createObjectURL(blob);
-        setUrl(objectUrl);
+        setLoaded({ key, url: objectUrl });
       })
       .catch(() => undefined);
 
@@ -72,9 +79,10 @@ export function useCardPhoto(
       cancelled = true;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [cardId, slot, sha256, size]);
+  }, [cardId, slot, sha256, size, key]);
 
-  return slot && sha256 ? url : undefined;
+  // After the key changes the stored URL has been revoked; it must not be handed out.
+  return loaded && loaded.key === key ? loaded.url : undefined;
 }
 
 export default useCardPhoto;

@@ -28,7 +28,10 @@ import {
   cardDeleteFailed,
   cardWriteFailed,
 } from "@/lib/offline/card-write-failed";
-import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
+import {
+  DIGITAL_CARD_MUTATION_SCOPE,
+  OFFLINE_MUTATION_KEYS,
+} from "@/lib/offline/offline-mutation-keys";
 import { requestPersistentStorage } from "@/lib/offline/request-persistent-storage";
 
 async function fetchCardsAndPrunePhotos(): Promise<DigitalCardDto[]> {
@@ -78,9 +81,10 @@ export function useSaveDigitalCard() {
     ICardsRollback | undefined
   >({
     mutationKey: OFFLINE_MUTATION_KEYS.digitalCardSave,
+    scope: DIGITAL_CARD_MUTATION_SCOPE,
     mutationFn: ({ id, data }) => saveDigitalCard(id, data),
     onMutate: ({ id, data }) =>
-      patchCards(queryClient, (cards) => upsertCard(cards, id, data)),
+      patchCards(queryClient, id, (cards) => upsertCard(cards, id, data)),
     onError: (error, _variables, rollback) => {
       restoreCards(queryClient, rollback);
       cardWriteFailed(error);
@@ -96,9 +100,10 @@ export function useDeleteDigitalCard() {
 
   return useMutation<void, Error, string, ICardsRollback | undefined>({
     mutationKey: OFFLINE_MUTATION_KEYS.digitalCardDelete,
+    scope: DIGITAL_CARD_MUTATION_SCOPE,
     mutationFn: deleteDigitalCard,
     onMutate: (id) =>
-      patchCards(queryClient, (cards) => cards.filter((c) => c.id !== id)),
+      patchCards(queryClient, id, (cards) => cards.filter((c) => c.id !== id)),
     onError: (error, _id, rollback) => {
       restoreCards(queryClient, rollback);
       cardDeleteFailed(error);
@@ -120,9 +125,10 @@ export function usePinDigitalCard() {
     ICardsRollback | undefined
   >({
     mutationKey: OFFLINE_MUTATION_KEYS.digitalCardPin,
+    scope: DIGITAL_CARD_MUTATION_SCOPE,
     mutationFn: ({ id, pinned }) => setDigitalCardPinned(id, pinned),
     onMutate: ({ id, pinned }) =>
-      patchCards(queryClient, (cards) =>
+      patchCards(queryClient, id, (cards) =>
         updateCard(cards, id, { pinnedAt: pinned ? zonelessNow() : null }),
       ),
     onError: (error, _variables, rollback) => {
@@ -144,9 +150,10 @@ export function useArchiveDigitalCard() {
     ICardsRollback | undefined
   >({
     mutationKey: OFFLINE_MUTATION_KEYS.digitalCardArchive,
+    scope: DIGITAL_CARD_MUTATION_SCOPE,
     mutationFn: ({ id, archived }) => setDigitalCardArchived(id, archived),
     onMutate: ({ id, archived }) =>
-      patchCards(queryClient, (cards) =>
+      patchCards(queryClient, id, (cards) =>
         updateCard(cards, id, { archivedAt: archived ? zonelessNow() : null }),
       ),
     onError: (error, _variables, rollback) => {

@@ -5,6 +5,8 @@ const THUMB_LONG_EDGE = 320;
 const ICON_SIZE = 128;
 const WEBP_QUALITY = 0.75;
 const JPEG_QUALITY = 0.78;
+// The server refuses a full image over 512 KB; this leaves headroom for multipart framing.
+export const MAX_FULL_BYTES = 480 * 1024;
 
 export interface IPreparedCardImage {
   full: Blob;
@@ -16,17 +18,58 @@ export function needsJpegFallback(blob: Blob | null): boolean {
   return blob?.type !== "image/webp";
 }
 
+export interface IEncodeAttempt {
+  longEdge: number;
+  /** Overrides the default quality for both formats. */
+  quality?: number;
+}
+
+/** Tried in order until the full image fits the server limit. */
+export const FULL_ATTEMPTS: IEncodeAttempt[] = [
+  { longEdge: FULL_LONG_EDGE },
+  { longEdge: FULL_LONG_EDGE, quality: 0.65 },
+  { longEdge: FULL_LONG_EDGE, quality: 0.55 },
+  { longEdge: 1024, quality: 0.55 },
+];
+
+/** First blob within `limit`, or undefined when even the last attempt is too big. */
+export async function firstWithinLimit(
+  attempts: IEncodeAttempt[],
+  encodeAttempt: (attempt: IEncodeAttempt) => Promise<Blob>,
+  limit: number,
+): Promise<Blob | undefined> {
+  for (const attempt of attempts) {
+    const blob = await encodeAttempt(attempt);
+    if (blob.size <= limit) return blob;
+  }
+  return undefined;
+}
+
 function toBlob(canvas: HTMLCanvasElement, type: string, quality: number) {
   return new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, type, quality),
   );
 }
 
-async function encode(canvas: HTMLCanvasElement): Promise<Blob> {
-  const webp = await toBlob(canvas, "image/webp", WEBP_QUALITY);
+/** JPEG has no alpha, so transparent pixels would encode as black. */
+function paintWhiteBehind(canvas: HTMLCanvasElement) {
+  const context = canvas.getContext("2d");
+  if (!context) return;
+
+  context.globalCompositeOperation = "destination-over";
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+async function encode(
+  canvas: HTMLCanvasElement,
+  quality?: number,
+): Promise<Blob> {
+  const webp = await toBlob(canvas, "image/webp", quality ?? WEBP_QUALITY);
   if (webp && !needsJpegFallback(webp)) return webp;
 
-  const jpeg = await toBlob(canvas, "image/jpeg", JPEG_QUALITY);
+  paintWhiteBehind(canvas);
+  const jpeg = await toBlob(canvas, "image/jpeg", quality ?? JPEG_QUALITY);
   if (!jpeg) throw new Error("Slika se ne može spremiti u ovom pregledniku.");
   return jpeg;
 }
@@ -104,8 +147,15 @@ export async function prepareCardImage(
       return { full: await encode(centerCropped(bitmap, ICON_SIZE)) };
     }
 
+    const full = await firstWithinLimit(
+      FULL_ATTEMPTS,
+      ({ longEdge, quality }) => encode(scaled(bitmap, longEdge), quality),
+      MAX_FULL_BYTES,
+    );
+    if (!full) throw new Error("Slika je prevelika. Odaberi drugu.");
+
     return {
-      full: await encode(scaled(bitmap, FULL_LONG_EDGE)),
+      full,
       thumb: await encode(scaled(bitmap, THUMB_LONG_EDGE)),
     };
   } finally {

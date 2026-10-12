@@ -60,6 +60,8 @@ export const digitalCardRequestSchema = z
       .number()
       .min(0, "Iznos ne može biti negativan")
       .max(1_000_000, "Iznos je prevelik")
+      // The backend rejects more than two decimals, so round instead of 400ing.
+      .transform((value) => Math.round((value + Number.EPSILON) * 100) / 100)
       .nullable()
       .optional(),
     balanceUnit: z

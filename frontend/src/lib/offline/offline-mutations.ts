@@ -1,4 +1,8 @@
-import type { QueryClient, QueryKey } from "@tanstack/react-query";
+import type {
+  MutationScope,
+  QueryClient,
+  QueryKey,
+} from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import {
@@ -24,7 +28,10 @@ import type {
   ShoppingListItemRequest,
   WatchlistItemRequest,
 } from "@/lib/api/types";
-import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
+import {
+  DIGITAL_CARD_MUTATION_SCOPE,
+  OFFLINE_MUTATION_KEYS,
+} from "@/lib/offline/offline-mutation-keys";
 import {
   cardDeleteFailed,
   cardWriteFailed,
@@ -52,9 +59,12 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
     // replay reverts with no explanation. Only pass this for mutations whose call sites
     // do NOT handle errors themselves, or the user gets the same toast twice.
     onError?: (error: Error) => void,
+    // Persisted with the mutation; mutations sharing a scope replay one at a time.
+    scope?: MutationScope,
   ) {
     queryClient.setMutationDefaults<TData, Error, TVariables>(mutationKey, {
       mutationFn,
+      ...(scope ? { scope } : {}),
       ...(onError ? { onError } : {}),
       onSettled: (_data, _error, variables) => {
         for (const queryKey of invalidatedKeys(variables)) {
@@ -142,6 +152,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
       saveDigitalCard(id, data),
     () => [DIGITAL_CARD_QUERY_KEYS.me],
     cardWriteFailed,
+    DIGITAL_CARD_MUTATION_SCOPE,
   );
 
   defineOfflineMutation(
@@ -149,6 +160,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
     (id: string) => deleteDigitalCard(id),
     () => [DIGITAL_CARD_QUERY_KEYS.me],
     cardDeleteFailed,
+    DIGITAL_CARD_MUTATION_SCOPE,
   );
 
   defineOfflineMutation(
@@ -157,6 +169,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
       setDigitalCardPinned(id, pinned),
     () => [DIGITAL_CARD_QUERY_KEYS.me],
     cardWriteFailed,
+    DIGITAL_CARD_MUTATION_SCOPE,
   );
 
   defineOfflineMutation(
@@ -165,6 +178,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
       setDigitalCardArchived(id, archived),
     () => [DIGITAL_CARD_QUERY_KEYS.me],
     cardWriteFailed,
+    DIGITAL_CARD_MUTATION_SCOPE,
   );
 
   defineOfflineMutation(
