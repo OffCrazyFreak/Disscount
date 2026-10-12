@@ -9,8 +9,9 @@ import usePageVisible from "@/hooks/use-page-visible";
 import "@/components/scanner/scanner.css";
 
 // The library defaults to 500 without a tracker; 750 measurably slowed
-// decoding of a real barcode, which is this feature's whole job.
-const CAMERA_SCAN_RETRY_DELAY = 400;
+// decoding of a real barcode, which is this feature's whole job. Consensus needs up
+// to four reads inside 1.5 s, which 400 ms cannot fit alongside decode time.
+const CAMERA_SCAN_RETRY_DELAY = 200;
 const CAMERA_TRACK_POLL_INTERVAL = 300;
 const CAMERA_TRACK_POLL_LIMIT = 20;
 
@@ -24,7 +25,7 @@ const CAMERA_COMPONENTS = {
 interface ICameraViewProps {
   preset: ScanPreset;
   deviceId?: string;
-  onScan: (code: IScannedCode) => void;
+  onDetect: (codes: IScannedCode[]) => void;
   onError: (error: unknown) => void;
   onCameraReady: () => void;
 }
@@ -56,7 +57,7 @@ function stopVideo(video: HTMLVideoElement | null) {
 export default function CameraView({
   preset,
   deviceId,
-  onScan,
+  onDetect,
   onError,
   onCameraReady,
 }: ICameraViewProps) {
@@ -136,17 +137,20 @@ export default function CameraView({
       {/* Remount per camera: the library only re-applies constraints to the live track. */}
       <Scanner
         key={deviceId ?? "auto"}
-        onScan={(codes) => {
-          if (codes[0]) {
-            onScan({ rawValue: codes[0].rawValue, format: codes[0].format });
-          }
-        }}
+        onScan={(codes) =>
+          onDetect(
+            codes.map((c) => ({ rawValue: c.rawValue, format: c.format })),
+          )
+        }
+        // Consensus counts repeated reads, which the library drops by default.
+        allowMultiple
+        scanDelay={0}
         onError={onError}
         formats={SCAN_FORMATS_BY_PRESET[preset]}
         constraints={constraints}
         retryDelay={CAMERA_SCAN_RETRY_DELAY}
         paused={!isPageVisible}
-        sound
+        sound={false}
         components={CAMERA_COMPONENTS}
       />
     </div>

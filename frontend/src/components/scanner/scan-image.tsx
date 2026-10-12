@@ -6,12 +6,14 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ALL_SCAN_FORMATS, SCAN_FORMATS_BY_PRESET } from "@/constants/scanner";
 import { IScannedCode, ScanPreset } from "@/typings/scanned-code";
+import { hasValidCheckDigit } from "@/utils/barcode/check-digits";
+import { normalizeScannedCode } from "@/utils/barcode/normalize-code";
 
 const MAX_SCAN_IMAGE_DIMENSION = 2048;
 
 interface IScanImageButtonProps {
   preset: ScanPreset;
-  onScan: (code: IScannedCode) => void;
+  onCodes: (codes: IScannedCode[]) => void;
 }
 
 async function createScanBitmap(file: File): Promise<ImageBitmap> {
@@ -35,7 +37,7 @@ async function createScanBitmap(file: File): Promise<ImageBitmap> {
 
 export default function ScanImageButton({
   preset,
-  onScan,
+  onCodes,
 }: IScanImageButtonProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -56,14 +58,43 @@ export default function ScanImageButton({
       }
 
       const allowed = SCAN_FORMATS_BY_PRESET[preset];
-      const match = detected.find((code) => allowed.includes(code.format));
+      const inPreset = detected.filter((code) => allowed.includes(code.format));
 
-      if (!match) {
-        toast.error("Kod na slici nije barkod proizvoda (EAN).");
+      if (inPreset.length === 0) {
+        toast.error(
+          preset === "product"
+            ? "Kod na slici nije barkod proizvoda (EAN)."
+            : "Format koda na slici nije podržan.",
+        );
         return;
       }
 
-      onScan({ rawValue: match.rawValue, format: match.format });
+      const seen = new Set<string>();
+      const valid = inPreset
+        .map((code) => {
+          const scanned = {
+            rawValue: code.rawValue.trim(),
+            format: code.format,
+          };
+          // Same rule as the camera path: only cards store the normalised form.
+          return preset === "all" ? normalizeScannedCode(scanned) : scanned;
+        })
+        .filter((code) => hasValidCheckDigit(code.rawValue, code.format ?? ""))
+        .filter((code) => {
+          const key = `${code.format}:${code.rawValue}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+
+      if (valid.length === 0) {
+        toast.error(
+          "Kod na slici nije pročitan ispravno. Probaj s oštrijom slikom.",
+        );
+        return;
+      }
+
+      onCodes(valid);
     } catch {
       toast.error("Sliku nije moguće učitati.");
     } finally {
