@@ -77,12 +77,18 @@ function formatServerDate(
  * Format an ISO date string (or any parsable date) as a date in the locale's style,
  * in Croatian time. Falls back to the original input when the date is invalid.
  */
-export function formatDate(dateString?: string | null, locale = "hr") {
+export function formatDate(
+  dateString: string | null | undefined,
+  locale: string,
+) {
   return formatServerDate(dateString, locale, false);
 }
 
 /** Same as formatDate, with hours and minutes. */
-export function formatDateTime(dateString?: string | null, locale = "hr") {
+export function formatDateTime(
+  dateString: string | null | undefined,
+  locale: string,
+) {
   return formatServerDate(dateString, locale, true);
 }
 

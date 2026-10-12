@@ -21,14 +21,14 @@ function priceFormatter(locale: string, signed: boolean) {
 
 // "1,99 €" in Croatian, "€1.99" in English: symbol position and separators are the
 // locale's, the currency is always EUR.
-export function formatPrice(value: number, locale = "hr"): string {
+export function formatPrice(value: number, locale: string): string {
   return priceFormatter(locale, false).format(value);
 }
 
 export function formatPriceDelta(
   difference: number,
   percentage: number,
-  locale = "hr",
+  locale: string,
 ): string {
   return `${priceFormatter(locale, true).format(difference)} (${Math.round(Math.abs(percentage))}%)`;
 }

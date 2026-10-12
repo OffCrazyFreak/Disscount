@@ -91,7 +91,10 @@ const DIVISIONS: { amount: number; unit: Intl.RelativeTimeFormatUnit }[] = [
 ];
 
 // Accepts a Date or epoch millis, such as React Query's `dataUpdatedAt`.
-export function formatRelativeTime(date: Date | number, locale = "hr"): string {
+export function formatRelativeTime(
+  date: Date | number,
+  locale: string,
+): string {
   const timestamp = typeof date === "number" ? date : date.getTime();
   let duration = (timestamp - Date.now()) / 1000; // seconds; negative = past
 
