@@ -88,10 +88,6 @@ export function enqueueCardPhotoRemoval(cardId: string, slot: CardPhotoSlot) {
   return writeEntry(cardId, slot, async (base) => ({ ...base, op: "delete" }));
 }
 
-export async function dequeueCardPhoto(cardId: string, slot: CardPhotoSlot) {
-  await del(entryKey(getCacheIdentity(), cardId, slot), outboxStore());
-}
-
 /** True when an upload (not a removal) is waiting for the slot. */
 export async function hasQueuedCardPhoto(cardId: string, slot: CardPhotoSlot) {
   const entry = await get<IOutboxEntry>(
@@ -146,62 +142,74 @@ async function replayOnce(queryClient: QueryClient) {
     const peeked = await get<IOutboxEntry>(key, outboxStore());
     if (!peeked || peeked.identity !== identity) continue;
 
-    // Direct photo actions take the same lock, so one cannot be overtaken by a send that
-    // started before it.
-    const keepGoing = await runExclusive(
-      photoSlotKey(peeked.cardId, peeked.slot),
-      () => replayEntry(queryClient, identity, key),
+    const { outcome, error } = await sendQueuedCardPhoto(
+      queryClient,
+      peeked.cardId,
+      peeked.slot,
     );
-    if (!keepGoing) return;
-  }
-}
+    if (outcome === "kept") return;
 
-/** Returns false when the run should stop because the entry must stay queued. */
-async function replayEntry(
-  queryClient: QueryClient,
-  identity: string,
-  key: string,
-) {
-  // Re-read under the lock: a direct action may have replaced or dequeued it meanwhile.
-  const entry = await get<IOutboxEntry>(key, outboxStore());
-  if (!entry || entry.identity !== identity) return true;
-
-  if (entry.op !== "delete" && !entry.full) {
-    await del(key, outboxStore());
-    return true;
-  }
-
-  try {
-    const photo = await send(entry);
-
-    if (getCacheIdentity() === identity) {
-      setCardPhotoInCache(queryClient, entry.cardId, entry.slot, photo);
-    }
-    await deleteIf<IOutboxEntry>(
-      key,
-      outboxStore(),
-      (current) => current?.nonce === entry.nonce,
-    );
-  } catch (error) {
-    // Offline, signed out, throttled or a server fault: keep it and stop, so the next
-    // replay retries in order.
-    if (failureAction(error) === "keep") return false;
-
-    await deleteIf<IOutboxEntry>(
-      key,
-      outboxStore(),
-      (current) => current?.nonce === entry.nonce,
-    );
-    if (parseProblem(error)?.status !== 404) {
+    if (outcome === "dropped" && parseProblem(error)?.status !== 404) {
       toast.error(
-        entry.op === "delete"
+        peeked.op === "delete"
           ? "Slika nije obrisana."
           : "Slika kartice nije poslana.",
       );
     }
   }
+}
 
-  return true;
+export interface ISendResult {
+  outcome: "sent" | "kept" | "dropped";
+  error?: unknown;
+}
+
+/**
+ * Sends the newest queued choice for one slot. Choices are written to the outbox before
+ * this runs, so a reload while it waits loses nothing; only the sends are serialized, so
+ * an older send cannot land after a newer one. With keepOn404, a 404 stays queued because
+ * the card's own paused save has not reached the server yet.
+ */
+export function sendQueuedCardPhoto(
+  queryClient: QueryClient,
+  cardId: string,
+  slot: CardPhotoSlot,
+  keepOn404 = false,
+): Promise<ISendResult> {
+  return runExclusive(photoSlotKey(cardId, slot), async () => {
+    const identity = getCacheIdentity();
+    const key = entryKey(identity, cardId, slot);
+    const entry = await get<IOutboxEntry>(key, outboxStore());
+    if (!entry || entry.identity !== identity) return { outcome: "sent" };
+
+    if (entry.op !== "delete" && !entry.full) {
+      await del(key, outboxStore());
+      return { outcome: "sent" };
+    }
+
+    const finished = (current: IOutboxEntry | undefined) =>
+      current?.nonce === entry.nonce;
+
+    try {
+      const photo = await send(entry);
+
+      // A newer choice queued during the send replays next and owns the cache.
+      const current = await get<IOutboxEntry>(key, outboxStore());
+      if (getCacheIdentity() === identity && finished(current)) {
+        setCardPhotoInCache(queryClient, cardId, slot, photo);
+      }
+      await deleteIf<IOutboxEntry>(key, outboxStore(), finished);
+      return { outcome: "sent" };
+    } catch (error) {
+      const notFound = parseProblem(error)?.status === 404;
+      if (failureAction(error) === "keep" || (keepOn404 && notFound)) {
+        return { outcome: "kept", error };
+      }
+
+      await deleteIf<IOutboxEntry>(key, outboxStore(), finished);
+      return { outcome: "dropped", error };
+    }
+  });
 }
 
 /**

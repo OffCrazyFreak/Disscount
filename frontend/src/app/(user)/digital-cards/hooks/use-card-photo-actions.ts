@@ -4,21 +4,15 @@ import { toast } from "sonner";
 
 import { CARD_PHOTO_SLOTS, type CardPhotoSlot } from "@/constants/card-codes";
 import { setCardPhotoInCache } from "@/lib/api/digital-cards/photo-cache";
-import {
-  deleteCardPhoto,
-  uploadCardPhoto,
-} from "@/lib/api/digital-cards/photo-queries";
-import { parseProblem, problemMessage } from "@/lib/api/problem-details";
+import { problemMessage } from "@/lib/api/problem-details";
 import { getCacheIdentity } from "@/lib/offline/cache-identity";
 import {
-  dequeueCardPhoto,
   enqueueCardPhoto,
   enqueueCardPhotoRemoval,
   hasQueuedCardPhoto,
+  sendQueuedCardPhoto,
 } from "@/lib/offline/card-photo-outbox";
 import { deleteSlotForCard } from "@/lib/offline/card-photo-store";
-import { failureAction } from "@/lib/offline/failure-policy";
-import { photoSlotKey, runExclusive } from "@/lib/offline/slot-lock";
 import {
   prepareCardImage,
   type IPreparedCardImage,
@@ -70,65 +64,50 @@ export function useCardPhotoActions(cardId: string) {
       return;
     }
 
-    async function queue() {
+    try {
       await enqueueCardPhoto(cardId, slot, prepared.full, prepared.thumb);
-      mark(slot, "queued");
+    } catch {
+      mark(slot, "error");
+      toast.error("Slika nije spremljena. Pokušaj ponovno.");
+      return;
     }
 
-    // Serialized with the outbox replay, whose in-flight send of this slot would otherwise
-    // finish after this choice and restore the older photo.
-    return runExclusive(photoSlotKey(cardId, slot), async () => {
-      if (!navigator.onLine) return queue();
+    if (!navigator.onLine) {
+      mark(slot, "queued");
+      return;
+    }
 
-      try {
-        const photo = await uploadCardPhoto(
+    // A 404 means the card's own save has not reached the server yet; the outbox
+    // replays after paused saves resume.
+    const { outcome, error } = await sendQueuedCardPhoto(
+      queryClient,
+      cardId,
+      slot,
+      true,
+    );
+
+    if (outcome === "sent") mark(slot, undefined);
+    else if (outcome === "kept") mark(slot, "queued");
+    else {
+      mark(slot, "error");
+      toast.error(
+        problemMessage(error, "Slika nije spremljena. Pokušaj ponovno."),
+      );
+    }
+  }
+
+  async function remove(slot: CardPhotoSlot): Promise<void> {
+    try {
+      // Replaces a waiting upload for the slot, since the removal is the newer choice.
+      await enqueueCardPhotoRemoval(cardId, slot);
+
+      if (navigator.onLine) {
+        const { outcome, error } = await sendQueuedCardPhoto(
+          queryClient,
           cardId,
           slot,
-          prepared.full,
-          prepared.thumb,
         );
-        await dequeueCardPhoto(cardId, slot);
-        setCardPhotoInCache(queryClient, cardId, slot, photo);
-        mark(slot, undefined);
-      } catch (error) {
-        // Offline, signed out, throttled or a server fault will pass, and a 404 means the
-        // card's own save has not reached the server yet: the outbox replays after paused
-        // saves resume.
-        if (
-          failureAction(error) === "keep" ||
-          parseProblem(error)?.status === 404
-        ) {
-          return queue();
-        }
-
-        mark(slot, "error");
-        toast.error(
-          problemMessage(error, "Slika nije spremljena. Pokušaj ponovno."),
-        );
-      }
-    });
-  }
-
-  function remove(slot: CardPhotoSlot): Promise<void> {
-    return runExclusive(photoSlotKey(cardId, slot), () => removeNow(slot));
-  }
-
-  async function removeNow(slot: CardPhotoSlot): Promise<void> {
-    try {
-      await dequeueCardPhoto(cardId, slot);
-
-      if (!navigator.onLine) {
-        await enqueueCardPhotoRemoval(cardId, slot);
-      } else {
-        try {
-          await deleteCardPhoto(cardId, slot);
-        } catch (error) {
-          if (failureAction(error) === "keep") {
-            await enqueueCardPhotoRemoval(cardId, slot);
-          } else if (parseProblem(error)?.status !== 404) {
-            throw error;
-          }
-        }
+        if (outcome === "dropped") throw error;
       }
     } catch {
       toast.error("Slika nije obrisana. Pokušaj ponovno.");
