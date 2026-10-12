@@ -9,6 +9,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
+    "i18n:check": "node scripts/check-i18n.mjs",
     "email": "email dev --dir src/emails --port 3366"
   },
   "dependencies": {
