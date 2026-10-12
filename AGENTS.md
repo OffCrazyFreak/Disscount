@@ -101,6 +101,8 @@ Conventions:
 - `components/ui/` is shadcn output. Editing it is allowed where the primitive is the natural home for the change, such as a prop the component itself should own or a sizing rule our `--spacing` override breaks. Our components live in `components/custom/`, grouped by concern.
 - Types: API and domain go in `lib/api/schemas/*` as zod `*Dto` / `*Response`; external price API types in `lib/cijene-api/schemas.ts`; shared UI types in `@/typings`; feature-only types stay colocated in `*-types.ts`.
 - React Query hooks live next to their service in `lib/api/<domain>/`. Feature composition hooks go in the feature's `hooks/`.
+- The React Compiler caches reads off the stable `form` object, so any component or hook that did not call `useForm` itself reads values with `useWatch` and form state with `useFormState`, never `form.watch()` or `form.formState` during render. Destructure every flag you need, since react-hook-form only computes the ones read.
+- An effect must not depend on re-running every render. The compiler memoizes values that used to be rebuilt each render, so an effect that retried something that can no-op (`resetField` on a field a portal has not registered yet, measuring DOM that is not there yet) now runs once. `"use no memo"` is the escape hatch, with a comment saying why.
 - Before generating or redesigning UI, read `frontend/.github/skills/frontend-design/SKILL.md` and follow it.
 
 Accessibility is where I have had to go back and fix things most often, so check these before you hand UI work over:
