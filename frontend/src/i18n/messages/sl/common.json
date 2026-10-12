@@ -30,7 +30,8 @@
   },
   "comingSoon": {
     "badge": "KMALU",
-    "description": "Ta funkcija je v izdelavi in bo kmalu na voljo."
+    "description": "Ta funkcija je v izdelavi in bo kmalu na voljo.",
+    "notifyMe": "Obvesti me"
   },
   "copyButton": {
     "error": "Napaka pri kopiranju"
@@ -128,28 +129,28 @@
   },
   "install": {
     "actionDesktop": "Namesti aplikacijo",
-    "actionMobile": "Dodaj na domači zaslon",
+    "actionMobile": "Dodaj na začetni zaslon",
     "pitchDesktop": "Namesti Disscount za hitrejši dostop.",
-    "pitchMobile": "Dodaj Disscount na domači zaslon za hitrejši dostop.",
+    "pitchMobile": "Dodaj Disscount na začetni zaslon za hitrejši dostop.",
     "close": "Zapri",
     "unsupportedTitle": "Ta brskalnik ne podpira namestitve",
     "unsupportedText": "Odpri Disscount v drugem brskalniku, npr. v Google Chromu, da ga dodaš na napravo.",
     "perkTitle": "Namesti kot aplikacijo",
     "perkDesktop": "Brez prenosa iz trgovine z aplikacijami: namesti Disscount neposredno iz brskalnika.",
-    "perkMobile": "Brez prenosa iz trgovine z aplikacijami: dodaj Disscount na domači zaslon neposredno iz brskalnika.",
+    "perkMobile": "Brez prenosa iz trgovine z aplikacijami: dodaj Disscount na začetni zaslon neposredno iz brskalnika.",
     "sheetDescriptionDesktop": "Namesti Disscount na računalnik v nekaj korakih.",
-    "sheetDescriptionMobile": "Dodaj Disscount na domači zaslon v nekaj korakih.",
+    "sheetDescriptionMobile": "Dodaj Disscount na začetni zaslon v nekaj korakih.",
     "steps": {
       "iosMenu": "Dotakni se <ellipsis></ellipsis> ob naslovni vrstici, nato <share></share> <b>Deli</b>. Na starejših iPhonih je <b>Deli</b> takoj v orodni vrstici.",
-      "iosAdd": "Podrsaj navzdol po meniju in izberi <plus></plus> <b>Dodaj na domači zaslon</b>.",
+      "iosAdd": "Podrsaj navzdol po meniju in izberi <plus></plus> <b>Dodaj na začetni zaslon</b>.",
       "confirmAdd": "Potrdi z <b>Dodaj</b>.",
       "macFile": "Odpri meni <b>Datoteka</b> v menijski vrstici na vrhu zaslona.",
       "macDock": "Izberi <dock></dock> <b>Dodaj v Dock</b>.",
       "androidMenu": "Dotakni se <vdots></vdots> za meni brskalnika.",
-      "androidChoose": "Izberi <download></download> <b>Namesti aplikacijo</b> ali <b>Dodaj na domači zaslon</b>, odvisno od brskalnika.",
+      "androidChoose": "Izberi <download></download> <b>Namesti aplikacijo</b> ali <b>Dodaj na začetni zaslon</b>, odvisno od brskalnika.",
       "confirmInstall": "Potrdi z <b>Namesti</b>.",
       "desktopIcon": "Klikni <monitor></monitor> na desni strani naslovne vrstice.",
-      "desktopMenu": "Če te ikone ni, odpri meni <vdots></vdots>, nato <b>Shrani in deli</b> › <b>Namesti stran kot aplikacijo</b>."
+      "desktopMenu": "Če te ikone ni, odpri meni <vdots></vdots>, nato <b>Predvajanje, shranjevanje in deljenje</b> › <b>Namesti stran kot aplikacijo</b>."
     }
   },
   "validation": {

@@ -5,7 +5,7 @@
   },
   "client": {
     "loginTitle": "Spremljani izdelki",
-    "loginDescription": "S spremljanjem izveš takoj, ko cena izdelka pade.",
+    "loginDescription": "Spremljanje ti javi takoj, ko cena izdelka pade.",
     "searchPlaceholder": "Išči po seznamu spremljanja..."
   },
   "header": {

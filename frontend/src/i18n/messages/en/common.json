@@ -30,7 +30,8 @@
   },
   "comingSoon": {
     "badge": "SOON",
-    "description": "We're still working on this feature. It will be available soon."
+    "description": "We're still working on this feature. It will be available soon.",
+    "notifyMe": "Notify me"
   },
   "copyButton": {
     "error": "Couldn't copy"
@@ -146,7 +147,7 @@
       "macFile": "Open the <b>File</b> menu in the menu bar at the top of your screen.",
       "macDock": "Choose <dock></dock> <b>Add to Dock</b>.",
       "androidMenu": "Tap <vdots></vdots> to open the browser menu.",
-      "androidChoose": "Choose <download></download> <b>Install app</b> or <b>Add to Home screen</b>, depending on your browser.",
+      "androidChoose": "Choose <download></download> <b>Install app</b> or <b>Add to Home Screen</b>, depending on your browser.",
       "confirmInstall": "Confirm with <b>Install</b>.",
       "desktopIcon": "Click <monitor></monitor> on the right side of the address bar.",
       "desktopMenu": "If you don't see that icon, open the <vdots></vdots> menu, then <b>Save and share</b> › <b>Install page as app</b>."

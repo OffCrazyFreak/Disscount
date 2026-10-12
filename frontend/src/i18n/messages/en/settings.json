@@ -152,7 +152,7 @@
       "emailLockedNoPassword": "You'll be able to change your email once you've set a password.",
       "newPassword": "New password",
       "password": "Password",
-      "newPasswordPlaceholder": "Leave empty to keep it",
+      "newPasswordPlaceholder": "Leave blank to keep your current one",
       "passwordRules": "At least 12 characters, with an uppercase letter, a lowercase letter and a number.",
       "currentPassword": "Current password",
       "currentPasswordDescription": "Needed to confirm an email or password change."

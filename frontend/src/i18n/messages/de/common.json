@@ -6,7 +6,7 @@
     },
     "heading": "Hmm… das ist peinlich. 😅",
     "description": "Die Seite <path></path> scheint es nicht zu geben.",
-    "hint": "Lass uns zurück zur Startseite gehen, oder melde einen Fehler!",
+    "hint": "Geh zurück zur Startseite oder melde einen Fehler!",
     "backHome": "Zur Startseite"
   },
   "offline": {
@@ -30,7 +30,8 @@
   },
   "comingSoon": {
     "badge": "BALD",
-    "description": "Diese Funktion ist in Arbeit und kommt bald."
+    "description": "Diese Funktion ist in Arbeit und kommt bald.",
+    "notifyMe": "Benachrichtige mich"
   },
   "copyButton": {
     "error": "Kopieren hat nicht geklappt"

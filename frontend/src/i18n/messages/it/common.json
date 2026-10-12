@@ -30,7 +30,8 @@
   },
   "comingSoon": {
     "badge": "PRESTO",
-    "description": "Questa funzione è in lavorazione e arriverà presto."
+    "description": "Questa funzione è in lavorazione e arriverà presto.",
+    "notifyMe": "Avvisami"
   },
   "copyButton": {
     "error": "Non siamo riusciti a copiare"
@@ -146,10 +147,10 @@
       "macFile": "Apri il menu <b>File</b> nella barra dei menu in alto.",
       "macDock": "Scegli <dock></dock> <b>Aggiungi al Dock</b>.",
       "androidMenu": "Tocca <vdots></vdots> per aprire il menu del browser.",
-      "androidChoose": "Scegli <download></download> <b>Installa l'app</b> o <b>Aggiungi alla schermata Home</b>, a seconda del browser.",
+      "androidChoose": "Scegli <download></download> <b>Installa app</b> o <b>Aggiungi a schermata Home</b>, a seconda del browser.",
       "confirmInstall": "Conferma con <b>Installa</b>.",
-      "desktopIcon": "Seleziona <monitor></monitor> a destra della barra degli indirizzi.",
-      "desktopMenu": "Se non vedi l'icona, apri il menu <vdots></vdots> e scegli <b>Salva e condividi</b> › <b>Installa pagina come app</b>."
+      "desktopIcon": "Fai clic sull'icona <monitor></monitor> a destra della barra degli indirizzi.",
+      "desktopMenu": "Se non vedi l'icona, apri il menu <vdots></vdots> e scegli <b>Trasmetti, salva e condividi</b> › <b>Installa pagina come app</b>."
     }
   },
   "validation": {

@@ -30,7 +30,8 @@
   },
   "comingSoon": {
     "badge": "USKORO",
-    "description": "Ova značajka je u izradi i bit će uskoro dostupna."
+    "description": "Ova značajka je u izradi i bit će uskoro dostupna.",
+    "notifyMe": "Obavijesti me"
   },
   "copyButton": {
     "error": "Greška pri kopiranju"
