@@ -186,6 +186,9 @@ export interface AutocompleteContentProps extends React.ComponentProps<
   side?: AutocompletePrimitive.Positioner.Props["side"];
   anchor?: AutocompletePrimitive.Positioner.Props["anchor"];
   showBackdrop?: boolean;
+  // Inside a Radix dialog the popup must portal into the dialog content, or the dialog's
+  // scroll lock and outside-press handling treat it as outside and swallow its clicks.
+  container?: AutocompletePrimitive.Portal.Props["container"];
 }
 
 function AutocompleteContent({
@@ -197,10 +200,11 @@ function AutocompleteContent({
   alignOffset = 0,
   side = "bottom",
   anchor,
+  container,
   ...props
 }: AutocompleteContentProps) {
   return (
-    <AutocompletePortal>
+    <AutocompletePortal container={container}>
       {showBackdrop && <AutocompleteBackdrop />}
       <AutocompletePositioner
         align={align}

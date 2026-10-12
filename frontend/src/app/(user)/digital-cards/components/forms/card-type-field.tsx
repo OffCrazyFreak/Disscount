@@ -16,44 +16,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CARD_TYPES, CARD_TYPE_LABELS } from "@/constants/card-codes";
 import type { DigitalCardRequest } from "@/lib/api/types";
 
-interface IDigitalCardSelectFieldProps {
-  name: "type" | "codeType";
-  label: string;
-  placeholder: string;
-  options: { value: string; label: string }[];
-}
-
-export default function DigitalCardSelectField({
-  name,
-  label,
-  placeholder,
-  options,
-}: IDigitalCardSelectFieldProps) {
+export default function CardTypeField() {
   const form = useFormContext<DigitalCardRequest>();
 
   return (
     <FormField
       control={form.control}
-      name={name}
+      name="cardType"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
-          <Select onValueChange={field.onChange} value={field.value}>
+          <FormLabel>Vrsta kartice</FormLabel>
+
+          <Select value={field.value} onValueChange={field.onChange}>
             <FormControl>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder={placeholder} />
+                <SelectValue placeholder="Odaberi vrstu" />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              {options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
+              {CARD_TYPES.map((cardType) => (
+                <SelectItem key={cardType} value={cardType}>
+                  {CARD_TYPE_LABELS[cardType]}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+
           <FormMessage />
         </FormItem>
       )}
