@@ -23,6 +23,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { LOCALES, OPEN_GRAPH_LOCALES } from "@/i18n/locales";
 import { huninn, sairaStencil } from "@/app/fonts";
 import { appUrl } from "@/lib/env";
+import { iosStartupImages } from "@/constants/ios-startup-images";
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
@@ -61,6 +62,7 @@ export async function generateMetadata(): Promise<Metadata> {
       capable: true,
       statusBarStyle: "default",
       title: "Disscount",
+      startupImage: iosStartupImages,
     },
     icons: {
       icon: [

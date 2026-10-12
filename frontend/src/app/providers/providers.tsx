@@ -10,7 +10,6 @@ import { CameraScannerProvider } from "@/context/scanner-context";
 import { NotificationsProvider } from "@/context/notifications-context";
 import { ProductsSheetProvider } from "@/context/products-sheet-context";
 import RequestPersistentStorage from "@/components/custom/pwa/request-persistent-storage";
-import AppleSplashScreens from "@/components/custom/pwa/apple-splash-screens";
 import ScanShortcut from "@/components/custom/pwa/scan-shortcut";
 
 interface IProvidersProps {
@@ -28,7 +27,6 @@ export default function Providers({ children }: IProvidersProps) {
                 <ToasterProvider>
                   <ReactScan />
                   <RequestPersistentStorage />
-                  <AppleSplashScreens />
                   <ScanShortcut />
 
                   {children}
