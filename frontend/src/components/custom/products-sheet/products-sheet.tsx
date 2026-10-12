@@ -1,12 +1,12 @@
 "use client";
 
+import { usePathname } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchNavButton from "@/components/custom/search/search-nav-button";
 import ProductsSheetSubmit from "@/components/custom/products-sheet/products-sheet-submit";
 import SheetShell from "@/components/custom/modal/sheet-shell";
-import ProductSearchFilters from "@/app/products/components/product-search-filters";
+import ProductSearchFilters from "@/app/[locale]/products/components/product-search-filters";
 import { useProductsSheet } from "@/context/products-sheet-context";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUser } from "@/context/user-context";

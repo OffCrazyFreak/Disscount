@@ -9,11 +9,11 @@ import useLingeringTarget, {
 } from "@/components/custom/modal-router/use-lingering-target";
 import type { ShoppingListDto } from "@/lib/api/types";
 import type { ModalTarget } from "@/lib/modal/modal-registry";
-import { useShoppingListActions } from "@/app/(user)/shopping-lists/[id]/hooks/use-shopping-list-actions";
+import { useShoppingListActions } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-shopping-list-actions";
 
 const ShoppingListActionsSheet = dynamic(
   () =>
-    import("@/app/(user)/shopping-lists/components/shopping-list-actions-sheet"),
+    import("@/app/[locale]/(user)/shopping-lists/components/shopping-list-actions-sheet"),
   { ssr: false },
 );
 

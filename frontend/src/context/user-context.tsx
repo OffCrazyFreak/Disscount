@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname, useRouter } from "@/i18n/navigation";
 import {
   createContext,
   useContext,
@@ -9,7 +10,6 @@ import {
   useRef,
   ReactNode,
 } from "react";
-import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { authClient, useSession } from "@/lib/auth/client";

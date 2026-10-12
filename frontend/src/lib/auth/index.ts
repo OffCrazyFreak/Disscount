@@ -5,6 +5,7 @@ import { nextCookies } from "better-auth/next-js";
 import { APIError } from "better-auth/api";
 
 import { db } from "@/db";
+import { isLocale } from "@/i18n/locales";
 import { appUrl, requireEnv } from "@/lib/env";
 import { emailService } from "@/lib/email";
 import {
@@ -22,6 +23,14 @@ const FACEBOOK_CLIENT_SECRET = requireEnv("FACEBOOK_CLIENT_SECRET");
 
 const RESET_TOKEN_TTL_SECONDS = 60 * 30; // 30 minutes
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
+
+// input: true lets the client write the field, so anything outside the five
+// locales is dropped rather than stored.
+function withValidLocale<T extends Record<string, unknown>>(userData: T): T {
+  if (!("locale" in userData) || isLocale(userData.locale)) return userData;
+  const { locale: _invalid, ...rest } = userData;
+  return rest as T;
+}
 
 export const auth = betterAuth({
   baseURL: BETTER_AUTH_URL,
@@ -105,26 +114,38 @@ export const auth = betterAuth({
       },
     },
     user: {
+      create: {
+        before: async (userData) => ({ data: withValidLocale(userData) }),
+      },
       update: {
         // Re-checks at apply time (the /api/account/change-email POST guard only checks
         // at request time), closing the link-during-confirmation race.
         before: async (userData, ctx) => {
           const changingEmail = typeof userData.email === "string";
           const userId = ctx?.context.session?.user.id;
-          if (!changingEmail || !userId) return;
 
-          if (await hasLinkedSocialAccount(userId)) {
+          if (
+            changingEmail &&
+            userId &&
+            (await hasLinkedSocialAccount(userId))
+          ) {
             throw new APIError("BAD_REQUEST", {
               message:
                 "Za promjenu emaila prvo odspoji povezane račune (Google, Facebook).",
             });
           }
+
+          return { data: withValidLocale(userData) };
         },
       },
     },
   },
 
   user: {
+    additionalFields: {
+      // Set from the signup form and the language switcher; drives email language.
+      locale: { type: "string", required: false, input: true },
+    },
     deleteUser: { enabled: true },
     changeEmail: {
       enabled: true,

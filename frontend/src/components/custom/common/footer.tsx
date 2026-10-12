@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-
+import { Link } from "@/i18n/navigation";
 import CartLogo from "@/components/icons/cart-logo";
 import FooterSupportIcons from "@/components/custom/common/footer-support-icons";
 
@@ -9,6 +8,7 @@ import LinkedInIcon from "@/components/icons/linkedin-icon";
 import GithubIcon from "@/components/icons/github-icon";
 import CopyrightIcon from "@/components/icons/copyright-icon";
 import { Separator } from "@/components/ui/separator";
+import LanguageSwitcher from "@/components/custom/locale/language-switcher";
 import { GITHUB_REPO_URL, LINKEDIN_URL } from "@/constants/contact";
 
 export default function FooterSection() {
@@ -47,22 +47,7 @@ export default function FooterSection() {
             />
 
             <div className="flex items-center gap-4">
-              {/* Language Switcher */}
-              {/* <Link
-                href={isEnglish ? "/" : "/en"}
-                aria-label={
-                  isEnglish ? "Switch to Croatian" : "Switch to English"
-                }
-                className="block hover:scale-110 transition-all"
-              >
-                <Image
-                  src={isEnglish ? "/flags/cro.png" : "/flags/eng.png"}
-                  alt={isEnglish ? "Croatian flag" : "English flag"}
-                  width={32}
-                  height={32}
-                  className="size-6"
-                />
-              </Link> */}
+              <LanguageSwitcher />
 
               <Link
                 href={GITHUB_REPO_URL}

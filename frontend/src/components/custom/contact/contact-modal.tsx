@@ -1,7 +1,7 @@
 "use client";
 
+import { usePathname } from "@/i18n/navigation";
 import { useEffect } from "react";
-import { usePathname } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";

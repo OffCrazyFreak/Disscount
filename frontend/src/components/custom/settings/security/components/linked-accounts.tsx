@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Link2, Unlink } from "lucide-react";
 import { toast } from "sonner";
+import { useLocale } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
@@ -11,6 +12,7 @@ import SettingRow from "@/components/custom/settings/ui/setting-row";
 import GoogleIcon from "@/components/icons/google-icon";
 import FacebookIcon from "@/components/icons/facebook-icon";
 import { authClient } from "@/lib/auth/client";
+import { localePath } from "@/i18n/locale-path";
 import { FACEBOOK_COMING_SOON } from "@/constants/auth";
 import { useSecurity } from "@/components/custom/settings/security/security-context";
 
@@ -26,6 +28,7 @@ const PROVIDERS: {
 ];
 
 export default function LinkedAccounts() {
+  const locale = useLocale();
   const { accounts, hasPassword, reload } = useSecurity();
   const [pending, setPending] = useState<SocialProvider | null>(null);
 
@@ -42,7 +45,7 @@ export default function LinkedAccounts() {
     try {
       const { error } = await authClient.linkSocial({
         provider,
-        callbackURL: "/?modal=settings/sigurnost",
+        callbackURL: localePath(locale, "/?modal=settings/sigurnost"),
       });
       if (error) throw error;
     } catch {

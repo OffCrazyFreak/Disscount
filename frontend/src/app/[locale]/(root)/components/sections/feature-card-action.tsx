@@ -1,0 +1,57 @@
+"use client";
+
+import { useRouter } from "@/i18n/navigation";
+import { useCallback, type ReactNode } from "react";
+import { useCameraScanner } from "@/context/scanner-context";
+import { useNotifications } from "@/context/notifications-context";
+import { useUser } from "@/context/user-context";
+import { openModalUrl } from "@/lib/modal/modal-navigation";
+import type { IScannedCode } from "@/typings/scanned-code";
+import { productPath } from "@/utils/product-links";
+
+interface IFeatureCardActionProps {
+  action: "scanner" | "notifications";
+  className?: string;
+  children: ReactNode;
+}
+
+// Server-rendered children pass through this client boundary, so the card and icon stay server-rendered.
+export default function FeatureCardAction({
+  action,
+  className,
+  children,
+}: IFeatureCardActionProps) {
+  const { openScanner } = useCameraScanner();
+  const { requestOpenMenu } = useNotifications();
+  const { isAuthenticated, isInitializing } = useUser();
+  const router = useRouter();
+
+  const handleScan = useCallback(
+    (code: IScannedCode) => {
+      const value = code.rawValue.trim();
+      if (value) router.push(productPath(value));
+    },
+    [router],
+  );
+
+  // Guests have no notifications dropdown mounted, so send them to login first
+  function openNotifications() {
+    // Ignored until auth resolves: isAuthenticated is false in that window, so
+    // acting on it showed the login modal to someone already signed in.
+    if (isInitializing) return;
+
+    if (isAuthenticated) requestOpenMenu();
+    else openModalUrl({ name: "login" });
+  }
+
+  const onClick =
+    action === "scanner"
+      ? () => openScanner({ onScan: handleScan })
+      : openNotifications;
+
+  return (
+    <button type="button" onClick={onClick} className={className}>
+      {children}
+    </button>
+  );
+}

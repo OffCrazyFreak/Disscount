@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+
+import { Link } from "@/i18n/navigation";
 import type { MouseEvent } from "react";
 import { SidebarMenuBadge, SidebarMenuButton } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";

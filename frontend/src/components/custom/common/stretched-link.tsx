@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+
+import { Link } from "@/i18n/navigation";
 import type { MouseEvent, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";

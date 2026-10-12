@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { useNotifications } from "@/context/notifications-context";
 import { useCameraScanner } from "@/context/scanner-context";
 import useProductNavigation from "@/hooks/use-product-navigation";

@@ -1,9 +1,9 @@
 "use client";
 
+import { Link, usePathname } from "@/i18n/navigation";
 import { useRef, useEffect, Suspense } from "react";
-import Link from "next/link";
+
 import CartLogo from "@/components/icons/cart-logo";
-import { usePathname } from "next/navigation";
 
 import {
   Sidebar,
@@ -12,10 +12,13 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import InstallCard from "@/components/custom/pwa/install-card";
+import LanguageSwitcher from "@/components/custom/locale/language-switcher";
 import SidebarUser from "@/components/custom/sidebar/sidebar-user";
 import SidebarMainNav from "@/components/custom/sidebar/sidebar-main-nav";
 import SidebarProductNav from "@/components/custom/sidebar/sidebar-product-nav";
@@ -97,6 +100,12 @@ export default function AppSidebar() {
       </div>
 
       <SidebarFooter>
+        <SidebarMenu className="md:hidden">
+          <SidebarMenuItem>
+            <LanguageSwitcher variant="sidebar" />
+          </SidebarMenuItem>
+        </SidebarMenu>
+
         <InstallCard />
 
         <SidebarUser />

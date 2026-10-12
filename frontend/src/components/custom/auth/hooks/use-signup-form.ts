@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useLocale } from "next-intl";
 
 import {
   registerRequestSchema,
@@ -9,6 +10,7 @@ import {
 } from "@/lib/api/schemas/auth-user";
 
 export function useSignupForm() {
+  const locale = useLocale();
   // Verification is required, so registration shows an inbox notice, not a session.
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
@@ -29,7 +31,11 @@ export function useSignupForm() {
       const response = await fetch("/api/account/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: data.email, password: data.password }),
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+          locale,
+        }),
       });
 
       if (!response.ok) {

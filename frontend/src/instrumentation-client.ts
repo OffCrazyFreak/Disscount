@@ -12,7 +12,9 @@ Sentry.init({
   integrations: [
     Sentry.replayIntegration({
       beforeAddRecordingEvent: (event) =>
-        window.location.pathname.startsWith("/shopping-lists/") ? null : event,
+        /^(\/[a-z]{2})?\/shopping-lists\//.test(window.location.pathname)
+          ? null
+          : event,
     }),
   ],
 

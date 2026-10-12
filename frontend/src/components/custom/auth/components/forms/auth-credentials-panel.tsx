@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
 
+
+import { Link } from "@/i18n/navigation";
 import { Separator } from "@/components/ui/separator";
 import LoginForm from "@/components/custom/auth/components/forms/login-form";
 import SignUpForm from "@/components/custom/auth/components/forms/signup-form";

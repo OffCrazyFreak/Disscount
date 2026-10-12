@@ -1,7 +1,7 @@
 "use client";
 
+import { useRouter } from "@/i18n/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,

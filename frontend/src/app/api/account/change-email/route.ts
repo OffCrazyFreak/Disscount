@@ -6,6 +6,8 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { account } from "@/db/auth-schema";
+import { DEFAULT_LOCALE, isLocale } from "@/i18n/locales";
+import { localePath } from "@/i18n/locale-path";
 
 const bodySchema = z.object({ newEmail: z.email() });
 
@@ -53,7 +55,10 @@ export async function POST(request: Request) {
     await auth.api.changeEmail({
       body: {
         newEmail: parsed.data.newEmail.toLowerCase(),
-        callbackURL: "/?modal=email-changed",
+        callbackURL: localePath(
+          isLocale(session.user.locale) ? session.user.locale : DEFAULT_LOCALE,
+          "/?modal=email-changed",
+        ),
       },
       headers: requestHeaders,
     });

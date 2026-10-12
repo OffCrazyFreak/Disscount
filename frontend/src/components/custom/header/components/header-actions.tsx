@@ -7,6 +7,7 @@ import { useUser } from "@/context/user-context";
 import UserMenu from "@/components/custom/user-menu/user-menu";
 import NotificationsDropdown from "@/components/custom/notifications/notifications-dropdown";
 import { useIsMobile } from "@/hooks/use-mobile";
+import LanguageSwitcher from "@/components/custom/locale/language-switcher";
 
 export default function HeaderActions() {
   // isInitializing, not isLoading: a background session refresh must not
@@ -17,6 +18,9 @@ export default function HeaderActions() {
 
   return (
     <div className="flex items-center justify-between gap-8">
+      {/* Below md the sidebar footer carries the switcher, keeping the bar uncluttered */}
+      <LanguageSwitcher className="hidden md:inline-flex" />
+
       {isInitializing ? (
         <Skeleton
           className={cn("rounded-full", isMobile ? "h-8 w-24" : "h-10 w-28")}
