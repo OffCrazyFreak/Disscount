@@ -26,7 +26,7 @@ public interface DigitalCardRepository extends JpaRepository<DigitalCard, UUID> 
     long countActiveByUserId(UUID userId);
 
     // A bulk update on purpose: it skips @PreUpdate, so using a card never bumps updated_at.
-    @Modifying(clearAutomatically = true)
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("UPDATE DigitalCard c SET c.lastUsedAt = :usedAt WHERE c.id = :id AND c.user.id = :userId "
             + "AND c.deletedAt IS NULL AND (c.lastUsedAt IS NULL OR c.lastUsedAt < :usedAt)")
     int touchLastUsed(UUID id, UUID userId, LocalDateTime usedAt);
@@ -34,7 +34,7 @@ public interface DigitalCardRepository extends JpaRepository<DigitalCard, UUID> 
     @Query("SELECT c FROM DigitalCard c WHERE c.deletedAt IS NOT NULL AND c.deletedAt < :cutoff")
     List<DigitalCard> findDeletedBefore(LocalDateTime cutoff);
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("DELETE FROM DigitalCard c WHERE c.user.id = :userId")
     void deleteAllByUserId(UUID userId);
 }

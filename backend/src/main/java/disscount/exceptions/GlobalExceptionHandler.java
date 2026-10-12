@@ -1,5 +1,6 @@
 package disscount.exceptions;
 
+import jakarta.validation.ConstraintViolation;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
@@ -146,6 +147,20 @@ public class GlobalExceptionHandler {
                     : error.getObjectName();
             fieldErrors.put(key, error.getDefaultMessage());
         });
+
+        ProblemDetail problemDetail =
+                problem(HttpStatus.BAD_REQUEST, "validation", "Neispravni podaci", "Invalid input data");
+        problemDetail.setProperty("fieldErrors", fieldErrors);
+        return problemDetail;
+    }
+
+    /** Raised by @Validated on a controller for constraints outside a request body, such as a list parameter. */
+    @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
+    public ProblemDetail handleConstraintViolation(jakarta.validation.ConstraintViolationException ex) {
+        Map<String, String> fieldErrors = new HashMap<>();
+        for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+            fieldErrors.put(violation.getPropertyPath().toString(), violation.getMessage());
+        }
 
         ProblemDetail problemDetail =
                 problem(HttpStatus.BAD_REQUEST, "validation", "Neispravni podaci", "Invalid input data");

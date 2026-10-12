@@ -231,13 +231,15 @@ public class UserService {
      * better-auth identity must be deleted separately via authClient.deleteUser() on the frontend.
      */
     public void deleteAccount(UUID userId) {
-        User user = userRepository.findById(userId)
+        // Locked so a card write racing the deletion waits and then finds a deleted user.
+        User user = userRepository.findByIdForUpdate(userId)
                 .orElseThrow(() -> new BadRequestException("User not found"));
 
         user.setUsername(null);
         user.setImage(null);
         user.setDeletedAt(nowUtc());
-        userRepository.save(user);
+        // Flushed now because the card purge below clears the persistence context, dropping any unsaved change.
+        userRepository.saveAndFlush(user);
 
         // Cards hold card numbers and photos, which must not outlive the account.
         digitalCardService.deleteAllForUser(userId);

@@ -197,6 +197,48 @@ class DigitalCardControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void usedBatchIsValidatedBeforeTheService() throws Exception {
+        String valid = "{\"id\":\"" + cardId + "\",\"usedAt\":\"2026-10-12T10:00:00Z\"}";
+        String fiftyOne = "[" + String.join(",", java.util.Collections.nCopies(51, valid)) + "]";
+
+        for (String body : List.of("[]", "[null]", "[" + valid + ",null]", "[{\"id\":\"" + cardId + "\"}]", fiftyOne)) {
+            mvc.perform(post("/api/digital-cards/used").with(auth())
+                            .contentType(MediaType.APPLICATION_JSON).content(body))
+                    .andExpect(status().isBadRequest());
+        }
+        verifyNoInteractions(cardService);
+    }
+
+    @Test
+    void nulAndPaddedNamesAreFieldErrorsOnTheRightField() throws Exception {
+        String nul = validBody().replace("Moja kartica", "Moja\\u0000kartica");
+        String padded = validBody().replace("\"Konzum\"", "\"  K \"");
+
+        mvc.perform(put("/api/digital-cards/{id}", cardId).with(auth())
+                        .contentType(MediaType.APPLICATION_JSON).content(nul))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.cardName").value("Tekst sadrži nedopušten znak"));
+        mvc.perform(put("/api/digital-cards/{id}", cardId).with(auth())
+                        .contentType(MediaType.APPLICATION_JSON).content(padded))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.storeName").value("Naziv trgovine mora imati od 2 do 60 znakova"));
+        verifyNoInteractions(cardService);
+    }
+
+    @Test
+    void photoRevalidationHonoursWeakAndMultiValueIfNoneMatch() throws Exception {
+        String sha = "ab".repeat(32);
+        when(photoService.currentSha256(userId, cardId, "front")).thenReturn(sha);
+
+        for (String header : List.of("\"" + sha + "\"", "W/\"" + sha + "\"", "\"other\", \"" + sha + "\"")) {
+            mvc.perform(get("/api/digital-cards/{id}/photos/front", cardId).with(auth())
+                            .header("If-None-Match", header))
+                    .andExpect(status().isNotModified())
+                    .andExpect(header().string("ETag", "\"" + sha + "\""));
+        }
+    }
+
     private String validBody() throws Exception {
         DigitalCardRequest r = new DigitalCardRequest();
         r.setCardName("Moja kartica");

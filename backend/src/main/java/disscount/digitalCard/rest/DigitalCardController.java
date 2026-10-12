@@ -3,8 +3,11 @@ package disscount.digitalCard.rest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import disscount.digitalCard.dto.CardArchiveRequest;
@@ -22,6 +25,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/digital-cards")
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "Digital Cards", description = "Digital card management endpoints")
 public class DigitalCardController {
 
@@ -80,7 +84,10 @@ public class DigitalCardController {
 
     @Operation(summary = "Record when cards were last used, in batches of at most 50")
     @PostMapping("/used")
-    public ResponseEntity<Void> recordUsed(@RequestBody List<CardUsedEntry> entries) {
+    public ResponseEntity<Void> recordUsed(
+            @RequestBody
+            @Size(min = 1, max = 50, message = "Pošalji od 1 do 50 kartica odjednom")
+            List<@NotNull(message = "Unos ne smije biti prazan") @Valid CardUsedEntry> entries) {
         digitalCardService.recordUsed(SecurityUtils.getCurrentUserId(), entries);
         return ResponseEntity.noContent().build();
     }

@@ -152,6 +152,31 @@ class PhotoValidatorTest {
         assertRejected(wave);
     }
 
+    @Test
+    void keepsAlphaOnlyWhenItSitsBetweenVp8xAndTheLossyFrame() {
+        byte[] alpha = chunk("ALPH", new byte[]{1, 2, 3, 4});
+
+        ValidatedPhoto photo = validator.validate(riff(vp8x(64, 64, 0x10), alpha, vp8(64, 64)));
+
+        assertThat(contains(photo.bytes(), "ALPH")).isTrue();
+        assertThat(validator.validate(photo.bytes()).width()).isEqualTo(64);
+    }
+
+    @Test
+    void rejectsAlphaWithoutVp8xAfterTheFrameOrRepeated() {
+        byte[] alpha = chunk("ALPH", new byte[]{1, 2, 3, 4});
+
+        assertRejected(riff(vp8(64, 64), alpha));
+        assertRejected(riff(vp8x(64, 64, 0x10), vp8(64, 64), alpha));
+        assertRejected(riff(vp8x(64, 64, 0x10), alpha, alpha, vp8(64, 64)));
+        assertRejected(riff(vp8x(64, 64, 0x10), alpha, vp8l(64, 64)));
+    }
+
+    private static byte[] vp8l(int width, int height) {
+        long bits = (width - 1) | ((long) (height - 1) << 14);
+        return chunk("VP8L", new byte[]{0x2F, (byte) bits, (byte) (bits >> 8), (byte) (bits >> 16), (byte) (bits >> 24)});
+    }
+
     private void assertRejected(byte[] data) {
         assertThatThrownBy(() -> validator.validate(data)).isInstanceOf(BadRequestException.class);
     }

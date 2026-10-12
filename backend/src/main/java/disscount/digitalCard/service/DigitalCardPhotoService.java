@@ -1,6 +1,8 @@
 package disscount.digitalCard.service;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +21,7 @@ import disscount.exceptions.NotFoundException;
 import disscount.exceptions.ServiceUnavailableException;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
@@ -27,8 +30,9 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class DigitalCardPhotoService {
+
+    private static final Logger log = LoggerFactory.getLogger(DigitalCardPhotoService.class);
 
     public static final String SLOT_FRONT = "front";
     public static final String SLOT_BACK = "back";
@@ -37,6 +41,7 @@ public class DigitalCardPhotoService {
 
     private final DigitalCardRepository cardRepository;
     private final DigitalCardPhotoRepository photoRepository;
+    private final CardPhotoWriter writer;
     private final PhotoStore photoStore;
     private final PhotoValidator validator;
     private final PhotoUploadRateLimiter rateLimiter;
@@ -44,6 +49,10 @@ public class DigitalCardPhotoService {
     /** The bytes handed to a controller for streaming; {@code thumb} picks the small variant. */
     public record PhotoStream(StoredPhoto photo, String sha256, boolean thumb) {}
 
+    /**
+     * Deliberately not one transaction: the image is validated and stored first, and only the
+     * row write is transactional. If that write fails, the objects just stored are removed.
+     */
     public CardPhotoDto upload(UUID userId, UUID cardId, String slot, MultipartFile full, MultipartFile thumb) {
         if (!photoStore.enabled()) {
             throw new ServiceUnavailableException("Slike trenutno nisu dostupne");
@@ -59,41 +68,31 @@ public class DigitalCardPhotoService {
             throw new BadRequestException("Ikona nema sličicu");
         }
 
-        DigitalCard card = requireCard(userId, cardId);
+        // Cheap ownership check before any CPU is spent on someone else's id; the writer repeats it under the lock.
+        requireCard(userId, cardId);
         ValidatedPhoto fullPhoto = validator.validate(read(full));
         ValidatedPhoto thumbPhoto = needsThumb ? validator.validate(read(thumb)) : null;
 
-        String sha256 = sha256Hex(fullPhoto.bytes());
+        // Both images feed the hash, so replacing only the thumbnail still changes the key, ETag and ?v=.
+        String sha256 = thumbPhoto == null
+                ? sha256Hex(fullPhoto.bytes())
+                : sha256Hex((sha256Hex(fullPhoto.bytes()) + ":" + sha256Hex(thumbPhoto.bytes()))
+                        .getBytes(StandardCharsets.US_ASCII));
         String fullKey = PhotoKeys.fullKey(userId, cardId, slot, sha256, fullPhoto.extension());
         String thumbKey = thumbPhoto == null ? null
                 : PhotoKeys.thumbKey(userId, cardId, slot, sha256, thumbPhoto.extension());
 
-        photoStore.put(fullKey, fullPhoto.bytes(), fullPhoto.contentType());
-        if (thumbPhoto != null) {
-            photoStore.put(thumbKey, thumbPhoto.bytes(), thumbPhoto.contentType());
+        try {
+            photoStore.put(fullKey, fullPhoto.bytes(), fullPhoto.contentType());
+            if (thumbPhoto != null) {
+                photoStore.put(thumbKey, thumbPhoto.bytes(), thumbPhoto.contentType());
+            }
+            return writer.replace(userId, cardId, slot, new CardPhotoWriter.Stored(
+                    sha256, fullKey, thumbKey, fullPhoto.contentType(), fullPhoto.bytes().length));
+        } catch (RuntimeException e) {
+            discardUnreferenced(cardId, slot, fullKey, thumbKey);
+            throw e;
         }
-
-        DigitalCardPhoto row = photoRepository.findByCardIdAndSlot(cardId, slot).orElse(null);
-        String oldFullKey = null;
-        String oldThumbKey = null;
-        if (row == null) {
-            row = DigitalCardPhoto.builder().card(card).slot(slot).build();
-        } else {
-            oldFullKey = row.getFullKey();
-            oldThumbKey = row.getThumbKey();
-        }
-
-        row.setSha256(sha256);
-        row.setFullKey(fullKey);
-        row.setThumbKey(thumbKey);
-        row.setContentType(fullPhoto.contentType());
-        row.setByteSize(fullPhoto.bytes().length);
-        photoRepository.save(row);
-
-        deleteReplaced(oldFullKey, fullKey);
-        deleteReplaced(oldThumbKey, thumbKey);
-
-        return new CardPhotoDto(slot, sha256);
     }
 
     @Transactional(readOnly = true)
@@ -128,19 +127,21 @@ public class DigitalCardPhotoService {
 
     public void delete(UUID userId, UUID cardId, String slot) {
         requireSlot(slot);
-        requireCard(userId, cardId);
-
-        DigitalCardPhoto row = photoRepository.findByCardIdAndSlot(cardId, slot)
-                .orElseThrow(() -> new NotFoundException("Slika nije pronađena"));
-        photoRepository.delete(row);
-
-        deleteReplaced(row.getFullKey(), null);
-        deleteReplaced(row.getThumbKey(), null);
+        writer.remove(userId, cardId, slot);
     }
 
-    private void deleteReplaced(String oldKey, String newKey) {
-        if (oldKey != null && !oldKey.equals(newKey)) {
-            AfterCommit.run(() -> photoStore.delete(oldKey));
+    // Content addressed keys can equal the live row's keys (same bytes uploaded twice), and those must survive.
+    private void discardUnreferenced(UUID cardId, String slot, String fullKey, String thumbKey) {
+        try {
+            DigitalCardPhoto live = photoRepository.findByCardIdAndSlot(cardId, slot).orElse(null);
+            for (String key : new String[]{fullKey, thumbKey}) {
+                if (key == null) continue;
+                boolean referenced = live != null
+                        && (key.equals(live.getFullKey()) || key.equals(live.getThumbKey()));
+                if (!referenced) photoStore.delete(key);
+            }
+        } catch (RuntimeException cleanupFailure) {
+            log.warn("Could not discard photo objects after a failed write: {}", cleanupFailure.getMessage());
         }
     }
 

@@ -32,6 +32,7 @@ final class WebpSanitizer {
         ByteArrayOutputStream body = new ByteArrayOutputStream();
         int[] canvas = null;
         int[] image = null;
+        boolean alphaSeen = false;
         int pos = 12;
 
         while (pos < data.length) {
@@ -66,12 +67,18 @@ final class WebpSanitizer {
                     copyChunk(body, data, id, start, (int) size);
                 }
                 case "VP8L" -> {
-                    if (image != null || size < 5 || (data[start] & 0xFF) != 0x2F) throw invalid();
+                    // Lossless carries its own alpha, so a separate ALPH chunk beside it is malformed.
+                    if (image != null || alphaSeen || size < 5 || (data[start] & 0xFF) != 0x2F) throw invalid();
                     long bits = le32(data, start + 1);
                     image = new int[]{(int) (bits & 0x3FFF) + 1, (int) ((bits >> 14) & 0x3FFF) + 1};
                     copyChunk(body, data, id, start, (int) size);
                 }
-                case "ALPH" -> copyChunk(body, data, id, start, (int) size);
+                case "ALPH" -> {
+                    // Alpha for a lossy frame only: after the VP8X header, once, and before the bitstream it describes.
+                    if (canvas == null || alphaSeen || image != null) throw invalid();
+                    alphaSeen = true;
+                    copyChunk(body, data, id, start, (int) size);
+                }
                 default -> { /* EXIF, XMP, ICCP and unknown chunks are dropped */ }
             }
 

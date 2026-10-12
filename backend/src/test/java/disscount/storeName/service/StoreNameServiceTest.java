@@ -1,5 +1,6 @@
 package disscount.storeName.service;
 
+import disscount.exceptions.BadRequestException;
 import disscount.storeName.dao.StoreNameSuggestionRepository;
 import disscount.storeName.domain.StoreNameSuggestion;
 import disscount.storeName.dto.StoreNameSuggestionDto;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -43,9 +45,9 @@ class StoreNameServiceTest {
     @Test
     void searchPutsPrefixMatchesFirstThenPopularityAndHidesHidden() {
         for (int i = 0; i < 3; i++) service.record("Mali dućan");
-        service.record("Dućan kod Ive");
-        service.record("Studenac");
-        service.record("Sakriven dućan");
+        for (int i = 0; i < 2; i++) service.record("Dućan kod Ive");
+        for (int i = 0; i < 2; i++) service.record("Studenac");
+        for (int i = 0; i < 2; i++) service.record("Sakriven dućan");
         StoreNameSuggestion hidden = repository.findAll().stream()
                 .filter(s -> s.getName().startsWith("Sakriven")).findFirst().orElseThrow();
         hidden.setHidden(true);
@@ -60,8 +62,10 @@ class StoreNameServiceTest {
 
     @Test
     void searchTreatsWildcardsLiterally() {
-        service.record("Pola_pola");
-        service.record("Poladvapola");
+        for (int i = 0; i < 2; i++) {
+            service.record("Pola_pola");
+            service.record("Poladvapola");
+        }
 
         assertThat(service.search("a_p")).extracting(StoreNameSuggestionDto::getName).containsExactly("Pola_pola");
         assertThat(service.search("%")).isEmpty();
@@ -69,8 +73,34 @@ class StoreNameServiceTest {
 
     @Test
     void searchIsCappedAtFifty() {
-        for (int i = 0; i < 60; i++) service.record("Dućan " + i);
+        for (int i = 0; i < 60; i++) {
+            service.record("Dućan " + i);
+            service.record("Dućan " + i);
+        }
 
         assertThat(service.search("dućan")).hasSize(50);
+    }
+
+    @Test
+    void aNameUsedOnceIsNotOfferedUntilASecondUse() {
+        service.record("Samo moja trgovina");
+
+        assertThat(service.search("")).isEmpty();
+        assertThat(service.search("moja")).isEmpty();
+
+        service.record("samo moja trgovina");
+
+        assertThat(service.search("moja")).extracting(StoreNameSuggestionDto::getName)
+                .containsExactly("Samo moja trgovina");
+    }
+
+    @Test
+    void nulCharactersAreRejectedInSearchAndIgnoredWhenRecording() {
+        assertThatThrownBy(() -> service.search("ab\u0000c")).isInstanceOf(BadRequestException.class);
+
+        service.record("Ab\u0000c dućan");
+        service.record("Ab\u0000c dućan");
+
+        assertThat(repository.findAll()).isEmpty();
     }
 }

@@ -20,11 +20,12 @@ public interface StoreNameSuggestionRepository extends JpaRepository<StoreNameSu
             + "WHERE s.normalizedName = :normalized")
     int incrementUseCount(String normalized, LocalDateTime now);
 
-    @Query("SELECT s FROM StoreNameSuggestion s WHERE s.hidden = false ORDER BY s.useCount DESC, s.name ASC")
+    // A name is public only from its second use, so one person's custom store never leaks on a single save.
+    @Query("SELECT s FROM StoreNameSuggestion s WHERE s.hidden = false AND s.useCount >= 2 ORDER BY s.useCount DESC, s.name ASC")
     List<StoreNameSuggestion> findTopVisible(Pageable pageable);
 
     // '!' is the escape character so a user typed % or _ matches literally.
-    @Query("SELECT s FROM StoreNameSuggestion s WHERE s.hidden = false "
+    @Query("SELECT s FROM StoreNameSuggestion s WHERE s.hidden = false AND s.useCount >= 2 "
             + "AND s.normalizedName LIKE CONCAT('%', :escaped, '%') ESCAPE '!' "
             + "ORDER BY CASE WHEN s.normalizedName LIKE CONCAT(:escaped, '%') ESCAPE '!' THEN 0 ELSE 1 END, "
             + "s.useCount DESC, s.name ASC")

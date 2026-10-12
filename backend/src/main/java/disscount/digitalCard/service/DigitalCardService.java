@@ -17,9 +17,8 @@ import disscount.digitalCard.storage.PhotoStore;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.ConflictException;
 import disscount.exceptions.NotFoundException;
-import disscount.exceptions.UnauthorizedException;
+import disscount.storeName.service.StoreNameNormalizer;
 import disscount.storeName.service.StoreNameService;
-import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.util.Timestamps;
 
@@ -39,14 +38,16 @@ public class DigitalCardService {
 
     static final int MAX_ACTIVE_CARDS = 300;
     static final int MAX_USED_ENTRIES = 50;
+    static final int MAX_USED_AGE_DAYS = 400;
 
     private static final Logger log = LoggerFactory.getLogger(DigitalCardService.class);
     private static final String NOT_FOUND = "Kartica nije pronađena";
 
     private final DigitalCardRepository cardRepository;
     private final DigitalCardPhotoRepository photoRepository;
-    private final UserRepository userRepository;
+    private final CardUserLock userLock;
     private final StoreNameService storeNameService;
+    private final PhotoCleanupService cleanup;
     private final PhotoStore photoStore;
     private final DigitalCardMapper mapper;
 
@@ -78,16 +79,21 @@ public class DigitalCardService {
     /**
      * Idempotent create-or-update. The three outcomes are explicit rather than left to save():
      * a replayed create after a delete must never resurrect the card, and another user's id
-     * must look exactly like an unused one.
+     * must look exactly like an unused one. The user lock makes the cap check and the insert
+     * atomic and turns a concurrent replay of the same id into a plain update.
      */
     public DigitalCardDto upsert(UUID userId, UUID id, DigitalCardRequest request) {
+        User user = userLock.acquire(userId);
         DigitalCard card = cardRepository.findById(id).orElse(null);
+        boolean created = card == null;
+        String previousStore = created ? null : card.getStoreName();
+        String previousChain = created ? null : card.getChainCode();
 
-        if (card == null) {
+        if (created) {
             if (cardRepository.countActiveByUserId(userId) >= MAX_ACTIVE_CARDS) {
                 throw new ConflictException("Dosegnut je najveći broj kartica");
             }
-            card = DigitalCard.builder().id(id).user(requireUser(userId)).build();
+            card = DigitalCard.builder().id(id).user(user).build();
         } else if (!card.getUser().getId().equals(userId) || card.getDeletedAt() != null) {
             throw new NotFoundException(NOT_FOUND);
         }
@@ -95,8 +101,11 @@ public class DigitalCardService {
         apply(card, request);
         card = cardRepository.save(card);
 
-        if (card.getChainCode() == null) {
-            recordStoreName(card.getStoreName());
+        // Only a new custom name counts as a use, so edits and replays cannot inflate a suggestion.
+        if (card.getChainCode() == null
+                && (created || previousChain != null || !sameStore(previousStore, card.getStoreName()))) {
+            String storeName = card.getStoreName();
+            AfterCommit.run(() -> recordStoreName(storeName));
         }
 
         return toDto(card);
@@ -115,30 +124,33 @@ public class DigitalCardService {
     }
 
     public void delete(UUID userId, UUID id) {
+        userLock.acquire(userId);
         DigitalCard card = requireActive(userId, id);
 
         // Photos are personal data, so they go now rather than with the 30 day purge.
-        List<DigitalCardPhoto> photos = photoRepository.findByCardId(id);
         photoRepository.deleteAllByCardId(id);
-        AfterCommit.run(() -> photos.forEach(p -> deleteObjects(p)));
+        cleanup.enqueuePrefix(PhotoKeys.cardPrefix(userId, id));
 
         card.setDeletedAt(Timestamps.nowUtc());
         cardRepository.save(card);
     }
 
     public void recordUsed(UUID userId, List<CardUsedEntry> entries) {
-        if (entries == null || entries.size() > MAX_USED_ENTRIES) {
-            throw new BadRequestException("Najviše " + MAX_USED_ENTRIES + " kartica odjednom");
+        if (entries == null || entries.isEmpty() || entries.size() > MAX_USED_ENTRIES) {
+            throw new BadRequestException("Pošalji od 1 do " + MAX_USED_ENTRIES + " kartica odjednom");
         }
 
         LocalDateTime now = Timestamps.nowUtc();
+        LocalDateTime oldest = now.minusDays(MAX_USED_AGE_DAYS);
         for (CardUsedEntry entry : entries) {
-            if (entry.getId() == null || entry.getUsedAt() == null) {
+            if (entry == null || entry.getId() == null || entry.getUsedAt() == null) {
                 throw new BadRequestException("Svaki unos mora imati id i vrijeme");
             }
-            // Clamped so a skewed device clock cannot pin a card to the future of every sort.
+            // Clamped both ways so a skewed device clock cannot pin a card to the future or the distant past of every sort.
             LocalDateTime usedAt = toUtc(entry.getUsedAt());
-            cardRepository.touchLastUsed(entry.getId(), userId, usedAt.isAfter(now) ? now : usedAt);
+            if (usedAt.isAfter(now)) usedAt = now;
+            if (usedAt.isBefore(oldest)) usedAt = oldest;
+            cardRepository.touchLastUsed(entry.getId(), userId, usedAt);
         }
     }
 
@@ -146,7 +158,7 @@ public class DigitalCardService {
     public void deleteAllForUser(UUID userId) {
         photoRepository.deleteAllByUserId(userId);
         cardRepository.deleteAllByUserId(userId);
-        AfterCommit.run(() -> photoStore.deletePrefix(PhotoKeys.userPrefix(userId)));
+        cleanup.enqueuePrefix(PhotoKeys.userPrefix(userId));
     }
 
     /** Hard deletes cards soft deleted before the cutoff; returns how many went. */
@@ -156,15 +168,15 @@ public class DigitalCardService {
             UUID cardId = card.getId();
             String prefix = PhotoKeys.cardPrefix(card.getUser().getId(), cardId);
             photoRepository.deleteAllByCardId(cardId);
-            AfterCommit.run(() -> photoStore.deletePrefix(prefix));
+            cleanup.enqueuePrefix(prefix);
         }
         cardRepository.deleteAll(stale);
         return stale.size();
     }
 
     private void apply(DigitalCard card, DigitalCardRequest r) {
-        card.setCardName(trimmedMin2(r.getCardName(), "Naziv kartice mora imati od 2 do 60 znakova"));
-        card.setStoreName(trimmedMin2(r.getStoreName(), "Naziv trgovine mora imati od 2 do 60 znakova"));
+        card.setCardName(r.getCardName().trim());
+        card.setStoreName(r.getStoreName().trim());
         card.setCardType(r.getCardType());
         card.setChainCode(r.getChainCode());
         card.setCodeValue(r.getCodeValue().trim());
@@ -188,29 +200,17 @@ public class DigitalCardService {
         }
     }
 
-    private void deleteObjects(DigitalCardPhoto photo) {
-        photoStore.delete(photo.getFullKey());
-        if (photo.getThumbKey() != null) photoStore.delete(photo.getThumbKey());
-    }
-
     private DigitalCard requireActive(UUID userId, UUID id) {
         return cardRepository.findActiveByIdAndUserId(id, userId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND));
-    }
-
-    private User requireUser(UUID userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
     }
 
     private DigitalCardDto toDto(DigitalCard card) {
         return mapper.toDto(card, photoRepository.findByCardId(card.getId()));
     }
 
-    private static String trimmedMin2(String value, String message) {
-        String trimmed = value == null ? "" : value.trim();
-        if (trimmed.length() < 2) throw new BadRequestException(message);
-        return trimmed;
+    private static boolean sameStore(String before, String after) {
+        return StoreNameNormalizer.normalize(before).equals(StoreNameNormalizer.normalize(after));
     }
 
     private static String blankToNull(String value) {

@@ -10,8 +10,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class FakePhotoStore implements PhotoStore {
 
-    final Map<String, byte[]> objects = new ConcurrentHashMap<>();
+    public final Map<String, byte[]> objects = new ConcurrentHashMap<>();
     volatile boolean enabled = true;
+    volatile boolean failDeletes = false;
 
     @Override
     public boolean enabled() {
@@ -32,11 +33,13 @@ public class FakePhotoStore implements PhotoStore {
 
     @Override
     public void delete(String key) {
+        if (failDeletes) throw new IllegalStateException("storage down");
         objects.remove(key);
     }
 
     @Override
     public void deletePrefix(String prefix) {
+        if (failDeletes) throw new IllegalStateException("storage down");
         objects.keySet().removeIf(k -> k.startsWith(prefix));
     }
 }

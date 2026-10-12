@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import disscount.digitalCard.dto.CardPhotoDto;
@@ -46,14 +46,15 @@ public class DigitalCardPhotoController {
             @PathVariable String slot,
             @RequestParam(defaultValue = "full") String size,
             @RequestParam(required = false) String v,
-            @RequestHeader(value = HttpHeaders.IF_NONE_MATCH, required = false) String ifNoneMatch) {
+            WebRequest request) {
         UUID userId = SecurityUtils.getCurrentUserId();
         boolean thumb = parseSize(size);
 
         // The ETag is derivable from the row alone, so a revalidation never touches object storage.
         String etag = etag(photoService.currentSha256(userId, id, slot), thumb);
-        if (etag.equals(ifNoneMatch)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        // Spring's comparison, so weak validators and a list of tags in If-None-Match match as RFC 9110 says.
+        if (request.checkNotModified(etag)) {
+            return null;
         }
 
         PhotoStream stream = photoService.open(userId, id, slot, thumb, v);

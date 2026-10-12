@@ -11,7 +11,8 @@ import java.time.LocalDate;
 public class DigitalCardRequest {
 
     @NotBlank(message = "Upiši naziv kartice")
-    @Size(min = 2, max = 60, message = "Naziv kartice mora imati od 2 do 60 znakova")
+    @TrimmedLength(min = 2, max = 60, message = "Naziv kartice mora imati od 2 do 60 znakova")
+    @NoNul
     private String cardName;
 
     @NotNull(message = "Odaberi vrstu kartice")
@@ -19,7 +20,8 @@ public class DigitalCardRequest {
     private String cardType;
 
     @NotBlank(message = "Upiši trgovinu")
-    @Size(min = 2, max = 60, message = "Naziv trgovine mora imati od 2 do 60 znakova")
+    @TrimmedLength(min = 2, max = 60, message = "Naziv trgovine mora imati od 2 do 60 znakova")
+    @NoNul
     private String storeName;
 
     @Size(max = 40, message = "Oznaka lanca je preduga")
@@ -28,9 +30,11 @@ public class DigitalCardRequest {
 
     @NotBlank(message = "Upiši broj ili kod kartice")
     @Size(max = 4096, message = "Kod kartice je predug")
+    @NoNul
     private String codeValue;
 
     @Size(max = 4096, message = "Kod je predug")
+    @NoNul
     private String barcodeValue;
 
     @NotNull(message = "Odaberi vrstu koda")
@@ -43,6 +47,7 @@ public class DigitalCardRequest {
     private String cardColor;
 
     @Size(max = 500, message = "Bilješka može imati najviše 500 znakova")
+    @NoNul
     private String note;
 
     private LocalDate validFrom;

@@ -2,6 +2,7 @@ package disscount.digitalCard.service;
 
 import disscount.digitalCard.dao.DigitalCardPhotoRepository;
 import disscount.digitalCard.dao.DigitalCardRepository;
+import disscount.digitalCard.dao.PhotoCleanupRepository;
 import disscount.digitalCard.domain.DigitalCard;
 import disscount.digitalCard.dto.CardUsedEntry;
 import disscount.digitalCard.dto.DigitalCardDto;
@@ -48,6 +49,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @Import({DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
         StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, PhotoUploadRateLimiter.class,
+        CardPhotoWriter.class, CardUserLock.class, PhotoCleanupService.class,
         DigitalCardServiceTest.StoreConfig.class})
 class DigitalCardServiceTest {
 
@@ -66,18 +68,21 @@ class DigitalCardServiceTest {
     @Autowired UserRepository users;
     @Autowired StoreNameSuggestionRepository storeNames;
     @Autowired PhotoStore store;
+    @Autowired PhotoCleanupRepository cleanupRows;
 
     User owner;
     User stranger;
 
     @BeforeEach
     void setUp() {
+        cleanupRows.deleteAll();
         photos.deleteAll();
         cards.deleteAll();
         storeNames.deleteAll();
         users.deleteAll();
         ((FakePhotoStore) store).objects.clear();
         ((FakePhotoStore) store).enabled = true;
+        ((FakePhotoStore) store).failDeletes = false;
         owner = users.save(user());
         stranger = users.save(user());
     }
@@ -277,5 +282,94 @@ class DigitalCardServiceTest {
 
     private static MockMultipartFile file(byte[] bytes) {
         return new MockMultipartFile("full", "p.webp", "image/webp", bytes);
+    }
+
+    @Test
+    void concurrentPutsOfOneIdAllSucceedAsUpdates() throws Exception {
+        UUID id = UUID.randomUUID();
+        DigitalCardRequest custom = request("Zajednička");
+        custom.setChainCode(null);
+
+        List<Throwable> failures = runConcurrently(6, i -> service.upsert(owner.getId(), id, custom));
+
+        assertThat(failures).isEmpty();
+        assertThat(cards.findActiveByUserId(owner.getId())).hasSize(1);
+        assertThat(storeNames.findAll()).singleElement().satisfies(s -> assertThat(s.getUseCount()).isEqualTo(1));
+    }
+
+    @Test
+    void concurrentCreatesCannotPassTheCap() throws Exception {
+        cards.saveAll(IntStream.range(0, 299).mapToObj(i -> DigitalCard.builder()
+                .id(UUID.randomUUID()).user(owner).cardName("Kartica " + i).cardType("other")
+                .storeName("Dućan").codeValue("1").codeType("unknown").cardColor("#616161").build()).toList());
+
+        List<Throwable> failures = runConcurrently(6,
+                i -> service.upsert(owner.getId(), UUID.randomUUID(), request("Nova " + i)));
+
+        assertThat(failures).hasSize(5).allMatch(e -> e instanceof ConflictException);
+        assertThat(cards.countActiveByUserId(owner.getId())).isEqualTo(300);
+    }
+
+    @Test
+    void storeNameCountsOnlyCreationsAndRenames() {
+        UUID id = UUID.randomUUID();
+        DigitalCardRequest custom = request("Moja trgovina");
+        custom.setChainCode(null);
+        custom.setStoreName("Žabac dućan");
+
+        service.upsert(owner.getId(), id, custom);
+        service.upsert(owner.getId(), id, custom);
+        custom.setCardName("Preimenovana");
+        service.upsert(owner.getId(), id, custom);
+        assertThat(storeNames.findAll()).singleElement().satisfies(s -> assertThat(s.getUseCount()).isEqualTo(1));
+
+        custom.setStoreName("Drugi dućan");
+        service.upsert(owner.getId(), id, custom);
+        assertThat(storeNames.findAll()).hasSize(2);
+
+        // Switching a chain card to a custom store with the same name is a new use of that name.
+        UUID chainCard = UUID.randomUUID();
+        service.upsert(owner.getId(), chainCard, request("Lanac"));
+        DigitalCardRequest switched = request("Lanac");
+        switched.setChainCode(null);
+        service.upsert(owner.getId(), chainCard, switched);
+        assertThat(storeNames.findAll()).extracting("normalizedName").contains("konzum");
+    }
+
+    @Test
+    void usedBatchRejectsEmptyListNullElementsAndClampsOldTimestamps() {
+        UUID id = UUID.randomUUID();
+        service.upsert(owner.getId(), id, request("Kartica"));
+
+        assertThatThrownBy(() -> service.recordUsed(owner.getId(), List.of())).isInstanceOf(BadRequestException.class);
+        assertThatThrownBy(() -> service.recordUsed(owner.getId(), java.util.Collections.singletonList(null)))
+                .isInstanceOf(BadRequestException.class);
+
+        service.recordUsed(owner.getId(), List.of(new CardUsedEntry(id, Instant.now().minus(3 * 365L, ChronoUnit.DAYS))));
+
+        assertThat(service.get(owner.getId(), id).getLastUsedAt())
+                .isCloseTo(Timestamps.nowUtc().minusDays(400), within(1, ChronoUnit.MINUTES));
+    }
+
+    private List<Throwable> runConcurrently(int threads, java.util.function.IntConsumer task) throws Exception {
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        List<java.util.concurrent.Future<?>> futures = IntStream.range(0, threads).mapToObj(i -> pool.submit(() -> {
+            start.await();
+            task.accept(i);
+            return null;
+        })).collect(java.util.stream.Collectors.toList());
+        start.countDown();
+
+        List<Throwable> failures = new java.util.ArrayList<>();
+        for (java.util.concurrent.Future<?> future : futures) {
+            try {
+                future.get(30, java.util.concurrent.TimeUnit.SECONDS);
+            } catch (java.util.concurrent.ExecutionException e) {
+                failures.add(e.getCause());
+            }
+        }
+        pool.shutdown();
+        return failures;
     }
 }

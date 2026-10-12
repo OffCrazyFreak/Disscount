@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import disscount.exceptions.BadRequestException;
 import disscount.storeName.dao.StoreNameSuggestionRepository;
 import disscount.storeName.domain.StoreNameSuggestion;
 import disscount.storeName.dto.StoreNameSuggestionDto;
@@ -29,7 +30,7 @@ public class StoreNameService {
     public void record(String name) {
         String cleaned = StoreNameNormalizer.clean(name);
         String normalized = StoreNameNormalizer.normalize(name);
-        if (normalized.length() < 2 || cleaned.length() > MAX_NAME_LENGTH) {
+        if (normalized.length() < 2 || cleaned.length() > MAX_NAME_LENGTH || cleaned.indexOf('\u0000') >= 0) {
             return;
         }
 
@@ -42,6 +43,9 @@ public class StoreNameService {
 
     @Transactional(readOnly = true)
     public List<StoreNameSuggestionDto> search(String query) {
+        if (query != null && query.indexOf('\u0000') >= 0) {
+            throw new BadRequestException("Pretraga sadrži nedopušten znak");
+        }
         String normalized = StoreNameNormalizer.normalize(query == null ? "" : query);
         if (normalized.length() > MAX_NAME_LENGTH) {
             normalized = normalized.substring(0, MAX_NAME_LENGTH);

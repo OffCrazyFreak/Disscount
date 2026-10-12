@@ -18,6 +18,7 @@ public class DigitalCardCleanupJob {
 
     private final DigitalCardService cardService;
     private final PhotoUploadRateLimiter rateLimiter;
+    private final PhotoCleanupService photoCleanup;
 
     @Scheduled(cron = "0 30 3 * * *", zone = "UTC")
     public void purgeDeletedCards() {
@@ -28,5 +29,10 @@ public class DigitalCardCleanupJob {
     @Scheduled(fixedDelay = 300_000)
     public void sweepRateLimiter() {
         rateLimiter.sweep();
+    }
+
+    @Scheduled(fixedDelay = 900_000, initialDelay = 60_000)
+    public void retryPhotoCleanup() {
+        photoCleanup.retryPending();
     }
 }

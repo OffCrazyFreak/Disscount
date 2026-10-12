@@ -6,15 +6,15 @@ import disscount.user.domain.User;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-final class CardServiceTestSupport {
+public final class CardServiceTestSupport {
 
     private CardServiceTestSupport() {}
 
-    static User user() {
+    public static User user() {
         return User.builder().id(UUID.randomUUID()).build();
     }
 
-    static DigitalCardRequest request(String cardName) {
+    public static DigitalCardRequest request(String cardName) {
         DigitalCardRequest r = new DigitalCardRequest();
         r.setCardName(cardName);
         r.setCardType("loyalty");

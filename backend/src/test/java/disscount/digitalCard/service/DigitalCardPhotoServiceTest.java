@@ -2,6 +2,7 @@ package disscount.digitalCard.service;
 
 import disscount.digitalCard.dao.DigitalCardPhotoRepository;
 import disscount.digitalCard.dao.DigitalCardRepository;
+import disscount.digitalCard.dao.PhotoCleanupRepository;
 import disscount.digitalCard.dto.CardPhotoDto;
 import disscount.digitalCard.photo.PhotoValidator;
 import disscount.digitalCard.photo.TestImages;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
@@ -37,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @Import({DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
         StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, PhotoUploadRateLimiter.class,
+        CardPhotoWriter.class, CardUserLock.class, PhotoCleanupService.class,
         DigitalCardPhotoServiceTest.StoreConfig.class})
 class DigitalCardPhotoServiceTest {
 
@@ -55,13 +58,16 @@ class DigitalCardPhotoServiceTest {
     @Autowired UserRepository users;
     @Autowired StoreNameSuggestionRepository storeNames;
     @Autowired PhotoStore store;
+    @Autowired PhotoCleanupRepository cleanupRows;
     @Autowired PhotoUploadRateLimiter limiter;
+    @SpyBean CardPhotoWriter writer;
 
     User owner;
     UUID cardId = UUID.randomUUID();
 
     @BeforeEach
     void setUp() {
+        cleanupRows.deleteAll();
         photos.deleteAll();
         cards.deleteAll();
         storeNames.deleteAll();
@@ -69,6 +75,7 @@ class DigitalCardPhotoServiceTest {
         limiter.sweep();
         fake().objects.clear();
         fake().enabled = true;
+        fake().failDeletes = false;
         owner = users.save(user());
         cardService.upsert(owner.getId(), cardId, request("Kartica"));
     }
@@ -162,6 +169,66 @@ class DigitalCardPhotoServiceTest {
                 part(TestImages.webp(99, 32)), null))
                 .isInstanceOfSatisfying(TooManyRequestsException.class,
                         e -> assertThat(e.getRetryAfterSeconds()).isBetween(1L, 60L));
+    }
+
+    @Test
+    void replacingOnlyTheThumbnailChangesTheVersionAndKeys() {
+        byte[] full = TestImages.webp(64, 48);
+        CardPhotoDto first = photoService.upload(owner.getId(), cardId, "front", part(full), part(TestImages.webp(16, 12)));
+        CardPhotoDto second = photoService.upload(owner.getId(), cardId, "front", part(full), part(TestImages.webp(20, 15)));
+
+        assertThat(second.getSha256()).isNotEqualTo(first.getSha256());
+        assertThat(fake().objects.keySet()).hasSize(2).allMatch(k -> k.contains(second.getSha256()));
+        assertThat(photos.findByCardId(cardId)).singleElement()
+                .satisfies(p -> assertThat(p.getSha256()).isEqualTo(second.getSha256()));
+    }
+
+    @Test
+    void concurrentUploadsToOneSlotLeaveOneRowAndOnlyItsObjects() throws Exception {
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(5);
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.List<java.util.concurrent.Future<CardPhotoDto>> futures = new java.util.ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            int size = 20 + i;
+            futures.add(pool.submit(() -> {
+                start.await();
+                return photoService.upload(owner.getId(), cardId, "back",
+                        part(TestImages.webp(size * 4, size * 3)), part(TestImages.webp(size, size)));
+            }));
+        }
+        start.countDown();
+        for (java.util.concurrent.Future<CardPhotoDto> future : futures) future.get(30, java.util.concurrent.TimeUnit.SECONDS);
+        pool.shutdown();
+
+        assertThat(photos.findByCardId(cardId)).hasSize(1).first().satisfies(row ->
+                assertThat(fake().objects.keySet()).containsExactlyInAnyOrder(row.getFullKey(), row.getThumbKey()));
+    }
+
+    @Test
+    void aPhotoWriteAfterTheCardWasDeletedIsRefusedAndStoresNothing() {
+        cardService.delete(owner.getId(), cardId);
+
+        assertThatThrownBy(() -> writer.replace(owner.getId(), cardId, "icon",
+                new CardPhotoWriter.Stored("a".repeat(64), "cards/k.webp", null, "image/webp", 10)))
+                .isInstanceOf(NotFoundException.class);
+        assertThat(photos.findByCardId(cardId)).isEmpty();
+    }
+
+    @Test
+    void aFailedRowWriteRemovesTheObjectsJustStoredButKeepsLiveOnes() {
+        byte[] bytes = TestImages.webp(32, 32);
+        CardPhotoDto live = photoService.upload(owner.getId(), cardId, "icon", part(bytes), null);
+        org.mockito.Mockito.doThrow(new IllegalStateException("db down")).when(writer)
+                .replace(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(),
+                        org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+
+        assertThatThrownBy(() -> photoService.upload(owner.getId(), cardId, "icon", part(bytes), null))
+                .isInstanceOf(IllegalStateException.class);
+        assertThat(fake().objects.keySet()).singleElement().satisfies(k -> assertThat(k).contains(live.getSha256()));
+
+        assertThatThrownBy(() -> photoService.upload(owner.getId(), cardId, "icon", part(TestImages.webp(40, 40)), null))
+                .isInstanceOf(IllegalStateException.class);
+        assertThat(fake().objects.keySet()).singleElement().satisfies(k -> assertThat(k).contains(live.getSha256()));
     }
 
     private FakePhotoStore fake() {
