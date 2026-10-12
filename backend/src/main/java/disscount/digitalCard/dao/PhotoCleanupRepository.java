@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import disscount.digitalCard.domain.PhotoCleanup;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,6 +19,10 @@ public interface PhotoCleanupRepository extends JpaRepository<PhotoCleanup, UUID
 
     @Query("SELECT p FROM PhotoCleanup p ORDER BY p.createdAt ASC")
     List<PhotoCleanup> findOldest(Pageable pageable);
+
+    @Modifying(flushAutomatically = true)
+    @Query("DELETE FROM PhotoCleanup p WHERE p.prefix = false AND p.keyOrPrefix IN :keys")
+    void removePendingKeys(Collection<String> keys);
 
     // REQUIRES_NEW because this runs from an afterCommit callback, where joining the finished transaction would never commit.
     @Transactional(propagation = Propagation.REQUIRES_NEW)

@@ -112,12 +112,14 @@ public class DigitalCardService {
     }
 
     public DigitalCardDto setPinned(UUID userId, UUID id, boolean pinned) {
+        userLock.acquire(userId);
         DigitalCard card = requireActive(userId, id);
         card.setPinnedAt(pinned ? Timestamps.nowUtc() : null);
         return toDto(cardRepository.save(card));
     }
 
     public DigitalCardDto setArchived(UUID userId, UUID id, boolean archived) {
+        userLock.acquire(userId);
         DigitalCard card = requireActive(userId, id);
         card.setArchivedAt(archived ? Timestamps.nowUtc() : null);
         return toDto(cardRepository.save(card));

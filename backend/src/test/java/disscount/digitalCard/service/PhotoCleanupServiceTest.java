@@ -127,6 +127,39 @@ class PhotoCleanupServiceTest {
     }
 
     @Test
+    void reuploadingAReplacedPhotoKeepsItsObjectsThroughTheRetry() {
+        MockMultipartFile a = new MockMultipartFile("full", "p.webp", "image/webp", TestImages.webp(32, 32));
+        MockMultipartFile b = new MockMultipartFile("full", "p.webp", "image/webp", TestImages.webp(48, 48));
+        photoService.upload(owner.getId(), cardId, "icon", a, null);
+        String keyA = photos.findByCardId(cardId).get(0).getFullKey();
+
+        store.failDeletes = true;
+        photoService.upload(owner.getId(), cardId, "icon", b, null);
+        assertThat(queue.findAll()).extracting(PhotoCleanup::getKeyOrPrefix).containsExactly(keyA);
+
+        photoService.upload(owner.getId(), cardId, "icon", a, null);
+        store.failDeletes = false;
+        cleanup.retryPending();
+
+        assertThat(photos.findByCardId(cardId)).singleElement()
+                .satisfies(row -> assertThat(row.getFullKey()).isEqualTo(keyA));
+        assertThat(store.objects).containsKey(keyA);
+        assertThat(queue.findAll()).extracting(PhotoCleanup::getKeyOrPrefix).doesNotContain(keyA);
+    }
+
+    @Test
+    void aQueuedKeyThatALiveRowStillUsesIsDroppedNotDeleted() {
+        upload("icon");
+        String key = photos.findByCardId(cardId).get(0).getFullKey();
+        queue.save(PhotoCleanup.builder().keyOrPrefix(key).prefix(false).build());
+
+        cleanup.retryPending();
+
+        assertThat(store.objects).containsKey(key);
+        assertThat(queue.findAll()).isEmpty();
+    }
+
+    @Test
     void accountDeletionQueuesTheUserPrefixAndSurvivesAStorageOutage() {
         upload("icon");
         store.failDeletes = true;

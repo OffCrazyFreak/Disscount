@@ -11,6 +11,7 @@ import disscount.digitalCard.domain.DigitalCardPhoto;
 import disscount.digitalCard.dto.CardPhotoDto;
 import disscount.exceptions.NotFoundException;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 /**
@@ -51,6 +52,7 @@ public class CardPhotoWriter {
         row.setContentType(stored.contentType());
         row.setByteSize(stored.byteSize());
         photoRepository.save(row);
+        cleanup.cancelKeys(Arrays.asList(stored.fullKey(), stored.thumbKey()));
 
         enqueueIfReplaced(oldFullKey, stored.fullKey());
         enqueueIfReplaced(oldThumbKey, stored.thumbKey());

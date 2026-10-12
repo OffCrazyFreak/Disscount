@@ -24,6 +24,9 @@ public interface DigitalCardPhotoRepository extends JpaRepository<DigitalCardPho
     @Query("SELECT p FROM DigitalCardPhoto p WHERE p.card.id = :cardId AND p.slot = :slot")
     Optional<DigitalCardPhoto> findByCardIdAndSlot(UUID cardId, String slot);
 
+    @Query("SELECT COUNT(p) > 0 FROM DigitalCardPhoto p WHERE p.fullKey = :key OR p.thumbKey = :key")
+    boolean isKeyReferenced(String key);
+
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("DELETE FROM DigitalCardPhoto p WHERE p.card.id = :cardId")
     void deleteAllByCardId(UUID cardId);

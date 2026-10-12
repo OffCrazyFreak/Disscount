@@ -130,6 +130,21 @@ class DigitalCardServiceTest {
     }
 
     @Test
+    void togglesAfterADeleteAreNotFoundAndDoNotResurrect() {
+        UUID id = UUID.randomUUID();
+        service.upsert(owner.getId(), id, request("Obrisana"));
+        service.delete(owner.getId(), id);
+
+        assertThatThrownBy(() -> service.setPinned(owner.getId(), id, true)).isInstanceOf(NotFoundException.class);
+        assertThatThrownBy(() -> service.setArchived(owner.getId(), id, true)).isInstanceOf(NotFoundException.class);
+        assertThat(cards.findById(id)).get().satisfies(card -> {
+            assertThat(card.getDeletedAt()).isNotNull();
+            assertThat(card.getPinnedAt()).isNull();
+            assertThat(card.getArchivedAt()).isNull();
+        });
+    }
+
+    @Test
     void listIncludesArchivedAndSkipsDeleted() {
         UUID kept = UUID.randomUUID();
         UUID archived = UUID.randomUUID();
