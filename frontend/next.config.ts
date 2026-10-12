@@ -21,6 +21,12 @@ const nextConfig: NextConfig = {
   // The dev indicator sits bottom-left, on top of the mobile bottom nav.
   devIndicators: false,
 
+  // Set explicitly because Next warns the default can differ between compiler versions,
+  // and the effects keyed on existing useMemo/useCallback results rely on them staying.
+  reactCompiler: {
+    environment: { enablePreserveExistingMemoizationGuarantees: true },
+  },
+
   async rewrites() {
     const backendOrigin =
       process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";

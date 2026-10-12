@@ -1,5 +1,6 @@
 "use client";
 
+import { useFormState } from "react-hook-form";
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
 import PasswordField from "@/components/custom/auth/components/fields/password-field";
@@ -14,6 +15,7 @@ interface IResetPasswordModalProps {
 // via history or Referer. On success the user is sent to log in, never auto-logged in.
 export default function ResetPasswordModal({ open }: IResetPasswordModalProps) {
   const { form, token, ready, onSubmit } = useResetPasswordForm(open);
+  const formState = useFormState({ control: form.control });
 
   return (
     <ModalShell
@@ -23,7 +25,7 @@ export default function ResetPasswordModal({ open }: IResetPasswordModalProps) {
       description="Postavi novu lozinku za svoj Disscount račun."
       formId="reset-password-form"
       submitLabel="Postavi lozinku"
-      submitLoading={form.formState.isSubmitting}
+      submitLoading={formState.isSubmitting}
       submitDisabled={!token}
       cancelLabel="Odustani"
     >

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useFormState, useWatch } from "react-hook-form";
 
 import { useUser } from "@/context/user-context";
 import {
@@ -26,6 +26,7 @@ function resumeStepFromOutcome(outcome: string | null | undefined) {
 
 export function useOnboarding({ open, save }: IUseOnboardingProps) {
   const form = useFormContext<SettingsFormValues>();
+  const { errors } = useFormState({ control: form.control });
   const { user } = useUser();
   const { persist } = useOnboardingProgress();
   const resumeStep = resumeStepFromOutcome(user?.onboardingOutcome);
@@ -61,7 +62,7 @@ export function useOnboarding({ open, save }: IUseOnboardingProps) {
   const isLast = step === ONBOARDING_STEPS.length - 1;
 
   // The live form value, so a username edited on the profile step greets correctly.
-  const username = form.watch("username");
+  const username = useWatch({ control: form.control, name: "username" });
   const title =
     typeof currentStep.title === "function"
       ? currentStep.title(username?.trim() ?? "")
@@ -110,6 +111,6 @@ export function useOnboarding({ open, save }: IUseOnboardingProps) {
     next,
     back,
     finish,
-    rootError: form.formState.errors.root?.message,
+    rootError: errors.root?.message,
   };
 }

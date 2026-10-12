@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 import {
   FormControl,
@@ -41,10 +41,10 @@ export default function WatchlistThresholdInput({
   loading = false,
 }: IWatchlistThresholdInputProps) {
   const form = useFormContext<WatchlistFormData>();
-  const watchType = form.watch("watchType");
+  const watchType = useWatch({ control: form.control, name: "watchType" });
   // Each mode keeps its own number, so this renders whichever one is selected.
   const name = thresholdField(watchType);
-  const rawValue = form.watch(name);
+  const rawValue = useWatch({ control: form.control, name });
 
   const { min, max } = watchlistLimits(watchType);
   const steps = thresholdSteps(watchType, minPrice);

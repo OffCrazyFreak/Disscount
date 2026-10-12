@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useFormState, useWatch } from "react-hook-form";
 import {
   UserRound,
   Bell,
@@ -42,9 +42,10 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
     useSettingsUi();
   const security = useSecurity();
 
-  const values = form.watch();
-  const defaults = (form.formState.defaultValues ??
-    {}) as Partial<SettingsFormValues>;
+  const values = useWatch({ control: form.control });
+  const { defaultValues, errors } = useFormState({ control: form.control });
+  const defaults = (defaultValues ?? {}) as Partial<SettingsFormValues>;
+  const securityState = useFormState({ control: security.form.control });
   const dirty = dirtySections(values, defaults, avatarTouched);
   const anyDirty = dirty.size > 0;
 
@@ -64,14 +65,13 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
 
   // The security tab drives its own credentials form through the shared footer.
   const securityFooter = {
-    dirty: security.form.formState.isDirty,
+    dirty: securityState.isDirty,
     formId: CREDENTIALS_FORM_ID,
     submitLabel: "Spremi",
-    submitLoading: security.form.formState.isSubmitting,
-    submitDisabled:
-      !security.form.formState.isDirty || !security.form.formState.isValid,
+    submitLoading: securityState.isSubmitting,
+    submitDisabled: !securityState.isDirty || !securityState.isValid,
     resetLabel: "Resetiraj",
-    resetDisabled: !security.form.formState.isDirty,
+    resetDisabled: !securityState.isDirty,
     onReset: () => security.form.reset(),
   };
 
@@ -105,9 +105,9 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
       }
       {...(isSecurityTab ? securityFooter : settingsFooter)}
     >
-      {form.formState.errors.root && (
+      {errors.root && (
         <div className="mb-4 rounded-md border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
-          {form.formState.errors.root.message}
+          {errors.root.message}
         </div>
       )}
 

@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/popover";
 import { ShoppingListDto } from "@/lib/api/types";
 import { commandFilter } from "@/utils/search/command-filter";
-import { UseFormReturn } from "react-hook-form";
+import { UseFormReturn, useWatch } from "react-hook-form";
 import { AddToListFormData } from "@/app/products/typings/add-to-list";
 import ShoppingListTrigger from "@/app/products/components/forms/shopping-list-trigger";
 import ShoppingListOption from "@/app/products/components/forms/shopping-list-option";
@@ -44,7 +44,10 @@ export default function ShoppingListSelector({
   disabled = false,
 }: IShoppingListSelectorProps) {
   const [open, setOpen] = useState(false);
-  const customListTitle = formField.watch("customListTitle");
+  const customListTitle = useWatch({
+    control: formField.control,
+    name: "customListTitle",
+  });
 
   return (
     <FormField

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Eye, TriangleAlert } from "lucide-react";
+import { useFormState } from "react-hook-form";
 
 import EyePen from "@/components/custom/icons/eye-pen";
 
@@ -85,6 +86,7 @@ export default function WatchlistItemModal({
     avgPrice,
     watchType === "absolute" ? WatchType.absolute : WatchType.percentage,
   );
+  const { errors } = useFormState({ control: form.control });
 
   const { clearDraft } = useFormDraft({
     draftKey,
@@ -161,7 +163,7 @@ export default function WatchlistItemModal({
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-6"
             >
-              <FormRootError message={form.formState.errors.root?.message} />
+              <FormRootError message={errors.root?.message} />
 
               <WatchlistTypePicker />
 

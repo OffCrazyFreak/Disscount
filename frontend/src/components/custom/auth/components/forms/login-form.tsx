@@ -1,5 +1,6 @@
 "use client";
 
+import { useFormState } from "react-hook-form";
 import { LogIn } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -25,15 +26,16 @@ export default function LoginForm({
   externalDisabled,
 }: ILoginFormProps) {
   const { form, onSubmit } = useLoginForm(onSuccess);
+  const formState = useFormState({ control: form.control });
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
-        <FormRootError message={form.formState.errors.root?.message} />
+        <FormRootError message={formState.errors.root?.message} />
 
         <EmailField
           registration={form.register("email")}
-          error={form.formState.errors.email?.message}
+          error={formState.errors.email?.message}
         />
 
         <PasswordField
@@ -41,7 +43,7 @@ export default function LoginForm({
           name="password"
           label="Lozinka"
           autoComplete="current-password"
-          hasError={!!form.formState.errors.password}
+          hasError={!!formState.errors.password}
           action={<ForgotPasswordLink onClick={onForgotPassword} />}
         />
 
@@ -52,13 +54,13 @@ export default function LoginForm({
           className="w-full"
           icon={LogIn}
           iconPlacement="left"
-          loading={form.formState.isSubmitting}
+          loading={formState.isSubmitting}
           loadingText="Prijava..."
           loadingIconPlacement="left"
-          disabled={form.formState.isSubmitting || externalDisabled}
+          disabled={formState.isSubmitting || externalDisabled}
         >
           Prijavi se
-          {isLastUsed && !form.formState.isSubmitting && !externalDisabled && (
+          {isLastUsed && !formState.isSubmitting && !externalDisabled && (
             <LastLoginBadge variant="inverse" />
           )}
         </Button>

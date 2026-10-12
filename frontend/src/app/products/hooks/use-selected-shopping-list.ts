@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { UseFormReturn } from "react-hook-form";
+import { useWatch, type UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 
 import { shoppingListService } from "@/lib/api";
@@ -14,6 +14,11 @@ export function useSelectedShoppingList(
   enabled: boolean,
   restoredListId: string | null,
 ) {
+  // The preselect effect's first run lands before the modal portal registers the field,
+  // so resetField no-ops; it only succeeds because a later render re-runs the effect.
+  // Compiled, sortedShoppingLists is memoized and that retry never comes.
+  "use no memo";
+
   const { data: shoppingLists = [], isLoading: isLoadingLists } =
     shoppingListService.useGetCurrentUserShoppingLists({ enabled });
   const removeItemMutation = shoppingListService.useDeleteShoppingListItem();
@@ -22,7 +27,10 @@ export function useSelectedShoppingList(
   // "the latest" or the icon they show would contradict the list the modal preselects.
   const sortedShoppingLists = sortShoppingListsByRecency(shoppingLists);
 
-  const selectedListId = form.watch("shoppingListId");
+  const selectedListId = useWatch({
+    control: form.control,
+    name: "shoppingListId",
+  });
   const { data: selectedShoppingList } =
     shoppingListService.useGetShoppingListById(selectedListId);
 
