@@ -414,7 +414,7 @@ The store field's Autocomplete came from the reui registry (`@reui` in `frontend
 | Backend (H2)      | `mvn -B test` from `backend/` | `PhotoValidatorTest` (good WebP and JPEG, PNG, SVG, truncated, oversized, animated, wrong RIFF size, metadata stripped), `DigitalCardServiceTest` (idempotent PUT, ownership 404, soft-deleted 404, delete removes photos, used-at maximum, account purge), `DigitalCardPhotoServiceTest`, `DigitalCardControllerTest` (401, 400 messages, 404), `StoreNameServiceTest`, `StoreNameNormalizerTest` |
 | Frontend (Vitest) | `pnpm test` from `frontend/`  | Palette contrast, check digits, normalization, code alternatives, hex-grid keyboard navigation, sorting, the scan consensus rules, the code SVG generator, the photo type fallback                                                                                                                                                                                                                 |
 
-At the time of writing `mvn -B verify` runs 81 backend tests and `pnpm test` runs 119 frontend tests. CI runs `pnpm test` after the typecheck, and `mvn -B verify` runs the backend suite. These tests cover digital cards and store names only; the rest of the backend still has no tests, so a green `verify` says nothing about other features.
+At the time of writing `mvn -B verify` runs 81 backend tests and `pnpm test` runs 120 frontend tests. CI runs `pnpm test` after the typecheck, and `mvn -B verify` runs the backend suite. These tests cover digital cards and store names only; the rest of the backend still has no tests, so a green `verify` says nothing about other features.
 
 ---
 
