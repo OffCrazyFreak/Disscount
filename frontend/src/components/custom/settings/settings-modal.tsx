@@ -45,7 +45,12 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
   const values = useWatch({ control: form.control });
   const { defaultValues, errors } = useFormState({ control: form.control });
   const defaults = (defaultValues ?? {}) as Partial<SettingsFormValues>;
-  const securityState = useFormState({ control: security.form.control });
+  // Destructured so every flag is read each render: RHF only computes the ones read.
+  const {
+    isDirty: securityDirty,
+    isValid: securityValid,
+    isSubmitting: securitySubmitting,
+  } = useFormState({ control: security.form.control });
   const dirty = dirtySections(values, defaults, avatarTouched);
   const anyDirty = dirty.size > 0;
 
@@ -65,13 +70,13 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
 
   // The security tab drives its own credentials form through the shared footer.
   const securityFooter = {
-    dirty: securityState.isDirty,
+    dirty: securityDirty,
     formId: CREDENTIALS_FORM_ID,
     submitLabel: "Spremi",
-    submitLoading: securityState.isSubmitting,
-    submitDisabled: !securityState.isDirty || !securityState.isValid,
+    submitLoading: securitySubmitting,
+    submitDisabled: !securityDirty || !securityValid,
     resetLabel: "Resetiraj",
-    resetDisabled: !securityState.isDirty,
+    resetDisabled: !securityDirty,
     onReset: () => security.form.reset(),
   };
 
