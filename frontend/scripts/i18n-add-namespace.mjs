@@ -29,7 +29,7 @@ for (const locale of LOCALES) {
     .join("\n");
   writeFileSync(
     indexPath,
-    `${imports}\n\nconst messages = { ${names.join(", ")} };\n\nexport default messages;\n`,
+    `${imports}\n\nconst messages = {\n${names.map((name) => `  ${name},`).join("\n")}\n};\n\nexport default messages;\n`,
   );
 }
 

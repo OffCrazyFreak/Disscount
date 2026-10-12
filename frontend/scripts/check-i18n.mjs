@@ -13,6 +13,20 @@ const SOURCE = "hr";
 const LOCALES = ["hr", "en", "it", "sl", "de"];
 const allowMissing = process.argv.includes("--allow-missing");
 
+// A JSON file that index.ts does not import never reaches the app, and tsc only
+// types hr, so the other locales would silently fall back to Croatian.
+function unregisteredNamespaces(locale) {
+  const dir = join(MESSAGES_DIR, locale);
+  const index = readFileSync(join(dir, "index.ts"), "utf8");
+  const imported = new Set(
+    [...index.matchAll(/from "\.\/(\w+)\.json"/g)].map((match) => match[1]),
+  );
+  return readdirSync(dir)
+    .filter((f) => f.endsWith(".json"))
+    .map((f) => f.replace(/\.json$/, ""))
+    .filter((name) => !imported.has(name));
+}
+
 function loadLocale(locale) {
   const dir = join(MESSAGES_DIR, locale);
   const messages = {};
@@ -42,6 +56,7 @@ function analyse(message) {
   const args = new Set();
   const tags = new Set();
   const plurals = [];
+  const selects = [];
   let error = null;
   let i = 0;
 
@@ -119,6 +134,7 @@ function analyse(message) {
         i += 1;
       }
       if (type === "plural") plurals.push(branches);
+      if (type === "select") selects.push(branches.toSorted().join("|"));
       if (!branches.includes("other")) error = `${type} without other`;
     } else {
       // Simple {name} or {name, number, ...}: skip to the closing brace.
@@ -138,7 +154,7 @@ function analyse(message) {
   }
 
   parseText(0, false);
-  return { args, tags, plurals, error };
+  return { args, tags, plurals, selects, error };
 }
 
 // Categories that actually occur for whole numbers; "many" in Italian or German only
@@ -180,6 +196,10 @@ for (const locale of LOCALES) {
   }
   missingCounts[locale] = missing;
 
+  for (const name of unregisteredNamespaces(locale)) {
+    problems.push(`${locale} ${name}.json: not imported in index.ts`);
+  }
+
   const translatorErrors = [];
   const messages = {};
   for (const [key, value] of catalog) {
@@ -197,6 +217,11 @@ for (const locale of LOCALES) {
       if (!sameSet(found.args, expected.args)) {
         problems.push(
           `${locale} ${key}: arguments {${[...found.args]}} differ from ${SOURCE} {${[...expected.args]}}`,
+        );
+      }
+      if (!sameSet(new Set(found.selects), new Set(expected.selects))) {
+        problems.push(
+          `${locale} ${key}: select branches differ from ${SOURCE}`,
         );
       }
       if (!sameSet(found.tags, expected.tags)) {
