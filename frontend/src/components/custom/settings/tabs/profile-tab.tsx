@@ -20,10 +20,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  ACQUISITION_CHANNEL_LABELS,
-  type AcquisitionChannel,
-} from "@/lib/api/schemas/auth-user";
+import { acquisitionChannelSchema } from "@/lib/api/schemas/auth-user";
 import { StaggerChildren } from "@/components/custom/animation/stagger-children";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
 import SettingsSection from "@/components/custom/settings/ui/settings-section";
@@ -76,11 +73,7 @@ export default function ProfileTab() {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {(
-                    Object.keys(
-                      ACQUISITION_CHANNEL_LABELS,
-                    ) as AcquisitionChannel[]
-                  ).map((value) => (
+                  {acquisitionChannelSchema.options.map((value) => (
                     <SelectItem key={value} value={value}>
                       {t(`profile.channels.${value}`)}
                     </SelectItem>

@@ -48,7 +48,7 @@ export default function ProductChainsSection({
       {detail.pricesUpdatedAt > 0 && (
         <LastSyncedLabel
           updatedAt={detail.pricesUpdatedAt}
-          prefix={t("refreshedPrefix")}
+          label={(time) => t("refreshed", { time })}
           className="mb-3 block"
         />
       )}

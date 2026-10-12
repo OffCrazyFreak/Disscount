@@ -135,22 +135,6 @@ export const ACCOUNT_TYPE_LABELS = {
   PUBLIC_SECTOR: "accountTypes.PUBLIC_SECTOR",
 } as const satisfies Record<AccountType, string>;
 
-// Message keys in the "auth" namespace for the "Odakle znaš za Disscount?" dropdown.
-export const ACQUISITION_CHANNEL_LABELS = {
-  GOOGLE_SEARCH: "acquisitionChannels.GOOGLE_SEARCH",
-  INSTAGRAM: "acquisitionChannels.INSTAGRAM",
-  FACEBOOK: "acquisitionChannels.FACEBOOK",
-  TIKTOK: "acquisitionChannels.TIKTOK",
-  YOUTUBE: "acquisitionChannels.YOUTUBE",
-  FRIEND_OR_FAMILY: "acquisitionChannels.FRIEND_OR_FAMILY",
-  ONLINE_AD: "acquisitionChannels.ONLINE_AD",
-  BLOG_OR_NEWS: "acquisitionChannels.BLOG_OR_NEWS",
-  APP_STORE: "acquisitionChannels.APP_STORE",
-  POSTER_OR_FLYER: "acquisitionChannels.POSTER_OR_FLYER",
-  EVENT: "acquisitionChannels.EVENT",
-  OTHER: "acquisitionChannels.OTHER",
-} as const satisfies Record<AcquisitionChannel, string>;
-
 const DASHBOARD_ACCOUNT_TYPES: AccountType[] = [
   "ADMIN",
   "ENTERPRISE",

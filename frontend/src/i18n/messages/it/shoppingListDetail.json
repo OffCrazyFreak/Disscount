@@ -3,9 +3,12 @@
     "title": "Lista della spesa: dettagli",
     "description": "Visualizza e gestisci gli articoli della lista."
   },
-  "toggle": { "show": "Mostra", "hide": "Nascondi" },
+  "toggle": {
+    "show": "Mostra",
+    "hide": "Nascondi"
+  },
   "backToLists": "Torna alle liste della spesa",
-  "lastSynced": "Lista aggiornata",
+  "lastSynced": "Lista aggiornata {time}",
   "access": {
     "view": "Puoi solo visualizzare questa lista.",
     "shop": "Puoi segnare cosa hai preso e scegliere il negozio, ma non modificare la lista.",

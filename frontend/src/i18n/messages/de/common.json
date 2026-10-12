@@ -22,7 +22,7 @@
     "indicatorPending": "Offline: Gespeicherte Änderungen ({count}) werden später synchronisiert."
   },
   "lastSynced": {
-    "refreshed": "Aktualisiert {time}"
+    "refreshed": "{time} aktualisiert"
   },
   "collapsibleSection": {
     "hide": "Ausblenden",

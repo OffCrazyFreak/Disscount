@@ -34,7 +34,6 @@ export default function NotificationSummary({
         </div>
 
         <span className="text-lg font-bold text-green-700">
-          {}
           {Math.round(summary.totalSavingsPercentage)}%
         </span>
       </div>

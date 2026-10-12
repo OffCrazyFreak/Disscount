@@ -12,7 +12,7 @@
     "searchResultsTitle": "Search results for “{query}” ({count})",
     "title": "Price alerts",
     "titleWithCount": "Price alerts ({count})",
-    "pricesUpdated": "Prices refreshed"
+    "pricesUpdated": "Prices refreshed {time}"
   },
   "list": {
     "emptyTitle": "No watched products",

@@ -15,7 +15,7 @@
   },
   "chains": {
     "title": "Cijene po trgovačkim lancima",
-    "refreshedPrefix": "Cijene osvježene",
+    "refreshed": "Cijene osvježene {time}",
     "loadError": "Greška pri učitavanju cijena. Pokušaj ponovno.",
     "empty": "Nema dostupnih cijena za ovaj proizvod."
   },

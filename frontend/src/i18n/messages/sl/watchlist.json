@@ -12,7 +12,7 @@
     "searchResultsTitle": "Rezultati iskanja za »{query}« ({count})",
     "title": "Spremljani izdelki",
     "titleWithCount": "Spremljani izdelki ({count})",
-    "pricesUpdated": "Cene posodobljene"
+    "pricesUpdated": "Cene posodobljene {time}"
   },
   "list": {
     "emptyTitle": "Ni spremljanih izdelkov",

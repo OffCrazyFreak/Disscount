@@ -12,7 +12,7 @@
     "searchResultsTitle": "Rezultati pretrage za \"{query}\" ({count})",
     "title": "Praćeni proizvodi",
     "titleWithCount": "Praćeni proizvodi ({count})",
-    "pricesUpdated": "Cijene osvježene"
+    "pricesUpdated": "Cijene osvježene {time}"
   },
   "list": {
     "emptyTitle": "Nema praćenih proizvoda",

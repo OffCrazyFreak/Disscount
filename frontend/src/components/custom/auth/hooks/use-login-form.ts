@@ -37,8 +37,11 @@ export function useLoginForm(onSuccess?: () => void) {
           message = t("errors.emailNotVerified");
         } else if (status === 401 || status === 400) {
           message = t("errors.invalidCredentials");
+        } else if (status === 429) {
+          message = t("errors.tooManyAttempts");
         } else {
-          message = result.error.message || t("errors.checkInput");
+          // better-auth's own message is English, so it never reaches the form.
+          message = t("errors.checkInput");
         }
         form.setError("root", { type: "server", message });
         return;

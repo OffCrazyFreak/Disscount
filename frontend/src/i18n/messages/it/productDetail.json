@@ -15,7 +15,7 @@
   },
   "chains": {
     "title": "Prezzi per catena",
-    "refreshedPrefix": "Prezzi aggiornati",
+    "refreshed": "Prezzi aggiornati {time}",
     "loadError": "Impossibile caricare i prezzi. Riprova.",
     "empty": "Nessun prezzo disponibile per questo prodotto."
   },

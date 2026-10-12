@@ -15,7 +15,7 @@
   },
   "chains": {
     "title": "Cene po trgovskih verigah",
-    "refreshedPrefix": "Cene posodobljene",
+    "refreshed": "Cene posodobljene {time}",
     "loadError": "Napaka pri nalaganju cen. Poskusi znova.",
     "empty": "Za ta izdelek ni cen."
   },

@@ -8,7 +8,7 @@
     "hide": "Hide"
   },
   "backToLists": "Back to shopping lists",
-  "lastSynced": "List refreshed",
+  "lastSynced": "List refreshed {time}",
   "access": {
     "view": "You can only view this list.",
     "shop": "You can tick off what's bought and choose a store, but you can't change the list.",

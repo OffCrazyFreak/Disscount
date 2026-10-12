@@ -36,7 +36,7 @@ export default function WatchlistHeader({
         {pricesUpdatedAt > 0 && (
           <LastSyncedLabel
             updatedAt={pricesUpdatedAt}
-            prefix={t("header.pricesUpdated")}
+            label={(time) => t("header.pricesUpdated", { time })}
           />
         )}
       </div>

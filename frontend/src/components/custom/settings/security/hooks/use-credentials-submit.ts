@@ -67,8 +67,7 @@ export function useCredentialsSubmit({
           message:
             error.status === 400
               ? "settings.security.submit.currentPasswordWrong"
-              : (error.message ??
-                "settings.security.submit.changePasswordFailed"),
+              : "settings.security.submit.changePasswordFailed",
         });
         return;
       }

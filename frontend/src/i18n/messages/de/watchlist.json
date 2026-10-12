@@ -12,7 +12,7 @@
     "searchResultsTitle": "Suchergebnisse für „{query}“ ({count})",
     "title": "Merkliste",
     "titleWithCount": "Merkliste ({count})",
-    "pricesUpdated": "Preise aktualisiert"
+    "pricesUpdated": "Preise {time} aktualisiert"
   },
   "list": {
     "emptyTitle": "Deine Merkliste ist leer",

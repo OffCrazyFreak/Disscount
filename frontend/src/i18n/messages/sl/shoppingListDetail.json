@@ -8,7 +8,7 @@
     "hide": "Skrij"
   },
   "backToLists": "Nazaj na nakupovalne sezname",
-  "lastSynced": "Seznam osvežen",
+  "lastSynced": "Seznam osvežen {time}",
   "access": {
     "view": "Ta seznam lahko samo pregleduješ.",
     "shop": "Lahko označiš, kaj je kupljeno, in izbereš trgovino, seznama pa ne moreš spreminjati.",

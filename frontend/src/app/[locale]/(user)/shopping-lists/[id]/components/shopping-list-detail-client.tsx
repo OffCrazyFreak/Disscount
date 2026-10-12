@@ -77,7 +77,7 @@ export default function ShoppingListDetailClient({
         {listUpdatedAt > 0 && (
           <LastSyncedLabel
             updatedAt={listUpdatedAt}
-            prefix={t("lastSynced")}
+            label={(time) => t("lastSynced", { time })}
             className="mt-1 block"
           />
         )}

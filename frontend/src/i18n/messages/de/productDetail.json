@@ -15,7 +15,7 @@
   },
   "chains": {
     "title": "Preise nach Händlern",
-    "refreshedPrefix": "Preise aktualisiert",
+    "refreshed": "Preise {time} aktualisiert",
     "loadError": "Die Preise konnten nicht geladen werden. Versuche es erneut.",
     "empty": "Für dieses Produkt gibt es keine Preise."
   },

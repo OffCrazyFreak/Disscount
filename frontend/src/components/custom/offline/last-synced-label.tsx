@@ -10,13 +10,14 @@ import { useMinuteTick } from "@/hooks/use-minute-tick";
 interface ILastSyncedLabelProps {
   // React Query's `dataUpdatedAt` (epoch millis); 0 when there's no data yet.
   updatedAt: number;
-  prefix?: string;
+  // A full message for the time, so each language can put it where it belongs.
+  label?: (time: string) => string;
   className?: string;
 }
 
 export default function LastSyncedLabel({
   updatedAt,
-  prefix,
+  label,
   className,
 }: ILastSyncedLabelProps) {
   const t = useTranslations("common");
@@ -27,13 +28,11 @@ export default function LastSyncedLabel({
   // Only meaningful while offline - when online the data is considered fresh.
   if (!mounted || !updatedAt || isOnline) return null;
 
+  const time = formatRelativeTime(updatedAt, locale);
+
   return (
     <span className={cn("text-xs text-muted-foreground", className)}>
-      {prefix
-        ? `${prefix} ${formatRelativeTime(updatedAt, locale)}`
-        : t("lastSynced.refreshed", {
-            time: formatRelativeTime(updatedAt, locale),
-          })}
+      {label ? label(time) : t("lastSynced.refreshed", { time })}
     </span>
   );
 }

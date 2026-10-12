@@ -15,7 +15,7 @@
   },
   "chains": {
     "title": "Prices by chain",
-    "refreshedPrefix": "Prices refreshed",
+    "refreshed": "Prices refreshed {time}",
     "loadError": "Couldn't load prices. Try again.",
     "empty": "No prices available for this product."
   },

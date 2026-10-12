@@ -12,7 +12,7 @@
     "searchResultsTitle": "Risultati per «{query}» ({count})",
     "title": "Prodotti seguiti",
     "titleWithCount": "Prodotti seguiti ({count})",
-    "pricesUpdated": "Prezzi aggiornati"
+    "pricesUpdated": "Prezzi aggiornati {time}"
   },
   "list": {
     "emptyTitle": "Non segui ancora nessun prodotto",
