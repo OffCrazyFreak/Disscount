@@ -7,13 +7,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import disscount.digitalCard.dto.CardArchiveRequest;
+import disscount.digitalCard.dto.CardPinRequest;
+import disscount.digitalCard.dto.CardUsedEntry;
 import disscount.digitalCard.dto.DigitalCardDto;
 import disscount.digitalCard.dto.DigitalCardRequest;
+import disscount.digitalCard.dto.DigitalCardsConfigDto;
 import disscount.digitalCard.service.DigitalCardService;
 import disscount.util.SecurityUtils;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -24,46 +27,61 @@ public class DigitalCardController {
 
     private final DigitalCardService digitalCardService;
 
-    @Operation(summary = "Create a new digital card")
-    @PostMapping
-    public ResponseEntity<DigitalCardDto> createCard(@Valid @RequestBody DigitalCardRequest request) {
-        UUID userId = SecurityUtils.getCurrentUserId();
-        DigitalCardDto card = digitalCardService.createCard(userId, request);
-        return ResponseEntity.ok(card);
-    }
-
-    @Operation(summary = "Get all digital cards for current user")
+    @Operation(summary = "Get every non-deleted card of the current user, archived included")
     @GetMapping("/me")
-    public ResponseEntity<List<DigitalCardDto>> getUserCards() {
-        UUID userId = SecurityUtils.getCurrentUserId();
-        List<DigitalCardDto> cards = digitalCardService.getUserCards(userId);
-        return ResponseEntity.ok(cards);
+    public ResponseEntity<List<DigitalCardDto>> getMyCards() {
+        return ResponseEntity.ok(digitalCardService.list(SecurityUtils.getCurrentUserId()));
     }
 
-    @Operation(summary = "Get digital card by ID")
+    @Operation(summary = "Feature flags for the cards UI")
+    @GetMapping("/config")
+    public ResponseEntity<DigitalCardsConfigDto> getConfig() {
+        return ResponseEntity.ok(new DigitalCardsConfigDto(digitalCardService.photosEnabled()));
+    }
+
+    @Operation(summary = "Get a card by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<DigitalCardDto> getCardById(@PathVariable UUID id) {
-        UUID userId = SecurityUtils.getCurrentUserId();
-        return digitalCardService.getCardById(id, userId)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<DigitalCardDto> getCard(@PathVariable UUID id) {
+        return ResponseEntity.ok(digitalCardService.get(SecurityUtils.getCurrentUserId(), id));
     }
 
-    @Operation(summary = "Update digital card")
+    @Operation(summary = "Create or update a card (idempotent, client supplied id)")
     @PutMapping("/{id}")
-    public ResponseEntity<DigitalCardDto> updateCard(
+    public ResponseEntity<DigitalCardDto> saveCard(
             @PathVariable UUID id,
-            @RequestBody DigitalCardRequest request) {
-        UUID userId = SecurityUtils.getCurrentUserId();
-        DigitalCardDto updatedCard = digitalCardService.updateCard(id, userId, request);
-        return ResponseEntity.ok(updatedCard);
+            @Valid @RequestBody DigitalCardRequest request) {
+        return ResponseEntity.ok(digitalCardService.upsert(SecurityUtils.getCurrentUserId(), id, request));
     }
 
-    @Operation(summary = "Delete digital card (soft delete)")
+    @Operation(summary = "Pin or unpin a card")
+    @PutMapping("/{id}/pin")
+    public ResponseEntity<DigitalCardDto> pinCard(
+            @PathVariable UUID id,
+            @Valid @RequestBody CardPinRequest request) {
+        return ResponseEntity.ok(
+                digitalCardService.setPinned(SecurityUtils.getCurrentUserId(), id, request.getPinned()));
+    }
+
+    @Operation(summary = "Archive or restore a card")
+    @PutMapping("/{id}/archive")
+    public ResponseEntity<DigitalCardDto> archiveCard(
+            @PathVariable UUID id,
+            @Valid @RequestBody CardArchiveRequest request) {
+        return ResponseEntity.ok(
+                digitalCardService.setArchived(SecurityUtils.getCurrentUserId(), id, request.getArchived()));
+    }
+
+    @Operation(summary = "Delete a card (soft delete, photos are removed at once)")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteCard(@PathVariable UUID id) {
-        UUID userId = SecurityUtils.getCurrentUserId();
-        digitalCardService.deleteCard(id, userId);
-        return ResponseEntity.ok(Map.of("message", "Card deleted successfully"));
+    public ResponseEntity<Void> deleteCard(@PathVariable UUID id) {
+        digitalCardService.delete(SecurityUtils.getCurrentUserId(), id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Record when cards were last used, in batches of at most 50")
+    @PostMapping("/used")
+    public ResponseEntity<Void> recordUsed(@RequestBody List<CardUsedEntry> entries) {
+        digitalCardService.recordUsed(SecurityUtils.getCurrentUserId(), entries);
+        return ResponseEntity.noContent().build();
     }
 }
