@@ -231,7 +231,7 @@ Versions come from `frontend/package.json`.
 
 | Library           | Version     | Use on the landing                                              |
 | ----------------- | ----------- | --------------------------------------------------------------- |
-| next              | `16.2.11`   | App Router, RSC, metadata, `next/font`, `next/og`, `next/image` |
+| next              | `16.4.0`    | App Router, RSC, metadata, `next/font`, `next/og`, `next/image` |
 | react / react-dom | `19.2.8`    | Server + client components                                      |
 | motion            | `^12.23.26` | Scroll reveals, doodle path-draws, tagline cross-fade           |
 | lucide-react      | `^1.26.0`   | Feature and perk icons                                          |

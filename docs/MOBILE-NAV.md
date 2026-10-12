@@ -805,7 +805,7 @@ Versions read from `frontend/package.json`. **Nothing new was installed** for th
 
 | Library                          | Version   | Used for                                                           |
 | -------------------------------- | --------- | ------------------------------------------------------------------ |
-| `next`                           | 16.2.11   | `usePathname`, `useRouter`, the `Viewport` export                  |
+| `next`                           | 16.4.0    | `usePathname`, `useRouter`, the `Viewport` export                  |
 | `react`                          | 19.2.8    | Pointer event types, context, refs                                 |
 | `motion`                         | ^12.23.26 | The `layoutId` active disc and `useReducedMotion`                  |
 | `vaul`                           | ^1.1.2    | The drawer under `SheetShell`, including the grab handle and swipe |
@@ -815,7 +815,7 @@ Versions read from `frontend/package.json`. **Nothing new was installed** for th
 | `sonner`                         | ^2.0.7    | Toasts, offset above the bar                                       |
 | `@tanstack/react-query`          | ^5.90.12  | The list-completion query                                          |
 | `@tanstack/react-query-devtools` | ^5.91.1   | Now behind the env flag above                                      |
-| `react-hook-form`                | ^7.68.0   | Inside `SearchBar`                                                 |
+| `react-hook-form`                | ^7.90.0   | Inside `SearchBar`                                                 |
 | `@yudiel/react-qr-scanner`       | ^2.6.0    | The scanner the centre long press opens                            |
 | `barcode-detector`               | ^3.2.1    | Barcode decoding for that scanner                                  |
 
