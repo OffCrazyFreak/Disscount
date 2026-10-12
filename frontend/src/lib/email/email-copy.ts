@@ -10,7 +10,7 @@ import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://disscount.me";
 
-type EmailKind =
+export type EmailKind =
   "verification" | "passwordReset" | "setPassword" | "changeEmail";
 
 // A null or unknown stored locale falls back to Croatian rather than failing a send.
@@ -39,11 +39,19 @@ export async function buildActionEmail(
   url: string,
   values: { newEmail?: string } = {},
 ): Promise<{ subject: string; props: IActionEmailProps }> {
-  const t = createTranslator({
-    locale,
-    messages: (await loadMessages(locale)) as typeof hrMessages,
-    namespace: "emails",
-  });
+  const messages = (await loadMessages(locale)) as typeof hrMessages;
+  return actionEmailFrom(messages, locale, kind, url, values);
+}
+
+// Synchronous so the react-email preview can build PreviewProps from the catalogs.
+export function actionEmailFrom(
+  messages: typeof hrMessages,
+  locale: AppLocale,
+  kind: EmailKind,
+  url: string,
+  values: { newEmail?: string } = {},
+): { subject: string; props: IActionEmailProps } {
+  const t = createTranslator({ locale, messages, namespace: "emails" });
 
   // Only the password links quote their lifetime; the others ignore the value.
   const timing = { minutes: RESET_TOKEN_TTL_SECONDS / 60 };
