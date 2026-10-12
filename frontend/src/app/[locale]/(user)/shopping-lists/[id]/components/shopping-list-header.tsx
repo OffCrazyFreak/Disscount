@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -28,6 +29,8 @@ export default function ShoppingListHeader({
   shoppingList,
   isSignedIn,
 }: IShoppingListHeaderProps) {
+  const t = useTranslations("shoppingListDetail");
+
   // The server resolves this, so it stays right for a link recipient too. Editing and
   // deleting are owner-only on the backend, so a recipient must not see those controls.
   const { isOwner } = resolveShoppingListAccess(shoppingList.myAccess);
@@ -40,17 +43,14 @@ export default function ShoppingListHeader({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="ghost" size="icon" asChild>
-                  <Link
-                    href="/shopping-lists"
-                    aria-label="Natrag na popise za kupnju"
-                  >
+                  <Link href="/shopping-lists" aria-label={t("backToLists")}>
                     <ChevronLeft aria-hidden="true" />
                   </Link>
                 </Button>
               </TooltipTrigger>
 
               <TooltipContent className="px-2 py-1 text-xs">
-                Natrag na popise za kupnju
+                {t("backToLists")}
               </TooltipContent>
             </Tooltip>
           )}

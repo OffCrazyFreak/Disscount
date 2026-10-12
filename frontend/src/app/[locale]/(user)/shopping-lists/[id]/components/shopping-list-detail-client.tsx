@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import ShoppingListStoreSummary from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/shopping-list-stores-list";
 import ShoppingListHeader from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-header";
@@ -24,6 +25,7 @@ interface IShoppingListDetailClientProps {
 export default function ShoppingListDetailClient({
   listId,
 }: IShoppingListDetailClientProps) {
+  const t = useTranslations("shoppingListDetail");
   const { isAuthenticated } = useUser();
 
   const {
@@ -75,7 +77,7 @@ export default function ShoppingListDetailClient({
         {listUpdatedAt > 0 && (
           <LastSyncedLabel
             updatedAt={listUpdatedAt}
-            prefix="Popis osvježen"
+            prefix={t("lastSynced")}
             className="mt-1 block"
           />
         )}

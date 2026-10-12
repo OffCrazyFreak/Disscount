@@ -15,6 +15,7 @@ import InstallBanner from "@/components/custom/pwa/install-banner";
 import OfflineIndicator from "@/components/custom/offline/offline-indicator";
 import Providers from "@/app/providers/providers";
 import LocaleSync from "@/components/custom/locale/locale-sync";
+import ZodLocale from "@/components/custom/locale/zod-locale";
 import LocaleSuggestion from "@/components/custom/locale/locale-suggestion";
 import { ReactNode, Suspense } from "react";
 import { NextIntlClientProvider } from "next-intl";
@@ -173,6 +174,7 @@ export default async function RootLayout({
         <NextIntlClientProvider>
           <Providers>
             <LocaleSync />
+            <ZodLocale />
             <OfflineIndicator />
             <InstallBanner />
 

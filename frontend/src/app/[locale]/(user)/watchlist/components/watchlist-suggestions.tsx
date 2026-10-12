@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { ChevronDown } from "lucide-react";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import WatchlistItem from "@/app/[locale]/(user)/watchlist/components/watchlist-item";
@@ -20,6 +21,7 @@ export default function WatchlistSuggestions({
   items,
   isLoading,
 }: IWatchlistSuggestionsProps) {
+  const t = useTranslations("watchlist");
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(true);
 
   return (
@@ -28,14 +30,16 @@ export default function WatchlistSuggestions({
         <button type="button" className="w-full text-left">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-lg font-semibold">
-              Prijedlozi proizvoda za praćenje ({items.length})
+              {t("suggestions.title", { count: items.length })}
             </h2>
 
             <Separator className="flex-1 my-2" />
 
             <div className="flex items-center gap-4">
               <p className="hidden sm:inline text-gray-700 text-sm">
-                {isSuggestionsOpen ? "Sakrij" : "Prikaži"}
+                {isSuggestionsOpen
+                  ? t("suggestions.hide")
+                  : t("suggestions.show")}
               </p>
 
               <ChevronDown

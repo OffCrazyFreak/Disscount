@@ -1,13 +1,13 @@
+import { useTranslations } from "next-intl";
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import EdgeFade from "@/components/custom/common/edge-fade";
 import ReceiptRow from "@/app/[locale]/(root)/components/sections/receipt-row";
-import type { IPricingRow } from "@/app/[locale]/(root)/data/landing";
 
 interface IPricingReceiptProps {
   name: string;
   subtitle: string;
-  rows: IPricingRow[];
+  rows: string[];
   price: string;
   total: string;
   disabled?: boolean;
@@ -27,6 +27,8 @@ export default function PricingReceipt({
   disabled = false,
   badge,
 }: IPricingReceiptProps) {
+  const t = useTranslations("landing");
+
   return (
     <div className="relative drop-shadow-[0_3px_2px_rgba(0,0,0,0.18)]">
       <div
@@ -47,12 +49,12 @@ export default function PricingReceipt({
 
         <ul className="py-4 space-y-2.5">
           {rows.map((row) => (
-            <ReceiptRow key={row.label} label={row.label} price={price} />
+            <ReceiptRow key={row} label={row} price={price} />
           ))}
         </ul>
 
         <div className="pt-3 pb-6 border-t border-dashed flex items-baseline gap-2 font-semibold">
-          <span className="text-pretty">UKUPNO</span>
+          <span className="text-pretty">{t("pricing.total")}</span>
           <span className="flex-1 border-b border-dotted border-muted-foreground/40" />
           <span className="font-mono text-pretty">{total}</span>
         </div>

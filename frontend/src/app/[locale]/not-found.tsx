@@ -11,19 +11,35 @@ import {
 import NotFoundClient from "@/app/[locale]/not-found/components/not-found-client";
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { supportNavItems } from "@/constants/navigation";
 import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
 
-export const metadata: Metadata = {
-  title: "Stranica nije pronađena - 404",
-  description: "Stranica koju tražiš ne postoji.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("common");
+
+  return {
+    title: t("notFound.meta.title"),
+    description: t("notFound.meta.description"),
+  };
+}
 
 export default function NotFound() {
+  const t = useTranslations("common");
+  const tShell = useTranslations("shell");
   const bugReport = supportNavItems.find((item) => item.id === "bug-report");
   const BugIcon = bugReport?.icon;
   const bugReportIsLive =
     bugReport && !bugReport.comingSoon && bugReport.href !== "#";
+
+  const description = t.rich("notFound.description", {
+    path: () => (
+      <Suspense>
+        <NotFoundClient />
+      </Suspense>
+    ),
+  });
 
   return (
     <div className="m-2 flex items-center justify-center min-h-[70dvh]">
@@ -32,21 +48,13 @@ export default function NotFound() {
           <CardTitle>
             <div className="text-primary text-6xl font-bold">404</div>
 
-            <div className="text-2xl">Hmm… ovo je neugodno. 😅</div>
+            <div className="text-2xl">{t("notFound.heading")}</div>
           </CardTitle>
 
           <CardDescription className="space-y-2">
-            <div>
-              Čini se da stranica
-              <Suspense>
-                <NotFoundClient />
-              </Suspense>
-              ne postoji.
-            </div>
+            <div>{description}</div>
 
-            <div className="text-gray-600">
-              Vratimo se skupa na početnu stranicu, ili prijavi grešku!
-            </div>
+            <div className="text-gray-600">{t("notFound.hint")}</div>
           </CardDescription>
         </CardHeader>
 
@@ -57,7 +65,7 @@ export default function NotFound() {
               <Button variant="outline" effect="shineHover" asChild>
                 <Link href={bugReport.href}>
                   <BugIcon className="size-4" />
-                  {bugReport.label}
+                  {tShell(bugReport.labelKey)}
                 </Link>
               </Button>
             ) : (
@@ -68,7 +76,7 @@ export default function NotFound() {
                 icon={BugIcon}
                 iconPlacement="left"
               >
-                {bugReport.label}
+                {tShell(bugReport.labelKey)}
 
                 <ComingSoonBadge className="absolute -top-2.5 right-1" />
               </Button>
@@ -80,7 +88,7 @@ export default function NotFound() {
             className="text-pretty whitespace-wrap"
           >
             <Link href="/" className="text-pretty whitespace-wrap">
-              Povratak na početnu
+              {t("notFound.backHome")}
             </Link>
           </Button>
         </CardContent>

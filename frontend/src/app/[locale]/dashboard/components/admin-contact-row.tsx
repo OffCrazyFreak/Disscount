@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { Mail, MailOpen, RotateCcw, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +9,8 @@ import CopyButton from "@/components/custom/common/copy-button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { formatDate } from "@/utils/strings";
 import { ContactMessageDto } from "@/lib/api/types";
+
+const EMPTY_VALUE = "-";
 
 interface IAdminContactRowProps {
   message: ContactMessageDto;
@@ -24,6 +27,8 @@ export default function AdminContactRow({
   onDelete,
   onRestore,
 }: IAdminContactRowProps) {
+  const t = useTranslations("dashboard");
+  const locale = useLocale();
   const unread = !message.readAt;
   const isDeleted = !!message.deletedAt;
   const email = message.email ?? "";
@@ -38,7 +43,7 @@ export default function AdminContactRow({
         >
           {unread && (
             <span
-              aria-label="Nepročitano"
+              aria-label={t("contactRow.unreadMarker")}
               className="bg-primary mr-2 inline-block size-2 rounded-full align-middle"
             />
           )}
@@ -50,16 +55,18 @@ export default function AdminContactRow({
       </TableCell>
 
       <TableCell className="text-muted-foreground text-sm">
-        {message.fullName || "-"}
+        {message.fullName || EMPTY_VALUE}
         {email && <div className="text-xs">{email}</div>}
       </TableCell>
 
       <TableCell className="text-muted-foreground whitespace-nowrap text-xs">
-        {formatDate(message.createdAt)}
+        {formatDate(message.createdAt, locale)}
       </TableCell>
 
       <TableCell>
-        {isDeleted && <Badge variant="destructive">Obrisano</Badge>}
+        {isDeleted && (
+          <Badge variant="destructive">{t("contactRow.deletedBadge")}</Badge>
+        )}
       </TableCell>
 
       <TableCell>
@@ -68,7 +75,9 @@ export default function AdminContactRow({
             type="button"
             variant="ghost"
             size="icon"
-            aria-label={unread ? "Označi pročitano" : "Označi nepročitano"}
+            aria-label={
+              unread ? t("contactRow.markRead") : t("contactRow.markUnread")
+            }
             onClick={() => onToggleRead(message)}
           >
             {unread ? <MailOpen /> : <Mail />}
@@ -77,9 +86,9 @@ export default function AdminContactRow({
           {email && (
             <CopyButton
               value={email}
-              label="Kopiraj e-mail"
-              successMessage="E-mail adresa je kopirana!"
-              errorMessage="Greška pri kopiranju e-maila"
+              label={t("contactRow.copyEmail")}
+              successMessage={t("contactRow.copySuccess")}
+              errorMessage={t("contactRow.copyError")}
             />
           )}
 
@@ -88,7 +97,7 @@ export default function AdminContactRow({
               type="button"
               variant="ghost"
               size="icon"
-              aria-label="Vrati poruku"
+              aria-label={t("contactRow.restore")}
               onClick={() => onRestore(message)}
             >
               <RotateCcw />
@@ -98,7 +107,7 @@ export default function AdminContactRow({
               type="button"
               variant="ghost"
               size="icon"
-              aria-label="Obriši poruku"
+              aria-label={t("contactRow.delete")}
               className="text-destructive hover:text-destructive"
               onClick={() => onDelete(message)}
             >

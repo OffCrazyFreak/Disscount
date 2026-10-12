@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUser } from "@/context/user-context";
 import { isAdmin } from "@/lib/api/schemas/auth-user";
@@ -9,20 +11,21 @@ import AdminContactTable from "@/app/[locale]/dashboard/components/admin-contact
 
 // Feature plans add their own tab (Kontakt, Bug reports, Ideje) beside Korisnici.
 export default function DashboardContent() {
+  const t = useTranslations("dashboard");
   const { user } = useUser();
   const userIsAdmin = isAdmin(user?.accountType);
 
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">
-        <span className="text-primary">Disscount</span> Nadzorna ploča
+        <span className="text-primary">Disscount</span> {t("content.title")}
       </h1>
 
       {userIsAdmin ? (
         <Tabs defaultValue="users">
           <TabsList>
-            <TabsTrigger value="users">Korisnici</TabsTrigger>
-            <TabsTrigger value="contact">Kontakt</TabsTrigger>
+            <TabsTrigger value="users">{t("content.tabUsers")}</TabsTrigger>
+            <TabsTrigger value="contact">{t("content.tabContact")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="users" className="space-y-4">
@@ -35,9 +38,7 @@ export default function DashboardContent() {
           </TabsContent>
         </Tabs>
       ) : (
-        <p className="text-muted-foreground">
-          Ovdje će uskoro biti dostupni podaci i alati.
-        </p>
+        <p className="text-muted-foreground">{t("content.comingSoon")}</p>
       )}
     </div>
   );

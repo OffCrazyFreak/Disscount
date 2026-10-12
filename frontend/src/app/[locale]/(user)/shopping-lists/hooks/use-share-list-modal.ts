@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { shoppingListService } from "@/lib/api";
@@ -15,6 +16,8 @@ import { useOnlineStatus } from "@/hooks/use-online-status";
  * modal asks is what holding it grants.
  */
 export function useShareListModal(id: string) {
+  const t = useTranslations("shoppingLists");
+  const locale = useLocale();
   const isOnline = useOnlineStatus();
 
   const listQuery = shoppingListService.useGetShoppingListById(id);
@@ -46,9 +49,8 @@ export function useShareListModal(id: string) {
       {
         // The toast is the confirmation. It carries its own live region, so the modal does
         // not also announce success and make a screen reader say it twice.
-        onSuccess: () => toast.success("Postavke dijeljenja popisa ažurirane."),
-        onError: () =>
-          toast.error("Promjena dijeljenja nije spremljena. Pokušaj ponovno."),
+        onSuccess: () => toast.success(t("shareModal.settingsUpdatedToast")),
+        onError: () => toast.error(t("shareModal.settingsFailedToast")),
       },
     );
   }
@@ -64,10 +66,10 @@ export function useShareListModal(id: string) {
         url: shareListUrl(shoppingList.id),
       });
 
-      if (outcome === "copied") toast.success("Poveznica je kopirana");
-      if (outcome === "failed") toast.error("Dijeljenje nije uspjelo");
+      if (outcome === "copied") toast.success(t("shareModal.linkCopiedToast"));
+      if (outcome === "failed") toast.error(t("shareModal.failedToast"));
     } catch {
-      toast.error("Dijeljenje nije uspjelo");
+      toast.error(t("shareModal.failedToast"));
     }
   }
 
@@ -80,16 +82,16 @@ export function useShareListModal(id: string) {
       // list it promises.
       const outcome = await shareOrCopy({
         title: shoppingList.title,
-        text: formatShoppingListForSharing(shoppingList),
+        text: formatShoppingListForSharing(shoppingList, t, locale),
       });
 
-      if (outcome === "copied") toast.success("Tekst popisa je kopiran");
-      if (outcome === "failed") toast.error("Dijeljenje nije uspjelo");
+      if (outcome === "copied") toast.success(t("shareModal.textCopiedToast"));
+      if (outcome === "failed") toast.error(t("shareModal.failedToast"));
     } catch {
       // shareOrCopy resolves an outcome rather than throwing, but appUrl() throws on a
       // misconfigured NEXT_PUBLIC_APP_URL. Wired to onClick and never awaited, so
       // without this the failure is invisible.
-      toast.error("Dijeljenje nije uspjelo");
+      toast.error(t("shareModal.failedToast"));
     }
   }
 

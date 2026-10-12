@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import * as RechartsPrimitive from "recharts";
+import { useLocale } from "next-intl";
 import type { TooltipValueType } from "recharts";
 
 import { cn } from "@/lib/utils";
@@ -10,6 +11,9 @@ import { cn } from "@/lib/utils";
 const THEMES = { light: "", dark: ".dark" } as const;
 
 const INITIAL_DIMENSION = { width: 320, height: 200 } as const;
+
+// A recharts data key, not copy.
+const FALLBACK_DATA_KEY = "value";
 type TooltipNameType = number | string;
 
 export type ChartConfig = {
@@ -145,6 +149,7 @@ function ChartTooltipContent({
     >,
     "accessibilityLayer"
   >) {
+  const locale = useLocale();
   const { config } = useChart();
 
   const tooltipLabel = React.useMemo(() => {
@@ -153,7 +158,7 @@ function ChartTooltipContent({
     }
 
     const [item] = payload;
-    const key = `${labelKey || item?.dataKey || item?.name || "value"}`;
+    const key = `${labelKey || item?.dataKey || item?.name || FALLBACK_DATA_KEY}`;
     const itemConfig = getPayloadConfigFromPayload(config, item, key);
     const value =
       !labelKey && typeof label === "string"
@@ -201,8 +206,8 @@ function ChartTooltipContent({
         {payload
           .filter((item) => item.type !== "none")
           .sort((a, b) => {
-            const aKey = `${nameKey || a.name || a.dataKey || "value"}`;
-            const bKey = `${nameKey || b.name || b.dataKey || "value"}`;
+            const aKey = `${nameKey || a.name || a.dataKey || FALLBACK_DATA_KEY}`;
+            const bKey = `${nameKey || b.name || b.dataKey || FALLBACK_DATA_KEY}`;
             const aConfig = getPayloadConfigFromPayload(config, a, aKey);
             const bConfig = getPayloadConfigFromPayload(config, b, bKey);
             const aLabel = String(aConfig?.label || a.name || "");
@@ -210,7 +215,7 @@ function ChartTooltipContent({
             return aLabel.localeCompare(bLabel);
           })
           .map((item, index) => {
-            const key = `${nameKey || item.name || item.dataKey || "value"}`;
+            const key = `${nameKey || item.name || item.dataKey || FALLBACK_DATA_KEY}`;
             const itemConfig = getPayloadConfigFromPayload(config, item, key);
             const indicatorColor = color || item.payload?.fill || item.color;
             const isAverage = String(item.dataKey) === "_average";
@@ -283,7 +288,7 @@ function ChartTooltipContent({
                           )}
                         >
                           {typeof item.value === "number"
-                            ? item.value.toLocaleString()
+                            ? item.value.toLocaleString(locale)
                             : String(item.value)}
                         </span>
                       )}
@@ -327,7 +332,7 @@ function ChartLegendContent({
       {payload
         .filter((item) => item.type !== "none")
         .map((item, index) => {
-          const key = `${nameKey || item.dataKey || "value"}`;
+          const key = `${nameKey || item.dataKey || FALLBACK_DATA_KEY}`;
           const itemConfig = getPayloadConfigFromPayload(config, item, key);
 
           return (

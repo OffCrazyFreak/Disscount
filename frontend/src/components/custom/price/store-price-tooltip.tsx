@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   Tooltip,
@@ -19,10 +20,12 @@ interface IStorePriceTooltipProps {
 
 export default function StorePriceTooltip({
   stores,
-  emptyLabel = "Nema sniženja",
+  emptyLabel,
   side,
   children,
 }: IStorePriceTooltipProps) {
+  const t = useTranslations("products");
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>{children}</TooltipTrigger>
@@ -31,7 +34,7 @@ export default function StorePriceTooltip({
         {stores.length > 0 ? (
           <StorePriceList stores={stores} />
         ) : (
-          <p className="text-sm">{emptyLabel}</p>
+          <p className="text-sm">{emptyLabel ?? t("storePrice.empty")}</p>
         )}
       </TooltipContent>
     </Tooltip>

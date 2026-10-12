@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import FacetMultiSelect from "@/app/[locale]/products/components/facet-multi-select";
 import { getChainLabel } from "@/utils/labels";
 import type { IProductFacetSelects } from "@/app/[locale]/products/hooks/use-product-facets";
@@ -11,45 +12,14 @@ import type {
 interface IFacetConfig {
   key: keyof IProductFacetSelects;
   filterKey: ProductFilterKey;
-  label: string;
-  placeholder: string;
-  searchPlaceholder: string;
-  emptyMessage: string;
+  messageKey: "stores" | "locations" | "categories" | "brands";
 }
 
 const FACETS: IFacetConfig[] = [
-  {
-    key: "chains",
-    filterKey: "chain",
-    label: "Trgovine",
-    placeholder: "Odaberi trgovine...",
-    searchPlaceholder: "Pretraži trgovine...",
-    emptyMessage: "Nema trgovina",
-  },
-  {
-    key: "locations",
-    filterKey: "location",
-    label: "Lokacije",
-    placeholder: "Odaberi lokacije...",
-    searchPlaceholder: "Pretraži lokacije...",
-    emptyMessage: "Nema lokacija",
-  },
-  {
-    key: "categories",
-    filterKey: "category",
-    label: "Kategorije",
-    placeholder: "Odaberi kategorije...",
-    searchPlaceholder: "Pretraži kategorije...",
-    emptyMessage: "Nema kategorija",
-  },
-  {
-    key: "brands",
-    filterKey: "brand",
-    label: "Marka",
-    placeholder: "Odaberi marku...",
-    searchPlaceholder: "Pretraži marke...",
-    emptyMessage: "Nema marki",
-  },
+  { key: "chains", filterKey: "chain", messageKey: "stores" },
+  { key: "locations", filterKey: "location", messageKey: "locations" },
+  { key: "categories", filterKey: "category", messageKey: "categories" },
+  { key: "brands", filterKey: "brand", messageKey: "brands" },
 ];
 
 interface IProductFacetSelectsProps {
@@ -64,6 +34,7 @@ export default function ProductFacetSelects({
   filters,
   layout,
 }: IProductFacetSelectsProps) {
+  const t = useTranslations("products");
   const isStack = layout === "stack";
 
   return (
@@ -75,15 +46,17 @@ export default function ProductFacetSelects({
           className={isStack ? "space-y-1.5" : "min-w-0 flex-1"}
         >
           {isStack && (
-            <p className="text-sm font-medium text-gray-700">{facet.label}</p>
+            <p className="text-sm font-medium text-gray-700">
+              {t(`facets.${facet.messageKey}.label`)}
+            </p>
           )}
 
           <FacetMultiSelect
             facet={facets[facet.key]}
-            label={facet.label}
-            placeholder={facet.placeholder}
-            searchPlaceholder={facet.searchPlaceholder}
-            emptyMessage={facet.emptyMessage}
+            label={t(`facets.${facet.messageKey}.label`)}
+            placeholder={t(`facets.${facet.messageKey}.placeholder`)}
+            searchPlaceholder={t(`facets.${facet.messageKey}.search`)}
+            emptyMessage={t(`facets.${facet.messageKey}.empty`)}
             onValuesChange={(values) =>
               filters.setFilter(facet.filterKey, values)
             }

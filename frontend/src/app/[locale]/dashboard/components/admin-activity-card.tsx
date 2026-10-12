@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import LabeledSelect from "@/components/custom/common/labeled-select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserDto } from "@/lib/api/schemas/auth-user";
 import {
-  ACTIVITY_WINDOW_OPTIONS,
+  ACTIVITY_WINDOW_VALUES,
   countActiveUsers,
   type ActivityWindowDays,
 } from "@/app/[locale]/dashboard/utils/user-activity";
@@ -30,6 +31,7 @@ export default function AdminActivityCard({
   isLoading,
   isError,
 }: IAdminActivityCardProps) {
+  const t = useTranslations("dashboard");
   const [windowDays, setWindowDays] = useState(defaultWindowDays);
   const isDefaultWindow = windowDays === defaultWindowDays;
 
@@ -40,10 +42,12 @@ export default function AdminActivityCard({
           {isDefaultWindow ? (
             <>
               {title}{" "}
-              <span className="text-muted-foreground/70">({abbreviation})</span>
+              <span className="text-muted-foreground/70">
+                {t("activity.abbreviation", { abbreviation })}
+              </span>
             </>
           ) : (
-            "Aktivni korisnici"
+            t("activity.title")
           )}
         </CardTitle>
       </CardHeader>
@@ -52,9 +56,7 @@ export default function AdminActivityCard({
         {isLoading && <Skeleton className="h-10 w-20" />}
 
         {isError && (
-          <p className="text-destructive text-sm">
-            Greška pri dohvaćanju korisnika.
-          </p>
+          <p className="text-destructive text-sm">{t("activity.error")}</p>
         )}
 
         {!isLoading && !isError && (
@@ -64,10 +66,13 @@ export default function AdminActivityCard({
         )}
 
         <LabeledSelect
-          label="Razdoblje:"
+          label={t("activity.windowLabel")}
           value={windowDays}
           onValueChange={setWindowDays}
-          options={ACTIVITY_WINDOW_OPTIONS}
+          options={ACTIVITY_WINDOW_VALUES.map((value) => ({
+            value,
+            label: t(`activity.window.d${value}`),
+          }))}
           className="justify-start"
         />
       </CardContent>

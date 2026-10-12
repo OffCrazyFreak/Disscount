@@ -118,6 +118,12 @@ apiClient.interceptors.request.use(
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+
+      // The backend localises its error messages from this; <html lang> always
+      // matches the page, and server-side calls fall back to the backend's Croatian.
+      if (typeof document !== "undefined" && document.documentElement.lang) {
+        config.headers["Accept-Language"] = document.documentElement.lang;
+      }
     }
     return config;
   },

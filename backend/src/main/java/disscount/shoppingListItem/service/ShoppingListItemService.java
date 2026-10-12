@@ -55,7 +55,7 @@ public class ShoppingListItemService {
         User actor = shoppingListService.requireWriteUser(userId);
 
         if (!accessService.resolve(shoppingList, userId).isOwner()) {
-            throw new ForbiddenException("Only the owner can add items to this shopping list");
+            throw new ForbiddenException("error.shoppingList.ownerOnlyAddItems");
         }
 
         Optional<ShoppingListItem> existingItem = shoppingListItemRepository
@@ -152,7 +152,7 @@ public class ShoppingListItemService {
             ShoppingList list, UUID userId, java.util.function.Predicate<ListAccess> allowed) {
         ListAccess access = accessService.resolve(list, userId);
         if (!allowed.test(access)) {
-            throw new ForbiddenException("Insufficient access to this shopping list");
+            throw new ForbiddenException("error.shoppingList.insufficientAccess");
         }
         return access;
     }

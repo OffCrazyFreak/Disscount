@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import ResponsiveLabel from "@/components/custom/common/responsive-label";
 
@@ -11,7 +12,7 @@ interface ICreateShoppingListButtonProps {
 export default function CreateShoppingListButton({
   onCreateClick,
 }: ICreateShoppingListButtonProps) {
-  const buttonText = "Stvori popis za kupnju";
+  const t = useTranslations("shoppingLists");
 
   return (
     <>
@@ -22,7 +23,10 @@ export default function CreateShoppingListButton({
         icon={Plus}
         iconPlacement="left"
       >
-        <ResponsiveLabel full={buttonText} short="Stvori popis" />
+        <ResponsiveLabel
+          full={t("createList.full")}
+          short={t("createList.short")}
+        />
       </Button>
     </>
   );

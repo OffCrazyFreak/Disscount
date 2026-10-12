@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Banner } from "@/components/custom/common/banner";
 import type { LinkAccess, ListAccess } from "@/lib/api/schemas/shopping-list";
 import { LINK_ACCESS_ICONS } from "@/app/[locale]/(user)/shopping-lists/utils/link-access-icons";
@@ -11,11 +12,11 @@ interface IShoppingListAccessBannerProps {
 }
 
 /** What this visitor may do, in the same terms the owner picked in the share modal. */
-const ACCESS_TEXT: Partial<Record<ListAccess, string>> = {
-  VIEW: "Ovaj popis možeš samo pregledavati.",
-  SHOP: "Možeš označiti što je kupljeno i birati trgovinu, ali ne možeš mijenjati popis.",
-  EDIT: "Možeš mijenjati količine i brisati proizvode, ali ne možeš dodavati nove.",
-};
+const ACCESS_TEXT_KEYS = {
+  VIEW: "access.view",
+  SHOP: "access.shop",
+  EDIT: "access.edit",
+} as const satisfies Partial<Record<ListAccess, string>>;
 
 /**
  * What the visitor can actually do here. Without it the page is a set of greyed-out
@@ -30,11 +31,16 @@ export default function ShoppingListAccessBanner({
   myAccess,
   isSignedIn,
 }: IShoppingListAccessBannerProps) {
-  const text = myAccess ? ACCESS_TEXT[myAccess] : undefined;
-  if (!text) {
+  const t = useTranslations("shoppingListDetail");
+
+  const textKey =
+    myAccess && myAccess in ACCESS_TEXT_KEYS
+      ? ACCESS_TEXT_KEYS[myAccess as keyof typeof ACCESS_TEXT_KEYS]
+      : undefined;
+  if (!textKey) {
     return (
       <span id={SHARED_ACCESS_BANNER_ID} className="sr-only">
-        {myAccess ? "" : "Ovlasti za ovaj popis još se provjeravaju."}
+        {myAccess ? "" : t("access.checking")}
       </span>
     );
   }
@@ -43,18 +49,19 @@ export default function ShoppingListAccessBanner({
   const Icon = LINK_ACCESS_ICONS[myAccess as LinkAccess];
 
   // EDIT is the most a link can give, so there is nothing left to ask for.
+  const text = t(textKey);
   const nextStep = !isSignedIn
-    ? "Prijavi se za uređivanje."
+    ? t("access.signIn")
     : myAccess === "EDIT"
       ? null
-      : "Za više ovlasti obrati se vlasniku popisa.";
+      : t("access.askOwner");
 
   return (
     <Banner
       variant="primarySoft"
       size="md"
       icon={Icon}
-      text={nextStep ? `${text} ${nextStep}` : text}
+      text={nextStep ? t("access.withNextStep", { text, nextStep }) : text}
       id={SHARED_ACCESS_BANNER_ID}
     />
   );

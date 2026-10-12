@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
@@ -20,12 +21,14 @@ export default function RemoveItemButton({
   onDelete,
   isDeleting,
 }: IRemoveItemButtonProps) {
+  const t = useTranslations("shoppingListDetail");
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
           size="icon"
-          aria-label="Makni proizvod"
+          aria-label={t("items.remove")}
           className={cn(
             "shrink-0 bg-red-600 hover:bg-red-700",
             visibilityClassName,
@@ -42,7 +45,7 @@ export default function RemoveItemButton({
       </TooltipTrigger>
 
       <TooltipContent variant="destructive" className="px-2 py-1 text-xs">
-        Makni proizvod
+        {t("items.remove")}
       </TooltipContent>
     </Tooltip>
   );

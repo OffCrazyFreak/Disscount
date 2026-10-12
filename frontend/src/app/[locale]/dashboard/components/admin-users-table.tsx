@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
@@ -18,6 +19,7 @@ import { AccountType, UserDto } from "@/lib/api/schemas/auth-user";
 import { useUser } from "@/context/user-context";
 
 export default function AdminUsersTable() {
+  const t = useTranslations("dashboard");
   const { user: currentUser } = useUser();
   const { data: users, isLoading, isError } = adminService.useGetAllUsers();
   const updateAccountType = adminService.useUpdateUserAccountType();
@@ -32,8 +34,8 @@ export default function AdminUsersTable() {
     updateAccountType.mutate(
       { userId, accountType },
       {
-        onSuccess: () => toast.success("Tip računa ažuriran!"),
-        onError: () => toast.error("Greška pri promjeni tipa računa."),
+        onSuccess: () => toast.success(t("users.accountTypeUpdated")),
+        onError: () => toast.error(t("users.accountTypeError")),
         onSettled: () => setUpdatingId(null),
       },
     );
@@ -44,10 +46,10 @@ export default function AdminUsersTable() {
 
     deleteUser.mutate(deleteTarget.id, {
       onSuccess: () => {
-        toast.success("Račun je obrisan!");
+        toast.success(t("users.deleted"));
         setDeleteTarget(null);
       },
-      onError: () => toast.error("Greška pri brisanju računa."),
+      onError: () => toast.error(t("users.deleteError")),
     });
   }
 
@@ -60,11 +62,7 @@ export default function AdminUsersTable() {
   }
 
   if (isError) {
-    return (
-      <p className="text-sm text-destructive">
-        Greška pri dohvaćanju korisnika.
-      </p>
-    );
+    return <p className="text-sm text-destructive">{t("users.loadError")}</p>;
   }
 
   return (
@@ -73,10 +71,12 @@ export default function AdminUsersTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Korisničko ime</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Zadnja prijava</TableHead>
-              <TableHead className="w-48">Tip računa</TableHead>
+              <TableHead>{t("users.colUsername")}</TableHead>
+              <TableHead>{t("users.colEmail")}</TableHead>
+              <TableHead>{t("users.colLastLogin")}</TableHead>
+              <TableHead className="w-48">
+                {t("users.colAccountType")}
+              </TableHead>
               <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
@@ -99,11 +99,11 @@ export default function AdminUsersTable() {
       <ConfirmDialog
         isOpen={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Brisanje računa"
-        description={`Sigurno želiš obrisati račun ${
-          deleteTarget?.username || deleteTarget?.email || ""
-        }? Ova akcija se ne može poništiti.`}
-        confirmLabel="Obriši račun"
+        title={t("users.deleteTitle")}
+        description={t("users.deleteDescription", {
+          name: deleteTarget?.username || deleteTarget?.email || "",
+        })}
+        confirmLabel={t("users.deleteConfirm")}
         variant="destructive"
         onConfirm={handleDelete}
         isLoading={deleteUser.isPending}

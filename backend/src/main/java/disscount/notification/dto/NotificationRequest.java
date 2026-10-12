@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class NotificationRequest {
 
-    @NotBlank(message = "Message is required")
+    @NotBlank(message = "{validation.message.required}")
     private String message;
 
     private String relatedProductApiId;

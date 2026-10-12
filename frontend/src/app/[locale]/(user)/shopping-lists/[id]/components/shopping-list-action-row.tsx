@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { LucideClipboardEdit, Trash2, Copy, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Share2Pen from "@/components/custom/icons/share-2-pen";
@@ -30,12 +31,17 @@ export default function ShoppingListActionRow({
   visibleOnMobile = false,
   className,
 }: IShoppingListActionRowProps) {
+  const t = useTranslations("shoppingListDetail");
+  const tShell = useTranslations("shell");
+
   // Icon-only, so the spinner is the whole visual and the accessible name carries the
   // pending state. The tooltip has to say the same thing or the two contradict each
   // other. Neither share nor copy has one: both only open something.
-  const shareLabel = isShared ? "Uredi dijeljenje popisa" : "Podijeli popis";
-  const copyLabel = "Kopiraj popis";
-  const deleteLabel = isDeleting ? LOADING_LABELS.deleting : "Obriši popis";
+  const shareLabel = isShared ? t("actions.editShare") : t("actions.share");
+  const copyLabel = t("actions.copy");
+  const deleteLabel = isDeleting
+    ? tShell(LOADING_LABELS.deleting)
+    : t("actions.delete");
 
   return (
     <div
@@ -50,7 +56,7 @@ export default function ShoppingListActionRow({
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              aria-label="Uredi popis"
+              aria-label={t("actions.edit")}
               className="shrink-0"
               onClick={onEdit}
             >
@@ -59,7 +65,7 @@ export default function ShoppingListActionRow({
           </TooltipTrigger>
 
           <TooltipContent className="px-2 py-1 text-xs">
-            Uredi popis
+            {t("actions.edit")}
           </TooltipContent>
         </Tooltip>
       )}

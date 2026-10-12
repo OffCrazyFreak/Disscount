@@ -1,6 +1,7 @@
 "use client";
 
 import type { Control } from "react-hook-form";
+import { useTranslations } from "next-intl";
 
 import { Input } from "@/components/ui/input";
 import {
@@ -26,17 +27,19 @@ export default function ShoppingListTitleField({
   control,
   autoFocus = true,
 }: IShoppingListTitleFieldProps) {
+  const t = useTranslations("shoppingLists");
+
   return (
     <FormField
       control={control}
       name="title"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Naziv popisa</FormLabel>
+          <FormLabel>{t("titleField.label")}</FormLabel>
           <FormControl>
             <Input
               {...field}
-              placeholder="Roštilj 01.05.2026."
+              placeholder={t("titleField.placeholder")}
               autoFocus={autoFocus}
             />
           </FormControl>

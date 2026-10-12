@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 import {
   Tooltip,
   TooltipContent,
@@ -17,22 +19,23 @@ interface IShoppingListVisibilityIndicatorProps {
 // first, on the reasoning that a glance only needs to answer "is this shared"; carrying
 // the level costs nothing once the glyphs are already taught elsewhere, and the tooltip
 // still spells it out.
-const SHARED_LABELS: Record<LinkAccess, string> = {
-  NONE: "Popis je privatan",
-  VIEW: "Svatko s poveznicom može vidjeti popis",
-  SHOP: "Svatko s poveznicom može označavati stavke",
-  EDIT: "Svatko s poveznicom može uređivati popis",
-};
+const SHARED_LABEL_KEYS = {
+  NONE: "visibility.NONE",
+  VIEW: "visibility.VIEW",
+  SHOP: "visibility.SHOP",
+  EDIT: "visibility.EDIT",
+} as const satisfies Record<LinkAccess, string>;
 
 export default function ShoppingListVisibilityIndicator({
   linkAccess,
   className,
 }: IShoppingListVisibilityIndicatorProps) {
+  const t = useTranslations("shoppingLists");
   // Non-owners are sent null on purpose, so they see private rather than a level they
   // cannot change.
   const access = linkAccess ?? "NONE";
   const isShared = access !== "NONE";
-  const label = SHARED_LABELS[access];
+  const label = t(SHARED_LABEL_KEYS[access]);
   const Icon = LINK_ACCESS_ICONS[access];
 
   return (

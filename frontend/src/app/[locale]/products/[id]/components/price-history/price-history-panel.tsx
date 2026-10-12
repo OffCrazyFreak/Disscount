@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import PriceHistoryChart from "@/app/[locale]/products/[id]/components/price-history/price-history-chart";
 import { HistoryDataPoint } from "@/app/[locale]/products/[id]/typings/history-data-point";
@@ -17,6 +18,8 @@ export default function PriceHistoryPanel({
   priceHistoryChains,
   selectedChains,
 }: IPriceHistoryPanelProps) {
+  const t = useTranslations("productDetail.priceHistory");
+
   if (historyLoading) {
     return (
       <div className="grid place-items-center">
@@ -28,7 +31,7 @@ export default function PriceHistoryPanel({
   if (priceHistoryData.length === 0 || historyError) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">Nema dostupnih povijesnih podataka.</p>
+        <p className="text-gray-600">{t("empty")}</p>
       </div>
     );
   }

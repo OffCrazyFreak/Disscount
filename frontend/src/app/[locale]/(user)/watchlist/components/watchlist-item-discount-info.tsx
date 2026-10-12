@@ -1,4 +1,5 @@
 import { Star, Store } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import PriceStack from "@/components/custom/price/price-stack";
@@ -25,6 +26,9 @@ export default function WatchlistItemDiscountInfo({
   isLoading,
   error,
 }: IWatchlistItemDiscountInfoProps) {
+  const t = useTranslations("watchlist");
+  const locale = useLocale();
+
   function openPreferences() {
     openModalUrl({ name: "settings", tab: "preference" });
   }
@@ -39,11 +43,17 @@ export default function WatchlistItemDiscountInfo({
   }
 
   if (error) {
-    return <p className="text-sm text-destructive">Greška pri učitavanju</p>;
+    return (
+      <p className="text-sm text-destructive">{t("discountInfo.loadError")}</p>
+    );
   }
 
   if (!discountInfo) {
-    return <p className="text-sm text-muted-foreground">Nema podataka</p>;
+    return (
+      <p className="text-sm text-muted-foreground">
+        {t("discountInfo.noData")}
+      </p>
+    );
   }
 
   return (
@@ -56,11 +66,12 @@ export default function WatchlistItemDiscountInfo({
             text={formatDifference(
               discountInfo.preferredDifference,
               discountInfo.preferredPercentage,
-              "Nedostupno",
+              t("discountInfo.unavailable"),
+              locale,
             )}
             stores={preferredStores}
             bold
-            infoLabel="Prikaži trgovine za cijenu u preferiranim trgovinama"
+            infoLabel={t("discountInfo.preferredStoresInfo")}
             onOpenPreferences={openPreferences}
           />
         ) : (
@@ -70,7 +81,7 @@ export default function WatchlistItemDiscountInfo({
             onClick={openPreferences}
           >
             <Star className="size-6 text-gray-700" aria-hidden="true" />
-            <span>Postavi preference</span>
+            <span>{t("discountInfo.setPreferences")}</span>
           </button>
         )
       }
@@ -81,11 +92,12 @@ export default function WatchlistItemDiscountInfo({
           text={formatDifference(
             discountInfo.totalDifference,
             discountInfo.totalPercentage,
-            "Nema podataka",
+            t("discountInfo.noData"),
+            locale,
           )}
           stores={totalStores}
           tooltipSide="bottom"
-          infoLabel="Prikaži trgovine za cijenu u svim trgovinama"
+          infoLabel={t("discountInfo.allStoresInfo")}
           onOpenPreferences={openPreferences}
         />
       }

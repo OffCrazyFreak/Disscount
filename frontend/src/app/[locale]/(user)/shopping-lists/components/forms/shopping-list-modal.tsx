@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { Save } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { resolveShoppingListAccess } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-access";
@@ -33,6 +34,7 @@ export default function ShoppingListModal({
   action,
   id,
 }: IShoppingListModalProps) {
+  const t = useTranslations("shoppingLists");
   const queryClient = useQueryClient();
   const isEdit = action === "edit" && !!id;
 
@@ -130,17 +132,17 @@ export default function ShoppingListModal({
     <ModalShell
       open={open}
       onOpenChange={(isOpen) => !isOpen && closeModalUrl()}
-      title={isEdit ? "Uredi popis za kupnju" : "Novi popis za kupnju"}
-      description="Popis možeš dijeliti i uspoređivati cijene po trgovinama."
+      title={isEdit ? t("listModal.titleEdit") : t("listModal.titleNew")}
+      description={t("listModal.description")}
       srOnlyDescription
       dirty={isDirty}
       formId="shopping-list-form"
-      submitLabel={isEdit ? "Spremi" : "Stvori"}
+      submitLabel={isEdit ? t("listModal.save") : t("listModal.create")}
       submitIcon={Save}
       submitLoading={isLoading}
       submitDisabled={!isDirty || !isValid || notFound || loadError}
-      cancelLabel="Odustani"
-      resetLabel="Resetiraj"
+      cancelLabel={t("modal.cancel")}
+      resetLabel={t("listModal.reset")}
       resetDisabled={!isDirty && !restored}
       onReset={() => {
         clearDraft();
@@ -151,12 +153,10 @@ export default function ShoppingListModal({
         <Skeleton className="h-10 w-full" />
       ) : loadError ? (
         <p className="text-sm text-muted-foreground">
-          Greška pri učitavanju popisa. Pokušaj ponovo.
+          {t("listModal.loadError")}
         </p>
       ) : notFound ? (
-        <p className="text-sm text-muted-foreground">
-          Popis nije pronađen. Možda je obrisan ili nemaš pristup.
-        </p>
+        <p className="text-sm text-muted-foreground">{t("modal.notFound")}</p>
       ) : (
         <Form {...form}>
           <form

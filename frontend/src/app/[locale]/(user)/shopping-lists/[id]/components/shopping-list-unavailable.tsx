@@ -1,8 +1,8 @@
 "use client";
 
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { ArrowLeft, Lock, WifiOff } from "lucide-react";
-
 
 import { Button } from "@/components/ui/button";
 import NoResults from "@/components/custom/common/no-results";
@@ -24,6 +24,7 @@ export default function ShoppingListUnavailable({
   onRetry,
   isSignedIn,
 }: IShoppingListUnavailableProps) {
+  const t = useTranslations("shoppingListDetail");
   const isDeadLink = parseProblem(error)?.status === 404;
 
   if (isDeadLink) {
@@ -38,15 +39,15 @@ export default function ShoppingListUnavailable({
               className="mx-auto mb-4 size-12 text-muted-foreground"
             />
           }
-          title="Poveznica više ne vrijedi"
-          description="Vlasnik je prestao dijeliti ovaj popis ili je poveznica netočna."
+          title={t("unavailable.deadLinkTitle")}
+          description={t("unavailable.deadLinkDescription")}
         />
 
         <div className="text-center">
           <Button asChild variant="ghost">
             <Link href={isSignedIn ? "/shopping-lists" : "/products"}>
               <ArrowLeft aria-hidden="true" />
-              {isSignedIn ? "Natrag na popise za kupnju" : "Istraži proizvode"}
+              {isSignedIn ? t("backToLists") : t("unavailable.exploreProducts")}
             </Link>
           </Button>
         </div>
@@ -63,13 +64,13 @@ export default function ShoppingListUnavailable({
             className="mx-auto mb-4 size-12 text-muted-foreground"
           />
         }
-        title="Popis se ne može učitati"
-        description="Provjeri internetsku vezu i pokušaj ponovno."
+        title={t("unavailable.loadFailedTitle")}
+        description={t("unavailable.loadFailedDescription")}
       />
 
       <div className="text-center">
         <Button variant="primary" onClick={onRetry}>
-          Pokušaj ponovno
+          {t("unavailable.retry")}
         </Button>
       </div>
     </div>

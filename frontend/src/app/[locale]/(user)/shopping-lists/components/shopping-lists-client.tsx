@@ -2,6 +2,7 @@
 
 import { Link, usePathname } from "@/i18n/navigation";
 import { Suspense } from "react";
+import { useTranslations } from "next-intl";
 
 import { Search, Plus, ShoppingCart, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ interface IShoppingListsClientProps {
 export default function ShoppingListsClient({
   query,
 }: IShoppingListsClientProps) {
+  const t = useTranslations("shoppingLists");
   const pathname = usePathname();
 
   const { isAuthenticated, isLoading: userLoading } = useUser();
@@ -47,8 +49,8 @@ export default function ShoppingListsClient({
   if (!userLoading && !isAuthenticated) {
     return (
       <LoginRequired
-        title="Popisi za kupnju"
-        description="Popisi za kupnju ti omogućuju da organiziraš kupovinu i na jednom mjestu usporediš cijene po trgovinama."
+        title={t("client.loginTitle")}
+        description={t("client.loginDescription")}
         icon={<ListChecks className="size-12 text-primary" />}
       />
     );
@@ -59,7 +61,7 @@ export default function ShoppingListsClient({
       <div className="space-y-4">
         <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
           <SearchBar
-            placeholder="Pretraži popise za kupnju..."
+            placeholder={t("client.searchPlaceholder")}
             searchRoute={pathname}
             clearable={true}
             submitButtonLocation="none"
@@ -71,10 +73,15 @@ export default function ShoppingListsClient({
         <div className="flex items-center justify-between gap-4">
           <h3>
             {query.length > 0
-              ? `Rezultati pretrage za "${query}" (${matchingShoppingLists.length})`
-              : `Moji popisi za kupnju${
-                  isUserLoading ? "" : ` (${matchingShoppingLists.length})`
-                }`}
+              ? t("client.searchResults", {
+                  query,
+                  count: matchingShoppingLists.length,
+                })
+              : isUserLoading
+                ? t("client.myLists")
+                : t("client.myListsWithCount", {
+                    count: matchingShoppingLists.length,
+                  })}
           </h3>
 
           <CreateShoppingListButton
@@ -105,11 +112,10 @@ export default function ShoppingListsClient({
           <div className="text-center py-12">
             <ShoppingCart className="size-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-foreground mb-2">
-              Nema popisa za kupnju
+              {t("client.empty.title")}
             </h3>
             <p className="text-gray-600 mb-6">
-              Stvori popis za kupnju ili pretraži proizvode i dodaj ih na novi
-              popis.
+              {t("client.empty.description")}
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               <Button
@@ -120,13 +126,13 @@ export default function ShoppingListsClient({
                   openModalUrl({ name: "shopping-list", action: "new" })
                 }
               >
-                Stvori popis za kupnju
+                {t("createList.full")}
               </Button>
 
               <Button asChild variant="outline">
                 <Link href="/products">
                   <Search aria-hidden="true" className="size-5" />
-                  Pretraži proizvode
+                  {t("client.empty.browseProducts")}
                 </Link>
               </Button>
             </div>

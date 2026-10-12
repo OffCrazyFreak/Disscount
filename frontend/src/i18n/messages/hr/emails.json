@@ -1,0 +1,38 @@
+{
+  "layout": {
+    "footer": "Ovaj email primaš jer postoji račun na Disscountu povezan s ovom adresom. Email postavke možeš promijeniti kada se <link>prijaviš na Disscount</link>.",
+    "fallback": "Ako gumb ne radi, kopiraj i zalijepi ovu poveznicu u preglednik: <link>{url}</link>"
+  },
+  "verification": {
+    "subject": "Potvrdi svoju email adresu",
+    "preview": "Potvrdi svoju email adresu za Disscount",
+    "heading": "Potvrdi svoju email adresu",
+    "intro": "Hvala na registraciji! Klikni na gumb ispod za potvrdu email adrese i aktivaciju Disscount računa.",
+    "button": "Potvrdi email",
+    "footnote": "Ako ovaj račun nije tvoj, slobodno zanemari ovaj email."
+  },
+  "passwordReset": {
+    "subject": "Ponovno postavljanje lozinke",
+    "preview": "Ponovno postavi svoju lozinku za Disscount",
+    "heading": "Ponovno postavljanje lozinke",
+    "intro": "Stigao je zahtjev za ponovno postavljanje tvoje lozinke. Klikni na gumb ispod za postavljanje nove lozinke. Poveznica vrijedi ograničeno vrijeme.",
+    "button": "Postavi novu lozinku",
+    "footnote": "Ako ovaj zahtjev ne dolazi od tebe, zanemari ovaj email - tvoja lozinka ostaje nepromijenjena."
+  },
+  "setPassword": {
+    "subject": "Postavi lozinku za svoj račun",
+    "preview": "Postavi lozinku za svoj Disscount račun",
+    "heading": "Postavi lozinku za svoj račun",
+    "intro": "Za ovu email adresu već postoji Disscount račun (prijava putem Googlea ili Facebooka). Klikni na gumb ispod za postavljanje lozinke i prijavu emailom ubuduće. Poveznica vrijedi ograničeno vrijeme.",
+    "button": "Postavi lozinku",
+    "footnote": "Ako ovaj zahtjev ne dolazi od tebe, zanemari ovaj email - tvoj račun ostaje nepromijenjen."
+  },
+  "changeEmail": {
+    "subject": "Potvrdi promjenu email adrese",
+    "preview": "Potvrdi promjenu email adrese",
+    "heading": "Potvrdi promjenu email adrese",
+    "intro": "Zatražena je promjena email adrese tvog Disscount računa na <email>{newEmail}</email>. Klikni na gumb ispod za potvrdu promjene.",
+    "button": "Potvrdi promjenu",
+    "footnote": "Ako ova promjena ne dolazi od tebe, odmah promijeni lozinku i javi nam se - tvoja adresa ostaje nepromijenjena dok ne potvrdiš."
+  }
+}

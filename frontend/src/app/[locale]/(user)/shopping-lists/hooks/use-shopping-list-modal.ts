@@ -1,4 +1,5 @@
 import { onlineManager, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { shoppingListService } from "@/lib/api";
@@ -17,6 +18,7 @@ export function useShoppingListModal({
   shoppingList,
   draftKey,
 }: IUseShoppingListModalProps) {
+  const t = useTranslations("shoppingLists");
   const queryClient = useQueryClient();
 
   const createMutation = shoppingListService.useCreateShoppingList();
@@ -28,18 +30,16 @@ export function useShoppingListModal({
 
     // A paused mutation resolves only on reconnect, so say so now.
     if (!onlineManager.isOnline()) {
-      toast.info(
-        "Izvan si mreže - promjena će se sinkronizirati kad se vratiš na mrežu.",
-      );
+      toast.info(t("listModal.offlineToast"));
     }
 
     try {
       if (shoppingList) {
         await updateMutation.mutateAsync({ id: shoppingList.id, data });
-        toast.success("Popis za kupnju je uspješno ažuriran!");
+        toast.success(t("listModal.updatedToast"));
       } else {
         await createMutation.mutateAsync(data);
-        toast.success("Popis za kupnju je uspješno kreiran!");
+        toast.success(t("listModal.createdToast"));
       }
 
       removeFormDraft(draftKey);

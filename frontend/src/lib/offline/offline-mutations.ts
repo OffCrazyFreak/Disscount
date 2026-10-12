@@ -20,6 +20,7 @@ import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 import {
   deleteWriteFailed,
   listWriteFailed,
+  type OfflineToastTranslator,
 } from "@/lib/offline/list-write-failed";
 
 function listAndItemsKeys(listId: string): QueryKey[] {
@@ -31,7 +32,10 @@ function listAndItemsKeys(listId: string): QueryKey[] {
 }
 
 // A reload loses the inline mutationFn, so replays need these defaults registered first.
-export function registerOfflineMutationDefaults(queryClient: QueryClient) {
+export function registerOfflineMutationDefaults(
+  queryClient: QueryClient,
+  t: OfflineToastTranslator,
+) {
   function defineOfflineMutation<TVariables, TData>(
     mutationKey: QueryKey,
     mutationFn: (variables: TVariables) => Promise<TData>,
@@ -93,7 +97,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
       data: ShoppingListItemRequest;
     }) => updateShoppingListItem(listId, itemId, data),
     ({ listId }) => listAndItemsKeys(listId),
-    listWriteFailed,
+    (error) => listWriteFailed(error, t),
   );
 
   defineOfflineMutation(
@@ -104,7 +108,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
     // Deletes get their own handler: a replayed delete for an item that is already gone
     // answers 404, which is the desired end state rather than a failure, and the shared
     // handler would blame it on lost access.
-    deleteWriteFailed,
+    (error) => deleteWriteFailed(error, t),
   );
 
   // Tombstones for the two keys sharing used before it moved from a token to the list id.
@@ -117,10 +121,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
   ]) {
     queryClient.setMutationDefaults(retiredKey, {
       mutationFn: async () => undefined,
-      onSuccess: () =>
-        toast.error(
-          "Promjena s prošle verzije nije spremljena. Otvori popis i provjeri.",
-        ),
+      onSuccess: () => toast.error(t("offline.retiredWriteDropped")),
     });
   }
 

@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "title": "Moje digitalne kartice",
+    "description": "Pregled i upravljanje digitalnim karticama."
+  },
+  "list": {
+    "loginTitle": "Digitalne kartice",
+    "loginDescription": "Digitalne kartice ti omogućuju da sve svoje kartice vjernosti držiš na jednom mjestu, uvijek pri ruci.",
+    "searchPlaceholder": "Pretraži digitalne kartice...",
+    "searchResultsTitle": "Rezultati pretrage za \"{query}\" ({count})",
+    "title": "Moje digitalne kartice",
+    "titleWithCount": "Moje digitalne kartice ({count})",
+    "emptyTitle": "Nema digitalnih kartica",
+    "emptyDescription": "Stvori svoju prvu digitalnu karticu…"
+  },
+  "actions": {
+    "add": "Dodaj digitalnu karticu",
+    "addShort": "Dodaj karticu"
+  },
+  "item": {
+    "moreOptions": "Dodatne opcije kartice",
+    "edit": "Uredi",
+    "delete": "Obriši",
+    "created": "Stvoreno {date}",
+    "confirmDelete": "Sigurno želiš obrisati karticu \"{title}\"?",
+    "deleted": "Kartica obrisana.",
+    "deleteError": "Greška prilikom brisanja: {message}"
+  },
+  "modal": {
+    "editTitle": "Uredi digitalnu karticu",
+    "newTitle": "Nova digitalna kartica",
+    "description": "Spremi karticu vjernosti i imaj je uvijek pri ruci.",
+    "save": "Spremi",
+    "create": "Stvori",
+    "cancel": "Odustani",
+    "reset": "Resetiraj",
+    "loadError": "Greška pri učitavanju kartice. Pokušaj ponovo.",
+    "notFound": "Kartica nije pronađena. Možda je obrisana.",
+    "offline": "Izvan si mreže - promjena će se sinkronizirati kad se vratiš na mrežu.",
+    "updated": "Digitalna kartica je uspješno ažurirana!",
+    "created": "Digitalna kartica je uspješno kreirana!"
+  },
+  "fields": {
+    "title": "Naziv kartice",
+    "value": "Vrijednost/Kod",
+    "type": "Tip kartice",
+    "typePlaceholder": "Odaberi tip",
+    "codeType": "Tip koda",
+    "codeTypePlaceholder": "Odaberi tip koda",
+    "color": "Boja kartice",
+    "note": "Napomena",
+    "notePlaceholder": "Unesi napomenu",
+    "noteHelp": "Dodatne informacije o tvojoj kartici ({remaining} preostalo)."
+  },
+  "cardTypes": {
+    "loyalty": "Loyalty kartica",
+    "discount": "Popust kartica",
+    "membership": "Članstvo",
+    "gift": "Poklon kartica",
+    "other": "Ostalo"
+  },
+  "codeTypes": {
+    "barcode": "Barkod",
+    "qr": "QR kod",
+    "number": "Broj",
+    "text": "Tekst"
+  },
+  "validation": {
+    "titleRequired": "Naziv je obavezan",
+    "titleMax": "Upiši naziv s najviše 100 znakova",
+    "valueRequired": "Vrijednost je obavezna",
+    "valueMax": "Vrijednost može imati najviše 500 znakova",
+    "typeRequired": "Tip je obavezan",
+    "typeMax": "Tip može imati najviše 50 znakova",
+    "codeTypeRequired": "Tip koda je obavezan",
+    "codeTypeMax": "Tip koda može imati najviše 50 znakova",
+    "colorHex": "Boja mora biti u HEX formatu (#ffffff)",
+    "noteMax": "Napomena može imati najviše 500 znakova"
+  }
+}

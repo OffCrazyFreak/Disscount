@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { shoppingListService } from "@/lib/api";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
@@ -11,6 +12,7 @@ export function useShoppingListItemMutations(
   averagePrices: Record<string, number>,
   storePrices: Record<string, Record<string, number>>,
 ) {
+  const t = useTranslations("shoppingListDetail");
   const queryClient = useQueryClient();
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
 
@@ -62,7 +64,7 @@ export function useShoppingListItemMutations(
     deleteItemMutation.mutate(
       { listId, itemId },
       {
-        onSuccess: () => toast.success("Stavka je uspješno obrisana!"),
+        onSuccess: () => toast.success(t("toasts.itemDeleted")),
         onSettled: () => setDeletingItemId(null),
       },
     );

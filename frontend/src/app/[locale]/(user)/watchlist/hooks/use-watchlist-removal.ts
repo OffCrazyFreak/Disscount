@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -10,6 +11,7 @@ import { WatchlistItemDto } from "@/lib/api/types";
 export default function useWatchlistRemoval(
   watchlistItems: WatchlistItemDto[],
 ) {
+  const t = useTranslations("watchlist");
   const queryClient = useQueryClient();
   const [isRemoving, setIsRemoving] = useState(false);
 
@@ -28,16 +30,14 @@ export default function useWatchlistRemoval(
       ).length;
 
       if (failed === 0) {
-        toast.success("Proizvod uklonjen s popisa za praćenje");
+        toast.success(t("removal.success"));
       } else if (failed === watchlistItems.length) {
-        toast.error("Greška pri uklanjanju proizvoda");
+        toast.error(t("removal.error"));
       } else {
-        toast.error(
-          `Djelomično uklanjanje: ${failed} stavki nije moguće ukloniti.`,
-        );
+        toast.error(t("removal.partial", { count: failed }));
       }
     } catch {
-      toast.error("Greška pri uklanjanju proizvoda");
+      toast.error(t("removal.error"));
     } finally {
       await queryClient.invalidateQueries({
         queryKey: watchlistService.QUERY_KEYS.all,

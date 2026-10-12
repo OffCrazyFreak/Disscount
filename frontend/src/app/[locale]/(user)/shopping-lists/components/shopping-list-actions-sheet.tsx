@@ -1,6 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 
 import QuickActionsSheet from "@/components/custom/common/quick-actions-sheet";
 import { shoppingListService } from "@/lib/api";
@@ -28,6 +29,7 @@ export default function ShoppingListActionsSheet({
   id,
   onRequestDelete,
 }: IShoppingListActionsSheetProps) {
+  const t = useTranslations("shoppingLists");
   const queryClient = useQueryClient();
 
   const cachedList = queryClient
@@ -41,14 +43,14 @@ export default function ShoppingListActionsSheet({
     <QuickActionsSheet
       open={open}
       onOpenChange={(next) => !next && closeModalUrl()}
-      title={shoppingList?.title ?? "Radnje za popis"}
-      description="Radnje za odabrani popis za kupnju."
+      title={shoppingList?.title ?? t("actionsSheet.fallbackTitle")}
+      description={t("actionsSheet.description")}
       summary={
         shoppingList && <ShoppingListSummary shoppingList={shoppingList} />
       }
       hasEntity={!!shoppingList}
       isLoading={byIdQuery.isLoading}
-      emptyMessage="Nismo našli taj popis. Možda je obrisan."
+      emptyMessage={t("actionsSheet.notFound")}
     >
       {shoppingList && (
         <SheetActions

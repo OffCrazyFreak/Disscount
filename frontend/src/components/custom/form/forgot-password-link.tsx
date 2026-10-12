@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 interface IForgotPasswordLinkProps {
   onClick: () => void;
   // Only the settings tab sends an email inline; the login modal just switches mode.
@@ -11,6 +13,8 @@ export default function ForgotPasswordLink({
   onClick,
   sending = false,
 }: IForgotPasswordLinkProps) {
+  const t = useTranslations("common");
+
   return (
     <button
       type="button"
@@ -25,7 +29,7 @@ export default function ForgotPasswordLink({
       }}
       className="cursor-pointer text-sm text-primary underline hover:text-primary/80 aria-disabled:cursor-not-allowed aria-disabled:opacity-60"
     >
-      {sending ? "Slanje..." : "Zaboravljena lozinka?"}
+      {sending ? t("forgotPassword.sending") : t("forgotPassword.link")}
     </button>
   );
 }

@@ -8,11 +8,24 @@ import PreferencesTab from "@/components/custom/settings/tabs/preferences-tab";
 import WelcomeStep from "@/components/custom/settings/onboarding/components/welcome-step";
 import DoneStep from "@/components/custom/settings/onboarding/components/done-step";
 
+type StepTitleKey =
+  | "onboarding.steps.welcome.title"
+  | "onboarding.steps.profile.title"
+  | "onboarding.steps.notifications.title"
+  | "onboarding.steps.preferences.title"
+  | "onboarding.steps.done.title";
+
+type StepDescriptionKey =
+  | "onboarding.steps.profile.description"
+  | "onboarding.steps.notifications.description"
+  | "onboarding.steps.preferences.description";
+
 export interface IOnboardingStep {
   id: string;
-  // A function when the step greets the user by name; resolved in useOnboarding.
-  title: string | ((username: string) => string);
-  description?: string;
+  titleKey: StepTitleKey;
+  // Set when the step greets the user by name; resolved in useOnboarding.
+  namedTitleKey?: "onboarding.steps.welcome.titleNamed";
+  descriptionKey?: StepDescriptionKey;
   component: ComponentType;
 }
 
@@ -20,35 +33,31 @@ export interface IOnboardingStep {
 export const ONBOARDING_STEPS: IOnboardingStep[] = [
   {
     id: "welcome",
-    title: (username) =>
-      username
-        ? `${username}, drago nam je što si tu!`
-        : "Drago nam je što si tu!",
+    titleKey: "onboarding.steps.welcome.title",
+    namedTitleKey: "onboarding.steps.welcome.titleNamed",
     component: WelcomeStep,
   },
   {
     id: "profil",
-    title: "Tvoj profil",
-    description: "Predstavi se - sve možeš kasnije promijeniti u postavkama.",
+    titleKey: "onboarding.steps.profile.title",
+    descriptionKey: "onboarding.steps.profile.description",
     component: ProfileTab,
   },
   {
     id: "obavijesti",
-    title: "Obavijesti",
-    description:
-      "Odaberi kako, o čemu i kada želiš primati obavijesti o akcijama i novostima.",
+    titleKey: "onboarding.steps.notifications.title",
+    descriptionKey: "onboarding.steps.notifications.description",
     component: NotificationsTab,
   },
   {
     id: "preference",
-    title: "Tvoje trgovine i lokacije",
-    description:
-      "Označi trgovine i mjesta u svojoj blizini za točnije usporedbe cijena.",
+    titleKey: "onboarding.steps.preferences.title",
+    descriptionKey: "onboarding.steps.preferences.description",
     component: PreferencesTab,
   },
   {
     id: "done",
-    title: "Sve je spremno!",
+    titleKey: "onboarding.steps.done.title",
     component: DoneStep,
   },
 ];

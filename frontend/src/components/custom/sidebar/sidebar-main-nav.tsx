@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
 import {
   SidebarGroup,
@@ -22,6 +23,7 @@ import { isRouteActive } from "@/utils/routes";
 
 /** The homepage, mobile dashboard link and signed-in user's own pages. */
 export default function SidebarMainNav() {
+  const t = useTranslations("shell");
   const pathname = usePathname();
   const { notifications, hasNotifications } = useNotifications();
   const { user } = useUser();
@@ -51,7 +53,7 @@ export default function SidebarMainNav() {
       </SidebarGroup>
 
       <SidebarGroup className="py-1">
-        <SidebarGroupLabel>Moj račun</SidebarGroupLabel>
+        <SidebarGroupLabel>{t("sidebar.myAccount")}</SidebarGroupLabel>
 
         <SidebarGroupContent>
           <SidebarMenu className="gap-0">

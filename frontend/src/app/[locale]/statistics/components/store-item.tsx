@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+import { useTranslations } from "next-intl";
 import { ChevronDown, MapPin, Tag } from "lucide-react";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
@@ -19,10 +20,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getChainLabel, getLocationLabel } from "@/utils/labels";
-import { compareHr, pluralizeCroatian } from "@/utils/strings";
+import { compareHr } from "@/utils/strings";
 import { cn } from "@/lib/utils";
 import cijeneService from "@/lib/cijene-api";
 import { ChainStats } from "@/lib/cijene-api/schemas";
+
+const SEPARATOR = "|";
 
 interface IStoreItemProps {
   stat: ChainStats;
@@ -34,6 +37,8 @@ interface IStoreItemProps {
 // Memoized component for individual chain items to prevent unnecessary re-renders
 const StoreItem = memo(
   ({ stat, isExpanded, onToggle, isLast }: IStoreItemProps) => {
+    const t = useTranslations("statistics");
+
     // Fetch stores for this specific chain when the item is rendered
     const { data: storesData, isLoading: storesLoading } =
       cijeneService.useListStoresByChain(stat.chain_code);
@@ -53,29 +58,23 @@ const StoreItem = memo(
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-semibold text-foreground">
+                      <h3 lang="hr" className="font-semibold text-foreground">
                         {getChainLabel(stat.chain_code)}
                       </h3>
 
                       <p className="text-sm text-gray-600 flex items-center gap-2 sm:gap-4 flex-wrap my-2">
                         <span className="flex items-center gap-2">
                           <MapPin className="size-5 mb-1" />
-                          {stat.store_count}{" "}
-                          {pluralizeCroatian(
-                            stat.store_count,
-                            "trgovina",
-                            "trgovine",
-                          )}
+                          {t("storeItem.storeCount", {
+                            count: stat.store_count,
+                          })}
                         </span>
-                        <span className="hidden sm:inline">|</span>
+                        <span className="hidden sm:inline">{SEPARATOR}</span>
                         <span className="flex items-center gap-2">
                           <Tag className="size-5 mb-1" />
-                          {stat.price_count}{" "}
-                          {pluralizeCroatian(
-                            stat.price_count,
-                            "cijena",
-                            "cijene",
-                          )}
+                          {t("storeItem.priceCount", {
+                            count: stat.price_count,
+                          })}
                         </span>
                       </p>
                     </div>
@@ -99,15 +98,19 @@ const StoreItem = memo(
               {storesLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <BlockLoadingSpinner size={24} className="mr-2" />
-                  Učitavanje trgovina...
+                  {t("storeItem.loadingStores")}
                 </div>
               ) : storesData?.stores && storesData.stores.length > 0 ? (
                 <div className="max-h-128 overflow-y-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="font-bold">Grad</TableHead>
-                        <TableHead className="font-bold">Adresa</TableHead>
+                        <TableHead className="font-bold">
+                          {t("storeItem.city")}
+                        </TableHead>
+                        <TableHead className="font-bold">
+                          {t("storeItem.address")}
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
 
@@ -121,11 +124,20 @@ const StoreItem = memo(
                         )
                         .map((store) => (
                           <TableRow key={store.address}>
-                            <TableCell className="text-gray-700">
-                              {getLocationLabel(store.city, "Nepoznato")}
+                            <TableCell
+                              lang={store.city ? "hr" : undefined}
+                              className="text-gray-700"
+                            >
+                              {getLocationLabel(
+                                store.city,
+                                t("storeItem.unknown"),
+                              )}
                             </TableCell>
-                            <TableCell className="text-gray-700">
-                              {store.address || "Nepoznato"}
+                            <TableCell
+                              lang={store.address ? "hr" : undefined}
+                              className="text-gray-700"
+                            >
+                              {store.address || t("storeItem.unknown")}
                             </TableCell>
                           </TableRow>
                         ))}
@@ -134,7 +146,7 @@ const StoreItem = memo(
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
-                  Nema podataka o trgovinama
+                  {t("storeItem.noStores")}
                 </div>
               )}
             </div>

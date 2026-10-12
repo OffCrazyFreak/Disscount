@@ -1,5 +1,7 @@
+import { useLocale, useTranslations } from "next-intl";
 import PriceStack from "@/components/custom/price/price-stack";
 import { formatQuantity } from "@/utils/strings";
+import { formatPrice } from "@/utils/price";
 import {
   getMinPrice,
   getMaxPrice,
@@ -21,6 +23,8 @@ export default function ProductUnitPriceDetails({
   product,
   price,
 }: IProductUnitPriceDetailsProps) {
+  const t = useTranslations("products");
+  const locale = useLocale();
   const minPrice =
     price === undefined ? getMinPrice(product) : (price?.minPrice ?? null);
   const maxPrice =
@@ -40,6 +44,13 @@ export default function ProductUnitPriceDetails({
     minPricePerUnit !== undefined &&
     maxPricePerUnit !== undefined &&
     !!product.unit;
+
+  function perUnit(value: number) {
+    return t("productInfo.perUnit", {
+      price: formatPrice(value, locale),
+      unit: product.unit ?? "",
+    });
+  }
 
   return (
     <PriceStack
@@ -61,14 +72,18 @@ export default function ProductUnitPriceDetails({
                   two figures. */}
               <span className="flex items-center gap-1 font-bold">
                 {minPrice === maxPrice ? (
-                  <span className="text-gray-700">{minPrice.toFixed(2)}€</span>
+                  <span className="text-gray-700">
+                    {formatPrice(minPrice, locale)}
+                  </span>
                 ) : (
                   <>
                     <span className="text-green-700">
-                      {minPrice.toFixed(2)}€
+                      {formatPrice(minPrice, locale)}
                     </span>
                     <span className="text-gray-700"> - </span>
-                    <span className="text-red-700">{maxPrice.toFixed(2)}€</span>
+                    <span className="text-red-700">
+                      {formatPrice(maxPrice, locale)}
+                    </span>
                   </>
                 )}
               </span>
@@ -80,25 +95,19 @@ export default function ProductUnitPriceDetails({
               )}
             </span>
           ) : (
-            <span className="text-gray-500">Nepoznata cijena</span>
+            <span className="text-gray-500">{t("productPrice.unknown")}</span>
           )}
         </>
       }
       secondary={
         hasUnitPrices &&
         (minPricePerUnit === maxPricePerUnit ? (
-          <span className="text-gray-700">
-            {`${minPricePerUnit.toFixed(2)}€/${product.unit}`}
-          </span>
+          <span className="text-gray-700">{perUnit(minPricePerUnit)}</span>
         ) : (
           <>
-            <span className="text-green-700">
-              {`${minPricePerUnit.toFixed(2)}€/${product.unit}`}
-            </span>
+            <span className="text-green-700">{perUnit(minPricePerUnit)}</span>
             <span className="text-gray-700"> - </span>
-            <span className="text-red-700">
-              {`${maxPricePerUnit.toFixed(2)}€/${product.unit}`}
-            </span>
+            <span className="text-red-700">{perUnit(maxPricePerUnit)}</span>
           </>
         ))
       }

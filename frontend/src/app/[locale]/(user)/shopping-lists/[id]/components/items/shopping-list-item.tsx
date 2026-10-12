@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 
@@ -44,6 +45,8 @@ export default function ShoppingListItem({
   canCheck,
   canEditItems,
 }: IShoppingListItemProps) {
+  const t = useTranslations("shoppingListDetail");
+
   return (
     <>
       <div className="relative flex flex-wrap items-center justify-between gap-6 py-1 sm:flex-nowrap">
@@ -52,8 +55,8 @@ export default function ShoppingListItem({
           <Checkbox
             aria-label={
               item.isChecked
-                ? `Označi ${item.name} kao nekupljeno`
-                : `Označi ${item.name} kao kupljeno`
+                ? t("items.markUnbought", { name: item.name })
+                : t("items.markBought", { name: item.name })
             }
             className="relative z-20"
             checked={item.isChecked}
@@ -85,11 +88,14 @@ export default function ShoppingListItem({
                     : "after:bottom-0",
                 )}
               >
-                {item.name}
+                <span lang="hr">{item.name}</span>
               </StretchedLink>
             </p>
             {item.brand && (
-              <p className="relative z-10 w-fit text-xs sm:text-sm text-gray-600 text-pretty">
+              <p
+                lang="hr"
+                className="relative z-10 w-fit text-xs sm:text-sm text-gray-600 text-pretty"
+              >
                 {item.brand}
               </p>
             )}

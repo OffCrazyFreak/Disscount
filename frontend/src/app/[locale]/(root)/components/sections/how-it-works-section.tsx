@@ -1,9 +1,10 @@
+import { useTranslations } from "next-intl";
 import { ScrollReveal } from "@/components/custom/animation/scroll-reveal";
 import SectionHeading from "@/app/[locale]/(root)/components/sections/section-heading";
 import BarcodeDoodle from "@/app/[locale]/(root)/components/doodles/barcode-doodle";
 import ScaleDoodle from "@/app/[locale]/(root)/components/doodles/scale-doodle";
 import CartLogo from "@/components/icons/cart-logo";
-import { howItWorksSteps } from "@/app/[locale]/(root)/data/landing";
+import { howItWorksStepIds } from "@/app/[locale]/(root)/data/landing";
 
 const stepDoodles = [
   <BarcodeDoodle key="barcode" className="w-24 h-16 text-primary" />,
@@ -12,11 +13,13 @@ const stepDoodles = [
 ];
 
 export default function HowItWorksSection() {
+  const t = useTranslations("landing");
+
   return (
     <section>
       <SectionHeading
-        title="Kako funkcionira?"
-        subtitle="Tri koraka do jeftinije košarice - bez listanja kataloga i letaka."
+        title={t("howItWorks.title")}
+        subtitle={t("howItWorks.subtitle")}
       />
 
       <ScrollReveal
@@ -24,9 +27,9 @@ export default function HowItWorksSection() {
         stagger={0.15}
         className="grid grid-cols-1 md:grid-cols-3 gap-6"
       >
-        {howItWorksSteps.map((step, index) => (
+        {howItWorksStepIds.map((id, index) => (
           <div
-            key={step.title}
+            key={id}
             className="relative bg-card border rounded-3xl p-6 pt-8 text-center space-y-4 shadow-sm"
           >
             <span className="absolute -top-4 left-1/2 -translate-x-1/2 size-9 grid place-items-center rounded-full bg-primary text-primary-foreground font-saira-stencil-semibold text-lg shadow-md text-pretty">
@@ -37,10 +40,12 @@ export default function HowItWorksSection() {
               {stepDoodles[index]}
             </div>
 
-            <h3 className="text-lg font-semibold text-pretty">{step.title}</h3>
+            <h3 className="text-lg font-semibold text-pretty">
+              {t(`howItWorks.steps.${id}.title`)}
+            </h3>
 
             <p className="text-sm text-muted-foreground text-pretty">
-              {step.description}
+              {t(`howItWorks.steps.${id}.description`)}
             </p>
           </div>
         ))}

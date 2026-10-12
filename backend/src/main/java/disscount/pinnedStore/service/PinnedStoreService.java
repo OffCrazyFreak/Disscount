@@ -40,7 +40,7 @@ public class PinnedStoreService {
                 .count();
 
         if (uniqueStoreIds < request.getStores().size()) {
-            throw new BadRequestException("Duplicate store IDs found in request");
+            throw new BadRequestException("error.pinnedStore.duplicate");
         }
 
         // Then create new pinned stores

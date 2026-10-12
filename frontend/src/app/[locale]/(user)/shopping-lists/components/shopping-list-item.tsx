@@ -1,6 +1,7 @@
 "use client";
 
 import { Calendar, ListChecks } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import type { ShoppingListDto } from "@/lib/api/types";
 import { Card } from "@/components/ui/card";
 import HoldProgressRing from "@/components/custom/common/hold-progress-ring";
@@ -19,6 +20,8 @@ interface IShoppingListListItemProps {
 export default function ShoppingListListItem({
   shoppingList,
 }: IShoppingListListItemProps) {
+  const locale = useLocale();
+  const t = useTranslations("shoppingLists");
   const checkedCount = shoppingList.items.filter(
     (item) => item.isChecked,
   ).length;
@@ -55,13 +58,16 @@ export default function ShoppingListListItem({
         <div className="relative z-10 col-span-2 flex items-center justify-between gap-4 text-sm text-gray-600 sm:col-span-1 sm:justify-start sm:gap-6">
           <div className="flex items-center gap-2">
             <Calendar className="size-5" aria-hidden="true" />
-            <span>{formatDate(shoppingList.updatedAt)}</span>
+            <span>{formatDate(shoppingList.updatedAt, locale)}</span>
           </div>
 
           <div className="flex items-center gap-2">
             <ListChecks className="size-5" aria-hidden="true" />
             <span>
-              {checkedCount}/{totalCount}
+              {t("listCard.progress", {
+                checked: checkedCount,
+                total: totalCount,
+              })}
             </span>
           </div>
         </div>

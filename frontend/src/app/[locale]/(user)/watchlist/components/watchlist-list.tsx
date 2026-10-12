@@ -1,6 +1,7 @@
 import { Link } from "@/i18n/navigation";
 
 import { Search, Eye } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import NoResults from "@/components/custom/common/no-results";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
@@ -21,6 +22,8 @@ export default function WatchlistList({
   query,
   hasPinnedStores,
 }: IWatchlistListProps) {
+  const t = useTranslations("watchlist");
+
   if (isLoading) {
     return (
       <div className="grid place-items-center">
@@ -51,18 +54,15 @@ export default function WatchlistList({
     <div className="text-center py-12">
       <Eye className="size-12 text-gray-400 mx-auto mb-4" />
       <h3 className="text-lg font-semibold text-foreground mb-2">
-        Nema praćenih proizvoda
+        {t("list.emptyTitle")}
       </h3>
 
-      <p className="text-gray-600 mb-6">
-        Pretraži proizvode, odaberi “Prati proizvod” i primaj obavijesti o
-        popustima.
-      </p>
+      <p className="text-gray-600 mb-6">{t("list.emptyDescription")}</p>
 
       <Button asChild effect="shineHover">
         <Link href="/products">
           <Search aria-hidden="true" className="size-5" />
-          Pretraži proizvode
+          {t("list.searchProducts")}
         </Link>
       </Button>
     </div>

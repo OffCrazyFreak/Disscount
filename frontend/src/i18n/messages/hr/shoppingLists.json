@@ -1,0 +1,134 @@
+{
+  "meta": {
+    "title": "Popisi za kupnju",
+    "description": "Upravljanje popisima za kupnju."
+  },
+  "client": {
+    "loginTitle": "Popisi za kupnju",
+    "loginDescription": "Popisi za kupnju ti omogućuju da organiziraš kupovinu i na jednom mjestu usporediš cijene po trgovinama.",
+    "searchPlaceholder": "Pretraži popise za kupnju...",
+    "searchResults": "Rezultati pretrage za \"{query}\" ({count})",
+    "myLists": "Moji popisi za kupnju",
+    "myListsWithCount": "Moji popisi za kupnju ({count})",
+    "empty": {
+      "title": "Nema popisa za kupnju",
+      "description": "Stvori popis za kupnju ili pretraži proizvode i dodaj ih na novi popis.",
+      "browseProducts": "Pretraži proizvode"
+    }
+  },
+  "createList": {
+    "full": "Stvori popis za kupnju",
+    "short": "Stvori popis"
+  },
+  "actionsSheet": {
+    "fallbackTitle": "Radnje za popis",
+    "description": "Radnje za odabrani popis za kupnju.",
+    "notFound": "Nismo našli taj popis. Možda je obrisan."
+  },
+  "quickActions": {
+    "edit": "Uredi popis",
+    "copy": "Kopiraj popis",
+    "editSharing": "Uredi dijeljenje popisa",
+    "share": "Podijeli popis",
+    "delete": "Obriši popis"
+  },
+  "visibility": {
+    "NONE": "Popis je privatan",
+    "VIEW": "Svatko s poveznicom može vidjeti popis",
+    "SHOP": "Svatko s poveznicom može označavati stavke",
+    "EDIT": "Svatko s poveznicom može uređivati popis"
+  },
+  "linkAccess": {
+    "label": {
+      "NONE": "Privatno",
+      "VIEW": "Pregled",
+      "SHOP": "Kupovina",
+      "EDIT": "Uređivanje"
+    },
+    "rowTitle": {
+      "private": "Privatan popis",
+      "shared": "Svatko s poveznicom"
+    },
+    "hint": {
+      "NONE": "Dijeljenje je isključeno, samo ti možeš otvoriti ovaj popis.",
+      "VIEW": "Vidi cijeli popis, ali ga ne može uređivati.",
+      "SHOP": "Vidi cijeli popis, no može i birati trgovinu te označiti što je kupljeno.",
+      "EDIT": "Može uređivati cijeli popis, ali ne može dodavati nove proizvode."
+    }
+  },
+  "modal": {
+    "cancel": "Odustani",
+    "notFound": "Popis nije pronađen. Možda je obrisan ili nemaš pristup."
+  },
+  "titleField": {
+    "label": "Naziv popisa",
+    "placeholder": "Roštilj 01.05.2026."
+  },
+  "listModal": {
+    "titleEdit": "Uredi popis za kupnju",
+    "titleNew": "Novi popis za kupnju",
+    "description": "Popis možeš dijeliti i uspoređivati cijene po trgovinama.",
+    "save": "Spremi",
+    "create": "Stvori",
+    "reset": "Resetiraj",
+    "loadError": "Greška pri učitavanju popisa. Pokušaj ponovo.",
+    "offlineToast": "Izvan si mreže - promjena će se sinkronizirati kad se vratiš na mrežu.",
+    "updatedToast": "Popis za kupnju je uspješno ažuriran!",
+    "createdToast": "Popis za kupnju je uspješno kreiran!"
+  },
+  "copyModal": {
+    "title": "Kopiraj popis",
+    "description": "Odaberi što se prenosi u kopiju.",
+    "submit": "Kopiraj",
+    "titleSuffix": " (Kopija)",
+    "successToast": "Popis za kupnju je uspješno kopiran!",
+    "errorToast": "Greška pri kopiranju popisa za kupnju",
+    "options": {
+      "items": {
+        "label": "Proizvodi",
+        "description": "Kopiraj sve proizvode"
+      },
+      "progress": {
+        "label": "Označeno i spremljene trgovine",
+        "description": "Zadrži što je kupljeno, u kojoj trgovini i po kojoj cijeni."
+      },
+      "sharing": {
+        "label": "Postavke dijeljenja",
+        "descriptionOwner": "Kopija se dijeli jednako kao i original.",
+        "descriptionNotOwner": "Samo vlasnik popisa može prenijeti dijeljenje."
+      }
+    }
+  },
+  "shareModal": {
+    "title": "Podijeli popis",
+    "description": "Pošalji poveznicu i neka ti netko pomogne u kupnji.",
+    "saving": "Spremanje postavki dijeljenja...",
+    "offline": "Nisi na mreži. Promjena će se spremiti kad se veza vrati.",
+    "shareLink": "Podijeli poveznicu",
+    "shareText": "Podijeli tekst",
+    "accessLabel": "Tko ima pristup popisu",
+    "settingsUpdatedToast": "Postavke dijeljenja popisa ažurirane.",
+    "settingsFailedToast": "Promjena dijeljenja nije spremljena. Pokušaj ponovno.",
+    "linkCopiedToast": "Poveznica je kopirana",
+    "textCopiedToast": "Tekst popisa je kopiran",
+    "failedToast": "Dijeljenje nije uspjelo"
+  },
+  "shareText": {
+    "created": "📅 Stvoreno: {date}",
+    "updated": "🔄 Ažurirano: {date}",
+    "footerCreatedWith": "✨ *Popis stvoren pomoću Disscount*",
+    "footerCompare": "💰 Usporedi cijene i uštedi!",
+    "footerTry": "🌐 Isprobaj besplatno na disscount.me"
+  },
+  "validation": {
+    "titleMin": "Upiši naziv s najmanje 3 znaka",
+    "titleMax": "Upiši naziv s najviše 100 znakova",
+    "eanRequired": "EAN kod je obavezan",
+    "nameRequired": "Naziv proizvoda je obavezan",
+    "amountMin": "Količina mora biti veća od 0",
+    "amountMax": "Količina ne može biti veća od 999"
+  },
+  "listCard": {
+    "progress": "{checked}/{total}"
+  }
+}

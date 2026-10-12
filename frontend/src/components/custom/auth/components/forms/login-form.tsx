@@ -2,6 +2,7 @@
 
 import { useFormState } from "react-hook-form";
 import { LogIn } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -25,6 +26,7 @@ export default function LoginForm({
   isLastUsed,
   externalDisabled,
 }: ILoginFormProps) {
+  const t = useTranslations("auth");
   const { form, onSubmit } = useLoginForm(onSuccess);
   const formState = useFormState({ control: form.control });
 
@@ -41,7 +43,7 @@ export default function LoginForm({
         <PasswordField
           control={form.control}
           name="password"
-          label="Lozinka"
+          label={t("fields.password")}
           autoComplete="current-password"
           hasError={!!formState.errors.password}
           action={<ForgotPasswordLink onClick={onForgotPassword} />}
@@ -55,11 +57,11 @@ export default function LoginForm({
           icon={LogIn}
           iconPlacement="left"
           loading={formState.isSubmitting}
-          loadingText="Prijava..."
+          loadingText={t("login.submitting")}
           loadingIconPlacement="left"
           disabled={formState.isSubmitting || externalDisabled}
         >
-          Prijavi se
+          {t("actions.logIn")}
           {isLastUsed && !formState.isSubmitting && !externalDisabled && (
             <LastLoginBadge variant="inverse" />
           )}

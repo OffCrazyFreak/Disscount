@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ export default function SearchNavButton({
   isLocked = false,
   onNavigate,
 }: ISearchNavButtonProps) {
+  const t = useTranslations("shell");
   const Icon = item.icon;
   const badgeId = `${item.id}-coming-soon`;
 
@@ -56,7 +58,7 @@ export default function SearchNavButton({
         >
           <Icon className="size-5" />
 
-          {item.label}
+          {t(item.labelKey)}
         </Link>
       </Button>
 

@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
+
 import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/utils/date";
 import { useOnlineStatus } from "@/hooks/use-online-status";
@@ -14,9 +16,11 @@ interface ILastSyncedLabelProps {
 
 export default function LastSyncedLabel({
   updatedAt,
-  prefix = "Osvježeno",
+  prefix,
   className,
 }: ILastSyncedLabelProps) {
+  const t = useTranslations("common");
+  const locale = useLocale();
   const mounted = useMinuteTick();
   const isOnline = useOnlineStatus();
 
@@ -25,7 +29,11 @@ export default function LastSyncedLabel({
 
   return (
     <span className={cn("text-xs text-muted-foreground", className)}>
-      {prefix} {formatRelativeTime(updatedAt)}
+      {prefix
+        ? `${prefix} ${formatRelativeTime(updatedAt, locale)}`
+        : t("lastSynced.refreshed", {
+            time: formatRelativeTime(updatedAt, locale),
+          })}
     </span>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   MultiSelect,
   MultiSelectContent,
@@ -34,6 +35,8 @@ export default function FacetMultiSelect({
   getLabel,
   className,
 }: IFacetMultiSelectProps) {
+  const t = useTranslations("products");
+
   return (
     <MultiSelect values={facet.selected} onValuesChange={onValuesChange}>
       <MultiSelectTrigger
@@ -69,7 +72,9 @@ export default function FacetMultiSelect({
                 <span className="flex w-full items-center justify-between gap-2">
                   <span>{optionLabel}</span>
                   {count !== undefined && (
-                    <span className="text-muted-foreground">({count})</span>
+                    <span className="text-muted-foreground">
+                      {t("facets.count", { count })}
+                    </span>
                   )}
                 </span>
               </MultiSelectItem>

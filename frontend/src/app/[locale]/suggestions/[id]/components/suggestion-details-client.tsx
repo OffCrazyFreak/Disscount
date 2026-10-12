@@ -1,7 +1,7 @@
 "use client";
 
-
 import { Link } from "@/i18n/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { ArrowLeft, Calendar, MessageSquare } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
@@ -16,6 +16,9 @@ interface ISuggestionDetailsClientProps {
 export default function SuggestionDetailsClient({
   suggestion,
 }: ISuggestionDetailsClientProps) {
+  const t = useTranslations("suggestions");
+  const locale = useLocale();
+
   return (
     <div className="space-y-6">
       <Link
@@ -23,7 +26,7 @@ export default function SuggestionDetailsClient({
         className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary"
       >
         <ArrowLeft className="size-4" />
-        Natrag na ideje i prijedloge
+        {t("backToList")}
       </Link>
 
       <Card className="space-y-4 p-6">
@@ -31,26 +34,28 @@ export default function SuggestionDetailsClient({
           <UpvoteButton initialUpvotes={suggestion.upvotes} />
 
           <div className="space-y-1">
-            <h1 className="text-2xl font-bold text-pretty">
+            <h1 lang="hr" className="text-2xl font-bold text-pretty">
               {suggestion.title}
             </h1>
 
             <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <Calendar className="size-4" />
-              <span>{formatDate(suggestion.date)}</span>
-              <span aria-hidden>·</span>
-              <span>{suggestion.author}</span>
+              <span>{formatDate(suggestion.date, locale)}</span>
+              <span aria-hidden>{t("separator")}</span>
+              <span lang="hr">{suggestion.author}</span>
             </div>
           </div>
         </div>
 
-        <p className="text-pretty">{suggestion.description}</p>
+        <p lang="hr" className="text-pretty">
+          {suggestion.description}
+        </p>
       </Card>
 
       <section className="space-y-4">
         <h2 className="flex items-center gap-2 text-lg font-semibold">
           <MessageSquare className="size-5" />
-          Komentari ({suggestion.comments.length})
+          {t("comments", { count: suggestion.comments.length })}
         </h2>
 
         {suggestion.comments.length > 0 ? (
@@ -58,21 +63,22 @@ export default function SuggestionDetailsClient({
             {suggestion.comments.map((comment) => (
               <Card key={comment.id} className="space-y-1 p-4">
                 <div className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="font-semibold">{comment.author}</span>
+                  <span lang="hr" className="font-semibold">
+                    {comment.author}
+                  </span>
                   <span className="text-muted-foreground">
-                    {formatDate(comment.date)}
+                    {formatDate(comment.date, locale)}
                   </span>
                 </div>
 
-                <p className="text-pretty text-sm">{comment.content}</p>
+                <p lang="hr" className="text-pretty text-sm">
+                  {comment.content}
+                </p>
               </Card>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">
-            Još nema komentara. Budi prvi koji će komentirati kada značajka
-            postane dostupna.
-          </p>
+          <p className="text-sm text-muted-foreground">{t("noComments")}</p>
         )}
       </section>
     </div>

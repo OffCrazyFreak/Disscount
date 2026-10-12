@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { ChevronDown, TriangleAlert } from "lucide-react";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import {
@@ -23,6 +24,7 @@ import {
   getPriceExtreme,
 } from "@/app/[locale]/products/utils/product-utils";
 import { formatDate } from "@/utils/strings";
+import { formatPrice } from "@/utils/price";
 import { useUser } from "@/context/user-context";
 import StorePricesTable from "@/app/[locale]/products/[id]/components/store-item/store-prices-table";
 
@@ -36,6 +38,8 @@ interface IStoreItemProps {
 
 const StoreItem = memo(
   ({ isExpanded, onToggle, store, storePrices, product }: IStoreItemProps) => {
+    const t = useTranslations("productDetail.storeItem");
+    const locale = useLocale();
     const { user } = useUser();
 
     // Check if this store chain is preferred by the user
@@ -101,7 +105,9 @@ const StoreItem = memo(
                         {!isDataFromToday && (
                           <Badge variant="warningSoft">
                             <TriangleAlert className="size-4 mr-1" />
-                            Podaci od {formatDate(store.price_date)}
+                            {t("dataFrom", {
+                              date: formatDate(store.price_date, locale),
+                            })}
                           </Badge>
                         )}
                       </div>
@@ -119,7 +125,9 @@ const StoreItem = memo(
                                 : "text-gray-700",
                           )}
                         >
-                          Min: {storeMinPrice.toFixed(2)}€
+                          {t("min", {
+                            price: formatPrice(storeMinPrice, locale),
+                          })}
                         </span>
                         <span
                           className={cn(
@@ -130,7 +138,9 @@ const StoreItem = memo(
                                 : "text-gray-700",
                           )}
                         >
-                          Prosjek: {storeAvgPrice.toFixed(2)}€
+                          {t("average", {
+                            price: formatPrice(storeAvgPrice, locale),
+                          })}
                         </span>
                         <span
                           className={cn(
@@ -141,7 +151,9 @@ const StoreItem = memo(
                                 : "text-gray-700",
                           )}
                         >
-                          Max: {storeMaxPrice.toFixed(2)}€
+                          {t("max", {
+                            price: formatPrice(storeMaxPrice, locale),
+                          })}
                         </span>
                       </div>
                     </div>
@@ -150,7 +162,7 @@ const StoreItem = memo(
 
                 <div className="flex-1 flex items-center justify-end gap-4">
                   <p className="hidden sm:inline text-gray-700 text-sm text-pretty text-right">
-                    Cijene po lokacijama
+                    {t("pricesByLocation")}
                   </p>
 
                   <ChevronDown

@@ -1,6 +1,7 @@
 "use client";
 
 import { TriangleAlert } from "lucide-react";
+import { useTranslations } from "next-intl";
 import cijeneService from "@/lib/cijene-api";
 import { getMostFrequentCategory } from "@/app/[locale]/products/utils/product-utils";
 import ProductUnitPriceDetails from "@/app/[locale]/products/components/product-item/product-price";
@@ -25,6 +26,7 @@ export default function ProductActionsSheet({
   open,
   ean,
 }: IProductActionsSheetProps) {
+  const t = useTranslations("products");
   const {
     selectedLocations,
     selectedSourceCities,
@@ -77,8 +79,8 @@ export default function ProductActionsSheet({
               role="status"
               variant="destructiveSoft"
               icon={TriangleAlert}
-              title="Cijene nisu dostupne"
-              text="Radnje za proizvod i dalje možeš koristiti. Pokušaj ponovo za aktualni raspon cijena."
+              title={t("actionsSheet.pricesUnavailableTitle")}
+              text={t("actionsSheet.pricesUnavailableText")}
             />
           )}
 
@@ -87,8 +89,8 @@ export default function ProductActionsSheet({
               role="status"
               variant="warningSoft"
               icon={TriangleAlert}
-              title="Neke cijene nisu dostupne"
-              text="Raspon uključuje lokacije čije smo cijene uspjeli dohvatiti."
+              title={t("actionsSheet.partialPricesTitle")}
+              text={t("actionsSheet.partialPricesText")}
             />
           )}
         </>

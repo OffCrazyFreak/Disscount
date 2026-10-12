@@ -2,6 +2,7 @@
 
 import { type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Collapsible,
   CollapsibleContent,
@@ -29,6 +30,8 @@ export default function CollapsibleSection({
   children,
   className,
 }: ICollapsibleSectionProps) {
+  const t = useTranslations("common");
+
   return (
     <Collapsible open={open} onOpenChange={onOpenChange} className={className}>
       <CollapsibleTrigger asChild className="cursor-pointer py-2">
@@ -40,7 +43,9 @@ export default function CollapsibleSection({
 
             <div className="flex items-center gap-4">
               <p className="hidden sm:inline text-gray-700 text-sm">
-                {open ? "Sakrij" : "Prikaži"}
+                {open
+                  ? t("collapsibleSection.hide")
+                  : t("collapsibleSection.show")}
               </p>
 
               <ChevronDown

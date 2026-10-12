@@ -4,28 +4,28 @@ import { z } from "zod";
 export const digitalCardRequestSchema = z.object({
   title: z
     .string()
-    .min(1, "Naziv je obavezan")
-    .max(100, "Upiši naziv s najviše 100 znakova"),
+    .min(1, "digitalCards.validation.titleRequired")
+    .max(100, "digitalCards.validation.titleMax"),
   value: z
     .string()
-    .min(1, "Vrijednost je obavezna")
-    .max(500, "Vrijednost može imati najviše 500 znakova"),
+    .min(1, "digitalCards.validation.valueRequired")
+    .max(500, "digitalCards.validation.valueMax"),
   type: z
     .string()
-    .min(1, "Tip je obavezan")
-    .max(50, "Tip može imati najviše 50 znakova"),
+    .min(1, "digitalCards.validation.typeRequired")
+    .max(50, "digitalCards.validation.typeMax"),
   codeType: z
     .string()
-    .min(1, "Tip koda je obavezan")
-    .max(50, "Tip koda može imati najviše 50 znakova"),
+    .min(1, "digitalCards.validation.codeTypeRequired")
+    .max(50, "digitalCards.validation.codeTypeMax"),
   color: z
     .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/, "Boja mora biti u HEX formatu (#ffffff)")
+    .regex(/^#[0-9A-Fa-f]{6}$/, "digitalCards.validation.colorHex")
     .nullable()
     .optional(),
   note: z
     .string()
-    .max(500, "Napomena može imati najviše 500 znakova")
+    .max(500, "digitalCards.validation.noteMax")
     .nullable()
     .optional(),
 });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useId } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   Select,
@@ -12,10 +13,10 @@ import {
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import type { LinkAccess } from "@/lib/api/types";
 import {
-  LINK_ACCESS_HINTS,
-  LINK_ACCESS_LABELS,
+  LINK_ACCESS_HINT_KEYS,
+  LINK_ACCESS_LABEL_KEYS,
   LINK_ACCESS_LEVELS,
-  LINK_ACCESS_ROW_TITLES,
+  LINK_ACCESS_ROW_TITLE_KEYS,
 } from "@/app/[locale]/(user)/shopping-lists/utils/link-access-copy";
 import { LINK_ACCESS_ICONS } from "@/app/[locale]/(user)/shopping-lists/utils/link-access-icons";
 import { cn } from "@/lib/utils";
@@ -39,6 +40,7 @@ export default function ShareAccessRow({
   isSaving,
   hintId,
 }: IShareAccessRowProps) {
+  const t = useTranslations("shoppingLists");
   const fallbackHintId = useId();
   const labelId = useId();
   const describedById = hintId ?? fallbackHintId;
@@ -64,16 +66,16 @@ export default function ShareAccessRow({
 
         <div className="min-w-0 space-y-0.5">
           <p className="text-sm font-medium">
-            {LINK_ACCESS_ROW_TITLES[linkAccess]}
+            {t(LINK_ACCESS_ROW_TITLE_KEYS[linkAccess])}
           </p>
           <p id={describedById} className="text-xs text-muted-foreground">
-            {LINK_ACCESS_HINTS[linkAccess]}
+            {t(LINK_ACCESS_HINT_KEYS[linkAccess])}
           </p>
         </div>
       </div>
 
       <span id={labelId} className="sr-only">
-        Tko ima pristup popisu
+        {t("shareModal.accessLabel")}
       </span>
 
       <Select
@@ -116,7 +118,7 @@ export default function ShareAccessRow({
               value={level}
               icon={LINK_ACCESS_ICONS[level]}
             >
-              {LINK_ACCESS_LABELS[level]}
+              {t(LINK_ACCESS_LABEL_KEYS[level])}
             </SelectItem>
           ))}
         </SelectContent>

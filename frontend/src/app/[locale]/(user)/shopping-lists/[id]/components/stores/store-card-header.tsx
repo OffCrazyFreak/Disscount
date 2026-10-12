@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { ChevronDown, ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import { CardHeader } from "@/components/ui/card";
@@ -25,6 +26,8 @@ export default function StoreCardHeader({
   hasHighestPriceItem,
   isExpanded,
 }: IStoreCardHeaderProps) {
+  const t = useTranslations("shoppingListDetail");
+
   const {
     isPreferred,
     isDataFromToday,
@@ -60,9 +63,7 @@ export default function StoreCardHeader({
                     className="size-5 text-green-600 flex-shrink-0"
                     aria-hidden="true"
                   />
-                  <span className="sr-only">
-                    ima proizvod s najnižom cijenom
-                  </span>
+                  <span className="sr-only">{t("stores.hasLowest")}</span>
                 </>
               )}
               {hasHighestPriceItem && (
@@ -71,13 +72,11 @@ export default function StoreCardHeader({
                     className="size-5 text-red-700 flex-shrink-0"
                     aria-hidden="true"
                   />
-                  <span className="sr-only">
-                    ima proizvod s najvišom cijenom
-                  </span>
+                  <span className="sr-only">{t("stores.hasHighest")}</span>
                 </>
               )}
 
-              <h3 className="font-semibold text-foreground">
+              <h3 lang="hr" className="font-semibold text-foreground">
                 {getChainLabel(chain.chain)}
               </h3>
             </div>
@@ -106,7 +105,7 @@ export default function StoreCardHeader({
 
       <div className="flex-1 flex items-center justify-end gap-4">
         <p className="hidden sm:inline text-gray-700 text-sm text-pretty text-right">
-          Dostupnost proizvoda
+          {t("stores.availability")}
         </p>
 
         <ChevronDown

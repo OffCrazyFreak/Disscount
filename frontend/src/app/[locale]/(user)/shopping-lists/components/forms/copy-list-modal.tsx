@@ -1,6 +1,7 @@
 "use client";
 
 import { Copy, ListChecks, Share2, ShoppingBasket } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
@@ -18,6 +19,8 @@ interface ICopyListModalProps {
 
 /** What to carry into the copy. Everything is optional, including the products. */
 export default function CopyListModal({ open, id }: ICopyListModalProps) {
+  const t = useTranslations("shoppingLists");
+  const tShell = useTranslations("shell");
   const {
     shoppingList,
     isLoading,
@@ -35,16 +38,18 @@ export default function CopyListModal({ open, id }: ICopyListModalProps) {
     <ModalShell
       open={open}
       onOpenChange={(isOpen) => !isOpen && closeModalUrl()}
-      title="Kopiraj popis"
-      description="Odaberi što se prenosi u kopiju."
+      title={t("copyModal.title")}
+      description={t("copyModal.description")}
       size="sm"
       preventClose={isCopying}
       formId="copy-list-form"
-      submitLabel={isCopying ? LOADING_LABELS.copying : "Kopiraj"}
+      submitLabel={
+        isCopying ? tShell(LOADING_LABELS.copying) : t("copyModal.submit")
+      }
       submitIcon={Copy}
       submitLoading={isCopying}
       submitDisabled={isLoading || isError || !shoppingList || !isValid}
-      cancelLabel="Odustani"
+      cancelLabel={t("modal.cancel")}
     >
       {isLoading ? (
         <div className="space-y-4">
@@ -53,9 +58,7 @@ export default function CopyListModal({ open, id }: ICopyListModalProps) {
           <Skeleton className="h-10 w-full" />
         </div>
       ) : isError || !shoppingList ? (
-        <p className="text-sm text-muted-foreground">
-          Popis nije pronađen. Možda je obrisan ili nemaš pristup.
-        </p>
+        <p className="text-sm text-muted-foreground">{t("modal.notFound")}</p>
       ) : (
         <Form {...form}>
           <form
@@ -70,16 +73,16 @@ export default function CopyListModal({ open, id }: ICopyListModalProps) {
 
             <CopyOptionRow
               icon={ShoppingBasket}
-              label="Proizvodi"
-              description="Kopiraj sve proizvode"
+              label={t("copyModal.options.items.label")}
+              description={t("copyModal.options.items.description")}
               checked={options.items}
               onCheckedChange={(next) => setOption("items", next)}
             />
 
             <CopyOptionRow
               icon={ListChecks}
-              label="Označeno i spremljene trgovine"
-              description="Zadrži što je kupljeno, u kojoj trgovini i po kojoj cijeni."
+              label={t("copyModal.options.progress.label")}
+              description={t("copyModal.options.progress.description")}
               // Coerced, not just disabled: a box that stays ticked while inert states a
               // choice the copy will not honour.
               checked={options.progress && options.items}
@@ -89,11 +92,11 @@ export default function CopyListModal({ open, id }: ICopyListModalProps) {
 
             <CopyOptionRow
               icon={Share2}
-              label="Postavke dijeljenja"
+              label={t("copyModal.options.sharing.label")}
               description={
                 canCopySharing
-                  ? "Kopija se dijeli jednako kao i original."
-                  : "Samo vlasnik popisa može prenijeti dijeljenje."
+                  ? t("copyModal.options.sharing.descriptionOwner")
+                  : t("copyModal.options.sharing.descriptionNotOwner")
               }
               checked={options.sharing && canCopySharing}
               disabled={!canCopySharing}

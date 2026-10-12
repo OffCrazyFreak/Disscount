@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { Search, SlidersHorizontal, TriangleAlert } from "lucide-react";
 import { useViewMode } from "@/hooks/use-view-mode";
 import NoResults from "@/components/custom/common/no-results";
@@ -21,6 +22,7 @@ interface IProductsClientProps {
 }
 
 export default function ProductsClient({ query }: IProductsClientProps) {
+  const t = useTranslations("products");
   const isMobile = useIsMobile();
   const pathname = usePathname();
   // TODO(#61): take the setter here once ViewSwitcher is unparked below; until then
@@ -63,7 +65,7 @@ export default function ProductsClient({ query }: IProductsClientProps) {
     <div className="space-y-4">
       <Suspense fallback={<SearchBarSkeleton />}>
         <SearchBar
-          placeholder="Pretraži proizvode..."
+          placeholder={t("list.searchPlaceholder")}
           searchRoute={pathname}
           clearable={true}
           allowScanning={true}
@@ -75,11 +77,13 @@ export default function ProductsClient({ query }: IProductsClientProps) {
       <div className="flex items-center justify-between gap-4">
         <h3>
           {query.length > 0 &&
-            `Rezultati pretrage za "${query}"${
-              isLoading || waitingForLocations
-                ? ""
-                : ` (${total}${isTruncated ? "+" : ""})`
-            }`}
+            (isLoading || waitingForLocations
+              ? t("list.resultsTitle", { query })
+              : t("list.resultsTitleWithCount", {
+                  query,
+                  count: total,
+                  suffix: isTruncated ? "+" : "",
+                }))}
         </h3>
 
         {/* TODO: re-enable with personalisable list views (see view-switcher.tsx) */}
@@ -95,8 +99,8 @@ export default function ProductsClient({ query }: IProductsClientProps) {
             aria-live="polite"
             variant="warningSoft"
             icon={TriangleAlert}
-            title="Neke cijene nisu dostupne"
-            text="Prikazujemo dostupne cijene, ali jednu ili više odabranih lokacija trenutno nismo uspjeli dohvatiti."
+            title={t("list.partialPricesTitle")}
+            text={t("list.partialPricesText")}
           />
         )}
 
@@ -108,21 +112,19 @@ export default function ProductsClient({ query }: IProductsClientProps) {
         <div className="text-center py-12">
           <Search className="size-12 text-red-700 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-foreground mb-2">
-            Greška pri pretraživanju
+            {t("list.errorTitle")}
           </h3>
-          <p className="text-gray-600 mb-6">
-            Došlo je do greške pri dohvaćanju podataka. Pokušaj ponovo.
-          </p>
+          <p className="text-gray-600 mb-6">{t("list.errorText")}</p>
         </div>
       ) : query && total === 0 && activeFilterCount > 0 ? (
         <div>
           <NoResults
             icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
-            description="Nema rezultata za odabrane filtere"
+            description={t("list.noResultsForFilters")}
           />
           <div className="text-center">
             <Button type="button" variant="outline" onClick={clearFilters}>
-              Očisti filtere
+              {t("list.clearFilters")}
             </Button>
           </div>
         </div>
@@ -155,21 +157,17 @@ export default function ProductsClient({ query }: IProductsClientProps) {
         <div className="text-center py-12">
           <SlidersHorizontal className="size-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-foreground mb-2">
-            Unesi pojam za pretragu
+            {t("list.enterQueryTitle")}
           </h3>
-          <p className="text-gray-600 mb-6">
-            Filteri su postavljeni, rezultati će se prikazati nakon pretrage
-          </p>
+          <p className="text-gray-600 mb-6">{t("list.enterQueryText")}</p>
         </div>
       ) : (
         <div className="text-center py-12">
           <Search className="size-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-foreground mb-2">
-            Pretraži proizvode
+            {t("list.startTitle")}
           </h3>
-          <p className="text-gray-600 mb-6">
-            Unesi naziv proizvoda koji tražiš
-          </p>
+          <p className="text-gray-600 mb-6">{t("list.startText")}</p>
         </div>
       )}
     </div>

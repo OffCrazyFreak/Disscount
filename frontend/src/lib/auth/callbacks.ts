@@ -2,6 +2,7 @@ import { and, eq, ne } from "drizzle-orm";
 
 import { db } from "@/db";
 import { account } from "@/db/auth-schema";
+import type { AppLocale } from "@/i18n/locales";
 import { emailService } from "@/lib/email";
 
 // One token mechanism, two wordings: "set" for OAuth-only accounts, "reset" otherwise.
@@ -10,6 +11,7 @@ export async function dispatchResetPasswordEmail(
   email: string,
   url: string,
   token: string,
+  locale: AppLocale,
 ) {
   const credential = await db
     .select({ id: account.id })
@@ -20,9 +22,9 @@ export async function dispatchResetPasswordEmail(
     .limit(1);
 
   if (credential.length > 0) {
-    await emailService.sendPasswordReset({ to: email, url, token });
+    await emailService.sendPasswordReset({ to: email, locale, url, token });
   } else {
-    await emailService.sendSetPassword({ to: email, url, token });
+    await emailService.sendSetPassword({ to: email, locale, url, token });
   }
 }
 

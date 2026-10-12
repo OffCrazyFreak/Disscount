@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
@@ -10,6 +11,7 @@ interface IFeatureCardProps {
 }
 
 export default function FeatureCard({ feature }: IFeatureCardProps) {
+  const t = useTranslations("landing");
   const Icon = feature.icon;
   const clickable = Boolean(feature.href || feature.action);
 
@@ -37,11 +39,13 @@ export default function FeatureCard({ feature }: IFeatureCardProps) {
           <Icon className="size-6" />
         </div>
 
-        <h3 className="font-semibold text-pretty">{feature.title}</h3>
+        <h3 className="font-semibold text-pretty">
+          {t(`features.items.${feature.id}.title`)}
+        </h3>
       </div>
 
       <p className="text-sm text-muted-foreground text-pretty">
-        {feature.description}
+        {t(`features.items.${feature.id}.description`)}
       </p>
     </>
   );

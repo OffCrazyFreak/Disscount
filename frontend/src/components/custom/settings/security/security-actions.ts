@@ -3,6 +3,7 @@
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { authClient } from "@/lib/auth/client";
 import { userService } from "@/lib/api";
@@ -10,6 +11,7 @@ import { useUser } from "@/context/user-context";
 
 // The Sigurnost actions that sit outside the credentials form.
 export function useSecurityActions() {
+  const t = useTranslations("settings");
   const router = useRouter();
   const { logout } = useUser();
   const [revoking, setRevoking] = useState(false);
@@ -21,10 +23,10 @@ export function useSecurityActions() {
     setRevoking(false);
 
     if (error) {
-      toast.error("Greška pri odjavi ostalih uređaja.");
+      toast.error(t("security.actions.revokeFailed"));
       return;
     }
-    toast.success("Odjavljeni su svi ostali uređaji.");
+    toast.success(t("security.actions.revoked"));
   }
 
   async function deleteAccount() {
@@ -38,9 +40,9 @@ export function useSecurityActions() {
 
       await logout();
       router.replace("/");
-      toast.success("Tvoj račun je obrisan.");
+      toast.success(t("security.actions.deleted"));
     } catch {
-      toast.error("Greška pri brisanju računa. Pokušaj ponovo.");
+      toast.error(t("security.actions.deleteFailed"));
     } finally {
       setDeleting(false);
     }

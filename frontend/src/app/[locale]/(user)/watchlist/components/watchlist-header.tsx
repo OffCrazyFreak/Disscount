@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
 import CreateDiscountedListButton from "@/app/[locale]/(user)/watchlist/components/create-discounted-list-button";
 import { IWatchlistItemWithProduct } from "@/app/[locale]/(user)/watchlist/utils/watchlist-utils";
@@ -19,19 +20,23 @@ export default function WatchlistHeader({
   discountedItems,
   productsLoading,
 }: IWatchlistHeaderProps) {
+  const t = useTranslations("watchlist");
+
   return (
     <div className="flex items-center justify-between gap-4 flex-wrap">
       <div className="flex flex-col">
         <h3>
           {query.length > 0
-            ? `Rezultati pretrage za "${query}" (${itemCount})`
-            : `Praćeni proizvodi${showCount ? ` (${itemCount})` : ""}`}
+            ? t("header.searchResultsTitle", { query, count: itemCount })
+            : showCount
+              ? t("header.titleWithCount", { count: itemCount })
+              : t("header.title")}
         </h3>
 
         {pricesUpdatedAt > 0 && (
           <LastSyncedLabel
             updatedAt={pricesUpdatedAt}
-            prefix="Cijene osvježene"
+            prefix={t("header.pricesUpdated")}
           />
         )}
       </div>

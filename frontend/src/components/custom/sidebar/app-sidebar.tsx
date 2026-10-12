@@ -2,6 +2,7 @@
 
 import { Link, usePathname } from "@/i18n/navigation";
 import { useRef, useEffect, Suspense } from "react";
+import { useTranslations } from "next-intl";
 
 import CartLogo from "@/components/icons/cart-logo";
 
@@ -28,6 +29,7 @@ import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 
 export default function AppSidebar() {
+  const t = useTranslations("shell");
   const contentRef = useRef<HTMLDivElement>(null);
   const { setOpen, setOpenMobile } = useSidebar();
   const pathname = usePathname();
@@ -65,7 +67,7 @@ export default function AppSidebar() {
               fallback={<SearchBarSkeleton submitButtonLocation="block" />}
             >
               <SearchBar
-                placeholder="Pretraži proizvode..."
+                placeholder={t("search.productsPlaceholder")}
                 searchRoute="/products"
                 clearable={true}
                 allowScanning={true}

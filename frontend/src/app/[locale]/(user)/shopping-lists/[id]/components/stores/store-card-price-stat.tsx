@@ -1,4 +1,6 @@
+import { useLocale, useTranslations } from "next-intl";
 import { PriceExtreme } from "@/app/[locale]/products/utils/product-utils";
+import { formatPrice } from "@/utils/price";
 
 interface IStoreCardPriceStatProps {
   label: string;
@@ -15,11 +17,13 @@ function extremeClass(extreme: PriceExtreme): string {
 }
 
 // Colour alone would leave the extreme unreadable to screen readers and in greyscale.
-function extremeLabel(extreme: PriceExtreme): string | null {
+function extremeLabelKey(
+  extreme: PriceExtreme,
+): "stores.lowestAmongChains" | "stores.highestAmongChains" | null {
   return extreme === "min"
-    ? "najniža među lancima"
+    ? "stores.lowestAmongChains"
     : extreme === "max"
-      ? "najviša među lancima"
+      ? "stores.highestAmongChains"
       : null;
 }
 
@@ -29,12 +33,14 @@ export default function StoreCardPriceStat({
   price,
   extreme,
 }: IStoreCardPriceStatProps) {
-  const description = extremeLabel(extreme);
+  const t = useTranslations("shoppingListDetail");
+  const locale = useLocale();
+  const descriptionKey = extremeLabelKey(extreme);
 
   return (
     <span className={extremeClass(extreme)}>
-      {label}: {price.toFixed(2)}€
-      {description && <span className="sr-only"> ({description})</span>}
+      {t("stores.stat", { label, price: formatPrice(price, locale) })}
+      {descriptionKey && <span className="sr-only"> {t(descriptionKey)}</span>}
     </span>
   );
 }

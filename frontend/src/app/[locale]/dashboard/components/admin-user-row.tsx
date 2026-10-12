@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +22,8 @@ import {
 
 const ACCOUNT_TYPES = Object.keys(ACCOUNT_TYPE_LABELS) as AccountType[];
 
+const EMPTY_VALUE = "-";
+
 interface IAdminUserRowProps {
   user: UserDto;
   isSelf: boolean;
@@ -36,19 +39,22 @@ export default function AdminUserRow({
   onAccountTypeChange,
   onDelete,
 }: IAdminUserRowProps) {
+  const t = useTranslations("dashboard");
+  const tAuth = useTranslations("auth");
+
   return (
     <TableRow>
       <TableCell className="font-medium">
-        {user.username || "-"}
+        {user.username || EMPTY_VALUE}
         {isSelf && (
           <Badge variant="primary" className="ml-2">
-            Ti
+            {t("userRow.you")}
           </Badge>
         )}
       </TableCell>
 
       <TableCell className="text-muted-foreground">
-        {user.email || "-"}
+        {user.email || EMPTY_VALUE}
       </TableCell>
 
       <TableCell className="text-muted-foreground whitespace-nowrap text-sm">
@@ -69,7 +75,7 @@ export default function AdminUserRow({
           <SelectContent>
             {ACCOUNT_TYPES.map((type) => (
               <SelectItem key={type} value={type}>
-                {ACCOUNT_TYPE_LABELS[type]}
+                {tAuth(ACCOUNT_TYPE_LABELS[type])}
               </SelectItem>
             ))}
           </SelectContent>
@@ -81,7 +87,7 @@ export default function AdminUserRow({
           type="button"
           variant="outline"
           size="icon"
-          aria-label="Obriši račun"
+          aria-label={t("userRow.deleteAccount")}
           className="text-destructive hover:text-destructive"
           disabled={isSelf}
           onClick={() => onDelete(user)}

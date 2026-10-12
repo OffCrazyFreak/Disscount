@@ -1,6 +1,7 @@
 "use client";
 
 import { CircleCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
@@ -8,17 +9,16 @@ import { useUser } from "@/context/user-context";
 
 type StatusKind = "email-verified" | "email-changed";
 
-const STATUS_COPY: Record<StatusKind, { title: string; description: string }> =
-  {
-    "email-verified": {
-      title: "Email potvrđen",
-      description: "Tvoja email adresa je potvrđena. Drago nam je što si tu!",
-    },
-    "email-changed": {
-      title: "Email promijenjen",
-      description: "Tvoja nova email adresa je potvrđena i sada je aktivna.",
-    },
-  };
+const STATUS_COPY = {
+  "email-verified": {
+    title: "statusModal.emailVerified.title",
+    description: "statusModal.emailVerified.description",
+  },
+  "email-changed": {
+    title: "statusModal.emailChanged.title",
+    description: "statusModal.emailChanged.description",
+  },
+} as const satisfies Record<StatusKind, { title: string; description: string }>;
 
 interface IAuthStatusModalProps {
   open: boolean;
@@ -28,6 +28,7 @@ interface IAuthStatusModalProps {
 // Reached via ?modal=email-verified|email-changed after the redirect; Better Auth
 // already signed them in on the way back, so this only confirms.
 export default function AuthStatusModal({ open, kind }: IAuthStatusModalProps) {
+  const t = useTranslations("auth");
   const { refreshUser } = useUser();
   const copy = STATUS_COPY[kind];
 
@@ -43,14 +44,14 @@ export default function AuthStatusModal({ open, kind }: IAuthStatusModalProps) {
       onOpenChange={(isOpen) => !isOpen && handleContinue()}
       size="sm"
       centered
-      title={copy.title}
-      description={copy.description}
+      title={t(copy.title)}
+      description={t(copy.description)}
       hero={
         <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
           <CircleCheck className="size-6" />
         </div>
       }
-      submitLabel="Nastavi"
+      submitLabel={t("statusModal.continue")}
       submitIcon={CircleCheck}
       onSubmit={handleContinue}
     />

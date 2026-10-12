@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslations } from "next-intl";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -11,13 +12,14 @@ import { swapModalUrl } from "@/lib/modal/modal-navigation";
 const resetPasswordSchema = z
   .object({ password: passwordSchema, confirmPassword: z.string() })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Lozinke se ne podudaraju",
+    message: "auth.validation.passwordsMismatch",
     path: ["confirmPassword"],
   });
 
 export type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
 export function useResetPasswordForm(open: boolean) {
+  const t = useTranslations("auth");
   // Adjust-during-render, so capture still works when `open` flips true.
   const [captured, setCaptured] = useState<{ token: string | null } | null>(
     null,
@@ -59,11 +61,11 @@ export function useResetPasswordForm(open: boolean) {
     });
 
     if (error) {
-      toast.error("Poveznica je nevažeća ili je istekla. Zatraži novu.");
+      toast.error(t("resetPassword.invalidLink"));
       return;
     }
 
-    toast.success("Lozinka je postavljena. Sada se možeš prijaviti.");
+    toast.success(t("resetPassword.success"));
     swapModalUrl({ name: "login" });
   }
 

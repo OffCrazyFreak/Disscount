@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,8 @@ export default function ProductFiltersTrigger({
   className,
   ...props
 }: IProductFiltersTriggerProps) {
+  const t = useTranslations("products");
+
   return (
     <Button
       type="button"
@@ -30,7 +33,7 @@ export default function ProductFiltersTrigger({
       {...props}
     >
       <SlidersHorizontal className="size-5" />
-      Filteri
+      {t("filtersTrigger.label")}
       {count > 0 && <Badge>{count}</Badge>}
       {expanded !== undefined && (
         <ChevronDown

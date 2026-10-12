@@ -18,10 +18,11 @@ export function formatDifference(
   difference: number | null,
   percentage: number | null,
   fallback: string,
+  locale: string,
 ): string {
   if (difference === null || percentage === null) {
     return fallback;
   }
 
-  return formatPriceDelta(difference, percentage);
+  return formatPriceDelta(difference, percentage, locale);
 }

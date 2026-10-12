@@ -1,6 +1,7 @@
 "use client";
 
 import { Calendar, ListChecks } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 
 import type { ShoppingListDto } from "@/lib/api/types";
 import { formatDate } from "@/utils/strings";
@@ -17,6 +18,8 @@ interface IShoppingListSummaryProps {
 export default function ShoppingListSummary({
   shoppingList,
 }: IShoppingListSummaryProps) {
+  const locale = useLocale();
+  const t = useTranslations("shoppingLists");
   const checkedCount = shoppingList.items.filter(
     (item) => item.isChecked,
   ).length;
@@ -34,12 +37,15 @@ export default function ShoppingListSummary({
       <div className="flex items-center gap-6 text-sm text-muted-foreground">
         <span className="flex items-center gap-2">
           <Calendar aria-hidden="true" className="size-5" />
-          {formatDate(shoppingList.updatedAt)}
+          {formatDate(shoppingList.updatedAt, locale)}
         </span>
 
         <span className="flex items-center gap-2">
           <ListChecks aria-hidden="true" className="size-5" />
-          {checkedCount}/{shoppingList.items.length}
+          {t("listCard.progress", {
+            checked: checkedCount,
+            total: shoppingList.items.length,
+          })}
         </span>
       </div>
     </div>

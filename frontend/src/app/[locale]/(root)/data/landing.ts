@@ -1,66 +1,34 @@
-export const tagLines: string[] = [
-  "Usporedi trgovine i cijene!",
-  "Uštedi pri svakoj kupnji!",
-  "Nikad ne propusti akciju!",
-  "Zaboravi kartice - olakšaj novčanik!",
-  "Izradi i podijeli popis za kupnju!",
-  "Prati povijest cijena!",
-  "Skeniraj barkod i usporedi cijene!",
-  "Uživaj u pametnom kupovanju!",
-  "Pronađi najbolje ponude u Hrvatskoj!",
-  "Kupuj kvalitetno i jeftino!",
-  "Kupuj pametno, uštedi više!",
-  "Tvoj partner u pametnoj kupovini!",
-  "Zaboravi na kataloge i letke!",
-];
+export const tagLineIds = [
+  "compare",
+  "saveEveryTime",
+  "neverMissDeal",
+  "forgetCards",
+  "shareList",
+  "priceHistory",
+  "scan",
+  "smartShopping",
+  "bestOffers",
+  "cheapQuality",
+  "saveMore",
+  "partner",
+  "noCatalogs",
+] as const;
 
-export interface IHowItWorksStep {
-  title: string;
-  description: string;
-}
+export const howItWorksStepIds = [
+  "searchOrScan",
+  "comparePrices",
+  "save",
+] as const;
 
-export const howItWorksSteps: IHowItWorksStep[] = [
-  {
-    title: "Pretraži ili skeniraj",
-    description: "Upiši naziv proizvoda ili skeniraj barkod kamerom.",
-  },
-  {
-    title: "Usporedi cijene",
-    description:
-      "Vidiš cijenu u svim trgovinama i povijest cijene kroz vrijeme.",
-  },
-  {
-    title: "Uštedi pri kupnji",
-    description:
-      "Odaberi najpovoljniju trgovinu i kupuj bez listanja kataloga.",
-  },
-];
+export const statIds = ["chains", "free", "catalogs"] as const;
 
-export interface IStatItem {
-  value: string;
-  label: string;
-}
+export const freePlanRowIds = [
+  "compare",
+  "lists",
+  "watchlist",
+  "alerts",
+  "scan",
+  "install",
+] as const;
 
-export const statItems: IStatItem[] = [
-  { value: "25+", label: "trgovačkih lanaca" },
-  { value: "100 %", label: "besplatno, zauvijek" },
-  { value: "0", label: "kataloga za listanje" },
-];
-
-export interface IPricingRow {
-  label: string;
-}
-
-export const freePlanRows: IPricingRow[] = [
-  { label: "Usporedba cijena i povijest cijena" },
-  { label: "Neograničeni popisi za kupnju" },
-  { label: "Praćenje proizvoda" },
-  { label: "Obavijesti o padu cijena" },
-  { label: "Skeniranje barkoda" },
-  { label: "Instalacija kao aplikacija" },
-];
-
-export const proPlanRows: IPricingRow[] = [
-  { label: "Napredna analiza potrošnje" },
-  { label: "AI prijedlozi za jeftiniju košaricu" },
-];
+export const proPlanRowIds = ["spending", "ai"] as const;

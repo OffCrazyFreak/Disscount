@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "title": "Ideje i prijedlozi",
+    "description": "Predloži nove značajke i glasaj za one koje želiš vidjeti.",
+    "detailTitle": "Ideje i prijedlozi - Detalji",
+    "detailDescription": "Detalji prijedloga i komentari zajednice."
+  },
+  "searchPlaceholder": "Pretraži ideje i prijedloge...",
+  "heading": "Ideje i prijedlozi ({count})",
+  "searchHeading": "Rezultati pretrage za \"{query}\" ({count})",
+  "separator": "·",
+  "backToList": "Natrag na ideje i prijedloge",
+  "comments": "Komentari ({count})",
+  "noComments": "Još nema komentara. Budi prvi koji će komentirati kada značajka postane dostupna."
+}

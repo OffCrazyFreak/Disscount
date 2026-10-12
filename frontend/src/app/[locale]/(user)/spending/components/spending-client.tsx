@@ -1,6 +1,7 @@
 "use client";
 
 import { PiggyBank } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import ComingSoon from "@/components/custom/common/coming-soon";
 import LoginRequired from "@/components/custom/common/login-required";
@@ -8,13 +9,14 @@ import NotifyMeButton from "@/components/custom/common/notify-me-button";
 import { useUser } from "@/context/user-context";
 
 export default function SpendingClient() {
+  const t = useTranslations("spending");
   const { isAuthenticated, isLoading: userLoading } = useUser();
 
   if (!userLoading && !isAuthenticated) {
     return (
       <LoginRequired
-        title="Potrošnja"
-        description="Prijava ti omogućuje pregled potrošnje po trgovinama i kategorijama te praćenje ušteda kroz mjesece."
+        title={t("title")}
+        description={t("loginRequired.description")}
         icon={<PiggyBank className="size-12 text-primary" />}
       />
     );
@@ -22,9 +24,9 @@ export default function SpendingClient() {
 
   return (
     <ComingSoon
-      title="Potrošnja"
+      title={t("title")}
       icon={<PiggyBank className="size-12 text-primary" />}
-      description="Vidjet ćeš koliko trošiš po trgovini i kategoriji, na kojim proizvodima najviše štediš i kako ti se potrošnja mijenja kroz mjesece."
+      description={t("comingSoon.description")}
       action={<NotifyMeButton />}
     />
   );

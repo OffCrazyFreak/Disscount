@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { Search } from "lucide-react";
 
@@ -9,27 +10,38 @@ import { AnimatedGroup } from "@/components/custom/animation/animated-group";
 import PostCard from "@/app/[locale]/updates/components/post-card";
 import NewPostButton from "@/app/[locale]/updates/components/new-post-button";
 import { templatePosts } from "@/app/[locale]/updates/posts";
+import { localizePost } from "@/app/[locale]/updates/localize-post";
+import { pageAlternates } from "@/i18n/alternates";
 import { filterByFields, readSearchParam } from "@/utils/generic";
 
-export const metadata: Metadata = {
-  title: "Novosti",
-  description: "Najnovije objave i novosti o Disscountu.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = await getTranslations("updates");
 
-export default async function UpdatesPage(props: PageProps<"/[locale]/updates">) {
+  return {
+    title: t("meta.title"),
+    description: t("meta.description"),
+    alternates: pageAlternates("/updates", locale),
+  };
+}
+
+export default async function UpdatesPage(
+  props: PageProps<"/[locale]/updates">,
+) {
   const query = readSearchParam(await props.searchParams);
+  const t = await getTranslations("updates");
 
-  const matchingPosts = filterByFields(templatePosts, query, [
-    "title",
-    "excerpt",
-    "content",
-  ]);
+  const matchingPosts = filterByFields(
+    templatePosts.map((post) => localizePost(t, post)),
+    query,
+    ["title", "excerpt", "content"],
+  );
 
   return (
     <div className="space-y-4">
       <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
         <SearchBar
-          placeholder="Pretraži novosti..."
+          placeholder={t("searchPlaceholder")}
           searchRoute="/updates"
           clearable={true}
           submitButtonLocation="none"
@@ -40,8 +52,8 @@ export default async function UpdatesPage(props: PageProps<"/[locale]/updates">)
       <div className="flex items-center justify-between gap-4">
         <h1>
           {query.length > 0
-            ? `Rezultati pretrage za "${query}" (${matchingPosts.length})`
-            : `Novosti (${matchingPosts.length})`}
+            ? t("searchHeading", { query, count: matchingPosts.length })
+            : t("heading", { count: matchingPosts.length })}
         </h1>
 
         <NewPostButton />

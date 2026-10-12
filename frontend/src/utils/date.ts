@@ -1,3 +1,5 @@
+import { formatLocale } from "@/i18n/formatting";
+
 export const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
 
 // Format as YYYY-MM-DD in local time; toISOString would shift a day near midnight.
@@ -70,7 +72,9 @@ function getRelativeTimeFormatter(locale: string) {
   let formatter = relativeTimeFormatters.get(locale);
 
   if (!formatter) {
-    formatter = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+    formatter = new Intl.RelativeTimeFormat(formatLocale(locale), {
+      numeric: "auto",
+    });
     relativeTimeFormatters.set(locale, formatter);
   }
 

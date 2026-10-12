@@ -40,7 +40,7 @@ public class PinnedPlaceService {
                 .count();
         
         if (uniquePlaceIds < request.getPlaces().size()) {
-            throw new BadRequestException("Duplicate place IDs found in request");
+            throw new BadRequestException("error.pinnedPlace.duplicate");
         }
 
         // Then create new pinned places

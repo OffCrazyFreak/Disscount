@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import ResponsiveLabel from "@/components/custom/common/responsive-label";
 
@@ -11,7 +12,8 @@ interface ICreateDigitalCardButtonProps {
 export default function CreateDigitalCardButton({
   onCreateClick,
 }: ICreateDigitalCardButtonProps) {
-  const buttonText = "Dodaj digitalnu karticu";
+  const t = useTranslations("digitalCards");
+  const buttonText = t("actions.add");
 
   return (
     <>
@@ -22,7 +24,7 @@ export default function CreateDigitalCardButton({
         icon={Plus}
         iconPlacement="left"
       >
-        <ResponsiveLabel full={buttonText} short="Dodaj karticu" />
+        <ResponsiveLabel full={buttonText} short={t("actions.addShort")} />
       </Button>
     </>
   );

@@ -7,8 +7,6 @@ import { CART_VIEW_BOX } from "@/components/icons/cart-logo";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt =
-  "Disscount - usporedba cijena proizvoda u 25+ trgovačkih lanaca u Hrvatskoj.";
 
 const BRAND = "#2ec50d";
 const INK = "#252525";
@@ -95,7 +93,12 @@ function ArrowRight() {
   );
 }
 
-function OgImage() {
+interface IOgCopy {
+  headline: string;
+  cta: string;
+}
+
+function OgImage({ headline, cta }: IOgCopy) {
   return (
     <div
       style={{
@@ -132,7 +135,7 @@ function OgImage() {
       </div>
 
       <div style={{ display: "flex", marginTop: 26, fontSize: 42, color: INK }}>
-        Pronađi najbolje cijene u Hrvatskoj
+        {headline}
       </div>
 
       <div
@@ -149,13 +152,16 @@ function OgImage() {
           boxShadow: "0 14px 32px rgba(46,197,13,0.35)",
         }}
       >
-        <span style={{ display: "flex" }}>Uštedi već danas</span>
+        <span style={{ display: "flex" }}>{cta}</span>
         <ArrowRight />
       </div>
     </div>
   );
 }
 
-export default async function renderBrandOg() {
-  return new ImageResponse(<OgImage />, { ...size, fonts: await loadFonts() });
+export default async function renderBrandOg(copy: IOgCopy) {
+  return new ImageResponse(<OgImage {...copy} />, {
+    ...size,
+    fonts: await loadFonts(),
+  });
 }

@@ -76,12 +76,12 @@ public class ShoppingListService {
         ListAccess access = accessService.resolve(list, userId);
 
         if (request.getLinkAccess() != null && !access.canManageShare()) {
-            throw new ForbiddenException("Only the owner can change who has access");
+            throw new ForbiddenException("error.shoppingList.ownerOnlyAccess");
         }
 
         requireWriteUser(userId);
         if (!access.canEditItems()) {
-            throw new ForbiddenException("Insufficient access to this shopping list");
+            throw new ForbiddenException("error.shoppingList.insufficientAccess");
         }
 
         list.setTitle(request.getTitle());
@@ -94,7 +94,7 @@ public class ShoppingListService {
         ShoppingList list = findVisible(listId, userId);
 
         if (!accessService.resolve(list, userId).isOwner()) {
-            throw new ForbiddenException("Only the owner can delete this shopping list");
+            throw new ForbiddenException("error.shoppingList.ownerOnlyDelete");
         }
 
         list.setDeletedAt(Timestamps.nowUtc());
@@ -104,7 +104,7 @@ public class ShoppingListService {
     /** Not-found rather than forbidden, so a 403 cannot confirm an id is real. */
     public ShoppingList findVisible(UUID listId, UUID userId) {
         ShoppingList list = shoppingListRepository.findActiveById(listId)
-                .orElseThrow(() -> new NotFoundException("Shopping list not found"));
+                .orElseThrow(() -> new NotFoundException("error.shoppingList.notFound"));
 
         if (!accessService.resolve(list, userId).canView()) {
             throw new NotFoundException("Shopping list not found");
@@ -116,7 +116,7 @@ public class ShoppingListService {
     /** Anonymous callers cap at VIEW, so every write stays attributable. */
     public User requireWriteUser(UUID userId) {
         if (userId == null) {
-            throw new UnauthorizedException("Sign in to change this shopping list");
+            throw new UnauthorizedException("error.shoppingList.signInToChange");
         }
         return requireUser(userId);
     }

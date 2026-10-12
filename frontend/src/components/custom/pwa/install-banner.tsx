@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { X, Plus } from "lucide-react";
 
@@ -8,8 +9,8 @@ import { Button } from "@/components/ui/button";
 import { useInstallPrompt } from "@/components/custom/pwa/use-install-prompt";
 import InstallInstructionsSheet from "@/components/custom/pwa/install-instructions-sheet";
 import {
-  installActionLabel,
-  installPitch,
+  installActionLabelKey,
+  installPitchKey,
 } from "@/components/custom/pwa/install-copy";
 import {
   isInstallBannerSnoozed,
@@ -18,6 +19,7 @@ import {
 
 // Dismissible with a 7-day snooze, shown only on browsers that can install.
 export default function InstallBanner() {
+  const t = useTranslations("common");
   const { canShowInstallUI, canInstall, platform, promptInstall } =
     useInstallPrompt();
   const [dismissed, setDismissed] = useState(true);
@@ -64,14 +66,14 @@ export default function InstallBanner() {
             />
 
             <p className="min-w-0 flex-1 text-sm leading-tight">
-              {installPitch(platform)}
+              {t(installPitchKey(platform))}
             </p>
 
             <Button
               size="icon"
               variant="ghost"
               onClick={handleDismiss}
-              aria-label="Zatvori"
+              aria-label={t("install.close")}
               className="-mr-1 -mt-1 shrink-0"
             >
               <X aria-hidden="true" />
@@ -80,7 +82,7 @@ export default function InstallBanner() {
 
           <Button className="w-full" onClick={handleInstall}>
             <Plus aria-hidden="true" className="size-4" />
-            {installActionLabel(platform)}
+            {t(installActionLabelKey(platform))}
           </Button>
         </div>
       </div>

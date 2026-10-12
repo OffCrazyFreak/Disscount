@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { ShoppingListDto } from "@/lib/api/types";
 import { formatDate } from "@/utils/strings";
+import { formatPrice } from "@/utils/price";
 import { calculateShoppingListStats } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
 import ShoppingListPriceRangeSkeleton from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-price-range-skeleton";
 
@@ -17,6 +19,20 @@ export default function ShoppingListInfoTable({
   averagePrices,
   isPricesLoading = false,
 }: IShoppingListInfoTableProps) {
+  const t = useTranslations("shoppingListDetail");
+  const locale = useLocale();
+
+  function priceRange(min: number, avg: number, max: number) {
+    return t.rich("info.priceRange", {
+      min: formatPrice(min, locale),
+      avg: formatPrice(avg, locale),
+      max: formatPrice(max, locale),
+      low: (chunks) => <span className="text-green-700">{chunks}</span>,
+      mid: (chunks) => <span className="text-gray-700">{chunks}</span>,
+      high: (chunks) => <span className="text-red-700">{chunks}</span>,
+    });
+  }
+
   const {
     minTotal,
     avgTotal,
@@ -55,62 +71,52 @@ export default function ShoppingListInfoTable({
         <tbody>
           <tr className="flex flex-col sm:table-row">
             <td className="p-2 whitespace-nowrap border-b sm:border-b-0 sm:border-r">
-              <span className="font-bold">Stvoreno: </span>
-              {formatDate(shoppingList.createdAt)}
+              <span className="font-bold">{t("info.created")} </span>
+              {formatDate(shoppingList.createdAt, locale)}
             </td>
             <td className="p-2">
-              <span className="font-bold">Ažurirano: </span>
-              {formatDate(shoppingList.updatedAt)}
+              <span className="font-bold">{t("info.updated")} </span>
+              {formatDate(shoppingList.updatedAt, locale)}
             </td>
           </tr>
 
           <tr className="flex flex-col sm:table-row border-y">
             <td className="p-2 border-b sm:border-b-0 sm:border-r">
-              <span className="font-bold">Ukupno: </span>
+              <span className="font-bold">{t("info.total")} </span>
               {isPricesLoading ? (
                 <ShoppingListPriceRangeSkeleton />
               ) : totalCount > 0 ? (
                 <span className="whitespace-nowrap">
-                  <span className="text-green-700">{minTotal.toFixed(2)}€</span>
-                  <span className="text-gray-700">
-                    {" "}
-                    | {avgTotal.toFixed(2)}€ |{" "}
-                  </span>
-                  <span className="text-red-700">{maxTotal.toFixed(2)}€</span>
+                  {priceRange(minTotal, avgTotal, maxTotal)}
                 </span>
               ) : (
-                "-"
+                t("emptyValue")
               )}
             </td>
 
             <td className="p-2">
-              <span className="font-bold">Preostalo: </span>
+              <span className="font-bold">{t("info.remaining")} </span>
               {isPricesLoading ? (
                 <ShoppingListPriceRangeSkeleton />
               ) : totalCount > 0 ? (
                 <span className="whitespace-nowrap">
-                  <span className="text-green-700">
-                    {minToSpend.toFixed(2)}€
-                  </span>
-                  <span className="text-gray-700">
-                    {" "}
-                    | {avgToSpend.toFixed(2)}€ |{" "}
-                  </span>
-                  <span className="text-red-700">{maxToSpend.toFixed(2)}€</span>
+                  {priceRange(minToSpend, avgToSpend, maxToSpend)}
                 </span>
               ) : (
-                "-"
+                t("emptyValue")
               )}
             </td>
           </tr>
           {/* TODO: Make Potrošeno and Ušteđeno/Preplaćeno accessible links to /spending. */}
           <tr className="flex flex-col sm:table-row">
             <td className="p-2 border-b sm:border-b-0 sm:border-r">
-              <span className="font-bold">Potrošeno: </span>
+              <span className="font-bold">{t("info.spent")} </span>
               {checkedCount > 0 ? (
-                <span className={spentColor}>{moneySpent.toFixed(2)}€</span>
+                <span className={spentColor}>
+                  {formatPrice(moneySpent, locale)}
+                </span>
               ) : (
-                <span className="text-gray-700">-</span>
+                <span className="text-gray-700">{t("emptyValue")}</span>
               )}
             </td>
 
@@ -118,9 +124,9 @@ export default function ShoppingListInfoTable({
               <span className="font-bold">
                 {checkedCount > 0
                   ? savedAmount >= 0
-                    ? "Ušteđeno: "
-                    : "Preplaćeno: "
-                  : "Ušteđeno: "}
+                    ? t("info.saved")
+                    : t("info.overpaid")
+                  : t("info.saved")}{" "}
               </span>
               {checkedCount > 0 ? (
                 <span
@@ -132,11 +138,13 @@ export default function ShoppingListInfoTable({
                         : "text-gray-700"
                   }
                 >
-                  {Math.abs(savedAmount).toFixed(2)}€ (
-                  {Math.round(Math.abs(savedPercentage))}%)
+                  {t("info.savings", {
+                    amount: formatPrice(Math.abs(savedAmount), locale),
+                    percent: Math.round(Math.abs(savedPercentage)),
+                  })}
                 </span>
               ) : (
-                <span className="text-gray-700">-</span>
+                <span className="text-gray-700">{t("emptyValue")}</span>
               )}
             </td>
           </tr>

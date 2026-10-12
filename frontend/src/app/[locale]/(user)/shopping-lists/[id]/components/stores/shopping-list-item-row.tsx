@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import { useLocale, useTranslations } from "next-intl";
 
 import { ArrowBigUpDash, ArrowBigDownDash, TriangleAlert } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +17,7 @@ import {
 } from "@/lib/cijene-api/schemas";
 import { getChainItemPriceInfo } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/shopping-list-items-table-utils";
 import { productPath } from "@/utils/product-links";
+import { formatPrice } from "@/utils/price";
 
 interface IShoppingListItemRowProps {
   item: ShoppingListItemDto;
@@ -30,6 +32,9 @@ export default function ShoppingListItemRow({
   productsData,
   isMobile,
 }: IShoppingListItemRowProps) {
+  const t = useTranslations("shoppingListDetail");
+  const locale = useLocale();
+
   const { isAvailable, price, quantity, total, isLowestPrice, isHighestPrice } =
     getChainItemPriceInfo(item, productsData, chain);
 
@@ -44,7 +49,7 @@ export default function ShoppingListItemRow({
             item.isChecked && "line-through text-gray-700",
           )}
         >
-          {item.name}
+          <span lang="hr">{item.name}</span>
         </Link>
 
         {!isAvailable && (
@@ -55,13 +60,13 @@ export default function ShoppingListItemRow({
               ) : (
                 <Badge variant="warningSoft">
                   <TriangleAlert className="size-4 shrink-0" />
-                  Proizvod nedostupan
+                  {t("stores.table.unavailable")}
                 </Badge>
               )}
             </TooltipTrigger>
 
             <TooltipContent variant="warningSoft" className="px-2 py-1 text-xs">
-              Proizvod nije dostupan u ovoj trgovini
+              {t("stores.table.unavailableTooltip")}
             </TooltipContent>
           </Tooltip>
         )}
@@ -83,22 +88,24 @@ export default function ShoppingListItemRow({
                   : "text-gray-700",
             )}
           >
-            {price.toFixed(2)}€
+            {formatPrice(price, locale)}
             {isLowestPrice && (
               <>
                 <ArrowBigDownDash className="size-5" aria-hidden="true" />
-                <span className="sr-only">najniža cijena</span>
+                <span className="sr-only">{t("stores.table.lowestPrice")}</span>
               </>
             )}
             {isHighestPrice && (
               <>
                 <ArrowBigUpDash className="size-5" aria-hidden="true" />
-                <span className="sr-only">najviša cijena</span>
+                <span className="sr-only">
+                  {t("stores.table.highestPrice")}
+                </span>
               </>
             )}
           </span>
         ) : (
-          <span className="text-gray-400">-</span>
+          <span className="text-gray-400">{t("emptyValue")}</span>
         )}
       </TableCell>
 
@@ -114,10 +121,10 @@ export default function ShoppingListItemRow({
                   : "font-medium text-foreground",
             )}
           >
-            {total.toFixed(2)}€
+            {formatPrice(total, locale)}
           </span>
         ) : (
-          <span className="text-gray-400">-</span>
+          <span className="text-gray-400">{t("emptyValue")}</span>
         )}
       </TableCell>
     </TableRow>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   FormControl,
   FormField,
@@ -43,6 +44,7 @@ export default function ShoppingListSelector({
   onSelectList,
   disabled = false,
 }: IShoppingListSelectorProps) {
+  const t = useTranslations("products");
   const [open, setOpen] = useState(false);
   const customListTitle = useWatch({
     control: formField.control,
@@ -55,7 +57,7 @@ export default function ShoppingListSelector({
       name="shoppingListId"
       render={({ field }) => (
         <FormItem className="flex flex-col">
-          <FormLabel>Popis za kupnju</FormLabel>
+          <FormLabel>{t("listSelector.label")}</FormLabel>
 
           <Popover open={open} onOpenChange={setOpen} modal={true}>
             <PopoverTrigger asChild>
@@ -75,7 +77,7 @@ export default function ShoppingListSelector({
             <PopoverContent className="w-sm max-w-[75dvw]">
               <Command filter={commandFilter}>
                 <CommandInput
-                  placeholder="Pretraži svoje popise ili stvori novi..."
+                  placeholder={t("listSelector.searchPlaceholder")}
                   value={customListTitle}
                   onValueChange={(title) =>
                     formField.setValue("customListTitle", title, {
@@ -85,14 +87,11 @@ export default function ShoppingListSelector({
                 />
                 <CommandList>
                   <CommandEmpty>
-                    <p>
-                      Upiši naziv da stvoriš svoj prvi popis za kupnju direktno
-                      ovdje.
-                    </p>
+                    <p>{t("listSelector.empty")}</p>
                   </CommandEmpty>
 
                   {sortedShoppingLists.length > 0 && (
-                    <CommandGroup heading="Postojeći popisi">
+                    <CommandGroup heading={t("listSelector.existingLists")}>
                       {sortedShoppingLists.map((list) => (
                         <ShoppingListOption
                           key={list.id}
@@ -108,7 +107,7 @@ export default function ShoppingListSelector({
                   )}
 
                   {customListTitle.trim() && (
-                    <CommandGroup heading="Novi popis za kupnju">
+                    <CommandGroup heading={t("listSelector.newList")}>
                       <CreateListOption
                         customListTitle={customListTitle}
                         onSelect={() => {

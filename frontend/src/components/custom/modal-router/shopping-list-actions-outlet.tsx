@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 
 import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import useLingeringTarget, {
@@ -67,6 +68,7 @@ interface IDeleteConfirmProps {
 
 /** Split out so the delete mutation is only instantiated once a list is pending. */
 function DeleteConfirm({ shoppingList, onDone }: IDeleteConfirmProps) {
+  const t = useTranslations("shell");
   const { isDeleting, handleConfirmDelete } =
     useShoppingListActions(shoppingList);
 
@@ -74,9 +76,11 @@ function DeleteConfirm({ shoppingList, onDone }: IDeleteConfirmProps) {
     <ConfirmDialog
       isOpen
       onOpenChange={(open) => !open && onDone()}
-      title="Obriši popis za kupnju"
-      description={`Sigurno želiš obrisati popis "${shoppingList.title}"? Ova akcija se ne može poništiti.`}
-      confirmLabel="Obriši"
+      title={t("modalRouter.deleteList.title")}
+      description={t("modalRouter.deleteList.description", {
+        title: shoppingList.title,
+      })}
+      confirmLabel={t("modalRouter.deleteList.confirm")}
       variant="destructive"
       // Stays mounted until the request settles, so the rollback and the toasts
       // still have a live observer to run on.

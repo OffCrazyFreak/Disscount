@@ -3,6 +3,7 @@
 import { onlineManager } from "@tanstack/react-query";
 import type { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import { ONBOARDING_COMPLETED } from "@/lib/api/schemas/auth-user";
@@ -34,6 +35,7 @@ export function useSettingsSave({
   onSaved,
   clearDraft,
 }: IUseSettingsSaveProps) {
+  const t = useTranslations("settings");
   const { runners, saving } = useSettingsSaveRunners();
 
   async function save(mode: "settings" | "onboarding"): Promise<boolean> {
@@ -46,9 +48,7 @@ export function useSettingsSave({
     if (mode === "settings" && dirty.size === 0) return true;
 
     if (!onlineManager.isOnline()) {
-      toast.info(
-        "Izvan si mreže - promjene će se sinkronizirati kad se vratiš na mrežu.",
-      );
+      toast.info(t("save.offline"));
     }
 
     const userDirty = dirty.has("profil") || dirty.has("obavijesti");
@@ -85,7 +85,7 @@ export function useSettingsSave({
           tab: failedSaveTab(failed[0].key, dirty),
         });
       }
-      applySaveErrors(form, jobs, results);
+      applySaveErrors(form, jobs, results, t);
 
       return false;
     }
@@ -96,10 +96,10 @@ export function useSettingsSave({
     // Onboarding always runs a job to stamp its outcome, so only a settings save
     // can reach here with nothing written, and claiming otherwise would be a lie.
     if (mode === "onboarding") {
-      toast.success("Sve je spremno!");
+      toast.success(t("save.onboardingDone"));
       closeModalUrl();
     } else {
-      toast.success("Postavke su spremljene!");
+      toast.success(t("save.settingsSaved"));
     }
 
     return true;

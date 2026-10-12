@@ -1,4 +1,5 @@
 import { MouseEvent } from "react";
+import { useTranslations } from "next-intl";
 
 import { WatchType } from "@/lib/api";
 import {
@@ -17,12 +18,13 @@ import { formatQuantity } from "@/utils/strings";
 export function useWatchlistItem(item: IWatchlistItemWithProduct) {
   const { watchlistItems, productApiId, product, discountInfo, isLoading } =
     item;
+  const t = useTranslations("watchlist");
   const { user } = useUser();
 
   const { isRemoving, handleRemove } = useWatchlistRemoval(watchlistItems);
 
   const productName =
-    product?.name || (isLoading ? "Učitavanje..." : "Proizvod nije dostupan");
+    product?.name || (isLoading ? t("item.loading") : t("item.unavailable"));
   const productBrand = product?.brand || null;
   const formattedQuantity = formatQuantity(product?.quantity);
   const quantityWithUnit =

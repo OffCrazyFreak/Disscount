@@ -3,6 +3,7 @@
 import { usePathname } from "@/i18n/navigation";
 import { Suspense } from "react";
 import { Eye } from "lucide-react";
+import { useTranslations } from "next-intl";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import LoginRequired from "@/components/custom/common/login-required";
@@ -16,6 +17,7 @@ interface IWatchlistClientProps {
 }
 
 export default function WatchlistClient({ query }: IWatchlistClientProps) {
+  const t = useTranslations("watchlist");
   const pathname = usePathname();
 
   const {
@@ -35,8 +37,8 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
   if (!userLoading && !isAuthenticated) {
     return (
       <LoginRequired
-        title="Praćeni proizvodi"
-        description="Praćenje ti omogućuje da pratiš proizvode tako da dobiješ obavijest čim im cijena padne."
+        title={t("client.loginTitle")}
+        description={t("client.loginDescription")}
         icon={<Eye className="size-12 text-primary" />}
       />
     );
@@ -48,7 +50,7 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
     <div className="space-y-4">
       <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
         <SearchBar
-          placeholder="Pretraži popis za praćenje..."
+          placeholder={t("client.searchPlaceholder")}
           searchRoute={pathname}
           clearable={true}
           submitButtonLocation="none"

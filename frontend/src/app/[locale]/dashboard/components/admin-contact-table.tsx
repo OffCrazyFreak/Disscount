@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import { Input } from "@/components/ui/input";
@@ -28,10 +29,10 @@ import { filterByFields } from "@/utils/generic";
 
 type InboxView = "all" | "unread";
 
-const VIEW_LABELS: Record<InboxView, string> = {
-  all: "Sve",
-  unread: "Nepročitane",
-};
+const VIEW_LABEL_KEYS = {
+  all: "contact.viewAll",
+  unread: "contact.viewUnread",
+} as const satisfies Record<InboxView, string>;
 
 function matchesView(message: ContactMessageDto, view: InboxView): boolean {
   if (view === "unread") return !message.readAt;
@@ -39,6 +40,7 @@ function matchesView(message: ContactMessageDto, view: InboxView): boolean {
 }
 
 export default function AdminContactTable() {
+  const t = useTranslations("dashboard");
   const [view, setView] = useState<InboxView>("all");
   const [search, setSearch] = useState("");
   const [showDeleted, setShowDeleted] = useState(false);
@@ -67,9 +69,7 @@ export default function AdminContactTable() {
   }
 
   if (isError) {
-    return (
-      <p className="text-destructive text-sm">Greška pri dohvaćanju poruka.</p>
-    );
+    return <p className="text-destructive text-sm">{t("contact.loadError")}</p>;
   }
 
   return (
@@ -80,9 +80,9 @@ export default function AdminContactTable() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {(Object.keys(VIEW_LABELS) as InboxView[]).map((key) => (
+            {(Object.keys(VIEW_LABEL_KEYS) as InboxView[]).map((key) => (
               <SelectItem key={key} value={key}>
-                {VIEW_LABELS[key]}
+                {t(VIEW_LABEL_KEYS[key])}
               </SelectItem>
             ))}
           </SelectContent>
@@ -91,13 +91,13 @@ export default function AdminContactTable() {
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Pretraži poruke..."
+          placeholder={t("contact.searchPlaceholder")}
           className="max-w-xs"
         />
 
         <label className="text-muted-foreground flex items-center gap-2 text-sm">
           <Switch checked={showDeleted} onCheckedChange={setShowDeleted} />
-          Prikaži obrisane
+          {t("contact.showDeleted")}
         </label>
       </div>
 
@@ -105,11 +105,13 @@ export default function AdminContactTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Poruka</TableHead>
-              <TableHead>Pošiljatelj</TableHead>
-              <TableHead>Poslano</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Akcije</TableHead>
+              <TableHead>{t("contact.colMessage")}</TableHead>
+              <TableHead>{t("contact.colSender")}</TableHead>
+              <TableHead>{t("contact.colSent")}</TableHead>
+              <TableHead>{t("contact.colStatus")}</TableHead>
+              <TableHead className="text-right">
+                {t("contact.colActions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -128,7 +130,7 @@ export default function AdminContactTable() {
 
         {messages.length === 0 && (
           <p className="text-muted-foreground p-6 text-center text-sm">
-            Nema poruka.
+            {t("contact.empty")}
           </p>
         )}
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { ScanBarcode, TriangleAlert } from "lucide-react";
 import {
   Dialog,
@@ -14,7 +15,11 @@ import {
   getPreferredCamera,
   setPreferredCamera,
 } from "@/utils/browser/local-storage";
-import { describeScannerError, pickBackCamera } from "@/utils/browser/camera";
+import {
+  describeScannerError,
+  pickBackCamera,
+  type ScannerErrorKey,
+} from "@/utils/browser/camera";
 import { IScannedCode, ScanPreset } from "@/typings/scanned-code";
 import CameraView from "@/components/scanner/camera-view";
 import CameraSelect from "@/components/scanner/camera-select";
@@ -34,11 +39,12 @@ export default function CameraScanner({
   onClose,
   onScan,
 }: ICameraScannerProps) {
+  const t = useTranslations("scanner");
   const { devices, refreshDevices } = useCameraDevices();
   const [manualDeviceId, setManualDeviceId] = useState<string | undefined>(() =>
     getPreferredCamera(),
   );
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ScannerErrorKey | null>(null);
 
   const activeDeviceId = manualDeviceId ?? pickBackCamera(devices) ?? undefined;
   const hasManualChoice = Boolean(manualDeviceId);
@@ -66,7 +72,7 @@ export default function CameraScanner({
         <DialogHeader className="text-left">
           <DialogTitle className="flex items-center gap-2">
             <ScanBarcode aria-hidden="true" className="size-6" />
-            Skeniraj kod
+            {t("title")}
           </DialogTitle>
         </DialogHeader>
 
@@ -79,7 +85,7 @@ export default function CameraScanner({
               icon={TriangleAlert}
               className="mb-0"
             >
-              {error}
+              {t(`errors.${error}`)}
             </Banner>
           ) : (
             <CameraView

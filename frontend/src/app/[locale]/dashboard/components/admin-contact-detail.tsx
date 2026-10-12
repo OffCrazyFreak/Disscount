@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { Mail } from "lucide-react";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
@@ -16,6 +17,8 @@ export default function AdminContactDetail({
   message,
   onClose,
 }: IAdminContactDetailProps) {
+  const t = useTranslations("dashboard");
+  const locale = useLocale();
   const email = message?.email ?? "";
 
   return (
@@ -30,12 +33,12 @@ export default function AdminContactDetail({
             <Button asChild variant="outline">
               <a href={`mailto:${email}`}>
                 <Mail className="size-4" />
-                Odgovori
+                {t("contactDetail.reply")}
               </a>
             </Button>
           )}
           <Button type="button" onClick={onClose}>
-            Zatvori
+            {t("contactDetail.close")}
           </Button>
         </div>
       }
@@ -44,11 +47,19 @@ export default function AdminContactDetail({
         <div className="space-y-4 text-sm">
           <div className="text-muted-foreground space-y-1">
             <p>
-              Od: {message.fullName || "Nepoznato"}
+              {t("contactDetail.from", {
+                name: message.fullName || t("contactDetail.unknownSender"),
+              })}
               {email && ` (${email})`}
             </p>
-            <p>Poslano: {formatDate(message.createdAt)}</p>
-            {message.sourcePath && <p>Stranica: {message.sourcePath}</p>}
+            <p>
+              {t("contactDetail.sent", {
+                date: formatDate(message.createdAt, locale),
+              })}
+            </p>
+            {message.sourcePath && (
+              <p>{t("contactDetail.page", { path: message.sourcePath })}</p>
+            )}
           </div>
 
           <p className="whitespace-pre-wrap">{message.message}</p>

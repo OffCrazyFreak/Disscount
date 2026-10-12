@@ -1,8 +1,15 @@
-import renderBrandOg, { alt, contentType, size } from "@/app/og/render-og";
+import { localizedOgMetadata, renderLocalizedOg } from "@/app/og/localized-og";
 
 export const runtime = "nodejs";
-export { alt, contentType, size };
 
-export default async function TwitterImage() {
-  return renderBrandOg();
+interface ITwitterImageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export function generateImageMetadata({ params }: ITwitterImageProps) {
+  return localizedOgMetadata(params);
+}
+
+export default function TwitterImage({ params }: ITwitterImageProps) {
+  return renderLocalizedOg(params);
 }

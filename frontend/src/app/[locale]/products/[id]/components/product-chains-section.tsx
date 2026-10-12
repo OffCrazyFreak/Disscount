@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useTranslations } from "next-intl";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import CollapsibleSection from "@/components/custom/common/collapsible-section";
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
@@ -25,6 +26,7 @@ export default function ProductChainsSection({
   product,
   detail,
 }: IProductChainsSectionProps) {
+  const t = useTranslations("productDetail.chains");
   const [isOpen, setIsOpen] = useState(() => getProductStoresOpen(ean));
   const [expandedChain, setExpandedChain] = useState<string | null>(null);
 
@@ -39,14 +41,14 @@ export default function ProductChainsSection({
 
   return (
     <CollapsibleSection
-      title="Cijene po lancima trgovina"
+      title={t("title")}
       open={isOpen}
       onOpenChange={handleToggleSection}
     >
       {detail.pricesUpdatedAt > 0 && (
         <LastSyncedLabel
           updatedAt={detail.pricesUpdatedAt}
-          prefix="Cijene osvježene"
+          prefix={t("refreshedPrefix")}
           className="mb-3 block"
         />
       )}
@@ -56,13 +58,9 @@ export default function ProductChainsSection({
           <BlockLoadingSpinner />
         </div>
       ) : detail.pricesError ? (
-        <p className="p-2 text-gray-600 text-center">
-          Greška pri učitavanju cijena. Pokušaj ponovno.
-        </p>
+        <p className="p-2 text-gray-600 text-center">{t("loadError")}</p>
       ) : detail.sortedChains.length === 0 ? (
-        <p className="p-2 text-gray-600 text-center">
-          Nema dostupnih cijena za ovaj proizvod.
-        </p>
+        <p className="p-2 text-gray-600 text-center">{t("empty")}</p>
       ) : (
         <div className="space-y-4">
           <ProductChainSortSelect

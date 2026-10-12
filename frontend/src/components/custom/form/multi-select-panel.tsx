@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, type ComponentPropsWithoutRef, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   Command,
@@ -34,6 +35,7 @@ export default function MultiSelectPanel({
   children,
   ...props
 }: IMultiSelectPanelProps) {
+  const t = useTranslations("common");
   const listRef = useRef<HTMLDivElement>(null);
   const { searchValue, setSearchValue, presentation } = useMultiSelectContext();
 
@@ -65,7 +67,7 @@ export default function MultiSelectPanel({
         <button
           type="button"
           autoFocus
-          aria-label="Popis opcija"
+          aria-label={t("multiSelect.optionsList")}
           className="sr-only"
         />
       )}

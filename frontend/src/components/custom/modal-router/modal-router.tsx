@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import AuthModal, { AuthMode } from "@/components/custom/auth/auth-modal";
 import EntityModalOutlet, {
@@ -31,14 +32,17 @@ const MODE_TO_TARGET_NAME = {
 } as const;
 
 // Shown in the login modal when a logged-out user tries to open a gated modal.
-const GATE_MESSAGES: Record<string, string> = {
-  "add-to-list": "Prijavi se za dodavanje proizvoda na popis za kupnju.",
-  watchlist: "Prijavi se za praćenje sniženja ovog proizvoda.",
-  "shopping-list": "Prijavi se za upravljanje popisima za kupnju.",
-  "shopping-list-actions": "Prijavi se za upravljanje popisima za kupnju.",
-  "digital-card": "Prijavi se za upravljanje digitalnim karticama.",
-  settings: "Prijavi se za otvaranje postavki.",
-  onboarding: "Prijavi se za početak.",
+type GateKey =
+  `modalRouter.gate.${"addToList" | "watchlist" | "manageLists" | "manageCards" | "settings" | "onboarding"}`;
+
+const GATE_MESSAGES: Record<string, GateKey> = {
+  "add-to-list": "modalRouter.gate.addToList",
+  watchlist: "modalRouter.gate.watchlist",
+  "shopping-list": "modalRouter.gate.manageLists",
+  "shopping-list-actions": "modalRouter.gate.manageLists",
+  "digital-card": "modalRouter.gate.manageCards",
+  settings: "modalRouter.gate.settings",
+  onboarding: "modalRouter.gate.onboarding",
 };
 
 /**
@@ -47,6 +51,7 @@ const GATE_MESSAGES: Record<string, string> = {
  * once app-wide.
  */
 export default function ModalRouter() {
+  const t = useTranslations("shell");
   const { target, closeModal, swapModal } = useModalUrl();
   const { isAuthenticated, isLoading } = useUser();
 
@@ -72,7 +77,8 @@ export default function ModalRouter() {
     ? gateMode
     : ((target && AUTH_MODE_BY_NAME[target.name]) ?? "login");
 
-  const gateMessage = needsAuthGate ? GATE_MESSAGES[target.name] : undefined;
+  const gateKey = needsAuthGate ? GATE_MESSAGES[target.name] : undefined;
+  const gateMessage = gateKey ? t(gateKey) : undefined;
 
   function handleModeChange(mode: AuthMode) {
     if (needsAuthGate) setGateMode(mode);

@@ -1,6 +1,7 @@
 "use client";
 
 import { Minus, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,7 @@ export function StepperNumberInput({
   ariaLabel,
   className,
 }: IStepperNumberInputProps) {
+  const t = useTranslations("common");
   const parsed = Number.parseFloat(value);
   const current = Number.isFinite(parsed) ? parsed : 0;
 
@@ -64,9 +66,13 @@ export function StepperNumberInput({
         type="button"
         size="icon"
         variant={isSecondary ? "outline" : "primary"}
-        // Announced the way Croatian writes it, so the spoken label matches the
-        // visible one rather than reading a dot-decimal the button never shows.
-        aria-label={`${sign > 0 ? "Povećaj" : "Smanji"} za ${amount.toLocaleString("hr-HR")}`}
+        // The ICU number argument formats with the active locale, so the spoken
+        // label matches the visible one rather than reading a dot-decimal.
+        aria-label={
+          sign > 0
+            ? t("stepper.increase", { amount })
+            : t("stepper.decrease", { amount })
+        }
         className={cn(
           "shrink-0 rounded-full text-lg font-bold",
           isSecondary
@@ -83,6 +89,7 @@ export function StepperNumberInput({
           )
         ) : (
           <>
+            {}
             {sign > 0 ? "+" : "-"}
             {formatStepAmount(amount)}
           </>

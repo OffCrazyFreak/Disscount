@@ -1,9 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import cijeneService from "@/lib/cijene-api";
 
 export default function HealthStatus() {
+  const t = useTranslations("statistics");
   const {
     data: health,
     isLoading: healthLoading,
@@ -14,24 +17,20 @@ export default function HealthStatus() {
     return (
       <div className="flex items-center gap-2">
         <BlockLoadingSpinner size={16} />
-        Provjera stanja...
+        {t("health.checking")}
       </div>
     );
   }
 
   if (error) {
-    return (
-      <div className="text-red-700">
-        ❌ Greška pri provjeri dostupnosti API-ja
-      </div>
-    );
+    return <div className="text-red-700">{t("health.error")}</div>;
   }
 
   return health ? (
     <div className="text-green-600" aria-live="polite">
-      ✅ Cijene API je dostupan
+      {t("health.available")}
     </div>
   ) : (
-    <div className="text-red-700">❌ Cijene API nije dostupan</div>
+    <div className="text-red-700">{t("health.unavailable")}</div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import PriceInfoButton from "@/components/custom/price/price-info-button";
 import {
   Tooltip,
@@ -18,11 +19,11 @@ interface IProductPriceScopeInfoProps {
   scope: ProductPriceScope;
 }
 
-const SCOPE_TEXT: Record<ProductPriceScope, string> = {
-  all: "Raspon objavljenih cijena u svim trgovinama.",
-  chains: "Raspon objavljenih cijena u filtriranim trgovinama.",
-  locations: "Raspon objavljenih cijena koje odgovaraju odabranim filterima.",
-};
+const SCOPE_TEXT_KEYS = {
+  all: "priceScope.all",
+  chains: "priceScope.chains",
+  locations: "priceScope.locations",
+} as const satisfies Record<ProductPriceScope, string>;
 
 function stopPropagation(event: { stopPropagation: () => void }) {
   event.stopPropagation();
@@ -31,11 +32,12 @@ function stopPropagation(event: { stopPropagation: () => void }) {
 export default function ProductPriceScopeInfo({
   scope,
 }: IProductPriceScopeInfoProps) {
+  const t = useTranslations("products");
   const hasFinePointer = useFinePointer();
-  const text = SCOPE_TEXT[scope];
+  const text = t(SCOPE_TEXT_KEYS[scope]);
   const trigger = (
     <PriceInfoButton
-      label="Informacije o rasponu cijena"
+      label={t("priceScope.label")}
       className="text-gray-700 hover:text-gray-900"
       onClick={stopPropagation}
       onPointerDown={stopPropagation}

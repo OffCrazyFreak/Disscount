@@ -1,6 +1,11 @@
+import type { useTranslations } from "next-intl";
 import { ShoppingListDto } from "@/lib/api/types";
 import { getChainLabel } from "@/utils/labels";
 import { compareHr, formatDate } from "@/utils/strings";
+
+type ShoppingListsTranslator = ReturnType<
+  typeof useTranslations<"shoppingLists">
+>;
 
 // Open-ended rules, so a long title never has to line up with a closing corner.
 const RULE = "═".repeat(18);
@@ -26,10 +31,14 @@ function strikeWhenChecked(text: string, isChecked: boolean): string {
  * Format shopping list as text for sharing
  * Sorts items by checked status, then shop (chainCode), then brand, then name
  * @param shoppingList The shopping list to format
+ * @param t Translator for the "shoppingLists" namespace
+ * @param locale Active locale, for the dates
  * @returns Formatted text ready to share
  */
 export function formatShoppingListForSharing(
   shoppingList: ShoppingListDto,
+  t: ShoppingListsTranslator,
+  locale: string,
 ): string {
   // Sort items: unchecked first, then by shop, brand, and name
   const sortedItems = [...shoppingList.items].sort((a, b) => {
@@ -59,8 +68,8 @@ export function formatShoppingListForSharing(
   let shareText = `╔${RULE}\n`;
   shareText += `📋 *${neutraliseMarkers(shoppingList.title)}*\n`;
   shareText += `╚${RULE}\n\n`;
-  shareText += `📅 Stvoreno: ${formatDate(shoppingList.createdAt)}\n`;
-  shareText += `🔄 Ažurirano: ${formatDate(shoppingList.updatedAt)}\n\n`;
+  shareText += `${t("shareText.created", { date: formatDate(shoppingList.createdAt, locale) })}\n`;
+  shareText += `${t("shareText.updated", { date: formatDate(shoppingList.updatedAt, locale) })}\n\n`;
 
   // Format items
   sortedItems.forEach((item, index) => {
@@ -93,9 +102,9 @@ export function formatShoppingListForSharing(
 
   // Add branding footer
   shareText += `\n╔${RULE}\n`;
-  shareText += `✨ *Popis stvoren pomoću Disscount*\n`;
-  shareText += `💰 Usporedi cijene i uštedi!\n`;
-  shareText += `🌐 Isprobaj besplatno na disscount.me\n`;
+  shareText += `${t("shareText.footerCreatedWith")}\n`;
+  shareText += `${t("shareText.footerCompare")}\n`;
+  shareText += `${t("shareText.footerTry")}\n`;
   shareText += `╚${RULE}\n`;
 
   return shareText;

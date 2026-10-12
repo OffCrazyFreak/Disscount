@@ -1,5 +1,6 @@
 import { useRouter } from "@/i18n/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { shoppingListService } from "@/lib/api";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
@@ -13,6 +14,7 @@ export function useShoppingListMutations(
   listId: string,
   shoppingList?: ShoppingList,
 ) {
+  const t = useTranslations("shoppingListDetail");
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -38,7 +40,7 @@ export function useShoppingListMutations(
     try {
       await deleteShoppingListMutation.mutateAsync(listId);
 
-      toast.success("Popis za kupnju je uspješno obrisan!");
+      toast.success(t("toasts.listDeleted"));
       router.push("/shopping-lists");
     } catch (error) {
       // Rollback cache so UI reflects server state
@@ -47,7 +49,7 @@ export function useShoppingListMutations(
       }
       toast.error(
         (error instanceof Error && error.message) ||
-          "Greška pri brisanju popisa za kupnju. Pokušaj ponovno.",
+          t("toasts.listDeleteFailed"),
       );
     } finally {
       queryClient.invalidateQueries({ queryKey: SHOPPING_LIST_QUERY_KEYS.me });

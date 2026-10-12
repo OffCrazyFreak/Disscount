@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useWatch, type UseFormReturn } from "react-hook-form";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { shoppingListService } from "@/lib/api";
@@ -19,6 +20,7 @@ export function useSelectedShoppingList(
   // Compiled, sortedShoppingLists is memoized and that retry never comes.
   "use no memo";
 
+  const t = useTranslations("products");
   const { data: shoppingLists = [], isLoading: isLoadingLists } =
     shoppingListService.useGetCurrentUserShoppingLists({ enabled });
   const removeItemMutation = shoppingListService.useDeleteShoppingListItem();
@@ -83,9 +85,9 @@ export function useSelectedShoppingList(
         listId: selectedListId,
         itemId: duplicateItem.id,
       });
-      toast.success("Proizvod je uklonjen s popisa.");
+      toast.success(t("addToList.toast.removed"));
     } catch {
-      toast.error("Greška pri uklanjanju proizvoda.");
+      toast.error(t("addToList.toast.removeFailed"));
     }
   }
 

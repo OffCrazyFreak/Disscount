@@ -1,6 +1,7 @@
 "use client";
 
 import { Activity } from "react";
+import { useTranslations } from "next-intl";
 import { useFormState, useWatch } from "react-hook-form";
 import { ListPlus, TriangleAlert } from "lucide-react";
 
@@ -27,6 +28,7 @@ export default function AddToShoppingListForm({
   open,
   ean,
 }: IAddToShoppingListFormProps) {
+  const t = useTranslations("products");
   const {
     form,
     productQuery,
@@ -60,12 +62,12 @@ export default function AddToShoppingListForm({
     <ModalShell
       open={open}
       onOpenChange={(isOpen) => !isOpen && closeModalUrl()}
-      title="Dodaj proizvod u popis za kupnju"
-      description="Odaberi popis, količinu i trgovinu."
+      title={t("addToList.title")}
+      description={t("addToList.description")}
       srOnlyDescription
       dirty={isDirty}
       formId="add-to-list-form"
-      submitLabel="Dodaj"
+      submitLabel={t("addToList.submit")}
       // The product is already on the chosen list, so submitting edits that entry
       // rather than adding a second one.
       submitIcon={duplicateItem ? ListPen : ListPlus}
@@ -75,8 +77,8 @@ export default function AddToShoppingListForm({
         !isValid ||
         (shoppingListId === "new" && !customListTitle.trim())
       }
-      cancelLabel="Odustani"
-      resetLabel="Resetiraj"
+      cancelLabel={t("addToList.cancel")}
+      resetLabel={t("addToList.reset")}
       resetDisabled={!isDirty && !restored}
       onReset={() => {
         clearDraft();
@@ -86,7 +88,9 @@ export default function AddToShoppingListForm({
       {productQuery.isLoading ? (
         <Skeleton className="h-24 w-full" />
       ) : !product ? (
-        <p className="text-sm text-muted-foreground">Proizvod nije pronađen.</p>
+        <p className="text-sm text-muted-foreground">
+          {t("addToList.productNotFound")}
+        </p>
       ) : (
         <div className="space-y-4">
           <ProductInfoDisplay
@@ -95,7 +99,7 @@ export default function AddToShoppingListForm({
             action={
               duplicateItem ? (
                 <RemoveIconButton
-                  label="Ukloni s ovog popisa"
+                  label={t("addToList.removeFromList")}
                   onClick={handleRemoveFromList}
                   loading={isRemoving}
                 />
@@ -128,8 +132,12 @@ export default function AddToShoppingListForm({
                   variant="warningSoft"
                   size="lg"
                   icon={TriangleAlert}
-                  title="Proizvod već u popisu za kupnju"
-                  text={`Ovaj proizvod je već dodan u odabran popis za kupnju. Dodavanjem ovog proizvoda će se samo povećati njegova količina u popisu za kupnju sa ${duplicateItem.amount} na ${duplicateItem.amount + (Number.parseInt(amount, 10) || 0)}.`}
+                  title={t("addToList.duplicateTitle")}
+                  text={t("addToList.duplicateText", {
+                    current: duplicateItem.amount,
+                    next:
+                      duplicateItem.amount + (Number.parseInt(amount, 10) || 0),
+                  })}
                 />
               )}
 

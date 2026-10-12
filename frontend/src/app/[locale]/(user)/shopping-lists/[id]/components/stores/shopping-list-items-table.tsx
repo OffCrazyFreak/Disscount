@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+import { useTranslations } from "next-intl";
 import {
   Table,
   TableBody,
@@ -25,12 +26,13 @@ interface IShoppingListItemsTableProps {
 
 const ShoppingListItemsTable = memo(
   ({ chain, shoppingList, productsData }: IShoppingListItemsTableProps) => {
+    const t = useTranslations("shoppingListDetail");
     const isMobile = useIsMobile();
 
     if (!shoppingList.items || shoppingList.items.length === 0) {
       return (
         <div className="text-center py-8 text-gray-500">
-          Nema stavki na popisu za kupnju
+          {t("stores.table.empty")}
         </div>
       );
     }
@@ -40,10 +42,18 @@ const ShoppingListItemsTable = memo(
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="font-bold">Proizvod</TableHead>
-              <TableHead className="font-bold text-center">Količina</TableHead>
-              <TableHead className="font-bold text-center">Cijena</TableHead>
-              <TableHead className="font-bold text-center">Ukupno</TableHead>
+              <TableHead className="font-bold">
+                {t("stores.table.product")}
+              </TableHead>
+              <TableHead className="font-bold text-center">
+                {t("stores.table.quantity")}
+              </TableHead>
+              <TableHead className="font-bold text-center">
+                {t("stores.table.price")}
+              </TableHead>
+              <TableHead className="font-bold text-center">
+                {t("stores.table.total")}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

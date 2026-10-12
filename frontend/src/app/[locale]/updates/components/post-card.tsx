@@ -1,17 +1,21 @@
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Calendar } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { formatDate } from "@/utils/strings";
-import { Post } from "@/app/[locale]/updates/posts";
+import type { LocalizedPost } from "@/app/[locale]/updates/localize-post";
 
 interface IPostCardProps {
-  post: Post;
+  post: LocalizedPost;
 }
 
 export default function PostCard({ post }: IPostCardProps) {
+  const t = useTranslations("updates");
+  const locale = useLocale();
+
   return (
     <Card className="h-40 overflow-hidden p-0 transition-shadow hover:shadow-md">
       <Link href={`/updates/${post.id}`} className="flex h-full">
@@ -28,8 +32,8 @@ export default function PostCard({ post }: IPostCardProps) {
         <div className="flex min-w-0 flex-col gap-1.5 p-4">
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             <Calendar className="size-4 shrink-0" />
-            <span>{formatDate(post.date)}</span>
-            <span aria-hidden>·</span>
+            <span>{formatDate(post.date, locale)}</span>
+            <span aria-hidden>{t("separator")}</span>
             <span className="truncate">{post.author}</span>
           </div>
 

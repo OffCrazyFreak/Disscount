@@ -1,12 +1,11 @@
 "use client";
 
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import RemoveIconButton from "@/components/custom/common/remove-icon-button";
 import type { IUseProductFiltersResult } from "@/app/[locale]/products/hooks/use-product-filters";
 import { cn } from "@/lib/utils";
-
-const LABEL = "Očisti filtere";
 
 interface IClearFiltersButtonProps {
   filters: IUseProductFiltersResult;
@@ -27,6 +26,8 @@ export default function ClearFiltersButton({
   showLabel = false,
   className,
 }: IClearFiltersButtonProps) {
+  const t = useTranslations("products");
+  const label = t("clearFilters.label");
   const hasFilters = filters.activeFilterCount > 0;
 
   if (showLabel) {
@@ -39,7 +40,7 @@ export default function ClearFiltersButton({
         onClick={filters.clearFilters}
       >
         <X className="size-4" />
-        {LABEL}
+        {label}
       </Button>
     );
   }
@@ -47,7 +48,7 @@ export default function ClearFiltersButton({
   return (
     <RemoveIconButton
       tone="neutral"
-      label={LABEL}
+      label={label}
       disabled={!hasFilters}
       onClick={filters.clearFilters}
       className={cn("size-10", className)}

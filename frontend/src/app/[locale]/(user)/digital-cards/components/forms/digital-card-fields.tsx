@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormContext } from "react-hook-form";
+import { useTranslations } from "next-intl";
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,21 +17,22 @@ import DigitalCardSelectField from "@/app/[locale]/(user)/digital-cards/componen
 import type { DigitalCardRequest } from "@/lib/api/types";
 
 const CARD_TYPES = [
-  { value: "loyalty", label: "Loyalty kartica" },
-  { value: "discount", label: "Popust kartica" },
-  { value: "membership", label: "Članstvo" },
-  { value: "gift", label: "Poklon kartica" },
-  { value: "other", label: "Ostalo" },
-];
+  { value: "loyalty", labelKey: "cardTypes.loyalty" },
+  { value: "discount", labelKey: "cardTypes.discount" },
+  { value: "membership", labelKey: "cardTypes.membership" },
+  { value: "gift", labelKey: "cardTypes.gift" },
+  { value: "other", labelKey: "cardTypes.other" },
+] as const;
 
 const CODE_TYPES = [
-  { value: "barcode", label: "Barkod" },
-  { value: "qr", label: "QR kod" },
-  { value: "number", label: "Broj" },
-  { value: "text", label: "Tekst" },
-];
+  { value: "barcode", labelKey: "codeTypes.barcode" },
+  { value: "qr", labelKey: "codeTypes.qr" },
+  { value: "number", labelKey: "codeTypes.number" },
+  { value: "text", labelKey: "codeTypes.text" },
+] as const;
 
 export default function DigitalCardFields() {
+  const t = useTranslations("digitalCards");
   const form = useFormContext<DigitalCardRequest>();
 
   return (
@@ -40,7 +42,7 @@ export default function DigitalCardFields() {
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Naziv kartice</FormLabel>
+            <FormLabel>{t("fields.title")}</FormLabel>
             <FormControl>
               <Input {...field} autoFocus />
             </FormControl>
@@ -54,7 +56,7 @@ export default function DigitalCardFields() {
         name="value"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Vrijednost/Kod</FormLabel>
+            <FormLabel>{t("fields.value")}</FormLabel>
             <FormControl>
               <Input {...field} />
             </FormControl>
@@ -65,16 +67,22 @@ export default function DigitalCardFields() {
 
       <DigitalCardSelectField
         name="type"
-        label="Tip kartice"
-        placeholder="Odaberi tip"
-        options={CARD_TYPES}
+        label={t("fields.type")}
+        placeholder={t("fields.typePlaceholder")}
+        options={CARD_TYPES.map((option) => ({
+          value: option.value,
+          label: t(option.labelKey),
+        }))}
       />
 
       <DigitalCardSelectField
         name="codeType"
-        label="Tip koda"
-        placeholder="Odaberi tip koda"
-        options={CODE_TYPES}
+        label={t("fields.codeType")}
+        placeholder={t("fields.codeTypePlaceholder")}
+        options={CODE_TYPES.map((option) => ({
+          value: option.value,
+          label: t(option.labelKey),
+        }))}
       />
 
       <FormField
@@ -82,7 +90,7 @@ export default function DigitalCardFields() {
         name="color"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Boja kartice</FormLabel>
+            <FormLabel>{t("fields.color")}</FormLabel>
             <FormControl>
               <Input
                 type="color"
@@ -101,18 +109,19 @@ export default function DigitalCardFields() {
         name="note"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Napomena</FormLabel>
+            <FormLabel>{t("fields.note")}</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Unesi napomenu"
+                placeholder={t("fields.notePlaceholder")}
                 {...field}
                 value={field.value || ""}
                 maxLength={200}
               />
             </FormControl>
             <FormDescription>
-              Dodatne informacije o tvojoj kartici (
-              {200 - (field.value?.length || 0)} preostalo).
+              {t("fields.noteHelp", {
+                remaining: 200 - (field.value?.length || 0),
+              })}
             </FormDescription>
             <FormMessage />
           </FormItem>

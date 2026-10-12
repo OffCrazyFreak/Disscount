@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import SearchActionButton from "@/components/custom/search/search-action-button";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 
@@ -23,11 +24,12 @@ export default function ProductsSheetSubmit({
   query,
   form,
 }: IProductsSheetSubmitProps) {
+  const t = useTranslations("products");
   const { isUnchanged } = useSearchNavigation(searchRoute);
 
   return (
     <SearchActionButton
-      label="Pretraži"
+      label={t("productsSheet.submit")}
       block
       form={form}
       isUnchanged={isUnchanged(query)}

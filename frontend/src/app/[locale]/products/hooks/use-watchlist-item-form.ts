@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { watchlistService, WatchType } from "@/lib/api";
@@ -27,6 +28,7 @@ export function useWatchlistItemForm(
   avgPrice: number,
   initialWatchType?: WatchType,
 ) {
+  const t = useTranslations("products");
   const draftKey = `watchlist.${ean}`;
   const openingWatchType = initialWatchType ?? WatchType.percentage;
 
@@ -124,8 +126,11 @@ export function useWatchlistItemForm(
       removeFormDraftField(draftKey, field);
       toast.success(
         saved
-          ? `Prag ažuriran s ${saved.thresholdValue} na ${value}`
-          : "Proizvod dodan na popis za praćenje",
+          ? t("watchlistModal.toast.updated", {
+              from: saved.thresholdValue,
+              to: value,
+            })
+          : t("watchlistModal.toast.added"),
       );
     } catch (error) {
       stashModalError(draftKey, error);
@@ -148,12 +153,12 @@ export function useWatchlistItemForm(
       await removeMutation.mutateAsync(target.id);
       removeFormDraftField(draftKey, thresholdField(target.watchType));
       toast.success(
-        `Za proizvod se više ne prati ${
-          target.watchType === WatchType.percentage ? "postotak" : "cijena"
-        }`,
+        target.watchType === WatchType.percentage
+          ? t("watchlistModal.toast.removedPercentage")
+          : t("watchlistModal.toast.removedAbsolute"),
       );
     } catch {
-      toast.error("Greška pri uklanjanju");
+      toast.error(t("watchlistModal.toast.removeFailed"));
     }
   }
 

@@ -2,6 +2,7 @@
 // site is commented out in products-client.tsx, and /digital-cards needs one too.
 // Unparking means taking useViewMode's setter, which has no callers until then.
 import { Grid, List } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Tooltip,
   TooltipContent,
@@ -19,11 +20,13 @@ export default function ViewSwitcher({
   viewMode,
   setViewMode,
 }: IViewSwitcherProps) {
+  const t = useTranslations("products");
+
   return (
     <TooltipProvider>
       <div
         role="radiogroup"
-        aria-label="View mode"
+        aria-label={t("viewSwitcher.label")}
         className="bg-muted inline-flex items-center rounded-lg p-1"
       >
         <Tooltip>
@@ -39,12 +42,12 @@ export default function ViewSwitcher({
                 value="grid"
                 checked={viewMode === "grid"}
                 onChange={() => setViewMode("grid")}
-                aria-label="Grid view"
+                aria-label={t("viewSwitcher.grid")}
               />
               <Grid size={18} />
             </label>
           </TooltipTrigger>
-          <TooltipContent>Grid view</TooltipContent>
+          <TooltipContent>{t("viewSwitcher.grid")}</TooltipContent>
         </Tooltip>
 
         <Tooltip>
@@ -60,12 +63,12 @@ export default function ViewSwitcher({
                 value="list"
                 checked={viewMode === "list"}
                 onChange={() => setViewMode("list")}
-                aria-label="List view"
+                aria-label={t("viewSwitcher.list")}
               />
               <List size={18} />
             </label>
           </TooltipTrigger>
-          <TooltipContent>List view</TooltipContent>
+          <TooltipContent>{t("viewSwitcher.list")}</TooltipContent>
         </Tooltip>
       </div>
     </TooltipProvider>

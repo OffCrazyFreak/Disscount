@@ -2,6 +2,7 @@
 
 import { usePathname } from "@/i18n/navigation";
 import { Suspense } from "react";
+import { useTranslations } from "next-intl";
 import { Search, Plus, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/custom/search/search-bar";
@@ -26,6 +27,7 @@ interface IDigitalCardsClientProps {
 export default function DigitalCardsClient({
   query,
 }: IDigitalCardsClientProps) {
+  const t = useTranslations("digitalCards");
   const pathname = usePathname();
   // TODO(#61): no switcher on this route at all yet, so the mode is always "grid".
   // Take the setter and render one alongside the products page's.
@@ -54,8 +56,8 @@ export default function DigitalCardsClient({
   if (!userLoading && !isAuthenticated) {
     return (
       <LoginRequired
-        title="Digitalne kartice"
-        description="Digitalne kartice ti omogućuju da sve svoje kartice vjernosti držiš na jednom mjestu, uvijek pri ruci."
+        title={t("list.loginTitle")}
+        description={t("list.loginDescription")}
         icon={<CreditCard className="size-12 text-primary" />}
       />
     );
@@ -66,7 +68,7 @@ export default function DigitalCardsClient({
       <div className="space-y-4">
         <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
           <SearchBar
-            placeholder="Pretraži digitalne kartice..."
+            placeholder={t("list.searchPlaceholder")}
             searchRoute={pathname}
             clearable={true}
             submitButtonLocation="none"
@@ -78,10 +80,15 @@ export default function DigitalCardsClient({
         <div className="flex items-center justify-between gap-4">
           <h3>
             {query.length > 0
-              ? `Rezultati pretrage za "${query}" (${matchingDigitalCards.length})`
-              : `Moje digitalne kartice${
-                  isUserLoading ? "" : ` (${matchingDigitalCards.length})`
-                }`}
+              ? t("list.searchResultsTitle", {
+                  query,
+                  count: matchingDigitalCards.length,
+                })
+              : isUserLoading
+                ? t("list.title")
+                : t("list.titleWithCount", {
+                    count: matchingDigitalCards.length,
+                  })}
           </h3>
 
           <CreateDigitalCardButton onCreateClick={handleCreate} />
@@ -116,12 +123,10 @@ export default function DigitalCardsClient({
           <div className="text-center py-12">
             <CreditCard className="size-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-foreground mb-2">
-              Nema digitalnih kartica
+              {t("list.emptyTitle")}
             </h3>
 
-            <p className="text-gray-600 mb-6">
-              Stvori svoju prvu digitalnu karticu…
-            </p>
+            <p className="text-gray-600 mb-6">{t("list.emptyDescription")}</p>
 
             <Button
               effect="shineHover"
@@ -129,7 +134,7 @@ export default function DigitalCardsClient({
               iconPlacement="left"
               onClick={handleCreate}
             >
-              Dodaj digitalnu karticu
+              {t("actions.add")}
             </Button>
           </div>
         )}

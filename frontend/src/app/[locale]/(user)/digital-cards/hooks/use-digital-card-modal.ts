@@ -1,4 +1,5 @@
 import { onlineManager, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { digitalCardService } from "@/lib/api";
@@ -16,6 +17,7 @@ export function useDigitalCardModal({
   digitalCard,
   draftKey,
 }: IUseDigitalCardModalProps) {
+  const t = useTranslations("digitalCards");
   const queryClient = useQueryClient();
 
   const createMutation = digitalCardService.useCreateDigitalCard();
@@ -27,18 +29,16 @@ export function useDigitalCardModal({
     closeModalUrl();
 
     if (!onlineManager.isOnline()) {
-      toast.info(
-        "Izvan si mreže - promjena će se sinkronizirati kad se vratiš na mrežu.",
-      );
+      toast.info(t("modal.offline"));
     }
 
     try {
       if (digitalCard) {
         await updateMutation.mutateAsync({ id: digitalCard.id, data });
-        toast.success("Digitalna kartica je uspješno ažurirana!");
+        toast.success(t("modal.updated"));
       } else {
         await createMutation.mutateAsync(data);
-        toast.success("Digitalna kartica je uspješno kreirana!");
+        toast.success(t("modal.created"));
       }
 
       removeFormDraft(draftKey);

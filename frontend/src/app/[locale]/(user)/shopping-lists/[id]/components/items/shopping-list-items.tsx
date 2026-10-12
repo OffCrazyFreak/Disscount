@@ -2,6 +2,7 @@
 
 import { Link } from "@/i18n/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { ChevronDown, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,8 @@ export default function ShoppingListItems({
   averagePrices,
   storePrices,
 }: IShoppingListItemsProps) {
+  const t = useTranslations("shoppingListDetail");
+
   const { canCheck, canEditItems, isOwner } = resolveShoppingListAccess(
     shoppingList.myAccess,
   );
@@ -66,15 +69,18 @@ export default function ShoppingListItems({
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-lg font-semibold">
               {checkedCount > 0
-                ? `Proizvodi (${checkedCount}/${shoppingList.items.length} kupljeno)`
-                : `Proizvodi (${shoppingList.items.length})`}
+                ? t("items.titleWithChecked", {
+                    checked: checkedCount,
+                    total: shoppingList.items.length,
+                  })
+                : t("items.title", { total: shoppingList.items.length })}
             </h2>
 
             <Separator className="flex-1 my-2" />
 
             <div className="flex items-center gap-4">
               <p className="hidden sm:inline text-gray-700 text-sm">
-                {isItemsOpen ? "Sakrij" : "Prikaži"}
+                {isItemsOpen ? t("toggle.hide") : t("toggle.show")}
               </p>
 
               <ChevronDown
@@ -92,9 +98,7 @@ export default function ShoppingListItems({
         {shoppingList.items.length === 0 ? (
           <div className="p-4 text-center">
             <p className="mb-4 text-gray-600">
-              {isOwner
-                ? "Ovaj popis još ne sadrži proizvode. Pretraži proizvode i dodaj ih na ovaj popis."
-                : "Ovaj popis još ne sadrži proizvode."}
+              {isOwner ? t("items.emptyOwner") : t("items.empty")}
             </p>
 
             {/* Only the owner can add items, so nobody else gets an invitation to try. */}
@@ -102,7 +106,7 @@ export default function ShoppingListItems({
               <Button asChild effect="shineHover">
                 <Link href="/products">
                   <Search aria-hidden="true" className="size-5" />
-                  Pretraži proizvode
+                  {t("items.searchProducts")}
                 </Link>
               </Button>
             )}

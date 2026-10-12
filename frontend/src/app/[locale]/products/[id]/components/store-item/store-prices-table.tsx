@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import {
   Table,
   TableBody,
@@ -17,6 +18,7 @@ import {
 import { useUser } from "@/context/user-context";
 import { getLocationLabel } from "@/utils/labels";
 import { compareHr } from "@/utils/strings";
+import { formatPrice } from "@/utils/price";
 
 interface IStorePricesTableProps {
   storePrices: StorePrice[];
@@ -25,6 +27,8 @@ interface IStorePricesTableProps {
 
 const StorePricesTable = memo(
   ({ storePrices, product }: IStorePricesTableProps) => {
+    const t = useTranslations("productDetail.pricesTable");
+    const locale = useLocale();
     const { user } = useUser();
 
     const productMinPrice = getMinPrice(product);
@@ -35,11 +39,7 @@ const StorePricesTable = memo(
       user?.pinnedPlaces?.map((place) => place.placeApiId) || [];
 
     if (storePrices.length === 0) {
-      return (
-        <div className="text-center py-8 text-gray-500">
-          Nema dostupnih cijena za ovaj lanac
-        </div>
-      );
+      return <div className="text-center py-8 text-gray-500">{t("empty")}</div>;
     }
 
     return (
@@ -47,9 +47,11 @@ const StorePricesTable = memo(
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="font-bold">Lokacija</TableHead>
-              <TableHead className="font-bold">Adresa</TableHead>
-              <TableHead className="font-bold text-center">Cijena</TableHead>
+              <TableHead className="font-bold">{t("location")}</TableHead>
+              <TableHead className="font-bold">{t("address")}</TableHead>
+              <TableHead className="font-bold text-center">
+                {t("price")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
@@ -100,10 +102,10 @@ const StorePricesTable = memo(
                     )}
                   >
                     <TableCell>
-                      {getLocationLabel(price.store.city, "Nepoznato")}
+                      {getLocationLabel(price.store.city, t("unknown"))}
                     </TableCell>
 
-                    <TableCell>{price.store.address || "Nepoznato"}</TableCell>
+                    <TableCell>{price.store.address || t("unknown")}</TableCell>
 
                     <TableCell className="text-center">
                       {displayPrice != null ? (
@@ -118,13 +120,13 @@ const StorePricesTable = memo(
                                   : "text-gray-500",
                           )}
                         >
-                          {displayPrice.toFixed(2)}€
+                          {formatPrice(displayPrice, locale)}
                           {/* {price.special_price && (
                             <span className="ml-2">(akcija)</span>
                           )} */}
                         </span>
                       ) : (
-                        "N/A"
+                        t("notAvailable")
                       )}
                     </TableCell>
                   </TableRow>

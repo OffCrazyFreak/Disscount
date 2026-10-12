@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import {
   registerRequestSchema,
@@ -11,6 +11,7 @@ import {
 
 export function useSignupForm() {
   const locale = useLocale();
+  const t = useTranslations("auth");
   // Verification is required, so registration shows an inbox notice, not a session.
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
@@ -41,7 +42,7 @@ export function useSignupForm() {
       if (!response.ok) {
         form.setError("root", {
           type: "server",
-          message: "Provjeri unesene podatke.",
+          message: t("errors.checkInput"),
         });
         return;
       }
@@ -49,7 +50,7 @@ export function useSignupForm() {
       setSubmittedEmail(data.email);
       form.reset();
     } catch {
-      toast.error("Greška pri registraciji. Pokušaj ponovo.");
+      toast.error(t("signup.error"));
     }
   }
 

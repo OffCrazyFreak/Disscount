@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
@@ -28,6 +29,8 @@ interface IShoppingListPriceHistoryProps {
 export default function ShoppingListPriceHistory({
   shoppingList,
 }: IShoppingListPriceHistoryProps) {
+  const t = useTranslations("shoppingListDetail");
+
   const [period, setPeriod] = useState<PeriodOption>(() =>
     getEnabledPeriod(getShoppingListPriceHistoryPeriod(shoppingList.id)),
   );
@@ -100,9 +103,7 @@ export default function ShoppingListPriceHistory({
                   </div>
                 ) : chartData.length === 0 || hasError ? (
                   <div className="text-center py-8">
-                    <p className="text-gray-600">
-                      Nema dostupnih povijesnih podataka.
-                    </p>
+                    <p className="text-gray-600">{t("priceHistory.noData")}</p>
                   </div>
                 ) : (
                   <ShoppingListPriceHistoryChart

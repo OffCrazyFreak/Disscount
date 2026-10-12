@@ -4,6 +4,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { shoppingListService } from "@/lib/api";
@@ -29,7 +30,6 @@ const DEFAULT_OPTIONS: ICopyListOptions = {
   sharing: false,
 };
 
-const COPY_SUFFIX = " (Kopija)";
 // Read off the schema rather than restated, so raising the limit in one place cannot
 // leave the prefill producing titles the same schema then rejects.
 const TITLE_MAX_LENGTH = shoppingListRequestSchema.shape.title.maxLength ?? 100;
@@ -43,8 +43,8 @@ const TITLE_MAX_LENGTH = shoppingListRequestSchema.shape.title.maxLength ?? 100;
  * UTF-16 units, because that is what zod's max() counts: slicing to 91 code points would
  * leave an emoji title twice that long by the schema's reckoning.
  */
-function suggestCopyTitle(title: string) {
-  const room = TITLE_MAX_LENGTH - COPY_SUFFIX.length;
+function suggestCopyTitle(title: string, suffix: string) {
+  const room = TITLE_MAX_LENGTH - suffix.length;
 
   let head = "";
   for (const character of title) {
@@ -52,10 +52,11 @@ function suggestCopyTitle(title: string) {
     head += character;
   }
 
-  return `${head}${COPY_SUFFIX}`;
+  return `${head}${suffix}`;
 }
 
 export function useCopyListModal(id: string) {
+  const t = useTranslations("shoppingLists");
   const router = useRouter();
   const [options, setOptions] = useState<ICopyListOptions>(DEFAULT_OPTIONS);
 
@@ -92,7 +93,9 @@ export function useCopyListModal(id: string) {
   useEffect(() => {
     if (!shoppingList || isDirty) return;
 
-    form.reset({ title: suggestCopyTitle(shoppingList.title) });
+    form.reset({
+      title: suggestCopyTitle(shoppingList.title, t("copyModal.titleSuffix")),
+    });
     // isDirty is read on purpose but must not retrigger the seed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shoppingList, form]);
@@ -116,10 +119,10 @@ export function useCopyListModal(id: string) {
       });
 
       // replace, not close-then-push: closeModalUrl pops asynchronously and would undo it.
-      toast.success("Popis za kupnju je uspješno kopiran!");
+      toast.success(t("copyModal.successToast"));
       router.replace(shoppingListPath(copy.id));
     } catch {
-      toast.error("Greška pri kopiranju popisa za kupnju");
+      toast.error(t("copyModal.errorToast"));
     }
   }
 

@@ -1,4 +1,5 @@
 import { UseFormReturn } from "react-hook-form";
+import { useTranslations } from "next-intl";
 
 import {
   FormControl,
@@ -16,13 +17,15 @@ interface IQuantityInputProps {
 }
 
 export default function QuantityInput({ formField }: IQuantityInputProps) {
+  const t = useTranslations("products");
+
   return (
     <FormField
       control={formField.control}
       name="amount"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Količina</FormLabel>
+          <FormLabel>{t("quantity.label")}</FormLabel>
           <FormControl>
             <StepperNumberInput
               value={field.value}
@@ -31,7 +34,7 @@ export default function QuantityInput({ formField }: IQuantityInputProps) {
               min={1}
               max={MAX_SHOPPING_LIST_ITEM_AMOUNT}
               integer
-              ariaLabel="Količina"
+              ariaLabel={t("quantity.label")}
             />
           </FormControl>
           <FormMessage />

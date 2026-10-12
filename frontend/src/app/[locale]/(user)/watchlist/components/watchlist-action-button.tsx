@@ -1,4 +1,5 @@
 import { X, Eye } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -25,7 +26,8 @@ export default function WatchlistActionButton({
   onAdd,
   onRemove,
 }: IWatchlistActionButtonProps) {
-  const label = isAddMode ? "Prati proizvod" : "Makni proizvod";
+  const t = useTranslations("watchlist");
+  const label = isAddMode ? t("actionButton.watch") : t("actionButton.remove");
 
   return (
     <Tooltip>

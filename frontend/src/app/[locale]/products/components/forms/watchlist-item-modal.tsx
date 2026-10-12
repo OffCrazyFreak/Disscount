@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Eye, TriangleAlert } from "lucide-react";
 import { useFormState } from "react-hook-form";
 
@@ -33,10 +34,12 @@ interface IWatchlistItemModalProps {
   watchType?: WatchTypeParam;
 }
 
-function buildAlertMessage(items: WatchlistItemDto[]): string | null {
+function buildAlertMessage(
+  items: WatchlistItemDto[],
+  t: ReturnType<typeof useTranslations<"products">>,
+): string | null {
   if (items.length === 0) return null;
 
-  const parts: string[] = [];
   const percentageItem = items.find(
     (item) => item.watchType === WatchType.percentage,
   );
@@ -44,14 +47,24 @@ function buildAlertMessage(items: WatchlistItemDto[]): string | null {
     (item) => item.watchType === WatchType.absolute,
   );
 
+  if (percentageItem && absoluteItem) {
+    return t("watchlistModal.existingBoth", {
+      percentage: Math.round(percentageItem.thresholdValue),
+      amount: absoluteItem.thresholdValue,
+    });
+  }
   if (percentageItem) {
-    parts.push(`postotka od ${Math.round(percentageItem.thresholdValue)}%`);
+    return t("watchlistModal.existingPercentage", {
+      percentage: Math.round(percentageItem.thresholdValue),
+    });
   }
   if (absoluteItem) {
-    parts.push(`popusta od ${absoluteItem.thresholdValue}€`);
+    return t("watchlistModal.existingAbsolute", {
+      amount: absoluteItem.thresholdValue,
+    });
   }
 
-  return `Ovaj proizvod je već na popisu za praćenje s minimalnim pragom ${parts.join(" te ")}.`;
+  return null;
 }
 
 export default function WatchlistItemModal({
@@ -59,6 +72,7 @@ export default function WatchlistItemModal({
   ean,
   watchType,
 }: IWatchlistItemModalProps) {
+  const t = useTranslations("products");
   const productQuery = cijeneService.useGetProductByEan({ ean });
   const product = productQuery.data;
 
@@ -107,18 +121,22 @@ export default function WatchlistItemModal({
     );
   }, [open, watchType, form]);
 
-  const alertMessage = buildAlertMessage(existingItems);
+  const alertMessage = buildAlertMessage(existingItems, t);
 
   return (
     <ModalShell
       open={open}
       onOpenChange={(isOpen) => !isOpen && closeModalUrl()}
-      title="Dodaj na popis za praćenje"
-      description="Postavi prag sniženja i javit ćemo ti kad se dosegne."
+      title={t("watchlistModal.title")}
+      description={t("watchlistModal.description")}
       srOnlyDescription
       dirty={isEdited}
       formId="watchlist-form"
-      submitLabel={existingItemForType ? "Spremi" : "Prati"}
+      submitLabel={
+        existingItemForType
+          ? t("watchlistModal.save")
+          : t("watchlistModal.track")
+      }
       // EyePen rather than a generic Save, so editing an existing alert is marked the
       // same way here as on the product row that opened this.
       submitIcon={existingItemForType ? EyePen : Eye}
@@ -126,8 +144,8 @@ export default function WatchlistItemModal({
       submitDisabled={
         isCheckingWatchlist || !product || !isFormValid || !hasSavableChange
       }
-      cancelLabel="Odustani"
-      resetLabel="Resetiraj"
+      cancelLabel={t("watchlistModal.cancel")}
+      resetLabel={t("watchlistModal.reset")}
       // Enabled while either mode's number differs from what is tracked, including
       // the one not on screen, because reset puts both of them back.
       resetDisabled={!isEditedInAnyMode}
@@ -139,7 +157,9 @@ export default function WatchlistItemModal({
       {productQuery.isLoading ? (
         <Skeleton className="h-24 w-full" />
       ) : !product ? (
-        <p className="text-sm text-muted-foreground">Proizvod nije pronađen.</p>
+        <p className="text-sm text-muted-foreground">
+          {t("watchlistModal.productNotFound")}
+        </p>
       ) : (
         <div className="space-y-6">
           <ProductInfoDisplay
@@ -148,7 +168,7 @@ export default function WatchlistItemModal({
             action={
               existingItems.length > 0 ? (
                 <RemoveIconButton
-                  label="Ukloni s popisa za praćenje"
+                  label={t("watchlistModal.removeFromWatchlist")}
                   onClick={onRemove}
                   loading={isRemoving}
                   disabled={isCheckingWatchlist}
@@ -172,7 +192,7 @@ export default function WatchlistItemModal({
                   variant="warningSoft"
                   size="lg"
                   icon={TriangleAlert}
-                  title="Proizvod već na popisu za praćenje"
+                  title={t("watchlistModal.existingTitle")}
                   text={alertMessage}
                 />
               )}

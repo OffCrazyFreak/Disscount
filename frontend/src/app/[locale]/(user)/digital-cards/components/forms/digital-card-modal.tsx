@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 
 import { Save } from "lucide-react";
 
@@ -39,6 +40,7 @@ export default function DigitalCardModal({
   action,
   id,
 }: IDigitalCardModalProps) {
+  const t = useTranslations("digitalCards");
   const isEdit = action === "edit" && !!id;
 
   // Cards have no by-id endpoint; the user's list query covers cold deep links.
@@ -116,12 +118,12 @@ export default function DigitalCardModal({
     <ModalShell
       open={open}
       onOpenChange={(isOpen) => !isOpen && closeModalUrl()}
-      title={isEdit ? "Uredi digitalnu karticu" : "Nova digitalna kartica"}
-      description="Spremi karticu vjernosti i imaj je uvijek pri ruci."
+      title={isEdit ? t("modal.editTitle") : t("modal.newTitle")}
+      description={t("modal.description")}
       srOnlyDescription
       dirty={form.formState.isDirty}
       formId="digital-card-form"
-      submitLabel={isEdit ? "Spremi" : "Stvori"}
+      submitLabel={isEdit ? t("modal.save") : t("modal.create")}
       submitIcon={Save}
       submitLoading={isLoading}
       submitDisabled={
@@ -130,8 +132,8 @@ export default function DigitalCardModal({
         notFound ||
         loadError
       }
-      cancelLabel="Odustani"
-      resetLabel="Resetiraj"
+      cancelLabel={t("modal.cancel")}
+      resetLabel={t("modal.reset")}
       resetDisabled={!form.formState.isDirty && !restored}
       onReset={() => {
         clearDraft();
@@ -141,13 +143,9 @@ export default function DigitalCardModal({
       {loading ? (
         <Skeleton className="h-64 w-full" />
       ) : loadError ? (
-        <p className="text-sm text-muted-foreground">
-          Greška pri učitavanju kartice. Pokušaj ponovo.
-        </p>
+        <p className="text-sm text-muted-foreground">{t("modal.loadError")}</p>
       ) : notFound ? (
-        <p className="text-sm text-muted-foreground">
-          Kartica nije pronađena. Možda je obrisana.
-        </p>
+        <p className="text-sm text-muted-foreground">{t("modal.notFound")}</p>
       ) : (
         <Form {...form}>
           <form

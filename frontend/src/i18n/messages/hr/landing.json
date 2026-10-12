@@ -1,0 +1,202 @@
+{
+  "meta": {
+    "title": "Pronađi najbolje cijene u Hrvatskoj",
+    "description": "Usporedi cijene proizvoda u 25+ trgovačkih lanaca u Hrvatskoj, prati povijest cijena, izradi pametne popise za kupnju i uštedi pri svakoj kupnji. Besplatno."
+  },
+  "jsonLd": {
+    "appDescription": "Usporedba cijena proizvoda u trgovačkim lancima u Hrvatskoj: povijest cijena, pametni popisi za kupnju i praćenje proizvoda."
+  },
+  "hero": {
+    "title": "Pronađi <underline>najbolje cijene</underline> u Hrvatskoj",
+    "searchPlaceholder": "Pretraži proizvode...",
+    "or": "ili",
+    "scanBarcode": "Skeniraj barkod"
+  },
+  "taglines": {
+    "compare": "Usporedi trgovine i cijene!",
+    "saveEveryTime": "Uštedi pri svakoj kupnji!",
+    "neverMissDeal": "Nikad ne propusti akciju!",
+    "forgetCards": "Zaboravi kartice - olakšaj novčanik!",
+    "shareList": "Izradi i podijeli popis za kupnju!",
+    "priceHistory": "Prati povijest cijena!",
+    "scan": "Skeniraj barkod i usporedi cijene!",
+    "smartShopping": "Uživaj u pametnom kupovanju!",
+    "bestOffers": "Pronađi najbolje ponude u Hrvatskoj!",
+    "cheapQuality": "Kupuj kvalitetno i jeftino!",
+    "saveMore": "Kupuj pametno, uštedi više!",
+    "partner": "Tvoj partner u pametnoj kupovini!",
+    "noCatalogs": "Zaboravi na kataloge i letke!"
+  },
+  "howItWorks": {
+    "title": "Kako funkcionira?",
+    "subtitle": "Tri koraka do jeftinije košarice - bez listanja kataloga i letaka.",
+    "steps": {
+      "searchOrScan": {
+        "title": "Pretraži ili skeniraj",
+        "description": "Upiši naziv proizvoda ili skeniraj barkod kamerom."
+      },
+      "comparePrices": {
+        "title": "Usporedi cijene",
+        "description": "Vidiš cijenu u svim trgovinama i povijest cijene kroz vrijeme."
+      },
+      "save": {
+        "title": "Uštedi pri kupnji",
+        "description": "Odaberi najpovoljniju trgovinu i kupuj bez listanja kataloga."
+      }
+    }
+  },
+  "stats": {
+    "heading": "Disscount u brojkama",
+    "chains": {
+      "value": "25+",
+      "label": "trgovačkih lanaca"
+    },
+    "free": {
+      "value": "100 %",
+      "label": "besplatno, zauvijek"
+    },
+    "catalogs": {
+      "value": "0",
+      "label": "kataloga za listanje"
+    }
+  },
+  "features": {
+    "title": "Sve za pametnu kupovinu",
+    "subtitle": "Ono što radi već danas - i ono što uskoro stiže.",
+    "items": {
+      "scanner": {
+        "title": "Skeniranje barkoda",
+        "description": "Uperi kameru u proizvod i cijene su pred tobom u sekundi."
+      },
+      "compare": {
+        "title": "Usporedba cijena",
+        "description": "Isti proizvod, sve trgovine - odmah vidiš gdje je najjeftinije."
+      },
+      "history": {
+        "title": "Povijest cijena",
+        "description": "Graf cijene kroz vrijeme otkriva je li akcija stvarno akcija."
+      },
+      "lists": {
+        "title": "Popisi za kupnju",
+        "description": "Složi popis i saznaj u kojoj trgovini je ukupna košarica najpovoljnija."
+      },
+      "sharing": {
+        "title": "Dijeljenje popisa",
+        "description": "Podijeli popis s obitelji pa kupuj zajedno bez dupliciranja."
+      },
+      "spending": {
+        "title": "Analiza potrošnje",
+        "description": "Pregled koliko trošiš i koliko štediš iz mjeseca u mjesec."
+      },
+      "watchlist": {
+        "title": "Praćenje proizvoda",
+        "description": "Dodaj proizvode koje kupuješ i drži njihove cijene na oku."
+      },
+      "notifications": {
+        "title": "Pametne obavijesti",
+        "description": "Postavi željenu cijenu i javit ćemo ti kad proizvod pojeftini."
+      },
+      "cards": {
+        "title": "Digitalne kartice",
+        "description": "Sve kartice trgovina u mobitelu - novčanik konačno na dijeti."
+      },
+      "offline": {
+        "title": "Bez interneta",
+        "description": "Instaliraj kao aplikaciju - popisi i proizvodi dostupni i offline."
+      },
+      "map": {
+        "title": "Karta trgovina",
+        "description": "Pronađi najbližu otvorenu trgovinu i njeno radno vrijeme."
+      }
+    }
+  },
+  "priceHistory": {
+    "title": "Je li akcija stvarno akcija?",
+    "description": "Neke \"akcije\" samo vrate cijenu na staru. Disscount pamti povijest cijena pa točno vidiš koliko je proizvod koštao prošli tjedan, prošli mjesec - i isplati li se čekati.",
+    "checks": {
+      "chart": "Graf cijene za svaki proizvod, po trgovini",
+      "realDiscount": "Odmah vidiš je li popust stvaran ili napuhan",
+      "average": "Usporedba s prosječnom cijenom u drugim lancima"
+    },
+    "cta": "Provjeri svoj proizvod",
+    "chartCaption": "Cijena kroz vrijeme"
+  },
+  "stores": {
+    "title": "Svi veliki lanci na jednom mjestu",
+    "subtitle": "Od Konzuma i Lidla do kvartovskih trgovina - cijene iz 25+ trgovačkih lanaca diljem Hrvatske.",
+    "viewPrices": "Pogledaj cijene - {chain}"
+  },
+  "pwa": {
+    "screenshotPhoneAlt": "Disscount aplikacija na mobitelu",
+    "screenshotDesktopAlt": "Disscount aplikacija na računalu",
+    "title": "Aplikacija koja radi i bez interneta",
+    "perks": {
+      "offline": {
+        "title": "Popisi dostupni offline",
+        "description": "Popisi za kupnju i pregledani proizvodi rade i bez signala, usred dućana."
+      },
+      "sync": {
+        "title": "Sinkronizacija kad se vratiš",
+        "description": "Promjene napravljene offline automatski se spremaju čim se vratiš na mrežu."
+      }
+    }
+  },
+  "pricing": {
+    "title": "Koliko košta? Ništa.",
+    "subtitle": "Disscount je besplatan i takav ostaje. Račun ti ovaj put ide u korist.",
+    "freeSubtitle": "Račun · besplatni plan",
+    "premiumSubtitle": "Račun · premium plan",
+    "freePrice": "0,00",
+    "freeTotal": "0,00 EUR",
+    "unknownPrice": "?",
+    "total": "UKUPNO",
+    "freeRows": {
+      "compare": "Usporedba cijena i povijest cijena",
+      "lists": "Neograničeni popisi za kupnju",
+      "watchlist": "Praćenje proizvoda",
+      "alerts": "Obavijesti o padu cijena",
+      "scan": "Skeniranje barkoda",
+      "install": "Instalacija kao aplikacija"
+    },
+    "premiumRows": {
+      "spending": "Napredna analiza potrošnje",
+      "ai": "AI prijedlozi za jeftiniju košaricu"
+    }
+  },
+  "faq": {
+    "title": "Česta pitanja",
+    "subtitle": "Sve što te zanima prije prve kupnje s Disscountom.",
+    "items": {
+      "source": {
+        "question": "Odakle Disscountu cijene proizvoda?",
+        "answer": "Od 15. svibnja 2025. trgovački lanci u Hrvatskoj zakonski su obvezni javno objavljivati cijene. Disscount ih preuzima kroz otvoreni projekt Cijene API, koji svakodnevno prikuplja službene cjenike trgovina."
+      },
+      "free": {
+        "question": "Je li Disscount stvarno besplatan?",
+        "answer": "Da. Pretraga proizvoda, usporedba cijena, povijest cijena i popisi za kupnju besplatni su i takvi ostaju."
+      },
+      "stores": {
+        "question": "Koje trgovine mogu usporediti?",
+        "answer": "Disscount pokriva 25+ trgovačkih lanaca diljem Hrvatske - među njima Konzum, Lidl, Plodine, Spar, Kaufland, Tommy, Studenac, Eurospin i dm."
+      },
+      "account": {
+        "question": "Trebam li napraviti račun?",
+        "answer": "Ne za pretragu i usporedbu cijena - to radi odmah. Račun ti treba tek kad želiš spremati popise za kupnju i pratiti proizvode."
+      },
+      "barcode": {
+        "question": "Kako skeniram barkod proizvoda?",
+        "answer": "Klikni Skeniraj barkod, dopusti pristup kameri i uperi je u barkod na proizvodu - Disscount odmah otvara taj proizvod s cijenama u svim trgovinama."
+      },
+      "offline": {
+        "question": "Radi li aplikacija bez interneta?",
+        "answer": "Da. Disscount možeš instalirati kao aplikaciju na mobitel ili računalo, a spremljeni popisi i pregledani proizvodi dostupni su i offline. Promjene se automatski sinkroniziraju kad se vratiš na mrežu."
+      }
+    }
+  },
+  "finalCta": {
+    "title": "Želiš uštedjeti?",
+    "description": "Pretraga radi odmah, bez registracije. Račun ti treba tek kad poželiš spremati popise i pratiti proizvode.",
+    "search": "Kreni s pretragom",
+    "signup": "Stvori besplatni račun"
+  }
+}

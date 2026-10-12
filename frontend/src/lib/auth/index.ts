@@ -5,9 +5,13 @@ import { nextCookies } from "better-auth/next-js";
 import { APIError } from "better-auth/api";
 
 import { db } from "@/db";
+import { createTranslator } from "next-intl";
+
 import { isLocale } from "@/i18n/locales";
+import { loadMessages } from "@/i18n/load-messages";
 import { appUrl, requireEnv } from "@/lib/env";
 import { emailService } from "@/lib/email";
+import { userLocale } from "@/lib/email/email-copy";
 import {
   dispatchResetPasswordEmail,
   hasLinkedSocialAccount,
@@ -60,9 +64,13 @@ export const auth = betterAuth({
     revokeSessionsOnPasswordReset: true,
     sendResetPassword: async ({ user, url, token }) => {
       // Fire-and-forget, so response time is no email-enumeration oracle.
-      void dispatchResetPasswordEmail(user.id, user.email, url, token).catch(
-        logEmailFailure("password-reset"),
-      );
+      void dispatchResetPasswordEmail(
+        user.id,
+        user.email,
+        url,
+        token,
+        userLocale(user),
+      ).catch(logEmailFailure("password-reset"));
     },
   },
 
@@ -71,7 +79,12 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url, token }) => {
       void emailService
-        .sendVerificationEmail({ to: user.email, url, token })
+        .sendVerificationEmail({
+          to: user.email,
+          locale: userLocale(user),
+          url,
+          token,
+        })
         .catch(logEmailFailure("verification"));
     },
   },
@@ -129,9 +142,15 @@ export const auth = betterAuth({
             userId &&
             (await hasLinkedSocialAccount(userId))
           ) {
+            const locale = userLocale(ctx?.context.session?.user);
+            const t = createTranslator({
+              locale,
+              messages: await loadMessages(locale),
+              namespace: "errors",
+            });
+
             throw new APIError("BAD_REQUEST", {
-              message:
-                "Za promjenu emaila prvo odspoji povezane račune (Google, Facebook).",
+              message: t("auth.changeEmailLinkedAccounts"),
             });
           }
 
@@ -152,7 +171,13 @@ export const auth = betterAuth({
       // Sent to the CURRENT address to approve the change before it applies.
       sendChangeEmailConfirmation: async ({ user, newEmail, url, token }) => {
         void emailService
-          .sendChangeEmailConfirmation({ to: user.email, url, token, newEmail })
+          .sendChangeEmailConfirmation({
+            to: user.email,
+            locale: userLocale(user),
+            url,
+            token,
+            newEmail,
+          })
           .catch(logEmailFailure("change-email confirmation"));
       },
     },

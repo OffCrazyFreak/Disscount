@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Send } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
@@ -51,6 +52,7 @@ interface IContactModalProps {
 }
 
 export default function ContactModal({ open }: IContactModalProps) {
+  const t = useTranslations("common");
   const pathname = usePathname();
   const { user } = useUser();
   const createMessage = contactService.useCreateContactMessage();
@@ -91,9 +93,7 @@ export default function ContactModal({ open }: IContactModalProps) {
     try {
       await createMessage.mutateAsync({ ...data, sourcePath: pathname });
       toast.success(
-        data.email
-          ? "Poruka je poslana. Hvala na javljanju! Po potrebi ćemo ti se javiti na uneseni e-mail."
-          : "Poruka je poslana. Hvala na javljanju!",
+        data.email ? t("contact.modal.sentWithEmail") : t("contact.modal.sent"),
       );
       clearDraft();
       form.reset(EMPTY_VALUES);
@@ -103,21 +103,34 @@ export default function ContactModal({ open }: IContactModalProps) {
     }
   }
 
+  const sourceAvailable = t.rich("contact.modal.sourceAvailable", {
+    link: (chunks) => (
+      <a
+        href={GITHUB_REPO_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-primary hover:underline"
+      >
+        {chunks}
+      </a>
+    ),
+  });
+
   return (
     <ModalShell
       open={open}
       onOpenChange={(isOpen) => !isOpen && closeModalUrl()}
-      title="Javi nam se"
-      description="Javi nam se porukom kroz obrazac ispod ili nam se obrati direktno."
+      title={t("contact.modal.title")}
+      description={t("contact.modal.description")}
       srOnlyDescription
       dirty={form.formState.isDirty}
       formId="contact-form"
-      submitLabel="Pošalji poruku"
+      submitLabel={t("contact.modal.submit")}
       submitIcon={Send}
       submitLoading={createMessage.isPending}
       submitDisabled={!form.formState.isValid}
-      cancelLabel="Odustani"
-      resetLabel="Resetiraj"
+      cancelLabel={t("contact.modal.cancel")}
+      resetLabel={t("contact.modal.reset")}
       resetDisabled={!form.formState.isDirty && !restored}
       onReset={() => {
         clearDraft();
@@ -143,16 +156,7 @@ export default function ContactModal({ open }: IContactModalProps) {
       </Form>
 
       <p className="text-muted-foreground mt-4 text-center text-xs">
-        Disscount je source-available.{" "}
-        <a
-          href={GITHUB_REPO_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary hover:underline"
-        >
-          Pogledaj projekt na GitHubu
-        </a>
-        .
+        {sourceAvailable}
       </p>
     </ModalShell>
   );

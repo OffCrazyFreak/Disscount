@@ -1,4 +1,5 @@
 import { ListChecks } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { CommandItem } from "@/components/ui/command";
 import {
   Tooltip,
@@ -21,6 +22,9 @@ export default function ShoppingListOption({
   isSelected,
   onSelect,
 }: IShoppingListOptionProps) {
+  const t = useTranslations("products");
+  const locale = useLocale();
+
   return (
     <CommandItem value={list.id} keywords={[list.title]} onSelect={onSelect}>
       <ListChecks className={cn("size-4", isSelected && "text-primary")} />
@@ -36,16 +40,21 @@ export default function ShoppingListOption({
       </TooltipProvider>
       {list.updatedAt && (
         <span className="text-gray-500 text-xs">
-          ({formatDate(list.updatedAt)})
+          {t("listSelector.updatedAt", {
+            date: formatDate(list.updatedAt, locale),
+          })}
         </span>
       )}
 
       <span className="ml-auto text-xs text-gray-500">
-        {list.items?.reduce(
-          (sum, item) => (item.isChecked ? sum + 1 : sum),
-          0,
-        ) ?? 0}
-        /{list.items?.length ?? 0}
+        {t("listSelector.progress", {
+          checked:
+            list.items?.reduce(
+              (sum, item) => (item.isChecked ? sum + 1 : sum),
+              0,
+            ) ?? 0,
+          total: list.items?.length ?? 0,
+        })}
       </span>
     </CommandItem>
   );

@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { CloudOff, RefreshCw } from "lucide-react";
 import { ScrollReveal } from "@/components/custom/animation/scroll-reveal";
@@ -6,21 +7,13 @@ import InstallCard from "@/components/custom/pwa/install-card";
 import InstallPerk from "@/components/custom/pwa/install-perk";
 
 const perks = [
-  {
-    icon: CloudOff,
-    title: "Popisi dostupni offline",
-    description:
-      "Popisi za kupnju i pregledani proizvodi rade i bez signala, usred dućana.",
-  },
-  {
-    icon: RefreshCw,
-    title: "Sinkronizacija kad se vratiš",
-    description:
-      "Promjene napravljene offline automatski se spremaju čim se vratiš na mrežu.",
-  },
-];
+  { id: "offline", icon: CloudOff },
+  { id: "sync", icon: RefreshCw },
+] as const;
 
 export default function PwaSection() {
+  const t = useTranslations("landing");
+
   return (
     <section className="overflow-x-clip">
       <ScrollReveal
@@ -30,14 +23,14 @@ export default function PwaSection() {
         <div className="relative mx-auto order-last w-full sm:w-auto sm:ml-2">
           <Image
             src="/screenshots/screenshot-narrow.png"
-            alt="Disscount aplikacija na mobitelu"
+            alt={t("pwa.screenshotPhoneAlt")}
             width={380}
             height={760}
             className="relative z-10 ml-[6%] w-[46%] sm:ml-0 sm:w-64 rounded-lg sm:rounded-3xl border-4 border-foreground/80 shadow-xl -rotate-2"
           />
           <Image
             src="/screenshots/screenshot-wide.png"
-            alt="Disscount aplikacija na računalu"
+            alt={t("pwa.screenshotDesktopAlt")}
             width={640}
             height={400}
             className="absolute top-1/2 left-[28%] sm:left-[35%] -translate-y-1/2 z-10 md:z-0 w-[66%] sm:w-84 rotate-6 rounded-xl border shadow-xl"
@@ -49,14 +42,14 @@ export default function PwaSection() {
 
           <div className="space-y-6">
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-pretty">
-              Aplikacija koja radi i bez interneta
+              {t("pwa.title")}
             </h2>
 
             <div className="space-y-5">
               <InstallPerk />
 
               {perks.map((perk) => (
-                <div key={perk.title} className="flex items-center gap-4">
+                <div key={perk.id} className="flex items-center gap-4">
                   <div className="size-11 md:size-16 shrink-0 grid place-items-center rounded-xl bg-primary/10 text-primary">
                     <perk.icon
                       aria-hidden="true"
@@ -64,9 +57,11 @@ export default function PwaSection() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <h3 className="font-semibold text-pretty">{perk.title}</h3>
+                    <h3 className="font-semibold text-pretty">
+                      {t(`pwa.perks.${perk.id}.title`)}
+                    </h3>
                     <p className="text-sm text-muted-foreground text-pretty">
-                      {perk.description}
+                      {t(`pwa.perks.${perk.id}.description`)}
                     </p>
                   </div>
                 </div>

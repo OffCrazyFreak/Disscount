@@ -1,6 +1,7 @@
 "use client";
 
 import { Copy, LucideClipboardEdit, Share2, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import QuickActionItem from "@/components/custom/common/quick-action-item";
 import Share2Pen from "@/components/custom/icons/share-2-pen";
@@ -28,28 +29,36 @@ export default function ShoppingListQuickActionsList({
   onEdit,
   onDelete,
 }: IShoppingListQuickActionsListProps) {
+  const t = useTranslations("shoppingLists");
+
   return (
     <>
       {isOwner && (
         <QuickActionItem
           icon={LucideClipboardEdit}
-          label="Uredi popis"
+          label={t("quickActions.edit")}
           onSelect={onEdit}
         />
       )}
 
-      <QuickActionItem icon={Copy} label="Kopiraj popis" onSelect={onCopy} />
+      <QuickActionItem
+        icon={Copy}
+        label={t("quickActions.copy")}
+        onSelect={onCopy}
+      />
 
       <QuickActionItem
         icon={isShared ? Share2Pen : Share2}
-        label={isShared ? "Uredi dijeljenje popisa" : "Podijeli popis"}
+        label={
+          isShared ? t("quickActions.editSharing") : t("quickActions.share")
+        }
         onSelect={onShare}
       />
 
       {isOwner && (
         <QuickActionItem
           icon={Trash2}
-          label="Obriši popis"
+          label={t("quickActions.delete")}
           variant="destructive"
           onSelect={onDelete}
         />

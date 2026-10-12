@@ -2,6 +2,7 @@
 
 import { useMemo, memo } from "react";
 import { Line } from "recharts";
+import { useTranslations } from "next-intl";
 import { ChartConfig, ChartTooltipContent } from "@/components/ui/chart";
 import { getChainLabel } from "@/utils/labels";
 import { useUser } from "@/context/user-context";
@@ -20,6 +21,7 @@ const PriceHistoryChart = memo(function PriceHistoryChart({
   priceHistoryChains,
   selectedChains,
 }: IPriceHistoryChartProps) {
+  const t = useTranslations("productDetail.priceHistory");
   const { user } = useUser();
 
   const pinnedStoreIds = useMemo(
@@ -75,9 +77,9 @@ const PriceHistoryChart = memo(function PriceHistoryChart({
     priceHistoryChains.forEach((chain) => {
       cfg[chain] = { label: getChainLabel(chain) };
     });
-    cfg["_average"] = { label: "Prosjek" };
+    cfg["_average"] = { label: t("average") };
     return cfg;
-  }, [priceHistoryChains]);
+  }, [priceHistoryChains, t]);
 
   const yAxisTicks = useMemo(() => {
     const padding = 0.05;

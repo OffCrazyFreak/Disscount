@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import { ShoppingListDto } from "@/lib/api/types";
 import ShoppingListStoreItem from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/shopping-list-store-card";
@@ -26,6 +27,7 @@ interface IShoppingListStoreSummaryProps {
 export default function ShoppingListStoreSummary({
   shoppingList,
 }: IShoppingListStoreSummaryProps) {
+  const t = useTranslations("shoppingListDetail");
   const { user } = useUser();
 
   const [isStoresOpen, setIsStoresOpen] = useState(() =>
@@ -69,7 +71,7 @@ export default function ShoppingListStoreSummary({
 
   return (
     <CollapsibleSection
-      title="Cijene po lancima trgovina"
+      title={t("stores.title")}
       open={isStoresOpen}
       onOpenChange={handleToggleStores}
     >
@@ -79,21 +81,18 @@ export default function ShoppingListStoreSummary({
             <BlockLoadingSpinner />
           </div>
         ) : !shoppingList.items || shoppingList.items.length === 0 ? (
-          <p className="p-2 text-gray-600 text-center">
-            Ovaj popis još ne sadrži proizvode. Probaj pretražiti proizvode pa
-            ih dodaj na ovaj popis.
-          </p>
+          <p className="p-2 text-gray-600 text-center">{t("stores.noItems")}</p>
         ) : activeItems.length === 0 ? (
           <p className="p-2 text-gray-600 text-center">
-            Svi proizvodi su označeni kao kupljeni.
+            {t("stores.allChecked")}
           </p>
         ) : productsError ? (
           <p className="p-2 text-gray-600 text-center">
-            Greška pri učitavanju cijena. Pokušaj ponovno.
+            {t("stores.loadError")}
           </p>
         ) : allChains.length === 0 ? (
           <p className="p-2 text-gray-600 text-center">
-            Nema dostupnih cijena za stavke na popisu.
+            {t("stores.noPrices")}
           </p>
         ) : (
           <div className="space-y-4">

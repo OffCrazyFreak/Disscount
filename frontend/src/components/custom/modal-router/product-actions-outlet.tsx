@@ -8,7 +8,8 @@ import useLingeringTarget, {
 import type { ModalTarget } from "@/lib/modal/modal-registry";
 
 const ProductActionsSheet = dynamic(
-  () => import("@/app/[locale]/products/components/forms/product-actions-sheet"),
+  () =>
+    import("@/app/[locale]/products/components/forms/product-actions-sheet"),
   { ssr: false },
 );
 

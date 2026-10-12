@@ -1,4 +1,6 @@
 import { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
+import { pageAlternates } from "@/i18n/alternates";
 import LandingJsonLd from "@/app/[locale]/(root)/components/json-ld";
 import HeroSection from "@/app/[locale]/(root)/components/sections/hero-section";
 import StatsBand from "@/app/[locale]/(root)/components/sections/stats-band";
@@ -11,11 +13,16 @@ import PricingSection from "@/app/[locale]/(root)/components/sections/pricing-se
 import FaqSection from "@/app/[locale]/(root)/components/sections/faq-section";
 import FinalCtaSection from "@/app/[locale]/(root)/components/sections/final-cta-section";
 
-export const metadata: Metadata = {
-  title: "Pronađi najbolje cijene u Hrvatskoj",
-  description:
-    "Usporedi cijene proizvoda u 25+ trgovačkih lanaca u Hrvatskoj, prati povijest cijena, izradi pametne popise za kupnju i uštedi pri svakoj kupnji. Besplatno.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = await getTranslations("landing");
+
+  return {
+    title: t("meta.title"),
+    description: t("meta.description"),
+    alternates: pageAlternates("/", locale),
+  };
+}
 
 export default function Home() {
   return (

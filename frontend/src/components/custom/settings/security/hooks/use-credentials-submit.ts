@@ -2,6 +2,7 @@
 
 import type { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { authClient } from "@/lib/auth/client";
 import { resetAuthToken } from "@/lib/api/api-base";
@@ -21,6 +22,7 @@ export function useCredentialsSubmit({
   form,
   onChanged,
 }: IUseCredentialsSubmitProps) {
+  const t = useTranslations("settings");
   const { refreshUser } = useUser();
 
   async function setInitialPassword(data: CredentialsFormValues) {
@@ -32,7 +34,7 @@ export function useCredentialsSubmit({
 
     if (!response.ok) {
       form.setError("newPassword", {
-        message: "Greška pri postavljanju lozinke.",
+        message: "settings.security.submit.setPasswordFailed",
       });
       return;
     }
@@ -41,7 +43,7 @@ export function useCredentialsSubmit({
     await refreshUser();
     onChanged();
     form.resetField("newPassword");
-    toast.success("Lozinka je postavljena! Sada se možeš prijaviti i emailom.");
+    toast.success(t("security.submit.passwordSet"));
   }
 
   async function updateCredentials(data: CredentialsFormValues) {
@@ -49,7 +51,7 @@ export function useCredentialsSubmit({
     const wantPasswordChange = data.newPassword.length > 0;
 
     if (!emailChanged && !wantPasswordChange) {
-      toast.info("Nema promjena za spremiti.");
+      toast.info(t("security.submit.noChanges"));
       return;
     }
 
@@ -64,8 +66,9 @@ export function useCredentialsSubmit({
         form.setError("currentPassword", {
           message:
             error.status === 400
-              ? "Trenutna lozinka nije točna."
-              : (error.message ?? "Greška pri promjeni lozinke."),
+              ? "settings.security.submit.currentPasswordWrong"
+              : (error.message ??
+                "settings.security.submit.changePasswordFailed"),
         });
         return;
       }
@@ -80,7 +83,7 @@ export function useCredentialsSubmit({
 
         if (passwordError) {
           form.setError("currentPassword", {
-            message: "Trenutna lozinka nije točna.",
+            message: "settings.security.submit.currentPasswordWrong",
           });
           return;
         }
@@ -100,8 +103,8 @@ export function useCredentialsSubmit({
         form.setError("email", {
           message:
             body.error === "social_linked"
-              ? "Za promjenu emaila prvo odspoji povezane račune (Google, Facebook)."
-              : "Greška pri promjeni emaila.",
+              ? "settings.security.submit.socialLinked"
+              : "settings.security.submit.changeEmailFailed",
         });
 
         // Password already committed above; confirm it and clear its fields so a retry only re-does email.
@@ -110,7 +113,7 @@ export function useCredentialsSubmit({
           await refreshUser();
           form.resetField("newPassword");
           form.resetField("currentPassword");
-          toast.success("Lozinka je promijenjena.");
+          toast.success(t("security.submit.passwordChanged"));
         }
         return;
       }
@@ -127,11 +130,11 @@ export function useCredentialsSubmit({
       form.resetField("email", { defaultValue: currentEmail });
       toast.success(
         wantPasswordChange
-          ? "Lozinka je promijenjena. Za promjenu emaila potvrdi poveznicu poslanu na tvoju trenutnu adresu."
-          : "Poslali smo poveznicu za potvrdu na tvoju trenutnu email adresu. Promjena emaila primijenit će se nakon potvrde.",
+          ? t("security.submit.passwordChangedConfirmEmail")
+          : t("security.submit.emailConfirmationSent"),
       );
     } else {
-      toast.success("Lozinka je promijenjena.");
+      toast.success(t("security.submit.passwordChanged"));
     }
   }
 
@@ -144,7 +147,7 @@ export function useCredentialsSubmit({
       }
     } catch {
       form.setError("root", {
-        message: "Nešto je pošlo po krivu. Pokušaj ponovo.",
+        message: "settings.security.submit.generic",
       });
     }
   }

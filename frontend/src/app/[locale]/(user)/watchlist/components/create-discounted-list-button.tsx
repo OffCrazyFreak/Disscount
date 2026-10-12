@@ -2,6 +2,7 @@
 
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,8 @@ export default function CreateDiscountedListButton({
   discountedItems,
   isLoading = false,
 }: ICreateDiscountedListButtonProps) {
+  const t = useTranslations("watchlist");
+  const locale = useLocale();
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
 
@@ -27,7 +30,7 @@ export default function CreateDiscountedListButton({
     .filter((item) => item.product)
     .map((item) => item.product!);
 
-  const actionLabel = "Stvori popis sniženih proizvoda";
+  const actionLabel = t("createList.label");
   const buttonText = actionLabel;
   const isDisabled = isCreating || isLoading || addableProducts.length === 0;
 
@@ -39,10 +42,10 @@ export default function CreateDiscountedListButton({
     try {
       setIsCreating(true);
 
-      const today = formatDate(new Date().toISOString());
+      const today = formatDate(new Date().toISOString(), locale);
 
       const createdList = await shoppingListService.createShoppingList({
-        title: `Sniženo ${today}`,
+        title: t("createList.listTitle", { date: today }),
       });
 
       const createItemResults = await Promise.allSettled(
@@ -70,13 +73,9 @@ export default function CreateDiscountedListButton({
         try {
           await shoppingListService.deleteShoppingList(createdList.id);
 
-          toast.error(
-            "Neke stavke nije bilo moguće dodati. Popis je automatski uklonjen.",
-          );
+          toast.error(t("createList.addFailedRemoved"));
         } catch {
-          toast.error(
-            "Neke stavke nije bilo moguće dodati, a popis nije moguće automatski ukloniti.",
-          );
+          toast.error(t("createList.addFailedKept"));
 
           router.push(`/shopping-lists/${createdList.id}`);
         }
@@ -84,10 +83,10 @@ export default function CreateDiscountedListButton({
         return;
       }
 
-      toast.success("Popis sniženih proizvoda je uspješno kreiran");
+      toast.success(t("createList.success"));
       router.push(`/shopping-lists/${createdList.id}`);
     } catch {
-      toast.error("Greška pri kreiranju popisa sniženih proizvoda");
+      toast.error(t("createList.createError"));
     } finally {
       setIsCreating(false);
     }
@@ -103,16 +102,16 @@ export default function CreateDiscountedListButton({
         iconPlacement="left"
         disabled={isDisabled}
         loading={isCreating}
-        loadingText="Stvaranje popisa..."
+        loadingText={t("createList.loading")}
       >
-        <ResponsiveLabel full={buttonText} short="Stvori popis" />
+        <ResponsiveLabel full={buttonText} short={t("createList.short")} />
 
         {/* Visual only: inside the label it would leave the visible text outside
             the accessible name, and re-announce on every change. The margin is
             explicit because expandIcon zeroes the button's gap, so the count
             would otherwise sit flush against the label. */}
         <span aria-hidden="true" className="ml-1">
-          ({addableProducts.length})
+          {`(${addableProducts.length})`}
         </span>
       </Button>
 
@@ -120,7 +119,7 @@ export default function CreateDiscountedListButton({
           whole control on every change. It still has to be announced somehow, so it is
           mirrored here, outside the button, where a polite region can carry it alone. */}
       <span aria-live="polite" className="sr-only">
-        Proizvoda za novi popis: {addableProducts.length}.
+        {t("createList.productCount", { count: addableProducts.length })}
       </span>
     </>
   );

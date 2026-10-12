@@ -1,5 +1,6 @@
 import { useRouter } from "@/i18n/navigation";
 import { type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { getMostFrequentCategory } from "@/app/[locale]/products/utils/product-utils";
@@ -20,6 +21,7 @@ export default function ProductInfoDisplay({
   enableActionButtons = true,
   action,
 }: IProductInfoDisplayProps) {
+  const t = useTranslations("products");
   const router = useRouter();
 
   function handleBackClick() {
@@ -43,7 +45,7 @@ export default function ProductInfoDisplay({
             <Button
               variant="ghost"
               size="icon"
-              aria-label="Natrag"
+              aria-label={t("productInfo.back")}
               onClick={handleBackClick}
             >
               <ChevronLeft aria-hidden="true" />
@@ -57,8 +59,14 @@ export default function ProductInfoDisplay({
 
           {/* Product Name and Category */}
           <div className="text-pretty">
-            <h3 className="font-bold">{product.name || "Nepoznato"}</h3>
-            {category && <p className="text-sm text-gray-500">{category}</p>}
+            <h3 lang={product.name ? "hr" : undefined} className="font-bold">
+              {product.name || t("productInfo.unknown")}
+            </h3>
+            {category && (
+              <p lang="hr" className="text-sm text-gray-500">
+                {category}
+              </p>
+            )}
           </div>
         </div>
 

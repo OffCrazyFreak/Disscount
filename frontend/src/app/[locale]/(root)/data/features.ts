@@ -13,9 +13,21 @@ import {
   Share2,
 } from "lucide-react";
 
+export type FeatureId =
+  | "scanner"
+  | "compare"
+  | "history"
+  | "lists"
+  | "sharing"
+  | "spending"
+  | "watchlist"
+  | "notifications"
+  | "cards"
+  | "offline"
+  | "map";
+
 export interface IFeatureItem {
-  title: string;
-  description: string;
+  id: FeatureId;
   icon: LucideIcon;
   comingSoon?: boolean;
   /** Link target; leave commented on coming-soon items until their page ships */
@@ -26,75 +38,58 @@ export interface IFeatureItem {
 
 export const featureItems: IFeatureItem[] = [
   {
-    title: "Skeniranje barkoda",
-    description: "Uperi kameru u proizvod i cijene su pred tobom u sekundi.",
+    id: "scanner",
     icon: ScanBarcode,
     action: "scanner",
   },
   {
-    title: "Usporedba cijena",
-    description:
-      "Isti proizvod, sve trgovine - odmah vidiš gdje je najjeftinije.",
+    id: "compare",
     icon: Scale,
     href: "/products",
   },
   {
-    title: "Povijest cijena",
-    description:
-      "Graf cijene kroz vrijeme otkriva je li akcija stvarno akcija.",
+    id: "history",
     icon: ChartLine,
     href: "/products",
   },
   {
-    title: "Popisi za kupnju",
-    description:
-      "Složi popis i saznaj u kojoj trgovini je ukupna košarica najpovoljnija.",
+    id: "lists",
     icon: ListChecks,
     href: "/shopping-lists",
   },
   {
-    title: "Dijeljenje popisa",
-    description: "Podijeli popis s obitelji pa kupuj zajedno bez dupliciranja.",
+    id: "sharing",
     icon: Share2,
     href: "/shopping-lists",
   },
   {
-    title: "Analiza potrošnje",
-    description: "Pregled koliko trošiš i koliko štediš iz mjeseca u mjesec.",
+    id: "spending",
     icon: PiggyBank,
     comingSoon: true,
     // href: "/spending",
   },
   {
-    title: "Praćenje proizvoda",
-    description: "Dodaj proizvode koje kupuješ i drži njihove cijene na oku.",
+    id: "watchlist",
     icon: Eye,
     href: "/watchlist",
   },
   {
-    title: "Pametne obavijesti",
-    description:
-      "Postavi željenu cijenu i javit ćemo ti kad proizvod pojeftini.",
+    id: "notifications",
     icon: BellRing,
     action: "notifications",
   },
   {
-    title: "Digitalne kartice",
-    description:
-      "Sve kartice trgovina u mobitelu - novčanik konačno na dijeti.",
+    id: "cards",
     icon: CreditCard,
     comingSoon: true,
     // href: "/digital-cards",
   },
   {
-    title: "Bez interneta",
-    description:
-      "Instaliraj kao aplikaciju - popisi i proizvodi dostupni i offline.",
+    id: "offline",
     icon: WifiOff,
   },
   {
-    title: "Karta trgovina",
-    description: "Pronađi najbližu otvorenu trgovinu i njeno radno vrijeme.",
+    id: "map",
     icon: MapIcon,
     comingSoon: true,
     // href: "/map",

@@ -5,12 +5,12 @@ export const PRICE_ARCHIVE_START = "2025-05-16";
 
 export const periodOptions: Record<
   PeriodOption,
-  { days: number; title: string }
+  { days: number; titleKey: string }
 > = {
-  "1W": { days: 7, title: "(posljednjih 7 dana)" },
-  "1M": { days: 30, title: "(posljednjih 30 dana)" },
-  "1Y": { days: 365, title: "(posljednjih 365 dana)" },
-  ALL: { days: -1, title: "(od početka)" },
+  "1W": { days: 7, titleKey: "priceHistory.period.week" },
+  "1M": { days: 30, titleKey: "priceHistory.period.month" },
+  "1Y": { days: 365, titleKey: "priceHistory.period.year" },
+  ALL: { days: -1, titleKey: "priceHistory.period.all" },
 };
 
 // Disabled until the API can return them in one request (see #62 and #45).

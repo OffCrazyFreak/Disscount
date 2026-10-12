@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -9,13 +9,14 @@ import { authClient } from "@/lib/auth/client";
 import { localePath } from "@/i18n/locale-path";
 
 const forgotPasswordSchema = z.object({
-  email: z.email("Unesi važeći email"),
+  email: z.email("auth.validation.emailInvalid"),
 });
 
 export type ForgotPasswordForm = z.infer<typeof forgotPasswordSchema>;
 
 export function useForgotPasswordForm() {
   const locale = useLocale();
+  const t = useTranslations("auth");
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
   const form = useForm<ForgotPasswordForm>({
@@ -34,7 +35,7 @@ export function useForgotPasswordForm() {
       });
     } catch {
       // Only a thrown transport failure reaches here; the API's { error } is left uninspected so it can't confirm an account.
-      toast.error("Greška pri slanju poveznice. Pokušaj ponovo.");
+      toast.error(t("forgot.sendError"));
       return;
     }
 

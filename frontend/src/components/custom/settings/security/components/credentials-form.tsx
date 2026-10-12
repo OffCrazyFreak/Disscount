@@ -1,6 +1,7 @@
 "use client";
 
 import { KeyRound } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/custom/form/password-input";
@@ -21,16 +22,17 @@ import { useSecurity } from "@/components/custom/settings/security/security-cont
 export const CREDENTIALS_FORM_ID = "credentials-form";
 
 export default function CredentialsForm() {
+  const t = useTranslations("settings");
   const { form, submit, hasPassword, canEditEmail, recovery } = useSecurity();
 
   return (
     <SettingsSection
       icon={KeyRound}
-      label="Prijava i lozinka"
+      label={t("security.credentials.label")}
       hint={
         hasPassword
-          ? "Za promjenu emaila ili lozinke potvrdi svoju trenutnu lozinku."
-          : "Postavi lozinku da se možeš prijaviti i emailom, ne samo društvenim računom."
+          ? t("security.credentials.hintWithPassword")
+          : t("security.credentials.hintWithoutPassword")
       }
     >
       <Form {...form}>
@@ -44,15 +46,15 @@ export default function CredentialsForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{t("security.credentials.email")}</FormLabel>
                 <FormControl>
                   <Input type="email" {...field} disabled={!canEditEmail} />
                 </FormControl>
                 {!canEditEmail && (
                   <FormDescription>
                     {hasPassword
-                      ? "Za promjenu emaila prvo odspoji povezane društvene račune."
-                      : "Email ćeš moći mijenjati nakon što postaviš lozinku."}
+                      ? t("security.credentials.emailLockedSocial")
+                      : t("security.credentials.emailLockedNoPassword")}
                   </FormDescription>
                 )}
                 <FormMessage />
@@ -66,19 +68,23 @@ export default function CredentialsForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  {hasPassword ? "Nova lozinka" : "Lozinka"}
+                  {hasPassword
+                    ? t("security.credentials.newPassword")
+                    : t("security.credentials.password")}
                 </FormLabel>
                 <FormControl>
                   <PasswordInput
                     autoComplete="new-password"
                     placeholder={
-                      hasPassword ? "Ostavi prazno ako ne mijenjaš" : undefined
+                      hasPassword
+                        ? t("security.credentials.newPasswordPlaceholder")
+                        : undefined
                     }
                     {...field}
                   />
                 </FormControl>
                 <FormDescription>
-                  Najmanje 12 znakova, jedno veliko i malo slovo te broj.
+                  {t("security.credentials.passwordRules")}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -92,7 +98,9 @@ export default function CredentialsForm() {
               render={({ field }) => (
                 <FormItem>
                   <div className="flex items-center justify-between gap-2">
-                    <FormLabel>Trenutna lozinka</FormLabel>
+                    <FormLabel>
+                      {t("security.credentials.currentPassword")}
+                    </FormLabel>
                     {!recovery.sentTo && (
                       <ForgotPasswordLink
                         onClick={recovery.send}
@@ -104,7 +112,7 @@ export default function CredentialsForm() {
                     <PasswordInput autoComplete="current-password" {...field} />
                   </FormControl>
                   <FormDescription>
-                    Potrebna za potvrdu promjene emaila ili lozinke.
+                    {t("security.credentials.currentPasswordDescription")}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

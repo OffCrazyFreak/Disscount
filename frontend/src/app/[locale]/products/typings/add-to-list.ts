@@ -4,7 +4,7 @@ import { MAX_SHOPPING_LIST_ITEM_AMOUNT } from "@/constants/shopping-list";
 // amount is a string so the input can be emptied and free-typed; refine ranges it.
 export const addToListFormSchema = z
   .object({
-    shoppingListId: z.string().min(1, "Popis za kupnju je obavezan"),
+    shoppingListId: z.string().min(1, "products.validation.listRequired"),
     customListTitle: z.string(),
     amount: z.string().refine(
       (value) => {
@@ -14,7 +14,8 @@ export const addToListFormSchema = z
         return parsed >= 1 && parsed <= MAX_SHOPPING_LIST_ITEM_AMOUNT;
       },
       {
-        message: `Količina mora biti između 1 i ${MAX_SHOPPING_LIST_ITEM_AMOUNT}`,
+        // The message states 999 itself; keep it equal to MAX_SHOPPING_LIST_ITEM_AMOUNT.
+        message: "products.validation.amountRange",
       },
     ),
     isChecked: z.boolean(),
@@ -33,13 +34,13 @@ export const addToListFormSchema = z
       context.addIssue({
         code: "custom",
         path: ["customListTitle"],
-        message: "Upiši naziv s najmanje 3 znaka",
+        message: "products.validation.listTitleMin",
       });
     } else if (title.length > 100) {
       context.addIssue({
         code: "custom",
         path: ["customListTitle"],
-        message: "Upiši naziv s najviše 100 znakova",
+        message: "products.validation.listTitleMax",
       });
     }
   });

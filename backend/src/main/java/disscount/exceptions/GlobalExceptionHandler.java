@@ -1,6 +1,8 @@
 package disscount.exceptions;
 
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
@@ -24,35 +26,45 @@ import java.util.Map;
  * All errors are returned as RFC 9457 Problem Details (application/problem+json).
  * Validation failures additionally carry a "fieldErrors" map (field -> message)
  * that the frontend maps onto react-hook-form field errors.
+ *
+ * <p>Titles and details are message codes resolved against messages*.properties in the
+ * request's Accept-Language. An exception message that is not a known code is shown as
+ * written, so a code missing from the bundle degrades to its own text, not to a blank.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    private final MessageSource messageSource;
+
+    public GlobalExceptionHandler(MessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
+
     @ExceptionHandler(BadRequestException.class)
     public ProblemDetail handleBadRequestException(BadRequestException ex) {
-        return problem(HttpStatus.BAD_REQUEST, "bad-request", "Neispravan zahtjev", ex.getMessage());
+        return problem(HttpStatus.BAD_REQUEST, "bad-request", message(ex.getMessage()));
     }
 
     @ExceptionHandler(UnauthorizedException.class)
     public ProblemDetail handleUnauthorizedException(UnauthorizedException ex) {
-        return problem(HttpStatus.UNAUTHORIZED, "unauthorized", "Neautorizirano", ex.getMessage());
+        return problem(HttpStatus.UNAUTHORIZED, "unauthorized", message(ex.getMessage()));
     }
 
     @ExceptionHandler(ForbiddenException.class)
     public ProblemDetail handleForbiddenException(ForbiddenException ex) {
-        return problem(HttpStatus.FORBIDDEN, "forbidden", "Zabranjeno", ex.getMessage());
+        return problem(HttpStatus.FORBIDDEN, "forbidden", message(ex.getMessage()));
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ProblemDetail handleNotFoundException(NotFoundException ex) {
-        return problem(HttpStatus.NOT_FOUND, "not-found", "Nije pronađeno", ex.getMessage());
+        return problem(HttpStatus.NOT_FOUND, "not-found", message(ex.getMessage()));
     }
 
     @ExceptionHandler(ConflictException.class)
     public ProblemDetail handleConflictException(ConflictException ex) {
-        return problem(HttpStatus.CONFLICT, "conflict", "Sukob", ex.getMessage());
+        return problem(HttpStatus.CONFLICT, "conflict", message(ex.getMessage()));
     }
 
     /**
@@ -74,11 +86,11 @@ public class GlobalExceptionHandler {
 
         boolean isUsername = constraint.toLowerCase().contains("username");
 
-        ProblemDetail detail = problem(HttpStatus.CONFLICT, "conflict", "Sukob",
-                isUsername ? "Korisničko ime je već zauzeto." : "Vrijednost je već zauzeta.");
+        String text = message(isUsername ? "error.user.usernameTaken" : "problem.detail.duplicate-value");
+        ProblemDetail detail = problem(HttpStatus.CONFLICT, "conflict", text);
 
         if (isUsername) {
-            detail.setProperty("fieldErrors", Map.of("username", "Korisničko ime je već zauzeto."));
+            detail.setProperty("fieldErrors", Map.of("username", text));
         }
 
         return detail;
@@ -118,7 +130,7 @@ public class GlobalExceptionHandler {
         });
 
         ProblemDetail problemDetail =
-                problem(HttpStatus.BAD_REQUEST, "validation", "Neispravni podaci", "Invalid input data");
+                problem(HttpStatus.BAD_REQUEST, "validation", message("problem.detail.validation"));
         problemDetail.setProperty("fieldErrors", fieldErrors);
         return problemDetail;
     }
@@ -126,27 +138,31 @@ public class GlobalExceptionHandler {
     /** Without this a malformed UUID is a logged 500, free for anyone to trigger. */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ProblemDetail handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        return problem(HttpStatus.BAD_REQUEST, "bad-request", "Neispravan zahtjev",
-                "Neispravan format parametra: " + ex.getName());
+        return problem(HttpStatus.BAD_REQUEST, "bad-request",
+                message("problem.detail.type-mismatch", ex.getName()));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ProblemDetail handleNotReadable(HttpMessageNotReadableException ex) {
-        return problem(HttpStatus.BAD_REQUEST, "malformed-request", "Neispravan zahtjev",
-                "Malformed request body");
+        return problem(HttpStatus.BAD_REQUEST, "malformed-request",
+                message("problem.detail.malformed-request"));
     }
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGenericException(Exception ex) {
         log.error("Unhandled exception caught", ex);
         return problem(HttpStatus.INTERNAL_SERVER_ERROR, "internal-error",
-                "Greška na poslužitelju", "An unexpected error occurred");
+                message("problem.detail.internal-error"));
     }
 
-    private ProblemDetail problem(HttpStatus status, String type, String title, String detail) {
+    private String message(String codeOrText, Object... args) {
+        return messageSource.getMessage(codeOrText, args, codeOrText, LocaleContextHolder.getLocale());
+    }
+
+    private ProblemDetail problem(HttpStatus status, String type, String detail) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
         problemDetail.setType(URI.create("urn:disscount:" + type));
-        problemDetail.setTitle(title);
+        problemDetail.setTitle(message("problem.title." + type));
         problemDetail.setProperty("timestamp", Instant.now());
         return problemDetail;
     }

@@ -1,24 +1,20 @@
-import ActionEmail from "@/emails/components/action-email";
+import ActionEmail, {
+  IActionEmailProps,
+} from "@/emails/components/action-email";
 
-interface IVerificationEmailProps {
-  verificationUrl: string;
-}
-
-export default function VerificationEmail({
-  verificationUrl,
-}: IVerificationEmailProps) {
-  return (
-    <ActionEmail
-      preview="Potvrdi svoju email adresu za Disscount"
-      heading="Potvrdi svoju email adresu"
-      intro="Hvala na registraciji! Klikni na gumb ispod za potvrdu email adrese i aktivaciju Disscount računa."
-      buttonLabel="Potvrdi email"
-      buttonUrl={verificationUrl}
-      footnote="Ako ovaj račun nije tvoj, slobodno zanemari ovaj email."
-    />
-  );
+export default function VerificationEmail(props: IActionEmailProps) {
+  return <ActionEmail {...props} />;
 }
 
 VerificationEmail.PreviewProps = {
-  verificationUrl: "https://disscount.me/api/auth/verify-email?token=preview",
-} satisfies IVerificationEmailProps;
+  locale: "hr",
+  preview: "Potvrdi svoju email adresu za Disscount",
+  heading: "Potvrdi svoju email adresu",
+  intro:
+    "Hvala na registraciji! Klikni na gumb ispod za potvrdu email adrese i aktivaciju Disscount računa.",
+  buttonLabel: "Potvrdi email",
+  buttonUrl: "https://disscount.me/api/auth/verify-email?token=preview",
+  fallback: "Ako gumb ne radi, kopiraj i zalijepi poveznicu u preglednik.",
+  footnote: "Ako ovaj račun nije tvoj, slobodno zanemari ovaj email.",
+  footer: "Ovaj email primaš jer postoji račun povezan s ovom adresom.",
+} satisfies IActionEmailProps;

@@ -1,4 +1,5 @@
 import { LucideIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import StorePricePopover from "@/components/custom/price/store-price-popover";
 import StorePriceTooltip from "@/components/custom/price/store-price-tooltip";
@@ -27,6 +28,7 @@ export default function WatchlistDiscountRow({
   infoLabel,
   onOpenPreferences,
 }: IWatchlistDiscountRowProps) {
+  const t = useTranslations("watchlist");
   const color = priceDeltaColorClass(difference);
 
   // No row wrapper of its own: PriceStack lays the tier out, so the row cannot
@@ -50,7 +52,7 @@ export default function WatchlistDiscountRow({
               screen readers and left voice control unable to say it. infoLabel
               also tells the two rows on a card apart. */}
           <span className="sr-only">
-            , {infoLabel}, otvori preference trgovina
+            {t("discountRow.srSuffix", { infoLabel })}
           </span>
         </button>
       </StorePriceTooltip>

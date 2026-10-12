@@ -1,4 +1,5 @@
 import { LogIn } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,6 +15,7 @@ export default function HeaderActions() {
   // unmount the bell, or it tears down an open notifications menu mid-use.
   const { isAuthenticated, isInitializing } = useUser();
 
+  const t = useTranslations("shell");
   const isMobile = useIsMobile();
 
   return (
@@ -40,7 +42,7 @@ export default function HeaderActions() {
           className="min-w-fit rounded-full"
           onClick={() => openModalUrl({ name: "login" })}
         >
-          Prijava
+          {t("header.login")}
         </Button>
       )}
     </div>

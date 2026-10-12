@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { CommandItem } from "@/components/ui/command";
 
 interface ICreateListOptionProps {
@@ -10,6 +11,13 @@ export default function CreateListOption({
   customListTitle,
   onSelect,
 }: ICreateListOptionProps) {
+  const t = useTranslations("products");
+
+  const label = t.rich("createListOption.label", {
+    title: customListTitle.trim(),
+    name: (chunks) => <span className="truncate">{chunks}</span>,
+  });
+
   return (
     <CommandItem
       value={`new-${customListTitle}`}
@@ -20,9 +28,7 @@ export default function CreateListOption({
       className="text-nowrap"
     >
       <Plus className="size-4" />
-      Stvori &ldquo;
-      <span className="truncate">{customListTitle.trim()}</span>
-      &rdquo;
+      {label}
     </CommandItem>
   );
 }

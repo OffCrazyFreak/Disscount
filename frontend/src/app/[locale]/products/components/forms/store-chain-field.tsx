@@ -1,6 +1,7 @@
 "use client";
 
 import { UseFormReturn, useWatch } from "react-hook-form";
+import { useTranslations } from "next-intl";
 
 import StoreChainSelect from "@/components/custom/store-chain/store-chain-select";
 import { AddToListFormData } from "@/app/[locale]/products/typings/add-to-list";
@@ -18,11 +19,14 @@ export default function StoreChainField({
   storePrices,
   averagePrice,
 }: IStoreChainFieldProps) {
+  const t = useTranslations("products");
   const chainCode = useWatch({ control: formField.control, name: "chainCode" });
 
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium">Trgovina</label>
+      <label className="text-sm font-medium">
+        {t("storeChainField.label")}
+      </label>
       <StoreChainSelect
         value={chainCode || ""}
         onChange={(value) => formField.setValue("chainCode", value)}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp } from "lucide-react";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
@@ -9,6 +10,7 @@ import StoreItem from "@/app/[locale]/statistics/components/store-item";
 import { compareHr } from "@/utils/strings";
 
 export default function ChainList() {
+  const t = useTranslations("statistics");
   const [expandedChain, setExpandedChain] = useState<string | null>(null);
 
   const { data: chainStats, isLoading: statsLoading } =
@@ -27,14 +29,14 @@ export default function ChainList() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingUp className="size-5" />
-          Statistike po lancima
+          {t("chains.title")}
         </CardTitle>
       </CardHeader>
       <CardContent>
         {statsLoading ? (
           <div className="flex items-center gap-2">
             <BlockLoadingSpinner size={16} />
-            Učitavanje...
+            {t("chains.loading")}
           </div>
         ) : chainStats ? (
           <div>
@@ -49,7 +51,7 @@ export default function ChainList() {
             ))}
           </div>
         ) : (
-          <div className="text-gray-500">Nema podataka</div>
+          <div className="text-gray-500">{t("chains.empty")}</div>
         )}
       </CardContent>
     </Card>

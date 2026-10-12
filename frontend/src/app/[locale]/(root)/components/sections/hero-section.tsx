@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import HeroActions from "@/app/[locale]/(root)/components/sections/hero-actions";
 import HeroCart from "@/app/[locale]/(root)/components/sections/hero-cart";
 import HeroTagline from "@/app/[locale]/(root)/components/sections/hero-tagline";
@@ -6,6 +7,16 @@ import SparkleField from "@/app/[locale]/(root)/components/doodles/sparkle-field
 import { StaggerChildren } from "@/components/custom/animation/stagger-children";
 
 export default function HeroSection() {
+  const t = useTranslations("landing");
+  const title = t.rich("hero.title", {
+    underline: (chunks) => (
+      <span className="relative inline-block">
+        {chunks}
+        <SquiggleUnderline className="absolute -bottom-2 left-0 w-full h-3 text-primary" />
+      </span>
+    ),
+  });
+
   return (
     <section className="min-h-[70dvh] relative grid items-center">
       <SparkleField
@@ -27,12 +38,7 @@ export default function HeroSection() {
           </p>
 
           <h1 className="text-2xl sm:text-3xl font-bold text-pretty max-w-2xl mx-auto">
-            Pronađi{" "}
-            <span className="relative inline-block">
-              najbolje cijene
-              <SquiggleUnderline className="absolute -bottom-2 left-0 w-full h-3 text-primary" />
-            </span>{" "}
-            u Hrvatskoj
+            {title}
           </h1>
 
           <p className="uppercase max-w-md mx-auto text-pretty text-base sm:text-lg text-muted-foreground">

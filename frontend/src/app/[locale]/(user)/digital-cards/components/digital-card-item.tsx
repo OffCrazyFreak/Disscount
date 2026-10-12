@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { digitalCardService } from "@/lib/api";
 import { toast } from "sonner";
+import { useLocale, useTranslations } from "next-intl";
 import { useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "@/utils/strings";
 
@@ -25,20 +26,22 @@ export default function DigitalCardItem({
   digitalCard,
   handleEdit,
 }: IDigitalCardItemProps) {
+  const t = useTranslations("digitalCards");
+  const locale = useLocale();
   const queryClient = useQueryClient();
   const deleteDigitalCardMutation = digitalCardService.useDeleteDigitalCard();
 
   async function handleDelete(d: DigitalCardDto) {
-    if (confirm(`Sigurno želiš obrisati karticu "${d.title}"?`)) {
+    if (confirm(t("item.confirmDelete", { title: d.title }))) {
       deleteDigitalCardMutation.mutate(d.id, {
         onSuccess: async () => {
-          toast.success("Kartica obrisana.");
+          toast.success(t("item.deleted"));
           await queryClient.invalidateQueries({
             queryKey: ["digitalCards"],
           });
         },
         onError: (error: Error) => {
-          toast.error("Greška prilikom brisanja: " + error.message);
+          toast.error(t("item.deleteError", { message: error.message }));
         },
       });
     }
@@ -62,7 +65,7 @@ export default function DigitalCardItem({
             <Button
               variant="ghost"
               size="icon"
-              aria-label="Dodatne opcije kartice"
+              aria-label={t("item.moreOptions")}
             >
               <MoreVertical aria-hidden="true" />
             </Button>
@@ -70,7 +73,7 @@ export default function DigitalCardItem({
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => handleEdit(digitalCard)}>
               <Edit className="h-4 w-4 mr-2" />
-              Uredi
+              {t("item.edit")}
             </DropdownMenuItem>
 
             <DropdownMenuItem
@@ -78,7 +81,7 @@ export default function DigitalCardItem({
               className="text-red-700"
             >
               <Trash2 aria-hidden="true" className="h-4 w-4 mr-2" />
-              Obriši
+              {t("item.delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -97,7 +100,9 @@ export default function DigitalCardItem({
         )}
 
         <p className="text-xs text-gray-500">
-          Stvoreno {formatDate(digitalCard.createdAt)}
+          {t("item.created", {
+            date: formatDate(digitalCard.createdAt, locale),
+          })}
         </p>
       </div>
     </Card>

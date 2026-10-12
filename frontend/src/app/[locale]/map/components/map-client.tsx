@@ -2,6 +2,7 @@
 
 import { usePathname } from "@/i18n/navigation";
 import { Suspense } from "react";
+import { useTranslations } from "next-intl";
 import { MapPinned } from "lucide-react";
 
 import SearchBar from "@/components/custom/search/search-bar";
@@ -13,13 +14,14 @@ interface IMapClientProps {
 }
 
 export default function MapClient({ query }: IMapClientProps) {
+  const t = useTranslations("map");
   const pathname = usePathname();
 
   return (
     <div className="space-y-4">
       <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
         <SearchBar
-          placeholder="Pretraži po nazivu trgovine ili adresi..."
+          placeholder={t("search.placeholder")}
           searchRoute={pathname}
           clearable={true}
           submitButtonLocation="none"
@@ -30,14 +32,14 @@ export default function MapClient({ query }: IMapClientProps) {
       <div className="flex items-center justify-between gap-4">
         <h3>
           {query.length > 0
-            ? `Rezultati pretrage za "${query}"`
-            : "Karta i radno vrijeme trgovina"}
+            ? t("heading.results", { query })
+            : t("heading.default")}
         </h3>
       </div>
 
       <ComingSoon
         icon={<MapPinned className="size-12 text-primary" />}
-        description="Pretraživanje trgovina po nazivu lanca ili adresi te pregled njihovog radnog vremena na interaktivnoj karti uskoro će biti dostupni."
+        description={t("comingSoon")}
       />
     </div>
   );

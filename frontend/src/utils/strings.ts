@@ -1,6 +1,7 @@
 // Utility helpers used across the app
 
 import { parseServerDate } from "@/utils/date";
+import { formatLocale, TIME_ZONE } from "@/i18n/formatting";
 
 /**
  * Normalize strings for search: remove diacritics and apply language-specific replacements.
@@ -36,40 +37,53 @@ export function normalizeForSearch(s: string) {
   }
 }
 
-/**
- * Format an ISO date string (or any parsable date) to DD.MM.YYYY.
- * Falls back to the original input when the date is invalid.
- */
-export function formatDate(dateString?: string | null) {
-  if (!dateString) return "";
-  try {
-    const d = parseServerDate(dateString);
-    if (Number.isNaN(d.getTime())) return dateString;
+const dateFormatters = new Map<string, Intl.DateTimeFormat>();
 
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const year = d.getFullYear();
+function dateFormatter(locale: string, withTime: boolean) {
+  const key = `${locale}:${withTime}`;
+  let formatter = dateFormatters.get(key);
 
-    return `${day}.${month}.${year}.`;
-  } catch {
-    return String(dateString);
+  if (!formatter) {
+    // 12/10/2026 means two different days to British and American readers, so
+    // English spells the month out (12 Oct 2026); the others read numerals one way.
+    const spelledMonth = locale === "en";
+    formatter = new Intl.DateTimeFormat(formatLocale(locale), {
+      day: spelledMonth ? "numeric" : "2-digit",
+      month: spelledMonth ? "short" : "2-digit",
+      year: "numeric",
+      ...(withTime && { hour: "2-digit", minute: "2-digit" }),
+      timeZone: TIME_ZONE,
+    });
+    dateFormatters.set(key, formatter);
   }
+
+  return formatter;
 }
 
-/**
- * Format an ISO date string to DD.MM.YYYY. HH:MM.
- * Falls back to the original input when the date is invalid.
- */
-export function formatDateTime(dateString?: string | null) {
+function formatServerDate(
+  dateString: string | null | undefined,
+  locale: string,
+  withTime: boolean,
+) {
   if (!dateString) return "";
 
   const d = parseServerDate(dateString);
   if (Number.isNaN(d.getTime())) return dateString;
 
-  const hours = String(d.getHours()).padStart(2, "0");
-  const minutes = String(d.getMinutes()).padStart(2, "0");
+  return dateFormatter(locale, withTime).format(d);
+}
 
-  return `${formatDate(dateString)} ${hours}:${minutes}`;
+/**
+ * Format an ISO date string (or any parsable date) as a date in the locale's style,
+ * in Croatian time. Falls back to the original input when the date is invalid.
+ */
+export function formatDate(dateString?: string | null, locale = "hr") {
+  return formatServerDate(dateString, locale, false);
+}
+
+/** Same as formatDate, with hours and minutes. */
+export function formatDateTime(dateString?: string | null, locale = "hr") {
+  return formatServerDate(dateString, locale, true);
 }
 
 /**

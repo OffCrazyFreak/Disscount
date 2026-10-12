@@ -1,7 +1,6 @@
 import { z } from "zod";
 
-const PASSWORD_ERROR =
-  "Lozinka mora imati barem 12 znakova i treba sadržavati najmanje jedno veliko slovo, jedno malo slovo te broj (0-9).";
+const PASSWORD_ERROR = "auth.validation.passwordRules";
 
 /** The only outcome that satisfies the onboarding gate. */
 export const ONBOARDING_COMPLETED = "completed";
@@ -19,18 +18,18 @@ export const passwordSchema = z
   );
 
 export const loginRequestSchema = z.object({
-  email: z.email("Unesi važeći email"),
-  password: z.string().min(1, "Unesi lozinku"),
+  email: z.email("auth.validation.emailInvalid"),
+  password: z.string().min(1, "auth.validation.passwordRequired"),
 });
 
 export const registerRequestSchema = z
   .object({
-    email: z.email("Unesi važeći email"),
+    email: z.email("auth.validation.emailInvalid"),
     password: passwordSchema,
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Lozinke se ne podudaraju",
+    message: "auth.validation.passwordsMismatch",
     path: ["confirmPassword"],
   });
 
@@ -53,8 +52,8 @@ export const acquisitionChannelSchema = z.enum([
 export const userRequestSchema = z.object({
   username: z
     .string()
-    .min(2, "Korisničko ime mora imati najmanje 2 znakova")
-    .max(40, "Korisničko ime može imati najviše 40 znakova")
+    .min(2, "auth.validation.usernameMin")
+    .max(40, "auth.validation.usernameMax")
     .nullable()
     .optional(),
   notificationsPush: z.boolean().optional(),
@@ -128,29 +127,29 @@ export type AccountType = UserDto["accountType"];
 
 export type AcquisitionChannel = z.infer<typeof acquisitionChannelSchema>;
 
-// Croatian display labels for account types
-export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
-  ADMIN: "Admin",
-  CONSUMER: "Korisnik",
-  ENTERPRISE: "Partner",
-  PUBLIC_SECTOR: "Javni sektor",
-};
+// Message keys in the "auth" namespace; consumers translate them with t().
+export const ACCOUNT_TYPE_LABELS = {
+  ADMIN: "accountTypes.ADMIN",
+  CONSUMER: "accountTypes.CONSUMER",
+  ENTERPRISE: "accountTypes.ENTERPRISE",
+  PUBLIC_SECTOR: "accountTypes.PUBLIC_SECTOR",
+} as const satisfies Record<AccountType, string>;
 
-// Croatian display labels for the "Odakle znaš za Disscount?" dropdown
-export const ACQUISITION_CHANNEL_LABELS: Record<AcquisitionChannel, string> = {
-  GOOGLE_SEARCH: "Google pretraga",
-  INSTAGRAM: "Instagram",
-  FACEBOOK: "Facebook",
-  TIKTOK: "TikTok",
-  YOUTUBE: "YouTube",
-  FRIEND_OR_FAMILY: "Preporuka prijatelja ili obitelji",
-  ONLINE_AD: "Online oglas",
-  BLOG_OR_NEWS: "Blog, članak ili mediji",
-  APP_STORE: "App Store / Google Play",
-  POSTER_OR_FLYER: "Plakat ili letak",
-  EVENT: "Sajam ili događaj",
-  OTHER: "Ostalo",
-};
+// Message keys in the "auth" namespace for the "Odakle znaš za Disscount?" dropdown.
+export const ACQUISITION_CHANNEL_LABELS = {
+  GOOGLE_SEARCH: "acquisitionChannels.GOOGLE_SEARCH",
+  INSTAGRAM: "acquisitionChannels.INSTAGRAM",
+  FACEBOOK: "acquisitionChannels.FACEBOOK",
+  TIKTOK: "acquisitionChannels.TIKTOK",
+  YOUTUBE: "acquisitionChannels.YOUTUBE",
+  FRIEND_OR_FAMILY: "acquisitionChannels.FRIEND_OR_FAMILY",
+  ONLINE_AD: "acquisitionChannels.ONLINE_AD",
+  BLOG_OR_NEWS: "acquisitionChannels.BLOG_OR_NEWS",
+  APP_STORE: "acquisitionChannels.APP_STORE",
+  POSTER_OR_FLYER: "acquisitionChannels.POSTER_OR_FLYER",
+  EVENT: "acquisitionChannels.EVENT",
+  OTHER: "acquisitionChannels.OTHER",
+} as const satisfies Record<AcquisitionChannel, string>;
 
 const DASHBOARD_ACCOUNT_TYPES: AccountType[] = [
   "ADMIN",

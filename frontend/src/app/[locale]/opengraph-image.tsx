@@ -1,8 +1,15 @@
-import renderBrandOg, { alt, contentType, size } from "@/app/og/render-og";
+import { localizedOgMetadata, renderLocalizedOg } from "@/app/og/localized-og";
 
 export const runtime = "nodejs";
-export { alt, contentType, size };
 
-export default async function OpengraphImage() {
-  return renderBrandOg();
+interface IOpengraphImageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export function generateImageMetadata({ params }: IOpengraphImageProps) {
+  return localizedOgMetadata(params);
+}
+
+export default function OpengraphImage({ params }: IOpengraphImageProps) {
+  return renderLocalizedOg(params);
 }

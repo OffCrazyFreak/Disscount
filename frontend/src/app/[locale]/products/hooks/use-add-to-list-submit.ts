@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { shoppingListService } from "@/lib/api";
@@ -36,6 +37,7 @@ export function useAddToListSubmit({
   resetForm,
   onListCreated,
 }: IUseAddToListSubmitProps) {
+  const t = useTranslations("products");
   const router = useRouter();
   const createShoppingListMutation =
     shoppingListService.useCreateShoppingList();
@@ -62,7 +64,7 @@ export function useAddToListSubmit({
         ? targetFromList(selected)
         : {
             id: data.shoppingListId,
-            name: "popis",
+            name: t("addToList.toast.fallbackListName"),
             isQuantityIncrease: false,
           };
     }
@@ -93,7 +95,7 @@ export function useAddToListSubmit({
       const target = await resolveTargetList(data);
 
       if (!target) {
-        toast.error("Odaberi ili stvori popis za kupnju.");
+        toast.error(t("addToList.toast.pickList"));
         openModalUrl({ name: "add-to-list", ean });
         return;
       }
@@ -107,15 +109,15 @@ export function useAddToListSubmit({
       resetForm();
       toast.success(
         target.isQuantityIncrease
-          ? `Količina proizvoda je povećana u "${target.name}"`
-          : `Proizvod je dodan u "${target.name}"`,
+          ? t("addToList.toast.quantityIncreased", { name: target.name })
+          : t("addToList.toast.added", { name: target.name }),
         {
           classNames: {
             actionButton:
               "bg-primary! text-primary-foreground! hover:bg-primary/90!",
           },
           action: {
-            label: "Otvori",
+            label: t("addToList.toast.open"),
             onClick: () =>
               router.push(`/shopping-lists/${encodeURIComponent(target.id)}`),
           },

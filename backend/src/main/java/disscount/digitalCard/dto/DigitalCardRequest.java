@@ -6,16 +6,16 @@ import lombok.Data;
 @Data
 public class DigitalCardRequest {
 
-    @NotBlank(message = "Title is required")
+    @NotBlank(message = "{validation.title.required}")
     private String title;
 
-    @NotBlank(message = "Value is required")
+    @NotBlank(message = "{validation.value.required}")
     private String value;
 
-    @NotBlank(message = "Type is required")
+    @NotBlank(message = "{validation.type.required}")
     private String type;
 
-    @NotBlank(message = "Code type is required")
+    @NotBlank(message = "{validation.codeType.required}")
     private String codeType;
 
     private String color;

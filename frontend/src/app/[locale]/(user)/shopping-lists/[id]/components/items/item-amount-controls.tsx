@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ShoppingListItemDto } from "@/lib/api/types";
@@ -14,12 +15,14 @@ export default function ItemAmountControls({
   onUpdate,
   canEdit,
 }: IItemAmountControlsProps) {
+  const t = useTranslations("shoppingListDetail");
+
   // The amount is information, not just a control, so a read-only visitor still sees it.
   // Only the buttons go away, rather than sitting there permanently disabled.
   if (!canEdit) {
     return (
       <span className="relative z-20 text-center min-w-8">
-        <span className="sr-only">Količina: </span>
+        <span className="sr-only">{t("items.amountLabel")} </span>
         {item.amount}
       </span>
     );
@@ -33,7 +36,7 @@ export default function ItemAmountControls({
     <div className="relative z-20 flex items-center gap-2">
       <Button
         size="icon"
-        aria-label="Smanji količinu za 1"
+        aria-label={t("items.decreaseAmount")}
         className="shrink-0"
         onClick={() =>
           onUpdate({
@@ -51,7 +54,7 @@ export default function ItemAmountControls({
 
       <Button
         size="icon"
-        aria-label="Povećaj količinu za 1"
+        aria-label={t("items.increaseAmount")}
         className="shrink-0"
         onClick={() =>
           onUpdate({

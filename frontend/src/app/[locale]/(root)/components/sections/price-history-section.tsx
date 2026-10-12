@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 import { Check } from "lucide-react";
@@ -6,13 +7,11 @@ import { ScrollReveal } from "@/components/custom/animation/scroll-reveal";
 import TextGlow from "@/components/custom/common/text-glow";
 import PriceLineDoodle from "@/app/[locale]/(root)/components/doodles/price-line-doodle";
 
-const checks: string[] = [
-  "Graf cijene za svaki proizvod, po trgovini",
-  "Odmah vidiš je li popust stvaran ili napuhan",
-  "Usporedba s prosječnom cijenom u drugim lancima",
-];
+const checkIds = ["chart", "realDiscount", "average"] as const;
 
 export default function PriceHistorySection() {
+  const t = useTranslations("landing");
+
   return (
     <section>
       <ScrollReveal
@@ -23,36 +22,34 @@ export default function PriceHistorySection() {
           <TextGlow className="-inset-8" />
 
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-pretty">
-            Je li akcija stvarno akcija?
+            {t("priceHistory.title")}
           </h2>
 
           <p className="text-muted-foreground text-pretty">
-            Neke &quot;akcije&quot; samo vrate cijenu na staru. Disscount pamti
-            povijest cijena pa točno vidiš koliko je proizvod koštao prošli
-            tjedan, prošli mjesec - i isplati li se čekati.
+            {t("priceHistory.description")}
           </p>
 
           <ul className="space-y-2.5">
-            {checks.map((check) => (
+            {checkIds.map((id) => (
               <li
-                key={check}
+                key={id}
                 className="flex items-start gap-2.5 text-sm text-pretty"
               >
                 <Check className="size-4 mt-0.5 shrink-0 text-primary" />
-                {check}
+                {t(`priceHistory.checks.${id}`)}
               </li>
             ))}
           </ul>
 
           <Button asChild variant="primary">
-            <Link href="/products">Provjeri svoj proizvod</Link>
+            <Link href="/products">{t("priceHistory.cta")}</Link>
           </Button>
         </div>
 
         <div className="relative bg-card border rounded-3xl p-8 shadow-sm hidden sm:block">
           <PriceLineDoodle className="w-full h-auto text-primary" />
           <p className="mt-4 text-center text-xs uppercase tracking-wider text-muted-foreground text-pretty">
-            Cijena kroz vrijeme
+            {t("priceHistory.chartCaption")}
           </p>
         </div>
       </ScrollReveal>

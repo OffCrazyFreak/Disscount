@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import ProductInfoDisplay from "@/app/[locale]/products/components/product-info-display";
 import PriceHistory from "@/app/[locale]/products/[id]/components/price-history/price-history-base";
 import ProductChainsSection from "@/app/[locale]/products/[id]/components/product-chains-section";
@@ -13,6 +14,7 @@ interface IProductDetailClientProps {
 export default function ProductDetailClient({
   ean,
 }: IProductDetailClientProps) {
+  const t = useTranslations("productDetail.notFound");
   const detail = useProductDetail(ean);
   const { product, productLoading, productError } = detail;
 
@@ -29,12 +31,10 @@ export default function ProductDetailClient({
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-foreground mb-2">
-            Proizvod nije pronađen
+            {t("title")}
           </h2>
 
-          <p className="text-gray-600">
-            Nije moguće učitati podatke za ovaj proizvod.
-          </p>
+          <p className="text-gray-600">{t("description")}</p>
         </div>
       </div>
     );

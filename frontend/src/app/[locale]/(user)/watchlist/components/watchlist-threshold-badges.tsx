@@ -2,11 +2,13 @@
 
 import { MouseEvent } from "react";
 import { Pencil } from "lucide-react";
+import { useLocale } from "next-intl";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { WatchType } from "@/lib/api";
 import { WatchlistItemDto } from "@/lib/api/types";
+import { formatPrice } from "@/utils/price";
 
 interface IWatchlistThresholdBadgesProps {
   items: WatchlistItemDto[];
@@ -21,6 +23,8 @@ export default function WatchlistThresholdBadges({
   isAchieved,
   onEdit,
 }: IWatchlistThresholdBadgesProps) {
+  const locale = useLocale();
+
   const sortedItems = [...items].sort((a, b) => {
     if (a.watchType === b.watchType) return 0;
 
@@ -46,7 +50,7 @@ export default function WatchlistThresholdBadges({
             disabled={disabled}
           >
             {item.watchType === WatchType.absolute
-              ? `- ${item.thresholdValue.toFixed(2)}€`
+              ? `- ${formatPrice(item.thresholdValue, locale)}`
               : `- ${Math.round(item.thresholdValue)}%`}
             <Pencil className="size-3" aria-hidden="true" />
           </button>

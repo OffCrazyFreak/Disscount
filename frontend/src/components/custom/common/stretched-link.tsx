@@ -1,6 +1,5 @@
 "use client";
 
-
 import { Link } from "@/i18n/navigation";
 import type { MouseEvent, ReactNode } from "react";
 

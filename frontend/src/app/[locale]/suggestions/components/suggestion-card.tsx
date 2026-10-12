@@ -1,6 +1,5 @@
 "use client";
 
-
 import { Link } from "@/i18n/navigation";
 import { MessageSquare } from "lucide-react";
 
@@ -22,9 +21,11 @@ export default function SuggestionCard({ suggestion }: ISuggestionCardProps) {
         <UpvoteButton initialUpvotes={suggestion.upvotes} />
 
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <h3 className="truncate text-lg font-bold">{suggestion.title}</h3>
+          <h3 lang="hr" className="truncate text-lg font-bold">
+            {suggestion.title}
+          </h3>
 
-          <p className="line-clamp-2 text-sm text-muted-foreground">
+          <p lang="hr" className="line-clamp-2 text-sm text-muted-foreground">
             {suggestion.description}
           </p>
 

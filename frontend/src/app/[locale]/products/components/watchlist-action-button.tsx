@@ -1,4 +1,5 @@
 import { Eye } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { PRODUCT_ACTION_LABELS } from "@/constants/product-action-labels";
 import { Button } from "@/components/ui/button";
@@ -23,11 +24,14 @@ export default function WatchlistActionButton({
   isInWatchlist,
   className,
 }: IWatchlistActionButtonProps) {
+  const t = useTranslations("products");
   const { openWatchlist } = useProductModals(product);
 
-  const actionLabel = isInWatchlist
-    ? PRODUCT_ACTION_LABELS.editWatch
-    : PRODUCT_ACTION_LABELS.watch;
+  const actionLabel = t(
+    isInWatchlist
+      ? PRODUCT_ACTION_LABELS.editWatch
+      : PRODUCT_ACTION_LABELS.watch,
+  );
 
   return (
     <Tooltip>

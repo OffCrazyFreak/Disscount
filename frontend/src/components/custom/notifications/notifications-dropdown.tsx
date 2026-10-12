@@ -2,6 +2,7 @@
 
 import { useRouter } from "@/i18n/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,7 @@ interface INotificationsDropdownProps {
 export default function NotificationsDropdown({
   openViaContext = false,
 }: INotificationsDropdownProps) {
+  const t = useTranslations("common");
   const {
     notifications,
     summary,
@@ -63,8 +65,10 @@ export default function NotificationsDropdown({
           className="relative"
           aria-label={
             hasNotifications
-              ? `Obavijesti (${notifications.length})`
-              : "Obavijesti"
+              ? t("notifications.labelWithCount", {
+                  count: notifications.length,
+                })
+              : t("notifications.label")
           }
         >
           <BellRingIcon aria-hidden="true" />

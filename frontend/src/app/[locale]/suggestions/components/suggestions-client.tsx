@@ -2,6 +2,7 @@
 
 import { usePathname } from "@/i18n/navigation";
 import { Suspense } from "react";
+import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
 
 import SearchBar from "@/components/custom/search/search-bar";
@@ -17,6 +18,7 @@ interface ISuggestionsClientProps {
 }
 
 export default function SuggestionsClient({ query }: ISuggestionsClientProps) {
+  const t = useTranslations("suggestions");
   const pathname = usePathname();
 
   const matchingSuggestions = filterByFields(templateSuggestions, query, [
@@ -28,7 +30,7 @@ export default function SuggestionsClient({ query }: ISuggestionsClientProps) {
     <div className="space-y-4">
       <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
         <SearchBar
-          placeholder="Pretraži ideje i prijedloge..."
+          placeholder={t("searchPlaceholder")}
           searchRoute={pathname}
           clearable={true}
           submitButtonLocation="none"
@@ -39,8 +41,8 @@ export default function SuggestionsClient({ query }: ISuggestionsClientProps) {
       <div className="flex items-center justify-between gap-4">
         <h3>
           {query.length > 0
-            ? `Rezultati pretrage za "${query}" (${matchingSuggestions.length})`
-            : `Ideje i prijedlozi (${matchingSuggestions.length})`}
+            ? t("searchHeading", { query, count: matchingSuggestions.length })
+            : t("heading", { count: matchingSuggestions.length })}
         </h3>
       </div>
 

@@ -1,5 +1,10 @@
 {
   "title": "Disscount - Pronađi najbolje cijene u Hrvatskoj",
   "description": "Usporedi cijene proizvoda u 25+ trgovačkih lanaca u Hrvatskoj, prati povijest cijena, izradi pametne popise za kupnju i uštedi pri svakoj kupnji. Besplatno.",
-  "socialDescription": "Usporedi cijene proizvoda u 25+ trgovačkih lanaca u Hrvatskoj, prati povijest cijena i uštedi pri svakoj kupnji. Besplatno."
+  "socialDescription": "Usporedi cijene proizvoda u 25+ trgovačkih lanaca u Hrvatskoj, prati povijest cijena i uštedi pri svakoj kupnji. Besplatno.",
+  "og": {
+    "alt": "Disscount: usporedba cijena proizvoda u 25+ trgovačkih lanaca u Hrvatskoj.",
+    "headline": "Pronađi najbolje cijene u Hrvatskoj",
+    "cta": "Uštedi već danas"
+  }
 }

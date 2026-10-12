@@ -9,6 +9,7 @@ export function buildChartData(
   eans: string[],
   dates: string[],
   selectedChains: string[],
+  locale: string,
 ): ChartDataPoint[] {
   if (eans.length === 0 || dates.length === 0) {
     return [];
@@ -26,7 +27,7 @@ export function buildChartData(
       if (!dateMap.has(date)) {
         dateMap.set(date, {
           isoDate: date,
-          data: { date: formatDate(date) },
+          data: { date: formatDate(date, locale) },
         });
       }
 

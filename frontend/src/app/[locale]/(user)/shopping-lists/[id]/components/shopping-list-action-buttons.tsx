@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import { useShoppingListActions } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-shopping-list-actions";
@@ -23,6 +24,8 @@ export default function ShoppingListActionButtons({
   showOnMobile = false,
   className,
 }: IShoppingListActionButtonsProps) {
+  const t = useTranslations("shoppingListDetail");
+
   const {
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
@@ -52,9 +55,11 @@ export default function ShoppingListActionButtons({
       <ConfirmDialog
         isOpen={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
-        title="Obriši popis za kupnju"
-        description={`Sigurno želiš obrisati popis "${shoppingList.title}"? Ova akcija se ne može poništiti.`}
-        confirmLabel="Obriši"
+        title={t("actions.deleteTitle")}
+        description={t("actions.deleteDescription", {
+          title: shoppingList.title,
+        })}
+        confirmLabel={t("actions.deleteConfirm")}
         variant="destructive"
         onConfirm={handleConfirmDelete}
         isLoading={isDeleting}

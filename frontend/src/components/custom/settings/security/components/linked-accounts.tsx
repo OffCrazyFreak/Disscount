@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Link2, Unlink } from "lucide-react";
 import { toast } from "sonner";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
@@ -29,6 +29,7 @@ const PROVIDERS: {
 
 export default function LinkedAccounts() {
   const locale = useLocale();
+  const t = useTranslations("settings");
   const { accounts, hasPassword, reload } = useSecurity();
   const [pending, setPending] = useState<SocialProvider | null>(null);
 
@@ -37,7 +38,7 @@ export default function LinkedAccounts() {
 
   function reportLinkFailure() {
     setPending(null);
-    toast.error("Greška pri povezivanju računa.");
+    toast.error(t("security.linked.linkFailed"));
   }
 
   async function link(provider: SocialProvider) {
@@ -59,18 +60,18 @@ export default function LinkedAccounts() {
     setPending(null);
 
     if (error) {
-      toast.error("Greška pri odspajanju računa.");
+      toast.error(t("security.linked.unlinkFailed"));
       return;
     }
-    toast.success("Račun je odspojen.");
+    toast.success(t("security.linked.unlinked"));
     reload();
   }
 
   return (
     <SettingsSection
       icon={Link2}
-      label="Povezani računi"
-      hint="Poveži društvene račune za bržu prijavu."
+      label={t("security.linked.label")}
+      hint={t("security.linked.hint")}
     >
       <div className="">
         {PROVIDERS.map(({ id, label, Icon }) => {
@@ -99,7 +100,7 @@ export default function LinkedAccounts() {
                     disabled={onlyMethod || pending === id}
                     onClick={() => unlink(id, linked.accountId)}
                   >
-                    Odspoji
+                    {t("security.linked.unlink")}
                   </Button>
                 ) : (
                   <Button
@@ -109,7 +110,7 @@ export default function LinkedAccounts() {
                     disabled={comingSoon || pending === id}
                     onClick={() => link(id)}
                   >
-                    Poveži
+                    {t("security.linked.link")}
                   </Button>
                 )
               }

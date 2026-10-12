@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import {
@@ -26,6 +27,10 @@ export interface IShoppingListActionGroupProps {
 }
 
 export function useShoppingListActions(shoppingList: ShoppingList) {
+  const t = useTranslations("shoppingListDetail");
+  // formatShoppingListForSharing takes the shoppingLists translator.
+  const tLists = useTranslations("shoppingLists");
+  const locale = useLocale();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const { deleteShoppingListMutation, confirmDelete, handleCopy } =
@@ -78,7 +83,7 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
       // Every viewer can pass the list on, because the URL is simply the list's own and
       // they are already looking at it. Whether it opens for the recipient is the owner's
       // call through the share modal, not something to withhold here.
-      const text = formatShoppingListForSharing(shoppingList);
+      const text = formatShoppingListForSharing(shoppingList, tLists, locale);
       const url = shareListUrl(shoppingList.id);
       const outcome = await shareOrCopy({
         title: shoppingList.title,
@@ -86,13 +91,13 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
         url,
       });
 
-      if (outcome === "copied") toast.success("Poveznica je kopirana");
-      if (outcome === "failed") toast.error("Dijeljenje nije uspjelo");
+      if (outcome === "copied") toast.success(t("toasts.linkCopied"));
+      if (outcome === "failed") toast.error(t("toasts.shareFailed"));
     } catch {
       // shareOrCopy resolves an outcome rather than throwing, but appUrl() does
       // throw on a misconfigured NEXT_PUBLIC_APP_URL. This is wired straight to
       // onClick and never awaited, so without a catch the failure is invisible.
-      toast.error("Dijeljenje nije uspjelo");
+      toast.error(t("toasts.shareFailed"));
     }
   }
 

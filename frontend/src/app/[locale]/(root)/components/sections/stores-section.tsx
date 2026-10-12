@@ -1,12 +1,15 @@
+import { useTranslations } from "next-intl";
 import SectionHeading from "@/app/[locale]/(root)/components/sections/section-heading";
 import StoresMarquee from "@/app/[locale]/(root)/components/sections/stores-marquee";
 
 export default function StoresSection() {
+  const t = useTranslations("landing");
+
   return (
     <section>
       <SectionHeading
-        title="Svi veliki lanci na jednom mjestu"
-        subtitle="Od Konzuma i Lidla do kvartovskih trgovina - cijene iz 25+ trgovačkih lanaca diljem Hrvatske."
+        title={t("stores.title")}
+        subtitle={t("stores.subtitle")}
       />
 
       <StoresMarquee />

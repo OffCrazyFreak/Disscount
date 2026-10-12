@@ -11,12 +11,14 @@ const ShoppingListModal = dynamic(
   { ssr: false },
 );
 const ShareListModal = dynamic(
-  () => import("@/app/[locale]/(user)/shopping-lists/components/forms/share-list-modal"),
+  () =>
+    import("@/app/[locale]/(user)/shopping-lists/components/forms/share-list-modal"),
   { ssr: false },
 );
 
 const CopyListModal = dynamic(
-  () => import("@/app/[locale]/(user)/shopping-lists/components/forms/copy-list-modal"),
+  () =>
+    import("@/app/[locale]/(user)/shopping-lists/components/forms/copy-list-modal"),
   { ssr: false },
 );
 const DigitalCardModal = dynamic(
@@ -25,7 +27,8 @@ const DigitalCardModal = dynamic(
   { ssr: false },
 );
 const AddToShoppingListModal = dynamic(
-  () => import("@/app/[locale]/products/components/forms/add-to-shopping-list-form"),
+  () =>
+    import("@/app/[locale]/products/components/forms/add-to-shopping-list-form"),
   { ssr: false },
 );
 const WatchlistItemModal = dynamic(

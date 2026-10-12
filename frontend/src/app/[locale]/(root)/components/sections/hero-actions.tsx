@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useCallback, Suspense } from "react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import { productPath } from "@/utils/product-links";
 
 export default function HeroActions() {
+  const t = useTranslations("landing");
   const { openScanner } = useCameraScanner();
   const router = useRouter();
 
@@ -31,7 +33,7 @@ export default function HeroActions() {
       <Card className="bg-background max-w-xl mx-auto rounded-2xl shadow-xl p-8 space-y-4">
         <Suspense fallback={<SearchBarSkeleton submitButtonLocation="block" />}>
           <SearchBar
-            placeholder="Pretraži proizvode..."
+            placeholder={t("hero.searchPlaceholder")}
             searchRoute="/products"
             clearable={true}
             allowScanning={false}
@@ -43,7 +45,7 @@ export default function HeroActions() {
           <Separator />
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="bg-background text-lg px-2 text-muted-foreground">
-              ili
+              {t("hero.or")}
             </span>
           </div>
         </div>
@@ -57,7 +59,7 @@ export default function HeroActions() {
             className="w-full text-lg"
           >
             <ScanBarcode className="size-6 mr-2" />
-            Skeniraj barkod
+            {t("hero.scanBarcode")}
           </Button>
         </div>
       </Card>

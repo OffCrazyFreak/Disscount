@@ -36,20 +36,21 @@ export const watchlistFormSchema = z
       ctx.addIssue({
         code: "custom",
         path: [path],
-        message: "Unesi valjanu vrijednost",
+        message: "products.validation.thresholdInvalid",
       });
       return;
     }
 
-    const { min, max, unit } = watchlistLimits(data.watchType);
+    // The range messages state 1 to 99 and 0.1 to 999 themselves; keep them equal to watchlistLimits.
+    const { min, max } = watchlistLimits(data.watchType);
     if (value < min || value > max) {
       ctx.addIssue({
         code: "custom",
         path: [path],
         message:
           data.watchType === WatchType.percentage
-            ? `Postotak mora biti između ${min}% i ${max}%`
-            : `Iznos mora biti između ${min}${unit} i ${max}${unit}`,
+            ? "products.validation.percentageRange"
+            : "products.validation.absoluteRange",
       });
     }
   });

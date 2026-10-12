@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormContext, useWatch } from "react-hook-form";
+import { useTranslations } from "next-intl";
 
 import {
   FormControl,
@@ -40,6 +41,7 @@ export default function WatchlistThresholdInput({
   existingItemForType,
   loading = false,
 }: IWatchlistThresholdInputProps) {
+  const t = useTranslations("products");
   const form = useFormContext<WatchlistFormData>();
   const watchType = useWatch({ control: form.control, name: "watchType" });
   // Each mode keeps its own number, so this renders whichever one is selected.
@@ -57,8 +59,9 @@ export default function WatchlistThresholdInput({
       render={({ field }) => (
         <FormItem>
           <FormLabel>
-            Minimalno sniženje{" "}
-            {watchType === WatchType.absolute ? "(€)" : "(%)"}:
+            {watchType === WatchType.absolute
+              ? t("threshold.labelAbsolute")
+              : t("threshold.labelPercentage")}
           </FormLabel>
 
           {/* The skeleton sits outside FormControl on purpose. FormControl is a Slot
@@ -68,7 +71,7 @@ export default function WatchlistThresholdInput({
           {loading ? (
             <div role="status" aria-live="polite" className="my-2">
               <Skeleton aria-hidden="true" className="h-14 w-full" />
-              <span className="sr-only">Učitavanje praga sniženja</span>
+              <span className="sr-only">{t("threshold.loading")}</span>
             </div>
           ) : (
             <FormControl>
@@ -80,7 +83,9 @@ export default function WatchlistThresholdInput({
                 max={max}
                 integer={watchType === WatchType.percentage}
                 placeholder={
-                  watchType === WatchType.absolute ? "Npr. 12" : "Npr. 15"
+                  watchType === WatchType.absolute
+                    ? t("threshold.placeholderAbsolute")
+                    : t("threshold.placeholderPercentage")
                 }
               />
             </FormControl>
@@ -89,8 +94,10 @@ export default function WatchlistThresholdInput({
           {existingItemForType &&
             existingItemForType.thresholdValue !== current && (
               <FormDescription className="text-xs">
-                Minimalan prag će biti ažuriran s{" "}
-                {existingItemForType.thresholdValue} na {rawValue}.
+                {t("threshold.willUpdate", {
+                  from: existingItemForType.thresholdValue,
+                  to: rawValue,
+                })}
               </FormDescription>
             )}
 
