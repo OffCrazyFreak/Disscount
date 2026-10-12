@@ -7,6 +7,7 @@ import { DEFAULT_LOCALE, isLocale, type AppLocale } from "@/i18n/locales";
 import type hrMessages from "@/i18n/messages/hr";
 import { loadMessages } from "@/i18n/load-messages";
 import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth";
+import { localePath } from "@/i18n/locale-path";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://disscount.me";
 
@@ -80,7 +81,9 @@ export function actionEmailFrom(
       buttonUrl: url,
       fallback: t.rich("layout.fallback", { url, link: linkTo(url) }),
       footnote: t(`${kind}.footnote`),
-      footer: t.rich("layout.footer", { link: linkTo(APP_URL) }),
+      footer: t.rich("layout.footer", {
+        link: linkTo(`${APP_URL}${localePath(locale, "/")}`),
+      }),
     },
   };
 }

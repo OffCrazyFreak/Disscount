@@ -1,10 +1,10 @@
 import { IEmailMessage, IEmailProvider } from "@/lib/email/provider";
 import { buildActionEmail } from "@/lib/email/email-copy";
 import type { AppLocale } from "@/i18n/locales";
-import VerificationEmail from "@/emails/verification-email";
-import PasswordResetEmail from "@/emails/password-reset-email";
-import SetPasswordEmail from "@/emails/set-password-email";
-import ChangeEmailConfirmation from "@/emails/change-email-confirmation";
+import VerificationEmail from "@/emails/_templates/verification-email";
+import PasswordResetEmail from "@/emails/_templates/password-reset-email";
+import SetPasswordEmail from "@/emails/_templates/set-password-email";
+import ChangeEmailConfirmation from "@/emails/_templates/change-email-confirmation";
 
 interface ITokenEmailArgs {
   to: string;
