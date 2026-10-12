@@ -15,6 +15,7 @@ import disscount.digitalCard.service.PhotoCleanupService;
 import disscount.digitalCard.service.PhotoUploadRateLimiter;
 import disscount.digitalCard.storage.PhotoStore;
 import disscount.storeName.dao.StoreNameSuggestionRepository;
+import disscount.storeName.dao.StoreNameUsageRepository;
 import disscount.storeName.service.StoreNameService;
 import disscount.storeName.service.StoreNameUpsert;
 import disscount.user.dao.AuthIdentityDao;
@@ -65,6 +66,7 @@ class UserServiceDeleteAccountTest {
     @Autowired DigitalCardPhotoRepository photos;
     @Autowired PhotoCleanupRepository cleanup;
     @Autowired StoreNameSuggestionRepository storeNames;
+    @Autowired StoreNameUsageRepository storeNameUsages;
     @Autowired PhotoStore store;
 
     @BeforeEach
@@ -72,6 +74,7 @@ class UserServiceDeleteAccountTest {
         cleanup.deleteAll();
         photos.deleteAll();
         cards.deleteAll();
+        storeNameUsages.deleteAll();
         storeNames.deleteAll();
         users.deleteAll();
         ((FakePhotoStore) store).objects.clear();
@@ -96,5 +99,22 @@ class UserServiceDeleteAccountTest {
         assertThat(photos.findAll()).isEmpty();
         assertThat(((FakePhotoStore) store).objects).isEmpty();
         assertThat(cleanup.findAll()).isEmpty();
+    }
+
+    @Test
+    void deleteAccountRemovesStoreNameUsageAndTakesBackTheCount() {
+        User leaving = users.save(User.builder().id(UUID.randomUUID()).username("ana").build());
+        User staying = users.save(User.builder().id(UUID.randomUUID()).username("ivo").build());
+        var custom = request("Moja");
+        custom.setChainCode(null);
+        custom.setStoreName("Zajednički dućan");
+        cardService.upsert(leaving.getId(), UUID.randomUUID(), custom);
+        cardService.upsert(staying.getId(), UUID.randomUUID(), custom);
+        assertThat(storeNames.findAll()).singleElement().satisfies(s -> assertThat(s.getUseCount()).isEqualTo(2));
+
+        userService.deleteAccount(leaving.getId());
+
+        assertThat(storeNameUsages.findAll()).singleElement().satisfies(u -> assertThat(u.getUserId()).isEqualTo(staying.getId()));
+        assertThat(storeNames.findAll()).singleElement().satisfies(s -> assertThat(s.getUseCount()).isEqualTo(1));
     }
 }

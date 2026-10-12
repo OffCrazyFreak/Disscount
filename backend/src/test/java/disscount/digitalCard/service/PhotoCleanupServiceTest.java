@@ -7,6 +7,7 @@ import disscount.digitalCard.domain.PhotoCleanup;
 import disscount.digitalCard.photo.PhotoValidator;
 import disscount.digitalCard.photo.TestImages;
 import disscount.storeName.dao.StoreNameSuggestionRepository;
+import disscount.storeName.dao.StoreNameUsageRepository;
 import disscount.storeName.service.StoreNameService;
 import disscount.storeName.service.StoreNameUpsert;
 import disscount.user.dao.UserRepository;
@@ -52,6 +53,7 @@ class PhotoCleanupServiceTest {
     @Autowired DigitalCardPhotoRepository photos;
     @Autowired UserRepository users;
     @Autowired StoreNameSuggestionRepository storeNames;
+    @Autowired StoreNameUsageRepository storeNameUsages;
     @Autowired FakePhotoStore store;
     @Autowired PhotoUploadRateLimiter limiter;
 
@@ -63,6 +65,7 @@ class PhotoCleanupServiceTest {
         queue.deleteAll();
         photos.deleteAll();
         cards.deleteAll();
+        storeNameUsages.deleteAll();
         storeNames.deleteAll();
         users.deleteAll();
         limiter.sweep();

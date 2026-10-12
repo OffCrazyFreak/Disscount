@@ -14,6 +14,7 @@ import disscount.exceptions.BadRequestException;
 import disscount.exceptions.ConflictException;
 import disscount.exceptions.NotFoundException;
 import disscount.storeName.dao.StoreNameSuggestionRepository;
+import disscount.storeName.dao.StoreNameUsageRepository;
 import disscount.storeName.service.StoreNameService;
 import disscount.storeName.service.StoreNameUpsert;
 import disscount.user.dao.UserRepository;
@@ -67,6 +68,7 @@ class DigitalCardServiceTest {
     @Autowired DigitalCardPhotoRepository photos;
     @Autowired UserRepository users;
     @Autowired StoreNameSuggestionRepository storeNames;
+    @Autowired StoreNameUsageRepository storeNameUsages;
     @Autowired PhotoStore store;
     @Autowired PhotoCleanupRepository cleanupRows;
 
@@ -78,6 +80,7 @@ class DigitalCardServiceTest {
         cleanupRows.deleteAll();
         photos.deleteAll();
         cards.deleteAll();
+        storeNameUsages.deleteAll();
         storeNames.deleteAll();
         users.deleteAll();
         ((FakePhotoStore) store).objects.clear();

@@ -105,7 +105,7 @@ public class DigitalCardService {
         if (card.getChainCode() == null
                 && (created || previousChain != null || !sameStore(previousStore, card.getStoreName()))) {
             String storeName = card.getStoreName();
-            AfterCommit.run(() -> recordStoreName(storeName));
+            AfterCommit.run(() -> recordStoreName(userId, storeName));
         }
 
         return toDto(card);
@@ -161,6 +161,7 @@ public class DigitalCardService {
         photoRepository.deleteAllByUserId(userId);
         cardRepository.deleteAllByUserId(userId);
         cleanup.enqueuePrefix(PhotoKeys.userPrefix(userId));
+        storeNameService.forgetUser(userId);
     }
 
     /** Hard deletes cards soft deleted before the cutoff; returns how many went. */
@@ -193,9 +194,9 @@ public class DigitalCardService {
         card.setBalanceUnit(r.getBalance() == null ? null : r.getBalanceUnit());
     }
 
-    private void recordStoreName(String storeName) {
+    private void recordStoreName(UUID userId, String storeName) {
         try {
-            storeNameService.record(storeName);
+            storeNameService.record(userId, storeName);
         } catch (RuntimeException e) {
             // A suggestion is a nicety; it must never fail the card save.
             log.warn("Could not record store name suggestion: {}", e.getMessage());

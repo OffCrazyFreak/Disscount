@@ -12,6 +12,7 @@ import disscount.exceptions.NotFoundException;
 import disscount.exceptions.ServiceUnavailableException;
 import disscount.exceptions.TooManyRequestsException;
 import disscount.storeName.dao.StoreNameSuggestionRepository;
+import disscount.storeName.dao.StoreNameUsageRepository;
 import disscount.storeName.service.StoreNameService;
 import disscount.storeName.service.StoreNameUpsert;
 import disscount.user.dao.UserRepository;
@@ -57,6 +58,7 @@ class DigitalCardPhotoServiceTest {
     @Autowired DigitalCardPhotoRepository photos;
     @Autowired UserRepository users;
     @Autowired StoreNameSuggestionRepository storeNames;
+    @Autowired StoreNameUsageRepository storeNameUsages;
     @Autowired PhotoStore store;
     @Autowired PhotoCleanupRepository cleanupRows;
     @Autowired PhotoUploadRateLimiter limiter;
@@ -70,6 +72,7 @@ class DigitalCardPhotoServiceTest {
         cleanupRows.deleteAll();
         photos.deleteAll();
         cards.deleteAll();
+        storeNameUsages.deleteAll();
         storeNames.deleteAll();
         users.deleteAll();
         limiter.sweep();
