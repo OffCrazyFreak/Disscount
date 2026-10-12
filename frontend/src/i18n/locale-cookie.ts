@@ -14,5 +14,6 @@ export function readLocaleCookie(): AppLocale | null {
 }
 
 export function writeLocaleCookie(locale: AppLocale) {
-  document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=${LOCALE_COOKIE_MAX_AGE}; samesite=lax`;
+  const secure = location.protocol === "https:" ? "; secure" : "";
+  document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=${LOCALE_COOKIE_MAX_AGE}; samesite=lax${secure}`;
 }

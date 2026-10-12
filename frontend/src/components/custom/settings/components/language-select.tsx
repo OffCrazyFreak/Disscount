@@ -59,7 +59,9 @@ export default function LanguageSelect() {
           aria-label={t("label")}
           aria-describedby={locked ? hintId : undefined}
         >
-          <SelectValue />
+          <SelectValue>
+            <span lang={locale}>{LOCALE_NAMES[locale]}</span>
+          </SelectValue>
         </SelectTrigger>
 
         <SelectContent>
@@ -71,11 +73,10 @@ export default function LanguageSelect() {
         </SelectContent>
       </Select>
 
-      {locked && (
-        <p id={hintId} role="status" className="text-xs text-muted-foreground">
-          {t("locked")}
-        </p>
-      )}
+      {/* Stays mounted so screen readers announce the hint when it appears. */}
+      <p id={hintId} role="status" className="text-xs text-muted-foreground">
+        {locked ? t("locked") : null}
+      </p>
     </div>
   );
 }

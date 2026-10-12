@@ -7,7 +7,8 @@ import { APIError } from "better-auth/api";
 import { db } from "@/db";
 import { createTranslator } from "next-intl";
 
-import { isLocale } from "@/i18n/locales";
+import { z } from "zod";
+import { LOCALES } from "@/i18n/locales";
 import { loadMessages } from "@/i18n/load-messages";
 import { appUrl, requireEnv } from "@/lib/env";
 import { emailService } from "@/lib/email";
@@ -27,14 +28,6 @@ const FACEBOOK_CLIENT_ID = requireEnv("FACEBOOK_CLIENT_ID");
 const FACEBOOK_CLIENT_SECRET = requireEnv("FACEBOOK_CLIENT_SECRET");
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
-
-// input: true lets the client write the field, so anything outside the five
-// locales is dropped rather than stored.
-function withValidLocale<T extends Record<string, unknown>>(userData: T): T {
-  if (!("locale" in userData) || isLocale(userData.locale)) return userData;
-  const { locale: _invalid, ...rest } = userData;
-  return rest as T;
-}
 
 export const auth = betterAuth({
   baseURL: BETTER_AUTH_URL,
@@ -127,9 +120,6 @@ export const auth = betterAuth({
       },
     },
     user: {
-      create: {
-        before: async (userData) => ({ data: withValidLocale(userData) }),
-      },
       update: {
         // Re-checks at apply time (the /api/account/change-email POST guard only checks
         // at request time), closing the link-during-confirmation race.
@@ -154,7 +144,7 @@ export const auth = betterAuth({
             });
           }
 
-          return { data: withValidLocale(userData) };
+          return { data: userData };
         },
       },
     },
@@ -162,8 +152,14 @@ export const auth = betterAuth({
 
   user: {
     additionalFields: {
-      // Set from the signup form and the language switcher; drives email language.
-      locale: { type: "string", required: false, input: true },
+      // Written by the client (input: true), so the validator rejects anything
+      // outside the five locales before it reaches the database.
+      locale: {
+        type: "string",
+        required: false,
+        input: true,
+        validator: { input: z.enum(LOCALES) },
+      },
     },
     deleteUser: { enabled: true },
     changeEmail: {
