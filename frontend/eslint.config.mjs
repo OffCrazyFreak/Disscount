@@ -101,6 +101,11 @@ const eslintConfig = defineConfig([
     ],
     rules: { "i18next/no-literal-string": "off" },
   },
+  // Test fixtures pass literal labels; they are inputs, never shown to anyone.
+  {
+    files: ["src/**/*.test.tsx", "src/test/**"],
+    rules: { "i18next/no-literal-string": "off" },
+  },
   // shadcn primitives under components/ui are vendored/generated - don't lint
   // them for the React Compiler rules.
   {
