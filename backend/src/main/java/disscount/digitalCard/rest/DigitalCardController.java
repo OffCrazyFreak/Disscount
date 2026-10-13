@@ -86,8 +86,8 @@ public class DigitalCardController {
     @PostMapping("/used")
     public ResponseEntity<Void> recordUsed(
             @RequestBody
-            @Size(min = 1, max = 50, message = "Pošalji od 1 do 50 kartica odjednom")
-            List<@NotNull(message = "Unos ne smije biti prazan") @Valid CardUsedEntry> entries) {
+            @Size(min = 1, max = 50, message = "{validation.card.usedBatch.size}")
+            List<@NotNull(message = "{validation.card.usedEntry.empty}") @Valid CardUsedEntry> entries) {
         digitalCardService.recordUsed(SecurityUtils.getCurrentUserId(), entries);
         return ResponseEntity.noContent().build();
     }

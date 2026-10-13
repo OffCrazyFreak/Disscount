@@ -23,6 +23,6 @@ public class CardUserLock {
     public User acquire(UUID userId) {
         return userRepository.findByIdForUpdate(userId)
                 .filter(u -> u.getDeletedAt() == null)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+                .orElseThrow(() -> new UnauthorizedException("error.user.notFound"));
     }
 }

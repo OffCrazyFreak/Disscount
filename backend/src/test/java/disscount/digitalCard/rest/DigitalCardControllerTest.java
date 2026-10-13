@@ -120,12 +120,12 @@ class DigitalCardControllerTest {
 
     @Test
     void notFoundIs404() throws Exception {
-        when(cardService.get(userId, cardId)).thenThrow(new NotFoundException("Kartica nije pronađena"));
-        when(cardService.upsert(eq(userId), eq(cardId), any())).thenThrow(new NotFoundException("Kartica nije pronađena"));
+        when(cardService.get(userId, cardId)).thenThrow(new NotFoundException("error.card.notFound"));
+        when(cardService.upsert(eq(userId), eq(cardId), any())).thenThrow(new NotFoundException("error.card.notFound"));
 
         mvc.perform(get("/api/digital-cards/{id}", cardId).with(auth()))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.detail").value("Kartica nije pronađena"));
+                .andExpect(jsonPath("$.detail").value("Kartica nije pronađena."));
         mvc.perform(put("/api/digital-cards/{id}", cardId).with(auth())
                         .contentType(MediaType.APPLICATION_JSON).content(validBody()))
                 .andExpect(status().isNotFound());
@@ -134,7 +134,7 @@ class DigitalCardControllerTest {
     @Test
     void cardCapIs409() throws Exception {
         when(cardService.upsert(eq(userId), eq(cardId), any()))
-                .thenThrow(new ConflictException("Dosegnut je najveći broj kartica"));
+                .thenThrow(new ConflictException("error.card.limitReached"));
 
         mvc.perform(put("/api/digital-cards/{id}", cardId).with(auth())
                         .contentType(MediaType.APPLICATION_JSON).content(validBody()))
@@ -172,8 +172,8 @@ class DigitalCardControllerTest {
     void photoUploadErrorsKeepTheirStatusAndRetryAfter() throws Exception {
         MockMultipartFile full = new MockMultipartFile("full", "f.webp", "image/webp", new byte[]{1});
         when(photoService.upload(eq(userId), eq(cardId), eq("icon"), any(), any()))
-                .thenThrow(new ServiceUnavailableException("Slike trenutno nisu dostupne"))
-                .thenThrow(new TooManyRequestsException("Previše", 42));
+                .thenThrow(new ServiceUnavailableException("error.cardPhoto.unavailable"))
+                .thenThrow(new TooManyRequestsException("error.cardPhoto.rateLimited", 42));
 
         mvc.perform(multipart(HttpMethod.PUT, "/api/digital-cards/{id}/photos/{slot}", cardId, "icon")
                         .file(full).with(auth()))

@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 public class CardArchiveRequest {
 
-    @NotNull(message = "Navedi je li kartica arhivirana")
+    @NotNull(message = "{validation.card.archived.required}")
     private Boolean archived;
 }

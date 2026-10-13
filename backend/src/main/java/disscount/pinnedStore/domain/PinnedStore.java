@@ -26,11 +26,11 @@ public class PinnedStore {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @NotBlank(message = "Store API ID is required")
+    @NotBlank(message = "{validation.storeApiId.required}")
     @Column(name = "store_api_id", nullable = false)
     private String storeApiId;
 
-    @NotBlank(message = "Store name is required")
+    @NotBlank(message = "{validation.storeName.required}")
     @Column(name = "store_name", nullable = false)
     private String storeName;
 }

@@ -91,7 +91,7 @@ public class DigitalCardService {
 
         if (created) {
             if (cardRepository.countActiveByUserId(userId) >= MAX_ACTIVE_CARDS) {
-                throw new ConflictException("Dosegnut je najveći broj kartica");
+                throw new ConflictException("error.card.limitReached");
             }
             card = DigitalCard.builder().id(id).user(user).build();
         } else if (!card.getUser().getId().equals(userId) || card.getDeletedAt() != null) {
@@ -139,14 +139,14 @@ public class DigitalCardService {
 
     public void recordUsed(UUID userId, List<CardUsedEntry> entries) {
         if (entries == null || entries.isEmpty() || entries.size() > MAX_USED_ENTRIES) {
-            throw new BadRequestException("Pošalji od 1 do " + MAX_USED_ENTRIES + " kartica odjednom");
+            throw new BadRequestException("error.card.usedBatchSize", String.valueOf(MAX_USED_ENTRIES));
         }
 
         LocalDateTime now = Timestamps.nowUtc();
         LocalDateTime oldest = now.minusDays(MAX_USED_AGE_DAYS);
         for (CardUsedEntry entry : entries) {
             if (entry == null || entry.getId() == null || entry.getUsedAt() == null) {
-                throw new BadRequestException("Svaki unos mora imati id i vrijeme");
+                throw new BadRequestException("error.card.usedEntryIncomplete");
             }
             // Clamped both ways so a skewed device clock cannot pin a card to the future or the distant past of every sort.
             LocalDateTime usedAt = toUtc(entry.getUsedAt());

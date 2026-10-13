@@ -13,9 +13,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CardUsedEntry {
 
-    @NotNull(message = "Svaki unos mora imati id")
+    @NotNull(message = "{validation.card.usedEntry.idRequired}")
     private UUID id;
 
-    @NotNull(message = "Svaki unos mora imati vrijeme")
+    @NotNull(message = "{validation.card.usedEntry.timeRequired}")
     private Instant usedAt;
 }

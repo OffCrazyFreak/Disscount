@@ -21,6 +21,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import disscount.digitalCard.photo.PhotoValidator;
+
 import java.net.URI;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -49,7 +51,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
     public ProblemDetail handleBadRequestException(BadRequestException ex) {
-        return problem(HttpStatus.BAD_REQUEST, "bad-request", message(ex.getMessage()));
+        return problem(HttpStatus.BAD_REQUEST, "bad-request", message(ex.getMessage(), ex.getArgs()));
     }
 
     @ExceptionHandler(UnauthorizedException.class)
@@ -74,13 +76,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ServiceUnavailableException.class)
     public ProblemDetail handleServiceUnavailable(ServiceUnavailableException ex) {
-        return problem(HttpStatus.SERVICE_UNAVAILABLE, "unavailable", "Usluga nije dostupna", ex.getMessage());
+        return problem(HttpStatus.SERVICE_UNAVAILABLE, "unavailable", message(ex.getMessage()));
     }
 
     @ExceptionHandler(TooManyRequestsException.class)
     public ResponseEntity<ProblemDetail> handleTooManyRequests(TooManyRequestsException ex) {
-        ProblemDetail detail = problem(HttpStatus.TOO_MANY_REQUESTS, "too-many-requests",
-                "Previše zahtjeva", ex.getMessage());
+        ProblemDetail detail = problem(HttpStatus.TOO_MANY_REQUESTS, "too-many-requests", message(ex.getMessage()));
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                 .header(HttpHeaders.RETRY_AFTER, String.valueOf(ex.getRetryAfterSeconds()))
                 .body(detail);
@@ -88,14 +89,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ProblemDetail handleUploadTooLarge(MaxUploadSizeExceededException ex) {
-        return problem(HttpStatus.PAYLOAD_TOO_LARGE, "payload-too-large", "Datoteka je prevelika",
-                "Slika je prevelika (najviše 512 KB)");
+        return problem(HttpStatus.PAYLOAD_TOO_LARGE, "payload-too-large",
+                message("error.cardPhoto.tooLarge", String.valueOf(PhotoValidator.MAX_BYTES / 1024)));
     }
 
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ProblemDetail handleMissingPart(MissingServletRequestPartException ex) {
-        return problem(HttpStatus.BAD_REQUEST, "bad-request", "Neispravan zahtjev",
-                "Nedostaje dio zahtjeva: " + ex.getRequestPartName());
+        return problem(HttpStatus.BAD_REQUEST, "bad-request",
+                message("problem.detail.missing-part", ex.getRequestPartName()));
     }
 
     /**
@@ -175,7 +176,7 @@ public class GlobalExceptionHandler {
         }
 
         ProblemDetail problemDetail =
-                problem(HttpStatus.BAD_REQUEST, "validation", "Neispravni podaci", "Invalid input data");
+                problem(HttpStatus.BAD_REQUEST, "validation", message("problem.detail.validation"));
         problemDetail.setProperty("fieldErrors", fieldErrors);
         return problemDetail;
     }
