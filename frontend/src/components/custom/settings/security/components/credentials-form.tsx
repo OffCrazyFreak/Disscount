@@ -18,6 +18,7 @@ import SettingsSection from "@/components/custom/settings/ui/settings-section";
 import ForgotPasswordLink from "@/components/custom/form/forgot-password-link";
 import PasswordRecovery from "@/components/custom/settings/security/components/password-recovery";
 import { useSecurity } from "@/components/custom/settings/security/security-context";
+import { PASSWORD_HINT } from "@/lib/auth/password-policy";
 
 export const CREDENTIALS_FORM_ID = "credentials-form";
 
@@ -83,9 +84,7 @@ export default function CredentialsForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>
-                  {t("security.credentials.passwordRules")}
-                </FormDescription>
+                <FormDescription>{PASSWORD_HINT}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}

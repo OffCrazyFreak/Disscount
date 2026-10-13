@@ -8,6 +8,7 @@ import {
   registerRequestSchema,
   RegisterRequest,
 } from "@/lib/api/schemas/auth-user";
+import { isPasswordPolicyCode } from "@/lib/auth/password-policy";
 
 export function useSignupForm() {
   const locale = useLocale();
@@ -40,6 +41,16 @@ export function useSignupForm() {
       });
 
       if (!response.ok) {
+        const body = (await response.json().catch(() => ({}))) as {
+          error?: unknown;
+          message?: string;
+        };
+
+        if (isPasswordPolicyCode(body.error) && body.message) {
+          form.setError("password", { type: "server", message: body.message });
+          return;
+        }
+
         form.setError("root", {
           type: "server",
           message: t("errors.checkInput"),

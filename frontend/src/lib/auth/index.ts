@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { jwt } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
-import { APIError } from "better-auth/api";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 
 import { db } from "@/db";
 import { createTranslator } from "next-intl";
@@ -19,6 +19,9 @@ import {
   logEmailFailure,
 } from "@/lib/auth/callbacks";
 import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth";
+import { assertPasswordAcceptable } from "@/lib/auth/breached-password";
+import { refuseBreachedSignIn } from "@/lib/auth/refuse-breached-sign-in";
+import { PASSWORD_MIN_LENGTH } from "@/lib/auth/password-policy";
 
 const BETTER_AUTH_URL = requireEnv("BETTER_AUTH_URL");
 const BETTER_AUTH_SECRET = requireEnv("BETTER_AUTH_SECRET");
@@ -28,6 +31,14 @@ const FACEBOOK_CLIENT_ID = requireEnv("FACEBOOK_CLIENT_ID");
 const FACEBOOK_CLIENT_SECRET = requireEnv("FACEBOOK_CLIENT_SECRET");
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
+
+// Endpoints that set a password, and the body field carrying it. /set-password is
+// server-only with no HTTP path, so its route calls assertPasswordAcceptable itself.
+const NEW_PASSWORD_FIELDS: Record<string, string> = {
+  "/sign-up/email": "password",
+  "/reset-password": "newPassword",
+  "/change-password": "newPassword",
+};
 
 export const auth = betterAuth({
   baseURL: BETTER_AUTH_URL,
@@ -50,7 +61,9 @@ export const auth = betterAuth({
 
   emailAndPassword: {
     enabled: true,
-    minPasswordLength: 12,
+    minPasswordLength: PASSWORD_MIN_LENGTH,
+    // Backstop only: better-auth counts UTF-16 units, our policy caps at 128 code points.
+    maxPasswordLength: 512,
     // Gates credential login only; OAuth emails are verified on creation below.
     requireEmailVerification: true,
     resetPasswordTokenExpiresIn: RESET_TOKEN_TTL_SECONDS,
@@ -105,7 +118,30 @@ export const auth = betterAuth({
     },
   },
 
+  hooks: {
+    // Must run before the handler: /reset-password consumes its token before hashing,
+    // so a later refusal would burn the link.
+    before: createAuthMiddleware(async (ctx) => {
+      const field = NEW_PASSWORD_FIELDS[ctx.path];
+      const password: unknown = field ? ctx.body?.[field] : undefined;
+
+      if (typeof password === "string")
+        await assertPasswordAcceptable(password);
+    }),
+  },
+
   databaseHooks: {
+    session: {
+      create: {
+        before: async (session, ctx) => {
+          await refuseBreachedSignIn(
+            session.userId,
+            ctx,
+            RESET_TOKEN_TTL_SECONDS,
+          );
+        },
+      },
+    },
     account: {
       create: {
         // The provider owns the email, so verify it on OAuth account creation. Checking

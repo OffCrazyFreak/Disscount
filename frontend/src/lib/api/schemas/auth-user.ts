@@ -1,21 +1,9 @@
 import { z } from "zod";
 
-const PASSWORD_ERROR = "auth.validation.passwordRules";
+import { passwordSchema } from "@/lib/auth/password-policy";
 
 /** The only outcome that satisfies the onboarding gate. */
 export const ONBOARDING_COMPLETED = "completed";
-
-// New passwords only: login must still accept any existing password.
-export const passwordSchema = z
-  .string()
-  .refine(
-    (value) =>
-      value.length >= 12 &&
-      /[A-Z]/.test(value) &&
-      /[a-z]/.test(value) &&
-      /[0-9]/.test(value),
-    { message: PASSWORD_ERROR },
-  );
 
 export const loginRequestSchema = z.object({
   email: z.email("auth.validation.emailInvalid"),

@@ -11,6 +11,7 @@ import PasswordField from "@/components/custom/auth/components/fields/password-f
 import FormRootError from "@/components/custom/common/form-root-error";
 import InboxNotice from "@/components/custom/common/inbox-notice";
 import { useSignupForm } from "@/components/custom/auth/hooks/use-signup-form";
+import { PASSWORD_HINT } from "@/lib/auth/password-policy";
 
 interface ISignUpFormProps {
   externalDisabled?: boolean;
@@ -47,6 +48,7 @@ export default function SignUpForm({ externalDisabled }: ISignUpFormProps) {
           label={t("fields.password")}
           autoComplete="new-password"
           hasError={!!formState.errors.password}
+          description={PASSWORD_HINT}
         />
 
         <PasswordField

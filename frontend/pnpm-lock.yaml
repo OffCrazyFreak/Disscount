@@ -108,6 +108,9 @@ importers:
       drizzle-orm:
         specifier: 0.45.2
         version: 0.45.2(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(kysely@0.29.4)(pg@8.22.0)
+      hibp:
+        specifier: ^15.2.1
+        version: 15.2.1
       idb-keyval:
         specifier: ^6.2.5
         version: 6.3.0
@@ -4484,6 +4487,10 @@ packages:
 
   hermes-parser@0.25.1:
     resolution: {integrity: sha512-6pEjquH3rqaI6cYAXYPcz9MS4rY6R4ngRgrgfDshRptUZIc3lw0MCIJIGDj9++mfySOuPTHB4nrSW99BCvOPIA==}
+
+  hibp@15.2.1:
+    resolution: {integrity: sha512-f7FxrlBz5FGd/J7tx9DR1cCQNIzKTl4BLZzgRXeQblzcO/xiWGrvXBMwztRzjJVeFACpED6P+iVmU7of9eFqyA==}
+    engines: {node: '>= 20.19.0'}
 
   html-to-text@9.0.5:
     resolution: {integrity: sha512-qY60FjREgVZL03vJU6IfMV4GDjGBIoOyvuFdpBDIX9yTlDw0TjxVBQp+P8NvpdIXNJvfWBTNul7fsAQJq2FNpg==}
@@ -10414,6 +10421,8 @@ snapshots:
   hermes-parser@0.25.1:
     dependencies:
       hermes-estree: 0.25.1
+
+  hibp@15.2.1: {}
 
   html-to-text@9.0.5:
     dependencies:

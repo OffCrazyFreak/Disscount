@@ -11,6 +11,7 @@ import PasswordField from "@/components/custom/auth/components/fields/password-f
 import ForgotPasswordLink from "@/components/custom/form/forgot-password-link";
 import FormRootError from "@/components/custom/common/form-root-error";
 import LastLoginBadge from "@/components/custom/auth/components/last-login-badge";
+import BreachedPasswordNotice from "@/components/custom/auth/components/breached-password-notice";
 import { useLoginForm } from "@/components/custom/auth/hooks/use-login-form";
 
 interface ILoginFormProps {
@@ -27,8 +28,18 @@ export default function LoginForm({
   externalDisabled,
 }: ILoginFormProps) {
   const t = useTranslations("auth");
-  const { form, onSubmit } = useLoginForm(onSuccess);
+  const { form, onSubmit, breachedEmail, clearBreached } =
+    useLoginForm(onSuccess);
   const formState = useFormState({ control: form.control });
+
+  if (breachedEmail) {
+    return (
+      <BreachedPasswordNotice
+        email={breachedEmail}
+        onBackToLogin={clearBreached}
+      />
+    );
+  }
 
   return (
     <Form {...form}>
