@@ -22,7 +22,7 @@ Inside a git worktree, call `./node_modules/.bin/vitest run` instead, since the 
 
 A hook test is a `.tsx` file even when it renders no JSX of its own, because it needs the providers.
 
-Both projects share `src/test/setup.ts`, which starts the MSW server. The `dom` project adds `src/test/setup-dom.ts`, which loads the jest-dom matchers and, after every test, unmounts what was rendered and clears cookies and web storage.
+Both projects share `src/test/setup.ts`, which starts the MSW server. The `dom` project adds `src/test/setup-dom.ts`, which loads the jest-dom matchers and, after every test, unmounts what was rendered, clears cookies and web storage, and resets the API client's cached auth token.
 
 The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Croatia, and a zone with an offset catches UTC-versus-local mistakes that a UTC machine would hide.
 
@@ -36,7 +36,7 @@ The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Cr
 ## Shared helpers
 
 - **`render.tsx`**: `renderWithProviders(ui, { locale, queryClient })` and `renderHookWithProviders(hook, options)` wrap the real `NextIntlClientProvider`, with the real catalogs and the Zagreb time zone, and a fresh `QueryClient` with retries off. Croatian is the default. They also set `<html lang>`, which the API client sends as `Accept-Language`.
-- **`msw-server.ts`**: the MSW server, with no handlers. Each test declares the endpoints it expects with `server.use(...)`. Any request nobody declared fails the test (`onUnhandledFrame: "error"`), so a forgotten call cannot silently reach the network.
+- **`msw-server.ts`**: the MSW server, with no handlers. Each test declares the endpoints it expects with `server.use(...)`. Any request nobody declared fails the test that made it, even when the code under test catches the network error, so a forgotten call cannot pass silently.
 - **Navigation** has no shared mock yet. `@/i18n/navigation` hooks need a mounted App Router, so a component that uses them mocks the module in its test file: `vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => "/" }))`. Move it into `src/test/` once a second test needs the same mock.
 
 ## Writing a test
@@ -67,7 +67,7 @@ The config sets `restoreMocks`, `unstubEnvs` and `unstubGlobals`, and Vitest 5 c
 
 - Brackets and parentheses in a config glob are pattern syntax, so `include` or `exclude` patterns that name `[locale]` or `(user)` need escaping. A path passed on the command line is matched as plain text and needs nothing.
 - `vi.mock` inside a `describe` or a function throws in Vitest 5. Keep it at the top of the file.
-- jsdom 30 needs Node 22.22 or newer. CI uses Node 24.
+- jsdom 30 needs Node `^22.22.2`, `^24.15.0` or `>=26.0.0`, so Node 25 and early 24 releases cannot run the DOM tests. CI uses Node 24.
 - A `.tsx` test that renders a component with `useForm` reads the same compiled code as production, so the `useWatch` and `useFormState` rules in `AGENTS.md` matter in tests too.
 
 ## Sources
