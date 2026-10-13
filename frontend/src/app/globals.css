@@ -170,6 +170,11 @@
   --shadow-offset-y: 2px;
   --letter-spacing: 0.025em;
   --spacing: 0.2rem;
+  --tile-outline: rgb(0 0 0 / 0.06);
+  --tile-shadow:
+    1px 2px 5px 0.5px rgb(0 0 0 / 0.16), 1px 1px 2px -0.5px rgb(0 0 0 / 0.2);
+  --tile-shadow-lift:
+    1px 4px 9px 0.5px rgb(0 0 0 / 0.2), 1px 2px 3px -0.5px rgb(0 0 0 / 0.2);
   --shadow-2xs: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.13);
   --shadow-xs: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.13);
   --shadow-sm:
@@ -232,6 +237,11 @@
   --shadow-offset-y: 2px;
   --letter-spacing: 0.025em;
   --spacing: 0.2rem;
+  --tile-outline: rgb(255 255 255 / 0.14);
+  --tile-shadow:
+    1px 2px 5px 0.5px rgb(0 0 0 / 0.45), 1px 1px 2px -0.5px rgb(0 0 0 / 0.5);
+  --tile-shadow-lift:
+    1px 4px 9px 0.5px rgb(0 0 0 / 0.5), 1px 2px 3px -0.5px rgb(0 0 0 / 0.5);
   --shadow-2xs: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.13);
   --shadow-xs: 1px 2px 5px 0.5px hsl(0 0% 0% / 0.13);
   --shadow-sm:

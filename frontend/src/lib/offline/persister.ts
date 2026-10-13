@@ -8,6 +8,7 @@ import { get, set, del } from "idb-keyval";
 
 import { scopedCacheKey } from "@/lib/offline/cache-identity";
 import { shouldPersistQuery } from "@/lib/offline/cached-query-keys";
+import { whenPurgesSettled } from "@/lib/offline/purge-gate";
 import { shouldPersistMutation } from "@/lib/offline/offline-mutation-keys";
 
 const IDB_CACHE_KEY = "disscount-react-query-cache";
@@ -23,7 +24,11 @@ export const OFFLINE_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 const indexedDbStorage = {
   getItem: async (key: string) =>
     (await get<string>(scopedCacheKey(key))) ?? null,
-  setItem: (key: string, value: string) => set(scopedCacheKey(key), value),
+  setItem: async (key: string, value: string) => {
+    const scoped = scopedCacheKey(key);
+    await whenPurgesSettled();
+    await set(scoped, value);
+  },
   removeItem: (key: string) => del(scopedCacheKey(key)),
 };
 

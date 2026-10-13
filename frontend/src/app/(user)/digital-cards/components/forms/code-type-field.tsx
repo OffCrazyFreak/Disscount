@@ -16,44 +16,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CODE_TYPES, CODE_TYPE_LABELS } from "@/constants/card-codes";
 import type { DigitalCardRequest } from "@/lib/api/types";
 
-interface IDigitalCardSelectFieldProps {
-  name: "type" | "codeType";
-  label: string;
-  placeholder: string;
-  options: { value: string; label: string }[];
-}
-
-export default function DigitalCardSelectField({
-  name,
-  label,
-  placeholder,
-  options,
-}: IDigitalCardSelectFieldProps) {
+export default function CodeTypeField() {
   const form = useFormContext<DigitalCardRequest>();
 
   return (
     <FormField
       control={form.control}
-      name={name}
+      name="codeType"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
-          <Select onValueChange={field.onChange} value={field.value}>
+          <FormLabel>Tip koda</FormLabel>
+
+          <Select value={field.value} onValueChange={field.onChange}>
             <FormControl>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder={placeholder} />
+                <SelectValue placeholder="Odaberi tip koda" />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              {options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
+              {CODE_TYPES.map((codeType) => (
+                <SelectItem key={codeType} value={codeType}>
+                  {CODE_TYPE_LABELS[codeType]}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+
           <FormMessage />
         </FormItem>
       )}

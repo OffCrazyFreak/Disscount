@@ -101,6 +101,11 @@ async function getToken(forceRefresh = false): Promise<string | null> {
   return inflightTokenPromise;
 }
 
+/** The cached bearer token if it is still fresh, with no network call. */
+export function peekFreshAuthToken(): string | null {
+  return isCachedTokenFresh() ? cachedToken : null;
+}
+
 export function clearAuthToken() {
   clearTokenCache();
   lastFailedAttemptAt = Date.now();
