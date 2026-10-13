@@ -1,44 +1,89 @@
 "use client";
 
-import { Suspense } from "react";
-import { usePathname } from "next/navigation";
-import { MapPinned } from "lucide-react";
+import { ReactNode, useState } from "react";
 
-import SearchBar from "@/components/custom/search/search-bar";
-import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
-import ComingSoon from "@/components/custom/common/coming-soon";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MapBottomSheet, {
+  SheetSnap,
+} from "@/app/map/components/map-bottom-sheet";
+import MapLoadState from "@/app/map/components/map-load-state";
+import MapPanel from "@/app/map/components/map-panel";
+import StoreMapLoader from "@/app/map/components/store-map-loader";
+import { useMapViewModel } from "@/app/map/hooks/use-map-view-model";
 
 interface IMapClientProps {
-  query: string;
+  chainSummary: ReactNode;
 }
 
-export default function MapClient({ query }: IMapClientProps) {
-  const pathname = usePathname();
+/**
+ * Desktop: list panel beside the map. Phone: full-screen map with the list in
+ * a sheet. The layer sits between the floating header and the bottom nav, so
+ * neither covers the map's controls.
+ */
+export default function MapClient({ chainSummary }: IMapClientProps) {
+  const model = useMapViewModel();
+  const isMobile = useIsMobile();
+  const [snap, setSnap] = useState<SheetSnap>("half");
+
+  function selectStore(key: string | null) {
+    model.selectStore(key);
+    if (key && snap === "peek") setSnap("half");
+  }
+
+  const panel =
+    model.status === "success" ? (
+      <MapPanel model={{ ...model, selectStore }} chainSummary={chainSummary} />
+    ) : (
+      <div className="flex min-h-0 flex-1 flex-col gap-3 p-3">
+        <MapLoadState status={model.status} onRetry={() => model.retry()} />
+
+        {/* Rendered before the list loads too, so the server HTML has it. */}
+        {chainSummary}
+      </div>
+    );
+
+  const map = (
+    <StoreMapLoader
+      stores={model.mappable}
+      selected={model.selected}
+      onSelect={selectStore}
+      userLocation={model.geolocation.position}
+      initialCenter={model.placeCenter}
+    />
+  );
 
   return (
-    <div className="space-y-4">
-      <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
-        <SearchBar
-          placeholder="Pretraži po nazivu trgovine ili adresi..."
-          searchRoute={pathname}
-          clearable={true}
-          submitButtonLocation="none"
-          autoSearch={true}
-        />
-      </Suspense>
+    <div className="fixed inset-x-0 top-24 bottom-[var(--bottom-nav-total)] z-[1] md:bottom-0 md:px-4 md:pb-4">
+      {isMobile ? (
+        <div className="relative h-full overflow-hidden">
+          <a
+            href="#map-store-list"
+            className="sr-only z-[3] rounded-md bg-background px-3 py-2 focus:not-sr-only focus:absolute focus:left-2 focus:top-2"
+          >
+            Preskoči kartu
+          </a>
 
-      <div className="flex items-center justify-between gap-4">
-        <h3>
-          {query.length > 0
-            ? `Rezultati pretrage za "${query}"`
-            : "Karta i radno vrijeme trgovina"}
-        </h3>
-      </div>
+          <div className="absolute inset-0">{map}</div>
 
-      <ComingSoon
-        icon={<MapPinned className="size-12 text-primary" />}
-        description="Pretraživanje trgovina po nazivu lanca ili adresi te pregled njihovog radnog vremena na interaktivnoj karti uskoro će biti dostupni."
-      />
+          <MapBottomSheet snap={snap} onSnapChange={setSnap}>
+            <div id="map-store-list" className="flex min-h-0 flex-1 flex-col">
+              {panel}
+            </div>
+          </MapBottomSheet>
+        </div>
+      ) : (
+        <div className="mx-auto grid h-full max-w-7xl grid-cols-[24rem_1fr] gap-4">
+          <aside
+            id="map-store-list"
+            aria-label="Popis trgovina"
+            className="flex min-h-0 flex-col overflow-hidden rounded-xl border bg-background"
+          >
+            {panel}
+          </aside>
+
+          <div className="overflow-hidden rounded-xl border">{map}</div>
+        </div>
+      )}
     </div>
   );
 }

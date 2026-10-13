@@ -1,0 +1,79 @@
+"use client";
+
+import { ArrowLeft, MapPinOff } from "lucide-react";
+
+import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
+import StoreActions from "@/app/map/components/store-actions";
+import { IListedStore } from "@/app/map/hooks/use-visible-stores";
+import { formatDistance } from "@/app/map/utils/distance";
+
+interface IStoreDetailsProps {
+  row: IListedStore;
+  onClose: () => void;
+}
+
+/** The selected store; Back in the browser closes it too. */
+export default function StoreDetails({ row, onClose }: IStoreDetailsProps) {
+  const { store, chainLabel, cityLabel, distanceKm } = row;
+  const isPlaced = store.lat != null && store.lon != null;
+
+  return (
+    <section
+      aria-labelledby="store-details-title"
+      className="flex flex-col gap-4 p-4"
+    >
+      <button
+        type="button"
+        onClick={onClose}
+        className="inline-flex w-fit items-center gap-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+      >
+        <ArrowLeft className="size-4" aria-hidden="true" />
+        Natrag na popis
+      </button>
+
+      <div className="flex items-center gap-3">
+        <span
+          className="relative size-14 shrink-0 overflow-hidden rounded-full border bg-white"
+          aria-hidden="true"
+        >
+          <StoreChainLogo
+            chain={store.chain}
+            width={56}
+            height={56}
+            className="object-contain p-1.5"
+          />
+        </span>
+
+        <div className="min-w-0">
+          <h2 id="store-details-title" className="text-lg font-semibold">
+            {chainLabel}
+          </h2>
+
+          <p className="text-sm text-muted-foreground">
+            {[
+              store.address,
+              [store.zipcode, cityLabel].filter(Boolean).join(" "),
+            ]
+              .filter(Boolean)
+              .join(", ") || "Adresa nije poznata"}
+          </p>
+
+          {distanceKm != null && (
+            <p className="text-sm text-muted-foreground">
+              {formatDistance(distanceKm)} od tebe
+            </p>
+          )}
+        </div>
+      </div>
+
+      {!isPlaced && (
+        <p className="flex items-start gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
+          <MapPinOff className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          Za ovu trgovinu još nemamo točnu lokaciju, pa nije na karti.
+        </p>
+      )}
+
+      <StoreActions store={store} />
+    </section>
+  );
+}

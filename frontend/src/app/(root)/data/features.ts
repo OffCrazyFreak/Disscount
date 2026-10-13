@@ -94,9 +94,8 @@ export const featureItems: IFeatureItem[] = [
   },
   {
     title: "Karta trgovina",
-    description: "Pronađi najbližu otvorenu trgovinu i njeno radno vrijeme.",
+    description: "Pronađi najbližu trgovinu na karti i upute do nje.",
     icon: MapIcon,
-    comingSoon: true,
-    // href: "/map",
+    href: "/map",
   },
 ];

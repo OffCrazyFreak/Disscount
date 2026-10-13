@@ -15,6 +15,13 @@
       "when": 1781967749693,
       "tag": "0001_silly_talos",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791849146879,
+      "tag": "0002_store_locations",
+      "breakpoints": true
     }
   ]
 }

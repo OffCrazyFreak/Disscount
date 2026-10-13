@@ -1,4 +1,6 @@
 import { memo } from "react";
+import Link from "next/link";
+import { SquareArrowOutUpRight } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -7,7 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toStoreKey } from "@/app/map/utils/store-key";
 import { ProductResponse, StorePrice } from "@/lib/cijene-api/schemas";
 import {
   getMinPrice,
@@ -103,7 +107,25 @@ const StorePricesTable = memo(
                       {getLocationLabel(price.store.city, "Nepoznato")}
                     </TableCell>
 
-                    <TableCell>{price.store.address || "Nepoznato"}</TableCell>
+                    <TableCell>
+                      <Link
+                        href={`/map?store=${encodeURIComponent(toStoreKey(price.chain, price.store.code))}`}
+                        className={cn(
+                          buttonVariants({
+                            variant: "ghost",
+                            effect: "hoverUnderline",
+                          }),
+                          "h-auto justify-start gap-1.5 whitespace-normal px-0 py-1 text-left font-normal text-inherit hover:bg-transparent",
+                        )}
+                      >
+                        {price.store.address || "Nepoznato"}
+                        <SquareArrowOutUpRight
+                          className="size-3.5 shrink-0"
+                          aria-hidden="true"
+                        />
+                        <span className="sr-only">, prikaži na karti</span>
+                      </Link>
+                    </TableCell>
 
                     <TableCell className="text-center">
                       {displayPrice != null ? (

@@ -152,7 +152,6 @@ export const productNavItems: INavigationItem[] = [
     icon: MapIcon,
     // TODO(#127): manifest.ts only reads userNavItems, so a PWA shortcut for
     // this one needs adding by hand.
-    comingSoon: true,
 
     showInHeader: false,
 
