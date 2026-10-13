@@ -75,19 +75,19 @@ async function sendRecoveryLinkOncePerWindow(
     expiresAt,
   });
 
-  // Same row shape requestPasswordReset writes, so the stock /reset-password consumes it.
-  await adapter.createVerificationValue({
-    identifier: `reset-password:${token}`,
-    value: userId,
-    expiresAt,
-  });
-
-  const callbackURL = encodeURIComponent(`${appUrl()}/reset-password`);
-  const url = `${ctx.context.baseURL}/reset-password/${token}?callbackURL=${callbackURL}`;
-
   // Awaited, unlike the other sends: the caller already proved the password, so timing
-  // leaks nothing, and a failed send has to release the marker so the next attempt retries.
+  // leaks nothing, and any failure after the claim has to release it so the next attempt retries.
   try {
+    // Same row shape requestPasswordReset writes, so the stock /reset-password consumes it.
+    await adapter.createVerificationValue({
+      identifier: `reset-password:${token}`,
+      value: userId,
+      expiresAt,
+    });
+
+    const callbackURL = encodeURIComponent(`${appUrl()}/reset-password`);
+    const url = `${ctx.context.baseURL}/reset-password/${token}?callbackURL=${callbackURL}`;
+
     await emailService.sendBreachedPassword({ to: user.email, url, token });
   } catch (error) {
     logEmailFailure("breached-password")(error);
