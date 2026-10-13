@@ -1,24 +1,45 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { ILatLon } from "@/app/[locale]/map/utils/distance";
 
 export type GeolocationStatus =
   "idle" | "locating" | "located" | "denied" | "unavailable" | "timeout";
 
+export interface IGpsPosition extends ILatLon {
+  /** Metres, the 95% confidence radius the browser reports. */
+  accuracy: number;
+}
+
+/** A fix the map should move to; refinements of the same fix do not move it. */
+export interface ICenterRequest extends ILatLon {
+  id: number;
+  /** Started by the page rather than a tap, so it yields to a user who panned. */
+  auto: boolean;
+}
+
 // The spec does not count time spent on the permission prompt against
 // `timeout`, so an ignored prompt would spin forever without our own timer.
 const GIVE_UP_MS = 15_000;
 
+// A fast Wi-Fi or cell fix comes first; GPS is only worth waiting for when
+// that fix is vaguer than a street.
+const REFINE_ABOVE_M = 100;
+
 /**
- * Asks for the position only when called from a tap, at low accuracy (a
- * store search needs a street, not a metre), and never stores or sends it.
+ * Asks for the position on a tap, or by itself when the browser already
+ * allows it, and never stores or sends it. The first fix is fast and coarse,
+ * then a high-accuracy one sharpens it in place.
  */
 export function useGeolocation() {
   const [status, setStatus] = useState<GeolocationStatus>("idle");
-  const [position, setPosition] = useState<ILatLon | null>(null);
+  const [position, setPosition] = useState<IGpsPosition | null>(null);
+  const [centerRequest, setCenterRequest] = useState<ICenterRequest | null>(
+    null,
+  );
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requests = useRef(0);
 
   function settle(next: GeolocationStatus) {
     if (timer.current) clearTimeout(timer.current);
@@ -26,22 +47,61 @@ export function useGeolocation() {
     setStatus(next);
   }
 
-  function locate() {
+  function refine(first: IGpsPosition, id: number) {
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        // A newer request or a clear wins over a late refinement.
+        if (requests.current !== id || coords.accuracy >= first.accuracy) {
+          return;
+        }
+
+        setPosition({
+          lat: coords.latitude,
+          lon: coords.longitude,
+          accuracy: coords.accuracy,
+        });
+      },
+      () => {},
+      { enableHighAccuracy: true, timeout: GIVE_UP_MS, maximumAge: 0 },
+    );
+  }
+
+  function locate(auto = false) {
     if (!("geolocation" in navigator)) {
       setStatus("unavailable");
       return;
     }
 
+    const id = ++requests.current;
+
     setStatus("locating");
-    timer.current = setTimeout(() => setStatus("timeout"), GIVE_UP_MS);
+
+    if (!auto) {
+      timer.current = setTimeout(() => setStatus("timeout"), GIVE_UP_MS);
+    }
 
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
-        setPosition({ lat: coords.latitude, lon: coords.longitude });
+        if (requests.current !== id) return;
+
+        const fix = {
+          lat: coords.latitude,
+          lon: coords.longitude,
+          accuracy: coords.accuracy,
+        };
+
+        setPosition(fix);
+        setCenterRequest({ lat: fix.lat, lon: fix.lon, id, auto });
         settle("located");
+
+        if (fix.accuracy > REFINE_ABOVE_M) refine(fix, id);
       },
       (error) => {
-        if (error.code === error.PERMISSION_DENIED) settle("denied");
+        if (requests.current !== id) return;
+
+        // An automatic attempt fails quietly; the button is still there.
+        if (auto) settle("idle");
+        else if (error.code === error.PERMISSION_DENIED) settle("denied");
         else if (error.code === error.TIMEOUT) settle("timeout");
         else settle("unavailable");
       },
@@ -49,10 +109,30 @@ export function useGeolocation() {
     );
   }
 
+  // Locating without a tap is fine only when no prompt can appear. Safari may
+  // report "prompt" for a granted permission; that just means waiting for a tap.
+  useEffect(() => {
+    let cancelled = false;
+
+    navigator.permissions
+      ?.query({ name: "geolocation" })
+      .then((permission) => {
+        if (!cancelled && permission.state === "granted") locate(true);
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function clear() {
+    requests.current++;
     setPosition(null);
+    setCenterRequest(null);
     settle("idle");
   }
 
-  return { status, position, locate, clear };
+  return { status, position, centerRequest, locate: () => locate(), clear };
 }

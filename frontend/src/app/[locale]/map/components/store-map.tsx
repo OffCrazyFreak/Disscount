@@ -9,6 +9,7 @@ import {
   NavigationControl,
   type MapLayerMouseEvent,
   type MapRef,
+  type ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
@@ -17,6 +18,7 @@ import MapChainSource from "@/app/[locale]/map/components/map-chain-source";
 import MapOverlays from "@/app/[locale]/map/components/map-overlays";
 import MapPanControls from "@/app/[locale]/map/components/map-pan-controls";
 import MapUnavailable from "@/app/[locale]/map/components/map-unavailable";
+import { ICenterRequest } from "@/app/[locale]/map/hooks/use-geolocation";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { groupStoresByChain } from "@/app/[locale]/map/utils/chain-geojson";
 import { interactiveLayerIds } from "@/app/[locale]/map/utils/chain-layers";
@@ -45,7 +47,8 @@ interface IStoreMapProps {
   selected: IListedStore | null;
   onSelect: (key: string) => void;
   userLocation: ILatLon | null;
-  initialCenter: ILatLon | null;
+  centerRequest: ICenterRequest | null;
+  initialView: (ILatLon & { zoom: number }) | null;
 }
 
 export default function StoreMap({
@@ -53,7 +56,8 @@ export default function StoreMap({
   selected,
   onSelect,
   userLocation,
-  initialCenter,
+  centerRequest,
+  initialView,
 }: IStoreMapProps) {
   const t = useTranslations("map.unavailable");
   const mapRef = useRef<MapRef>(null);
@@ -61,6 +65,8 @@ export default function StoreMap({
   const [iconsReady, setIconsReady] = useState(false);
   const [contextLost, setContextLost] = useState(false);
   const [cursor, setCursor] = useState<string>("");
+  // Set by a drag, wheel or key, never by our own easeTo calls.
+  const userMoved = useRef(false);
 
   const style = useQuery({
     queryKey: ["map-style"],
@@ -91,14 +97,25 @@ export default function StoreMap({
     });
   }, [mapReady, selectedLat, selectedLon]);
 
+  const hasSelection = selectedLat != null;
+
   useEffect(() => {
-    if (!mapReady || !userLocation) return;
+    if (!mapReady || !centerRequest) return;
+
+    // A fix nobody tapped for must not yank the map from where the user moved
+    // it, or from the store a shared link opened.
+    if (centerRequest.auto && (userMoved.current || hasSelection)) return;
 
     mapRef.current?.easeTo({
-      center: [userLocation.lon, userLocation.lat],
+      center: [centerRequest.lon, centerRequest.lat],
       zoom: 13,
     });
-  }, [mapReady, userLocation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapReady, centerRequest]);
+
+  function handleMoveStart(event: ViewStateChangeEvent) {
+    if (event.originalEvent) userMoved.current = true;
+  }
 
   async function handleLoad() {
     const map = mapRef.current?.getMap();
@@ -171,11 +188,11 @@ export default function StoreMap({
       mapStyle={style.data}
       hash="map"
       initialViewState={
-        initialCenter
+        initialView
           ? {
-              latitude: initialCenter.lat,
-              longitude: initialCenter.lon,
-              zoom: 12,
+              latitude: initialView.lat,
+              longitude: initialView.lon,
+              zoom: initialView.zoom,
             }
           : { bounds: CROATIA_BOUNDS }
       }
@@ -186,6 +203,7 @@ export default function StoreMap({
       onMouseEnter={() => setCursor("pointer")}
       onMouseLeave={() => setCursor("")}
       onLoad={handleLoad}
+      onMoveStart={handleMoveStart}
       onClick={handleClick}
     >
       <NavigationControl position="top-right" />

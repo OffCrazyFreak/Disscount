@@ -10,6 +10,8 @@ interface INearMeButtonProps {
   status: GeolocationStatus;
   onLocate: () => void;
   onClear: () => void;
+  /** Says the order comes from an approximate location, when it does. */
+  note: string | null;
 }
 
 const MESSAGE_KEYS = {
@@ -18,11 +20,12 @@ const MESSAGE_KEYS = {
   timeout: "timeout",
 } as const;
 
-/** Asks for the position only on a tap, never on page load. */
+/** Asks for the position on a tap; the page itself never prompts. */
 export default function NearMeButton({
   status,
   onLocate,
   onClear,
+  note,
 }: INearMeButtonProps) {
   const t = useTranslations("map.nearMe");
   const messageKey =
@@ -55,6 +58,8 @@ export default function NearMeButton({
           {t("locate")}
         </Button>
       )}
+
+      {note && <p className="text-sm text-muted-foreground">{note}</p>}
 
       <p role="status" className="text-sm text-amber-800 empty:hidden">
         {messageKey && t(messageKey)}

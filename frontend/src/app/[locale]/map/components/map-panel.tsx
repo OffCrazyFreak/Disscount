@@ -28,6 +28,16 @@ export default function MapPanel({ model, chainSummary }: IMapPanelProps) {
     setLastKey(model.selected.key);
   }
 
+  const { kind, showDistances, ipCity } = model.origin;
+  const originNote =
+    kind === "ip"
+      ? ipCity
+        ? t("nearMe.approximate", { city: ipCity })
+        : t("nearMe.approximateNoCity")
+      : kind === "gps" && !showDistances
+        ? t("nearMe.coarse")
+        : null;
+
   if (model.selected) {
     return (
       <div className="min-h-0 flex-1 overflow-y-auto">
@@ -70,6 +80,7 @@ export default function MapPanel({ model, chainSummary }: IMapPanelProps) {
         status={model.geolocation.status}
         onLocate={model.geolocation.locate}
         onClear={model.geolocation.clear}
+        note={originNote}
       />
 
       <MissingStoresNote

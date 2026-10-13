@@ -14,10 +14,12 @@ import {
   useVisibleStores,
 } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { toStoreKey } from "@/app/[locale]/map/utils/store-key";
+import { resolveMapOrigin } from "@/app/[locale]/map/utils/map-origin";
+import type { IIpLocation } from "@/app/[locale]/map/utils/ip-location";
 import { isVisitableStore } from "@/app/[locale]/map/utils/visitable-store";
 
 /** Everything the map page renders, derived from the data, the URL and the user. */
-export function useMapViewModel() {
+export function useMapViewModel(ipLocation: IIpLocation | null) {
   const directory = useStoreDirectory();
   const url = useMapUrlState();
   const geolocation = useGeolocation();
@@ -28,11 +30,18 @@ export function useMapViewModel() {
   const defaults = useMapDefaults(stores);
   const chains = url.chainFilter ?? defaults.defaultChains ?? ALL_CHAINS;
 
+  const origin = resolveMapOrigin(
+    geolocation.position,
+    ipLocation,
+    defaults.placeCenter != null,
+  );
+
   const { listed, mappable, unplacedCount } = useVisibleStores({
     stores,
     chains,
     query: url.query,
-    origin: geolocation.position,
+    origin: origin.origin,
+    showDistances: origin.showDistances,
   });
 
   const recent = useRecentSearches(url.query, listed.length > 0);
@@ -55,9 +64,18 @@ export function useMapViewModel() {
     mappable,
     unplacedCount,
     selected: selectedStore
-      ? toListedStore(selectedStore, geolocation.position)
+      ? toListedStore(
+          selectedStore,
+          origin.showDistances ? origin.origin : null,
+        )
       : null,
-    placeCenter: defaults.placeCenter,
+    initialView: defaults.placeCenter
+      ? { ...defaults.placeCenter, zoom: 12 }
+      : ipLocation
+        ? // City level: the guess is rarely closer than the town.
+          { lat: ipLocation.lat, lon: ipLocation.lon, zoom: 11 }
+        : null,
+    origin,
     geolocation,
     recentSearches: recent.recent,
     clearRecentSearches: recent.clear,

@@ -12,8 +12,12 @@ import MapPanel from "@/app/[locale]/map/components/map-panel";
 import StoreMapLoader from "@/app/[locale]/map/components/store-map-loader";
 import { useMapViewModel } from "@/app/[locale]/map/hooks/use-map-view-model";
 
+import type { IIpLocation } from "@/app/[locale]/map/utils/ip-location";
+
 interface IMapClientProps {
   chainSummary: ReactNode;
+  /** Cloudflare's guess from the IP, read on the server for this request. */
+  ipLocation: IIpLocation | null;
 }
 
 /**
@@ -21,9 +25,12 @@ interface IMapClientProps {
  * a sheet. The layer sits between the floating header and the bottom nav, so
  * neither covers the map's controls.
  */
-export default function MapClient({ chainSummary }: IMapClientProps) {
+export default function MapClient({
+  chainSummary,
+  ipLocation,
+}: IMapClientProps) {
   const t = useTranslations("map.layout");
-  const model = useMapViewModel();
+  const model = useMapViewModel(ipLocation);
   const isMobile = useIsMobile();
   const [snap, setSnap] = useState<SheetSnap>("half");
 
@@ -50,7 +57,8 @@ export default function MapClient({ chainSummary }: IMapClientProps) {
       selected={model.selected}
       onSelect={selectStore}
       userLocation={model.geolocation.position}
-      initialCenter={model.placeCenter}
+      centerRequest={model.geolocation.centerRequest}
+      initialView={model.initialView}
     />
   );
 

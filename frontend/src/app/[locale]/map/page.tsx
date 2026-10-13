@@ -1,9 +1,11 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
+import { headers } from "next/headers";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import ChainSummary from "@/app/[locale]/map/components/chain-summary";
 import MapClient from "@/app/[locale]/map/components/map-client";
+import { readIpLocation } from "@/app/[locale]/map/utils/ip-location";
 import { isVisitableStore } from "@/app/[locale]/map/utils/visitable-store";
 import { pageAlternates } from "@/i18n/alternates";
 import { getStoreDirectory } from "@/lib/store-locations/get-store-directory";
@@ -39,6 +41,7 @@ async function ChainSummaryLoader() {
 
 export default async function MapPage() {
   const t = await getTranslations("map");
+  const ipLocation = readIpLocation(await headers());
 
   return (
     <>
@@ -46,6 +49,7 @@ export default async function MapPage() {
 
       <Suspense fallback={null}>
         <MapClient
+          ipLocation={ipLocation}
           chainSummary={
             // Streamed, so the directory fetch never holds up the first byte.
             <Suspense fallback={null}>

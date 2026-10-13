@@ -39,6 +39,8 @@ interface IUseVisibleStoresOptions {
   chains: string[] | typeof ALL_CHAINS;
   query: string;
   origin: ILatLon | null;
+  /** False for an approximate origin: it still sorts, but shows no km. */
+  showDistances: boolean;
 }
 
 /**
@@ -51,6 +53,7 @@ export function useVisibleStores({
   chains,
   query,
   origin,
+  showDistances,
 }: IUseVisibleStoresOptions) {
   const inChains =
     chains === ALL_CHAINS
@@ -83,6 +86,10 @@ export function useVisibleStores({
         compareHr(a.chainLabel, b.chainLabel) ||
         compareHr(a.store.address ?? "", b.store.address ?? ""),
     );
+  }
+
+  if (!showDistances) {
+    for (const row of listed) row.distanceKm = null;
   }
 
   const mappable = listed.filter(
