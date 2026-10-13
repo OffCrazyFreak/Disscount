@@ -74,6 +74,7 @@ export async function recordGeoapifyMiss(
     .onConflictDoUpdate({
       target: [storeLocation.chainCode, storeLocation.storeCode],
       set: { geoapifyMissedAt: now },
-      setWhere: sql`${storeLocation.lat} is null`,
+      // Stale pins are targets too, so only a manual pin is off limits.
+      setWhere: sql`${storeLocation.source} is distinct from 'manual'`,
     });
 }
