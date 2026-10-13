@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { useChangeLocale } from "@/components/custom/locale/use-change-locale";
+import { browserLocale } from "@/i18n/browser-locale";
 import { readLocaleCookie } from "@/i18n/locale-cookie";
 import { SHOW_IN_LOCALE } from "@/components/custom/locale/show-in-locale";
 import { isLocale, type AppLocale } from "@/i18n/locales";
@@ -16,7 +17,8 @@ const DISMISSED_KEY = "disscount-locale-suggestion-dismissed";
 /**
  * A page opened in another language than the saved one (a shared link, a search
  * result) offers the switch instead of redirecting, so every URL keeps meaning
- * one language for crawlers and for whoever shared it.
+ * one language for crawlers and for whoever shared it. A first visit with nothing
+ * saved offers the browser's language the same way.
  */
 export default function LocaleSuggestion() {
   const t = useTranslations("locale");
@@ -33,7 +35,9 @@ export default function LocaleSuggestion() {
     // The cookie first: a switch writes it at once, while the account value lags
     // until the session refetches. Sign-in copies the account value into it.
     const saved =
-      readLocaleCookie() ?? (isLocale(accountLocale) ? accountLocale : null);
+      readLocaleCookie() ??
+      (isLocale(accountLocale) ? accountLocale : null) ??
+      browserLocale();
     const dismissed = sessionStorage.getItem(DISMISSED_KEY) === saved;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPreferred(saved && saved !== locale && !dismissed ? saved : null);
