@@ -22,6 +22,16 @@ const resetPasswordSchema = z
 
 export type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
+// The token leaves the URL once read, so a language switch, which remounts the modal
+// under the new [locale], would otherwise lose it. Session-scoped, cleared on close.
+const TOKEN_KEY = "disscount-reset-token";
+
+function readToken(): string | null {
+  const fromUrl = new URLSearchParams(window.location.search).get("token");
+  if (fromUrl) sessionStorage.setItem(TOKEN_KEY, fromUrl);
+  return fromUrl ?? sessionStorage.getItem(TOKEN_KEY);
+}
+
 export function useResetPasswordForm(open: boolean) {
   const t = useTranslations("auth");
   const { messageForCode } = usePasswordPolicy();
@@ -31,9 +41,7 @@ export function useResetPasswordForm(open: boolean) {
   );
 
   if (open && !captured && typeof window !== "undefined") {
-    setCaptured({
-      token: new URLSearchParams(window.location.search).get("token"),
-    });
+    setCaptured({ token: readToken() });
   }
   if (!open && captured) setCaptured(null);
 
@@ -46,7 +54,11 @@ export function useResetPasswordForm(open: boolean) {
   });
 
   useEffect(() => {
-    if (!open || typeof window === "undefined") return;
+    if (typeof window === "undefined") return;
+    if (!open) {
+      sessionStorage.removeItem(TOKEN_KEY);
+      return;
+    }
 
     const params = new URLSearchParams(window.location.search);
     if (!params.has("token")) return;
@@ -79,6 +91,7 @@ export function useResetPasswordForm(open: boolean) {
       return;
     }
 
+    sessionStorage.removeItem(TOKEN_KEY);
     toast.success(t("resetPassword.success"));
     swapModalUrl({ name: "login" });
   }
