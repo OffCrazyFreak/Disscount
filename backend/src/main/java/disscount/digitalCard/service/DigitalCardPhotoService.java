@@ -78,9 +78,10 @@ public class DigitalCardPhotoService {
                 ? sha256Hex(fullPhoto.bytes())
                 : sha256Hex((sha256Hex(fullPhoto.bytes()) + ":" + sha256Hex(thumbPhoto.bytes()))
                         .getBytes(StandardCharsets.US_ASCII));
-        String fullKey = PhotoKeys.fullKey(userId, cardId, slot, sha256, fullPhoto.extension());
+        String uploadId = PhotoKeys.newUploadId();
+        String fullKey = PhotoKeys.fullKey(userId, cardId, slot, sha256, uploadId, fullPhoto.extension());
         String thumbKey = thumbPhoto == null ? null
-                : PhotoKeys.thumbKey(userId, cardId, slot, sha256, thumbPhoto.extension());
+                : PhotoKeys.thumbKey(userId, cardId, slot, sha256, uploadId, thumbPhoto.extension());
 
         try {
             photoStore.put(fullKey, fullPhoto.bytes(), fullPhoto.contentType());

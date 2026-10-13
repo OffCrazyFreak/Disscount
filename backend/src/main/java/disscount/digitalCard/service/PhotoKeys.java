@@ -14,11 +14,16 @@ final class PhotoKeys {
         return userPrefix(userId) + cardId + "/";
     }
 
-    static String fullKey(UUID userId, UUID cardId, String slot, String sha256, String extension) {
-        return cardPrefix(userId, cardId) + slot + "-" + sha256 + "." + extension;
+    /** Unique per upload, so a queued delete of an earlier upload of the same bytes can never hit this one. */
+    static String newUploadId() {
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 12);
     }
 
-    static String thumbKey(UUID userId, UUID cardId, String slot, String sha256, String extension) {
-        return cardPrefix(userId, cardId) + slot + "-" + sha256 + "-thumb." + extension;
+    static String fullKey(UUID userId, UUID cardId, String slot, String sha256, String uploadId, String extension) {
+        return cardPrefix(userId, cardId) + slot + "-" + sha256 + "-" + uploadId + "." + extension;
+    }
+
+    static String thumbKey(UUID userId, UUID cardId, String slot, String sha256, String uploadId, String extension) {
+        return cardPrefix(userId, cardId) + slot + "-" + sha256 + "-" + uploadId + "-thumb." + extension;
     }
 }

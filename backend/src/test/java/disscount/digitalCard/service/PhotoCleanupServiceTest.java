@@ -141,13 +141,13 @@ class PhotoCleanupServiceTest {
         assertThat(queue.findAll()).extracting(PhotoCleanup::getKeyOrPrefix).containsExactly(keyA);
 
         photoService.upload(owner.getId(), cardId, "icon", a, null);
+        String liveKey = photos.findByCardId(cardId).get(0).getFullKey();
         store.failDeletes = false;
         cleanup.retryPending();
 
-        assertThat(photos.findByCardId(cardId)).singleElement()
-                .satisfies(row -> assertThat(row.getFullKey()).isEqualTo(keyA));
-        assertThat(store.objects).containsKey(keyA);
-        assertThat(queue.findAll()).extracting(PhotoCleanup::getKeyOrPrefix).doesNotContain(keyA);
+        assertThat(liveKey).isNotEqualTo(keyA);
+        assertThat(store.objects).containsKey(liveKey).doesNotContainKey(keyA);
+        assertThat(queue.findAll()).isEmpty();
     }
 
     @Test

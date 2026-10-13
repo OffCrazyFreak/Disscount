@@ -91,7 +91,9 @@ class DigitalCardPhotoServiceTest {
         String prefix = "cards/" + owner.getId() + "/" + cardId + "/front-" + dto.getSha256();
         assertThat(dto.getSlot()).isEqualTo("front");
         assertThat(dto.getSha256()).hasSize(64);
-        assertThat(fake().objects.keySet()).containsExactlyInAnyOrder(prefix + ".webp", prefix + "-thumb.webp");
+        assertThat(fake().objects.keySet()).hasSize(2)
+                .anyMatch(k -> k.matches(java.util.regex.Pattern.quote(prefix) + "-[0-9a-f]{12}\\.webp"))
+                .anyMatch(k -> k.matches(java.util.regex.Pattern.quote(prefix) + "-[0-9a-f]{12}-thumb\\.webp"));
     }
 
     @Test
