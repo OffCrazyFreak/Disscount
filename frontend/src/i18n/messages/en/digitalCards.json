@@ -1,80 +1,275 @@
 {
+  "form": {
+    "newTitle": "New card",
+    "editTitle": "Edit card",
+    "description": "Save a loyalty card and keep it to hand.",
+    "save": "Save card",
+    "cancel": "Cancel",
+    "reset": "Reset",
+    "loadErrorOffline": "You're offline and this card isn't saved on your device yet. Connect to the internet and try again.",
+    "loadError": "Couldn't load the card. Try again.",
+    "notFound": "Card not found. It may have been deleted.",
+    "saveFailed": "Couldn't save the card. Check the details you entered.",
+    "savedOffline": "You're offline. The change will sync when you're back online.",
+    "saved": "Card saved.",
+    "storeLabel": "Store",
+    "storePlaceholder": "Choose or type a store",
+    "storeShowSuggestions": "Show store suggestions",
+    "storeClear": "Clear store",
+    "storeEmpty": "Start typing a store name.",
+    "storeGroupOfficial": "Official stores",
+    "storeGroupOther": "Other",
+    "storeAdd": "Add “{name}”",
+    "cardNameLabel": "Card name",
+    "cardTypeLabel": "Card type",
+    "cardTypePlaceholder": "Choose a type",
+    "codeNumberLabel": "Card number",
+    "codeScan": "Scan the card code with the camera",
+    "codeTypeLabel": "Code type",
+    "codeTypePlaceholder": "Choose a code type",
+    "previewLabel": "Card code preview",
+    "previewEmpty": "Enter the card number to see a code preview.",
+    "previewCannotEncode": "This code type can't show the number you entered. Choose another type or “{fallbackType}”.",
+    "barcodeDiffers": "The code on the card differs from the number",
+    "barcodeValueLabel": "Code value",
+    "colorLabel": "Card colour: {color}",
+    "colorCustom": "custom",
+    "colorOption": "{name}, {hue}",
+    "noteLabel": "Note",
+    "notePlaceholder": "E.g. the card is in my partner's name",
+    "noteRemaining": "Characters left: {count, number}",
+    "moreDetails": "More details",
+    "validFrom": "Valid from",
+    "validUntil": "Valid until",
+    "balanceLabel": "Balance",
+    "unitLabel": "Unit",
+    "unitPoints": "Points"
+  },
+  "validation": {
+    "dateFormat": "Enter the date as YYYY-MM-DD",
+    "nameMin": "Enter a name with at least 2 characters",
+    "nameMax": "Enter a name with at most 60 characters",
+    "storeMin": "Enter a store with at least 2 characters",
+    "storeMax": "Enter a store with at most 60 characters",
+    "codeRequired": "Enter the card number or code",
+    "codeTooLong": "The card code is too long",
+    "barcodeTooLong": "The code is too long",
+    "colorRequired": "Choose a colour",
+    "noteTooLong": "A note can have at most 500 characters",
+    "balanceNegative": "The amount can't be negative",
+    "balanceTooLarge": "The amount is too large",
+    "expiresBeforeStart": "A card can't expire before it starts"
+  },
+  "cardTypes": {
+    "loyalty": "Loyalty card",
+    "gift": "Gift card",
+    "membership": "Membership card",
+    "other": "Other"
+  },
+  "codeTypes": {
+    "ean_13": "EAN-13",
+    "ean_8": "EAN-8",
+    "upc_a": "UPC-A",
+    "upc_e": "UPC-E",
+    "code_128": "Code 128",
+    "code_39": "Code 39",
+    "code_93": "Code 93",
+    "codabar": "Codabar",
+    "itf": "ITF",
+    "qr_code": "QR code",
+    "aztec": "Aztec",
+    "data_matrix": "Data Matrix",
+    "pdf417": "PDF417",
+    "unknown": "Number or text only"
+  },
+  "colors": {
+    "graphite": { "name": "Graphite", "hue": "grey" },
+    "cherryBlossom": { "name": "Cherry blossom", "hue": "pink" },
+    "flamingo": { "name": "Flamingo", "hue": "light red" },
+    "mango": { "name": "Mango", "hue": "orange" },
+    "avocado": { "name": "Avocado", "hue": "yellow-green" },
+    "peacock": { "name": "Peacock", "hue": "light blue" },
+    "lavender": { "name": "Lavender", "hue": "blue-violet" },
+    "radicchio": { "name": "Radicchio", "hue": "dark pink" },
+    "tomato": { "name": "Tomato", "hue": "red" },
+    "tangerine": { "name": "Tangerine", "hue": "red-orange" },
+    "banana": { "name": "Banana", "hue": "yellow" },
+    "pistachio": { "name": "Pistachio", "hue": "light green" },
+    "basil": { "name": "Basil", "hue": "dark green" },
+    "sage": { "name": "Sage", "hue": "green" },
+    "eucalyptus": { "name": "Eucalyptus", "hue": "turquoise" },
+    "blueberry": { "name": "Blueberry", "hue": "dark blue" },
+    "wisteria": { "name": "Wisteria", "hue": "light purple" },
+    "amethyst": { "name": "Amethyst", "hue": "purple" },
+    "grape": { "name": "Grape", "hue": "dark purple" }
+  },
+  "photos": {
+    "legend": "Photos",
+    "hint": "Cover the signature and PIN before taking a photo.",
+    "slots": {
+      "front": "Front",
+      "back": "Back",
+      "icon": "Icon"
+    },
+    "preview": "Photo preview: {label}",
+    "status": {
+      "removed": "The photo will be removed when you save",
+      "added": "The new photo is saved with the card",
+      "uploading": "Uploading",
+      "queued": "Waiting to upload",
+      "error": "Upload failed",
+      "saved": "Saved",
+      "empty": "No photo"
+    },
+    "add": "Add",
+    "replace": "Replace",
+    "addAria": "Add photo: {label}",
+    "replaceAria": "Replace photo: {label}",
+    "restoreAria": "Restore photo: {label}",
+    "discardAria": "Discard new photo: {label}",
+    "removeAria": "Remove photo: {label}",
+    "errors": {
+      "processFailed": "Couldn't process the photo.",
+      "saveFailed": "Couldn't save the photo. Try again.",
+      "removeFailed": "Couldn't delete the photo. Try again."
+    }
+  },
   "meta": {
-    "title": "My digital cards",
-    "description": "View and manage your digital cards."
+    "title": "Digital cards",
+    "description": "All your store cards in one place."
   },
   "list": {
     "loginTitle": "Digital cards",
     "loginDescription": "Digital cards let you keep all your loyalty cards in one place, always to hand.",
     "searchPlaceholder": "Search digital cards...",
-    "searchResultsTitle": "Search results for “{query}” ({count})",
-    "title": "My digital cards",
-    "titleWithCount": "My digital cards ({count})",
-    "emptyTitle": "No digital cards",
-    "emptyDescription": "Create your first digital card…"
+    "searchResults": "Search results for “{query}” ({count})",
+    "myCards": "My digital cards",
+    "myCardsWithCount": "My digital cards ({count})",
+    "add": {
+      "full": "Add card",
+      "short": "Add"
+    },
+    "pinnedLabel": "Pinned cards",
+    "cardsLabel": "Cards"
   },
-  "actions": {
-    "add": "Add digital card",
-    "addShort": "Add card"
+  "announce": {
+    "results": "{count, plural, =0 {No results} one {# result} other {# results}}",
+    "pinned": "Card pinned.",
+    "unpinned": "Card unpinned.",
+    "archived": "Card archived.",
+    "unarchived": "Card restored from the archive."
   },
-  "item": {
-    "moreOptions": "More card options",
-    "edit": "Edit",
-    "delete": "Delete",
-    "created": "Created {date}",
-    "confirmDelete": "Delete the card “{title}”?",
-    "deleted": "Card deleted.",
-    "deleteError": "Couldn't delete the card: {message}"
+  "sort": {
+    "label": "Sort by",
+    "mode": {
+      "recent-use": "Recently used",
+      "name": "Name",
+      "store": "Store",
+      "type": "Type",
+      "edited": "Recently edited",
+      "added": "Recently added",
+      "color": "Colour"
+    }
   },
-  "modal": {
-    "editTitle": "Edit digital card",
-    "newTitle": "New digital card",
-    "description": "Save a loyalty card and keep it to hand.",
-    "save": "Save",
-    "create": "Create",
-    "cancel": "Cancel",
-    "reset": "Reset",
-    "loadError": "Couldn't load the card. Try again.",
-    "notFound": "Card not found. It may have been deleted.",
-    "offline": "You're offline. The change will sync when you're back online.",
-    "updated": "Digital card updated!",
-    "created": "Digital card created!"
+  "chainNotes": {
+    "lidl": {
+      "text": "Coupons and payment only work in the Lidl Plus app. At the till, check that your card was scanned on the receipt.",
+      "link": "About Lidl Plus"
+    },
+    "kaufland": {
+      "text": "You activate coupons in the Kaufland app. At the till, check that your card was scanned on the receipt.",
+      "link": "About Kaufland Card"
+    },
+    "dm": {
+      "text": "Use the Moj dm app for coupons. At the till, check that your card was scanned on the receipt.",
+      "link": "About the Moj dm app"
+    },
+    "konzum": {
+      "text": "The MultiPlus card rules forbid copying the card. Use the saved number only for your own card.",
+      "link": "MultiPlus card rules"
+    }
   },
-  "fields": {
-    "title": "Card name",
-    "value": "Value or code",
-    "type": "Card type",
-    "typePlaceholder": "Choose a type",
-    "codeType": "Code type",
-    "codeTypePlaceholder": "Choose a code type",
-    "color": "Card colour",
-    "note": "Note",
-    "notePlaceholder": "Enter a note",
-    "noteHelp": "Extra details about your card ({remaining} left)."
+  "empty": {
+    "title": "No cards yet",
+    "description": "Add your first store card and show your phone at the till instead of plastic.",
+    "add": "Add card"
   },
-  "cardTypes": {
-    "loyalty": "Loyalty card",
-    "discount": "Discount card",
-    "membership": "Membership",
-    "gift": "Gift card",
-    "other": "Other"
+  "archived": {
+    "label": "Archived ({count})"
   },
-  "codeTypes": {
-    "barcode": "Barcode",
-    "qr": "QR code",
-    "number": "Number",
-    "text": "Text"
+  "tile": {
+    "archivedBadge": "Archived",
+    "open": "{store}, {name}",
+    "openArchived": "{store}, {name} (archived)",
+    "pin": "Pin card {name}"
   },
-  "validation": {
-    "titleRequired": "Name is required",
-    "titleMax": "Enter a name of up to 100 characters",
-    "valueRequired": "Value is required",
-    "valueMax": "Value can be up to 500 characters",
-    "typeRequired": "Type is required",
-    "typeMax": "Type can be up to 50 characters",
-    "codeTypeRequired": "Code type is required",
-    "codeTypeMax": "Code type can be up to 50 characters",
-    "colorHex": "Colour must be in HEX format (#ffffff)",
-    "noteMax": "Note can be up to 500 characters"
+  "view": {
+    "newTab": "(opens in a new tab)",
+    "modal": {
+      "loading": "Loading card...",
+      "loadError": "Couldn't load the cards. Check your connection.",
+      "notFound": "This card no longer exists or isn't on your account.",
+      "fallbackTitle": "Card",
+      "fallbackDescription": "Digital card"
+    },
+    "code": {
+      "panel": "Card code",
+      "rotate": "Rotate code",
+      "qr": "QR code",
+      "twoDimensional": "2D code",
+      "linear": "Barcode",
+      "withValue": "{kind}: {value}",
+      "cannotDraw": "This code can't be drawn. Read the number below or try another type."
+    },
+    "switcher": {
+      "shownAs": "Shown as: {type}",
+      "tryOther": "Won't scan? Try another type",
+      "saveDefault": "Save as default"
+    },
+    "brightness": {
+      "hint": "Turn up your screen brightness so the code scans more easily.",
+      "hintMayDim": "Turn up your screen brightness so the code scans more easily. The screen may switch off by itself, so tap it before the till.",
+      "dismiss": "Don't show the brightness tip again"
+    },
+    "photos": {
+      "label": "Card photos",
+      "enlarge": "Enlarge photo: {label}"
+    },
+    "details": {
+      "type": "Type",
+      "store": "Store",
+      "note": "Note",
+      "validFrom": "Valid from",
+      "validTo": "Valid until",
+      "balance": "Balance",
+      "points": "{count, plural, one {# point} other {# points}}",
+      "pointsFraction": "{count, number} points"
+    },
+    "actions": {
+      "edit": "Edit",
+      "pin": "Pin",
+      "unpin": "Unpin",
+      "archive": "Archive",
+      "unarchive": "Restore from archive",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "deleteTitle": "Delete card",
+      "deleteDescription": "Delete the card “{name}”? This can't be undone."
+    }
+  },
+  "errors": {
+    "image": {
+      "cannotSave": "This browser can't save the photo.",
+      "cannotProcess": "This browser can't process the photo.",
+      "cannotOpen": "Couldn't open this photo. Choose another.",
+      "tooLarge": "The photo is too large. Choose another."
+    }
+  },
+  "offline": {
+    "cardLimit": "You've reached the maximum number of cards.",
+    "cardSaveFailed": "Couldn't save the card. Try again.",
+    "cardDeleteFailed": "Couldn't delete the card. Try again.",
+    "photoDeleteFailed": "Couldn't delete the photo.",
+    "photoSendFailed": "Couldn't send the card photo."
   }
 }

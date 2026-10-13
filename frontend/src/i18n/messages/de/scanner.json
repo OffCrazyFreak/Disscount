@@ -4,14 +4,18 @@
     "label": "Kamera",
     "autoPlaceholder": "Automatisch (Rückkamera)",
     "reset": "Kamera auf automatische Auswahl zurücksetzen",
-    "name": "{facing, select, front {Frontkamera} back {Rückkamera} other {Kamera}}{lens, select, ultrawide { (Ultraweitwinkel)} telephoto { (Teleobjektiv)} macro { (Makro)} other {}}{ordinal, plural, =0 {} other { #}}"
+    "name": "{facing, select, front {Frontkamera} back {Rückkamera} other {Kamera}}{lens, select, ultrawide { (Ultraweitwinkel)} telephoto { (Teleobjektiv)} macro { (Makro)} other {}}{ordinal, plural, =0 {} other { #}}",
+    "hint": "Der Code wird nicht richtig gelesen. Geh näher ran, vermeide Spiegelungen oder probiere ein anderes Bild.",
+    "manual": "Manuell eingeben"
   },
   "image": {
     "upload": "Bild mit Code hochladen",
     "loading": "Wird geladen...",
     "notFound": "Auf dem Bild wurde kein Code gefunden.",
     "notProductBarcode": "Der Code auf dem Bild ist kein Produkt-Barcode (EAN).",
-    "loadFailed": "Das Bild konnte nicht geladen werden."
+    "loadFailed": "Das Bild konnte nicht geladen werden.",
+    "unsupportedFormat": "Das Codeformat auf dem Bild wird nicht unterstützt.",
+    "unreadable": "Der Code auf dem Bild wurde nicht richtig gelesen. Probiere ein schärferes Bild."
   },
   "errors": {
     "permissionDenied": "Der Zugriff auf die Kamera wurde abgelehnt. Erlaube den Kamerazugriff in den Browsereinstellungen und versuche es erneut.",
@@ -20,5 +24,41 @@
     "overconstrained": "Die gewählte Kamera ist nicht verfügbar. Setze die Kamera auf automatische Auswahl zurück.",
     "insecureContext": "Scannen funktioniert nur über eine sichere Verbindung (HTTPS).",
     "generic": "Die Kamera konnte nicht gestartet werden. Versuche es erneut."
+  },
+  "codes": {
+    "ean_13": "EAN-13",
+    "ean_8": "EAN-8",
+    "upc_a": "UPC-A",
+    "upc_e": "UPC-E",
+    "code_128": "Code 128",
+    "code_39": "Code 39",
+    "code_93": "Code 93",
+    "codabar": "Codabar",
+    "itf": "ITF",
+    "qr_code": "QR-Code",
+    "aztec": "Aztec",
+    "data_matrix": "Data Matrix",
+    "pdf417": "PDF417",
+    "unknown": "Nur Nummer/Text",
+    "fallback": "Code"
+  },
+  "confirm": {
+    "title": "Code prüfen",
+    "chooseLegend": "Wähle den Code, den die Kasse scannt",
+    "use": "Code verwenden",
+    "rescan": "Erneut scannen",
+    "manual": "Manuell eingeben",
+    "announceTyped": "Eingegebener Code: {label}",
+    "announceFound": "Code gefunden: {label}",
+    "announceMany": "{count, plural, one {# Code gefunden} other {# Codes gefunden}}"
+  },
+  "manual": {
+    "title": "Code manuell eingeben",
+    "numberLabel": "Kartennummer",
+    "typeLabel": "Codetyp",
+    "submit": "Weiter",
+    "back": "Zurück zum Scannen",
+    "numberRequired": "Gib die Nummer des Codes ein.",
+    "checkDigitMismatch": "Die Nummer passt nicht zum gewählten Codetyp. Prüfe die Ziffern oder wähle einen anderen Typ."
   }
 }
