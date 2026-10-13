@@ -2,6 +2,9 @@
 
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
+import { MapPinned } from "lucide-react";
+import { Link } from "@/i18n/navigation";
+import { buttonVariants } from "@/components/ui/button";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import CollapsibleSection from "@/components/custom/common/collapsible-section";
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
@@ -63,10 +66,20 @@ export default function ProductChainsSection({
         <p className="p-2 text-gray-600 text-center">{t("empty")}</p>
       ) : (
         <div className="space-y-4">
-          <ProductChainSortSelect
-            value={detail.sortBy}
-            onValueChange={detail.setSortBy}
-          />
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <ProductChainSortSelect
+              value={detail.sortBy}
+              onValueChange={detail.setSortBy}
+            />
+
+            <Link
+              href={`/map?chain=${encodeURIComponent(detail.sortedChains.map((chain) => chain.chain).join(","))}`}
+              className={buttonVariants({ variant: "outline", size: "sm" })}
+            >
+              <MapPinned aria-hidden="true" />
+              {t("whereToBuy")}
+            </Link>
+          </div>
 
           {detail.sortedChains.map((chain) => (
             <StoreItem

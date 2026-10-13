@@ -90,7 +90,6 @@ export const featureItems: IFeatureItem[] = [
   {
     id: "map",
     icon: MapIcon,
-    comingSoon: true,
-    // href: "/map",
+    href: "/map",
   },
 ];

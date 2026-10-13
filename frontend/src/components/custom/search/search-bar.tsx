@@ -27,6 +27,8 @@ interface ISearchBarProps {
   inputRef?: RefObject<HTMLInputElement | null>;
   /** Mirrors what is typed, for an owner rendering the submit button itself */
   onQueryChange?: (query: string) => void;
+  /** Updates `q` in place, without a server render, keeping the hash */
+  shallow?: boolean;
   /** Fires once a search or a scan has navigated away */
   onSubmitted?: (query: string) => void;
 }
@@ -44,12 +46,13 @@ export default function SearchBar({
   inputRef: exposedInputRef,
   onQueryChange,
   onSubmitted,
+  shallow = false,
 }: ISearchBarProps) {
   const t = useTranslations("shell");
   const placeholder = placeholderProp ?? t("search.placeholder");
   const submitLabel = submitLabelProp ?? t("search.submit");
   const { routeQuery, isUnchanged, search, syncQuery, openResult } =
-    useSearchNavigation(searchRoute);
+    useSearchNavigation(searchRoute, { shallow });
   const { openScanner } = useCameraScanner();
   const { setOpen } = useSidebar();
   const inputRef = useRef<HTMLInputElement>(null);

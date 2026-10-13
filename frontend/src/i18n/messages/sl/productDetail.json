@@ -17,7 +17,8 @@
     "title": "Cene po trgovskih verigah",
     "refreshed": "Cene posodobljene {time}",
     "loadError": "Napaka pri nalaganju cen. Poskusi znova.",
-    "empty": "Za ta izdelek ni cen."
+    "empty": "Za ta izdelek ni cen.",
+    "whereToBuy": "Kje kupiti"
   },
   "priceHistory": {
     "title": "Zgodovina cen",
@@ -45,6 +46,7 @@
     "address": "Naslov",
     "price": "Cena",
     "unknown": "Neznano",
-    "notAvailable": "Ni"
+    "notAvailable": "Ni",
+    "showOnMap": ", prikaži na zemljevidu"
   }
 }

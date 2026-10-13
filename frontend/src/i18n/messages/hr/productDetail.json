@@ -17,7 +17,8 @@
     "title": "Cijene po trgovačkim lancima",
     "refreshed": "Cijene osvježene {time}",
     "loadError": "Greška pri učitavanju cijena. Pokušaj ponovno.",
-    "empty": "Nema dostupnih cijena za ovaj proizvod."
+    "empty": "Nema dostupnih cijena za ovaj proizvod.",
+    "whereToBuy": "Gdje kupiti"
   },
   "priceHistory": {
     "title": "Povijest cijena",
@@ -45,6 +46,7 @@
     "address": "Adresa",
     "price": "Cijena",
     "unknown": "Nepoznato",
-    "notAvailable": "Nema"
+    "notAvailable": "Nema",
+    "showOnMap": ", prikaži na karti"
   }
 }

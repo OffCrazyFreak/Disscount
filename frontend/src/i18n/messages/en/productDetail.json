@@ -17,7 +17,8 @@
     "title": "Prices by chain",
     "refreshed": "Prices refreshed {time}",
     "loadError": "Couldn't load prices. Try again.",
-    "empty": "No prices available for this product."
+    "empty": "No prices available for this product.",
+    "whereToBuy": "Where to buy"
   },
   "priceHistory": {
     "title": "Price history",
@@ -45,6 +46,7 @@
     "address": "Address",
     "price": "Price",
     "unknown": "Unknown",
-    "notAvailable": "N/A"
+    "notAvailable": "N/A",
+    "showOnMap": ", show on the map"
   }
 }

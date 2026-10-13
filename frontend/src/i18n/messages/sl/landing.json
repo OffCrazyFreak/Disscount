@@ -106,7 +106,7 @@
       },
       "map": {
         "title": "Zemljevid trgovin",
-        "description": "Poišči najbližjo odprto trgovino in njen delovni čas."
+        "description": "Poišči najbližjo trgovino na zemljevidu in navodila do nje."
       }
     }
   },

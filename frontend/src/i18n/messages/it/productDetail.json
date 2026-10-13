@@ -17,7 +17,8 @@
     "title": "Prezzi per catena",
     "refreshed": "Prezzi aggiornati {time}",
     "loadError": "Impossibile caricare i prezzi. Riprova.",
-    "empty": "Nessun prezzo disponibile per questo prodotto."
+    "empty": "Nessun prezzo disponibile per questo prodotto.",
+    "whereToBuy": "Dove comprare"
   },
   "priceHistory": {
     "title": "Storico prezzi",
@@ -45,6 +46,7 @@
     "address": "Indirizzo",
     "price": "Prezzo",
     "unknown": "Sconosciuto",
-    "notAvailable": "N/D"
+    "notAvailable": "N/D",
+    "showOnMap": ", mostra sulla mappa"
   }
 }

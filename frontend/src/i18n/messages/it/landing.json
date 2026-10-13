@@ -106,7 +106,7 @@
       },
       "map": {
         "title": "Mappa dei negozi",
-        "description": "Trova il negozio aperto più vicino e i suoi orari di apertura."
+        "description": "Trova il negozio più vicino sulla mappa e le indicazioni per arrivarci."
       }
     }
   },

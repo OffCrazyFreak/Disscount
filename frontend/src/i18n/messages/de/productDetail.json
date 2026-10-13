@@ -17,7 +17,8 @@
     "title": "Preise nach Händlern",
     "refreshed": "Preise {time} aktualisiert",
     "loadError": "Die Preise konnten nicht geladen werden. Versuche es erneut.",
-    "empty": "Für dieses Produkt gibt es keine Preise."
+    "empty": "Für dieses Produkt gibt es keine Preise.",
+    "whereToBuy": "Wo kaufen"
   },
   "priceHistory": {
     "title": "Preisverlauf",
@@ -45,6 +46,7 @@
     "address": "Adresse",
     "price": "Preis",
     "unknown": "Unbekannt",
-    "notAvailable": "k. A."
+    "notAvailable": "k. A.",
+    "showOnMap": ", auf der Karte zeigen"
   }
 }

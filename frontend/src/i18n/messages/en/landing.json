@@ -106,7 +106,7 @@
       },
       "map": {
         "title": "Store map",
-        "description": "Find the nearest open store and its opening hours."
+        "description": "Find the nearest store on the map and get directions."
       }
     }
   },

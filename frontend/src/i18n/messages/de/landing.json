@@ -106,7 +106,7 @@
       },
       "map": {
         "title": "Karte der Märkte",
-        "description": "Finde den nächstgelegenen geöffneten Markt und seine Öffnungszeiten."
+        "description": "Finde den nächstgelegenen Markt auf der Karte und den Weg dorthin."
       }
     }
   },

@@ -1,5 +1,7 @@
 import { memo } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { SquareArrowOutUpRight } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import {
   Table,
   TableBody,
@@ -8,7 +10,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toStoreKey } from "@/app/[locale]/map/utils/store-key";
 import { ProductResponse, StorePrice } from "@/lib/cijene-api/schemas";
 import {
   getMinPrice,
@@ -106,7 +110,23 @@ const StorePricesTable = memo(
                     </TableCell>
 
                     <TableCell lang={price.store.address ? "hr" : undefined}>
-                      {price.store.address || t("unknown")}
+                      <Link
+                        href={`/map?store=${encodeURIComponent(toStoreKey(price.chain, price.store.code))}`}
+                        className={cn(
+                          buttonVariants({
+                            variant: "ghost",
+                            effect: "hoverUnderline",
+                          }),
+                          "h-auto justify-start gap-1.5 whitespace-normal px-0 py-1 text-left font-normal text-inherit hover:bg-transparent",
+                        )}
+                      >
+                        {price.store.address || t("unknown")}
+                        <SquareArrowOutUpRight
+                          className="size-3.5 shrink-0"
+                          aria-hidden="true"
+                        />
+                        <span className="sr-only">{t("showOnMap")}</span>
+                      </Link>
                     </TableCell>
 
                     <TableCell className="text-center">

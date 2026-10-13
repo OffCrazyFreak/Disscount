@@ -100,6 +100,7 @@ services:
       EMAIL_FROM: ${EMAIL_FROM}
       CIJENE_API_URL: ${CIJENE_API_URL}
       CIJENE_API_TOKEN: ${CIJENE_API_TOKEN}
+      GEOAPIFY_API_KEY: ${GEOAPIFY_API_KEY:-}
       # Server-side reads of NEXT_PUBLIC_* at runtime. NEXT_PUBLIC_GOOGLE_CLIENT_ID is read
       # dynamically (requireEnv) so Next can't inline it - it MUST be present at runtime.
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
