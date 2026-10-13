@@ -61,12 +61,12 @@ flowchart LR
     BE -.->|fetch JWKS, internal| FE
 ```
 
-| Service    | Tech                      | Internal address | Public?               | Role                                                                |
-| ---------- | ------------------------- | ---------------- | --------------------- | ------------------------------------------------------------------- |
-| `frontend` | Next.js 16 (standalone)   | `frontend:3000`  | **yes** (via Traefik) | UI + **better-auth** identity provider; proxies `/api/*` to backend |
-| `backend`  | Spring Boot 3.1 / Java 21 | `backend:8080`   | no                    | REST API; validates better-auth JWTs (resource server)              |
-| `db`       | Postgres 17               | `db:5432`        | no                    | one shared database, used by both                                   |
-| `migrate`  | (frontend build image)    | n/a              | no                    | one-shot: runs drizzle auth-table migrations on deploy, then exits  |
+| Service    | Tech                      | Internal address | Public?               | Role                                                                                   |
+| ---------- | ------------------------- | ---------------- | --------------------- | -------------------------------------------------------------------------------------- |
+| `frontend` | Next.js 16 (standalone)   | `frontend:3000`  | **yes** (via Traefik) | UI + **better-auth** identity provider; proxies `/api/*` to backend                    |
+| `backend`  | Spring Boot 3.1 / Java 21 | `backend:8080`   | no                    | REST API; validates better-auth JWTs (resource server)                                 |
+| `db`       | Postgres 17               | `db:5432`        | no                    | one shared database, used by both                                                      |
+| `migrate`  | (frontend build image)    | n/a              | no                    | one-shot: runs drizzle migrations (auth tables, store locations) on deploy, then exits |
 
 **Why the backend isn't public:** the browser only ever calls `https://disscount.me/api/...` (relative URLs). Next.js `rewrites()` forwards those to `backend:8080` _server-side_, inside the Docker network. This means no CORS config is needed and the backend/DB have no internet-facing attack surface.
 
@@ -148,10 +148,10 @@ Skipped production and branch deploys still appear in Netlify's deploy list, mar
 
 There are **two kinds** of env vars, and mixing them up causes the most confusing bugs:
 
-| Kind                                    | Examples                                                                                           | When it's read                                         | If you change it                                                      |
-| --------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------- |
-| **Build-time, baked** (`NEXT_PUBLIC_*`) | `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `NEXT_PUBLIC_SENTRY_DSN`                    | compiled **into the JS bundle** during `next build`    | you **must REDEPLOY** (rebuild): editing the value alone does nothing |
-| **Runtime, secret**                     | `DATABASE_URL`, `BETTER_AUTH_SECRET`, `GOOGLE_CLIENT_SECRET`, `RESEND_API_KEY`, `SENTRY_DSN`, etc. | read by the server **when it starts/handles requests** | takes effect on the next container restart                            |
+| Kind                                    | Examples                                                                                                                                                                | When it's read                                         | If you change it                                                      |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------- |
+| **Build-time, baked** (`NEXT_PUBLIC_*`) | `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `NEXT_PUBLIC_SENTRY_DSN`                                                                                         | compiled **into the JS bundle** during `next build`    | you **must REDEPLOY** (rebuild): editing the value alone does nothing |
+| **Runtime, secret**                     | `DATABASE_URL`, `BETTER_AUTH_SECRET`, `GOOGLE_CLIENT_SECRET`, `RESEND_API_KEY`, `SENTRY_DSN`, optional `GEOAPIFY_API_KEY` (store geocoding, see [MAP.md](MAP.md)), etc. | read by the server **when it starts/handles requests** | takes effect on the next container restart                            |
 
 - **Where they're set:** in **Dokploy, your service, Environment** (one set per environment). The local `.env` files, seeded from the tracked `.env.example` / `frontend/.env.local.example` / `backend/.env.example`, are only for local dev.
 - **Production vs dev difference:** prod uses `https://disscount.me`, dev uses `https://dev.disscount.me` for `BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL` / `BETTER_AUTH_ISSUER`; each has its **own** strong `POSTGRES_PASSWORD` + `BETTER_AUTH_SECRET`.
