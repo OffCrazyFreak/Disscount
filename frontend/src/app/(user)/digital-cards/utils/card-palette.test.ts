@@ -5,10 +5,11 @@ import { contrastRatio, textColorFor } from "@/utils/color-contrast";
 import { CHAIN_DEFAULT_COLORS } from "./chain-default-colors";
 import { CARD_PALETTE } from "./card-palette";
 
-const angles = (ring: number) =>
-  CARD_PALETTE.filter((color) => color.ring === ring)
+function angles(ring: number) {
+  return CARD_PALETTE.filter((color) => color.ring === ring)
     .map((color) => color.angle)
     .sort((a, b) => a - b);
+}
 
 describe("CARD_PALETTE", () => {
   it("has 19 unique colours", () => {

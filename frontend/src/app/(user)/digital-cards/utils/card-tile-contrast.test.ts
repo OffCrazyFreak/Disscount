@@ -11,26 +11,29 @@ import { CARD_PALETTE } from "./card-palette";
 
 type Rgb = [number, number, number];
 
-const toLinear = (value: number) => {
+function toLinear(value: number) {
   const srgb = value / 255;
   return srgb <= 0.04045 ? srgb / 12.92 : ((srgb + 0.055) / 1.055) ** 2.4;
-};
+}
 
-const toGamma = (value: number) => {
+function toGamma(value: number) {
   const clamped = Math.max(0, Math.min(1, value));
   return clamped <= 0.0031308
     ? 12.92 * clamped
     : 1.055 * clamped ** (1 / 2.4) - 0.055;
-};
+}
 
-const parse = (hex: string): Rgb => [
-  parseInt(hex.slice(1, 3), 16),
-  parseInt(hex.slice(3, 5), 16),
-  parseInt(hex.slice(5, 7), 16),
-];
+function parse(hex: string): Rgb {
+  return [
+    parseInt(hex.slice(1, 3), 16),
+    parseInt(hex.slice(3, 5), 16),
+    parseInt(hex.slice(5, 7), 16),
+  ];
+}
 
-const toHex = (rgb: Rgb) =>
-  `#${rgb.map((v) => v.toString(16).padStart(2, "0")).join("")}`;
+function toHex(rgb: Rgb) {
+  return `#${rgb.map((v) => v.toString(16).padStart(2, "0")).join("")}`;
+}
 
 function toOklab([red, green, blue]: Rgb): Rgb {
   const r = toLinear(red);
@@ -68,8 +71,11 @@ function mix(base: Rgb, other: Rgb, share: number): Rgb {
 }
 
 // sRGB alpha compositing, the way the browser paints a translucent layer.
-const over = (base: Rgb, top: Rgb, alpha: number): Rgb =>
-  base.map((v, i) => Math.round(alpha * top[i] + (1 - alpha) * v)) as Rgb;
+function over(base: Rgb, top: Rgb, alpha: number): Rgb {
+  return base.map((v, i) =>
+    Math.round(alpha * top[i] + (1 - alpha) * v),
+  ) as Rgb;
+}
 
 const STEPS = 100;
 

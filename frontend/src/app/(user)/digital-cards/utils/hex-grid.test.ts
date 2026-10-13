@@ -4,10 +4,12 @@ import { CARD_PALETTE } from "./card-palette";
 import { hexCell, nextCellIndex } from "./hex-grid";
 
 const cells = CARD_PALETTE.map((color) => hexCell(color.ring, color.angle));
-const indexOf = (name: string) =>
-  CARD_PALETTE.findIndex((color) => color.name === name);
-const move = (from: string, key: string) =>
-  CARD_PALETTE[nextCellIndex(cells, indexOf(from), key)].name;
+function indexOf(name: string) {
+  return CARD_PALETTE.findIndex((color) => color.name === name);
+}
+function move(from: string, key: string) {
+  return CARD_PALETTE[nextCellIndex(cells, indexOf(from), key)].name;
+}
 
 describe("hexCell", () => {
   it("places the 19 cells on distinct spots", () => {

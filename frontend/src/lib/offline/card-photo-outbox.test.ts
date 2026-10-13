@@ -41,7 +41,9 @@ const { enqueueCardPhoto, enqueueCardPhotoRemoval, sendQueuedCardPhoto } =
   await import("@/lib/offline/card-photo-outbox");
 
 const client = {} as Parameters<typeof sendQueuedCardPhoto>[0];
-const photo = (name: string) => new Blob([name], { type: "image/webp" });
+function photo(name: string) {
+  return new Blob([name], { type: "image/webp" });
+}
 
 function rejectWith(status: number) {
   return new AxiosError("x", "ERR", undefined, undefined, {

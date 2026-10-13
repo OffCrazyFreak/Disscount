@@ -38,14 +38,17 @@ function outboxStore() {
   return store;
 }
 
-const entryKey = (identity: string, cardId: string, slot: CardPhotoSlot) =>
-  `${identity}:${cardId}:${slot}`;
+function entryKey(identity: string, cardId: string, slot: CardPhotoSlot) {
+  return `${identity}:${cardId}:${slot}`;
+}
 
 async function toBytes(blob: Blob): Promise<IBytes> {
   return { buf: await blob.arrayBuffer(), type: blob.type };
 }
 
-const toBlob = ({ buf, type }: IBytes) => new Blob([buf], { type });
+function toBlob({ buf, type }: IBytes) {
+  return new Blob([buf], { type });
+}
 
 async function writeEntry(
   cardId: string,

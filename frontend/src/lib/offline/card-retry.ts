@@ -7,5 +7,6 @@ export function shouldRetryCardWrite(failureCount: number, error: unknown) {
   return failureCount < MAX_RETRIES && failureAction(error) === "keep";
 }
 
-export const cardRetryDelay = (failureCount: number) =>
-  Math.min(1000 * 2 ** failureCount, 8000);
+export function cardRetryDelay(failureCount: number) {
+  return Math.min(1000 * 2 ** failureCount, 8000);
+}

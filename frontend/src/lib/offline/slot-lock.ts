@@ -13,5 +13,6 @@ export function runExclusive<T>(key: string, task: () => Promise<T>) {
   return run;
 }
 
-export const photoSlotKey = (cardId: string, slot: string) =>
-  `${cardId}:${slot}`;
+export function photoSlotKey(cardId: string, slot: string) {
+  return `${cardId}:${slot}`;
+}
