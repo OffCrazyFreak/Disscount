@@ -784,14 +784,14 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 
 ## 14. Config, env vars and flags
 
-| Setting                                   | Where                              | Purpose                                                                                                                         |
-| ----------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Setting                                   | Where                                       | Purpose                                                                                                                         |
+| ----------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | `viewportFit: "cover"`                    | `app/[locale]/layout.tsx` `viewport` export | Makes `env(safe-area-inset-*)` non-zero. Load-bearing                                                                           |
-| `interactiveWidget: "resizes-content"`    | same                               | Reflows the layout viewport for the keyboard. Chrome Android 108+, Firefox Android 133+ and Samsung Internet; not Safari on iOS |
-| `devIndicators: false`                    | `next.config.ts`                   | Next's dev indicator landed bottom-left, over the left teaser cell                                                              |
-| `NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS` | `.env.local`, `.env.local.example` | Default `false`. Its floating button landed bottom-right, over Kartice                                                          |
-| `longPressEnabled` on the Kartice entry   | `bottom-nav-items.ts`              | Gates the Kartice gesture (now `true`); the flag stays for any future teaser                                                    |
-| `Disscount_app` in `localStorage`         | `utils/browser/storage/*`          | Unrelated to the bar now; its `bottomNavVariant` key was removed with the variants                                              |
+| `interactiveWidget: "resizes-content"`    | same                                        | Reflows the layout viewport for the keyboard. Chrome Android 108+, Firefox Android 133+ and Samsung Internet; not Safari on iOS |
+| `devIndicators: false`                    | `next.config.ts`                            | Next's dev indicator landed bottom-left, over the left teaser cell                                                              |
+| `NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS` | `.env.local`, `.env.local.example`          | Default `false`. Its floating button landed bottom-right, over Kartice                                                          |
+| `longPressEnabled` on the Kartice entry   | `bottom-nav-items.ts`                       | Gates the Kartice gesture (now `true`); the flag stays for any future teaser                                                    |
+| `Disscount_app` in `localStorage`         | `utils/browser/storage/*`                   | Unrelated to the bar now; its `bottomNavVariant` key was removed with the variants                                              |
 
 Both dev-overlay switches are read at compile time, so they need a **dev-server restart**, not just a reload. The flag follows the existing `NEXT_PUBLIC_ENABLE_REACT_SCAN` naming.
 

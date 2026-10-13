@@ -113,11 +113,11 @@ Calling `localeCompare` with no locale collates them as plain `c`, `s`, `z`, whi
 
 ## 7. Every surface that consumes it
 
-| Surface                                                | Where                                                            | Fields searched                                                                                          |
-| ------------------------------------------------------ | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Surface                                                | Where                                                                     | Fields searched                                                                                          |
+| ------------------------------------------------------ | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | Products facets: Trgovine, Lokacije, Kategorije, Marka | `app/[locale]/products/components/facet-multi-select.tsx`                 | option label via `keywords`                                                                              |
-| Pinned places (settings)                               | `components/custom/settings/components/pinned-places-select.tsx` | place name                                                                                               |
-| Store-chain picker (price history)                     | `components/custom/store-chain/store-chain-multi-select.tsx`     | chain label via `keywords`                                                                               |
+| Pinned places (settings)                               | `components/custom/settings/components/pinned-places-select.tsx`          | place name                                                                                               |
+| Store-chain picker (price history)                     | `components/custom/store-chain/store-chain-multi-select.tsx`              | chain label via `keywords`                                                                               |
 | Add to shopping list                                   | `app/[locale]/products/components/forms/shopping-list-selector.tsx`       | list title via `keywords`                                                                                |
 | Updates / blog                                         | `app/[locale]/updates/page.tsx`                                           | title, excerpt, content                                                                                  |
 | Suggestions                                            | `app/[locale]/suggestions/components/suggestions-client.tsx`              | suggestion fields                                                                                        |
