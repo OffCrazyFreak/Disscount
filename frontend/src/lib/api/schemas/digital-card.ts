@@ -1,41 +1,116 @@
 import { z } from "zod";
 
-// Digital Card schemas
-export const digitalCardRequestSchema = z.object({
-  title: z
-    .string()
-    .min(1, "digitalCards.validation.titleRequired")
-    .max(100, "digitalCards.validation.titleMax"),
-  value: z
-    .string()
-    .min(1, "digitalCards.validation.valueRequired")
-    .max(500, "digitalCards.validation.valueMax"),
-  type: z
-    .string()
-    .min(1, "digitalCards.validation.typeRequired")
-    .max(50, "digitalCards.validation.typeMax"),
-  codeType: z
-    .string()
-    .min(1, "digitalCards.validation.codeTypeRequired")
-    .max(50, "digitalCards.validation.codeTypeMax"),
-  color: z
-    .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/, "digitalCards.validation.colorHex")
-    .nullable()
-    .optional(),
-  note: z
-    .string()
-    .max(500, "digitalCards.validation.noteMax")
-    .nullable()
-    .optional(),
+import {
+  CARD_PHOTO_SLOTS,
+  CARD_TYPES,
+  CODE_TYPES,
+} from "@/constants/card-codes";
+
+export const cardTypeSchema = z.enum(CARD_TYPES);
+export const codeTypeSchema = z.enum(CODE_TYPES);
+export const cardPhotoSlotSchema = z.enum(CARD_PHOTO_SLOTS);
+
+const optionalDate = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Upiši datum u obliku GGGG-MM-DD")
+  .nullable()
+  .optional();
+
+export const digitalCardRequestSchema = z
+  .object({
+    cardName: z
+      .string()
+      .trim()
+      .min(2, "Upiši naziv s najmanje 2 znaka")
+      .max(60, "Upiši naziv s najviše 60 znakova"),
+    cardType: cardTypeSchema,
+    storeName: z
+      .string()
+      .trim()
+      .min(2, "Upiši trgovinu s najmanje 2 znaka")
+      .max(60, "Upiši trgovinu s najviše 60 znakova"),
+    chainCode: z
+      .string()
+      .regex(/^[a-z0-9_-]+$/)
+      .max(40)
+      .nullable()
+      .optional(),
+    codeValue: z
+      .string()
+      .trim()
+      .min(1, "Upiši broj ili kod kartice")
+      .max(4096, "Kod kartice je predug"),
+    barcodeValue: z
+      .string()
+      .trim()
+      .max(4096, "Kod je predug")
+      .nullable()
+      .optional(),
+    codeType: codeTypeSchema,
+    cardColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Odaberi boju"),
+    note: z
+      .string()
+      .trim()
+      .max(500, "Bilješka može imati najviše 500 znakova")
+      .nullable()
+      .optional(),
+    validFrom: optionalDate,
+    expiresOn: optionalDate,
+    balance: z
+      .number()
+      .min(0, "Iznos ne može biti negativan")
+      .max(1_000_000, "Iznos je prevelik")
+      // The backend rejects more than two decimals, so round instead of 400ing.
+      .transform((value) => Math.round((value + Number.EPSILON) * 100) / 100)
+      .nullable()
+      .optional(),
+    balanceUnit: z
+      .string()
+      .regex(/^[A-Z]{3}$/)
+      .nullable()
+      .optional(),
+  })
+  .refine(
+    (card) =>
+      !card.validFrom || !card.expiresOn || card.expiresOn >= card.validFrom,
+    { path: ["expiresOn"], message: "Kartica ne može isteći prije početka" },
+  );
+
+export const cardPhotoDtoSchema = z.object({
+  slot: cardPhotoSlotSchema,
+  sha256: z.string(),
 });
 
-// DTO schema extends request schema
-export const digitalCardDtoSchema = digitalCardRequestSchema.extend({
+// Its own object rather than an extension of the request schema, so a value the server
+// accepted can never fail the form's stricter rules on the way back.
+export const digitalCardDtoSchema = z.object({
   id: z.string(),
+  cardName: z.string(),
+  cardType: cardTypeSchema,
+  storeName: z.string(),
+  chainCode: z.string().nullable(),
+  codeValue: z.string(),
+  barcodeValue: z.string().nullable(),
+  codeType: codeTypeSchema,
+  cardColor: z.string(),
+  note: z.string().nullable(),
+  validFrom: z.string().nullable(),
+  expiresOn: z.string().nullable(),
+  balance: z.number().nullable(),
+  balanceUnit: z.string().nullable(),
+  pinnedAt: z.string().nullable(),
+  lastUsedAt: z.string().nullable(),
+  archivedAt: z.string().nullable(),
   createdAt: z.string(),
+  updatedAt: z.string(),
+  photos: z.array(cardPhotoDtoSchema),
 });
 
-// Type exports
+export const digitalCardsConfigSchema = z.object({
+  photosEnabled: z.boolean(),
+});
+
 export type DigitalCardRequest = z.infer<typeof digitalCardRequestSchema>;
 export type DigitalCardDto = z.infer<typeof digitalCardDtoSchema>;
+export type CardPhotoDto = z.infer<typeof cardPhotoDtoSchema>;
+export type DigitalCardsConfig = z.infer<typeof digitalCardsConfigSchema>;

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import disscount.digitalCard.service.DigitalCardService;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.ConflictException;
 import disscount.user.dao.AuthIdentityDao;
@@ -41,6 +42,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final AuthIdentityDao authIdentityDao;
     private final UserProfileCreator profileCreator;
+    private final DigitalCardService digitalCardService;
 
     // Compared against better-auth's UTC session timestamps, so the JVM zone must not leak in.
     private static LocalDateTime nowUtc() {
@@ -224,17 +226,23 @@ public class UserService {
 
     /**
      * Anonymizes the profile: nulls PII fields and soft-deletes.
-     * The row is kept so business data (watchlists, shopping lists, etc.) remains intact.
+     * The row is kept so business data (watchlists, shopping lists, etc.) remains intact,
+     * except digital cards, which are hard deleted together with their photos.
      * better-auth identity must be deleted separately via authClient.deleteUser() on the frontend.
      */
     public void deleteAccount(UUID userId) {
-        User user = userRepository.findById(userId)
+        // Locked so a card write racing the deletion waits and then finds a deleted user.
+        User user = userRepository.findByIdForUpdate(userId)
                 .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         user.setUsername(null);
         user.setImage(null);
         user.setDeletedAt(nowUtc());
-        userRepository.save(user);
+        // Flushed now because the card purge below clears the persistence context, dropping any unsaved change.
+        userRepository.saveAndFlush(user);
+
+        // Cards hold card numbers and photos, which must not outlive the account.
+        digitalCardService.deleteAllForUser(userId);
     }
 
     /**

@@ -6,10 +6,13 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useEffect, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
+
 import {
   persistOptions,
   OFFLINE_CACHE_MAX_AGE_MS,
 } from "@/lib/offline/persister";
+import { bindLastUsedQueryClient } from "@/lib/api/digital-cards/last-used";
+import { replayCardPhotoOutbox } from "@/lib/offline/card-photo-outbox";
 import { registerOfflineMutationDefaults } from "@/lib/offline/offline-mutations";
 
 interface IReactQueryProviderWrapperProps {
@@ -46,13 +49,30 @@ export default function ReactQueryProviderWrapper({
     registerOfflineMutationDefaults(queryClient, t);
   }, [queryClient, t]);
 
+  useEffect(() => {
+    bindLastUsedQueryClient(queryClient);
+
+    // Photos go after paused card saves, or an upload for a card the server has not
+    // seen yet answers 404 and is dropped.
+    function replayWrites() {
+      void queryClient
+        .resumePausedMutations()
+        .then(() => replayCardPhotoOutbox(queryClient));
+    }
+
+    window.addEventListener("online", replayWrites);
+    return () => window.removeEventListener("online", replayWrites);
+  }, [queryClient]);
+
   return (
     <PersistQueryClientProvider
       client={queryClient}
       persistOptions={persistOptions}
       // Once the cache is restored, replay any writes that were queued offline.
       onSuccess={() => {
-        queryClient.resumePausedMutations();
+        void queryClient
+          .resumePausedMutations()
+          .then(() => replayCardPhotoOutbox(queryClient));
       }}
     >
       {children}

@@ -161,13 +161,14 @@ To re-check a ratio, mask the generated PNG against circles at 80% and 66.7% and
 
 Long-pressing the installed icon opens a shortcut menu. Ours is built in `manifest.ts` from one hand-written entry (Skeniraj) plus `userNavItems` filtered by `!comingSoon`, so the list grows on its own as features ship.
 
-**There are fewer slots than it looks.** Chrome for Android shows **3** shortcuts. It allowed 4 until Chrome 92 started injecting its own "Site settings" entry, which takes a slot. Desktop Chrome and Edge show up to 10. Shortcuts render in manifest order, so the array order in `manifest.ts` is what decides which three a phone actually surfaces. We sit at exactly 3 today:
+**There are fewer slots than it looks.** Chrome for Android shows **3** shortcuts. It allowed 4 until Chrome 92 started injecting its own "Site settings" entry, which takes a slot. Desktop Chrome and Edge show up to 10. Shortcuts render in manifest order, so the array order in `manifest.ts` is what decides which three a phone actually surfaces. We have 4 today, so the last one is cut on Android:
 
 | Order | Shortcut | Url               | Icon          |
 | ----- | -------- | ----------------- | ------------- |
 | 1     | Skeniraj | `/?scan=1`        | `ScanBarcode` |
 | 2     | Popisi   | `/shopping-lists` | `ListChecks`  |
 | 3     | Praćenje | `/watchlist`      | `Eye`         |
+| 4     | Kartice  | `/digital-cards`  | `CreditCard`  |
 
 That "Site settings" entry and its black gear come from Chrome, not from us. No manifest key can recolour, reorder or remove it.
 
@@ -184,7 +185,7 @@ The masked one has to stay full bleed. Chrome hands a maskable icon to Android a
 
 **Skeniraj has no route of its own.** The scanner is imperative (`context/scanner-context.tsx`), so the shortcut points at `/?scan=1` and `components/custom/pwa/scan-shortcut.tsx` picks the flag up, strips it from the URL with `replaceState` before opening the camera (so a refresh or a back navigation does not reopen it), and routes the scanned code through `useProductNavigation`.
 
-Adding Karta and Digitalne kartice once they ship is tracked in [#127](https://github.com/OffCrazyFreak/Disscount/issues/127), which is really a "pick the final three" decision rather than an append.
+Kartice shipped with the digital cards rebuild and is the fourth entry, so Android drops it in favour of Chrome's own "Site settings" slot; desktop Chrome and Edge show it. Adding Karta and picking which three win on a phone is tracked in [#127](https://github.com/OffCrazyFreak/Disscount/issues/127), which is really a "pick the final three" decision rather than an append.
 
 ### The install UX (`src/components/custom/pwa/`)
 
@@ -266,8 +267,8 @@ flowchart LR
 - `react-query-provider.tsx` uses `PersistQueryClientProvider`. The `QueryClient` sets a default `gcTime` equal to the persister `maxAge` (7 days), so entries are not garbage-collected out of memory before they can be restored from disk.
 - `persister.ts` builds a `createAsyncStoragePersister` backed by `idb-keyval` (IndexedDB, larger and safer than localStorage). `maxAge` 7 days, `buster` `"3"`. The history: `"2"` was the `ShoppingListDto` reshape for sharing, where a restored pre-change list had no `myAccess` and every capability check would have read that as no access; `"3"` was the move to a per-identity key, which orphaned the old shared blob. **Bumping it is heavier than it looks:** a mismatch makes `persistQueryClient` call `removeClient()`, which discards the whole persisted client, queued offline writes included, under every key rather than only the changed one. The token-to-id sharing move deliberately did not bump it and retired its two mutation keys with tombstone defaults instead.
 - `cache-identity.ts` scopes the IndexedDB entry to the signed-in account (`disscount-react-query-cache:<userId>`, or `:anon`). Before this there was one browser-wide blob shared by every account on a device, with a destructive purge as the only defence, which is why a shared list could not be persisted at all. The identity is mirrored in localStorage because the persister has to pick a key synchronously at boot, before the session resolves.
-- `cached-query-keys.ts` is the **whitelist**: only successful queries whose top-level key is in `cijene`, `shoppingLists`, `shoppingListItems`, `watchlist`, `digitalCards`, `pinnedStores`, `pinnedPlaces`, or `users` are persisted. Keys under `cijene/prices` have a narrower allowlist: only `cijene/prices/product` is persisted, while every other `cijene/prices/*` key is excluded. Bulk product-list results under `cijene/prices/search`, for example, stay in the in-memory React Query cache and the bounded service-worker cache instead of accumulating in IndexedDB as searches and facets change. Canonical single-product price keys remain persisted for product-detail offline reads. Everything else (for example admin data) is never written to disk. Coming-soon features carry `TODO(offline)` markers here to be added when they ship.
-- `purge.ts` (`purgeOfflineCache`) removes user-specific queries from the in-memory cache, wipes the persisted snapshot, and deletes the `shopping-list-pages`, `cijene-api` and `others` service worker buckets, matched by exact name rather than by substring so a bucket like `pages-rsc` is never caught by accident, guarded so a failed clear never blocks logout. Public `cijene` queries remain in memory and are persisted again on the next successful save, while in-flight cancellation is scoped to user-specific queries so logging out cannot abort a public price fetch. `user-context.tsx` calls it on **any change of identity**, which covers explicit logout, session expiry, a revoked cookie, sign-out in another tab, and one account replacing another. It deliberately does **not** fire merely because there is no session: that condition is true on every page load for a visitor who never logs in, and firing there wiped their queued offline writes on the next boot with no error and nothing left to replay.
+- `cached-query-keys.ts` is the **whitelist**: only successful queries whose top-level key is in `cijene`, `shoppingLists`, `shoppingListItems`, `watchlist`, `digitalCards`, `pinnedStores`, `pinnedPlaces`, or `users` are persisted. Keys under `cijene/prices` have a narrower allowlist: only `cijene/prices/product` is persisted, while every other `cijene/prices/*` key is excluded. Bulk product-list results under `cijene/prices/search`, for example, stay in the in-memory React Query cache and the bounded service-worker cache instead of accumulating in IndexedDB as searches and facets change. Canonical single-product price keys remain persisted for product-detail offline reads. The `cardPhoto` root is excluded explicitly, because image bytes would bloat the single persisted blob; they live in their own IndexedDB stores instead (see [DIGITAL-CARDS.md](DIGITAL-CARDS.md#6-offline)). `digitalCards` keys carry a version segment (`["digitalCards", "v2", "me"]`), and `shouldPersistQuery` refuses any `digitalCards` key without the current version, so an older card shape ages out without bumping `CACHE_BUSTER`. Everything else (for example admin data) is never written to disk.
+- `purge.ts` (`purgeOfflineCache`) removes user-specific queries from the in-memory cache, wipes the persisted snapshot, and deletes the `shopping-list-pages`, `cijene-api` and `others` service worker buckets, matched by exact name rather than by substring so a bucket like `pages-rsc` is never caught by accident, guarded so a failed clear never blocks logout. Public `cijene` queries remain in memory and are persisted again on the next successful save, while in-flight cancellation is scoped to user-specific queries so logging out cannot abort a public price fetch. It also deletes the departing account's digital card photo blobs, photo outbox and last-used queue (their own IndexedDB stores), and `purge-gate.ts` makes the persister and the card outbox, photo and last-used writes wait for a running purge, so a fast re-login is not wiped by the previous account's purge. `user-context.tsx` calls it on **any change of identity**, which covers explicit logout, session expiry, a revoked cookie, sign-out in another tab, and one account replacing another. It deliberately does **not** fire merely because there is no session: that condition is true on every page load for a visitor who never logs in, and firing there wiped their queued offline writes on the next boot with no error and nothing left to replay.
 
 ### 5c. Offline UX
 
@@ -297,9 +298,9 @@ flowchart LR
 
 Three pieces make replay-after-reload correct:
 
-- `offline-mutation-keys.ts`: the **allowlist** of mutation keys that may queue offline (shopping list create/update/delete, item add/update/delete, shared-list item update/delete, watchlist add/remove), plus `shouldPersistMutation` used by the persister so only paused, allowlisted mutations are written to disk.
+- `offline-mutation-keys.ts`: the **allowlist** of mutation keys that may queue offline (shopping list create/update/delete, item add/update/delete, shared-list item update/delete, watchlist add/remove, digital card save/delete/pin/archive), plus the shared `DIGITAL_CARD_MUTATION_SCOPE` (`{ id: "digitalCards" }`) that makes the card mutations replay one at a time in order, plus `shouldPersistMutation` used by the persister so only paused, allowlisted mutations are written to disk.
 - `offline-mutations.ts` (`registerOfflineMutationDefaults`): registers, per mutation key, the `mutationFn` to re-run and the `onSettled` cache invalidation. These run when a paused mutation is replayed after a reload. The matching hooks in `lib/api/shopping-lists` and `lib/api/watchlist` carry the same `mutationKey`. The two shared-list defaults additionally pass an `onError` toast, which no other mutation does: a reload loses the `onError` given at `mutate()` time, so a failed replay would otherwise revert silently. Only mutations whose call sites do **not** handle errors themselves may take it, or the user sees the same toast twice, and it claims lost access only for 403 and 404 because it also runs for live online failures.
-- `react-query-provider.tsx`: registers those defaults when the client is created, and calls `resumePausedMutations()` once the persisted cache has been restored.
+- `react-query-provider.tsx`: registers those defaults when the client is created, and calls `resumePausedMutations()` once the persisted cache has been restored and on every `online` event, then replays the digital card photo outbox after the paused saves have finished.
 
 ### Nuance: creating and renaming offline
 
@@ -437,7 +438,7 @@ Read from `frontend/package.json`.
 - Android/desktop Chrome: the install banner/sidebar entry appears and the prompt works; installed app opens standalone with the white status bar.
 - iOS Safari: the instructions sheet opens; after Add to Home Screen, the app launches with a branded splash (not a white flash).
 - DevTools, Application, Manifest: no errors, icons and screenshots load, "Installability" passes.
-- App shortcuts: DevTools lists all three under Manifest with their icons resolving. On a phone, reinstall first (Android caches the WebAPK), then long-press the icon; Skeniraj should open the camera modal and land on the product page after a scan.
+- App shortcuts: DevTools lists all four under Manifest with their icons resolving. On a phone, reinstall first (Android caches the WebAPK), then long-press the icon; Skeniraj should open the camera modal and land on the product page after a scan.
 
 **Endpoints (against a running server):** `curl -s http://localhost:3000/manifest.webmanifest` (fields present), `curl -s http://localhost:3000/ | grep apple-touch-startup-image` (18 links in `<head>`), `curl -s http://localhost:3000/ | grep 'theme-color'` (`#ffffff`).
 
@@ -476,7 +477,7 @@ Read from `frontend/package.json`.
 
 - [ ] **App Badging API** (`navigator.setAppBadge`) for unread notifications on the installed icon.
 - [ ] **Service-worker "update available" prompt** (a toast when a new worker is waiting), which also fixes the "hard-refresh after deploy" gotcha in [`DEPLOYMENT.md`](DEPLOYMENT.md).
-- [ ] **Screen Wake Lock + max brightness** while showing a loyalty-card barcode (for the digital-cards rewrite).
+- [ ] **Max brightness** while showing a loyalty-card barcode. Screen Wake Lock shipped with the digital cards view modal; the app has no way to raise brightness, so the modal shows a dismissible hint instead.
 - [ ] **Native Barcode Detection** as a fast path on Android, keeping `@yudiel/react-qr-scanner` as the universal fallback.
 - [ ] **Real manifest screenshots** to replace the branded placeholder cards.
 - [ ] **Periodic Background Sync** to refresh watchlist/deal prices in the background (Chromium-only and unreliable; a complement to, not a replacement for, a server-side price-check job).
@@ -485,7 +486,7 @@ Read from `frontend/package.json`.
 
 - [ ] Optimistic watchlist add/remove offline.
 - [ ] Optimistic offline list creation with temp IDs + reconciliation.
-- [ ] Wire `TODO(offline)` coming-soon features (digital cards, potrošnja, novosti, karta) into the persistence whitelist when they ship.
+- [ ] Wire the remaining coming-soon features (potrošnja, novosti, karta) into the persistence whitelist when they ship. Digital cards are done.
 
 **Distribution**
 

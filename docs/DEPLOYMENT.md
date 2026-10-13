@@ -81,18 +81,19 @@ flowchart LR
 
 ## 3. Accounts & services
 
-| Service           | What it's for                              | Where / notes                                                                                          |
-| ----------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| **Hetzner**       | The VPS (server)                           | Cloud console, plus it hosts the **Cloud Firewall** `disscount-web`                                    |
-| **Dokploy**       | Deployment platform (on the VPS)           | `https://dokploy.disscount.me`; admin login = your email                                               |
-| **Cloudflare**    | DNS, CDN, DDoS, redirects, SSL mode        | zone `disscount.me` (free plan)                                                                        |
-| **GitHub**        | Source code + auto-deploy trigger          | `OffCrazyFreak/Disscount`; connected to Dokploy via a **GitHub App**                                   |
-| **Sentry**        | Error tracking                             | projects `disscount-frontend` + `disscount-backend` (EU region)                                        |
-| **Cloudflare R2** | Off-site backup storage                    | bucket `disscount-backups` (S3-compatible)                                                             |
-| **Resend**        | Transactional email + Dokploy alert emails | domain `disscount.me` verified                                                                         |
-| **UptimeRobot**   | Uptime monitoring                          | monitors `https://disscount.me/health`; public [status page](https://stats.uptimerobot.com/ej4ROz2eMo) |
-| **Umami Cloud**   | Privacy-friendly web analytics             | `cloud.umami.is`; wired only when `NEXT_PUBLIC_UMAMI_WEBSITE_ID` is set                                |
-| **Google / Meta** | OAuth login providers                      | redirect URIs must include each live domain                                                            |
+| Service                | What it's for                              | Where / notes                                                                                          |
+| ---------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| **Hetzner**            | The VPS (server)                           | Cloud console, plus it hosts the **Cloud Firewall** `disscount-web`                                    |
+| **Dokploy**            | Deployment platform (on the VPS)           | `https://dokploy.disscount.me`; admin login = your email                                               |
+| **Cloudflare**         | DNS, CDN, DDoS, redirects, SSL mode        | zone `disscount.me` (free plan)                                                                        |
+| **GitHub**             | Source code + auto-deploy trigger          | `OffCrazyFreak/Disscount`; connected to Dokploy via a **GitHub App**                                   |
+| **Sentry**             | Error tracking                             | projects `disscount-frontend` + `disscount-backend` (EU region)                                        |
+| **Cloudflare R2**      | Off-site backup storage                    | bucket `disscount-backups` (S3-compatible)                                                             |
+| **Cloudflare R2 (EU)** | Digital card photos                        | a separate bucket created with **jurisdiction EU**; see [Card photo env vars](#card-photo-env-vars)    |
+| **Resend**             | Transactional email + Dokploy alert emails | domain `disscount.me` verified                                                                         |
+| **UptimeRobot**        | Uptime monitoring                          | monitors `https://disscount.me/health`; public [status page](https://stats.uptimerobot.com/ej4ROz2eMo) |
+| **Umami Cloud**        | Privacy-friendly web analytics             | `cloud.umami.is`; wired only when `NEXT_PUBLIC_UMAMI_WEBSITE_ID` is set                                |
+| **Google / Meta**      | OAuth login providers                      | redirect URIs must include each live domain                                                            |
 
 ---
 
@@ -158,6 +159,21 @@ There are **two kinds** of env vars, and mixing them up causes the most confusin
 - **Internal URLs stay the same** in every environment (they're Docker service names): `NEXT_PUBLIC_API_URL=http://backend:8080`, `BETTER_AUTH_JWKS_URI=http://frontend:3000/api/auth/jwks`, `...@db:5432/disscount`.
 
 > 🔑 **Real bug we hit:** `auth.ts` reads `NEXT_PUBLIC_GOOGLE_CLIENT_ID` via `requireEnv(...)` (a _dynamic_ lookup), so Next.js can't inline it, so it must also be present at **runtime**, not just as a build arg. All `NEXT_PUBLIC_*` are passed both as build args **and** runtime env in compose.
+
+### Card photo env vars
+
+Digital card photos live in their own Cloudflare R2 bucket, separate from the backup bucket and with its own API token, so a leaked photo token cannot read or delete database backups. Create the bucket with **jurisdiction EU**: it is chosen at creation and cannot be changed later, and it puts the endpoint at `https://<ACCOUNT_ID>.eu.r2.cloudflarestorage.com`. Details are in [DIGITAL-CARDS.md](DIGITAL-CARDS.md#5-photos-and-r2).
+
+| Var                    | Service | Kind            | Notes                                                  |
+| ---------------------- | ------- | --------------- | ------------------------------------------------------ |
+| `R2_ENDPOINT`          | backend | runtime, secret | The EU endpoint above                                  |
+| `R2_BUCKET`            | backend | runtime         | Name of the photo bucket                               |
+| `R2_ACCESS_KEY_ID`     | backend | runtime, secret | Token scoped to that one bucket, object read and write |
+| `R2_SECRET_ACCESS_KEY` | backend | runtime, secret | Secret of the same token                               |
+
+All four are **optional**. If any one is blank the backend runs without photos (uploads answer 503 and the form hides the photo fields); the rest of the wallet is unaffected. They are backend-only and read at startup, so a change needs a backend restart, not a rebuild. Locally they live in `backend/.env.example`.
+
+> Both compose files forward the four `R2_*` variables to the backend, blank by default, and the root `.env.example` lists them. Photos stay off until all four are set.
 
 ---
 
@@ -309,24 +325,26 @@ Set in **Dokploy → service → Environment**, per environment. Both DSNs live 
 
 ## 10. What's automatic vs manual
 
-| Task                                                       | Automatic? | Notes                                                                                                                         |
-| ---------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Build & deploy on `git push`                               | ✅ auto    | Dokploy autodeploy (per branch)                                                                                               |
-| CI checks (typecheck, lint, format, build, backend verify) | ✅ auto    | `.github/workflows/ci.yml` on every push + PR; required to merge to `main`                                                    |
-| PR previews (head branch is not `main` or `dev`)           | ✅ auto    | Netlify, gated by `frontend/netlify.toml` (see [§4](#netlify-pr-previews))                                                    |
-| HTTPS certificate issuance + renewal                       | ✅ auto    | Traefik + Let's Encrypt                                                                                                       |
-| HTTP to HTTPS redirect                                     | ✅ auto    | Cloudflare                                                                                                                    |
-| DB migrations (auth tables + app tables)                   | ✅ auto    | `migrate` service (drizzle) + Hibernate `ddl-auto=update` on each deploy. **Additive only**: see the dropped-column row below |
-| Nightly DB backups (R2 + local) + rotation                 | ✅ auto    | Dokploy Backups + Schedule                                                                                                    |
-| OS security updates                                        | ✅ auto    | unattended-upgrades                                                                                                           |
-| Uptime checks                                              | ✅ auto    | UptimeRobot, published as a [public status page](https://stats.uptimerobot.com/ej4ROz2eMo)                                    |
-| **Adding/Changing a `NEXT_PUBLIC_*` var**                  | ❌ manual  | edit in Dokploy env **+ redeploy**                                                                                            |
-| **Adding a new domain/subdomain**                          | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                                                                     |
-| **New OAuth provider redirect URIs**                       | ❌ manual  | add in Google/Meta consoles                                                                                                   |
-| **Hard-refresh after deploy**                              | ❌ manual  | avoids stale-bundle errors                                                                                                    |
-| **Restoring a backup**                                     | ❌ manual  | see [§8](#8-backups--restore)                                                                                                 |
-| **Rotating secrets / tokens**                              | ❌ manual  | as needed                                                                                                                     |
-| **Dropping or narrowing a column**                         | ❌ manual  | `ddl-auto=update` never drops, so the column outlives the code. See [§10.1](#101-dropping-a-column)                           |
+| Task                                                                   | Automatic? | Notes                                                                                                                                       |
+| ---------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Build & deploy on `git push`                                           | ✅ auto    | Dokploy autodeploy (per branch)                                                                                                             |
+| CI checks (typecheck, unit tests, lint, format, build, backend verify) | ✅ auto    | `.github/workflows/ci.yml` on every push + PR; required to merge to `main`                                                                  |
+| PR previews (head branch is not `main` or `dev`)                       | ✅ auto    | Netlify, gated by `frontend/netlify.toml` (see [§4](#netlify-pr-previews))                                                                  |
+| HTTPS certificate issuance + renewal                                   | ✅ auto    | Traefik + Let's Encrypt                                                                                                                     |
+| HTTP to HTTPS redirect                                                 | ✅ auto    | Cloudflare                                                                                                                                  |
+| DB migrations (auth tables + app tables)                               | ✅ auto    | `migrate` service (drizzle) + Hibernate `ddl-auto=update` on each deploy. **Additive only**: see the dropped-column row below               |
+| Nightly DB backups (R2 + local) + rotation                             | ✅ auto    | Dokploy Backups + Schedule                                                                                                                  |
+| OS security updates                                                    | ✅ auto    | unattended-upgrades                                                                                                                         |
+| Uptime checks                                                          | ✅ auto    | UptimeRobot, published as a [public status page](https://stats.uptimerobot.com/ej4ROz2eMo)                                                  |
+| **Creating the EU photo bucket + token, setting `R2_*`**               | ❌ manual  | Cloudflare once, then Dokploy env per environment; photos stay off until all four are set (see [Card photo env vars](#card-photo-env-vars)) |
+| **Dropping the old `digital_card` table**                              | ❌ manual  | after the cards rebuild deploys and nothing reads it; `ddl-auto=update` never drops it (see [§10.1](#101-dropping-a-column))                |
+| **Adding/Changing a `NEXT_PUBLIC_*` var**                              | ❌ manual  | edit in Dokploy env **+ redeploy**                                                                                                          |
+| **Adding a new domain/subdomain**                                      | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                                                                                   |
+| **New OAuth provider redirect URIs**                                   | ❌ manual  | add in Google/Meta consoles                                                                                                                 |
+| **Hard-refresh after deploy**                                          | ❌ manual  | avoids stale-bundle errors                                                                                                                  |
+| **Restoring a backup**                                                 | ❌ manual  | see [§8](#8-backups--restore)                                                                                                               |
+| **Rotating secrets / tokens**                                          | ❌ manual  | as needed                                                                                                                                   |
+| **Dropping or narrowing a column**                                     | ❌ manual  | `ddl-auto=update` never drops, so the column outlives the code. See [§10.1](#101-dropping-a-column)                                         |
 
 ---
 

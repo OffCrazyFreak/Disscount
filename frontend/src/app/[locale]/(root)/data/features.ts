@@ -81,8 +81,7 @@ export const featureItems: IFeatureItem[] = [
   {
     id: "cards",
     icon: CreditCard,
-    comingSoon: true,
-    // href: "/digital-cards",
+    href: "/digital-cards",
   },
   {
     id: "offline",

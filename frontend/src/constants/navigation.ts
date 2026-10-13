@@ -100,8 +100,6 @@ export const userNavItems: INavigationItem[] = [
     shortLabelKey: "nav.digitalCardsShort",
     icon: CreditCard,
     shortcutDescriptionKey: "nav.digitalCardsShortcut",
-    // TODO(#127): generate its PWA shortcut icon before dropping this flag.
-    comingSoon: true,
 
     showInHeader: true,
   },
