@@ -54,6 +54,7 @@ export default function StoreMap({
   initialCenter,
 }: IStoreMapProps) {
   const mapRef = useRef<MapRef>(null);
+  const [mapReady, setMapReady] = useState(false);
   const [iconsReady, setIconsReady] = useState(false);
   const [contextLost, setContextLost] = useState(false);
   const [cursor, setCursor] = useState<string>("");
@@ -77,7 +78,7 @@ export default function StoreMap({
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || selectedLat == null || selectedLon == null) return;
+    if (!mapReady || !map || selectedLat == null || selectedLon == null) return;
 
     // easeTo snaps instantly under prefers-reduced-motion, as long as the
     // animation is not marked essential.
@@ -85,20 +86,23 @@ export default function StoreMap({
       center: [selectedLon, selectedLat],
       zoom: Math.max(map.getZoom(), 15),
     });
-  }, [selectedLat, selectedLon]);
+  }, [mapReady, selectedLat, selectedLon]);
 
   useEffect(() => {
-    if (!userLocation) return;
+    if (!mapReady || !userLocation) return;
 
     mapRef.current?.easeTo({
       center: [userLocation.lon, userLocation.lat],
       zoom: 13,
     });
-  }, [userLocation]);
+  }, [mapReady, userLocation]);
 
   async function handleLoad() {
     const map = mapRef.current?.getMap();
     if (!map) return;
+
+    // A store picked before the map loaded (a shared link) still gets centred.
+    setMapReady(true);
 
     // Known MapLibre bug (#8690): a context lost early leaves a blank map, so
     // offer a reload rather than a grey rectangle.

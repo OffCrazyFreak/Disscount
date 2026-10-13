@@ -46,9 +46,11 @@ export async function lookupDguAddresses(
   const streets = new Map<number, { tokens: string[]; targets: number[] }>();
   const names = new Map<number, string>();
   const candidates: IDguCandidate[] = [];
-  let streetsDone = false;
+  let streetsSeen = false;
 
   function onStreet(member: string) {
+    streetsSeen = true;
+
     const id = featureId(member);
     const name = spellingText(member);
     const match = id !== null && name ? streetIndex.match(name) : null;
@@ -65,7 +67,7 @@ export async function lookupDguAddresses(
 
   function onAddress(member: string) {
     // The zip lists thoroughfares before addresses; the filter relies on it.
-    if (!streetsDone) throw new Error("DGU zip lists addresses before streets");
+    if (!streetsSeen) throw new Error("DGU zip lists addresses before streets");
 
     const refs = componentRefs(member);
     const street = refs
@@ -101,10 +103,7 @@ export async function lookupDguAddresses(
     {
       "PostalDescriptor.gml": onName,
       "ThoroughfareName.gml": onStreet,
-      "Address.gml": (member) => {
-        streetsDone = true;
-        onAddress(member);
-      },
+      "Address.gml": onAddress,
       "AdminUnitName.gml": onName,
     },
     signal,

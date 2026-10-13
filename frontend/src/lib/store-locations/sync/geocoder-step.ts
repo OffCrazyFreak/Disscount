@@ -20,7 +20,7 @@ interface IGeocoderStepOptions {
 
 interface IGeocoderStepResult {
   remaining: ISyncTarget[];
-  /** Targets this provider tried and could not place. */
+  /** Targets this provider answered for and could not place. */
   failed: ISyncTarget[];
 }
 
@@ -43,6 +43,8 @@ export async function resolveWithGeocoder(
       continue;
     }
 
+    signal.throwIfAborted();
+
     if (spent > 0) await delay(intervalMs, signal);
     spent++;
 
@@ -53,7 +55,13 @@ export async function resolveWithGeocoder(
         await saveResolvedLocation(target.chain, target.code, location);
         continue;
       }
+
+      failed.push(target);
     } catch (error) {
+      if (signal.aborted) throw error;
+
+      // A rate limit or outage says nothing about the address, so it is
+      // retried next run instead of waiting out the 7-day backoff.
       console.warn(
         `[store-locations] geocoding ${target.chain}:${target.code} failed`,
         error,
@@ -61,7 +69,6 @@ export async function resolveWithGeocoder(
     }
 
     remaining.push(target);
-    failed.push(target);
   }
 
   return { remaining, failed };

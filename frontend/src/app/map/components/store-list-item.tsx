@@ -24,6 +24,7 @@ export default function StoreListItem({
   return (
     <button
       type="button"
+      data-store-key={row.key}
       onClick={() => onSelect(row.key)}
       aria-current={isSelected ? "true" : undefined}
       className={cn(

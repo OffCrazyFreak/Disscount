@@ -66,9 +66,12 @@ export async function runStoreLocationSync(signal: AbortSignal): Promise<void> {
       signal,
     );
 
-    const unplaceable = nominatim.remaining.filter((target) => !target.address);
+    const missed = new Set([...geoapify.failed, ...nominatim.failed]);
+    const unplaced = nominatim.remaining.filter(
+      (target) => !target.address || missed.has(target),
+    );
 
-    for (const target of [...nominatim.failed, ...unplaceable]) {
+    for (const target of unplaced) {
       await recordFailedAttempt(target.chain, target.code);
     }
   } catch (error) {

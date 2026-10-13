@@ -16,28 +16,35 @@ export const metadata: Metadata = {
   alternates: { canonical: "/map" },
 };
 
-async function loadChainSummary() {
+async function loadVisitableStores() {
   try {
-    return (
-      <ChainSummary
-        stores={(await getStoreDirectory()).stores.filter(isVisitableStore)}
-      />
-    );
+    return (await getStoreDirectory()).stores.filter(isVisitableStore);
   } catch {
     // The client loads the same list itself; the overview is a bonus.
     return null;
   }
 }
 
-export default async function MapPage() {
-  const chainSummary = await loadChainSummary();
+async function ChainSummaryLoader() {
+  const stores = await loadVisitableStores();
 
+  return stores ? <ChainSummary stores={stores} /> : null;
+}
+
+export default function MapPage() {
   return (
     <>
       <h1 className="sr-only">Karta trgovina</h1>
 
       <Suspense fallback={null}>
-        <MapClient chainSummary={chainSummary} />
+        <MapClient
+          chainSummary={
+            // Streamed, so the directory fetch never holds up the first byte.
+            <Suspense fallback={null}>
+              <ChainSummaryLoader />
+            </Suspense>
+          }
+        />
       </Suspense>
     </>
   );

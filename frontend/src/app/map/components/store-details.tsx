@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { ArrowLeft, MapPinOff } from "lucide-react";
 
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
@@ -16,6 +17,12 @@ interface IStoreDetailsProps {
 export default function StoreDetails({ row, onClose }: IStoreDetailsProps) {
   const { store, chainLabel, cityLabel, distanceKm } = row;
   const isPlaced = store.lat != null && store.lon != null;
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
+  // The list this replaced held focus, so it moves here instead of to <body>.
+  useEffect(() => {
+    headingRef.current?.focus();
+  }, [store.chain, store.code]);
 
   return (
     <section
@@ -45,7 +52,12 @@ export default function StoreDetails({ row, onClose }: IStoreDetailsProps) {
         </span>
 
         <div className="min-w-0">
-          <h2 id="store-details-title" className="text-lg font-semibold">
+          <h2
+            ref={headingRef}
+            id="store-details-title"
+            tabIndex={-1}
+            className="text-lg font-semibold outline-none"
+          >
             {chainLabel}
           </h2>
 

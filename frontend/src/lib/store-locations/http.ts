@@ -60,11 +60,18 @@ export async function fetchStream(
 /** Pauses between requests so a sync never hammers one host. */
 export function delay(ms: number, signal: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(resolve, ms);
+    if (signal.aborted) return reject(signal.reason);
 
-    signal.addEventListener("abort", () => {
+    function onAbort() {
       clearTimeout(timer);
       reject(signal.reason);
-    });
+    }
+
+    const timer = setTimeout(() => {
+      signal.removeEventListener("abort", onAbort);
+      resolve();
+    }, ms);
+
+    signal.addEventListener("abort", onAbort, { once: true });
   });
 }

@@ -86,5 +86,9 @@ export async function geocodeWithGeoapify(
 
   if (!precision || !coordinates) return null;
 
+  // Same rule as Nominatim: a store with a house number gets that building
+  // or nothing, never the middle of its street.
+  if (wanted !== null && precision !== "building") return null;
+
   return { ...coordinates, source: "geoapify", precision };
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, Suspense } from "react";
+import { ReactNode, Suspense, useState } from "react";
 
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
@@ -20,6 +20,12 @@ interface IMapPanelProps {
 
 /** Search, filters and the list, or the selected store. Same on every screen. */
 export default function MapPanel({ model, chainSummary }: IMapPanelProps) {
+  const [lastKey, setLastKey] = useState<string | null>(null);
+
+  if (model.selected && model.selected.key !== lastKey) {
+    setLastKey(model.selected.key);
+  }
+
   if (model.selected) {
     return (
       <div className="min-h-0 flex-1 overflow-y-auto">
@@ -72,6 +78,7 @@ export default function MapPanel({ model, chainSummary }: IMapPanelProps) {
         rows={model.listed}
         selectedKey={null}
         onSelect={model.selectStore}
+        returnFocusKey={lastKey}
       />
 
       {chainSummary}

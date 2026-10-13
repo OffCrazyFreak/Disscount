@@ -17,7 +17,9 @@ export async function acquireSyncLease(): Promise<boolean> {
     values (${SYNC_ID}, now(), null)
     on conflict (id) do update
       set started_at = now(), last_error = null
-      where store_location_sync.started_at < now() - interval '2 hours'
+      where (store_location_sync.started_at < now() - interval '2 hours'
+             and (store_location_sync.finished_at is null
+                  or store_location_sync.finished_at < store_location_sync.started_at))
          or (store_location_sync.finished_at >= store_location_sync.started_at
              and store_location_sync.finished_at < now() - interval '24 hours')
     returning id

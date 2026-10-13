@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
 import StoreListItem from "@/app/map/components/store-list-item";
@@ -10,6 +10,8 @@ interface IStoreListProps {
   rows: IListedStore[];
   selectedKey: string | null;
   onSelect: (key: string) => void;
+  /** The store just closed, focused again when the list comes back. */
+  returnFocusKey?: string | null;
 }
 
 const ROW_HEIGHT = 64;
@@ -23,6 +25,7 @@ export default function StoreList({
   rows,
   selectedKey,
   onSelect,
+  returnFocusKey = null,
 }: IStoreListProps) {
   // TanStack Virtual hands back functions the compiler cannot memoize safely;
   // opting out explicitly keeps the virtualized rows from going stale.
@@ -37,6 +40,23 @@ export default function StoreList({
     estimateSize: () => ROW_HEIGHT,
     overscan: 8,
   });
+
+  // Mount only: the list remounts each time a store's details close.
+  useEffect(() => {
+    const index = rows.findIndex((row) => row.key === returnFocusKey);
+    if (index < 0) return;
+
+    virtualizer.scrollToIndex(index, { align: "center" });
+
+    requestAnimationFrame(() => {
+      scrollRef.current
+        ?.querySelector<HTMLElement>(
+          `[data-store-key="${CSS.escape(rows[index].key)}"]`,
+        )
+        ?.focus();
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div
