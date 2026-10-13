@@ -34,5 +34,13 @@
     "intro": "Someone asked to change the email address on your Disscount account to <email>{newEmail}</email>. The change only takes effect once you confirm it.",
     "button": "Confirm new email address",
     "footnote": "If you didn't ask for this, change your password right away and get in touch. Your address stays the same until you confirm the change."
+  },
+  "breachedPassword": {
+    "subject": "Your password turned up in a data breach",
+    "preview": "We found your password in a data breach, set a new one",
+    "heading": "Your password turned up in a data breach",
+    "intro": "Someone just tried to sign in to your Disscount account with the correct password. We found that password in a known data breach from another site, so we didn't let the sign-in through. Set a new password with the button below. Once you do, we'll sign you out on every device. The link works for {minutes, plural, one {# minute} other {# minutes}}.",
+    "button": "Set a new password",
+    "footnote": "If this wasn't you, set a new password anyway. If you use this password anywhere else, change it there too."
   }
 }

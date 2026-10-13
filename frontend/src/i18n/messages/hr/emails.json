@@ -34,5 +34,13 @@
     "intro": "Netko je zatražio promjenu email adrese tvog Disscount računa u <email>{newEmail}</email>. Promjena vrijedi tek kad je potvrdiš.",
     "button": "Potvrdi promjenu",
     "footnote": "Ovaj zahtjev nije od tebe? Odmah promijeni lozinku i javi nam se. Tvoja adresa ostaje ista dok ne potvrdiš promjenu."
+  },
+  "breachedPassword": {
+    "subject": "Tvoja lozinka pronađena je u curenju podataka",
+    "preview": "Tvoju lozinku pronašli smo u curenju podataka, postavi novu",
+    "heading": "Tvoja lozinka pronađena je u curenju podataka",
+    "intro": "Upravo je stigao pokušaj prijave u tvoj Disscount račun s ispravnom lozinkom. Tu lozinku pronašli smo u poznatom curenju podataka s neke druge stranice, zato prijavu nismo dopustili. Postavi novu lozinku putem gumba ispod. Kad je postaviš, odjavit ćemo te sa svih uređaja. Poveznica vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
+    "button": "Postavi novu lozinku",
+    "footnote": "Ako to nisi ti, svejedno postavi novu lozinku. Ako ovu lozinku koristiš i drugdje, promijeni je i tamo."
   }
 }

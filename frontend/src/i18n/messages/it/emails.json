@@ -34,5 +34,13 @@
     "intro": "Qualcuno ha chiesto di cambiare l'indirizzo email dell'account Disscount in <email>{newEmail}</email>. La modifica vale solo dopo la tua conferma.",
     "button": "Conferma modifica",
     "footnote": "Se non hai richiesto tu questa operazione, cambia subito la password e scrivici. L'indirizzo resta lo stesso finché non confermi."
+  },
+  "breachedPassword": {
+    "subject": "La tua password è stata trovata in una violazione di dati",
+    "preview": "Abbiamo trovato la tua password in una violazione di dati, impostane una nuova",
+    "heading": "La tua password è stata trovata in una violazione di dati",
+    "intro": "Qualcuno ha appena provato ad accedere al tuo account Disscount con la password corretta. Abbiamo trovato quella password in una violazione di dati nota di un altro sito, quindi non abbiamo consentito l'accesso. Imposta una nuova password con il pulsante qui sotto. Appena lo fai, ti disconnetteremo da tutti i dispositivi. Il link vale {minutes, plural, one {# minuto} other {# minuti}}.",
+    "button": "Imposta una nuova password",
+    "footnote": "Se il tentativo non è tuo, imposta comunque una nuova password. Se usi questa password anche altrove, cambiala anche lì."
   }
 }

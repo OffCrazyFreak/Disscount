@@ -12,7 +12,11 @@ import { localePath } from "@/i18n/locale-path";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://disscount.me";
 
 export type EmailKind =
-  "verification" | "passwordReset" | "setPassword" | "changeEmail";
+  | "verification"
+  | "passwordReset"
+  | "setPassword"
+  | "changeEmail"
+  | "breachedPassword";
 
 // A null or unknown stored locale falls back to Croatian rather than failing a send.
 export function resolveLocale(value: unknown): AppLocale {

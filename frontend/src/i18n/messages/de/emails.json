@@ -34,5 +34,13 @@
     "intro": "Jemand möchte die E-Mail-Adresse deines Disscount-Kontos in <email>{newEmail}</email> ändern. Die Änderung gilt erst, wenn du sie bestätigst.",
     "button": "Änderung bestätigen",
     "footnote": "Wenn du das nicht angefordert hast, ändere sofort dein Passwort und melde dich bei uns. Deine Adresse bleibt unverändert, bis du die Änderung bestätigst."
+  },
+  "breachedPassword": {
+    "subject": "Dein Passwort ist in einem Datenleck aufgetaucht",
+    "preview": "Wir haben dein Passwort in einem Datenleck gefunden, leg ein neues fest",
+    "heading": "Dein Passwort ist in einem Datenleck aufgetaucht",
+    "intro": "Gerade hat jemand versucht, sich mit dem richtigen Passwort bei deinem Disscount-Konto anzumelden. Dieses Passwort haben wir in einem bekannten Datenleck einer anderen Website gefunden, deshalb haben wir die Anmeldung nicht zugelassen. Leg mit dem Button unten ein neues Passwort fest. Danach melden wir dich auf allen Geräten ab. Der Link ist {minutes, plural, one {# Minute} other {# Minuten}} gültig.",
+    "button": "Neues Passwort festlegen",
+    "footnote": "Warst du das nicht, leg trotzdem ein neues Passwort fest. Wenn du dieses Passwort auch anderswo nutzt, ändere es dort ebenfalls."
   }
 }

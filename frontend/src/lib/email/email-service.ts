@@ -76,11 +76,17 @@ export class EmailService {
   }
 
   // Sent when a correct sign-in is refused because the password is in a known breach.
-  sendBreachedPassword({ to, url, token }: ITokenEmailArgs) {
+  async sendBreachedPassword({ to, locale, url, token }: ITokenEmailArgs) {
+    const { subject, props } = await buildActionEmail(
+      locale,
+      "breachedPassword",
+      url,
+    );
+
     return this.send({
       to,
-      subject: "Tvoja lozinka pronađena je u curenju podataka",
-      react: BreachedPasswordEmail({ resetUrl: url }),
+      subject,
+      react: BreachedPasswordEmail(props),
       idempotencyKey: `breached-password/${token}`,
     });
   }
