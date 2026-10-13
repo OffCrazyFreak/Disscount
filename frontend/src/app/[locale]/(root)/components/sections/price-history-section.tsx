@@ -35,7 +35,10 @@ export default function PriceHistorySection() {
                 key={id}
                 className="flex items-start gap-2.5 text-sm text-pretty"
               >
-                <Check className="size-4 mt-0.5 shrink-0 text-primary" />
+                <Check
+                  aria-hidden="true"
+                  className="size-4 mt-0.5 shrink-0 text-primary"
+                />
                 {t(`priceHistory.checks.${id}`)}
               </li>
             ))}
