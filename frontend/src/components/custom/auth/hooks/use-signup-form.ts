@@ -9,10 +9,12 @@ import {
   RegisterRequest,
 } from "@/lib/api/schemas/auth-user";
 import { isPasswordPolicyCode } from "@/lib/auth/password-policy";
+import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
 
 export function useSignupForm() {
   const locale = useLocale();
   const t = useTranslations("auth");
+  const { messageForCode } = usePasswordPolicy();
   // Verification is required, so registration shows an inbox notice, not a session.
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
@@ -43,11 +45,13 @@ export function useSignupForm() {
       if (!response.ok) {
         const body = (await response.json().catch(() => ({}))) as {
           error?: unknown;
-          message?: string;
         };
 
-        if (isPasswordPolicyCode(body.error) && body.message) {
-          form.setError("password", { type: "server", message: body.message });
+        if (isPasswordPolicyCode(body.error)) {
+          form.setError("password", {
+            type: "server",
+            message: messageForCode(body.error),
+          });
           return;
         }
 

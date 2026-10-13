@@ -158,7 +158,6 @@
       "newPassword": "New password",
       "password": "Password",
       "newPasswordPlaceholder": "Leave blank to keep your current one",
-      "passwordRules": "At least 12 characters, with an uppercase letter, a lowercase letter and a number.",
       "currentPassword": "Current password",
       "currentPasswordDescription": "Needed to confirm an email or password change."
     },
@@ -173,7 +172,8 @@
       "passwordChanged": "Password changed.",
       "passwordChangedConfirmEmail": "Password changed. To change your email, confirm the link we sent to your current address.",
       "emailConfirmationSent": "We sent a confirmation link to your current email address. Your email changes once you confirm it.",
-      "generic": "Something went wrong. Try again."
+      "generic": "Something went wrong. Try again.",
+      "tooManyAttempts": "Too many wrong attempts. Try again in 15 minutes."
     },
     "recovery": {
       "title": "Check your email",

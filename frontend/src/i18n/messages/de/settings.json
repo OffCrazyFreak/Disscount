@@ -158,7 +158,6 @@
       "newPassword": "Neues Passwort",
       "password": "Passwort",
       "newPasswordPlaceholder": "Leer lassen, um es nicht zu ändern",
-      "passwordRules": "Mindestens 12 Zeichen, mit Groß- und Kleinbuchstaben und einer Zahl.",
       "currentPassword": "Aktuelles Passwort",
       "currentPasswordDescription": "Nötig, um die Änderung von E-Mail-Adresse oder Passwort zu bestätigen."
     },
@@ -173,7 +172,8 @@
       "passwordChanged": "Passwort geändert.",
       "passwordChangedConfirmEmail": "Passwort geändert. Bestätige den Link, den wir an deine aktuelle Adresse geschickt haben, um die E-Mail-Adresse zu ändern.",
       "emailConfirmationSent": "Wir haben einen Bestätigungslink an deine aktuelle E-Mail-Adresse geschickt. Die neue Adresse gilt, sobald du bestätigt hast.",
-      "generic": "Etwas ist schiefgelaufen. Versuche es erneut."
+      "generic": "Etwas ist schiefgelaufen. Versuche es erneut.",
+      "tooManyAttempts": "Zu viele falsche Versuche. Versuch es in 15 Minuten noch mal."
     },
     "recovery": {
       "title": "Schau in dein Postfach",

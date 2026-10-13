@@ -27,21 +27,18 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: "Invalid request body" },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
 
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+    return NextResponse.json({ error: "invalid_input" }, { status: 400 });
   }
 
   const requestHeaders = await headers();
   const session = await auth.api.getSession({ headers: requestHeaders });
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   const linkedSocial = await db
@@ -77,10 +74,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "invalid_password" }, { status: 400 });
     }
 
-    return NextResponse.json(
-      { error: "Failed to verify password" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "verify_failed" }, { status: 500 });
   }
 
   try {
@@ -96,10 +90,7 @@ export async function POST(request: Request) {
       headers: requestHeaders,
     });
   } catch {
-    return NextResponse.json(
-      { error: "Failed to change email" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "change_email_failed" }, { status: 500 });
   }
 
   return NextResponse.json({ status: true });

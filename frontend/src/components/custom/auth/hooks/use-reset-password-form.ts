@@ -9,6 +9,7 @@ import {
   isPasswordPolicyCode,
   passwordSchema,
 } from "@/lib/auth/password-policy";
+import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
 import { authClient } from "@/lib/auth/client";
 import { swapModalUrl } from "@/lib/modal/modal-navigation";
 
@@ -23,6 +24,7 @@ export type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
 export function useResetPasswordForm(open: boolean) {
   const t = useTranslations("auth");
+  const { messageForCode } = usePasswordPolicy();
   // Adjust-during-render, so capture still works when `open` flips true.
   const [captured, setCaptured] = useState<{ token: string | null } | null>(
     null,
@@ -66,7 +68,10 @@ export function useResetPasswordForm(open: boolean) {
     if (error) {
       // Refused before the token is consumed, so the same link still works for a retry.
       if (isPasswordPolicyCode(error.code)) {
-        form.setError("password", { type: "server", message: error.message });
+        form.setError("password", {
+          type: "server",
+          message: messageForCode(error.code),
+        });
         return;
       }
 

@@ -7,7 +7,7 @@ import { Form } from "@/components/ui/form";
 import PasswordField from "@/components/custom/auth/components/fields/password-field";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useResetPasswordForm } from "@/components/custom/auth/hooks/use-reset-password-form";
-import { PASSWORD_HINT } from "@/lib/auth/password-policy";
+import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
 
 interface IResetPasswordModalProps {
   open: boolean;
@@ -17,6 +17,7 @@ interface IResetPasswordModalProps {
 // via history or Referer. On success the user is sent to log in, never auto-logged in.
 export default function ResetPasswordModal({ open }: IResetPasswordModalProps) {
   const t = useTranslations("auth");
+  const { hint } = usePasswordPolicy();
   const { form, token, ready, onSubmit } = useResetPasswordForm(open);
   const formState = useFormState({ control: form.control });
 
@@ -48,7 +49,7 @@ export default function ResetPasswordModal({ open }: IResetPasswordModalProps) {
               name="password"
               label={t("resetPassword.newPassword")}
               autoComplete="new-password"
-              description={PASSWORD_HINT}
+              description={hint}
             />
 
             <PasswordField

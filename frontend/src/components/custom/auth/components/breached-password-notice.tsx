@@ -2,8 +2,10 @@
 
 import { useEffect, useId, useRef } from "react";
 import { ShieldAlert } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth";
 import { useBreachedPasswordResend } from "@/components/custom/auth/hooks/use-breached-password-resend";
 
 interface IBreachedPasswordNoticeProps {
@@ -16,6 +18,7 @@ export default function BreachedPasswordNotice({
   email,
   onBackToLogin,
 }: IBreachedPasswordNoticeProps) {
+  const t = useTranslations("auth");
   const headingRef = useRef<HTMLHeadingElement>(null);
   const explanationId = useId();
   const { resend, sending, coolingDown, resent } =
@@ -40,31 +43,25 @@ export default function BreachedPasswordNotice({
         aria-describedby={explanationId}
         className="text-lg font-semibold"
       >
-        Ova lozinka pronađena je u curenju podataka
+        {t("breached.title")}
       </h3>
 
       <div id={explanationId} className="flex flex-col gap-3">
         <p className="text-sm text-muted-foreground">
-          Lozinka je ispravna, ali pojavila se u poznatom curenju podataka s
-          neke druge stranice. Zato te nismo prijavili. Poveznicu za
-          postavljanje nove lozinke poslali smo na:
+          {t("breached.explanation")}
         </p>
 
         <p className="text-sm font-medium">{email}</p>
 
         <p className="text-sm text-muted-foreground">
-          Kad postaviš novu lozinku, odjavit ćemo te sa svih uređaja. Poveznica
-          vrijedi 30 minuta od slanja. Ako ne stigne, provjeri spam / neželjenu
-          poštu ili zatraži novu.
+          {t("breached.afterReset", { minutes: RESET_TOKEN_TTL_SECONDS / 60 })}
         </p>
       </div>
 
       {/* Always mounted, so each change of text, including the cooldown ending, is announced. */}
       <p role="status" className="text-sm font-medium">
         {resent &&
-          (coolingDown
-            ? "Poslali smo novu poveznicu. Sljedeću možeš zatražiti za minutu."
-            : "Možeš ponovno zatražiti poveznicu.")}
+          (coolingDown ? t("breached.resent") : t("breached.canResend"))}
       </p>
 
       <Button
@@ -76,7 +73,7 @@ export default function BreachedPasswordNotice({
         aria-disabled={resendBlocked}
         onClick={resend}
       >
-        {sending ? "Slanje..." : "Pošalji poveznicu ponovno"}
+        {sending ? t("forgot.sending") : t("breached.resend")}
       </Button>
 
       <button
@@ -84,7 +81,7 @@ export default function BreachedPasswordNotice({
         onClick={onBackToLogin}
         className="cursor-pointer text-sm text-primary underline hover:text-primary/80"
       >
-        Natrag na prijavu
+        {t("forgot.backToLogin")}
       </button>
     </div>
   );

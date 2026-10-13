@@ -18,12 +18,13 @@ import SettingsSection from "@/components/custom/settings/ui/settings-section";
 import ForgotPasswordLink from "@/components/custom/form/forgot-password-link";
 import PasswordRecovery from "@/components/custom/settings/security/components/password-recovery";
 import { useSecurity } from "@/components/custom/settings/security/security-context";
-import { PASSWORD_HINT } from "@/lib/auth/password-policy";
+import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
 
 export const CREDENTIALS_FORM_ID = "credentials-form";
 
 export default function CredentialsForm() {
   const t = useTranslations("settings");
+  const { hint } = usePasswordPolicy();
   const { form, submit, hasPassword, canEditEmail, recovery } = useSecurity();
 
   return (
@@ -84,7 +85,7 @@ export default function CredentialsForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>{PASSWORD_HINT}</FormDescription>
+                <FormDescription>{hint}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}

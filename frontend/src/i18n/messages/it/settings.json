@@ -158,7 +158,6 @@
       "newPassword": "Nuova password",
       "password": "Password",
       "newPasswordPlaceholder": "Lascia vuoto se non vuoi cambiarla",
-      "passwordRules": "Almeno 12 caratteri, con una maiuscola, una minuscola e un numero.",
       "currentPassword": "Password attuale",
       "currentPasswordDescription": "Serve per confermare il cambio di email o password."
     },
@@ -173,7 +172,8 @@
       "passwordChanged": "Password cambiata.",
       "passwordChangedConfirmEmail": "Password cambiata. Per cambiare l'email, conferma il link inviato al tuo indirizzo attuale.",
       "emailConfirmationSent": "Abbiamo mandato un link di conferma al tuo indirizzo email attuale. Il cambio di email avrà effetto dopo la conferma.",
-      "generic": "Qualcosa è andato storto. Riprova."
+      "generic": "Qualcosa è andato storto. Riprova.",
+      "tooManyAttempts": "Troppi tentativi sbagliati. Riprova tra 15 minuti."
     },
     "recovery": {
       "title": "Controlla la tua email",

@@ -158,7 +158,6 @@
       "newPassword": "Nova lozinka",
       "password": "Lozinka",
       "newPasswordPlaceholder": "Ostavi prazno ako ne mijenjaš",
-      "passwordRules": "Najmanje 12 znakova, jedno veliko i malo slovo te broj.",
       "currentPassword": "Trenutna lozinka",
       "currentPasswordDescription": "Potrebna za potvrdu promjene emaila ili lozinke."
     },
@@ -173,7 +172,8 @@
       "passwordChanged": "Lozinka je promijenjena.",
       "passwordChangedConfirmEmail": "Lozinka je promijenjena. Za promjenu emaila potvrdi poveznicu poslanu na tvoju trenutnu adresu.",
       "emailConfirmationSent": "Poslali smo poveznicu za potvrdu na tvoju trenutnu email adresu. Promjena emaila primijenit će se nakon potvrde.",
-      "generic": "Nešto je pošlo po krivu. Pokušaj ponovo."
+      "generic": "Nešto je pošlo po krivu. Pokušaj ponovo.",
+      "tooManyAttempts": "Previše pogrešnih pokušaja. Pokušaj ponovo za 15 minuta."
     },
     "recovery": {
       "title": "Provjeri svoj email",

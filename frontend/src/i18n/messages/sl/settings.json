@@ -158,7 +158,6 @@
       "newPassword": "Novo geslo",
       "password": "Geslo",
       "newPasswordPlaceholder": "Pusti prazno, če ne spreminjaš",
-      "passwordRules": "Vsaj 12 znakov, ena velika in ena mala črka ter številka.",
       "currentPassword": "Trenutno geslo",
       "currentPasswordDescription": "Potrebno za potrditev spremembe e-naslova ali gesla."
     },
@@ -173,7 +172,8 @@
       "passwordChanged": "Geslo je spremenjeno.",
       "passwordChangedConfirmEmail": "Geslo je spremenjeno. Spremembo e-naslova potrdi s povezavo, poslano na tvoj trenutni naslov.",
       "emailConfirmationSent": "Povezavo za potrditev smo poslali na tvoj trenutni e-naslov. Sprememba bo veljala po potrditvi.",
-      "generic": "Nekaj je šlo narobe. Poskusi znova."
+      "generic": "Nekaj je šlo narobe. Poskusi znova.",
+      "tooManyAttempts": "Preveč napačnih poskusov. Poskusi znova čez 15 minut."
     },
     "recovery": {
       "title": "Preveri svojo e-pošto",

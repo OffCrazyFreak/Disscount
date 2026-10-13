@@ -9,9 +9,9 @@ import { resetAuthToken } from "@/lib/api/api-base";
 import { useUser } from "@/context/user-context";
 import type { CredentialsFormValues } from "@/components/custom/settings/security/credentials-schema";
 import { isPasswordPolicyCode } from "@/lib/auth/password-policy";
+import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
 
-const TOO_MANY_ATTEMPTS_MESSAGE =
-  "Previše pogrešnih pokušaja. Pokušaj ponovo za 15 minuta.";
+const TOO_MANY_ATTEMPTS = "settings.security.submit.tooManyAttempts";
 
 interface IUseCredentialsSubmitProps {
   hasPassword: boolean;
@@ -27,6 +27,7 @@ export function useCredentialsSubmit({
   onChanged,
 }: IUseCredentialsSubmitProps) {
   const t = useTranslations("settings");
+  const { messageForCode } = usePasswordPolicy();
   const { refreshUser } = useUser();
 
   async function setInitialPassword(data: CredentialsFormValues) {
@@ -38,10 +39,12 @@ export function useCredentialsSubmit({
 
     if (!response.ok) {
       const body = (await response.json().catch(() => ({}))) as {
-        message?: string;
+        error?: unknown;
       };
       form.setError("newPassword", {
-        message: body.message ?? "Greška pri postavljanju lozinke.",
+        message: isPasswordPolicyCode(body.error)
+          ? messageForCode(body.error)
+          : "settings.security.submit.setPasswordFailed",
       });
       return;
     }
@@ -71,7 +74,7 @@ export function useCredentialsSubmit({
 
       if (error) {
         if (isPasswordPolicyCode(error.code)) {
-          form.setError("newPassword", { message: error.message });
+          form.setError("newPassword", { message: messageForCode(error.code) });
           return;
         }
 
@@ -114,8 +117,8 @@ export function useCredentialsSubmit({
         ) {
           form.setError("currentPassword", {
             message: tooManyAttempts
-              ? TOO_MANY_ATTEMPTS_MESSAGE
-              : "Trenutna lozinka nije točna.",
+              ? TOO_MANY_ATTEMPTS
+              : "settings.security.submit.currentPasswordWrong",
           });
           return;
         }
@@ -123,10 +126,10 @@ export function useCredentialsSubmit({
         form.setError("email", {
           message:
             body.error === "social_linked"
-              ? "Za promjenu emaila prvo odspoji povezane račune (Google, Facebook)."
+              ? "settings.security.submit.socialLinked"
               : tooManyAttempts
-                ? TOO_MANY_ATTEMPTS_MESSAGE
-                : "Greška pri promjeni emaila.",
+                ? TOO_MANY_ATTEMPTS
+                : "settings.security.submit.changeEmailFailed",
         });
 
         // Password already committed above; confirm it and clear its fields so a retry only re-does email.
@@ -168,9 +171,7 @@ export function useCredentialsSubmit({
         await setInitialPassword(data);
       }
     } catch {
-      form.setError("root", {
-        message: "settings.security.submit.generic",
-      });
+      form.setError("root", { message: t("security.submit.generic") });
     }
   }
 
