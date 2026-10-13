@@ -50,7 +50,7 @@ Tests run on H2 and touch nothing outside the module, so none needs a nod.
 ## Definition of done
 
 - Frontend: Prettier, `tsc --noEmit` and `pnpm test` pass. Run `pnpm build` only for migrations, dependency version changes or new dependencies.
-- Backend: `mvn -B verify` passes; it is the gate, not an extra. Its tests cover digital cards, store names (photo validation, card service, controller) and the entity validation handler; elsewhere a green run proves only that the code compiles, so say so.
+- Backend: `mvn -B verify` passes; it is the gate, not an extra. Its tests cover digital cards, store names, account deletion and the entity validation handler; elsewhere a green run proves only that the code compiles, so say so.
 - Fix type errors in `frontend/src/` and compile and test failures in `backend/src/`. Ignore errors from generated types or dependencies, and never re-run a check I interrupted.
 - Say which checks passed, failed, or did not run, on both sides. Never report backend work as verified by reading when you could have run `mvn -B verify`.
 - A failure unrelated to your change: report the command and the error, say it looks pre-existing, and leave it alone.
