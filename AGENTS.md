@@ -34,7 +34,8 @@ Safe without asking, run from `frontend/`:
 - `pnpm exec prettier --write --ignore-path ../.prettierignore "../<changed-path>"`
 - `pnpm exec next typegen`, then `pnpm exec tsc --noEmit`
 - `pnpm lint`
-- `pnpm test`, the Vitest suite (pure utilities such as barcode check digits, the colour palette and scan consensus; it runs in Node with no browser)
+- `pnpm test`, the Vitest suite: `*.test.ts` runs in Node, `*.test.tsx` runs components and hooks in jsdom through the React Compiler, and MSW fails any request a test did not declare. Conventions are in `docs/TESTING.md`
+- `pnpm test:coverage`, the same suite with a V8 coverage report in `frontend/coverage/`
 - `pnpm build`
 - `pnpm add <name>@<version>` and `pnpm remove <name>`, once I have approved the dependency
 
@@ -87,6 +88,7 @@ If a check fails for a reason unrelated to your change, report the command and t
 - `kysely` is a direct dependency only to pin better-auth's required peer. Nothing imports it.
 - `dotenv` is read only by `drizzle.config.ts`, to load `.env.local` outside Next.
 - `baseline-browser-mapping` is a direct dependency only so `frontend/pnpm-workspace.yaml` can exempt it from pnpm's release-age gate.
+- `@vitejs/plugin-react` and `@rolldown/plugin-babel` exist only so Vitest compiles `.tsx` tests through the React Compiler. Next.js builds with its own compiler integration and never loads them. `@vitest/coverage-v8` stays on the exact `vitest` version, because its peer dependency is exact.
 - `@eslint/eslintrc` and the `disscount` self-link are create-next-app leftovers. Nothing reads them.
 - Import `server-only` in any module that must never reach the client.
 - `next`, `react`, `react-dom`, `better-auth`, `drizzle-orm`, `kysely` and `pg` stay exact-pinned, so auth and data-layer bumps have to go through a reviewed PR. Everything else takes a range. Do not add a pin to a dependency with no security or data blast radius.
