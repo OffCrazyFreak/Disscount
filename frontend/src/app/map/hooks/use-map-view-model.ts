@@ -18,7 +18,7 @@ export function useMapViewModel() {
   const directory = useStoreDirectory();
   const url = useMapUrlState();
   const geolocation = useGeolocation();
-  const { search } = useSearchNavigation("/map");
+  const { search } = useSearchNavigation("/map", { shallow: true });
 
   const stores = (directory.data?.stores ?? []).filter(isVisitableStore);
 

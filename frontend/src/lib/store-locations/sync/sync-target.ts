@@ -13,9 +13,15 @@ export interface ISyncTarget {
   address: string | null;
   city: string | null;
   zipcode: string | null;
+  /** Geoapify missed it within the retry window, so only Nominatim tries. */
+  skipGeoapify: boolean;
 }
 
 const RETRY_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
+
+function isRecent(at: Date | null | undefined, now: number): boolean {
+  return at != null && now - at.getTime() <= RETRY_AFTER_MS;
+}
 
 /**
  * Stores upstream cannot place and we have not placed either, minus those that
@@ -39,9 +45,7 @@ export function findSyncTargets(
       if (!row) return true;
       if (row.lat != null || row.source === "manual") return false;
 
-      return (
-        !row.lastAttemptAt || now - row.lastAttemptAt.getTime() > RETRY_AFTER_MS
-      );
+      return !isRecent(row.lastAttemptAt, now);
     })
     .map((store) => ({
       chain: store.chain_code,
@@ -49,5 +53,9 @@ export function findSyncTargets(
       address: cleanUpstreamAddress(store.address),
       city: store.city,
       zipcode: store.zipcode,
+      skipGeoapify: isRecent(
+        byKey.get(storeKey(store.chain_code, store.code))?.geoapifyMissedAt,
+        now,
+      ),
     }));
 }

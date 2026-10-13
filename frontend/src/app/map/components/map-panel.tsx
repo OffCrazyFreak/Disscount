@@ -45,6 +45,7 @@ export default function MapPanel({ model, chainSummary }: IMapPanelProps) {
           searchRoute="/map"
           clearable
           autoSearch
+          shallow
           submitButtonLocation="none"
         />
       </Suspense>

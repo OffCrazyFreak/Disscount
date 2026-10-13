@@ -1,5 +1,9 @@
 const MEMBER_END = "</wfs:member>";
 
+// Real members are a few kilobytes. Anything this long means the feed changed
+// shape, and buffering on would pull the whole 2.6 GB file into memory.
+const MAX_MEMBER_CHARS = 1_000_000;
+
 export interface IMemberScanner {
   write(bytes: Uint8Array): void;
   end(): void;
@@ -28,6 +32,10 @@ export function createMemberScanner(
     }
 
     tail = text.slice(start);
+
+    if (tail.length > MAX_MEMBER_CHARS) {
+      throw new Error(`GML member over ${MAX_MEMBER_CHARS} characters`);
+    }
   }
 
   return {

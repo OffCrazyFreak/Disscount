@@ -43,7 +43,10 @@ export default function NearMeButton({
           disabled={status === "locating"}
         >
           {status === "locating" ? (
-            <Loader2 className="animate-spin" aria-hidden="true" />
+            <Loader2
+              className="animate-spin motion-reduce:animate-none"
+              aria-hidden="true"
+            />
           ) : (
             <LocateFixed aria-hidden="true" />
           )}

@@ -4,10 +4,7 @@ import { z } from "zod";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchJson } from "@/lib/store-locations/http";
-import type {
-  IResolvedLocation,
-  LocationPrecision,
-} from "@/lib/store-locations/types";
+import type { IResolvedLocation } from "@/lib/store-locations/types";
 import {
   houseNumberMatches,
   requestedHouseNumber,
@@ -33,25 +30,10 @@ const responseSchema = z.object({
     .default([]),
 });
 
-function toPrecision(
-  resultType: string | undefined,
-  matchesNumber: boolean,
-): LocationPrecision | null {
-  switch (resultType) {
-    case "building":
-    case "amenity":
-      return matchesNumber ? "building" : "street";
-    case "street":
-      return "street";
-    case "city":
-    case "postcode":
-    case "suburb":
-    case "district":
-      return "settlement";
-    default:
-      return null;
-  }
-}
+// Same rule as Nominatim: a wrong pin is worse than none, so a street, a town
+// centre or the wrong building is dropped and the store waits for a better
+// source or a manual pin.
+const BUILDING_TYPES = new Set(["building", "amenity"]);
 
 export async function geocodeWithGeoapify(
   address: string,
@@ -79,16 +61,13 @@ export async function geocodeWithGeoapify(
   if (!result || (result.rank?.confidence ?? 0) < MIN_CONFIDENCE) return null;
 
   const wanted = requestedHouseNumber(address);
-  const matchesNumber =
-    wanted !== null && houseNumberMatches(wanted, result.housenumber);
-  const precision = toPrecision(result.result_type, matchesNumber);
+  const exact =
+    wanted !== null &&
+    BUILDING_TYPES.has(result.result_type ?? "") &&
+    houseNumberMatches(wanted, result.housenumber);
   const coordinates = sanitizeCoordinates(result.lat, result.lon);
 
-  if (!precision || !coordinates) return null;
+  if (!exact || !coordinates) return null;
 
-  // Same rule as Nominatim: a store with a house number gets that building
-  // or nothing, never the middle of its street.
-  if (wanted !== null && precision !== "building") return null;
-
-  return { ...coordinates, source: "geoapify", precision };
+  return { ...coordinates, source: "geoapify", precision: "building" };
 }

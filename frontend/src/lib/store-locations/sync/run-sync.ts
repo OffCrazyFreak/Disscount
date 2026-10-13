@@ -8,6 +8,7 @@ import {
 import {
   readStoreLocations,
   recordFailedAttempt,
+  recordGeoapifyMiss,
 } from "@/lib/store-locations/location-repository";
 import { fetchUpstreamStores } from "@/lib/store-locations/upstream-stores";
 import { resolveWithDgu } from "@/lib/store-locations/sync/dgu-step";
@@ -48,16 +49,25 @@ export async function runStoreLocationSync(signal: AbortSignal): Promise<void> {
     targets = await resolveWithDgu(targets, signal);
 
     // Optional: until the key is set, every target goes straight to Nominatim.
-    const geoapify = process.env.GEOAPIFY_API_KEY
-      ? await resolveWithGeocoder(
-          targets,
-          { geocode: geocodeWithGeoapify, ...GEOAPIFY },
-          signal,
-        )
-      : { remaining: targets, failed: [] };
+    const forGeoapify = process.env.GEOAPIFY_API_KEY
+      ? targets.filter((target) => !target.skipGeoapify)
+      : [];
+    const geoapify = await resolveWithGeocoder(
+      forGeoapify,
+      { geocode: geocodeWithGeoapify, ...GEOAPIFY },
+      signal,
+    );
+
+    for (const target of geoapify.failed) {
+      await recordGeoapifyMiss(target.chain, target.code);
+    }
+
+    const notForGeoapify = targets.filter(
+      (target) => !forGeoapify.includes(target),
+    );
 
     const nominatim = await resolveWithGeocoder(
-      geoapify.remaining,
+      [...geoapify.remaining, ...notForGeoapify],
       {
         geocode: geocodeWithNominatim,
         limit: NOMINATIM_LIMIT,
@@ -66,7 +76,8 @@ export async function runStoreLocationSync(signal: AbortSignal): Promise<void> {
       signal,
     );
 
-    const missed = new Set([...geoapify.failed, ...nominatim.failed]);
+    // The week-long wait starts only once the last source has missed too.
+    const missed = new Set(nominatim.failed);
     const unplaced = nominatim.remaining.filter(
       (target) => !target.address || missed.has(target),
     );

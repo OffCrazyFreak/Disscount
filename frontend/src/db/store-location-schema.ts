@@ -24,6 +24,10 @@ export const storeLocation = pgTable(
     precision: text("precision"),
     attempts: integer("attempts").default(0).notNull(),
     lastAttemptAt: timestamp("last_attempt_at", { withTimezone: true }),
+    // Kept apart from lastAttemptAt: Geoapify is tried on every pending store,
+    // Nominatim only on a few a run, so a Geoapify miss must not also hold a
+    // store back from Nominatim.
+    geoapifyMissedAt: timestamp("geoapify_missed_at", { withTimezone: true }),
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

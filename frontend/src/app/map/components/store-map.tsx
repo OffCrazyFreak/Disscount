@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import {
+  AttributionControl,
   Map,
   NavigationControl,
   type MapLayerMouseEvent,
@@ -156,7 +157,12 @@ export default function StoreMap({
   }
 
   if (!style.data)
-    return <div className="h-full animate-pulse bg-muted" aria-hidden="true" />;
+    return (
+      <div
+        className="h-full animate-pulse bg-muted motion-reduce:animate-none"
+        aria-hidden="true"
+      />
+    );
 
   return (
     <Map
@@ -174,10 +180,7 @@ export default function StoreMap({
           : { bounds: CROATIA_BOUNDS }
       }
       style={{ width: "100%", height: "100%" }}
-      attributionControl={{
-        compact: true,
-        customAttribution: MAP_CUSTOM_ATTRIBUTION,
-      }}
+      attributionControl={false}
       interactiveLayerIds={iconsReady ? interactiveLayerIds(chains) : []}
       cursor={cursor}
       onMouseEnter={() => setCursor("pointer")}
@@ -186,6 +189,13 @@ export default function StoreMap({
       onClick={handleClick}
     >
       <NavigationControl position="top-right" />
+      {/* Top left, because the phone sheet covers the bottom of the map and
+          the tile and data credits must stay visible. */}
+      <AttributionControl
+        position="top-left"
+        compact
+        customAttribution={MAP_CUSTOM_ATTRIBUTION}
+      />
       <MapPanControls mapRef={mapRef} />
 
       {iconsReady &&

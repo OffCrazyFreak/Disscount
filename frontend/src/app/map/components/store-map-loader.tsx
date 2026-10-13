@@ -11,7 +11,10 @@ import MapUnavailable from "@/app/map/components/map-unavailable";
 const StoreMap = dynamic(() => import("@/app/map/components/store-map"), {
   ssr: false,
   loading: () => (
-    <div className="h-full animate-pulse bg-muted" aria-hidden="true" />
+    <div
+      className="h-full animate-pulse bg-muted motion-reduce:animate-none"
+      aria-hidden="true"
+    />
   ),
 });
 

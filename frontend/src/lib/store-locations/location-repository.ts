@@ -55,3 +55,20 @@ export async function recordFailedAttempt(
       setWhere: sql`${storeLocation.lat} is null`,
     });
 }
+
+/** Records a Geoapify miss, so its quota is not spent on the store again soon. */
+export async function recordGeoapifyMiss(
+  chainCode: string,
+  storeCode: string,
+): Promise<void> {
+  const now = new Date();
+
+  await db
+    .insert(storeLocation)
+    .values({ chainCode, storeCode, geoapifyMissedAt: now })
+    .onConflictDoUpdate({
+      target: [storeLocation.chainCode, storeLocation.storeCode],
+      set: { geoapifyMissedAt: now },
+      setWhere: sql`${storeLocation.lat} is null`,
+    });
+}

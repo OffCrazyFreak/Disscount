@@ -31,7 +31,10 @@ export default function MapLoadState({ status, onRetry }: IMapLoadStateProps) {
       role="status"
       className="flex items-center justify-center gap-2 p-6 text-sm text-muted-foreground"
     >
-      <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+      <Loader2
+        className="size-4 animate-spin motion-reduce:animate-none"
+        aria-hidden="true"
+      />
       Učitavam trgovine...
     </div>
   );
