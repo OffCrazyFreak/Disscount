@@ -38,9 +38,10 @@ export function cardWriteMessage(error: unknown): CardWriteMessageKey | null {
   if (status === 404) return null;
 
   if (status === 409) {
-    const detail = parseProblem(error)?.detail ?? "";
     // Other conflicts mean the write already landed, so there is nothing to tell.
-    return /najveći broj kartica/i.test(detail) ? CARD_LIMIT_KEY : null;
+    return parseProblem(error)?.code === "error.card.limitReached"
+      ? CARD_LIMIT_KEY
+      : null;
   }
 
   return "offline.cardSaveFailed";

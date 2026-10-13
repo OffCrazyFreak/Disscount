@@ -139,7 +139,8 @@ class DigitalCardControllerTest {
         mvc.perform(put("/api/digital-cards/{id}", cardId).with(auth())
                         .contentType(MediaType.APPLICATION_JSON).content(validBody()))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.detail").value("Dosegnut je najveći broj kartica"));
+                .andExpect(jsonPath("$.detail").value("Dosegnut je najveći broj kartica"))
+                .andExpect(jsonPath("$.code").value("error.card.limitReached"));
     }
 
     @Test

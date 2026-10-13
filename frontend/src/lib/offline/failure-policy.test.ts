@@ -37,10 +37,14 @@ describe("cardWriteMessage", () => {
     expect(cardWriteMessage(httpError(404))).toBeNull();
   });
 
-  it("names the limit only for the limit conflict", () => {
+  it.each([
+    "Dosegnut je najveći broj kartica.",
+    "You've reached the card limit.",
+  ])("names the limit from its code whatever the language (%s)", (detail) => {
     const limit = httpError(409, {
       status: 409,
-      detail: "Dosegnut je najveći broj kartica",
+      code: "error.card.limitReached",
+      detail,
     });
     expect(cardWriteMessage(limit)).toBe(CARD_LIMIT_KEY);
   });

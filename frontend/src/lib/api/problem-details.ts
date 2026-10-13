@@ -8,6 +8,8 @@ export const problemDetailsSchema = z.object({
   title: z.string().optional(),
   status: z.number().optional(),
   detail: z.string().optional(),
+  // The server's message code, set on conflicts; the detail is translated text.
+  code: z.string().optional(),
   fieldErrors: z.record(z.string(), z.string()).optional(),
 });
 

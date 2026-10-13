@@ -71,7 +71,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConflictException.class)
     public ProblemDetail handleConflictException(ConflictException ex) {
-        return problem(HttpStatus.CONFLICT, "conflict", message(ex.getMessage()));
+        ProblemDetail detail = problem(HttpStatus.CONFLICT, "conflict", message(ex.getMessage()));
+        // The detail is translated, so clients that branch on a conflict read the code instead.
+        detail.setProperty("code", ex.getMessage());
+        return detail;
     }
 
     @ExceptionHandler(ServiceUnavailableException.class)
