@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { ScanBarcode } from "lucide-react";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ScanConfirm from "@/components/scanner/scan-confirm";
@@ -11,11 +12,11 @@ import type { IScannedCode, ScanPreset } from "@/typings/scanned-code";
 
 type ScannerStep = "camera" | "manual" | "confirm";
 
-const STEP_TITLES: Record<ScannerStep, string> = {
-  camera: "Skeniraj kod",
-  manual: "Upiši kod ručno",
-  confirm: "Provjeri kod",
-};
+const STEP_TITLE_KEYS = {
+  camera: "title",
+  manual: "manual.title",
+  confirm: "confirm.title",
+} as const satisfies Record<ScannerStep, string>;
 
 interface IScannerContentProps {
   preset: ScanPreset;
@@ -23,24 +24,12 @@ interface IScannerContentProps {
   onScan: (code: IScannedCode) => void;
 }
 
-function announcement(
-  candidates: IScannedCode[] | null,
-  typed: boolean,
-): string {
-  if (!candidates?.length) return "";
-
-  if (typed) return `Upisan kod: ${formatLabel(candidates[0])}`;
-
-  return candidates.length === 1
-    ? `Pronađen kod: ${formatLabel(candidates[0])}`
-    : `Pronađeno kodova: ${candidates.length}`;
-}
-
 export default function ScannerContent({
   preset,
   confirm,
   onScan,
 }: IScannerContentProps) {
+  const t = useTranslations("scanner");
   const [step, setStep] = useState<ScannerStep>("camera");
   const [candidates, setCandidates] = useState<IScannedCode[] | null>(null);
   const [typed, setTyped] = useState(false);
@@ -54,6 +43,18 @@ export default function ScannerContent({
     previousStep.current = step;
     titleRef.current?.focus();
   }, [step]);
+
+  function announcement(): string {
+    if (!candidates?.length) return "";
+
+    const label = formatLabel(candidates[0], t);
+
+    if (typed) return t("confirm.announceTyped", { label });
+
+    return candidates.length === 1
+      ? t("confirm.announceFound", { label })
+      : t("confirm.announceMany", { count: candidates.length });
+  }
 
   function goTo(next: ScannerStep) {
     // A leftover result would be read out again on the next visit to the live region.
@@ -90,12 +91,12 @@ export default function ScannerContent({
           className="flex items-center gap-2 outline-none"
         >
           <ScanBarcode aria-hidden="true" className="size-6" />
-          {STEP_TITLES[step]}
+          {t(STEP_TITLE_KEYS[step])}
         </DialogTitle>
       </DialogHeader>
 
       <p role="status" aria-live="polite" className="sr-only">
-        {announcement(candidates, typed)}
+        {announcement()}
       </p>
 
       {step === "camera" && (

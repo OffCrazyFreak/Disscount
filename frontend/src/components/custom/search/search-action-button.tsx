@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronsUp, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useScrolledPast } from "@/hooks/use-scrolled-past";
@@ -38,6 +39,7 @@ export default function SearchActionButton({
   isUnchanged,
   form,
 }: ISearchActionButtonProps) {
+  const t = useTranslations("shell");
   const canReturn = useScrolledPast(BACK_TO_TOP_THRESHOLD_PX);
 
   if (!disabled && isUnchanged && canReturn) {
@@ -50,7 +52,7 @@ export default function SearchActionButton({
         className={cn(BASE_CLASS, block && "w-full")}
       >
         <ChevronsUp className="size-5" />
-        Natrag na vrh
+        {t("search.backToTop")}
       </Button>
     );
   }

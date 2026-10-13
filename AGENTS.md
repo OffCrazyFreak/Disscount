@@ -48,7 +48,7 @@ Safe without asking, run from `backend/`:
 
 Tests are meant to run on H2 and touch nothing outside the module, so none of these need a nod.
 
-`backend/src/test` now holds a suite for digital cards and store names only (photo validation, the card service, the controller). For those features a green `verify` is real evidence. Everywhere else it still proves only that the code compiles and packages, so do not report it as evidence that behaviour works there until that area has tests.
+`backend/src/test` now holds a suite for digital cards and store names (photo validation, the card service, the controller), plus the entity validation handler. For those features a green `verify` is real evidence. Everywhere else it still proves only that the code compiles and packages, so do not report it as evidence that behaviour works there until that area has tests.
 
 ## Definition of done
 
@@ -115,7 +115,14 @@ Accessibility is where I have had to go back and fix things most often, so check
 - Counts and status that change without a navigation are announced.
 - Motion respects `prefers-reduced-motion`.
 
-Croatian copy uses second person ("ti"), never third person ("vi"), and ungendered forms. The company voice ("mi") stays as it is. This covers accessible names, `alt` text and `title` attributes, not just visible text. There is no i18n framework and every string is a hardcoded literal, so write the Croatian inline and do not reach for a translation library.
+Croatian copy uses second person ("ti"), never third person ("vi"), and ungendered forms. The company voice ("mi") stays as it is. This covers accessible names, `alt` text and `title` attributes, not just visible text. The app ships in Croatian, English, Italian, Slovenian and German through next-intl, and `docs/I18N.md` covers how it fits together. Every other language follows the same rule: informal singular address ("you", "tu", "ti", "du") and ungendered forms.
+
+- Copy never goes inline. Add the key to the Croatian catalog in `frontend/src/i18n/messages/hr/` and to the same file in every other locale, then run `pnpm i18n:check`, which CI also runs.
+- Use ICU plurals and number formats instead of building strings by hand. Croatian needs `one`, `few` and `other`, Slovenian adds `two`.
+- Data constants hold message keys (`labelKey`), not text.
+- Import `Link`, `redirect`, `useRouter` and `usePathname` from `@/i18n/navigation`, never from `next/link` or `next/navigation`.
+- Pass the locale to the formatting helpers in `utils/`; they have no Croatian default on purpose.
+- A new backend error or validation message needs a key in all five `messages*.properties` files.
 
 Before wiring an API call, confirm the endpoint exists in `backend/` or in https://github.com/senko/cijene-api, which is upstream and not ours to change. Do not invent endpoints, fields, or auth behaviour. If the contract is missing, finish everything else in scope and tell me exactly what is missing.
 
@@ -165,7 +172,7 @@ Brief explanation of why the change was needed.
 
 Add a `Notes:` section only when there is something a reviewer would otherwise miss.
 
-Types in use: `fix`, `feat`, `docs`, `refactor`, `chore`, `style`, `perf`, `ci`. Scope is the kebab-case area, matching a folder where one exists: `products`, `pwa`, `watchlist`, `shopping-lists`, `settings`, `auth`, `search`, `scanner`, `landing`, `header`, `sidebar`, `bottom-nav`, `price-history`, `modals`, `ui`, `brand`, `a11y`, `deps`, `agents`.
+Types in use: `fix`, `feat`, `docs`, `refactor`, `chore`, `style`, `perf`, `ci`. Scope is the kebab-case area, matching a folder where one exists: `products`, `pwa`, `watchlist`, `shopping-lists`, `settings`, `auth`, `search`, `scanner`, `landing`, `header`, `sidebar`, `bottom-nav`, `price-history`, `modals`, `ui`, `brand`, `a11y`, `i18n`, `deps`, `agents`.
 
 Never add a `Co-Authored-By` trailer.
 

@@ -54,7 +54,7 @@ public class StoreNameService {
     @Transactional(readOnly = true)
     public List<StoreNameSuggestionDto> search(String query) {
         if (query != null && query.indexOf('\u0000') >= 0) {
-            throw new BadRequestException("Pretraga sadrži nedopušten znak");
+            throw new BadRequestException("error.storeName.invalidCharacter");
         }
         String normalized = StoreNameNormalizer.normalize(query == null ? "" : query);
         if (normalized.length() > MAX_NAME_LENGTH) {

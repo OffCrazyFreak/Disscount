@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 import { Badge } from "@/components/ui/badge";
 
 interface IComingSoonBadgeProps {
@@ -10,9 +12,11 @@ export default function ComingSoonBadge({
   id,
   className,
 }: IComingSoonBadgeProps) {
+  const t = useTranslations("common");
+
   return (
     <Badge id={id} className={className}>
-      USKORO
+      {t("comingSoon.badge")}
     </Badge>
   );
 }

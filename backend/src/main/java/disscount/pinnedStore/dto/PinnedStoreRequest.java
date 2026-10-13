@@ -6,9 +6,9 @@ import lombok.Data;
 @Data
 public class PinnedStoreRequest {
 
-    @NotBlank(message = "Store API ID is required")
+    @NotBlank(message = "{validation.storeApiId.required}")
     private String storeApiId;
 
-    @NotBlank(message = "Store name is required")
+    @NotBlank(message = "{validation.storeName.required}")
     private String storeName;
 }

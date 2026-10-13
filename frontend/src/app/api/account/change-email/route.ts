@@ -12,6 +12,8 @@ import {
 } from "@/lib/auth/password-attempt-limit";
 import { db } from "@/db";
 import { account } from "@/db/auth-schema";
+import { DEFAULT_LOCALE, isLocale } from "@/i18n/locales";
+import { localePath } from "@/i18n/locale-path";
 
 const bodySchema = z.object({
   newEmail: z.email(),
@@ -25,21 +27,18 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: "Invalid request body" },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
 
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+    return NextResponse.json({ error: "invalid_input" }, { status: 400 });
   }
 
   const requestHeaders = await headers();
   const session = await auth.api.getSession({ headers: requestHeaders });
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   const linkedSocial = await db
@@ -75,10 +74,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "invalid_password" }, { status: 400 });
     }
 
-    return NextResponse.json(
-      { error: "Failed to verify password" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "verify_failed" }, { status: 500 });
   }
 
   try {
@@ -86,15 +82,15 @@ export async function POST(request: Request) {
     await auth.api.changeEmail({
       body: {
         newEmail: parsed.data.newEmail.toLowerCase(),
-        callbackURL: "/?modal=email-changed",
+        callbackURL: localePath(
+          isLocale(session.user.locale) ? session.user.locale : DEFAULT_LOCALE,
+          "/?modal=email-changed",
+        ),
       },
       headers: requestHeaders,
     });
   } catch {
-    return NextResponse.json(
-      { error: "Failed to change email" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "change_email_failed" }, { status: 500 });
   }
 
   return NextResponse.json({ status: true });

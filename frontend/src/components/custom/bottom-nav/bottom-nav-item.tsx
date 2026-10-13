@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { isKeyboardClick } from "@/utils/events";
 import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
@@ -54,6 +55,7 @@ export default function BottomNavItem({
   canReturn,
   onKeyboardActivate,
 }: IBottomNavItemProps) {
+  const t = useTranslations("shell");
   const { item } = entry;
 
   // A locked cell is still `aria-current` when its route is open by URL, but it
@@ -107,7 +109,7 @@ export default function BottomNavItem({
         />
 
         <span className={cn(CELL_LABEL_CLASS, showsActive && "font-bold")}>
-          {item.shortLabel ?? item.label}
+          {t(item.shortLabelKey ?? item.labelKey)}
         </span>
 
         {item.comingSoon && (

@@ -8,6 +8,7 @@ import {
   PASSWORD_BREACHED,
   PASSWORD_BREACHED_MESSAGE,
   PASSWORD_LENGTH_INVALID,
+  PASSWORD_LENGTH_MESSAGE,
   passwordLengthError,
 } from "@/lib/auth/password-policy";
 
@@ -49,7 +50,7 @@ export async function assertPasswordAcceptable(password: string) {
   if (lengthError) {
     throw new APIError("BAD_REQUEST", {
       code: PASSWORD_LENGTH_INVALID,
-      message: lengthError,
+      message: PASSWORD_LENGTH_MESSAGE,
     });
   }
 

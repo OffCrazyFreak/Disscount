@@ -20,8 +20,8 @@ export const shoppingListRequestSchema = z.object({
   title: z
     .string()
     .trim()
-    .min(3, "Upiši naziv s najmanje 3 znaka")
-    .max(100, "Upiši naziv s najviše 100 znakova"),
+    .min(3, "shoppingLists.validation.titleMin")
+    .max(100, "shoppingLists.validation.titleMax"),
   linkAccess: linkAccessSchema.optional(),
 });
 
@@ -52,8 +52,8 @@ export const shoppingListCopyRequestSchema = z.object({
   title: z
     .string()
     .trim()
-    .min(3, "Upiši naziv s najmanje 3 znaka")
-    .max(100, "Upiši naziv s najviše 100 znakova"),
+    .min(3, "shoppingLists.validation.titleMin")
+    .max(100, "shoppingLists.validation.titleMax"),
   includeItems: z.boolean(),
   includeProgress: z.boolean(),
   includeSharing: z.boolean(),

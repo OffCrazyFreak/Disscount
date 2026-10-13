@@ -1,0 +1,50 @@
+{
+  "meta": {
+    "title": "Product details",
+    "description": "Compare product prices."
+  },
+  "notFound": {
+    "title": "Product not found",
+    "description": "Couldn't load the details for this product."
+  },
+  "sort": {
+    "label": "Sort by:",
+    "stores": "Store",
+    "price": "Price",
+    "distance": "Distance"
+  },
+  "chains": {
+    "title": "Prices by chain",
+    "refreshed": "Prices refreshed {time}",
+    "loadError": "Couldn't load prices. Try again.",
+    "empty": "No prices available for this product."
+  },
+  "priceHistory": {
+    "title": "Price history",
+    "hide": "Hide",
+    "show": "Show",
+    "empty": "No price history available.",
+    "average": "Average",
+    "period": {
+      "week": "(last 7 days)",
+      "month": "(last 30 days)",
+      "year": "(last 365 days)",
+      "all": "(all time)"
+    }
+  },
+  "storeItem": {
+    "dataFrom": "Data from {date}",
+    "min": "Lowest: {price}",
+    "average": "Average: {price}",
+    "max": "Highest: {price}",
+    "pricesByLocation": "Prices by location"
+  },
+  "pricesTable": {
+    "empty": "No prices available for this chain",
+    "location": "Location",
+    "address": "Address",
+    "price": "Price",
+    "unknown": "Unknown",
+    "notAvailable": "N/A"
+  }
+}

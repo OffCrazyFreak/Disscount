@@ -1,0 +1,67 @@
+{
+  "meta": {
+    "title": "Price alerts",
+    "description": "Watch product prices and get notified about offers."
+  },
+  "client": {
+    "loginTitle": "Price alerts",
+    "loginDescription": "Price alerts let you watch products and get notified as soon as a price drops.",
+    "searchPlaceholder": "Search price alerts..."
+  },
+  "header": {
+    "searchResultsTitle": "Search results for “{query}” ({count})",
+    "title": "Price alerts",
+    "titleWithCount": "Price alerts ({count})",
+    "pricesUpdated": "Prices refreshed {time}"
+  },
+  "list": {
+    "emptyTitle": "No watched products",
+    "emptyDescription": "Search for products, choose “Watch price” and get notified about offers.",
+    "searchProducts": "Search products"
+  },
+  "suggestions": {
+    "title": "Suggested products to watch ({count})",
+    "hide": "Hide",
+    "show": "Show"
+  },
+  "actionButton": {
+    "watch": "Watch price",
+    "remove": "Stop watching"
+  },
+  "discountRow": {
+    "srSuffix": ", {infoLabel}, open store preferences"
+  },
+  "discountInfo": {
+    "loadError": "Couldn't load",
+    "noData": "No data",
+    "unavailable": "Unavailable",
+    "setPreferences": "Set preferences",
+    "preferredStoresInfo": "Showing the price in your preferred stores",
+    "allStoresInfo": "Showing the price in all stores"
+  },
+  "item": {
+    "loading": "Loading...",
+    "unavailable": "Product unavailable"
+  },
+  "removal": {
+    "success": "Product removed from price alerts",
+    "error": "Couldn't remove the product. Try again.",
+    "partial": "Partly removed: {count, plural, one {# item} other {# items}} couldn't be removed."
+  },
+  "createList": {
+    "label": "Create list of products on offer",
+    "short": "Create list",
+    "loading": "Creating list...",
+    "listTitle": "On offer {date}",
+    "productCount": "{count, plural, one {# product} other {# products}} for the new list.",
+    "success": "List of products on offer created",
+    "createError": "Couldn't create the list of products on offer. Try again.",
+    "addFailedRemoved": "Some items couldn't be added. The list was removed automatically.",
+    "addFailedKept": "Some items couldn't be added, and the list couldn't be removed automatically."
+  },
+  "validation": {
+    "productRequired": "Product is required",
+    "watchTypeRequired": "Alert type is required",
+    "thresholdPositive": "Threshold must be a positive number"
+  }
+}

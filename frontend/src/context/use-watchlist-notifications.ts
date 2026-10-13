@@ -6,7 +6,7 @@ import { useUser } from "@/context/user-context";
 import {
   extractPinnedStoreChainCodes,
   groupWatchlistItemsByProduct,
-} from "@/app/(user)/watchlist/utils/watchlist-utils";
+} from "@/app/[locale]/(user)/watchlist/utils/watchlist-utils";
 import { buildWatchlistNotifications } from "@/context/build-watchlist-notifications";
 import { INotificationsContext } from "@/context/notifications-types";
 

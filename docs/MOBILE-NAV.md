@@ -756,19 +756,19 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 
 ### The filters
 
-| File                                                  | Role                                                             |
-| ----------------------------------------------------- | ---------------------------------------------------------------- |
-| `app/products/components/product-search-filters.tsx`  | The collapsible panel in the sheet, and the hooks it owns        |
-| `app/products/components/product-filters-bar.tsx`     | Picks the layout: inline above `md`, a button to the sheet below |
-| `app/products/components/product-filters-row.tsx`     | The inline row of every facet, for the widths with room          |
-| `app/products/components/product-filters-trigger.tsx` | The Filteri button, shared by the page and the sheet             |
-| `app/products/components/clear-filters-button.tsx`    | "Očisti filtere", labelled inline and icon-only in the sheet     |
+| File                                                           | Role                                                             |
+| -------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `app/[locale]/products/components/product-search-filters.tsx`  | The collapsible panel in the sheet, and the hooks it owns        |
+| `app/[locale]/products/components/product-filters-bar.tsx`     | Picks the layout: inline above `md`, a button to the sheet below |
+| `app/[locale]/products/components/product-filters-row.tsx`     | The inline row of every facet, for the widths with room          |
+| `app/[locale]/products/components/product-filters-trigger.tsx` | The Filteri button, shared by the page and the sheet             |
+| `app/[locale]/products/components/clear-filters-button.tsx`    | "Očisti filtere", labelled inline and icon-only in the sheet     |
 
 ### Touched elsewhere
 
 | File                                         | Change                                                                                      |
 | -------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `app/layout.tsx`                             | Viewport flags, `min-h-svh`, wrapper padding, mounts bar and sheet                          |
+| `app/[locale]/layout.tsx`                    | Viewport flags, `min-h-svh`, wrapper padding, mounts bar and sheet                          |
 | `app/globals.css`                            | The custom properties and the compaction keyframes                                          |
 | `app/providers/providers.tsx`                | Adds `ProductsSheetProvider`                                                                |
 | `constants/navigation.ts`                    | Added `productsNavItem` and the shared `findNavItem()` lookup                               |
@@ -777,21 +777,21 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 | `components/custom/product/product-card.tsx` | Accepts `pressProps`                                                                        |
 | `components/custom/product/product-item/…`   | Wires the long press and the quick-actions sheet                                            |
 | `components/custom/common/coming-soon.tsx`   | Accepts an `action` slot                                                                    |
-| `app/(user)/spending/page.tsx`               | A value prop plus the notify CTA, from when it was a bar cell                               |
+| `app/[locale]/(user)/spending/page.tsx`      | A value prop plus the notify CTA, from when it was a bar cell                               |
 | `components/custom/header/components/…`      | `HeaderNavItem` locks on an `isLocked` prop, not on `comingSoon`                            |
 
 ---
 
 ## 14. Config, env vars and flags
 
-| Setting                                   | Where                              | Purpose                                                                                                                         |
-| ----------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `viewportFit: "cover"`                    | `app/layout.tsx` `viewport` export | Makes `env(safe-area-inset-*)` non-zero. Load-bearing                                                                           |
-| `interactiveWidget: "resizes-content"`    | same                               | Reflows the layout viewport for the keyboard. Chrome Android 108+, Firefox Android 133+ and Samsung Internet; not Safari on iOS |
-| `devIndicators: false`                    | `next.config.ts`                   | Next's dev indicator landed bottom-left, over the left teaser cell                                                              |
-| `NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS` | `.env.local`, `.env.local.example` | Default `false`. Its floating button landed bottom-right, over Kartice                                                          |
-| `longPressEnabled` on the Kartice entry   | `bottom-nav-items.ts`              | Gates the Kartice gesture (now `true`); the flag stays for any future teaser                                                    |
-| `Disscount_app` in `localStorage`         | `utils/browser/storage/*`          | Unrelated to the bar now; its `bottomNavVariant` key was removed with the variants                                              |
+| Setting                                   | Where                                       | Purpose                                                                                                                         |
+| ----------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `viewportFit: "cover"`                    | `app/[locale]/layout.tsx` `viewport` export | Makes `env(safe-area-inset-*)` non-zero. Load-bearing                                                                           |
+| `interactiveWidget: "resizes-content"`    | same                                        | Reflows the layout viewport for the keyboard. Chrome Android 108+, Firefox Android 133+ and Samsung Internet; not Safari on iOS |
+| `devIndicators: false`                    | `next.config.ts`                            | Next's dev indicator landed bottom-left, over the left teaser cell                                                              |
+| `NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS` | `.env.local`, `.env.local.example`          | Default `false`. Its floating button landed bottom-right, over Kartice                                                          |
+| `longPressEnabled` on the Kartice entry   | `bottom-nav-items.ts`                       | Gates the Kartice gesture (now `true`); the flag stays for any future teaser                                                    |
+| `Disscount_app` in `localStorage`         | `utils/browser/storage/*`                   | Unrelated to the bar now; its `bottomNavVariant` key was removed with the variants                                              |
 
 Both dev-overlay switches are read at compile time, so they need a **dev-server restart**, not just a reload. The flag follows the existing `NEXT_PUBLIC_ENABLE_REACT_SCAN` naming.
 

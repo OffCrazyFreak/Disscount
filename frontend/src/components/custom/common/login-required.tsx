@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react";
 import { LogIn, Lock } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
@@ -18,9 +19,11 @@ interface ILoginRequiredProps {
  */
 export default function LoginRequired({
   title,
-  description = "Za korištenje ove značajke potrebna je prijava.",
+  description,
   icon,
 }: ILoginRequiredProps) {
+  const t = useTranslations("common");
+
   return (
     <div className="space-y-6">
       {title && <h1 className="text-3xl font-bold text-pretty">{title}</h1>}
@@ -29,7 +32,7 @@ export default function LoginRequired({
         {icon ?? <Lock className="size-12 text-primary" />}
 
         <p className="max-w-md text-pretty text-muted-foreground">
-          {description}
+          {description ?? t("loginRequired.description")}
         </p>
 
         <Button
@@ -38,7 +41,7 @@ export default function LoginRequired({
           iconPlacement="left"
           onClick={() => openModalUrl({ name: "login" })}
         >
-          Prijavi se
+          {t("loginRequired.action")}
         </Button>
       </div>
     </div>

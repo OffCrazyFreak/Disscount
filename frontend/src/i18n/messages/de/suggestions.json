@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "title": "Ideen und Vorschläge",
+    "description": "Schlage neue Funktionen vor und stimme für die, die du dir wünschst.",
+    "detailTitle": "Ideen und Vorschläge: Details",
+    "detailDescription": "Details zum Vorschlag und Kommentare der Community."
+  },
+  "searchPlaceholder": "Ideen und Vorschläge suchen...",
+  "heading": "Ideen und Vorschläge ({count})",
+  "searchHeading": "Suchergebnisse für „{query}“ ({count})",
+  "separator": "·",
+  "backToList": "Zurück zu Ideen und Vorschlägen",
+  "comments": "Kommentare ({count})",
+  "noComments": "Noch keine Kommentare. Du kannst den ersten schreiben, sobald die Funktion verfügbar ist."
+}

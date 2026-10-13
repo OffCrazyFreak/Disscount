@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react";
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import {
   DrawerClose,
@@ -38,6 +39,8 @@ export default function SheetShellHeader({
   srOnlyDescription = true,
   showCloseButton = false,
 }: ISheetShellHeaderProps) {
+  const t = useTranslations("shell");
+
   return (
     <div className="flex shrink-0 items-start justify-between gap-2 px-4 pt-[1rem] pb-2">
       <div className="flex min-w-0 flex-col gap-1">
@@ -60,7 +63,7 @@ export default function SheetShellHeader({
             type="button"
             variant="ghost"
             size="icon"
-            aria-label="Zatvori"
+            aria-label={t("modal.close")}
             className="shrink-0 text-muted-foreground"
           >
             <X />

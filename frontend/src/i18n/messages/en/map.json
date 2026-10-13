@@ -1,0 +1,14 @@
+{
+  "meta": {
+    "title": "Store map and opening hours",
+    "description": "Find stores and their opening hours on the map."
+  },
+  "search": {
+    "placeholder": "Search by store name or address..."
+  },
+  "heading": {
+    "results": "Search results for “{query}”",
+    "default": "Store map and opening hours"
+  },
+  "comingSoon": "Searching stores by chain name or address and checking their opening hours on an interactive map is coming soon."
+}

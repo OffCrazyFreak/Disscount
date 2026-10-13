@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "title": "Statistika",
+    "description": "Pregled statistike trgovskih verig."
+  },
+  "page": {
+    "title": "Statistika",
+    "subtitle": "Pregled statistike trgovskih verig."
+  },
+  "health": {
+    "checking": "Preverjanje stanja...",
+    "error": "❌ Napaka pri preverjanju razpoložljivosti API-ja",
+    "available": "✅ API za cene je na voljo",
+    "unavailable": "❌ API za cene ni na voljo"
+  },
+  "chains": {
+    "title": "Statistika po verigah",
+    "loading": "Nalaganje...",
+    "empty": "Ni podatkov"
+  },
+  "storeItem": {
+    "storeCount": "{count, plural, one {# trgovina} two {# trgovini} few {# trgovine} other {# trgovin}}",
+    "priceCount": "{count, plural, one {# cena} two {# ceni} few {# cene} other {# cen}}",
+    "loadingStores": "Nalaganje trgovin...",
+    "city": "Mesto",
+    "address": "Naslov",
+    "unknown": "Neznano",
+    "noStores": "Ni podatkov o trgovinah"
+  }
+}

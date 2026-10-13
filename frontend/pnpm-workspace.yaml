@@ -8,6 +8,9 @@ allowBuilds:
   # Postinstall only prints a funding notice
   core-js: false
   "@openapitools/openapi-generator-cli": false
+  # next-intl's message extraction only, which we don't use; both ship prebuilt binaries
+  "@parcel/watcher": false
+  "@swc/core": false
 
 # Browser-compatibility data tables that republish almost daily. Without this they
 # never clear pnpm's 24h minimumReleaseAge gate, so every rebased PR stays red.

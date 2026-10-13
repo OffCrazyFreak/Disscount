@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "title": "Statistiche",
+    "description": "Panoramica delle statistiche delle catene di supermercati."
+  },
+  "page": {
+    "title": "Statistiche",
+    "subtitle": "Panoramica delle statistiche delle catene di supermercati."
+  },
+  "health": {
+    "checking": "Controllo in corso...",
+    "error": "❌ Impossibile controllare l'API",
+    "available": "✅ L'API dei prezzi è disponibile",
+    "unavailable": "❌ L'API dei prezzi non è disponibile"
+  },
+  "chains": {
+    "title": "Statistiche per catena",
+    "loading": "Caricamento...",
+    "empty": "Nessun dato"
+  },
+  "storeItem": {
+    "storeCount": "{count, plural, one {# negozio} other {# negozi}}",
+    "priceCount": "{count, plural, one {# prezzo} other {# prezzi}}",
+    "loadingStores": "Caricamento dei negozi...",
+    "city": "Città",
+    "address": "Indirizzo",
+    "unknown": "Sconosciuto",
+    "noStores": "Nessun dato sui negozi"
+  }
+}

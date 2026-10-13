@@ -12,6 +12,7 @@ import {
   Serwist,
   StaleWhileRevalidate,
 } from "serwist";
+import { DEFAULT_LOCALE, LOCALES } from "@/i18n/locales";
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -20,6 +21,18 @@ declare global {
 }
 
 declare const self: ServiceWorkerGlobalScope;
+
+const LOCALE_PREFIXES: string[] = LOCALES.filter(
+  (locale) => locale !== DEFAULT_LOCALE,
+);
+const SHOPPING_LIST_PATH = new RegExp(
+  `^(/(${LOCALE_PREFIXES.join("|")}))?/shopping-lists/`,
+);
+
+function localePrefixOf(pathname: string): string {
+  const segment = pathname.split("/")[1];
+  return LOCALE_PREFIXES.includes(segment) ? `/${segment}` : "";
+}
 
 const runtimeCaching: RuntimeCaching[] = [
   // Public price/product data: serve fast from cache, refresh in the background.
@@ -56,7 +69,7 @@ const runtimeCaching: RuntimeCaching[] = [
   // there. Must stay above defaultCache, which is matched in order.
   {
     matcher: ({ url, sameOrigin }) =>
-      sameOrigin && url.pathname.startsWith("/shopping-lists/"),
+      sameOrigin && SHOPPING_LIST_PATH.test(url.pathname),
     handler: new NetworkFirst({
       cacheName: "shopping-list-pages",
       networkTimeoutSeconds: 5,
@@ -76,14 +89,18 @@ const serwist = new Serwist({
   navigationPreload: true,
   runtimeCaching,
   fallbacks: {
-    entries: [
-      {
-        url: "/offline",
-        matcher({ request }) {
-          return request.destination === "document";
+    // One precached offline page per language; a document falls back to its own.
+    entries: ["", ...LOCALE_PREFIXES.map((locale) => `/${locale}`)].map(
+      (prefix) => ({
+        url: `${prefix}/offline`,
+        matcher({ request }: { request: Request }) {
+          return (
+            request.destination === "document" &&
+            localePrefixOf(new URL(request.url).pathname) === prefix
+          );
         },
-      },
-    ],
+      }),
+    ),
   },
 });
 

@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidDateRange {
 
-    String message() default "Kartica ne može isteći prije početka";
+    String message() default "{validation.card.dateRange.invalid}";
 
     Class<?>[] groups() default {};
 

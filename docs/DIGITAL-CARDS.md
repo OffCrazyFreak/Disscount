@@ -139,7 +139,7 @@ A private companion table, `store_name_usage` (entity `StoreNameUsage`: `id`, `u
 
 ## 4. API
 
-All card endpoints need a valid JWT. Errors are RFC 9457 `ProblemDetail` bodies with Croatian messages. Swagger UI at `/api-docs` lists them.
+All card endpoints need a valid JWT. Errors are RFC 9457 `ProblemDetail` bodies whose messages are `error.card*` and `validation.card.*` codes resolved in the request's language (see [I18N.md](I18N.md#backend)). Swagger UI at `/api-docs` lists them.
 
 | Method and path                                | What it does                                                                                                                                                                                                 |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -263,7 +263,7 @@ Card numbers are long and a misread is worse than no read, so the shared scanner
 
 ## 8. Barcode rendering
 
-`app/(user)/digital-cards/utils/generate-code-svg.ts` draws the code with `@bwip-js/browser`.
+`app/[locale]/(user)/digital-cards/utils/generate-code-svg.ts` draws the code with `@bwip-js/browser`.
 
 - It imports only the encoders it needs (EAN, UPC, Code 128, 39, 93, Codabar, ITF, QR, Aztec, Data Matrix, PDF417), not the whole library, to keep the bundle small.
 - It is synchronous and returns `{ ok: true, svg }` or `{ ok: false }`. On `ok: false` the view falls back to the number in large text.
@@ -278,7 +278,7 @@ Card numbers are long and a misread is worse than no read, so the shared scanner
 
 ## 9. Colour palette
 
-`utils/card-palette.ts` holds 19 colours taken from Google Calendar, shown as a hexagon in the form: Grafit in the centre, six lighter colours in the inner ring, twelve in the outer ring, ordered like a rainbow wheel with red at the top. Three near-twins were left out so no two cells look alike, and Ametist is darkened so it passes the contrast rule.
+`utils/card-palette.ts` holds 19 colours taken from Google Calendar, shown as a hexagon in the form: Grafit in the centre, six lighter colours in the inner ring, twelve in the outer ring, ordered like a rainbow wheel with red at the top. Three near-twins were left out so no two cells look alike, and Ametist is darkened so it passes the contrast rule. Each entry carries an `id` (`graphite`, `amethyst`); its display name and hue live in the catalogs under `digitalCards.colors.<id>`.
 
 - **Text colour** on a card is white or `#111827`, whichever has the higher WCAG contrast (`utils/color-contrast.ts`).
 - **A contrast test** (`card-palette.test.ts`) fails CI if any palette colour is below 4.5:1 against its text colour. Add a colour and the test tells you if it is readable.
@@ -341,9 +341,9 @@ A loyalty card number is personal data, and a photo of a card more so.
 | `frontend/src/lib/offline/card-photo-store.ts`, `card-photo-outbox.ts`, `purge.ts`             | Photo blobs, upload outbox, logout purge                                          |
 | `frontend/src/lib/offline/failure-policy.ts`, `card-retry.ts`, `slot-lock.ts`, `purge-gate.ts` | Keep or drop rules and card retries; per-slot photo ordering; purge ordering gate |
 | `frontend/src/constants/card-codes.ts`                                                         | Code types, card types, photo slots and their labels                              |
-| `frontend/src/app/(user)/digital-cards/`                                                       | The page, tiles, view and form modals, hooks and utils                            |
-| `frontend/src/app/(user)/digital-cards/utils/generate-code-svg.ts`                             | bwip-js rendering                                                                 |
-| `frontend/src/app/(user)/digital-cards/utils/card-palette.ts`                                  | The 19 colours                                                                    |
+| `frontend/src/app/[locale]/(user)/digital-cards/`                                              | The page, tiles, view and form modals, hooks and utils                            |
+| `frontend/src/app/[locale]/(user)/digital-cards/utils/generate-code-svg.ts`                    | bwip-js rendering                                                                 |
+| `frontend/src/app/[locale]/(user)/digital-cards/utils/card-palette.ts`                         | The 19 colours                                                                    |
 | `frontend/src/components/scanner/`                                                             | Shared scanner: consensus, confirm step, manual entry                             |
 | `frontend/src/utils/barcode/`                                                                  | Check digits and normalization                                                    |
 | `frontend/src/utils/browser/card-image.ts`                                                     | Photo resize and WebP or JPEG encoding                                            |

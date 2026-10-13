@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -13,11 +14,12 @@ import { useUser } from "@/context/user-context";
 
 /** Support entry points: feedback, contact and voluntary project support. */
 export default function SidebarSupportNav() {
+  const t = useTranslations("shell");
   const { user } = useUser();
 
   return (
     <SidebarGroup className="py-1">
-      <SidebarGroupLabel>Pomoć i podrška</SidebarGroupLabel>
+      <SidebarGroupLabel>{t("sidebar.support")}</SidebarGroupLabel>
 
       <SidebarGroupContent>
         <SidebarMenu className="gap-0">

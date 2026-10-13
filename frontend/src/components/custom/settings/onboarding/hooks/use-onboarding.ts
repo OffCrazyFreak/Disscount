@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useFormContext, useFormState, useWatch } from "react-hook-form";
 
 import { useUser } from "@/context/user-context";
@@ -25,6 +26,7 @@ function resumeStepFromOutcome(outcome: string | null | undefined) {
 }
 
 export function useOnboarding({ open, save }: IUseOnboardingProps) {
+  const t = useTranslations("settings");
   const form = useFormContext<SettingsFormValues>();
   const { errors } = useFormState({ control: form.control });
   const { user } = useUser();
@@ -63,10 +65,11 @@ export function useOnboarding({ open, save }: IUseOnboardingProps) {
 
   // The live form value, so a username edited on the profile step greets correctly.
   const username = useWatch({ control: form.control, name: "username" });
+  const trimmedUsername = username?.trim() ?? "";
   const title =
-    typeof currentStep.title === "function"
-      ? currentStep.title(username?.trim() ?? "")
-      : currentStep.title;
+    currentStep.namedTitleKey && trimmedUsername
+      ? t(currentStep.namedTitleKey, { username: trimmedUsername })
+      : t(currentStep.titleKey);
 
   async function next() {
     // Form steps validate their own fields before advancing.
@@ -111,6 +114,9 @@ export function useOnboarding({ open, save }: IUseOnboardingProps) {
     next,
     back,
     finish,
+    description: currentStep.descriptionKey
+      ? t(currentStep.descriptionKey)
+      : undefined,
     rootError: errors.root?.message,
   };
 }

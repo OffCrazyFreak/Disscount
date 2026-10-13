@@ -6,6 +6,8 @@ import type { GenericEndpointContext } from "better-auth";
 
 import { appUrl } from "@/lib/env";
 import { emailService } from "@/lib/email";
+import { userLocale } from "@/lib/email/email-copy";
+import { localePath } from "@/i18n/locale-path";
 import { logEmailFailure } from "@/lib/auth/callbacks";
 import {
   SIGN_IN_TIMEOUT_MS,
@@ -85,10 +87,17 @@ async function sendRecoveryLinkOncePerWindow(
       expiresAt,
     });
 
-    const callbackURL = encodeURIComponent(`${appUrl()}/reset-password`);
+    const callbackURL = encodeURIComponent(
+      `${appUrl()}${localePath(userLocale(user), "/reset-password")}`,
+    );
     const url = `${ctx.context.baseURL}/reset-password/${token}?callbackURL=${callbackURL}`;
 
-    await emailService.sendBreachedPassword({ to: user.email, url, token });
+    await emailService.sendBreachedPassword({
+      to: user.email,
+      locale: userLocale(user),
+      url,
+      token,
+    });
   } catch (error) {
     logEmailFailure("breached-password")(error);
     await adapter.deleteVerificationByIdentifier(markerId);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,12 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  CODE_TYPES,
-  CODE_TYPE_LABELS,
-  isCodeType,
-  type CodeType,
-} from "@/constants/card-codes";
+import { CODE_TYPES, isCodeType, type CodeType } from "@/constants/card-codes";
 import { hasValidCheckDigit } from "@/utils/barcode/check-digits";
 import { normalizeScannedCode } from "@/utils/barcode/normalize-code";
 import type { IScannedCode } from "@/typings/scanned-code";
@@ -29,6 +25,7 @@ export default function ScanManualEntry({
   onSubmit,
   onBack,
 }: IScanManualEntryProps) {
+  const t = useTranslations("scanner");
   const inputId = useId();
   const errorId = useId();
   const [value, setValue] = useState("");
@@ -41,9 +38,9 @@ export default function ScanManualEntry({
   const error = !submitted
     ? null
     : trimmed === ""
-      ? "Upiši broj koda."
+      ? t("manual.numberRequired")
       : hasBadCheckDigit
-        ? "Broj ne odgovara odabranom tipu koda. Provjeri znamenke ili odaberi drugi tip."
+        ? t("manual.checkDigitMismatch")
         : null;
 
   function handleSubmit(event: FormEvent) {
@@ -59,7 +56,7 @@ export default function ScanManualEntry({
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       <div className="space-y-2">
         <label htmlFor={inputId} className="text-sm font-medium">
-          Broj kartice
+          {t("manual.numberLabel")}
         </label>
         <Input
           id={inputId}
@@ -80,7 +77,7 @@ export default function ScanManualEntry({
 
       <div className="space-y-2">
         <span id={`${inputId}-type`} className="text-sm font-medium">
-          Tip koda
+          {t("manual.typeLabel")}
         </span>
         <Select
           value={codeType}
@@ -94,7 +91,7 @@ export default function ScanManualEntry({
           <SelectContent>
             {CODE_TYPES.map((type) => (
               <SelectItem key={type} value={type}>
-                {CODE_TYPE_LABELS[type]}
+                {t(`codes.${type}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -102,9 +99,9 @@ export default function ScanManualEntry({
       </div>
 
       <div className="grid gap-2">
-        <Button type="submit">Nastavi</Button>
+        <Button type="submit">{t("manual.submit")}</Button>
         <Button type="button" variant="ghost" onClick={onBack}>
-          Natrag na skeniranje
+          {t("manual.back")}
         </Button>
       </div>
     </form>

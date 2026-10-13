@@ -64,6 +64,6 @@ final class JpegSanitizer {
     }
 
     private static BadRequestException invalid() {
-        return new BadRequestException("Slika nije valjana");
+        return new BadRequestException("error.cardPhoto.invalid");
     }
 }

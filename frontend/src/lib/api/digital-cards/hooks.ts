@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 
 import { DIGITAL_CARD_QUERY_KEYS } from "@/lib/api/digital-cards/keys";
 import {
@@ -71,6 +72,7 @@ function useInvalidateCards() {
 }
 
 export function useSaveDigitalCard() {
+  const tCards = useTranslations("digitalCards");
   const queryClient = useQueryClient();
   const invalidate = useInvalidateCards();
 
@@ -87,7 +89,7 @@ export function useSaveDigitalCard() {
       patchCards(queryClient, id, (cards) => upsertCard(cards, id, data)),
     onError: (error, _variables, rollback) => {
       restoreCards(queryClient, rollback);
-      cardWriteFailed(error);
+      cardWriteFailed(error, tCards);
     },
     onSuccess: requestPersistentStorage,
     onSettled: invalidate,
@@ -95,6 +97,7 @@ export function useSaveDigitalCard() {
 }
 
 export function useDeleteDigitalCard() {
+  const tCards = useTranslations("digitalCards");
   const queryClient = useQueryClient();
   const invalidate = useInvalidateCards();
 
@@ -106,7 +109,7 @@ export function useDeleteDigitalCard() {
       patchCards(queryClient, id, (cards) => cards.filter((c) => c.id !== id)),
     onError: (error, _id, rollback) => {
       restoreCards(queryClient, rollback);
-      cardDeleteFailed(error);
+      cardDeleteFailed(error, tCards);
     },
     onSuccess: (_data, id) =>
       deleteForCard(getCacheIdentity(), id).catch(() => undefined),
@@ -115,6 +118,7 @@ export function useDeleteDigitalCard() {
 }
 
 export function usePinDigitalCard() {
+  const tCards = useTranslations("digitalCards");
   const queryClient = useQueryClient();
   const invalidate = useInvalidateCards();
 
@@ -133,13 +137,14 @@ export function usePinDigitalCard() {
       ),
     onError: (error, _variables, rollback) => {
       restoreCards(queryClient, rollback);
-      cardWriteFailed(error);
+      cardWriteFailed(error, tCards);
     },
     onSettled: invalidate,
   });
 }
 
 export function useArchiveDigitalCard() {
+  const tCards = useTranslations("digitalCards");
   const queryClient = useQueryClient();
   const invalidate = useInvalidateCards();
 
@@ -158,7 +163,7 @@ export function useArchiveDigitalCard() {
       ),
     onError: (error, _variables, rollback) => {
       restoreCards(queryClient, rollback);
-      cardWriteFailed(error);
+      cardWriteFailed(error, tCards);
     },
     onSettled: invalidate,
   });

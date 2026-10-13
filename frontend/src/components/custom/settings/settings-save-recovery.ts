@@ -17,10 +17,13 @@ const JOB_FIELDS: Record<SaveJobKey, (keyof SettingsFormValues)[]> = {
   places: ["pinnedPlaces"],
 };
 
-const JOB_ERRORS: Record<SaveJobKey, string> = {
-  user: "Greška pri spremanju profila.",
-  stores: "Greška pri spremanju trgovina.",
-  places: "Greška pri spremanju lokacija.",
+type JobErrorKey =
+  "save.errors.user" | "save.errors.stores" | "save.errors.places";
+
+const JOB_ERRORS: Record<SaveJobKey, JobErrorKey> = {
+  user: "save.errors.user",
+  stores: "save.errors.stores",
+  places: "save.errors.places",
 };
 
 // Re-baselines the sections that saved, so only the failed ones stay dirty.
@@ -46,12 +49,13 @@ export function applySaveErrors(
   form: UseFormReturn<SettingsFormValues>,
   jobs: ISaveJob[],
   results: PromiseSettledResult<void>[],
+  t: (key: JobErrorKey) => string,
 ) {
   jobs.forEach((job, index) => {
     const result = results[index];
     if (result.status !== "rejected") return;
 
-    applyProblemToForm(result.reason, form, undefined, JOB_ERRORS[job.key]);
+    applyProblemToForm(result.reason, form, undefined, t(JOB_ERRORS[job.key]));
   });
 }
 

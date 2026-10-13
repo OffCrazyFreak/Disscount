@@ -134,7 +134,12 @@ async function send(entry: IOutboxEntry) {
   );
 }
 
-async function replayOnce(queryClient: QueryClient) {
+// Only the keys the replay toasts use, so a caller can hand in a stable wrapper.
+export type PhotoToastTranslator = (
+  key: "offline.photoDeleteFailed" | "offline.photoSendFailed",
+) => string;
+
+async function replayOnce(queryClient: QueryClient, t: PhotoToastTranslator) {
   const identity = getCacheIdentity();
   const prefix = `${identity}:`;
   const queuedKeys = (await keys<string>(outboxStore())).filter((key) =>
@@ -158,9 +163,11 @@ async function replayOnce(queryClient: QueryClient) {
 
     if (outcome === "dropped" && httpStatus(error) !== 404) {
       toast.error(
-        peeked.op === "delete"
-          ? "Slika nije obrisana."
-          : "Slika kartice nije poslana.",
+        t(
+          peeked.op === "delete"
+            ? "offline.photoDeleteFailed"
+            : "offline.photoSendFailed",
+        ),
       );
     }
   }
@@ -258,7 +265,10 @@ async function sendEntry(
  * run instead of being lost. Call after paused card saves have resumed, or an upload for
  * a card the server has not seen yet answers 404.
  */
-export async function replayCardPhotoOutbox(queryClient: QueryClient) {
+export async function replayCardPhotoOutbox(
+  queryClient: QueryClient,
+  t: PhotoToastTranslator,
+) {
   if (typeof indexedDB === "undefined") return;
 
   if (replaying) {
@@ -270,7 +280,7 @@ export async function replayCardPhotoOutbox(queryClient: QueryClient) {
   try {
     do {
       replayRequested = false;
-      await replayOnce(queryClient);
+      await replayOnce(queryClient, t);
     } while (replayRequested);
   } finally {
     replaying = false;

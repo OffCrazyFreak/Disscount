@@ -66,7 +66,7 @@ public class CardPhotoWriter {
         requireActive(userId, cardId);
 
         DigitalCardPhoto row = photoRepository.findByCardIdAndSlot(cardId, slot)
-                .orElseThrow(() -> new NotFoundException("Slika nije pronađena"));
+                .orElseThrow(() -> new NotFoundException("error.cardPhoto.notFound"));
         photoRepository.delete(row);
 
         enqueueIfReplaced(row.getFullKey(), null);
@@ -81,6 +81,6 @@ public class CardPhotoWriter {
 
     private DigitalCard requireActive(UUID userId, UUID cardId) {
         return cardRepository.findActiveByIdAndUserId(cardId, userId)
-                .orElseThrow(() -> new NotFoundException("Kartica nije pronađena"));
+                .orElseThrow(() -> new NotFoundException("error.card.notFound"));
     }
 }

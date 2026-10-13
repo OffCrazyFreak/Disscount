@@ -55,17 +55,17 @@ public class DigitalCardPhotoService {
      */
     public CardPhotoDto upload(UUID userId, UUID cardId, String slot, MultipartFile full, MultipartFile thumb) {
         if (!photoStore.enabled()) {
-            throw new ServiceUnavailableException("Slike trenutno nisu dostupne");
+            throw new ServiceUnavailableException("error.cardPhoto.unavailable");
         }
         requireSlot(slot);
         rateLimiter.check(userId);
 
         boolean needsThumb = !SLOT_ICON.equals(slot);
         if (needsThumb && (thumb == null || thumb.isEmpty())) {
-            throw new BadRequestException("Nedostaje sličica");
+            throw new BadRequestException("error.cardPhoto.missingThumb");
         }
         if (!needsThumb && thumb != null && !thumb.isEmpty()) {
-            throw new BadRequestException("Ikona nema sličicu");
+            throw new BadRequestException("error.cardPhoto.iconNoThumb");
         }
 
         // Cheap ownership check before any CPU is spent on someone else's id; the writer repeats it under the lock.
@@ -102,18 +102,18 @@ public class DigitalCardPhotoService {
         requireCard(userId, cardId);
 
         DigitalCardPhoto row = photoRepository.findByCardIdAndSlot(cardId, slot)
-                .orElseThrow(() -> new NotFoundException("Slika nije pronađena"));
+                .orElseThrow(() -> new NotFoundException("error.cardPhoto.notFound"));
 
         // The URL is cached as immutable, so an old version must 404 instead of serving the new bytes under it.
         if (version != null && !version.equals(row.getSha256())) {
-            throw new NotFoundException("Slika nije pronađena");
+            throw new NotFoundException("error.cardPhoto.notFound");
         }
 
         String key = thumb ? row.getThumbKey() : row.getFullKey();
-        if (key == null) throw new NotFoundException("Slika nije pronađena");
+        if (key == null) throw new NotFoundException("error.cardPhoto.notFound");
 
         StoredPhoto stored = photoStore.get(key)
-                .orElseThrow(() -> new NotFoundException("Slika nije pronađena"));
+                .orElseThrow(() -> new NotFoundException("error.cardPhoto.notFound"));
         return new PhotoStream(stored, row.getSha256(), thumb);
     }
 
@@ -123,7 +123,7 @@ public class DigitalCardPhotoService {
         requireCard(userId, cardId);
         return photoRepository.findByCardIdAndSlot(cardId, slot)
                 .map(DigitalCardPhoto::getSha256)
-                .orElseThrow(() -> new NotFoundException("Slika nije pronađena"));
+                .orElseThrow(() -> new NotFoundException("error.cardPhoto.notFound"));
     }
 
     public void delete(UUID userId, UUID cardId, String slot) {
@@ -148,12 +148,12 @@ public class DigitalCardPhotoService {
 
     private DigitalCard requireCard(UUID userId, UUID cardId) {
         return cardRepository.findActiveByIdAndUserId(cardId, userId)
-                .orElseThrow(() -> new NotFoundException("Kartica nije pronađena"));
+                .orElseThrow(() -> new NotFoundException("error.card.notFound"));
     }
 
     private static void requireSlot(String slot) {
         if (!SLOTS.contains(slot)) {
-            throw new BadRequestException("Nepoznato mjesto za sliku");
+            throw new BadRequestException("error.cardPhoto.unknownSlot");
         }
     }
 
@@ -161,7 +161,7 @@ public class DigitalCardPhotoService {
         try {
             return file.getBytes();
         } catch (IOException e) {
-            throw new BadRequestException("Slika se nije mogla pročitati");
+            throw new BadRequestException("error.cardPhoto.unreadable");
         }
     }
 

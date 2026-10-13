@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { ImageUp } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ export default function ScanImageButton({
   preset,
   onCodes,
 }: IScanImageButtonProps) {
+  const t = useTranslations("scanner");
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
 
@@ -53,7 +55,7 @@ export default function ScanImageButton({
       const detected = await detector.detect(bitmap);
 
       if (detected.length === 0) {
-        toast.error("Kod nije pronađen na slici.");
+        toast.error(t("image.notFound"));
         return;
       }
 
@@ -63,8 +65,8 @@ export default function ScanImageButton({
       if (inPreset.length === 0) {
         toast.error(
           preset === "product"
-            ? "Kod na slici nije barkod proizvoda (EAN)."
-            : "Format koda na slici nije podržan.",
+            ? t("image.notProductBarcode")
+            : t("image.unsupportedFormat"),
         );
         return;
       }
@@ -88,15 +90,13 @@ export default function ScanImageButton({
         });
 
       if (valid.length === 0) {
-        toast.error(
-          "Kod na slici nije pročitan ispravno. Probaj s oštrijom slikom.",
-        );
+        toast.error(t("image.unreadable"));
         return;
       }
 
       onCodes(valid);
     } catch {
-      toast.error("Sliku nije moguće učitati.");
+      toast.error(t("image.loadFailed"));
     } finally {
       bitmap?.close();
       setBusy(false);
@@ -113,11 +113,11 @@ export default function ScanImageButton({
         icon={ImageUp}
         iconPlacement="left"
         loading={busy}
-        loadingText="Učitavanje..."
+        loadingText={t("image.loading")}
         loadingIconPlacement="left"
         onClick={() => inputRef.current?.click()}
       >
-        Učitaj sliku s kodom
+        {t("image.upload")}
       </Button>
 
       {/* The visible button is the real control. sr-only keeps this rendered and

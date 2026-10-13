@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import CodeChoiceList, {
   formatLabel,
@@ -21,6 +22,7 @@ export default function ScanConfirm({
   onRescan,
   onManual,
 }: IScanConfirmProps) {
+  const t = useTranslations("scanner");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selected = candidates[selectedIndex] ?? candidates[0];
 
@@ -37,7 +39,9 @@ export default function ScanConfirm({
       <CodePreview code={selected} />
 
       <div className="space-y-1 text-center">
-        <p className="text-muted-foreground text-sm">{formatLabel(selected)}</p>
+        <p className="text-muted-foreground text-sm">
+          {formatLabel(selected, t)}
+        </p>
         <p className="font-mono text-2xl font-semibold tracking-wide break-all">
           {selected.rawValue}
         </p>
@@ -45,13 +49,13 @@ export default function ScanConfirm({
 
       <div className="grid gap-2">
         <Button type="button" onClick={() => onConfirm(selected)}>
-          Koristi kod
+          {t("confirm.use")}
         </Button>
         <Button type="button" variant="outline" onClick={onRescan}>
-          Skeniraj ponovno
+          {t("confirm.rescan")}
         </Button>
         <Button type="button" variant="ghost" onClick={onManual}>
-          Upiši ručno
+          {t("confirm.manual")}
         </Button>
       </div>
     </div>

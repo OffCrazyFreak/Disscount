@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "title": "Neuigkeiten",
+    "description": "Die neuesten Beiträge und Neuigkeiten zu Disscount.",
+    "detailFallbackDescription": "Details zum Beitrag."
+  },
+  "author": "Disscount-Team",
+  "separator": "·",
+  "searchPlaceholder": "Neuigkeiten durchsuchen...",
+  "heading": "Neuigkeiten ({count})",
+  "searchHeading": "Suchergebnisse für „{query}“ ({count})",
+  "newPost": "Neuer Beitrag",
+  "newPostSoon": "Beiträge erstellen kommt bald.",
+  "backToList": "Zurück zu den Neuigkeiten",
+  "posts": {
+    "disscount-launch": {
+      "title": "Disscount startet! Danke an alle aus der Beta",
+      "excerpt": "Wir laden die ersten rund 200 Personen von der Warteliste ein, Disscount als Erste auszuprobieren.",
+      "body": {
+        "p1": "Der große Tag ist da: Disscount startet offiziell! Zuerst laden wir die ersten rund 200 Personen von unserer Warteliste ein, die App als Erste auszuprobieren und uns zu helfen, sie noch besser zu machen.",
+        "p2": "Danke für deine Geduld und Treue. Dein Vertrauen und deine Unterstützung von Tag eins bedeuten uns sehr viel. Das ist erst der Anfang, das Beste kommt noch. Wir freuen uns, dass wir diesmal gemeinsam mit dir starten."
+      }
+    },
+    "whats-next": {
+      "title": "Was nach dem Start kommt",
+      "excerpt": "Wir bereiten neue Funktionen vor, von der Marktkarte bis zur Ausgabenübersicht. Deine Vorschläge bestimmen, was wir als Nächstes bauen.",
+      "body": {
+        "p1": "In den nächsten Wochen arbeiten wir an mehreren neuen Funktionen: einer interaktiven Karte der Märkte mit Öffnungszeiten, einer Übersicht über deine Ausgaben und digitalen Kundenkarten.",
+        "p2": "Deine Meinung ist uns am wichtigsten: Auf der Seite Ideen und Vorschläge kannst du neue Funktionen vorschlagen und für die stimmen, die du als Erstes sehen willst."
+      }
+    }
+  }
+}

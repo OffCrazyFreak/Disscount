@@ -9,6 +9,8 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
+    "i18n:check": "node scripts/check-i18n.mjs",
+
     "test": "vitest run",
     "email": "email dev --dir src/emails --port 3366"
   },
@@ -50,6 +52,7 @@
     "lucide-react": "^1.26.0",
     "motion": "^12.23.26",
     "next": "16.4.0",
+    "next-intl": "^4.14.9",
     "pg": "8.22.0",
     "radix-ui": "^1.4.3",
     "react": "19.2.8",
@@ -68,6 +71,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@openapitools/openapi-generator-cli": "^2.25.2",
+    "@react-email/ui": "^6.11.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24.13.3",
     "@types/pg": "^8.20.0",
@@ -79,6 +83,7 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
+    "eslint-plugin-i18next": "^6.1.5",
     "prettier": "^3.9.5",
     "serwist": "^9.5.11",
     "sharp": "^0.35.3",

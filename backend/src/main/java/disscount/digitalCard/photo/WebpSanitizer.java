@@ -45,7 +45,7 @@ final class WebpSanitizer {
 
             int start = pos + 8;
             switch (id) {
-                case "ANIM", "ANMF" -> throw new BadRequestException("Animirane slike nisu podržane");
+                case "ANIM", "ANMF" -> throw new BadRequestException("error.cardPhoto.animated");
                 case "VP8X" -> {
                     if (size != 10 || canvas != null || pos != 12) throw invalid();
                     canvas = new int[]{le24(data, start + 4) + 1, le24(data, start + 7) + 1};
@@ -136,6 +136,6 @@ final class WebpSanitizer {
     }
 
     private static BadRequestException invalid() {
-        return new BadRequestException("Slika nije valjana");
+        return new BadRequestException("error.cardPhoto.invalid");
     }
 }

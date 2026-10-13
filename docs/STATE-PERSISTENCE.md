@@ -211,23 +211,23 @@ Not everything should be remembered. These are intentionally **not** persisted, 
 
 ## 9. Key files
 
-| File                                                     | Role                                                             |
-| -------------------------------------------------------- | ---------------------------------------------------------------- |
-| `frontend/src/hooks/use-form-draft.ts`                   | modal-form draft save/restore engine (24h TTL, diff-vs-defaults) |
-| `frontend/src/utils/browser/storage/core.ts`             | single-key `Disscount_app` localStorage read/merge/write         |
-| `frontend/src/utils/browser/storage/drafts.ts`           | draft read/write/expiry helpers                                  |
-| `frontend/src/utils/browser/local-storage.ts`            | barrel re-exporting the storage helpers                          |
-| `frontend/src/typings/local-storage.ts`                  | `AppData` shape (drafts + all preferences)                       |
-| `frontend/src/utils/browser/storage/products.ts`         | per-EAN price-history preferences                                |
-| `frontend/src/utils/browser/storage/shopping-lists.ts`   | per-list section + sort preferences                              |
-| `frontend/src/utils/browser/storage/view-mode.ts`        | grid/list toggle preference                                      |
-| `frontend/src/utils/browser/storage/scanner.ts`          | preferred scanner camera                                         |
-| `frontend/src/utils/browser/storage/pwa.ts`              | install-banner snooze                                            |
-| `frontend/src/utils/browser/storage/auth.ts`             | last-used sign-in method                                         |
-| `frontend/src/hooks/use-search-navigation.ts`            | reads/writes the `?q=` search param                              |
-| `frontend/src/app/products/hooks/use-filter-params.ts`   | writes product filters to the query string                       |
-| `frontend/src/app/products/hooks/use-product-filters.ts` | reads filters back and resolves them                             |
-| `frontend/src/lib/modal/use-modal-url.ts`                | reads the `?modal=` target                                       |
+| File                                                              | Role                                                             |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `frontend/src/hooks/use-form-draft.ts`                            | modal-form draft save/restore engine (24h TTL, diff-vs-defaults) |
+| `frontend/src/utils/browser/storage/core.ts`                      | single-key `Disscount_app` localStorage read/merge/write         |
+| `frontend/src/utils/browser/storage/drafts.ts`                    | draft read/write/expiry helpers                                  |
+| `frontend/src/utils/browser/local-storage.ts`                     | barrel re-exporting the storage helpers                          |
+| `frontend/src/typings/local-storage.ts`                           | `AppData` shape (drafts + all preferences)                       |
+| `frontend/src/utils/browser/storage/products.ts`                  | per-EAN price-history preferences                                |
+| `frontend/src/utils/browser/storage/shopping-lists.ts`            | per-list section + sort preferences                              |
+| `frontend/src/utils/browser/storage/view-mode.ts`                 | grid/list toggle preference                                      |
+| `frontend/src/utils/browser/storage/scanner.ts`                   | preferred scanner camera                                         |
+| `frontend/src/utils/browser/storage/pwa.ts`                       | install-banner snooze                                            |
+| `frontend/src/utils/browser/storage/auth.ts`                      | last-used sign-in method                                         |
+| `frontend/src/hooks/use-search-navigation.ts`                     | reads/writes the `?q=` search param                              |
+| `frontend/src/app/[locale]/products/hooks/use-filter-params.ts`   | writes product filters to the query string                       |
+| `frontend/src/app/[locale]/products/hooks/use-product-filters.ts` | reads filters back and resolves them                             |
+| `frontend/src/lib/modal/use-modal-url.ts`                         | reads the `?modal=` target                                       |
 
 ---
 

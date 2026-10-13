@@ -1,0 +1,46 @@
+{
+  "layout": {
+    "footer": "Du bekommst diese E-Mail, weil diese Adresse mit deinem Disscount-Konto verknüpft ist. Die E-Mail-Einstellungen kannst du nach der <link>Anmeldung bei Disscount</link> jederzeit ändern.",
+    "fallback": "Der Button funktioniert nicht? Kopiere diesen Link in deinen Browser: <link>{url}</link>"
+  },
+  "verification": {
+    "subject": "Bestätige deine E-Mail-Adresse",
+    "preview": "Nur noch ein Klick, dann ist dein Disscount-Konto fertig.",
+    "heading": "Schön, dass du da bist!",
+    "intro": "Bestätige deine E-Mail-Adresse, dann ist dein Disscount-Konto fertig. Danach kannst du Einkaufslisten speichern und Preise deiner Lieblingsprodukte beobachten.",
+    "button": "E-Mail-Adresse bestätigen",
+    "footnote": "Du kennst dieses Konto nicht? Dann ignoriere diese E-Mail einfach, es passiert nichts."
+  },
+  "passwordReset": {
+    "subject": "Passwort zurücksetzen",
+    "preview": "Der Link für dein neues Passwort ist {minutes, plural, one {# Minute} other {# Minuten}} gültig.",
+    "heading": "Passwort vergessen? Kein Problem.",
+    "intro": "Jemand hat ein neues Passwort für dein Disscount-Konto angefordert. Mit dem Button unten kannst du eins festlegen. Der Link ist {minutes, plural, one {# Minute} other {# Minuten}} gültig.",
+    "button": "Neues Passwort festlegen",
+    "footnote": "Wenn du das nicht angefordert hast, kannst du diese E-Mail einfach ignorieren. Dein Passwort bleibt, wie es ist."
+  },
+  "setPassword": {
+    "subject": "Passwort festlegen",
+    "preview": "Lege ein Passwort fest und melde dich auch per E-Mail an.",
+    "heading": "Füge deinem Konto ein Passwort hinzu",
+    "intro": "Zu dieser E-Mail-Adresse gibt es schon ein Disscount-Konto, das mit Google oder Facebook verknüpft ist. Mit einem Passwort kannst du dich auch per E-Mail anmelden. Der Link ist {minutes, plural, one {# Minute} other {# Minuten}} gültig.",
+    "button": "Passwort festlegen",
+    "footnote": "Wenn du das nicht angefordert hast, kannst du diese E-Mail einfach ignorieren. Dein Konto bleibt, wie es ist."
+  },
+  "changeEmail": {
+    "subject": "Bestätige deine neue E-Mail-Adresse",
+    "preview": "Bestätige nur noch die Änderung deiner E-Mail-Adresse.",
+    "heading": "Möchtest du deine E-Mail-Adresse ändern?",
+    "intro": "Jemand möchte die E-Mail-Adresse deines Disscount-Kontos in <email>{newEmail}</email> ändern. Die Änderung gilt erst, wenn du sie bestätigst.",
+    "button": "Änderung bestätigen",
+    "footnote": "Wenn du das nicht angefordert hast, ändere sofort dein Passwort und melde dich bei uns. Deine Adresse bleibt unverändert, bis du die Änderung bestätigst."
+  },
+  "breachedPassword": {
+    "subject": "Dein Passwort ist in einem Datenleck aufgetaucht",
+    "preview": "Wir haben dein Passwort in einem Datenleck gefunden, leg ein neues fest",
+    "heading": "Dein Passwort ist in einem Datenleck aufgetaucht",
+    "intro": "Gerade hat jemand versucht, sich mit dem richtigen Passwort bei deinem Disscount-Konto anzumelden. Dieses Passwort haben wir in einem bekannten Datenleck einer anderen Website gefunden, deshalb haben wir die Anmeldung nicht zugelassen. Leg mit dem Button unten ein neues Passwort fest. Danach melden wir dich auf allen Geräten ab. Der Link ist {minutes, plural, one {# Minute} other {# Minuten}} gültig.",
+    "button": "Neues Passwort festlegen",
+    "footnote": "Warst du das nicht, leg trotzdem ein neues Passwort fest. Wenn du dieses Passwort auch anderswo nutzt, ändere es dort ebenfalls."
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "meta": {
+    "title": "Karta i radno vrijeme trgovina",
+    "description": "Pregled trgovina i njihova radnog vremena na karti."
+  },
+  "search": {
+    "placeholder": "Pretraži po nazivu trgovine ili adresi..."
+  },
+  "heading": {
+    "results": "Rezultati pretrage za \"{query}\"",
+    "default": "Karta i radno vrijeme trgovina"
+  },
+  "comingSoon": "Pretraživanje trgovina po nazivu lanca ili adresi te pregled njihova radnog vremena na interaktivnoj karti uskoro će biti dostupni."
+}

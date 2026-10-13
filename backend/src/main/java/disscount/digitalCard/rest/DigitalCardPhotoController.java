@@ -78,7 +78,7 @@ public class DigitalCardPhotoController {
         return switch (size) {
             case "full" -> false;
             case "thumb" -> true;
-            default -> throw new BadRequestException("Veličina mora biti full ili thumb");
+            default -> throw new BadRequestException("error.cardPhoto.unknownSize");
         };
     }
 

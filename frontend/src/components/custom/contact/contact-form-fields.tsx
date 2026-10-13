@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormContext } from "react-hook-form";
+import { useTranslations } from "next-intl";
 
 import {
   FormControl,
@@ -17,6 +18,7 @@ import { ContactMessageRequest } from "@/lib/api/types";
 const MESSAGE_MAX = 5000;
 
 export default function ContactFormFields() {
+  const t = useTranslations("common");
   const form = useFormContext<ContactMessageRequest>();
 
   return (
@@ -26,11 +28,11 @@ export default function ContactFormFields() {
         name="email"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>E-mail</FormLabel>
+            <FormLabel>{t("contact.form.email")}</FormLabel>
             <FormControl>
               <Input
                 type="email"
-                placeholder="tvoj@email.com"
+                placeholder={t("contact.form.emailPlaceholder")}
                 {...field}
                 value={field.value ?? ""}
               />
@@ -45,10 +47,10 @@ export default function ContactFormFields() {
         name="fullName"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Ime i prezime</FormLabel>
+            <FormLabel>{t("contact.form.fullName")}</FormLabel>
             <FormControl>
               <Input
-                placeholder="Tvoje ime"
+                placeholder={t("contact.form.fullNamePlaceholder")}
                 {...field}
                 value={field.value ?? ""}
               />
@@ -64,11 +66,12 @@ export default function ContactFormFields() {
         render={({ field }) => (
           <FormItem>
             <FormLabel>
-              Naslov <span className="text-destructive">*</span>
+              {t("contact.form.subject")}{" "}
+              <span className="text-destructive">*</span>
             </FormLabel>
             <FormControl>
               <Input
-                placeholder="Npr. Pitanje o Disscountu"
+                placeholder={t("contact.form.subjectPlaceholder")}
                 {...field}
                 value={field.value ?? ""}
               />
@@ -84,19 +87,22 @@ export default function ContactFormFields() {
         render={({ field }) => (
           <FormItem>
             <FormLabel>
-              Poruka <span className="text-destructive">*</span>
+              {t("contact.form.message")}{" "}
+              <span className="text-destructive">*</span>
             </FormLabel>
             <FormControl>
               <Textarea
                 rows={5}
                 maxLength={MESSAGE_MAX}
-                placeholder="Napiši nam kako ti možemo pomoći..."
+                placeholder={t("contact.form.messagePlaceholder")}
                 {...field}
                 value={field.value ?? ""}
               />
             </FormControl>
             <FormDescription>
-              {MESSAGE_MAX - (field.value?.length ?? 0)} znakova preostalo
+              {t("contact.form.charactersLeft", {
+                count: MESSAGE_MAX - (field.value?.length ?? 0),
+              })}
             </FormDescription>
             <FormMessage />
           </FormItem>
@@ -110,6 +116,7 @@ export default function ContactFormFields() {
         autoComplete="off"
         aria-hidden="true"
         className="sr-only"
+        // eslint-disable-next-line i18next/no-literal-string -- field name, not copy
         {...form.register("honeypot")}
       />
     </>

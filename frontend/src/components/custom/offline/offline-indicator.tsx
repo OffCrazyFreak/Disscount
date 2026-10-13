@@ -1,12 +1,14 @@
 "use client";
 
 import { WifiOff } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useIsMutating } from "@tanstack/react-query";
 import { useOnlineStatus } from "@/hooks/use-online-status";
 import { isOfflineMutationKey } from "@/lib/offline/offline-mutation-keys";
 
 // Tells the user the data is cached and how many writes are queued to sync.
 export default function OfflineIndicator() {
+  const t = useTranslations("common");
   const isOnline = useOnlineStatus();
   const pendingWrites = useIsMutating({
     predicate: (mutation) => isOfflineMutationKey(mutation.options.mutationKey),
@@ -21,8 +23,8 @@ export default function OfflineIndicator() {
     >
       <WifiOff className="size-4 shrink-0" />
       {pendingWrites > 0
-        ? `Izvan mreže - spremljene promjene (${pendingWrites}) sinkronizirat će se kasnije.`
-        : "Izvan mreže - prikazujemo spremljene podatke."}
+        ? t("offline.indicatorPending", { count: pendingWrites })
+        : t("offline.indicator")}
     </div>
   );
 }

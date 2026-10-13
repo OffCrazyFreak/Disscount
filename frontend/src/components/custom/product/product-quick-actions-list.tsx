@@ -1,6 +1,7 @@
 "use client";
 
 import { Eye, Image as ImageIcon, ListPlus, Share2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import QuickActionItem from "@/components/custom/common/quick-action-item";
 import { PRODUCT_ACTION_LABELS } from "@/constants/product-action-labels";
@@ -29,6 +30,7 @@ export default function ProductQuickActionsList({
   product,
   onClose,
 }: IProductQuickActionsListProps) {
+  const t = useTranslations("products");
   const { user } = useUser();
   const { openAddToList, openWatchlist } = useProductModals(product);
   const share = useProductShare(product);
@@ -60,33 +62,33 @@ export default function ProductQuickActionsList({
     <>
       <QuickActionItem
         icon={isOnList ? ListPen : ListPlus}
-        label={
+        label={t(
           isOnList
             ? PRODUCT_ACTION_LABELS.editListEntry
-            : PRODUCT_ACTION_LABELS.addToList
-        }
+            : PRODUCT_ACTION_LABELS.addToList,
+        )}
         onSelect={() => swapToModal(openAddToList)}
       />
 
       <QuickActionItem
         icon={isInWatchlist ? EyePen : Eye}
-        label={
+        label={t(
           isInWatchlist
             ? PRODUCT_ACTION_LABELS.editWatch
-            : PRODUCT_ACTION_LABELS.watch
-        }
+            : PRODUCT_ACTION_LABELS.watch,
+        )}
         onSelect={() => swapToModal(openWatchlist)}
       />
 
       <QuickActionItem
         icon={Share2}
-        label="Podijeli proizvod"
+        label={t("actions.share")}
         onSelect={() => runAndClose(share)}
       />
 
       <QuickActionItem
         icon={ImageIcon}
-        label="Pretraži sliku proizvoda"
+        label={t("actions.searchImage")}
         onSelect={() =>
           runAndClose(() => openExternal(productImageSearchUrl(product)))
         }

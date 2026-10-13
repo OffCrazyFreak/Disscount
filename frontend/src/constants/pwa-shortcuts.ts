@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
-import { userNavItems } from "@/constants/navigation";
+import shell from "@/i18n/messages/hr/shell.json";
+import { userNavItems, type NavKey } from "@/constants/navigation";
 
 type Shortcut = NonNullable<MetadataRoute.Manifest["shortcuts"]>[number];
 
@@ -23,6 +24,12 @@ function shortcutIcons(id: string): NonNullable<Shortcut["icons"]> {
   ];
 }
 
+// The manifest is static and declares lang "hr", so shortcuts read the Croatian
+// messages directly instead of going through a request locale.
+function hr(key: NavKey): string {
+  return shell.nav[key.slice("nav.".length) as keyof typeof shell.nav];
+}
+
 const scanShortcut: Shortcut = {
   name: "Skeniraj barkod",
   short_name: "Skeniraj",
@@ -37,11 +44,13 @@ const scanShortcut: Shortcut = {
 export const pwaShortcuts: Shortcut[] = [
   scanShortcut,
   ...userNavItems
-    .filter((item) => !item.comingSoon && item.shortcutDescription)
+    .filter((item) => !item.comingSoon && item.shortcutDescriptionKey)
     .map((item) => ({
-      name: item.label,
-      short_name: item.shortLabel ?? item.label,
-      description: item.shortcutDescription,
+      name: hr(item.labelKey),
+      short_name: hr(item.shortLabelKey ?? item.labelKey),
+      description: item.shortcutDescriptionKey
+        ? hr(item.shortcutDescriptionKey)
+        : undefined,
       url: item.href,
       icons: shortcutIcons(item.id),
     })),

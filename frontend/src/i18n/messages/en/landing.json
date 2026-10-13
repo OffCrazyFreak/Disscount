@@ -1,0 +1,202 @@
+{
+  "meta": {
+    "title": "Find the best prices in Croatia",
+    "description": "Compare product prices across 25+ retail chains in Croatia, track price history, build smart shopping lists and save on every shop. Free."
+  },
+  "jsonLd": {
+    "appDescription": "Product price comparison across retail chains in Croatia: price history, smart shopping lists and price alerts."
+  },
+  "hero": {
+    "title": "Find the <underline>best prices</underline> in Croatia",
+    "searchPlaceholder": "Search products...",
+    "or": "or",
+    "scanBarcode": "Scan barcode"
+  },
+  "taglines": {
+    "compare": "Compare stores and prices!",
+    "saveEveryTime": "Save on every shop!",
+    "neverMissDeal": "Never miss an offer!",
+    "forgetCards": "Forget the cards, lighten your wallet!",
+    "shareList": "Make and share a shopping list!",
+    "priceHistory": "Track price history!",
+    "scan": "Scan a barcode and compare prices!",
+    "smartShopping": "Smart shopping without the stress!",
+    "bestOffers": "Find the best offers in Croatia!",
+    "cheapQuality": "Good quality, low prices!",
+    "saveMore": "Shop smart, save more!",
+    "partner": "Your sidekick for smarter shopping!",
+    "noCatalogs": "Forget catalogues and flyers!"
+  },
+  "howItWorks": {
+    "title": "How does it work?",
+    "subtitle": "Three steps to a cheaper basket, with no catalogues or flyers to flick through.",
+    "steps": {
+      "searchOrScan": {
+        "title": "Search or scan",
+        "description": "Type a product name or scan its barcode with your camera."
+      },
+      "comparePrices": {
+        "title": "Compare prices",
+        "description": "See the price in every store and how it has changed over time."
+      },
+      "save": {
+        "title": "Save on your shopping",
+        "description": "Pick the cheapest store and skip the catalogues."
+      }
+    }
+  },
+  "stats": {
+    "heading": "Disscount in numbers",
+    "chains": {
+      "value": "25+",
+      "label": "retail chains"
+    },
+    "free": {
+      "value": "100%",
+      "label": "free, forever"
+    },
+    "catalogs": {
+      "value": "0",
+      "label": "catalogues to flick through"
+    }
+  },
+  "features": {
+    "title": "Everything for smarter shopping",
+    "subtitle": "What works today and what's coming soon.",
+    "items": {
+      "scanner": {
+        "title": "Barcode scanning",
+        "description": "Point your camera at a product and the prices appear in seconds."
+      },
+      "compare": {
+        "title": "Price comparison",
+        "description": "Same product, every store: see at once where it's cheapest."
+      },
+      "history": {
+        "title": "Price history",
+        "description": "A price chart shows whether an offer is really an offer."
+      },
+      "lists": {
+        "title": "Shopping lists",
+        "description": "Build a list and find out which store has the cheapest basket."
+      },
+      "sharing": {
+        "title": "List sharing",
+        "description": "Share a list with your family and shop together without doubling up."
+      },
+      "spending": {
+        "title": "Spending insights",
+        "description": "See how much you spend and save from month to month."
+      },
+      "watchlist": {
+        "title": "Price alerts",
+        "description": "Add the products you buy and keep an eye on their prices."
+      },
+      "notifications": {
+        "title": "Smart notifications",
+        "description": "Set the price you want and we'll let you know when a product gets cheaper."
+      },
+      "cards": {
+        "title": "Digital cards",
+        "description": "All your store cards on your phone. Your wallet finally goes on a diet."
+      },
+      "offline": {
+        "title": "Works offline",
+        "description": "Install it as an app: your lists and products are available offline too."
+      },
+      "map": {
+        "title": "Store map",
+        "description": "Find the nearest open store and its opening hours."
+      }
+    }
+  },
+  "priceHistory": {
+    "title": "Is that offer really an offer?",
+    "description": "Some “offers” just bring the price back to what it was. Disscount remembers price history, so you can see exactly what a product cost last week or last month, and whether it's worth waiting.",
+    "checks": {
+      "chart": "A price chart for every product, by store",
+      "realDiscount": "See at once whether a discount is real or inflated",
+      "average": "Compared with the average price in other chains"
+    },
+    "cta": "Check your product",
+    "chartCaption": "Price over time"
+  },
+  "stores": {
+    "title": "All the big chains in one place",
+    "subtitle": "From Konzum and Lidl to neighbourhood shops: prices from 25+ retail chains across Croatia.",
+    "viewPrices": "See prices: {chain}"
+  },
+  "pwa": {
+    "screenshotPhoneAlt": "The Disscount app on a phone",
+    "screenshotDesktopAlt": "The Disscount app on a computer",
+    "title": "An app that works offline too",
+    "perks": {
+      "offline": {
+        "title": "Lists available offline",
+        "description": "Your shopping lists and the products you've viewed work without signal, right in the shop."
+      },
+      "sync": {
+        "title": "Syncs when you're back online",
+        "description": "Changes made offline are saved automatically as soon as you're back online."
+      }
+    }
+  },
+  "pricing": {
+    "title": "How much does it cost? Nothing.",
+    "subtitle": "Disscount is free and stays that way. This time the receipt works in your favour.",
+    "freeSubtitle": "Receipt · free plan",
+    "premiumSubtitle": "Receipt · premium plan",
+    "freePrice": "0.00",
+    "freeTotal": "0.00 EUR",
+    "unknownPrice": "?",
+    "total": "TOTAL",
+    "freeRows": {
+      "compare": "Price comparison and price history",
+      "lists": "Unlimited shopping lists",
+      "watchlist": "Price alerts",
+      "alerts": "Price drop notifications",
+      "scan": "Barcode scanning",
+      "install": "Install as an app"
+    },
+    "premiumRows": {
+      "spending": "Advanced spending analysis",
+      "ai": "AI tips for a cheaper basket"
+    }
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "subtitle": "Everything you might want to know before your first shop with Disscount.",
+    "items": {
+      "source": {
+        "question": "Where does Disscount get its prices?",
+        "answer": "Since 15 May 2025, retail chains in Croatia have been legally required to publish their prices. Disscount gets them through the open Cijene API project, which collects the stores' official price lists every day."
+      },
+      "free": {
+        "question": "Is Disscount really free?",
+        "answer": "Yes. Product search, price comparison, price history and shopping lists are free and stay free."
+      },
+      "stores": {
+        "question": "Which stores can I compare?",
+        "answer": "Disscount covers 25+ retail chains across Croatia, including Konzum, Lidl, Plodine, Spar, Kaufland, Tommy, Studenac, Eurospin and dm."
+      },
+      "account": {
+        "question": "Do I need an account?",
+        "answer": "Not for searching and comparing prices: that works straight away. You only need an account to save shopping lists and set price alerts."
+      },
+      "barcode": {
+        "question": "How do I scan a product barcode?",
+        "answer": "Press Scan barcode, allow camera access and point the camera at the barcode on the product. Disscount opens that product at once, with prices in every store."
+      },
+      "offline": {
+        "question": "Does the app work offline?",
+        "answer": "Yes. You can install Disscount as an app on your phone or computer, and your saved lists and viewed products are available offline too. Changes sync automatically when you're back online."
+      }
+    }
+  },
+  "finalCta": {
+    "title": "Want to save?",
+    "description": "Search works straight away, no sign-up needed. You only need an account when you want to save lists and set price alerts.",
+    "search": "Start searching",
+    "signup": "Create a free account"
+  }
+}

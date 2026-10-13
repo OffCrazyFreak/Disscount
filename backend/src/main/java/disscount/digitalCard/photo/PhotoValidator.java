@@ -15,10 +15,10 @@ public class PhotoValidator {
 
     public ValidatedPhoto validate(byte[] data) {
         if (data == null || data.length == 0) {
-            throw new BadRequestException("Slika je prazna");
+            throw new BadRequestException("error.cardPhoto.empty");
         }
         if (data.length > MAX_BYTES) {
-            throw new BadRequestException("Slika je prevelika (najviše 512 KB)");
+            throw new BadRequestException("error.cardPhoto.tooLarge", String.valueOf(MAX_BYTES / 1024));
         }
 
         if (isJpeg(data)) {
@@ -27,12 +27,12 @@ public class PhotoValidator {
         if (isRiff(data)) {
             return WebpSanitizer.sanitize(data, MAX_SIDE);
         }
-        throw new BadRequestException("Podržani su samo WebP i JPEG");
+        throw new BadRequestException("error.cardPhoto.unsupportedFormat");
     }
 
     static void requireDimensions(int width, int height, int maxSide) {
         if (width < 1 || height < 1 || width > maxSide || height > maxSide) {
-            throw new BadRequestException("Slika može imati najviše " + maxSide + " px po stranici");
+            throw new BadRequestException("error.cardPhoto.dimensions", String.valueOf(maxSide));
         }
     }
 

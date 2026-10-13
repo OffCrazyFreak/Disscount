@@ -2,14 +2,17 @@ import { z } from "zod";
 
 // Length only, per NIST SP 800-63B-4: composition rules are out, the breach check does that job.
 export const PASSWORD_MIN_LENGTH = 12;
-const PASSWORD_MAX_LENGTH = 128;
+export const PASSWORD_MAX_LENGTH = 128;
 
-export const PASSWORD_HINT = `Od ${PASSWORD_MIN_LENGTH} do ${PASSWORD_MAX_LENGTH} znakova. Lozinke iz poznatih curenja podataka ne prihvaćamo.`;
+// Schema messages are keys without arguments, so auth.validation.passwordTooShort and
+// passwordTooLong repeat these two limits as literals: change them together.
+const PASSWORD_TOO_SHORT = "auth.validation.passwordTooShort";
+const PASSWORD_TOO_LONG = "auth.validation.passwordTooLong";
 
-const PASSWORD_TOO_SHORT = `Lozinka mora imati najmanje ${PASSWORD_MIN_LENGTH} znakova.`;
-const PASSWORD_TOO_LONG = `Lozinka može imati najviše ${PASSWORD_MAX_LENGTH} znakova.`;
+// English fallbacks for API clients; the app maps the codes below to translated copy.
 export const PASSWORD_BREACHED_MESSAGE =
-  "Ova lozinka pojavila se u curenju podataka. Odaberi drugu.";
+  "This password appeared in a data breach. Choose another one.";
+export const PASSWORD_LENGTH_MESSAGE = `Password must be ${PASSWORD_MIN_LENGTH} to ${PASSWORD_MAX_LENGTH} characters.`;
 
 // Shared with the client so a server refusal maps to the right copy.
 export const PASSWORD_BREACHED = "PASSWORD_BREACHED";
@@ -24,6 +27,7 @@ function passwordLength(value: string): number {
   return [...value.normalize("NFKC")].length;
 }
 
+// Returns a message key for the schema, not text.
 export function passwordLengthError(value: string): string | null {
   const length = passwordLength(value);
 

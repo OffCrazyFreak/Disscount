@@ -1,0 +1,113 @@
+{
+  "meta": {
+    "title": "Popis za kupnju - Detalji",
+    "description": "Pregled i upravljanje stavkama na popisu za kupnju."
+  },
+  "toggle": {
+    "show": "Prikaži",
+    "hide": "Sakrij"
+  },
+  "backToLists": "Natrag na popise za kupnju",
+  "lastSynced": "Popis osvježen {time}",
+  "access": {
+    "view": "Ovaj popis možeš samo pregledavati.",
+    "shop": "Možeš označiti što je kupljeno i birati trgovinu, ali ne možeš mijenjati popis.",
+    "edit": "Možeš mijenjati količine i brisati proizvode, ali ne možeš dodavati nove.",
+    "withNextStep": "{text} {nextStep}",
+    "signIn": "Prijavi se za uređivanje.",
+    "askOwner": "Za više ovlasti obrati se vlasniku popisa.",
+    "checking": "Ovlasti za ovaj popis još se provjeravaju."
+  },
+  "actions": {
+    "deleteTitle": "Obriši popis za kupnju",
+    "deleteDescription": "Sigurno želiš obrisati popis \"{title}\"? Ovo se ne može poništiti.",
+    "deleteConfirm": "Obriši",
+    "edit": "Uredi popis",
+    "copy": "Kopiraj popis",
+    "share": "Podijeli popis",
+    "editShare": "Uredi dijeljenje popisa",
+    "delete": "Obriši popis"
+  },
+  "toasts": {
+    "linkCopied": "Poveznica je kopirana",
+    "shareFailed": "Dijeljenje nije uspjelo",
+    "itemDeleted": "Stavka je uspješno obrisana!",
+    "listDeleted": "Popis za kupnju je uspješno obrisan!",
+    "listDeleteFailed": "Greška pri brisanju popisa za kupnju. Pokušaj ponovno."
+  },
+  "unavailable": {
+    "deadLinkTitle": "Poveznica više ne vrijedi",
+    "deadLinkDescription": "Vlasnik je prestao dijeliti ovaj popis ili je poveznica netočna.",
+    "exploreProducts": "Istraži proizvode",
+    "loadFailedTitle": "Popis se ne može učitati",
+    "loadFailedDescription": "Provjeri internetsku vezu i pokušaj ponovno.",
+    "retry": "Pokušaj ponovno"
+  },
+  "info": {
+    "created": "Stvoreno:",
+    "updated": "Ažurirano:",
+    "total": "Ukupno:",
+    "remaining": "Preostalo:",
+    "spent": "Potrošeno:",
+    "saved": "Ušteđeno:",
+    "overpaid": "Preplaćeno:",
+    "priceRange": "<low>{min}</low><mid> | {avg} | </mid><high>{max}</high>",
+    "savings": "{amount} ({percent}%)"
+  },
+  "items": {
+    "titleWithChecked": "Proizvodi ({checked}/{total} kupljeno)",
+    "title": "Proizvodi ({total})",
+    "emptyOwner": "Ovaj popis još ne sadrži proizvode. Pretraži proizvode i dodaj ih na ovaj popis.",
+    "empty": "Ovaj popis još ne sadrži proizvode.",
+    "searchProducts": "Pretraži proizvode",
+    "markUnbought": "Označi {name} kao nekupljeno",
+    "markBought": "Označi {name} kao kupljeno",
+    "remove": "Ukloni proizvod",
+    "amountLabel": "Količina:",
+    "decreaseAmount": "Smanji količinu za 1",
+    "increaseAmount": "Povećaj količinu za 1",
+    "approxPrice": "~ {price}",
+    "pricePerUnit": "{price}/{unit}"
+  },
+  "priceHistory": {
+    "title": "Povijest cijena",
+    "noData": "Nema dostupnih povijesnih podataka."
+  },
+  "stores": {
+    "title": "Cijene po trgovačkim lancima",
+    "noItems": "Ovaj popis još ne sadrži proizvode. Probaj pretražiti proizvode pa ih dodaj na ovaj popis.",
+    "allChecked": "Svi proizvodi su označeni kao kupljeni.",
+    "loadError": "Greška pri učitavanju cijena. Pokušaj ponovno.",
+    "noPrices": "Nema dostupnih cijena za stavke na popisu.",
+    "optimizeBy": "Optimiziraj po:",
+    "optimize": {
+      "products": "Broju proizvoda",
+      "basket": "Najjeftinijoj košarici",
+      "total": "Zasebnim proizvodima",
+      "distance": "Udaljenosti"
+    },
+    "availableItems": "Dostupno proizvoda {count}/{total}",
+    "dataFrom": "Podaci od {date}",
+    "hasLowest": "ima proizvod s najnižom cijenom",
+    "hasHighest": "ima proizvod s najvišom cijenom",
+    "availability": "Dostupnost proizvoda",
+    "min": "Najniža",
+    "avg": "Prosjek",
+    "max": "Najviša",
+    "stat": "{label}: {price}",
+    "lowestAmongChains": "(najniža među lancima)",
+    "highestAmongChains": "(najviša među lancima)",
+    "table": {
+      "empty": "Nema stavki na popisu za kupnju",
+      "product": "Proizvod",
+      "quantity": "Količina",
+      "price": "Cijena",
+      "total": "Ukupno",
+      "unavailable": "Proizvod nedostupan",
+      "unavailableTooltip": "Proizvod nije dostupan u ovoj trgovini",
+      "lowestPrice": "najniža cijena",
+      "highestPrice": "najviša cijena"
+    }
+  },
+  "emptyValue": "-"
+}

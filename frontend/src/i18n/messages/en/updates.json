@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "title": "News",
+    "description": "The latest posts and news about Disscount.",
+    "detailFallbackDescription": "Post details."
+  },
+  "author": "The Disscount team",
+  "separator": "·",
+  "searchPlaceholder": "Search news...",
+  "heading": "News ({count})",
+  "searchHeading": "Search results for “{query}” ({count})",
+  "newPost": "New post",
+  "newPostSoon": "Creating posts is coming soon.",
+  "backToList": "Back to news",
+  "posts": {
+    "disscount-launch": {
+      "title": "Disscount is live! Thank you, beta testers",
+      "excerpt": "We're inviting around 200 people from the waitlist to try Disscount first.",
+      "body": {
+        "p1": "The big day is here: Disscount is officially live! To start, we're inviting around 200 people from our waitlist to try the app first and help us make it even better.",
+        "p2": "Thank you for your patience and for backing us from day one. This is only the beginning, and we're glad to be starting it with you."
+      }
+    },
+    "whats-next": {
+      "title": "What comes after launch",
+      "excerpt": "We're working on new features, from a store map to spending tracking. Your suggestions shape what we build next.",
+      "body": {
+        "p1": "In the coming weeks we're working on new features: an interactive store map with opening hours, an overview of your own spending, and digital loyalty cards.",
+        "p2": "Your opinion matters most to us: on the Ideas and suggestions page you can suggest new features and vote for the ones you want to see first."
+      }
+    }
+  }
+}

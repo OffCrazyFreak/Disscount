@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+import { useTranslations } from "next-intl";
 
 import StretchedLink from "@/components/custom/common/stretched-link";
 
@@ -28,17 +29,24 @@ const ProductInfo = memo(function ProductInfo({
   href,
   onNavigate,
 }: IProductInfoProps) {
-  const label = name || "Nepoznat proizvod";
+  const t = useTranslations("products");
+  const label = name || t("productInfo.unknownProduct");
 
   return (
     <div className="min-w-0 flex-1">
       {category && (
-        <div className="relative z-10 w-fit text-xs @md:text-sm text-gray-500">
+        <div
+          lang="hr"
+          className="relative z-10 w-fit text-xs @md:text-sm text-gray-500"
+        >
           {category}
         </div>
       )}
 
-      <h3 className="font-bold text-sm @md:text-base text-pretty">
+      <h3
+        lang={name ? "hr" : undefined}
+        className="font-bold text-sm @md:text-base text-pretty"
+      >
         {href ? (
           <StretchedLink href={href} onNavigate={onNavigate}>
             {label}
@@ -49,7 +57,9 @@ const ProductInfo = memo(function ProductInfo({
       </h3>
 
       {brand && (
-        <div className="relative z-10 w-fit text-xs @md:text-sm">{brand}</div>
+        <div lang="hr" className="relative z-10 w-fit text-xs @md:text-sm">
+          {brand}
+        </div>
       )}
     </div>
   );

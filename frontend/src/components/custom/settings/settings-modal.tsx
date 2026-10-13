@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormContext, useFormState, useWatch } from "react-hook-form";
+import { useTranslations } from "next-intl";
 import {
   UserRound,
   Bell,
@@ -24,12 +25,16 @@ import NotificationsTab from "@/components/custom/settings/tabs/notifications-ta
 import PreferencesTab from "@/components/custom/settings/tabs/preferences-tab";
 import SecurityTab from "@/components/custom/settings/tabs/security-tab";
 
-const TAB_CONFIG: { value: SettingsTab; label: string; icon: LucideIcon }[] = [
-  { value: "profil", label: "Profil", icon: UserRound },
-  { value: "obavijesti", label: "Obavijesti", icon: Bell },
-  { value: "preference", label: "Preference", icon: Settings2 },
-  { value: "sigurnost", label: "Sigurnost", icon: ShieldCheck },
-];
+const TAB_CONFIG = [
+  { value: "profil", labelKey: "tabs.profile", icon: UserRound },
+  { value: "obavijesti", labelKey: "tabs.notifications", icon: Bell },
+  { value: "preference", labelKey: "tabs.preferences", icon: Settings2 },
+  { value: "sigurnost", labelKey: "tabs.security", icon: ShieldCheck },
+] as const satisfies readonly {
+  value: SettingsTab;
+  labelKey: string;
+  icon: LucideIcon;
+}[];
 
 interface ISettingsModalProps {
   open: boolean;
@@ -37,6 +42,7 @@ interface ISettingsModalProps {
 }
 
 export default function SettingsModal({ open, tab }: ISettingsModalProps) {
+  const t = useTranslations("settings");
   const form = useFormContext<SettingsFormValues>();
   const { isReady, saving, avatarTouched, save, resetToDefaults } =
     useSettingsUi();
@@ -72,10 +78,10 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
   const securityFooter = {
     dirty: securityDirty,
     formId: CREDENTIALS_FORM_ID,
-    submitLabel: "Spremi",
+    submitLabel: t("modal.save"),
     submitLoading: securitySubmitting,
     submitDisabled: !securityDirty || !securityValid,
-    resetLabel: "Resetiraj",
+    resetLabel: t("modal.reset"),
     resetDisabled: !securityDirty,
     onReset: () => security.form.reset(),
   };
@@ -83,10 +89,10 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
   const settingsFooter = {
     dirty: anyDirty,
     formId: "settings-form",
-    submitLabel: "Spremi",
+    submitLabel: t("modal.save"),
     submitLoading: saving,
     submitDisabled: !anyDirty || !isReady,
-    resetLabel: "Resetiraj",
+    resetLabel: t("modal.reset"),
     resetDisabled: !anyDirty,
     onReset: resetToDefaults,
   };
@@ -95,17 +101,17 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
     <ModalShell
       open={open}
       onOpenChange={(isOpen) => !isOpen && closeModalUrl()}
-      title="Postavke"
-      description="Upravljaj profilom, obavijestima, preferencama i sigurnošću."
+      title={t("modal.title")}
+      description={t("modal.description")}
       srOnlyDescription
-      cancelLabel="Odustani"
+      cancelLabel={t("modal.cancel")}
       caption={
         <button
           type="button"
           onClick={() => swapModalUrl({ name: "onboarding", mode: "replay" })}
           className="cursor-pointer underline hover:text-primary"
         >
-          Pokreni vodič ponovno
+          {t("modal.replayGuide")}
         </button>
       }
       {...(isSecurityTab ? securityFooter : settingsFooter)}
@@ -124,13 +130,13 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
         {...swipe}
       >
         <TabsList className="w-full mb-4">
-          {TAB_CONFIG.map(({ value, label, icon: Icon }) => (
+          {TAB_CONFIG.map(({ value, labelKey, icon: Icon }) => (
             <TabsTrigger key={value} value={value} className="relative gap-1.5">
               <Icon className="size-5" />
-              <span className="hidden sm:inline">{label}</span>
+              <span className="hidden sm:inline">{t(labelKey)}</span>
               {value !== "sigurnost" && dirty.has(value) && (
                 <span
-                  aria-label="Nespremljene izmjene"
+                  aria-label={t("modal.unsavedChanges")}
                   className="absolute top-1 right-1 size-1.5 rounded-full bg-primary"
                 />
               )}
@@ -151,7 +157,7 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
             <NotificationsTab />
           </TabsContent>
           <TabsContent value="preference">
-            <PreferencesTab />
+            <PreferencesTab showLanguage />
           </TabsContent>
         </form>
 

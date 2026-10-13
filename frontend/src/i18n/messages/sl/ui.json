@@ -1,0 +1,21 @@
+{
+  "dialog": { "close": "Zapri" },
+  "command": {
+    "title": "Paleta ukazov",
+    "description": "Poišči ukaz za zagon..."
+  },
+  "sidebar": {
+    "mobileTitle": "Stranska vrstica",
+    "mobileDescription": "Prikaže stransko vrstico na telefonu.",
+    "toggle": "Preklopi stransko vrstico"
+  },
+  "share": {
+    "copied": "Povezava je kopirana",
+    "failed": "Deljenje ni uspelo"
+  },
+  "offline": {
+    "writeFailed": "Sprememba ni shranjena. Poskusi znova.",
+    "writeFailedLostAccess": "Sprememba ni shranjena. Morda nimaš več dostopa do tega seznama.",
+    "retiredWriteDropped": "Sprememba iz prejšnje različice ni shranjena. Odpri seznam in preveri."
+  }
+}
