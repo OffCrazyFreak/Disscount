@@ -25,12 +25,17 @@ export function useChangeLocale() {
     writeLocaleCookie(next);
 
     if (session?.user) {
+      const owner = session.user.id;
       // Always saved, never compared with the session, which lags behind a quick
       // second switch. The next sign-in copies the account value back over the
       // cookie, so a failed save would quietly undo the switch later.
       accountSave = accountSave
-        .then(() => authClient.updateUser({ locale: next }))
-        .then(({ error }) => {
+        .then(async () => {
+          // A queued save must not land on whoever signed in after the click.
+          const { data } = await authClient.getSession();
+          if (data?.user.id !== owner) return;
+
+          const { error } = await authClient.updateUser({ locale: next });
           if (error) toast.error(t("saveFailed"));
         })
         // A rejected link would stop every later save from running.
