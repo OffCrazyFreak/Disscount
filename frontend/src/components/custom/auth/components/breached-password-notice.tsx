@@ -59,10 +59,12 @@ export default function BreachedPasswordNotice({
         </p>
       </div>
 
-      {/* Always mounted, so the resend confirmation is announced when it appears. */}
+      {/* Always mounted, so each change of text, including the cooldown ending, is announced. */}
       <p role="status" className="text-sm font-medium">
         {resent &&
-          "Poslali smo novu poveznicu. Sljedeću možeš zatražiti za minutu."}
+          (coolingDown
+            ? "Poslali smo novu poveznicu. Sljedeću možeš zatražiti za minutu."
+            : "Možeš ponovno zatražiti poveznicu.")}
       </p>
 
       <Button

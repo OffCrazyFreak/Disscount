@@ -4,7 +4,7 @@ import { z } from "zod";
 export const PASSWORD_MIN_LENGTH = 12;
 const PASSWORD_MAX_LENGTH = 128;
 
-export const PASSWORD_HINT = `Najmanje ${PASSWORD_MIN_LENGTH} znakova. Lozinke iz poznatih curenja podataka ne prihvaćamo.`;
+export const PASSWORD_HINT = `Od ${PASSWORD_MIN_LENGTH} do ${PASSWORD_MAX_LENGTH} znakova. Lozinke iz poznatih curenja podataka ne prihvaćamo.`;
 
 const PASSWORD_TOO_SHORT = `Lozinka mora imati najmanje ${PASSWORD_MIN_LENGTH} znakova.`;
 const PASSWORD_TOO_LONG = `Lozinka može imati najviše ${PASSWORD_MAX_LENGTH} znakova.`;

@@ -9,6 +9,9 @@ import { useUser } from "@/context/user-context";
 import type { CredentialsFormValues } from "@/components/custom/settings/security/credentials-schema";
 import { isPasswordPolicyCode } from "@/lib/auth/password-policy";
 
+const TOO_MANY_ATTEMPTS_MESSAGE =
+  "Previše pogrešnih pokušaja. Pokušaj ponovo za 15 minuta.";
+
 interface IUseCredentialsSubmitProps {
   hasPassword: boolean;
   currentEmail: string;
@@ -99,15 +102,18 @@ export function useCredentialsSubmit({
           error?: string;
         };
 
+        const tooManyAttempts = body.error === "too_many_attempts";
+
+        // With a password change the check used the new password, so only the email failed
+        // and the committed password still needs the cleanup below.
         if (
-          body.error === "invalid_password" ||
-          body.error === "too_many_attempts"
+          !wantPasswordChange &&
+          (tooManyAttempts || body.error === "invalid_password")
         ) {
           form.setError("currentPassword", {
-            message:
-              body.error === "too_many_attempts"
-                ? "Previše pogrešnih pokušaja. Pokušaj ponovo za 15 minuta."
-                : "Trenutna lozinka nije točna.",
+            message: tooManyAttempts
+              ? TOO_MANY_ATTEMPTS_MESSAGE
+              : "Trenutna lozinka nije točna.",
           });
           return;
         }
@@ -116,7 +122,9 @@ export function useCredentialsSubmit({
           message:
             body.error === "social_linked"
               ? "Za promjenu emaila prvo odspoji povezane račune (Google, Facebook)."
-              : "Greška pri promjeni emaila.",
+              : tooManyAttempts
+                ? TOO_MANY_ATTEMPTS_MESSAGE
+                : "Greška pri promjeni emaila.",
         });
 
         // Password already committed above; confirm it and clear its fields so a retry only re-does email.

@@ -16,6 +16,9 @@ import {
   PASSWORD_BREACHED_MESSAGE,
 } from "@/lib/auth/password-policy";
 
+// One container today, so an in-process set is enough to serialise the claim per user.
+const claiming = new Set<string>();
+
 // Runs in session.create.before: after the password and email-verified checks pass,
 // before any session row or cookie exists, so a refusal leaves nothing to clean up.
 export async function refuseBreachedSignIn(
@@ -31,43 +34,14 @@ export async function refuseBreachedSignIn(
   if ((await checkBreached(password, SIGN_IN_TIMEOUT_MS)) !== "breached")
     return;
 
-  const adapter = ctx.context.internalAdapter;
-
-  // One email per reset window: retries would otherwise mail the owner on every attempt.
-  const marker = await adapter.findVerificationValue(
-    `breach-recovery:${userId}`,
-  );
-  const inFlight = !!marker && marker.expiresAt > new Date();
-
-  if (!inFlight) {
-    const user = await adapter.findUserById(userId);
-    const expiresAt = new Date(Date.now() + resetTtlSeconds * 1000);
-    const token = randomBytes(32).toString("base64url");
-
-    // Same row shape requestPasswordReset writes, so the stock /reset-password consumes it.
-    await adapter.createVerificationValue({
-      identifier: `reset-password:${token}`,
-      value: userId,
-      expiresAt,
-    });
-
-    const callbackURL = encodeURIComponent(`${appUrl()}/reset-password`);
-    const url = `${ctx.context.baseURL}/reset-password/${token}?callbackURL=${callbackURL}`;
-
-    // Awaited, unlike the other sends: the caller already proved the password, so timing
-    // leaks nothing, and a failed send must not write the marker that blocks a retry.
-    const sent = user
-      ? await emailService
-          .sendBreachedPassword({ to: user.email, url, token })
-          .then(() => true, logEmailFailure("breached-password"))
-      : false;
-
-    if (sent) {
-      await adapter.createVerificationValue({
-        identifier: `breach-recovery:${userId}`,
-        value: userId,
-        expiresAt,
-      });
+  // Checked and claimed before any await, so overlapping attempts can't both pass the
+  // marker read below (verification.identifier is not unique).
+  if (!claiming.has(userId)) {
+    claiming.add(userId);
+    try {
+      await sendRecoveryLinkOncePerWindow(userId, ctx, resetTtlSeconds);
+    } finally {
+      claiming.delete(userId);
     }
   }
 
@@ -75,4 +49,48 @@ export async function refuseBreachedSignIn(
     code: PASSWORD_BREACHED,
     message: PASSWORD_BREACHED_MESSAGE,
   });
+}
+
+// One email per reset window: retries would otherwise mail the owner on every attempt.
+async function sendRecoveryLinkOncePerWindow(
+  userId: string,
+  ctx: GenericEndpointContext,
+  resetTtlSeconds: number,
+) {
+  const adapter = ctx.context.internalAdapter;
+  const markerId = `breach-recovery:${userId}`;
+
+  const marker = await adapter.findVerificationValue(markerId);
+  if (marker && marker.expiresAt > new Date()) return;
+
+  const user = await adapter.findUserById(userId);
+  if (!user) return;
+
+  const expiresAt = new Date(Date.now() + resetTtlSeconds * 1000);
+  const token = randomBytes(32).toString("base64url");
+
+  await adapter.createVerificationValue({
+    identifier: markerId,
+    value: userId,
+    expiresAt,
+  });
+
+  // Same row shape requestPasswordReset writes, so the stock /reset-password consumes it.
+  await adapter.createVerificationValue({
+    identifier: `reset-password:${token}`,
+    value: userId,
+    expiresAt,
+  });
+
+  const callbackURL = encodeURIComponent(`${appUrl()}/reset-password`);
+  const url = `${ctx.context.baseURL}/reset-password/${token}?callbackURL=${callbackURL}`;
+
+  // Awaited, unlike the other sends: the caller already proved the password, so timing
+  // leaks nothing, and a failed send has to release the marker so the next attempt retries.
+  try {
+    await emailService.sendBreachedPassword({ to: user.email, url, token });
+  } catch (error) {
+    logEmailFailure("breached-password")(error);
+    await adapter.deleteVerificationByIdentifier(markerId);
+  }
 }

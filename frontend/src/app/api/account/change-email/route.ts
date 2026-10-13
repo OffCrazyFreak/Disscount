@@ -7,9 +7,8 @@ import { APIError } from "better-auth/api";
 
 import { auth } from "@/lib/auth";
 import {
-  clearPasswordFailures,
-  isPasswordAttemptBlocked,
-  recordPasswordFailure,
+  clearPasswordAttempts,
+  reservePasswordAttempt,
 } from "@/lib/auth/password-attempt-limit";
 import { db } from "@/db";
 import { account } from "@/db/auth-schema";
@@ -61,7 +60,7 @@ export async function POST(request: Request) {
   // Checked here, not by a client sign-in: that would create a session and trip the
   // breached-password refusal on what is only a confirmation.
   const userId = session.user.id;
-  if (isPasswordAttemptBlocked(userId)) {
+  if (!reservePasswordAttempt(userId)) {
     return NextResponse.json({ error: "too_many_attempts" }, { status: 429 });
   }
 
@@ -70,10 +69,9 @@ export async function POST(request: Request) {
       body: { password: parsed.data.currentPassword },
       headers: requestHeaders,
     });
-    clearPasswordFailures(userId);
+    clearPasswordAttempts(userId);
   } catch (error) {
     if (error instanceof APIError && error.body?.code === "INVALID_PASSWORD") {
-      recordPasswordFailure(userId);
       return NextResponse.json({ error: "invalid_password" }, { status: 400 });
     }
 
