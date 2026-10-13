@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useFormContext, useFormState, useWatch } from "react-hook-form";
 
 import CardBalanceFields from "@/app/[locale]/(user)/digital-cards/components/forms/card-balance-fields";
@@ -15,6 +16,7 @@ import { cn } from "@/lib/utils";
 import type { DigitalCardRequest } from "@/lib/api/types";
 
 export default function CardDetailsSection() {
+  const t = useTranslations("digitalCards.form");
   const form = useFormContext<DigitalCardRequest>();
   const [cardType, validFrom, expiresOn, balance] = useWatch({
     control: form.control,
@@ -39,7 +41,7 @@ export default function CardDetailsSection() {
   return (
     <Collapsible open={open} onOpenChange={setToggled}>
       <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md py-2 text-sm font-medium">
-        Više detalja
+        {t("moreDetails")}
         <ChevronDown
           aria-hidden="true"
           className={cn(

@@ -19,16 +19,6 @@ export type CardSortMode = (typeof CARD_SORT_MODES)[number];
 
 export const DEFAULT_CARD_SORT: CardSortMode = "recent-use";
 
-export const CARD_SORT_LABELS: Record<CardSortMode, string> = {
-  "recent-use": "Nedavno korišteno",
-  name: "Naziv",
-  store: "Trgovina",
-  type: "Tip",
-  edited: "Nedavno uređeno",
-  added: "Nedavno dodano",
-  color: "Boja",
-};
-
 export function isCardSortMode(value: unknown): value is CardSortMode {
   return CARD_SORT_MODES.some((mode) => mode === value);
 }

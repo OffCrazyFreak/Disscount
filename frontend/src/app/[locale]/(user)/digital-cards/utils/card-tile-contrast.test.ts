@@ -112,7 +112,7 @@ describe("card tile contrast", () => {
     expect([LIGHT_TEXT_COLOR, DARK_TEXT_COLOR]).toEqual(["#ffffff", "#111827"]);
   });
 
-  it.each(CARD_PALETTE.map((color) => [color.name, color.hex]))(
+  it.each(CARD_PALETTE.map((color) => [color.id, color.hex]))(
     "%s keeps 4.5:1 across the gradient, the archived surface, the mark and the chip",
     (_name, hex) => {
       expect(worstContrast(hex)).toBeGreaterThanOrEqual(4.5);

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useFormContext } from "react-hook-form";
 
 import {
@@ -16,10 +17,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CODE_TYPES, CODE_TYPE_LABELS } from "@/constants/card-codes";
+import { CODE_TYPES, CODE_TYPE_LABEL_KEYS } from "@/constants/card-codes";
 import type { DigitalCardRequest } from "@/lib/api/types";
 
 export default function CodeTypeField() {
+  const t = useTranslations();
   const form = useFormContext<DigitalCardRequest>();
 
   return (
@@ -28,18 +30,20 @@ export default function CodeTypeField() {
       name="codeType"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Tip koda</FormLabel>
+          <FormLabel>{t("digitalCards.form.codeTypeLabel")}</FormLabel>
 
           <Select value={field.value} onValueChange={field.onChange}>
             <FormControl>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Odaberi tip koda" />
+                <SelectValue
+                  placeholder={t("digitalCards.form.codeTypePlaceholder")}
+                />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
               {CODE_TYPES.map((codeType) => (
                 <SelectItem key={codeType} value={codeType}>
-                  {CODE_TYPE_LABELS[codeType]}
+                  {t(CODE_TYPE_LABEL_KEYS[codeType])}
                 </SelectItem>
               ))}
             </SelectContent>

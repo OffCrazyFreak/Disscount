@@ -65,8 +65,8 @@ export default function ScanImageButton({
       if (inPreset.length === 0) {
         toast.error(
           preset === "product"
-            ? "Kod na slici nije barkod proizvoda (EAN)."
-            : "Format koda na slici nije podržan.",
+            ? t("image.notProductBarcode")
+            : t("image.unsupportedFormat"),
         );
         return;
       }
@@ -90,9 +90,7 @@ export default function ScanImageButton({
         });
 
       if (valid.length === 0) {
-        toast.error(
-          "Kod na slici nije pročitan ispravno. Probaj s oštrijom slikom.",
-        );
+        toast.error(t("image.unreadable"));
         return;
       }
 

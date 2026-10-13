@@ -1,6 +1,7 @@
 "use client";
 
 import { ScanBarcode } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useFormContext } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import type { DigitalCardRequest } from "@/lib/api/types";
 import type { IScannedCode } from "@/typings/scanned-code";
 
 export default function CodeValueField() {
+  const t = useTranslations("digitalCards.form");
   const form = useFormContext<DigitalCardRequest>();
   const { openScanner } = useCameraScanner();
 
@@ -35,7 +37,7 @@ export default function CodeValueField() {
       name="codeValue"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Broj kartice</FormLabel>
+          <FormLabel>{t("codeNumberLabel")}</FormLabel>
 
           <div className="flex gap-2">
             <FormControl>
@@ -51,7 +53,7 @@ export default function CodeValueField() {
               type="button"
               variant="outline"
               size="icon"
-              aria-label="Skeniraj kod kartice kamerom"
+              aria-label={t("codeScan")}
               onClick={() =>
                 openScanner({
                   preset: "all",

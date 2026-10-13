@@ -1,6 +1,7 @@
 "use client";
 
-import { CODE_TYPE_LABELS, isCodeType } from "@/constants/card-codes";
+import { useTranslations } from "next-intl";
+import { isCodeType, type CodeType } from "@/constants/card-codes";
 import type { IScannedCode } from "@/typings/scanned-code";
 
 interface ICodeChoiceListProps {
@@ -9,10 +10,17 @@ interface ICodeChoiceListProps {
   onSelect: (index: number) => void;
 }
 
-export function formatLabel(code: IScannedCode): string {
-  return code.format && isCodeType(code.format)
-    ? CODE_TYPE_LABELS[code.format]
-    : (code.format ?? "Kod");
+export type CodeLabelTranslator = (
+  key: `codes.${CodeType}` | "codes.fallback",
+) => string;
+
+export function formatLabel(
+  code: IScannedCode,
+  t: CodeLabelTranslator,
+): string {
+  if (code.format && isCodeType(code.format)) return t(`codes.${code.format}`);
+
+  return code.format ?? t("codes.fallback");
 }
 
 export default function CodeChoiceList({
@@ -20,10 +28,12 @@ export default function CodeChoiceList({
   selectedIndex,
   onSelect,
 }: ICodeChoiceListProps) {
+  const t = useTranslations("scanner");
+
   return (
     <fieldset className="space-y-2">
       <legend className="mb-2 text-sm font-medium">
-        Odaberi kod koji blagajna skenira
+        {t("confirm.chooseLegend")}
       </legend>
 
       {codes.map((code, index) => (
@@ -41,7 +51,7 @@ export default function CodeChoiceList({
 
           <span className="min-w-0">
             <span className="text-muted-foreground block text-xs">
-              {formatLabel(code)}
+              {formatLabel(code, t)}
             </span>
             <span className="block font-mono text-sm break-all">
               {code.rawValue}

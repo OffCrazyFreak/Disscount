@@ -1,4 +1,5 @@
 import { ExternalLink, Info } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { getChainWalletNote } from "@/app/[locale]/(user)/digital-cards/utils/chain-wallet-notes";
 
@@ -7,6 +8,7 @@ interface IChainNoteProps {
 }
 
 export default function ChainNote({ chainCode }: IChainNoteProps) {
+  const t = useTranslations("digitalCards");
   const note = getChainWalletNote(chainCode);
 
   if (!note) return null;
@@ -19,20 +21,18 @@ export default function ChainNote({ chainCode }: IChainNoteProps) {
       />
 
       <div className="flex flex-col gap-1">
-        <p>{note.text}</p>
+        <p>{t(`chainNotes.${note.code}.text`)}</p>
 
-        {note.href && (
-          <a
-            href={note.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex w-fit items-center gap-1 font-medium text-primary underline-offset-4 hover:underline"
-          >
-            {note.linkLabel ?? "Saznaj više"}
-            <ExternalLink aria-hidden="true" className="size-3.5" />
-            <span className="sr-only">(otvara se u novoj kartici)</span>
-          </a>
-        )}
+        <a
+          href={note.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex w-fit items-center gap-1 font-medium text-primary underline-offset-4 hover:underline"
+        >
+          {t(`chainNotes.${note.code}.link`)}
+          <ExternalLink aria-hidden="true" className="size-3.5" />
+          <span className="sr-only">{t("view.newTab")}</span>
+        </a>
       </div>
     </div>
   );

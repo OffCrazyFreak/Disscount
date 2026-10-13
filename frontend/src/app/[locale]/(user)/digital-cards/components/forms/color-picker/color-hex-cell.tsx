@@ -1,4 +1,5 @@
 import type { KeyboardEvent } from "react";
+import { useTranslations } from "next-intl";
 
 import { textColorFor } from "@/utils/color-contrast";
 import { cn } from "@/lib/utils";
@@ -31,14 +32,19 @@ export default function ColorHexCell({
   onSelect,
   onKeyDown,
 }: IColorHexCellProps) {
-  const { hex, name, hue } = cell.color;
+  const t = useTranslations("digitalCards.form");
+  const tColors = useTranslations("digitalCards.colors");
+  const { hex, id } = cell.color;
 
   return (
     <button
       type="button"
       role="radio"
       aria-checked={selected}
-      aria-label={`${name}, ${hue}`}
+      aria-label={t("colorOption", {
+        name: tColors(`${id}.name`),
+        hue: tColors(`${id}.hue`),
+      })}
       tabIndex={tabbable ? 0 : -1}
       onClick={onSelect}
       onKeyDown={onKeyDown}

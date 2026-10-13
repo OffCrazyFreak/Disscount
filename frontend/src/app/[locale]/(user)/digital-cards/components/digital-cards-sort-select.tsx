@@ -1,8 +1,9 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import LabeledSelect from "@/components/custom/common/labeled-select";
 import {
-  CARD_SORT_LABELS,
   CARD_SORT_MODES,
   type CardSortMode,
 } from "@/app/[locale]/(user)/digital-cards/utils/card-sorting";
@@ -12,21 +13,22 @@ interface IDigitalCardsSortSelectProps {
   onChange: (mode: CardSortMode) => void;
 }
 
-const OPTIONS = CARD_SORT_MODES.map((mode) => ({
-  value: mode,
-  label: CARD_SORT_LABELS[mode],
-}));
-
 export default function DigitalCardsSortSelect({
   value,
   onChange,
 }: IDigitalCardsSortSelectProps) {
+  const t = useTranslations("digitalCards");
+  const options = CARD_SORT_MODES.map((mode) => ({
+    value: mode,
+    label: t(`sort.mode.${mode}`),
+  }));
+
   return (
     <LabeledSelect
-      label="Poredak"
+      label={t("sort.label")}
       value={value}
       onValueChange={onChange}
-      options={OPTIONS}
+      options={options}
     />
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { CreditCard, Plus, Search } from "lucide-react";
 
 import CardAnnouncer from "@/app/[locale]/(user)/digital-cards/components/card-announcer";
@@ -26,7 +26,7 @@ import { Separator } from "@/components/ui/separator";
 import { useUser } from "@/context/user-context";
 import { digitalCardService } from "@/lib/api";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
-import { pluralizeCroatian } from "@/utils/strings";
+import { usePathname } from "@/i18n/navigation";
 
 interface IDigitalCardsClientProps {
   query: string;
@@ -35,6 +35,7 @@ interface IDigitalCardsClientProps {
 export default function DigitalCardsClient({
   query,
 }: IDigitalCardsClientProps) {
+  const t = useTranslations("digitalCards");
   const pathname = usePathname();
   const [sortMode, setSortMode] = useDigitalCardsSort();
 
@@ -59,8 +60,8 @@ export default function DigitalCardsClient({
   if (!userLoading && !isAuthenticated) {
     return (
       <LoginRequired
-        title="Digitalne kartice"
-        description="Digitalne kartice ti omogućuju da sve svoje kartice vjernosti držiš na jednom mjestu, uvijek pri ruci."
+        title={t("list.loginTitle")}
+        description={t("list.loginDescription")}
         icon={<CreditCard className="size-12 text-primary" />}
       />
     );
@@ -74,7 +75,7 @@ export default function DigitalCardsClient({
     <div className="space-y-4">
       <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
         <SearchBar
-          placeholder="Pretraži digitalne kartice..."
+          placeholder={t("list.searchPlaceholder")}
           searchRoute={pathname}
           clearable={true}
           submitButtonLocation="none"
@@ -86,8 +87,10 @@ export default function DigitalCardsClient({
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h3>
           {query.length > 0
-            ? `Rezultati pretrage za "${query}" (${matching.length})`
-            : `Moje digitalne kartice${isUserLoading ? "" : ` (${cards.length})`}`}
+            ? t("list.searchResults", { query, count: matching.length })
+            : isUserLoading
+              ? t("list.myCards")
+              : t("list.myCardsWithCount", { count: cards.length })}
         </h3>
 
         <div className="flex items-center gap-3">
@@ -100,7 +103,10 @@ export default function DigitalCardsClient({
             icon={Plus}
             iconPlacement="left"
           >
-            <ResponsiveLabel full="Dodaj karticu" short="Dodaj" />
+            <ResponsiveLabel
+              full={t("list.add.full")}
+              short={t("list.add.short")}
+            />
           </Button>
         </div>
       </div>
@@ -108,9 +114,7 @@ export default function DigitalCardsClient({
       <CardAnnouncer
         extra={
           query && !isUserLoading
-            ? matching.length === 0
-              ? "Nema rezultata"
-              : `${matching.length} ${pluralizeCroatian(matching.length, "rezultat", "rezultata")}`
+            ? t("announce.results", { count: matching.length })
             : ""
         }
       />
@@ -128,12 +132,14 @@ export default function DigitalCardsClient({
       ) : (
         <>
           {pinned.length > 0 && (
-            <DigitalCardsGrid cards={pinned} label="Prikvaćene kartice" />
+            <DigitalCardsGrid cards={pinned} label={t("list.pinnedLabel")} />
           )}
 
           {pinned.length > 0 && rest.length > 0 && <Separator />}
 
-          {rest.length > 0 && <DigitalCardsGrid cards={rest} label="Kartice" />}
+          {rest.length > 0 && (
+            <DigitalCardsGrid cards={rest} label={t("list.cardsLabel")} />
+          )}
 
           {archived.length > 0 && (
             <DigitalCardsArchived

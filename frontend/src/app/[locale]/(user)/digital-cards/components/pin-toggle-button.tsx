@@ -2,10 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import { Pin } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import {
   announceCard,
-  pinAnnouncement,
+  pinAnnouncementKey,
   pinButtonId,
   requestPinFocus,
   takePinFocus,
@@ -26,6 +27,7 @@ export default function PinToggleButton({
   cardName,
   pinned,
 }: IPinToggleButtonProps) {
+  const t = useTranslations("digitalCards");
   const pinMutation = digitalCardService.usePinDigitalCard();
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -41,11 +43,11 @@ export default function PinToggleButton({
       id={pinButtonId(cardId)}
       type="button"
       aria-pressed={pinned}
-      aria-label={`Prikvači karticu ${cardName}`}
+      aria-label={t("tile.pin", { name: cardName })}
       onClick={(event) => {
         event.stopPropagation();
         requestPinFocus(cardId);
-        announceCard(pinAnnouncement(!pinned));
+        announceCard(t(pinAnnouncementKey(!pinned)));
         pinMutation.mutate({ id: cardId, pinned: !pinned });
       }}
       className={cn(

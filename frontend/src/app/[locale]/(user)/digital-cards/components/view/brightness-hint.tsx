@@ -1,6 +1,7 @@
 "use client";
 
 import { Sun, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { useBrightnessHintDismissed } from "@/app/[locale]/(user)/digital-cards/hooks/use-brightness-hint-dismissed";
 
@@ -10,6 +11,7 @@ interface IBrightnessHintProps {
 }
 
 export default function BrightnessHint({ mayDim }: IBrightnessHintProps) {
+  const t = useTranslations("digitalCards");
   const [dismissed, dismiss] = useBrightnessHintDismissed();
 
   if (dismissed) return null;
@@ -22,14 +24,13 @@ export default function BrightnessHint({ mayDim }: IBrightnessHintProps) {
       />
 
       <p className="flex-1">
-        Povećaj svjetlinu ekrana da se kod lakše očita.
-        {mayDim && " Ekran se može sam ugasiti, pa ga dotakni prije blagajne."}
+        {t(mayDim ? "view.brightness.hintMayDim" : "view.brightness.hint")}
       </p>
 
       <button
         type="button"
         onClick={dismiss}
-        aria-label="Ne prikazuj više savjet o svjetlini"
+        aria-label={t("view.brightness.dismiss")}
         className="-m-1 rounded-md p-1 text-muted-foreground hover:text-foreground focus-visible:outline-2"
       >
         <X aria-hidden="true" className="size-4" />

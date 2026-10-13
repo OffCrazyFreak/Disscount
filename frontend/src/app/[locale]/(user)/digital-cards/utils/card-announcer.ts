@@ -29,12 +29,12 @@ export function announceCard(next: string) {
   }, 1500);
 }
 
-export function pinAnnouncement(pinned: boolean) {
-  return pinned ? "Kartica je prikvačena." : "Kartica je otkvačena.";
+export function pinAnnouncementKey(pinned: boolean) {
+  return pinned ? "announce.pinned" : "announce.unpinned";
 }
 
-export function archiveAnnouncement(archived: boolean) {
-  return archived ? "Kartica je arhivirana." : "Kartica je vraćena iz arhive.";
+export function archiveAnnouncementKey(archived: boolean) {
+  return archived ? "announce.archived" : "announce.unarchived";
 }
 
 // Pinning moves a tile to another grid, which remounts it; the new button reads this to

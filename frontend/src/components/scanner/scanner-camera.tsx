@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { TriangleAlert } from "lucide-react";
 import { Banner } from "@/components/custom/common/banner";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,11 @@ import {
   getPreferredCamera,
   setPreferredCamera,
 } from "@/utils/browser/local-storage";
-import { describeScannerError, pickBackCamera } from "@/utils/browser/camera";
+import {
+  describeScannerError,
+  pickBackCamera,
+  type ScannerErrorKey,
+} from "@/utils/browser/camera";
 import type { IScannedCode, ScanPreset } from "@/typings/scanned-code";
 import CameraView from "@/components/scanner/camera-view";
 import CameraSelect from "@/components/scanner/camera-select";
@@ -31,6 +36,7 @@ export default function ScannerCamera({
   onCodes,
   onManual,
 }: IScannerCameraProps) {
+  const t = useTranslations("scanner");
   const { devices, refreshDevices } = useCameraDevices();
 
   function handleStable(codes: IScannedCode[]) {
@@ -45,7 +51,7 @@ export default function ScannerCamera({
   const [manualDeviceId, setManualDeviceId] = useState<string | undefined>(() =>
     getPreferredCamera(),
   );
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ScannerErrorKey | null>(null);
 
   const activeDeviceId = manualDeviceId ?? pickBackCamera(devices) ?? undefined;
   const hasManualChoice = Boolean(manualDeviceId);
@@ -76,7 +82,7 @@ export default function ScannerCamera({
           icon={TriangleAlert}
           className="mb-0"
         >
-          {error}
+          {t(`errors.${error}`)}
         </Banner>
       ) : (
         <CameraView
@@ -93,13 +99,10 @@ export default function ScannerCamera({
           role="status"
           className="bg-muted flex flex-col gap-2 rounded-lg p-3 text-sm"
         >
-          <p>
-            Kod se ne čita ispravno. Približi kameru, makni odsjaj ili probaj
-            drugu sliku.
-          </p>
+          <p>{t("camera.hint")}</p>
           {canType && (
             <Button type="button" variant="outline" onClick={onManual}>
-              Upiši ručno
+              {t("camera.manual")}
             </Button>
           )}
         </div>

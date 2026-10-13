@@ -4,14 +4,18 @@
     "label": "Kamera",
     "autoPlaceholder": "Automatski (stražnja kamera)",
     "reset": "Resetiraj kameru na automatski odabir",
-    "name": "{facing, select, front {Prednja kamera} back {Stražnja kamera} other {Kamera}}{lens, select, ultrawide { (ultraširoka)} telephoto { (telefoto)} macro { (makro)} other {}}{ordinal, plural, =0 {} other { #}}"
+    "name": "{facing, select, front {Prednja kamera} back {Stražnja kamera} other {Kamera}}{lens, select, ultrawide { (ultraširoka)} telephoto { (telefoto)} macro { (makro)} other {}}{ordinal, plural, =0 {} other { #}}",
+    "hint": "Kod se ne čita ispravno. Približi kameru, makni odsjaj ili probaj drugu sliku.",
+    "manual": "Upiši ručno"
   },
   "image": {
     "upload": "Učitaj sliku s kodom",
     "loading": "Učitavanje...",
     "notFound": "Kod nije pronađen na slici.",
     "notProductBarcode": "Kod na slici nije barkod proizvoda (EAN).",
-    "loadFailed": "Sliku nije moguće učitati."
+    "loadFailed": "Sliku nije moguće učitati.",
+    "unsupportedFormat": "Format koda na slici nije podržan.",
+    "unreadable": "Kod na slici nije pročitan ispravno. Probaj s oštrijom slikom."
   },
   "errors": {
     "permissionDenied": "Pristup kameri je odbijen. Omogući kameru u postavkama preglednika pa pokušaj ponovno.",
@@ -20,5 +24,41 @@
     "overconstrained": "Odabrana kamera nije dostupna. Resetiraj kameru na automatski odabir.",
     "insecureContext": "Skeniranje radi samo preko sigurne (HTTPS) veze.",
     "generic": "Greška pri pokretanju kamere. Pokušaj ponovno."
+  },
+  "codes": {
+    "ean_13": "EAN-13",
+    "ean_8": "EAN-8",
+    "upc_a": "UPC-A",
+    "upc_e": "UPC-E",
+    "code_128": "Code 128",
+    "code_39": "Code 39",
+    "code_93": "Code 93",
+    "codabar": "Codabar",
+    "itf": "ITF",
+    "qr_code": "QR kod",
+    "aztec": "Aztec",
+    "data_matrix": "Data Matrix",
+    "pdf417": "PDF417",
+    "unknown": "Samo broj/tekst",
+    "fallback": "Kod"
+  },
+  "confirm": {
+    "title": "Provjeri kod",
+    "chooseLegend": "Odaberi kod koji blagajna skenira",
+    "use": "Koristi kod",
+    "rescan": "Skeniraj ponovno",
+    "manual": "Upiši ručno",
+    "announceTyped": "Upisan kod: {label}",
+    "announceFound": "Pronađen kod: {label}",
+    "announceMany": "{count, plural, one {Pronađen # kod} few {Pronađena # koda} other {Pronađeno # kodova}}"
+  },
+  "manual": {
+    "title": "Upiši kod ručno",
+    "numberLabel": "Broj kartice",
+    "typeLabel": "Tip koda",
+    "submit": "Nastavi",
+    "back": "Natrag na skeniranje",
+    "numberRequired": "Upiši broj koda.",
+    "checkDigitMismatch": "Broj ne odgovara odabranom tipu koda. Provjeri znamenke ili odaberi drugi tip."
   }
 }

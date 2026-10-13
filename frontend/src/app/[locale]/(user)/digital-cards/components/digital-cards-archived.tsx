@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import DigitalCardsGrid from "@/app/[locale]/(user)/digital-cards/components/digital-cards-grid";
 import {
@@ -19,7 +20,8 @@ export default function DigitalCardsArchived({
   cards,
   defaultOpen,
 }: IDigitalCardsArchivedProps) {
-  const label = `Arhivirane (${cards.length})`;
+  const t = useTranslations("digitalCards");
+  const label = t("archived.label", { count: cards.length });
 
   return (
     <Collapsible defaultOpen={defaultOpen} className="group/archived">

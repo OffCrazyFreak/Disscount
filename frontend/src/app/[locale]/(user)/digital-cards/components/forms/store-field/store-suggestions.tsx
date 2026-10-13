@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 import {
   AutocompleteCollection,
   AutocompleteContent,
@@ -19,13 +21,15 @@ interface IStoreSuggestionsProps {
 export default function StoreSuggestions({
   container,
 }: IStoreSuggestionsProps) {
+  const t = useTranslations("digitalCards.form");
+
   return (
     // pointer-events-auto because Radix sets none on the body while a dialog is open.
     <AutocompleteContent
       container={container}
       className="pointer-events-auto motion-reduce:transition-none"
     >
-      <AutocompleteEmpty>Počni upisivati naziv trgovine.</AutocompleteEmpty>
+      <AutocompleteEmpty>{t("storeEmpty")}</AutocompleteEmpty>
 
       <AutocompleteList>
         {(group: IStoreGroup) => (

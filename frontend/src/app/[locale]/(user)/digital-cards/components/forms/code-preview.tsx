@@ -1,13 +1,16 @@
 "use client";
 
 import { TriangleAlert } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useFormContext, useWatch } from "react-hook-form";
 
 import CardCode from "@/app/[locale]/(user)/digital-cards/components/card-code";
 import { generateCodeSvg } from "@/app/[locale]/(user)/digital-cards/utils/generate-code-svg";
+import { CODE_TYPE_LABEL_KEYS } from "@/constants/card-codes";
 import type { DigitalCardRequest } from "@/lib/api/types";
 
 export default function CodePreview() {
+  const t = useTranslations();
   const form = useFormContext<DigitalCardRequest>();
   const [codeValue, barcodeValue, codeType] = useWatch({
     control: form.control,
@@ -23,7 +26,7 @@ export default function CodePreview() {
     <div className="space-y-2">
       <div
         role="group"
-        aria-label="Pregled koda kartice"
+        aria-label={t("digitalCards.form.previewLabel")}
         className="flex min-h-24 items-center justify-center rounded-lg border bg-white p-3"
       >
         {value ? (
@@ -36,7 +39,7 @@ export default function CodePreview() {
           </div>
         ) : (
           <p className="text-center text-sm text-neutral-500">
-            Upiši broj kartice da vidiš pregled koda.
+            {t("digitalCards.form.previewEmpty")}
           </p>
         )}
       </div>
@@ -49,8 +52,9 @@ export default function CodePreview() {
               className="mt-0.5 size-4 shrink-0"
               aria-hidden="true"
             />
-            Ovaj tip koda ne može prikazati upisani broj. Odaberi drugi tip ili
-            &quot;Samo broj/tekst&quot;.
+            {t("digitalCards.form.previewCannotEncode", {
+              fallbackType: t(CODE_TYPE_LABEL_KEYS.unknown),
+            })}
           </p>
         )}
       </div>

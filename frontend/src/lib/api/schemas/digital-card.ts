@@ -12,7 +12,7 @@ export const cardPhotoSlotSchema = z.enum(CARD_PHOTO_SLOTS);
 
 const optionalDate = z
   .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, "Upiši datum u obliku GGGG-MM-DD")
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "digitalCards.validation.dateFormat")
   .nullable()
   .optional();
 
@@ -21,14 +21,14 @@ export const digitalCardRequestSchema = z
     cardName: z
       .string()
       .trim()
-      .min(2, "Upiši naziv s najmanje 2 znaka")
-      .max(60, "Upiši naziv s najviše 60 znakova"),
+      .min(2, "digitalCards.validation.nameMin")
+      .max(60, "digitalCards.validation.nameMax"),
     cardType: cardTypeSchema,
     storeName: z
       .string()
       .trim()
-      .min(2, "Upiši trgovinu s najmanje 2 znaka")
-      .max(60, "Upiši trgovinu s najviše 60 znakova"),
+      .min(2, "digitalCards.validation.storeMin")
+      .max(60, "digitalCards.validation.storeMax"),
     chainCode: z
       .string()
       .regex(/^[a-z0-9_-]+$/)
@@ -38,28 +38,30 @@ export const digitalCardRequestSchema = z
     codeValue: z
       .string()
       .trim()
-      .min(1, "Upiši broj ili kod kartice")
-      .max(4096, "Kod kartice je predug"),
+      .min(1, "digitalCards.validation.codeRequired")
+      .max(4096, "digitalCards.validation.codeTooLong"),
     barcodeValue: z
       .string()
       .trim()
-      .max(4096, "Kod je predug")
+      .max(4096, "digitalCards.validation.barcodeTooLong")
       .nullable()
       .optional(),
     codeType: codeTypeSchema,
-    cardColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Odaberi boju"),
+    cardColor: z
+      .string()
+      .regex(/^#[0-9A-Fa-f]{6}$/, "digitalCards.validation.colorRequired"),
     note: z
       .string()
       .trim()
-      .max(500, "Bilješka može imati najviše 500 znakova")
+      .max(500, "digitalCards.validation.noteTooLong")
       .nullable()
       .optional(),
     validFrom: optionalDate,
     expiresOn: optionalDate,
     balance: z
       .number()
-      .min(0, "Iznos ne može biti negativan")
-      .max(1_000_000, "Iznos je prevelik")
+      .min(0, "digitalCards.validation.balanceNegative")
+      .max(1_000_000, "digitalCards.validation.balanceTooLarge")
       // The backend rejects more than two decimals, so round instead of 400ing.
       .transform((value) => Math.round((value + Number.EPSILON) * 100) / 100)
       .nullable()
@@ -73,7 +75,10 @@ export const digitalCardRequestSchema = z
   .refine(
     (card) =>
       !card.validFrom || !card.expiresOn || card.expiresOn >= card.validFrom,
-    { path: ["expiresOn"], message: "Kartica ne može isteći prije početka" },
+    {
+      path: ["expiresOn"],
+      message: "digitalCards.validation.expiresBeforeStart",
+    },
   );
 
 export const cardPhotoDtoSchema = z.object({

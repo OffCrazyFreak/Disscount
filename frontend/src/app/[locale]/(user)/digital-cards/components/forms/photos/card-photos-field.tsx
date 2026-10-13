@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import CardPhotoSlotRow from "@/app/[locale]/(user)/digital-cards/components/forms/photos/card-photo-slot";
 import type { CardPhotoChanges } from "@/app/[locale]/(user)/digital-cards/components/forms/digital-card-form-types";
 import { digitalCardService } from "@/lib/api";
@@ -24,13 +26,14 @@ export default function CardPhotosField({
   status,
   onChange,
 }: ICardPhotosFieldProps) {
+  const t = useTranslations("digitalCards.photos");
   const config = digitalCardService.useDigitalCardsConfig();
 
   if (config.data?.photosEnabled === false) return null;
 
   return (
     <fieldset className="space-y-2">
-      <legend className="mb-2 text-sm font-medium">Slike</legend>
+      <legend className="mb-2 text-sm font-medium">{t("legend")}</legend>
 
       {SLOT_ORDER.map((slot) => (
         <CardPhotoSlotRow
@@ -44,9 +47,7 @@ export default function CardPhotosField({
         />
       ))}
 
-      <p className="text-muted-foreground text-xs">
-        Prekrij potpis i PIN prije slikanja.
-      </p>
+      <p className="text-muted-foreground text-xs">{t("hint")}</p>
     </fieldset>
   );
 }

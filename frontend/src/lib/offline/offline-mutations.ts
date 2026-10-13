@@ -36,6 +36,7 @@ import { cardRetryDelay, shouldRetryCardWrite } from "@/lib/offline/card-retry";
 import {
   cardDeleteFailed,
   cardWriteFailed,
+  type CardToastTranslator,
 } from "@/lib/offline/card-write-failed";
 import {
   deleteWriteFailed,
@@ -55,6 +56,7 @@ function listAndItemsKeys(listId: string): QueryKey[] {
 export function registerOfflineMutationDefaults(
   queryClient: QueryClient,
   t: OfflineToastTranslator,
+  tCards: CardToastTranslator,
 ) {
   function defineOfflineMutation<TVariables, TData>(
     mutationKey: QueryKey,
@@ -158,7 +160,7 @@ export function registerOfflineMutationDefaults(
     ({ id, data }: { id: string; data: DigitalCardRequest }) =>
       saveDigitalCard(id, data),
     () => [DIGITAL_CARD_QUERY_KEYS.me],
-    cardWriteFailed,
+    (error) => cardWriteFailed(error, tCards),
     DIGITAL_CARD_MUTATION_SCOPE,
   );
 
@@ -166,7 +168,7 @@ export function registerOfflineMutationDefaults(
     OFFLINE_MUTATION_KEYS.digitalCardDelete,
     (id: string) => deleteDigitalCard(id),
     () => [DIGITAL_CARD_QUERY_KEYS.me],
-    cardDeleteFailed,
+    (error) => cardDeleteFailed(error, tCards),
     DIGITAL_CARD_MUTATION_SCOPE,
   );
 
@@ -175,7 +177,7 @@ export function registerOfflineMutationDefaults(
     ({ id, pinned }: { id: string; pinned: boolean }) =>
       setDigitalCardPinned(id, pinned),
     () => [DIGITAL_CARD_QUERY_KEYS.me],
-    cardWriteFailed,
+    (error) => cardWriteFailed(error, tCards),
     DIGITAL_CARD_MUTATION_SCOPE,
   );
 
@@ -184,7 +186,7 @@ export function registerOfflineMutationDefaults(
     ({ id, archived }: { id: string; archived: boolean }) =>
       setDigitalCardArchived(id, archived),
     () => [DIGITAL_CARD_QUERY_KEYS.me],
-    cardWriteFailed,
+    (error) => cardWriteFailed(error, tCards),
     DIGITAL_CARD_MUTATION_SCOPE,
   );
 

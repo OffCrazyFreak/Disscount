@@ -17,7 +17,7 @@ describe("CARD_PALETTE", () => {
     expect(new Set(CARD_PALETTE.map((c) => c.hex.toLowerCase())).size).toBe(19);
   });
 
-  it.each(CARD_PALETTE.map((color) => [color.name, color.hex]))(
+  it.each(CARD_PALETTE.map((color) => [color.id, color.hex]))(
     "%s keeps 4.5:1 against its text colour",
     (_name, hex) => {
       expect(contrastRatio(hex, textColorFor(hex))).toBeGreaterThanOrEqual(4.5);

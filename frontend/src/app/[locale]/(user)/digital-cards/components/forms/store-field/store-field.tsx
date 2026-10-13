@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useFormContext, useWatch } from "react-hook-form";
 
 import {
@@ -35,6 +36,7 @@ interface IStoreFieldProps {
 }
 
 export default function StoreField({ autoColor }: IStoreFieldProps) {
+  const t = useTranslations("digitalCards.form");
   const form = useFormContext<DigitalCardRequest>();
   const storeName = useWatch({ control: form.control, name: "storeName" });
   const groups = useStoreOptions(storeName ?? "");
@@ -129,7 +131,7 @@ export default function StoreField({ autoColor }: IStoreFieldProps) {
       name="storeName"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Trgovina</FormLabel>
+          <FormLabel>{t("storeLabel")}</FormLabel>
 
           <div ref={wrapperRef} className="relative">
             <Autocomplete
@@ -145,7 +147,7 @@ export default function StoreField({ autoColor }: IStoreFieldProps) {
             >
               <FormControl>
                 <AutocompleteInput
-                  placeholder="Odaberi ili upiši trgovinu"
+                  placeholder={t("storePlaceholder")}
                   autoComplete="off"
                   onBlur={() => {
                     field.onBlur();
@@ -156,11 +158,11 @@ export default function StoreField({ autoColor }: IStoreFieldProps) {
               </FormControl>
 
               <AutocompleteTrigger
-                aria-label="Prikaži prijedloge trgovina"
+                aria-label={t("storeShowSuggestions")}
                 className={ICON_BUTTON_CLASS}
               />
               <AutocompleteClear
-                aria-label="Očisti trgovinu"
+                aria-label={t("storeClear")}
                 className={ICON_BUTTON_CLASS}
               />
 

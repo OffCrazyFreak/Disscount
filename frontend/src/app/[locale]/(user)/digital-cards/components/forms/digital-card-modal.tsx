@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Save } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useFormState } from "react-hook-form";
 
 import DigitalCardFields from "@/app/[locale]/(user)/digital-cards/components/forms/digital-card-fields";
@@ -28,6 +29,7 @@ export default function DigitalCardModal({
   action,
   id,
 }: IDigitalCardModalProps) {
+  const t = useTranslations("digitalCards.form");
   const isEdit = action === "edit" && !!id;
 
   // Cards have no by-id read in the UI; the user's list covers cold deep links too.
@@ -103,17 +105,17 @@ export default function DigitalCardModal({
     <ModalShell
       open={open}
       onOpenChange={(isOpen) => !isOpen && closeModalUrl()}
-      title={isEdit ? "Uredi karticu" : "Nova kartica"}
-      description="Spremi karticu vjernosti i imaj je uvijek pri ruci."
+      title={isEdit ? t("editTitle") : t("newTitle")}
+      description={t("description")}
       srOnlyDescription
       dirty={changed}
       formId="digital-card-form"
-      submitLabel="Spremi karticu"
+      submitLabel={t("save")}
       submitIcon={Save}
       submitLoading={isLoading}
       submitDisabled={!changed || !isValid || notFound || loadError}
-      cancelLabel="Odustani"
-      resetLabel="Resetiraj"
+      cancelLabel={t("cancel")}
+      resetLabel={t("reset")}
       resetDisabled={!changed && !restored}
       onReset={() => {
         clearDraft();
@@ -125,14 +127,10 @@ export default function DigitalCardModal({
         <Skeleton className="h-64 w-full" />
       ) : loadError ? (
         <p className="text-sm text-muted-foreground">
-          {offlineWaiting
-            ? "Izvan si mreže, a ova kartica još nije spremljena na uređaju. Spoji se na mrežu i pokušaj ponovo."
-            : "Greška pri učitavanju kartice. Pokušaj ponovo."}
+          {offlineWaiting ? t("loadErrorOffline") : t("loadError")}
         </p>
       ) : notFound ? (
-        <p className="text-sm text-muted-foreground">
-          Kartica nije pronađena. Možda je obrisana.
-        </p>
+        <p className="text-sm text-muted-foreground">{t("notFound")}</p>
       ) : (
         <Form {...form}>
           <form

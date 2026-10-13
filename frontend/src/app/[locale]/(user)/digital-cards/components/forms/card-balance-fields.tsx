@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useFormContext } from "react-hook-form";
 
 import {
@@ -23,6 +24,7 @@ import type { DigitalCardRequest } from "@/lib/api/types";
 const POINTS_VALUE = "POINTS";
 
 export default function CardBalanceFields() {
+  const t = useTranslations("digitalCards.form");
   const form = useFormContext<DigitalCardRequest>();
 
   return (
@@ -32,7 +34,7 @@ export default function CardBalanceFields() {
         name="balance"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Stanje</FormLabel>
+            <FormLabel>{t("balanceLabel")}</FormLabel>
             <FormControl>
               <Input
                 type="number"
@@ -60,7 +62,7 @@ export default function CardBalanceFields() {
         name="balanceUnit"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Jedinica</FormLabel>
+            <FormLabel>{t("unitLabel")}</FormLabel>
             <Select
               value={field.value ?? POINTS_VALUE}
               onValueChange={(value) =>
@@ -74,7 +76,7 @@ export default function CardBalanceFields() {
               </FormControl>
               <SelectContent>
                 <SelectItem value="EUR">EUR</SelectItem>
-                <SelectItem value={POINTS_VALUE}>Bodovi</SelectItem>
+                <SelectItem value={POINTS_VALUE}>{t("unitPoints")}</SelectItem>
               </SelectContent>
             </Select>
             <FormMessage />

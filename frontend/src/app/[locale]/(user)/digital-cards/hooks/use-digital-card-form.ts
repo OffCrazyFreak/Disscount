@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -33,6 +34,7 @@ export function useDigitalCardForm({
   draftKey,
   onRestorePhotos,
 }: IUseDigitalCardFormProps) {
+  const t = useTranslations("digitalCards.form");
   const form = useForm<DigitalCardRequest>({
     resolver: zodResolver(digitalCardRequestSchema),
     mode: "onChange",
@@ -90,9 +92,9 @@ export function useDigitalCardForm({
         if (pending.photos) onRestorePhotos(pending.photos);
         await form.trigger(["codeValue", "barcodeValue"]);
       }
-      if (error) applyProblemToForm(error, form);
+      if (error) applyProblemToForm(error, form, undefined, t("saveFailed"));
     })();
-  }, [open, draftKey, form, onRestorePhotos]);
+  }, [open, draftKey, form, onRestorePhotos, t]);
 
   return { form, ...draftControls };
 }

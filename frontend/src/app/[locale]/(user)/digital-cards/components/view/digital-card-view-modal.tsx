@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 
 import BrightnessHint from "@/app/[locale]/(user)/digital-cards/components/view/brightness-hint";
 import CardCodePanel from "@/app/[locale]/(user)/digital-cards/components/view/card-code-panel";
@@ -23,6 +24,7 @@ export default function DigitalCardViewModal({
   open,
   id,
 }: IDigitalCardViewModalProps) {
+  const t = useTranslations("digitalCards");
   const {
     data: cards,
     isPending,
@@ -48,14 +50,16 @@ export default function DigitalCardViewModal({
     // Offline with nothing cached, the query sits paused as pending and never resolves.
     if (isPending && fetchStatus !== "paused") {
       return (
-        <p className="text-sm text-muted-foreground">Učitavanje kartice...</p>
+        <p className="text-sm text-muted-foreground">
+          {t("view.modal.loading")}
+        </p>
       );
     }
 
     if (!cards && (isPending || isError)) {
       return (
         <p role="status" className="text-sm text-muted-foreground">
-          Kartice se nisu učitale. Provjeri vezu.
+          {t("view.modal.loadError")}
         </p>
       );
     }
@@ -63,7 +67,7 @@ export default function DigitalCardViewModal({
     if (!card) {
       return (
         <p role="status" className="text-sm text-muted-foreground">
-          Ova kartica više ne postoji ili je nemaš na svom računu.
+          {t("view.modal.notFound")}
         </p>
       );
     }
@@ -90,8 +94,8 @@ export default function DigitalCardViewModal({
     <ModalShell
       open={open}
       onOpenChange={handleOpenChange}
-      title={card?.cardName ?? "Kartica"}
-      description={card?.storeName ?? "Digitalna kartica"}
+      title={card?.cardName ?? t("view.modal.fallbackTitle")}
+      description={card?.storeName ?? t("view.modal.fallbackDescription")}
       srOnlyDescription
       size="md"
     >

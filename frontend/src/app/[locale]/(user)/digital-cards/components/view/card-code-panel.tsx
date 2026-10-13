@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { RotateCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import CardCode from "@/app/[locale]/(user)/digital-cards/components/card-code";
 import CodeTypeSwitcher from "@/app/[locale]/(user)/digital-cards/components/view/code-type-switcher";
@@ -25,6 +26,7 @@ interface ICardCodePanelProps {
 }
 
 export default function CardCodePanel({ card }: ICardCodePanelProps) {
+  const t = useTranslations("digitalCards");
   const [override, setOverride] = useState<CodeType | null>(null);
   const [rotatedRequested, setRotated] = useState(false);
   const { mutate: saveCard, isPending: isSaving } =
@@ -47,7 +49,7 @@ export default function CardCodePanel({ card }: ICardCodePanelProps) {
   }
 
   return (
-    <section aria-label="Kod kartice" className="flex flex-col gap-3">
+    <section aria-label={t("view.code.panel")} className="flex flex-col gap-3">
       {/* Stark white in dark mode too: a scanner needs contrast, not theming. */}
       <div className="rounded-2xl bg-white p-3 text-black ring-1 ring-black/10 dark:ring-white/30">
         <CardCode
@@ -72,7 +74,7 @@ export default function CardCodePanel({ card }: ICardCodePanelProps) {
             aria-pressed={rotated}
             onClick={() => setRotated(!rotated)}
           >
-            Zakreni kod
+            {t("view.code.rotate")}
           </Button>
         )}
 

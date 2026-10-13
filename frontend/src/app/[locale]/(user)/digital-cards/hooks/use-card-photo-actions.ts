@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { CARD_PHOTO_SLOTS, type CardPhotoSlot } from "@/constants/card-codes";
@@ -14,6 +15,7 @@ import {
 } from "@/lib/offline/card-photo-outbox";
 import { deleteSlotForCard } from "@/lib/offline/card-photo-store";
 import {
+  CardImageError,
   prepareCardImage,
   type IPreparedCardImage,
 } from "@/utils/browser/card-image";
@@ -22,6 +24,8 @@ type PhotoStatus = "uploading" | "queued" | "error";
 type StatusMap = Partial<Record<CardPhotoSlot, PhotoStatus>>;
 
 export function useCardPhotoActions(cardId: string) {
+  const t = useTranslations("digitalCards.photos.errors");
+  const tImage = useTranslations("digitalCards.errors.image");
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<StatusMap>({});
 
@@ -59,7 +63,9 @@ export function useCardPhotoActions(cardId: string) {
     } catch (error) {
       mark(slot, "error");
       toast.error(
-        error instanceof Error ? error.message : "Slika nije obrađena.",
+        error instanceof CardImageError
+          ? tImage(error.code)
+          : t("processFailed"),
       );
       return;
     }
@@ -74,7 +80,7 @@ export function useCardPhotoActions(cardId: string) {
       );
     } catch {
       mark(slot, "error");
-      toast.error("Slika nije spremljena. Pokušaj ponovno.");
+      toast.error(t("saveFailed"));
       return;
     }
 
@@ -98,9 +104,7 @@ export function useCardPhotoActions(cardId: string) {
     else if (outcome === "kept") mark(slot, "queued");
     else {
       mark(slot, "error");
-      toast.error(
-        problemMessage(error, "Slika nije spremljena. Pokušaj ponovno."),
-      );
+      toast.error(problemMessage(error, t("saveFailed")));
     }
   }
 
@@ -117,7 +121,7 @@ export function useCardPhotoActions(cardId: string) {
         if (result.outcome === "dropped") throw result.error;
       }
     } catch {
-      toast.error("Slika nije obrisana. Pokušaj ponovno.");
+      toast.error(t("removeFailed"));
       return;
     }
 

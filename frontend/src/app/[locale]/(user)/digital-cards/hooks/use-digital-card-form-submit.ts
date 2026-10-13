@@ -1,4 +1,5 @@
 import { onlineManager } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import type { CardPhotoChanges } from "@/app/[locale]/(user)/digital-cards/components/forms/digital-card-form-types";
@@ -34,6 +35,7 @@ export function useDigitalCardFormSubmit({
   onSaved,
   photoActions,
 }: IUseDigitalCardFormSubmitProps) {
+  const t = useTranslations("digitalCards.form");
   const saveMutation = digitalCardService.useSaveDigitalCard();
 
   // Optimistic close: the modal closes immediately and reopens only on failure.
@@ -46,9 +48,7 @@ export function useDigitalCardFormSubmit({
 
     const offline = !onlineManager.isOnline();
     if (offline) {
-      toast.info(
-        "Izvan si mreže - promjena će se sinkronizirati kad se vratiš na mrežu.",
-      );
+      toast.info(t("savedOffline"));
     }
 
     const uploads = CARD_PHOTO_SLOTS.flatMap((slot) => {
@@ -95,7 +95,7 @@ export function useDigitalCardFormSubmit({
       return;
     }
 
-    toast.success("Kartica je spremljena.");
+    toast.success(t("saved"));
     onSaved();
 
     // The card exists server-side only now, so photos can follow. upload and remove

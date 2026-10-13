@@ -1,27 +1,19 @@
-import { pluralizeCroatian } from "@/utils/strings";
+import { formatLocale } from "@/i18n/formatting";
+import { formatDate } from "@/utils/strings";
 
-// API dates arrive as YYYY-MM-DD; split instead of parsing so no timezone shifts the day.
-export function formatCardDate(value: string): string {
-  const [year, month, day] = value.split("-");
-
-  return `${day}.${month}.${year}.`;
+// API dates arrive as YYYY-MM-DD, which parses as midnight UTC: the same day in Croatia.
+export function formatCardDate(value: string, locale: string): string {
+  return formatDate(value, locale);
 }
 
-export function formatCardBalance(
+/** A balance in a real currency. Points have no unit and are worded by the caller. */
+export function formatCardMoney(
   balance: number,
-  unit: string | null,
+  currency: string,
+  locale: string,
 ): string {
-  if (!unit) {
-    // A fraction takes the genitive singular (1,5 boda), which is the "few" form.
-    const noun = Number.isInteger(balance)
-      ? pluralizeCroatian(Math.abs(balance), "bod", "boda", "bodova")
-      : "boda";
-
-    return `${new Intl.NumberFormat("hr-HR").format(balance)} ${noun}`;
-  }
-
-  return new Intl.NumberFormat("hr-HR", {
+  return new Intl.NumberFormat(formatLocale(locale), {
     style: "currency",
-    currency: unit,
+    currency,
   }).format(balance);
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 import type {
   IStoreGroup,
@@ -24,6 +25,8 @@ function useDebouncedValue(value: string, delayMs: number): string {
 
 /** Autocomplete groups for the typed text: official chains, community names, then an "add" row. */
 export function useStoreOptions(query: string): IStoreGroup[] {
+  const t = useTranslations("digitalCards.form");
+  const locale = useLocale();
   const typed = query.trim();
   const needle = normalizeForSearch(typed);
 
@@ -39,7 +42,7 @@ export function useStoreOptions(query: string): IStoreGroup[] {
       chainCode: code,
     }))
     .filter((option) => normalizeForSearch(option.label).includes(needle))
-    .sort((a, b) => a.label.localeCompare(b.label, "hr"));
+    .sort((a, b) => a.label.localeCompare(b.label, locale));
 
   const chainLabels = new Set(
     (chainsQuery.data?.chains ?? []).map((code) =>
@@ -57,8 +60,8 @@ export function useStoreOptions(query: string): IStoreGroup[] {
     .map((suggestion) => ({ value: suggestion.name, label: suggestion.name }));
 
   const groups: IStoreGroup[] = [
-    { value: "Službene trgovine", items: chainOptions },
-    { value: "Ostalo", items: communityOptions },
+    { value: t("storeGroupOfficial"), items: chainOptions },
+    { value: t("storeGroupOther"), items: communityOptions },
   ].filter((group) => group.items.length > 0);
 
   const alreadyListed = [...chainOptions, ...communityOptions].some(

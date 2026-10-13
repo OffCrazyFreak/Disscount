@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Archive,
   ArchiveRestore,
@@ -13,8 +14,8 @@ import {
 import CardAnnouncer from "@/app/[locale]/(user)/digital-cards/components/card-announcer";
 import {
   announceCard,
-  archiveAnnouncement,
-  pinAnnouncement,
+  archiveAnnouncementKey,
+  pinAnnouncementKey,
 } from "@/app/[locale]/(user)/digital-cards/utils/card-announcer";
 import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ export default function CardViewActions({
   onEdit,
   onDeleted,
 }: ICardViewActionsProps) {
+  const t = useTranslations("digitalCards");
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const { mutate: pin } = digitalCardService.usePinDigitalCard();
   const { mutate: archive } = digitalCardService.useArchiveDigitalCard();
@@ -58,7 +60,7 @@ export default function CardViewActions({
         iconPlacement="left"
         onClick={onEdit}
       >
-        Uredi
+        {t("view.actions.edit")}
       </Button>
 
       <Button
@@ -67,11 +69,11 @@ export default function CardViewActions({
         icon={pinned ? PinOff : Pin}
         iconPlacement="left"
         onClick={() => {
-          announceCard(pinAnnouncement(!pinned));
+          announceCard(t(pinAnnouncementKey(!pinned)));
           pin({ id: card.id, pinned: !pinned });
         }}
       >
-        {pinned ? "Otkvači" : "Prikvači"}
+        {t(pinned ? "view.actions.unpin" : "view.actions.pin")}
       </Button>
 
       <Button
@@ -80,11 +82,11 @@ export default function CardViewActions({
         icon={archived ? ArchiveRestore : Archive}
         iconPlacement="left"
         onClick={() => {
-          announceCard(archiveAnnouncement(!archived));
+          announceCard(t(archiveAnnouncementKey(!archived)));
           archive({ id: card.id, archived: !archived });
         }}
       >
-        {archived ? "Vrati iz arhive" : "Arhiviraj"}
+        {t(archived ? "view.actions.unarchive" : "view.actions.archive")}
       </Button>
 
       <Button
@@ -94,15 +96,18 @@ export default function CardViewActions({
         iconPlacement="left"
         onClick={() => setConfirmingDelete(true)}
       >
-        Obriši
+        {t("view.actions.delete")}
       </Button>
 
       <ConfirmDialog
         isOpen={confirmingDelete}
         onOpenChange={setConfirmingDelete}
-        title="Obriši karticu"
-        description={`Sigurno želiš obrisati karticu "${card.cardName}"? Ova akcija se ne može poništiti.`}
-        confirmLabel="Obriši"
+        title={t("view.actions.deleteTitle")}
+        description={t("view.actions.deleteDescription", {
+          name: card.cardName,
+        })}
+        confirmLabel={t("view.actions.delete")}
+        cancelLabel={t("view.actions.cancel")}
         variant="destructive"
         onConfirm={handleDelete}
       />

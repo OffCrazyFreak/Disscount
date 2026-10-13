@@ -5,10 +5,10 @@ import { hexCell, nextCellIndex } from "./hex-grid";
 
 const cells = CARD_PALETTE.map((color) => hexCell(color.ring, color.angle));
 function indexOf(name: string) {
-  return CARD_PALETTE.findIndex((color) => color.name === name);
+  return CARD_PALETTE.findIndex((color) => color.id === name);
 }
 function move(from: string, key: string) {
-  return CARD_PALETTE[nextCellIndex(cells, indexOf(from), key)].name;
+  return CARD_PALETTE[nextCellIndex(cells, indexOf(from), key)].id;
 }
 
 describe("hexCell", () => {
@@ -30,25 +30,25 @@ describe("hexCell", () => {
 
 describe("nextCellIndex", () => {
   it("moves through reading order and wraps", () => {
-    expect(move("Grožđe", "ArrowRight")).toBe("Radič");
-    expect(move("Grafit", "ArrowLeft")).toBe("Lavanda");
-    expect(move("Grožđe", "ArrowLeft")).toBe("Bosiljak");
-    expect(move("Bosiljak", "ArrowRight")).toBe("Grožđe");
+    expect(move("grape", "ArrowRight")).toBe("radicchio");
+    expect(move("graphite", "ArrowLeft")).toBe("lavender");
+    expect(move("grape", "ArrowLeft")).toBe("basil");
+    expect(move("basil", "ArrowRight")).toBe("grape");
   });
 
   it("jumps to the first and last cell", () => {
-    expect(move("Grafit", "Home")).toBe("Grožđe");
-    expect(move("Grafit", "End")).toBe("Bosiljak");
+    expect(move("graphite", "Home")).toBe("grape");
+    expect(move("graphite", "End")).toBe("basil");
   });
 
   it("moves Up to the upper-left and Down to the lower-right neighbour", () => {
-    expect(move("Grafit", "ArrowUp")).toBe("Trešnjin cvijet");
-    expect(move("Grafit", "ArrowDown")).toBe("Avokado");
+    expect(move("graphite", "ArrowUp")).toBe("cherryBlossom");
+    expect(move("graphite", "ArrowDown")).toBe("avocado");
   });
 
   it("falls back to the other diagonal when the preferred one is missing", () => {
-    expect(move("Ametist", "ArrowUp")).toBe("Grožđe");
-    expect(move("Pistacija", "ArrowDown")).toBe("Bosiljak");
+    expect(move("amethyst", "ArrowUp")).toBe("grape");
+    expect(move("pistachio", "ArrowDown")).toBe("basil");
   });
 
   it("undoes Up with Down and Down with Up from every cell that has both", () => {
@@ -66,13 +66,15 @@ describe("nextCellIndex", () => {
   });
 
   it("wraps vertically to the opposite edge row", () => {
-    expect(cells[nextCellIndex(cells, indexOf("Radič"), "ArrowUp")].r).toBe(2);
-    expect(cells[nextCellIndex(cells, indexOf("Kadulja"), "ArrowDown")].r).toBe(
+    expect(cells[nextCellIndex(cells, indexOf("radicchio"), "ArrowUp")].r).toBe(
+      2,
+    );
+    expect(cells[nextCellIndex(cells, indexOf("sage"), "ArrowDown")].r).toBe(
       -2,
     );
   });
 
   it("ignores other keys", () => {
-    expect(move("Grafit", "a")).toBe("Grafit");
+    expect(move("graphite", "a")).toBe("graphite");
   });
 });

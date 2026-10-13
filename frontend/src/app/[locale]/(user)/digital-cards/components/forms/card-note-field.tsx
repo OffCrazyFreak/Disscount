@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useFormContext } from "react-hook-form";
 
 import {
@@ -16,6 +17,7 @@ import type { DigitalCardRequest } from "@/lib/api/types";
 const NOTE_MAX_LENGTH = 500;
 
 export default function CardNoteField() {
+  const t = useTranslations("digitalCards.form");
   const form = useFormContext<DigitalCardRequest>();
 
   return (
@@ -24,17 +26,19 @@ export default function CardNoteField() {
       name="note"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Bilješka</FormLabel>
+          <FormLabel>{t("noteLabel")}</FormLabel>
           <FormControl>
             <Textarea
               {...field}
               value={field.value ?? ""}
               maxLength={NOTE_MAX_LENGTH}
-              placeholder="Npr. kartica je na ime partnera"
+              placeholder={t("notePlaceholder")}
             />
           </FormControl>
           <FormDescription>
-            Preostalo znakova: {NOTE_MAX_LENGTH - (field.value?.length ?? 0)}
+            {t("noteRemaining", {
+              count: NOTE_MAX_LENGTH - (field.value?.length ?? 0),
+            })}
           </FormDescription>
           <FormMessage />
         </FormItem>

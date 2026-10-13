@@ -3,7 +3,7 @@ export interface IStoreOption {
   value: string;
   label: string;
   chainCode?: string;
-  // The "Dodaj «upisano»" row for text that matches nothing in the list.
+  // The "add «typed text»" row for text that matches nothing in the list.
   custom?: boolean;
 }
 

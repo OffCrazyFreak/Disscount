@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { useCardPhoto } from "@/app/[locale]/(user)/digital-cards/hooks/use-card-photo";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CARD_PHOTO_SLOT_LABELS } from "@/constants/card-codes";
+import { CARD_PHOTO_SLOT_LABEL_KEYS } from "@/constants/card-codes";
 import type { CardPhotoDto } from "@/lib/api/types";
 
 interface ICardPhotoThumbProps {
@@ -17,9 +18,11 @@ export default function CardPhotoThumb({
   cardId,
   photo,
 }: ICardPhotoThumbProps) {
+  const t = useTranslations("digitalCards");
+  const tAll = useTranslations();
   const [enlarged, setEnlarged] = useState(false);
   const url = useCardPhoto(cardId, photo, "full");
-  const label = CARD_PHOTO_SLOT_LABELS[photo.slot];
+  const label = tAll(CARD_PHOTO_SLOT_LABEL_KEYS[photo.slot]);
 
   if (!url) return <Skeleton className="aspect-[3/2] w-full rounded-lg" />;
 
@@ -28,7 +31,7 @@ export default function CardPhotoThumb({
       <button
         type="button"
         onClick={() => setEnlarged(true)}
-        aria-label={`Povećaj sliku: ${label}`}
+        aria-label={t("view.photos.enlarge", { label })}
         className="overflow-hidden rounded-lg border focus-visible:outline-2"
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- blob object URL, nothing for next/image to optimise */}

@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import { AutocompleteItem } from "@/components/reui/autocomplete";
@@ -9,6 +10,8 @@ interface IStoreOptionItemProps {
 }
 
 export default function StoreOptionItem({ option }: IStoreOptionItemProps) {
+  const t = useTranslations("digitalCards.form");
+
   return (
     <AutocompleteItem value={option} className="min-h-10 gap-2.5">
       {option.chainCode ? (
@@ -25,7 +28,7 @@ export default function StoreOptionItem({ option }: IStoreOptionItemProps) {
       )}
 
       <span className="truncate">
-        {option.custom ? `Dodaj «${option.label}»` : option.label}
+        {option.custom ? t("storeAdd", { name: option.label }) : option.label}
       </span>
     </AutocompleteItem>
   );

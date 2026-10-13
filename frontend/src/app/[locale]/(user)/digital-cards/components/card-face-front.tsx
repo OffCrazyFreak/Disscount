@@ -1,3 +1,5 @@
+import { useLocale, useTranslations } from "next-intl";
+
 import CardIcon from "@/app/[locale]/(user)/digital-cards/components/card-icon";
 import { formatTileDate } from "@/app/[locale]/(user)/digital-cards/utils/card-date";
 import { initialsOf } from "@/app/[locale]/(user)/digital-cards/utils/card-initials";
@@ -13,7 +15,9 @@ export default function CardFaceFront({
   card,
   textColor,
 }: ICardFaceFrontProps) {
-  const date = formatTileDate(card.lastUsedAt ?? card.updatedAt);
+  const t = useTranslations("digitalCards");
+  const locale = useLocale();
+  const date = formatTileDate(card.lastUsedAt ?? card.updatedAt, locale);
   const archived = Boolean(card.archivedAt);
   const initials = initialsOf(card.storeName);
 
@@ -59,7 +63,7 @@ export default function CardFaceFront({
         <span className="flex items-center gap-1.5 text-xs tabular-nums">
           {archived && (
             <span className="rounded-full bg-[color-mix(in_srgb,var(--away)_22%,transparent)] px-[6px] py-[1px] text-[11px] font-semibold">
-              Arhivirana
+              {t("tile.archivedBadge")}
             </span>
           )}
           {date}

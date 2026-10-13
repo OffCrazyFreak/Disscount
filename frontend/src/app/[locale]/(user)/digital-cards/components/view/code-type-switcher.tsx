@@ -1,9 +1,10 @@
 "use client";
 
 import { Save, Shuffle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { CODE_TYPE_LABELS, type CodeType } from "@/constants/card-codes";
+import { CODE_TYPE_LABEL_KEYS, type CodeType } from "@/constants/card-codes";
 
 interface ICodeTypeSwitcherProps {
   shownType: CodeType;
@@ -22,12 +23,16 @@ export default function CodeTypeSwitcher({
   onNext,
   onSave,
 }: ICodeTypeSwitcherProps) {
+  const t = useTranslations("digitalCards");
+  const tAll = useTranslations();
   if (!canSwitch && shownType === savedType) return null;
 
   return (
     <div className="flex flex-col gap-2">
       <p aria-live="polite" className="text-sm text-muted-foreground">
-        Prikazano kao: {CODE_TYPE_LABELS[shownType]}
+        {t("view.switcher.shownAs", {
+          type: tAll(CODE_TYPE_LABEL_KEYS[shownType]),
+        })}
       </p>
 
       <div className="flex flex-wrap gap-2">
@@ -39,7 +44,7 @@ export default function CodeTypeSwitcher({
             iconPlacement="left"
             onClick={onNext}
           >
-            Ne skenira se? Probaj drugi tip
+            {t("view.switcher.tryOther")}
           </Button>
         )}
 
@@ -52,7 +57,7 @@ export default function CodeTypeSwitcher({
             loading={isSaving}
             onClick={onSave}
           >
-            Spremi kao zadano
+            {t("view.switcher.saveDefault")}
           </Button>
         )}
       </div>

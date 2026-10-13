@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import CardFaceBack from "@/app/[locale]/(user)/digital-cards/components/card-face-back";
 import CardFaceFront from "@/app/[locale]/(user)/digital-cards/components/card-face-front";
@@ -17,6 +18,7 @@ interface IDigitalCardTileProps {
 }
 
 export default function DigitalCardTile({ card }: IDigitalCardTileProps) {
+  const t = useTranslations("digitalCards");
   const finePointer = useFinePointer();
   // The back face draws a barcode, so only pay for it once a cursor has actually visited.
   const [visited, setVisited] = useState(false);
@@ -47,7 +49,10 @@ export default function DigitalCardTile({ card }: IDigitalCardTileProps) {
 
       <button
         type="button"
-        aria-label={`${card.storeName}, ${card.cardName}${archived ? " (arhivirana)" : ""}`}
+        aria-label={t(archived ? "tile.openArchived" : "tile.open", {
+          store: card.storeName,
+          name: card.cardName,
+        })}
         onClick={() =>
           openModalUrl({ name: "digital-card", action: "view", id: card.id })
         }

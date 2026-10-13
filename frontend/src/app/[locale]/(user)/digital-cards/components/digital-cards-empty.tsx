@@ -1,11 +1,14 @@
 "use client";
 
 import { CreditCard, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 
 export default function DigitalCardsEmpty() {
+  const t = useTranslations("digitalCards");
+
   return (
     <div className="py-12 text-center">
       <CreditCard
@@ -14,13 +17,10 @@ export default function DigitalCardsEmpty() {
       />
 
       <h3 className="mb-2 text-lg font-semibold text-foreground">
-        Još nemaš kartica
+        {t("empty.title")}
       </h3>
 
-      <p className="mb-6 text-gray-600">
-        Dodaj prvu karticu trgovine i na blagajni umjesto plastike pokaži
-        mobitel.
-      </p>
+      <p className="mb-6 text-gray-600">{t("empty.description")}</p>
 
       <Button
         effect="shineHover"
@@ -28,7 +28,7 @@ export default function DigitalCardsEmpty() {
         iconPlacement="left"
         onClick={() => openModalUrl({ name: "digital-card", action: "new" })}
       >
-        Dodaj karticu
+        {t("empty.add")}
       </Button>
     </div>
   );

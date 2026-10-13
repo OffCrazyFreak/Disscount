@@ -2,27 +2,22 @@
 
 import { useRef } from "react";
 import { Trash2, Undo2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import CardPhotoPreview from "@/app/[locale]/(user)/digital-cards/components/forms/photos/card-photo-preview";
 import { Button } from "@/components/ui/button";
 import {
-  CARD_PHOTO_SLOT_LABELS,
+  CARD_PHOTO_SLOT_LABEL_KEYS,
   type CardPhotoSlot,
 } from "@/constants/card-codes";
 import type { CardPhotoDto } from "@/lib/api/types";
-
-const STATUS_TEXT = {
-  uploading: "Slanje u tijeku",
-  queued: "Čeka slanje",
-  error: "Slanje nije uspjelo",
-} as const;
 
 interface ICardPhotoSlotProps {
   cardId: string;
   slot: CardPhotoSlot;
   saved?: CardPhotoDto;
   change: File | null | undefined;
-  status?: keyof typeof STATUS_TEXT;
+  status?: "uploading" | "queued" | "error";
   onChange: (change: File | null | undefined) => void;
 }
 
@@ -30,11 +25,16 @@ function describe(
   change: File | null | undefined,
   status: ICardPhotoSlotProps["status"],
   hasSaved: boolean,
-): string {
-  if (change === null) return "Slika će biti uklonjena pri spremanju";
-  if (change) return "Nova slika se sprema s karticom";
-  if (status) return STATUS_TEXT[status];
-  return hasSaved ? "Spremljeno" : "Nema slike";
+): `status.${
+  | "removed"
+  | "added"
+  | NonNullable<ICardPhotoSlotProps["status"]>
+  | "saved"
+  | "empty"}` {
+  if (change === null) return "status.removed";
+  if (change) return "status.added";
+  if (status) return `status.${status}`;
+  return hasSaved ? "status.saved" : "status.empty";
 }
 
 export default function CardPhotoSlotRow({
@@ -45,20 +45,22 @@ export default function CardPhotoSlotRow({
   status,
   onChange,
 }: ICardPhotoSlotProps) {
+  const t = useTranslations("digitalCards.photos");
+  const tRoot = useTranslations();
   const inputRef = useRef<HTMLInputElement>(null);
   const pickRef = useRef<HTMLButtonElement>(null);
-  const label = CARD_PHOTO_SLOT_LABELS[slot];
+  const label = tRoot(CARD_PHOTO_SLOT_LABEL_KEYS[slot]);
   const hasImage = change ? true : change === undefined && !!saved;
 
   // One button for remove, restore and discard keeps the focused element mounted as the
-  // label changes; discarding a not-yet-saved photo hides it, so focus moves to Dodaj.
+  // label changes; discarding a not-yet-saved photo hides it, so focus moves to the add button.
   const actionLabel =
     change === null
-      ? "Vrati sliku"
+      ? t("restoreAria", { label })
       : change
-        ? "Odbaci novu sliku"
+        ? t("discardAria", { label })
         : saved
-          ? "Ukloni sliku"
+          ? t("removeAria", { label })
           : null;
 
   function handleAction() {
@@ -90,7 +92,7 @@ export default function CardPhotoSlotRow({
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium">{label}</p>
         <p role="status" className="text-muted-foreground text-xs">
-          {describe(change, status, !!saved)}
+          {t(describe(change, status, !!saved))}
         </p>
       </div>
 
@@ -109,10 +111,10 @@ export default function CardPhotoSlotRow({
         type="button"
         variant="outline"
         size="sm"
-        aria-label={`${hasImage ? "Zamijeni" : "Dodaj"} sliku: ${label}`}
+        aria-label={t(hasImage ? "replaceAria" : "addAria", { label })}
         onClick={() => inputRef.current?.click()}
       >
-        {hasImage ? "Zamijeni" : "Dodaj"}
+        {hasImage ? t("replace") : t("add")}
       </Button>
 
       {actionLabel && (
@@ -120,7 +122,7 @@ export default function CardPhotoSlotRow({
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label={`${actionLabel}: ${label}`}
+          aria-label={actionLabel}
           onClick={handleAction}
         >
           {change === undefined ? (

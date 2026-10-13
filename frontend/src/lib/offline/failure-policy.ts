@@ -6,7 +6,10 @@ import { isNetworkFailure } from "@/lib/offline/is-network-failure";
 /** Resending can never succeed for these, so the queued entry is dropped. */
 const PERMANENT_STATUSES = new Set([400, 404, 409, 413, 422]);
 
-export const CARD_LIMIT_MESSAGE = "Dosegnut je najveći broj kartica.";
+export type CardWriteMessageKey =
+  "offline.cardLimit" | "offline.cardSaveFailed";
+
+export const CARD_LIMIT_KEY = "offline.cardLimit";
 
 /**
  * "keep": a later attempt can succeed (offline, signed out, throttled, server trouble),
@@ -27,8 +30,8 @@ export function httpStatus(error: unknown): number | undefined {
   return isAxiosError(error) ? error.response?.status : undefined;
 }
 
-/** The toast for a failed card write, or null when the failure needs no message. */
-export function cardWriteMessage(error: unknown): string | null {
+/** The `digitalCards` message key for a failed card write, or null when the failure needs no toast. */
+export function cardWriteMessage(error: unknown): CardWriteMessageKey | null {
   const status = httpStatus(error);
 
   // The card was deleted elsewhere; the invalidation that follows removes it here too.
@@ -37,8 +40,8 @@ export function cardWriteMessage(error: unknown): string | null {
   if (status === 409) {
     const detail = parseProblem(error)?.detail ?? "";
     // Other conflicts mean the write already landed, so there is nothing to tell.
-    return /najveći broj kartica/i.test(detail) ? CARD_LIMIT_MESSAGE : null;
+    return /najveći broj kartica/i.test(detail) ? CARD_LIMIT_KEY : null;
   }
 
-  return "Kartica nije spremljena. Pokušaj ponovno.";
+  return "offline.cardSaveFailed";
 }

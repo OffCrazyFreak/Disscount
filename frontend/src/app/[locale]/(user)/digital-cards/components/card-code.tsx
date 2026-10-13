@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { useTranslations } from "next-intl";
 
 import type { CodeType } from "@/constants/card-codes";
 import { useDevicePixelWidth } from "@/app/[locale]/(user)/digital-cards/hooks/use-device-pixel-width";
@@ -14,6 +15,7 @@ import { cn } from "@/lib/utils";
 
 // A matrix code at full panel width is taller than the screen on a phone in landscape.
 const MAX_MATRIX_WIDTH_PX = 360;
+const ABSOLUTE: CSSProperties["position"] = "absolute";
 
 interface ICardCodeProps {
   value: string;
@@ -29,9 +31,9 @@ interface ICardCodeProps {
   rotatedLength?: string;
 }
 
-function codeKindLabel(codeType: CodeType, twoDimensional: boolean): string {
-  if (codeType === "qr_code") return "QR kod";
-  return twoDimensional ? "2D kod" : "Crtični kod";
+function codeKindKey(codeType: CodeType, twoDimensional: boolean) {
+  if (codeType === "qr_code") return "view.code.qr";
+  return twoDimensional ? "view.code.twoDimensional" : "view.code.linear";
 }
 
 // Snaps a CSS offset to a device pixel so the rotated bars are not smeared by a half pixel.
@@ -48,6 +50,7 @@ export default function CardCode({
   fitParentHeight = false,
   rotatedLength,
 }: ICardCodeProps) {
+  const t = useTranslations("digitalCards");
   const rotated = rotatedLength !== undefined;
   const { ref, measured } = useDevicePixelWidth<HTMLDivElement>(
     rotated ? "self" : fitParentHeight ? "parent" : "none",
@@ -66,8 +69,7 @@ export default function CardCode({
           </p>
         ) : codeType === "unknown" ? null : (
           <p className="p-3 text-sm text-neutral-700">
-            Ovaj kod se ne može nacrtati. Pročitaj broj ispod ili probaj drugi
-            tip.
+            {t("view.code.cannotDraw")}
           </p>
         )}
       </div>
@@ -99,11 +101,11 @@ export default function CardCode({
       scaleToFit(modulesWide, modulesHigh, maxWidth, across);
   }
 
-  const kind = codeKindLabel(codeType, result.twoDimensional);
+  const kind = t(codeKindKey(codeType, result.twoDimensional));
   const image = (style: CSSProperties) => (
     <div
       role="img"
-      aria-label={labelValue ? `${kind}: ${value}` : kind}
+      aria-label={labelValue ? t("view.code.withValue", { kind, value }) : kind}
       className="[&>svg]:size-full"
       style={style}
       dangerouslySetInnerHTML={{ __html: result.svg }}
@@ -121,7 +123,7 @@ export default function CardCode({
       >
         {box &&
           image({
-            position: "absolute",
+            position: ABSOLUTE,
             left: 0,
             top: 0,
             width: box.size.width,

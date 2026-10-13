@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useFormContext } from "react-hook-form";
 
 import {
@@ -16,10 +17,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CARD_TYPES, CARD_TYPE_LABELS } from "@/constants/card-codes";
+import { CARD_TYPES, CARD_TYPE_LABEL_KEYS } from "@/constants/card-codes";
 import type { DigitalCardRequest } from "@/lib/api/types";
 
 export default function CardTypeField() {
+  const t = useTranslations();
   const form = useFormContext<DigitalCardRequest>();
 
   return (
@@ -28,7 +30,7 @@ export default function CardTypeField() {
       name="cardType"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Vrsta kartice</FormLabel>
+          <FormLabel>{t("digitalCards.form.cardTypeLabel")}</FormLabel>
 
           <Select
             value={field.value}
@@ -45,13 +47,15 @@ export default function CardTypeField() {
           >
             <FormControl>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Odaberi vrstu" />
+                <SelectValue
+                  placeholder={t("digitalCards.form.cardTypePlaceholder")}
+                />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
               {CARD_TYPES.map((cardType) => (
                 <SelectItem key={cardType} value={cardType}>
-                  {CARD_TYPE_LABELS[cardType]}
+                  {t(CARD_TYPE_LABEL_KEYS[cardType])}
                 </SelectItem>
               ))}
             </SelectContent>

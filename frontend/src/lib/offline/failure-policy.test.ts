@@ -2,7 +2,7 @@ import { AxiosError, type AxiosResponse } from "axios";
 import { describe, expect, it } from "vitest";
 
 import {
-  CARD_LIMIT_MESSAGE,
+  CARD_LIMIT_KEY,
   cardWriteMessage,
   failureAction,
 } from "@/lib/offline/failure-policy";
@@ -42,7 +42,7 @@ describe("cardWriteMessage", () => {
       status: 409,
       detail: "Dosegnut je najveći broj kartica",
     });
-    expect(cardWriteMessage(limit)).toBe(CARD_LIMIT_MESSAGE);
+    expect(cardWriteMessage(limit)).toBe(CARD_LIMIT_KEY);
   });
 
   it("treats any other conflict as already saved", () => {
@@ -50,8 +50,6 @@ describe("cardWriteMessage", () => {
   });
 
   it("falls back to the generic message", () => {
-    expect(cardWriteMessage(httpError(500))).toBe(
-      "Kartica nije spremljena. Pokušaj ponovno.",
-    );
+    expect(cardWriteMessage(httpError(500))).toBe("offline.cardSaveFailed");
   });
 });

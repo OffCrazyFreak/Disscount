@@ -1,8 +1,10 @@
-import { CARD_TYPE_LABELS } from "@/constants/card-codes";
+import { useLocale, useTranslations } from "next-intl";
+
 import {
-  formatCardBalance,
   formatCardDate,
+  formatCardMoney,
 } from "@/app/[locale]/(user)/digital-cards/utils/format-card-values";
+import { CARD_TYPE_LABEL_KEYS } from "@/constants/card-codes";
 import type { DigitalCardDto } from "@/lib/api/types";
 
 interface ICardDetailRowsProps {
@@ -10,16 +12,42 @@ interface ICardDetailRowsProps {
 }
 
 export default function CardDetailRows({ card }: ICardDetailRowsProps) {
+  const t = useTranslations("digitalCards");
+  const tAll = useTranslations();
+  const locale = useLocale();
+
+  function balanceText(balance: number, unit: string | null) {
+    if (unit) return formatCardMoney(balance, unit, locale);
+
+    // A fraction cannot take the counted plural form, so it has its own wording.
+    return Number.isInteger(balance)
+      ? t("view.details.points", { count: balance })
+      : t("view.details.pointsFraction", { count: balance });
+  }
+
   const rows: [string, string][] = [
-    ["Vrsta", CARD_TYPE_LABELS[card.cardType]],
-    ["Trgovina", card.storeName],
+    [t("view.details.type"), tAll(CARD_TYPE_LABEL_KEYS[card.cardType])],
+    [t("view.details.store"), card.storeName],
   ];
 
-  if (card.note) rows.push(["Bilješka", card.note]);
-  if (card.validFrom) rows.push(["Vrijedi od", formatCardDate(card.validFrom)]);
-  if (card.expiresOn) rows.push(["Vrijedi do", formatCardDate(card.expiresOn)]);
+  if (card.note) rows.push([t("view.details.note"), card.note]);
+  if (card.validFrom) {
+    rows.push([
+      t("view.details.validFrom"),
+      formatCardDate(card.validFrom, locale),
+    ]);
+  }
+  if (card.expiresOn) {
+    rows.push([
+      t("view.details.validTo"),
+      formatCardDate(card.expiresOn, locale),
+    ]);
+  }
   if (card.balance !== null) {
-    rows.push(["Stanje", formatCardBalance(card.balance, card.balanceUnit)]);
+    rows.push([
+      t("view.details.balance"),
+      balanceText(card.balance, card.balanceUnit),
+    ]);
   }
 
   return (

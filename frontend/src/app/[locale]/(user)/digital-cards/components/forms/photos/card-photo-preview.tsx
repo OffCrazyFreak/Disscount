@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { ImageIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import type { CardPhotoSlot } from "@/constants/card-codes";
 import { useCardPhoto } from "@/app/[locale]/(user)/digital-cards/hooks/use-card-photo";
@@ -25,6 +26,7 @@ export default function CardPhotoPreview({
   saved,
   change,
 }: ICardPhotoPreviewProps) {
+  const t = useTranslations("digitalCards.photos");
   const pickedUrl = useObjectUrl(change);
   const savedUrl = useCardPhoto(
     cardId,
@@ -43,7 +45,7 @@ export default function CardPhotoPreview({
       {url ? (
         <Image
           src={url}
-          alt={`Pregled slike: ${label}`}
+          alt={t("preview", { label })}
           fill
           unoptimized
           sizes="96px"

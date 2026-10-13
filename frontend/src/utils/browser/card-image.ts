@@ -8,6 +8,16 @@ const JPEG_QUALITY = 0.78;
 // The server refuses a full image over 512 KB; this leaves headroom for multipart framing.
 export const MAX_FULL_BYTES = 480 * 1024;
 
+export type CardImageErrorCode =
+  "cannotSave" | "cannotProcess" | "cannotOpen" | "tooLarge";
+
+/** The caller translates `code` as `digitalCards.errors.image.<code>`. */
+export class CardImageError extends Error {
+  constructor(readonly code: CardImageErrorCode) {
+    super(code);
+  }
+}
+
 export interface IPreparedCardImage {
   full: Blob;
   thumb?: Blob;
@@ -70,7 +80,7 @@ async function encode(
 
   paintWhiteBehind(canvas);
   const jpeg = await toBlob(canvas, "image/jpeg", quality ?? JPEG_QUALITY);
-  if (!jpeg) throw new Error("Slika se ne može spremiti u ovom pregledniku.");
+  if (!jpeg) throw new CardImageError("cannotSave");
   return jpeg;
 }
 
@@ -85,8 +95,7 @@ function draw(
   canvas.height = height;
 
   const context = canvas.getContext("2d");
-  if (!context)
-    throw new Error("Slika se ne može obraditi u ovom pregledniku.");
+  if (!context) throw new CardImageError("cannotProcess");
 
   context.imageSmoothingEnabled = true;
   context.imageSmoothingQuality = "high";
@@ -132,7 +141,7 @@ async function decode(file: File): Promise<ImageBitmap> {
   try {
     return await createImageBitmap(file, { imageOrientation: "from-image" });
   } catch {
-    throw new Error("Ova se slika ne može otvoriti. Odaberi drugu.");
+    throw new CardImageError("cannotOpen");
   }
 }
 
@@ -152,7 +161,7 @@ export async function prepareCardImage(
       ({ longEdge, quality }) => encode(scaled(bitmap, longEdge), quality),
       MAX_FULL_BYTES,
     );
-    if (!full) throw new Error("Slika je prevelika. Odaberi drugu.");
+    if (!full) throw new CardImageError("tooLarge");
 
     return {
       full,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useId } from "react";
+import { useTranslations } from "next-intl";
 import { useFormContext, useWatch } from "react-hook-form";
 
 import {
@@ -16,6 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import type { DigitalCardRequest } from "@/lib/api/types";
 
 export default function BarcodeValueField() {
+  const t = useTranslations("digitalCards.form");
   const form = useFormContext<DigitalCardRequest>();
   const switchId = useId();
   const barcodeValue = useWatch({
@@ -38,7 +40,7 @@ export default function BarcodeValueField() {
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
         <Label htmlFor={switchId} className="leading-snug">
-          Kod na kartici se razlikuje od broja
+          {t("barcodeDiffers")}
         </Label>
         <Switch
           id={switchId}
@@ -53,7 +55,7 @@ export default function BarcodeValueField() {
           name="barcodeValue"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Vrijednost koda</FormLabel>
+              <FormLabel>{t("barcodeValueLabel")}</FormLabel>
               <FormControl>
                 <Input
                   {...field}
