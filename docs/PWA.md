@@ -440,7 +440,7 @@ Read from `frontend/package.json`.
 - DevTools, Application, Manifest: no errors, icons and screenshots load, "Installability" passes.
 - App shortcuts: DevTools lists all four under Manifest with their icons resolving. On a phone, reinstall first (Android caches the WebAPK), then long-press the icon; Skeniraj should open the camera modal and land on the product page after a scan.
 
-**Endpoints (against a running server):** `curl -s http://localhost:3000/manifest.webmanifest` (fields present), `curl -s http://localhost:3000/ | grep apple-touch-startup-image` (18 links in `<head>`), `curl -s http://localhost:3000/ | grep 'theme-color'` (`#ffffff`).
+**Endpoints (against a running server):** `curl -s http://localhost:3000/manifest.webmanifest` (fields present), `curl -s http://localhost:3000/ | grep apple-touch-startup-image` (18 links in `<head>`), `curl -s http://localhost:3000/ | grep 'theme-color'` (`#ffffff`). The splash check only proves the links are in the server HTML; whether iOS actually shows the splash still needs a launch from the home screen on an iPhone, as in the install checks above.
 
 ---
 
