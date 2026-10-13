@@ -48,7 +48,7 @@ Safe without asking, run from `backend/`:
 
 Tests are meant to run on H2 and touch nothing outside the module, so none of these need a nod.
 
-`backend/src/test` now holds a suite for digital cards and store names only (photo validation, the card service, the controller). For those features a green `verify` is real evidence. Everywhere else it still proves only that the code compiles and packages, so do not report it as evidence that behaviour works there until that area has tests.
+`backend/src/test` now holds a suite for digital cards and store names (photo validation, the card service, the controller), plus the entity validation handler. For those features a green `verify` is real evidence. Everywhere else it still proves only that the code compiles and packages, so do not report it as evidence that behaviour works there until that area has tests.
 
 ## Definition of done
 

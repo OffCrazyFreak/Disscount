@@ -58,7 +58,7 @@ export default function HeroActions() {
             size="lg"
             className="w-full text-lg"
           >
-            <ScanBarcode className="size-6 mr-2" />
+            <ScanBarcode aria-hidden="true" className="size-6 mr-2" />
             {t("hero.scanBarcode")}
           </Button>
         </div>

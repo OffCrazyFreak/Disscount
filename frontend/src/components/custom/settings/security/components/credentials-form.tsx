@@ -2,6 +2,7 @@
 
 import { KeyRound } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useFormState } from "react-hook-form";
 
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/custom/form/password-input";
@@ -19,6 +20,8 @@ import ForgotPasswordLink from "@/components/custom/form/forgot-password-link";
 import PasswordRecovery from "@/components/custom/settings/security/components/password-recovery";
 import { useSecurity } from "@/components/custom/settings/security/security-context";
 import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
+import FormRootError from "@/components/custom/common/form-root-error";
+import { useValidationMessage } from "@/i18n/use-validation-message";
 
 export const CREDENTIALS_FORM_ID = "credentials-form";
 
@@ -26,6 +29,8 @@ export default function CredentialsForm() {
   const t = useTranslations("settings");
   const { hint } = usePasswordPolicy();
   const { form, submit, hasPassword, canEditEmail, recovery } = useSecurity();
+  const { errors } = useFormState({ control: form.control });
+  const translate = useValidationMessage();
 
   return (
     <SettingsSection
@@ -119,6 +124,8 @@ export default function CredentialsForm() {
               )}
             />
           )}
+
+          <FormRootError message={translate(errors.root?.message)} />
         </form>
       </Form>
 

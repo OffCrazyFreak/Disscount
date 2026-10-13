@@ -164,6 +164,7 @@ export function useCredentialsSubmit({
   }
 
   async function submit(data: CredentialsFormValues) {
+    form.clearErrors("root");
     try {
       if (hasPassword) {
         await updateCredentials(data);

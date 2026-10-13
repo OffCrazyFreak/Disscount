@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -81,6 +82,22 @@ class DigitalCardControllerTest {
                         .contentType(MediaType.APPLICATION_JSON).content(validBody()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.cardName").value("Moja"));
+    }
+
+    @Test
+    void invalidBodyAnswersInTheRequestLanguage() throws Exception {
+        String body = """
+                {"cardName":"A","cardType":"loyalty","storeName":"Konzum","codeValue":"123",
+                 "codeType":"ean_13","cardColor":"#3F51B5"}
+                """;
+
+        mvc.perform(put("/api/digital-cards/{id}", cardId).with(auth())
+                        .header("Accept-Language", "de")
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.cardName").value("Der Kartenname muss 2 bis 60 Zeichen lang sein"));
+
+        verifyNoInteractions(cardService);
     }
 
     @Test
@@ -209,6 +226,14 @@ class DigitalCardControllerTest {
                     .andExpect(status().isBadRequest());
         }
         verifyNoInteractions(cardService);
+    }
+
+    @Test
+    void emptyUsedBatchNamesTheLimits() throws Exception {
+        mvc.perform(post("/api/digital-cards/used").with(auth())
+                        .contentType(MediaType.APPLICATION_JSON).content("[]"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.*", hasItem("Pošalji od 1 do 50 kartica odjednom")));
     }
 
     @Test

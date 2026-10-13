@@ -36,7 +36,7 @@ export default function FeatureCard({ feature }: IFeatureCardProps) {
               : "bg-primary/10 text-primary",
           )}
         >
-          <Icon className="size-6" />
+          <Icon aria-hidden="true" className="size-6" />
         </div>
 
         <h3 className="font-semibold text-pretty">

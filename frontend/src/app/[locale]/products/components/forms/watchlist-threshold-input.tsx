@@ -92,6 +92,7 @@ export default function WatchlistThresholdInput({
           )}
 
           {existingItemForType &&
+            Number.isFinite(current) &&
             existingItemForType.thresholdValue !== current && (
               <FormDescription className="text-xs">
                 {t("threshold.willUpdate", {

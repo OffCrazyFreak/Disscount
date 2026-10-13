@@ -33,7 +33,10 @@ export default function FaqSection() {
               </h3>
 
               <span className="faq-icon">
-                <Plus className="size-5 shrink-0 text-primary" />
+                <Plus
+                  aria-hidden="true"
+                  className="size-5 shrink-0 text-primary"
+                />
               </span>
             </summary>
 
