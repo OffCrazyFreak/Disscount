@@ -1,7 +1,7 @@
 "use client";
 
+import { usePathname } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
 
 /** Query string that, unlike useSearchParams, keeps its caller in the static prerender. */
 export function useClientSearchParams(): URLSearchParams | null {

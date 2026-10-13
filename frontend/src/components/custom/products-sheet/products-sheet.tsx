@@ -1,12 +1,13 @@
 "use client";
 
+import { usePathname } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchNavButton from "@/components/custom/search/search-nav-button";
 import ProductsSheetSubmit from "@/components/custom/products-sheet/products-sheet-submit";
 import SheetShell from "@/components/custom/modal/sheet-shell";
-import ProductSearchFilters from "@/app/products/components/product-search-filters";
+import ProductSearchFilters from "@/app/[locale]/products/components/product-search-filters";
 import { useProductsSheet } from "@/context/products-sheet-context";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUser } from "@/context/user-context";
@@ -36,6 +37,7 @@ export default function ProductsSheet() {
     triggerRef,
     close,
   } = useProductsSheet();
+  const t = useTranslations("products");
   const [typedQuery, setTypedQuery] = useState("");
   const [wasOpen, setWasOpen] = useState(false);
   const pathname = usePathname();
@@ -66,9 +68,9 @@ export default function ProductsSheet() {
     <SheetShell
       open={isOpen}
       onOpenChange={(next) => !next && close()}
-      title="Traži proizvode"
+      title={t("productsSheet.title")}
       srOnlyTitle
-      description="Upiši naziv proizvoda ili skeniraj crtni kod."
+      description={t("productsSheet.description")}
       // The one non-modal sheet: picking a facet re-filters the list behind it
       // live, so it must neither cover the page nor lock it.
       modal={false}
@@ -92,7 +94,7 @@ export default function ProductsSheet() {
     >
       <SearchBar
         searchRoute={FILTERED_ROUTE}
-        placeholder="Pretraži proizvode..."
+        placeholder={t("list.searchPlaceholder")}
         allowScanning
         submitButtonLocation="none"
         formId={PRODUCTS_FORM_ID}

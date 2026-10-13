@@ -185,7 +185,7 @@ class DigitalCardServiceTest {
 
         assertThatThrownBy(() -> service.upsert(owner.getId(), UUID.randomUUID(), request("Višak")))
                 .isInstanceOf(ConflictException.class)
-                .hasMessage("Dosegnut je najveći broj kartica");
+                .hasMessage("error.card.limitReached");
 
         // Editing an existing card at the cap is still allowed.
         UUID existing = cards.findActiveByUserId(owner.getId()).get(0).getId();

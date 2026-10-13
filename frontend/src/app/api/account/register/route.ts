@@ -8,12 +8,17 @@ import { user as userTable } from "@/db/auth-schema";
 import { requireEnv } from "@/lib/env";
 import { passwordSchema } from "@/lib/auth/password-policy";
 import { rejectUnacceptablePassword } from "@/lib/auth/password-rejection";
+import { DEFAULT_LOCALE, LOCALES } from "@/i18n/locales";
+import { localePath } from "@/i18n/locale-path";
 
 const BETTER_AUTH_URL = requireEnv("BETTER_AUTH_URL");
 
 const registerSchema = z.object({
   email: z.email(),
   password: passwordSchema,
+  // The page language at signup becomes the account language, which picks the
+  // language of the verification email.
+  locale: z.enum(LOCALES).catch(DEFAULT_LOCALE),
 });
 
 // Always responds identically so existence never leaks: a new email gets a normal
@@ -24,15 +29,12 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: "Invalid request body" },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
 
   const parsed = registerSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+    return NextResponse.json({ error: "invalid_input" }, { status: 400 });
   }
 
   // Before the account lookup, so the verdict depends on the password alone and can't
@@ -42,6 +44,7 @@ export async function POST(request: Request) {
 
   // Better Auth normalizes stored emails to lowercase, so match on the lowercased input.
   const email = parsed.data.email.toLowerCase();
+  const { locale } = parsed.data;
 
   try {
     const existing = await db
@@ -55,7 +58,7 @@ export async function POST(request: Request) {
         body: {
           email,
           // No email in the URL: it would leak via history, Referer and logs.
-          redirectTo: `${BETTER_AUTH_URL}/reset-password`,
+          redirectTo: `${BETTER_AUTH_URL}${localePath(locale, "/reset-password")}`,
         },
       });
     } else {
@@ -64,8 +67,9 @@ export async function POST(request: Request) {
           email,
           password: parsed.data.password,
           name: email.split("@")[0],
+          locale,
           // Better Auth signs them in en route to this success modal.
-          callbackURL: "/?modal=email-verified",
+          callbackURL: localePath(locale, "/?modal=email-verified"),
         },
       });
     }

@@ -1,0 +1,46 @@
+{
+  "layout": {
+    "footer": "Ricevi questa email perché questo indirizzo è collegato a un account Disscount. Puoi cambiare le impostazioni delle email in qualsiasi momento dopo <link>l'accesso a Disscount</link>.",
+    "fallback": "Se il pulsante non funziona, copia questo link nel browser: <link>{url}</link>"
+  },
+  "verification": {
+    "subject": "Conferma il tuo indirizzo email",
+    "preview": "Basta un clic e l'account Disscount è pronto.",
+    "heading": "Che bello averti qui!",
+    "intro": "Conferma il tuo indirizzo email e l'account Disscount è pronto. Poi potrai salvare le liste della spesa e seguire i prezzi dei prodotti che preferisci.",
+    "button": "Conferma indirizzo email",
+    "footnote": "Se non hai richiesto tu questa operazione, ignora questa email."
+  },
+  "passwordReset": {
+    "subject": "Reimposta la password",
+    "preview": "Il link per la nuova password scade tra {minutes, plural, one {# minuto} other {# minuti}}.",
+    "heading": "Password dimenticata? Nessun problema.",
+    "intro": "Qualcuno ha chiesto una nuova password per l'account Disscount. Puoi impostarla con il pulsante qui sotto. Il link scade tra {minutes, plural, one {# minuto} other {# minuti}}.",
+    "button": "Reimposta la password",
+    "footnote": "Se non hai richiesto tu questa operazione, ignora questa email."
+  },
+  "setPassword": {
+    "subject": "Imposta una password",
+    "preview": "Aggiungi una password e accedi anche con l'email.",
+    "heading": "Aggiungi una password",
+    "intro": "Per questo indirizzo email hai già un account Disscount collegato a Google o Facebook. Con una password potrai accedere anche con l'email. Il link scade tra {minutes, plural, one {# minuto} other {# minuti}}.",
+    "button": "Imposta password",
+    "footnote": "Se non hai richiesto tu questa operazione, ignora questa email."
+  },
+  "changeEmail": {
+    "subject": "Conferma il nuovo indirizzo email",
+    "preview": "Manca solo la conferma del nuovo indirizzo email.",
+    "heading": "Vuoi cambiare indirizzo email?",
+    "intro": "Qualcuno ha chiesto di cambiare l'indirizzo email dell'account Disscount in <email>{newEmail}</email>. La modifica vale solo dopo la tua conferma.",
+    "button": "Conferma modifica",
+    "footnote": "Se non hai richiesto tu questa operazione, cambia subito la password e scrivici. L'indirizzo resta lo stesso finché non confermi."
+  },
+  "breachedPassword": {
+    "subject": "La tua password è stata trovata in una violazione di dati",
+    "preview": "Abbiamo trovato la tua password in una violazione di dati, impostane una nuova",
+    "heading": "La tua password è stata trovata in una violazione di dati",
+    "intro": "Qualcuno ha appena provato ad accedere al tuo account Disscount con la password corretta. Abbiamo trovato quella password in una violazione di dati nota di un altro sito, quindi non abbiamo consentito l'accesso. Imposta una nuova password con il pulsante qui sotto. Appena lo fai, ti disconnetteremo da tutti i dispositivi. Il link vale {minutes, plural, one {# minuto} other {# minuti}}.",
+    "button": "Imposta una nuova password",
+    "footnote": "Se il tentativo non è tuo, imposta comunque una nuova password. Se usi questa password anche altrove, cambiala anche lì."
+  }
+}

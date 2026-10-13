@@ -3,6 +3,7 @@
 import { useEffect, useCallback, useRef, type RefObject } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
 import SearchBarActions from "@/components/custom/search/search-bar-actions";
 import SearchActionButton from "@/components/custom/search/search-action-button";
@@ -33,20 +34,23 @@ interface ISearchBarProps {
 }
 
 export default function SearchBar({
-  placeholder = "Pretraži...",
+  placeholder: placeholderProp,
   searchRoute,
   clearable = true,
   submitButtonLocation = "auto",
   autoSearch = false,
   allowScanning = false,
   disabled = false,
-  submitLabel = "Pretraži",
+  submitLabel: submitLabelProp,
   formId,
   inputRef: exposedInputRef,
   onQueryChange,
   onSubmitted,
   shallow = false,
 }: ISearchBarProps) {
+  const t = useTranslations("shell");
+  const placeholder = placeholderProp ?? t("search.placeholder");
+  const submitLabel = submitLabelProp ?? t("search.submit");
   const { routeQuery, isUnchanged, search, syncQuery, openResult } =
     useSearchNavigation(searchRoute, { shallow });
   const { openScanner } = useCameraScanner();
@@ -145,7 +149,7 @@ export default function SearchBar({
             inputMode="search"
             enterKeyHint="search"
             placeholder={placeholder}
-            aria-label={placeholder || "Pretraži"}
+            aria-label={placeholder || t("search.submit")}
             disabled={disabled}
             size="lg"
             className="pl-10 pr-22 text-gray-500 focus:text-gray-700 bg-white [&::-webkit-search-cancel-button]:hidden"

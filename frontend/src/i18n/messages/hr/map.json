@@ -1,0 +1,87 @@
+{
+  "meta": {
+    "title": "Karta trgovina",
+    "description": "Pronađi trgovine na karti: Konzum, Lidl, Kaufland, Spar, Plodine, Tommy, Studenac i još 20 lanaca diljem Hrvatske. Pretraži po gradu ili adresi i pronađi najbližu."
+  },
+  "heading": "Karta trgovina",
+  "search": {
+    "placeholder": "Lanac, grad ili adresa..."
+  },
+  "layout": {
+    "skipMap": "Preskoči kartu",
+    "storeList": "Popis trgovina",
+    "stores": "Trgovine",
+    "collapse": "Smanji popis",
+    "expand": "Proširi popis"
+  },
+  "load": {
+    "error": "Trgovine se trenutačno ne mogu učitati.",
+    "retry": "Pokušaj ponovno",
+    "loading": "Učitavam trgovine..."
+  },
+  "unavailable": {
+    "browser": "Tvoj preglednik ne može prikazati kartu. Sve trgovine i dalje su na popisu.",
+    "style": "Karta se trenutačno ne može učitati. Sve trgovine i dalje su na popisu.",
+    "contextLost": "Karta se prekinula.",
+    "reload": "Učitaj ponovno"
+  },
+  "chains": {
+    "group": "Lanci",
+    "selectAll": "Odaberi sve",
+    "clearAll": "Ukloni sve"
+  },
+  "nearMe": {
+    "locate": "Trgovine blizu mene",
+    "clear": "Ukloni moju lokaciju",
+    "denied": "Pristup lokaciji je odbijen. Dopusti ga u postavkama preglednika ili pretraži po gradu.",
+    "unavailable": "Lokacija trenutačno nije dostupna. Pretraži po gradu ili adresi.",
+    "timeout": "Traženje lokacije traje predugo. Pokušaj ponovno ili pretraži po gradu.",
+    "approximate": "Poredano od približne lokacije ({city}). Za točan redoslijed dodirni „Trgovine blizu mene”.",
+    "approximateNoCity": "Poredano od približne lokacije. Za točan redoslijed dodirni „Trgovine blizu mene”.",
+    "coarse": "Lokacija je približna, pa udaljenosti nisu prikazane."
+  },
+  "recent": {
+    "label": "Nedavne pretrage:",
+    "clear": "Obriši",
+    "clearLabel": "Obriši nedavne pretrage"
+  },
+  "count": {
+    "shown": "{count, plural, one {# trgovina} few {# trgovine} other {# trgovina}}",
+    "unplaced": "{shown}, od toga {unplaced} bez lokacije na karti. One su i dalje na popisu."
+  },
+  "pan": {
+    "group": "Pomicanje karte",
+    "up": "Pomakni kartu gore",
+    "left": "Pomakni kartu lijevo",
+    "right": "Pomakni kartu desno",
+    "down": "Pomakni kartu dolje"
+  },
+  "list": {
+    "unknownCity": "Nepoznat grad",
+    "noLocation": "bez lokacije"
+  },
+  "details": {
+    "back": "Natrag na popis",
+    "unknownAddress": "Adresa nije poznata",
+    "distance": "{distance} od tebe",
+    "notPlaced": "Za ovu trgovinu još nemamo točnu lokaciju, pa nije na karti."
+  },
+  "actions": {
+    "googleDirections": "Upute (Google karte)",
+    "appleMaps": "Apple karte",
+    "call": "Nazovi {phone}",
+    "share": "Podijeli",
+    "copied": "Poveznica je kopirana.",
+    "shareFailed": "Dijeljenje nije uspjelo.",
+    "report": "Prijavi grešku"
+  },
+  "report": {
+    "subject": "Pogrešna lokacija trgovine",
+    "message": "Trgovina: {store} ({id})\n\nŠto nije u redu: "
+  },
+  "summary": {
+    "title": "Trgovine po lancima",
+    "stores": "{count, plural, one {# trgovina} few {# trgovine} other {# trgovina}}",
+    "where": "{kind, select, one {, u mjestu {cities}} some {, u mjestima {cities}} many {, među ostalim u mjestima {cities}} other {}}"
+  }
+}

@@ -7,34 +7,37 @@ import type { ModalTarget } from "@/lib/modal/modal-registry";
 
 const ShoppingListModal = dynamic(
   () =>
-    import("@/app/(user)/shopping-lists/components/forms/shopping-list-modal"),
+    import("@/app/[locale]/(user)/shopping-lists/components/forms/shopping-list-modal"),
   { ssr: false },
 );
 const ShareListModal = dynamic(
-  () => import("@/app/(user)/shopping-lists/components/forms/share-list-modal"),
+  () =>
+    import("@/app/[locale]/(user)/shopping-lists/components/forms/share-list-modal"),
   { ssr: false },
 );
 
 const CopyListModal = dynamic(
-  () => import("@/app/(user)/shopping-lists/components/forms/copy-list-modal"),
+  () =>
+    import("@/app/[locale]/(user)/shopping-lists/components/forms/copy-list-modal"),
   { ssr: false },
 );
 const DigitalCardModal = dynamic(
   () =>
-    import("@/app/(user)/digital-cards/components/forms/digital-card-modal"),
+    import("@/app/[locale]/(user)/digital-cards/components/forms/digital-card-modal"),
   { ssr: false },
 );
 const DigitalCardViewModal = dynamic(
   () =>
-    import("@/app/(user)/digital-cards/components/view/digital-card-view-modal"),
+    import("@/app/[locale]/(user)/digital-cards/components/view/digital-card-view-modal"),
   { ssr: false },
 );
 const AddToShoppingListModal = dynamic(
-  () => import("@/app/products/components/forms/add-to-shopping-list-form"),
+  () =>
+    import("@/app/[locale]/products/components/forms/add-to-shopping-list-form"),
   { ssr: false },
 );
 const WatchlistItemModal = dynamic(
-  () => import("@/app/products/components/forms/watchlist-item-modal"),
+  () => import("@/app/[locale]/products/components/forms/watchlist-item-modal"),
   { ssr: false },
 );
 

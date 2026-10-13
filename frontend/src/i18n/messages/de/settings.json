@@ -1,0 +1,209 @@
+{
+  "modal": {
+    "title": "Einstellungen",
+    "description": "Verwalte Profil, Benachrichtigungen, Vorlieben und Sicherheit.",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "reset": "Zurücksetzen",
+    "replayGuide": "Rundgang wiederholen",
+    "unsavedChanges": "Ungespeicherte Änderungen"
+  },
+  "tabs": {
+    "profile": "Profil",
+    "notifications": "Benachrichtigungen",
+    "preferences": "Vorlieben",
+    "security": "Sicherheit"
+  },
+  "profile": {
+    "avatar": {
+      "change": "Bild ändern",
+      "remove": "Bild entfernen",
+      "formats": "PNG, JPG, WebP oder GIF (wird als WebP gespeichert).",
+      "tooLarge": "Das Bild ist zu groß. Maximal 15 MB sind erlaubt.",
+      "loadFailed": "Das Bild konnte nicht geladen werden. Probiere es mit JPG oder PNG."
+    },
+    "username": {
+      "label": "Benutzername",
+      "description": "Wie sollen wir dich nennen? Der Name muss einmalig sein."
+    },
+    "acquisition": {
+      "label": "Woher kennst du Disscount?",
+      "placeholder": "Quelle auswählen",
+      "description": "So wissen wir, wo wir besser für dich zu finden sind."
+    },
+    "channels": {
+      "GOOGLE_SEARCH": "Google-Suche",
+      "INSTAGRAM": "Instagram",
+      "FACEBOOK": "Facebook",
+      "TIKTOK": "TikTok",
+      "YOUTUBE": "YouTube",
+      "FRIEND_OR_FAMILY": "Empfehlung von Freunden oder Familie",
+      "ONLINE_AD": "Online-Werbung",
+      "BLOG_OR_NEWS": "Blog, Artikel oder Medien",
+      "APP_STORE": "App Store / Google Play",
+      "POSTER_OR_FLYER": "Plakat oder Flyer",
+      "EVENT": "Messe oder Veranstaltung",
+      "OTHER": "Sonstiges"
+    }
+  },
+  "notifications": {
+    "hint": "Wähle, wie, worüber und wann du Benachrichtigungen zu Angeboten und Neuigkeiten bekommst.",
+    "push": {
+      "label": "App-Benachrichtigungen erlauben",
+      "description": "Du bekommst auf dem Handy nur Angebote zu Produkten, die du auswählst. Kein Spam."
+    },
+    "email": {
+      "label": "E-Mail-Benachrichtigungen erlauben",
+      "description": "Du bekommst per E-Mail nur Angebote zu Produkten, die du auswählst. Kein Spam."
+    },
+    "newsletter": {
+      "label": "Neuigkeiten und Updates",
+      "description": "Gelegentlich Neuigkeiten zu Disscount per E-Mail, ohne Spam."
+    },
+    "feedback": {
+      "label": "Kontakt für Feedback",
+      "description": "Wir dürfen dich um Feedback zur App bitten."
+    }
+  },
+  "preferences": {
+    "stores": {
+      "label": "Märkte",
+      "hint": "Wähle Märkte in deiner Nähe."
+    },
+    "places": {
+      "label": "Standorte",
+      "hint": "Wähle Standorte in deiner Nähe.",
+      "placeholder": "Standorte auswählen..."
+    },
+    "selectedMark": "✓",
+    "language": {
+      "label": "Sprache",
+      "hint": "Die Sprache der App und der E-Mails, die wir dir schicken.",
+      "locked": "Speichere oder setze deine Änderungen zuerst zurück, dann kannst du die Sprache wechseln."
+    }
+  },
+  "save": {
+    "offline": "Du bist offline. Die Änderungen werden synchronisiert, sobald du wieder online bist.",
+    "onboardingDone": "Alles bereit!",
+    "settingsSaved": "Einstellungen gespeichert!",
+    "errors": {
+      "user": "Das Profil konnte nicht gespeichert werden.",
+      "stores": "Die Märkte konnten nicht gespeichert werden.",
+      "places": "Die Standorte konnten nicht gespeichert werden."
+    }
+  },
+  "validation": {
+    "usernameMin": "Der Benutzername braucht mindestens 2 Zeichen",
+    "usernameMax": "Der Benutzername darf höchstens 40 Zeichen haben",
+    "emailInvalid": "Gib eine gültige E-Mail-Adresse ein",
+    "currentPasswordRequired": "Gib dein aktuelles Passwort ein"
+  },
+  "onboarding": {
+    "fallbackDescription": "Kurze Einrichtung deines Kontos. Alles lässt sich später ändern.",
+    "progress": "Schritt {current} von {total}",
+    "logout": "Abmelden",
+    "logoutFailed": "Abmelden hat nicht geklappt. Versuche es erneut.",
+    "back": "Zurück",
+    "next": "Weiter",
+    "finish": "Fertig",
+    "steps": {
+      "welcome": {
+        "title": "Schön, dass du da bist!",
+        "titleNamed": "{username}, schön, dass du da bist!"
+      },
+      "profile": {
+        "title": "Dein Profil",
+        "description": "Stell dich kurz vor. Du kannst alles später in den Einstellungen ändern."
+      },
+      "notifications": {
+        "title": "Benachrichtigungen",
+        "description": "Wähle, wie, worüber und wann du Benachrichtigungen zu Angeboten und Neuigkeiten bekommst."
+      },
+      "preferences": {
+        "title": "Deine Märkte und Standorte",
+        "description": "Wähle Märkte und Orte in deiner Nähe, damit der Preisvergleich besser passt."
+      },
+      "done": {
+        "title": "Alles bereit!"
+      }
+    },
+    "welcome": {
+      "intro": "In ein paar kurzen Schritten richten wir Disscount für dich ein. Alles lässt sich später in den Einstellungen ändern.",
+      "profile": {
+        "title": "Profil anpassen",
+        "text": "Lege Namen und Bild fest, damit die App zu dir passt."
+      },
+      "stores": {
+        "title": "Deine Märkte",
+        "text": "Wähle Märkte und Standorte, damit der Preisvergleich zu deinem Geldbeutel passt."
+      },
+      "notifications": {
+        "title": "Benachrichtigungen ohne Spam",
+        "text": "Wähle, wie, worüber und wann du Benachrichtigungen zu Angeboten und Neuigkeiten bekommst."
+      }
+    },
+    "done": {
+      "title": "Disscount ist bereit für dich.",
+      "text": "Mit „Fertig“ speichern wir deine Auswahl. Du kannst alles später in den Kontoeinstellungen ändern."
+    }
+  },
+  "security": {
+    "credentials": {
+      "label": "Anmeldung und Passwort",
+      "hintWithPassword": "Bestätige dein aktuelles Passwort, um E-Mail-Adresse oder Passwort zu ändern.",
+      "hintWithoutPassword": "Lege ein Passwort fest, damit du dich auch per E-Mail anmelden kannst, nicht nur mit Google oder Facebook.",
+      "email": "E-Mail",
+      "emailLockedSocial": "Trenne zuerst die verknüpften Konten (Google, Facebook), um die E-Mail-Adresse zu ändern.",
+      "emailLockedNoPassword": "Du kannst die E-Mail-Adresse ändern, sobald du ein Passwort festgelegt hast.",
+      "newPassword": "Neues Passwort",
+      "password": "Passwort",
+      "newPasswordPlaceholder": "Leer lassen, um es nicht zu ändern",
+      "currentPassword": "Aktuelles Passwort",
+      "currentPasswordDescription": "Nötig, um die Änderung von E-Mail-Adresse oder Passwort zu bestätigen."
+    },
+    "submit": {
+      "setPasswordFailed": "Das Passwort konnte nicht festgelegt werden.",
+      "passwordSet": "Passwort festgelegt! Du kannst dich jetzt auch per E-Mail anmelden.",
+      "noChanges": "Es gibt nichts zu speichern.",
+      "currentPasswordWrong": "Das aktuelle Passwort stimmt nicht.",
+      "changePasswordFailed": "Das Passwort konnte nicht geändert werden.",
+      "socialLinked": "Trenne zuerst die verknüpften Konten (Google, Facebook), um die E-Mail-Adresse zu ändern.",
+      "changeEmailFailed": "Die E-Mail-Adresse konnte nicht geändert werden.",
+      "passwordChanged": "Passwort geändert.",
+      "passwordChangedConfirmEmail": "Passwort geändert. Bestätige den Link, den wir an deine aktuelle Adresse geschickt haben, um die E-Mail-Adresse zu ändern.",
+      "emailConfirmationSent": "Wir haben einen Bestätigungslink an deine aktuelle E-Mail-Adresse geschickt. Die neue Adresse gilt, sobald du bestätigt hast.",
+      "generic": "Etwas ist schiefgelaufen. Versuche es erneut.",
+      "tooManyAttempts": "Zu viele falsche Versuche. Versuch es in 15 Minuten noch mal."
+    },
+    "recovery": {
+      "title": "Schau in dein Postfach",
+      "description": "Wir haben dir einen Link zum Ändern deines Passworts geschickt. Danach melden wir dich auf allen Geräten ab.",
+      "sendFailed": "Der Link konnte nicht gesendet werden. Versuche es erneut."
+    },
+    "linked": {
+      "label": "Verknüpfte Konten",
+      "hint": "Verknüpfe Google oder Facebook für eine schnellere Anmeldung.",
+      "link": "Verknüpfen",
+      "unlink": "Trennen",
+      "linkFailed": "Das Konto konnte nicht verknüpft werden.",
+      "unlinkFailed": "Das Konto konnte nicht getrennt werden.",
+      "unlinked": "Konto getrennt."
+    },
+    "actions": {
+      "revokeLabel": "Auf anderen Geräten abmelden",
+      "revokeDescription": "Beendet alle aktiven Anmeldungen außer dieser.",
+      "revokeButton": "Abmelden",
+      "deleteLabel": "Konto löschen",
+      "deleteDescription": "Löscht dein Konto und alle zugehörigen Daten dauerhaft.",
+      "deleteButton": "Löschen",
+      "revokeDialogTitle": "Auf anderen Geräten abmelden?",
+      "revokeDialogDescription": "Alle aktiven Anmeldungen außer dieser werden beendet.",
+      "deleteDialogTitle": "Konto löschen?",
+      "deleteDialogDescription": "Dein Konto und alle zugehörigen Daten werden unwiderruflich gelöscht.",
+      "revokeFailed": "Das Abmelden auf den anderen Geräten hat nicht geklappt.",
+      "revoked": "Du wurdest auf allen anderen Geräten abgemeldet.",
+      "deleted": "Dein Konto wurde gelöscht.",
+      "deleteFailed": "Das Konto konnte nicht gelöscht werden. Versuche es erneut."
+    }
+  }
+}

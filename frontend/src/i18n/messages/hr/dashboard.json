@@ -1,0 +1,86 @@
+{
+  "meta": {
+    "title": "Nadzorna ploča",
+    "description": "Nadzorna ploča za partnere, javni sektor i administratore."
+  },
+  "content": {
+    "title": "Nadzorna ploča",
+    "tabUsers": "Korisnici",
+    "tabContact": "Kontakt",
+    "comingSoon": "Ovdje će uskoro biti dostupni podaci i alati."
+  },
+  "activity": {
+    "title": "Aktivni korisnici",
+    "error": "Greška pri dohvaćanju korisnika.",
+    "windowLabel": "Razdoblje:",
+    "window": {
+      "d1": "Zadnji 1 dan",
+      "d7": "Zadnjih 7 dana",
+      "d14": "Zadnjih 14 dana",
+      "d30": "Zadnjih 30 dana",
+      "d90": "Zadnjih 90 dana"
+    },
+    "abbreviation": "({abbreviation})"
+  },
+  "stats": {
+    "weekly": "Tjedno aktivni korisnici",
+    "monthly": "Mjesečno aktivni korisnici"
+  },
+  "users": {
+    "accountTypeUpdated": "Vrsta računa ažurirana!",
+    "accountTypeError": "Greška pri promjeni vrste računa.",
+    "deleted": "Račun je obrisan!",
+    "deleteError": "Greška pri brisanju računa.",
+    "loadError": "Greška pri dohvaćanju korisnika.",
+    "colUsername": "Korisničko ime",
+    "colEmail": "Email",
+    "colLastLogin": "Zadnja prijava",
+    "colAccountType": "Vrsta računa",
+    "deleteTitle": "Brisanje računa",
+    "deleteDescription": "Sigurno želiš obrisati račun {name}? Ovo se ne može poništiti.",
+    "deleteConfirm": "Obriši račun"
+  },
+  "userRow": {
+    "you": "Ti",
+    "deleteAccount": "Obriši račun"
+  },
+  "contact": {
+    "viewAll": "Sve",
+    "viewUnread": "Nepročitane",
+    "loadError": "Greška pri dohvaćanju poruka.",
+    "searchPlaceholder": "Pretraži poruke...",
+    "showDeleted": "Prikaži obrisane",
+    "colMessage": "Poruka",
+    "colSender": "Pošiljatelj",
+    "colSent": "Poslano",
+    "colStatus": "Status",
+    "colActions": "Radnje",
+    "empty": "Nema poruka."
+  },
+  "contactRow": {
+    "unreadMarker": "Nepročitano",
+    "deletedBadge": "Obrisano",
+    "markRead": "Označi pročitano",
+    "markUnread": "Označi nepročitano",
+    "copyEmail": "Kopiraj email",
+    "copySuccess": "Email adresa je kopirana!",
+    "copyError": "Greška pri kopiranju emaila",
+    "restore": "Vrati poruku",
+    "delete": "Obriši poruku"
+  },
+  "contactDetail": {
+    "reply": "Odgovori",
+    "close": "Zatvori",
+    "from": "Od: {name}",
+    "unknownSender": "Nepoznato",
+    "sent": "Poslano: {date}",
+    "page": "Stranica: {path}"
+  },
+  "inbox": {
+    "error": "Nešto je pošlo po zlu.",
+    "markedUnread": "Označeno kao nepročitano.",
+    "markedRead": "Označeno kao pročitano.",
+    "deleted": "Poruka je obrisana.",
+    "restored": "Poruka je vraćena."
+  }
+}

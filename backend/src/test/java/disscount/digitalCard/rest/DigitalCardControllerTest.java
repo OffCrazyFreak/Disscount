@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -84,6 +85,22 @@ class DigitalCardControllerTest {
     }
 
     @Test
+    void invalidBodyAnswersInTheRequestLanguage() throws Exception {
+        String body = """
+                {"cardName":"A","cardType":"loyalty","storeName":"Konzum","codeValue":"123",
+                 "codeType":"ean_13","cardColor":"#3F51B5"}
+                """;
+
+        mvc.perform(put("/api/digital-cards/{id}", cardId).with(auth())
+                        .header("Accept-Language", "de")
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.cardName").value("Der Kartenname muss 2 bis 60 Zeichen lang sein"));
+
+        verifyNoInteractions(cardService);
+    }
+
+    @Test
     void invalidBodyIs400WithCroatianFieldErrors() throws Exception {
         String body = """
                 {"cardName":"A","cardType":"vip","storeName":"","codeValue":"","codeType":"nope",
@@ -120,12 +137,12 @@ class DigitalCardControllerTest {
 
     @Test
     void notFoundIs404() throws Exception {
-        when(cardService.get(userId, cardId)).thenThrow(new NotFoundException("Kartica nije pronađena"));
-        when(cardService.upsert(eq(userId), eq(cardId), any())).thenThrow(new NotFoundException("Kartica nije pronađena"));
+        when(cardService.get(userId, cardId)).thenThrow(new NotFoundException("error.card.notFound"));
+        when(cardService.upsert(eq(userId), eq(cardId), any())).thenThrow(new NotFoundException("error.card.notFound"));
 
         mvc.perform(get("/api/digital-cards/{id}", cardId).with(auth()))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.detail").value("Kartica nije pronađena"));
+                .andExpect(jsonPath("$.detail").value("Kartica nije pronađena."));
         mvc.perform(put("/api/digital-cards/{id}", cardId).with(auth())
                         .contentType(MediaType.APPLICATION_JSON).content(validBody()))
                 .andExpect(status().isNotFound());
@@ -134,12 +151,13 @@ class DigitalCardControllerTest {
     @Test
     void cardCapIs409() throws Exception {
         when(cardService.upsert(eq(userId), eq(cardId), any()))
-                .thenThrow(new ConflictException("Dosegnut je najveći broj kartica"));
+                .thenThrow(new ConflictException("error.card.limitReached"));
 
         mvc.perform(put("/api/digital-cards/{id}", cardId).with(auth())
                         .contentType(MediaType.APPLICATION_JSON).content(validBody()))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.detail").value("Dosegnut je najveći broj kartica"));
+                .andExpect(jsonPath("$.detail").value("Dosegnut je najveći broj kartica"))
+                .andExpect(jsonPath("$.code").value("error.card.limitReached"));
     }
 
     @Test
@@ -172,8 +190,8 @@ class DigitalCardControllerTest {
     void photoUploadErrorsKeepTheirStatusAndRetryAfter() throws Exception {
         MockMultipartFile full = new MockMultipartFile("full", "f.webp", "image/webp", new byte[]{1});
         when(photoService.upload(eq(userId), eq(cardId), eq("icon"), any(), any()))
-                .thenThrow(new ServiceUnavailableException("Slike trenutno nisu dostupne"))
-                .thenThrow(new TooManyRequestsException("Previše", 42));
+                .thenThrow(new ServiceUnavailableException("error.cardPhoto.unavailable"))
+                .thenThrow(new TooManyRequestsException("error.cardPhoto.rateLimited", 42));
 
         mvc.perform(multipart(HttpMethod.PUT, "/api/digital-cards/{id}/photos/{slot}", cardId, "icon")
                         .file(full).with(auth()))
@@ -208,6 +226,14 @@ class DigitalCardControllerTest {
                     .andExpect(status().isBadRequest());
         }
         verifyNoInteractions(cardService);
+    }
+
+    @Test
+    void emptyUsedBatchNamesTheLimits() throws Exception {
+        mvc.perform(post("/api/digital-cards/used").with(auth())
+                        .contentType(MediaType.APPLICATION_JSON).content("[]"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.*", hasItem("Pošalji od 1 do 50 kartica odjednom")));
     }
 
     @Test

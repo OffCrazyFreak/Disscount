@@ -1,0 +1,199 @@
+{
+  "meta": { "title": "Prodotti", "description": "I prodotti disponibili." },
+  "clearFilters": { "label": "Cancella i filtri" },
+  "addToList": {
+    "title": "Aggiungi il prodotto alla lista della spesa",
+    "description": "Scegli la lista, la quantità e il negozio.",
+    "submit": "Aggiungi",
+    "cancel": "Annulla",
+    "reset": "Reimposta",
+    "productNotFound": "Prodotto non trovato.",
+    "removeFromList": "Rimuovi da questa lista",
+    "duplicateTitle": "Prodotto già nella lista della spesa",
+    "duplicateText": "Questo prodotto è già nella lista scelta. Aggiungendolo di nuovo, la quantità passa da {current} a {next}.",
+    "toast": {
+      "pickList": "Scegli o crea una lista della spesa.",
+      "quantityIncreased": "Quantità aumentata in «{name}»",
+      "added": "Prodotto aggiunto a «{name}»",
+      "open": "Apri",
+      "fallbackListName": "lista",
+      "removed": "Prodotto rimosso dalla lista.",
+      "removeFailed": "Non siamo riusciti a rimuovere il prodotto."
+    }
+  },
+  "createListOption": { "label": "Crea «<name>{title}</name>»" },
+  "markAsChecked": {
+    "label": "Segna subito il prodotto come acquistato",
+    "description": "Potrai cambiarlo più tardi nella lista della spesa"
+  },
+  "actionsSheet": {
+    "pricesUnavailableTitle": "Prezzi non disponibili",
+    "pricesUnavailableText": "Puoi comunque usare le azioni del prodotto. Riprova per avere l'intervallo di prezzi aggiornato.",
+    "partialPricesTitle": "Alcuni prezzi non sono disponibili",
+    "partialPricesText": "L'intervallo comprende i punti vendita di cui siamo riusciti a ottenere i prezzi."
+  },
+  "quantity": { "label": "Quantità" },
+  "listSelector": {
+    "label": "Lista della spesa",
+    "searchPlaceholder": "Cerca tra le tue liste o creane una nuova...",
+    "empty": "Scrivi un nome per creare qui la tua prima lista della spesa.",
+    "existingLists": "Liste esistenti",
+    "newList": "Nuova lista della spesa",
+    "updatedAt": "({date})",
+    "progress": "{checked}/{total}"
+  },
+  "listTrigger": {
+    "loading": "Caricamento...",
+    "createNamed": "Crea la nuova lista «{title}»",
+    "choose": "Scegli una lista...",
+    "createFirst": "Crea subito la prima lista..."
+  },
+  "storeChainField": { "label": "Negozio" },
+  "watchlistModal": {
+    "title": "Segui questo prodotto",
+    "description": "Imposta la soglia di sconto e ti avvisiamo quando viene raggiunta.",
+    "save": "Salva",
+    "track": "Segui",
+    "cancel": "Annulla",
+    "reset": "Reimposta",
+    "productNotFound": "Prodotto non trovato.",
+    "removeFromWatchlist": "Smetti di seguire",
+    "existingTitle": "Prodotto già tra quelli seguiti",
+    "existingBoth": "Questo prodotto è già tra quelli seguiti con una soglia minima del {percentage}% e uno sconto di {amount, number, ::currency/EUR}.",
+    "existingPercentage": "Questo prodotto è già tra quelli seguiti con una soglia minima del {percentage}%.",
+    "existingAbsolute": "Questo prodotto è già tra quelli seguiti con una soglia minima di sconto di {amount, number, ::currency/EUR}.",
+    "toast": {
+      "updated": "Soglia aggiornata da {from} a {to}",
+      "added": "Prodotto aggiunto ai seguiti",
+      "removedPercentage": "Non segui più la percentuale per questo prodotto",
+      "removedAbsolute": "Non segui più il prezzo di questo prodotto",
+      "removeFailed": "Non siamo riusciti a rimuoverlo"
+    }
+  },
+  "threshold": {
+    "labelAbsolute": "Sconto minimo (€):",
+    "labelPercentage": "Sconto minimo (%):",
+    "loading": "Caricamento della soglia di sconto",
+    "placeholderAbsolute": "Es. 12",
+    "placeholderPercentage": "Es. 15",
+    "willUpdate": "La soglia minima passa da {from} a {to}."
+  },
+  "typePicker": {
+    "label": "Tipo di avviso",
+    "absolute": {
+      "label": "Prezzo",
+      "description": "Ti avvisiamo quando il prezzo scende di un certo importo"
+    },
+    "percentage": {
+      "label": "Percentuale",
+      "description": "Ti avvisiamo quando lo sconto supera una certa percentuale"
+    }
+  },
+  "actions": {
+    "addToList": "Aggiungi alla lista della spesa",
+    "editListEntry": "Modifica l'articolo nella lista della spesa",
+    "watch": "Segui prodotto",
+    "editWatch": "Modifica avviso",
+    "share": "Condividi prodotto",
+    "searchImage": "Cerca l'immagine del prodotto",
+    "group": "Azioni del prodotto"
+  },
+  "facets": {
+    "stores": {
+      "label": "Negozi",
+      "placeholder": "Scegli i negozi...",
+      "search": "Cerca negozi...",
+      "empty": "Nessun negozio"
+    },
+    "locations": {
+      "label": "Punti vendita",
+      "placeholder": "Scegli i punti vendita...",
+      "search": "Cerca punti vendita...",
+      "empty": "Nessun punto vendita"
+    },
+    "categories": {
+      "label": "Categorie",
+      "placeholder": "Scegli le categorie...",
+      "search": "Cerca categorie...",
+      "empty": "Nessuna categoria"
+    },
+    "brands": {
+      "label": "Marca",
+      "placeholder": "Scegli la marca...",
+      "search": "Cerca marche...",
+      "empty": "Nessuna marca"
+    },
+    "count": "({count})"
+  },
+  "filtersTrigger": { "label": "Filtri" },
+  "productInfo": {
+    "back": "Indietro",
+    "unknown": "Sconosciuto",
+    "brand": "Produttore:",
+    "barcode": "Codice a barre:",
+    "quantity": "Quantità:",
+    "prices": "Prezzi:",
+    "unitPrices": "Prezzi unitari:",
+    "priceRange": "<low>{lowPrice}</low><mid> | {averagePrice} | </mid><high>{highPrice}</high>",
+    "perUnit": "{price}/{unit}",
+    "unknownProduct": "Prodotto sconosciuto"
+  },
+  "priceScope": {
+    "label": "Informazioni sull'intervallo di prezzi",
+    "all": "Intervallo dei prezzi pubblicati in tutti i negozi.",
+    "chains": "Intervallo dei prezzi pubblicati nei negozi filtrati.",
+    "locations": "Intervallo dei prezzi pubblicati che corrispondono ai filtri scelti."
+  },
+  "validation": {
+    "listRequired": "Scegli una lista della spesa",
+    "amountRange": "La quantità deve essere tra 1 e 999",
+    "listTitleMin": "Scrivi un nome di almeno 3 caratteri",
+    "listTitleMax": "Scrivi un nome di massimo 100 caratteri",
+    "thresholdInvalid": "Inserisci un valore valido",
+    "percentageRange": "La percentuale deve essere tra 1% e 99%",
+    "absoluteRange": "L'importo deve essere tra 0,10 € e 999 €"
+  },
+  "list": {
+    "searchPlaceholder": "Cerca prodotti...",
+    "resultsTitle": "Risultati per «{query}»",
+    "resultsTitleWithCount": "Risultati per «{query}» ({count}{suffix})",
+    "partialPricesTitle": "Alcuni prezzi non sono disponibili",
+    "partialPricesText": "Mostriamo i prezzi disponibili, ma per ora non siamo riusciti a ottenere quelli di uno o più punti vendita scelti.",
+    "errorTitle": "Errore di ricerca",
+    "errorText": "Non siamo riusciti a caricare i dati. Riprova.",
+    "noResultsForFilters": "Nessun risultato per i filtri scelti",
+    "clearFilters": "Cancella i filtri",
+    "enterQueryTitle": "Scrivi cosa cercare",
+    "enterQueryText": "I filtri sono impostati, i risultati appaiono dopo la ricerca",
+    "startTitle": "Cerca prodotti",
+    "startText": "Scrivi il nome del prodotto che cerchi"
+  },
+  "viewSwitcher": {
+    "label": "Modalità di visualizzazione",
+    "grid": "Vista a griglia",
+    "list": "Vista a elenco"
+  },
+  "storePrice": {
+    "empty": "Nessuno sconto",
+    "line": "<chainName>{chain}</chainName> ~ {price} (-{discount}, {percentage}%)"
+  },
+  "quickActions": {
+    "titleFallback": "Azioni del prodotto",
+    "description": "Azioni per il prodotto scelto.",
+    "notFound": "Non troviamo questo prodotto. Forse non è più in vendita."
+  },
+  "productsSheet": {
+    "submit": "Cerca",
+    "title": "Cerca prodotti",
+    "description": "Scrivi il nome del prodotto o scansiona il codice a barre."
+  },
+  "price": { "increase": "+{amount}", "percentage": "({percentage}%)" },
+  "productPrice": { "unknown": "Prezzo sconosciuto" },
+  "historyPeriod": {
+    "week": "1S",
+    "month": "1M",
+    "year": "1A",
+    "all": "Tutto"
+  },
+  "storeChainSelect": { "multiPlaceholder": "Scegli le catene..." }
+}

@@ -1,0 +1,113 @@
+{
+  "meta": {
+    "title": "Lista della spesa: dettagli",
+    "description": "Visualizza e gestisci gli articoli della lista."
+  },
+  "toggle": {
+    "show": "Mostra",
+    "hide": "Nascondi"
+  },
+  "backToLists": "Torna alle liste della spesa",
+  "lastSynced": "Lista aggiornata {time}",
+  "access": {
+    "view": "Puoi solo visualizzare questa lista.",
+    "shop": "Puoi segnare cosa hai preso e scegliere il negozio, ma non modificare la lista.",
+    "edit": "Puoi cambiare le quantità ed eliminare prodotti, ma non aggiungerne di nuovi.",
+    "withNextStep": "{text} {nextStep}",
+    "signIn": "Accedi per modificare.",
+    "askOwner": "Per avere più permessi, chiedi a chi ha creato la lista.",
+    "checking": "Stiamo ancora verificando i permessi per questa lista."
+  },
+  "actions": {
+    "deleteTitle": "Elimina lista della spesa",
+    "deleteDescription": "Vuoi davvero eliminare la lista «{title}»? L'operazione non si può annullare.",
+    "deleteConfirm": "Elimina",
+    "edit": "Modifica lista",
+    "copy": "Copia lista",
+    "share": "Condividi lista",
+    "editShare": "Modifica condivisione",
+    "delete": "Elimina lista"
+  },
+  "toasts": {
+    "linkCopied": "Link copiato",
+    "shareFailed": "Condivisione non riuscita",
+    "itemDeleted": "Articolo eliminato",
+    "listDeleted": "Lista della spesa eliminata",
+    "listDeleteFailed": "Non siamo riusciti a eliminare la lista della spesa. Riprova."
+  },
+  "unavailable": {
+    "deadLinkTitle": "Il link non è più valido",
+    "deadLinkDescription": "Chi l'ha creata ha smesso di condividere questa lista, oppure il link non è corretto.",
+    "exploreProducts": "Cerca prodotti",
+    "loadFailedTitle": "Impossibile caricare la lista",
+    "loadFailedDescription": "Controlla la connessione e riprova.",
+    "retry": "Riprova"
+  },
+  "info": {
+    "created": "Creata:",
+    "updated": "Aggiornata:",
+    "total": "Totale:",
+    "remaining": "Rimanente:",
+    "spent": "Speso:",
+    "saved": "Risparmiato:",
+    "overpaid": "Pagato in più:",
+    "priceRange": "<low>{min}</low><mid> | {avg} | </mid><high>{max}</high>",
+    "savings": "{amount} ({percent}%)"
+  },
+  "items": {
+    "titleWithChecked": "Prodotti ({checked}/{total} acquistati)",
+    "title": "Prodotti ({total})",
+    "emptyOwner": "Questa lista non ha ancora prodotti. Cerca un prodotto e aggiungilo qui.",
+    "empty": "Questa lista non ha ancora prodotti.",
+    "searchProducts": "Cerca prodotti",
+    "markUnbought": "Segna {name} come da acquistare",
+    "markBought": "Segna {name} come acquistato",
+    "remove": "Rimuovi prodotto",
+    "amountLabel": "Quantità:",
+    "decreaseAmount": "Riduci la quantità di 1",
+    "increaseAmount": "Aumenta la quantità di 1",
+    "approxPrice": "~ {price}",
+    "pricePerUnit": "{price}/{unit}"
+  },
+  "priceHistory": {
+    "title": "Storico prezzi",
+    "noData": "Nessun dato storico disponibile."
+  },
+  "stores": {
+    "title": "Prezzi per catena",
+    "noItems": "Questa lista non ha ancora prodotti. Cerca un prodotto e aggiungilo qui.",
+    "allChecked": "Tutti i prodotti sono segnati come acquistati.",
+    "loadError": "Impossibile caricare i prezzi. Riprova.",
+    "noPrices": "Nessun prezzo disponibile per gli articoli della lista.",
+    "optimizeBy": "Ottimizza per:",
+    "optimize": {
+      "products": "Numero di prodotti",
+      "basket": "Carrello più economico",
+      "total": "Prodotti singoli",
+      "distance": "Distanza"
+    },
+    "availableItems": "Disponibili {count}/{total}",
+    "dataFrom": "Dati del {date}",
+    "hasLowest": "ha un prodotto al prezzo più basso",
+    "hasHighest": "ha un prodotto al prezzo più alto",
+    "availability": "Disponibilità dei prodotti",
+    "min": "Minimo",
+    "avg": "Media",
+    "max": "Massimo",
+    "stat": "{label}: {price}",
+    "lowestAmongChains": "(il più basso tra le catene)",
+    "highestAmongChains": "(il più alto tra le catene)",
+    "table": {
+      "empty": "Nessun articolo nella lista della spesa",
+      "product": "Prodotto",
+      "quantity": "Quantità",
+      "price": "Prezzo",
+      "total": "Totale",
+      "unavailable": "Prodotto non disponibile",
+      "unavailableTooltip": "Il prodotto non è disponibile in questo negozio",
+      "lowestPrice": "prezzo più basso",
+      "highestPrice": "prezzo più alto"
+    }
+  },
+  "emptyValue": "-"
+}

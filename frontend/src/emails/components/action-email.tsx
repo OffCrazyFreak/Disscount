@@ -1,28 +1,34 @@
 import { ReactNode } from "react";
-import { Button, Link, Section, Text } from "react-email";
+import { Button, Section, Text } from "react-email";
 
 import EmailLayout from "@/emails/components/email-layout";
 
-interface IActionEmailProps {
+export interface IActionEmailProps {
+  locale: string;
   preview: string;
   heading: string;
   intro: ReactNode;
   buttonLabel: string;
   buttonUrl: string;
+  fallback: ReactNode;
   footnote: string;
+  footer: ReactNode;
 }
 
 // Shared by every single-call-to-action transactional email.
 export default function ActionEmail({
+  locale,
   preview,
   heading,
   intro,
   buttonLabel,
   buttonUrl,
+  fallback,
   footnote,
+  footer,
 }: IActionEmailProps) {
   return (
-    <EmailLayout preview={preview}>
+    <EmailLayout locale={locale} preview={preview} footer={footer}>
       <Text className="m-0 mb-2 text-xl font-bold text-gray-800">
         {heading}
       </Text>
@@ -40,12 +46,7 @@ export default function ActionEmail({
         </Button>
       </Section>
 
-      <Text className="m-0 mb-6 text-xs text-gray-500">
-        Ako gumb ne radi, kopiraj i zalijepi ovu poveznicu u preglednik:{" "}
-        <Link href={buttonUrl} className="break-all text-brand underline">
-          {buttonUrl}
-        </Link>
-      </Text>
+      <Text className="m-0 mb-6 text-xs text-gray-500">{fallback}</Text>
 
       <Text className="m-0 text-xs text-gray-500">{footnote}</Text>
     </EmailLayout>

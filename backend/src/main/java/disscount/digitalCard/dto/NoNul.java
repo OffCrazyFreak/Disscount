@@ -12,7 +12,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NoNul {
 
-    String message() default "Tekst sadrži nedopušten znak";
+    String message() default "{validation.text.invalidCharacter}";
 
     Class<?>[] groups() default {};
 

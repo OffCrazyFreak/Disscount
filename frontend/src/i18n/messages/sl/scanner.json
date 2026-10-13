@@ -1,0 +1,64 @@
+{
+  "title": "Skeniraj kodo",
+  "camera": {
+    "label": "Kamera",
+    "autoPlaceholder": "Samodejno (zadnja kamera)",
+    "reset": "Ponastavi kamero na samodejno izbiro",
+    "name": "{facing, select, front {Sprednja kamera} back {Zadnja kamera} other {Kamera}}{lens, select, ultrawide { (ultraširoka)} telephoto { (telefoto)} macro { (makro)} other {}}{ordinal, plural, =0 {} other { #}}",
+    "hint": "Koda se ne prebere pravilno. Približaj kamero, odstrani odsev ali poskusi z drugo sliko.",
+    "manual": "Vnesi ročno"
+  },
+  "image": {
+    "upload": "Naloži sliko s kodo",
+    "loading": "Nalaganje...",
+    "notFound": "Kode na sliki nismo našli.",
+    "notProductBarcode": "Koda na sliki ni črtna koda izdelka (EAN).",
+    "loadFailed": "Slike ni mogoče naložiti.",
+    "unsupportedFormat": "Oblika kode na sliki ni podprta.",
+    "unreadable": "Kode na sliki ni mogoče pravilno prebrati. Poskusi z ostrejšo sliko."
+  },
+  "errors": {
+    "permissionDenied": "Dostop do kamere je zavrnjen. Omogoči kamero v nastavitvah brskalnika in poskusi znova.",
+    "noCamera": "Na tej napravi kamere nismo našli.",
+    "inUse": "Kamero trenutno uporablja druga aplikacija. Zapri jo in poskusi znova.",
+    "overconstrained": "Izbrana kamera ni na voljo. Ponastavi kamero na samodejno izbiro.",
+    "insecureContext": "Skeniranje deluje samo prek varne povezave (HTTPS).",
+    "generic": "Napaka pri zagonu kamere. Poskusi znova."
+  },
+  "codes": {
+    "ean_13": "EAN-13",
+    "ean_8": "EAN-8",
+    "upc_a": "UPC-A",
+    "upc_e": "UPC-E",
+    "code_128": "Code 128",
+    "code_39": "Code 39",
+    "code_93": "Code 93",
+    "codabar": "Codabar",
+    "itf": "ITF",
+    "qr_code": "Koda QR",
+    "aztec": "Aztec",
+    "data_matrix": "Data Matrix",
+    "pdf417": "PDF417",
+    "unknown": "Samo številka ali besedilo",
+    "fallback": "Koda"
+  },
+  "confirm": {
+    "title": "Preveri kodo",
+    "chooseLegend": "Izberi kodo, ki jo skenira blagajna",
+    "use": "Uporabi kodo",
+    "rescan": "Skeniraj znova",
+    "manual": "Vnesi ročno",
+    "announceTyped": "Vnesena koda: {label}",
+    "announceFound": "Najdena koda: {label}",
+    "announceMany": "{count, plural, one {Najdena # koda} two {Najdeni # kodi} few {Najdene # kode} other {Najdenih # kod}}"
+  },
+  "manual": {
+    "title": "Vnesi kodo ročno",
+    "numberLabel": "Številka kartice",
+    "typeLabel": "Vrsta kode",
+    "submit": "Nadaljuj",
+    "back": "Nazaj na skeniranje",
+    "numberRequired": "Vnesi številko kode.",
+    "checkDigitMismatch": "Številka ne ustreza izbrani vrsti kode. Preveri števke ali izberi drugo vrsto."
+  }
+}

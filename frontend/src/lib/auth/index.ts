@@ -5,13 +5,20 @@ import { nextCookies } from "better-auth/next-js";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 
 import { db } from "@/db";
+import { createTranslator } from "next-intl";
+
+import { z } from "zod";
+import { LOCALES } from "@/i18n/locales";
+import { loadMessages } from "@/i18n/load-messages";
 import { appUrl, requireEnv } from "@/lib/env";
 import { emailService } from "@/lib/email";
+import { userLocale } from "@/lib/email/email-copy";
 import {
   dispatchResetPasswordEmail,
   hasLinkedSocialAccount,
   logEmailFailure,
 } from "@/lib/auth/callbacks";
+import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth";
 import { assertPasswordAcceptable } from "@/lib/auth/breached-password";
 import { refuseBreachedSignIn } from "@/lib/auth/refuse-breached-sign-in";
 import { PASSWORD_MIN_LENGTH } from "@/lib/auth/password-policy";
@@ -23,7 +30,6 @@ const GOOGLE_CLIENT_SECRET = requireEnv("GOOGLE_CLIENT_SECRET");
 const FACEBOOK_CLIENT_ID = requireEnv("FACEBOOK_CLIENT_ID");
 const FACEBOOK_CLIENT_SECRET = requireEnv("FACEBOOK_CLIENT_SECRET");
 
-const RESET_TOKEN_TTL_SECONDS = 60 * 30; // 30 minutes
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
 
 // Endpoints that set a password, and the body field carrying it. /set-password is
@@ -64,9 +70,13 @@ export const auth = betterAuth({
     revokeSessionsOnPasswordReset: true,
     sendResetPassword: async ({ user, url, token }) => {
       // Fire-and-forget, so response time is no email-enumeration oracle.
-      void dispatchResetPasswordEmail(user.id, user.email, url, token).catch(
-        logEmailFailure("password-reset"),
-      );
+      void dispatchResetPasswordEmail(
+        user.id,
+        user.email,
+        url,
+        token,
+        userLocale(user),
+      ).catch(logEmailFailure("password-reset"));
     },
   },
 
@@ -75,7 +85,12 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url, token }) => {
       void emailService
-        .sendVerificationEmail({ to: user.email, url, token })
+        .sendVerificationEmail({
+          to: user.email,
+          locale: userLocale(user),
+          url,
+          token,
+        })
         .catch(logEmailFailure("verification"));
     },
   },
@@ -147,27 +162,54 @@ export const auth = betterAuth({
         before: async (userData, ctx) => {
           const changingEmail = typeof userData.email === "string";
           const userId = ctx?.context.session?.user.id;
-          if (!changingEmail || !userId) return;
 
-          if (await hasLinkedSocialAccount(userId)) {
+          if (
+            changingEmail &&
+            userId &&
+            (await hasLinkedSocialAccount(userId))
+          ) {
+            const locale = userLocale(ctx?.context.session?.user);
+            const t = createTranslator({
+              locale,
+              messages: await loadMessages(locale),
+              namespace: "errors",
+            });
+
             throw new APIError("BAD_REQUEST", {
-              message:
-                "Za promjenu emaila prvo odspoji povezane račune (Google, Facebook).",
+              message: t("auth.changeEmailLinkedAccounts"),
             });
           }
+
+          return { data: userData };
         },
       },
     },
   },
 
   user: {
+    additionalFields: {
+      // Written by the client (input: true), so the validator rejects anything
+      // outside the five locales before it reaches the database.
+      locale: {
+        type: "string",
+        required: false,
+        input: true,
+        validator: { input: z.enum(LOCALES) },
+      },
+    },
     deleteUser: { enabled: true },
     changeEmail: {
       enabled: true,
       // Sent to the CURRENT address to approve the change before it applies.
       sendChangeEmailConfirmation: async ({ user, newEmail, url, token }) => {
         void emailService
-          .sendChangeEmailConfirmation({ to: user.email, url, token, newEmail })
+          .sendChangeEmailConfirmation({
+            to: user.email,
+            locale: userLocale(user),
+            url,
+            token,
+            newEmail,
+          })
           .catch(logEmailFailure("change-email confirmation"));
       },
     },

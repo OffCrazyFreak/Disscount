@@ -1,5 +1,6 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { supportNavItems } from "@/constants/navigation";
 
@@ -9,6 +10,9 @@ const DISABLED_CLASS = "text-muted-foreground/50";
 
 /** Support entry icons, sharing supportNavItems with the sidebar group. */
 export default function FooterSupportIcons() {
+  const t = useTranslations("common");
+  const tShell = useTranslations("shell");
+
   return (
     <div className="flex items-center gap-4">
       {supportNavItems.map((item) => {
@@ -21,7 +25,7 @@ export default function FooterSupportIcons() {
             asChild
             variant="ghost"
             size="icon"
-            aria-label={item.label}
+            aria-label={tShell(item.labelKey)}
             className={LIVE_CLASS}
           >
             <Link href={item.href}>
@@ -35,8 +39,10 @@ export default function FooterSupportIcons() {
             variant="ghost"
             size="icon"
             disabled
-            aria-label={`${item.label} (uskoro)`}
-            title="Uskoro"
+            aria-label={t("footer.comingSoonLabel", {
+              label: tShell(item.labelKey),
+            })}
+            title={t("footer.comingSoonTitle")}
             className={DISABLED_CLASS}
           >
             <Icon aria-hidden="true" />

@@ -1,0 +1,46 @@
+{
+  "layout": {
+    "footer": "Šaljemo ti ga jer je ova adresa povezana s tvojim Disscount računom. Postavke emailova uvijek možeš promijeniti nakon <link>prijave na Disscount</link>.",
+    "fallback": "Gumb ne radi? Kopiraj ovu poveznicu u preglednik: <link>{url}</link>"
+  },
+  "verification": {
+    "subject": "Potvrdi svoju email adresu",
+    "preview": "Još samo jedan klik i tvoj Disscount račun je spreman.",
+    "heading": "Drago nam je što si tu!",
+    "intro": "Potvrdi svoju email adresu i tvoj Disscount račun je spreman. Nakon toga možeš spremati popise za kupnju i pratiti cijene omiljenih proizvoda.",
+    "button": "Potvrdi email adresu",
+    "footnote": "Ne prepoznaješ ovaj račun? Slobodno zanemari ovaj email, ništa se neće promijeniti."
+  },
+  "passwordReset": {
+    "subject": "Postavi novu lozinku",
+    "preview": "Poveznica za novu lozinku vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
+    "heading": "Zaboravljena lozinka? Nema problema.",
+    "intro": "Netko je zatražio novu lozinku za tvoj Disscount račun. Novu lozinku možeš postaviti putem gumba ispod, a poveznica vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
+    "button": "Postavi novu lozinku",
+    "footnote": "Ovaj zahtjev nije od tebe? Samo zanemari ovaj email, lozinka ti ostaje ista."
+  },
+  "setPassword": {
+    "subject": "Dodaj lozinku svom Disscount računu",
+    "preview": "Dodaj lozinku i prijavljuj se i emailom.",
+    "heading": "Dodaj lozinku svom računu",
+    "intro": "Za ovu email adresu već imaš Disscount račun povezan s Googleom ili Facebookom. Kad dodaš lozinku, moći ćeš se prijaviti i emailom. Poveznica vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
+    "button": "Postavi lozinku",
+    "footnote": "Ovaj zahtjev nije od tebe? Samo zanemari ovaj email, račun ti ostaje isti."
+  },
+  "changeEmail": {
+    "subject": "Potvrdi novu email adresu",
+    "preview": "Još samo potvrdi promjenu email adrese.",
+    "heading": "Mijenjaš email adresu?",
+    "intro": "Netko je zatražio promjenu email adrese tvog Disscount računa u <email>{newEmail}</email>. Promjena vrijedi tek kad je potvrdiš.",
+    "button": "Potvrdi promjenu",
+    "footnote": "Ovaj zahtjev nije od tebe? Odmah promijeni lozinku i javi nam se. Tvoja adresa ostaje ista dok ne potvrdiš promjenu."
+  },
+  "breachedPassword": {
+    "subject": "Tvoja lozinka pronađena je u curenju podataka",
+    "preview": "Tvoju lozinku pronašli smo u curenju podataka, postavi novu",
+    "heading": "Tvoja lozinka pronađena je u curenju podataka",
+    "intro": "Upravo je stigao pokušaj prijave u tvoj Disscount račun s ispravnom lozinkom. Tu lozinku pronašli smo u poznatom curenju podataka s neke druge stranice, zato prijavu nismo dopustili. Postavi novu lozinku putem gumba ispod. Kad je postaviš, odjavit ćemo te sa svih uređaja. Poveznica vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
+    "button": "Postavi novu lozinku",
+    "footnote": "Ako to nisi ti, svejedno postavi novu lozinku. Ako ovu lozinku koristiš i drugdje, promijeni je i tamo."
+  }
+}

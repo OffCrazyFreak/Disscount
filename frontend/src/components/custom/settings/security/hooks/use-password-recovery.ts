@@ -1,14 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { authClient } from "@/lib/auth/client";
+import { localePath } from "@/i18n/locale-path";
 import { useUser } from "@/context/user-context";
 
 // Sends the standard reset email to the signed-in user, so a forgotten current
 // password is not a dead end inside settings.
 export function usePasswordRecovery() {
+  const locale = useLocale();
+  const t = useTranslations("settings");
   const { user } = useUser();
   const currentEmail = user?.email ?? "";
 
@@ -24,20 +28,20 @@ export function usePasswordRecovery() {
     try {
       const { error } = await authClient.requestPasswordReset({
         email: currentEmail,
-        redirectTo: `${appUrl}/reset-password`,
+        redirectTo: `${appUrl}${localePath(locale, "/reset-password")}`,
       });
 
       // The login modal leaves { error } uninspected so it can't confirm an
       // account; here the caller is authenticated and owns the address, so
       // there is nothing to leak and a real failure is worth reporting.
       if (error) {
-        toast.error("Greška pri slanju poveznice. Pokušaj ponovo.");
+        toast.error(t("security.recovery.sendFailed"));
         return;
       }
 
       setSentTo(currentEmail);
     } catch {
-      toast.error("Greška pri slanju poveznice. Pokušaj ponovo.");
+      toast.error(t("security.recovery.sendFailed"));
     } finally {
       setSending(false);
     }

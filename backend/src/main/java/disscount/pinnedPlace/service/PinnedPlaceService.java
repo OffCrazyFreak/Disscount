@@ -26,7 +26,7 @@ public class PinnedPlaceService {
 
     public List<PinnedPlaceDto> updatePinnedPlaces(UUID userId, BulkPinnedPlaceRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         // First, delete all existing pinned places for this user
         List<PinnedPlace> existingPlaces = pinnedPlaceRepository.findByUserId(userId);
@@ -40,7 +40,7 @@ public class PinnedPlaceService {
                 .count();
         
         if (uniquePlaceIds < request.getPlaces().size()) {
-            throw new BadRequestException("Duplicate place IDs found in request");
+            throw new BadRequestException("error.pinnedPlace.duplicate");
         }
 
         // Then create new pinned places

@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import type { MouseEvent } from "react";
 import { SidebarMenuBadge, SidebarMenuButton } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
@@ -31,6 +32,7 @@ export default function SidebarNavItem({
   isLocked = false,
   badgeCount,
 }: ISidebarNavItemProps) {
+  const t = useTranslations("shell");
   const Icon = item.icon;
 
   const showComingSoon = Boolean(item.comingSoon);
@@ -45,7 +47,7 @@ export default function SidebarNavItem({
   const label = (
     <>
       <Icon />
-      <span>{item.label}</span>
+      <span>{t(item.labelKey)}</span>
     </>
   );
 
@@ -79,7 +81,9 @@ export default function SidebarNavItem({
       )}
 
       {showComingSoon && (
-        <SidebarMenuBadge className={BADGE_CLASS}>USKORO</SidebarMenuBadge>
+        <SidebarMenuBadge className={BADGE_CLASS}>
+          {t("sidebar.comingSoon")}
+        </SidebarMenuBadge>
       )}
 
       {showCount && (

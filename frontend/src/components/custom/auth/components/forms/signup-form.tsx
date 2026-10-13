@@ -2,6 +2,7 @@
 
 import { useFormState } from "react-hook-form";
 import { UserPlus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -10,21 +11,23 @@ import PasswordField from "@/components/custom/auth/components/fields/password-f
 import FormRootError from "@/components/custom/common/form-root-error";
 import InboxNotice from "@/components/custom/common/inbox-notice";
 import { useSignupForm } from "@/components/custom/auth/hooks/use-signup-form";
-import { PASSWORD_HINT } from "@/lib/auth/password-policy";
+import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
 
 interface ISignUpFormProps {
   externalDisabled?: boolean;
 }
 
 export default function SignUpForm({ externalDisabled }: ISignUpFormProps) {
+  const t = useTranslations("auth");
+  const { hint } = usePasswordPolicy();
   const { form, onSubmit, submittedEmail } = useSignupForm();
   const formState = useFormState({ control: form.control });
 
   if (submittedEmail) {
     return (
       <InboxNotice
-        title="Provjeri svoj inbox"
-        description="Poslali smo ti email s poveznicom za dovršetak registracije na:"
+        title={t("inbox.title")}
+        description={t("signup.inboxDescription")}
         email={submittedEmail}
       />
     );
@@ -43,16 +46,16 @@ export default function SignUpForm({ externalDisabled }: ISignUpFormProps) {
         <PasswordField
           control={form.control}
           name="password"
-          label="Lozinka"
+          label={t("fields.password")}
           autoComplete="new-password"
           hasError={!!formState.errors.password}
-          description={PASSWORD_HINT}
+          description={hint}
         />
 
         <PasswordField
           control={form.control}
           name="confirmPassword"
-          label="Potvrdi lozinku"
+          label={t("fields.confirmPassword")}
           autoComplete="new-password"
           hasError={!!formState.errors.confirmPassword}
         />
@@ -65,11 +68,11 @@ export default function SignUpForm({ externalDisabled }: ISignUpFormProps) {
           icon={UserPlus}
           iconPlacement="left"
           loading={formState.isSubmitting}
-          loadingText="Registracija..."
+          loadingText={t("signup.submitting")}
           loadingIconPlacement="left"
           disabled={formState.isSubmitting || externalDisabled}
         >
-          Registriraj se
+          {t("actions.signUp")}
         </Button>
       </form>
     </Form>

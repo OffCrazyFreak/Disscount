@@ -1,6 +1,7 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { usePathname } from "@/i18n/navigation";
 import { useNotifications } from "@/context/notifications-context";
 import { useCameraScanner } from "@/context/scanner-context";
 import useProductNavigation from "@/hooks/use-product-navigation";
@@ -33,6 +34,7 @@ const SURFACE_CLASS =
  * never shifts on hydration.
  */
 export default function BottomNav() {
+  const t = useTranslations("shell");
   const pathname = usePathname();
   const { notifications, hasNotifications } = useNotifications();
   const { openScanner } = useCameraScanner();
@@ -73,7 +75,7 @@ export default function BottomNav() {
 
   return (
     <nav
-      aria-label="Glavna navigacija"
+      aria-label={t("bottomNav.label")}
       // The products sheet is non-modal, and globals.css hands the whole page back
       // for those, so the bar needs no opt-in of its own. It stays inert under
       // real modals, whose overlay covers it anyway.
@@ -87,7 +89,7 @@ export default function BottomNav() {
           entry.isSearch ? (
             <BottomNavCenterItem
               key={entry.item.id}
-              label={entry.item.shortLabel ?? entry.item.label}
+              label={t(entry.item.shortLabelKey ?? entry.item.labelKey)}
               isActive={isActive}
               isScrubbed={scrubIndex === index}
               showsDisc={discIndex === index}

@@ -27,7 +27,7 @@ public class NotificationService {
 
     public NotificationDto createNotification(UUID userId, NotificationRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         Notification notification = Notification.builder()
                 .user(user)
@@ -48,7 +48,7 @@ public class NotificationService {
 
     public void markAsRead(UUID id) {
         Notification notification = notificationRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException("Notification not found"));
+                .orElseThrow(() -> new BadRequestException("error.notification.notFound"));
 
         notification.setIsRead(true);
         notificationRepository.save(notification);
@@ -60,7 +60,7 @@ public class NotificationService {
 
     public void deleteNotification(UUID id) {
         Notification notification = notificationRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException("Notification not found"));
+                .orElseThrow(() -> new BadRequestException("error.notification.notFound"));
 
         notification.setDeletedAt(Timestamps.nowUtc());
         notificationRepository.save(notification);

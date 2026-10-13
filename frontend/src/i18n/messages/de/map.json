@@ -1,0 +1,87 @@
+{
+  "meta": {
+    "title": "Karte der Märkte",
+    "description": "Finde Märkte auf der Karte: Konzum, Lidl, Kaufland, Spar, Plodine, Tommy, Studenac und 20 weitere Ketten in ganz Kroatien. Suche nach Ort oder Adresse und finde den nächsten."
+  },
+  "heading": "Karte der Märkte",
+  "search": {
+    "placeholder": "Kette, Ort oder Adresse..."
+  },
+  "layout": {
+    "skipMap": "Karte überspringen",
+    "storeList": "Liste der Märkte",
+    "stores": "Märkte",
+    "collapse": "Liste verkleinern",
+    "expand": "Liste vergrößern"
+  },
+  "load": {
+    "error": "Die Märkte können gerade nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "loading": "Märkte werden geladen..."
+  },
+  "unavailable": {
+    "browser": "Dein Browser kann die Karte nicht anzeigen. Alle Märkte stehen weiterhin in der Liste.",
+    "style": "Die Karte kann gerade nicht geladen werden. Alle Märkte stehen weiterhin in der Liste.",
+    "contextLost": "Die Karte wurde unterbrochen.",
+    "reload": "Neu laden"
+  },
+  "chains": {
+    "group": "Ketten",
+    "selectAll": "Alle auswählen",
+    "clearAll": "Alle entfernen"
+  },
+  "nearMe": {
+    "locate": "Märkte in meiner Nähe",
+    "clear": "Meinen Standort entfernen",
+    "denied": "Der Zugriff auf den Standort ist blockiert. Erlaube ihn in den Browsereinstellungen oder suche nach Ort.",
+    "unavailable": "Dein Standort ist gerade nicht verfügbar. Suche nach Ort oder Adresse.",
+    "timeout": "Die Standortsuche dauert zu lange. Versuche es erneut oder suche nach Ort.",
+    "approximate": "Sortiert ab einem ungefähren Standort ({city}). Für eine genaue Reihenfolge tippe auf „Märkte in meiner Nähe“.",
+    "approximateNoCity": "Sortiert ab einem ungefähren Standort. Für eine genaue Reihenfolge tippe auf „Märkte in meiner Nähe“.",
+    "coarse": "Dein Standort ist ungefähr, deshalb werden keine Entfernungen angezeigt."
+  },
+  "recent": {
+    "label": "Letzte Suchen:",
+    "clear": "Löschen",
+    "clearLabel": "Letzte Suchen löschen"
+  },
+  "count": {
+    "shown": "{count, plural, one {# Markt} other {# Märkte}}",
+    "unplaced": "{shown}, davon {unplaced} ohne Standort auf der Karte. Sie stehen weiterhin in der Liste."
+  },
+  "pan": {
+    "group": "Karte verschieben",
+    "up": "Karte nach oben verschieben",
+    "left": "Karte nach links verschieben",
+    "right": "Karte nach rechts verschieben",
+    "down": "Karte nach unten verschieben"
+  },
+  "list": {
+    "unknownCity": "Unbekannter Ort",
+    "noLocation": "ohne Standort"
+  },
+  "details": {
+    "back": "Zurück zur Liste",
+    "unknownAddress": "Adresse unbekannt",
+    "distance": "{distance} von dir",
+    "notPlaced": "Für diesen Markt haben wir noch keinen genauen Standort, deshalb ist er nicht auf der Karte."
+  },
+  "actions": {
+    "googleDirections": "Route (Google Maps)",
+    "appleMaps": "Apple Karten",
+    "call": "{phone} anrufen",
+    "share": "Teilen",
+    "copied": "Link kopiert.",
+    "shareFailed": "Teilen hat nicht funktioniert.",
+    "report": "Fehler melden"
+  },
+  "report": {
+    "subject": "Falscher Standort eines Marktes",
+    "message": "Markt: {store} ({id})\n\nWas stimmt nicht: "
+  },
+  "summary": {
+    "title": "Märkte nach Kette",
+    "stores": "{count, plural, one {# Markt} other {# Märkte}}",
+    "where": "{kind, select, one {, in {cities}} some {, in {cities}} many {, unter anderem in {cities}} other {}}"
+  }
+}

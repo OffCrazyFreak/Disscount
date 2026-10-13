@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslations } from "next-intl";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
@@ -10,6 +11,7 @@ import { setLastLoginMethod } from "@/utils/browser/local-storage";
 import { PASSWORD_BREACHED } from "@/lib/auth/password-policy";
 
 export function useLoginForm(onSuccess?: () => void) {
+  const t = useTranslations("auth");
   const { handleUserLogin } = useUser();
   // Set when a correct password is refused as breached; swaps the form for a notice.
   const [breachedEmail, setBreachedEmail] = useState<string | null>(null);
@@ -44,24 +46,26 @@ export function useLoginForm(onSuccess?: () => void) {
         let message: string;
         if (status === 403) {
           // Email not verified - Better Auth re-sends the verification link on each attempt.
-          message =
-            "Tvoj email još nije potvrđen. Poslali smo ti novu poveznicu - provjeri inbox (i spam).";
+          message = t("errors.emailNotVerified");
         } else if (status === 401 || status === 400) {
-          message = "Neispravni email ili lozinka";
+          message = t("errors.invalidCredentials");
+        } else if (status === 429) {
+          message = t("errors.tooManyAttempts");
         } else {
-          message = result.error.message || "Provjeri unesene podatke.";
+          // better-auth's own message is English, so it never reaches the form.
+          message = t("errors.checkInput");
         }
         form.setError("root", { type: "server", message });
         return;
       }
 
       await handleUserLogin();
-      toast.success("Prijava uspješna!");
+      toast.success(t("login.success"));
       form.reset();
       setLastLoginMethod("email");
       onSuccess?.();
     } catch {
-      toast.error("Greška pri prijavi. Pokušaj ponovo.");
+      toast.error(t("login.error"));
     }
   }
 

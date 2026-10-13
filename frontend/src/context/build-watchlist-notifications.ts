@@ -6,7 +6,7 @@ import {
   IGroupedWatchlistItems,
   isDiscountValueAboveThreshold,
   isWatchThresholdReached,
-} from "@/app/(user)/watchlist/utils/watchlist-utils";
+} from "@/app/[locale]/(user)/watchlist/utils/watchlist-utils";
 import { getChainLabel } from "@/utils/labels";
 import {
   INotificationsSummary,

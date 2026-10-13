@@ -1,9 +1,10 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import { useRef } from "react";
 import { ChevronDown } from "lucide-react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   Collapsible,
   CollapsibleContent,
@@ -44,6 +45,7 @@ export default function SidebarFilterMenu({
   isOpen,
   onOpenChange,
 }: ISidebarFilterMenuProps) {
+  const t = useTranslations("shell");
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const listRef = useRef<HTMLUListElement>(null);
@@ -73,9 +75,9 @@ export default function SidebarFilterMenu({
             className={cn("cursor-pointer", SIDEBAR_ICON_CLASS)}
           >
             <Icon />
-            <span>{item.label}</span>
+            <span>{t(item.labelKey)}</span>
             <ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
-            <span className="sr-only">Toggle</span>
+            <span className="sr-only">{t("sidebar.toggle")}</span>
           </SidebarMenuButton>
         </CollapsibleTrigger>
 

@@ -36,10 +36,12 @@ import { cardRetryDelay, shouldRetryCardWrite } from "@/lib/offline/card-retry";
 import {
   cardDeleteFailed,
   cardWriteFailed,
+  type CardToastTranslator,
 } from "@/lib/offline/card-write-failed";
 import {
   deleteWriteFailed,
   listWriteFailed,
+  type OfflineToastTranslator,
 } from "@/lib/offline/list-write-failed";
 
 function listAndItemsKeys(listId: string): QueryKey[] {
@@ -51,7 +53,11 @@ function listAndItemsKeys(listId: string): QueryKey[] {
 }
 
 // A reload loses the inline mutationFn, so replays need these defaults registered first.
-export function registerOfflineMutationDefaults(queryClient: QueryClient) {
+export function registerOfflineMutationDefaults(
+  queryClient: QueryClient,
+  t: OfflineToastTranslator,
+  tCards: CardToastTranslator,
+) {
   function defineOfflineMutation<TVariables, TData>(
     mutationKey: QueryKey,
     mutationFn: (variables: TVariables) => Promise<TData>,
@@ -121,7 +127,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
       data: ShoppingListItemRequest;
     }) => updateShoppingListItem(listId, itemId, data),
     ({ listId }) => listAndItemsKeys(listId),
-    listWriteFailed,
+    (error) => listWriteFailed(error, t),
   );
 
   defineOfflineMutation(
@@ -132,7 +138,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
     // Deletes get their own handler: a replayed delete for an item that is already gone
     // answers 404, which is the desired end state rather than a failure, and the shared
     // handler would blame it on lost access.
-    deleteWriteFailed,
+    (error) => deleteWriteFailed(error, t),
   );
 
   // Tombstones for the two keys sharing used before it moved from a token to the list id.
@@ -145,10 +151,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
   ]) {
     queryClient.setMutationDefaults(retiredKey, {
       mutationFn: async () => undefined,
-      onSuccess: () =>
-        toast.error(
-          "Promjena s prošle verzije nije spremljena. Otvori popis i provjeri.",
-        ),
+      onSuccess: () => toast.error(t("offline.retiredWriteDropped")),
     });
   }
 
@@ -157,7 +160,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
     ({ id, data }: { id: string; data: DigitalCardRequest }) =>
       saveDigitalCard(id, data),
     () => [DIGITAL_CARD_QUERY_KEYS.me],
-    cardWriteFailed,
+    (error) => cardWriteFailed(error, tCards),
     DIGITAL_CARD_MUTATION_SCOPE,
   );
 
@@ -165,7 +168,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
     OFFLINE_MUTATION_KEYS.digitalCardDelete,
     (id: string) => deleteDigitalCard(id),
     () => [DIGITAL_CARD_QUERY_KEYS.me],
-    cardDeleteFailed,
+    (error) => cardDeleteFailed(error, tCards),
     DIGITAL_CARD_MUTATION_SCOPE,
   );
 
@@ -174,7 +177,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
     ({ id, pinned }: { id: string; pinned: boolean }) =>
       setDigitalCardPinned(id, pinned),
     () => [DIGITAL_CARD_QUERY_KEYS.me],
-    cardWriteFailed,
+    (error) => cardWriteFailed(error, tCards),
     DIGITAL_CARD_MUTATION_SCOPE,
   );
 
@@ -183,7 +186,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
     ({ id, archived }: { id: string; archived: boolean }) =>
       setDigitalCardArchived(id, archived),
     () => [DIGITAL_CARD_QUERY_KEYS.me],
-    cardWriteFailed,
+    (error) => cardWriteFailed(error, tCards),
     DIGITAL_CARD_MUTATION_SCOPE,
   );
 

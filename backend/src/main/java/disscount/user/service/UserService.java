@@ -156,14 +156,14 @@ public class UserService {
     public UserDto updateProfile(UUID userId, UserRequest request) {
         User user = userRepository.findById(userId)
                 .filter(u -> u.getDeletedAt() == null)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         String username = request.getUsername();
         if (username != null && !username.equals(user.getUsername())) {
             // Checked here so the answer carries fieldErrors; the unique index catches the
             // race and renders the same 409.
             if (userRepository.existsByUsername(username)) {
-                throw new ConflictException("Korisničko ime je već zauzeto.");
+                throw new ConflictException("error.user.usernameTaken");
             }
             user.setUsername(username);
         }
@@ -233,7 +233,7 @@ public class UserService {
     public void deleteAccount(UUID userId) {
         // Locked so a card write racing the deletion waits and then finds a deleted user.
         User user = userRepository.findByIdForUpdate(userId)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         user.setUsername(null);
         user.setImage(null);
@@ -255,7 +255,7 @@ public class UserService {
                 .orElse(false);
 
         if (!isAdmin) {
-            throw new ForbiddenException("Admin access required");
+            throw new ForbiddenException("error.user.adminRequired");
         }
     }
 
@@ -299,7 +299,7 @@ public class UserService {
      */
     public void deleteUserAsAdmin(UUID targetUserId, UUID adminUserId) {
         if (targetUserId.equals(adminUserId)) {
-            throw new BadRequestException("You cannot delete your own account from the admin panel");
+            throw new BadRequestException("error.user.cannotDeleteSelf");
         }
 
         authIdentityDao.deleteById(targetUserId);
@@ -309,12 +309,12 @@ public class UserService {
 
     public UserDto updateAccountType(UUID userId, AccountType accountType) {
         if (accountType == null) {
-            throw new BadRequestException("Account type is required");
+            throw new BadRequestException("error.user.accountTypeRequired");
         }
 
         User user = userRepository.findById(userId)
                 .filter(u -> u.getDeletedAt() == null)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         user.setAccountType(accountType);
         user = userRepository.save(user);

@@ -1,6 +1,6 @@
 {
-  "id": "80418ac1-c596-4cdf-9e5d-07bf3b0aac82",
-  "prevId": "dcee9d6f-fc94-4d55-9f79-b57d325423df",
+  "id": "6533bb56-8703-4f2d-88ee-8283fc4b23e9",
+  "prevId": "fb37c953-a91c-446f-9c30-f0e7ff5cf862",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -132,8 +132,12 @@
           "name": "account_user_id_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -265,8 +269,12 @@
           "name": "session_user_id_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -276,7 +284,9 @@
         "session_token_unique": {
           "name": "session_token_unique",
           "nullsNotDistinct": false,
-          "columns": ["token"]
+          "columns": [
+            "token"
+          ]
         }
       },
       "policies": {},
@@ -319,6 +329,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "locale": {
+          "name": "locale",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -341,7 +357,9 @@
         "user_email_unique": {
           "name": "user_email_unique",
           "nullsNotDistinct": false,
-          "columns": ["email"]
+          "columns": [
+            "email"
+          ]
         }
       },
       "policies": {},
@@ -488,7 +506,10 @@
       "compositePrimaryKeys": {
         "store_location_chain_code_store_code_pk": {
           "name": "store_location_chain_code_store_code_pk",
-          "columns": ["chain_code", "store_code"]
+          "columns": [
+            "chain_code",
+            "store_code"
+          ]
         }
       },
       "uniqueConstraints": {},

@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormContext } from "react-hook-form";
+import { useTranslations } from "next-intl";
 
 import {
   FormControl,
@@ -21,6 +22,7 @@ import { SettingsFormValues } from "@/components/custom/settings/settings-schema
 import { compareHr } from "@/utils/strings";
 
 export default function PinnedPlacesSelect() {
+  const t = useTranslations("settings");
   const form = useFormContext<SettingsFormValues>();
   const { data: locations } = useAllLocations();
 
@@ -33,7 +35,9 @@ export default function PinnedPlacesSelect() {
           <MultiSelect onValuesChange={field.onChange} values={field.value}>
             <FormControl>
               <MultiSelectTrigger className="w-full">
-                <MultiSelectValue placeholder="Odaberi lokacije..." />
+                <MultiSelectValue
+                  placeholder={t("preferences.places.placeholder")}
+                />
               </MultiSelectTrigger>
             </FormControl>
             <MultiSelectContent className="bg-popover">

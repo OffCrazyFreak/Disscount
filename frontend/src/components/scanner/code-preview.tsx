@@ -7,7 +7,7 @@ import type { IScannedCode } from "@/typings/scanned-code";
 
 // Lazy so product scans never download the barcode encoder.
 const CardCode = dynamic(
-  () => import("@/app/(user)/digital-cards/components/card-code"),
+  () => import("@/app/[locale]/(user)/digital-cards/components/card-code"),
   { ssr: false, loading: () => <Skeleton className="h-24 w-full" /> },
 );
 

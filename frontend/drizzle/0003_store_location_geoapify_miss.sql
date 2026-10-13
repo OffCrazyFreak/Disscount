@@ -1,1 +1,0 @@
-ALTER TABLE "store_location" ADD COLUMN "geoapify_missed_at" timestamp with time zone;

@@ -9,14 +9,15 @@ export function isDesktopPlatform(platform: InstallPlatform): boolean {
   return platform === "desktop" || platform === "macSafari";
 }
 
-export function installActionLabel(platform: InstallPlatform): string {
+// These return message keys in the "common" namespace; the caller translates.
+export function installActionLabelKey(platform: InstallPlatform) {
   return isDesktopPlatform(platform)
-    ? "Instaliraj aplikaciju"
-    : "Dodaj na početni zaslon";
+    ? "install.actionDesktop"
+    : "install.actionMobile";
 }
 
-export function installPitch(platform: InstallPlatform): string {
+export function installPitchKey(platform: InstallPlatform) {
   return isDesktopPlatform(platform)
-    ? "Instaliraj Disscount za brži pristup."
-    : "Dodaj Disscount na početni zaslon za brži pristup.";
+    ? "install.pitchDesktop"
+    : "install.pitchMobile";
 }

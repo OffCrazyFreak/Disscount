@@ -6,7 +6,7 @@ import { passwordSchema } from "@/lib/auth/password-policy";
 export function buildCredentialsSchema(hasPassword: boolean) {
   return z
     .object({
-      email: z.email("Unesi važeći email"),
+      email: z.email("settings.validation.emailInvalid"),
       newPassword: z.string(),
       currentPassword: z.string(),
     })
@@ -27,7 +27,7 @@ export function buildCredentialsSchema(hasPassword: boolean) {
         ctx.addIssue({
           code: "custom",
           path: ["currentPassword"],
-          message: "Unesi trenutnu lozinku",
+          message: "settings.validation.currentPasswordRequired",
         });
       }
     });

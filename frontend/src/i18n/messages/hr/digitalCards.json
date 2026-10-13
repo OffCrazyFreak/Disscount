@@ -1,0 +1,332 @@
+{
+  "form": {
+    "newTitle": "Nova kartica",
+    "editTitle": "Uredi karticu",
+    "description": "Spremi karticu vjernosti i imaj je uvijek pri ruci.",
+    "save": "Spremi karticu",
+    "cancel": "Odustani",
+    "reset": "Resetiraj",
+    "loadErrorOffline": "Izvan si mreže, a ova kartica još nije spremljena na uređaju. Spoji se na mrežu i pokušaj ponovo.",
+    "loadError": "Greška pri učitavanju kartice. Pokušaj ponovo.",
+    "notFound": "Kartica nije pronađena. Možda je obrisana.",
+    "saveFailed": "Kartica nije spremljena. Provjeri unesene podatke.",
+    "savedOffline": "Izvan si mreže, promjena će se sinkronizirati kad se vratiš na mrežu.",
+    "saved": "Kartica je spremljena.",
+    "storeLabel": "Trgovina",
+    "storePlaceholder": "Odaberi ili upiši trgovinu",
+    "storeShowSuggestions": "Prikaži prijedloge trgovina",
+    "storeClear": "Očisti trgovinu",
+    "storeEmpty": "Počni upisivati naziv trgovine.",
+    "storeGroupOfficial": "Službene trgovine",
+    "storeGroupOther": "Ostalo",
+    "storeAdd": "Dodaj «{name}»",
+    "cardNameLabel": "Naziv kartice",
+    "cardTypeLabel": "Vrsta kartice",
+    "cardTypePlaceholder": "Odaberi vrstu",
+    "codeNumberLabel": "Broj kartice",
+    "codeScan": "Skeniraj kod kartice kamerom",
+    "codeTypeLabel": "Tip koda",
+    "codeTypePlaceholder": "Odaberi tip koda",
+    "previewLabel": "Pregled koda kartice",
+    "previewEmpty": "Upiši broj kartice da vidiš pregled koda.",
+    "previewCannotEncode": "Ovaj tip koda ne može prikazati upisani broj. Odaberi drugi tip ili \"{fallbackType}\".",
+    "barcodeDiffers": "Kod na kartici se razlikuje od broja",
+    "barcodeValueLabel": "Vrijednost koda",
+    "colorLabel": "Boja kartice: {color}",
+    "colorCustom": "prilagođena",
+    "colorOption": "{name}, {hue}",
+    "noteLabel": "Bilješka",
+    "notePlaceholder": "Npr. kartica je na ime partnera",
+    "noteRemaining": "Preostalo znakova: {count, number}",
+    "moreDetails": "Više detalja",
+    "validFrom": "Vrijedi od",
+    "validUntil": "Vrijedi do",
+    "balanceLabel": "Stanje",
+    "unitLabel": "Jedinica",
+    "unitPoints": "Bodovi"
+  },
+  "validation": {
+    "dateFormat": "Upiši datum u obliku GGGG-MM-DD",
+    "nameMin": "Upiši naziv s najmanje 2 znaka",
+    "nameMax": "Upiši naziv s najviše 60 znakova",
+    "storeMin": "Upiši trgovinu s najmanje 2 znaka",
+    "storeMax": "Upiši trgovinu s najviše 60 znakova",
+    "codeRequired": "Upiši broj ili kod kartice",
+    "codeTooLong": "Kod kartice je predug",
+    "barcodeTooLong": "Kod je predug",
+    "colorRequired": "Odaberi boju",
+    "noteTooLong": "Bilješka može imati najviše 500 znakova",
+    "balanceNegative": "Iznos ne može biti negativan",
+    "balanceTooLarge": "Iznos je prevelik",
+    "expiresBeforeStart": "Kartica ne može isteći prije početka"
+  },
+  "cardTypes": {
+    "loyalty": "Kartica vjernosti",
+    "gift": "Poklon kartica",
+    "membership": "Članska kartica",
+    "other": "Ostalo"
+  },
+  "codeTypes": {
+    "ean_13": "EAN-13",
+    "ean_8": "EAN-8",
+    "upc_a": "UPC-A",
+    "upc_e": "UPC-E",
+    "code_128": "Code 128",
+    "code_39": "Code 39",
+    "code_93": "Code 93",
+    "codabar": "Codabar",
+    "itf": "ITF",
+    "qr_code": "QR kod",
+    "aztec": "Aztec",
+    "data_matrix": "Data Matrix",
+    "pdf417": "PDF417",
+    "unknown": "Samo broj/tekst"
+  },
+  "colors": {
+    "graphite": {
+      "name": "Grafit",
+      "hue": "siva"
+    },
+    "cherryBlossom": {
+      "name": "Trešnjin cvijet",
+      "hue": "ružičasta"
+    },
+    "flamingo": {
+      "name": "Flamingo",
+      "hue": "svijetlocrvena"
+    },
+    "mango": {
+      "name": "Mango",
+      "hue": "narančasta"
+    },
+    "avocado": {
+      "name": "Avokado",
+      "hue": "žutozelena"
+    },
+    "peacock": {
+      "name": "Paun",
+      "hue": "svijetloplava"
+    },
+    "lavender": {
+      "name": "Lavanda",
+      "hue": "plavoljubičasta"
+    },
+    "radicchio": {
+      "name": "Radič",
+      "hue": "tamnoružičasta"
+    },
+    "tomato": {
+      "name": "Rajčica",
+      "hue": "crvena"
+    },
+    "tangerine": {
+      "name": "Mandarina",
+      "hue": "crvenonarančasta"
+    },
+    "banana": {
+      "name": "Banana",
+      "hue": "žuta"
+    },
+    "pistachio": {
+      "name": "Pistacija",
+      "hue": "svijetlozelena"
+    },
+    "basil": {
+      "name": "Bosiljak",
+      "hue": "tamnozelena"
+    },
+    "sage": {
+      "name": "Kadulja",
+      "hue": "zelena"
+    },
+    "eucalyptus": {
+      "name": "Eukaliptus",
+      "hue": "tirkizna"
+    },
+    "blueberry": {
+      "name": "Borovnica",
+      "hue": "tamnoplava"
+    },
+    "wisteria": {
+      "name": "Glicinija",
+      "hue": "svijetloljubičasta"
+    },
+    "amethyst": {
+      "name": "Ametist",
+      "hue": "ljubičasta"
+    },
+    "grape": {
+      "name": "Grožđe",
+      "hue": "tamnoljubičasta"
+    }
+  },
+  "photos": {
+    "legend": "Slike",
+    "hint": "Prekrij potpis i PIN prije slikanja.",
+    "slots": {
+      "front": "Prednja strana",
+      "back": "Stražnja strana",
+      "icon": "Ikona"
+    },
+    "preview": "Pregled slike: {label}",
+    "status": {
+      "removed": "Slika će biti uklonjena pri spremanju",
+      "added": "Nova slika se sprema s karticom",
+      "uploading": "Slanje u tijeku",
+      "queued": "Čeka slanje",
+      "error": "Slanje nije uspjelo",
+      "saved": "Spremljeno",
+      "empty": "Nema slike"
+    },
+    "add": "Dodaj",
+    "replace": "Zamijeni",
+    "addAria": "Dodaj sliku: {label}",
+    "replaceAria": "Zamijeni sliku: {label}",
+    "restoreAria": "Vrati sliku: {label}",
+    "discardAria": "Odbaci novu sliku: {label}",
+    "removeAria": "Ukloni sliku: {label}",
+    "errors": {
+      "processFailed": "Slika nije obrađena.",
+      "saveFailed": "Slika nije spremljena. Pokušaj ponovno.",
+      "removeFailed": "Slika nije obrisana. Pokušaj ponovno."
+    }
+  },
+  "meta": {
+    "title": "Digitalne kartice",
+    "description": "Sve tvoje kartice trgovina na jednom mjestu."
+  },
+  "list": {
+    "loginTitle": "Digitalne kartice",
+    "loginDescription": "Digitalne kartice ti omogućuju da sve svoje kartice vjernosti držiš na jednom mjestu, uvijek pri ruci.",
+    "searchPlaceholder": "Pretraži digitalne kartice...",
+    "searchResults": "Rezultati pretrage za \"{query}\" ({count})",
+    "myCards": "Moje digitalne kartice",
+    "myCardsWithCount": "Moje digitalne kartice ({count})",
+    "add": {
+      "full": "Dodaj karticu",
+      "short": "Dodaj"
+    },
+    "pinnedLabel": "Prikvaćene kartice",
+    "cardsLabel": "Kartice"
+  },
+  "announce": {
+    "results": "{count, plural, =0 {Nema rezultata} one {# rezultat} few {# rezultata} other {# rezultata}}",
+    "pinned": "Kartica je prikvačena.",
+    "unpinned": "Kartica je otkvačena.",
+    "archived": "Kartica je arhivirana.",
+    "unarchived": "Kartica je vraćena iz arhive."
+  },
+  "sort": {
+    "label": "Poredak",
+    "mode": {
+      "recent-use": "Nedavno korišteno",
+      "name": "Naziv",
+      "store": "Trgovina",
+      "type": "Tip",
+      "edited": "Nedavno uređeno",
+      "added": "Nedavno dodano",
+      "color": "Boja"
+    }
+  },
+  "chainNotes": {
+    "lidl": {
+      "text": "Kuponi i plaćanje rade samo u aplikaciji Lidl Plus. Na blagajni provjeri je li kartica očitana na računu.",
+      "link": "O Lidl Plus"
+    },
+    "kaufland": {
+      "text": "Kupone aktiviraš u aplikaciji Kaufland. Na blagajni provjeri je li kartica očitana na računu.",
+      "link": "O Kaufland Card"
+    },
+    "dm": {
+      "text": "Za kupone koristi aplikaciju Moj dm. Na blagajni provjeri je li kartica očitana na računu.",
+      "link": "O aplikaciji Moj dm"
+    },
+    "konzum": {
+      "text": "Pravila MultiPlus kartice zabranjuju kopiranje kartice. Spremljeni broj koristi samo za svoju karticu.",
+      "link": "Pravila MultiPlus kartice"
+    }
+  },
+  "empty": {
+    "title": "Još nemaš kartica",
+    "description": "Dodaj prvu karticu trgovine i na blagajni umjesto plastike pokaži mobitel.",
+    "add": "Dodaj karticu"
+  },
+  "archived": {
+    "label": "Arhivirane ({count})"
+  },
+  "tile": {
+    "archivedBadge": "Arhivirana",
+    "open": "{store}, {name}",
+    "openArchived": "{store}, {name} (arhivirana)",
+    "pin": "Prikvači karticu {name}"
+  },
+  "view": {
+    "newTab": "(otvara se u novoj kartici)",
+    "modal": {
+      "loading": "Učitavanje kartice...",
+      "loadError": "Kartice se nisu učitale. Provjeri vezu.",
+      "notFound": "Ova kartica više ne postoji ili je nemaš na svom računu.",
+      "fallbackTitle": "Kartica",
+      "fallbackDescription": "Digitalna kartica"
+    },
+    "code": {
+      "panel": "Kod kartice",
+      "rotate": "Zakreni kod",
+      "qr": "QR kod",
+      "twoDimensional": "2D kod",
+      "linear": "Crtični kod",
+      "withValue": "{kind}: {value}",
+      "cannotDraw": "Ovaj kod se ne može nacrtati. Pročitaj broj ispod ili probaj drugi tip."
+    },
+    "switcher": {
+      "shownAs": "Prikazano kao: {type}",
+      "tryOther": "Ne skenira se? Probaj drugi tip",
+      "saveDefault": "Spremi kao zadano"
+    },
+    "brightness": {
+      "hint": "Povećaj svjetlinu ekrana da se kod lakše očita.",
+      "hintMayDim": "Povećaj svjetlinu ekrana da se kod lakše očita. Ekran se može sam ugasiti, pa ga dotakni prije blagajne.",
+      "dismiss": "Ne prikazuj više savjet o svjetlini"
+    },
+    "photos": {
+      "label": "Slike kartice",
+      "enlarge": "Povećaj sliku: {label}"
+    },
+    "details": {
+      "type": "Vrsta",
+      "store": "Trgovina",
+      "note": "Bilješka",
+      "validFrom": "Vrijedi od",
+      "validTo": "Vrijedi do",
+      "balance": "Stanje",
+      "points": "{count, plural, one {# bod} few {# boda} other {# bodova}}",
+      "pointsFraction": "{count, number} boda"
+    },
+    "actions": {
+      "edit": "Uredi",
+      "pin": "Prikvači",
+      "unpin": "Otkvači",
+      "archive": "Arhiviraj",
+      "unarchive": "Vrati iz arhive",
+      "delete": "Obriši",
+      "cancel": "Odustani",
+      "deleteTitle": "Obriši karticu",
+      "deleteDescription": "Sigurno želiš obrisati karticu \"{name}\"? Ova akcija se ne može poništiti."
+    }
+  },
+  "errors": {
+    "image": {
+      "cannotSave": "Slika se ne može spremiti u ovom pregledniku.",
+      "cannotProcess": "Slika se ne može obraditi u ovom pregledniku.",
+      "cannotOpen": "Ova se slika ne može otvoriti. Odaberi drugu.",
+      "tooLarge": "Slika je prevelika. Odaberi drugu."
+    }
+  },
+  "offline": {
+    "cardLimit": "Dosegnut je najveći broj kartica.",
+    "cardSaveFailed": "Kartica nije spremljena. Pokušaj ponovno.",
+    "cardDeleteFailed": "Kartica nije obrisana. Pokušaj ponovno.",
+    "photoDeleteFailed": "Slika nije obrisana.",
+    "photoSendFailed": "Slika kartice nije poslana."
+  }
+}

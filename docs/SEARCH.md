@@ -89,7 +89,7 @@ Inside a tier, an earlier match position wins, but never by enough to reach the 
 
 Ranking is a **priority list, not one arithmetic score**. `chainComparators` runs comparators in order and takes the first non-zero verdict.
 
-Product search is the worked example (`app/products/utils/product-relevance.ts`):
+Product search is the worked example (`app/[locale]/products/utils/product-relevance.ts`):
 
 ```ts
 chainComparators(
@@ -113,38 +113,38 @@ Calling `localeCompare` with no locale collates them as plain `c`, `s`, `z`, whi
 
 ## 7. Every surface that consumes it
 
-| Surface                                                | Where                                                            | Fields searched                                                                                          |
-| ------------------------------------------------------ | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| Products facets: Trgovine, Lokacije, Kategorije, Marka | `app/products/components/facet-multi-select.tsx`                 | option label via `keywords`                                                                              |
-| Pinned places (settings)                               | `components/custom/settings/components/pinned-places-select.tsx` | place name                                                                                               |
-| Store-chain picker (price history)                     | `components/custom/store-chain/store-chain-multi-select.tsx`     | chain label via `keywords`                                                                               |
-| Add to shopping list                                   | `app/products/components/forms/shopping-list-selector.tsx`       | list title via `keywords`                                                                                |
-| Updates / blog                                         | `app/updates/page.tsx`                                           | title, excerpt, content                                                                                  |
-| Suggestions                                            | `app/suggestions/components/suggestions-client.tsx`              | suggestion fields                                                                                        |
-| Digital cards                                          | `app/(user)/digital-cards/utils/card-sorting.ts` (`filterCards`) | card name, store name, note (never the card number)                                                      |
-| Digital card store field                               | `app/(user)/digital-cards/hooks/use-store-options.ts`            | chain label and community names, folded with `normalizeForSearch` (the Autocomplete's own filter is off) |
-| Shopping lists index                                   | `app/(user)/shopping-lists/components/shopping-lists-client.tsx` | title                                                                                                    |
-| Watchlist                                              | `app/(user)/watchlist/hooks/use-watchlist-data.ts`               | product name, brand                                                                                      |
-| Watchlist suggestions                                  | `app/(user)/watchlist/hooks/use-watchlist-suggestions.ts`        | product name, brand                                                                                      |
-| Admin contact inbox                                    | `app/dashboard/components/admin-contact-table.tsx`               | name, email, subject, message                                                                            |
-| Products text search                                   | `app/products/hooks/use-infinite-products.ts`                    | server-side, then re-ranked locally                                                                      |
+| Surface                                                | Where                                                                     | Fields searched                                                                                          |
+| ------------------------------------------------------ | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Products facets: Trgovine, Lokacije, Kategorije, Marka | `app/[locale]/products/components/facet-multi-select.tsx`                 | option label via `keywords`                                                                              |
+| Pinned places (settings)                               | `components/custom/settings/components/pinned-places-select.tsx`          | place name                                                                                               |
+| Store-chain picker (price history)                     | `components/custom/store-chain/store-chain-multi-select.tsx`              | chain label via `keywords`                                                                               |
+| Add to shopping list                                   | `app/[locale]/products/components/forms/shopping-list-selector.tsx`       | list title via `keywords`                                                                                |
+| Updates / blog                                         | `app/[locale]/updates/page.tsx`                                           | title, excerpt, content                                                                                  |
+| Suggestions                                            | `app/[locale]/suggestions/components/suggestions-client.tsx`              | suggestion fields                                                                                        |
+| Digital cards                                          | `app/[locale]/(user)/digital-cards/utils/card-sorting.ts` (`filterCards`) | card name, store name, note (never the card number)                                                      |
+| Digital card store field                               | `app/[locale]/(user)/digital-cards/hooks/use-store-options.ts`            | chain label and community names, folded with `normalizeForSearch` (the Autocomplete's own filter is off) |
+| Shopping lists index                                   | `app/[locale]/(user)/shopping-lists/components/shopping-lists-client.tsx` | title                                                                                                    |
+| Watchlist                                              | `app/[locale]/(user)/watchlist/hooks/use-watchlist-data.ts`               | product name, brand                                                                                      |
+| Watchlist suggestions                                  | `app/[locale]/(user)/watchlist/hooks/use-watchlist-suggestions.ts`        | product name, brand                                                                                      |
+| Admin contact inbox                                    | `app/[locale]/dashboard/components/admin-contact-table.tsx`               | name, email, subject, message                                                                            |
+| Products text search                                   | `app/[locale]/products/hooks/use-infinite-products.ts`                    | server-side, then re-ranked locally                                                                      |
 
 The seven `filterByFields` callers gained tokenized, ranked, abbreviation-tolerant search **without any call-site change**, because its signature did not move.
 
 ## 8. Key files
 
-| Path                                      | Role                                                                  |
-| ----------------------------------------- | --------------------------------------------------------------------- |
-| `utils/search/normalize.ts`               | `normalizeCached` (memoized fold) and `prepareQuery` (one-entry memo) |
-| `utils/search/fuzzy.ts`                   | `subsequenceScore`, the abbreviation matcher                          |
-| `utils/search/match.ts`                   | `MATCH_TIER`, `findWholeQuery`, `scoreFields`                         |
-| `utils/search/rank.ts`                    | `chainComparators`, `byAsc`, `byDesc`                                 |
-| `utils/search/command-filter.ts`          | `commandFilter`, the cmdk adapter                                     |
-| `utils/strings.ts`                        | `normalizeForSearch` (the fold) and `compareHr` (the sort)            |
-| `utils/generic.ts`                        | `filterByFields`, now a thin wrapper over `scoreFields`               |
-| `utils/pinned-stores.ts`                  | `chainMatchesPinnedStore`, `isPinnedChain`                            |
-| `app/products/utils/product-relevance.ts` | product ranking, composed from `rank.ts`                              |
-| `app/products/utils/product-filters.ts`   | `normalizeChainCode`, the code-only normalizer                        |
+| Path                                               | Role                                                                  |
+| -------------------------------------------------- | --------------------------------------------------------------------- |
+| `utils/search/normalize.ts`                        | `normalizeCached` (memoized fold) and `prepareQuery` (one-entry memo) |
+| `utils/search/fuzzy.ts`                            | `subsequenceScore`, the abbreviation matcher                          |
+| `utils/search/match.ts`                            | `MATCH_TIER`, `findWholeQuery`, `scoreFields`                         |
+| `utils/search/rank.ts`                             | `chainComparators`, `byAsc`, `byDesc`                                 |
+| `utils/search/command-filter.ts`                   | `commandFilter`, the cmdk adapter                                     |
+| `utils/strings.ts`                                 | `normalizeForSearch` (the fold) and `compareHr` (the sort)            |
+| `utils/generic.ts`                                 | `filterByFields`, now a thin wrapper over `scoreFields`               |
+| `utils/pinned-stores.ts`                           | `chainMatchesPinnedStore`, `isPinnedChain`                            |
+| `app/[locale]/products/utils/product-relevance.ts` | product ranking, composed from `rank.ts`                              |
+| `app/[locale]/products/utils/product-filters.ts`   | `normalizeChainCode`, the code-only normalizer                        |
 
 **Libraries: none.** Matching is entirely in-repo. cmdk `^1.1.1` supplies the combobox, but its own `command-score` filter is replaced by `commandFilter`.
 
@@ -181,7 +181,7 @@ Also note **email is not on the JPA `User` entity**; it lives in better-auth's o
 
 **`normalizeForSearch` is an identity key, not only a search helper.** Twelve files use its output to key maps for facet counting and dedupe. Changing what it returns would silently change facet counts, which is why the memoized wrapper returns exactly the same string.
 
-**Do not put a React library in the shared matcher.** `filterByFields` is imported by `app/updates/page.tsx`, which is a server component. That is why `subsequenceScore` is hand-written instead of borrowing cmdk's `command-score`.
+**Do not put a React library in the shared matcher.** `filterByFields` is imported by `app/[locale]/updates/page.tsx`, which is a server component. That is why `subsequenceScore` is hand-written instead of borrowing cmdk's `command-score`.
 
 **Ranking gets discarded in two places.** `use-watchlist-suggestions.ts` re-sorts by occurrence and discount after filtering, so relevance order is thrown away there. That is intentional, but worth knowing before debugging why an obvious match is not first.
 

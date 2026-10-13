@@ -1,0 +1,13 @@
+{
+  "meta": {
+    "title": "Spending",
+    "description": "See and analyse your spending."
+  },
+  "title": "Spending",
+  "loginRequired": {
+    "description": "Sign in to see your spending by store and category, and to track your savings month by month."
+  },
+  "comingSoon": {
+    "description": "You'll see how much you spend by store and category, which products save you the most and how your spending changes month by month."
+  }
+}

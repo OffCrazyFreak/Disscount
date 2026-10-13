@@ -1,0 +1,87 @@
+{
+  "meta": {
+    "title": "Store map",
+    "description": "Find stores on the map: Konzum, Lidl, Kaufland, Spar, Plodine, Tommy, Studenac and 20 more chains across Croatia. Search by town or address and find the nearest one."
+  },
+  "heading": "Store map",
+  "search": {
+    "placeholder": "Chain, town or address..."
+  },
+  "layout": {
+    "skipMap": "Skip the map",
+    "storeList": "Store list",
+    "stores": "Stores",
+    "collapse": "Collapse the list",
+    "expand": "Expand the list"
+  },
+  "load": {
+    "error": "Stores can't be loaded right now.",
+    "retry": "Try again",
+    "loading": "Loading stores..."
+  },
+  "unavailable": {
+    "browser": "Your browser can't show the map. Every store is still in the list.",
+    "style": "The map can't be loaded right now. Every store is still in the list.",
+    "contextLost": "The map stopped working.",
+    "reload": "Reload"
+  },
+  "chains": {
+    "group": "Chains",
+    "selectAll": "Select all",
+    "clearAll": "Clear all"
+  },
+  "nearMe": {
+    "locate": "Stores near me",
+    "clear": "Remove my location",
+    "denied": "Location access is blocked. Allow it in your browser settings or search by town.",
+    "unavailable": "Your location isn't available right now. Search by town or address.",
+    "timeout": "Finding your location is taking too long. Try again or search by town.",
+    "approximate": "Sorted from an approximate location ({city}). For an exact order, tap “Stores near me”.",
+    "approximateNoCity": "Sorted from an approximate location. For an exact order, tap “Stores near me”.",
+    "coarse": "Your location is approximate, so distances are hidden."
+  },
+  "recent": {
+    "label": "Recent searches:",
+    "clear": "Clear",
+    "clearLabel": "Clear recent searches"
+  },
+  "count": {
+    "shown": "{count, plural, one {# store} other {# stores}}",
+    "unplaced": "{shown}, {unplaced} of them without a location on the map. They're still in the list."
+  },
+  "pan": {
+    "group": "Move the map",
+    "up": "Move the map up",
+    "left": "Move the map left",
+    "right": "Move the map right",
+    "down": "Move the map down"
+  },
+  "list": {
+    "unknownCity": "Unknown town",
+    "noLocation": "no location"
+  },
+  "details": {
+    "back": "Back to the list",
+    "unknownAddress": "Address unknown",
+    "distance": "{distance} from you",
+    "notPlaced": "We don't have an exact location for this store yet, so it isn't on the map."
+  },
+  "actions": {
+    "googleDirections": "Directions (Google Maps)",
+    "appleMaps": "Apple Maps",
+    "call": "Call {phone}",
+    "share": "Share",
+    "copied": "Link copied.",
+    "shareFailed": "Sharing didn't work.",
+    "report": "Report a mistake"
+  },
+  "report": {
+    "subject": "Wrong store location",
+    "message": "Store: {store} ({id})\n\nWhat's wrong: "
+  },
+  "summary": {
+    "title": "Stores by chain",
+    "stores": "{count, plural, one {# store} other {# stores}}",
+    "where": "{kind, select, one {, in {cities}} some {, in {cities}} many {, including in {cities}} other {}}"
+  }
+}

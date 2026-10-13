@@ -132,28 +132,28 @@ Worth knowing before changing any of this:
 
 ## 8. Key files
 
-| Area          | Path                                                                                     |
-| ------------- | ---------------------------------------------------------------------------------------- |
-| Access rule   | `backend/.../shoppingList/service/ShoppingListAccessService.java`                        |
-| Levels        | `backend/.../shoppingList/domain/ListAccess.java`, `LinkAccess.java`                     |
-| List API      | `backend/.../shoppingList/rest/ShoppingListController.java`                              |
-| List logic    | `backend/.../shoppingList/service/ShoppingListService.java`                              |
-| Redaction     | `backend/.../shoppingList/service/ShoppingListMapper.java`                               |
-| Optional auth | `backend/.../config/OptionalBearerAuthenticationFilter.java`                             |
-| Route matcher | `backend/.../config/UuidScopedRequestMatcher.java`                                       |
-| List page     | `frontend/src/app/(user)/shopping-lists/[id]/`                                           |
-| Access banner | `frontend/src/app/(user)/shopping-lists/[id]/components/shopping-list-access-banner.tsx` |
-| Share modal   | `frontend/src/app/(user)/shopping-lists/components/forms/share-list-modal.tsx`           |
-| Access row    | `frontend/src/app/(user)/shopping-lists/components/forms/share-access-row.tsx`           |
-| Modal state   | `frontend/src/app/(user)/shopping-lists/hooks/use-share-list-modal.ts`                   |
-| Level copy    | `frontend/src/app/(user)/shopping-lists/utils/link-access-copy.ts`                       |
-| Level icons   | `frontend/src/app/(user)/shopping-lists/utils/link-access-icons.ts`                      |
-| Copy modal    | `frontend/src/app/(user)/shopping-lists/components/forms/copy-list-modal.tsx`            |
-| Copy state    | `frontend/src/app/(user)/shopping-lists/hooks/use-copy-list-modal.ts`                    |
-| Title field   | `frontend/src/app/(user)/shopping-lists/components/forms/shopping-list-title-field.tsx`  |
-| Optimism      | `frontend/src/lib/api/shopping-lists/optimistic-list.ts`                                 |
-| Cache purge   | `frontend/src/lib/offline/purge.ts`                                                      |
-| Client access | `frontend/src/app/(user)/shopping-lists/utils/shopping-list-access.ts`                   |
+| Area          | Path                                                                                              |
+| ------------- | ------------------------------------------------------------------------------------------------- |
+| Access rule   | `backend/.../shoppingList/service/ShoppingListAccessService.java`                                 |
+| Levels        | `backend/.../shoppingList/domain/ListAccess.java`, `LinkAccess.java`                              |
+| List API      | `backend/.../shoppingList/rest/ShoppingListController.java`                                       |
+| List logic    | `backend/.../shoppingList/service/ShoppingListService.java`                                       |
+| Redaction     | `backend/.../shoppingList/service/ShoppingListMapper.java`                                        |
+| Optional auth | `backend/.../config/OptionalBearerAuthenticationFilter.java`                                      |
+| Route matcher | `backend/.../config/UuidScopedRequestMatcher.java`                                                |
+| List page     | `frontend/src/app/[locale]/(user)/shopping-lists/[id]/`                                           |
+| Access banner | `frontend/src/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-access-banner.tsx` |
+| Share modal   | `frontend/src/app/[locale]/(user)/shopping-lists/components/forms/share-list-modal.tsx`           |
+| Access row    | `frontend/src/app/[locale]/(user)/shopping-lists/components/forms/share-access-row.tsx`           |
+| Modal state   | `frontend/src/app/[locale]/(user)/shopping-lists/hooks/use-share-list-modal.ts`                   |
+| Level copy    | `frontend/src/app/[locale]/(user)/shopping-lists/utils/link-access-copy.ts`                       |
+| Level icons   | `frontend/src/app/[locale]/(user)/shopping-lists/utils/link-access-icons.ts`                      |
+| Copy modal    | `frontend/src/app/[locale]/(user)/shopping-lists/components/forms/copy-list-modal.tsx`            |
+| Copy state    | `frontend/src/app/[locale]/(user)/shopping-lists/hooks/use-copy-list-modal.ts`                    |
+| Title field   | `frontend/src/app/[locale]/(user)/shopping-lists/components/forms/shopping-list-title-field.tsx`  |
+| Optimism      | `frontend/src/lib/api/shopping-lists/optimistic-list.ts`                                          |
+| Cache purge   | `frontend/src/lib/offline/purge.ts`                                                               |
+| Client access | `frontend/src/app/[locale]/(user)/shopping-lists/utils/shopping-list-access.ts`                   |
 
 ## 9. Gotchas
 

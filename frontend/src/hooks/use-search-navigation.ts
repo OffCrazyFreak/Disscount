@@ -1,7 +1,8 @@
 "use client";
 
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { useCallback } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 export interface IUseSearchNavigationResult {
   /** The `q` param, empty unless the search route is the current page */
@@ -67,7 +68,10 @@ export function useSearchNavigation(
         return;
       }
 
-      const withHash = `${url}${window.location.hash}`;
+      // searchRoute has no language prefix, so the browser's own path is used
+      // to keep /en/map on /en/map.
+      const search = url.includes("?") ? url.slice(url.indexOf("?")) : "";
+      const withHash = `${window.location.pathname}${search}${window.location.hash}`;
 
       if (mode === "push") window.history.pushState(null, "", withHash);
       else window.history.replaceState(null, "", withHash);

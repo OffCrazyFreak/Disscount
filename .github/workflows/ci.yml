@@ -41,6 +41,9 @@ jobs:
       - name: Lint
         run: pnpm exec eslint src
 
+      - name: Translation catalogs
+        run: pnpm i18n:check
+
       - name: Format check
         run: pnpm exec prettier --check src
 

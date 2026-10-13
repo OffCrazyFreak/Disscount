@@ -1,0 +1,64 @@
+{
+  "title": "Scan code",
+  "camera": {
+    "label": "Camera",
+    "autoPlaceholder": "Automatic (rear camera)",
+    "reset": "Reset the camera to automatic selection",
+    "name": "{facing, select, front {Front camera} back {Rear camera} other {Camera}}{lens, select, ultrawide { (ultra-wide)} telephoto { (telephoto)} macro { (macro)} other {}}{ordinal, plural, =0 {} other { #}}",
+    "hint": "The code isn't reading properly. Move closer, avoid glare or try another photo.",
+    "manual": "Enter manually"
+  },
+  "image": {
+    "upload": "Upload an image with a code",
+    "loading": "Loading...",
+    "notFound": "No code found in the image.",
+    "notProductBarcode": "The code in the image isn't a product barcode (EAN).",
+    "loadFailed": "Couldn't load the image.",
+    "unsupportedFormat": "The code format in the image isn't supported.",
+    "unreadable": "Couldn't read the code in the image. Try a sharper photo."
+  },
+  "errors": {
+    "permissionDenied": "Camera access was denied. Allow the camera in your browser settings and try again.",
+    "noCamera": "No camera found on this device.",
+    "inUse": "Another app is using the camera. Close it and try again.",
+    "overconstrained": "The selected camera isn't available. Reset the camera to automatic selection.",
+    "insecureContext": "Scanning only works over a secure (HTTPS) connection.",
+    "generic": "Couldn't start the camera. Try again."
+  },
+  "codes": {
+    "ean_13": "EAN-13",
+    "ean_8": "EAN-8",
+    "upc_a": "UPC-A",
+    "upc_e": "UPC-E",
+    "code_128": "Code 128",
+    "code_39": "Code 39",
+    "code_93": "Code 93",
+    "codabar": "Codabar",
+    "itf": "ITF",
+    "qr_code": "QR code",
+    "aztec": "Aztec",
+    "data_matrix": "Data Matrix",
+    "pdf417": "PDF417",
+    "unknown": "Number or text only",
+    "fallback": "Code"
+  },
+  "confirm": {
+    "title": "Check the code",
+    "chooseLegend": "Choose the code the till scans",
+    "use": "Use code",
+    "rescan": "Scan again",
+    "manual": "Enter manually",
+    "announceTyped": "Code entered: {label}",
+    "announceFound": "Code found: {label}",
+    "announceMany": "{count, plural, one {# code found} other {# codes found}}"
+  },
+  "manual": {
+    "title": "Enter code manually",
+    "numberLabel": "Card number",
+    "typeLabel": "Code type",
+    "submit": "Continue",
+    "back": "Back to scanning",
+    "numberRequired": "Enter the code number.",
+    "checkDigitMismatch": "The number doesn't match the selected code type. Check the digits or choose another type."
+  }
+}

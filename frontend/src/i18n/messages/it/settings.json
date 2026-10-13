@@ -1,0 +1,209 @@
+{
+  "modal": {
+    "title": "Impostazioni",
+    "description": "Gestisci profilo, notifiche, preferenze e sicurezza.",
+    "cancel": "Annulla",
+    "save": "Salva",
+    "reset": "Reimposta",
+    "replayGuide": "Rivedi la guida",
+    "unsavedChanges": "Modifiche non salvate"
+  },
+  "tabs": {
+    "profile": "Profilo",
+    "notifications": "Notifiche",
+    "preferences": "Preferenze",
+    "security": "Sicurezza"
+  },
+  "profile": {
+    "avatar": {
+      "change": "Cambia foto",
+      "remove": "Rimuovi foto",
+      "formats": "PNG, JPG, WebP o GIF (viene salvata come WebP).",
+      "tooLarge": "L'immagine è troppo grande. La dimensione massima è 15 MB.",
+      "loadFailed": "Non riusciamo a caricare l'immagine, prova con un JPG o un PNG."
+    },
+    "username": {
+      "label": "Nome utente",
+      "description": "Come ti chiamiamo? Deve essere unico."
+    },
+    "acquisition": {
+      "label": "Come hai conosciuto Disscount?",
+      "placeholder": "Scegli una fonte",
+      "description": "Ci aiuta a capire dove farci trovare meglio."
+    },
+    "channels": {
+      "GOOGLE_SEARCH": "Ricerca su Google",
+      "INSTAGRAM": "Instagram",
+      "FACEBOOK": "Facebook",
+      "TIKTOK": "TikTok",
+      "YOUTUBE": "YouTube",
+      "FRIEND_OR_FAMILY": "Consiglio di amici o parenti",
+      "ONLINE_AD": "Pubblicità online",
+      "BLOG_OR_NEWS": "Blog, articolo o media",
+      "APP_STORE": "App Store / Google Play",
+      "POSTER_OR_FLYER": "Cartellone o volantino",
+      "EVENT": "Fiera o evento",
+      "OTHER": "Altro"
+    }
+  },
+  "notifications": {
+    "hint": "Scegli come, su cosa e quando ricevere notifiche su offerte e novità.",
+    "push": {
+      "label": "Consenti le notifiche dell'app",
+      "description": "Sull'app per il telefono ricevi notifiche sulle offerte solo per i prodotti che scegli, senza spam."
+    },
+    "email": {
+      "label": "Consenti le notifiche via email",
+      "description": "Via email ricevi notifiche sulle offerte solo per i prodotti che scegli, senza spam."
+    },
+    "newsletter": {
+      "label": "Novità e aggiornamenti",
+      "description": "Ogni tanto una novità su Disscount nella tua email, senza spam."
+    },
+    "feedback": {
+      "label": "Contatto per i feedback",
+      "description": "Permettici di scriverti per avere un tuo parere sull'app."
+    }
+  },
+  "preferences": {
+    "stores": {
+      "label": "Negozi",
+      "hint": "Scegli i negozi vicino a te."
+    },
+    "places": {
+      "label": "Punti vendita",
+      "hint": "Scegli i punti vendita vicino a te.",
+      "placeholder": "Scegli i punti vendita..."
+    },
+    "selectedMark": "✓",
+    "language": {
+      "label": "Lingua",
+      "hint": "La lingua dell'app e delle email che ti inviamo.",
+      "locked": "Prima salva o reimposta le modifiche, poi cambia lingua."
+    }
+  },
+  "save": {
+    "offline": "Sei offline. Le modifiche si sincronizzeranno quando torni online.",
+    "onboardingDone": "Tutto pronto!",
+    "settingsSaved": "Impostazioni salvate!",
+    "errors": {
+      "user": "Non siamo riusciti a salvare il profilo.",
+      "stores": "Non siamo riusciti a salvare i negozi.",
+      "places": "Non siamo riusciti a salvare i punti vendita."
+    }
+  },
+  "validation": {
+    "usernameMin": "Il nome utente deve avere almeno 2 caratteri",
+    "usernameMax": "Il nome utente può avere al massimo 40 caratteri",
+    "emailInvalid": "Inserisci un indirizzo email valido",
+    "currentPasswordRequired": "Inserisci la password attuale"
+  },
+  "onboarding": {
+    "fallbackDescription": "Una breve configurazione dell'account. Puoi cambiare tutto in seguito.",
+    "progress": "Passo {current} di {total}",
+    "logout": "Esci",
+    "logoutFailed": "Non siamo riusciti a farti uscire. Riprova.",
+    "back": "Indietro",
+    "next": "Avanti",
+    "finish": "Fine",
+    "steps": {
+      "welcome": {
+        "title": "Che bello averti qui!",
+        "titleNamed": "{username}, che bello averti qui!"
+      },
+      "profile": {
+        "title": "Il tuo profilo",
+        "description": "Presentati. Puoi cambiare tutto più tardi nelle impostazioni."
+      },
+      "notifications": {
+        "title": "Notifiche",
+        "description": "Scegli come, su cosa e quando ricevere notifiche su offerte e novità."
+      },
+      "preferences": {
+        "title": "I tuoi negozi e punti vendita",
+        "description": "Segna negozi e punti vendita vicino a te per confronti di prezzo più precisi."
+      },
+      "done": {
+        "title": "Tutto pronto!"
+      }
+    },
+    "welcome": {
+      "intro": "Ti accompagniamo in pochi passaggi per adattare Disscount a te. Puoi modificare tutto più tardi nelle impostazioni.",
+      "profile": {
+        "title": "Personalizza il profilo",
+        "text": "Scegli nome e foto profilo per rendere l'app tua."
+      },
+      "stores": {
+        "title": "I tuoi negozi",
+        "text": "Scegli negozi e punti vendita per confrontare i prezzi in base al tuo budget."
+      },
+      "notifications": {
+        "title": "Notifiche senza spam",
+        "text": "Scegli come, su cosa e quando ricevere notifiche su offerte e novità."
+      }
+    },
+    "done": {
+      "title": "Disscount è pronto per te.",
+      "text": "Con «Fine» salviamo le tue scelte. Puoi cambiare tutto più tardi nelle impostazioni dell'account."
+    }
+  },
+  "security": {
+    "credentials": {
+      "label": "Accesso e password",
+      "hintWithPassword": "Per cambiare email o password, conferma la password attuale.",
+      "hintWithoutPassword": "Imposta una password per accedere anche con l'email, non solo con un account social.",
+      "email": "Email",
+      "emailLockedSocial": "Per cambiare email, scollega prima gli account social.",
+      "emailLockedNoPassword": "Potrai cambiare email dopo aver impostato una password.",
+      "newPassword": "Nuova password",
+      "password": "Password",
+      "newPasswordPlaceholder": "Lascia vuoto se non vuoi cambiarla",
+      "currentPassword": "Password attuale",
+      "currentPasswordDescription": "Serve per confermare il cambio di email o password."
+    },
+    "submit": {
+      "setPasswordFailed": "Non siamo riusciti a impostare la password.",
+      "passwordSet": "Password impostata! Ora puoi accedere anche con l'email.",
+      "noChanges": "Nessuna modifica da salvare.",
+      "currentPasswordWrong": "La password attuale non è corretta.",
+      "changePasswordFailed": "Non siamo riusciti a cambiare la password.",
+      "socialLinked": "Per cambiare email, scollega prima gli account collegati (Google, Facebook).",
+      "changeEmailFailed": "Non siamo riusciti a cambiare l'email.",
+      "passwordChanged": "Password cambiata.",
+      "passwordChangedConfirmEmail": "Password cambiata. Per cambiare l'email, conferma il link inviato al tuo indirizzo attuale.",
+      "emailConfirmationSent": "Abbiamo mandato un link di conferma al tuo indirizzo email attuale. Il cambio di email avrà effetto dopo la conferma.",
+      "generic": "Qualcosa è andato storto. Riprova.",
+      "tooManyAttempts": "Troppi tentativi sbagliati. Riprova tra 15 minuti."
+    },
+    "recovery": {
+      "title": "Controlla la tua email",
+      "description": "Ti abbiamo mandato un link per cambiare la password. Dopo il cambio, ti faremo uscire da tutti i dispositivi.",
+      "sendFailed": "Non siamo riusciti a inviare il link. Riprova."
+    },
+    "linked": {
+      "label": "Account collegati",
+      "hint": "Collega gli account social per accedere più in fretta.",
+      "link": "Collega",
+      "unlink": "Scollega",
+      "linkFailed": "Non siamo riusciti a collegare l'account.",
+      "unlinkFailed": "Non siamo riusciti a scollegare l'account.",
+      "unlinked": "Account scollegato."
+    },
+    "actions": {
+      "revokeLabel": "Esci dagli altri dispositivi",
+      "revokeDescription": "Chiudi tutte le sessioni attive tranne questa.",
+      "revokeButton": "Esci",
+      "deleteLabel": "Elimina account",
+      "deleteDescription": "Elimina per sempre l'account e tutti i dati collegati.",
+      "deleteButton": "Elimina",
+      "revokeDialogTitle": "Uscire dagli altri dispositivi?",
+      "revokeDialogDescription": "Tutte le sessioni attive tranne questa verranno chiuse.",
+      "deleteDialogTitle": "Eliminare l'account?",
+      "deleteDialogDescription": "L'account e tutti i dati collegati verranno eliminati in modo definitivo.",
+      "revokeFailed": "Non siamo riusciti a chiudere le altre sessioni.",
+      "revoked": "Sessioni chiuse su tutti gli altri dispositivi.",
+      "deleted": "Account eliminato.",
+      "deleteFailed": "Non siamo riusciti a eliminare l'account. Riprova."
+    }
+  }
+}

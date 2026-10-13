@@ -1,0 +1,21 @@
+{
+  "dialog": { "close": "Zatvori" },
+  "command": {
+    "title": "Paleta naredbi",
+    "description": "Pretraži naredbu za pokretanje..."
+  },
+  "sidebar": {
+    "mobileTitle": "Bočna traka",
+    "mobileDescription": "Prikazuje bočnu traku na mobitelu.",
+    "toggle": "Prebaci bočnu traku"
+  },
+  "share": {
+    "copied": "Poveznica je kopirana",
+    "failed": "Dijeljenje nije uspjelo"
+  },
+  "offline": {
+    "writeFailed": "Promjena nije spremljena. Pokušaj ponovno.",
+    "writeFailedLostAccess": "Promjena nije spremljena. Možda više nemaš pristup ovom popisu.",
+    "retiredWriteDropped": "Promjena s prošle verzije nije spremljena. Otvori popis i provjeri."
+  }
+}

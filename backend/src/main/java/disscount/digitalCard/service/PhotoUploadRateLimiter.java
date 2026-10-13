@@ -45,7 +45,7 @@ public class PhotoUploadRateLimiter {
 
         if (retryAfterMillis[0] > 0) {
             long seconds = Math.max(1, (retryAfterMillis[0] + 999) / 1000);
-            throw new TooManyRequestsException("Previše učitavanja slika, pokušaj ponovno za malo", seconds);
+            throw new TooManyRequestsException("error.cardPhoto.rateLimited", seconds);
         }
     }
 

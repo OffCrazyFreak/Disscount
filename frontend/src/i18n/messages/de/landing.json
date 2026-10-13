@@ -1,0 +1,202 @@
+{
+  "meta": {
+    "title": "Finde die besten Preise in Kroatien",
+    "description": "Vergleiche Preise bei 25+ Händlern in Kroatien, behalte den Preisverlauf im Blick, erstelle smarte Einkaufslisten und spare bei jedem Einkauf. Kostenlos."
+  },
+  "jsonLd": {
+    "appDescription": "Preisvergleich für Produkte bei Händlern in Kroatien: Preisverlauf, smarte Einkaufslisten und Merkliste."
+  },
+  "hero": {
+    "title": "Finde die <underline>besten Preise</underline> in Kroatien",
+    "searchPlaceholder": "Produkte suchen...",
+    "or": "oder",
+    "scanBarcode": "Barcode scannen"
+  },
+  "taglines": {
+    "compare": "Vergleiche Märkte und Preise!",
+    "saveEveryTime": "Spare bei jedem Einkauf!",
+    "neverMissDeal": "Verpasse nie wieder ein Angebot!",
+    "forgetCards": "Weniger Karten, leichterer Geldbeutel!",
+    "shareList": "Erstelle und teile deine Einkaufsliste!",
+    "priceHistory": "Behalte den Preisverlauf im Blick!",
+    "scan": "Barcode scannen, Preise vergleichen!",
+    "smartShopping": "Smart einkaufen ohne Stress!",
+    "bestOffers": "Finde die besten Angebote in Kroatien!",
+    "cheapQuality": "Kaufe gut und günstig ein!",
+    "saveMore": "Klug einkaufen, mehr sparen!",
+    "partner": "Deine Hilfe für kluges Einkaufen!",
+    "noCatalogs": "Vergiss Prospekte und Kataloge!"
+  },
+  "howItWorks": {
+    "title": "So funktioniert's",
+    "subtitle": "Drei Schritte zum günstigeren Warenkorb, ganz ohne Prospekte und Kataloge.",
+    "steps": {
+      "searchOrScan": {
+        "title": "Suchen oder scannen",
+        "description": "Gib den Produktnamen ein oder scanne den Barcode mit der Kamera."
+      },
+      "comparePrices": {
+        "title": "Preise vergleichen",
+        "description": "Du siehst den Preis bei allen Händlern und den Preisverlauf über die Zeit."
+      },
+      "save": {
+        "title": "Beim Einkauf sparen",
+        "description": "Wähle den günstigsten Markt und kaufe ein, ohne Prospekte zu wälzen."
+      }
+    }
+  },
+  "stats": {
+    "heading": "Disscount in Zahlen",
+    "chains": {
+      "value": "25+",
+      "label": "Händler"
+    },
+    "free": {
+      "value": "100 %",
+      "label": "kostenlos, für immer"
+    },
+    "catalogs": {
+      "value": "0",
+      "label": "Prospekte zum Durchblättern"
+    }
+  },
+  "features": {
+    "title": "Alles für den klugen Einkauf",
+    "subtitle": "Was heute schon funktioniert und was bald dazukommt.",
+    "items": {
+      "scanner": {
+        "title": "Barcode scannen",
+        "description": "Halte die Kamera auf das Produkt und die Preise sind in Sekunden da."
+      },
+      "compare": {
+        "title": "Preisvergleich",
+        "description": "Dasselbe Produkt, alle Händler: Du siehst sofort, wo es am günstigsten ist."
+      },
+      "history": {
+        "title": "Preisverlauf",
+        "description": "Die Preiskurve zeigt, ob ein Angebot wirklich eins ist."
+      },
+      "lists": {
+        "title": "Einkaufslisten",
+        "description": "Stelle eine Liste zusammen und finde heraus, wo der ganze Warenkorb am günstigsten ist."
+      },
+      "sharing": {
+        "title": "Listen teilen",
+        "description": "Teile die Liste mit deiner Familie: So kauft ihr zusammen ein, ohne etwas doppelt zu besorgen."
+      },
+      "spending": {
+        "title": "Ausgabenübersicht",
+        "description": "Sieh, wie viel du ausgibst und wie viel du sparst, Monat für Monat."
+      },
+      "watchlist": {
+        "title": "Merkliste",
+        "description": "Füge Produkte hinzu, die du oft kaufst, und behalte ihre Preise im Blick."
+      },
+      "notifications": {
+        "title": "Smarte Benachrichtigungen",
+        "description": "Lege deinen Wunschpreis fest, wir sagen dir Bescheid, wenn das Produkt günstiger wird."
+      },
+      "cards": {
+        "title": "Digitale Kundenkarten",
+        "description": "Alle Kundenkarten auf dem Handy. Dein Geldbeutel macht endlich Diät."
+      },
+      "offline": {
+        "title": "Auch ohne Internet",
+        "description": "Installiere Disscount als App: Listen und Produkte gibt es auch offline."
+      },
+      "map": {
+        "title": "Karte der Märkte",
+        "description": "Finde den nächstgelegenen Markt auf der Karte und den Weg dorthin."
+      }
+    }
+  },
+  "priceHistory": {
+    "title": "Ist ein Angebot wirklich eins?",
+    "description": "Manche „Angebote“ setzen den Preis nur auf den alten Stand zurück. Disscount merkt sich den Preisverlauf: Du siehst genau, was ein Produkt letzte Woche oder letzten Monat gekostet hat, und ob sich das Warten lohnt.",
+    "checks": {
+      "chart": "Preiskurve für jedes Produkt, nach Händler",
+      "realDiscount": "Du siehst sofort, ob der Rabatt echt oder aufgeblasen ist",
+      "average": "Vergleich mit dem Durchschnittspreis bei anderen Händlern"
+    },
+    "cta": "Produkt prüfen",
+    "chartCaption": "Preis im Zeitverlauf"
+  },
+  "stores": {
+    "title": "Alle großen Händler an einem Ort",
+    "subtitle": "Von Konzum und Lidl bis zum Laden um die Ecke: Preise von 25+ Händlern in ganz Kroatien.",
+    "viewPrices": "Preise ansehen: {chain}"
+  },
+  "pwa": {
+    "screenshotPhoneAlt": "Disscount-App auf dem Handy",
+    "screenshotDesktopAlt": "Disscount-App auf dem Computer",
+    "title": "Eine App, die auch ohne Internet funktioniert",
+    "perks": {
+      "offline": {
+        "title": "Listen auch offline",
+        "description": "Einkaufslisten und angesehene Produkte funktionieren auch ohne Empfang, mitten im Laden."
+      },
+      "sync": {
+        "title": "Sync, sobald du wieder online bist",
+        "description": "Änderungen, die du offline machst, werden automatisch gespeichert, sobald du wieder Netz hast."
+      }
+    }
+  },
+  "pricing": {
+    "title": "Was kostet das? Nichts.",
+    "subtitle": "Disscount ist kostenlos und bleibt es auch. Diesmal geht die Rechnung zu deinen Gunsten.",
+    "freeSubtitle": "Kassenbon · Gratis-Tarif",
+    "premiumSubtitle": "Kassenbon · Premium-Tarif",
+    "freePrice": "0,00",
+    "freeTotal": "0,00 EUR",
+    "unknownPrice": "?",
+    "total": "SUMME",
+    "freeRows": {
+      "compare": "Preisvergleich und Preisverlauf",
+      "lists": "Unbegrenzte Einkaufslisten",
+      "watchlist": "Merkliste",
+      "alerts": "Benachrichtigungen bei Preissenkungen",
+      "scan": "Barcode scannen",
+      "install": "Installation als App"
+    },
+    "premiumRows": {
+      "spending": "Erweiterte Ausgabenanalyse",
+      "ai": "KI-Vorschläge für einen günstigeren Einkauf"
+    }
+  },
+  "faq": {
+    "title": "Häufige Fragen",
+    "subtitle": "Alles, was du vor dem ersten Einkauf mit Disscount wissen willst.",
+    "items": {
+      "source": {
+        "question": "Woher hat Disscount die Preise?",
+        "answer": "Seit dem 15. Mai 2025 müssen Händler in Kroatien ihre Preise gesetzlich veröffentlichen. Disscount bezieht sie über das offene Projekt Cijene API, das täglich die offiziellen Preislisten der Händler sammelt."
+      },
+      "free": {
+        "question": "Ist Disscount wirklich kostenlos?",
+        "answer": "Ja. Produktsuche, Preisvergleich, Preisverlauf und Einkaufslisten sind kostenlos und bleiben es."
+      },
+      "stores": {
+        "question": "Welche Händler kann ich vergleichen?",
+        "answer": "Disscount deckt 25+ Händler in ganz Kroatien ab, darunter Konzum, Lidl, Plodine, Spar, Kaufland, Tommy, Studenac, Eurospin und dm."
+      },
+      "account": {
+        "question": "Brauche ich ein Konto?",
+        "answer": "Nicht für Suche und Preisvergleich: Das funktioniert sofort. Ein Konto brauchst du erst, wenn du Einkaufslisten speichern und Produkte merken willst."
+      },
+      "barcode": {
+        "question": "Wie scanne ich einen Barcode?",
+        "answer": "Tippe auf „Barcode scannen“, erlaube den Zugriff auf die Kamera und halte sie auf den Barcode am Produkt. Disscount öffnet sofort das Produkt mit den Preisen bei allen Händlern."
+      },
+      "offline": {
+        "question": "Funktioniert die App ohne Internet?",
+        "answer": "Ja. Du kannst Disscount als App auf Handy oder Computer installieren. Gespeicherte Listen und angesehene Produkte gibt es auch offline. Änderungen werden automatisch synchronisiert, sobald du wieder online bist."
+      }
+    }
+  },
+  "finalCta": {
+    "title": "Du willst sparen?",
+    "description": "Die Suche funktioniert sofort, ohne Registrierung. Ein Konto brauchst du erst, wenn du Listen speichern und Produkte merken willst.",
+    "search": "Mit der Suche starten",
+    "signup": "Kostenloses Konto erstellen"
+  }
+}

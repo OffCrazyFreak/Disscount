@@ -6,9 +6,9 @@ import lombok.Data;
 @Data
 public class PinnedPlaceRequest {
 
-    @NotBlank(message = "Place API ID is required")
+    @NotBlank(message = "{validation.placeApiId.required}")
     private String placeApiId;
 
-    @NotBlank(message = "Place name is required")
+    @NotBlank(message = "{validation.placeName.required}")
     private String placeName;
 }

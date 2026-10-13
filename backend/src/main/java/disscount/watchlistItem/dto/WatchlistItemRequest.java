@@ -9,13 +9,13 @@ import lombok.Data;
 @Data
 public class WatchlistItemRequest {
 
-    @NotBlank(message = "Product API ID is required")
+    @NotBlank(message = "{validation.productApiId.required}")
     private String productApiId;
 
-    @NotNull(message = "Watch type is required")
+    @NotNull(message = "{validation.watchType.required}")
     private WatchType watchType;
 
-    @NotNull(message = "Threshold value is required")
-    @Positive(message = "Threshold value must be positive")
+    @NotNull(message = "{validation.threshold.required}")
+    @Positive(message = "{validation.threshold.positive}")
     private Double thresholdValue;
 }
