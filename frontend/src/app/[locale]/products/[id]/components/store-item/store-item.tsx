@@ -27,6 +27,7 @@ import { formatDate } from "@/utils/strings";
 import { formatPrice } from "@/utils/price";
 import { useUser } from "@/context/user-context";
 import StorePricesTable from "@/app/[locale]/products/[id]/components/store-item/store-prices-table";
+import { TIME_ZONE } from "@/i18n/formatting";
 
 interface IStoreItemProps {
   store: ChainProductResponse;
@@ -47,7 +48,10 @@ const StoreItem = memo(
       user?.pinnedStores?.some((s) => s.storeApiId === store.chain) || false;
 
     // Check if data is from today
-    const today = new Date().toISOString().split("T")[0];
+    // price_date is a Croatian calendar date; en-CA formats as YYYY-MM-DD.
+    const today = new Intl.DateTimeFormat("en-CA", {
+      timeZone: TIME_ZONE,
+    }).format(new Date());
     const isDataFromToday = store.price_date === today;
 
     // Parse prices

@@ -1,15 +1,9 @@
 import { ChartDataPoint } from "@/typings/chart-data";
 import { calculatePriceChange } from "@/app/[locale]/products/utils/product-utils";
 
-function sumFinitePrices(point: ChartDataPoint, eans: string[]) {
-  const prices = eans
-    .map((ean) => point[ean])
-    .filter(
-      (price): price is number =>
-        typeof price === "number" && Number.isFinite(price),
-    );
-
-  return { total: prices.reduce((sum, price) => sum + price, 0), prices };
+function finitePrice(point: ChartDataPoint, ean: string): number | null {
+  const price = point[ean];
+  return typeof price === "number" && Number.isFinite(price) ? price : null;
 }
 
 export function calculateTotalPriceChange(
@@ -18,12 +12,22 @@ export function calculateTotalPriceChange(
 ) {
   if (chartData.length === 0) return null;
 
-  const historical = sumFinitePrices(chartData[0], eans);
-  const current = sumFinitePrices(chartData[chartData.length - 1], eans);
+  const first = chartData[0];
+  const last = chartData[chartData.length - 1];
 
-  if (historical.prices.length === 0 || current.prices.length === 0) {
-    return null;
-  }
+  // Only products priced on both dates count; one priced on just one side would show
+  // up as a price change that no price actually made.
+  const comparable = eans.filter(
+    (ean) =>
+      finitePrice(first, ean) !== null && finitePrice(last, ean) !== null,
+  );
+  if (comparable.length === 0) return null;
 
-  return calculatePriceChange(current.total, historical.total);
+  const sum = (point: ChartDataPoint) =>
+    comparable.reduce(
+      (total, ean) => total + (finitePrice(point, ean) ?? 0),
+      0,
+    );
+
+  return calculatePriceChange(sum(last), sum(first));
 }
