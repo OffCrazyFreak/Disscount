@@ -22,6 +22,9 @@ export const storeLocation = pgTable(
     lon: doublePrecision("lon"),
     source: text("source"),
     precision: text("precision"),
+    // The upstream address an automatic pin was found from: once upstream
+    // changes it, the pin belongs to the old building and is looked up again.
+    address: text("address"),
     attempts: integer("attempts").default(0).notNull(),
     lastAttemptAt: timestamp("last_attempt_at", { withTimezone: true }),
     // Kept apart from lastAttemptAt: Geoapify is tried on every pending store,

@@ -28,27 +28,30 @@ export async function resolveWithLocators(
       continue;
     }
 
+    const placed = new Set<ISyncTarget>();
+
     try {
       const records = await locator.fetchStores(signal);
 
       for (const target of chainTargets) {
         const match = matchLocatorStore(target, records);
+        if (!match) continue;
 
-        if (match) {
-          await saveResolvedLocation(target.chain, target.code, {
-            lat: match.lat,
-            lon: match.lon,
-            source: "chain_locator",
-            precision: "building",
-          });
-        } else {
-          remaining.push(target);
-        }
+        await saveResolvedLocation(target, {
+          lat: match.lat,
+          lon: match.lon,
+          source: "chain_locator",
+          precision: "building",
+        });
+        placed.add(target);
       }
     } catch (error) {
       console.warn(`[store-locations] ${chain} locator failed`, error);
-      remaining.push(...chainTargets);
     }
+
+    // Stores saved before a failure keep their locator pin; only the rest
+    // fall through to the next source.
+    remaining.push(...chainTargets.filter((target) => !placed.has(target)));
   }
 
   return remaining;

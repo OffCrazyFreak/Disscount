@@ -17,12 +17,25 @@ const MEMO_MS = 10 * 60 * 1000;
 const SYNC_TIMEOUT_MS = 45 * 60 * 1000;
 
 let memo: { value: StoreDirectoryResponse; at: number } | null = null;
+let pending: Promise<StoreDirectoryResponse> | null = null;
 let syncRunning = false;
 
 /** Every store with the best coordinates we have, for the map and its list. */
 export async function getStoreDirectory(): Promise<StoreDirectoryResponse> {
   if (memo && Date.now() - memo.at < MEMO_MS) return memo.value;
 
+  // A burst of visits on a cold memo shares one upstream fetch.
+  pending ??= buildStoreDirectory().finally(() => {
+    pending = null;
+  });
+
+  const value = await pending;
+  after(startSyncIfDue);
+
+  return value;
+}
+
+async function buildStoreDirectory(): Promise<StoreDirectoryResponse> {
   const [upstream, locations] = await Promise.all([
     fetchUpstreamStores(),
     readStoreLocations(),
@@ -34,7 +47,6 @@ export async function getStoreDirectory(): Promise<StoreDirectoryResponse> {
   };
 
   memo = { value, at: Date.now() };
-  after(startSyncIfDue);
 
   return value;
 }

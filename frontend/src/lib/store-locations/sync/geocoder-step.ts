@@ -52,7 +52,7 @@ export async function resolveWithGeocoder(
       const location = await geocode(target.address, target.city, signal);
 
       if (location) {
-        await saveResolvedLocation(target.chain, target.code, location);
+        await saveResolvedLocation(target, location);
         continue;
       }
 

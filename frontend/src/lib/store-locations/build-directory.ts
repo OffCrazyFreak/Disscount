@@ -6,6 +6,7 @@ import { cleanUpstreamAddress } from "@/lib/store-locations/address-key";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { StoreLocationRow } from "@/lib/store-locations/location-repository";
 import { storeKey } from "@/lib/store-locations/upstream-stores";
+import { isStalePin } from "@/lib/store-locations/sync/sync-target";
 
 /**
  * Merges upstream stores with the coordinates our sync found. A hand-placed pin
@@ -23,7 +24,12 @@ export function buildDirectory(
   return upstream.map((store) => {
     const row = byKey.get(storeKey(store.chain_code, store.code));
     const upstreamPoint = sanitizeCoordinates(store.lat, store.lon);
-    const savedPoint = row ? sanitizeCoordinates(row.lat, row.lon) : null;
+    // A pin found from an address upstream has since changed would send
+    // people to the old building, so it waits for the next sync instead.
+    const savedPoint =
+      row && !isStalePin(row, store.address)
+        ? sanitizeCoordinates(row.lat, row.lon)
+        : null;
     const savedSource = locationSourceSchema.safeParse(row?.source);
 
     const saved =

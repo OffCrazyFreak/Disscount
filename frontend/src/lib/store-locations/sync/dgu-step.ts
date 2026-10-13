@@ -39,7 +39,7 @@ export async function resolveWithDgu(
     const point = found.get(storeKey(target.chain, target.code));
 
     if (point) {
-      await saveResolvedLocation(target.chain, target.code, {
+      await saveResolvedLocation(target, {
         ...point,
         source: "dgu",
         precision: "building",

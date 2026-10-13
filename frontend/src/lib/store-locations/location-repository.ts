@@ -14,24 +14,23 @@ export async function readStoreLocations(): Promise<StoreLocationRow[]> {
 
 /** Saves a resolved location, unless a human already pinned the store. */
 export async function saveResolvedLocation(
-  chainCode: string,
-  storeCode: string,
+  store: { chain: string; code: string; address: string | null },
   location: IResolvedLocation,
 ): Promise<void> {
   const now = new Date();
+  const fields = {
+    ...location,
+    address: store.address,
+    lastAttemptAt: now,
+    updatedAt: now,
+  };
 
   await db
     .insert(storeLocation)
-    .values({
-      chainCode,
-      storeCode,
-      ...location,
-      lastAttemptAt: now,
-      updatedAt: now,
-    })
+    .values({ chainCode: store.chain, storeCode: store.code, ...fields })
     .onConflictDoUpdate({
       target: [storeLocation.chainCode, storeLocation.storeCode],
-      set: { ...location, lastAttemptAt: now, updatedAt: now },
+      set: fields,
       setWhere: sql`${storeLocation.source} is distinct from 'manual'`,
     });
 }
@@ -48,11 +47,17 @@ export async function recordFailedAttempt(
     .values({ chainCode, storeCode, attempts: 1, lastAttemptAt: now })
     .onConflictDoUpdate({
       target: [storeLocation.chainCode, storeLocation.storeCode],
+      // Only unplaced stores and stale pins are targets, and a stale pin that
+      // no source finds again must not keep pointing at the old building.
       set: {
+        lat: null,
+        lon: null,
+        source: null,
+        precision: null,
         attempts: sql`${storeLocation.attempts} + 1`,
         lastAttemptAt: now,
       },
-      setWhere: sql`${storeLocation.lat} is null`,
+      setWhere: sql`${storeLocation.source} is distinct from 'manual'`,
     });
 }
 

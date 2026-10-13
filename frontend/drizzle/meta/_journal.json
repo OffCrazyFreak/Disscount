@@ -29,6 +29,13 @@
       "when": 1791918694921,
       "tag": "0003_store_locations",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791921158768,
+      "tag": "0004_store_location_address",
+      "breakpoints": true
     }
   ]
 }

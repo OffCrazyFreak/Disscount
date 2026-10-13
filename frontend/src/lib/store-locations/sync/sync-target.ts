@@ -19,14 +19,27 @@ export interface ISyncTarget {
 
 const RETRY_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
 
+/** A pin saved before addresses were recorded is kept as it is. */
+export function isStalePin(
+  row: StoreLocationRow,
+  upstreamAddress: string | null,
+): boolean {
+  return (
+    row.source !== "manual" &&
+    row.address != null &&
+    row.address !== cleanUpstreamAddress(upstreamAddress)
+  );
+}
+
 function isRecent(at: Date | null | undefined, now: number): boolean {
   return at != null && now - at.getTime() <= RETRY_AFTER_MS;
 }
 
 /**
- * Stores upstream cannot place and we have not placed either, minus those that
- * every source failed on within the last week: addresses rarely change, so
- * retrying them daily would only spend geocoder quota.
+ * Stores upstream cannot place and we have not placed either, or placed from
+ * an address upstream has since changed, minus those that every source failed
+ * on within the last week: addresses rarely change, so retrying them daily
+ * would only spend geocoder quota.
  */
 export function findSyncTargets(
   upstream: StoreResponse[],
@@ -43,7 +56,8 @@ export function findSyncTargets(
       const row = byKey.get(storeKey(store.chain_code, store.code));
 
       if (!row) return true;
-      if (row.lat != null || row.source === "manual") return false;
+      if (row.source === "manual") return false;
+      if (row.lat != null) return isStalePin(row, store.address);
 
       return !isRecent(row.lastAttemptAt, now);
     })

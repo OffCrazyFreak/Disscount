@@ -20,32 +20,42 @@ export function matchLocatorStore(
 
   const address = parseAddress(target.address);
   const city = normalizeCity(target.city);
-
-  return (
-    records.find(
-      (record) =>
-        sameTown(target, city, record) &&
-        addressesMatch(address, parseAddress(record.address)),
-    ) ?? null
+  const sameAddress = records.filter((record) =>
+    addressesMatch(address, parseAddress(record.address)),
   );
+
+  const exact = sameAddress.find((record) => {
+    const recordCity = normalizeCity(record.city);
+
+    return city && recordCity
+      ? recordCity === city
+      : sameZipcode(target, record);
+  });
+  if (exact) return exact;
+
+  // "Zagreb" against "Zagreb - Dubrava" is the same town written two ways,
+  // but only one such candidate is safe: two would be a guess.
+  const partial = sameAddress.filter((record) =>
+    townContains(city, normalizeCity(record.city)),
+  );
+
+  return partial.length === 1 ? partial[0] : null;
 }
 
-function sameTown(
-  target: ISyncTarget,
-  city: string,
-  record: ILocatorStore,
-): boolean {
-  const recordCity = normalizeCity(record.city);
-
-  if (city && recordCity) {
-    return (
-      city === recordCity ||
-      city.includes(recordCity) ||
-      recordCity.includes(city)
-    );
-  }
-
+function sameZipcode(target: ISyncTarget, record: ILocatorStore): boolean {
   return Boolean(
     target.zipcode && record.zipcode && target.zipcode === record.zipcode,
   );
+}
+
+/** Whether one town's words all appear in the other's, never a substring. */
+function townContains(a: string, b: string): boolean {
+  if (!a || !b) return false;
+
+  const [shorter, longer] =
+    a.length <= b.length
+      ? [a.split(" "), b.split(" ")]
+      : [b.split(" "), a.split(" ")];
+
+  return shorter.every((word) => longer.includes(word));
 }

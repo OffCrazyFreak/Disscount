@@ -40,7 +40,7 @@ export default async function ChainSummary({ stores }: IChainSummaryProps) {
     <details className="shrink-0 rounded-lg border p-3 text-sm">
       <summary className="cursor-pointer font-medium">{t("title")}</summary>
 
-      <ul className="mt-2 space-y-2">
+      <ul className="mt-2 max-h-60 space-y-2 overflow-y-auto overscroll-contain">
         {chains.map(([chain, chainStores]) => {
           const cityCounts = new Map<string, number>();
 
