@@ -27,6 +27,15 @@ export default function DigitalCardItem({
   handleEdit,
 }: IDigitalCardItemProps) {
   const t = useTranslations("digitalCards");
+
+  // The API types these as plain strings, so an unknown value shows as it is.
+  function badgeLabel(group: "cardTypes" | "codeTypes", value: string) {
+    const key = `${group}.${value}` as Parameters<typeof t>[0];
+    return t.has(key) ? t(key) : value;
+  }
+
+  const typeLabel = badgeLabel("cardTypes", digitalCard.type);
+  const codeTypeLabel = badgeLabel("codeTypes", digitalCard.codeType);
   const locale = useLocale();
   const queryClient = useQueryClient();
   const deleteDigitalCardMutation = digitalCardService.useDeleteDigitalCard();
@@ -55,8 +64,8 @@ export default function DigitalCardItem({
             {digitalCard.title}
           </h3>
           <div className="flex items-center gap-2 mt-1">
-            <Badge variant="primary">{digitalCard.type}</Badge>
-            <Badge variant="outline">{digitalCard.codeType}</Badge>
+            <Badge variant="primary">{typeLabel}</Badge>
+            <Badge variant="outline">{codeTypeLabel}</Badge>
           </div>
         </div>
 

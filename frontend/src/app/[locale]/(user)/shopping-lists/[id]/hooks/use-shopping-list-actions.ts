@@ -84,7 +84,7 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
       // they are already looking at it. Whether it opens for the recipient is the owner's
       // call through the share modal, not something to withhold here.
       const text = formatShoppingListForSharing(shoppingList, tLists, locale);
-      const url = shareListUrl(shoppingList.id);
+      const url = shareListUrl(shoppingList.id, locale);
       const outcome = await shareOrCopy({
         title: shoppingList.title,
         text,

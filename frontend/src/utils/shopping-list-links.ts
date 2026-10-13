@@ -1,4 +1,6 @@
 import { appUrl } from "@/lib/env";
+import { localePath } from "@/i18n/locale-path";
+import type { AppLocale } from "@/i18n/locales";
 
 /**
  * The one place the shopping-list route is spelled. It used to be hand-written
@@ -15,6 +17,6 @@ export function shoppingListPath(id: string): string {
  * nothing once it is not, so the URL an owner sees in the address bar is the one worth
  * sending. Turning sharing off and on again therefore hands back the same URL.
  */
-export function shareListUrl(id: string): string {
-  return `${appUrl()}${shoppingListPath(id)}`;
+export function shareListUrl(id: string, locale: AppLocale): string {
+  return `${appUrl()}${localePath(locale, shoppingListPath(id))}`;
 }

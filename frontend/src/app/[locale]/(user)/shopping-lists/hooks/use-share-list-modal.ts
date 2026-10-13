@@ -63,7 +63,7 @@ export function useShareListModal(id: string) {
     try {
       const outcome = await shareOrCopy({
         title: shoppingList.title,
-        url: shareListUrl(shoppingList.id),
+        url: shareListUrl(shoppingList.id, locale),
       });
 
       if (outcome === "copied") toast.success(t("shareModal.linkCopiedToast"));
