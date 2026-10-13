@@ -41,7 +41,7 @@ public class DigitalCardService {
     static final int MAX_USED_AGE_DAYS = 400;
 
     private static final Logger log = LoggerFactory.getLogger(DigitalCardService.class);
-    private static final String NOT_FOUND = "Kartica nije pronađena";
+    private static final String NOT_FOUND = "error.card.notFound";
 
     private final DigitalCardRepository cardRepository;
     private final DigitalCardPhotoRepository photoRepository;

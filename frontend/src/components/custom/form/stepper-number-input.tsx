@@ -66,8 +66,8 @@ export function StepperNumberInput({
         type="button"
         size="icon"
         variant={isSecondary ? "outline" : "primary"}
-        // The ICU number argument formats with the active locale, so the spoken
-        // label matches the visible one rather than reading a dot-decimal.
+        // A bare ".5" reads poorly aloud, so the label formats the amount through
+        // ICU in the active locale instead of reusing the button text.
         aria-label={
           sign > 0
             ? t("stepper.increase", { amount })
@@ -89,7 +89,6 @@ export function StepperNumberInput({
           )
         ) : (
           <>
-            {}
             {sign > 0 ? "+" : "-"}
             {formatStepAmount(amount)}
           </>
