@@ -208,13 +208,15 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Hibernate validates entities with its own factory, which does not read our bundles,
-     * so a "{validation.x}" template comes back unresolved and is looked up here instead.
-     * Anything else (a built-in constraint's default) keeps Hibernate's own message.
+     * Spring's validator has already filled a controller violation from our bundles,
+     * including arguments such as {min} and {max}. Hibernate validates entities with its
+     * own factory, which does not read them, so its "{validation.x}" template comes back
+     * unresolved and is looked up here instead.
      */
     private String violationMessage(ConstraintViolation<?> violation) {
         String template = violation.getMessageTemplate();
-        if (template.startsWith("{validation.") && template.endsWith("}")) {
+        boolean unresolved = template.equals(violation.getMessage());
+        if (unresolved && template.startsWith("{validation.") && template.endsWith("}")) {
             String code = template.substring(1, template.length() - 1);
             return messageSource.getMessage(
                     code, null, violation.getMessage(), LocaleContextHolder.getLocale());

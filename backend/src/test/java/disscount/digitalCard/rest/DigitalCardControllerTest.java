@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -225,6 +226,14 @@ class DigitalCardControllerTest {
                     .andExpect(status().isBadRequest());
         }
         verifyNoInteractions(cardService);
+    }
+
+    @Test
+    void emptyUsedBatchNamesTheLimits() throws Exception {
+        mvc.perform(post("/api/digital-cards/used").with(auth())
+                        .contentType(MediaType.APPLICATION_JSON).content("[]"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.*", hasItem("Pošalji od 1 do 50 kartica odjednom")));
     }
 
     @Test
