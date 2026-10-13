@@ -22,8 +22,8 @@ describe("shouldRetryCardWrite", () => {
     }
   });
 
-  it("stops at the cap", () => {
-    expect(shouldRetryCardWrite(3, httpError(503))).toBe(false);
+  it("keeps retrying a transient failure however many times it failed", () => {
+    expect(shouldRetryCardWrite(50, httpError(503))).toBe(true);
   });
 });
 
@@ -31,6 +31,6 @@ describe("cardRetryDelay", () => {
   it("backs off and caps", () => {
     expect(cardRetryDelay(0)).toBe(1000);
     expect(cardRetryDelay(2)).toBe(4000);
-    expect(cardRetryDelay(10)).toBe(8000);
+    expect(cardRetryDelay(10)).toBe(30_000);
   });
 });
