@@ -6,6 +6,7 @@ import { Form } from "@/components/ui/form";
 import PasswordField from "@/components/custom/auth/components/fields/password-field";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useResetPasswordForm } from "@/components/custom/auth/hooks/use-reset-password-form";
+import { PASSWORD_HINT } from "@/lib/auth/password-policy";
 
 interface IResetPasswordModalProps {
   open: boolean;
@@ -46,6 +47,7 @@ export default function ResetPasswordModal({ open }: IResetPasswordModalProps) {
               name="password"
               label="Nova lozinka"
               autoComplete="new-password"
+              description={PASSWORD_HINT}
             />
 
             <PasswordField

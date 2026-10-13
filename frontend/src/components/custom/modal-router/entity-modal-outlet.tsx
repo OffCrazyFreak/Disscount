@@ -24,6 +24,11 @@ const DigitalCardModal = dynamic(
     import("@/app/(user)/digital-cards/components/forms/digital-card-modal"),
   { ssr: false },
 );
+const DigitalCardViewModal = dynamic(
+  () =>
+    import("@/app/(user)/digital-cards/components/view/digital-card-view-modal"),
+  { ssr: false },
+);
 const AddToShoppingListModal = dynamic(
   () => import("@/app/products/components/forms/add-to-shopping-list-form"),
   { ssr: false },
@@ -82,6 +87,17 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
         />
       );
     case "digital-card":
+      if (rendered.action === "view") {
+        // Keyed like the other per-entity modals: the view holds a temporary code type
+        // and rotation that must not carry over to the next card.
+        return (
+          <DigitalCardViewModal
+            key={rendered.id}
+            open={open}
+            id={rendered.id}
+          />
+        );
+      }
       return (
         <DigitalCardModal
           open={open}

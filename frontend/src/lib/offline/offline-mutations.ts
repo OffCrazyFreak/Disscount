@@ -1,4 +1,8 @@
-import type { QueryClient, QueryKey } from "@tanstack/react-query";
+import type {
+  MutationScope,
+  QueryClient,
+  QueryKey,
+} from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import {
@@ -10,13 +14,29 @@ import {
   deleteShoppingListItem,
 } from "@/lib/api/shopping-lists";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
+import {
+  deleteDigitalCard,
+  saveDigitalCard,
+  setDigitalCardArchived,
+  setDigitalCardPinned,
+} from "@/lib/api/digital-cards/queries";
+import { DIGITAL_CARD_QUERY_KEYS } from "@/lib/api/digital-cards/keys";
 import { addToWatchlist, removeFromWatchlist } from "@/lib/api/watchlist";
 import type {
+  DigitalCardRequest,
   ShoppingListRequest,
   ShoppingListItemRequest,
   WatchlistItemRequest,
 } from "@/lib/api/types";
-import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
+import {
+  DIGITAL_CARD_MUTATION_SCOPE,
+  OFFLINE_MUTATION_KEYS,
+} from "@/lib/offline/offline-mutation-keys";
+import { cardRetryDelay, shouldRetryCardWrite } from "@/lib/offline/card-retry";
+import {
+  cardDeleteFailed,
+  cardWriteFailed,
+} from "@/lib/offline/card-write-failed";
 import {
   deleteWriteFailed,
   listWriteFailed,
@@ -40,9 +60,17 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
     // replay reverts with no explanation. Only pass this for mutations whose call sites
     // do NOT handle errors themselves, or the user gets the same toast twice.
     onError?: (error: Error) => void,
+    // Persisted with the mutation; mutations sharing a scope replay one at a time.
+    scope?: MutationScope,
   ) {
     queryClient.setMutationDefaults<TData, Error, TVariables>(mutationKey, {
       mutationFn,
+      ...(scope ? { scope } : {}),
+      // A restored paused card write that hits a passing failure must not end as an error,
+      // because the persister keeps only paused mutations.
+      ...(scope === DIGITAL_CARD_MUTATION_SCOPE
+        ? { retry: shouldRetryCardWrite, retryDelay: cardRetryDelay }
+        : {}),
       ...(onError ? { onError } : {}),
       onSettled: (_data, _error, variables) => {
         for (const queryKey of invalidatedKeys(variables)) {
@@ -123,6 +151,41 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
         ),
     });
   }
+
+  defineOfflineMutation(
+    OFFLINE_MUTATION_KEYS.digitalCardSave,
+    ({ id, data }: { id: string; data: DigitalCardRequest }) =>
+      saveDigitalCard(id, data),
+    () => [DIGITAL_CARD_QUERY_KEYS.me],
+    cardWriteFailed,
+    DIGITAL_CARD_MUTATION_SCOPE,
+  );
+
+  defineOfflineMutation(
+    OFFLINE_MUTATION_KEYS.digitalCardDelete,
+    (id: string) => deleteDigitalCard(id),
+    () => [DIGITAL_CARD_QUERY_KEYS.me],
+    cardDeleteFailed,
+    DIGITAL_CARD_MUTATION_SCOPE,
+  );
+
+  defineOfflineMutation(
+    OFFLINE_MUTATION_KEYS.digitalCardPin,
+    ({ id, pinned }: { id: string; pinned: boolean }) =>
+      setDigitalCardPinned(id, pinned),
+    () => [DIGITAL_CARD_QUERY_KEYS.me],
+    cardWriteFailed,
+    DIGITAL_CARD_MUTATION_SCOPE,
+  );
+
+  defineOfflineMutation(
+    OFFLINE_MUTATION_KEYS.digitalCardArchive,
+    ({ id, archived }: { id: string; archived: boolean }) =>
+      setDigitalCardArchived(id, archived),
+    () => [DIGITAL_CARD_QUERY_KEYS.me],
+    cardWriteFailed,
+    DIGITAL_CARD_MUTATION_SCOPE,
+  );
 
   defineOfflineMutation(
     OFFLINE_MUTATION_KEYS.watchlistAdd,
