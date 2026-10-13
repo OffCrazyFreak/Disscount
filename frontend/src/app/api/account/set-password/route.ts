@@ -2,7 +2,8 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth";
-import { passwordSchema } from "@/lib/api/schemas/auth-user";
+import { passwordSchema } from "@/lib/auth/password-policy";
+import { rejectUnacceptablePassword } from "@/lib/auth/password-rejection";
 
 export async function POST(request: Request) {
   let newPassword: unknown;
@@ -19,6 +20,9 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid password" }, { status: 400 });
   }
+
+  const rejection = await rejectUnacceptablePassword(parsed.data);
+  if (rejection) return rejection;
 
   try {
     // setPassword is a server-only better-auth action; the session is resolved from cookies.
