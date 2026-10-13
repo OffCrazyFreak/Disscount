@@ -5,7 +5,8 @@ import { useLocale } from "next-intl";
 
 import { readLocaleCookie, writeLocaleCookie } from "@/i18n/locale-cookie";
 import { isLocale } from "@/i18n/locales";
-import { authClient, useSession } from "@/lib/auth/client";
+import { useSession } from "@/lib/auth/client";
+import { queueAccountLocaleSave } from "@/components/custom/locale/account-locale-save";
 
 /**
  * Keeps the account and this device agreeing on the language, the way Gitea and
@@ -31,7 +32,8 @@ export default function LocaleSync() {
     syncedUserId = userId;
 
     if (!isLocale(accountLocale)) {
-      void authClient.updateUser({ locale: readLocaleCookie() ?? locale });
+      // A failed seed needs no toast: the account stays empty and seeds again next sign-in.
+      queueAccountLocaleSave(userId, readLocaleCookie() ?? locale, () => {});
       return;
     }
 
