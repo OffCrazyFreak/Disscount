@@ -120,7 +120,7 @@ A queue of R2 deletes that still have to happen. Columns: `id`, `key_or_prefix` 
 
 - The row is written in the same transaction as the database delete it belongs to (card delete, photo replace or remove, account deletion, the 30-day purge), so the two commit or roll back together.
 - After the commit `PhotoCleanupService` tries the delete and removes the row on success. On failure the row stays.
-- Keys are content-addressed, so re-uploading a replaced photo reuses its old key. Writing a photo row therefore cancels any queued delete for its keys in the same transaction, and every delete attempt first skips (and drops) a key that a live photo row still uses.
+- Every upload gets its own key (a random upload id after the hash), so a queued delete of an earlier upload can never remove a newer one, even one with the same bytes. As a second guard, writing a photo row cancels any queued delete for its keys, and every delete attempt skips (and drops) a key that a live photo row still uses.
 - `DigitalCardCleanupJob.retryPhotoCleanup` retries the oldest 200 rows every 15 minutes. With photos disabled (no R2 config) nothing is deleted and the rows stay queued until storage is configured.
 
 ### `store_name_suggestion` (entity `StoreNameSuggestion`)
@@ -201,8 +201,8 @@ Object deletes (replaced or removed photos, a deleted card, account deletion, th
 ### Key layout
 
 ```
-cards/{userId}/{cardId}/{slot}-{sha256}.{webp|jpg}
-cards/{userId}/{cardId}/{slot}-{sha256}-thumb.{webp|jpg}
+cards/{userId}/{cardId}/{slot}-{sha256}-{uploadId}.{webp|jpg}
+cards/{userId}/{cardId}/{slot}-{sha256}-{uploadId}-thumb.{webp|jpg}
 ```
 
 The hash in the key means a replaced photo gets a new key, so a cached copy can never be stale: the client asks for `?v={sha256}`, and a changed photo is a different URL. The `cards/{userId}/` prefix is what lets account deletion remove everything with one prefix sweep.
@@ -241,7 +241,7 @@ Cards have to work in a shop with no signal, so the whole wallet is offline-firs
 
 **Replay order matters.** On reconnect the provider first resumes the paused card saves and only then replays the photo outbox. An upload for a card the server has not seen yet would answer 404 and be dropped. A replay requested while one is running triggers another run afterwards, and the outbox re-reads each entry before sending it.
 
-**Which failures keep or drop** is decided in one place, `lib/offline/failure-policy.ts` (`failureAction`). A network failure, 401, 408, 429, any 5xx (503 included) and any status not listed below **keep** the entry: it stays queued and the replay stops, so the next run retries in order. 400, 404, 409, 413 and 422 **drop** it, because resending can never succeed. A dropped photo shows a toast, except for a 404 (the card is already gone). Direct photo uploads and removals made while online use the same rule: on keep (or a 404 for an upload) they go to the outbox. A 404 when replaying a queued removal counts as done. Rollback of an optimistic card patch is per card, so a failure never undoes other cards. Card mutations (save, delete, pin, archive) also use this rule for retries (`lib/offline/card-retry.ts`): a keep failure is retried up to 3 times with backoff from 1 s to 8 s, and a mutation that fails because the device is offline pauses and retries once it reconnects. Every photo choice, online or offline, is written to the outbox first, so a reload never loses it. Only the sends are serialized per slot (`lib/offline/slot-lock.ts`): each send re-reads the newest entry inside the lock, and a send that finishes after a newer choice was queued leaves the cache alone, so an older upload cannot undo a newer choice. While the card save is paused, photo removals are queued in the outbox together with uploads, so a reload does not lose them.
+**Which failures keep or drop** is decided in one place, `lib/offline/failure-policy.ts` (`failureAction`). A network failure, 401, 408, 429, any 5xx (503 included) and any status not listed below **keep** the entry: it stays queued and the replay stops, so the next run retries in order. 400, 404, 409, 413 and 422 **drop** it, because resending can never succeed. A dropped photo shows a toast, except for a 404 (the card is already gone). Direct photo uploads and removals made while online use the same rule: on keep (or a 404 for an upload) they go to the outbox. A 404 when replaying a queued removal counts as done. Rollback of an optimistic card patch is per card, so a failure never undoes other cards. Card mutations (save, delete, pin, archive) also use this rule for retries (`lib/offline/card-retry.ts`): a keep failure is retried for as long as the page is open, with backoff from 1 s capped at 30 s (a reload during a long server outage while online still loses it, since only paused mutations persist), and a mutation that fails because the device is offline pauses and retries once it reconnects. Every photo choice, online or offline, is written to the outbox first, so a reload never loses it. Only the sends are serialized per slot (`lib/offline/slot-lock.ts`): each send re-reads the newest entry inside the lock, and a send that finishes after a newer choice was queued leaves the cache alone, so an older upload cannot undo a newer choice. While the card save is paused, photo removals are queued in the outbox together with uploads, so a reload does not lose them.
 
 **Photo blobs are pruned** when a card is deleted and whenever the card list refetches: a blob whose `sha256` no longer matches the card's current photo is removed.
 
