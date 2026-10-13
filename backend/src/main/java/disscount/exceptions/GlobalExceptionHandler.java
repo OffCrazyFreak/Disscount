@@ -1,13 +1,18 @@
 package disscount.exceptions;
 
+import jakarta.validation.ConstraintViolation;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -53,6 +58,32 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConflictException.class)
     public ProblemDetail handleConflictException(ConflictException ex) {
         return problem(HttpStatus.CONFLICT, "conflict", "Sukob", ex.getMessage());
+    }
+
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ProblemDetail handleServiceUnavailable(ServiceUnavailableException ex) {
+        return problem(HttpStatus.SERVICE_UNAVAILABLE, "unavailable", "Usluga nije dostupna", ex.getMessage());
+    }
+
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<ProblemDetail> handleTooManyRequests(TooManyRequestsException ex) {
+        ProblemDetail detail = problem(HttpStatus.TOO_MANY_REQUESTS, "too-many-requests",
+                "Previše zahtjeva", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header(HttpHeaders.RETRY_AFTER, String.valueOf(ex.getRetryAfterSeconds()))
+                .body(detail);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ProblemDetail handleUploadTooLarge(MaxUploadSizeExceededException ex) {
+        return problem(HttpStatus.PAYLOAD_TOO_LARGE, "payload-too-large", "Datoteka je prevelika",
+                "Slika je prevelika (najviše 512 KB)");
+    }
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ProblemDetail handleMissingPart(MissingServletRequestPartException ex) {
+        return problem(HttpStatus.BAD_REQUEST, "bad-request", "Neispravan zahtjev",
+                "Nedostaje dio zahtjeva: " + ex.getRequestPartName());
     }
 
     /**
@@ -116,6 +147,20 @@ public class GlobalExceptionHandler {
                     : error.getObjectName();
             fieldErrors.put(key, error.getDefaultMessage());
         });
+
+        ProblemDetail problemDetail =
+                problem(HttpStatus.BAD_REQUEST, "validation", "Neispravni podaci", "Invalid input data");
+        problemDetail.setProperty("fieldErrors", fieldErrors);
+        return problemDetail;
+    }
+
+    /** Raised by @Validated on a controller for constraints outside a request body, such as a list parameter. */
+    @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
+    public ProblemDetail handleConstraintViolation(jakarta.validation.ConstraintViolationException ex) {
+        Map<String, String> fieldErrors = new HashMap<>();
+        for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+            fieldErrors.put(violation.getPropertyPath().toString(), violation.getMessage());
+        }
 
         ProblemDetail problemDetail =
                 problem(HttpStatus.BAD_REQUEST, "validation", "Neispravni podaci", "Invalid input data");

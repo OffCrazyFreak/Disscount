@@ -120,14 +120,14 @@ sequenceDiagram
 
 Forms wired to drafts:
 
-| Form                      | File                       | Notes                                                                        |
-| ------------------------- | -------------------------- | ---------------------------------------------------------------------------- |
-| Watchlist item modal      | `watchlist-item-modal.tsx` | restore handled by the hook; one number per watch mode, `watchType` excluded |
-| Add to shopping list      | `use-add-to-list-form.ts`  | restore handled by the hook                                                  |
-| Shopping list create/edit | `shopping-list-modal.tsx`  | prefill-then-merge (`restore: false`)                                        |
-| Digital card create/edit  | `digital-card-modal.tsx`   | prefill-then-merge; also feeds scan-to-fill                                  |
-| Settings and onboarding   | `settings-modal-host.tsx`  | one shared draft, cleared after a successful save and onboarding completion  |
-| Contact                   | `contact-modal.tsx`        | prefill from profile, then merge draft on top                                |
+| Form                      | File                       | Notes                                                                                                                                                   |
+| ------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Watchlist item modal      | `watchlist-item-modal.tsx` | restore handled by the hook; one number per watch mode, `watchType` excluded                                                                            |
+| Add to shopping list      | `use-add-to-list-form.ts`  | restore handled by the hook                                                                                                                             |
+| Shopping list create/edit | `shopping-list-modal.tsx`  | prefill-then-merge (`restore: false`)                                                                                                                   |
+| Digital card create/edit  | `digital-card-modal.tsx`   | keys `digital-card.new` and `digital-card.edit.<id>`; `codeValue` and `barcodeValue` excluded; new cards auto-restore, edits merge the draft themselves |
+| Settings and onboarding   | `settings-modal-host.tsx`  | one shared draft, cleared after a successful save and onboarding completion                                                                             |
+| Contact                   | `contact-modal.tsx`        | prefill from profile, then merge draft on top                                                                                                           |
 
 **Clearing one field, not the whole draft.** The watchlist modal keeps a number per watch mode and submits only the active one, so a submit calls `removeFormDraftField(key, field)` rather than `clearDraft()`. The unsaved mode's number deliberately survives, because someone typing a euro threshold, switching to percentage and saving that has not abandoned the euro one. `removeFormDraftField` carries the draft's original `savedAt` forward, so clearing one field does not restart the 24h clock on the others.
 
@@ -149,11 +149,13 @@ Written by the small domain helpers in `utils/browser/storage/*`, each of which 
 
 The shape of the whole object is declared in `typings/local-storage.ts` as `IAppData`.
 
+Two digital-card preferences deliberately sit **outside** that object, under their own keys, because they are read by one component each and carry no shared shape: `Disscount_digital_cards_sort` (the chosen sort of `/digital-cards`) and `disscount:card-brightness-hint-dismissed` (the dismissed brightness hint in the card view). A third, `disscount-persist-storage-requested`, is a one-time flag so the browser's persistent-storage request is made once. None of them holds a card number.
+
 ---
 
 ## 5. Layer 3: IndexedDB offline cache
 
-The persisted React Query cache (shopping lists, watchlist, viewed products, profile, and selected public price data) lives in IndexedDB and is what makes authed screens work offline. Bulk product-list price queries are deliberately excluded because every search and filter combination can carry prices for up to the full candidate set; canonical single-product price queries remain persisted for product-detail offline reads. It is a **data cache**, not "resume where you left off" form state, and its stored snapshot is keyed per signed-in account and purged on any change of identity, before retained public in-memory queries are persisted again. It is fully documented in [PWA.md](PWA.md#5-offline-reads-caching-and-persistence); this guide only cross-references it so the full persistence picture is in one place.
+The persisted React Query cache (shopping lists, watchlist, viewed products, profile, and selected public price data) lives in IndexedDB and is what makes authed screens work offline. Bulk product-list price queries are deliberately excluded because every search and filter combination can carry prices for up to the full candidate set; canonical single-product price queries remain persisted for product-detail offline reads. Digital cards add three small IndexedDB stores of their own, all scoped by account identity: `disscount-card-photos` (downloaded photo bytes), `disscount-card-photo-outbox` (photos and removals chosen offline, waiting to send), and `disscount-card-used` (the last-used queue of card ids and times), all three cleared by the logout purge. Card query keys carry a version segment (`v2`), and older shapes are not persisted. Photo bytes stay out of the persisted query blob on purpose; see [DIGITAL-CARDS.md](DIGITAL-CARDS.md#6-offline). It is a **data cache**, not "resume where you left off" form state, and its stored snapshot is keyed per signed-in account and purged on any change of identity, before retained public in-memory queries are persisted again. It is fully documented in [PWA.md](PWA.md#5-offline-reads-caching-and-persistence); this guide only cross-references it so the full persistence picture is in one place.
 
 ---
 
@@ -261,7 +263,7 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
 
 - **New-entity modals auto-restore; edit modals merge the draft themselves.** The shopping-list and digital-card modals pass `restore: !isEdit`: a brand-new list or card is rehydrated by the hook (its own effect re-runs when the draft key changes), while an edit modal loads its base record first and merges the draft on top with `restore: false` (draft wins). The contact modal is prefill-then-merge (`restore: false`). Letting the hook auto-restore an edit modal would double-reset and fight the prefill.
 
-- **Never draft passwords, base64 images, or card codes.** Pass them in `exclude`. Passwords must not touch disk, a base64 avatar would blow the localStorage quota, and the digital-card code (`value`) is excluded so a card number never persists. The avatar field lives outside forms and drafts entirely for this reason.
+- **Never draft passwords, base64 images, or card codes.** Pass them in `exclude`. Passwords must not touch disk, a base64 avatar would blow the localStorage quota, and the digital-card numbers (`codeValue` and `barcodeValue`) are excluded so a card number never persists. If a save fails after the modal closed, `pending-card-stash.ts` keeps the number in memory for five minutes so the reopened form is not empty; it is never written to disk. The avatar field lives outside forms and drafts entirely for this reason.
 
 - **Old drafts are type-guarded on restore.** If a field's type changed since a draft was written (for example a number where the field is now a string), the restore skips it so a stale draft cannot poison validation. Keys the form no longer has at all are skipped too, so renaming or splitting a field cannot strand a dead entry for the rest of the TTL.
 

@@ -113,20 +113,21 @@ Calling `localeCompare` with no locale collates them as plain `c`, `s`, `z`, whi
 
 ## 7. Every surface that consumes it
 
-| Surface                                                | Where                                                            | Fields searched                     |
-| ------------------------------------------------------ | ---------------------------------------------------------------- | ----------------------------------- |
-| Products facets: Trgovine, Lokacije, Kategorije, Marka | `app/products/components/facet-multi-select.tsx`                 | option label via `keywords`         |
-| Pinned places (settings)                               | `components/custom/settings/components/pinned-places-select.tsx` | place name                          |
-| Store-chain picker (price history)                     | `components/custom/store-chain/store-chain-multi-select.tsx`     | chain label via `keywords`          |
-| Add to shopping list                                   | `app/products/components/forms/shopping-list-selector.tsx`       | list title via `keywords`           |
-| Updates / blog                                         | `app/updates/page.tsx`                                           | title, excerpt, content             |
-| Suggestions                                            | `app/suggestions/components/suggestions-client.tsx`              | suggestion fields                   |
-| Digital cards                                          | `app/(user)/digital-cards/components/digital-cards-client.tsx`   | title, type, note                   |
-| Shopping lists index                                   | `app/(user)/shopping-lists/components/shopping-lists-client.tsx` | title                               |
-| Watchlist                                              | `app/(user)/watchlist/hooks/use-watchlist-data.ts`               | product name, brand                 |
-| Watchlist suggestions                                  | `app/(user)/watchlist/hooks/use-watchlist-suggestions.ts`        | product name, brand                 |
-| Admin contact inbox                                    | `app/dashboard/components/admin-contact-table.tsx`               | name, email, subject, message       |
-| Products text search                                   | `app/products/hooks/use-infinite-products.ts`                    | server-side, then re-ranked locally |
+| Surface                                                | Where                                                            | Fields searched                                                                                          |
+| ------------------------------------------------------ | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Products facets: Trgovine, Lokacije, Kategorije, Marka | `app/products/components/facet-multi-select.tsx`                 | option label via `keywords`                                                                              |
+| Pinned places (settings)                               | `components/custom/settings/components/pinned-places-select.tsx` | place name                                                                                               |
+| Store-chain picker (price history)                     | `components/custom/store-chain/store-chain-multi-select.tsx`     | chain label via `keywords`                                                                               |
+| Add to shopping list                                   | `app/products/components/forms/shopping-list-selector.tsx`       | list title via `keywords`                                                                                |
+| Updates / blog                                         | `app/updates/page.tsx`                                           | title, excerpt, content                                                                                  |
+| Suggestions                                            | `app/suggestions/components/suggestions-client.tsx`              | suggestion fields                                                                                        |
+| Digital cards                                          | `app/(user)/digital-cards/utils/card-sorting.ts` (`filterCards`) | card name, store name, note (never the card number)                                                      |
+| Digital card store field                               | `app/(user)/digital-cards/hooks/use-store-options.ts`            | chain label and community names, folded with `normalizeForSearch` (the Autocomplete's own filter is off) |
+| Shopping lists index                                   | `app/(user)/shopping-lists/components/shopping-lists-client.tsx` | title                                                                                                    |
+| Watchlist                                              | `app/(user)/watchlist/hooks/use-watchlist-data.ts`               | product name, brand                                                                                      |
+| Watchlist suggestions                                  | `app/(user)/watchlist/hooks/use-watchlist-suggestions.ts`        | product name, brand                                                                                      |
+| Admin contact inbox                                    | `app/dashboard/components/admin-contact-table.tsx`               | name, email, subject, message                                                                            |
+| Products text search                                   | `app/products/hooks/use-infinite-products.ts`                    | server-side, then re-ranked locally                                                                      |
 
 The seven `filterByFields` callers gained tokenized, ranked, abbreviation-tolerant search **without any call-site change**, because its signature did not move.
 

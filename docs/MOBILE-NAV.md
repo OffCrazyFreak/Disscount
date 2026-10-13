@@ -35,22 +35,22 @@ _Last verified end-to-end on 2026-07-26 against `feat/mobile-bottom-nav`, measur
 
 ## 1. Quick reference
 
-| Thing                 | Value                                                                                                                                                                                                                                                   |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Shown at              | widths under `md` (768px), in the browser and the installed PWA alike                                                                                                                                                                                   |
-| Cells, left to right  | Karta (USKORO), Praćenje, Proizvodi (search), Popisi, Kartice (USKORO)                                                                                                                                                                                  |
-| USKORO cells          | disabled for everyone but admins, as in the sidebar                                                                                                                                                                                                     |
-| Bar height            | 72px of content, plus `env(safe-area-inset-bottom)`                                                                                                                                                                                                     |
-| Cell distribution     | five fixed 57.6px cells with the remaining horizontal room distributed between them                                                                                                                                                                     |
-| Icon / label          | 24px icon, 10.4px label, always visible                                                                                                                                                                                                                 |
-| Active indicator      | a 57.6px disc enclosing icon and label, sliding between cells and fading out on the search cell                                                                                                                                                         |
-| Surface               | a floating pill matching the scrolled header's translucent blurred treatment                                                                                                                                                                            |
-| z-index               | scroll fade 40, install banner 41, FAB 42, sheet scrim 43, bottom sheets 44, **bar 45**, dialogs and popovers 50, offline indicator 60. Tokens live in `globals.css`                                                                                    |
-| Bottom sheets         | three, all behind the bar and clearing it by `--sheet-bottom-clearance`; only the products sheet is non-modal, and only for pointer input (see [§7](#7-sheetshell-the-shared-bottom-sheet))                                                             |
-| Element type per cell | `<button>`, never `<a href>` (see [§18](#18-gotchas--lessons-learned))                                                                                                                                                                                  |
-| Long press            | two of five today (Proizvodi opens the scanner, Popisi adds the open product), plus Praćenje on a product page; Karta unlocks for admins and Kartice when digital cards ship. Fires at 450ms, silent for the first 200ms, cancels past 10px of movement |
-| Contextual holds      | on `/products/<ean>` Praćenje watches that product and Popisi adds it to a list (see [§8](#8-long-press-gestures))                                                                                                                                      |
-| Haptics               | none, deliberately (see [§18](#18-gotchas--lessons-learned))                                                                                                                                                                                            |
+| Thing                 | Value                                                                                                                                                                                                                                         |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shown at              | widths under `md` (768px), in the browser and the installed PWA alike                                                                                                                                                                         |
+| Cells, left to right  | Karta (USKORO), Praćenje, Proizvodi (search), Popisi, Kartice                                                                                                                                                                                 |
+| USKORO cells          | only Karta today; disabled for everyone but admins, as in the sidebar                                                                                                                                                                         |
+| Bar height            | 72px of content, plus `env(safe-area-inset-bottom)`                                                                                                                                                                                           |
+| Cell distribution     | five fixed 57.6px cells with the remaining horizontal room distributed between them                                                                                                                                                           |
+| Icon / label          | 24px icon, 10.4px label, always visible                                                                                                                                                                                                       |
+| Active indicator      | a 57.6px disc enclosing icon and label, sliding between cells and fading out on the search cell                                                                                                                                               |
+| Surface               | a floating pill matching the scrolled header's translucent blurred treatment                                                                                                                                                                  |
+| z-index               | scroll fade 40, install banner 41, FAB 42, sheet scrim 43, bottom sheets 44, **bar 45**, dialogs and popovers 50, offline indicator 60. Tokens live in `globals.css`                                                                          |
+| Bottom sheets         | three, all behind the bar and clearing it by `--sheet-bottom-clearance`; only the products sheet is non-modal, and only for pointer input (see [§7](#7-sheetshell-the-shared-bottom-sheet))                                                   |
+| Element type per cell | `<button>`, never `<a href>` (see [§18](#18-gotchas--lessons-learned))                                                                                                                                                                        |
+| Long press            | two of five today (Proizvodi opens the scanner, Popisi adds the open product), plus Praćenje on a product page; Kartice opens a new card; Karta unlocks for admins. Fires at 450ms, silent for the first 200ms, cancels past 10px of movement |
+| Contextual holds      | on `/products/<ean>` Praćenje watches that product and Popisi adds it to a list (see [§8](#8-long-press-gestures))                                                                                                                            |
+| Haptics               | none, deliberately (see [§18](#18-gotchas--lessons-learned))                                                                                                                                                                                  |
 
 **Daily workflow:** nothing to configure. The bar reads its items from `frontend/src/constants/navigation.ts` and mounts itself once in the root layout.
 
@@ -84,7 +84,7 @@ flowchart TB
             c2["li: Praćenje<br/>badge"]
             c3["li: Proizvodi<br/>raised green circle"]
             c4["li: Popisi<br/>completion ring"]
-            c5["li: Kartice<br/>USKORO chip"]
+            c5["li: Kartice"]
         end
     end
 
@@ -105,9 +105,9 @@ Each non-centre cell stacks, from back to front:
 
 The centre cell is different: a raised, filled, brand-green 44.8px circle with `Proizvodi` underneath, which opens a sheet instead of navigating.
 
-### Why the two teaser cells sit on the outside
+### Why the teaser cells sit on the outside
 
-`Karta` and `Kartice` are not shipped yet. Putting them at the far left and far right keeps the arrangement symmetric with search dead centre, and puts the least useful cells in the hardest thumb positions.
+`Karta` is not shipped yet (`Kartice` shipped with digital cards, see [DIGITAL-CARDS.md](DIGITAL-CARDS.md)), and when both were teasers the outside positions were chosen for them. The outer positions keep the arrangement symmetric with search dead centre, and put the least useful cells in the hardest thumb positions.
 
 The left cell was `Potrošnja` at first. Both it and `Karta` are `comingSoon` teasers with a real `ComingSoon` page behind them, so the swap is a judgement about which one people will reach for, and a map of nearby stores and their opening hours beats a spending breakdown for a shopper standing in the street. `bottomNavItems` looks up ids across both `userNavItems` and `productNavItems` for it, since `map` lives in the catalogue group.
 
@@ -115,7 +115,7 @@ One knock-on: `/spending` is in `PROTECTED_ROUTE_PREFIXES` and `/map` is not, so
 
 ### Locked teaser cells
 
-Both teaser cells are **dead ends for everyone but an admin**, which is the rule `sidebar-nav-item.tsx` already applies:
+The teaser cell (today only `Karta`) is a **dead end for everyone but an admin**, which is the rule `sidebar-nav-item.tsx` already applies:
 
 ```ts
 const isLocked = Boolean(item.comingSoon) && !isAdmin(user?.accountType);
@@ -126,7 +126,7 @@ A locked cell carries `aria-disabled` plus `tabIndex={-1}` in `text-muted-foregr
 Two things worth knowing:
 
 - This runs **against** Apple's Human Interface Guidelines, which are emphatic that a tab must never be disabled (in iOS 26 `UITabBarItem.isEnabled` has no effect at all). Consistency with the app's other two navigations won, since a bar that walks you into a teaser page the header refuses to open is the more confusing inconsistency.
-- The admin escape exists so `/digital-cards`, which is a working page carrying the badge only until barcode rendering lands, stays reachable from a phone.
+- The admin escape exists so an unreleased page stays reachable from a phone while it is being built; `/digital-cards` used it before it shipped.
 
 The same rule now applies to `HeaderNavItem`, which previously blocked coming-soon items for admins too. Note that the escape is unreachable there today: `HeaderNav` swaps the whole list for a single dashboard link whenever `canAccessDashboard` is true, which covers every admin. It is there for consistency and for whenever that layout changes.
 
@@ -445,14 +445,14 @@ A sheet can also decline the field: `ProductsSheet` withholds `initialFocusRef` 
 
 Long press is strictly an **accelerator**, never the only way to reach something. Every target is a `?modal=` URL that a visible, tappable control also reaches, which is what keeps it keyboard and screen-reader accessible.
 
-| Gesture                  | On `/products/<ean>`       | Everywhere else            | Enabled?                                                |
-| ------------------------ | -------------------------- | -------------------------- | ------------------------------------------------------- |
-| Hold **Karta**           | store preferences          | store preferences          | admins only, until the map drops `comingSoon`           |
-| Hold **Praćenje**        | `?modal=watchlist&ean=…`   | nothing                    | yes                                                     |
-| Hold the **centre cell** | the barcode scanner        | the barcode scanner        | yes                                                     |
-| Hold **Popisi**          | `?modal=add-to-list&ean=…` | `?modal=shopping-list/new` | yes                                                     |
-| Hold **Kartice**         | `?modal=digital-card/new`  | `?modal=digital-card/new`  | wired, off until digital cards ship, cell locked anyway |
-| Hold a **product card**  | the quick-actions sheet    | the quick-actions sheet    | yes                                                     |
+| Gesture                  | On `/products/<ean>`       | Everywhere else            | Enabled?                                      |
+| ------------------------ | -------------------------- | -------------------------- | --------------------------------------------- |
+| Hold **Karta**           | store preferences          | store preferences          | admins only, until the map drops `comingSoon` |
+| Hold **Praćenje**        | `?modal=watchlist&ean=…`   | nothing                    | yes                                           |
+| Hold the **centre cell** | the barcode scanner        | the barcode scanner        | yes                                           |
+| Hold **Popisi**          | `?modal=add-to-list&ean=…` | `?modal=shopping-list/new` | yes                                           |
+| Hold **Kartice**         | `?modal=digital-card/new`  | `?modal=digital-card/new`  | yes                                           |
+| Hold a **product card**  | the quick-actions sheet    | the quick-actions sheet    | yes                                           |
 
 ### Targets that depend on the route
 
@@ -641,7 +641,7 @@ Two consequences worth remembering:
   | -------------- | ----------------------------------- | ---------------- |
   | Shopping lists | Stvori popis za kupnju              | Stvori popis     |
   | Watchlist      | Stvori popis sniženih proizvoda (N) | Stvori popis (N) |
-  | Digital cards  | Dodaj digitalnu karticu             | Dodaj karticu    |
+  | Digital cards  | Dodaj karticu                       | Dodaj            |
 
 - `BackToTopButton` moved from `sm` to `md`, or widths between 640px and 768px would have shown the bar and the FAB at once.
 
@@ -790,7 +790,7 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 | `interactiveWidget: "resizes-content"`    | same                               | Reflows the layout viewport for the keyboard. Chrome Android 108+, Firefox Android 133+ and Samsung Internet; not Safari on iOS |
 | `devIndicators: false`                    | `next.config.ts`                   | Next's dev indicator landed bottom-left, over the left teaser cell                                                              |
 | `NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS` | `.env.local`, `.env.local.example` | Default `false`. Its floating button landed bottom-right, over Kartice                                                          |
-| `longPressEnabled` on the Kartice entry   | `bottom-nav-items.ts`              | Keeps the wired gesture inert until digital cards ship                                                                          |
+| `longPressEnabled` on the Kartice entry   | `bottom-nav-items.ts`              | Gates the Kartice gesture (now `true`); the flag stays for any future teaser                                                    |
 | `Disscount_app` in `localStorage`         | `utils/browser/storage/*`          | Unrelated to the bar now; its `bottomNavVariant` key was removed with the variants                                              |
 
 Both dev-overlay switches are read at compile time, so they need a **dev-server restart**, not just a reload. The flag follows the existing `NEXT_PUBLIC_ENABLE_REACT_SCAN` naming.
@@ -848,27 +848,27 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 
 ## 17. What's automatic vs manual
 
-| Task                                          | Automatic? | Notes                                                                          |
-| --------------------------------------------- | ---------- | ------------------------------------------------------------------------------ |
-| Showing and hiding the bar by width           | ✅ auto    | Pure CSS `md:hidden`, so it ships in the prerendered HTML with no shift        |
-| Safe-area padding                             | ✅ auto    | `env(safe-area-inset-bottom)`, once `viewportFit: "cover"` is set              |
-| Reserving page space for the bar              | ✅ auto    | The shell wrapper's padding derives from `--bottom-nav-total`                  |
-| Compaction on scroll                          | ✅ auto    | Scroll timeline, no listener                                                   |
-| Closing the products sheet on navigation      | ✅ auto    | Pathname effect, like `AppSidebar`, except on `/products`                      |
-| Keeping a sheet clear of the bar              | ✅ auto    | `SheetShell` pads by `--sheet-bottom-clearance`; no call site sets padding     |
-| Routing a filter pick to `/products`          | ✅ auto    | On the route it amends the URL; off it, the pick and the query travel together |
-| Collapsing the filters between opens          | ✅ auto    | `open()` and `openFilters()` each set it as they open                          |
-| Disabling Pretraži when it would do nothing   | ✅ auto    | `isUnchanged()` compares the field with the route's own `q`                    |
-| The active disc following the route           | ✅ auto    | `usePathname` plus `layoutId`                                                  |
-| Signed-out cells explaining themselves        | ✅ auto    | The pages already render `LoginRequired`                                       |
-| Locking and unlocking teaser cells            | ✅ auto    | Derived from `comingSoon` in `constants/navigation.ts` plus the admin check    |
-| Swapping a hold's target on a product page    | ✅ auto    | `productPageTarget` is resolved from the path at press time                    |
-| Unlocking Karta's hold when the map ships     | ✅ auto    | Its target already works; dropping `comingSoon` is all that gates it           |
-| **Adding or reordering a cell**               | ❌ manual  | Edit `bottom-nav-items.ts`, and remember a shipped tab set should not change   |
-| **Enabling the Kartice long press**           | ❌ manual  | Flip `longPressEnabled`, and drop `comingSoon` so the cell unlocks             |
-| **A real price-drop badge count**             | ❌ manual  | Needs an endpoint or a per-user last-seen timestamp                            |
-| **Turning the React Query devtools back on**  | ❌ manual  | `NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS=true`, then restart the dev server    |
-| **Verifying the iOS keyboard and safe areas** | ❌ manual  | Needs a real iPhone; DevTools emulation cannot show either                     |
+| Task                                          | Automatic? | Notes                                                                                       |
+| --------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------- |
+| Showing and hiding the bar by width           | ✅ auto    | Pure CSS `md:hidden`, so it ships in the prerendered HTML with no shift                     |
+| Safe-area padding                             | ✅ auto    | `env(safe-area-inset-bottom)`, once `viewportFit: "cover"` is set                           |
+| Reserving page space for the bar              | ✅ auto    | The shell wrapper's padding derives from `--bottom-nav-total`                               |
+| Compaction on scroll                          | ✅ auto    | Scroll timeline, no listener                                                                |
+| Closing the products sheet on navigation      | ✅ auto    | Pathname effect, like `AppSidebar`, except on `/products`                                   |
+| Keeping a sheet clear of the bar              | ✅ auto    | `SheetShell` pads by `--sheet-bottom-clearance`; no call site sets padding                  |
+| Routing a filter pick to `/products`          | ✅ auto    | On the route it amends the URL; off it, the pick and the query travel together              |
+| Collapsing the filters between opens          | ✅ auto    | `open()` and `openFilters()` each set it as they open                                       |
+| Disabling Pretraži when it would do nothing   | ✅ auto    | `isUnchanged()` compares the field with the route's own `q`                                 |
+| The active disc following the route           | ✅ auto    | `usePathname` plus `layoutId`                                                               |
+| Signed-out cells explaining themselves        | ✅ auto    | The pages already render `LoginRequired`                                                    |
+| Locking and unlocking teaser cells            | ✅ auto    | Derived from `comingSoon` in `constants/navigation.ts` plus the admin check                 |
+| Swapping a hold's target on a product page    | ✅ auto    | `productPageTarget` is resolved from the path at press time                                 |
+| Unlocking Karta's hold when the map ships     | ✅ auto    | Its target already works; dropping `comingSoon` is all that gates it                        |
+| **Adding or reordering a cell**               | ❌ manual  | Edit `bottom-nav-items.ts`, and remember a shipped tab set should not change                |
+| **Enabling a long press on a new cell**       | ❌ manual  | Flip `longPressEnabled` in `bottom-nav-items.ts`, and drop `comingSoon` so the cell unlocks |
+| **A real price-drop badge count**             | ❌ manual  | Needs an endpoint or a per-user last-seen timestamp                                         |
+| **Turning the React Query devtools back on**  | ❌ manual  | `NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS=true`, then restart the dev server                 |
+| **Verifying the iOS keyboard and safe areas** | ❌ manual  | Needs a real iPhone; DevTools emulation cannot show either                                  |
 
 ---
 
@@ -985,7 +985,7 @@ Together those are the general rule: a measured-overflow container can only meas
 
 **`--bottom-nav-total` is `max(gap, safe)`, not a sum.** The bar's own margin is `mb-[max(var(--bottom-nav-gap),var(--bottom-nav-safe))]`, so adding both over-reserved 12px on a notched phone and floated the page padding, the install banner and every sheet's clearance with it. The token exists precisely so the bar's footprint has one definition; it has to be the same expression the bar lays itself out with. It is also `0px` above `md`, where there is no bar, which is what lets a consumer that cannot express a breakpoint (sonner's `offset` prop) still come out right.
 
-**Two of five cells being teasers is a real risk, and locking them sharpens it.** No UX research endorses teaser destinations in primary navigation, and now two of the five tabs are visibly inert for everyone but an admin. If `Karta` and `Kartice` stay unshipped for long, 40% of the bar is dead weight and it starts reading as vaporware.
+**A teaser cell is a real risk, and locking it sharpens it.** No UX research endorses teaser destinations in primary navigation. This was written when two of the five tabs were inert; Kartice has since shipped, so one tab (`Karta`) is visibly inert for everyone but an admin. If it stays unshipped for long, 20% of the bar is dead weight and it starts reading as vaporware.
 
 ---
 
@@ -997,7 +997,6 @@ Together those are the general rule: a measured-overflow container can only meas
 | ------------------------------------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Price-drop count badge on Praćenje                      | Watchlist      | Swap the notification count for "watched products cheaper since your last visit", cleared on visit, capped at 9+, with the number in the accessible name |
 | Price-drop pulse on the Praćenje icon                   | Watchlist      | One 300ms scale pulse when a watched price drops while the app is open, at most once a minute, off under reduced motion. Blocked by the badge above      |
-| Enable the Kartice long press                           | Digital Cards  | One flag in `bottom-nav-items.ts` the day digital cards ship, plus dropping `comingSoon` so the cell unlocks for everyone                                |
 | Selection mode: the bar becomes a contextual action bar | Shopping Lists | On `/shopping-lists/[id]`, long-press an item to get "N odabrano" plus move, delete, mark bought, and "nađi najjeftiniji lanac za ovih N"                |
 
 Selection mode is the one with real product upside: costing a subset of a list across chains is something no competing Croatian price app does. It is also its own feature, needing selection state and back-button semantics, so it is a separate PR rather than a line item.
