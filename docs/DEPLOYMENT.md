@@ -85,7 +85,7 @@ flowchart LR
 | ---------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
 | **Hetzner**            | The VPS (server)                           | Cloud console, plus it hosts the **Cloud Firewall** `disscount-web`                                    |
 | **Dokploy**            | Deployment platform (on the VPS)           | `https://dokploy.disscount.me`; admin login = your email                                               |
-| **Cloudflare**         | DNS, CDN, DDoS, redirects, SSL mode        | zone `disscount.me` (free plan)                                                                        |
+| **Cloudflare**         | DNS, CDN, DDoS, redirects, SSL, geo header | zone `disscount.me` (free plan)                                                                        |
 | **GitHub**             | Source code + auto-deploy trigger          | `OffCrazyFreak/Disscount`; connected to Dokploy via a **GitHub App**                                   |
 | **Sentry**             | Error tracking                             | projects `disscount-frontend` + `disscount-backend` (EU region)                                        |
 | **Cloudflare R2**      | Off-site backup storage                    | bucket `disscount-backups` (S3-compatible)                                                             |
@@ -201,6 +201,8 @@ All four are **optional**. If any one is blank the backend runs without photos (
 **Adding a domain to a service:** done in **Dokploy, service, Domains** (Host + Service + Container Port + HTTPS/Let's Encrypt). ⚠️ For **Compose** services you must **redeploy once** afterward so the Traefik routing labels actually attach to the container.
 
 **HTTP to HTTPS** redirect is automatic (Cloudflare). No config needed.
+
+**Visitor location headers** (Rules, Settings, Managed Transforms, "Add visitor location headers") must be on for the stores map to open near the visitor without GPS. Cloudflare then adds `cf-iplatitude`, `cf-iplongitude` and `cf-ipcity` to requests that reach the origin. It is available on the free plan; with it off, the map simply opens on all of Croatia. Details in [MAP.md](MAP.md).
 
 **Retired waitlist subdomains:** `get` / `waitlist` / `zelim` / `želim` (the last is an IDN stored as an `xn--…` name) were CNAMEs to a Netlify waitlist site. They now **301-redirect to `https://disscount.me/`** via a Cloudflare **Redirect Rule** (Rules, Redirect Rules) whose expression is:
 

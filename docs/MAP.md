@@ -70,7 +70,9 @@ A store every source misses is recorded as a failed attempt and retried after 7 
 - **Store card:** directions (Google Maps, Apple Maps), call, share, and "Prijavi grešku", which pre-fills the contact form through its draft key.
 - **URL state:** `?store=<chain>:<code>` is pushed, so Back closes a store; `?chain=` replaces; `?q=` comes from the shared `SearchBar` in its `shallow` mode; the map view rides in `#map=zoom/lat/lon`. These writes use the History API, so they cause no server round trip.
 - **Defaults:** signed-in users start with their pinned chains selected and the map on their first pinned place, centred on the average of that town's stores.
-- **Near me:** asks for the position only on a tap, at low accuracy, with our own 15 s timer, and never sends or stores it.
+- **Near me:** the button asks for the position at low accuracy with our own 15 s timer; when the browser already reports the permission as `granted`, the page locates by itself without a prompt. A fix vaguer than 100 m is then sharpened by one high-accuracy request. The position never leaves the device.
+- **Location order:** GPS first. Without it, Cloudflare's guess from the IP (below) centres the map at city zoom and sorts the list, unless the user pinned a place, which wins over a guess. An IP guess, or a GPS fix coarser than 2 km (Android and iOS "approximate" grants), sorts without showing kilometres, and a note says the order is approximate. An automatic fix never moves the map once the user has panned it or a shared store link opened (`resolveMapOrigin` in `utils/map-origin.ts`).
+- **IP guess:** Cloudflare's "Add visitor location headers" managed transform adds `cf-iplatitude`, `cf-iplongitude` and `cf-ipcity` to requests that reach the origin. The page reads them per request (`utils/ip-location.ts`), keeps only a guess inside Croatia, rounds it to about a kilometre, and repairs the city name, which Node reads as latin1 although Cloudflare sends UTF-8. Nothing is stored. The data comes from IPinfo; for Croatia expect roughly half of visitors to get the right town, fewer on mobile networks, which often resolve to Zagreb. Without the transform the headers are absent and the map opens on all of Croatia, as before. The privacy policy describes both GPS and the IP guess.
 - **Links in:** product price rows open `/map?store=...`; the product chains section has "Gdje kupiti", which opens `/map?chain=...`.
 
 ## 5. Accessibility
@@ -82,14 +84,14 @@ A store every source misses is recorded as a failed attempt and retried after 7 
 
 ## 6. Key files
 
-| Area                | Files                                                                                                                            |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Page and layout     | `frontend/src/app/map/page.tsx`, `components/map-client.tsx`, `components/map-bottom-sheet.tsx`                                  |
-| Map                 | `components/store-map.tsx`, `components/map-chain-source.tsx`, `utils/chain-layers.ts`                                           |
-| View model          | `hooks/use-map-view-model.ts`, `hooks/use-visible-stores.ts`, `hooks/use-map-url-state.ts`                                       |
-| Directory and route | `frontend/src/lib/store-locations/get-store-directory.ts`, `app/api/cijene/store-directory/`                                     |
-| Sync                | `frontend/src/lib/store-locations/sync/`, `sources/`, `dgu/`, `geocoders/`                                                       |
-| Table               | `frontend/src/db/store-location-schema.ts`, `frontend/drizzle/0002_store_locations.sql`, `0003_store_location_geoapify_miss.sql` |
+| Area                | Files                                                                                                    |
+| ------------------- | -------------------------------------------------------------------------------------------------------- |
+| Page and layout     | `frontend/src/app/[locale]/map/page.tsx`, `components/map-client.tsx`, `components/map-bottom-sheet.tsx` |
+| Map                 | `components/store-map.tsx`, `components/map-chain-source.tsx`, `utils/chain-layers.ts`                   |
+| View model          | `hooks/use-map-view-model.ts`, `hooks/use-visible-stores.ts`, `hooks/use-map-url-state.ts`               |
+| Directory and route | `frontend/src/lib/store-locations/get-store-directory.ts`, `app/api/cijene/store-directory/`             |
+| Sync                | `frontend/src/lib/store-locations/sync/`, `sources/`, `dgu/`, `geocoders/`                               |
+| Table               | `frontend/src/db/store-location-schema.ts`, `frontend/drizzle/0003_store_locations.sql`                  |
 
 ## 7. Config and env
 
