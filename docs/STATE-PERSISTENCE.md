@@ -288,7 +288,7 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
 
 ## 12. Future improvements & TODOs
 
-- **Automated product-filter regression coverage.** The scoped price summarizers and filter contract are verified by TypeScript, the production build, and manual API requests, and the frontend still has no test framework installed. [Issue #153](https://github.com/OffCrazyFreak/Disscount/issues/153), which recorded the cases to cover, was closed as not planned on 2026-08-05, so the gap is real but untracked. Tests were deliberately excluded from [PR #151](https://github.com/OffCrazyFreak/Disscount/pull/151).
+- **Automated product-filter regression coverage.** The scoped price summarizers and filter contract are verified by TypeScript, the production build, and manual API requests. The frontend now has Vitest (see [TESTING.md](TESTING.md)), and the basic product price helpers have tests, but the filters and scoped summarizers still do not. [Issue #153](https://github.com/OffCrazyFreak/Disscount/issues/153), which recorded the cases to cover, was closed as not planned on 2026-08-05, so the gap is real but untracked. Tests were deliberately excluded from [PR #151](https://github.com/OffCrazyFreak/Disscount/pull/151).
 
 - **Draft indicator UX.** When a draft is restored, the modal shows it as unsaved and offers a "Resetiraj" button, but there is no explicit "restored a draft" banner. A small notice could make it clearer why fields are prefilled.
 
