@@ -26,10 +26,19 @@ export type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 // under the new [locale], would otherwise lose it. Session-scoped, cleared on close.
 const TOKEN_KEY = "disscount-reset-token";
 
+// Storage can be full or blocked; the URL token must still work from memory then.
+function stored<T>(action: () => T): T | null {
+  try {
+    return action();
+  } catch {
+    return null;
+  }
+}
+
 function readToken(): string | null {
   const fromUrl = new URLSearchParams(window.location.search).get("token");
-  if (fromUrl) sessionStorage.setItem(TOKEN_KEY, fromUrl);
-  return fromUrl ?? sessionStorage.getItem(TOKEN_KEY);
+  if (fromUrl) stored(() => sessionStorage.setItem(TOKEN_KEY, fromUrl));
+  return fromUrl ?? stored(() => sessionStorage.getItem(TOKEN_KEY));
 }
 
 export function useResetPasswordForm(open: boolean) {
@@ -56,7 +65,7 @@ export function useResetPasswordForm(open: boolean) {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!open) {
-      sessionStorage.removeItem(TOKEN_KEY);
+      stored(() => sessionStorage.removeItem(TOKEN_KEY));
       return;
     }
 
@@ -91,7 +100,7 @@ export function useResetPasswordForm(open: boolean) {
       return;
     }
 
-    sessionStorage.removeItem(TOKEN_KEY);
+    stored(() => sessionStorage.removeItem(TOKEN_KEY));
     toast.success(t("resetPassword.success"));
     swapModalUrl({ name: "login" });
   }
