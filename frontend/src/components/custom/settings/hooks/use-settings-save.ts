@@ -6,12 +6,12 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
-import { ONBOARDING_COMPLETED } from "@/lib/api/schemas/auth-user";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
 import { dirtySections } from "@/components/custom/settings/settings-dirty";
 import {
+  buildModeUserPatch,
   buildSaveJobs,
-  buildUserPatch,
+  type SaveMode,
 } from "@/components/custom/settings/settings-save-jobs";
 import {
   applySaveErrors,
@@ -38,7 +38,7 @@ export function useSettingsSave({
   const t = useTranslations("settings");
   const { runners, saving } = useSettingsSaveRunners();
 
-  async function save(mode: "settings" | "onboarding"): Promise<boolean> {
+  async function save(mode: SaveMode): Promise<boolean> {
     const values = form.getValues();
     const defaults = (form.formState.defaultValues ??
       {}) as Partial<SettingsFormValues>;
@@ -51,24 +51,13 @@ export function useSettingsSave({
       toast.info(t("save.offline"));
     }
 
-    const userDirty = dirty.has("profil") || dirty.has("obavijesti");
-
-    // Onboarding stamps its outcome in the same patch as the profile fields, so
-    // only one user PATCH runs. A second, later call would land after the pinned
-    // stores and places jobs and, response by response, undo them.
-    const completion = mode === "onboarding" ? ONBOARDING_COMPLETED : undefined;
-
     const jobs = buildSaveJobs(
       values,
       defaults,
-      userDirty || completion
-        ? buildUserPatch(
-            values,
-            defaults,
-            { touched: avatarTouched, preview: avatarPreview },
-            completion ? { onboardingOutcome: completion } : undefined,
-          )
-        : null,
+      buildModeUserPatch(mode, values, defaults, dirty, {
+        touched: avatarTouched,
+        preview: avatarPreview,
+      }),
       runners,
     );
 
