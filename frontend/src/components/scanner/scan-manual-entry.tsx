@@ -12,9 +12,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CODE_TYPES, isCodeType, type CodeType } from "@/constants/card-codes";
-import { hasValidCheckDigit } from "@/utils/barcode/check-digits";
 import { normalizeScannedCode } from "@/utils/barcode/normalize-code";
 import type { IScannedCode } from "@/typings/scanned-code";
+import { getManualEntryError } from "@/components/scanner/manual-entry-error";
 
 interface IScanManualEntryProps {
   onSubmit: (code: IScannedCode) => void;
@@ -33,21 +33,14 @@ export default function ScanManualEntry({
   const [submitted, setSubmitted] = useState(false);
 
   const trimmed = value.trim();
-  const hasBadCheckDigit =
-    trimmed !== "" && !hasValidCheckDigit(trimmed, codeType);
-  const error = !submitted
-    ? null
-    : trimmed === ""
-      ? t("manual.numberRequired")
-      : hasBadCheckDigit
-        ? t("manual.checkDigitMismatch")
-        : null;
+  const errorKey = getManualEntryError(trimmed, codeType);
+  const error = submitted && errorKey ? t(`manual.${errorKey}`) : null;
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setSubmitted(true);
 
-    if (trimmed === "" || hasBadCheckDigit) return;
+    if (errorKey) return;
 
     onSubmit(normalizeScannedCode({ rawValue: trimmed, format: codeType }));
   }

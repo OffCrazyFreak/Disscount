@@ -1,12 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
-import { useQueries } from "@tanstack/react-query";
-import { watchlistService } from "@/lib/api";
-import { getProductByEan, productByEanQueryKey } from "@/lib/cijene-api";
 import { useUser } from "@/context/user-context";
-import {
-  extractPinnedStoreChainCodes,
-  groupWatchlistItemsByProduct,
-} from "@/lib/watchlist/watchlist-grouping-utils";
+import { useWatchedProducts } from "@/lib/watchlist/use-watched-products";
 import { buildWatchlistNotifications } from "@/context/build-watchlist-notifications";
 import { INotificationsContext } from "@/context/notifications-types";
 
@@ -18,31 +12,14 @@ export function useWatchlistNotifications(): INotificationsContext {
     setOpenMenuSignal((signal) => signal + 1);
   }, []);
 
-  // Gate the watchlist query - avoids hitting /api/watchlist/me (and /api/auth/token) when logged out
-  const { data: watchlistItems = [], isLoading: watchlistLoading } =
-    watchlistService.useGetCurrentUserWatchlist({ enabled: isAuthenticated });
-
-  const groupedWatchlistItems = useMemo(
-    () => groupWatchlistItemsByProduct(watchlistItems),
-    [watchlistItems],
-  );
-
-  const pinnedStoreChainCodes = useMemo(
-    () => extractPinnedStoreChainCodes(user?.pinnedStores),
-    [user?.pinnedStores],
-  );
-
-  const hasPinnedStores = pinnedStoreChainCodes.length > 0;
-
-  // Progressive loading: fetch product data per grouped product
-  const productQueries = useQueries({
-    queries: groupedWatchlistItems.map((item) => ({
-      queryKey: productByEanQueryKey(item.productApiId),
-      queryFn: () => getProductByEan({ ean: item.productApiId }),
-      enabled: !!item.productApiId && isAuthenticated,
-      staleTime: 6 * 60 * 60 * 1000, // 6 hours
-    })),
-  });
+  const {
+    watchlistItems,
+    watchlistLoading,
+    groupedWatchlistItems,
+    pinnedStoreChainCodes,
+    hasPinnedStores,
+    productQueries,
+  } = useWatchedProducts(isAuthenticated, user?.pinnedStores);
 
   const productQueriesStateKey = productQueries
     .map(

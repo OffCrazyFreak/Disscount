@@ -1,13 +1,9 @@
 import { useMemo } from "react";
-import { useQueries } from "@tanstack/react-query";
-import { watchlistService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
-import { getProductByEan, productByEanQueryKey } from "@/lib/cijene-api";
+import { useWatchedProducts } from "@/lib/watchlist/use-watched-products";
 import { filterByFields } from "@/utils/generic";
 import {
   calculateDiscountInfo,
-  extractPinnedStoreChainCodes,
-  groupWatchlistItemsByProduct,
   isAnyWatchThresholdReached,
 } from "@/app/[locale]/(user)/watchlist/utils/watchlist-utils";
 import type {
@@ -18,31 +14,15 @@ import { useWatchlistSuggestions } from "@/app/[locale]/(user)/watchlist/hooks/u
 
 export function useWatchlistData(query: string) {
   const { user, isAuthenticated, isLoading: userLoading } = useUser();
-  const { data: watchlistItems = [], isLoading: watchlistLoading } =
-    watchlistService.useGetCurrentUserWatchlist({ enabled: isAuthenticated });
+  const {
+    watchlistLoading,
+    groupedWatchlistItems,
+    pinnedStoreChainCodes,
+    hasPinnedStores,
+    productQueries,
+  } = useWatchedProducts(isAuthenticated, user?.pinnedStores);
 
-  const groupedWatchlistItems = useMemo(
-    () => groupWatchlistItemsByProduct(watchlistItems),
-    [watchlistItems],
-  );
   const hasWatchedProducts = groupedWatchlistItems.length > 0;
-
-  const pinnedStoreChainCodes = useMemo(
-    () => extractPinnedStoreChainCodes(user?.pinnedStores),
-    [user?.pinnedStores],
-  );
-
-  const hasPinnedStores = pinnedStoreChainCodes.length > 0;
-
-  const productQueries = useQueries({
-    queries: groupedWatchlistItems.map((item) => ({
-      // Same key the modal reads, so opening it is a cache hit, not a skeleton.
-      queryKey: productByEanQueryKey(item.productApiId),
-      queryFn: () => getProductByEan({ ean: item.productApiId }),
-      enabled: Boolean(item.productApiId) && isAuthenticated,
-      staleTime: 6 * 60 * 60 * 1000,
-    })),
-  });
 
   const productsLoading = productQueries.some((query) => query.isLoading);
 

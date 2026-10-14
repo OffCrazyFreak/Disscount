@@ -47,6 +47,8 @@ function flatten(object, prefix = "", out = new Map()) {
   return out;
 }
 
+const BRANCHING_TYPES = new Set(["plural", "select", "selectordinal"]);
+
 /**
  * A small ICU walker: collects argument names, plural/select branches and rich-text
  * tags, and reports unbalanced braces. Apostrophes quote per ICU: '' is a literal
@@ -74,27 +76,82 @@ function analyse(message) {
     i += 1;
   }
 
-  function parseText(depth, inPlural) {
+  function skipTag() {
+    const match = /^<\/?([a-zA-Z][\w-]*)\s*\/?>/.exec(message.slice(i));
+    if (!match) {
+      i += 1;
+      return;
+    }
+    tags.add(match[1]);
+    i += match[0].length;
+  }
+
+  function closeText(depth) {
+    if (depth === 0) {
+      error = "unexpected }";
+      i += 1;
+    }
+  }
+
+  // A plural's # needs no handling: like any other text it advances one character.
+  function parseText(depth) {
     while (i < message.length) {
       const ch = message[i];
+      if (ch === "}") return closeText(depth);
       if (ch === "'") skipQuoted();
       else if (ch === "{") parseArgument(depth + 1);
-      else if (ch === "}") {
-        if (depth === 0) {
-          error = "unexpected }";
-          i += 1;
-        }
-        return;
-      } else if (ch === "#" && inPlural) i += 1;
-      else if (ch === "<") {
-        const match = /^<\/?([a-zA-Z][\w-]*)\s*\/?>/.exec(message.slice(i));
-        if (match) {
-          tags.add(match[1]);
-          i += match[0].length;
-        } else i += 1;
-      } else i += 1;
+      else if (ch === "<") skipTag();
+      else i += 1;
     }
     if (depth > 0) error = "unclosed {";
+  }
+
+  // Reads one "keyword {text}" branch: true to continue, false at the closing
+  // brace, null after recording an error.
+  function parseBranch(type, depth, branches) {
+    const rest = message.slice(i);
+    const branch = /^\s*(offset:\d+\s*)?(=?[\w-]+)\s*\{/.exec(rest);
+    if (!branch) {
+      if (/^\s*}/.test(rest)) {
+        i += rest.indexOf("}");
+        return false;
+      }
+      error = `bad ${type} branch`;
+      return null;
+    }
+    branches.push(branch[2]);
+    i += branch[0].length;
+    parseText(depth);
+    if (message[i] !== "}") {
+      error = "unclosed branch";
+      return null;
+    }
+    i += 1;
+    return true;
+  }
+
+  function parseBranches(type, depth) {
+    const branches = [];
+    while (i < message.length && message[i] !== "}") {
+      const next = parseBranch(type, depth, branches);
+      if (next === null) return false;
+      if (!next) break;
+    }
+    if (type === "plural") plurals.push(branches);
+    if (type === "select") selects.push(branches.toSorted().join("|"));
+    if (!branches.includes("other")) error = `${type} without other`;
+    return true;
+  }
+
+  // Simple {name} or {name, number, ...}: skip to the closing brace.
+  function skipToClose() {
+    const close = message.indexOf("}", i);
+    if (close === -1) {
+      error = "unclosed {";
+      return false;
+    }
+    i = close;
+    return true;
   }
 
   function parseArgument(depth) {
@@ -110,41 +167,10 @@ function analyse(message) {
     const type = header[2];
     i += header[0].length;
 
-    if (type === "plural" || type === "select" || type === "selectordinal") {
-      const branches = [];
-      while (i < message.length && message[i] !== "}") {
-        const branch = /^\s*(offset:\d+\s*)?(=?[\w-]+)\s*\{/.exec(
-          message.slice(i),
-        );
-        if (!branch) {
-          if (/^\s*}/.test(message.slice(i))) {
-            i += message.slice(i).indexOf("}");
-            break;
-          }
-          error = `bad ${type} branch`;
-          return;
-        }
-        branches.push(branch[2]);
-        i += branch[0].length;
-        parseText(depth, type !== "select");
-        if (message[i] !== "}") {
-          error = "unclosed branch";
-          return;
-        }
-        i += 1;
-      }
-      if (type === "plural") plurals.push(branches);
-      if (type === "select") selects.push(branches.toSorted().join("|"));
-      if (!branches.includes("other")) error = `${type} without other`;
-    } else {
-      // Simple {name} or {name, number, ...}: skip to the closing brace.
-      const close = message.indexOf("}", i);
-      if (close === -1) {
-        error = "unclosed {";
-        return;
-      }
-      i = close;
-    }
+    const parsed = BRANCHING_TYPES.has(type)
+      ? parseBranches(type, depth)
+      : skipToClose();
+    if (!parsed) return;
 
     if (message[i] !== "}") {
       error = "unclosed {";
@@ -153,7 +179,7 @@ function analyse(message) {
     i += 1;
   }
 
-  parseText(0, false);
+  parseText(0);
   return { args, tags, plurals, selects, error };
 }
 
