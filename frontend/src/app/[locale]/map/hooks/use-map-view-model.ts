@@ -9,13 +9,13 @@ import {
   useMapUrlState,
 } from "@/app/[locale]/map/hooks/use-map-url-state";
 import { useRecentSearches } from "@/app/[locale]/map/hooks/use-recent-searches";
-import {
-  toListedStore,
-  useVisibleStores,
-} from "@/app/[locale]/map/hooks/use-visible-stores";
-import { toStoreKey } from "@/app/[locale]/map/utils/store-key";
+import { useVisibleStores } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { resolveMapOrigin } from "@/app/[locale]/map/utils/map-origin";
 import type { IIpLocation } from "@/app/[locale]/map/utils/ip-location";
+import {
+  findSelectedStore,
+  resolveInitialView,
+} from "@/app/[locale]/map/utils/map-view";
 import { isVisitableStore } from "@/app/[locale]/map/utils/visitable-store";
 
 /** Everything the map page renders, derived from the data, the URL and the user. */
@@ -46,14 +46,6 @@ export function useMapViewModel(ipLocation: IIpLocation | null) {
 
   const recent = useRecentSearches(url.query, listed.length > 0);
 
-  // Looked up among all stores, so a shared link opens even when the filters
-  // would hide that store.
-  const selectedStore = url.selectedKey
-    ? stores.find(
-        (store) => toStoreKey(store.chain, store.code) === url.selectedKey,
-      )
-    : undefined;
-
   return {
     status: directory.status,
     retry: directory.refetch,
@@ -63,18 +55,8 @@ export function useMapViewModel(ipLocation: IIpLocation | null) {
     listed,
     mappable,
     unplacedCount,
-    selected: selectedStore
-      ? toListedStore(
-          selectedStore,
-          origin.showDistances ? origin.origin : null,
-        )
-      : null,
-    initialView: defaults.placeCenter
-      ? { ...defaults.placeCenter, zoom: 12 }
-      : ipLocation
-        ? // City level: the guess is rarely closer than the town.
-          { lat: ipLocation.lat, lon: ipLocation.lon, zoom: 11 }
-        : null,
+    selected: findSelectedStore(stores, url.selectedKey, origin),
+    initialView: resolveInitialView(defaults.placeCenter, ipLocation),
     origin,
     geolocation,
     recentSearches: recent.recent,
