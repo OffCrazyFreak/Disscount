@@ -53,106 +53,12 @@ export function isPublicModal(name: string): boolean {
   return (PUBLIC_MODAL_NAMES as readonly string[]).includes(name);
 }
 
-function isSettingsTab(value: string): value is SettingsTab {
+export function isSettingsTab(value: string): value is SettingsTab {
   return (SETTINGS_TABS as readonly string[]).includes(value);
 }
 
-export function parseModalParam(
-  searchParams: URLSearchParams,
-): ModalTarget | null {
-  const modal = searchParams.get("modal");
-  if (!modal) return null;
-
-  const [name, sub] = modal.split("/");
-  const id = searchParams.get("id");
-  const ean = searchParams.get("ean");
-
-  switch (name) {
-    case "login":
-    case "signup":
-    case "forgot-password":
-    case "reset-password":
-    case "email-verified":
-    case "email-changed":
-    case "contact":
-    case "donate":
-      return { name };
-    case "onboarding":
-      return { name, mode: sub === "replay" ? "replay" : "required" };
-    case "settings":
-      return { name, tab: sub && isSettingsTab(sub) ? sub : "profil" };
-    case "shopping-list":
-      if (sub === "new") return { name, action: "new" };
-      if (sub === "edit" && id) return { name, action: "edit", id };
-      if (sub === "share" && id) return { name, action: "share", id };
-      if (sub === "copy" && id) return { name, action: "copy", id };
-      return null;
-    case "digital-card":
-      if (sub === "new") return { name, action: "new" };
-      if (sub === "edit" && id) return { name, action: "edit", id };
-      if (sub === "view" && id) return { name, action: "view", id };
-      return null;
-    case "shopping-list-actions":
-      return id ? { name, id } : null;
-    case "add-to-list":
-    case "product-actions":
-      return ean ? { name, ean } : null;
-    case "watchlist": {
-      if (!ean) return null;
-      const type = searchParams.get("type");
-      const watchType = (WATCH_TYPE_PARAMS as readonly string[]).includes(
-        type ?? "",
-      )
-        ? (type as WatchTypeParam)
-        : undefined;
-      return { name, ean, watchType };
-    }
-    default:
-      return null;
-  }
-}
-
-function modalParamValue(target: ModalTarget): string {
-  switch (target.name) {
-    case "settings":
-      return `settings/${target.tab}`;
-    case "onboarding":
-      return target.mode === "replay" ? "onboarding/replay" : "onboarding";
-    case "shopping-list":
-    case "digital-card":
-      return `${target.name}/${target.action}`;
-    default:
-      return target.name;
-  }
-}
-
-export function buildModalSearch(
-  current: URLSearchParams,
-  target: ModalTarget,
-): string {
-  const params = new URLSearchParams(current);
-  params.delete("modal");
-  params.delete("id");
-  params.delete("ean");
-  params.delete("type");
-
-  params.set("modal", modalParamValue(target));
-  if ("id" in target) params.set("id", target.id);
-  if ("ean" in target) params.set("ean", target.ean);
-  if ("watchType" in target && target.watchType)
-    params.set("type", target.watchType);
-
-  // URLSearchParams percent-encodes "/"; decode it so links read ?modal=settings/profil.
-  return `?${params.toString().replace(/%2F/g, "/")}`;
-}
-
-export function stripModalSearch(current: URLSearchParams): string {
-  const params = new URLSearchParams(current);
-  params.delete("modal");
-  params.delete("id");
-  params.delete("ean");
-  params.delete("type");
-
-  const query = params.toString().replace(/%2F/g, "/");
-  return query ? `?${query}` : "";
+export function isWatchTypeParam(
+  value: string | null,
+): value is WatchTypeParam {
+  return (WATCH_TYPE_PARAMS as readonly string[]).includes(value ?? "");
 }
