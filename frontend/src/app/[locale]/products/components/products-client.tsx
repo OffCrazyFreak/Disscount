@@ -2,19 +2,15 @@
 
 import { usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { Search, SlidersHorizontal, TriangleAlert } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 import { useViewMode } from "@/hooks/use-view-mode";
-import NoResults from "@/components/custom/common/no-results";
 import useInfiniteProducts from "@/app/[locale]/products/hooks/use-infinite-products";
 import useProductFilters from "@/app/[locale]/products/hooks/use-product-filters";
 import ProductFiltersBar from "@/app/[locale]/products/components/product-filters-bar";
-import ProductItem from "@/app/[locale]/products/components/product-item/product-item";
-import { Button } from "@/components/ui/button";
+import ProductsResults from "@/app/[locale]/products/components/products-results";
 import { Suspense } from "react";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
-import { useIsMobile } from "@/hooks/use-mobile";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import { Banner } from "@/components/custom/common/banner";
 
 interface IProductsClientProps {
@@ -23,7 +19,6 @@ interface IProductsClientProps {
 
 export default function ProductsClient({ query }: IProductsClientProps) {
   const t = useTranslations("products");
-  const isMobile = useIsMobile();
   const pathname = usePathname();
   // TODO(#61): take the setter here once ViewSwitcher is unparked below; until then
   // the mode is read-only and always the default.
@@ -59,7 +54,10 @@ export default function ProductsClient({ query }: IProductsClientProps) {
 
   // A location filter is set but the city -> chains mapping is still loading
   const waitingForLocations = Boolean(query) && !locationsReady;
+  const isPending = isLoading || waitingForLocations;
   const pageError = error || locationsError;
+  const showPartialPricesBanner =
+    hasPartialPriceData && !isPending && !pageError;
 
   return (
     <div className="space-y-4">
@@ -77,7 +75,7 @@ export default function ProductsClient({ query }: IProductsClientProps) {
       <div className="flex items-center justify-between gap-4">
         <h3>
           {query.length > 0 &&
-            (isLoading || waitingForLocations
+            (isPending
               ? t("list.resultsTitle", { query })
               : t("list.resultsTitleWithCount", {
                   query,
@@ -90,86 +88,27 @@ export default function ProductsClient({ query }: IProductsClientProps) {
         {/* <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} /> */}
       </div>
 
-      {hasPartialPriceData &&
-        !isLoading &&
-        !waitingForLocations &&
-        !pageError && (
-          <Banner
-            role="status"
-            aria-live="polite"
-            variant="warningSoft"
-            icon={TriangleAlert}
-            title={t("list.partialPricesTitle")}
-            text={t("list.partialPricesText")}
-          />
-        )}
-
-      {isLoading || waitingForLocations ? (
-        <div className="flex items-center justify-center py-12">
-          <BlockLoadingSpinner />
-        </div>
-      ) : pageError ? (
-        <div className="text-center py-12">
-          <Search className="size-12 text-red-700 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-foreground mb-2">
-            {t("list.errorTitle")}
-          </h3>
-          <p className="text-gray-600 mb-6">{t("list.errorText")}</p>
-        </div>
-      ) : query && total === 0 && activeFilterCount > 0 ? (
-        <div>
-          <NoResults
-            icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
-            description={t("list.noResultsForFilters")}
-          />
-          <div className="text-center">
-            <Button type="button" variant="outline" onClick={clearFilters}>
-              {t("list.clearFilters")}
-            </Button>
-          </div>
-        </div>
-      ) : query && total === 0 ? (
-        <NoResults
-          icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
+      {showPartialPricesBanner && (
+        <Banner
+          role="status"
+          aria-live="polite"
+          variant="warningSoft"
+          icon={TriangleAlert}
+          title={t("list.partialPricesTitle")}
+          text={t("list.partialPricesText")}
         />
-      ) : query ? (
-        <>
-          <div
-            className={`${
-              viewMode !== "grid" || isMobile
-                ? "space-y-4"
-                : "grid grid-cols-2 sm:grid-cols-3 gap-4"
-            }`}
-          >
-            {visibleItems.map(({ product, price }) => (
-              <div
-                key={product.ean}
-                className={`${
-                  viewMode !== "grid" || isMobile ? "w-full" : "w-76"
-                }`}
-              >
-                <ProductItem product={product} price={price} />
-              </div>
-            ))}
-          </div>
-        </>
-      ) : activeFilterCount > 0 ? (
-        <div className="text-center py-12">
-          <SlidersHorizontal className="size-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-foreground mb-2">
-            {t("list.enterQueryTitle")}
-          </h3>
-          <p className="text-gray-600 mb-6">{t("list.enterQueryText")}</p>
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <Search className="size-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-foreground mb-2">
-            {t("list.startTitle")}
-          </h3>
-          <p className="text-gray-600 mb-6">{t("list.startText")}</p>
-        </div>
       )}
+
+      <ProductsResults
+        query={query}
+        isPending={isPending}
+        hasError={Boolean(pageError)}
+        total={total}
+        activeFilterCount={activeFilterCount}
+        clearFilters={clearFilters}
+        visibleItems={visibleItems}
+        viewMode={viewMode}
+      />
     </div>
   );
 }
