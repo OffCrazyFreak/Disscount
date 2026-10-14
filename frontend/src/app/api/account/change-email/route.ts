@@ -6,6 +6,7 @@ import { z } from "zod";
 import { APIError } from "better-auth/api";
 
 import { auth } from "@/lib/auth";
+import { parseAccountBody } from "@/lib/auth/parse-account-body";
 import {
   clearPasswordAttempts,
   reservePasswordAttempt,
@@ -23,17 +24,8 @@ const bodySchema = z.object({
 // Enforces the single-email identity invariant: block the change while a social
 // account is linked, so provider login can't later carry a different email.
 export async function POST(request: Request) {
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "invalid_request" }, { status: 400 });
-  }
-
-  const parsed = bodySchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: "invalid_input" }, { status: 400 });
-  }
+  const parsed = await parseAccountBody(request, bodySchema);
+  if (parsed.response) return parsed.response;
 
   const requestHeaders = await headers();
   const session = await auth.api.getSession({ headers: requestHeaders });

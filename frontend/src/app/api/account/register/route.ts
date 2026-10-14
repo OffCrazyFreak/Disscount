@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { auth } from "@/lib/auth";
+import { parseAccountBody } from "@/lib/auth/parse-account-body";
 import { db } from "@/db";
 import { user as userTable } from "@/db/auth-schema";
 import { requireEnv } from "@/lib/env";
@@ -25,17 +26,8 @@ const registerSchema = z.object({
 // sign-up (and verification email), an existing account gets a reset link (which also
 // links a credential for OAuth-only users). The client only ever sees a neutral notice.
 export async function POST(request: Request) {
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "invalid_request" }, { status: 400 });
-  }
-
-  const parsed = registerSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: "invalid_input" }, { status: 400 });
-  }
+  const parsed = await parseAccountBody(request, registerSchema);
+  if (parsed.response) return parsed.response;
 
   // Before the account lookup, so the verdict depends on the password alone and can't
   // reveal whether the address is registered.
