@@ -1,4 +1,7 @@
-import { ProductResponse } from "@/lib/cijene-api/schemas";
+import {
+  ChainProductResponse,
+  ProductResponse,
+} from "@/lib/cijene-api/schemas";
 import {
   getAveragePrice,
   getCheapestChainByMinPrice,
@@ -12,6 +15,11 @@ import {
   calculatePriceComparison,
   isPreferredChain,
 } from "@/lib/watchlist/watchlist-price-utils";
+
+interface ICheapestChain {
+  chain: ChainProductResponse;
+  price: number;
+}
 
 export function getScopedDiscountedStores(
   product: ProductResponse,
@@ -56,55 +64,52 @@ export function getScopedDiscountedStores(
   return discountedStores.sort((a, b) => a.currentPrice - b.currentPrice);
 }
 
+function summarizeCheapest(avgPrice: number, cheapest: ICheapestChain | null) {
+  const comparison =
+    avgPrice > 0 && cheapest
+      ? calculatePriceComparison(avgPrice, cheapest.price)
+      : null;
+
+  return {
+    difference: comparison?.difference ?? null,
+    percentage: comparison?.percentage ?? null,
+    discount: comparison?.discountValue ?? null,
+    hasDiscount: comparison?.hasDiscount ?? false,
+    minPrice: cheapest?.price ?? null,
+    bestChain: cheapest?.chain ?? null,
+  };
+}
+
 export function calculateDiscountInfo(
   product: ProductResponse,
   pinnedStoreChainCodes: string[],
 ): IDiscountInfo {
   const avgPrice = getAveragePrice(product) ?? 0;
 
-  const cheapestOverall = getCheapestChainByMinPrice(product.chains);
   const preferredChains = product.chains.filter((chain) =>
     isPreferredChain(chain, pinnedStoreChainCodes),
   );
-  const cheapestPreferred = getCheapestChainByMinPrice(preferredChains);
-
-  if (avgPrice <= 0) {
-    return {
-      preferredDifference: null,
-      preferredPercentage: null,
-      preferredDiscount: null,
-      preferredMinPrice: cheapestPreferred?.price ?? null,
-      preferredBestChain: cheapestPreferred?.chain ?? null,
-      hasPreferredDiscount: false,
-      totalDifference: null,
-      totalPercentage: null,
-      totalDiscount: null,
-      totalMinPrice: cheapestOverall?.price ?? null,
-      totalBestChain: cheapestOverall?.chain ?? null,
-      avgPrice,
-    };
-  }
-
-  const overallComparison = cheapestOverall
-    ? calculatePriceComparison(avgPrice, cheapestOverall.price)
-    : null;
-
-  const preferredComparison = cheapestPreferred
-    ? calculatePriceComparison(avgPrice, cheapestPreferred.price)
-    : null;
+  const preferred = summarizeCheapest(
+    avgPrice,
+    getCheapestChainByMinPrice(preferredChains),
+  );
+  const total = summarizeCheapest(
+    avgPrice,
+    getCheapestChainByMinPrice(product.chains),
+  );
 
   return {
-    preferredDifference: preferredComparison?.difference ?? null,
-    preferredPercentage: preferredComparison?.percentage ?? null,
-    preferredDiscount: preferredComparison?.discountValue ?? null,
-    preferredMinPrice: cheapestPreferred?.price ?? null,
-    preferredBestChain: cheapestPreferred?.chain ?? null,
-    hasPreferredDiscount: preferredComparison?.hasDiscount ?? false,
-    totalDifference: overallComparison?.difference ?? null,
-    totalPercentage: overallComparison?.percentage ?? null,
-    totalDiscount: overallComparison?.discountValue ?? null,
-    totalMinPrice: cheapestOverall?.price ?? null,
-    totalBestChain: cheapestOverall?.chain ?? null,
+    preferredDifference: preferred.difference,
+    preferredPercentage: preferred.percentage,
+    preferredDiscount: preferred.discount,
+    preferredMinPrice: preferred.minPrice,
+    preferredBestChain: preferred.bestChain,
+    hasPreferredDiscount: preferred.hasDiscount,
+    totalDifference: total.difference,
+    totalPercentage: total.percentage,
+    totalDiscount: total.discount,
+    totalMinPrice: total.minPrice,
+    totalBestChain: total.bestChain,
     avgPrice,
   };
 }
