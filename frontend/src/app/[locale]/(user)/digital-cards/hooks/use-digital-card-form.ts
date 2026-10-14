@@ -4,10 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { CardPhotoChanges } from "@/app/[locale]/(user)/digital-cards/components/forms/digital-card-form-types";
-import {
-  EMPTY_CARD_VALUES,
-  cardToFormValues,
-} from "@/app/[locale]/(user)/digital-cards/utils/digital-card-form-values";
+import { cardRequestFromDto } from "@/app/[locale]/(user)/digital-cards/utils/card-request-from-dto";
+import { EMPTY_CARD_VALUES } from "@/app/[locale]/(user)/digital-cards/utils/digital-card-form-values";
 import { takePendingCard } from "@/app/[locale]/(user)/digital-cards/utils/pending-card-stash";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import { applyProblemToForm } from "@/lib/api/problem-details";
@@ -48,7 +46,7 @@ export function useDigitalCardForm({
   useEffect(() => {
     if (!card || isDirty) return;
 
-    const base = cardToFormValues(card);
+    const base = cardRequestFromDto(card);
     form.reset(base);
 
     const draft = getFormDraft(draftKey)?.values as
