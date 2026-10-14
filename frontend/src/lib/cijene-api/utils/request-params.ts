@@ -10,7 +10,7 @@ function parseTextParam(value: string | null): string | undefined {
  * Reads the geo filters that both the prices and stores endpoints accept:
  * a coordinate pair plus a radius.
  */
-export function parseGeoParams(searchParams: URLSearchParams) {
+function parseGeoParams(searchParams: URLSearchParams) {
   return {
     lat: parseNumberParam(searchParams.get("lat")),
     lon: parseNumberParam(searchParams.get("lon")),

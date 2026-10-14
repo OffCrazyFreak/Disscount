@@ -9,7 +9,7 @@ export const locationSourceSchema = z.enum([
   "manual",
 ]);
 
-export const directoryStoreDto = z.object({
+const directoryStoreDto = z.object({
   chain: z.string(),
   code: z.string(),
   type: z.string().nullable(),

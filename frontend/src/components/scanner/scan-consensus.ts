@@ -2,7 +2,7 @@ import { hasValidCheckDigit } from "@/utils/barcode/check-digits";
 import { normalizeScannedCode } from "@/utils/barcode/normalize-code";
 import type { IScannedCode, ScanPreset } from "@/typings/scanned-code";
 
-export const CONSENSUS_WINDOW_MS = 1500;
+const CONSENSUS_WINDOW_MS = 1500;
 export const COLLECT_WINDOW_MS = 800;
 export const REJECT_HINT_AFTER_MS = 5000;
 export const REJECT_GAP_MS = 2000;
@@ -33,7 +33,7 @@ export function createConsensusState(): IConsensusState {
   };
 }
 
-export function codeKey(code: IScannedCode): string {
+function codeKey(code: IScannedCode): string {
   return `${code.format ?? ""}:${code.rawValue}`;
 }
 

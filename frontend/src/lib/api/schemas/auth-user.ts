@@ -113,8 +113,6 @@ export type UserDto = z.infer<typeof userDtoSchema>;
 
 export type AccountType = UserDto["accountType"];
 
-export type AcquisitionChannel = z.infer<typeof acquisitionChannelSchema>;
-
 // Message keys in the "auth" namespace; consumers translate them with t().
 export const ACCOUNT_TYPE_LABELS = {
   ADMIN: "accountTypes.ADMIN",

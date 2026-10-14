@@ -96,4 +96,4 @@ function Banner({
   );
 }
 
-export { Banner, bannerVariants };
+export { Banner };

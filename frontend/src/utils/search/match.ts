@@ -2,7 +2,7 @@ import { normalizeCached, type IPreparedQuery } from "@/utils/search/normalize";
 import { subsequenceScore } from "@/utils/search/fuzzy";
 
 /** How well the whole query sits in the text, best tier first. */
-export const MATCH_TIER = {
+const MATCH_TIER = {
   exact: 0,
   prefix: 1,
   wordPrefix: 2,
@@ -10,7 +10,7 @@ export const MATCH_TIER = {
   none: 4,
 } as const;
 
-export const NO_POSITION = Number.MAX_SAFE_INTEGER;
+const NO_POSITION = Number.MAX_SAFE_INTEGER;
 
 export interface IWholeQueryMatch {
   tier: number;

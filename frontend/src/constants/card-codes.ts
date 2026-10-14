@@ -68,6 +68,8 @@ export const CARD_PHOTO_SLOTS = ["front", "back", "icon"] as const;
 
 export type CardPhotoSlot = (typeof CARD_PHOTO_SLOTS)[number];
 
+export type CardPhotoSize = "full" | "thumb";
+
 export const CARD_PHOTO_SLOT_LABEL_KEYS: Record<
   CardPhotoSlot,
   `digitalCards.photos.slots.${CardPhotoSlot}`

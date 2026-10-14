@@ -1,6 +1,5 @@
 export type {
   IGroupedWatchlistItems,
-  IScopedDiscountedStore,
   IDiscountInfo,
   IWatchlistItemWithProduct,
 } from "@/app/[locale]/(user)/watchlist/typings/watchlist-types";

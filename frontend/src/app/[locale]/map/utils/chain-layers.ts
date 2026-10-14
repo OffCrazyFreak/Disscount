@@ -10,11 +10,11 @@ export function chainSourceId(chain: string): string {
   return `stores-${chain}`;
 }
 
-export function pointLayerId(chain: string): string {
+function pointLayerId(chain: string): string {
   return `point-${chain}`;
 }
 
-export function clusterLayerId(chain: string): string {
+function clusterLayerId(chain: string): string {
   return `cluster-${chain}`;
 }
 

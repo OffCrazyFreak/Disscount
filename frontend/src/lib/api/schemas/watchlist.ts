@@ -7,7 +7,7 @@ export enum WatchType {
 }
 
 // Watchlist schemas
-export const watchlistItemRequestSchema = z.object({
+const watchlistItemRequestSchema = z.object({
   productApiId: z.string().min(1, "watchlist.validation.productRequired"),
   watchType: z.enum(WatchType, {
     message: "watchlist.validation.watchTypeRequired",

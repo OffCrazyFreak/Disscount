@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { MAX_SHOPPING_LIST_ITEM_AMOUNT } from "@/constants/shopping-list";
 
-export const shoppingListItemRequestSchema = z.object({
+const shoppingListItemRequestSchema = z.object({
   ean: z.string().min(1, "shoppingLists.validation.eanRequired"),
   name: z.string().min(1, "shoppingLists.validation.nameRequired"),
   brand: z.string().nullable().optional(),

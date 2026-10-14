@@ -1,6 +1,6 @@
 import type { ExpressionSpecification, StyleSpecification } from "maplibre-gl";
 
-export const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
+const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 
 // Fonts the OpenFreeMap style ships glyphs for; any other name renders no text.
 export const MAP_FONT_BOLD = ["Noto Sans Bold"];

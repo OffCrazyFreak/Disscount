@@ -1,4 +1,3 @@
-import apiClient from "@/lib/api/api-base";
 import userService from "@/lib/api/users";
 import preferencesService from "@/lib/api/preferences";
 import shoppingListService from "@/lib/api/shopping-lists";
@@ -11,7 +10,6 @@ import contactService from "@/lib/api/contact";
 export { WatchType } from "@/lib/api/schemas/watchlist";
 
 export {
-  apiClient,
   userService,
   preferencesService,
   shoppingListService,

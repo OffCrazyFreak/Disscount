@@ -134,5 +134,3 @@ export function useCardPhotoActions(cardId: string) {
 
   return { upload, remove, status };
 }
-
-export default useCardPhotoActions;

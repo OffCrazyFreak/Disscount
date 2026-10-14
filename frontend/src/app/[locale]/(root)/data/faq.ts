@@ -6,5 +6,3 @@ export const faqIds = [
   "barcode",
   "offline",
 ] as const;
-
-export type FaqId = (typeof faqIds)[number];

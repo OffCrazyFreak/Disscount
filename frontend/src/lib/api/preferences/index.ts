@@ -10,7 +10,7 @@ import {
 /**
  * Get current user's pinned stores
  */
-export async function getPinnedStores(): Promise<PinnedStoreDto[]> {
+async function getPinnedStores(): Promise<PinnedStoreDto[]> {
   const response = await apiClient.get<PinnedStoreDto[]>(
     "/api/pinned-stores/me",
   );
@@ -20,7 +20,7 @@ export async function getPinnedStores(): Promise<PinnedStoreDto[]> {
 /**
  * Update user's pinned stores (bulk operation)
  */
-export async function updatePinnedStores(
+async function updatePinnedStores(
   data: BulkPinnedStoreRequest,
 ): Promise<PinnedStoreDto[]> {
   const response = await apiClient.put<PinnedStoreDto[]>(
@@ -33,7 +33,7 @@ export async function updatePinnedStores(
 /**
  * Get current user's pinned places
  */
-export async function getPinnedPlaces(): Promise<PinnedPlaceDto[]> {
+async function getPinnedPlaces(): Promise<PinnedPlaceDto[]> {
   const response = await apiClient.get<PinnedPlaceDto[]>(
     "/api/pinned-places/me",
   );
@@ -43,7 +43,7 @@ export async function getPinnedPlaces(): Promise<PinnedPlaceDto[]> {
 /**
  * Update user's pinned places (bulk operation)
  */
-export async function updatePinnedPlaces(
+async function updatePinnedPlaces(
   data: BulkPinnedPlaceRequest,
 ): Promise<PinnedPlaceDto[]> {
   const response = await apiClient.put<PinnedPlaceDto[]>(
@@ -54,7 +54,7 @@ export async function updatePinnedPlaces(
 }
 
 // React Query hooks
-export function useGetPinnedStores({ enabled = true } = {}) {
+function useGetPinnedStores({ enabled = true } = {}) {
   return useQuery<PinnedStoreDto[], Error>({
     queryKey: ["pinnedStores"],
     queryFn: getPinnedStores,
@@ -62,7 +62,7 @@ export function useGetPinnedStores({ enabled = true } = {}) {
   });
 }
 
-export function useUpdatePinnedStores() {
+function useUpdatePinnedStores() {
   const queryClient = useQueryClient();
   return useMutation<PinnedStoreDto[], Error, BulkPinnedStoreRequest>({
     mutationFn: updatePinnedStores,
@@ -73,7 +73,7 @@ export function useUpdatePinnedStores() {
   });
 }
 
-export function useGetPinnedPlaces({ enabled = true } = {}) {
+function useGetPinnedPlaces({ enabled = true } = {}) {
   return useQuery<PinnedPlaceDto[], Error>({
     queryKey: ["pinnedPlaces"],
     queryFn: getPinnedPlaces,
@@ -81,7 +81,7 @@ export function useGetPinnedPlaces({ enabled = true } = {}) {
   });
 }
 
-export function useUpdatePinnedPlaces() {
+function useUpdatePinnedPlaces() {
   const queryClient = useQueryClient();
   return useMutation<PinnedPlaceDto[], Error, BulkPinnedPlaceRequest>({
     mutationFn: updatePinnedPlaces,

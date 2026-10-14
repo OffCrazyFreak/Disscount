@@ -85,7 +85,6 @@ Tests run on H2 and touch nothing outside the module, so none needs a nod.
 - `dotenv` is read only by `drizzle.config.ts`, to load `.env.local` outside Next.
 - `baseline-browser-mapping` is a direct dependency only so `frontend/pnpm-workspace.yaml` can exempt it from pnpm's release-age gate.
 - `@vitejs/plugin-react` and `@rolldown/plugin-babel` exist only so Vitest compiles `.tsx` tests through the React Compiler. Next.js builds with its own compiler integration and never loads them. `@vitest/coverage-v8` stays on the exact `vitest` version, because its peer dependency is exact.
-- `@eslint/eslintrc` and the `disscount` self-link are create-next-app leftovers. Nothing reads them.
 - Import `server-only` in any module that must never reach the client.
 - `next`, `react`, `react-dom`, `better-auth`, `drizzle-orm`, `kysely` and `pg` stay exact-pinned, so auth and data-layer bumps have to go through a reviewed PR. Everything else takes a range. Do not add a pin to a dependency with no security or data blast radius.
 - After changing a dependency or a pnpm override, delete `node_modules`, `pnpm-lock.yaml` and `.next` before reinstalling. A plain `pnpm install` leaves the old resolution in place.

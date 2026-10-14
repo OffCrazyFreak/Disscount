@@ -7,7 +7,6 @@ allowBuilds:
   "@sentry/cli": true
   # Postinstall only prints a funding notice
   core-js: false
-  "@openapitools/openapi-generator-cli": false
   # next-intl's message extraction only, which we don't use; both ship prebuilt binaries
   "@parcel/watcher": false
   "@swc/core": false

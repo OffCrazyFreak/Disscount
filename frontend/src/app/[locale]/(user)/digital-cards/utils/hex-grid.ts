@@ -1,4 +1,4 @@
-export const HEX_PITCH = 44;
+const HEX_PITCH = 44;
 export const HEX_ROW_HEIGHT = 38;
 
 export interface IHexCell {
@@ -19,7 +19,7 @@ const DIRECTIONS = [
 ];
 
 /** Axial coordinates of a cell on a hexagonal ring, where multiples of 60 degrees are corners. */
-export function axialFor(ring: number, angle: number) {
+function axialFor(ring: number, angle: number) {
   if (ring === 0) return { q: 0, r: 0 };
 
   const index = Math.floor(angle / 60) % 6;
@@ -37,9 +37,6 @@ export function hexCell(ring: number, angle: number): IHexCell {
 
   return { q, r, x: HEX_PITCH * (q + r / 2), y: HEX_ROW_HEIGHT * r };
 }
-
-export type HexNavigationKey =
-  "ArrowLeft" | "ArrowRight" | "ArrowUp" | "ArrowDown" | "Home" | "End";
 
 function readingOrder(cells: readonly IHexCell[]) {
   return cells
