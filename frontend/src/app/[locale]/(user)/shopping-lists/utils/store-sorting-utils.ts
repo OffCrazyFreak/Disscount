@@ -20,9 +20,45 @@ export const STORE_OPTIMIZE_MODES = [
 
 export type StoreOptimizeMode = (typeof STORE_OPTIMIZE_MODES)[number];
 
+type RankedChain = ChainProductResponse & { itemCount: number };
+
+function avgPrice(chain: RankedChain): number {
+  return parseFloat(chain.avg_price);
+}
+
+/** Sort keys per mode, compared in order, smaller first. */
+const MODE_KEYS: Record<
+  StoreOptimizeMode,
+  (chain: RankedChain, cheapestCountByChain?: Map<string, number>) => number[]
+> = {
+  products: (chain) => [-chain.itemCount],
+  // Completeness first, then price within each tier.
+  basket: (chain) => [-chain.itemCount, avgPrice(chain)],
+  // Most rock-bottom prices first, for a shopper willing to hit several stores.
+  total: (chain, cheapestCountByChain) => [
+    -(cheapestCountByChain?.get(chain.chain) ?? 0),
+    avgPrice(chain),
+  ],
+  // Not selectable yet, so it falls back to "products".
+  distance: (chain) => [-chain.itemCount],
+};
+
+function rankKeys(
+  chain: RankedChain,
+  pinnedStoreIds: string[],
+  mode: StoreOptimizeMode,
+  cheapestCountByChain?: Map<string, number>,
+): number[] {
+  const modeKeys = MODE_KEYS[mode] ?? MODE_KEYS.products;
+  const pinnedKey = pinnedStoreIds.includes(chain.chain) ? 0 : 1;
+
+  return [pinnedKey, ...modeKeys(chain, cheapestCountByChain)];
+}
+
 /**
  * Comparator function for sorting store chains by the selected optimisation mode.
- * Pinned stores always come first (user preference), then the chosen metric.
+ * Pinned stores always come first (user preference), then the chosen metric, then
+ * the chain name (Croatian locale).
  * @param a First chain to compare
  * @param b Second chain to compare
  * @param pinnedStoreIds Array of pinned store IDs
@@ -32,38 +68,18 @@ export type StoreOptimizeMode = (typeof STORE_OPTIMIZE_MODES)[number];
  * @returns Negative if a < b, positive if a > b, 0 if equal
  */
 export function compareStoreChains(
-  a: ChainProductResponse & { itemCount: number },
-  b: ChainProductResponse & { itemCount: number },
+  a: RankedChain,
+  b: RankedChain,
   pinnedStoreIds: string[],
   mode: StoreOptimizeMode = "products",
   cheapestCountByChain?: Map<string, number>,
 ): number {
-  // 1. Pinned chains always come first, regardless of mode (user preference)
-  const aIsPinned = pinnedStoreIds.includes(a.chain);
-  const bIsPinned = pinnedStoreIds.includes(b.chain);
-  if (aIsPinned && !bIsPinned) return -1;
-  if (!aIsPinned && bIsPinned) return 1;
+  const aKeys = rankKeys(a, pinnedStoreIds, mode, cheapestCountByChain);
+  const bKeys = rankKeys(b, pinnedStoreIds, mode, cheapestCountByChain);
+  const index = aKeys.findIndex((key, i) => key !== bKeys[i]);
 
-  const aAvgPrice = parseFloat(a.avg_price);
-  const bAvgPrice = parseFloat(b.avg_price);
+  if (index !== -1) return aKeys[index] - bKeys[index];
 
-  // 2. Primary metric depends on the selected mode
-  if (mode === "basket") {
-    // Completeness first, then price within each tier.
-    if (a.itemCount !== b.itemCount) return b.itemCount - a.itemCount;
-    if (aAvgPrice !== bAvgPrice) return aAvgPrice - bAvgPrice;
-  } else if (mode === "total") {
-    // Most rock-bottom prices first, for a shopper willing to hit several stores.
-    const aCount = cheapestCountByChain?.get(a.chain) ?? 0;
-    const bCount = cheapestCountByChain?.get(b.chain) ?? 0;
-    if (aCount !== bCount) return bCount - aCount;
-    if (aAvgPrice !== bAvgPrice) return aAvgPrice - bAvgPrice;
-  } else {
-    // "products" (default) and "distance" fallback: most products carried first
-    if (a.itemCount !== b.itemCount) return b.itemCount - a.itemCount;
-  }
-
-  // 3. Tie-breaker: alphabetical (Croatian locale)
   return compareHr(a.chain, b.chain);
 }
 
