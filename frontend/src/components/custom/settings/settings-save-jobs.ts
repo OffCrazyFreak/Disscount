@@ -1,7 +1,11 @@
-import type { UserRequest } from "@/lib/api/schemas/auth-user";
+import {
+  ONBOARDING_COMPLETED,
+  type UserRequest,
+} from "@/lib/api/schemas/auth-user";
 import {
   SECTION_FIELDS,
   SettingsFormValues,
+  type SettingsSection,
 } from "@/components/custom/settings/settings-schema";
 import { fieldChanged } from "@/components/custom/settings/settings-dirty";
 
@@ -40,6 +44,30 @@ export function buildUserPatch(
   if (avatar.touched) patch.image = avatar.preview ?? "";
 
   return patch;
+}
+
+export type SaveMode = "settings" | "onboarding";
+
+/** The user PATCH for a save, or null when nothing on the user needs writing. */
+export function buildModeUserPatch(
+  mode: SaveMode,
+  values: SettingsFormValues,
+  defaults: Partial<SettingsFormValues>,
+  dirty: Set<SettingsSection>,
+  avatar: { touched: boolean; preview: string | null },
+): UserRequest | null {
+  // Onboarding stamps its outcome in the same patch as the profile fields, so
+  // only one user PATCH runs. A second, later call would land after the pinned
+  // stores and places jobs and, response by response, undo them.
+  if (mode === "onboarding") {
+    return buildUserPatch(values, defaults, avatar, {
+      onboardingOutcome: ONBOARDING_COMPLETED,
+    });
+  }
+
+  const userDirty = dirty.has("profil") || dirty.has("obavijesti");
+
+  return userDirty ? buildUserPatch(values, defaults, avatar) : null;
 }
 
 // One job per persistence target, so a failure in one still leaves the others saved.

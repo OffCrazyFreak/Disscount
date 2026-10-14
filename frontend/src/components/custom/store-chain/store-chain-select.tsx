@@ -8,7 +8,7 @@ import {
 import { cn } from "@/lib/utils";
 import { getChainLabel } from "@/utils/labels";
 import { formatPrice } from "@/utils/price";
-import { compareHr } from "@/utils/strings";
+import { availableChainCodes } from "@/components/custom/store-chain/store-chain-codes";
 import { useEffect, useRef, useState } from "react";
 import { ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -102,17 +102,7 @@ export default function StoreChainSelect({
     return computePriceDifference(storePrices[chainCode], averagePrice);
   };
 
-  // Built from live price data, so even chains we have not mapped stay selectable.
-  // When checked, only the chosen store is offered; otherwise all priced stores plus the current selection.
-  const availableChainCodes = (
-    isChecked
-      ? value
-        ? [value]
-        : []
-      : Array.from(
-          new Set([...Object.keys(storePrices), ...(value ? [value] : [])]),
-        )
-  ).sort((a, b) => compareHr(getChainLabel(a), getChainLabel(b)));
+  const chainCodes = availableChainCodes(isChecked, value, storePrices);
 
   return (
     <Select value={displayValue} onValueChange={onChange} disabled={disabled}>
@@ -124,7 +114,7 @@ export default function StoreChainSelect({
       </SelectTrigger>
 
       <SelectContent>
-        {availableChainCodes.map((chainCode) => {
+        {chainCodes.map((chainCode) => {
           const priceDifference = getPriceDifference(chainCode);
 
           // Positive = red, negative = green
