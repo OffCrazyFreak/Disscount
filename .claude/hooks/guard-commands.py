@@ -276,7 +276,8 @@ def check(command, cwd, depth=0):
     effective_cwd = cwd
 
     for segment in segments(command):
-        tokens, wrapped = strip_prefixes(tokens_of(segment))
+        raw_tokens = tokens_of(segment)
+        tokens, wrapped = strip_prefixes(raw_tokens)
         if not tokens:
             continue
 
@@ -296,7 +297,7 @@ def check(command, cwd, depth=0):
             continue
 
         if name == "git":
-            message = git_refusal(args, effective_cwd)
+            message = git_refusal(args, effective_cwd, raw_tokens)
             if message:
                 return message
             continue

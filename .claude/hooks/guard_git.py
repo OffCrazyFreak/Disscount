@@ -121,11 +121,32 @@ def pushes_main(args, cwd):
     return False
 
 
-def git_refusal(args, cwd):
+def disables_hooks(args, raw_tokens):
+    """`HUSKY=0` before the command, or `-c core.hooksPath=...` as a git option."""
+    if "git" in raw_tokens and "HUSKY=0" in raw_tokens[: raw_tokens.index("git")]:
+        return True
+
+    for index, token in enumerate(args):
+        if token == "-c" and index + 1 < len(args):
+            setting = args[index + 1]
+        elif token.startswith("-c") and len(token) > 2:
+            setting = token[2:]
+        elif token.startswith("--config-env"):
+            setting = token
+        else:
+            continue
+        if "hookspath" in setting.lower():
+            return True
+
+    return False
+
+
+def git_refusal(args, cwd, raw_tokens=()):
     """A refusal message for this `git` invocation, or None to allow."""
+    raw_tokens = list(raw_tokens)
     sub, rest, cwd = split_global(args, cwd)
 
-    if sub in HOOKED and skips_hooks(sub, rest):
+    if sub in HOOKED and (skips_hooks(sub, rest) or disables_hooks(args, raw_tokens)):
         return (
             "Blocked: --no-verify skips the hooks that keep formatting, trailers "
             "and dashes out of commits. Fix what the hook flags and commit again."

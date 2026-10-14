@@ -115,6 +115,12 @@ def cases(real_repo, real_worktree, on_main):
         ('git commit --no-verif -m "x"', real_repo, True),
         ('git commit --no-veri -m "x"', real_repo, True),
         ('git commit --no-verb -m "x"', real_repo, False),
+        ('HUSKY=0 git commit -m "x"', real_repo, True),
+        ('env HUSKY=0 git commit -m "x"', real_repo, True),
+        ('git -c core.hooksPath=/dev/null commit -m "x"', real_repo, True),
+        ('git -c core.hookspath=/tmp push origin dev', real_repo, True),
+        ('git -c user.name=x commit -m "x"', real_repo, False),
+        ('HUSKY=1 git commit -m "x"', real_repo, False),
         ("git commit -m x -- --no-verify", real_repo, False),
         # ALLOW: an `n` inside a message or a value is not the flag
         ('git commit -m "no verify needed"', real_repo, False),
