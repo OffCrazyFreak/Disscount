@@ -1,20 +1,15 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
-import type { MouseEvent } from "react";
 import { SidebarMenuBadge, SidebarMenuButton } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { PLACEHOLDER_HREF, type INavigationItem } from "@/constants/navigation";
+import SidebarNavLink from "@/components/custom/sidebar/sidebar-nav-link";
 import { SIDEBAR_ICON_CLASS } from "@/components/custom/sidebar/sidebar-styles";
 
 // Opts out of the peer rules that would recolour badge text on hover or active.
 const BADGE_CLASS =
   "bg-primary text-primary-foreground peer-hover/menu-button:text-primary-foreground peer-data-[active=true]/menu-button:text-primary-foreground";
-
-function preventNavigation(event: MouseEvent<HTMLAnchorElement>) {
-  event.preventDefault();
-}
 
 interface ISidebarNavItemProps {
   item: INavigationItem;
@@ -62,22 +57,14 @@ export default function SidebarNavItem({
           {label}
         </SidebarMenuButton>
       ) : (
-        <SidebarMenuButton
-          asChild
-          isActive={!isLocked && isActive}
+        <SidebarNavLink
+          href={item.href}
+          isActive={isActive}
+          isLocked={isLocked}
           className={cn(labelSpace, SIDEBAR_ICON_CLASS)}
         >
-          <Link
-            href={item.href}
-            // data-active styles it, but says nothing to a screen reader.
-            aria-current={!isLocked && isActive ? "page" : undefined}
-            aria-disabled={isLocked ? true : undefined}
-            tabIndex={isLocked ? -1 : undefined}
-            onClick={isLocked ? preventNavigation : undefined}
-          >
-            {label}
-          </Link>
-        </SidebarMenuButton>
+          {label}
+        </SidebarNavLink>
       )}
 
       {showComingSoon && (
