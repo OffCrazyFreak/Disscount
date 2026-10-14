@@ -1,17 +1,11 @@
 {
   "$schema": "./node_modules/fallow/schema.json",
-  "entry": [
-    "src/app/sw.ts",
-    "src/emails/*.tsx",
-    "scripts/*.mjs"
-  ],
+  "entry": ["src/app/sw.ts", "src/emails/*.tsx", "scripts/*.mjs"],
   "boundaries": {
     "zones": [
       {
         "name": "app",
-        "patterns": [
-          "src/app/**"
-        ]
+        "patterns": ["src/app/**"]
       },
       {
         "name": "shared",
@@ -32,9 +26,7 @@
     "rules": [
       {
         "from": "app",
-        "allow": [
-          "shared"
-        ]
+        "allow": ["shared"]
       },
       {
         "from": "shared",
@@ -45,15 +37,11 @@
   "ignoreExports": [
     {
       "file": "src/components/ui/**",
-      "exports": [
-        "*"
-      ]
+      "exports": ["*"]
     },
     {
       "file": "src/components/reui/**",
-      "exports": [
-        "*"
-      ]
+      "exports": ["*"]
     }
   ],
   "ignoreDependencies": [
@@ -71,7 +59,11 @@
     "dupesBaseline": ".fallow-baselines/dupes.json"
   },
   "ignoreExportsUsedInFile": true,
-  "ignoreFindings": [
-    "**/products/components/view-switcher.tsx"
+  "ignoreFindings": ["**/products/components/view-switcher.tsx"],
+  "ignoreDependencyOverrides": [
+    {
+      "package": "shell-quote",
+      "source": "pnpm-workspace.yaml"
+    }
   ]
 }
