@@ -3,6 +3,7 @@ import type {
   IFacetOption,
   IFacetQuery,
   IIndexedProduct,
+  ILocationChains,
 } from "@/app/[locale]/products/utils/facets/types";
 import {
   matchesBrands,
@@ -79,6 +80,21 @@ export function countChains(
   return toSortedOptions(counts);
 }
 
+// One stocked, allowed chain in the city is enough for the product to count once
+function stocksInLocation(
+  product: IIndexedProduct,
+  location: ILocationChains,
+  selectedChains: Set<string>,
+): boolean {
+  for (const code of product.chainCodes) {
+    const chainAllowed = selectedChains.size === 0 || selectedChains.has(code);
+
+    if (location.chains.has(code) && chainAllowed) return true;
+  }
+
+  return false;
+}
+
 export function countLocations(query: IFacetQuery): IFacetOption[] {
   const counts = seedOptions(
     query.locations.map((location): [string, string] => [
@@ -97,15 +113,8 @@ export function countLocations(query: IFacetQuery): IFacetOption[] {
 
       if (!matchesOthers) continue;
 
-      // One stocked chain in this city is enough for the product to count once
-      for (const code of product.chainCodes) {
-        const chainAllowed =
-          selectedChains.size === 0 || selectedChains.has(code);
-
-        if (location.chains.has(code) && chainAllowed) {
-          increment(counts, location.name, location.name);
-          break;
-        }
+      if (stocksInLocation(product, location, selectedChains)) {
+        increment(counts, location.name, location.name);
       }
     }
   }
