@@ -20,6 +20,12 @@ export const STORE_OPTIMIZE_MODES = [
 
 export type StoreOptimizeMode = (typeof STORE_OPTIMIZE_MODES)[number];
 
+export function isStoreOptimizeMode(
+  value: string | undefined,
+): value is StoreOptimizeMode {
+  return !!value && (STORE_OPTIMIZE_MODES as readonly string[]).includes(value);
+}
+
 type RankedChain = ChainProductResponse & { itemCount: number };
 
 function avgPrice(chain: RankedChain): number {

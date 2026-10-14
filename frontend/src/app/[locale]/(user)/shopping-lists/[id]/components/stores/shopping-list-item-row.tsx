@@ -1,14 +1,7 @@
 import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
-import { ArrowBigUpDash, ArrowBigDownDash, TriangleAlert } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { ShoppingListItemDto } from "@/lib/api/types";
 import {
@@ -16,8 +9,17 @@ import {
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
 import { getChainItemPriceInfo } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/shopping-list-items-table-utils";
+import { priceTone } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/price-tone";
+import UnavailableItemBadge from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/unavailable-item-badge";
+import ChainItemUnitPrice from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/chain-item-unit-price";
 import { productPath } from "@/utils/product-links";
 import { formatPrice } from "@/utils/price";
+
+const TOTAL_PRICE_TONES = {
+  low: "font-medium text-green-600",
+  high: "font-medium text-red-700",
+  neutral: "font-medium text-foreground",
+};
 
 interface IShoppingListItemRowProps {
   item: ShoppingListItemDto;
@@ -52,24 +54,7 @@ export default function ShoppingListItemRow({
           <span lang="hr">{item.name}</span>
         </Link>
 
-        {!isAvailable && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              {isMobile ? (
-                <TriangleAlert className="size-4 shrink-0 text-amber-600 inline ml-2" />
-              ) : (
-                <Badge variant="warningSoft">
-                  <TriangleAlert className="size-4 shrink-0" />
-                  {t("stores.table.unavailable")}
-                </Badge>
-              )}
-            </TooltipTrigger>
-
-            <TooltipContent variant="warningSoft" className="px-2 py-1 text-xs">
-              {t("stores.table.unavailableTooltip")}
-            </TooltipContent>
-          </Tooltip>
-        )}
+        {!isAvailable && <UnavailableItemBadge isMobile={isMobile} />}
       </TableCell>
 
       <TableCell className={cn("text-center", !isAvailable && "text-gray-400")}>
@@ -78,32 +63,11 @@ export default function ShoppingListItemRow({
 
       <TableCell className={cn("text-center", !isAvailable && "text-gray-400")}>
         {isAvailable ? (
-          <span
-            className={cn(
-              "flex items-start justify-center gap-1",
-              isLowestPrice
-                ? "text-green-600 font-bold"
-                : isHighestPrice
-                  ? "text-red-700 font-bold"
-                  : "text-gray-700",
-            )}
-          >
-            {formatPrice(price, locale)}
-            {isLowestPrice && (
-              <>
-                <ArrowBigDownDash className="size-5" aria-hidden="true" />
-                <span className="sr-only">{t("stores.table.lowestPrice")}</span>
-              </>
-            )}
-            {isHighestPrice && (
-              <>
-                <ArrowBigUpDash className="size-5" aria-hidden="true" />
-                <span className="sr-only">
-                  {t("stores.table.highestPrice")}
-                </span>
-              </>
-            )}
-          </span>
+          <ChainItemUnitPrice
+            price={price}
+            isLowestPrice={isLowestPrice}
+            isHighestPrice={isHighestPrice}
+          />
         ) : (
           <span className="text-gray-400">{t("emptyValue")}</span>
         )}
@@ -114,11 +78,7 @@ export default function ShoppingListItemRow({
           <span
             className={cn(
               "flex items-center justify-center gap-1",
-              isLowestPrice
-                ? "font-medium text-green-600"
-                : isHighestPrice
-                  ? "font-medium text-red-700"
-                  : "font-medium text-foreground",
+              priceTone(TOTAL_PRICE_TONES, isLowestPrice, isHighestPrice),
             )}
           >
             {formatPrice(total, locale)}
