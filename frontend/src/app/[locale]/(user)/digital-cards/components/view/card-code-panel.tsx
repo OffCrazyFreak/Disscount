@@ -4,12 +4,12 @@ import { useState } from "react";
 import { RotateCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import CardCode from "@/app/[locale]/(user)/digital-cards/components/card-code";
+import CardCode from "@/components/custom/card-code/card-code";
 import CodeTypeSwitcher from "@/app/[locale]/(user)/digital-cards/components/view/code-type-switcher";
 import { codeTypeAlternatives } from "@/app/[locale]/(user)/digital-cards/utils/code-alternatives";
 import { cardRequestFromDto } from "@/app/[locale]/(user)/digital-cards/utils/card-request-from-dto";
-import { generateCodeSvg } from "@/app/[locale]/(user)/digital-cards/utils/generate-code-svg";
-import { groupCodeValue } from "@/app/[locale]/(user)/digital-cards/utils/group-code-value";
+import { generateCodeSvg } from "@/utils/card-code/generate-code-svg";
+import { groupCodeValue } from "@/utils/card-code/group-code-value";
 import { Button } from "@/components/ui/button";
 import {
   TWO_DIMENSIONAL_CODE_TYPES,

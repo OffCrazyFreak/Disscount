@@ -3,7 +3,7 @@ import type {
   IProductListPrice,
   ProductPriceScope,
 } from "@/app/[locale]/products/typings/product-list-price-types";
-import { parsePrice } from "@/app/[locale]/products/utils/product-price-utils";
+import { parsePrice } from "@/utils/product-price-utils";
 import { normalizeChainCode } from "@/app/[locale]/products/utils/product-filters";
 import { getLocationLabel } from "@/utils/labels";
 import { normalizeForSearch } from "@/utils/strings";

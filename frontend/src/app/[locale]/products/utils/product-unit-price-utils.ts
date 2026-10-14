@@ -3,7 +3,7 @@ import {
   getAveragePrice,
   getMaxPrice,
   getMinPrice,
-} from "@/app/[locale]/products/utils/product-price-utils";
+} from "@/utils/product-price-utils";
 
 export function getPricePerUnit(
   price: number | null,

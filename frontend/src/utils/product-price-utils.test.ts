@@ -6,7 +6,7 @@ import {
   getMaxPrice,
   getMinPrice,
   parsePrice,
-} from "@/app/[locale]/products/utils/product-price-utils";
+} from "@/utils/product-price-utils";
 import type {
   ChainProductResponse,
   ProductResponse,

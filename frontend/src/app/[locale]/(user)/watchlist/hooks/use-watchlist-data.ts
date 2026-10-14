@@ -13,7 +13,7 @@ import {
 import type {
   IWatchlistItemWithProduct,
   IWatchlistSearchItem,
-} from "@/app/[locale]/(user)/watchlist/typings/watchlist-types";
+} from "@/lib/watchlist/watchlist-types";
 import { useWatchlistSuggestions } from "@/app/[locale]/(user)/watchlist/hooks/use-watchlist-suggestions";
 
 export function useWatchlistData(query: string) {

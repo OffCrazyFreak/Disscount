@@ -3,15 +3,15 @@ import {
   getAveragePrice,
   getCheapestChainByMinPrice,
   parsePrice,
-} from "@/app/[locale]/products/utils/product-utils";
+} from "@/utils/product-price-utils";
 import {
   IDiscountInfo,
   IScopedDiscountedStore,
-} from "@/app/[locale]/(user)/watchlist/typings/watchlist-types";
+} from "@/lib/watchlist/watchlist-types";
 import {
   calculatePriceComparison,
   isPreferredChain,
-} from "@/app/[locale]/(user)/watchlist/utils/watchlist-price-utils";
+} from "@/lib/watchlist/watchlist-price-utils";
 
 export function getScopedDiscountedStores(
   product: ProductResponse,

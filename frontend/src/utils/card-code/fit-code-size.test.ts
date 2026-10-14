@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { fitCodeSize } from "@/app/[locale]/(user)/digital-cards/utils/fit-code-size";
+import { fitCodeSize } from "@/utils/card-code/fit-code-size";
 
 describe("fitCodeSize", () => {
   it("uses whole device pixels per module", () => {

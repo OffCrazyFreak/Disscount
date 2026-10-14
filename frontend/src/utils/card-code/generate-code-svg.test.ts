@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { normalizeScannedCode } from "@/utils/barcode/normalize-code";
-import { generateCodeSvg } from "@/app/[locale]/(user)/digital-cards/utils/generate-code-svg";
+import { generateCodeSvg } from "@/utils/card-code/generate-code-svg";
 
 function viewBox(svg: string): number[] {
   return /viewBox="([^"]+)"/.exec(svg)![1].split(" ").map(Number);
