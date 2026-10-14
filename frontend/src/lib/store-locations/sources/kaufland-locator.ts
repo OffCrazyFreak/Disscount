@@ -2,9 +2,8 @@ import "server-only";
 
 import { z } from "zod";
 
-import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
-import { fetchJson } from "@/lib/store-locations/http";
-import type { ILocatorStore, IStoreLocator } from "@/lib/store-locations/types";
+import { fetchPlacedRows } from "@/lib/store-locations/sources/fetch-placed-rows";
+import type { IStoreLocator } from "@/lib/store-locations/types";
 
 const URL = "https://www.kaufland.hr/.klstorefinder.json";
 
@@ -22,26 +21,18 @@ export const kauflandLocator: IStoreLocator = {
   chain: "kaufland",
 
   async fetchStores(signal) {
-    const rows = z.array(storeSchema).parse(await fetchJson(URL, signal));
-    const stores: ILocatorStore[] = [];
+    const placed = await fetchPlacedRows(URL, storeSchema, signal, (row) => [
+      row.lat,
+      row.lng,
+    ]);
 
-    for (const row of rows) {
-      const point = sanitizeCoordinates(row.lat, row.lng);
-
-      if (!point) continue;
-
+    return placed.map(({ row, point }) => ({
       // "HR3430" is cijene-api store code "3430" (53 of 53 verified).
-      const code = /^HR(\d+)$/.exec(row.n)?.[1];
-
-      stores.push({
-        code,
-        address: row.sn.replace(/\s+/g, " ").trim(),
-        city: row.t?.trim() || undefined,
-        zipcode: row.pc?.trim() || undefined,
-        ...point,
-      });
-    }
-
-    return stores;
+      code: /^HR(\d+)$/.exec(row.n)?.[1],
+      address: row.sn.replace(/\s+/g, " ").trim(),
+      city: row.t?.trim() || undefined,
+      zipcode: row.pc?.trim() || undefined,
+      ...point,
+    }));
   },
 };
