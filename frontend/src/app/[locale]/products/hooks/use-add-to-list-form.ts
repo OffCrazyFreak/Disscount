@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -13,11 +13,9 @@ import { useUser } from "@/context/user-context";
 import { useAddToListPrices } from "@/app/[locale]/products/hooks/use-add-to-list-prices";
 import { useSelectedShoppingList } from "@/app/[locale]/products/hooks/use-selected-shopping-list";
 import { useAddToListSubmit } from "@/app/[locale]/products/hooks/use-add-to-list-submit";
-import { takeModalError } from "@/lib/modal/modal-error-bus";
-import { applyProblemToForm } from "@/lib/api/problem-details";
+import { useModalError } from "@/hooks/use-modal-error";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import { getFormDraft } from "@/utils/browser/local-storage";
-import { useTranslations } from "next-intl";
 
 const EMPTY_FORM_VALUES: AddToListFormData = {
   shoppingListId: "",
@@ -28,7 +26,6 @@ const EMPTY_FORM_VALUES: AddToListFormData = {
 };
 
 export function useAddToListForm(open: boolean, ean: string) {
-  const tAuth = useTranslations("auth");
   const { user } = useUser();
   const draftKey = `add-to-list.${ean}`;
 
@@ -95,13 +92,7 @@ export function useAddToListForm(open: boolean, ean: string) {
       form.setValue("shoppingListId", listId, { shouldDirty: true }),
   });
 
-  // A failed optimistic save reopened this modal: surface the server error.
-  useEffect(() => {
-    if (!open) return;
-    const error = takeModalError(draftKey);
-    if (error)
-      applyProblemToForm(error, form, undefined, tAuth("errors.checkInput"));
-  }, [open, draftKey, form, tAuth]);
+  useModalError(open, draftKey, form);
 
   return {
     form,
