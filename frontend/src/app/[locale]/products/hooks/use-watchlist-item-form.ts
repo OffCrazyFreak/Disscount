@@ -7,8 +7,8 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { watchlistService, WatchType } from "@/lib/api";
-import { applyProblemToForm } from "@/lib/api/problem-details";
-import { stashModalError, takeModalError } from "@/lib/modal/modal-error-bus";
+import { useModalError } from "@/hooks/use-modal-error";
+import { stashModalError } from "@/lib/modal/modal-error-bus";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import { removeFormDraftField } from "@/utils/browser/local-storage";
 import {
@@ -29,7 +29,6 @@ export function useWatchlistItemForm(
   initialWatchType?: WatchType,
 ) {
   const t = useTranslations("products");
-  const tAuth = useTranslations("auth");
   const draftKey = `watchlist.${ean}`;
   const openingWatchType = initialWatchType ?? WatchType.percentage;
 
@@ -89,13 +88,7 @@ export function useWatchlistItemForm(
     // baselines is rebuilt every render, so depend on its values, not its identity.
   }, [baselines.percentageValue, baselines.absoluteValue, form]);
 
-  // A failed optimistic save reopened this modal: surface the server error.
-  useEffect(() => {
-    if (!open) return;
-    const error = takeModalError(draftKey);
-    if (error)
-      applyProblemToForm(error, form, undefined, tAuth("errors.checkInput"));
-  }, [open, draftKey, form, tAuth]);
+  useModalError(open, draftKey, form);
 
   // Undoes the whole session: both numbers and the mode the modal opened in. No
   // keepDirtyValues here, unlike the seed above, because discarding the edits is
