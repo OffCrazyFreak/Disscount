@@ -36,7 +36,9 @@ come back here for the contribution workflow.
      errors (`pnpm exec prettier --write .`, then `pnpm exec tsc --noEmit`).
    - Backend: Java 21, existing package structure and formatting.
 3. **Verify locally before opening the PR:**
-   - Frontend: `cd frontend && pnpm install && pnpm lint`
+   - Frontend: `cd frontend && pnpm install && pnpm lint && pnpm exec fallow audit`.
+     `pnpm install` also sets up git hooks that format staged files and
+     reject AI attribution trailers in commit messages.
    - Backend: `cd backend && mvn clean install`
 4. **Write clear commits** in imperative mood and reference related issue
    numbers.
@@ -53,8 +55,9 @@ come back here for the contribution workflow.
 
 ## Review process
 
-- **CI runs on every PR** (`.github/workflows/ci.yml`): frontend typecheck, lint,
-  Prettier, and a production build, plus a backend build. Please make sure it
+- **CI runs on every PR** (`.github/workflows/ci.yml`): frontend typecheck, unit
+  tests, lint, a Fallow audit (new dead code, duplication, complexity and import
+  cycles), Prettier, and a production build, plus a backend build. Please make sure it
   is green before requesting review.
 - Maintainers review PRs, may request changes, and merge when ready.
 - [CodeRabbit](https://coderabbit.ai) runs automated review on every PR. Please
