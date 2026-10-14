@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 
 import useLingeringTarget, {
   SHEET_EXIT_MS,
-} from "@/components/custom/modal-router/use-lingering-target";
+} from "@/app/[locale]/components/modal-router/use-lingering-target";
 import type { ModalTarget } from "@/lib/modal/modal-registry";
 
 const ProductActionsSheet = dynamic(
