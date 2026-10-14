@@ -9,12 +9,12 @@ import EyePen from "@/components/custom/icons/eye-pen";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
-import { Skeleton } from "@/components/ui/skeleton";
 import RemoveIconButton from "@/components/custom/common/remove-icon-button";
 import { WatchType } from "@/lib/api";
 import cijeneService from "@/lib/cijene-api";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import type { WatchTypeParam } from "@/lib/modal/modal-registry";
+import ProductModalBody from "@/app/[locale]/products/components/forms/product-modal-body";
 import ProductInfoDisplay from "@/app/[locale]/products/components/product-info-display";
 import { Banner } from "@/components/custom/common/banner";
 import {
@@ -32,6 +32,10 @@ interface IWatchlistItemModalProps {
   open: boolean;
   ean: string;
   watchType?: WatchTypeParam;
+}
+
+function toWatchType(param: WatchTypeParam | undefined): WatchType {
+  return param === "absolute" ? WatchType.absolute : WatchType.percentage;
 }
 
 function buildAlertMessage(
@@ -94,12 +98,7 @@ export default function WatchlistItemModal({
     onRemove,
     isSaving,
     isRemoving,
-  } = useWatchlistItemForm(
-    open,
-    ean,
-    avgPrice,
-    watchType === "absolute" ? WatchType.absolute : WatchType.percentage,
-  );
+  } = useWatchlistItemForm(open, ean, avgPrice, toWatchType(watchType));
   const { errors } = useFormState({ control: form.control });
 
   const { clearDraft } = useFormDraft({
@@ -115,10 +114,7 @@ export default function WatchlistItemModal({
   // Stays mounted between opens, so the URL's type must sync on change too.
   useEffect(() => {
     if (!open || !watchType) return;
-    form.setValue(
-      "watchType",
-      watchType === "absolute" ? WatchType.absolute : WatchType.percentage,
-    );
+    form.setValue("watchType", toWatchType(watchType));
   }, [open, watchType, form]);
 
   const alertMessage = buildAlertMessage(existingItems, t);
@@ -154,58 +150,58 @@ export default function WatchlistItemModal({
         resetForm();
       }}
     >
-      {productQuery.isLoading ? (
-        <Skeleton className="h-24 w-full" />
-      ) : !product ? (
-        <p className="text-sm text-muted-foreground">
-          {t("watchlistModal.productNotFound")}
-        </p>
-      ) : (
-        <div className="space-y-6">
-          <ProductInfoDisplay
-            product={product}
-            enableActionButtons={false}
-            action={
-              existingItems.length > 0 ? (
-                <RemoveIconButton
-                  label={t("watchlistModal.removeFromWatchlist")}
-                  onClick={onRemove}
-                  loading={isRemoving}
-                  disabled={isCheckingWatchlist}
+      <ProductModalBody
+        isLoading={productQuery.isLoading}
+        product={product}
+        notFoundText={t("watchlistModal.productNotFound")}
+      >
+        {(product) => (
+          <div className="space-y-6">
+            <ProductInfoDisplay
+              product={product}
+              enableActionButtons={false}
+              action={
+                existingItems.length > 0 ? (
+                  <RemoveIconButton
+                    label={t("watchlistModal.removeFromWatchlist")}
+                    onClick={onRemove}
+                    loading={isRemoving}
+                    disabled={isCheckingWatchlist}
+                  />
+                ) : undefined
+              }
+            />
+
+            <Form {...form}>
+              <form
+                id="watchlist-form"
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <FormRootError message={errors.root?.message} />
+
+                <WatchlistTypePicker />
+
+                {alertMessage && !isCheckingWatchlist && (
+                  <Banner
+                    variant="warningSoft"
+                    size="lg"
+                    icon={TriangleAlert}
+                    title={t("watchlistModal.existingTitle")}
+                    text={alertMessage}
+                  />
+                )}
+
+                <WatchlistThresholdInput
+                  minPrice={minPrice}
+                  existingItemForType={existingItemForType}
+                  loading={isCheckingWatchlist}
                 />
-              ) : undefined
-            }
-          />
-
-          <Form {...form}>
-            <form
-              id="watchlist-form"
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-6"
-            >
-              <FormRootError message={errors.root?.message} />
-
-              <WatchlistTypePicker />
-
-              {alertMessage && !isCheckingWatchlist && (
-                <Banner
-                  variant="warningSoft"
-                  size="lg"
-                  icon={TriangleAlert}
-                  title={t("watchlistModal.existingTitle")}
-                  text={alertMessage}
-                />
-              )}
-
-              <WatchlistThresholdInput
-                minPrice={minPrice}
-                existingItemForType={existingItemForType}
-                loading={isCheckingWatchlist}
-              />
-            </form>
-          </Form>
-        </div>
-      )}
+              </form>
+            </Form>
+          </div>
+        )}
+      </ProductModalBody>
     </ModalShell>
   );
 }
