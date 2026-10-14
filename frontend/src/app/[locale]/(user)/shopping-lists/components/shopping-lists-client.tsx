@@ -1,23 +1,20 @@
 "use client";
 
-import { Link, usePathname } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { Suspense } from "react";
 import { useTranslations } from "next-intl";
 
-import { Search, Plus, ShoppingCart, ListChecks } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ListChecks } from "lucide-react";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
-import ShoppingListItem from "@/app/[locale]/(user)/shopping-lists/components/shopping-list-item";
+import ShoppingListsResults from "@/app/[locale]/(user)/shopping-lists/components/shopping-lists-results";
 import CreateShoppingListButton from "@/app/[locale]/(user)/shopping-lists/components/create-shopping-list-button";
-import NoResults from "@/components/custom/common/no-results";
 import LoginRequired from "@/components/custom/common/login-required";
 import { filterByFields } from "@/utils/generic";
 import { shoppingListService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { sortShoppingListsByRecency } from "@/lib/api/shopping-lists/sort-lists";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 
 interface IShoppingListsClientProps {
   query: string;
@@ -91,53 +88,11 @@ export default function ShoppingListsClient({
           />
         </div>
 
-        {isUserLoading ? (
-          <div className="grid place-items-center">
-            <BlockLoadingSpinner />
-          </div>
-        ) : matchingShoppingLists.length > 0 ? (
-          <>
-            {matchingShoppingLists.map((shoppingList) => (
-              <ShoppingListItem
-                key={shoppingList.id}
-                shoppingList={shoppingList}
-              />
-            ))}
-          </>
-        ) : query ? (
-          <NoResults
-            icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
-          />
-        ) : (
-          <div className="text-center py-12">
-            <ShoppingCart className="size-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">
-              {t("client.empty.title")}
-            </h3>
-            <p className="text-gray-600 mb-6">
-              {t("client.empty.description")}
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              <Button
-                effect="shineHover"
-                icon={Plus}
-                iconPlacement="left"
-                onClick={() =>
-                  openModalUrl({ name: "shopping-list", action: "new" })
-                }
-              >
-                {t("createList.full")}
-              </Button>
-
-              <Button asChild variant="outline">
-                <Link href="/products">
-                  <Search aria-hidden="true" className="size-5" />
-                  {t("client.empty.browseProducts")}
-                </Link>
-              </Button>
-            </div>
-          </div>
-        )}
+        <ShoppingListsResults
+          isLoading={isUserLoading}
+          shoppingLists={matchingShoppingLists}
+          query={query}
+        />
       </div>
     </>
   );

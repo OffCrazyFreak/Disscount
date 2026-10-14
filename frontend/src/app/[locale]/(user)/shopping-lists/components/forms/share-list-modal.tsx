@@ -1,16 +1,12 @@
 "use client";
 
-import { useId } from "react";
-import { FileText, Link2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useShareListModal } from "@/app/[locale]/(user)/shopping-lists/hooks/use-share-list-modal";
-import ShareAccessRow from "@/app/[locale]/(user)/shopping-lists/components/forms/share-access-row";
+import ShareListPanel from "@/app/[locale]/(user)/shopping-lists/components/forms/share-list-panel";
 import { resolveShoppingListAccess } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-access";
 
 interface IShareListModalProps {
@@ -34,17 +30,11 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
     handleTextShare,
   } = useShareListModal(id);
 
-  const hintId = useId();
-
   // The list route serves link visitors as well as its owner, so a signed-in recipient can
   // reach this modal by URL. Only the owner may see or change who else has access.
   const canManageShare = resolveShoppingListAccess(
     shoppingList?.myAccess,
   ).canManageShare;
-
-  // Gated on the save too: the level updates optimistically, so between picking a level
-  // and the server granting it the button would hand out a link that does not open yet.
-  const canShareLink = isLevelShareable && !isSaving;
 
   return (
     <ModalShell
@@ -61,58 +51,15 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
       ) : isError || !shoppingList || !canManageShare ? (
         <p className="text-sm text-muted-foreground">{t("modal.notFound")}</p>
       ) : (
-        <div className="space-y-6" aria-busy={isSaving}>
-          {/* Announces the in-flight state only. Success is the toast, which carries its
-              own live region, so saying it here too would announce it twice. */}
-          <p role="status" className="sr-only">
-            {isSaving ? t("shareModal.saving") : ""}
-          </p>
-
-          <ShareAccessRow
-            linkAccess={linkAccess}
-            onLevelChange={setLinkAccess}
-            isSaving={isSaving}
-            hintId={hintId}
-          />
-
-          {isOffline && (
-            <p className="text-xs text-muted-foreground">
-              {t("shareModal.offline")}
-            </p>
-          )}
-
-          {/* Reversed on desktop so the primary action sits on the right, while the column
-              keeps it on top. DOM order stays primary-first, so it is also the first of the
-              two a keyboard or screen reader reaches at either width. */}
-          <div className="flex flex-col gap-2 sm:flex-row-reverse">
-            <Button
-              type="button"
-              variant="primary"
-              onClick={canShareLink ? handleLinkShare : undefined}
-              // aria-disabled, not disabled: a natively disabled button leaves the tab
-              // order, so a keyboard user never lands on it and never hears the
-              // description explaining why the action went away.
-              aria-disabled={!canShareLink}
-              className={cn("flex-1", !canShareLink && "opacity-50")}
-              // Points at the access hint, so the reason it is unavailable is readable
-              // rather than something the user has to infer from the select.
-              aria-describedby={canShareLink ? undefined : hintId}
-            >
-              <Link2 aria-hidden="true" />
-              {t("shareModal.shareLink")}
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1"
-              onClick={handleTextShare}
-            >
-              <FileText aria-hidden="true" />
-              {t("shareModal.shareText")}
-            </Button>
-          </div>
-        </div>
+        <ShareListPanel
+          linkAccess={linkAccess}
+          onLevelChange={setLinkAccess}
+          isSaving={isSaving}
+          isOffline={isOffline}
+          isLevelShareable={isLevelShareable}
+          onLinkShare={handleLinkShare}
+          onTextShare={handleTextShare}
+        />
       )}
     </ModalShell>
   );
