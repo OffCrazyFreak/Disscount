@@ -82,7 +82,7 @@ The modal is public by design. `PUBLIC_MODAL_NAMES` prevents the authentication 
 | -------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | `frontend/src/constants/donation.ts`                                 | Holds the live Ko-fi URL and the GitHub Sponsors follow-up TODO.                |
 | `frontend/src/constants/navigation.ts`                               | Declares the `donate` support-navigation item and the landing recognition TODO. |
-| `frontend/src/lib/modal/modal-registry.ts`                           | Defines, parses, and publicly exposes the `donate` modal target.                |
+| `frontend/src/lib/modal/modal-registry.ts`, `modal-param-parser.ts`  | Define, parse, and publicly expose the `donate` modal target.                   |
 | `frontend/src/components/custom/donation/donation-modal.tsx`         | Renders the support copy, the Ko-fi link, and focus restoration.                |
 | `frontend/src/app/[locale]/components/modal-router/modal-router.tsx` | Mounts the modal once for the whole app.                                        |
 | `frontend/src/components/custom/sidebar/sidebar-support-nav.tsx`     | Renders the sidebar support group from shared navigation data.                  |
