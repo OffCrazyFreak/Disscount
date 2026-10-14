@@ -1,0 +1,48 @@
+{
+  "kind": "dupes",
+  "clone_groups": [
+    "src/app/globals.css:177-195|src/app/globals.css:244-262",
+    "src/i18n/messages/de/index.ts:25-51|src/i18n/messages/en/index.ts:25-51|src/i18n/messages/hr/index.ts:25-51|src/i18n/messages/it/index.ts:25-51|src/i18n/messages/sl/index.ts:25-51",
+    "src/components/custom/animation/scroll-reveal.tsx:52-75|src/components/custom/animation/stagger-children.tsx:34-57",
+    "src/app/[locale]/(user)/shopping-lists/components/forms/shopping-list-modal.tsx:96-104|src/app/[locale]/products/hooks/use-add-to-list-form.ts:96-104|src/app/[locale]/products/hooks/use-watchlist-item-form.ts:90-98",
+    "src/app/[locale]/(user)/watchlist/hooks/use-watchlist-data.ts:28-42|src/context/use-watchlist-notifications.ts:25-42",
+    "src/app/globals.css:161-173|src/app/globals.css:228-240",
+    "src/components/custom/auth/components/forms/login-form.tsx:37-58|src/components/custom/auth/components/forms/signup-form.tsx:28-50",
+    "src/lib/api/shopping-lists/optimistic-items.ts:34-47|src/lib/api/shopping-lists/optimistic-items.ts:61-72",
+    "src/app/[locale]/(user)/shopping-lists/components/forms/shopping-list-modal.tsx:90-104|src/app/[locale]/products/hooks/use-add-to-list-form.ts:86-104",
+    "src/app/api/account/change-email/route.ts:20-33|src/app/api/account/register/route.ts:21-35",
+    "src/app/[locale]/(user)/digital-cards/utils/card-request-from-dto.ts:7-21|src/app/[locale]/(user)/digital-cards/utils/digital-card-form-values.ts:20-34",
+    "src/lib/store-locations/sources/kaufland-locator.ts:24-29|src/lib/store-locations/sources/spar-locator.ts:22-27",
+    "src/components/icons/instagram-icon.tsx:22-34|src/components/icons/linkedin-icon.tsx:22-34"
+  ],
+  "clone_fingerprints": [
+    "dup:bb865e0b:2",
+    "dup:3c46b024:5",
+    "dup:c54fd040:2",
+    "dup:0dd89449:3",
+    "dup:e1fbea13:2",
+    "dup:4d93df4c:2",
+    "dup:1cbf3bb3:2",
+    "dup:279694d1:2",
+    "dup:5a3c6c14:2",
+    "dup:a2ba26f6:2",
+    "dup:03c5162c:2",
+    "dup:eaf18ea2:2",
+    "dup:421f822b:2"
+  ],
+  "normalized_clone_fingerprints": [
+    "dup:880d3393:2",
+    "dup:e6f4370f:5",
+    "dup:3971e78d:2",
+    "dup:fb401463:3",
+    "dup:9ee14df5:2",
+    "dup:e00be73e:2",
+    "dup:737b50b6:2",
+    "dup:930718ad:2",
+    "dup:faa335a1:2",
+    "dup:81744e79:2",
+    "dup:56684f47:2",
+    "dup:dfe201f7:2",
+    "dup:89f1c9be:2"
+  ]
+}

@@ -13,6 +13,7 @@ Never:
 - Commit secrets, credentials, the server IP or the SSH user; docs use placeholders.
 - Reference or quote the gitignored private notes under `docs/` from a tracked file. Only `.gitignore` may name them, because the repository is public.
 - Hand-edit dependency entries or lockfiles, use npm, or generate a `package-lock.json`.
+- Commit with `--no-verify` or push to `main`. The hooks in `frontend/.husky/` format staged files and reject trailers and dashes in commit messages; fix what they flag.
 - Touch unrelated changes already in the worktree: do not revert, reformat, stage, or claim them.
 - Drive a browser for visual verification unless I ask in that same message.
 
@@ -35,10 +36,11 @@ Safe without asking, run from `frontend/`:
 - `pnpm lint`
 - `pnpm test`, the Vitest suite: `*.test.ts` runs in Node, `*.test.tsx` runs components and hooks in jsdom through the React Compiler, and MSW fails any request a test did not declare. Conventions are in `docs/TESTING.md`
 - `pnpm test:coverage`, the same suite with a V8 coverage report in `frontend/coverage/`
+- `pnpm exec fallow audit --base origin/dev`, the CI gate for dead code, duplication, complexity, import cycles and the `src/app` versus shared-folder boundary (`.fallowrc.json`). It judges only findings a change adds beyond `.fallow-baselines/`, and CI fails any verdict but `pass`, including the `warn` that new duplication gets; `pnpm exec fallow` prints the whole backlog. Refresh a baseline only when a review agreed the larger backlog is acceptable.
 - `pnpm build`
 - `pnpm add <name>@<version>` and `pnpm remove <name>`, once I have approved the dependency
 
-Inside a git worktree, call binaries directly (`./node_modules/.bin/tsc`), not `pnpm exec`, which purges the main tree's `node_modules` through the symlink; the `.claude/hooks/guard-commands.py` PreToolUse hook blocks `pnpm` there. After editing the hook or `guard-commands.test.py`, run the test.
+Inside a git worktree, call binaries directly (`./node_modules/.bin/tsc`), not `pnpm exec`, which purges the main tree's `node_modules` through the symlink; the `.claude/hooks/guard-commands.py` PreToolUse hook blocks `pnpm` there, and `--no-verify` and pushes to `main` everywhere. After editing the hook, `guard_git.py` or `guard-commands.test.py`, run the test.
 
 Safe without asking, run from `backend/`:
 
@@ -50,7 +52,7 @@ Tests run on H2 and touch nothing outside the module, so none needs a nod.
 
 ## Definition of done
 
-- Frontend: Prettier, `tsc --noEmit` and `pnpm test` pass. Run `pnpm build` only for migrations, dependency version changes or new dependencies.
+- Frontend: Prettier, `tsc --noEmit` and `pnpm test` pass, and `fallow audit` reports `pass`. Run `pnpm build` only for migrations, dependency version changes or new dependencies.
 - Backend: `mvn -B verify` passes; it is the gate, not an extra. Its tests cover digital cards, store names, account deletion and the entity validation handler; elsewhere a green run proves only that the code compiles, so say so.
 - Fix type errors in `frontend/src/` and compile and test failures in `backend/src/`. Ignore errors from generated types or dependencies, and never re-run a check I interrupted.
 - Say which checks passed, failed, or did not run, on both sides. Never report backend work as verified by reading when you could have run `mvn -B verify`.

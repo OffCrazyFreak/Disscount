@@ -1,0 +1,56 @@
+{
+  "$schema": "./node_modules/fallow/schema.json",
+  "entry": ["src/app/sw.ts", "src/emails/*.tsx", "scripts/*.mjs"],
+  "boundaries": {
+    "zones": [
+      {
+        "name": "app",
+        "patterns": ["src/app/**"]
+      },
+      {
+        "name": "shared",
+        "patterns": [
+          "src/components/**",
+          "src/constants/**",
+          "src/context/**",
+          "src/db/**",
+          "src/emails/**",
+          "src/hooks/**",
+          "src/i18n/**",
+          "src/lib/**",
+          "src/typings/**",
+          "src/utils/**"
+        ]
+      }
+    ],
+    "rules": [
+      {
+        "from": "app",
+        "allow": ["shared"]
+      },
+      {
+        "from": "shared",
+        "allow": []
+      }
+    ]
+  },
+  "ignoreExports": [
+    {
+      "file": "src/components/ui/**",
+      "exports": ["*"]
+    }
+  ],
+  "ignoreDependencies": [
+    "@react-email/ui",
+    "baseline-browser-mapping",
+    "kysely"
+  ],
+  "health": {
+    "maxCrap": 420
+  },
+  "audit": {
+    "gate": "new-only",
+    "healthBaseline": ".fallow-baselines/health.json",
+    "dupesBaseline": ".fallow-baselines/dupes.json"
+  }
+}
