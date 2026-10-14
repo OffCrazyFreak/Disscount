@@ -110,3 +110,6 @@ marketing/emails/dist/
 
 # agent worktrees
 .t3-worktrees/
+
+# Python bytecode from the agent hooks
+__pycache__/

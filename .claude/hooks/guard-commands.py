@@ -4,6 +4,7 @@
 It blocks pnpm inside a git worktree: pnpm resolves the workspace through
 the symlinked node_modules and offers to purge the MAIN tree's copy. It aborts
 on a missing TTY today, so with CI=true set it would delete the real one.
+It also blocks `--no-verify` and pushes to `main` (rules in guard_git.py).
 The permission rules in settings.json are prefix matches, so this parses each
 command instead of matching a prefix.
 
@@ -22,6 +23,9 @@ import re
 import shlex
 import subprocess
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from guard_git import git_refusal  # noqa: E402
 
 WRAPPERS = {"sudo", "timeout", "env", "nice", "nohup", "command", "time", "xargs"}
 
@@ -289,6 +293,12 @@ def check(command, cwd, depth=0):
                 message = check(payload, effective_cwd or cwd, depth + 1)
                 if message:
                     return message
+            continue
+
+        if name == "git":
+            message = git_refusal(args, effective_cwd)
+            if message:
+                return message
             continue
 
         # A wrapper whose options we could not parse may have hidden the real

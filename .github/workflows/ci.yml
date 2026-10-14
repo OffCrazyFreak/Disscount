@@ -16,6 +16,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          # The Fallow audit diffs against the base branch, which a shallow
+          # checkout does not have.
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
         with:
@@ -40,6 +43,16 @@ jobs:
 
       - name: Lint
         run: pnpm exec eslint src
+
+      # Dead code, duplication, complexity, import cycles and folder boundaries,
+      # configured in frontend/.fallowrc.json. It fails only on findings this
+      # change introduces, so the older backlog does not block anyone.
+      - name: Fallow audit
+        env:
+          # A checkout has no upstream, so the base is named: the target branch
+          # on a pull request, the previous tip on a push.
+          FALLOW_AUDIT_BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
+        run: pnpm exec fallow audit --quiet
 
       - name: Translation catalogs
         run: pnpm i18n:check

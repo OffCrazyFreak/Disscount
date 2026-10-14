@@ -1,0 +1,14 @@
+# Formats staged files with Prettier, the same two runs CI checks: `src/` with
+# the frontend config and root Markdown with the root ignore file. Agents commit
+# through `git commit`, where no editor format-on-save ever fires.
+#
+# Calls the binary directly: `pnpm exec` inside a worktree resolves through the
+# symlinked node_modules and can purge the main tree's copy.
+lint_staged=frontend/node_modules/.bin/lint-staged
+
+if [ ! -x "$lint_staged" ]; then
+  echo "pre-commit: frontend dependencies are not installed, so staged files were not formatted. CI still checks them." >&2
+  exit 0
+fi
+
+"$lint_staged"

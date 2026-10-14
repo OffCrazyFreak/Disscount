@@ -29,17 +29,19 @@ def build_real_worktree(root):
         "GIT_COMMITTER_EMAIL": "t@t",
     }
     run = lambda *a: subprocess.run(a, cwd=repo, env=env, capture_output=True, check=True)
-    run("git", "init", "-q")
+    run("git", "init", "-q", "-b", "dev")
     open(os.path.join(repo, "f"), "w").close()
     run("git", "add", "f")
     run("git", "commit", "-qm", "init")
     linked = os.path.join(root, "linked")
     run("git", "worktree", "add", "-q", "-b", "wt", linked)
+    on_main = os.path.join(root, "on-main")
+    run("git", "worktree", "add", "-q", "-b", "main", on_main)
 
-    return repo, linked
+    return repo, linked, on_main
 
 
-def cases(real_repo, real_worktree):
+def cases(real_repo, real_worktree, on_main):
     return [
         # ALLOW: dev servers and Docker run in the main tree
         ("pnpm dev", MAIN, False),
@@ -102,6 +104,35 @@ def cases(real_repo, real_worktree):
         ("git log --oneline dev", MAIN, False),
         ("gh pr create --base dev", MAIN, False),
         ("pnpm --filter dev-tools lint", MAIN, False),
+        # BLOCK: skipping the git hooks, however it is spelled
+        ('git commit --no-verify -m "x"', real_repo, True),
+        ('git commit -n -m "x"', real_repo, True),
+        ('git commit -anm "x"', real_repo, True),
+        ("git push --no-verify origin dev", real_repo, True),
+        ("git -C frontend merge --no-verify dev", real_repo, True),
+        ('env CI=1 git commit --no-verify -m "x"', real_repo, True),
+        ("bash -c 'git commit --no-verify -m x'", real_repo, True),
+        # ALLOW: an `n` inside a message or a value is not the flag
+        ('git commit -m "no verify needed"', real_repo, False),
+        ('git commit -am "nothing"', real_repo, False),
+        ("git commit -mnew", real_repo, False),
+        ('grep -rn "--no-verify" docs/', real_repo, False),
+        # BLOCK: any refspec that lands on main
+        ("git push origin main", real_repo, True),
+        ("git push origin HEAD:main", real_repo, True),
+        ("git push -f origin +main", real_repo, True),
+        ("git push origin feature:refs/heads/main", real_repo, True),
+        ("git -C . push -u origin main", real_repo, True),
+        # BLOCK: a bare push, or HEAD, while main is checked out
+        ("git push", on_main, True),
+        ("git push origin HEAD", on_main, True),
+        (f"git -C {on_main} push", real_repo, True),
+        # ALLOW: other branches, including names that only contain "main"
+        ("git push", real_repo, False),
+        ("git push origin HEAD", real_repo, False),
+        ("git push origin main-docs", real_repo, False),
+        ("git push origin chore/main-menu", real_repo, False),
+        ("git push origin --delete feat/x", real_repo, False),
     ]
 
 
@@ -112,10 +143,10 @@ def main():
 
     root = tempfile.mkdtemp(prefix="guard-commands-")
     try:
-        real_repo, real_worktree = build_real_worktree(root)
+        real_repo, real_worktree, on_main = build_real_worktree(root)
         fails = 0
 
-        for command, cwd, expect_block in cases(real_repo, real_worktree):
+        for command, cwd, expect_block in cases(real_repo, real_worktree, on_main):
             payload = json.dumps(
                 {"tool_name": "Bash", "tool_input": {"command": command}, "cwd": cwd}
             )
@@ -125,7 +156,7 @@ def main():
             blocked = result.returncode == 2
             ok = blocked == expect_block
             fails += 0 if ok else 1
-            where = {MAIN: "main", WT: "wt-path", real_worktree: "wt-git"}.get(
+            where = {MAIN: "main", WT: "wt-path", real_worktree: "wt-git", on_main: "on-main"}.get(
                 cwd, "repo"
             )
             print(
