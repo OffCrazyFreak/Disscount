@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseModalParam } from "@/lib/modal/modal-registry";
+import { parseModalParam } from "@/lib/modal/modal-param-parser";
 
 function parse(query: string) {
   return parseModalParam(new URLSearchParams(query));

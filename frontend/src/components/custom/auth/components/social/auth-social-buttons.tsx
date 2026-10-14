@@ -8,11 +8,9 @@ import GoogleIcon from "@/components/icons/google-icon";
 import FacebookIcon from "@/components/icons/facebook-icon";
 import { FACEBOOK_COMING_SOON } from "@/constants/auth";
 import { setLastLoginMethod } from "@/utils/browser/local-storage";
-import {
-  AUTH_MODAL_NAMES,
-  parseModalParam,
-  stripModalSearch,
-} from "@/lib/modal/modal-registry";
+import { AUTH_MODAL_NAMES } from "@/lib/modal/modal-registry";
+import { parseModalParam } from "@/lib/modal/modal-param-parser";
+import { stripModalSearch } from "@/lib/modal/modal-search";
 import AuthSocialButton, {
   type SocialProvider,
 } from "@/components/custom/auth/components/social/auth-social-button";
