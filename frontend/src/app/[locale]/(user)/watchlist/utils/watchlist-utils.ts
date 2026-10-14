@@ -3,10 +3,7 @@ export type {
   IWatchlistItemWithProduct,
 } from "@/lib/watchlist/watchlist-types";
 
-export {
-  extractPinnedStoreChainCodes,
-  groupWatchlistItemsByProduct,
-} from "@/lib/watchlist/watchlist-grouping-utils";
+export { extractPinnedStoreChainCodes } from "@/lib/watchlist/watchlist-grouping-utils";
 
 export {
   getScopedDiscountedStores,
