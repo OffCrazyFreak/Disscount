@@ -4,8 +4,8 @@ import { TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useFormContext, useWatch } from "react-hook-form";
 
-import CardCode from "@/app/[locale]/(user)/digital-cards/components/card-code";
-import { generateCodeSvg } from "@/app/[locale]/(user)/digital-cards/utils/generate-code-svg";
+import CardCode from "@/components/custom/card-code/card-code";
+import { generateCodeSvg } from "@/utils/card-code/generate-code-svg";
 import { CODE_TYPE_LABEL_KEYS } from "@/constants/card-codes";
 import type { DigitalCardRequest } from "@/lib/api/types";
 

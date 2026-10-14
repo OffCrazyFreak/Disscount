@@ -1,4 +1,4 @@
-import CardCode from "@/app/[locale]/(user)/digital-cards/components/card-code";
+import CardCode from "@/components/custom/card-code/card-code";
 import type { DigitalCardDto } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 

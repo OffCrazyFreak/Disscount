@@ -1,11 +1,9 @@
 export {
-  parsePrice,
   getMinPrice,
   getMaxPrice,
   getAveragePrice,
   getChainAvgPriceRange,
-  getCheapestChainByMinPrice,
-} from "@/app/[locale]/products/utils/product-price-utils";
+} from "@/utils/product-price-utils";
 
 export {
   getPricePerUnit,

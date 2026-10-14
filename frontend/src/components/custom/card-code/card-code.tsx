@@ -4,13 +4,10 @@ import type { CSSProperties } from "react";
 import { useTranslations } from "next-intl";
 
 import type { CodeType } from "@/constants/card-codes";
-import { useDevicePixelWidth } from "@/app/[locale]/(user)/digital-cards/hooks/use-device-pixel-width";
-import {
-  fitCodeSize,
-  type ICodeSize,
-} from "@/app/[locale]/(user)/digital-cards/utils/fit-code-size";
-import { generateCodeSvg } from "@/app/[locale]/(user)/digital-cards/utils/generate-code-svg";
-import { groupCodeValue } from "@/app/[locale]/(user)/digital-cards/utils/group-code-value";
+import { useDevicePixelWidth } from "@/hooks/use-device-pixel-width";
+import { fitCodeSize, type ICodeSize } from "@/utils/card-code/fit-code-size";
+import { generateCodeSvg } from "@/utils/card-code/generate-code-svg";
+import { groupCodeValue } from "@/utils/card-code/group-code-value";
 import { cn } from "@/lib/utils";
 
 // A matrix code at full panel width is taller than the screen on a phone in landscape.

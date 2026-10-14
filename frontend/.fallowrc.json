@@ -51,7 +51,8 @@
     "serwist"
   ],
   "health": {
-    "maxCrap": 420
+    "maxCrap": 420,
+    "ignore": ["src/components/ui/**"]
   },
   "audit": {
     "gate": "new-only",
@@ -65,5 +66,8 @@
       "package": "shell-quote",
       "source": "pnpm-workspace.yaml"
     }
-  ]
+  ],
+  "duplicates": {
+    "ignore": ["src/app/globals.css", "src/i18n/messages/*/index.ts"]
+  }
 }

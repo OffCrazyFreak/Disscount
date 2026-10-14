@@ -1,10 +1,10 @@
 import { byDesc, chainComparators } from "@/utils/search/rank";
-import { IWatchlistItemWithProduct } from "@/app/[locale]/(user)/watchlist/typings/watchlist-types";
+import { IWatchlistItemWithProduct } from "@/lib/watchlist/watchlist-types";
 import {
   getMaxDiscountAmount,
   getMaxDiscountPercentage,
   isAnyWatchThresholdReached,
-} from "@/app/[locale]/(user)/watchlist/utils/watchlist-threshold-utils";
+} from "@/lib/watchlist/watchlist-threshold-utils";
 
 /**
  * Items that hit the threshold the user set come first, then the biggest saving.
