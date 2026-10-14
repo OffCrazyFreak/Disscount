@@ -263,7 +263,7 @@ Card numbers are long and a misread is worse than no read, so the shared scanner
 
 ## 8. Barcode rendering
 
-`app/[locale]/(user)/digital-cards/utils/generate-code-svg.ts` draws the code with `@bwip-js/browser`.
+`utils/card-code/generate-code-svg.ts` draws the code with `@bwip-js/browser`.
 
 - It imports only the encoders it needs (EAN, UPC, Code 128, 39, 93, Codabar, ITF, QR, Aztec, Data Matrix, PDF417), not the whole library, to keep the bundle small.
 - It is synchronous and returns `{ ok: true, svg }` or `{ ok: false }`. On `ok: false` the view falls back to the number in large text.
@@ -342,7 +342,7 @@ A loyalty card number is personal data, and a photo of a card more so.
 | `frontend/src/lib/offline/failure-policy.ts`, `card-retry.ts`, `slot-lock.ts`, `purge-gate.ts` | Keep or drop rules and card retries; per-slot photo ordering; purge ordering gate |
 | `frontend/src/constants/card-codes.ts`                                                         | Code types, card types, photo slots and their labels                              |
 | `frontend/src/app/[locale]/(user)/digital-cards/`                                              | The page, tiles, view and form modals, hooks and utils                            |
-| `frontend/src/app/[locale]/(user)/digital-cards/utils/generate-code-svg.ts`                    | bwip-js rendering                                                                 |
+| `frontend/src/utils/card-code/generate-code-svg.ts`                                            | bwip-js rendering                                                                 |
 | `frontend/src/app/[locale]/(user)/digital-cards/utils/card-palette.ts`                         | The 19 colours                                                                    |
 | `frontend/src/components/scanner/`                                                             | Shared scanner: consensus, confirm step, manual entry                             |
 | `frontend/src/utils/barcode/`                                                                  | Check digits and normalization                                                    |
