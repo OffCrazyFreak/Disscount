@@ -2,16 +2,11 @@ import { useLocale, useTranslations } from "next-intl";
 import PriceStack from "@/components/custom/price/price-stack";
 import { formatQuantity } from "@/utils/strings";
 import { formatPrice } from "@/utils/price";
-import {
-  getMinPrice,
-  getMaxPrice,
-  getMinPricePerUnit,
-  getMaxPricePerUnit,
-  getPricePerUnit,
-} from "@/app/[locale]/products/utils/product-utils";
+import { getDisplayPrices } from "@/app/[locale]/products/utils/product-display-prices";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import type { IProductListPrice } from "@/app/[locale]/products/typings/product-list-price-types";
 import ProductPriceScopeInfo from "@/app/[locale]/products/components/product-item/product-price-scope-info";
+import PriceRangeSpans from "@/app/[locale]/products/components/product-item/price-range-spans";
 
 interface IProductUnitPriceDetailsProps {
   product: ProductResponse;
@@ -25,20 +20,8 @@ export default function ProductUnitPriceDetails({
 }: IProductUnitPriceDetailsProps) {
   const t = useTranslations("products");
   const locale = useLocale();
-  const minPrice =
-    price === undefined ? getMinPrice(product) : (price?.minPrice ?? null);
-  const maxPrice =
-    price === undefined ? getMaxPrice(product) : (price?.maxPrice ?? null);
-
-  const quantity = Number(product.quantity);
-  const minPricePerUnit =
-    price === undefined
-      ? getMinPricePerUnit(product)
-      : getPricePerUnit(minPrice, quantity);
-  const maxPricePerUnit =
-    price === undefined
-      ? getMaxPricePerUnit(product)
-      : getPricePerUnit(maxPrice, quantity);
+  const { minPrice, maxPrice, minPricePerUnit, maxPricePerUnit } =
+    getDisplayPrices(product, price);
 
   const hasUnitPrices =
     minPricePerUnit !== undefined &&
@@ -71,21 +54,11 @@ export default function ProductUnitPriceDetails({
               {/* Tighter than the group's gap, since the dash already spaces the
                   two figures. */}
               <span className="flex items-center gap-1 font-bold">
-                {minPrice === maxPrice ? (
-                  <span className="text-gray-700">
-                    {formatPrice(minPrice, locale)}
-                  </span>
-                ) : (
-                  <>
-                    <span className="text-green-700">
-                      {formatPrice(minPrice, locale)}
-                    </span>
-                    <span className="text-gray-700"> - </span>
-                    <span className="text-red-700">
-                      {formatPrice(maxPrice, locale)}
-                    </span>
-                  </>
-                )}
+                <PriceRangeSpans
+                  low={formatPrice(minPrice, locale)}
+                  high={formatPrice(maxPrice, locale)}
+                  isSingle={minPrice === maxPrice}
+                />
               </span>
 
               {/* A single figure is not a range, so there is no scope to explain.
@@ -100,16 +73,13 @@ export default function ProductUnitPriceDetails({
         </>
       }
       secondary={
-        hasUnitPrices &&
-        (minPricePerUnit === maxPricePerUnit ? (
-          <span className="text-gray-700">{perUnit(minPricePerUnit)}</span>
-        ) : (
-          <>
-            <span className="text-green-700">{perUnit(minPricePerUnit)}</span>
-            <span className="text-gray-700"> - </span>
-            <span className="text-red-700">{perUnit(maxPricePerUnit)}</span>
-          </>
-        ))
+        hasUnitPrices && (
+          <PriceRangeSpans
+            low={perUnit(minPricePerUnit)}
+            high={perUnit(maxPricePerUnit)}
+            isSingle={minPricePerUnit === maxPricePerUnit}
+          />
+        )
       }
     />
   );
