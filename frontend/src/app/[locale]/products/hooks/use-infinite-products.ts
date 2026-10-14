@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useGetProductByName } from "@/lib/cijene-api";
 import type { IProductListItem } from "@/app/[locale]/products/typings/product-list-price-types";
 import { productMatchesFilters } from "@/app/[locale]/products/utils/product-filters";
 import sortProductsByRelevance from "@/app/[locale]/products/utils/product-relevance";
 import { PRODUCT_SEARCH_LIMIT } from "@/constants/products";
 import useFilteredProductPrices from "@/app/[locale]/products/hooks/use-filtered-product-prices";
+import useRevealedBatches from "@/app/[locale]/products/hooks/use-revealed-batches";
+import { splitIntoBatches } from "@/app/[locale]/products/utils/product-batches";
 
 interface IUseInfiniteProductsOptions {
   /** Resolved chain+location filter (null = unfiltered, empty = no overlap) */
@@ -98,16 +100,11 @@ export default function useInfiniteProducts(
     );
   }, [pricedItems, selectedBrands, selectedCategories]);
 
-  const batchedItems = useMemo(() => {
-    const batches: IProductListItem[][] = [];
-    for (let i = 0; i < filteredItems.length; i += safeBatchSize) {
-      batches.push(filteredItems.slice(i, i + safeBatchSize));
-    }
-    return batches;
-  }, [filteredItems, safeBatchSize]);
+  const batchedItems = useMemo(
+    () => splitIntoBatches(filteredItems, safeBatchSize),
+    [filteredItems, safeBatchSize],
+  );
 
-  // A background price refresh may change the items, but should not collapse
-  // batches the user already revealed for the same search and filters.
   const batchKey = [
     q,
     allowedChains?.join(",") ?? "*",
@@ -116,42 +113,7 @@ export default function useInfiniteProducts(
     selectedLocations.join(","),
     selectedSourceCities.join(","),
   ].join("\0");
-  const initialBatchesToShow = batchedItems.length > 0 ? 1 : 0;
-  const [batchState, setBatchState] = useState({
-    key: batchKey,
-    count: initialBatchesToShow,
-  });
-  const batchesToShow =
-    batchState.key === batchKey
-      ? batchedItems.length > 0
-        ? Math.max(1, Math.min(batchState.count, batchedItems.length))
-        : 0
-      : initialBatchesToShow;
-
-  useEffect(() => {
-    if (batchesToShow >= batchedItems.length) return;
-
-    const onScroll = () => {
-      const scrollY = window.scrollY || window.pageYOffset;
-      const viewport = window.innerHeight;
-      const fullHeight = document.documentElement.scrollHeight;
-
-      if (scrollY + viewport >= fullHeight - 10000) {
-        setBatchState((previous) => ({
-          key: batchKey,
-          count: Math.min(
-            (previous.key === batchKey
-              ? previous.count
-              : initialBatchesToShow) + 1,
-            batchedItems.length,
-          ),
-        }));
-      }
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [batchKey, batchesToShow, batchedItems.length, initialBatchesToShow]);
+  const batchesToShow = useRevealedBatches(batchKey, batchedItems.length);
 
   const visibleItems = useMemo(() => {
     return batchedItems.slice(0, batchesToShow).flatMap((batch) => batch);
