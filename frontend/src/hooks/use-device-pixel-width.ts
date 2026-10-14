@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-interface IDevicePixelBox {
+export interface IDevicePixelBox {
   width: number;
   /** Null unless a height source was asked for. */
   height: number | null;
