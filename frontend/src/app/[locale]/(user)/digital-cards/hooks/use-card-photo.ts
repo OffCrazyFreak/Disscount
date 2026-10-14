@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 
-import {
-  fetchCardPhotoBlob,
-  type CardPhotoSize,
-} from "@/lib/api/digital-cards/photo-queries";
+import type { CardPhotoSize } from "@/constants/card-codes";
+import { fetchCardPhotoBlob } from "@/lib/api/digital-cards/photo-queries";
 import type { CardPhotoDto } from "@/lib/api/types";
 import { getCacheIdentity } from "@/lib/offline/cache-identity";
 import {
@@ -84,5 +82,3 @@ export function useCardPhoto(
   // After the key changes the stored URL has been revoked; it must not be handed out.
   return loaded && loaded.key === key ? loaded.url : undefined;
 }
-
-export default useCardPhoto;

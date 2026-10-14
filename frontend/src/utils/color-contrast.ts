@@ -6,7 +6,7 @@ function channel(value: number) {
   return srgb <= 0.04045 ? srgb / 12.92 : ((srgb + 0.055) / 1.055) ** 2.4;
 }
 
-export function relativeLuminance(hex: string) {
+function relativeLuminance(hex: string) {
   const red = channel(parseInt(hex.slice(1, 3), 16));
   const green = channel(parseInt(hex.slice(3, 5), 16));
   const blue = channel(parseInt(hex.slice(5, 7), 16));

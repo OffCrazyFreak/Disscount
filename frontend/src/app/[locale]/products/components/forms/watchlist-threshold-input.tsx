@@ -18,9 +18,11 @@ import type { WatchlistItemDto } from "@/lib/api/schemas/watchlist";
 import {
   thresholdField,
   WatchlistFormData,
-  watchlistLimits,
 } from "@/app/[locale]/products/typings/watchlist-form";
-import { parseThreshold } from "@/app/[locale]/products/utils/watchlist-thresholds";
+import {
+  parseThreshold,
+  watchlistLimits,
+} from "@/app/[locale]/products/utils/watchlist-thresholds";
 
 function thresholdSteps(watchType: WatchType, minPrice: number) {
   if (watchType === WatchType.percentage) return { primary: 5, secondary: 10 };

@@ -19,7 +19,7 @@ interface IProviderOptions {
 }
 
 // Retries off so a failing request fails the test at once instead of after backoff.
-export function createTestQueryClient() {
+function createTestQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: { retry: false },

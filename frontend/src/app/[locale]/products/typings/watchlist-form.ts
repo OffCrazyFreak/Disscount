@@ -1,14 +1,11 @@
 import { z } from "zod";
 
-import { parseThreshold } from "@/app/[locale]/products/utils/watchlist-thresholds";
+import {
+  parseThreshold,
+  watchlistLimits,
+} from "@/app/[locale]/products/utils/watchlist-thresholds";
 
 import { WatchType } from "@/lib/api";
-
-export function watchlistLimits(watchType: WatchType) {
-  return watchType === WatchType.absolute
-    ? { min: 0.1, max: 999, unit: "€" }
-    : { min: 1, max: 99, unit: "%" };
-}
 
 // One field per mode, not one shared field: the two numbers mean different things
 // and are saved as separate watchlist entries, so switching modes has to keep an

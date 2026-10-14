@@ -46,7 +46,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "disscount": "link:",
     "drizzle-orm": "0.45.2",
     "fflate": "^0.8.3",
     "hibp": "^15.2.1",
@@ -74,8 +73,6 @@
     "zod": "^4.1.13"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@openapitools/openapi-generator-cli": "^2.25.2",
     "@react-email/ui": "^6.11.1",
     "@rolldown/plugin-babel": "^0.2.4",
     "@tailwindcss/postcss": "^4",

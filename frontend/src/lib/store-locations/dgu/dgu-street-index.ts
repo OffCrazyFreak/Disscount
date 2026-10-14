@@ -15,7 +15,7 @@ export interface IStreetIndex {
 }
 
 /** Street name tokens, with a sentinel number so a trailing digit stays a word. */
-export function streetTokens(streetName: string): string[] {
+function streetTokens(streetName: string): string[] {
   return parseAddress(`${streetName} 0`).tokens;
 }
 

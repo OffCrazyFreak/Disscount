@@ -17,7 +17,6 @@ export { default as MultiSelectValue } from "@/components/custom/form/multi-sele
 export { default as MultiSelectContent } from "@/components/custom/form/multi-select-content";
 export { default as MultiSelectItem } from "@/components/custom/form/multi-select-item";
 export { default as MultiSelectGroup } from "@/components/custom/form/multi-select-group";
-export { default as MultiSelectSeparator } from "@/components/custom/form/multi-select-separator";
 
 interface IMultiSelectProps {
   children: ReactNode;

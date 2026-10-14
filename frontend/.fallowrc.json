@@ -38,12 +38,17 @@
     {
       "file": "src/components/ui/**",
       "exports": ["*"]
+    },
+    {
+      "file": "src/components/reui/**",
+      "exports": ["*"]
     }
   ],
   "ignoreDependencies": [
     "@react-email/ui",
     "baseline-browser-mapping",
-    "kysely"
+    "kysely",
+    "serwist"
   ],
   "health": {
     "maxCrap": 420
@@ -52,5 +57,13 @@
     "gate": "new-only",
     "healthBaseline": ".fallow-baselines/health.json",
     "dupesBaseline": ".fallow-baselines/dupes.json"
-  }
+  },
+  "ignoreExportsUsedInFile": true,
+  "ignoreFindings": ["**/products/components/view-switcher.tsx"],
+  "ignoreDependencyOverrides": [
+    {
+      "package": "shell-quote",
+      "source": "pnpm-workspace.yaml"
+    }
+  ]
 }

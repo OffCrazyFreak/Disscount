@@ -69,7 +69,7 @@ export function restoreCards(
   );
 }
 
-export function cardFromRequest(
+function cardFromRequest(
   id: string,
   data: DigitalCardRequest,
   existing: DigitalCardDto | undefined,

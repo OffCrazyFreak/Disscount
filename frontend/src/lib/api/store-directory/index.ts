@@ -8,9 +8,9 @@ import {
 
 // Under the "cijene" prefix so the list persists for offline use like the
 // rest of the public store data.
-export const STORE_DIRECTORY_QUERY_KEY = ["cijene", "store-directory"] as const;
+const STORE_DIRECTORY_QUERY_KEY = ["cijene", "store-directory"] as const;
 
-export async function getStoreDirectory(): Promise<StoreDirectoryResponse> {
+async function getStoreDirectory(): Promise<StoreDirectoryResponse> {
   const response = await axios.get("/api/cijene/store-directory");
 
   return storeDirectoryResponse.parse(response.data);

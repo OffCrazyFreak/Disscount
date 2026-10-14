@@ -6,7 +6,7 @@ const ICON_SIZE = 128;
 const WEBP_QUALITY = 0.75;
 const JPEG_QUALITY = 0.78;
 // The server refuses a full image over 512 KB; this leaves headroom for multipart framing.
-export const MAX_FULL_BYTES = 480 * 1024;
+const MAX_FULL_BYTES = 480 * 1024;
 
 export type CardImageErrorCode =
   "cannotSave" | "cannotProcess" | "cannotOpen" | "tooLarge";
@@ -35,7 +35,7 @@ export interface IEncodeAttempt {
 }
 
 /** Tried in order until the full image fits the server limit. */
-export const FULL_ATTEMPTS: IEncodeAttempt[] = [
+const FULL_ATTEMPTS: IEncodeAttempt[] = [
   { longEdge: FULL_LONG_EDGE },
   { longEdge: FULL_LONG_EDGE, quality: 0.65 },
   { longEdge: FULL_LONG_EDGE, quality: 0.55 },

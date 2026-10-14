@@ -6,9 +6,9 @@ import {
   CODE_TYPES,
 } from "@/constants/card-codes";
 
-export const cardTypeSchema = z.enum(CARD_TYPES);
-export const codeTypeSchema = z.enum(CODE_TYPES);
-export const cardPhotoSlotSchema = z.enum(CARD_PHOTO_SLOTS);
+const cardTypeSchema = z.enum(CARD_TYPES);
+const codeTypeSchema = z.enum(CODE_TYPES);
+const cardPhotoSlotSchema = z.enum(CARD_PHOTO_SLOTS);
 
 const optionalDate = z
   .string()

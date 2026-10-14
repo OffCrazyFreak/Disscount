@@ -1,6 +1,11 @@
 import { WatchType } from "@/lib/api";
 import type { WatchlistItemDto } from "@/lib/api/schemas/watchlist";
-import { watchlistLimits } from "@/app/[locale]/products/typings/watchlist-form";
+
+export function watchlistLimits(watchType: WatchType) {
+  return watchType === WatchType.absolute
+    ? { min: 0.1, max: 999, unit: "€" }
+    : { min: 1, max: 99, unit: "%" };
+}
 
 const PERCENTAGE_SUGGESTION = "10";
 const PRICE_FALLBACK = 1;

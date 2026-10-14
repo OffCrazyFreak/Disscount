@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 /** A Radix dialog animates for 200ms; vaul ships a 500ms drawer slide. */
-export const DIALOG_EXIT_MS = 200;
+const DIALOG_EXIT_MS = 200;
 export const SHEET_EXIT_MS = 500;
 
 /**

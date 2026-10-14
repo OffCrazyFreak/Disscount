@@ -1,8 +1,6 @@
 import apiClient from "@/lib/api/api-base";
-import type { CardPhotoSlot } from "@/constants/card-codes";
+import type { CardPhotoSize, CardPhotoSlot } from "@/constants/card-codes";
 import { cardPhotoDtoSchema, type CardPhotoDto } from "@/lib/api/types";
-
-export type CardPhotoSize = "full" | "thumb";
 
 export async function uploadCardPhoto(
   cardId: string,

@@ -3,7 +3,7 @@ import type { FieldValues, Path, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
 // RFC 9457 Problem Details as emitted by the backend GlobalExceptionHandler.
-export const problemDetailsSchema = z.object({
+const problemDetailsSchema = z.object({
   type: z.string().optional(),
   title: z.string().optional(),
   status: z.number().optional(),

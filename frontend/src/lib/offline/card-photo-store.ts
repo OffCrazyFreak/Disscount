@@ -1,11 +1,9 @@
 import { createStore, delMany, get, keys, set } from "idb-keyval";
 
-import type { CardPhotoSlot } from "@/constants/card-codes";
+import type { CardPhotoSize, CardPhotoSlot } from "@/constants/card-codes";
 import { getCacheIdentity } from "@/lib/offline/cache-identity";
 import { updateIfPresent } from "@/lib/offline/idb-transactions";
 import { whenPurgesSettled } from "@/lib/offline/purge-gate";
-
-export type CardPhotoSize = "full" | "thumb";
 
 interface IStoredPhoto {
   buf: ArrayBuffer;

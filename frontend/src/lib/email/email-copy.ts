@@ -19,7 +19,7 @@ export type EmailKind =
   | "breachedPassword";
 
 // A null or unknown stored locale falls back to Croatian rather than failing a send.
-export function resolveLocale(value: unknown): AppLocale {
+function resolveLocale(value: unknown): AppLocale {
   return isLocale(value) ? value : DEFAULT_LOCALE;
 }
 

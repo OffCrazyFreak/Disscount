@@ -32,7 +32,7 @@ const indexedDbStorage = {
   removeItem: (key: string) => del(scopedCacheKey(key)),
 };
 
-export const offlinePersister = createAsyncStoragePersister({
+const offlinePersister = createAsyncStoragePersister({
   storage: indexedDbStorage,
   key: IDB_CACHE_KEY,
 });

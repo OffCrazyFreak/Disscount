@@ -1,4 +1,4 @@
-export const SETTINGS_TABS = [
+const SETTINGS_TABS = [
   "profil",
   "obavijesti",
   "preference",
@@ -7,7 +7,7 @@ export const SETTINGS_TABS = [
 
 export type SettingsTab = (typeof SETTINGS_TABS)[number];
 
-export const WATCH_TYPE_PARAMS = ["percentage", "absolute"] as const;
+const WATCH_TYPE_PARAMS = ["percentage", "absolute"] as const;
 
 export type WatchTypeParam = (typeof WATCH_TYPE_PARAMS)[number];
 
@@ -38,7 +38,7 @@ export type ModalTarget =
 export const AUTH_MODAL_NAMES = ["login", "signup", "forgot-password"] as const;
 
 // Modals reachable by anyone (from email links, or a shared link); never auth-gated.
-export const PUBLIC_MODAL_NAMES = [
+const PUBLIC_MODAL_NAMES = [
   "reset-password",
   "email-verified",
   "email-changed",
