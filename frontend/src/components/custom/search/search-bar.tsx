@@ -1,30 +1,24 @@
 "use client";
 
-import { useEffect, useCallback, useRef, type RefObject } from "react";
-import { useForm, useWatch } from "react-hook-form";
-import { Search } from "lucide-react";
+import { useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { Input } from "@/components/ui/input";
-import SearchBarActions from "@/components/custom/search/search-bar-actions";
+import SearchBarField, {
+  type ISearchBarFieldOptions,
+} from "@/components/custom/search/search-bar-field";
 import SearchActionButton from "@/components/custom/search/search-action-button";
+import { useSearchBarQuery } from "@/components/custom/search/use-search-bar-query";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
-import { useCameraScanner } from "@/context/scanner-context";
 import { useSidebar } from "@/components/ui/sidebar";
 import { IScannedCode } from "@/typings/scanned-code";
 
-interface ISearchBarProps {
-  placeholder?: string;
+interface ISearchBarProps extends ISearchBarFieldOptions {
   searchRoute: string;
-  clearable?: boolean;
   autoSearch?: boolean;
-  allowScanning?: boolean;
   disabled?: boolean;
   submitButtonLocation?: "none" | "auto" | "block";
   submitLabel?: string;
   /** Names the form, so an owner can put the submit button outside it */
   formId?: string;
-  /** Exposes the field so an owner can focus it inside a gesture's own task */
-  inputRef?: RefObject<HTMLInputElement | null>;
   /** Mirrors what is typed, for an owner rendering the submit button itself */
   onQueryChange?: (query: string) => void;
   /** Updates `q` in place, without a server render, keeping the hash */
@@ -34,71 +28,29 @@ interface ISearchBarProps {
 }
 
 export default function SearchBar({
-  placeholder: placeholderProp,
   searchRoute,
-  clearable = true,
   submitButtonLocation = "auto",
   autoSearch = false,
-  allowScanning = false,
   disabled = false,
   submitLabel: submitLabelProp,
   formId,
-  inputRef: exposedInputRef,
   onQueryChange,
   onSubmitted,
   shallow = false,
+  ...field
 }: ISearchBarProps) {
   const t = useTranslations("shell");
-  const placeholder = placeholderProp ?? t("search.placeholder");
   const submitLabel = submitLabelProp ?? t("search.submit");
   const { routeQuery, isUnchanged, search, syncQuery, openResult } =
     useSearchNavigation(searchRoute, { shallow });
-  const { openScanner } = useCameraScanner();
   const { setOpen } = useSidebar();
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const { register, handleSubmit, control, reset, setValue, getValues } =
-    useForm<{
-      query: string;
-    }>({
-      defaultValues: { query: routeQuery },
-    });
-
-  // useWatch, not form.watch: watch() signals changes outside React state, so the
-  // React Compiler skips memoizing every component that reads it.
-  const queryValue = useWatch({
-    control,
-    name: "query",
-    defaultValue: routeQuery,
+  const { register, handleSubmit, reset, queryValue } = useSearchBarQuery({
+    routeQuery,
+    autoSearch,
+    disabled,
+    syncQuery,
+    onQueryChange,
   });
-  const { ref: registerRef, ...registerProps } = register("query");
-
-  useEffect(() => {
-    if (getValues("query") !== routeQuery) {
-      setValue("query", routeQuery, {
-        shouldDirty: false,
-        shouldTouch: false,
-        shouldValidate: false,
-      });
-    }
-  }, [routeQuery, setValue, getValues]);
-
-  // Watched rather than hooked to onChange, so a clear or a route sync counts too.
-  useEffect(() => {
-    onQueryChange?.(queryValue ?? "");
-  }, [queryValue, onQueryChange]);
-
-  useEffect(() => {
-    if (!autoSearch || disabled) return;
-
-    const query = queryValue ?? "";
-
-    // An empty input over an empty URL has nothing to mirror; this also stops a
-    // bar mounted off its own route from redirecting there.
-    if (!query && !routeQuery) return;
-
-    syncQuery(query);
-  }, [autoSearch, disabled, queryValue, routeQuery, syncQuery]);
 
   function submit(data: { query: string }) {
     if (disabled) return;
@@ -113,7 +65,6 @@ export default function SearchBar({
   function handleClear() {
     reset({ query: "" });
     search("");
-    inputRef.current?.focus();
   }
 
   const handleScan = useCallback(
@@ -132,40 +83,14 @@ export default function SearchBar({
         onSubmit={handleSubmit(submit)}
         className="relative flex items-center gap-4 flex-wrap"
       >
-        <div className="relative grow-100">
-          <Search
-            aria-hidden="true"
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground size-5"
-          />
-
-          <Input
-            ref={(el) => {
-              inputRef.current = el;
-              if (exposedInputRef) exposedInputRef.current = el;
-              registerRef(el);
-            }}
-            {...registerProps}
-            type="search"
-            inputMode="search"
-            enterKeyHint="search"
-            placeholder={placeholder}
-            aria-label={placeholder || t("search.submit")}
-            disabled={disabled}
-            size="lg"
-            className="pl-10 pr-22 text-gray-500 focus:text-gray-700 bg-white [&::-webkit-search-cancel-button]:hidden"
-            autoComplete="off"
-            autoCapitalize="off"
-            autoCorrect="off"
-            spellCheck={false}
-          />
-
-          <SearchBarActions
-            showClear={Boolean(!disabled && clearable && queryValue)}
-            onClear={handleClear}
-            allowScanning={!disabled && allowScanning}
-            onScan={() => openScanner({ onScan: handleScan })}
-          />
-        </div>
+        <SearchBarField
+          {...field}
+          registration={register("query")}
+          queryValue={queryValue}
+          disabled={disabled}
+          onClear={handleClear}
+          onScanned={handleScan}
+        />
 
         {submitButtonLocation !== "none" && (
           <SearchActionButton
