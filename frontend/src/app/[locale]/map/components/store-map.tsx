@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import {
@@ -9,7 +9,6 @@ import {
   NavigationControl,
   type MapLayerMouseEvent,
   type MapRef,
-  type ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
@@ -19,11 +18,17 @@ import MapOverlays from "@/app/[locale]/map/components/map-overlays";
 import MapPanControls from "@/app/[locale]/map/components/map-pan-controls";
 import MapUnavailable from "@/app/[locale]/map/components/map-unavailable";
 import { ICenterRequest } from "@/app/[locale]/map/hooks/use-geolocation";
+import { useMapCamera } from "@/app/[locale]/map/hooks/use-map-camera";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { groupStoresByChain } from "@/app/[locale]/map/utils/chain-geojson";
 import { interactiveLayerIds } from "@/app/[locale]/map/utils/chain-layers";
 import { ILatLon } from "@/app/[locale]/map/utils/distance";
+import { handleMapFeatureClick } from "@/app/[locale]/map/utils/map-feature-click";
 import { MAP_CUSTOM_ATTRIBUTION } from "@/app/[locale]/map/utils/map-attribution";
+import {
+  toInitialViewState,
+  toSelectedPoint,
+} from "@/app/[locale]/map/utils/map-view";
 import { loadMapStyle } from "@/app/[locale]/map/utils/map-style";
 import { registerChainIcons } from "@/app/[locale]/map/utils/register-chain-icons";
 import { storeNamesMap } from "@/constants/name-mappings";
@@ -37,9 +42,6 @@ maplibregl.setWorkerUrl(
   ).toString(),
 );
 
-const CROATIA_BOUNDS: [number, number, number, number] = [
-  13.4, 42.3, 19.5, 46.6,
-];
 const ALL_CHAINS = Object.keys(storeNamesMap);
 
 interface IStoreMapProps {
@@ -65,13 +67,6 @@ export default function StoreMap({
   const [iconsReady, setIconsReady] = useState(false);
   const [contextLost, setContextLost] = useState(false);
   const [cursor, setCursor] = useState<string>("");
-  // Set by a drag, wheel or key, never by our own easeTo calls.
-  const userMoved = useRef(false);
-  const gpsCentered = useRef(false);
-  // A shared #map= link names its own view, which only an explicit tap replaces.
-  const [openedWithView] = useState(() =>
-    window.location.hash.startsWith("#map="),
-  );
 
   const style = useQuery({
     queryKey: ["map-style"],
@@ -82,65 +77,15 @@ export default function StoreMap({
   const groups = groupStoresByChain(stores.map((row) => row.store));
   const chains = [...groups.keys()];
 
-  const selectedPoint =
-    selected?.store.lat != null && selected.store.lon != null
-      ? { lat: selected.store.lat, lon: selected.store.lon }
-      : null;
+  const selectedPoint = toSelectedPoint(selected);
 
-  const selectedLat = selectedPoint?.lat;
-  const selectedLon = selectedPoint?.lon;
-
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!mapReady || !map || selectedLat == null || selectedLon == null) return;
-
-    // easeTo snaps instantly under prefers-reduced-motion, as long as the
-    // animation is not marked essential.
-    map.easeTo({
-      center: [selectedLon, selectedLat],
-      zoom: Math.max(map.getZoom(), 15),
-    });
-  }, [mapReady, selectedLat, selectedLon]);
-
-  const hasSelection = selectedLat != null;
-
-  useEffect(() => {
-    if (!mapReady || !centerRequest) return;
-
-    // A fix nobody tapped for must not yank the map from where the user moved
-    // it, or from the store a shared link opened.
-    if (
-      centerRequest.auto &&
-      (userMoved.current || hasSelection || openedWithView)
-    ) {
-      return;
-    }
-
-    gpsCentered.current = true;
-    mapRef.current?.easeTo({
-      center: [centerRequest.lon, centerRequest.lat],
-      zoom: 13,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapReady, centerRequest]);
-
-  // The pinned place needs the profile and the store list, which can arrive
-  // after the map has already opened on the IP guess or all of Croatia.
-  useEffect(() => {
-    if (!mapReady || !initialView) return;
-    if (userMoved.current || gpsCentered.current) return;
-    if (hasSelection || openedWithView) return;
-
-    mapRef.current?.jumpTo({
-      center: [initialView.lon, initialView.lat],
-      zoom: initialView.zoom,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapReady, initialView?.lat, initialView?.lon, initialView?.zoom]);
-
-  function handleMoveStart(event: ViewStateChangeEvent) {
-    if (event.originalEvent) userMoved.current = true;
-  }
+  const { handleMoveStart } = useMapCamera({
+    mapRef,
+    mapReady,
+    selectedPoint,
+    centerRequest,
+    initialView,
+  });
 
   async function handleLoad() {
     const map = mapRef.current?.getMap();
@@ -159,27 +104,8 @@ export default function StoreMap({
     setIconsReady(true);
   }
 
-  async function handleClick(event: MapLayerMouseEvent) {
-    const feature = event.features?.[0];
-    if (!feature) return;
-
-    const properties = feature.properties ?? {};
-
-    if (properties.cluster_id != null && feature.source) {
-      const map = mapRef.current?.getMap();
-      const source = map?.getSource(feature.source);
-
-      if (map && source instanceof maplibregl.GeoJSONSource) {
-        const zoom = await source.getClusterExpansionZoom(
-          properties.cluster_id,
-        );
-        map.easeTo({ center: event.lngLat, zoom });
-      }
-
-      return;
-    }
-
-    if (typeof properties.key === "string") onSelect(properties.key);
+  function handleClick(event: MapLayerMouseEvent) {
+    return handleMapFeatureClick(event, mapRef.current, onSelect);
   }
 
   if (style.isError) {
@@ -212,15 +138,7 @@ export default function StoreMap({
       mapLib={maplibregl}
       mapStyle={style.data}
       hash="map"
-      initialViewState={
-        initialView
-          ? {
-              latitude: initialView.lat,
-              longitude: initialView.lon,
-              zoom: initialView.zoom,
-            }
-          : { bounds: CROATIA_BOUNDS }
-      }
+      initialViewState={toInitialViewState(initialView)}
       style={{ width: "100%", height: "100%" }}
       attributionControl={false}
       interactiveLayerIds={iconsReady ? interactiveLayerIds(chains) : []}
