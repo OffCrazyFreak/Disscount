@@ -57,6 +57,88 @@ function isSettingsTab(value: string): value is SettingsTab {
   return (SETTINGS_TABS as readonly string[]).includes(value);
 }
 
+function isWatchTypeParam(value: string | null): value is WatchTypeParam {
+  return (WATCH_TYPE_PARAMS as readonly string[]).includes(value ?? "");
+}
+
+interface IModalParams {
+  sub: string | undefined;
+  id: string | null;
+  ean: string | null;
+  type: string | null;
+}
+
+type ModalParser = (params: IModalParams) => ModalTarget | null;
+
+const PLAIN_MODAL_NAMES = [
+  "login",
+  "signup",
+  "forgot-password",
+  "reset-password",
+  "email-verified",
+  "email-changed",
+  "contact",
+  "donate",
+] as const;
+
+const SHOPPING_LIST_ID_ACTIONS = ["edit", "share", "copy"] as const;
+const DIGITAL_CARD_ID_ACTIONS = ["edit", "view"] as const;
+
+function parseShoppingList({ sub, id }: IModalParams): ModalTarget | null {
+  if (sub === "new") return { name: "shopping-list", action: "new" };
+
+  const action = SHOPPING_LIST_ID_ACTIONS.find((value) => value === sub);
+  return action && id ? { name: "shopping-list", action, id } : null;
+}
+
+function parseDigitalCard({ sub, id }: IModalParams): ModalTarget | null {
+  if (sub === "new") return { name: "digital-card", action: "new" };
+
+  const action = DIGITAL_CARD_ID_ACTIONS.find((value) => value === sub);
+  return action && id ? { name: "digital-card", action, id } : null;
+}
+
+function parseWatchlist({ ean, type }: IModalParams): ModalTarget | null {
+  if (!ean) return null;
+
+  const watchType = isWatchTypeParam(type) ? type : undefined;
+  return { name: "watchlist", ean, watchType };
+}
+
+// A Map, not an object literal, so names like "constructor" never hit the prototype.
+const PARSERS = new Map<string, ModalParser>([
+  ...PLAIN_MODAL_NAMES.map((name): [string, ModalParser] => [
+    name,
+    () => ({ name }),
+  ]),
+  [
+    "onboarding",
+    ({ sub }) => ({
+      name: "onboarding",
+      mode: sub === "replay" ? "replay" : "required",
+    }),
+  ],
+  [
+    "settings",
+    ({ sub }) => ({
+      name: "settings",
+      tab: sub && isSettingsTab(sub) ? sub : "profil",
+    }),
+  ],
+  ["shopping-list", parseShoppingList],
+  ["digital-card", parseDigitalCard],
+  [
+    "shopping-list-actions",
+    ({ id }) => (id ? { name: "shopping-list-actions", id } : null),
+  ],
+  ["add-to-list", ({ ean }) => (ean ? { name: "add-to-list", ean } : null)],
+  [
+    "product-actions",
+    ({ ean }) => (ean ? { name: "product-actions", ean } : null),
+  ],
+  ["watchlist", parseWatchlist],
+]);
+
 export function parseModalParam(
   searchParams: URLSearchParams,
 ): ModalTarget | null {
@@ -64,52 +146,15 @@ export function parseModalParam(
   if (!modal) return null;
 
   const [name, sub] = modal.split("/");
-  const id = searchParams.get("id");
-  const ean = searchParams.get("ean");
+  const parser = PARSERS.get(name);
+  if (!parser) return null;
 
-  switch (name) {
-    case "login":
-    case "signup":
-    case "forgot-password":
-    case "reset-password":
-    case "email-verified":
-    case "email-changed":
-    case "contact":
-    case "donate":
-      return { name };
-    case "onboarding":
-      return { name, mode: sub === "replay" ? "replay" : "required" };
-    case "settings":
-      return { name, tab: sub && isSettingsTab(sub) ? sub : "profil" };
-    case "shopping-list":
-      if (sub === "new") return { name, action: "new" };
-      if (sub === "edit" && id) return { name, action: "edit", id };
-      if (sub === "share" && id) return { name, action: "share", id };
-      if (sub === "copy" && id) return { name, action: "copy", id };
-      return null;
-    case "digital-card":
-      if (sub === "new") return { name, action: "new" };
-      if (sub === "edit" && id) return { name, action: "edit", id };
-      if (sub === "view" && id) return { name, action: "view", id };
-      return null;
-    case "shopping-list-actions":
-      return id ? { name, id } : null;
-    case "add-to-list":
-    case "product-actions":
-      return ean ? { name, ean } : null;
-    case "watchlist": {
-      if (!ean) return null;
-      const type = searchParams.get("type");
-      const watchType = (WATCH_TYPE_PARAMS as readonly string[]).includes(
-        type ?? "",
-      )
-        ? (type as WatchTypeParam)
-        : undefined;
-      return { name, ean, watchType };
-    }
-    default:
-      return null;
-  }
+  return parser({
+    sub,
+    id: searchParams.get("id"),
+    ean: searchParams.get("ean"),
+    type: searchParams.get("type"),
+  });
 }
 
 function modalParamValue(target: ModalTarget): string {
