@@ -6,15 +6,15 @@ import { useTranslations } from "next-intl";
 import AuthModal, { AuthMode } from "@/components/custom/auth/auth-modal";
 import EntityModalOutlet, {
   isEntityTarget,
-} from "@/components/custom/modal-router/entity-modal-outlet";
+} from "@/app/[locale]/components/modal-router/entity-modal-outlet";
 import SettingsModalHost from "@/components/custom/settings/settings-modal-host";
 import OnboardingGate from "@/components/custom/settings/onboarding/components/onboarding-gate";
 import ResetPasswordModal from "@/components/custom/auth/reset-password-modal";
 import AuthStatusModal from "@/components/custom/auth/auth-status-modal";
 import ContactModal from "@/components/custom/contact/contact-modal";
 import DonationModal from "@/components/custom/donation/donation-modal";
-import ProductActionsOutlet from "@/components/custom/modal-router/product-actions-outlet";
-import ShoppingListActionsOutlet from "@/components/custom/modal-router/shopping-list-actions-outlet";
+import ProductActionsOutlet from "@/app/[locale]/components/modal-router/product-actions-outlet";
+import ShoppingListActionsOutlet from "@/app/[locale]/components/modal-router/shopping-list-actions-outlet";
 import { AUTH_MODAL_NAMES, isPublicModal } from "@/lib/modal/modal-registry";
 import { useModalUrl } from "@/lib/modal/use-modal-url";
 import { useUser } from "@/context/user-context";

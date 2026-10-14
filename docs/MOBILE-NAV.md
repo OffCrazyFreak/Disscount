@@ -362,11 +362,11 @@ The threshold is 40px, far enough that a scroll, a wobble or a tap cannot trigge
 
 Current users, identical apart from their content and their modality:
 
-| Sheet                    | File                                                   | Modal | Explicit dismissal beyond the handle             |
-| ------------------------ | ------------------------------------------------------ | ----- | ------------------------------------------------ |
-| Search                   | `components/custom/products-sheet/products-sheet.tsx`  | no    | the bar's centre cell; also the only `md:hidden` |
-| Product quick actions    | `components/custom/product/product-quick-actions.tsx`  | yes   | an outside press, plus any action it runs        |
-| PWA install instructions | `components/custom/pwa/install-instructions-sheet.tsx` | yes   | an outside press and `showCloseButton`           |
+| Sheet                    | File                                                                 | Modal | Explicit dismissal beyond the handle             |
+| ------------------------ | -------------------------------------------------------------------- | ----- | ------------------------------------------------ |
+| Search                   | `app/[locale]/products/components/products-sheet/products-sheet.tsx` | no    | the bar's centre cell; also the only `md:hidden` |
+| Product quick actions    | `components/custom/product/product-quick-actions.tsx`                | yes   | an outside press, plus any action it runs        |
+| PWA install instructions | `components/custom/pwa/install-instructions-sheet.tsx`               | yes   | an outside press and `showCloseButton`           |
 
 ### Why the surface is muted
 
@@ -747,12 +747,12 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 
 ### The products sheet's own parts
 
-| File                                                         | Role                                                            |
-| ------------------------------------------------------------ | --------------------------------------------------------------- |
-| `components/custom/products-sheet/products-sheet.tsx`        | The sheet: field, Popusti, filters, footer                      |
-| `components/custom/search/search-nav-button.tsx`             | A nav item as an outlined button, with its USKORO badge         |
-| `components/custom/search/search-action-button.tsx`          | The Pretraži button itself, shared with the inline bars         |
-| `components/custom/products-sheet/products-sheet-submit.tsx` | Wraps it with the URL comparison, so no hook runs in the layout |
+| File                                                                        | Role                                                            |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `app/[locale]/products/components/products-sheet/products-sheet.tsx`        | The sheet: field, Popusti, filters, footer                      |
+| `components/custom/search/search-nav-button.tsx`                            | A nav item as an outlined button, with its USKORO badge         |
+| `components/custom/search/search-action-button.tsx`                         | The Pretraži button itself, shared with the inline bars         |
+| `app/[locale]/products/components/products-sheet/products-sheet-submit.tsx` | Wraps it with the URL comparison, so no hook runs in the layout |
 
 ### The filters
 

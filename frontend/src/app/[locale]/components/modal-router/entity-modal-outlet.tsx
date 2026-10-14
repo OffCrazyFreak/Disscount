@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-import useLingeringTarget from "@/components/custom/modal-router/use-lingering-target";
+import useLingeringTarget from "@/app/[locale]/components/modal-router/use-lingering-target";
 import type { ModalTarget } from "@/lib/modal/modal-registry";
 
 const ShoppingListModal = dynamic(

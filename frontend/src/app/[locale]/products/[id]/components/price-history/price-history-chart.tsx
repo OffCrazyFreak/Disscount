@@ -7,7 +7,7 @@ import { ChartConfig, ChartTooltipContent } from "@/components/ui/chart";
 import { getChainLabel } from "@/utils/labels";
 import { formatPrice } from "@/utils/price";
 import { useUser } from "@/context/user-context";
-import { HistoryDataPoint } from "@/app/[locale]/products/[id]/typings/history-data-point";
+import { HistoryDataPoint } from "@/lib/cijene-api/history-data-point";
 import { ChartDataPoint } from "@/typings/chart-data";
 import PriceHistoryChartShell from "@/components/custom/price/price-history-chart-shell";
 

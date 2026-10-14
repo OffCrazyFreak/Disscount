@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import useLingeringTarget, {
   SHEET_EXIT_MS,
-} from "@/components/custom/modal-router/use-lingering-target";
+} from "@/app/[locale]/components/modal-router/use-lingering-target";
 import type { ShoppingListDto } from "@/lib/api/types";
 import type { ModalTarget } from "@/lib/modal/modal-registry";
 import { useShoppingListActions } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-shopping-list-actions";

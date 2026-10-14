@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import PriceHistoryChart from "@/app/[locale]/products/[id]/components/price-history/price-history-chart";
-import { HistoryDataPoint } from "@/app/[locale]/products/[id]/typings/history-data-point";
+import { HistoryDataPoint } from "@/lib/cijene-api/history-data-point";
 
 interface IPriceHistoryPanelProps {
   historyLoading: boolean;
