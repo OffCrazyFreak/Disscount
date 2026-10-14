@@ -5,11 +5,9 @@ import { LogIn } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
-import EmailField from "@/components/custom/auth/components/fields/email-field";
+import AuthFormShell from "@/components/custom/auth/components/forms/auth-form-shell";
 import PasswordField from "@/components/custom/auth/components/fields/password-field";
 import ForgotPasswordLink from "@/components/custom/form/forgot-password-link";
-import FormRootError from "@/components/custom/common/form-root-error";
 import LastLoginBadge from "@/components/custom/auth/components/last-login-badge";
 import BreachedPasswordNotice from "@/components/custom/auth/components/breached-password-notice";
 import { useLoginForm } from "@/components/custom/auth/hooks/use-login-form";
@@ -42,42 +40,33 @@ export default function LoginForm({
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
-        <FormRootError message={formState.errors.root?.message} />
+    <AuthFormShell form={form} onSubmit={onSubmit}>
+      <PasswordField
+        control={form.control}
+        name="password"
+        label={t("fields.password")}
+        autoComplete="current-password"
+        hasError={!!formState.errors.password}
+        action={<ForgotPasswordLink onClick={onForgotPassword} />}
+      />
 
-        <EmailField
-          registration={form.register("email")}
-          error={formState.errors.email?.message}
-        />
-
-        <PasswordField
-          control={form.control}
-          name="password"
-          label={t("fields.password")}
-          autoComplete="current-password"
-          hasError={!!formState.errors.password}
-          action={<ForgotPasswordLink onClick={onForgotPassword} />}
-        />
-
-        <Button
-          type="submit"
-          size="lg"
-          effect="gradientSlideShow"
-          className="w-full"
-          icon={LogIn}
-          iconPlacement="left"
-          loading={formState.isSubmitting}
-          loadingText={t("login.submitting")}
-          loadingIconPlacement="left"
-          disabled={formState.isSubmitting || externalDisabled}
-        >
-          {t("actions.logIn")}
-          {isLastUsed && !formState.isSubmitting && !externalDisabled && (
-            <LastLoginBadge variant="inverse" />
-          )}
-        </Button>
-      </form>
-    </Form>
+      <Button
+        type="submit"
+        size="lg"
+        effect="gradientSlideShow"
+        className="w-full"
+        icon={LogIn}
+        iconPlacement="left"
+        loading={formState.isSubmitting}
+        loadingText={t("login.submitting")}
+        loadingIconPlacement="left"
+        disabled={formState.isSubmitting || externalDisabled}
+      >
+        {t("actions.logIn")}
+        {isLastUsed && !formState.isSubmitting && !externalDisabled && (
+          <LastLoginBadge variant="inverse" />
+        )}
+      </Button>
+    </AuthFormShell>
   );
 }
