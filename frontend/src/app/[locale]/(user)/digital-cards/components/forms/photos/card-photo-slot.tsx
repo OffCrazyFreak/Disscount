@@ -1,10 +1,10 @@
 "use client";
 
 import { useRef } from "react";
-import { Trash2, Undo2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import CardPhotoPreview from "@/app/[locale]/(user)/digital-cards/components/forms/photos/card-photo-preview";
+import CardPhotoSlotAction from "@/app/[locale]/(user)/digital-cards/components/forms/photos/card-photo-slot-action";
 import { Button } from "@/components/ui/button";
 import {
   CARD_PHOTO_SLOT_LABEL_KEYS,
@@ -54,15 +54,6 @@ export default function CardPhotoSlotRow({
 
   // One button for remove, restore and discard keeps the focused element mounted as the
   // label changes; discarding a not-yet-saved photo hides it, so focus moves to the add button.
-  const actionLabel =
-    change === null
-      ? t("restoreAria", { label })
-      : change
-        ? t("discardAria", { label })
-        : saved
-          ? t("removeAria", { label })
-          : null;
-
   function handleAction() {
     if (change === undefined) {
       onChange(null);
@@ -117,21 +108,12 @@ export default function CardPhotoSlotRow({
         {hasImage ? t("replace") : t("add")}
       </Button>
 
-      {actionLabel && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label={actionLabel}
-          onClick={handleAction}
-        >
-          {change === undefined ? (
-            <Trash2 aria-hidden="true" />
-          ) : (
-            <Undo2 aria-hidden="true" />
-          )}
-        </Button>
-      )}
+      <CardPhotoSlotAction
+        label={label}
+        saved={saved}
+        change={change}
+        onClick={handleAction}
+      />
     </div>
   );
 }
