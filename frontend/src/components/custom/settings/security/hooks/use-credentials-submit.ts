@@ -9,9 +9,11 @@ import { resetAuthToken } from "@/lib/api/api-base";
 import { useUser } from "@/context/user-context";
 import type { CredentialsFormValues } from "@/components/custom/settings/security/credentials-schema";
 import { isPasswordPolicyCode } from "@/lib/auth/password-policy";
+import {
+  changeEmailError,
+  changePasswordError,
+} from "@/components/custom/settings/security/credentials-errors";
 import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
-
-const TOO_MANY_ATTEMPTS = "settings.security.submit.tooManyAttempts";
 
 interface IUseCredentialsSubmitProps {
   hasPassword: boolean;
@@ -56,6 +58,63 @@ export function useCredentialsSubmit({
     toast.success(t("security.submit.passwordSet"));
   }
 
+  async function confirmPasswordCommitted() {
+    resetAuthToken();
+    await refreshUser();
+    form.resetField("newPassword");
+    form.resetField("currentPassword");
+  }
+
+  async function changePassword(data: CredentialsFormValues) {
+    const { error } = await authClient.changePassword({
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword,
+      revokeOtherSessions: true,
+    });
+
+    if (!error) return true;
+
+    const { field, message } = changePasswordError(error, messageForCode);
+    form.setError(field, { message });
+    return false;
+  }
+
+  async function changeEmail(
+    data: CredentialsFormValues,
+    afterPasswordChange: boolean,
+  ) {
+    // Guarded endpoint that checks the password and "no social linked" server-side.
+    const response = await fetch("/api/account/change-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        newEmail: data.email,
+        // A password change above already committed, so the new one is now current.
+        currentPassword: afterPasswordChange
+          ? data.newPassword
+          : data.currentPassword,
+      }),
+    });
+
+    if (response.ok) return true;
+
+    const body = (await response.json().catch(() => ({}))) as {
+      error?: string;
+    };
+    const { field, message } = changeEmailError(
+      body.error,
+      afterPasswordChange,
+    );
+    form.setError(field, { message });
+
+    // Password already committed above; confirm it and clear its fields so a retry only re-does email.
+    if (afterPasswordChange) {
+      await confirmPasswordCommitted();
+      toast.success(t("security.submit.passwordChanged"));
+    }
+    return false;
+  }
+
   async function updateCredentials(data: CredentialsFormValues) {
     const emailChanged = data.email !== currentEmail;
     const wantPasswordChange = data.newPassword.length > 0;
@@ -65,102 +124,24 @@ export function useCredentialsSubmit({
       return;
     }
 
-    if (wantPasswordChange) {
-      const { error } = await authClient.changePassword({
-        currentPassword: data.currentPassword,
-        newPassword: data.newPassword,
-        revokeOtherSessions: true,
-      });
+    if (wantPasswordChange && !(await changePassword(data))) return;
+    if (emailChanged && !(await changeEmail(data, wantPasswordChange))) return;
 
-      if (error) {
-        if (isPasswordPolicyCode(error.code)) {
-          form.setError("newPassword", { message: messageForCode(error.code) });
-          return;
-        }
+    await confirmPasswordCommitted();
 
-        form.setError("currentPassword", {
-          message:
-            error.status === 400
-              ? "settings.security.submit.currentPasswordWrong"
-              : "settings.security.submit.changePasswordFailed",
-        });
-        return;
-      }
-    }
-
-    if (emailChanged) {
-      // Guarded endpoint that checks the password and "no social linked" server-side.
-      const response = await fetch("/api/account/change-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          newEmail: data.email,
-          // A password change above already committed, so the new one is now current.
-          currentPassword: wantPasswordChange
-            ? data.newPassword
-            : data.currentPassword,
-        }),
-      });
-
-      if (!response.ok) {
-        const body = (await response.json().catch(() => ({}))) as {
-          error?: string;
-        };
-
-        const tooManyAttempts = body.error === "too_many_attempts";
-
-        // With a password change the check used the new password, so only the email failed
-        // and the committed password still needs the cleanup below.
-        if (
-          !wantPasswordChange &&
-          (tooManyAttempts || body.error === "invalid_password")
-        ) {
-          form.setError("currentPassword", {
-            message: tooManyAttempts
-              ? TOO_MANY_ATTEMPTS
-              : "settings.security.submit.currentPasswordWrong",
-          });
-          return;
-        }
-
-        form.setError("email", {
-          message:
-            body.error === "social_linked"
-              ? "settings.security.submit.socialLinked"
-              : tooManyAttempts
-                ? TOO_MANY_ATTEMPTS
-                : "settings.security.submit.changeEmailFailed",
-        });
-
-        // Password already committed above; confirm it and clear its fields so a retry only re-does email.
-        if (wantPasswordChange) {
-          resetAuthToken();
-          await refreshUser();
-          form.resetField("newPassword");
-          form.resetField("currentPassword");
-          toast.success(t("security.submit.passwordChanged"));
-        }
-        return;
-      }
-    }
-
-    resetAuthToken();
-    await refreshUser();
-    form.resetField("newPassword");
-    form.resetField("currentPassword");
-
-    if (emailChanged) {
-      // The confirmation goes to the CURRENT address and the new email applies only
-      // once its link is clicked, so revert the field instead of showing it as active.
-      form.resetField("email", { defaultValue: currentEmail });
-      toast.success(
-        wantPasswordChange
-          ? t("security.submit.passwordChangedConfirmEmail")
-          : t("security.submit.emailConfirmationSent"),
-      );
-    } else {
+    if (!emailChanged) {
       toast.success(t("security.submit.passwordChanged"));
+      return;
     }
+
+    // The confirmation goes to the CURRENT address and the new email applies only
+    // once its link is clicked, so revert the field instead of showing it as active.
+    form.resetField("email", { defaultValue: currentEmail });
+    toast.success(
+      wantPasswordChange
+        ? t("security.submit.passwordChangedConfirmEmail")
+        : t("security.submit.emailConfirmationSent"),
+    );
   }
 
   async function submit(data: CredentialsFormValues) {

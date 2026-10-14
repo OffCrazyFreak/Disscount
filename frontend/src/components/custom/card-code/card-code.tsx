@@ -1,18 +1,18 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { useTranslations } from "next-intl";
 
 import type { CodeType } from "@/constants/card-codes";
 import { useDevicePixelWidth } from "@/hooks/use-device-pixel-width";
-import { fitCodeSize, type ICodeSize } from "@/utils/card-code/fit-code-size";
 import { generateCodeSvg } from "@/utils/card-code/generate-code-svg";
-import { groupCodeValue } from "@/utils/card-code/group-code-value";
+import CardCodeFallback from "@/components/custom/card-code/card-code-fallback";
+import CardCodeImage from "@/components/custom/card-code/card-code-image";
+import {
+  codeModules,
+  measureCodeSize,
+  rotatedCodeStyle,
+} from "@/components/custom/card-code/card-code-layout";
 import { cn } from "@/lib/utils";
-
-// A matrix code at full panel width is taller than the screen on a phone in landscape.
-const MAX_MATRIX_WIDTH_PX = 360;
-const ABSOLUTE: CSSProperties["position"] = "absolute";
 
 interface ICardCodeProps {
   value: string;
@@ -33,11 +33,6 @@ function codeKindKey(codeType: CodeType, twoDimensional: boolean) {
   return twoDimensional ? "view.code.twoDimensional" : "view.code.linear";
 }
 
-// Snaps a CSS offset to a device pixel so the rotated bars are not smeared by a half pixel.
-function snap(offset: number, dpr: number): number {
-  return Math.round(offset * dpr) / dpr;
-}
-
 export default function CardCode({
   value,
   codeType,
@@ -56,79 +51,42 @@ export default function CardCode({
 
   if (!result.ok) {
     return (
-      <div
+      <CardCodeFallback
         ref={ref}
-        className={cn("flex w-full justify-center bg-white", className)}
-      >
-        {textFallback ? (
-          <p className="break-all p-3 text-center font-mono text-2xl font-semibold tracking-wider text-black">
-            {groupCodeValue(value)}
-          </p>
-        ) : codeType === "unknown" ? null : (
-          <p className="p-3 text-sm text-neutral-700">
-            {t("view.code.cannotDraw")}
-          </p>
-        )}
-      </div>
+        value={value}
+        codeType={codeType}
+        className={className}
+        textFallback={textFallback}
+      />
     );
   }
 
-  const [, modulesWide, modulesHigh] = /viewBox="0 0 ([\d.]+) ([\d.]+)"/
-    .exec(result.svg)!
-    .map(Number);
-
-  let size: ICodeSize | undefined;
-  if (measured && measured.width > 0) {
-    // A rotated code runs along the box height and has the box width to spare across.
-    const along = rotated ? (measured.height ?? 0) : measured.width;
-    const across = rotated ? measured.width : measured.height;
-    const maxWidth = result.twoDimensional
-      ? Math.min(along, MAX_MATRIX_WIDTH_PX)
-      : along;
-
-    size =
-      fitCodeSize({
-        modulesWide,
-        modulesHigh,
-        maxWidth,
-        maxHeight: across,
-        dpr: measured.dpr,
-      }) ??
-      // Under one device pixel per module nothing stays crisp; shrink to fit, never overflow.
-      scaleToFit(modulesWide, modulesHigh, maxWidth, across);
-  }
+  const [modulesWide, modulesHigh] = codeModules(result.svg);
+  const size = measureCodeSize({
+    measured,
+    rotated,
+    twoDimensional: result.twoDimensional,
+    modulesWide,
+    modulesHigh,
+  });
 
   const kind = t(codeKindKey(codeType, result.twoDimensional));
-  const image = (style: CSSProperties) => (
-    <div
-      role="img"
-      aria-label={labelValue ? t("view.code.withValue", { kind, value }) : kind}
-      className="[&>svg]:size-full"
-      style={style}
-      dangerouslySetInnerHTML={{ __html: result.svg }}
-    />
-  );
+  const label = labelValue ? t("view.code.withValue", { kind, value }) : kind;
 
   if (rotated) {
-    const box = measured && size ? { measured, size } : null;
-
     return (
       <div
         ref={ref}
         className={cn("relative w-full bg-white", className)}
         style={{ height: rotatedLength }}
       >
-        {box &&
-          image({
-            position: ABSOLUTE,
-            left: 0,
-            top: 0,
-            width: box.size.width,
-            height: box.size.height,
-            transformOrigin: "0 0",
-            // Turns about the top-left corner, then lands the turned box centred on whole device pixels.
-            transform: `translate(${snap((box.measured.width - box.size.height) / 2, box.measured.dpr)}px, ${snap(((box.measured.height ?? 0) - box.size.width) / 2, box.measured.dpr)}px) rotate(90deg) translateY(-100%)`,
-          })}
+        {measured && size && (
+          <CardCodeImage
+            svg={result.svg}
+            label={label}
+            style={rotatedCodeStyle(measured, size)}
+          />
+        )}
       </div>
     );
   }
@@ -138,26 +96,16 @@ export default function CardCode({
       ref={ref}
       className={cn("flex w-full justify-center bg-white", className)}
     >
-      {image(
-        size ?? {
-          width: "100%",
-          aspectRatio: `${modulesWide} / ${modulesHigh}`,
-        },
-      )}
+      <CardCodeImage
+        svg={result.svg}
+        label={label}
+        style={
+          size ?? {
+            width: "100%",
+            aspectRatio: `${modulesWide} / ${modulesHigh}`,
+          }
+        }
+      />
     </div>
   );
-}
-
-function scaleToFit(
-  modulesWide: number,
-  modulesHigh: number,
-  maxWidth: number,
-  maxHeight: number | null,
-): ICodeSize {
-  const scale = Math.min(
-    maxWidth / modulesWide,
-    maxHeight === null ? Infinity : maxHeight / modulesHigh,
-  );
-
-  return { width: modulesWide * scale, height: modulesHigh * scale };
 }
