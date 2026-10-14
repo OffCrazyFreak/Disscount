@@ -5,10 +5,8 @@ import { UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
-import EmailField from "@/components/custom/auth/components/fields/email-field";
+import AuthFormShell from "@/components/custom/auth/components/forms/auth-form-shell";
 import PasswordField from "@/components/custom/auth/components/fields/password-field";
-import FormRootError from "@/components/custom/common/form-root-error";
 import InboxNotice from "@/components/custom/common/inbox-notice";
 import { useSignupForm } from "@/components/custom/auth/hooks/use-signup-form";
 import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
@@ -34,47 +32,38 @@ export default function SignUpForm({ externalDisabled }: ISignUpFormProps) {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
-        <FormRootError message={formState.errors.root?.message} />
+    <AuthFormShell form={form} onSubmit={onSubmit}>
+      <PasswordField
+        control={form.control}
+        name="password"
+        label={t("fields.password")}
+        autoComplete="new-password"
+        hasError={!!formState.errors.password}
+        description={hint}
+      />
 
-        <EmailField
-          registration={form.register("email")}
-          error={formState.errors.email?.message}
-        />
+      <PasswordField
+        control={form.control}
+        name="confirmPassword"
+        label={t("fields.confirmPassword")}
+        autoComplete="new-password"
+        hasError={!!formState.errors.confirmPassword}
+      />
 
-        <PasswordField
-          control={form.control}
-          name="password"
-          label={t("fields.password")}
-          autoComplete="new-password"
-          hasError={!!formState.errors.password}
-          description={hint}
-        />
-
-        <PasswordField
-          control={form.control}
-          name="confirmPassword"
-          label={t("fields.confirmPassword")}
-          autoComplete="new-password"
-          hasError={!!formState.errors.confirmPassword}
-        />
-
-        <Button
-          type="submit"
-          size="lg"
-          effect="gradientSlideShow"
-          className="w-full"
-          icon={UserPlus}
-          iconPlacement="left"
-          loading={formState.isSubmitting}
-          loadingText={t("signup.submitting")}
-          loadingIconPlacement="left"
-          disabled={formState.isSubmitting || externalDisabled}
-        >
-          {t("actions.signUp")}
-        </Button>
-      </form>
-    </Form>
+      <Button
+        type="submit"
+        size="lg"
+        effect="gradientSlideShow"
+        className="w-full"
+        icon={UserPlus}
+        iconPlacement="left"
+        loading={formState.isSubmitting}
+        loadingText={t("signup.submitting")}
+        loadingIconPlacement="left"
+        disabled={formState.isSubmitting || externalDisabled}
+      >
+        {t("actions.signUp")}
+      </Button>
+    </AuthFormShell>
   );
 }
