@@ -18,14 +18,9 @@ import {
   ProductResponse,
   StorePrice,
 } from "@/lib/cijene-api/schemas";
-import {
-  getMinPrice,
-  getMaxPrice,
-  getPriceExtreme,
-} from "@/app/[locale]/products/utils/product-utils";
 import { formatDate } from "@/utils/strings";
-import { formatPrice } from "@/utils/price";
 import { useUser } from "@/context/user-context";
+import StorePriceSummary from "@/app/[locale]/products/[id]/components/store-item/store-price-summary";
 import StorePricesTable from "@/app/[locale]/products/[id]/components/store-item/store-prices-table";
 import { TIME_ZONE } from "@/i18n/formatting";
 
@@ -53,30 +48,6 @@ const StoreItem = memo(
       timeZone: TIME_ZONE,
     }).format(new Date());
     const isDataFromToday = store.price_date === today;
-
-    // Parse prices
-    const storeMinPrice = parseFloat(store.min_price);
-    const storeAvgPrice = parseFloat(store.avg_price);
-    const storeMaxPrice = parseFloat(store.max_price);
-
-    const productMinPrice = getMinPrice(product);
-    const productMaxPrice = getMaxPrice(product);
-
-    const minExtreme = getPriceExtreme(
-      storeMinPrice,
-      productMinPrice,
-      productMaxPrice,
-    );
-    const avgExtreme = getPriceExtreme(
-      storeAvgPrice,
-      productMinPrice,
-      productMaxPrice,
-    );
-    const maxExtreme = getPriceExtreme(
-      storeMaxPrice,
-      productMinPrice,
-      productMaxPrice,
-    );
 
     return (
       <Collapsible open={isExpanded} onOpenChange={onToggle}>
@@ -119,47 +90,7 @@ const StoreItem = memo(
 
                     {/* Price Information */}
                     <div className="mt-2">
-                      <div className="flex items-center gap-4 text-sm">
-                        <span
-                          className={cn(
-                            minExtreme === "max"
-                              ? "text-red-700 font-bold"
-                              : minExtreme === "min"
-                                ? "text-green-700 font-bold"
-                                : "text-gray-700",
-                          )}
-                        >
-                          {t("min", {
-                            price: formatPrice(storeMinPrice, locale),
-                          })}
-                        </span>
-                        <span
-                          className={cn(
-                            avgExtreme === "max"
-                              ? "text-red-700 font-bold"
-                              : avgExtreme === "min"
-                                ? "text-green-700 font-bold"
-                                : "text-gray-700",
-                          )}
-                        >
-                          {t("average", {
-                            price: formatPrice(storeAvgPrice, locale),
-                          })}
-                        </span>
-                        <span
-                          className={cn(
-                            maxExtreme === "max"
-                              ? "text-red-700 font-bold"
-                              : maxExtreme === "min"
-                                ? "text-green-700 font-bold"
-                                : "text-gray-700",
-                          )}
-                        >
-                          {t("max", {
-                            price: formatPrice(storeMaxPrice, locale),
-                          })}
-                        </span>
-                      </div>
+                      <StorePriceSummary store={store} product={product} />
                     </div>
                   </div>
                 </div>
