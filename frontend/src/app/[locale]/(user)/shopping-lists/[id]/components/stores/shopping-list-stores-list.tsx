@@ -2,12 +2,11 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import { ShoppingListDto } from "@/lib/api/types";
 import ShoppingListStoreItem from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/shopping-list-store-card";
 import { useUser } from "@/context/user-context";
 import {
-  STORE_OPTIMIZE_MODES,
+  isStoreOptimizeMode,
   type StoreOptimizeMode,
 } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
 import CollapsibleSection from "@/components/custom/common/collapsible-section";
@@ -18,6 +17,7 @@ import {
   setStoreOptimizeMode,
 } from "@/utils/browser/local-storage";
 import { useStoreChainAnalysis } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-store-chain-analysis";
+import ShoppingListStoresBody from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/shopping-list-stores-body";
 import StoreOptimizeSelect from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/store-optimize-select";
 
 interface IShoppingListStoreSummaryProps {
@@ -37,10 +37,7 @@ export default function ShoppingListStoreSummary({
   const [optimizeBy, setOptimizeBy] = useState<StoreOptimizeMode>(() => {
     const stored = getStoreOptimizeMode();
 
-    return stored &&
-      (STORE_OPTIMIZE_MODES as readonly string[]).includes(stored)
-      ? (stored as StoreOptimizeMode)
-      : "products";
+    return isStoreOptimizeMode(stored) ? stored : "products";
   });
 
   function handleOptimizeChange(mode: StoreOptimizeMode) {
@@ -75,49 +72,33 @@ export default function ShoppingListStoreSummary({
       open={isStoresOpen}
       onOpenChange={handleToggleStores}
     >
-      <>
-        {productsLoading ? (
-          <div className="grid place-items-center">
-            <BlockLoadingSpinner />
-          </div>
-        ) : !shoppingList.items || shoppingList.items.length === 0 ? (
-          <p className="p-2 text-gray-600 text-center">{t("stores.noItems")}</p>
-        ) : activeItems.length === 0 ? (
-          <p className="p-2 text-gray-600 text-center">
-            {t("stores.allChecked")}
-          </p>
-        ) : productsError ? (
-          <p className="p-2 text-gray-600 text-center">
-            {t("stores.loadError")}
-          </p>
-        ) : allChains.length === 0 ? (
-          <p className="p-2 text-gray-600 text-center">
-            {t("stores.noPrices")}
-          </p>
-        ) : (
-          <div className="space-y-4">
-            <StoreOptimizeSelect
-              value={optimizeBy}
-              onValueChange={handleOptimizeChange}
-            />
+      <ShoppingListStoresBody
+        isLoading={productsLoading}
+        hasItems={!!shoppingList.items && shoppingList.items.length > 0}
+        hasActiveItems={activeItems.length > 0}
+        hasError={!!productsError}
+        hasChains={allChains.length > 0}
+      >
+        <div className="space-y-4">
+          <StoreOptimizeSelect
+            value={optimizeBy}
+            onValueChange={handleOptimizeChange}
+          />
 
-            {sortedChains.map((chain) => (
-              <ShoppingListStoreItem
-                key={chain.chain}
-                chain={chain}
-                shoppingList={shoppingList}
-                absoluteMinPrice={absolutePrices.min}
-                absoluteMaxPrice={absolutePrices.max}
-                productsData={productsData}
-                hasLowestPriceItem={storesWithLowestPriceItems.has(chain.chain)}
-                hasHighestPriceItem={storesWithHighestPriceItems.has(
-                  chain.chain,
-                )}
-              />
-            ))}
-          </div>
-        )}
-      </>
+          {sortedChains.map((chain) => (
+            <ShoppingListStoreItem
+              key={chain.chain}
+              chain={chain}
+              shoppingList={shoppingList}
+              absoluteMinPrice={absolutePrices.min}
+              absoluteMaxPrice={absolutePrices.max}
+              productsData={productsData}
+              hasLowestPriceItem={storesWithLowestPriceItems.has(chain.chain)}
+              hasHighestPriceItem={storesWithHighestPriceItems.has(chain.chain)}
+            />
+          ))}
+        </div>
+      </ShoppingListStoresBody>
     </CollapsibleSection>
   );
 }
