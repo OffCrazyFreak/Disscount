@@ -1,10 +1,8 @@
 import { ComponentPropsWithoutRef, forwardRef } from "react";
 import { ChevronDown } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import { cn } from "@/lib/utils";
-import { formatDate } from "@/utils/strings";
+import ShoppingListTriggerLabel from "@/app/[locale]/products/components/forms/shopping-list-trigger-label";
 import { ShoppingListDto } from "@/lib/api/types";
 
 interface IShoppingListTriggerProps extends ComponentPropsWithoutRef<"button"> {
@@ -33,9 +31,6 @@ const ShoppingListTrigger = forwardRef<
   },
   ref,
 ) {
-  const t = useTranslations("products");
-  const locale = useLocale();
-
   return (
     <Button
       ref={ref}
@@ -53,43 +48,13 @@ const ShoppingListTrigger = forwardRef<
       )}
     >
       <div className="flex-1 text-left w-0">
-        {isLoadingLists ? (
-          <div>
-            <BlockLoadingSpinner size={20} />
-            <span className="sr-only">{t("listTrigger.loading")}</span>
-          </div>
-        ) : isNewList && customListTitle.trim() ? (
-          <div className="truncate">
-            {t("listTrigger.createNamed", { title: customListTitle.trim() })}
-          </div>
-        ) : selectedList ? (
-          <div className="flex items-center gap-2">
-            <span className="truncate">{selectedList.title}</span>
-
-            {selectedList.updatedAt && (
-              <span className="text-gray-500 text-xs whitespace-nowrap">
-                {t("listSelector.updatedAt", {
-                  date: formatDate(selectedList.updatedAt, locale),
-                })}
-              </span>
-            )}
-
-            <span className="ml-auto text-xs text-gray-500">
-              {t("listSelector.progress", {
-                checked:
-                  selectedList.items?.reduce(
-                    (sum, item) => (item.isChecked ? sum + 1 : sum),
-                    0,
-                  ) ?? 0,
-                total: selectedList.items?.length ?? 0,
-              })}
-            </span>
-          </div>
-        ) : hasShoppingLists ? (
-          t("listTrigger.choose")
-        ) : (
-          t("listTrigger.createFirst")
-        )}
+        <ShoppingListTriggerLabel
+          isLoadingLists={isLoadingLists}
+          hasShoppingLists={hasShoppingLists}
+          isNewList={isNewList}
+          customListTitle={customListTitle}
+          selectedList={selectedList}
+        />
       </div>
 
       <ChevronDown
