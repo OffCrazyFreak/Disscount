@@ -18,6 +18,13 @@ COMMIT_WITH_VALUE = {"-m", "-F", "-C", "-c", "-t", "--message", "--file", "--aut
 
 PUSH_WITH_VALUE = {"-o", "--push-option", "--repo", "--receive-pack", "--exec"}
 
+# git accepts any unambiguous prefix of a long option; `--no-verb` would be
+# `--no-verbose`, so a prefix must reach `--no-veri` to mean this flag.
+NO_VERIFY_MIN = "--no-veri"
+
+# These push every local branch, `main` included.
+PUSH_EVERYTHING = {"--all", "--mirror", "--branches"}
+
 MAIN_REF = re.compile(r"^\+?(?:[^:]*:)?(?:refs/heads/)?main$")
 
 
@@ -39,8 +46,18 @@ def split_global(args, cwd):
     return None, [], cwd
 
 
+def is_no_verify(token):
+    return token.startswith(NO_VERIFY_MIN) and "--no-verify".startswith(token)
+
+
+def options_of(args):
+    """Arguments before `--`, after which everything is a path."""
+    return args[: args.index("--")] if "--" in args else args
+
+
 def skips_hooks(sub, args):
-    if "--no-verify" in args:
+    args = options_of(args)
+    if any(is_no_verify(token) for token in args):
         return True
     if sub != "commit":
         return False
@@ -78,6 +95,9 @@ def current_branch(cwd):
 
 
 def pushes_main(args, cwd):
+    if any(token in PUSH_EVERYTHING for token in args):
+        return True
+
     positional = []
     skip_next = False
     for token in args:

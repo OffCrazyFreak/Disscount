@@ -112,6 +112,10 @@ def cases(real_repo, real_worktree, on_main):
         ("git -C frontend merge --no-verify dev", real_repo, True),
         ('env CI=1 git commit --no-verify -m "x"', real_repo, True),
         ("bash -c 'git commit --no-verify -m x'", real_repo, True),
+        ('git commit --no-verif -m "x"', real_repo, True),
+        ('git commit --no-veri -m "x"', real_repo, True),
+        ('git commit --no-verb -m "x"', real_repo, False),
+        ("git commit -m x -- --no-verify", real_repo, False),
         # ALLOW: an `n` inside a message or a value is not the flag
         ('git commit -m "no verify needed"', real_repo, False),
         ('git commit -am "nothing"', real_repo, False),
@@ -123,6 +127,8 @@ def cases(real_repo, real_worktree, on_main):
         ("git push -f origin +main", real_repo, True),
         ("git push origin feature:refs/heads/main", real_repo, True),
         ("git -C . push -u origin main", real_repo, True),
+        ("git push --all origin", real_repo, True),
+        ("git push --mirror origin", real_repo, True),
         # BLOCK: a bare push, or HEAD, while main is checked out
         ("git push", on_main, True),
         ("git push origin HEAD", on_main, True),

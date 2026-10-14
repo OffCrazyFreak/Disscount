@@ -36,7 +36,7 @@ come back here for the contribution workflow.
      errors (`pnpm exec prettier --write .`, then `pnpm exec tsc --noEmit`).
    - Backend: Java 21, existing package structure and formatting.
 3. **Verify locally before opening the PR:**
-   - Frontend: `cd frontend && pnpm install && pnpm lint && pnpm exec fallow audit`.
+   - Frontend: `cd frontend && pnpm install && pnpm lint && pnpm exec fallow audit --base origin/dev`.
      `pnpm install` also sets up git hooks that format staged files and
      reject AI attribution trailers in commit messages.
    - Backend: `cd backend && mvn clean install`

@@ -50,9 +50,18 @@ jobs:
       - name: Fallow audit
         env:
           # A checkout has no upstream, so the base is named: the target branch
-          # on a pull request, the previous tip on a push.
-          FALLOW_AUDIT_BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
-        run: pnpm exec fallow audit --quiet
+          # on a pull request, the previous tip on a push, or the parent when a
+          # push creates the branch and `before` is all zeros.
+          FALLOW_AUDIT_BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || (github.event.before != '0000000000000000000000000000000000000000' && github.event.before) || 'HEAD~1' }}
+        run: |
+          pnpm exec fallow audit --quiet
+          # Fallow exits 1 only on a "fail" verdict; new duplication alone is a
+          # "warn", so the verdict itself is the gate.
+          verdict=$(pnpm exec fallow audit --quiet --format json | jq -r .verdict)
+          if [ "$verdict" != "pass" ]; then
+            echo "::error::Fallow audit verdict is $verdict; see the report above."
+            exit 1
+          fi
 
       - name: Translation catalogs
         run: pnpm i18n:check
