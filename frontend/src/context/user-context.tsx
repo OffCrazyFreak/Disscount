@@ -15,14 +15,16 @@ import { useQueryClient } from "@tanstack/react-query";
 import { authClient, useSession } from "@/lib/auth/client";
 import { clearAuthToken, resetAuthToken } from "@/lib/api/api-base";
 import { purgeOfflineCache } from "@/lib/offline/purge";
-import {
-  getCacheIdentity,
-  setCacheIdentity,
-  toCacheIdentity,
-} from "@/lib/offline/cache-identity";
-import { userService, preferencesService } from "@/lib/api";
+import { getCacheIdentity } from "@/lib/offline/cache-identity";
 import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
 import { isProtectedRoute } from "@/constants/protected-routes";
+import { loadUserProfile } from "@/context/load-user-profile";
+import { mergeSessionUser } from "@/context/merge-session-user";
+import {
+  persistedCacheIdentity,
+  syncCacheIdentity,
+} from "@/context/sync-cache-identity";
+import { useUserUpdaters } from "@/context/use-user-updaters";
 
 interface IUserContext {
   user: UserDto | null;
@@ -56,9 +58,7 @@ export function UserProvider({ children }: IUserProviderProps) {
   const [hasResolvedAuth, setHasResolvedAuth] = useState(false);
   // Seeded from the persisted value so a reload as the same account is not read as a
   // change of identity, which would purge the cache it just restored.
-  const cacheIdentityRef = useRef<string | null>(
-    getCacheIdentity() === "anon" ? null : getCacheIdentity(),
-  );
+  const cacheIdentityRef = useRef<string | null>(persistedCacheIdentity());
 
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -72,20 +72,7 @@ export function UserProvider({ children }: IUserProviderProps) {
   const refreshUser = useCallback(async () => {
     try {
       setIsLoading(true);
-      const userData = await userService.getCurrentUser();
-
-      if (userData && (!userData.pinnedStores || !userData.pinnedPlaces)) {
-        try {
-          const [stores, places] = await Promise.all([
-            preferencesService.getPinnedStores(),
-            preferencesService.getPinnedPlaces(),
-          ]);
-          userData.pinnedStores = stores;
-          userData.pinnedPlaces = places;
-        } catch (prefError) {
-          console.error("Failed to fetch preferences:", prefError);
-        }
-      }
+      const userData = await loadUserProfile();
 
       setUser(userData);
       return userData;
@@ -103,26 +90,7 @@ export function UserProvider({ children }: IUserProviderProps) {
 
     const identity = session?.user?.id ?? null;
 
-    // Purge on a change of identity, not on every anonymous load. This effect runs on
-    // mount, so purging whenever there is no session wiped the cache and the queued
-    // write replay on every single page load for a visitor who is not logged in, which
-    // silently dropped anything they had ticked off while offline.
-    // A failed session lookup is not a logout. /api/auth/get-session is NetworkOnly in
-    // the service worker, so offline it rejects and useSession settles to data: null with
-    // an error set. Purging on that would wipe the signed-in user's cache and every
-    // queued write on the first offline reload, which is the failure this branch exists
-    // to prevent.
-    if (!sessionError && identity !== cacheIdentityRef.current) {
-      // Pass the departing identity, not the arriving one. The purge awaits an IndexedDB
-      // delete, and setCacheIdentity below runs first, so a key resolved inside the purge
-      // would name the account that just arrived.
-      void purgeOfflineCache(
-        queryClient,
-        toCacheIdentity(cacheIdentityRef.current),
-      );
-      setCacheIdentity(identity);
-      cacheIdentityRef.current = identity;
-    }
+    syncCacheIdentity(queryClient, cacheIdentityRef, identity, sessionError);
 
     // The directive covers this whole effect, not just the line under it: the else
     // branch clears user state synchronously too. Both sides react to an auth result
@@ -169,27 +137,10 @@ export function UserProvider({ children }: IUserProviderProps) {
     await refreshUser();
   }, [refreshUser]);
 
-  const updatePinnedStores = useCallback((stores: PinnedStoreDto[]) => {
-    setUser((prev) => (prev ? { ...prev, pinnedStores: stores } : null));
-  }, []);
+  const { updatePinnedStores, updatePinnedPlaces, mergeUser } =
+    useUserUpdaters(setUser);
 
-  const updatePinnedPlaces = useCallback((places: PinnedPlaceDto[]) => {
-    setUser((prev) => (prev ? { ...prev, pinnedPlaces: places } : null));
-  }, []);
-
-  const mergeUser = useCallback((patch: Partial<UserDto>) => {
-    setUser((prev) => (prev ? { ...prev, ...patch } : null));
-  }, []);
-
-  // Prefer the session's name and email at render, keeping the app profile's other fields.
-  const mergedUser: UserDto | null = user
-    ? {
-        ...user,
-        name: session?.user?.name ?? user.name ?? null,
-        email: session?.user?.email ?? user.email ?? null,
-        image: user.image ?? null,
-      }
-    : null;
+  const mergedUser = mergeSessionUser(user, session?.user);
 
   const value: IUserContext = {
     user: mergedUser,
