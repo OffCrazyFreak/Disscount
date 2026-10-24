@@ -60,7 +60,12 @@ export function findSyncTargets(
 
   return upstream
     .filter((store) => !sanitizeCoordinates(store.lat, store.lon))
-    .filter((store) => !overrides.has(storeKey(store.chain_code, store.code)))
+    .filter((store) => {
+      const override = overrides.get(storeKey(store.chain_code, store.code));
+
+      // An override the directory rejects must not hide the store from the sync.
+      return !override || !sanitizeCoordinates(override.lat, override.lon);
+    })
     .filter((store) => {
       const row = byKey.get(storeKey(store.chain_code, store.code));
 

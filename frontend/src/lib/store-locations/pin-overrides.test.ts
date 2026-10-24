@@ -74,6 +74,7 @@ describe("pin overrides", () => {
       lon: 15.4545,
     });
     expect(buildDirectory([store], [], outside)[0].lat).toBeNull();
+    expect(findSyncTargets([store], [], Date.now(), outside)).toHaveLength(1);
   });
 
   it("keep the store out of the sync", () => {
