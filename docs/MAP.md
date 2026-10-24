@@ -55,6 +55,9 @@ flowchart LR
 3. **Geoapify**, only when `GEOAPIFY_API_KEY` is set, through the EU endpoint, at most 1,000 a run. Like Nominatim it accepts only the building with the right house number; a street, a town centre or a near miss is dropped, because a wrong pin is worse than none.
 4. **Nominatim**, the last resort, at most 20 a run, 15 s apart, because the usage policy limits scheduled scripts to 4 requests a minute.
 5. **Manual pin**: a row with source `manual` is never overwritten by a sync.
+6. **Pin override** (`lib/store-locations/pin-overrides.ts`): a reviewed list in code for stores whose automatic pin was verified wrong. Each entry cites its evidence, and only OpenStreetMap points (ODbL, credited on the map) or places a person confirmed go in, never coordinates copied from Google Maps. The directory reports it as `manual`, and the sync skips the store, so no quota is spent on it.
+
+Which pin the map shows: a `manual` table row first, since someone set it in that environment on purpose; then a pin override; then upstream's own coordinates; then the sync's pin. An override is not tied to upstream's address, because upstream may start publishing one for the same building, so delete the entry when the store moves.
 
 Every automatic pin records the upstream address it was found from. When upstream changes a store's address, the old pin is dropped from the map and the store is looked up again; if no source finds the new address, it becomes an ordinary failed store. Pins saved before addresses were recorded are kept as they are.
 
@@ -94,6 +97,7 @@ A store every source misses is recorded as a failed attempt and retried after 7 
 | Directory and route | `frontend/src/lib/store-locations/get-store-directory.ts`, `app/api/cijene/store-directory/`                               |
 | Sync                | `frontend/src/lib/store-locations/sync/`, `sources/`, `dgu/`, `geocoders/`                                                 |
 | Table               | `frontend/src/db/store-location-schema.ts`, `frontend/drizzle/0003_store_locations.sql`, `0004_store_location_address.sql` |
+| Pin overrides       | `frontend/src/lib/store-locations/pin-overrides.ts`                                                                        |
 
 ## 7. Config and env
 
@@ -116,4 +120,4 @@ The migration runs through the existing `migrate` service. The map needs no CSP 
 - Opening hours and working Sundays (board task "Store opening hours"): per-chain hours from the same locators, with an explicit "nije potvrđeno" state.
 - Prices on the map and cheapest basket near me.
 - Store photos, a store type filter, an offline map.
-- An admin way to set manual pins (the table already honours them).
+- An admin way to set manual pins (the table already honours them); until then, verified corrections go in the pin override list.
