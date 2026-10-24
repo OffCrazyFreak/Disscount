@@ -31,4 +31,16 @@ describe("matchLocatorStore", () => {
 
     expect(matchLocatorStore(target("Zagreb"), [dubrava])).toBe(dubrava);
   });
+
+  it("places a store by its code, whatever its address", () => {
+    const coded = { ...RAB, code: "K1", address: "Neka druga 9" };
+
+    expect(matchLocatorStore(target("Rab"), [RABAC, coded])).toBe(coded);
+  });
+
+  it("leaves a store with no address and no known code unplaced", () => {
+    const noAddress = { ...target("Rab"), code: "K2", address: null };
+
+    expect(matchLocatorStore(noAddress, [{ ...RAB, code: "K1" }])).toBeNull();
+  });
 });

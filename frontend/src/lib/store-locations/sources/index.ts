@@ -12,11 +12,12 @@ import { plodineLocator } from "@/lib/store-locations/sources/plodine-locator";
 import { ribolaLocator } from "@/lib/store-locations/sources/ribola-locator";
 import { rotoLocator } from "@/lib/store-locations/sources/roto-locator";
 import { sparLocator } from "@/lib/store-locations/sources/spar-locator";
+import { stanicLocator } from "@/lib/store-locations/sources/stanic-locator";
 import { tommyLocator } from "@/lib/store-locations/sources/tommy-locator";
 import { trgocentarLocator } from "@/lib/store-locations/sources/trgocentar-locator";
 import { trgovinaKrkLocator } from "@/lib/store-locations/sources/trgovina-krk-locator";
 
-// Studenac, Stanić, dm, Žabac, Stridon, Gavranović and Metro publish no usable
+// Studenac, dm, Žabac, Stridon, Gavranović and Metro publish no usable
 // coordinates (or no per-store upstream data to match), so the DGU register
 // and the geocoders place them instead.
 export const storeLocators: IStoreLocator[] = [
@@ -31,6 +32,7 @@ export const storeLocators: IStoreLocator[] = [
   ribolaLocator,
   rotoLocator,
   sparLocator,
+  stanicLocator,
   tommyLocator,
   trgocentarLocator,
   trgovinaKrkLocator,
