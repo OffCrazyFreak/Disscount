@@ -35,3 +35,10 @@ export interface IResolvedLocation {
   source: LocationSource;
   precision: LocationPrecision;
 }
+
+/** A chain's own spelling of a store's address, for geocoders only. */
+export interface ILookupAddress {
+  address: string;
+  city: string;
+  zipcode?: string;
+}
