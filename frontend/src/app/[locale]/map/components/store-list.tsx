@@ -54,16 +54,25 @@ export default function StoreList({
 
   // Set while a row is clicked; a pick made elsewhere (map, Back) moves focus.
   const pickedInList = useRef(false);
+  const focusedKey = useRef<string | null>(null);
 
-  // Opening a row collapses the one above it, so the list always brings the
-  // open row to the top rather than leaving it wherever it slid to.
+  // Opening a row collapses the one above it, and a filter can move the open
+  // store, so the list brings the open row to the top whenever its position
+  // changes. Focus moves only for a new pick, never while someone filters.
   useEffect(() => {
     const fromList = pickedInList.current;
     pickedInList.current = false;
-    if (selectedIndex < 0) return;
+
+    if (selectedIndex < 0) {
+      focusedKey.current = null;
+      return;
+    }
 
     virtualizer.scrollToIndex(selectedIndex, { align: "start" });
-    if (fromList) return;
+
+    const isNewPick = focusedKey.current !== selectedKey;
+    focusedKey.current = selectedKey;
+    if (fromList || !isNewPick) return;
 
     requestAnimationFrame(() => {
       scrollRef.current
@@ -73,7 +82,7 @@ export default function StoreList({
         ?.focus({ preventScroll: true });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedKey]);
+  }, [selectedKey, selectedIndex]);
 
   function selectInList(key: string | null) {
     pickedInList.current = true;
