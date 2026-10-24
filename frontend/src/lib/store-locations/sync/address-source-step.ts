@@ -21,24 +21,44 @@ export async function withChainAddresses(
   targets: ISyncTarget[],
   signal: AbortSignal,
 ): Promise<ISyncTarget[]> {
-  const result = [...targets];
+  let result = targets;
 
   for (const [chain, fetchAddresses] of Object.entries(ADDRESS_SOURCES)) {
     if (!targets.some((target) => target.chain === chain)) continue;
 
-    try {
-      const addresses = await fetchAddresses(signal);
+    const addresses = await fetchOrWarn(chain, fetchAddresses, signal);
 
-      for (const [index, target] of result.entries()) {
-        const lookup =
-          target.chain === chain ? addresses.get(target.code) : undefined;
-
-        if (lookup) result[index] = { ...target, lookup };
-      }
-    } catch (error) {
-      console.warn(`[store-locations] ${chain} addresses failed`, error);
-    }
+    if (addresses) result = attachLookups(result, chain, addresses);
   }
 
   return result;
+}
+
+async function fetchOrWarn(
+  chain: string,
+  fetchAddresses: (signal: AbortSignal) => Promise<Map<string, ILookupAddress>>,
+  signal: AbortSignal,
+): Promise<Map<string, ILookupAddress> | null> {
+  try {
+    return await fetchAddresses(signal);
+  } catch (error) {
+    if (signal.aborted) throw error;
+
+    console.warn(`[store-locations] ${chain} addresses failed`, error);
+
+    return null;
+  }
+}
+
+function attachLookups(
+  targets: ISyncTarget[],
+  chain: string,
+  addresses: Map<string, ILookupAddress>,
+): ISyncTarget[] {
+  return targets.map((target) => {
+    const lookup =
+      target.chain === chain ? addresses.get(target.code) : undefined;
+
+    return lookup ? { ...target, lookup } : target;
+  });
 }

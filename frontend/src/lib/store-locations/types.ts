@@ -40,5 +40,4 @@ export interface IResolvedLocation {
 export interface ILookupAddress {
   address: string;
   city: string;
-  zipcode?: string;
 }

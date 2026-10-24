@@ -17,6 +17,8 @@ const PAGE = `<table>
     <td>10410 Velika Gorica</td><td>Ulica Ljudevita Posavskog 23</td></tr>
   <tr><td>Prod. 26</td><td>MARKET PLA&Scaron;KI</td>
     <td>47304 Pla&scaron;ki</td><td>Ulica 143. Domobranske pukovnije b. b.</td></tr>
+  <tr><td>Prod. 47</td><td>DISKONT NOVSKA</td>
+    <td>44330 Novska</td><td>Trg L. I. Oriovĉanina&#160;10</td></tr>
 </table>`;
 
 function target(chain: string, code: string): ISyncTarget {
@@ -34,10 +36,11 @@ describe("withChainAddresses", () => {
   it("gives Stridon targets the address from Stridon's own table", async () => {
     server.use(http.get(PAGE_URL, () => HttpResponse.html(PAGE)));
 
-    const [ten, twentySix, other] = await withChainAddresses(
+    const [ten, twentySix, fortySeven, other] = await withChainAddresses(
       [
         target("stridon", "Prod.10"),
         target("stridon", "Prod.26"),
+        target("stridon", "Prod.47"),
         target("konzum", "Prod.10"),
       ],
       new AbortController().signal,
@@ -46,10 +49,10 @@ describe("withChainAddresses", () => {
     expect(ten.lookup).toEqual({
       address: "Ulica Ljudevita Posavskog 23",
       city: "Velika Gorica",
-      zipcode: "10410",
     });
     expect(ten.address).toBe("Lj.Posavskog 23");
     expect(twentySix.lookup?.city).toBe("Plaški");
+    expect(fortySeven.lookup?.address).toBe("Trg L. I. Oriovčanina 10");
     expect(other.lookup).toBeUndefined();
   });
 

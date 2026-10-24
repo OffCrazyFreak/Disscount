@@ -5,7 +5,8 @@ import type { ILookupAddress } from "@/lib/store-locations/types";
 
 const PAGE_URL = "https://stridon.hr/hr/distribucija/maloprodaja-4";
 
-// The page spells Croatian letters as named entities ("&scaron;").
+// The page spells Croatian letters as named entities ("&scaron;"), and
+// writes č as ĉ ("Oriovĉanina").
 const ENTITIES: Record<string, string> = {
   nbsp: " ",
   amp: "&",
@@ -24,7 +25,10 @@ const ENTITIES: Record<string, string> = {
 function cellText(html: string): string {
   return html
     .replace(/<[^>]*>/g, " ")
+    .replace(/&#(\d+);/g, (_, code: string) => String.fromCodePoint(+code))
     .replace(/&(\w+);/g, (whole, name: string) => ENTITIES[name] ?? whole)
+    .replace(/ĉ/g, "č")
+    .replace(/Ĉ/g, "Č")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -48,15 +52,11 @@ export async function fetchStridonAddresses(
       ? cells[0].replace(/\s+/g, "")
       : null;
     // "10410 Velika Gorica"
-    const place = /^(\d{5})\s+(.+)$/.exec(cells[2] ?? "");
+    const place = /^\d{5}\s+(.+)$/.exec(cells[2] ?? "");
 
     if (!code || !place || !cells[3]) continue;
 
-    addresses.set(code, {
-      address: cells[3],
-      city: place[2],
-      zipcode: place[1],
-    });
+    addresses.set(code, { address: cells[3], city: place[1] });
   }
 
   if (addresses.size === 0) throw new Error("Stridon page has no store table");

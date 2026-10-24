@@ -82,7 +82,7 @@ export async function runStoreLocationSync(signal: AbortSignal): Promise<void> {
     // The week-long wait starts only once the last source has missed too.
     const missed = new Set(nominatim.failed);
     const unplaced = nominatim.remaining.filter(
-      (target) => !target.address || missed.has(target),
+      (target) => !(target.lookup ?? target).address || missed.has(target),
     );
 
     for (const target of unplaced) {
