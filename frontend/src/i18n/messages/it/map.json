@@ -61,7 +61,6 @@
     "noLocation": "senza posizione"
   },
   "details": {
-    "back": "Torna all'elenco",
     "unknownAddress": "Indirizzo sconosciuto",
     "distance": "a {distance} da te",
     "notPlaced": "Non abbiamo ancora una posizione esatta per questo negozio, quindi non è sulla mappa."

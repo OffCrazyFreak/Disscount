@@ -61,7 +61,6 @@
     "noLocation": "ohne Standort"
   },
   "details": {
-    "back": "Zurück zur Liste",
     "unknownAddress": "Adresse unbekannt",
     "distance": "{distance} von dir",
     "notPlaced": "Für diesen Markt haben wir noch keinen genauen Standort, deshalb ist er nicht auf der Karte."

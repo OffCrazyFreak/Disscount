@@ -10,11 +10,10 @@ import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 interface IStoreListProps {
   rows: IListedStore[];
   selectedKey: string | null;
-  onSelect: (key: string) => void;
-  /** The store just closed, focused again when the list comes back. */
-  returnFocusKey?: string | null;
+  onSelect: (key: string | null) => void;
 }
 
+// A closed row; open rows are measured.
 const ROW_HEIGHT = 64;
 
 /**
@@ -26,7 +25,6 @@ export default function StoreList({
   rows,
   selectedKey,
   onSelect,
-  returnFocusKey = null,
 }: IStoreListProps) {
   // TanStack Virtual hands back functions the compiler cannot memoize safely;
   // opting out explicitly keeps the virtualized rows from going stale.
@@ -43,22 +41,24 @@ export default function StoreList({
     overscan: 8,
   });
 
-  // Mount only: the list remounts each time a store's details close.
+  // Set while a row is clicked, so only a pick made on the map scrolls the list.
+  const pickedInList = useRef(false);
+
   useEffect(() => {
-    const index = rows.findIndex((row) => row.key === returnFocusKey);
-    if (index < 0) return;
+    if (pickedInList.current) {
+      pickedInList.current = false;
+      return;
+    }
 
-    virtualizer.scrollToIndex(index, { align: "center" });
-
-    requestAnimationFrame(() => {
-      scrollRef.current
-        ?.querySelector<HTMLElement>(
-          `[data-store-key="${CSS.escape(rows[index].key)}"]`,
-        )
-        ?.focus();
-    });
+    const index = rows.findIndex((row) => row.key === selectedKey);
+    if (index >= 0) virtualizer.scrollToIndex(index, { align: "start" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [selectedKey]);
+
+  function selectInList(key: string | null) {
+    pickedInList.current = true;
+    onSelect(key);
+  }
 
   return (
     <div
@@ -76,18 +76,17 @@ export default function StoreList({
           return (
             <li
               key={row.key}
+              ref={virtualizer.measureElement}
+              data-index={item.index}
               aria-setsize={rows.length}
               aria-posinset={item.index + 1}
               className="absolute inset-x-0"
-              style={{
-                height: item.size,
-                transform: `translateY(${item.start}px)`,
-              }}
+              style={{ transform: `translateY(${item.start}px)` }}
             >
               <StoreListItem
                 row={row}
                 isSelected={row.key === selectedKey}
-                onSelect={onSelect}
+                onSelect={selectInList}
               />
             </li>
           );

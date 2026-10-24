@@ -61,7 +61,6 @@
     "noLocation": "brez lokacije"
   },
   "details": {
-    "back": "Nazaj na seznam",
     "unknownAddress": "Naslov ni znan",
     "distance": "{distance} od tebe",
     "notPlaced": "Za to trgovino še nimamo natančne lokacije, zato je ni na zemljevidu."
