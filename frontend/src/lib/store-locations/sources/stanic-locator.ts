@@ -32,20 +32,35 @@ export const stanicLocator: IStoreLocator = {
     if (!Array.isArray(payload))
       throw new Error("Stanić store list is not an array");
 
+    // Codes are settled before rows with bad coordinates drop out, so a
+    // title listed twice stays ambiguous even if one twin is unusable.
+    const rows = dropSharedCodes(
+      payload.flatMap((raw) => {
+        const parsed = storeSchema.safeParse(raw);
+
+        return parsed.success
+          ? [{ ...parsed.data, code: stanicCodeFor(parsed.data.store) }]
+          : [];
+      }),
+    );
+
+    const uncoded = rows.filter((row) => !row.code).map((row) => row.store);
+
+    if (uncoded.length > 0) {
+      console.warn(
+        `[store-locations] Stanić stores without a code: ${uncoded.join("; ")}`,
+      );
+    }
+
     const stores: ILocatorStore[] = [];
 
-    for (const raw of payload) {
-      const parsed = storeSchema.safeParse(raw);
-
-      if (!parsed.success) continue;
-
-      const { store, address, city, zip, lat, lng } = parsed.data;
+    for (const { code, address, city, zip, lat, lng } of rows) {
       const coordinates = sanitizeCoordinates(lat, lng);
 
       if (!coordinates) continue;
 
       stores.push({
-        code: stanicCodeFor(store),
+        code,
         address,
         city: city || undefined,
         // The site writes Zagreb's postcode as "1000" on one store.
@@ -54,6 +69,6 @@ export const stanicLocator: IStoreLocator = {
       });
     }
 
-    return dropSharedCodes(stores);
+    return stores;
   },
 };

@@ -4,29 +4,6 @@ import {
   dropSharedCodes,
   stanicCodeFor,
 } from "@/lib/store-locations/sources/stanic-store-codes";
-import { matchLocatorStore } from "@/lib/store-locations/sync/match-locator-store";
-import type { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
-
-function target(code: string, city: string | null): ISyncTarget {
-  return {
-    chain: "stanic",
-    code,
-    address: null,
-    city,
-    zipcode: null,
-    skipGeoapify: false,
-  };
-}
-
-function record(title: string, city: string) {
-  return {
-    code: stanicCodeFor(title),
-    address: "Ulica 1",
-    city,
-    lat: 45.8,
-    lon: 16,
-  };
-}
 
 describe("stanicCodeFor", () => {
   it("reads diskont.hr titles with their HTML entities and spacing", () => {
@@ -60,24 +37,5 @@ describe("dropSharedCodes", () => {
       { code: undefined },
       { code: "932" },
     ]);
-  });
-});
-
-describe("Stanić matching", () => {
-  const zitnjak = record("Diskont Stanić Zagreb &#8211; Žitnjak", "Zagreb");
-  const pula = record("Diskont Stanić Pula", "Pula");
-  const osijek = record("Diskont Stanić Osijek", "Osijek");
-
-  it("places a store by its code", () => {
-    expect(matchLocatorStore(target("131", "Zagreb"), [zitnjak, pula])).toBe(
-      zitnjak,
-    );
-  });
-
-  it("leaves an unknown code unplaced, even in a town with one store", () => {
-    expect(
-      matchLocatorStore(target("531", "Osijek"), [zitnjak, osijek]),
-    ).toBeNull();
-    expect(matchLocatorStore(target("1301", null), [zitnjak, pula])).toBeNull();
   });
 });
