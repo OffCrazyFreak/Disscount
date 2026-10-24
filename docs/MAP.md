@@ -66,10 +66,10 @@ A store every source misses is recorded as a failed attempt and retried after 7 
 
 ## 4. The page
 
-- **Layout:** a fixed layer between the floating header and the bottom nav. Desktop has a 24rem list panel beside the map; phones get a full-screen map with a custom bottom sheet (peek, half, full). vaul is not used here: its non-modal mode is unmaintained and buggy.
+- **Layout:** on desktop a 24rem list panel sits beside the map, and both fill the space between the header and the footer: the map marks itself `data-page-width="full"`, which widens `<main>` and makes the root layout exactly one screen tall, so the page never scrolls (below 40rem of height it does, so the map keeps a usable size). Phones get a full-screen fixed layer between the floating header and the bottom nav, with a custom bottom sheet (peek, half, full); the bottom nav stands in for the footer there. vaul is not used here: its non-modal mode is unmaintained and buggy.
 - **Pins:** every chain is its own clustered GeoJSON source, so a cluster always shows that chain's logo with a count and splits apart on zoom. Logos are drawn into a white disc with a dark rim (`chain-icon.ts`) for contrast on any basemap.
 - **List:** every matching store, placed or not, virtualized with TanStack Virtual. Search is the shared matcher over chain, town and address. Stores without coordinates carry a "bez lokacije" label and the note above the list counts them.
-- **Store card:** directions (Google Maps, Apple Maps), call, share, and "Prijavi grešku", which pre-fills the contact form through its draft key.
+- **Store details:** each list row is a collapsible item, and the open one is the store selected on the map, so picking a pin opens its row, scrolls the list to it and focuses it. The open row stays mounted in the virtualized list, and measured heights are keyed by store. A shared link to a store the filters hide puts that store on top of the list. The open row shows the full address, the distance, directions (Google Maps, Apple Maps), call, share, and "Prijavi grešku", which pre-fills the contact form through its draft key. Opening hours will go here too.
 - **URL state:** `?store=<chain>:<code>` is pushed, so Back closes a store; `?chain=` replaces; `?q=` comes from the shared `SearchBar` in its `shallow` mode; the map view rides in `#map=zoom/lat/lon`. These writes use the History API, so they cause no server round trip.
 - **Defaults:** signed-in users start with their pinned chains selected and the map on their first pinned place, centred on the average of that town's stores.
 - **Near me:** the button asks for the position at low accuracy with our own 15 s timer; when the browser already reports the permission as `granted`, the page locates by itself without a prompt. A fix vaguer than 100 m is then sharpened by one high-accuracy request. The position never leaves the device.
@@ -89,6 +89,7 @@ A store every source misses is recorded as a failed attempt and retried after 7 
 | Area                | Files                                                                                                                      |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | Page and layout     | `frontend/src/app/[locale]/map/page.tsx`, `components/map-client.tsx`, `components/map-bottom-sheet.tsx`                   |
+| List                | `components/store-list.tsx`, `components/store-list-item.tsx`, `components/store-details.tsx`                              |
 | Map                 | `components/store-map.tsx`, `components/map-chain-source.tsx`, `utils/chain-layers.ts`                                     |
 | View model          | `hooks/use-map-view-model.ts`, `hooks/use-visible-stores.ts`, `hooks/use-map-url-state.ts`                                 |
 | Directory and route | `frontend/src/lib/store-locations/get-store-directory.ts`, `app/api/cijene/store-directory/`                               |

@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, Suspense, useState } from "react";
+import { ReactNode, Suspense } from "react";
 import { useTranslations } from "next-intl";
 
 import SearchBar from "@/components/custom/search/search-bar";
@@ -9,7 +9,6 @@ import ChainFilterChips from "@/app/[locale]/map/components/chain-filter-chips";
 import MissingStoresNote from "@/app/[locale]/map/components/missing-stores-note";
 import NearMeButton from "@/app/[locale]/map/components/near-me-button";
 import RecentSearches from "@/app/[locale]/map/components/recent-searches";
-import StoreDetails from "@/app/[locale]/map/components/store-details";
 import StoreList from "@/app/[locale]/map/components/store-list";
 import { IMapViewModel } from "@/app/[locale]/map/hooks/use-map-view-model";
 
@@ -19,15 +18,9 @@ interface IMapPanelProps {
   chainSummary: ReactNode;
 }
 
-/** Search, filters and the list, or the selected store. Same on every screen. */
+/** Search, filters and the list, with the selected store open. Same on every screen. */
 export default function MapPanel({ model, chainSummary }: IMapPanelProps) {
   const t = useTranslations("map");
-  const [lastKey, setLastKey] = useState<string | null>(null);
-
-  if (model.selected && model.selected.key !== lastKey) {
-    setLastKey(model.selected.key);
-  }
-
   const { kind, showDistances, ipCity } = model.origin;
   const originNote =
     kind === "ip"
@@ -38,16 +31,12 @@ export default function MapPanel({ model, chainSummary }: IMapPanelProps) {
         ? t("nearMe.coarse")
         : null;
 
-  if (model.selected) {
-    return (
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <StoreDetails
-          row={model.selected}
-          onClose={() => model.selectStore(null)}
-        />
-      </div>
-    );
-  }
+  const { selected, listed } = model;
+  // A shared link can name a store the filters hide; it still opens, on top.
+  const rows =
+    selected && !listed.some((row) => row.key === selected.key)
+      ? [selected, ...listed]
+      : listed;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3 p-3">
@@ -83,16 +72,12 @@ export default function MapPanel({ model, chainSummary }: IMapPanelProps) {
         note={originNote}
       />
 
-      <MissingStoresNote
-        shown={model.listed.length}
-        unplaced={model.unplacedCount}
-      />
+      <MissingStoresNote shown={rows.length} unplaced={model.unplacedCount} />
 
       <StoreList
-        rows={model.listed}
-        selectedKey={null}
+        rows={rows}
+        selectedKey={selected?.key ?? null}
         onSelect={model.selectStore}
-        returnFocusKey={lastKey}
       />
 
       {chainSummary}

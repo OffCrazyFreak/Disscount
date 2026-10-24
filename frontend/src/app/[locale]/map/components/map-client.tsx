@@ -21,9 +21,11 @@ interface IMapClientProps {
 }
 
 /**
- * Desktop: list panel beside the map. Phone: full-screen map with the list in
- * a sheet. The layer sits between the floating header and the bottom nav, so
- * neither covers the map's controls.
+ * Desktop: list panel beside the map, filling the space between the header
+ * and the footer so the page itself never scrolls.
+ * Phone: full-screen map with the list in a sheet, pinned between the floating
+ * header and the bottom nav so neither covers the map's controls; the bottom
+ * nav stands in for the footer there.
  */
 export default function MapClient({
   chainSummary,
@@ -63,7 +65,10 @@ export default function MapClient({
   );
 
   return (
-    <div className="fixed inset-x-0 top-24 bottom-[var(--bottom-nav-total)] z-[1] md:bottom-0 md:px-4 md:pb-4">
+    <div
+      data-page-width="full"
+      className="fixed inset-x-0 top-24 bottom-[var(--bottom-nav-total)] z-[1] md:static md:min-h-0 md:flex-1"
+    >
       {isMobile ? (
         <div className="relative h-full overflow-hidden">
           <a

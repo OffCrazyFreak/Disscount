@@ -189,7 +189,7 @@ export default async function RootLayout({
 
             {/* The clearance sits here, not on <main>: the footer renders after
               main with mt-auto, so it is the element the bar would cover. */}
-            <div className="min-h-svh flex flex-col w-full pb-[calc(var(--bottom-nav-total)+0.5rem)] md:pb-0">
+            <div className="min-h-svh md:has-[[data-page-width=full]]:h-svh md:has-[[data-page-width=full]]:min-h-[40rem] flex flex-col w-full pb-[calc(var(--bottom-nav-total)+0.5rem)] md:pb-0">
               {/* pattern background */}
               <div className="absolute inset-0 z-[-15] bg-[url('/+_pattern.png')] bg-repeat opacity-100" />
               {/* radial fade to white, spreading from the page centre outward */}
@@ -207,7 +207,13 @@ export default async function RootLayout({
 
               {/* Clip the x axis only. Clipping both axes cut the last child's
                 bottom border and shadow off, since main has no bottom padding. */}
-              <main className="max-w-4xl mx-auto px-4 pt-4 mt-24 w-full overflow-x-clip">
+              {/* data-page-width="full" turns main into a full-width column that
+                fills the screen above the footer, for pages like the map. The
+                wrapper above is then exactly one screen tall on desktop, so
+                heights inside resolve and the page itself never scrolls; only a
+                screen shorter than 40rem scrolls, so the map never shrinks to
+                nothing. */}
+              <main className="max-w-4xl has-[[data-page-width=full]]:max-w-none has-[[data-page-width=full]]:flex has-[[data-page-width=full]]:flex-1 has-[[data-page-width=full]]:min-h-0 has-[[data-page-width=full]]:flex-col mx-auto px-4 pt-4 mt-24 w-full overflow-x-clip">
                 <Suspense fallback={null}>
                   <LocaleSuggestion />
                 </Suspense>

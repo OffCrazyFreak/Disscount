@@ -61,7 +61,6 @@
     "noLocation": "no location"
   },
   "details": {
-    "back": "Back to the list",
     "unknownAddress": "Address unknown",
     "distance": "{distance} from you",
     "notPlaced": "We don't have an exact location for this store yet, so it isn't on the map."

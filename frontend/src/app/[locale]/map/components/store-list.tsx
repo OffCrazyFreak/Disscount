@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useVirtualizer } from "@tanstack/react-virtual";
+import { defaultRangeExtractor, useVirtualizer } from "@tanstack/react-virtual";
 import { useTranslations } from "next-intl";
 
 import StoreListItem from "@/app/[locale]/map/components/store-list-item";
@@ -10,11 +10,10 @@ import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 interface IStoreListProps {
   rows: IListedStore[];
   selectedKey: string | null;
-  onSelect: (key: string) => void;
-  /** The store just closed, focused again when the list comes back. */
-  returnFocusKey?: string | null;
+  onSelect: (key: string | null) => void;
 }
 
+// A closed row; open rows are measured.
 const ROW_HEIGHT = 64;
 
 /**
@@ -26,7 +25,6 @@ export default function StoreList({
   rows,
   selectedKey,
   onSelect,
-  returnFocusKey = null,
 }: IStoreListProps) {
   // TanStack Virtual hands back functions the compiler cannot memoize safely;
   // opting out explicitly keeps the virtualized rows from going stale.
@@ -35,30 +33,61 @@ export default function StoreList({
   const t = useTranslations("map.layout");
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const selectedIndex = rows.findIndex((row) => row.key === selectedKey);
+
   // eslint-disable-next-line react-hooks/incompatible-library -- opted out above
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => ROW_HEIGHT,
+    // Measured heights follow the store, not the position, when filters change.
+    getItemKey: (index) => rows[index].key,
+    // The open row stays mounted, so focus on its actions survives scrolling.
+    rangeExtractor: (range) => {
+      const indexes = defaultRangeExtractor(range);
+      return selectedIndex < 0 || indexes.includes(selectedIndex)
+        ? indexes
+        : [...indexes, selectedIndex].sort((a, b) => a - b);
+    },
     overscan: 8,
   });
 
-  // Mount only: the list remounts each time a store's details close.
-  useEffect(() => {
-    const index = rows.findIndex((row) => row.key === returnFocusKey);
-    if (index < 0) return;
+  // Set while a row is clicked; a pick made elsewhere (map, Back) moves focus.
+  const pickedInList = useRef(false);
+  const focusedKey = useRef<string | null>(null);
 
-    virtualizer.scrollToIndex(index, { align: "center" });
+  // Opening a row collapses the one above it, and a filter can move the open
+  // store, so the list brings the open row to the top whenever its position
+  // changes. Focus moves only for a new pick, never while someone filters.
+  useEffect(() => {
+    const fromList = pickedInList.current;
+    pickedInList.current = false;
+
+    if (selectedIndex < 0) {
+      focusedKey.current = null;
+      return;
+    }
+
+    virtualizer.scrollToIndex(selectedIndex, { align: "start" });
+
+    const isNewPick = focusedKey.current !== selectedKey;
+    focusedKey.current = selectedKey;
+    if (fromList || !isNewPick) return;
 
     requestAnimationFrame(() => {
       scrollRef.current
         ?.querySelector<HTMLElement>(
-          `[data-store-key="${CSS.escape(rows[index].key)}"]`,
+          `[data-store-key="${CSS.escape(rows[selectedIndex].key)}"]`,
         )
-        ?.focus();
+        ?.focus({ preventScroll: true });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [selectedKey, selectedIndex]);
+
+  function selectInList(key: string | null) {
+    pickedInList.current = true;
+    onSelect(key);
+  }
 
   return (
     <div
@@ -76,18 +105,17 @@ export default function StoreList({
           return (
             <li
               key={row.key}
+              ref={virtualizer.measureElement}
+              data-index={item.index}
               aria-setsize={rows.length}
               aria-posinset={item.index + 1}
               className="absolute inset-x-0"
-              style={{
-                height: item.size,
-                transform: `translateY(${item.start}px)`,
-              }}
+              style={{ transform: `translateY(${item.start}px)` }}
             >
               <StoreListItem
                 row={row}
                 isSelected={row.key === selectedKey}
-                onSelect={onSelect}
+                onSelect={selectInList}
               />
             </li>
           );
