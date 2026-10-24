@@ -8,6 +8,7 @@ import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { StoreLocationRow } from "@/lib/store-locations/location-repository";
 import { storeKey } from "@/lib/store-locations/upstream-stores";
 import { isStalePin } from "@/lib/store-locations/sync/sync-target";
+import { PIN_HOLDS } from "@/lib/store-locations/pin-holds";
 import { PIN_OVERRIDES } from "@/lib/store-locations/pin-overrides";
 
 /**
@@ -21,39 +22,20 @@ export function buildDirectory(
   upstream: StoreResponse[],
   locations: StoreLocationRow[],
   overrides = PIN_OVERRIDES,
+  holds = PIN_HOLDS,
 ): DirectoryStoreDto[] {
   const byKey = new Map(
     locations.map((row) => [storeKey(row.chainCode, row.storeCode), row]),
   );
 
   return upstream.map((store) => {
-    const row = byKey.get(storeKey(store.chain_code, store.code));
-    const upstreamPoint = sanitizeCoordinates(store.lat, store.lon);
-    // A pin found from an address upstream has since changed would send
-    // people to the old building, so it waits for the next sync instead.
-    const savedPoint =
-      row && !isStalePin(row, store.address)
-        ? sanitizeCoordinates(row.lat, row.lon)
-        : null;
-    const savedSource = locationSourceSchema.safeParse(row?.source);
-
-    const saved =
-      savedPoint && savedSource.success
-        ? { point: savedPoint, source: savedSource.data }
-        : null;
-
-    const pinned = handPlaced(
-      saved,
-      overrides.get(storeKey(store.chain_code, store.code)),
+    const key = storeKey(store.chain_code, store.code);
+    const chosen = choosePin(
+      savedPin(byKey.get(key), store.address),
+      sanitizeCoordinates(store.lat, store.lon),
+      overrides.get(key),
+      holds.has(key),
     );
-
-    const chosen =
-      pinned ??
-      (saved && !upstreamPoint
-        ? saved
-        : upstreamPoint
-          ? { point: upstreamPoint, source: "upstream" as const }
-          : null);
 
     return {
       chain: store.chain_code,
@@ -83,4 +65,36 @@ function handPlaced(
   const point = override && sanitizeCoordinates(override.lat, override.lon);
 
   return point ? { point, source: "manual" } : null;
+}
+
+// A pin found from an address upstream has since changed would send people to
+// the old building, so it waits for the next sync instead.
+function savedPin(
+  row: StoreLocationRow | undefined,
+  upstreamAddress: string | null,
+): Pin | null {
+  if (!row || isStalePin(row, upstreamAddress)) return null;
+
+  const point = sanitizeCoordinates(row.lat, row.lon);
+  const source = locationSourceSchema.safeParse(row.source);
+
+  return point && source.success ? { point, source: source.data } : null;
+}
+
+// A held store shows no pin until a person confirms it, unless one already
+// pinned it by hand in the table.
+function choosePin(
+  saved: Pin | null,
+  upstreamPoint: { lat: number; lon: number } | null,
+  override: { lat: number; lon: number } | undefined,
+  held: boolean,
+): Pin | null {
+  if (held) return saved?.source === "manual" ? saved : null;
+
+  const pinned = handPlaced(saved, override);
+
+  if (pinned) return pinned;
+  if (upstreamPoint) return { point: upstreamPoint, source: "upstream" };
+
+  return saved;
 }

@@ -4,6 +4,7 @@ import { StoreResponse } from "@/lib/cijene-api/schemas";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { cleanUpstreamAddress } from "@/lib/store-locations/address-key";
 import { StoreLocationRow } from "@/lib/store-locations/location-repository";
+import { PIN_HOLDS } from "@/lib/store-locations/pin-holds";
 import { PIN_OVERRIDES } from "@/lib/store-locations/pin-overrides";
 import type { ILookupAddress } from "@/lib/store-locations/types";
 import { storeKey } from "@/lib/store-locations/upstream-stores";
@@ -44,7 +45,7 @@ function isRecent(at: Date | null | undefined, now: number): boolean {
 
 /**
  * Stores upstream cannot place and we have not placed either, or placed from
- * an address upstream has since changed, minus stores pinned in code and
+ * an address upstream has since changed, minus stores pinned or held in code and
  * those that every source failed on within the last week: addresses rarely
  * change, so retrying them daily would only spend geocoder quota.
  */
@@ -53,6 +54,7 @@ export function findSyncTargets(
   locations: StoreLocationRow[],
   now = Date.now(),
   overrides = PIN_OVERRIDES,
+  holds = PIN_HOLDS,
 ): ISyncTarget[] {
   const byKey = new Map(
     locations.map((row) => [storeKey(row.chainCode, row.storeCode), row]),
@@ -60,6 +62,7 @@ export function findSyncTargets(
 
   return upstream
     .filter((store) => !sanitizeCoordinates(store.lat, store.lon))
+    .filter((store) => !holds.has(storeKey(store.chain_code, store.code)))
     .filter((store) => {
       const override = overrides.get(storeKey(store.chain_code, store.code));
 
