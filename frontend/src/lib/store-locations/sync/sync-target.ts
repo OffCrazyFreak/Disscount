@@ -4,6 +4,7 @@ import { StoreResponse } from "@/lib/cijene-api/schemas";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { cleanUpstreamAddress } from "@/lib/store-locations/address-key";
 import { StoreLocationRow } from "@/lib/store-locations/location-repository";
+import type { ILookupAddress } from "@/lib/store-locations/types";
 import { storeKey } from "@/lib/store-locations/upstream-stores";
 
 /** A store the sync still has to place. */
@@ -15,6 +16,11 @@ export interface ISyncTarget {
   zipcode: string | null;
   /** Geoapify missed it within the retry window, so only Nominatim tries. */
   skipGeoapify: boolean;
+  /**
+   * The chain's own, fuller spelling of the address. Geocoders search with
+   * it; the pin still records upstream's address, which the stale check uses.
+   */
+  lookup?: ILookupAddress;
 }
 
 const RETRY_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
