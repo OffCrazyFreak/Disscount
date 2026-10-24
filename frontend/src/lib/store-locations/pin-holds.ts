@@ -44,4 +44,6 @@ export const PIN_HOLDS = new Set<string>([
   storeKey("stanic", "863"),
   // Novska: the geocoded point and the chain's listing disagree.
   storeKey("stridon", "Prod.47"),
+  // Dolac: permanently closed on Google; the chain's own store list is stale.
+  storeKey("zabac", "PJ-6"),
 ]);

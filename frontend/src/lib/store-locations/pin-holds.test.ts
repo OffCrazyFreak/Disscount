@@ -9,6 +9,7 @@ const { buildDirectory } =
   await import("@/lib/store-locations/build-directory");
 const { findSyncTargets } =
   await import("@/lib/store-locations/sync/sync-target");
+const { PIN_HOLDS } = await import("@/lib/store-locations/pin-holds");
 
 const store = {
   chain_code: "stridon",
@@ -66,5 +67,24 @@ describe("pin holds", () => {
     const other = { ...store, code: "Prod.10" };
 
     expect(findSyncTargets([other], [])).toHaveLength(1);
+  });
+
+  it("hide every store on the shipped list and keep each out of the sync", () => {
+    const held = [...PIN_HOLDS].map((key) => {
+      const [chain, code] = key.split(":");
+
+      return { ...store, chain_code: chain, code, lat: 45.5, lon: 18.5 };
+    });
+    const saved = held.map((one) => ({
+      ...row("chain_locator"),
+      chainCode: one.chain_code,
+      storeCode: one.code,
+    }));
+
+    expect(held).toHaveLength(35);
+    expect(
+      buildDirectory(held, saved).filter((entry) => entry.lat !== null),
+    ).toEqual([]);
+    expect(findSyncTargets(held, [])).toEqual([]);
   });
 });
