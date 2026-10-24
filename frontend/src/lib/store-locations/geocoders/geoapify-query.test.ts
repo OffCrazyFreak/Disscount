@@ -14,10 +14,7 @@ describe("geoapifyQuery", () => {
     });
   });
 
-  it("spells out common abbreviations and spaces initials", () => {
-    expect(geoapifyQuery("Ul. Matije Gupca 4", "Osijek").text).toBe(
-      "Ulica Matije Gupca 4, Osijek, Hrvatska",
-    );
+  it("spaces initials glued to the next word", () => {
     expect(geoapifyQuery("Trg dr.Franje Tudmana 1", "Recica").text).toBe(
       "Trg dr. Franje Tudmana 1, Recica, Hrvatska",
     );
@@ -32,8 +29,17 @@ describe("geoapifyQuery", () => {
     });
   });
 
+  it("keeps upstream's town when the comma is followed by no place", () => {
+    expect(geoapifyQuery("Ilica 10, bb", "Zagreb").text).toBe(
+      "Ilica 10, bb, Zagreb, Hrvatska",
+    );
+  });
+
   it("has no house number to expect for bb", () => {
     expect(geoapifyQuery("Lazina bb", "Draganici").houseNumber).toBeNull();
+    expect(
+      geoapifyQuery("Ulica 1. svibnja bb", "Draganici").houseNumber,
+    ).toBeNull();
   });
 });
 
@@ -55,6 +61,17 @@ describe("pickGeoapifyResult", () => {
     });
 
     expect(pickGeoapifyResult([school, store], "28a")).toBe(store);
+  });
+
+  it("takes a lower-ranked building only on street and city confidence", () => {
+    const street = result("4", { confidence: 0.9 }, "street");
+    const otherStreet = result("4", {
+      confidence: 0.7,
+      confidence_street_level: 0.5,
+      confidence_city_level: 1,
+    });
+
+    expect(pickGeoapifyResult([street, otherStreet], "4")).toBeUndefined();
   });
 
   it("still takes a building on overall confidence alone", () => {

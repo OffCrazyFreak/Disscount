@@ -24,7 +24,7 @@ const COMMA_PLACE = /^(.*\p{L}.*?)\s*,\s*([^,\d]+)$/u;
 const TRAILING_PLACE = /^(.*\p{L}.*?\d+)\s+(\p{L}{3,}(?:\s+\p{L}+)*)$/u;
 
 // "bb" after a comma, or the end of "Ulica 1 svibnja bb", is no village.
-function isPlaceName(text: string): boolean {
+export function isPlaceName(text: string): boolean {
   return !/(^|\s)bb($|\s)/.test(normalizeCity(text));
 }
 

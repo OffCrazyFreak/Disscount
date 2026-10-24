@@ -7,29 +7,14 @@ import { fetchJson } from "@/lib/store-locations/http";
 import type { IResolvedLocation } from "@/lib/store-locations/types";
 import {
   geoapifyQuery,
+  geoapifyResultSchema,
   pickGeoapifyResult,
 } from "@/lib/store-locations/geocoders/geoapify-query";
 
 const ENDPOINT = "https://api-eu.geoapify.com/v1/geocode/search";
 
 const responseSchema = z.object({
-  results: z
-    .array(
-      z.object({
-        lat: z.number(),
-        lon: z.number(),
-        result_type: z.string().optional(),
-        housenumber: z.string().optional(),
-        rank: z
-          .object({
-            confidence: z.number().optional(),
-            confidence_street_level: z.number().optional(),
-            confidence_city_level: z.number().optional(),
-          })
-          .optional(),
-      }),
-    )
-    .default([]),
+  results: z.array(geoapifyResultSchema).default([]),
 });
 
 // Same rule as Nominatim: a wrong pin is worse than none, so only the
