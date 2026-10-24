@@ -9,6 +9,11 @@ export type LocationPrecision = "building" | "street" | "settlement";
 export interface ILocatorStore {
   /** The chain's store id, only when it equals the cijene-api store code. */
   code?: string;
+  /**
+   * The chain's store number when upstream codes end with it after one more
+   * digit (NTL's "BR. 350" is code 20350). Weaker than a code.
+   */
+  codeSuffix?: string;
   address: string;
   city?: string;
   zipcode?: string;
