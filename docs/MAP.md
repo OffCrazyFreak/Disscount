@@ -44,7 +44,7 @@ flowchart LR
 
 - `getStoreDirectory` fetches every upstream store and our `store_location` rows, merges them (`buildDirectory`) and keeps the result in memory per process for 10 minutes.
 - The route answers with `Cache-Control: public, max-age=3600, stale-while-revalidate=86400`. The service worker already caches `/api/cijene/*`, and the React Query key `["cijene", "store-directory"]` persists, so the list works offline after one visit.
-- Merge rule: a manual pin wins; otherwise upstream coordinates win when they are usable; otherwise ours. Coordinates outside a box around Croatia are dropped, and swapped latitude and longitude are repaired.
+- Merge rule: a `manual` table row wins, then a pin override from code; otherwise upstream coordinates win when they are usable; otherwise ours. Coordinates outside a box around Croatia are dropped, and swapped latitude and longitude are repaired.
 
 ## 3. Store locations: the sync
 
@@ -56,6 +56,9 @@ flowchart LR
    Stridon publishes no coordinates, but its store table spells out the addresses upstream abbreviates ("Lj.Posavskog 23, V.gorica"). After the DGU step, `sync/address-source-step.ts` gives each unplaced Stridon store that address as a `lookup`, and the geocoders search with it; the pin still records upstream's address for the stale check. DGU never sees it, because DGU's stem matching put Stridon Velika Gorica on Posavska ulica in another village, 7 km away.
 4. **Nominatim**, the last resort, at most 20 a run, 15 s apart, because the usage policy limits scheduled scripts to 4 requests a minute.
 5. **Manual pin**: a row with source `manual` is never overwritten by a sync.
+6. **Pin override** (`lib/store-locations/pin-overrides.ts`): a reviewed list in code for stores whose automatic pin was verified wrong. Each entry cites its evidence, and only OpenStreetMap points (ODbL, credited on the map) or places a person confirmed go in, never coordinates copied from Google Maps. The directory reports it as `manual`, and the sync skips the store, so no quota is spent on it.
+
+Which pin the map shows: a `manual` table row first, since someone set it in that environment on purpose; then a pin override; then upstream's own coordinates; then the sync's pin. An override is not tied to upstream's address, because upstream may start publishing one for the same building. When the store moves, replace the entry: deleting it brings back the source's own point, which was the wrong one.
 
 Every automatic pin records the upstream address it was found from. When upstream changes a store's address, the old pin is dropped from the map and the store is looked up again; if no source finds the new address, it becomes an ordinary failed store. Pins saved before addresses were recorded are kept as they are.
 
@@ -95,6 +98,7 @@ A store every source misses is recorded as a failed attempt and retried after 7 
 | Directory and route | `frontend/src/lib/store-locations/get-store-directory.ts`, `app/api/cijene/store-directory/`                               |
 | Sync                | `frontend/src/lib/store-locations/sync/`, `sources/`, `dgu/`, `geocoders/`                                                 |
 | Table               | `frontend/src/db/store-location-schema.ts`, `frontend/drizzle/0003_store_locations.sql`, `0004_store_location_address.sql` |
+| Pin overrides       | `frontend/src/lib/store-locations/pin-overrides.ts`                                                                        |
 
 ## 7. Config and env
 
@@ -117,4 +121,4 @@ The migration runs through the existing `migrate` service. The map needs no CSP 
 - Opening hours and working Sundays (board task "Store opening hours"): per-chain hours from the same locators, with an explicit "nije potvrđeno" state.
 - Prices on the map and cheapest basket near me.
 - Store photos, a store type filter, an offline map.
-- An admin way to set manual pins (the table already honours them).
+- An admin way to set manual pins (the table already honours them); until then, verified corrections go in the pin override list.
