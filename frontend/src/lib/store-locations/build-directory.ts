@@ -1,6 +1,7 @@
 import "server-only";
 
 import { DirectoryStoreDto, locationSourceSchema } from "@/lib/api/schemas";
+import type { LocationSource } from "@/lib/store-locations/types";
 import { StoreResponse } from "@/lib/cijene-api/schemas";
 import { cleanUpstreamAddress } from "@/lib/store-locations/address-key";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
@@ -41,13 +42,10 @@ export function buildDirectory(
         ? { point: savedPoint, source: savedSource.data }
         : null;
 
-    const override = overrides.get(storeKey(store.chain_code, store.code));
-    const pinned =
-      saved?.source === "manual"
-        ? saved
-        : override
-          ? { point: override, source: "manual" as const }
-          : null;
+    const pinned = handPlaced(
+      saved,
+      overrides.get(storeKey(store.chain_code, store.code)),
+    );
 
     const chosen =
       pinned ??
@@ -70,4 +68,19 @@ export function buildDirectory(
       locationSource: chosen?.source ?? null,
     };
   });
+}
+
+type Pin = { point: { lat: number; lon: number }; source: LocationSource };
+
+// A manual table row was set in that environment on purpose, so it beats the
+// reviewed list in code.
+function handPlaced(
+  saved: Pin | null,
+  override: { lat: number; lon: number } | undefined,
+): Pin | null {
+  if (saved?.source === "manual") return saved;
+
+  const point = override && sanitizeCoordinates(override.lat, override.lon);
+
+  return point ? { point, source: "manual" } : null;
 }

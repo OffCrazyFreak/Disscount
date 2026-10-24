@@ -58,7 +58,22 @@ describe("pin overrides", () => {
   it("give way to a manual pin set in the database", () => {
     const [entry] = buildDirectory([store], [row("manual")], overrides);
 
-    expect(entry).toMatchObject({ lat: 43.94, lon: 15.46 });
+    expect(entry).toMatchObject({
+      lat: 43.94,
+      lon: 15.46,
+      locationSource: "manual",
+    });
+  });
+
+  it("repair swapped coordinates and drop a point outside Croatia", () => {
+    const swapped = new Map([["stanic:935", { lat: 15.4545, lon: 43.9423 }]]);
+    const outside = new Map([["stanic:935", { lat: 48.2, lon: 16.37 }]]);
+
+    expect(buildDirectory([store], [], swapped)[0]).toMatchObject({
+      lat: 43.9423,
+      lon: 15.4545,
+    });
+    expect(buildDirectory([store], [], outside)[0].lat).toBeNull();
   });
 
   it("keep the store out of the sync", () => {

@@ -38,10 +38,9 @@ function isRecent(at: Date | null | undefined, now: number): boolean {
 
 /**
  * Stores upstream cannot place and we have not placed either, or placed from
- * an address upstream has since changed, minus stores pinned in code and those
- * that every source failed
- * on within the last week: addresses rarely change, so retrying them daily
- * would only spend geocoder quota.
+ * an address upstream has since changed, minus stores pinned in code and
+ * those that every source failed on within the last week: addresses rarely
+ * change, so retrying them daily would only spend geocoder quota.
  */
 export function findSyncTargets(
   upstream: StoreResponse[],
