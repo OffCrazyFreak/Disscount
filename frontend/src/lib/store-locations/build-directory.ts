@@ -9,7 +9,10 @@ import { StoreLocationRow } from "@/lib/store-locations/location-repository";
 import { storeKey } from "@/lib/store-locations/upstream-stores";
 import { isStalePin } from "@/lib/store-locations/sync/sync-target";
 import { PIN_HOLDS } from "@/lib/store-locations/pin-holds";
-import { PIN_OVERRIDES } from "@/lib/store-locations/pin-overrides";
+import {
+  PIN_OVERRIDES,
+  usableOverride,
+} from "@/lib/store-locations/pin-overrides";
 
 /**
  * Merges upstream stores with the coordinates our sync found. A hand-placed pin
@@ -33,7 +36,7 @@ export function buildDirectory(
     const chosen = choosePin(
       savedPin(byKey.get(key), store.address),
       sanitizeCoordinates(store.lat, store.lon),
-      overrides.get(key),
+      usableOverride(overrides, key),
       holds.has(key),
     );
 
@@ -58,13 +61,11 @@ type Pin = { point: { lat: number; lon: number }; source: LocationSource };
 // reviewed list in code.
 function handPlaced(
   saved: Pin | null,
-  override: { lat: number; lon: number } | undefined,
+  override: { lat: number; lon: number } | null,
 ): Pin | null {
   if (saved?.source === "manual") return saved;
 
-  const point = override && sanitizeCoordinates(override.lat, override.lon);
-
-  return point ? { point, source: "manual" } : null;
+  return override ? { point: override, source: "manual" } : null;
 }
 
 // A pin found from an address upstream has since changed would send people to
@@ -86,7 +87,7 @@ function savedPin(
 function choosePin(
   saved: Pin | null,
   upstreamPoint: { lat: number; lon: number } | null,
-  override: { lat: number; lon: number } | undefined,
+  override: { lat: number; lon: number } | null,
   held: boolean,
 ): Pin | null {
   if (held) return saved?.source === "manual" ? saved : null;

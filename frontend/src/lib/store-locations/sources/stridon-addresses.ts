@@ -10,6 +10,7 @@ const PAGE_URL = "https://stridon.hr/hr/distribucija/maloprodaja-4";
 const ENTITIES: Record<string, string> = {
   nbsp: " ",
   amp: "&",
+  quot: '"',
   scaron: "š",
   Scaron: "Š",
   zcaron: "ž",
@@ -26,6 +27,9 @@ function cellText(html: string): string {
   return html
     .replace(/<[^>]*>/g, " ")
     .replace(/&#(\d+);/g, (_, code: string) => String.fromCodePoint(+code))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code: string) =>
+      String.fromCodePoint(parseInt(code, 16)),
+    )
     .replace(/&(\w+);/g, (whole, name: string) => ENTITIES[name] ?? whole)
     .replace(/ĉ/g, "č")
     .replace(/Ĉ/g, "Č")

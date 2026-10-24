@@ -5,7 +5,10 @@ import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { cleanUpstreamAddress } from "@/lib/store-locations/address-key";
 import { StoreLocationRow } from "@/lib/store-locations/location-repository";
 import { PIN_HOLDS } from "@/lib/store-locations/pin-holds";
-import { PIN_OVERRIDES } from "@/lib/store-locations/pin-overrides";
+import {
+  PIN_OVERRIDES,
+  usableOverride,
+} from "@/lib/store-locations/pin-overrides";
 import type { ILookupAddress } from "@/lib/store-locations/types";
 import { storeKey } from "@/lib/store-locations/upstream-stores";
 
@@ -60,33 +63,34 @@ export function findSyncTargets(
     locations.map((row) => [storeKey(row.chainCode, row.storeCode), row]),
   );
 
-  return upstream
-    .filter((store) => !sanitizeCoordinates(store.lat, store.lon))
-    .filter((store) => !holds.has(storeKey(store.chain_code, store.code)))
-    .filter((store) => {
-      const override = overrides.get(storeKey(store.chain_code, store.code));
-
+  return (
+    upstream
+      .filter((store) => !sanitizeCoordinates(store.lat, store.lon))
+      .filter((store) => !holds.has(storeKey(store.chain_code, store.code)))
       // An override the directory rejects must not hide the store from the sync.
-      return !override || !sanitizeCoordinates(override.lat, override.lon);
-    })
-    .filter((store) => {
-      const row = byKey.get(storeKey(store.chain_code, store.code));
+      .filter(
+        (store) =>
+          !usableOverride(overrides, storeKey(store.chain_code, store.code)),
+      )
+      .filter((store) => {
+        const row = byKey.get(storeKey(store.chain_code, store.code));
 
-      if (!row) return true;
-      if (row.source === "manual") return false;
-      if (row.lat != null) return isStalePin(row, store.address);
+        if (!row) return true;
+        if (row.source === "manual") return false;
+        if (row.lat != null) return isStalePin(row, store.address);
 
-      return !isRecent(row.lastAttemptAt, now);
-    })
-    .map((store) => ({
-      chain: store.chain_code,
-      code: store.code,
-      address: cleanUpstreamAddress(store.address),
-      city: store.city,
-      zipcode: store.zipcode,
-      skipGeoapify: isRecent(
-        byKey.get(storeKey(store.chain_code, store.code))?.geoapifyMissedAt,
-        now,
-      ),
-    }));
+        return !isRecent(row.lastAttemptAt, now);
+      })
+      .map((store) => ({
+        chain: store.chain_code,
+        code: store.code,
+        address: cleanUpstreamAddress(store.address),
+        city: store.city,
+        zipcode: store.zipcode,
+        skipGeoapify: isRecent(
+          byKey.get(storeKey(store.chain_code, store.code))?.geoapifyMissedAt,
+          now,
+        ),
+      }))
+  );
 }

@@ -39,8 +39,11 @@ describe("withChainAddresses", () => {
     const [ten, twentySix, fortySeven, other] = await withChainAddresses(
       [
         target("stridon", "Prod.10"),
-        target("stridon", "Prod.26"),
-        target("stridon", "Prod.47"),
+        {
+          ...target("stridon", "Prod.26"),
+          address: "143.Domobranske pukovnije bb",
+        },
+        { ...target("stridon", "Prod.47"), address: "Trg L.I.Oriovčanina" },
         target("konzum", "Prod.10"),
       ],
       new AbortController().signal,
@@ -73,5 +76,16 @@ describe("withChainAddresses", () => {
     expect(
       await withChainAddresses(targets, new AbortController().signal),
     ).toEqual(targets);
+  });
+
+  it("ignores the chain's address when it names another street or number", async () => {
+    server.use(http.get(PAGE_URL, () => HttpResponse.html(PAGE)));
+
+    const [renumbered] = await withChainAddresses(
+      [{ ...target("stridon", "Prod.10"), address: "Lj.Posavskog 31" }],
+      new AbortController().signal,
+    );
+
+    expect(renumbered.lookup).toBeUndefined();
   });
 });

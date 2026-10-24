@@ -1,6 +1,8 @@
 import "server-only";
 
+import { streetsMatch } from "@/lib/store-locations/address-key";
 import { fetchStridonAddresses } from "@/lib/store-locations/sources/stridon-addresses";
+import { readPlacedAddress } from "@/lib/store-locations/sync/address-place";
 import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
 import type { ILookupAddress } from "@/lib/store-locations/types";
 
@@ -59,6 +61,20 @@ function attachLookups(
     const lookup =
       target.chain === chain ? addresses.get(target.code) : undefined;
 
-    return lookup ? { ...target, lookup } : target;
+    return lookup && sameStore(target.address, lookup.address)
+      ? { ...target, lookup }
+      : target;
   });
+}
+
+// A code the chain renumbered or reused would send the geocoder to another
+// shop, so the chain's address must name upstream's street and number.
+function sameStore(upstream: string | null, chain: string): boolean {
+  const ours = readPlacedAddress(upstream);
+  const theirs = readPlacedAddress(chain);
+
+  return (
+    streetsMatch(ours.tokens, theirs.tokens, true) &&
+    (ours.number === null || ours.number === theirs.number)
+  );
 }
