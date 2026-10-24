@@ -45,7 +45,7 @@ export async function runStoreLocationSync(signal: AbortSignal): Promise<void> {
     ]);
 
     let targets = findSyncTargets(upstream, locations);
-    targets = await resolveWithLocators(targets, signal);
+    targets = await resolveWithLocators(targets, upstream, signal);
     targets = await resolveWithDgu(targets, signal);
 
     // Optional: until the key is set, every target goes straight to Nominatim.

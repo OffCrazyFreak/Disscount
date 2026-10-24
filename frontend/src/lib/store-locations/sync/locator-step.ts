@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { StoreResponse } from "@/lib/cijene-api/schemas";
 import { saveResolvedLocation } from "@/lib/store-locations/location-repository";
 import { storeLocators } from "@/lib/store-locations/sources";
 import { matchLocatorStore } from "@/lib/store-locations/sync/match-locator-store";
@@ -12,6 +13,7 @@ import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
  */
 export async function resolveWithLocators(
   targets: ISyncTarget[],
+  upstream: StoreResponse[],
   signal: AbortSignal,
 ): Promise<ISyncTarget[]> {
   const remaining: ISyncTarget[] = [];
@@ -29,12 +31,17 @@ export async function resolveWithLocators(
     }
 
     const placed = new Set<ISyncTarget>();
+    // Every upstream code, placed stores included, so a store number two
+    // codes end in stays ambiguous.
+    const chainCodes = upstream
+      .filter((store) => store.chain_code === chain)
+      .map((store) => store.code);
 
     try {
       const records = await locator.fetchStores(signal);
 
       for (const target of chainTargets) {
-        const match = matchLocatorStore(target, records);
+        const match = matchLocatorStore(target, records, chainCodes);
         if (!match) continue;
 
         await saveResolvedLocation(target, {

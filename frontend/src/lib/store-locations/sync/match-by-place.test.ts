@@ -113,6 +113,16 @@ describe("matching by store number", () => {
     ).toBeNull();
   });
 
+  it("refuses a number that another upstream code also ends in", () => {
+    expect(
+      matchLocatorStore(
+        target("20364", "Anina 83, Osijek", "Osijek"),
+        [svetaAna],
+        ["20364", "30364"],
+      ),
+    ).toBeNull();
+  });
+
   it("refuses when two records carry the number", () => {
     const twin = record("Ul. Svete Ane 83", "Osijek", "0364");
 

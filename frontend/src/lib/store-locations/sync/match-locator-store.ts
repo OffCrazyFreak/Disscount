@@ -21,6 +21,7 @@ import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
 export function matchLocatorStore(
   target: ISyncTarget,
   records: ILocatorStore[],
+  chainCodes: string[] = [target.code],
 ): ILocatorStore | null {
   const byCode = records.find((record) => record.code === target.code);
   if (byCode) return byCode;
@@ -32,7 +33,10 @@ export function matchLocatorStore(
   // source gave two different addresses is not used by them.
   const usable = withoutSharedPoints(records);
 
-  return matchByCodeSuffix(target, usable) ?? matchByPlace(target, usable);
+  return (
+    matchByCodeSuffix(target, usable, chainCodes) ??
+    matchByPlace(target, usable)
+  );
 }
 
 function matchByAddress(
@@ -65,19 +69,23 @@ function matchByAddress(
 
 /**
  * A store number is a weaker key than a code, so the one record carrying it
- * also needs the address or the town to agree.
+ * also needs the address or the town to agree, and no other upstream code of
+ * the chain may end in the same number.
  */
 function matchByCodeSuffix(
   target: ISyncTarget,
   records: ILocatorStore[],
+  chainCodes: string[],
 ): ILocatorStore | null {
   const numbered = records.filter(
-    ({ codeSuffix }) =>
-      codeSuffix &&
-      target.code.length === codeSuffix.length + 1 &&
-      target.code.endsWith(codeSuffix),
+    ({ codeSuffix }) => codeSuffix && carriesSuffix(target.code, codeSuffix),
   );
   if (numbered.length !== 1) return null;
+
+  const suffix = numbered[0].codeSuffix ?? "";
+  const claimants = chainCodes.filter((code) => carriesSuffix(code, suffix));
+
+  if (claimants.some((code) => code !== target.code)) return null;
 
   const [record] = numbered;
   const address = readPlacedAddress(target.address);
@@ -110,6 +118,11 @@ function matchByPlace(
   });
 
   return candidates.length === 1 ? candidates[0] : null;
+}
+
+// NTL's "BR. 350" is code 20350: the number after one leading digit.
+function carriesSuffix(code: string, suffix: string): boolean {
+  return code.length === suffix.length + 1 && code.endsWith(suffix);
 }
 
 function sameZipcode(target: ISyncTarget, record: ILocatorStore): boolean {
