@@ -4,10 +4,7 @@ import { z } from "zod";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchJson } from "@/lib/store-locations/http";
-import {
-  dropSharedCodes,
-  stanicCodeFor,
-} from "@/lib/store-locations/sources/stanic-store-codes";
+import { stanicCodeReader } from "@/lib/store-locations/sources/stanic-store-codes";
 import type { ILocatorStore, IStoreLocator } from "@/lib/store-locations/types";
 
 // WP Store Locator's search, centred on Croatia with a radius covering it all.
@@ -32,17 +29,14 @@ export const stanicLocator: IStoreLocator = {
     if (!Array.isArray(payload))
       throw new Error("Stanić store list is not an array");
 
-    // Codes are settled before rows with bad coordinates drop out, so a
-    // title listed twice stays ambiguous even if one twin is unusable.
-    const rows = dropSharedCodes(
-      payload.flatMap((raw) => {
-        const parsed = storeSchema.safeParse(raw);
+    const codeFor = stanicCodeReader(payload);
+    const rows = payload.flatMap((raw) => {
+      const parsed = storeSchema.safeParse(raw);
 
-        return parsed.success
-          ? [{ ...parsed.data, code: stanicCodeFor(parsed.data.store) }]
-          : [];
-      }),
-    );
+      return parsed.success
+        ? [{ ...parsed.data, code: codeFor(parsed.data.store) }]
+        : [];
+    });
 
     const uncoded = rows.filter((row) => !row.code).map((row) => row.store);
 

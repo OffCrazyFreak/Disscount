@@ -65,11 +65,33 @@ export function stanicCodeFor(storeTitle: string): string | undefined {
   return CODES.get(nameKey(storeTitle));
 }
 
-/** Two stores under one title would make the code a guess, so neither keeps it. */
-export function dropSharedCodes<T extends { code?: string }>(stores: T[]): T[] {
-  return stores.map((store) =>
-    store.code && stores.filter((other) => other.code === store.code).length > 1
-      ? { ...store, code: undefined }
-      : store,
-  );
+function titleOf(row: unknown): string | undefined {
+  return row && typeof row === "object" && "store" in row
+    ? typeof row.store === "string"
+      ? row.store
+      : undefined
+    : undefined;
+}
+
+/**
+ * Reads codes for one feed. Two rows under one title would make the code a
+ * guess, so neither keeps it, counted over every row with a title, so an
+ * unusable twin still makes the other ambiguous.
+ */
+export function stanicCodeReader(
+  rows: unknown[],
+): (storeTitle: string) => string | undefined {
+  const counts = new Map<string, number>();
+
+  for (const title of rows.map(titleOf)) {
+    const code = title && stanicCodeFor(title);
+
+    if (code) counts.set(code, (counts.get(code) ?? 0) + 1);
+  }
+
+  return (storeTitle) => {
+    const code = stanicCodeFor(storeTitle);
+
+    return code && counts.get(code) === 1 ? code : undefined;
+  };
 }

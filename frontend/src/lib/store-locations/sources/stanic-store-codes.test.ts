@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  dropSharedCodes,
   stanicCodeFor,
+  stanicCodeReader,
 } from "@/lib/store-locations/sources/stanic-store-codes";
 
 describe("stanicCodeFor", () => {
@@ -28,14 +28,16 @@ describe("stanicCodeFor", () => {
   });
 });
 
-describe("dropSharedCodes", () => {
-  it("drops a code two stores would share", () => {
-    const stores = [{ code: "933" }, { code: "933" }, { code: "932" }];
-
-    expect(dropSharedCodes(stores)).toEqual([
-      { code: undefined },
-      { code: undefined },
-      { code: "932" },
+describe("stanicCodeReader", () => {
+  it("drops a code two rows share, even when one twin is unusable", () => {
+    const codeFor = stanicCodeReader([
+      { store: "Diskont Stanić Zadar", address: "Put Murvice 79", lat: "44.1" },
+      { store: "Diskont Stanić Zadar", lat: "" },
+      { store: "Diskont Stanić Vodice" },
+      "not a store",
     ]);
+
+    expect(codeFor("Diskont Stanić Zadar")).toBeUndefined();
+    expect(codeFor("Diskont Stanić Vodice")).toBe("932");
   });
 });
