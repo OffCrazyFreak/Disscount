@@ -1,30 +1,14 @@
 import { z } from "zod";
 
 import { houseNumberMatches } from "@/lib/store-locations/geocoders/house-number";
-import {
-  isPlaceName,
-  readPlacedAddress,
-} from "@/lib/store-locations/sync/address-place";
+import { readPlacedAddress } from "@/lib/store-locations/sync/address-place";
 
-// "B. RADICA 87, Viljevo": a village after the number, while upstream's town
-// is the municipality.
-const COMMA_VILLAGE = /^(.*\d.*?)\s*,\s*([^,\d]+)$/u;
-
-/** The search text for an upstream address, and the house number to expect. */
+/** The search text for an upstream address, and the house numbers to expect. */
 export function geoapifyQuery(address: string, city: string | null) {
-  let street = address
-    .replace(/(?<=\p{L})(?=\d)/gu, " ")
-    .replace(/\.(?=\S)/g, ". ");
-
-  const village = COMMA_VILLAGE.exec(street);
-  const place = village && isPlaceName(village[2]) ? village[2].trim() : null;
-
-  if (place && village) street = village[1];
-
-  const parsed = readPlacedAddress(street);
+  const parsed = readPlacedAddress(address);
 
   return {
-    text: [street.trim(), place ?? city, "Hrvatska"].filter(Boolean).join(", "),
+    text: [address, city, "Hrvatska"].filter(Boolean).join(", "),
     // "Ulica 1. svibnja bb" names a number in the street, so "bb" decides.
     // Either end of "75-77" may be the one Geoapify returns.
     houseNumbers:
@@ -42,8 +26,7 @@ export const geoapifyResultSchema = z.object({
   rank: z
     .object({
       confidence: z.number().optional(),
-      confidence_street_level: z.number().optional(),
-      confidence_city_level: z.number().optional(),
+      confidence_building_level: z.number().optional(),
     })
     .optional(),
 });
@@ -56,31 +39,23 @@ const BUILDING_TYPES = new Set(["building", "amenity"]);
 // worse than none, so doubtful results are dropped.
 const MIN_CONFIDENCE = 0.6;
 
-// The overall score drops for the right building when it is not ranked first,
-// so strong street and city scores also pass; below the first result they
-// are the only way, so a confident answer for another street cannot slip in.
-const MIN_STREET_AND_CITY = 0.8;
+// Wrong "building" results scored lower on the building itself; 0 means only the street matched.
+const MIN_BUILDING_CONFIDENCE = 0.9;
 
-/** The first result that is the building asked for. */
+/** The top result, when it is the building asked for. */
 export function pickGeoapifyResult(
   results: IGeoapifyResult[],
   houseNumbers: string[],
 ): IGeoapifyResult | undefined {
-  return results.find((result, index) => {
-    const rank = result.rank ?? {};
-    const streetAndCity =
-      (rank.confidence_street_level ?? 0) >= MIN_STREET_AND_CITY &&
-      (rank.confidence_city_level ?? 0) >= MIN_STREET_AND_CITY;
-    const confident =
-      streetAndCity ||
-      (index === 0 && (rank.confidence ?? 0) >= MIN_CONFIDENCE);
+  const [top] = results;
+  const rank = top?.rank ?? {};
 
-    return (
-      confident &&
-      BUILDING_TYPES.has(result.result_type ?? "") &&
-      houseNumbers.some((wanted) =>
-        houseNumberMatches(wanted, result.housenumber),
-      )
-    );
-  });
+  const building =
+    top !== undefined &&
+    (rank.confidence ?? 0) >= MIN_CONFIDENCE &&
+    (rank.confidence_building_level ?? 0) >= MIN_BUILDING_CONFIDENCE &&
+    BUILDING_TYPES.has(top.result_type ?? "") &&
+    houseNumbers.some((wanted) => houseNumberMatches(wanted, top.housenumber));
+
+  return building ? top : undefined;
 }

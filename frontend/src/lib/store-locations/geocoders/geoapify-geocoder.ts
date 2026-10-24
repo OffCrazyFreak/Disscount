@@ -38,7 +38,7 @@ export async function geocodeWithGeoapify(
     text,
     filter: "countrycode:hr",
     lang: "hr",
-    limit: "5",
+    limit: "1",
     format: "json",
     apiKey,
   });
