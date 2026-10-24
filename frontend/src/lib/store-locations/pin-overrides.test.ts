@@ -80,4 +80,11 @@ describe("pin overrides", () => {
     expect(findSyncTargets([store], [], Date.now(), overrides)).toEqual([]);
     expect(findSyncTargets([store], [], Date.now(), new Map())).toHaveLength(1);
   });
+
+  it("pin Stanić Biograd from the shipped list", () => {
+    const [entry] = buildDirectory([store], [row("chain_locator")]);
+
+    expect(entry).toMatchObject({ ...OVERRIDE, locationSource: "manual" });
+    expect(findSyncTargets([store], [])).toEqual([]);
+  });
 });
