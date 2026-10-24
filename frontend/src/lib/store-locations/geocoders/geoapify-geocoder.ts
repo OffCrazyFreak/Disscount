@@ -29,10 +29,10 @@ export async function geocodeWithGeoapify(
 
   if (!apiKey) return null;
 
-  const { text, houseNumber } = geoapifyQuery(address, city);
+  const { text, houseNumbers } = geoapifyQuery(address, city);
 
   // Without a house number no result can pass, so no request is spent.
-  if (houseNumber === null) return null;
+  if (houseNumbers.length === 0) return null;
 
   const params = new URLSearchParams({
     text,
@@ -47,7 +47,7 @@ export async function geocodeWithGeoapify(
     await fetchJson(`${ENDPOINT}?${params}`, signal),
   );
   const result = parsed.success
-    ? pickGeoapifyResult(parsed.data.results, houseNumber)
+    ? pickGeoapifyResult(parsed.data.results, houseNumbers)
     : undefined;
   const coordinates = result && sanitizeCoordinates(result.lat, result.lon);
 

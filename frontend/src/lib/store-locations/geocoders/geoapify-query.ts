@@ -26,7 +26,11 @@ export function geoapifyQuery(address: string, city: string | null) {
   return {
     text: [street.trim(), place ?? city, "Hrvatska"].filter(Boolean).join(", "),
     // "Ulica 1. svibnja bb" names a number in the street, so "bb" decides.
-    houseNumber: parsed.numberless ? null : parsed.number,
+    // Either end of "75-77" may be the one Geoapify returns.
+    houseNumbers:
+      parsed.numberless || !parsed.number
+        ? []
+        : [parsed.number, ...(parsed.rangeEnd ? [parsed.rangeEnd] : [])],
   };
 }
 
@@ -60,10 +64,8 @@ const MIN_STREET_AND_CITY = 0.8;
 /** The first result that is the building asked for. */
 export function pickGeoapifyResult(
   results: IGeoapifyResult[],
-  houseNumber: string | null,
+  houseNumbers: string[],
 ): IGeoapifyResult | undefined {
-  if (houseNumber === null) return undefined;
-
   return results.find((result, index) => {
     const rank = result.rank ?? {};
     const streetAndCity =
@@ -76,7 +78,9 @@ export function pickGeoapifyResult(
     return (
       confident &&
       BUILDING_TYPES.has(result.result_type ?? "") &&
-      houseNumberMatches(houseNumber, result.housenumber)
+      houseNumbers.some((wanted) =>
+        houseNumberMatches(wanted, result.housenumber),
+      )
     );
   });
 }

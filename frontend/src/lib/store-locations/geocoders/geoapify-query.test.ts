@@ -10,7 +10,7 @@ describe("geoapifyQuery", () => {
   it("separates a house number glued to the street", () => {
     expect(geoapifyQuery("Ulica Svetog Nikole16A", "Solin")).toEqual({
       text: "Ulica Svetog Nikole 16A, Solin, Hrvatska",
-      houseNumber: "16a",
+      houseNumbers: ["16a"],
     });
   });
 
@@ -25,7 +25,7 @@ describe("geoapifyQuery", () => {
       geoapifyQuery("I.B.SLOVAKA 105, Jelisavac", "Breznica Nasicka"),
     ).toEqual({
       text: "I. B. SLOVAKA 105, Jelisavac, Hrvatska",
-      houseNumber: "105",
+      houseNumbers: ["105"],
     });
   });
 
@@ -36,10 +36,16 @@ describe("geoapifyQuery", () => {
   });
 
   it("has no house number to expect for bb", () => {
-    expect(geoapifyQuery("Lazina bb", "Draganici").houseNumber).toBeNull();
+    expect(geoapifyQuery("Lazina bb", "Draganici").houseNumbers).toEqual([]);
     expect(
-      geoapifyQuery("Ulica 1. svibnja bb", "Draganici").houseNumber,
-    ).toBeNull();
+      geoapifyQuery("Ulica 1. svibnja bb", "Draganici").houseNumbers,
+    ).toEqual([]);
+  });
+
+  it("expects either end of a house number range", () => {
+    expect(
+      geoapifyQuery("J.J.STROSSMAYERA 75-77", "Osijek").houseNumbers,
+    ).toEqual(["75", "77"]);
   });
 });
 
@@ -60,7 +66,7 @@ describe("pickGeoapifyResult", () => {
       confidence_city_level: 1,
     });
 
-    expect(pickGeoapifyResult([school, store], "28a")).toBe(store);
+    expect(pickGeoapifyResult([school, store], ["28a"])).toBe(store);
   });
 
   it("takes a lower-ranked building only on street and city confidence", () => {
@@ -71,13 +77,19 @@ describe("pickGeoapifyResult", () => {
       confidence_city_level: 1,
     });
 
-    expect(pickGeoapifyResult([street, otherStreet], "4")).toBeUndefined();
+    expect(pickGeoapifyResult([street, otherStreet], ["4"])).toBeUndefined();
+  });
+
+  it("takes a range Geoapify returns whole", () => {
+    const store = result("75-77", { confidence: 0.9 });
+
+    expect(pickGeoapifyResult([store], ["75", "77"])).toBe(store);
   });
 
   it("still takes a building on overall confidence alone", () => {
     const store = result("19", { confidence: 0.7 });
 
-    expect(pickGeoapifyResult([store], "19")).toBe(store);
+    expect(pickGeoapifyResult([store], ["19"])).toBe(store);
   });
 
   it("refuses a doubtful building, a street and a different number", () => {
@@ -90,13 +102,13 @@ describe("pickGeoapifyResult", () => {
     const neighbour = result("21", { confidence: 1 });
 
     expect(
-      pickGeoapifyResult([doubtful, street, neighbour], "19"),
+      pickGeoapifyResult([doubtful, street, neighbour], ["19"]),
     ).toBeUndefined();
   });
 
   it("refuses everything without a house number to compare", () => {
     expect(
-      pickGeoapifyResult([result("19", { confidence: 1 })], null),
+      pickGeoapifyResult([result("19", { confidence: 1 })], []),
     ).toBeUndefined();
   });
 });
