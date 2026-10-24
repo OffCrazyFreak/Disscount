@@ -55,6 +55,17 @@ describe("matching by village", () => {
     ).toBeNull();
   });
 
+  it("does not use a point that stands only for the street", () => {
+    const street = {
+      ...record("Ulica kralja Tomislava 0", "Čepin"),
+      approximate: true,
+    };
+
+    expect(
+      matchLocatorStore(target("20202", "K.TOMISLAVA 0", "Čepin"), [street]),
+    ).toBeNull();
+  });
+
   it("refuses another village of the same municipality", () => {
     const zelcin = record("Kralja Tomislava 0, Zelčin", "Valpovo");
 
@@ -120,6 +131,19 @@ describe("matching by store number", () => {
         [svetaAna],
         ["20364", "30364"],
       ),
+    ).toBeNull();
+  });
+
+  it("does not place a store from a numbered record standing for a street", () => {
+    const street = {
+      ...record("Hrvatskih Pavlina BB", "Lepoglava", "2044"),
+      approximate: true,
+    };
+
+    expect(
+      matchLocatorStore(target("32044", "Hrvatskih Pavlina BB", "Lepoglava"), [
+        street,
+      ]),
     ).toBeNull();
   });
 

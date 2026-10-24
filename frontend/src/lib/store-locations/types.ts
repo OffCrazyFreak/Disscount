@@ -14,6 +14,8 @@ export interface ILocatorStore {
    * digit (NTL's "BR. 350" is code 20350). Weaker than a code.
    */
   codeSuffix?: string;
+  /** The point stands for the street or village, not the building. */
+  approximate?: boolean;
   address: string;
   city?: string;
   zipcode?: string;
