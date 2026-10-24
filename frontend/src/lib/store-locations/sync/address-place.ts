@@ -91,6 +91,27 @@ function numbersAgree(target: IPlacedAddress, record: IPlacedAddress) {
   return ends(target).some((end) => ends(record).includes(end));
 }
 
+/**
+ * Whether two addresses lie in the same place. When both name a village, the
+ * villages decide: two villages of one municipality are different places.
+ */
+export function placesAgree(
+  cityA: string | null | undefined,
+  a: IPlacedAddress,
+  cityB: string | null | undefined,
+  b: IPlacedAddress,
+): boolean {
+  if (a.places.length > 0 && b.places.length > 0) {
+    return townsAgree(a.places, b.places);
+  }
+
+  return townsAgree(townsOf(cityA, a), townsOf(cityB, b));
+}
+
+function townsOf(city: string | null | undefined, address: IPlacedAddress) {
+  return [normalizeCity(city), ...address.places].filter(Boolean);
+}
+
 /** Whether any town or village of one side is a town or village of the other. */
 export function townsAgree(a: string[], b: string[]): boolean {
   return a.some((one) => b.some((other) => townContains(one, other)));

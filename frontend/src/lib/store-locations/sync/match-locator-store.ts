@@ -6,9 +6,9 @@ import {
 import { ILocatorStore } from "@/lib/store-locations/types";
 import {
   placedAddressesAgree,
+  placesAgree,
   readPlacedAddress,
   townContains,
-  townsAgree,
 } from "@/lib/store-locations/sync/address-place";
 import { withoutSharedPoints } from "@/lib/store-locations/sync/shared-points";
 import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
@@ -84,7 +84,7 @@ function matchByCodeSuffix(
   const other = readPlacedAddress(record.address);
 
   return placedAddressesAgree(address, other) ||
-    townsAgree(townsOf(target.city, address), townsOf(record.city, other))
+    placesAgree(target.city, address, record.city, other)
     ? record
     : null;
 }
@@ -99,25 +99,17 @@ function matchByPlace(
   records: ILocatorStore[],
 ): ILocatorStore | null {
   const address = readPlacedAddress(target.address);
-  const towns = townsOf(target.city, address);
 
   const candidates = records.filter((record) => {
     const other = readPlacedAddress(record.address);
 
     return (
       placedAddressesAgree(address, other) &&
-      townsAgree(towns, townsOf(record.city, other))
+      placesAgree(target.city, address, record.city, other)
     );
   });
 
   return candidates.length === 1 ? candidates[0] : null;
-}
-
-function townsOf(
-  city: string | null | undefined,
-  address: { places: string[] },
-): string[] {
-  return [normalizeCity(city), ...address.places].filter(Boolean);
 }
 
 function sameZipcode(target: ISyncTarget, record: ILocatorStore): boolean {

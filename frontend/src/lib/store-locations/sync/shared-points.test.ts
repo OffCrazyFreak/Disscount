@@ -17,4 +17,21 @@ describe("withoutSharedPoints", () => {
 
     expect(withoutSharedPoints([a, b])).toEqual([a, b]);
   });
+
+  it("drops one street address copied onto two towns", () => {
+    const a = {
+      address: "Kralja Tomislava 0",
+      city: "Čepin",
+      lat: 45.5,
+      lon: 18.5,
+    };
+    const b = {
+      address: "Kralja Tomislava 0",
+      city: "Vinogradci",
+      lat: 45.5,
+      lon: 18.5,
+    };
+
+    expect(withoutSharedPoints([a, b])).toEqual([]);
+  });
 });

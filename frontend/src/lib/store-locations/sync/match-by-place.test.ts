@@ -15,12 +15,14 @@ function target(code: string, address: string, city: string): ISyncTarget {
   };
 }
 
+let nextLat = 45;
+
 function record(
   address: string,
   city: string,
   codeSuffix?: string,
 ): ILocatorStore {
-  return { address, city, codeSuffix, lat: 45.5, lon: 18.5 };
+  return { address, city, codeSuffix, lat: (nextLat += 0.01), lon: 18 };
 }
 
 describe("matching by village", () => {
@@ -50,6 +52,17 @@ describe("matching by village", () => {
         belisce,
         cepin,
       ]),
+    ).toBeNull();
+  });
+
+  it("refuses another village of the same municipality", () => {
+    const zelcin = record("Kralja Tomislava 0, Zelčin", "Valpovo");
+
+    expect(
+      matchLocatorStore(
+        target("20999", "K.TOMISLAVA 0, Ladimirevci", "Valpovo"),
+        [zelcin],
+      ),
     ).toBeNull();
   });
 
