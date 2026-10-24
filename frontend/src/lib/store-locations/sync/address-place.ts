@@ -24,7 +24,7 @@ const COMMA_PLACE = /^(.*\p{L}.*?)\s*,\s*([^,\d]+)$/u;
 const TRAILING_PLACE = /^(.*\p{L}.*?\d+)\s+(\p{L}{3,}(?:\s+\p{L}+)*)$/u;
 
 // "bb" after a comma, or the end of "Ulica 1 svibnja bb", is no village.
-function isPlaceName(text: string): boolean {
+export function isPlaceName(text: string): boolean {
   return !/(^|\s)bb($|\s)/.test(normalizeCity(text));
 }
 
@@ -105,7 +105,20 @@ export function placesAgree(
     return townsAgree(a.places, b.places);
   }
 
-  return townsAgree(townsOf(cityA, a), townsOf(cityB, b));
+  return (
+    townsAgree(townsOf(cityA, a), townsOf(cityB, b)) ||
+    namesTown(a, townsOf(cityB, b)) ||
+    namesTown(b, townsOf(cityA, a))
+  );
+}
+
+// A village without streets numbers its houses on the village name ("Bebrina
+// 83"), so that street names the town even when the other side's town field
+// holds a bigger place. Exact names only: "Zagrebačka" never means Zagreb.
+function namesTown(address: IPlacedAddress, towns: string[]): boolean {
+  const name = address.tokens.join(" ");
+
+  return name !== "" && towns.includes(name);
 }
 
 function townsOf(city: string | null | undefined, address: IPlacedAddress) {
