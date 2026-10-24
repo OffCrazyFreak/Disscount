@@ -3,12 +3,11 @@ import "server-only";
 import { fetchStream } from "@/lib/store-locations/http";
 import {
   addressesMatch,
+  matchedOnlyByStem,
   normalizeCity,
   parseAddress,
   type IParsedAddress,
 } from "@/lib/store-locations/address-key";
-import { etrs89LaeaToWgs84 } from "@/lib/store-locations/dgu/laea";
-import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import {
   componentRefs,
   featureId,
@@ -18,6 +17,7 @@ import {
   pointNorthingEasting,
   spellingText,
 } from "@/lib/store-locations/dgu/gml-fields";
+import { resolveCandidates } from "@/lib/store-locations/dgu/dgu-resolve";
 import { createStreetIndex } from "@/lib/store-locations/dgu/dgu-street-index";
 import { scanZipMembers } from "@/lib/store-locations/dgu/dgu-zip-stream";
 import type {
@@ -92,6 +92,7 @@ export async function lookupDguAddresses(
         northing: point[0],
         easting: point[1],
         refs: refs.filter((ref) => kindOf(ref) !== STREET_KIND),
+        exact: !matchedOnlyByStem(parsed[target].tokens, street.tokens),
       });
     }
   }
@@ -110,45 +111,6 @@ export async function lookupDguAddresses(
   );
 
   return resolveCandidates(targets, candidates, names);
-}
-
-function resolveCandidates(
-  targets: IDguTarget[],
-  candidates: IDguCandidate[],
-  names: Map<number, string>,
-): Map<string, { lat: number; lon: number }> {
-  const byTarget = new Map<number, IDguCandidate[]>();
-
-  for (const candidate of candidates) {
-    const list = byTarget.get(candidate.target);
-
-    if (list) list.push(candidate);
-    else byTarget.set(candidate.target, [candidate]);
-  }
-
-  const result = new Map<string, { lat: number; lon: number }>();
-
-  for (const [index, list] of byTarget) {
-    const city = normalizeCity(targets[index].city);
-
-    // Without a city, a single hit is the only one safe enough to trust.
-    const winner = city
-      ? list.find((candidate) =>
-          candidate.refs.some((ref) => names.get(ref) === city),
-        )
-      : list.length === 1
-        ? list[0]
-        : undefined;
-
-    if (!winner) continue;
-
-    const { lat, lon } = etrs89LaeaToWgs84(winner.northing, winner.easting);
-    const point = sanitizeCoordinates(lat, lon);
-
-    if (point) result.set(targets[index].id, point);
-  }
-
-  return result;
 }
 
 // Copies a string so it no longer references the text chunk it was cut from.

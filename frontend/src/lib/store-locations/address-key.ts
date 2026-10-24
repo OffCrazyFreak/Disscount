@@ -132,6 +132,28 @@ function isPrefixPair(a: string, b: string): boolean {
 }
 
 /**
+ * Whether two street names share a word only through the five-letter stem,
+ * the loosest rule: "Posavskog" and "Posavska" are different streets as often
+ * as they are one street declined.
+ */
+export function matchedOnlyByStem(a: string[], b: string[]): boolean {
+  const [shorter, longer] = a.length <= b.length ? [a, b] : [b, a];
+
+  return shorter.some((token) => {
+    if (longer.some((other) => other === token || startsOther(token, other)))
+      return false;
+
+    return longer.some((other) => isPrefixPair(token, other));
+  });
+}
+
+function startsOther(a: string, b: string): boolean {
+  const [shorter, longer] = a.length <= b.length ? [a, b] : [b, a];
+
+  return shorter.length >= 3 && longer.startsWith(shorter);
+}
+
+/**
  * Strips what some chains append to the upstream address: a postcode and town
  * ("Stepinca 8B, 10290 Zaprešić") or a store code and chain ("Savska 58 87079
  * Spar"), either of which would otherwise be read as the house number.
