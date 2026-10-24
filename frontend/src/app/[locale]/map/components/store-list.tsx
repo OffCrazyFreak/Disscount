@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useVirtualizer } from "@tanstack/react-virtual";
+import { defaultRangeExtractor, useVirtualizer } from "@tanstack/react-virtual";
 import { useTranslations } from "next-intl";
 
 import StoreListItem from "@/app/[locale]/map/components/store-list-item";
@@ -33,25 +33,45 @@ export default function StoreList({
   const t = useTranslations("map.layout");
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const selectedIndex = rows.findIndex((row) => row.key === selectedKey);
+
   // eslint-disable-next-line react-hooks/incompatible-library -- opted out above
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => ROW_HEIGHT,
+    // Measured heights follow the store, not the position, when filters change.
+    getItemKey: (index) => rows[index].key,
+    // The open row stays mounted, so focus on its actions survives scrolling.
+    rangeExtractor: (range) => {
+      const indexes = defaultRangeExtractor(range);
+      return selectedIndex < 0 || indexes.includes(selectedIndex)
+        ? indexes
+        : [...indexes, selectedIndex].sort((a, b) => a - b);
+    },
     overscan: 8,
   });
 
-  // Set while a row is clicked, so only a pick made on the map scrolls the list.
+  // Set while a row is clicked; a pick made elsewhere (map, Back) moves focus.
   const pickedInList = useRef(false);
 
+  // Opening a row collapses the one above it, so the list always brings the
+  // open row to the top rather than leaving it wherever it slid to.
   useEffect(() => {
-    if (pickedInList.current) {
-      pickedInList.current = false;
-      return;
-    }
+    const fromList = pickedInList.current;
+    pickedInList.current = false;
+    if (selectedIndex < 0) return;
 
-    const index = rows.findIndex((row) => row.key === selectedKey);
-    if (index >= 0) virtualizer.scrollToIndex(index, { align: "start" });
+    virtualizer.scrollToIndex(selectedIndex, { align: "start" });
+    if (fromList) return;
+
+    requestAnimationFrame(() => {
+      scrollRef.current
+        ?.querySelector<HTMLElement>(
+          `[data-store-key="${CSS.escape(rows[selectedIndex].key)}"]`,
+        )
+        ?.focus({ preventScroll: true });
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedKey]);
 

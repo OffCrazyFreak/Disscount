@@ -72,10 +72,7 @@ export default function MapPanel({ model, chainSummary }: IMapPanelProps) {
         note={originNote}
       />
 
-      <MissingStoresNote
-        shown={model.listed.length}
-        unplaced={model.unplacedCount}
-      />
+      <MissingStoresNote shown={rows.length} unplaced={model.unplacedCount} />
 
       <StoreList
         rows={rows}
