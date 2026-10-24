@@ -4,7 +4,6 @@ import {
   placedAddressesAgree,
   readPlacedAddress,
   townsAgree,
-  withoutSharedPoints,
 } from "@/lib/store-locations/sync/address-place";
 
 describe("readPlacedAddress", () => {
@@ -37,6 +36,14 @@ describe("readPlacedAddress", () => {
     );
   });
 
+  it("does not read bb after a comma as a village", () => {
+    expect(readPlacedAddress("Kralja Tomislava, bb").places).toEqual([]);
+  });
+
+  it("does not split a street named after a date", () => {
+    expect(readPlacedAddress("Ulica 1 svibnja bb").places).toEqual([]);
+  });
+
   it("drops a note in brackets", () => {
     expect(readPlacedAddress("NAS. A.HEBRANGA 9 ( blok 2 )")).toMatchObject({
       number: "9",
@@ -61,6 +68,11 @@ describe("placedAddressesAgree", () => {
     expect(agree("Prnjavor bb", "Prnjavor BB")).toBe(true);
   });
 
+  it("matches a numberless street only when upstream says 0 or bb", () => {
+    expect(agree("M.J.ZAGORKE BB", "Ul. Marije Jurić Zagorke")).toBe(true);
+    expect(agree("Ilica", "Ilica bb")).toBe(false);
+  });
+
   it("does not match a street without a number to a numbered one", () => {
     expect(agree("ZELJEZNICKA 0", "Željeznička ul. 10")).toBe(false);
   });
@@ -75,6 +87,10 @@ describe("placedAddressesAgree", () => {
       false,
     );
   });
+
+  it("does not take a range that merely touches another", () => {
+    expect(agree("Vukovarska 75-77", "Vukovarska 77-79")).toBe(false);
+  });
 });
 
 describe("townsAgree", () => {
@@ -86,16 +102,5 @@ describe("townsAgree", () => {
 
   it("does not take a town merely containing the other's letters", () => {
     expect(townsAgree(["rab"], ["rabac"])).toBe(false);
-  });
-});
-
-describe("withoutSharedPoints", () => {
-  it("drops records that share a point with another address", () => {
-    const a = { address: "Ivana Brnjika Slovaka 105", lat: 45.56, lon: 18.18 };
-    const b = { address: "Ivana Brnjika Slovaka 37", lat: 45.56, lon: 18.18 };
-    const c = { address: "Trg Ante Starčevića 10", lat: 45.68, lon: 18.4 };
-    const d = { address: "Trg Ante Starčevića 10", lat: 45.68, lon: 18.4 };
-
-    expect(withoutSharedPoints([a, b, c, d])).toEqual([c, d]);
   });
 });

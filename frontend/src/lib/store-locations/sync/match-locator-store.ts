@@ -10,6 +10,7 @@ import {
   townContains,
   townsAgree,
 } from "@/lib/store-locations/sync/address-place";
+import { withoutSharedPoints } from "@/lib/store-locations/sync/shared-points";
 import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
 
 /**
@@ -24,11 +25,14 @@ export function matchLocatorStore(
   const byCode = records.find((record) => record.code === target.code);
   if (byCode) return byCode;
 
-  return (
-    matchByAddress(target, records) ??
-    matchByCodeSuffix(target, records) ??
-    matchByPlace(target, records)
-  );
+  const byAddress = matchByAddress(target, records);
+  if (byAddress) return byAddress;
+
+  // The looser rules below trust the record's point more, so a point the
+  // source gave two different addresses is not used by them.
+  const usable = withoutSharedPoints(records);
+
+  return matchByCodeSuffix(target, usable) ?? matchByPlace(target, usable);
 }
 
 function matchByAddress(

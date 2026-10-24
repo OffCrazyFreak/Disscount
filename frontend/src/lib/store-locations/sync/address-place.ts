@@ -12,14 +12,21 @@ export interface IPlacedAddress extends IParsedAddress {
   rangeEnd: string | null;
   /** Villages named in the address, e.g. "Ladimirevci" in "B. Radića 9, Ladimirevci". */
   places: string[];
+  /** The address says outright that the building has no number: "0" or "bb". */
+  numberless: boolean;
 }
 
 // "B. RADICA 9, Ladimirevci": a comma, then a name with no digits.
 const COMMA_PLACE = /^(.*\p{L}.*?)\s*,\s*([^,\d]+)$/u;
 
-// "Ul. Matije Gupca 6 Sladojevci": words of three letters or more after the
-// number, so a house letter ("25 B") is not read as a village.
+// "Ul. Matije Gupca 6 Sladojevci": words after the number. Three letters at
+// least, so a house letter ("25 B") is not read as a village.
 const TRAILING_PLACE = /^(.*\p{L}.*?\d+)\s+(\p{L}{3,}(?:\s+\p{L}+)*)$/u;
+
+// "bb" after a comma, or the end of "Ulica 1 svibnja bb", is no village.
+function isPlaceName(text: string): boolean {
+  return !/(^|\s)bb($|\s)/.test(normalizeCity(text));
+}
 
 const RANGE = /(\d+)\s*[-_]\s*(\d+)(?!\d|\p{L})/u;
 
@@ -32,7 +39,7 @@ export function readPlacedAddress(
   for (const pattern of [COMMA_PLACE, TRAILING_PLACE]) {
     const match = pattern.exec(street);
 
-    if (match) {
+    if (match && isPlaceName(match[2])) {
       street = match[1];
       places.push(normalizeCity(match[2]));
     }
@@ -41,20 +48,47 @@ export function readPlacedAddress(
   const range = RANGE.exec(street);
   const parsed = parseAddress(range ? street.replace(RANGE, "$1") : street);
 
-  return { ...parsed, rangeEnd: range?.[2] ?? null, places };
+  return {
+    ...parsed,
+    rangeEnd: range?.[2] ?? null,
+    places,
+    numberless: /(^| )(0+|bb)( |$)/.test(
+      normalizeForSearch(street).replace(/[^a-z0-9]+/g, " "),
+    ),
+  };
 }
 
-/** Same street and house number, "0" and "bb" on both sides counting as one. */
+/**
+ * Whether the target's address and a record's name the same building: same
+ * street, and the same number or one end of the target's range. A street
+ * without numbers matches only when upstream says so with "0" or "bb", since
+ * a number that is merely missing could be any building on the street.
+ */
 export function placedAddressesAgree(
-  a: IPlacedAddress,
-  b: IPlacedAddress,
+  target: IPlacedAddress,
+  record: IPlacedAddress,
 ): boolean {
-  const sameNumber =
-    a.number === b.number ||
-    (b.number !== null && a.rangeEnd === b.number) ||
-    (a.number !== null && b.rangeEnd === a.number);
+  return (
+    numbersAgree(target, record) &&
+    streetsMatch(target.tokens, record.tokens, true)
+  );
+}
 
-  return sameNumber && streetsMatch(a.tokens, b.tokens, true);
+function numbersAgree(target: IPlacedAddress, record: IPlacedAddress) {
+  if (target.number === null || record.number === null) {
+    return target.number === record.number && target.numberless;
+  }
+
+  if (target.rangeEnd && record.rangeEnd) {
+    return (
+      target.number === record.number && target.rangeEnd === record.rangeEnd
+    );
+  }
+
+  const ends = (address: IPlacedAddress) =>
+    [address.number, address.rangeEnd].filter(Boolean);
+
+  return ends(target).some((end) => ends(record).includes(end));
 }
 
 /** Whether any town or village of one side is a town or village of the other. */
@@ -72,27 +106,4 @@ export function townContains(a: string, b: string): boolean {
       : [b.split(" "), a.split(" ")];
 
   return shorter.every((word) => longer.includes(word));
-}
-
-/**
- * Drops records that share their exact point with a record at another
- * address: the source geocoded at least one of them wrongly, and nothing
- * says which.
- */
-export function withoutSharedPoints<
-  T extends { address: string; lat: number; lon: number },
->(records: T[]): T[] {
-  const addresses = new Map<string, Set<string>>();
-
-  for (const record of records) {
-    const point = `${record.lat},${record.lon}`;
-    const set = addresses.get(point) ?? new Set<string>();
-
-    set.add(normalizeForSearch(record.address).replace(/[^a-z0-9]/g, ""));
-    addresses.set(point, set);
-  }
-
-  return records.filter(
-    (record) => addresses.get(`${record.lat},${record.lon}`)?.size === 1,
-  );
 }
