@@ -12,10 +12,10 @@ function page(locations: unknown[]) {
   return `<script>var locations = ${JSON.stringify(locations)};</script>`;
 }
 
-function store(title: string, lat: number, lng: number) {
+function store(title: string, lat: number, lng: number, street = "Ulica 1") {
   return {
     title,
-    street: "Ulica 1",
+    street,
     place: "31000 Osijek",
     position: { lat, lng },
   };
@@ -56,5 +56,15 @@ describe("ntlLocator", () => {
 
     expect(stores).toHaveLength(1);
     expect(stores[0].lat).toBe(45.41);
+  });
+
+  it("marks a point for an address without a house number as approximate", async () => {
+    const stores = await storesFrom([
+      store("NTL REVITA 2", 45.55, 18.71, "Srijemska ul. 0"),
+      store("NTL TRGOVINA BR. 2044", 46.2, 16.04, "Hrvatskih Pavlina BB"),
+      store("NTL ROKO", 45.56, 18.63, "Josipa Jurja Strossmayera 75"),
+    ]);
+
+    expect(stores.map((one) => one.approximate)).toEqual([true, true, false]);
   });
 });

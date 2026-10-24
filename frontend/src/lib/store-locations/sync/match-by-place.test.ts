@@ -55,6 +55,17 @@ describe("matching by village", () => {
     ).toBeNull();
   });
 
+  it("does not use a point that stands only for the street", () => {
+    const street = {
+      ...record("Ulica kralja Tomislava 0", "Čepin"),
+      approximate: true,
+    };
+
+    expect(
+      matchLocatorStore(target("20202", "K.TOMISLAVA 0", "Čepin"), [street]),
+    ).toBeNull();
+  });
+
   it("refuses another village of the same municipality", () => {
     const zelcin = record("Kralja Tomislava 0, Zelčin", "Valpovo");
 

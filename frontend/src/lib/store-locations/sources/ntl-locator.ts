@@ -2,6 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 
+import { parseAddress } from "@/lib/store-locations/address-key";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchText } from "@/lib/store-locations/http";
 import type { ILocatorStore, IStoreLocator } from "@/lib/store-locations/types";
@@ -94,6 +95,10 @@ export const ntlLocator: IStoreLocator = {
 
       stores.push({
         codeSuffix: codeSuffixOf(parsed.data.title),
+        // Checked on 2026-10-24: ntl.hr places addresses without a house
+        // number ("0", "bb") at the street centre or in the wrong village,
+        // 7 of 13 matched ones off by 280 m to 4 km.
+        approximate: parseAddress(parsed.data.street).number === null,
         address: parsed.data.street,
         ...splitPlace(parsed.data.place),
         ...coordinates,

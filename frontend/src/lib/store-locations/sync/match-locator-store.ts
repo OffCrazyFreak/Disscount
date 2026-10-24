@@ -30,8 +30,10 @@ export function matchLocatorStore(
   if (byAddress) return byAddress;
 
   // The looser rules below trust the record's point more, so a point the
-  // source gave two different addresses is not used by them.
-  const usable = withoutSharedPoints(records);
+  // source gave two different addresses, or only a street, is not used by them.
+  const usable = withoutSharedPoints(records).filter(
+    (record) => !record.approximate,
+  );
 
   return (
     matchByCodeSuffix(target, usable, chainCodes) ??
