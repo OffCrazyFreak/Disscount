@@ -2,6 +2,7 @@ import "server-only";
 
 import { saveResolvedLocation } from "@/lib/store-locations/location-repository";
 import { storeLocators } from "@/lib/store-locations/sources";
+import { withoutSharedPoints } from "@/lib/store-locations/sync/address-place";
 import { matchLocatorStore } from "@/lib/store-locations/sync/match-locator-store";
 import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
 
@@ -31,7 +32,7 @@ export async function resolveWithLocators(
     const placed = new Set<ISyncTarget>();
 
     try {
-      const records = await locator.fetchStores(signal);
+      const records = withoutSharedPoints(await locator.fetchStores(signal));
 
       for (const target of chainTargets) {
         const match = matchLocatorStore(target, records);

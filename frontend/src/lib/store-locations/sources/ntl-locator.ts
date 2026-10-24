@@ -9,6 +9,7 @@ import type { ILocatorStore, IStoreLocator } from "@/lib/store-locations/types";
 const PAGE_URL = "https://ntl.hr/prodajna-mjesta";
 
 const storeSchema = z.object({
+  title: z.string().optional(),
   street: z.string(),
   place: z.string().optional(),
   position: z.object({
@@ -42,6 +43,32 @@ function splitPlace(place: string | undefined) {
     : { zipcode: undefined, city: place?.trim() || undefined };
 }
 
+// "NTL TRGOVINA BR. 350". Only three and four digit numbers follow the code
+// scheme; one and two digit ones ("BR. 33") belong to stores coded otherwise.
+function codeSuffixOf(title: string | undefined): string | undefined {
+  return /\bbr\.?\s*(\d{3,4})\s*$/i.exec(title ?? "")?.[1].padStart(4, "0");
+}
+
+// Stores ntl.hr itself pins in the wrong place, checked on 2026-10-24: CRET
+// sits in the Cret near Krapina, not the one near Bizovac, TERA in Osijek,
+// not Šodolovci, and the two Piškorevci stores in Đakovo, 6 km north. A
+// corrected point no longer matches and is used.
+const WRONG_POINTS = [
+  { title: "NTL CRET", lat: 46.0978, lon: 15.838 },
+  { title: "NTL TERA", lat: 45.5593, lon: 18.6784 },
+  { title: "NTL REVITA 32", lat: 45.3099, lon: 18.4091 },
+  { title: "NTL T- 44", lat: 45.3056, lon: 18.4101 },
+];
+
+function isWrongPoint(title: string | undefined, lat: number, lon: number) {
+  return WRONG_POINTS.some(
+    (wrong) =>
+      wrong.title === title?.trim() &&
+      Math.abs(wrong.lat - lat) < 0.001 &&
+      Math.abs(wrong.lon - lon) < 0.001,
+  );
+}
+
 export const ntlLocator: IStoreLocator = {
   chain: "ntl",
 
@@ -59,9 +86,14 @@ export const ntlLocator: IStoreLocator = {
         parsed.data.position.lng,
       );
 
-      if (!coordinates) continue;
+      if (
+        !coordinates ||
+        isWrongPoint(parsed.data.title, coordinates.lat, coordinates.lon)
+      )
+        continue;
 
       stores.push({
+        codeSuffix: codeSuffixOf(parsed.data.title),
         address: parsed.data.street,
         ...splitPlace(parsed.data.place),
         ...coordinates,

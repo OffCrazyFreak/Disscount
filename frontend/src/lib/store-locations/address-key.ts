@@ -81,18 +81,41 @@ export function parseAddress(
  */
 export function addressesMatch(a: IParsedAddress, b: IParsedAddress): boolean {
   if (!a.number || a.number !== b.number) return false;
-  if (a.tokens.length === 0 || b.tokens.length === 0) return false;
 
-  const [shorter, longer] =
-    a.tokens.length <= b.tokens.length
-      ? [a.tokens, b.tokens]
-      : [b.tokens, a.tokens];
+  return streetsMatch(a.tokens, b.tokens);
+}
+
+/**
+ * Whether most of the shorter street name appears in the longer one. With
+ * `initials`, a Croatian two-letter initial ("Lj." for Ljudevit) counts too.
+ */
+export function streetsMatch(
+  a: string[],
+  b: string[],
+  initials = false,
+): boolean {
+  if (a.length === 0 || b.length === 0) return false;
+
+  const [shorter, longer] = a.length <= b.length ? [a, b] : [b, a];
 
   const shared = shorter.filter((token) =>
-    longer.some((other) => other === token || isPrefixPair(other, token)),
+    longer.some(
+      (other) =>
+        other === token ||
+        isPrefixPair(other, token) ||
+        (initials && isDigraphInitial(token, other)),
+    ),
   ).length;
 
   return shared / shorter.length >= 0.6;
+}
+
+// Croatian writes lj, nj and dž as one letter, so "Lj. Gaja" abbreviates
+// "Ljudevita Gaja" with two characters.
+function isDigraphInitial(a: string, b: string): boolean {
+  const [initial, word] = a.length <= b.length ? [a, b] : [b, a];
+
+  return /^(lj|nj|dz)$/.test(initial) && word.startsWith(initial);
 }
 
 // Croatian declines street names ("Vukovarska" vs "Vukovarske"), so a shared
