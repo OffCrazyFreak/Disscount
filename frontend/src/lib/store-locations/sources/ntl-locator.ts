@@ -2,9 +2,9 @@ import "server-only";
 
 import { z } from "zod";
 
-import { parseAddress } from "@/lib/store-locations/address-key";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchText } from "@/lib/store-locations/http";
+import { readPlacedAddress } from "@/lib/store-locations/sync/address-place";
 import type { ILocatorStore, IStoreLocator } from "@/lib/store-locations/types";
 
 const PAGE_URL = "https://ntl.hr/prodajna-mjesta";
@@ -70,6 +70,13 @@ function isWrongPoint(title: string | undefined, lat: number, lon: number) {
   );
 }
 
+// "Ulica 1. svibnja bb" names a number in the street, so "bb" decides.
+function isNumberless(street: string): boolean {
+  const address = readPlacedAddress(street);
+
+  return address.number === null || address.numberless;
+}
+
 export const ntlLocator: IStoreLocator = {
   chain: "ntl",
 
@@ -95,10 +102,8 @@ export const ntlLocator: IStoreLocator = {
 
       stores.push({
         codeSuffix: codeSuffixOf(parsed.data.title),
-        // Checked on 2026-10-24: ntl.hr places addresses without a house
-        // number ("0", "bb") at the street centre or in the wrong village,
-        // 7 of 13 matched ones off by 280 m to 4 km.
-        approximate: parseAddress(parsed.data.street).number === null,
+        // ntl.hr pins numberless addresses at the street centre or a wrong village.
+        approximate: isNumberless(parsed.data.street),
         address: parsed.data.street,
         ...splitPlace(parsed.data.place),
         ...coordinates,

@@ -63,8 +63,14 @@ describe("ntlLocator", () => {
       store("NTL REVITA 2", 45.55, 18.71, "Srijemska ul. 0"),
       store("NTL TRGOVINA BR. 2044", 46.2, 16.04, "Hrvatskih Pavlina BB"),
       store("NTL ROKO", 45.56, 18.63, "Josipa Jurja Strossmayera 75"),
+      store("NTL BR. 999", 45.57, 18.64, "Ulica 1. svibnja bb"),
     ]);
 
-    expect(stores.map((one) => one.approximate)).toEqual([true, true, false]);
+    expect(stores.map((one) => one.approximate)).toEqual([
+      true,
+      true,
+      false,
+      true,
+    ]);
   });
 });

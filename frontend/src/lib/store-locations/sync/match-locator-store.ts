@@ -30,15 +30,15 @@ export function matchLocatorStore(
   if (byAddress) return byAddress;
 
   // The looser rules below trust the record's point more, so a point the
-  // source gave two different addresses, or only a street, is not used by them.
-  const usable = withoutSharedPoints(records).filter(
-    (record) => !record.approximate,
-  );
-
-  return (
+  // source gave two different addresses, or only a street, is not used by
+  // them. An approximate record still counts as a rival, so it can only make
+  // a match ambiguous, never decide one.
+  const usable = withoutSharedPoints(records);
+  const match =
     matchByCodeSuffix(target, usable, chainCodes) ??
-    matchByPlace(target, usable)
-  );
+    matchByPlace(target, usable);
+
+  return match?.approximate ? null : match;
 }
 
 function matchByAddress(

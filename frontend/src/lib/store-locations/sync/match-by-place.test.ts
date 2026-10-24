@@ -134,6 +134,19 @@ describe("matching by store number", () => {
     ).toBeNull();
   });
 
+  it("does not place a store from a numbered record standing for a street", () => {
+    const street = {
+      ...record("Hrvatskih Pavlina BB", "Lepoglava", "2044"),
+      approximate: true,
+    };
+
+    expect(
+      matchLocatorStore(target("32044", "Hrvatskih Pavlina BB", "Lepoglava"), [
+        street,
+      ]),
+    ).toBeNull();
+  });
+
   it("refuses when two records carry the number", () => {
     const twin = record("Ul. Svete Ane 83", "Osijek", "0364");
 
