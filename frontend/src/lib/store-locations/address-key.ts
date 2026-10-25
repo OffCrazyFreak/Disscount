@@ -122,9 +122,7 @@ function isDigraphInitial(a: string, b: string): boolean {
 // stem of five letters counts as the same word. Sources also abbreviate
 // ("Set." for "Šetalište"), so a short word that starts the other one counts.
 function isPrefixPair(a: string, b: string): boolean {
-  const [shorter, longer] = a.length <= b.length ? [a, b] : [b, a];
-
-  if (shorter.length >= 3 && longer.startsWith(shorter)) return true;
+  if (startsOther(a, b)) return true;
 
   const stem = Math.min(a.length, b.length, 5);
 
