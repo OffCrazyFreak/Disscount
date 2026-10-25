@@ -6,35 +6,20 @@ import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchJson } from "@/lib/store-locations/http";
 import type { IResolvedLocation } from "@/lib/store-locations/types";
 import {
-  houseNumberMatches,
-  requestedHouseNumber,
-} from "@/lib/store-locations/geocoders/house-number";
+  geoapifyQuery,
+  geoapifyResultSchema,
+  pickGeoapifyResult,
+} from "@/lib/store-locations/geocoders/geoapify-query";
 
 const ENDPOINT = "https://api-eu.geoapify.com/v1/geocode/search";
 
-// Geoapify's docs say a low confidence does not mean a wrong answer, but a
-// wrong pin is worse than no pin, so doubtful results are dropped.
-const MIN_CONFIDENCE = 0.6;
-
 const responseSchema = z.object({
-  results: z
-    .array(
-      z.object({
-        lat: z.number(),
-        lon: z.number(),
-        result_type: z.string().optional(),
-        housenumber: z.string().optional(),
-        rank: z.object({ confidence: z.number().optional() }).optional(),
-      }),
-    )
-    .default([]),
+  results: z.array(geoapifyResultSchema).default([]),
 });
 
-// Same rule as Nominatim: a wrong pin is worse than none, so a street, a town
-// centre or the wrong building is dropped and the store waits for a better
-// source or a manual pin.
-const BUILDING_TYPES = new Set(["building", "amenity"]);
-
+// Same rule as Nominatim: a wrong pin is worse than none, so only the
+// building with the right house number is accepted, never a street, a town
+// centre or a near miss.
 export async function geocodeWithGeoapify(
   address: string,
   city: string | null,
@@ -44,8 +29,13 @@ export async function geocodeWithGeoapify(
 
   if (!apiKey) return null;
 
+  const { text, houseNumbers } = geoapifyQuery(address, city);
+
+  // Without a house number no result can pass, so no request is spent.
+  if (houseNumbers.length === 0) return null;
+
   const params = new URLSearchParams({
-    text: [address, city, "Hrvatska"].filter(Boolean).join(", "),
+    text,
     filter: "countrycode:hr",
     lang: "hr",
     limit: "1",
@@ -56,18 +46,12 @@ export async function geocodeWithGeoapify(
   const parsed = responseSchema.safeParse(
     await fetchJson(`${ENDPOINT}?${params}`, signal),
   );
-  const result = parsed.success ? parsed.data.results[0] : undefined;
+  const result = parsed.success
+    ? pickGeoapifyResult(parsed.data.results, houseNumbers)
+    : undefined;
+  const coordinates = result && sanitizeCoordinates(result.lat, result.lon);
 
-  if (!result || (result.rank?.confidence ?? 0) < MIN_CONFIDENCE) return null;
-
-  const wanted = requestedHouseNumber(address);
-  const exact =
-    wanted !== null &&
-    BUILDING_TYPES.has(result.result_type ?? "") &&
-    houseNumberMatches(wanted, result.housenumber);
-  const coordinates = sanitizeCoordinates(result.lat, result.lon);
-
-  if (!exact || !coordinates) return null;
+  if (!coordinates) return null;
 
   return { ...coordinates, source: "geoapify", precision: "building" };
 }

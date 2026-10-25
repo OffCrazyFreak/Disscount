@@ -1,6 +1,6 @@
 import "server-only";
 
-import { geocodeWithGeoapify } from "@/lib/store-locations/geocoders/geoapify-geocoder";
+import { createGeoapifyBudget } from "@/lib/store-locations/geocoders/geoapify-budget";
 import {
   geocodeWithNominatim,
   NOMINATIM_MIN_INTERVAL_MS,
@@ -11,6 +11,8 @@ import {
   recordGeoapifyMiss,
 } from "@/lib/store-locations/location-repository";
 import { fetchUpstreamStores } from "@/lib/store-locations/upstream-stores";
+import { withChainAddresses } from "@/lib/store-locations/sync/address-source-step";
+import { createDguAnchor } from "@/lib/store-locations/sync/dgu-anchor";
 import { resolveWithDgu } from "@/lib/store-locations/sync/dgu-step";
 import { resolveWithGeocoder } from "@/lib/store-locations/sync/geocoder-step";
 import { resolveWithLocators } from "@/lib/store-locations/sync/locator-step";
@@ -30,6 +32,7 @@ const NOMINATIM_LIMIT = 20;
 /**
  * Places every store upstream cannot, each source a backup for the one
  * before: chain locators, the DGU address register, Geoapify, Nominatim.
+ * Geocoders search with a chain's own address where it publishes one.
  * Stores that all of them miss are retried a week later, and a manual pin
  * is never overwritten.
  */
@@ -44,21 +47,27 @@ export async function runStoreLocationSync(signal: AbortSignal): Promise<void> {
       readStoreLocations(),
     ]);
 
+    const geoapify = createGeoapifyBudget(GEOAPIFY.limit);
     let targets = findSyncTargets(upstream, locations);
-    targets = await resolveWithLocators(targets, upstream, signal);
-    targets = await resolveWithDgu(targets, signal);
+    const located = await resolveWithLocators(targets, upstream, signal);
+    targets = await resolveWithDgu(
+      located.remaining,
+      signal,
+      createDguAnchor(located.records, upstream, geoapify, signal),
+    );
+    targets = await withChainAddresses(targets, signal);
 
     // Optional: until the key is set, every target goes straight to Nominatim.
     const forGeoapify = process.env.GEOAPIFY_API_KEY
       ? targets.filter((target) => !target.skipGeoapify)
       : [];
-    const geoapify = await resolveWithGeocoder(
+    const geocoded = await resolveWithGeocoder(
       forGeoapify,
-      { geocode: geocodeWithGeoapify, ...GEOAPIFY },
+      { geocode: geoapify, ...GEOAPIFY },
       signal,
     );
 
-    for (const target of geoapify.failed) {
+    for (const target of geocoded.failed) {
       await recordGeoapifyMiss(target.chain, target.code);
     }
 
@@ -67,7 +76,7 @@ export async function runStoreLocationSync(signal: AbortSignal): Promise<void> {
     );
 
     const nominatim = await resolveWithGeocoder(
-      [...geoapify.remaining, ...notForGeoapify],
+      [...geocoded.remaining, ...notForGeoapify],
       {
         geocode: geocodeWithNominatim,
         limit: NOMINATIM_LIMIT,
@@ -79,7 +88,7 @@ export async function runStoreLocationSync(signal: AbortSignal): Promise<void> {
     // The week-long wait starts only once the last source has missed too.
     const missed = new Set(nominatim.failed);
     const unplaced = nominatim.remaining.filter(
-      (target) => !target.address || missed.has(target),
+      (target) => !(target.lookup ?? target).address || missed.has(target),
     );
 
     for (const target of unplaced) {

@@ -44,17 +44,29 @@ flowchart LR
 
 - `getStoreDirectory` fetches every upstream store and our `store_location` rows, merges them (`buildDirectory`) and keeps the result in memory per process for 10 minutes.
 - The route answers with `Cache-Control: public, max-age=3600, stale-while-revalidate=86400`. The service worker already caches `/api/cijene/*`, and the React Query key `["cijene", "store-directory"]` persists, so the list works offline after one visit.
-- Merge rule: a manual pin wins; otherwise upstream coordinates win when they are usable; otherwise ours. Coordinates outside a box around Croatia are dropped, and swapped latitude and longitude are repaired.
+- Merge rule: a `manual` table row wins, then a pin override from code; otherwise upstream coordinates win when they are usable; otherwise ours. Coordinates outside a box around Croatia are dropped, and swapped latitude and longitude are repaired.
 
 ## 3. Store locations: the sync
 
 `runStoreLocationSync` places every store upstream cannot. Each source is a backup for the one before:
 
-1. **Chain locators** (`lib/store-locations/sources/`): the chains' own store finders, read politely with an identifying User-Agent. 14 chains are covered. Matching is by store code where the chain shares it (Kaufland, Ribola, Eurospin, Roto, KTC), otherwise by address and town.
+1. **Chain locators** (`lib/store-locations/sources/`): the chains' own store finders, read politely with an identifying User-Agent. 15 chains are covered. Matching is by store code where the chain shares it (Kaufland, Ribola, Eurospin, Roto, KTC), otherwise by address and town. Stanić's site has no codes and upstream gives Stanić only a code and a town, so `stanic-store-codes.ts` pairs them by hand from upstream's price file names; an unknown code stays unplaced, and the table can go once upstream publishes Stanić addresses. When neither code nor exact address matches, two looser passes run (`sync/match-locator-store.ts`), each trusting only a single candidate:
+   - **Store number**: NTL's "BR. 350" is code 20350 (the number after one leading digit). It counts only when the address or the town agrees too, and never when another upstream code ends in the same number.
+   - **Village-aware address**: the village a source writes after the comma or the house number ("B. RADICA 9, Ladimirevci") is compared with the other side's town; when both name a village, the villages decide. "0" and "bb" on both sides match only when upstream says so outright, and a street named exactly like the other side's town ("Bebrina 83") counts as that town.
+   - Neither pass uses a point the source gave two different addresses, nor an NTL record without a house number: ntl.hr pins those at the street centre or in the wrong village (7 of 13 were 280 m to 4 km off). A few NTL records ntl.hr puts in the wrong town are skipped by name and point in `ntl-locator.ts`.
 2. **DGU address register** (`lib/store-locations/dgu/`): the official INSPIRE addresses, one 84 MB zip streamed through `fflate` and scanned without holding the 2.6 GB GML in memory (about 30 s, about 220 MB peak). Coordinates arrive in EPSG:3035 and are converted with an inverse Lambert Azimuthal Equal Area on GRS80. Commercial use is allowed under the Otvorena dozvola with attribution.
-3. **Geoapify**, only when `GEOAPIFY_API_KEY` is set, through the EU endpoint, at most 1,000 a run. Like Nominatim it accepts only the building with the right house number; a street, a town centre or a near miss is dropped, because a wrong pin is worse than none.
+   A candidate whose street matches only by a shared stem ("Posavskog" against "Posavska") is used only when no exact street exists in the town. When the town has the address in places more than 300 m apart, the register alone would be guessing, so `sync/dgu-anchor.ts` asks for an independent point: the chain's own record for that store number (under the locator step's rules), else a Geoapify building. The register place nearest it, within 150 m, is used (`dgu/near-anchor.ts`); otherwise the store goes on to the geocoders.
+3. **Geoapify**, only when `GEOAPIFY_API_KEY` is set, through the EU endpoint, at most 1,000 a run. Like Nominatim it accepts only the building with the right house number; a street, a town centre or a near miss is dropped, because a wrong pin is worse than none. The top result must also score 0.9 on the building itself (`geocoders/geoapify-query.ts`): independent verification found every wrong "building" result below that, often at 0, which means only the street matched. Either end of a house number range counts, and an address without a house number sends no request, though it still takes a slot of the run's limit. Query cleanup, more results and a structured query were measured and rejected: none added a verified pin under this rule.
+   Stridon publishes no coordinates, but its store table spells out the addresses upstream abbreviates ("Lj.Posavskog 23, V.gorica"). After the DGU step, `sync/address-source-step.ts` gives each unplaced Stridon store that address as a `lookup`, and the geocoders search with it; the pin still records upstream's address for the stale check. DGU never sees it, because DGU's stem matching put Stridon Velika Gorica on Posavska ulica in another village, 7 km away.
 4. **Nominatim**, the last resort, at most 20 a run, 15 s apart, because the usage policy limits scheduled scripts to 4 requests a minute.
 5. **Manual pin**: a row with source `manual` is never overwritten by a sync.
+6. **Pin override** (`lib/store-locations/pin-overrides.ts`): a reviewed list in code for stores whose automatic pin was verified wrong. Each entry cites its evidence, and only OpenStreetMap points (ODbL, credited on the map) or places a person confirmed go in, never coordinates copied from Google Maps. The directory reports it as `manual`, and the sync skips the store, so no quota is spent on it.
+
+7. **Pin correction** (`lib/store-locations/pin-corrections.ts`): saved register pins that failed verification, with the register's right place that verification confirmed within about 30 m. The sync never revisits a saved pin, so a fixed DGU rule cannot move these by itself. Each correction applies only to a `dgu` pin and only while upstream keeps the address it was checked for.
+
+8. **Pin hold** (`lib/store-locations/pin-holds.ts`): stores whose pin failed or was doubtful in independent verification and that no OpenStreetMap point can fix. The map shows no pin for them and the sync leaves them alone until a person confirms the place in issue #261; then the entry becomes a pin override or is deleted. Only a `manual` table row still shows.
+
+Which pin the map shows: a `manual` table row first, since someone set it in that environment on purpose; then a pin override; then upstream's own coordinates; then the sync's pin, or its pin correction. An override is not tied to upstream's address, because upstream may start publishing one for the same building. When the store moves, replace the entry: deleting it brings back the source's own point, which was the wrong one.
 
 Every automatic pin records the upstream address it was found from. When upstream changes a store's address, the old pin is dropped from the map and the store is looked up again; if no source finds the new address, it becomes an ordinary failed store. Pins saved before addresses were recorded are kept as they are.
 
@@ -95,6 +107,7 @@ A store every source misses is recorded as a failed attempt and retried after 7 
 | Directory and route | `frontend/src/lib/store-locations/get-store-directory.ts`, `app/api/cijene/store-directory/`                               |
 | Sync                | `frontend/src/lib/store-locations/sync/`, `sources/`, `dgu/`, `geocoders/`                                                 |
 | Table               | `frontend/src/db/store-location-schema.ts`, `frontend/drizzle/0003_store_locations.sql`, `0004_store_location_address.sql` |
+| Pin overrides       | `frontend/src/lib/store-locations/pin-overrides.ts`, `pin-corrections.ts`, `pin-holds.ts`                                  |
 
 ## 7. Config and env
 
@@ -117,4 +130,4 @@ The migration runs through the existing `migrate` service. The map needs no CSP 
 - Opening hours and working Sundays (board task "Store opening hours"): per-chain hours from the same locators, with an explicit "nije potvrđeno" state.
 - Prices on the map and cheapest basket near me.
 - Store photos, a store type filter, an offline map.
-- An admin way to set manual pins (the table already honours them).
+- An admin way to set manual pins (the table already honours them); until then, verified corrections go in the pin override list.

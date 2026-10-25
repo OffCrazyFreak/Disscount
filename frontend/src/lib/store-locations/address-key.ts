@@ -122,13 +122,33 @@ function isDigraphInitial(a: string, b: string): boolean {
 // stem of five letters counts as the same word. Sources also abbreviate
 // ("Set." for "Šetalište"), so a short word that starts the other one counts.
 function isPrefixPair(a: string, b: string): boolean {
-  const [shorter, longer] = a.length <= b.length ? [a, b] : [b, a];
-
-  if (shorter.length >= 3 && longer.startsWith(shorter)) return true;
+  if (startsOther(a, b)) return true;
 
   const stem = Math.min(a.length, b.length, 5);
 
   return stem >= 4 && a.slice(0, stem) === b.slice(0, stem);
+}
+
+/**
+ * Whether two street names share a word only through the five-letter stem,
+ * the loosest rule: "Posavskog" and "Posavska" are different streets as often
+ * as they are one street declined.
+ */
+export function matchedOnlyByStem(a: string[], b: string[]): boolean {
+  const [shorter, longer] = a.length <= b.length ? [a, b] : [b, a];
+
+  return shorter.some((token) => {
+    if (longer.some((other) => other === token || startsOther(token, other)))
+      return false;
+
+    return longer.some((other) => isPrefixPair(token, other));
+  });
+}
+
+function startsOther(a: string, b: string): boolean {
+  const [shorter, longer] = a.length <= b.length ? [a, b] : [b, a];
+
+  return shorter.length >= 3 && longer.startsWith(shorter);
 }
 
 /**

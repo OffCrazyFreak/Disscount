@@ -4,6 +4,12 @@ import { StoreResponse } from "@/lib/cijene-api/schemas";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { cleanUpstreamAddress } from "@/lib/store-locations/address-key";
 import { StoreLocationRow } from "@/lib/store-locations/location-repository";
+import { PIN_HOLDS } from "@/lib/store-locations/pin-holds";
+import {
+  PIN_OVERRIDES,
+  usableOverride,
+} from "@/lib/store-locations/pin-overrides";
+import type { ILookupAddress } from "@/lib/store-locations/types";
 import { storeKey } from "@/lib/store-locations/upstream-stores";
 
 /** A store the sync still has to place. */
@@ -15,6 +21,11 @@ export interface ISyncTarget {
   zipcode: string | null;
   /** Geoapify missed it within the retry window, so only Nominatim tries. */
   skipGeoapify: boolean;
+  /**
+   * The chain's own, fuller spelling of the address. Geocoders search with
+   * it; the pin still records upstream's address, which the stale check uses.
+   */
+  lookup?: ILookupAddress;
 }
 
 const RETRY_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
@@ -37,39 +48,49 @@ function isRecent(at: Date | null | undefined, now: number): boolean {
 
 /**
  * Stores upstream cannot place and we have not placed either, or placed from
- * an address upstream has since changed, minus those that every source failed
- * on within the last week: addresses rarely change, so retrying them daily
- * would only spend geocoder quota.
+ * an address upstream has since changed, minus stores pinned or held in code and
+ * those that every source failed on within the last week: addresses rarely
+ * change, so retrying them daily would only spend geocoder quota.
  */
 export function findSyncTargets(
   upstream: StoreResponse[],
   locations: StoreLocationRow[],
   now = Date.now(),
+  overrides = PIN_OVERRIDES,
+  holds = PIN_HOLDS,
 ): ISyncTarget[] {
   const byKey = new Map(
     locations.map((row) => [storeKey(row.chainCode, row.storeCode), row]),
   );
 
-  return upstream
-    .filter((store) => !sanitizeCoordinates(store.lat, store.lon))
-    .filter((store) => {
-      const row = byKey.get(storeKey(store.chain_code, store.code));
+  return (
+    upstream
+      .filter((store) => !sanitizeCoordinates(store.lat, store.lon))
+      .filter((store) => !holds.has(storeKey(store.chain_code, store.code)))
+      // An override the directory rejects must not hide the store from the sync.
+      .filter(
+        (store) =>
+          !usableOverride(overrides, storeKey(store.chain_code, store.code)),
+      )
+      .filter((store) => {
+        const row = byKey.get(storeKey(store.chain_code, store.code));
 
-      if (!row) return true;
-      if (row.source === "manual") return false;
-      if (row.lat != null) return isStalePin(row, store.address);
+        if (!row) return true;
+        if (row.source === "manual") return false;
+        if (row.lat != null) return isStalePin(row, store.address);
 
-      return !isRecent(row.lastAttemptAt, now);
-    })
-    .map((store) => ({
-      chain: store.chain_code,
-      code: store.code,
-      address: cleanUpstreamAddress(store.address),
-      city: store.city,
-      zipcode: store.zipcode,
-      skipGeoapify: isRecent(
-        byKey.get(storeKey(store.chain_code, store.code))?.geoapifyMissedAt,
-        now,
-      ),
-    }));
+        return !isRecent(row.lastAttemptAt, now);
+      })
+      .map((store) => ({
+        chain: store.chain_code,
+        code: store.code,
+        address: cleanUpstreamAddress(store.address),
+        city: store.city,
+        zipcode: store.zipcode,
+        skipGeoapify: isRecent(
+          byKey.get(storeKey(store.chain_code, store.code))?.geoapifyMissedAt,
+          now,
+        ),
+      }))
+  );
 }

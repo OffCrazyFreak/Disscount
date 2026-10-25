@@ -66,6 +66,26 @@ describe("matching by village", () => {
     ).toBeNull();
   });
 
+  it("reads a street named after the village as that village", () => {
+    const bebrina = record("Bebrina 83", "Bebrina");
+
+    expect(
+      matchLocatorStore(target("20650", "BEBRINA 83", "Slavonski Brod"), [
+        bebrina,
+      ]),
+    ).toBe(bebrina);
+  });
+
+  it("does not read a street named after a town as being in it", () => {
+    const zagrebacka = record("Zagrebačka 10", "Velika Gorica");
+
+    expect(
+      matchLocatorStore(target("20999", "Zagrebačka 10", "Zagreb"), [
+        zagrebacka,
+      ]),
+    ).toBeNull();
+  });
+
   it("refuses another village of the same municipality", () => {
     const zelcin = record("Kralja Tomislava 0, Zelčin", "Valpovo");
 

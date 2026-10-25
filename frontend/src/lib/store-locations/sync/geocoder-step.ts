@@ -38,7 +38,9 @@ export async function resolveWithGeocoder(
   let spent = 0;
 
   for (const target of targets) {
-    if (!target.address || spent >= limit) {
+    const query = target.lookup ?? target;
+
+    if (!query.address || spent >= limit) {
       remaining.push(target);
       continue;
     }
@@ -49,7 +51,7 @@ export async function resolveWithGeocoder(
     spent++;
 
     try {
-      const location = await geocode(target.address, target.city, signal);
+      const location = await geocode(query.address, query.city, signal);
 
       if (location) {
         await saveResolvedLocation(target, location);

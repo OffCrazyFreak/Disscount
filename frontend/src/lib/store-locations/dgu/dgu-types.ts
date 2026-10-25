@@ -11,4 +11,6 @@ export interface IDguCandidate {
   easting: number;
   /** Postal descriptor and admin unit ids, resolved to names after the zip. */
   refs: number[];
+  /** The street matched without leaning on the five-letter stem alone. */
+  exact: boolean;
 }
