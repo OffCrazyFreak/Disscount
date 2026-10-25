@@ -55,17 +55,16 @@
     "down": "Sposta la mappa in basso"
   },
   "list": {
-    "unknownCity": "Città sconosciuta",
     "noLocation": "senza posizione",
     "onMap": "Sulla mappa · {count, number}",
     "elsewhere": "Altrove · {count, number}",
     "onMapStatus": "{count, plural, one {# negozio} other {# negozi}} sulla mappa",
     "update": "Mappa spostata · aggiorna l'elenco",
-    "sameSpot": "{count, plural, one {# negozio} other {# negozi}} in questo punto"
+    "sameSpot": "{count, plural, one {# negozio} other {# negozi}} in questo punto",
+    "unknownAddress": "Indirizzo sconosciuto",
+    "distance": "a {distance} da te"
   },
   "details": {
-    "unknownAddress": "Indirizzo sconosciuto",
-    "distance": "a {distance} da te",
     "notPlaced": "Non abbiamo ancora una posizione esatta per questo negozio, quindi non è sulla mappa."
   },
   "actions": {

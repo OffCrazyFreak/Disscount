@@ -31,6 +31,9 @@ export default function StoreListItem({
   const locale = useLocale();
   const { store, chainLabel, cityLabel, distanceKm } = row;
   const isPlaced = store.lat != null && store.lon != null;
+  const place = [store.zipcode, cityLabel].filter(Boolean).join(" ");
+  const address = [store.address, place].filter(Boolean).join(", ");
+  const fit = isSelected ? "break-words" : "truncate";
 
   return (
     <Collapsible
@@ -55,25 +58,27 @@ export default function StoreListItem({
         </span>
 
         <span className="min-w-0 flex-1">
-          <span className="block truncate font-medium">
-            {chainLabel}
-            {store.address && <span lang="hr">, {store.address}</span>}
-          </span>
+          <span className={cn("block font-medium", fit)}>{chainLabel}</span>
 
-          <span className="block truncate text-sm text-muted-foreground">
-            {cityLabel ? <span lang="hr">{cityLabel}</span> : t("unknownCity")}
-            {!isPlaced && (
-              <span className="ml-2 inline-flex items-center gap-1 text-amber-700">
-                <MapPinOff className="size-3.5" aria-hidden="true" />
-                {t("noLocation")}
-              </span>
-            )}
+          <span className={cn("block text-sm text-muted-foreground", fit)}>
+            {address ? <span lang="hr">{address}</span> : t("unknownAddress")}
           </span>
         </span>
 
+        {/* Beside the text, not after it, so an ellipsis can never hide it. */}
+        {!isPlaced && (
+          <span className="shrink-0 text-amber-700" title={t("noLocation")}>
+            <MapPinOff className="size-4" aria-hidden="true" />
+            <span className="sr-only">{t("noLocation")}</span>
+          </span>
+        )}
+
         {distanceKm != null && (
           <span className="shrink-0 text-sm tabular-nums text-muted-foreground">
-            {formatDistance(distanceKm, locale)}
+            <span aria-hidden="true">{formatDistance(distanceKm, locale)}</span>
+            <span className="sr-only">
+              {t("distance", { distance: formatDistance(distanceKm, locale) })}
+            </span>
           </span>
         )}
 

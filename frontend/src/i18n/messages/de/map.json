@@ -55,17 +55,16 @@
     "down": "Karte nach unten verschieben"
   },
   "list": {
-    "unknownCity": "Unbekannter Ort",
     "noLocation": "ohne Standort",
     "onMap": "Auf der Karte · {count, number}",
     "elsewhere": "Anderswo · {count, number}",
     "onMapStatus": "{count, plural, one {# Markt} other {# Märkte}} auf der Karte",
     "update": "Karte verschoben · Liste aktualisieren",
-    "sameSpot": "{count, plural, one {# Markt} other {# Märkte}} an dieser Stelle"
+    "sameSpot": "{count, plural, one {# Markt} other {# Märkte}} an dieser Stelle",
+    "unknownAddress": "Adresse unbekannt",
+    "distance": "{distance} von dir"
   },
   "details": {
-    "unknownAddress": "Adresse unbekannt",
-    "distance": "{distance} von dir",
     "notPlaced": "Für diesen Markt haben wir noch keinen genauen Standort, deshalb ist er nicht auf der Karte."
   },
   "actions": {

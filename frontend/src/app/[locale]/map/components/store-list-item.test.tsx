@@ -50,13 +50,14 @@ describe("StoreListItem", () => {
 
     const trigger = screen.getByRole("button", { name: /Ilica 1/ });
     expect(trigger).toHaveAttribute("aria-expanded", "false");
-    expect(screen.queryByText("Ilica 1, 10000 Zagreb")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /Upute \(Google karte\)/ }),
+    ).not.toBeInTheDocument();
 
     await user.click(trigger);
 
     expect(onSelect).toHaveBeenLastCalledWith("konzum:123");
     expect(trigger).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getByText("Ilica 1, 10000 Zagreb")).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /Upute \(Google karte\)/ }),
     ).toBeInTheDocument();
@@ -76,6 +77,34 @@ describe("StoreListItem", () => {
       "aria-expanded",
       "true",
     );
-    expect(screen.getByText("Ilica 1, 10000 Zagreb")).toBeInTheDocument();
+  });
+
+  it("cuts long lines short while closed and shows them whole once open", () => {
+    const { rerender } = renderWithProviders(
+      <StoreListItem row={row} isSelected={false} onSelect={vi.fn()} />,
+    );
+
+    const name = () => screen.getByText("Konzum");
+    const address = () =>
+      screen.getByText("Ilica 1, 10000 Zagreb").closest(".block");
+    expect(name()).toHaveClass("truncate");
+    expect(address()).toHaveClass("truncate");
+
+    rerender(<StoreListItem row={row} isSelected onSelect={vi.fn()} />);
+
+    expect(name()).not.toHaveClass("truncate");
+    expect(address()).not.toHaveClass("truncate");
+    // The open panel no longer repeats what the row already says.
+    expect(screen.getAllByText("Ilica 1, 10000 Zagreb")).toHaveLength(1);
+  });
+
+  it("marks a store with no pin outside the line an ellipsis can cut", () => {
+    const unplaced = toListedStore({ ...store, lat: null, lon: null }, null);
+    renderWithProviders(
+      <StoreListItem row={unplaced} isSelected={false} onSelect={vi.fn()} />,
+    );
+
+    const label = screen.getByText("bez lokacije");
+    expect(label.closest(".truncate")).toBeNull();
   });
 });
