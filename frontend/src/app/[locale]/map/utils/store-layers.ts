@@ -12,6 +12,10 @@ export const STORE_SOURCE_ID = "stores";
 
 const POINT_LAYER_ID = "store-point";
 
+// The badge is the most obvious thing to tap, and a cluster of chains with no
+// logo yet still shows it.
+const COUNT_LAYER_ID = "store-cluster-count";
+
 function stackLayerId(rank: number): string {
   return `store-cluster-${rank}`;
 }
@@ -27,6 +31,7 @@ const STACK: { rank: number; offset: [number, number]; rotate: number }[] = [
 /** Layers a click can land on, so the map reports features only for these. */
 export const INTERACTIVE_LAYER_IDS = [
   POINT_LAYER_ID,
+  COUNT_LAYER_ID,
   ...STACK.map(({ rank }) => stackLayerId(rank)),
 ];
 
@@ -72,7 +77,7 @@ export function stackLayers(chains: string[]): LayerProps[] {
 /** The number of stores, on a badge at the stack's top right. */
 export function clusterCountLayer(): LayerProps {
   return {
-    id: "store-cluster-count",
+    id: COUNT_LAYER_ID,
     type: "symbol",
     filter: IS_CLUSTER,
     layout: {

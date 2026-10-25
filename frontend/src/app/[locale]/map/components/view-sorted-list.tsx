@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { useTranslations } from "next-intl";
 
 import StoreList from "@/app/[locale]/map/components/store-list";
@@ -26,6 +27,7 @@ export default function ViewSortedList({
 }: IViewSortedListProps) {
   const t = useTranslations("map.list");
   const view = useHeldView(viewArea);
+  const listRef = useRef<HTMLDivElement>(null);
 
   const { onMap, elsewhere } = splitByView(listed, view.applied);
 
@@ -41,12 +43,25 @@ export default function ViewSortedList({
       ])
     : undefined;
 
+  // The chip unmounts once pressed, so focus goes to the top of the new order
+  // instead of dropping to the page.
+  function applyView() {
+    view.apply();
+    requestAnimationFrame(() =>
+      listRef.current?.querySelector<HTMLElement>("[data-store-key]")?.focus(),
+    );
+  }
+
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col" {...view.holdProps}>
+    <div
+      ref={listRef}
+      className="relative flex min-h-0 flex-1 flex-col"
+      {...view.holdProps}
+    >
       {view.pending && (
         <button
           type="button"
-          onClick={view.apply}
+          onClick={applyView}
           className="absolute inset-x-0 top-2 z-10 mx-auto w-fit rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background shadow-md hover:bg-foreground/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           {t("update")}
@@ -60,7 +75,7 @@ export default function ViewSortedList({
       <StoreList
         rows={[...pinned, ...onMap, ...elsewhere]}
         headings={headings}
-        orderKey={JSON.stringify(view.applied)}
+        orderKey={onMap.map((row) => row.key).join()}
         selectedKey={selectedKey}
         onSelect={onSelect}
       />

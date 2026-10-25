@@ -6,12 +6,13 @@ import { useTranslations } from "next-intl";
 
 import StoreListItem from "@/app/[locale]/map/components/store-list-item";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
+import { toListEntries } from "@/app/[locale]/map/utils/list-entries";
 
 interface IStoreListProps {
   rows: IListedStore[];
   /** Group labels, keyed by the index of the row each group starts at. */
   headings?: Map<number, string>;
-  /** Changes when the map view reorders the rows. */
+  /** Changes when the map view changes which stores lead the list. */
   orderKey: string;
   selectedKey: string | null;
   onSelect: (key: string | null) => void;
@@ -39,15 +40,18 @@ export default function StoreList({
   const t = useTranslations("map.layout");
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const selectedIndex = rows.findIndex((row) => row.key === selectedKey);
+  const entries = toListEntries(rows, headings);
+  const selectedIndex = entries.findIndex(
+    (entry) => entry.kind === "store" && entry.key === selectedKey,
+  );
 
   // eslint-disable-next-line react-hooks/incompatible-library -- opted out above
   const virtualizer = useVirtualizer({
-    count: rows.length,
+    count: entries.length,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => ROW_HEIGHT,
     // Measured heights follow the store, not the position, when filters change.
-    getItemKey: (index) => rows[index].key,
+    getItemKey: (index) => entries[index].key,
     // The open row stays mounted, so focus on its actions survives scrolling.
     rangeExtractor: (range) => {
       const indexes = defaultRangeExtractor(range);
@@ -83,7 +87,7 @@ export default function StoreList({
     requestAnimationFrame(() => {
       scrollRef.current
         ?.querySelector<HTMLElement>(
-          `[data-store-key="${CSS.escape(rows[selectedIndex].key)}"]`,
+          `[data-store-key="${CSS.escape(entries[selectedIndex].key)}"]`,
         )
         ?.focus({ preventScroll: true });
     });
@@ -113,30 +117,29 @@ export default function StoreList({
         style={{ height: virtualizer.getTotalSize() }}
       >
         {virtualizer.getVirtualItems().map((item) => {
-          const row = rows[item.index];
-          const heading = headings?.get(item.index);
+          const entry = entries[item.index];
 
           return (
             <li
-              key={row.key}
+              key={entry.key}
               ref={virtualizer.measureElement}
               data-index={item.index}
-              aria-setsize={rows.length}
+              aria-setsize={entries.length}
               aria-posinset={item.index + 1}
               className="absolute inset-x-0"
               style={{ transform: `translateY(${item.start}px)` }}
             >
-              {heading && (
+              {entry.kind === "heading" ? (
                 <h2 className="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  {heading}
+                  {entry.label}
                 </h2>
+              ) : (
+                <StoreListItem
+                  row={entry.row}
+                  isSelected={entry.key === selectedKey}
+                  onSelect={selectInList}
+                />
               )}
-
-              <StoreListItem
-                row={row}
-                isSelected={row.key === selectedKey}
-                onSelect={selectInList}
-              />
             </li>
           );
         })}

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  fitPadding,
   isSameSpot,
   leafBounds,
 } from "@/app/[locale]/map/utils/cluster-leaves";
@@ -37,5 +38,24 @@ describe("leafBounds", () => {
       [15.9, 45.8],
       [16, 45.9],
     ]);
+  });
+});
+
+describe("fitPadding", () => {
+  it("keeps a 64 px margin where there is room", () => {
+    expect(fitPadding(800, 600, 0)).toEqual({
+      top: 64,
+      right: 64,
+      bottom: 64,
+      left: 64,
+    });
+  });
+
+  it("fits inside a short map with the sheet up", () => {
+    // A phone in landscape: 230 px of map, 126 px of it under the sheet.
+    const padding = fitPadding(700, 230, 126);
+
+    expect(padding.top + padding.bottom).toBeLessThan(230);
+    expect(padding.bottom).toBeGreaterThan(126);
   });
 });

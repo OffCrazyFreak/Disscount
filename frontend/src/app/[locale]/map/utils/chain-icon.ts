@@ -45,9 +45,17 @@ function tile(
   inset: number,
   radius: number,
 ) {
-  const side = ICON_SIZE - inset * 2;
+  const start = inset;
+  const end = ICON_SIZE - inset;
+
+  // Drawn with arcTo rather than roundRect, which Firefox only shipped in 112.
   context.beginPath();
-  context.roundRect(inset, inset, side, side, radius);
+  context.moveTo(start + radius, start);
+  context.arcTo(end, start, end, end, radius);
+  context.arcTo(end, end, start, end, radius);
+  context.arcTo(start, end, start, start, radius);
+  context.arcTo(start, start, end, start, radius);
+  context.closePath();
 }
 
 /**

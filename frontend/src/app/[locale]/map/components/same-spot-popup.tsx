@@ -33,6 +33,13 @@ export default function SameSpotPopup({
     listRef.current?.querySelector("button")?.focus();
   }, [spot]);
 
+  // A filter that hides every store here closes the list for good, rather
+  // than leaving it to reappear over an old spot when the filter clears.
+  const isEmpty = spot != null && rows.length === 0;
+  useEffect(() => {
+    if (isEmpty) onClose();
+  }, [isEmpty, onClose]);
+
   function handleKeyDown(event: KeyboardEvent) {
     if (event.key !== "Escape") return;
 

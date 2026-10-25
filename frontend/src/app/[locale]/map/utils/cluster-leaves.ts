@@ -30,3 +30,23 @@ export function leafBounds(leaves: IClusterLeaf[]): LngLatBoundsLike {
     [Math.max(...lons), Math.max(...lats)],
   ];
 }
+
+/**
+ * Room around a stack's stores when zooming to them, kept clear of the phone
+ * sheet. MapLibre refuses to move when the padding outgrows the canvas, as it
+ * can on a phone in landscape, so the margin shrinks to fit.
+ */
+export function fitPadding(
+  width: number,
+  height: number,
+  coveredBottom: number,
+) {
+  const margin = Math.min(64, width / 4, (height - coveredBottom) / 4);
+
+  return {
+    top: margin,
+    right: margin,
+    bottom: coveredBottom + margin,
+    left: margin,
+  };
+}

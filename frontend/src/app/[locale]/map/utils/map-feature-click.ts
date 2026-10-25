@@ -3,6 +3,7 @@ import type { MapLayerMouseEvent, MapRef } from "react-map-gl/maplibre";
 
 import {
   IClusterLeaf,
+  fitPadding,
   isSameSpot,
   leafBounds,
 } from "@/app/[locale]/map/utils/cluster-leaves";
@@ -72,8 +73,10 @@ export async function handleMapFeatureClick(
     return;
   }
 
+  const { clientWidth, clientHeight } = map.getCanvas();
+
   map.fitBounds(leafBounds(leaves), {
-    padding: { top: 64, right: 64, bottom: 64 + coveredBottom, left: 64 },
+    padding: fitPadding(clientWidth, clientHeight, coveredBottom),
     maxZoom: map.getMaxZoom(),
   });
 }
