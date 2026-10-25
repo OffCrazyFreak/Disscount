@@ -9,17 +9,24 @@ import ChainFilterChips from "@/app/[locale]/map/components/chain-filter-chips";
 import MissingStoresNote from "@/app/[locale]/map/components/missing-stores-note";
 import NearMeButton from "@/app/[locale]/map/components/near-me-button";
 import RecentSearches from "@/app/[locale]/map/components/recent-searches";
-import StoreList from "@/app/[locale]/map/components/store-list";
+import ViewSortedList from "@/app/[locale]/map/components/view-sorted-list";
 import { IMapViewModel } from "@/app/[locale]/map/hooks/use-map-view-model";
+import { IViewArea } from "@/app/[locale]/map/utils/view-area";
 
 interface IMapPanelProps {
   model: IMapViewModel;
+  /** What the map shows right now; stores inside it lead the list. */
+  viewArea: IViewArea | null;
   /** Server-rendered chain overview, so the page has crawlable text. */
   chainSummary: ReactNode;
 }
 
 /** Search, filters and the list, with the selected store open. Same on every screen. */
-export default function MapPanel({ model, chainSummary }: IMapPanelProps) {
+export default function MapPanel({
+  model,
+  viewArea,
+  chainSummary,
+}: IMapPanelProps) {
   const t = useTranslations("map");
   const { kind, showDistances, ipCity } = model.origin;
   const originNote =
@@ -33,11 +40,10 @@ export default function MapPanel({ model, chainSummary }: IMapPanelProps) {
 
   const { selected, listed } = model;
   // A shared link can name a store the filters hide; it still opens, on top.
-  const rows =
+  const pinned =
     selected && !listed.some((row) => row.key === selected.key)
-      ? [selected, ...listed]
-      : listed;
-
+      ? [selected]
+      : [];
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3 p-3">
       <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
@@ -72,10 +78,15 @@ export default function MapPanel({ model, chainSummary }: IMapPanelProps) {
         note={originNote}
       />
 
-      <MissingStoresNote shown={rows.length} unplaced={model.unplacedCount} />
+      <MissingStoresNote
+        shown={pinned.length + listed.length}
+        unplaced={model.unplacedCount}
+      />
 
-      <StoreList
-        rows={rows}
+      <ViewSortedList
+        pinned={pinned}
+        listed={listed}
+        viewArea={viewArea}
         selectedKey={selected?.key ?? null}
         onSelect={model.selectStore}
       />

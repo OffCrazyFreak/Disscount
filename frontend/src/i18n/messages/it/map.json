@@ -58,7 +58,12 @@
   },
   "list": {
     "unknownCity": "Città sconosciuta",
-    "noLocation": "senza posizione"
+    "noLocation": "senza posizione",
+    "onMap": "Sulla mappa · {count, number}",
+    "elsewhere": "Altrove · {count, number}",
+    "onMapStatus": "{count, plural, one {# negozio} other {# negozi}} sulla mappa",
+    "update": "Mappa spostata · aggiorna l'elenco",
+    "sameSpot": "{count, plural, one {# negozio} other {# negozi}} in questo punto"
   },
   "details": {
     "unknownAddress": "Indirizzo sconosciuto",

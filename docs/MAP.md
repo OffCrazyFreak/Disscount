@@ -79,8 +79,10 @@ A store every source misses is recorded as a failed attempt and retried after 7 
 ## 4. The page
 
 - **Layout:** on desktop a 24rem list panel sits beside the map, and both fill the space between the header and the footer: the map marks itself `data-page-width="full"`, which widens `<main>` and makes the root layout exactly one screen tall, so the page never scrolls (below 40rem of height it does, so the map keeps a usable size). Phones get a full-screen fixed layer between the floating header and the bottom nav, with a custom bottom sheet (peek, half, full); the bottom nav stands in for the footer there. vaul is not used here: its non-modal mode is unmaintained and buggy.
-- **Pins:** every chain is its own clustered GeoJSON source, so a cluster always shows that chain's logo with a count and splits apart on zoom. Logos are drawn into a white disc with a dark rim (`chain-icon.ts`) for contrast on any basemap.
+- **Pins:** all stores share one clustered GeoJSON source, so nearby stores of any chain merge into one stack: up to three square logo tiles, fanned, for the most common chains inside, plus a count. Each cluster carries a per-chain count (`clusterProperties`), and since style expressions cannot sort, `utils/cluster-stack.ts` ranks each chain by counting the chains with more stores (ties go to the chain listed first). It uses no `let` bindings: MapLibre re-evaluates a bound expression at every `var`, and a nested ranking stalled the map worker on mixed clusters. Logos are drawn as rounded square tiles with a dark rim (`chain-icon.ts`), the same shape as on the landing page, for contrast on any basemap.
+- **Stack taps:** a tap zooms to fit exactly that stack's stores (padding keeps them clear of the phone sheet). Clustering runs to the map's deepest zoom (20), so stores within about 20 m of each other, typically one mall, never split; tapping them opens a small list on the map instead (`same-spot-popup.tsx`), and picking one opens its row.
 - **List:** every matching store, placed or not, virtualized with TanStack Virtual. Search is the shared matcher over chain, town and address. Stores without coordinates carry a "bez lokacije" label and the note above the list counts them.
+- **List follows the map:** when the map stops moving, stores inside the visible part (on phones, the part above the sheet) move to an "On the map" group at the top, keeping the list's own order; the rest follow under "Elsewhere". Nothing is filtered out. While the pointer or keyboard focus is in the list, the new order waits (`hooks/use-held-view.ts`) and a chip offers it, so rows never jump under someone reading; it applies when they leave. A polite status announces the count on the map.
 - **Store details:** each list row is a collapsible item, and the open one is the store selected on the map, so picking a pin opens its row, scrolls the list to it and focuses it. The open row stays mounted in the virtualized list, and measured heights are keyed by store. A shared link to a store the filters hide puts that store on top of the list. The open row shows the full address, the distance, directions (Google Maps, Apple Maps), call, share, and "Prijavi grešku", which pre-fills the contact form through its draft key. Opening hours will go here too.
 - **URL state:** `?store=<chain>:<code>` is pushed, so Back closes a store; `?chain=` replaces; `?q=` comes from the shared `SearchBar` in its `shallow` mode; the map view rides in `#map=zoom/lat/lon`. These writes use the History API, so they cause no server round trip.
 - **Defaults:** signed-in users start with their pinned chains selected and the map on their first pinned place, centred on the average of that town's stores.
@@ -98,16 +100,16 @@ A store every source misses is recorded as a failed attempt and retried after 7 
 
 ## 6. Key files
 
-| Area                | Files                                                                                                                      |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Page and layout     | `frontend/src/app/[locale]/map/page.tsx`, `components/map-client.tsx`, `components/map-bottom-sheet.tsx`                   |
-| List                | `components/store-list.tsx`, `components/store-list-item.tsx`, `components/store-details.tsx`                              |
-| Map                 | `components/store-map.tsx`, `components/map-chain-source.tsx`, `utils/chain-layers.ts`                                     |
-| View model          | `hooks/use-map-view-model.ts`, `hooks/use-visible-stores.ts`, `hooks/use-map-url-state.ts`                                 |
-| Directory and route | `frontend/src/lib/store-locations/get-store-directory.ts`, `app/api/cijene/store-directory/`                               |
-| Sync                | `frontend/src/lib/store-locations/sync/`, `sources/`, `dgu/`, `geocoders/`                                                 |
-| Table               | `frontend/src/db/store-location-schema.ts`, `frontend/drizzle/0003_store_locations.sql`, `0004_store_location_address.sql` |
-| Pin overrides       | `frontend/src/lib/store-locations/pin-overrides.ts`, `pin-corrections.ts`, `pin-holds.ts`                                  |
+| Area                | Files                                                                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Page and layout     | `frontend/src/app/[locale]/map/page.tsx`, `components/map-client.tsx`, `components/map-bottom-sheet.tsx`                                                                            |
+| List                | `components/view-sorted-list.tsx`, `components/store-list.tsx`, `components/store-list-item.tsx`, `components/store-details.tsx`                                                    |
+| Map                 | `components/store-map.tsx`, `components/store-map-view.tsx`, `components/map-store-source.tsx`, `utils/store-layers.ts`, `utils/cluster-stack.ts`, `components/same-spot-popup.tsx` |
+| View model          | `hooks/use-map-view-model.ts`, `hooks/use-visible-stores.ts`, `hooks/use-map-url-state.ts`                                                                                          |
+| Directory and route | `frontend/src/lib/store-locations/get-store-directory.ts`, `app/api/cijene/store-directory/`                                                                                        |
+| Sync                | `frontend/src/lib/store-locations/sync/`, `sources/`, `dgu/`, `geocoders/`                                                                                                          |
+| Table               | `frontend/src/db/store-location-schema.ts`, `frontend/drizzle/0003_store_locations.sql`, `0004_store_location_address.sql`                                                          |
+| Pin overrides       | `frontend/src/lib/store-locations/pin-overrides.ts`, `pin-corrections.ts`, `pin-holds.ts`                                                                                           |
 
 ## 7. Config and env
 

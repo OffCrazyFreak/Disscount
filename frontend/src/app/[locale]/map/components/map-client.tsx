@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import MapBottomSheet, {
+  sheetCoverShare,
   SheetSnap,
 } from "@/app/[locale]/map/components/map-bottom-sheet";
 import MapLoadState from "@/app/[locale]/map/components/map-load-state";
@@ -13,6 +14,7 @@ import StoreMapLoader from "@/app/[locale]/map/components/store-map-loader";
 import { useMapViewModel } from "@/app/[locale]/map/hooks/use-map-view-model";
 
 import type { IIpLocation } from "@/app/[locale]/map/utils/ip-location";
+import { IViewArea } from "@/app/[locale]/map/utils/view-area";
 
 interface IMapClientProps {
   chainSummary: ReactNode;
@@ -35,6 +37,7 @@ export default function MapClient({
   const model = useMapViewModel(ipLocation);
   const isMobile = useIsMobile();
   const [snap, setSnap] = useState<SheetSnap>("half");
+  const [viewArea, setViewArea] = useState<IViewArea | null>(null);
 
   function selectStore(key: string | null) {
     model.selectStore(key);
@@ -43,7 +46,11 @@ export default function MapClient({
 
   const panel =
     model.status === "success" ? (
-      <MapPanel model={{ ...model, selectStore }} chainSummary={chainSummary} />
+      <MapPanel
+        model={{ ...model, selectStore }}
+        viewArea={viewArea}
+        chainSummary={chainSummary}
+      />
     ) : (
       <div className="flex min-h-0 flex-1 flex-col gap-3 p-3">
         <MapLoadState status={model.status} onRetry={() => model.retry()} />
@@ -61,6 +68,8 @@ export default function MapClient({
       userLocation={model.geolocation.position}
       centerRequest={model.geolocation.centerRequest}
       initialView={model.initialView}
+      coveredShare={isMobile ? sheetCoverShare(snap) : 0}
+      onViewChange={setViewArea}
     />
   );
 

@@ -58,7 +58,12 @@
   },
   "list": {
     "unknownCity": "Unbekannter Ort",
-    "noLocation": "ohne Standort"
+    "noLocation": "ohne Standort",
+    "onMap": "Auf der Karte · {count, number}",
+    "elsewhere": "Anderswo · {count, number}",
+    "onMapStatus": "{count, plural, one {# Markt} other {# Märkte}} auf der Karte",
+    "update": "Karte verschoben · Liste aktualisieren",
+    "sameSpot": "{count, plural, one {# Markt} other {# Märkte}} an dieser Stelle"
   },
   "details": {
     "unknownAddress": "Adresse unbekannt",

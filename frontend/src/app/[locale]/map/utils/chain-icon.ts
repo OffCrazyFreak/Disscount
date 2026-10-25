@@ -2,10 +2,12 @@
 // sharp on high-density screens.
 export const ICON_PIXEL_RATIO = 2;
 
-// 40 CSS px: above WCAG 2.5.8's 24 px target with room for the logo to read.
-const ICON_SIZE = 40 * ICON_PIXEL_RATIO;
+// 36 CSS px: above WCAG 2.5.8's 24 px target with room for the logo to read.
+const ICON_SIZE = 36 * ICON_PIXEL_RATIO;
 
 const BORDER = 2 * ICON_PIXEL_RATIO;
+
+const TILE_RADIUS = 8 * ICON_PIXEL_RATIO;
 
 export function chainIconId(chain: string): string {
   return `chain-${chain}`;
@@ -22,7 +24,7 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-function circleCanvas(size: number, fill: string, stroke: string) {
+function createCanvas(size: number) {
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
@@ -30,28 +32,52 @@ function circleCanvas(size: number, fill: string, stroke: string) {
   const context = canvas.getContext("2d");
   if (!context) throw new Error("Canvas 2D is unavailable");
 
+  return context;
+}
+
+function circle(context: CanvasRenderingContext2D, size: number) {
   context.beginPath();
   context.arc(size / 2, size / 2, size / 2 - BORDER / 2, 0, Math.PI * 2);
-  context.fillStyle = fill;
-  context.fill();
-  context.lineWidth = BORDER;
-  context.strokeStyle = stroke;
-  context.stroke();
+}
 
-  return { canvas, context };
+function tile(
+  context: CanvasRenderingContext2D,
+  inset: number,
+  radius: number,
+) {
+  const start = inset;
+  const end = ICON_SIZE - inset;
+
+  // Drawn with arcTo rather than roundRect, which Firefox only shipped in 112.
+  context.beginPath();
+  context.moveTo(start + radius, start);
+  context.arcTo(end, start, end, end, radius);
+  context.arcTo(end, end, start, end, radius);
+  context.arcTo(start, end, start, start, radius);
+  context.arcTo(start, start, end, start, radius);
+  context.closePath();
 }
 
 /**
- * The chain logo inside a white disc with a dark rim, so it keeps 3:1 contrast
- * against any basemap colour (WCAG 1.4.11). A logo that fails to load becomes
- * a plain disc rather than a missing marker.
+ * The chain logo as a rounded square tile, the shape the logos are drawn in
+ * and the one the landing page shows. The dark rim keeps 3:1 contrast against
+ * any basemap colour (WCAG 1.4.11). A logo that fails to load leaves a plain
+ * tile rather than a missing marker.
  */
 export async function renderChainIcon(chain: string): Promise<ImageData> {
-  const { context } = circleCanvas(ICON_SIZE, "#ffffff", "#1f2937");
+  const context = createCanvas(ICON_SIZE);
+
+  tile(context, BORDER / 2, TILE_RADIUS);
+  context.fillStyle = "#ffffff";
+  context.fill();
 
   try {
     const logo = await loadImage(`/store-chains/${chain}.png`);
-    const inner = ICON_SIZE * 0.68;
+
+    context.save();
+    tile(context, BORDER, TILE_RADIUS - BORDER / 2);
+    context.clip();
+    const inner = ICON_SIZE - BORDER * 2;
     const scale = Math.min(inner / logo.width, inner / logo.height);
     const width = logo.width * scale;
     const height = logo.height * scale;
@@ -63,9 +89,15 @@ export async function renderChainIcon(chain: string): Promise<ImageData> {
       width,
       height,
     );
+    context.restore();
   } catch {
     // The rim alone still marks the spot.
   }
+
+  tile(context, BORDER / 2, TILE_RADIUS);
+  context.lineWidth = BORDER;
+  context.strokeStyle = "#1f2937";
+  context.stroke();
 
   return context.getImageData(0, 0, ICON_SIZE, ICON_SIZE);
 }
@@ -73,7 +105,14 @@ export async function renderChainIcon(chain: string): Promise<ImageData> {
 /** Dark disc the cluster count is printed on. */
 export function renderCountBadge(): ImageData {
   const size = 22 * ICON_PIXEL_RATIO;
-  const { context } = circleCanvas(size, "#111827", "#ffffff");
+  const context = createCanvas(size);
+
+  circle(context, size);
+  context.fillStyle = "#111827";
+  context.fill();
+  context.lineWidth = BORDER;
+  context.strokeStyle = "#ffffff";
+  context.stroke();
 
   return context.getImageData(0, 0, size, size);
 }

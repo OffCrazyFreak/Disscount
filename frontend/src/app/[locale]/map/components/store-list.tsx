@@ -6,9 +6,16 @@ import { useTranslations } from "next-intl";
 
 import StoreListItem from "@/app/[locale]/map/components/store-list-item";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
+import { toListEntries } from "@/app/[locale]/map/utils/list-entries";
 
 interface IStoreListProps {
   rows: IListedStore[];
+  /** Group labels, keyed by the index of the row each group starts at. */
+  headings?: Map<number, string>;
+  /** Changes when the map view changes which stores lead the list. */
+  orderKey: string;
+  /** Changes when the list should take focus: the open store, else the top. */
+  focusRequest: number;
   selectedKey: string | null;
   onSelect: (key: string | null) => void;
 }
@@ -23,6 +30,9 @@ const ROW_HEIGHT = 64;
  */
 export default function StoreList({
   rows,
+  headings,
+  orderKey,
+  focusRequest,
   selectedKey,
   onSelect,
 }: IStoreListProps) {
@@ -33,15 +43,18 @@ export default function StoreList({
   const t = useTranslations("map.layout");
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const selectedIndex = rows.findIndex((row) => row.key === selectedKey);
+  const entries = toListEntries(rows, headings);
+  const selectedIndex = entries.findIndex(
+    (entry) => entry.kind === "store" && entry.key === selectedKey,
+  );
 
   // eslint-disable-next-line react-hooks/incompatible-library -- opted out above
   const virtualizer = useVirtualizer({
-    count: rows.length,
+    count: entries.length,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => ROW_HEIGHT,
     // Measured heights follow the store, not the position, when filters change.
-    getItemKey: (index) => rows[index].key,
+    getItemKey: (index) => entries[index].key,
     // The open row stays mounted, so focus on its actions survives scrolling.
     rangeExtractor: (range) => {
       const indexes = defaultRangeExtractor(range);
@@ -77,12 +90,46 @@ export default function StoreList({
     requestAnimationFrame(() => {
       scrollRef.current
         ?.querySelector<HTMLElement>(
-          `[data-store-key="${CSS.escape(rows[selectedIndex].key)}"]`,
+          `[data-store-key="${CSS.escape(entries[selectedIndex].key)}"]`,
         )
         ?.focus({ preventScroll: true });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedKey, selectedIndex]);
+
+  // A new view puts its stores on top, so show the top, unless a store is open
+  // and the effect above already brought that row into view.
+  useEffect(() => {
+    if (selectedIndex < 0) virtualizer.scrollToOffset(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderKey]);
+
+  useEffect(() => {
+    if (focusRequest === 0) return;
+
+    const target =
+      selectedIndex >= 0
+        ? entries[selectedIndex]
+        : entries.find((entry) => entry.kind === "store");
+    if (!target) return;
+
+    const selector = `[data-store-key="${CSS.escape(target.key)}"]`;
+
+    if (selectedIndex < 0) virtualizer.scrollToIndex(0);
+
+    // The row mounts once the virtualizer reacts to the scroll, which can take
+    // a frame or two; the list is already in place, so focusing must not scroll.
+    let frames = 0;
+    function focusTarget() {
+      const row = scrollRef.current?.querySelector<HTMLElement>(selector);
+
+      if (row) row.focus({ preventScroll: true });
+      else if (++frames < 4) requestAnimationFrame(focusTarget);
+    }
+
+    requestAnimationFrame(focusTarget);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusRequest]);
 
   function selectInList(key: string | null) {
     pickedInList.current = true;
@@ -100,23 +147,29 @@ export default function StoreList({
         style={{ height: virtualizer.getTotalSize() }}
       >
         {virtualizer.getVirtualItems().map((item) => {
-          const row = rows[item.index];
+          const entry = entries[item.index];
 
           return (
             <li
-              key={row.key}
+              key={entry.key}
               ref={virtualizer.measureElement}
               data-index={item.index}
-              aria-setsize={rows.length}
+              aria-setsize={entries.length}
               aria-posinset={item.index + 1}
               className="absolute inset-x-0"
               style={{ transform: `translateY(${item.start}px)` }}
             >
-              <StoreListItem
-                row={row}
-                isSelected={row.key === selectedKey}
-                onSelect={selectInList}
-              />
+              {entry.kind === "heading" ? (
+                <h2 className="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {entry.label}
+                </h2>
+              ) : (
+                <StoreListItem
+                  row={entry.row}
+                  isSelected={entry.key === selectedKey}
+                  onSelect={selectInList}
+                />
+              )}
             </li>
           );
         })}

@@ -58,7 +58,12 @@
   },
   "list": {
     "unknownCity": "Unknown town",
-    "noLocation": "no location"
+    "noLocation": "no location",
+    "onMap": "On the map · {count, number}",
+    "elsewhere": "Elsewhere · {count, number}",
+    "onMapStatus": "{count, plural, one {# store} other {# stores}} on the map",
+    "update": "Map moved · Update the list",
+    "sameSpot": "{count, plural, one {# store} other {# stores}} at this spot"
   },
   "details": {
     "unknownAddress": "Address unknown",
