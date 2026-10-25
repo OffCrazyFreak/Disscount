@@ -27,9 +27,7 @@
     "noGpu": "Dein Browser hat die Grafikbeschleunigung abgeschaltet und kann die Karte deshalb nicht anzeigen. Meist hilft es, den Browser neu zu starten. Alle Märkte stehen weiterhin in der Liste."
   },
   "chains": {
-    "group": "Ketten",
-    "selectAll": "Alle auswählen",
-    "clearAll": "Alle entfernen"
+    "all": "Alle Ketten"
   },
   "nearMe": {
     "locate": "Märkte in meiner Nähe",

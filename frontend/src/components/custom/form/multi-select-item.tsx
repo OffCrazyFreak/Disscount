@@ -25,20 +25,31 @@ export default function MultiSelectItem({
   badgeLabel,
   onSelect,
   onMouseDown,
+  keywords,
+  disabled,
   ...props
 }: IMultiSelectItemProps) {
-  const { toggleValue, selectedValues, setSearchValue, onItemAdded } =
-    useMultiSelectContext();
+  const {
+    toggleValue,
+    selectedValues,
+    setSearchValue,
+    onItemAdded,
+    onItemRemoved,
+  } = useMultiSelectContext();
   const isSelected = selectedValues.has(value);
 
   useEffect(() => {
-    onItemAdded(value, badgeLabel ?? children);
-  }, [value, children, onItemAdded, badgeLabel]);
+    onItemAdded(value, badgeLabel ?? children, { keywords, disabled });
+  }, [value, children, onItemAdded, badgeLabel, keywords, disabled]);
+
+  useEffect(() => () => onItemRemoved(value), [value, onItemRemoved]);
 
   return (
     <CommandItem
       {...props}
       value={value}
+      keywords={keywords}
+      disabled={disabled}
       // An item is a div, so pressing on it would move focus off the search
       // input and stop you typing after a pick. Blocking the default keeps the
       // caret in the input; the click still fires and selects.

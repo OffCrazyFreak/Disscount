@@ -107,7 +107,10 @@
     "sending": "Sending..."
   },
   "multiSelect": {
-    "optionsList": "List of options"
+    "optionsList": "List of options",
+    "selectAll": "Select all",
+    "clearAll": "Clear all",
+    "selected": "{count} selected"
   },
   "passwordInput": {
     "show": "Show password",

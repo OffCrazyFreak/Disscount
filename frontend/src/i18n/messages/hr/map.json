@@ -27,9 +27,7 @@
     "noGpu": "Tvoj preglednik je isključio grafičko ubrzanje pa ne može prikazati kartu. Obično pomaže da ponovno pokreneš preglednik. Sve trgovine i dalje su na popisu."
   },
   "chains": {
-    "group": "Lanci",
-    "selectAll": "Odaberi sve",
-    "clearAll": "Ukloni sve"
+    "all": "Svi lanci"
   },
   "nearMe": {
     "locate": "Trgovine blizu mene",

@@ -36,13 +36,19 @@ export function useMapUrlState() {
   const chainParam = searchParams.get("chain");
   const query = searchParams.get("q") ?? "";
 
-  /** Null until the user picks chains, so defaults (pinned chains) can apply. */
+  const picked = chainParam?.split(",").filter(Boolean) ?? [];
+
+  /**
+   * Null until the user picks chains, so defaults (pinned chains) can apply.
+   * An empty list means every chain, matching the multiselect's empty state;
+   * older links used it for "no chains".
+   */
   const chainFilter =
     chainParam == null
       ? null
-      : chainParam === ALL_CHAINS
+      : chainParam === ALL_CHAINS || picked.length === 0
         ? ALL_CHAINS
-        : chainParam.split(",").filter(Boolean);
+        : picked;
 
   function selectStore(key: string | null) {
     if (key === selectedKey) return;

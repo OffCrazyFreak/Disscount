@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
-import ChainFilterChips from "@/app/[locale]/map/components/chain-filter-chips";
+import MapChainSelect from "@/app/[locale]/map/components/map-chain-select";
 import ResultCountStatus from "@/app/[locale]/map/components/result-count-status";
 import NearMeButton from "@/app/[locale]/map/components/near-me-button";
 import RecentSearches from "@/app/[locale]/map/components/recent-searches";
@@ -50,7 +50,7 @@ export default function MapPanel({ model, viewArea }: IMapPanelProps) {
         />
       )}
 
-      <ChainFilterChips
+      <MapChainSelect
         chains={model.chainCodes}
         selected={model.chains}
         onChange={model.setChainFilter}

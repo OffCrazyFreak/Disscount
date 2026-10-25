@@ -27,9 +27,7 @@
     "noGpu": "Your browser has turned off graphics acceleration, so it can't show the map. Restarting the browser usually fixes it. Every store is still in the list."
   },
   "chains": {
-    "group": "Chains",
-    "selectAll": "Select all",
-    "clearAll": "Clear all"
+    "all": "All chains"
   },
   "nearMe": {
     "locate": "Stores near me",

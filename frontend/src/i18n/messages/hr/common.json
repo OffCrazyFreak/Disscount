@@ -107,7 +107,10 @@
     "sending": "Slanje..."
   },
   "multiSelect": {
-    "optionsList": "Popis opcija"
+    "optionsList": "Popis opcija",
+    "selectAll": "Odaberi sve",
+    "clearAll": "Ukloni sve",
+    "selected": "Odabrano: {count}"
   },
   "passwordInput": {
     "show": "Prikaži lozinku",

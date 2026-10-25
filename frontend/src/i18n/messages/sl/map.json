@@ -27,9 +27,7 @@
     "noGpu": "Tvoj brskalnik je izklopil grafično pospeševanje, zato ne more prikazati zemljevida. Običajno pomaga, da brskalnik znova zaženeš. Vse trgovine so še vedno na seznamu."
   },
   "chains": {
-    "group": "Verige",
-    "selectAll": "Izberi vse",
-    "clearAll": "Odstrani vse"
+    "all": "Vse verige"
   },
   "nearMe": {
     "locate": "Trgovine v moji bližini",

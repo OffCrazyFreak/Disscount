@@ -27,9 +27,7 @@
     "noGpu": "Il tuo browser ha disattivato l'accelerazione grafica e non può mostrare la mappa. Di solito basta riavviare il browser. Tutti i negozi sono ancora nell'elenco."
   },
   "chains": {
-    "group": "Catene",
-    "selectAll": "Seleziona tutte",
-    "clearAll": "Rimuovi tutte"
+    "all": "Tutte le catene"
   },
   "nearMe": {
     "locate": "Negozi vicino a me",
