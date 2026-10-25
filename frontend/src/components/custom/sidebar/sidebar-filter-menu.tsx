@@ -100,7 +100,7 @@ export default function SidebarFilterMenu({
                         its truncate rule squeezes the count to "(…". */}
                     <Link
                       href={buildHref(option.value)}
-                      className="h-auto min-h-7 justify-between gap-2 py-1 [&>span:last-child]:overflow-visible"
+                      className="h-auto min-h-7 justify-between py-1"
                     >
                       <span className="min-w-0 break-words">
                         {option.label}
