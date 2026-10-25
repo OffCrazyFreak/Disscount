@@ -10,6 +10,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import ScrollFade from "@/components/custom/common/scroll-fade";
+import MultiSelectBulkActions from "@/components/custom/form/multi-select-bulk-actions";
 import { useMultiSelectContext } from "@/components/custom/form/multi-select-context";
 import { commandFilter } from "@/utils/search/command-filter";
 import { cn } from "@/lib/utils";
@@ -71,6 +72,8 @@ export default function MultiSelectPanel({
           className="sr-only"
         />
       )}
+
+      <MultiSelectBulkActions />
 
       {/* Wraps only the list, so the top fade sits under the search box
           rather than over it */}

@@ -117,7 +117,7 @@ Calling `localeCompare` with no locale collates them as plain `c`, `s`, `z`, whi
 | ------------------------------------------------------ | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | Products facets: Trgovine, Lokacije, Kategorije, Marka | `app/[locale]/products/components/facet-multi-select.tsx`                 | option label via `keywords`                                                                              |
 | Pinned places (settings)                               | `components/custom/settings/components/pinned-places-select.tsx`          | place name                                                                                               |
-| Store-chain picker (price history)                     | `components/custom/store-chain/store-chain-multi-select.tsx`              | chain label via `keywords`                                                                               |
+| Store-chain picker (price history, map chain filter)   | `components/custom/store-chain/store-chain-multi-select.tsx`              | chain label via `keywords`                                                                               |
 | Add to shopping list                                   | `app/[locale]/products/components/forms/shopping-list-selector.tsx`       | list title via `keywords`                                                                                |
 | Updates / blog                                         | `app/[locale]/updates/page.tsx`                                           | title, excerpt, content                                                                                  |
 | Suggestions                                            | `app/[locale]/suggestions/components/suggestions-client.tsx`              | suggestion fields                                                                                        |
@@ -128,6 +128,8 @@ Calling `localeCompare` with no locale collates them as plain `c`, `s`, `z`, whi
 | Watchlist suggestions                                  | `app/[locale]/(user)/watchlist/hooks/use-watchlist-suggestions.ts`        | product name, brand                                                                                      |
 | Admin contact inbox                                    | `app/[locale]/dashboard/components/admin-contact-table.tsx`               | name, email, subject, message                                                                            |
 | Products text search                                   | `app/[locale]/products/hooks/use-infinite-products.ts`                    | server-side, then re-ranked locally                                                                      |
+
+Every multiselect also offers "Odaberi sve" and "Ukloni sve" above its list (`components/custom/form/multi-select-bulk-actions.tsx`). With a search typed, "Odaberi sve" takes only the options this same matcher keeps, skipping disabled ones; "Ukloni sve" always clears everything.
 
 The seven `filterByFields` callers gained tokenized, ranked, abbreviation-tolerant search **without any call-site change**, because its signature did not move.
 

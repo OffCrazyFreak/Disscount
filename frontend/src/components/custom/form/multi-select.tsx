@@ -7,6 +7,7 @@ import { Popover } from "@/components/ui/popover";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   MultiSelectContext,
+  type IMultiSelectOption,
   type MultiSelectPresentation,
 } from "@/components/custom/form/multi-select-context";
 
@@ -37,6 +38,9 @@ export function MultiSelect({
   );
   const [searchValue, setSearchValue] = useState("");
   const [items, setItems] = useState<Map<string, ReactNode>>(new Map());
+  const [options, setOptions] = useState<Map<string, IMultiSelectOption>>(
+    new Map(),
+  );
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   // Below md the list drops into the page instead of floating, so a viewport
@@ -74,10 +78,38 @@ export function MultiSelect({
     onValuesChange?.([...nextValues]);
   }
 
-  const onItemAdded = useCallback((value: string, label: ReactNode) => {
-    setItems((prev) => {
-      if (prev.get(value) === label) return prev;
-      return new Map(prev).set(value, label);
+  function setValues(next: string[]) {
+    setSelectedValues(new Set(next));
+    onValuesChange?.(next);
+  }
+
+  const onItemAdded = useCallback(
+    (value: string, label: ReactNode, option: IMultiSelectOption = {}) => {
+      setItems((prev) => {
+        if (prev.get(value) === label) return prev;
+        return new Map(prev).set(value, label);
+      });
+      setOptions((prev) => {
+        const known = prev.get(value);
+        if (
+          known?.disabled === option.disabled &&
+          known?.keywords?.join() === option.keywords?.join()
+        ) {
+          return prev;
+        }
+        return new Map(prev).set(value, option);
+      });
+    },
+    [],
+  );
+
+  // Labels stay behind on purpose, so a selected value keeps its badge text.
+  const onItemRemoved = useCallback((value: string) => {
+    setOptions((prev) => {
+      if (!prev.has(value)) return prev;
+      const next = new Map(prev);
+      next.delete(value);
+      return next;
     });
   }, []);
 
@@ -95,10 +127,13 @@ export function MultiSelect({
     setOpen: handleOpenChange,
     selectedValues: currentValues,
     toggleValue,
+    setValues,
     searchValue,
     setSearchValue,
     items,
+    options,
     onItemAdded,
+    onItemRemoved,
     presentation,
     triggerRef,
   };
