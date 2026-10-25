@@ -16,6 +16,11 @@ const VISIBLE_SHARE: Record<SheetSnap, number> = {
   full: 1,
 };
 
+/** How much of the map's height the sheet covers at rest. */
+export function sheetCoverShare(snap: SheetSnap): number {
+  return VISIBLE_SHARE[snap];
+}
+
 // A drag shorter than this is a tap on the handle, not a drag.
 const DRAG_THRESHOLD_PX = 8;
 

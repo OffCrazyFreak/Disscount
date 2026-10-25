@@ -9,6 +9,10 @@ import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 
 interface IStoreListProps {
   rows: IListedStore[];
+  /** Group labels, keyed by the index of the row each group starts at. */
+  headings?: Map<number, string>;
+  /** Changes when the map view reorders the rows. */
+  orderKey: string;
   selectedKey: string | null;
   onSelect: (key: string | null) => void;
 }
@@ -23,6 +27,8 @@ const ROW_HEIGHT = 64;
  */
 export default function StoreList({
   rows,
+  headings,
+  orderKey,
   selectedKey,
   onSelect,
 }: IStoreListProps) {
@@ -84,6 +90,13 @@ export default function StoreList({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedKey, selectedIndex]);
 
+  // A new view puts its stores on top, so show the top, unless a store is open
+  // and the effect above already brought that row into view.
+  useEffect(() => {
+    if (selectedIndex < 0) virtualizer.scrollToOffset(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderKey]);
+
   function selectInList(key: string | null) {
     pickedInList.current = true;
     onSelect(key);
@@ -101,6 +114,7 @@ export default function StoreList({
       >
         {virtualizer.getVirtualItems().map((item) => {
           const row = rows[item.index];
+          const heading = headings?.get(item.index);
 
           return (
             <li
@@ -112,6 +126,12 @@ export default function StoreList({
               className="absolute inset-x-0"
               style={{ transform: `translateY(${item.start}px)` }}
             >
+              {heading && (
+                <h2 className="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {heading}
+                </h2>
+              )}
+
               <StoreListItem
                 row={row}
                 isSelected={row.key === selectedKey}

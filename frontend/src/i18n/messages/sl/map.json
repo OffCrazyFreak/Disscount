@@ -58,7 +58,12 @@
   },
   "list": {
     "unknownCity": "Neznan kraj",
-    "noLocation": "brez lokacije"
+    "noLocation": "brez lokacije",
+    "onMap": "Na zemljevidu · {count, number}",
+    "elsewhere": "Drugje · {count, number}",
+    "onMapStatus": "{count, plural, one {# trgovina} two {# trgovini} few {# trgovine} other {# trgovin}} na zemljevidu",
+    "update": "Zemljevid se je premaknil · osveži seznam",
+    "sameSpot": "{count, plural, one {# trgovina} two {# trgovini} few {# trgovine} other {# trgovin}} na tem mestu"
   },
   "details": {
     "unknownAddress": "Naslov ni znan",

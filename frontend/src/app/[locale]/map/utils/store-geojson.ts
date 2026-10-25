@@ -15,27 +15,16 @@ export interface IStoreFeatureCollection {
   }>;
 }
 
-/**
- * One collection per chain, because clustering runs per source: a cluster
- * then always means "N stores of this chain" and can wear that chain's logo,
- * which a mixed cluster could not.
- */
-export function groupStoresByChain(
+/** Every placed store in one collection, so nearby chains cluster together. */
+export function toStoreCollection(
   stores: DirectoryStoreDto[],
-): Map<string, IStoreFeatureCollection> {
-  const groups = new Map<string, IStoreFeatureCollection>();
+): IStoreFeatureCollection {
+  const features: IStoreFeatureCollection["features"] = [];
 
   for (const store of stores) {
     if (store.lat == null || store.lon == null) continue;
 
-    let collection = groups.get(store.chain);
-
-    if (!collection) {
-      collection = { type: "FeatureCollection", features: [] };
-      groups.set(store.chain, collection);
-    }
-
-    collection.features.push({
+    features.push({
       type: "Feature",
       geometry: { type: "Point", coordinates: [store.lon, store.lat] },
       properties: {
@@ -45,5 +34,5 @@ export function groupStoresByChain(
     });
   }
 
-  return groups;
+  return { type: "FeatureCollection", features };
 }
