@@ -9,9 +9,7 @@ import { storeKey } from "@/lib/store-locations/upstream-stores";
 export const PIN_HOLDS = new Set<string>([
   // ntl.hr's own coordinates for these are wrong or doubtful.
   storeKey("ntl", "10104"),
-  storeKey("ntl", "10108"),
   storeKey("ntl", "20210"),
-  storeKey("ntl", "20212"),
   storeKey("ntl", "20218"),
   storeKey("ntl", "20249"),
   storeKey("ntl", "20317"),
@@ -19,13 +17,10 @@ export const PIN_HOLDS = new Set<string>([
   storeKey("ntl", "20325"),
   storeKey("ntl", "20339"),
   storeKey("ntl", "20342"),
-  storeKey("ntl", "20350"),
   storeKey("ntl", "20353"),
-  storeKey("ntl", "20374"),
   storeKey("ntl", "20502"),
   storeKey("ntl", "20506"),
   storeKey("ntl", "20507"),
-  storeKey("ntl", "20538"),
   storeKey("ntl", "20566"),
   storeKey("ntl", "20574"),
   storeKey("ntl", "20577"),
@@ -50,12 +45,9 @@ export const PIN_HOLDS = new Set<string>([
   storeKey("gavranovic", "516"),
   storeKey("ntl", "20681"),
   storeKey("ntl", "20686"),
-  storeKey("ntl", "33061"),
   storeKey("ntl", "33119"),
   storeKey("stridon", "Prod.03"),
   storeKey("stridon", "Prod.81"),
-  // Upstream lists this Tommy code with a leading space, apart from "10316".
-  storeKey("tommy", " 10316"),
   // Vir: permanently closed on Google; another shop trades at the address.
   storeKey("gavranovic", "474"),
   // diskont.hr's point is 120 m off, on vacant ground.
