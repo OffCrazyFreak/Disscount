@@ -62,10 +62,11 @@ export default function MapClient({ ipLocation }: IMapClientProps) {
     />
   );
 
+  // On desktop the map lines up with the footer box rather than the screen edge.
   return (
     <div
       data-page-width="full"
-      className="fixed inset-x-0 top-24 bottom-[var(--bottom-nav-total)] z-[1] md:static md:min-h-0 md:flex-1"
+      className="fixed inset-x-0 top-24 bottom-[var(--bottom-nav-total)] z-[1] md:static md:mx-auto md:min-h-0 md:w-full md:max-w-5xl md:flex-1"
     >
       {isMobile ? (
         <div className="relative h-full overflow-hidden">

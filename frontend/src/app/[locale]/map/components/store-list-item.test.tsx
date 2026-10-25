@@ -7,6 +7,11 @@ import StoreListItem from "@/app/[locale]/map/components/store-list-item";
 import { toListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { DirectoryStoreDto } from "@/lib/api/schemas";
 import { renderWithProviders } from "@/test/render";
+import { shareOrCopy } from "@/utils/browser/share";
+
+vi.mock("@/utils/browser/share", () => ({
+  shareOrCopy: vi.fn(async () => "shared"),
+}));
 
 const store: DirectoryStoreDto = {
   chain: "konzum",
@@ -66,6 +71,26 @@ describe("StoreListItem", () => {
 
     expect(onSelect).toHaveBeenLastCalledWith(null);
     expect(trigger).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("shares from the open row's address line without closing the row", async () => {
+    const onSelect = vi.fn();
+    const user = userEvent.setup();
+    renderWithProviders(<ControlledItem onSelect={onSelect} />);
+
+    expect(
+      screen.queryByRole("button", { name: "Podijeli" }),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /Ilica 1/ }));
+    await user.click(screen.getByRole("button", { name: "Podijeli" }));
+
+    expect(shareOrCopy).toHaveBeenCalledOnce();
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("button", { name: /Ilica 1/ })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
   });
 
   it("starts open when the store is already selected on the map", () => {
