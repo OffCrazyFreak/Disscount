@@ -37,7 +37,7 @@
     "pricesUnavailableTitle": "Cene niso na voljo",
     "pricesUnavailableText": "Dejanja za izdelek lahko še vedno uporabljaš. Poskusi znova za trenutni cenovni razpon.",
     "partialPricesTitle": "Nekatere cene niso na voljo",
-    "partialPricesText": "Razpon vključuje poslovalnice, katerih cene smo uspeli pridobiti."
+    "partialPricesText": "Razpon vključuje lokacije, katerih cene smo uspeli pridobiti."
   },
   "quantity": {
     "label": "Količina"
@@ -117,10 +117,10 @@
       "empty": "Ni trgovin"
     },
     "locations": {
-      "label": "Poslovalnice",
-      "placeholder": "Izberi poslovalnice...",
-      "search": "Išči poslovalnice...",
-      "empty": "Ni poslovalnic"
+      "label": "Lokacije",
+      "placeholder": "Izberi lokacije...",
+      "search": "Išči lokacije...",
+      "empty": "Ni lokacij"
     },
     "categories": {
       "label": "Kategorije",
@@ -171,7 +171,7 @@
     "resultsTitle": "Rezultati iskanja za »{query}«",
     "resultsTitleWithCount": "Rezultati iskanja za »{query}« ({count}{suffix})",
     "partialPricesTitle": "Nekatere cene niso na voljo",
-    "partialPricesText": "Prikazujemo razpoložljive cene, vendar ene ali več izbranih poslovalnic trenutno nismo mogli pridobiti.",
+    "partialPricesText": "Prikazujemo razpoložljive cene, vendar ene ali več izbranih lokacij trenutno nismo mogli pridobiti.",
     "errorTitle": "Napaka pri iskanju",
     "errorText": "Pri pridobivanju podatkov je prišlo do napake. Poskusi znova.",
     "noResultsForFilters": "Ni rezultatov za izbrane filtre",

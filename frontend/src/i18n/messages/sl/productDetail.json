@@ -38,11 +38,11 @@
     "min": "Najnižja: {price}",
     "average": "Povprečje: {price}",
     "max": "Najvišja: {price}",
-    "pricesByLocation": "Cene po poslovalnicah"
+    "pricesByLocation": "Cene po lokacijah"
   },
   "pricesTable": {
     "empty": "Za tega trgovca ni cen",
-    "location": "Poslovalnica",
+    "location": "Lokacija",
     "address": "Naslov",
     "price": "Cena",
     "unknown": "Neznano",

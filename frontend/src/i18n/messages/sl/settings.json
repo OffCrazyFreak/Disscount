@@ -71,9 +71,9 @@
       "hint": "Izberi trgovine v svoji bližini."
     },
     "places": {
-      "label": "Poslovalnice",
-      "hint": "Izberi poslovalnice v svoji bližini.",
-      "placeholder": "Izberi poslovalnice..."
+      "label": "Lokacije",
+      "hint": "Izberi lokacije v svoji bližini.",
+      "placeholder": "Izberi lokacije..."
     },
     "selectedMark": "✓",
     "language": {
@@ -89,7 +89,7 @@
     "errors": {
       "user": "Napaka pri shranjevanju profila.",
       "stores": "Napaka pri shranjevanju trgovin.",
-      "places": "Napaka pri shranjevanju poslovalnic."
+      "places": "Napaka pri shranjevanju lokacij."
     }
   },
   "validation": {
@@ -120,7 +120,7 @@
         "description": "Izberi, kako, o čem in kdaj želiš prejemati obvestila o popustih in novicah."
       },
       "preferences": {
-        "title": "Tvoje trgovine in poslovalnice",
+        "title": "Tvoje trgovine in lokacije",
         "description": "Označi trgovine in kraje v svoji bližini za natančnejše primerjave cen."
       },
       "done": {
@@ -135,7 +135,7 @@
       },
       "stores": {
         "title": "Tvoje trgovine",
-        "text": "Izberi trgovine in poslovalnice za primerjave cen po tvojem žepu."
+        "text": "Izberi trgovine in lokacije za primerjave cen po tvojem žepu."
       },
       "notifications": {
         "title": "Obvestila brez spama",
