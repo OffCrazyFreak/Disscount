@@ -5,6 +5,7 @@ import {
   ProductResponse,
   ProductSearchResponse,
   StorePricesResponse,
+  LocationPricesResponse,
   ChainStatsResponse,
   HealthCheckResponse,
   GetProductParams,
@@ -16,6 +17,7 @@ import {
   productResponseSchema,
   productSearchResponseSchema,
   storePricesResponseSchema,
+  locationPricesResponseSchema,
   chainStatsResponseSchema,
   healthCheckResponseSchema,
   getProductParamsSchema,
@@ -95,6 +97,24 @@ export async function getPrices(
     `/api/cijene/prices?${queryParams.toString()}`,
   );
   return storePricesResponseSchema.parse(response.data);
+}
+
+/** One request for any number of cities; the route spends the upstream calls */
+export async function getLocationPrices(params: {
+  eans: string;
+  chains: string;
+  cities: string[];
+}): Promise<LocationPricesResponse> {
+  const queryParams = new URLSearchParams({
+    eans: params.eans,
+    chains: params.chains,
+  });
+  params.cities.forEach((city) => queryParams.append("city", city));
+
+  const response = await axios.get(
+    `/api/cijene/location-prices?${queryParams.toString()}`,
+  );
+  return locationPricesResponseSchema.parse(response.data);
 }
 
 export async function getChainStats(): Promise<ChainStatsResponse> {

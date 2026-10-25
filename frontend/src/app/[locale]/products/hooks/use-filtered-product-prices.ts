@@ -1,22 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { useQueries, type UseQueryResult } from "@tanstack/react-query";
-import type {
-  ProductResponse,
-  StorePricesResponse,
-} from "@/lib/cijene-api/schemas";
-import { getPrices } from "@/lib/cijene-api/queries";
-import {
-  canonicalizeStorePricesParams,
-  storePricesQueryKey,
-} from "@/lib/cijene-api/query-hooks";
-import type { GetPricesParams } from "@/lib/cijene-api/schemas";
+import { useQuery } from "@tanstack/react-query";
+import type { ProductResponse } from "@/lib/cijene-api/schemas";
+import { getLocationPrices } from "@/lib/cijene-api/queries";
 import type { IProductListItem } from "@/app/[locale]/products/typings/product-list-price-types";
-import {
-  summarizeChainPrices,
-  summarizeLocationPrices,
-} from "@/app/[locale]/products/utils/product-list-prices";
+import { summarizeChainPrices } from "@/app/[locale]/products/utils/product-list-prices";
 import { normalizeChainCode } from "@/app/[locale]/products/utils/product-filters";
 
 interface IUseFilteredProductPricesOptions {
@@ -26,23 +15,10 @@ interface IUseFilteredProductPricesOptions {
   selectedSourceCities: string[];
 }
 
-function combinePriceQueries(
-  results: UseQueryResult<StorePricesResponse, Error>[],
-) {
-  const unavailable = results.filter(
-    (result) => result.isError && !result.data,
-  );
-
-  return {
-    storePrices: results.flatMap((result) => result.data?.store_prices ?? []),
-    isPending: results.some((result) => result.isPending),
-    error:
-      results.length > 0 && unavailable.length === results.length
-        ? (unavailable[0]?.error ?? null)
-        : null,
-    hasPartialError:
-      unavailable.length > 0 && unavailable.length < results.length,
-  };
+function sortedUnique(values: string[]): string[] {
+  return [...new Set(values.map((value) => value.trim()))]
+    .filter(Boolean)
+    .sort();
 }
 
 export default function useFilteredProductPrices({
@@ -51,10 +27,9 @@ export default function useFilteredProductPrices({
   selectedLocations,
   selectedSourceCities,
 }: IUseFilteredProductPricesOptions) {
-  const eans = [...new Set(products.map((product) => product.ean))]
-    .sort()
-    .join(",");
-  const chains = [...new Set(allowedChains ?? [])].sort().join(",");
+  const eans = sortedUnique(products.map((product) => product.ean)).join(",");
+  const chains = sortedUnique(allowedChains ?? []).join(",");
+  const cities = sortedUnique(selectedSourceCities);
   const allowedChainKeys = useMemo(
     () =>
       allowedChains === null
@@ -63,30 +38,16 @@ export default function useFilteredProductPrices({
     [allowedChains],
   );
   const needsLocationPrices = selectedLocations.length > 0;
-  const sourceCities = [
-    ...new Set(selectedSourceCities.map((city) => city.trim())),
-  ]
-    .filter(Boolean)
-    .sort();
 
-  const priceQueries = useQueries({
-    queries:
-      needsLocationPrices && eans && chains
-        ? sourceCities.map((city) => {
-            const params: GetPricesParams = canonicalizeStorePricesParams({
-              eans,
-              chains,
-              city,
-            });
-
-            return {
-              queryKey: storePricesQueryKey(params),
-              queryFn: () => getPrices(params),
-              staleTime: 6 * 60 * 60 * 1000,
-            };
-          })
-        : [],
-    combine: combinePriceQueries,
+  const priceQuery = useQuery({
+    queryKey: ["cijene", "prices", "locations", { eans, chains, cities }],
+    queryFn: () => getLocationPrices({ eans, chains, cities }),
+    enabled:
+      needsLocationPrices &&
+      Boolean(eans) &&
+      Boolean(chains) &&
+      cities.length > 0,
+    staleTime: 6 * 60 * 60 * 1000,
   });
 
   const items = useMemo<IProductListItem[]>(() => {
@@ -97,35 +58,38 @@ export default function useFilteredProductPrices({
       }));
     }
 
-    if (priceQueries.isPending || priceQueries.error || !allowedChains) {
-      return [];
-    }
-
-    const pricesByEan = summarizeLocationPrices(
-      priceQueries.storePrices,
-      selectedLocations,
-      allowedChains,
-    );
+    const prices = priceQuery.data?.prices;
+    if (!prices || !allowedChains) return [];
 
     return products.flatMap((product) => {
-      const price = pricesByEan.get(product.ean);
-      return price ? [{ product, price }] : [];
+      const range = prices[product.ean];
+
+      return range
+        ? [
+            {
+              product,
+              price: {
+                minPrice: range.min,
+                maxPrice: range.max,
+                scope: "locations" as const,
+              },
+            },
+          ]
+        : [];
     });
   }, [
     allowedChainKeys,
     allowedChains,
     needsLocationPrices,
-    priceQueries.error,
-    priceQueries.isPending,
-    priceQueries.storePrices,
+    priceQuery.data,
     products,
-    selectedLocations,
   ]);
 
   return {
     items,
-    isLoading: priceQueries.isPending,
-    error: priceQueries.error,
-    hasPartialError: priceQueries.hasPartialError,
+    isLoading: priceQuery.isLoading,
+    // A failed background refresh keeps the prices already shown.
+    error: priceQuery.data ? null : priceQuery.error,
+    hasPartialError: priceQuery.data?.partial ?? false,
   };
 }

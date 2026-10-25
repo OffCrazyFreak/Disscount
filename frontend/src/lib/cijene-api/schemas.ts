@@ -91,6 +91,21 @@ export const storePricesResponseSchema = z.object({
 export type StorePrice = z.infer<typeof storePriceSchema>;
 export type StorePricesResponse = z.infer<typeof storePricesResponseSchema>;
 
+// Our /api/cijene/location-prices route, which reduces store prices per city
+const priceRangeSchema = z.object({ min: z.number(), max: z.number() });
+
+export const locationPricesResponseSchema = z.object({
+  /** Lowest and highest shelf price per EAN across the requested cities */
+  prices: z.record(z.string(), priceRangeSchema),
+  /** Some cities could not be loaded, so the ranges may be incomplete */
+  partial: z.boolean(),
+});
+
+export type PriceRange = z.infer<typeof priceRangeSchema>;
+export type LocationPricesResponse = z.infer<
+  typeof locationPricesResponseSchema
+>;
+
 // Chain stats schemas
 const chainStatsSchema = z.object({
   chain_code: z.string(),
