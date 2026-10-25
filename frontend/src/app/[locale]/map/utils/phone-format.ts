@@ -6,7 +6,8 @@
  */
 export function formatCroatianPhone(phone: string): string {
   const digits = phone.replace(/[^\d+]/g, "");
-  const match = /^(?:\+385|00385|0)(\d{7,9})$/.exec(digits);
+  // "+385 (0)1 ..." keeps the trunk zero after the country code; it is dropped.
+  const match = /^(?:(?:\+|00)3850?|0)(\d{7,9})$/.exec(digits);
   if (!match) return phone;
 
   const significant = match[1];

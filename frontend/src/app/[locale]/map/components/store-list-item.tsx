@@ -37,7 +37,13 @@ export default function StoreListItem({
   const address = [store.address, place].filter(Boolean).join(", ");
   const fit = isSelected ? "break-words" : "truncate";
   const id = useId();
-  const labelIds = ["name", "address", "noLocation", "distance"]
+  const labelIds = [
+    "name",
+    "address",
+    !isPlaced && "noLocation",
+    distanceKm != null && "distance",
+  ]
+    .filter(Boolean)
     .map((part) => `${id}-${part}`)
     .join(" ");
 

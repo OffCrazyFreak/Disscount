@@ -14,7 +14,10 @@ interface IShareStoreButtonProps {
   store: DirectoryStoreDto;
 }
 
-/** A small pill that sits at the end of the open row's address. */
+/**
+ * Sits in the open row's address line, above the toggle that covers the row, so
+ * it lifts itself over that toggle and widens its tap area past its small size.
+ */
 export default function ShareStoreButton({ store }: IShareStoreButtonProps) {
   const t = useTranslations("map.actions");
 
@@ -39,7 +42,7 @@ export default function ShareStoreButton({ store }: IShareStoreButtonProps) {
       variant="outline"
       size="sm"
       onClick={share}
-      className="relative z-10 ml-1.5 h-6 gap-1 rounded-full px-2 align-middle text-xs [&_svg:not([class*='size-'])]:size-3"
+      className="relative z-10 ml-1.5 h-6 after:absolute after:-inset-2 gap-1 rounded-full px-2 align-middle text-xs [&_svg:not([class*='size-'])]:size-3"
     >
       <Share2 aria-hidden="true" />
       {t("share")}

@@ -18,6 +18,10 @@ describe("formatCroatianPhone", () => {
     expect(formatCroatianPhone("051/352-800")).toBe("051 352 800");
   });
 
+  it("drops a trunk zero written after the country code", () => {
+    expect(formatCroatianPhone("+385 (0)1 2345 678")).toBe("01 2345 678");
+  });
+
   it("leaves foreign and unparseable numbers unchanged", () => {
     expect(formatCroatianPhone("+38761123456")).toBe("+38761123456");
     expect(formatCroatianPhone("12")).toBe("12");

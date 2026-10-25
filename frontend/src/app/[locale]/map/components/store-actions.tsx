@@ -25,11 +25,12 @@ export default function StoreActions({ store }: IStoreActionsProps) {
       ? { lat: store.lat, lon: store.lon }
       : null;
   const phone = store.phone ? telHref(store.phone) : null;
+  const phoneLabel = store.phone ? formatCroatianPhone(store.phone) : "";
 
   return (
     <div className="flex flex-wrap gap-2">
       {point && (
-        <ButtonGroup className="w-full [&>*]:flex-1">
+        <ButtonGroup className="w-full [&>*]:h-auto [&>*]:min-h-10 [&>*]:min-w-0 [&>*]:flex-1 [&>*]:whitespace-normal">
           <Button asChild variant="primary">
             <a
               href={googleMapsDirectionsUrl(point)}
@@ -57,9 +58,7 @@ export default function StoreActions({ store }: IStoreActionsProps) {
         <Button asChild variant="outline">
           <a href={phone}>
             <Phone aria-hidden="true" />
-            {t("actions.call", {
-              phone: formatCroatianPhone(store.phone ?? ""),
-            })}
+            {t("actions.call", { phone: phoneLabel })}
           </a>
         </Button>
       )}
