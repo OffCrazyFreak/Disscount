@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
+import type { StoreResponse } from "@/lib/cijene-api/schemas";
 import type { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
 import type { ILocatorStore } from "@/lib/store-locations/types";
 
 vi.mock("server-only", () => ({}));
-vi.stubEnv("GEOAPIFY_API_KEY", "");
 
 const { createDguAnchor } =
   await import("@/lib/store-locations/sync/dgu-anchor");
@@ -22,38 +22,62 @@ function record(extra: Partial<ILocatorStore>, lat = 45.49): ILocatorStore {
   return { address: "Kralja Tomislava 12", lat, lon: 18.09, ...extra };
 }
 
-function anchorWith(records: ILocatorStore[]) {
+function upstreamStore(code: string): StoreResponse {
+  return { chain_code: "ntl", code } as StoreResponse;
+}
+
+function anchorWith(
+  records: ILocatorStore[],
+  codes = ["20350"],
+  store = target,
+) {
   return createDguAnchor(
     new Map([["ntl", records]]),
+    codes.map(upstreamStore),
     new AbortController().signal,
-  )(target);
+  )(store);
 }
 
 describe("createDguAnchor", () => {
-  it("uses the chain's own point for the store's code or number", async () => {
-    expect(await anchorWith([record({ code: "20350" })])).toEqual({
-      lat: 45.49,
-      lon: 18.09,
-    });
-    expect(await anchorWith([record({ codeSuffix: "0350" })])).toEqual({
+  it("uses the chain's own point for the store's number", async () => {
+    expect(await anchorWith([record({ codeSuffix: "0350" })])).toMatchObject({
       lat: 45.49,
       lon: 18.09,
     });
   });
 
-  it("ignores a village point and a number two stores share", async () => {
+  it("refuses a number another upstream code also ends in", async () => {
+    vi.stubEnv("GEOAPIFY_API_KEY", "");
+
+    expect(
+      await anchorWith([record({ codeSuffix: "0350" })], ["20350", "30350"]),
+    ).toBeNull();
+  });
+
+  it("lets a village point contest a number but never place it", async () => {
+    vi.stubEnv("GEOAPIFY_API_KEY", "");
+
     expect(
       await anchorWith([record({ codeSuffix: "0350", approximate: true })]),
     ).toBeNull();
     expect(
       await anchorWith([
         record({ codeSuffix: "0350" }),
-        record({ codeSuffix: "0350", address: "Vukovarska 3" }, 45.6),
+        record({ codeSuffix: "0350", approximate: true }, 45.6),
       ]),
     ).toBeNull();
   });
 
-  it("asks no geocoder without a key", async () => {
+  it("asks Geoapify nothing without a key or after a recent miss", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+    vi.stubEnv("GEOAPIFY_API_KEY", "");
     expect(await anchorWith([])).toBeNull();
+
+    vi.stubEnv("GEOAPIFY_API_KEY", "test");
+    expect(
+      await anchorWith([], ["20350"], { ...target, skipGeoapify: true }),
+    ).toBeNull();
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 });

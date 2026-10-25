@@ -79,17 +79,9 @@ function matchByCodeSuffix(
   records: ILocatorStore[],
   chainCodes: string[],
 ): ILocatorStore | null {
-  const numbered = records.filter(
-    ({ codeSuffix }) => codeSuffix && carriesSuffix(target.code, codeSuffix),
-  );
-  if (numbered.length !== 1) return null;
+  const record = numberedRecord(target, records, chainCodes);
+  if (!record) return null;
 
-  const suffix = numbered[0].codeSuffix ?? "";
-  const claimants = chainCodes.filter((code) => carriesSuffix(code, suffix));
-
-  if (claimants.some((code) => code !== target.code)) return null;
-
-  const [record] = numbered;
   const address = readPlacedAddress(target.address);
   const other = readPlacedAddress(record.address);
 
@@ -122,8 +114,25 @@ function matchByPlace(
   return candidates.length === 1 ? candidates[0] : null;
 }
 
+/** The one record carrying the store's number, when no other code claims it. */
+export function numberedRecord(
+  target: ISyncTarget,
+  records: ILocatorStore[],
+  chainCodes: string[],
+): ILocatorStore | null {
+  const numbered = records.filter(
+    ({ codeSuffix }) => codeSuffix && carriesSuffix(target.code, codeSuffix),
+  );
+  if (numbered.length !== 1) return null;
+
+  const suffix = numbered[0].codeSuffix ?? "";
+  const claimants = chainCodes.filter((code) => carriesSuffix(code, suffix));
+
+  return claimants.some((code) => code !== target.code) ? null : numbered[0];
+}
+
 // NTL's "BR. 350" is code 20350: the number after one leading digit.
-export function carriesSuffix(code: string, suffix: string): boolean {
+function carriesSuffix(code: string, suffix: string): boolean {
   return code.length === suffix.length + 1 && code.endsWith(suffix);
 }
 

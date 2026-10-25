@@ -38,13 +38,26 @@ export function resolveCandidates(
 
   for (const [index, list] of byTarget) {
     const id = targets[index].id;
-    const pool = candidatePool(list, normalizeCity(targets[index].city), names);
-    const points = pool.flatMap((candidate) => toPoint(candidate) ?? []);
+    const pool = candidatePool(
+      list,
+      normalizeCity(targets[index].city),
+      names,
+    ).flatMap((candidate) => {
+      const point = toPoint(candidate);
 
-    if (points.length === 0) continue;
+      return point ? [{ candidate, point }] : [];
+    });
 
-    if (spreadMetres(pool) <= MAX_SPREAD_M) found.set(id, points[0]);
-    else ambiguous.set(id, points);
+    if (pool.length === 0) continue;
+
+    if (spreadMetres(pool.map(({ candidate }) => candidate)) <= MAX_SPREAD_M) {
+      found.set(id, pool[0].point);
+    } else {
+      ambiguous.set(
+        id,
+        pool.map(({ point }) => point),
+      );
+    }
   }
 
   return { found, ambiguous };
@@ -86,27 +99,4 @@ function spreadMetres(list: IDguCandidate[]): number {
   }
 
   return spread;
-}
-
-// Farther than this from an independent source, a register address is a
-// different building.
-const MAX_ANCHOR_M = 150;
-
-/**
- * The register's place for an ambiguous address nearest an independent source
- * (the chain's own point, or a geocoded building), if it is close enough.
- */
-export function pickNearAnchor(points: Point[], anchor: Point): Point | null {
-  const [nearest] = points
-    .map((point) => ({ point, metres: metresApart(point, anchor) }))
-    .sort((a, b) => a.metres - b.metres);
-
-  return nearest && nearest.metres <= MAX_ANCHOR_M ? nearest.point : null;
-}
-
-function metresApart(a: Point, b: Point): number {
-  const north = (a.lat - b.lat) * 111_320;
-  const east = (a.lon - b.lon) * 111_320 * Math.cos((a.lat * Math.PI) / 180);
-
-  return Math.hypot(north, east);
 }

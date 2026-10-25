@@ -1,10 +1,8 @@
 import "server-only";
 
 import { lookupDguAddresses } from "@/lib/store-locations/dgu/dgu-address-lookup";
-import {
-  pickNearAnchor,
-  type IDguResult,
-} from "@/lib/store-locations/dgu/dgu-resolve";
+import type { IDguResult } from "@/lib/store-locations/dgu/dgu-resolve";
+import { pickNearAnchor } from "@/lib/store-locations/dgu/near-anchor";
 import { saveResolvedLocation } from "@/lib/store-locations/location-repository";
 import { storeKey } from "@/lib/store-locations/upstream-stores";
 import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";

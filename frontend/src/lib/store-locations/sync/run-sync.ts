@@ -52,7 +52,7 @@ export async function runStoreLocationSync(signal: AbortSignal): Promise<void> {
     targets = await resolveWithDgu(
       located.remaining,
       signal,
-      createDguAnchor(located.records, signal),
+      createDguAnchor(located.records, upstream, signal),
     );
     targets = await withChainAddresses(targets, signal);
 
