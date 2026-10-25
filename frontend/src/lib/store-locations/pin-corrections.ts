@@ -12,8 +12,24 @@ export const PIN_CORRECTIONS = new Map<
   { address: string; lat: number; lon: number }
 >([
   [
+    storeKey("gavranovic", "199"),
+    { address: "Majstorska 9", lat: 45.7860725, lon: 16.0303946 },
+  ],
+  [
+    storeKey("gavranovic", "314"),
+    { address: "Lucice 21", lat: 44.3067243, lon: 15.0877364 },
+  ],
+  [
     storeKey("gavranovic", "338"),
     { address: "Frankopanski trg 6", lat: 44.9903243, lon: 14.9014038 },
+  ],
+  [
+    storeKey("gavranovic", "419"),
+    { address: "Aleja Javora 14", lat: 45.8254357, lon: 16.0689817 },
+  ],
+  [
+    storeKey("gavranovic", "424"),
+    { address: "Bukovac 137", lat: 45.8443126, lon: 16.0085636 },
   ],
   [
     storeKey("gavranovic", "426"),
@@ -34,6 +50,10 @@ export const PIN_CORRECTIONS = new Map<
   [
     storeKey("metro", "S15"),
     { address: "Murvica Ik 2", lat: 44.1389958, lon: 15.3138328 },
+  ],
+  [
+    storeKey("ntl", "10122"),
+    { address: "Skolska ulica 15, Rakitje", lat: 45.7986203, lon: 15.8134238 },
   ],
   [
     storeKey("ntl", "20247"),
@@ -65,6 +85,22 @@ export const PIN_CORRECTIONS = new Map<
       address: "Dobra ulica 2, Brijest, Osijek",
       lat: 45.5222462,
       lon: 18.6742419,
+    },
+  ],
+  [
+    storeKey("ntl", "32019"),
+    {
+      address: "Varazdinska 49, Donji Kucan",
+      lat: 46.2862048,
+      lon: 16.3835241,
+    },
+  ],
+  [
+    storeKey("ntl", "32085"),
+    {
+      address: "Josipa Bajkovca 44, Savska Ves",
+      lat: 46.3717939,
+      lon: 16.4253619,
     },
   ],
   [

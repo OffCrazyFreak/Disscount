@@ -24,6 +24,11 @@ export const PIN_OVERRIDES = new Map<string, { lat: number; lon: number }>([
   [storeKey("gavranovic", "311"), { lat: 45.2289262, lon: 16.5361268 }],
   // Gavranović Netretić: the register has Netretić 4 in far-apart places; OSM node 9676940071 "Gavranović Maret".
   [storeKey("gavranovic", "519"), { lat: 45.5079844, lon: 15.4146165 }],
+  // Gavranović Krnjak: the register's point is a bakery 69 m east; OSM node 1434059889 "Market Gavranović".
+  [storeKey("gavranovic", "402"), { lat: 45.3377235, lon: 15.6089138 }],
+  // Gavranović Gažanski trg, Karlovac: centre of OSM way 83376926 "Gavranović", which Google agrees with.
+  // Its fixme asks whether the shop is at 14 or at 8 as upstream says.
+  [storeKey("gavranovic", "457"), { lat: 45.4966094, lon: 15.5575964 }],
 ]);
 
 /** The override's point, when it passes the same checks as every source. */

@@ -70,6 +70,6 @@ describe("pin corrections", () => {
       expect(lat).toBeGreaterThan(42);
       expect(lon).toBeGreaterThan(13);
     }
-    expect(PIN_CORRECTIONS.size).toBe(14);
+    expect(PIN_CORRECTIONS.size).toBe(21);
   });
 });
