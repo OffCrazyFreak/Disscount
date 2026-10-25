@@ -35,10 +35,7 @@
     "clear": "Rimuovi la mia posizione",
     "denied": "L'accesso alla posizione è bloccato. Consentilo nelle impostazioni del browser o cerca per città.",
     "unavailable": "La posizione non è disponibile al momento. Cerca per città o indirizzo.",
-    "timeout": "La ricerca della posizione richiede troppo tempo. Riprova o cerca per città.",
-    "approximate": "Ordinati da una posizione approssimativa ({city}). Per un ordine esatto, tocca “Negozi vicino a me”.",
-    "approximateNoCity": "Ordinati da una posizione approssimativa. Per un ordine esatto, tocca “Negozi vicino a me”.",
-    "coarse": "La posizione è approssimativa, quindi le distanze non sono mostrate."
+    "timeout": "La ricerca della posizione richiede troppo tempo. Riprova o cerca per città."
   },
   "recent": {
     "label": "Ricerche recenti:",
@@ -82,10 +79,5 @@
   "report": {
     "subject": "Posizione del negozio sbagliata",
     "message": "Negozio: {store} ({id})\n\nCosa non va: "
-  },
-  "summary": {
-    "title": "Negozi per catena",
-    "stores": "{count, plural, one {# negozio} other {# negozi}}",
-    "where": "{kind, select, one {, a {cities}} some {, a {cities}} many {, tra l'altro a {cities}} other {}}"
   }
 }

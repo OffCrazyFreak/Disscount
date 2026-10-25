@@ -35,10 +35,7 @@
     "clear": "Remove my location",
     "denied": "Location access is blocked. Allow it in your browser settings or search by town.",
     "unavailable": "Your location isn't available right now. Search by town or address.",
-    "timeout": "Finding your location is taking too long. Try again or search by town.",
-    "approximate": "Sorted from an approximate location ({city}). For an exact order, tap “Stores near me”.",
-    "approximateNoCity": "Sorted from an approximate location. For an exact order, tap “Stores near me”.",
-    "coarse": "Your location is approximate, so distances are hidden."
+    "timeout": "Finding your location is taking too long. Try again or search by town."
   },
   "recent": {
     "label": "Recent searches:",
@@ -82,10 +79,5 @@
   "report": {
     "subject": "Wrong store location",
     "message": "Store: {store} ({id})\n\nWhat's wrong: "
-  },
-  "summary": {
-    "title": "Stores by chain",
-    "stores": "{count, plural, one {# store} other {# stores}}",
-    "where": "{kind, select, one {, in {cities}} some {, in {cities}} many {, including in {cities}} other {}}"
   }
 }

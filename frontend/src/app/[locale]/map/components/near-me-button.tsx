@@ -10,8 +10,6 @@ interface INearMeButtonProps {
   status: GeolocationStatus;
   onLocate: () => void;
   onClear: () => void;
-  /** Says the order comes from an approximate location, when it does. */
-  note: string | null;
 }
 
 const MESSAGE_KEYS = {
@@ -25,7 +23,6 @@ export default function NearMeButton({
   status,
   onLocate,
   onClear,
-  note,
 }: INearMeButtonProps) {
   const t = useTranslations("map.nearMe");
   const messageKey =
@@ -58,8 +55,6 @@ export default function NearMeButton({
           {t("locate")}
         </Button>
       )}
-
-      {note && <p className="text-sm text-muted-foreground">{note}</p>}
 
       <p role="status" className="text-sm text-amber-800 empty:hidden">
         {messageKey && t(messageKey)}

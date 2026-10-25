@@ -9,7 +9,6 @@ describe("resolveMapOrigin", () => {
   it("prefers GPS over the IP guess and shows distances", () => {
     expect(resolveMapOrigin(SPLIT_GPS, ZAGREB, false)).toMatchObject({
       origin: { lat: 43.51, lon: 16.44 },
-      kind: "gps",
       showDistances: true,
     });
   });
@@ -23,9 +22,7 @@ describe("resolveMapOrigin", () => {
   it("sorts from the IP guess without distances when there is no GPS", () => {
     expect(resolveMapOrigin(null, ZAGREB, false)).toEqual({
       origin: { lat: 45.81, lon: 15.98 },
-      kind: "ip",
       showDistances: false,
-      ipCity: "Zagreb",
     });
   });
 

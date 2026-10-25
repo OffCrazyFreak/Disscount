@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -17,7 +17,6 @@ import type { IIpLocation } from "@/app/[locale]/map/utils/ip-location";
 import { IViewArea } from "@/app/[locale]/map/utils/view-area";
 
 interface IMapClientProps {
-  chainSummary: ReactNode;
   /** Cloudflare's guess from the IP, read on the server for this request. */
   ipLocation: IIpLocation | null;
 }
@@ -29,10 +28,7 @@ interface IMapClientProps {
  * header and the bottom nav so neither covers the map's controls; the bottom
  * nav stands in for the footer there.
  */
-export default function MapClient({
-  chainSummary,
-  ipLocation,
-}: IMapClientProps) {
+export default function MapClient({ ipLocation }: IMapClientProps) {
   const t = useTranslations("map.layout");
   const model = useMapViewModel(ipLocation);
   const isMobile = useIsMobile();
@@ -46,17 +42,10 @@ export default function MapClient({
 
   const panel =
     model.status === "success" ? (
-      <MapPanel
-        model={{ ...model, selectStore }}
-        viewArea={viewArea}
-        chainSummary={chainSummary}
-      />
+      <MapPanel model={{ ...model, selectStore }} viewArea={viewArea} />
     ) : (
       <div className="flex min-h-0 flex-1 flex-col gap-3 p-3">
         <MapLoadState status={model.status} onRetry={() => model.retry()} />
-
-        {/* Rendered before the list loads too, so the server HTML has it. */}
-        {chainSummary}
       </div>
     );
 

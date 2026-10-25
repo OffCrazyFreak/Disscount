@@ -5,17 +5,10 @@ import { ILatLon } from "@/app/[locale]/map/utils/distance";
 // not a street, so a kilometre figure would claim more than it knows.
 const PRECISE_WITHIN_M = 2_000;
 
-interface IIpGuess extends ILatLon {
-  city: string | null;
-}
-
 export interface IMapOrigin {
   /** What the list is sorted from, or null for alphabetical. */
   origin: ILatLon | null;
-  kind: "gps" | "ip" | null;
   showDistances: boolean;
-  /** The town the IP guess named, for the "approximate" note. */
-  ipCity: string | null;
 }
 
 /**
@@ -24,26 +17,22 @@ export interface IMapOrigin {
  */
 export function resolveMapOrigin(
   gps: IGpsPosition | null,
-  ip: IIpGuess | null,
+  ip: ILatLon | null,
   hasPinnedPlace: boolean,
 ): IMapOrigin {
   if (gps) {
     return {
       origin: { lat: gps.lat, lon: gps.lon },
-      kind: "gps",
       showDistances: gps.accuracy <= PRECISE_WITHIN_M,
-      ipCity: null,
     };
   }
 
   if (ip && !hasPinnedPlace) {
     return {
       origin: { lat: ip.lat, lon: ip.lon },
-      kind: "ip",
       showDistances: false,
-      ipCity: ip.city,
     };
   }
 
-  return { origin: null, kind: null, showDistances: false, ipCity: null };
+  return { origin: null, showDistances: false };
 }
