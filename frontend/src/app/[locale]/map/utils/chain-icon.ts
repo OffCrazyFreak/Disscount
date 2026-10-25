@@ -38,11 +38,6 @@ function createCanvas(width: number, height = width) {
   return context;
 }
 
-function circle(context: CanvasRenderingContext2D, size: number) {
-  context.beginPath();
-  context.arc(size / 2, size / 2, size / 2 - BORDER / 2, 0, Math.PI * 2);
-}
-
 // Drawn with arcTo rather than roundRect, which Firefox only shipped in 112.
 function roundedRect(
   context: CanvasRenderingContext2D,
@@ -115,19 +110,41 @@ export async function renderChainIcon(chain: string): Promise<ImageData> {
   return context.getImageData(0, 0, ICON_SIZE, ICON_SIZE);
 }
 
-/** Dark disc the cluster count is printed on. */
-export function renderCountBadge(): ImageData {
-  const size = 22 * ICON_PIXEL_RATIO;
-  const context = createCanvas(size);
+const BADGE_HEIGHT = 22 * ICON_PIXEL_RATIO;
+const BADGE_WIDTH = BADGE_HEIGHT + 4 * ICON_PIXEL_RATIO;
 
-  circle(context, size);
-  context.fillStyle = "#111827";
+/**
+ * The cluster count's pill, in the app's primary green with a white ring that
+ * keeps it apart from red logos. Only its flat middle stretches, so the map can
+ * widen it around "1534" while the round ends keep their shape.
+ */
+export function renderCountBadge(): {
+  image: ImageData;
+  stretchX: [number, number][];
+  stretchY: [number, number][];
+} {
+  const context = createCanvas(BADGE_WIDTH, BADGE_HEIGHT);
+
+  roundedRect(
+    context,
+    BORDER / 2,
+    BADGE_WIDTH,
+    BADGE_HEIGHT,
+    (BADGE_HEIGHT - BORDER) / 2,
+  );
+  context.fillStyle = "#2ec50d";
   context.fill();
   context.lineWidth = BORDER;
   context.strokeStyle = "#ffffff";
   context.stroke();
 
-  return context.getImageData(0, 0, size, size);
+  const half = BADGE_HEIGHT / 2;
+
+  return {
+    image: context.getImageData(0, 0, BADGE_WIDTH, BADGE_HEIGHT),
+    stretchX: [[half, BADGE_WIDTH - half]],
+    stretchY: [[half - 1, half + 1]],
+  };
 }
 
 const FRAME_STROKE = 4 * ICON_PIXEL_RATIO;

@@ -82,11 +82,15 @@ export function clusterCountLayer(): LayerProps {
     filter: IS_CLUSTER,
     layout: {
       "icon-image": COUNT_BADGE_ID,
-      "icon-offset": [20, -16],
-      "text-field": ["get", "point_count_abbreviated"],
+      // The pill wraps the text, and anchoring its left end makes a longer
+      // count grow away from the logos instead of over them.
+      "icon-text-fit": "both",
+      "icon-text-fit-padding": [6, 6, 5, 6],
+      "text-field": ["to-string", ["get", "point_count"]],
       "text-font": MAP_FONT_BOLD,
       "text-size": 11,
-      "text-offset": [1.82, -1.45],
+      "text-anchor": "left",
+      "text-offset": [1.5, -1.45],
       "text-allow-overlap": true,
       "text-ignore-placement": true,
       ...ALWAYS_VISIBLE,

@@ -751,3 +751,17 @@ body:has([data-sheet-non-modal]) {
     }
   }
 }
+
+/* The map credits share the top line with the controls on the right: the zoom
+   buttons, and on desktop the pan arrows beside them (map-pan-controls.tsx).
+   The credits wrap before reaching them. Their text cannot shrink: the Open
+   Licence requires DGU's sentence verbatim. */
+.maplibregl-ctrl-top-left {
+  right: 3rem;
+}
+
+@media (width >= 48rem) {
+  .maplibregl-ctrl-top-left {
+    right: 10rem;
+  }
+}

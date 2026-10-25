@@ -16,8 +16,16 @@ import {
  * images, once per map.
  */
 export async function registerChainIcons(map: MapLibreMap, chains: string[]) {
+  if (!map.hasImage(COUNT_BADGE_ID)) {
+    const { image, stretchX, stretchY } = renderCountBadge();
+    map.addImage(COUNT_BADGE_ID, image, {
+      pixelRatio: ICON_PIXEL_RATIO,
+      stretchX,
+      stretchY,
+    });
+  }
+
   const drawn = [
-    [COUNT_BADGE_ID, renderCountBadge],
     [SELECTED_FRAME_ID, () => renderSelectedFrame(false)],
     [SELECTED_STACK_FRAME_ID, () => renderSelectedFrame(true)],
   ] as const;
