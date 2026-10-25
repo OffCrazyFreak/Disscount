@@ -20,6 +20,10 @@ export const PIN_OVERRIDES = new Map<string, { lat: number; lon: number }>([
   [storeKey("ntl", "20324"), { lat: 45.5452705, lon: 18.2868595 }],
   // NTL Arslanovci: ntl.hr's point is 54 m off; OSM node 9001375947 (NTL, Njemačka ulica 1).
   [storeKey("ntl", "20345"), { lat: 45.3336712, lon: 17.6834783 }],
+  // Gavranović Hrvatska Kostajnica: the register has G. Lederera 27 in far-apart places; OSM node 12724057283 "Gavranović".
+  [storeKey("gavranovic", "311"), { lat: 45.2289262, lon: 16.5361268 }],
+  // Gavranović Netretić: the register has Netretić 4 in far-apart places; OSM node 9676940071 "Gavranović Maret".
+  [storeKey("gavranovic", "519"), { lat: 45.5079844, lon: 15.4146165 }],
 ]);
 
 /** The override's point, when it passes the same checks as every source. */

@@ -123,7 +123,7 @@ function matchByPlace(
 }
 
 // NTL's "BR. 350" is code 20350: the number after one leading digit.
-function carriesSuffix(code: string, suffix: string): boolean {
+export function carriesSuffix(code: string, suffix: string): boolean {
   return code.length === suffix.length + 1 && code.endsWith(suffix);
 }
 

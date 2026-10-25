@@ -17,7 +17,10 @@ import {
   pointNorthingEasting,
   spellingText,
 } from "@/lib/store-locations/dgu/gml-fields";
-import { resolveCandidates } from "@/lib/store-locations/dgu/dgu-resolve";
+import {
+  resolveCandidates,
+  type IDguResult,
+} from "@/lib/store-locations/dgu/dgu-resolve";
 import { createStreetIndex } from "@/lib/store-locations/dgu/dgu-street-index";
 import { scanZipMembers } from "@/lib/store-locations/dgu/dgu-zip-stream";
 import type {
@@ -38,7 +41,7 @@ const DGU_ZIP_URL =
 export async function lookupDguAddresses(
   targets: IDguTarget[],
   signal: AbortSignal,
-): Promise<Map<string, { lat: number; lon: number }>> {
+): Promise<IDguResult> {
   const parsed = targets.map((target) => parseAddress(target.address));
   const streetIndex = createStreetIndex(parsed);
 

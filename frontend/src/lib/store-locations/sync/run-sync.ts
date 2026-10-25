@@ -12,6 +12,7 @@ import {
 } from "@/lib/store-locations/location-repository";
 import { fetchUpstreamStores } from "@/lib/store-locations/upstream-stores";
 import { withChainAddresses } from "@/lib/store-locations/sync/address-source-step";
+import { createDguAnchor } from "@/lib/store-locations/sync/dgu-anchor";
 import { resolveWithDgu } from "@/lib/store-locations/sync/dgu-step";
 import { resolveWithGeocoder } from "@/lib/store-locations/sync/geocoder-step";
 import { resolveWithLocators } from "@/lib/store-locations/sync/locator-step";
@@ -47,8 +48,12 @@ export async function runStoreLocationSync(signal: AbortSignal): Promise<void> {
     ]);
 
     let targets = findSyncTargets(upstream, locations);
-    targets = await resolveWithLocators(targets, upstream, signal);
-    targets = await resolveWithDgu(targets, signal);
+    const located = await resolveWithLocators(targets, upstream, signal);
+    targets = await resolveWithDgu(
+      located.remaining,
+      signal,
+      createDguAnchor(located.records, signal),
+    );
     targets = await withChainAddresses(targets, signal);
 
     // Optional: until the key is set, every target goes straight to Nominatim.

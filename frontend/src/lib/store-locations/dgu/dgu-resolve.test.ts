@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { matchedOnlyByStem } from "@/lib/store-locations/address-key";
-import { resolveCandidates } from "@/lib/store-locations/dgu/dgu-resolve";
+import {
+  pickNearAnchor,
+  resolveCandidates,
+} from "@/lib/store-locations/dgu/dgu-resolve";
 import type { IDguCandidate } from "@/lib/store-locations/dgu/dgu-types";
 
 const TOWN = 1;
@@ -35,8 +38,16 @@ describe("resolveCandidates", () => {
   it("prefers an exact street over one matched by stem", () => {
     const stem = candidate(2_500_000, false);
     const exact = candidate(2_500_050, true);
-    const [point] = resolveCandidates([target], [stem, exact], names).values();
-    const [stemPoint] = resolveCandidates([target], [stem], names).values();
+    const [point] = resolveCandidates(
+      [target],
+      [stem, exact],
+      names,
+    ).found.values();
+    const [stemPoint] = resolveCandidates(
+      [target],
+      [stem],
+      names,
+    ).found.values();
 
     expect(point).not.toEqual(stemPoint);
   });
@@ -45,13 +56,41 @@ describe("resolveCandidates", () => {
     const here = candidate(2_500_000, true);
     const there = candidate(2_507_000, true);
 
-    expect(resolveCandidates([target], [here, there], names).size).toBe(0);
+    const { found, ambiguous } = resolveCandidates(
+      [target],
+      [here, there],
+      names,
+    );
+
+    expect(found.size).toBe(0);
+    expect(ambiguous.get(target.id)).toHaveLength(2);
   });
 
   it("takes one address that a few close entries repeat", () => {
     const one = candidate(2_500_000, true);
     const two = candidate(2_500_040, true);
 
-    expect(resolveCandidates([target], [one, two], names).size).toBe(1);
+    expect(resolveCandidates([target], [one, two], names).found.size).toBe(1);
+  });
+});
+
+describe("pickNearAnchor", () => {
+  const zagreb = { lat: 45.8, lon: 15.97 };
+  const split = { lat: 43.51, lon: 16.44 };
+
+  it("takes the one place near the store's independent point", () => {
+    expect(
+      pickNearAnchor([zagreb, split], { lat: 45.8005, lon: 15.97 }),
+    ).toEqual(zagreb);
+  });
+
+  it("takes the nearest of several close places", () => {
+    const nextDoor = { lat: 45.8009, lon: 15.97 };
+
+    expect(pickNearAnchor([nextDoor, zagreb], zagreb)).toEqual(zagreb);
+  });
+
+  it("refuses when no place is near", () => {
+    expect(pickNearAnchor([zagreb, split], { lat: 44.5, lon: 16 })).toBeNull();
   });
 });

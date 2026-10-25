@@ -81,7 +81,7 @@ describe("pin holds", () => {
       storeCode: one.code,
     }));
 
-    expect(held).toHaveLength(35);
+    expect(held).toHaveLength(40);
     expect(
       buildDirectory(held, saved).filter((entry) => entry.lat !== null),
     ).toEqual([]);

@@ -40,6 +40,13 @@ export const PIN_HOLDS = new Set<string>([
   storeKey("ntl", "20710"),
   storeKey("ntl", "32046"),
   storeKey("ntl", "34026"),
+  // The address register's point is off, and the store's own place is unconfirmed.
+  storeKey("ntl", "20681"),
+  storeKey("ntl", "33119"),
+  storeKey("gavranovic", "405"),
+  storeKey("ntl", "33061"),
+  // Vir: permanently closed on Google; another shop trades at the address.
+  storeKey("gavranovic", "474"),
   // diskont.hr's point is 120 m off, on vacant ground.
   storeKey("stanic", "863"),
   // Novska: the geocoded point and the chain's listing disagree.

@@ -5,6 +5,7 @@ import { saveResolvedLocation } from "@/lib/store-locations/location-repository"
 import { storeLocators } from "@/lib/store-locations/sources";
 import { matchLocatorStore } from "@/lib/store-locations/sync/match-locator-store";
 import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
+import type { ILocatorStore } from "@/lib/store-locations/types";
 
 /**
  * Places targets from their chain's own store locator. One chain failing (a
@@ -15,8 +16,13 @@ export async function resolveWithLocators(
   targets: ISyncTarget[],
   upstream: StoreResponse[],
   signal: AbortSignal,
-): Promise<ISyncTarget[]> {
+): Promise<{
+  remaining: ISyncTarget[];
+  records: Map<string, ILocatorStore[]>;
+}> {
   const remaining: ISyncTarget[] = [];
+  // Kept for the DGU step, which checks ambiguous addresses against them.
+  const records = new Map<string, ILocatorStore[]>();
   const chains = new Set(targets.map((target) => target.chain));
 
   for (const chain of chains) {
@@ -38,10 +44,12 @@ export async function resolveWithLocators(
       .map((store) => store.code);
 
     try {
-      const records = await locator.fetchStores(signal);
+      const chainRecords = await locator.fetchStores(signal);
+
+      records.set(chain, chainRecords);
 
       for (const target of chainTargets) {
-        const match = matchLocatorStore(target, records, chainCodes);
+        const match = matchLocatorStore(target, chainRecords, chainCodes);
         if (!match) continue;
 
         await saveResolvedLocation(target, {
@@ -61,5 +69,5 @@ export async function resolveWithLocators(
     remaining.push(...chainTargets.filter((target) => !placed.has(target)));
   }
 
-  return remaining;
+  return { remaining, records };
 }

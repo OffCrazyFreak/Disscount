@@ -10,12 +10,20 @@ import type {
 // area; farther apart than this, picking one would be a guess.
 const MAX_SPREAD_M = 300;
 
+type Point = { lat: number; lon: number };
+
+export interface IDguResult {
+  found: Map<string, Point>;
+  /** Targets whose town has the address in far-apart places, with each place. */
+  ambiguous: Map<string, Point[]>;
+}
+
 /** Picks each target's address among the register's candidates, if one is safe. */
 export function resolveCandidates(
   targets: IDguTarget[],
   candidates: IDguCandidate[],
   names: Map<number, string>,
-): Map<string, { lat: number; lon: number }> {
+): IDguResult {
   const byTarget = new Map<number, IDguCandidate[]>();
 
   for (const candidate of candidates) {
@@ -25,41 +33,43 @@ export function resolveCandidates(
     else byTarget.set(candidate.target, [candidate]);
   }
 
-  const result = new Map<string, { lat: number; lon: number }>();
+  const found = new Map<string, Point>();
+  const ambiguous = new Map<string, Point[]>();
 
   for (const [index, list] of byTarget) {
-    const winner = pickCandidate(
-      list,
-      normalizeCity(targets[index].city),
-      names,
-    );
+    const id = targets[index].id;
+    const pool = candidatePool(list, normalizeCity(targets[index].city), names);
+    const points = pool.flatMap((candidate) => toPoint(candidate) ?? []);
 
-    if (!winner) continue;
+    if (points.length === 0) continue;
 
-    const { lat, lon } = etrs89LaeaToWgs84(winner.northing, winner.easting);
-    const point = sanitizeCoordinates(lat, lon);
-
-    if (point) result.set(targets[index].id, point);
+    if (spreadMetres(pool) <= MAX_SPREAD_M) found.set(id, points[0]);
+    else ambiguous.set(id, points);
   }
 
-  return result;
+  return { found, ambiguous };
 }
 
-function pickCandidate(
+function toPoint(candidate: IDguCandidate): Point | null {
+  const { lat, lon } = etrs89LaeaToWgs84(candidate.northing, candidate.easting);
+
+  return sanitizeCoordinates(lat, lon);
+}
+
+function candidatePool(
   list: IDguCandidate[],
   city: string,
   names: Map<number, string>,
-): IDguCandidate | undefined {
+): IDguCandidate[] {
   // Without a city, a single hit is the only one safe enough to trust.
-  if (!city) return list.length === 1 ? list[0] : undefined;
+  if (!city) return list.length === 1 ? list : [];
 
   const inTown = list.filter((candidate) =>
     candidate.refs.some((ref) => names.get(ref) === city),
   );
   const exact = inTown.filter((candidate) => candidate.exact);
-  const pool = exact.length > 0 ? exact : inTown;
 
-  return spreadMetres(pool) <= MAX_SPREAD_M ? pool[0] : undefined;
+  return exact.length > 0 ? exact : inTown;
 }
 
 // The register's coordinates are metres (EPSG:3035), so plain distances work.
@@ -76,4 +86,27 @@ function spreadMetres(list: IDguCandidate[]): number {
   }
 
   return spread;
+}
+
+// Farther than this from an independent source, a register address is a
+// different building.
+const MAX_ANCHOR_M = 150;
+
+/**
+ * The register's place for an ambiguous address nearest an independent source
+ * (the chain's own point, or a geocoded building), if it is close enough.
+ */
+export function pickNearAnchor(points: Point[], anchor: Point): Point | null {
+  const [nearest] = points
+    .map((point) => ({ point, metres: metresApart(point, anchor) }))
+    .sort((a, b) => a.metres - b.metres);
+
+  return nearest && nearest.metres <= MAX_ANCHOR_M ? nearest.point : null;
+}
+
+function metresApart(a: Point, b: Point): number {
+  const north = (a.lat - b.lat) * 111_320;
+  const east = (a.lon - b.lon) * 111_320 * Math.cos((a.lat * Math.PI) / 180);
+
+  return Math.hypot(north, east);
 }
