@@ -55,17 +55,16 @@
     "down": "Move the map down"
   },
   "list": {
-    "unknownCity": "Unknown town",
     "noLocation": "no location",
     "onMap": "On the map · {count, number}",
     "elsewhere": "Elsewhere · {count, number}",
     "onMapStatus": "{count, plural, one {# store} other {# stores}} on the map",
     "update": "Map moved · Update the list",
-    "sameSpot": "{count, plural, one {# store} other {# stores}} at this spot"
+    "sameSpot": "{count, plural, one {# store} other {# stores}} at this spot",
+    "unknownAddress": "Address unknown",
+    "distance": "{distance} from you"
   },
   "details": {
-    "unknownAddress": "Address unknown",
-    "distance": "{distance} from you",
     "notPlaced": "We don't have an exact location for this store yet, so it isn't on the map."
   },
   "actions": {

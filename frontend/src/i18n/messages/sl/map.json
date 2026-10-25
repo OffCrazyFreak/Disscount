@@ -55,17 +55,16 @@
     "down": "Premakni zemljevid dol"
   },
   "list": {
-    "unknownCity": "Neznan kraj",
     "noLocation": "brez lokacije",
     "onMap": "Na zemljevidu · {count, number}",
     "elsewhere": "Drugje · {count, number}",
     "onMapStatus": "{count, plural, one {# trgovina} two {# trgovini} few {# trgovine} other {# trgovin}} na zemljevidu",
     "update": "Zemljevid se je premaknil · osveži seznam",
-    "sameSpot": "{count, plural, one {# trgovina} two {# trgovini} few {# trgovine} other {# trgovin}} na tem mestu"
+    "sameSpot": "{count, plural, one {# trgovina} two {# trgovini} few {# trgovine} other {# trgovin}} na tem mestu",
+    "unknownAddress": "Naslov ni znan",
+    "distance": "{distance} od tebe"
   },
   "details": {
-    "unknownAddress": "Naslov ni znan",
-    "distance": "{distance} od tebe",
     "notPlaced": "Za to trgovino še nimamo natančne lokacije, zato je ni na zemljevidu."
   },
   "actions": {
