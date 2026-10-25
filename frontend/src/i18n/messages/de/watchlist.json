@@ -5,7 +5,7 @@
   },
   "client": {
     "loginTitle": "Merkliste",
-    "loginDescription": "Mit der Merkliste beobachtest du Produkte und bekommst Bescheid, sobald der Preis sinkt.",
+    "loginDescription": "Mit der Merkliste behältst du Produkte im Blick und bekommst Bescheid, sobald der Preis sinkt.",
     "searchPlaceholder": "Merkliste durchsuchen..."
   },
   "header": {
@@ -16,7 +16,7 @@
   },
   "list": {
     "emptyTitle": "Deine Merkliste ist leer",
-    "emptyDescription": "Suche Produkte, wähle „Zur Merkliste“ und werde bei Angeboten benachrichtigt.",
+    "emptyDescription": "Suche Produkte, wähle „Preisalarm setzen“ und werde bei Angeboten benachrichtigt.",
     "searchProducts": "Produkte suchen"
   },
   "suggestions": {
@@ -25,19 +25,19 @@
     "show": "Anzeigen"
   },
   "actionButton": {
-    "watch": "Zur Merkliste",
-    "remove": "Von der Merkliste entfernen"
+    "watch": "Preisalarm setzen",
+    "remove": "Preisalarm entfernen"
   },
   "discountRow": {
-    "srSuffix": ", {infoLabel}, Marktauswahl öffnen"
+    "srSuffix": ", {infoLabel}, Händlerauswahl öffnen"
   },
   "discountInfo": {
     "loadError": "Laden hat nicht geklappt",
     "noData": "Keine Daten",
     "unavailable": "Nicht verfügbar",
-    "setPreferences": "Märkte auswählen",
-    "preferredStoresInfo": "Märkte für den Preis in bevorzugten Märkten anzeigen",
-    "allStoresInfo": "Märkte für den Preis in allen Märkten anzeigen"
+    "setPreferences": "Händler auswählen",
+    "preferredStoresInfo": "Händler mit Rabatt unter deinen bevorzugten Händlern",
+    "allStoresInfo": "Alle Händler mit Rabatt"
   },
   "item": {
     "loading": "Wird geladen...",
@@ -45,7 +45,7 @@
   },
   "removal": {
     "success": "Produkt von der Merkliste entfernt",
-    "error": "Das Produkt konnte nicht entfernt werden",
+    "error": "Das Produkt konnte nicht entfernt werden. Versuche es erneut.",
     "partial": "{count, plural, one {Teilweise entfernt: # Eintrag konnte nicht entfernt werden.} other {Teilweise entfernt: # Einträge konnten nicht entfernt werden.}}"
   },
   "createList": {
@@ -61,7 +61,7 @@
   },
   "validation": {
     "productRequired": "Produkt fehlt",
-    "watchTypeRequired": "Wähle eine Art von Preisalarm",
-    "thresholdPositive": "Die Schwelle muss eine positive Zahl sein"
+    "watchTypeRequired": "Wähle, wann wir dich benachrichtigen",
+    "thresholdPositive": "Der Mindestrabatt muss eine positive Zahl sein"
   }
 }

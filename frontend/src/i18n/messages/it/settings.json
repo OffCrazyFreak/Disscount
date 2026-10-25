@@ -29,7 +29,7 @@
     "acquisition": {
       "label": "Come hai conosciuto Disscount?",
       "placeholder": "Scegli una fonte",
-      "description": "Ci aiuta a capire dove farci trovare meglio."
+      "description": "Ci aiuta a raggiungere altre persone come te."
     },
     "channels": {
       "GOOGLE_SEARCH": "Ricerca su Google",
@@ -71,9 +71,9 @@
       "hint": "Scegli i negozi vicino a te."
     },
     "places": {
-      "label": "Punti vendita",
-      "hint": "Scegli i punti vendita vicino a te.",
-      "placeholder": "Scegli i punti vendita..."
+      "label": "Località",
+      "hint": "Scegli le località vicino a te.",
+      "placeholder": "Scegli le località..."
     },
     "selectedMark": "✓",
     "language": {
@@ -89,7 +89,7 @@
     "errors": {
       "user": "Non siamo riusciti a salvare il profilo.",
       "stores": "Non siamo riusciti a salvare i negozi.",
-      "places": "Non siamo riusciti a salvare i punti vendita."
+      "places": "Non siamo riusciti a salvare le località."
     }
   },
   "validation": {
@@ -120,8 +120,8 @@
         "description": "Scegli come, su cosa e quando ricevere notifiche su offerte e novità."
       },
       "preferences": {
-        "title": "I tuoi negozi e punti vendita",
-        "description": "Segna negozi e punti vendita vicino a te per confronti di prezzo più precisi."
+        "title": "I tuoi negozi e località",
+        "description": "Segna negozi e località vicino a te per confronti di prezzo più precisi."
       },
       "done": {
         "title": "Tutto pronto!"
@@ -135,7 +135,7 @@
       },
       "stores": {
         "title": "I tuoi negozi",
-        "text": "Scegli negozi e punti vendita per confrontare i prezzi in base al tuo budget."
+        "text": "Scegli negozi e località per confrontare i prezzi in base al tuo budget."
       },
       "notifications": {
         "title": "Notifiche senza spam",
@@ -191,10 +191,10 @@
     },
     "actions": {
       "revokeLabel": "Esci dagli altri dispositivi",
-      "revokeDescription": "Chiudi tutte le sessioni attive tranne questa.",
+      "revokeDescription": "Chiude tutte le sessioni attive tranne questa.",
       "revokeButton": "Esci",
       "deleteLabel": "Elimina account",
-      "deleteDescription": "Elimina per sempre l'account e tutti i dati collegati.",
+      "deleteDescription": "Elimina definitivamente l'account e tutti i dati collegati.",
       "deleteButton": "Elimina",
       "revokeDialogTitle": "Uscire dagli altri dispositivi?",
       "revokeDialogDescription": "Tutte le sessioni attive tranne questa verranno chiuse.",

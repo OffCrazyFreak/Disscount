@@ -1,11 +1,11 @@
 {
   "meta": {
     "title": "Statistika",
-    "description": "Pregled statistike trgovskih verig."
+    "description": "Pregled statistike trgovcev."
   },
   "page": {
     "title": "Statistika",
-    "subtitle": "Pregled statistike trgovskih verig."
+    "subtitle": "Pregled statistike trgovcev."
   },
   "health": {
     "checking": "Preverjanje stanja...",
@@ -14,7 +14,7 @@
     "unavailable": "❌ API za cene ni na voljo"
   },
   "chains": {
-    "title": "Statistika po verigah",
+    "title": "Statistika po trgovcih",
     "loading": "Nalaganje...",
     "empty": "Ni podatkov"
   },

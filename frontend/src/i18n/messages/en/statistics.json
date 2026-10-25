@@ -14,7 +14,7 @@
     "unavailable": "❌ The price API isn't available"
   },
   "chains": {
-    "title": "Statistics by chain",
+    "title": "Statistics by store",
     "loading": "Loading...",
     "empty": "No data"
   },

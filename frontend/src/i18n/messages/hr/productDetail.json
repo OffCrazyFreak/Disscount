@@ -14,7 +14,7 @@
     "distance": "Udaljenosti"
   },
   "chains": {
-    "title": "Cijene po trgovačkim lancima",
+    "title": "Cijene po trgovinama",
     "refreshed": "Cijene osvježene {time}",
     "loadError": "Greška pri učitavanju cijena. Pokušaj ponovno.",
     "empty": "Nema dostupnih cijena za ovaj proizvod.",
@@ -41,7 +41,7 @@
     "pricesByLocation": "Cijene po lokacijama"
   },
   "pricesTable": {
-    "empty": "Nema dostupnih cijena za ovaj lanac",
+    "empty": "Nema dostupnih cijena za ovu trgovinu",
     "location": "Lokacija",
     "address": "Adresa",
     "price": "Cijena",

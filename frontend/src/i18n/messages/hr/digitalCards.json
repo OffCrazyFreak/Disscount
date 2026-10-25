@@ -192,16 +192,16 @@
     }
   },
   "meta": {
-    "title": "Digitalne kartice",
+    "title": "Kartice vjernosti",
     "description": "Sve tvoje kartice trgovina na jednom mjestu."
   },
   "list": {
-    "loginTitle": "Digitalne kartice",
-    "loginDescription": "Digitalne kartice ti omogućuju da sve svoje kartice vjernosti držiš na jednom mjestu, uvijek pri ruci.",
-    "searchPlaceholder": "Pretraži digitalne kartice...",
+    "loginTitle": "Kartice vjernosti",
+    "loginDescription": "Kartice vjernosti ti omogućuju da sve svoje kartice držiš na jednom mjestu, uvijek pri ruci.",
+    "searchPlaceholder": "Pretraži kartice vjernosti...",
     "searchResults": "Rezultati pretrage za \"{query}\" ({count})",
-    "myCards": "Moje digitalne kartice",
-    "myCardsWithCount": "Moje digitalne kartice ({count})",
+    "myCards": "Moje kartice vjernosti",
+    "myCardsWithCount": "Moje kartice vjernosti ({count})",
     "add": {
       "full": "Dodaj karticu",
       "short": "Dodaj"
@@ -267,7 +267,7 @@
       "loadError": "Kartice se nisu učitale. Provjeri vezu.",
       "notFound": "Ova kartica više ne postoji ili je nemaš na svom računu.",
       "fallbackTitle": "Kartica",
-      "fallbackDescription": "Digitalna kartica"
+      "fallbackDescription": "Kartica vjernosti"
     },
     "code": {
       "panel": "Kod kartice",
@@ -311,7 +311,7 @@
       "delete": "Obriši",
       "cancel": "Odustani",
       "deleteTitle": "Obriši karticu",
-      "deleteDescription": "Sigurno želiš obrisati karticu \"{name}\"? Ova akcija se ne može poništiti."
+      "deleteDescription": "Sigurno želiš obrisati karticu \"{name}\"? Ovo se ne može poništiti."
     }
   },
   "errors": {

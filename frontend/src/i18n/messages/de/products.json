@@ -61,49 +61,49 @@
     "label": "Händler"
   },
   "watchlistModal": {
-    "title": "Zur Merkliste hinzufügen",
-    "description": "Lege eine Rabattschwelle fest, wir sagen dir Bescheid, sobald sie erreicht ist.",
+    "title": "Preisalarm setzen",
+    "description": "Lege einen Mindestrabatt fest, wir sagen dir Bescheid, sobald er erreicht ist.",
     "save": "Speichern",
-    "track": "Merken",
+    "track": "Preisalarm setzen",
     "cancel": "Abbrechen",
     "reset": "Zurücksetzen",
     "productNotFound": "Produkt nicht gefunden.",
-    "removeFromWatchlist": "Von der Merkliste entfernen",
-    "existingTitle": "Produkt ist schon auf der Merkliste",
-    "existingBoth": "Dieses Produkt ist schon auf der Merkliste, mit einem Mindestrabatt von {percentage} % und {amount, number, ::currency/EUR}.",
-    "existingPercentage": "Dieses Produkt ist schon auf der Merkliste, mit einem Mindestrabatt von {percentage} %.",
-    "existingAbsolute": "Dieses Produkt ist schon auf der Merkliste, mit einem Mindestrabatt von {amount, number, ::currency/EUR}.",
+    "removeFromWatchlist": "Preisalarm entfernen",
+    "existingTitle": "Preisalarm schon gesetzt",
+    "existingBoth": "Für dieses Produkt gibt es schon einen Preisalarm, mit einem Mindestrabatt von {percentage} % und {amount, number, ::currency/EUR}.",
+    "existingPercentage": "Für dieses Produkt gibt es schon einen Preisalarm, mit einem Mindestrabatt von {percentage} %.",
+    "existingAbsolute": "Für dieses Produkt gibt es schon einen Preisalarm, mit einem Mindestrabatt von {amount, number, ::currency/EUR}.",
     "toast": {
-      "updated": "Schwelle von {from} auf {to} geändert",
-      "added": "Produkt zur Merkliste hinzugefügt",
-      "removedPercentage": "Das Produkt wird nicht mehr nach Prozent beobachtet",
-      "removedAbsolute": "Das Produkt wird nicht mehr nach Preis beobachtet",
+      "updated": "Mindestrabatt von {from} auf {to} geändert",
+      "added": "Preisalarm gesetzt",
+      "removedPercentage": "Preisalarm nach Prozent entfernt",
+      "removedAbsolute": "Preisalarm nach Preis entfernt",
       "removeFailed": "Entfernen hat nicht geklappt"
     }
   },
   "threshold": {
     "labelAbsolute": "Mindestrabatt (€):",
     "labelPercentage": "Mindestrabatt (%):",
-    "loading": "Rabattschwelle wird geladen",
+    "loading": "Mindestrabatt wird geladen",
     "placeholderAbsolute": "z. B. 12",
     "placeholderPercentage": "z. B. 15",
-    "willUpdate": "Die Mindestschwelle wird von {from} auf {to} geändert."
+    "willUpdate": "Der Mindestrabatt wird von {from} auf {to} geändert."
   },
   "typePicker": {
-    "label": "Art des Preisalarms",
+    "label": "Alarm, wenn",
     "absolute": {
-      "label": "Preis",
+      "label": "Preis sinkt um €",
       "description": "Du wirst benachrichtigt, wenn der Preis um einen bestimmten Betrag fällt"
     },
     "percentage": {
-      "label": "Prozent",
-      "description": "Du wirst benachrichtigt, wenn der Rabatt über einem bestimmten Prozentsatz liegt"
+      "label": "Rabatt mindestens %",
+      "description": "Du wirst benachrichtigt, wenn der Rabatt mindestens einen bestimmten Prozentsatz erreicht"
     }
   },
   "actions": {
     "addToList": "Zur Einkaufsliste hinzufügen",
     "editListEntry": "Eintrag in der Einkaufsliste bearbeiten",
-    "watch": "Zur Merkliste",
+    "watch": "Preisalarm setzen",
     "editWatch": "Preisalarm bearbeiten",
     "share": "Produkt teilen",
     "searchImage": "Produktbild suchen",

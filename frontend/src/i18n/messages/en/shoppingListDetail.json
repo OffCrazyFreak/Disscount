@@ -11,7 +11,7 @@
   "lastSynced": "List refreshed {time}",
   "access": {
     "view": "You can only view this list.",
-    "shop": "You can tick off what's bought and choose a store, but you can't change the list.",
+    "shop": "You can check off what you've bought and choose a store, but you can't change the list.",
     "edit": "You can change quantities and delete products, but you can't add new ones.",
     "withNextStep": "{text} {nextStep}",
     "signIn": "Sign in to edit.",
@@ -74,16 +74,16 @@
     "noData": "No price history available."
   },
   "stores": {
-    "title": "Prices by chain",
+    "title": "Prices by store",
     "noItems": "This list has no products yet. Try searching for products and adding them to this list.",
     "allChecked": "All products are marked as bought.",
     "loadError": "Couldn't load the prices. Try again.",
     "noPrices": "No prices available for the items on this list.",
-    "optimizeBy": "Optimise by:",
+    "optimizeBy": "Optimize by:",
     "optimize": {
       "products": "Number of products",
       "basket": "Cheapest basket",
-      "total": "Separate products",
+      "total": "Each product separately",
       "distance": "Distance"
     },
     "availableItems": "Available products {count}/{total}",
@@ -95,8 +95,8 @@
     "avg": "Average",
     "max": "Highest",
     "stat": "{label}: {price}",
-    "lowestAmongChains": "(lowest among chains)",
-    "highestAmongChains": "(highest among chains)",
+    "lowestAmongChains": "(lowest among stores)",
+    "highestAmongChains": "(highest among stores)",
     "table": {
       "empty": "No items on the shopping list",
       "product": "Product",

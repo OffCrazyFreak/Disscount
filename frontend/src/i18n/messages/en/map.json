@@ -5,7 +5,7 @@
   },
   "heading": "Store map",
   "search": {
-    "placeholder": "Chain, town or address..."
+    "placeholder": "Store, town or address..."
   },
   "layout": {
     "skipMap": "Skip the map",
@@ -27,7 +27,7 @@
     "noGpu": "Your browser has turned off graphics acceleration, so it can't show the map. Restarting the browser usually fixes it. Every store is still in the list."
   },
   "chains": {
-    "all": "All chains"
+    "all": "All stores"
   },
   "nearMe": {
     "locate": "Stores near me",
@@ -71,7 +71,7 @@
     "call": "Call {phone}",
     "share": "Share",
     "copied": "Link copied.",
-    "shareFailed": "Sharing didn't work.",
+    "shareFailed": "Couldn't share.",
     "report": "Report a mistake"
   },
   "report": {

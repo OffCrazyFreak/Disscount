@@ -6,7 +6,7 @@
   "client": {
     "loginTitle": "Praćeni proizvodi",
     "loginDescription": "Praćenje ti omogućuje da pratiš proizvode tako da dobiješ obavijest čim im cijena padne.",
-    "searchPlaceholder": "Pretraži popis za praćenje..."
+    "searchPlaceholder": "Pretraži praćene proizvode..."
   },
   "header": {
     "searchResultsTitle": "Rezultati pretrage za \"{query}\" ({count})",
@@ -36,32 +36,32 @@
     "noData": "Nema podataka",
     "unavailable": "Nedostupno",
     "setPreferences": "Postavi preference",
-    "preferredStoresInfo": "Prikaži trgovine za cijenu u preferiranim trgovinama",
-    "allStoresInfo": "Prikaži trgovine za cijenu u svim trgovinama"
+    "preferredStoresInfo": "Trgovine s popustom među tvojim preferiranim trgovinama",
+    "allStoresInfo": "Sve trgovine s popustom"
   },
   "item": {
     "loading": "Učitavanje...",
     "unavailable": "Proizvod nije dostupan"
   },
   "removal": {
-    "success": "Proizvod uklonjen s popisa za praćenje",
+    "success": "Proizvod uklonjen iz praćenih proizvoda",
     "error": "Greška pri uklanjanju proizvoda",
     "partial": "{count, plural, one {Djelomično uklanjanje: # stavku nije moguće ukloniti.} few {Djelomično uklanjanje: # stavke nije moguće ukloniti.} other {Djelomično uklanjanje: # stavki nije moguće ukloniti.}}"
   },
   "createList": {
-    "label": "Stvori popis sniženih proizvoda",
+    "label": "Stvori popis proizvoda na popustu",
     "short": "Stvori popis",
     "loading": "Stvaranje popisa...",
-    "listTitle": "Sniženo {date}",
+    "listTitle": "Popusti {date}",
     "productCount": "Proizvoda za novi popis: {count}.",
-    "success": "Popis sniženih proizvoda je uspješno stvoren",
-    "createError": "Greška pri stvaranju popisa sniženih proizvoda",
+    "success": "Popis proizvoda na popustu uspješno je stvoren",
+    "createError": "Greška pri stvaranju popisa proizvoda na popustu",
     "addFailedRemoved": "Neke stavke nije bilo moguće dodati. Popis je automatski uklonjen.",
     "addFailedKept": "Neke stavke nije bilo moguće dodati, a popis nije moguće automatski ukloniti."
   },
   "validation": {
     "productRequired": "Proizvod je obavezan",
     "watchTypeRequired": "Vrsta praćenja je obavezna",
-    "thresholdPositive": "Granica mora biti pozitivan broj"
+    "thresholdPositive": "Minimalni popust mora biti pozitivan broj"
   }
 }

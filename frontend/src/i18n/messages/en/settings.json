@@ -47,14 +47,14 @@
     }
   },
   "notifications": {
-    "hint": "Choose how, about what and when you want to hear about offers and news.",
+    "hint": "Choose how, about what and when you want to hear about discounts and news.",
     "push": {
       "label": "Allow app notifications",
-      "description": "The mobile app only notifies you about offers on products you choose. No spam."
+      "description": "The mobile app only notifies you about discounts on products you choose. No spam."
     },
     "email": {
       "label": "Allow email notifications",
-      "description": "You'll get emails about offers only on products you choose. No spam."
+      "description": "You'll get emails about discounts only on products you choose. No spam."
     },
     "newsletter": {
       "label": "News and updates",
@@ -117,7 +117,7 @@
       },
       "notifications": {
         "title": "Notifications",
-        "description": "Choose how, about what and when you want to hear about offers and news."
+        "description": "Choose how, about what and when you want to hear about discounts and news."
       },
       "preferences": {
         "title": "Your stores and locations",
@@ -139,7 +139,7 @@
       },
       "notifications": {
         "title": "Notifications without spam",
-        "text": "Choose how, about what and when you want to hear about offers and news."
+        "text": "Choose how, about what and when you want to hear about discounts and news."
       }
     },
     "done": {

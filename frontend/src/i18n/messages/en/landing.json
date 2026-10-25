@@ -1,10 +1,10 @@
 {
   "meta": {
     "title": "Find the best prices in Croatia",
-    "description": "Compare product prices across 25+ retail chains in Croatia, track price history, build smart shopping lists and save on every shop. Free."
+    "description": "Compare product prices across 25+ retail chains in Croatia, track price history, build smart shopping lists and save on every purchase. Free."
   },
   "jsonLd": {
-    "appDescription": "Product price comparison across retail chains in Croatia: price history, smart shopping lists and price alerts."
+    "appDescription": "Product price comparison across retail chains in Croatia: price history, smart shopping lists and a watchlist."
   },
   "hero": {
     "title": "Find the <underline>best prices</underline> in Croatia",
@@ -14,22 +14,22 @@
   },
   "taglines": {
     "compare": "Compare stores and prices!",
-    "saveEveryTime": "Save on every shop!",
-    "neverMissDeal": "Never miss an offer!",
+    "saveEveryTime": "Save on every purchase!",
+    "neverMissDeal": "Never miss a deal!",
     "forgetCards": "Forget the cards, lighten your wallet!",
     "shareList": "Make and share a shopping list!",
     "priceHistory": "Track price history!",
     "scan": "Scan a barcode and compare prices!",
     "smartShopping": "Smart shopping without the stress!",
-    "bestOffers": "Find the best offers in Croatia!",
+    "bestOffers": "Find the best prices in Croatia!",
     "cheapQuality": "Good quality, low prices!",
     "saveMore": "Shop smart, save more!",
     "partner": "Your sidekick for smarter shopping!",
-    "noCatalogs": "Forget catalogues and flyers!"
+    "noCatalogs": "Forget catalogs and flyers!"
   },
   "howItWorks": {
     "title": "How does it work?",
-    "subtitle": "Three steps to a cheaper basket, with no catalogues or flyers to flick through.",
+    "subtitle": "Three steps to a cheaper basket, with no catalogs or flyers to flip through.",
     "steps": {
       "searchOrScan": {
         "title": "Search or scan",
@@ -41,7 +41,7 @@
       },
       "save": {
         "title": "Save on your shopping",
-        "description": "Pick the cheapest store and skip the catalogues."
+        "description": "Pick the cheapest store and skip the catalogs."
       }
     }
   },
@@ -57,7 +57,7 @@
     },
     "catalogs": {
       "value": "0",
-      "label": "catalogues to flick through"
+      "label": "catalogs to flip through"
     }
   },
   "features": {
@@ -74,7 +74,7 @@
       },
       "history": {
         "title": "Price history",
-        "description": "A price chart shows whether an offer is really an offer."
+        "description": "A price chart shows whether a discount is really a discount."
       },
       "lists": {
         "title": "Shopping lists",
@@ -89,7 +89,7 @@
         "description": "See how much you spend and save from month to month."
       },
       "watchlist": {
-        "title": "Price alerts",
+        "title": "Watchlist",
         "description": "Add the products you buy and keep an eye on their prices."
       },
       "notifications": {
@@ -97,8 +97,8 @@
         "description": "Set the price you want and we'll let you know when a product gets cheaper."
       },
       "cards": {
-        "title": "Digital cards",
-        "description": "All your store cards on your phone. Your wallet finally goes on a diet."
+        "title": "Loyalty cards",
+        "description": "All your cards on your phone. Your wallet finally goes on a diet."
       },
       "offline": {
         "title": "Works offline",
@@ -111,19 +111,19 @@
     }
   },
   "priceHistory": {
-    "title": "Is that offer really an offer?",
-    "description": "Some “offers” just bring the price back to what it was. Disscount remembers price history, so you can see exactly what a product cost last week or last month, and whether it's worth waiting.",
+    "title": "Is that discount really a discount?",
+    "description": "Some “discounts” just bring the price back to what it was. Disscount remembers price history, so you can see exactly what a product cost last week or last month, and whether it's worth waiting.",
     "checks": {
       "chart": "A price chart for every product, by store",
       "realDiscount": "See at once whether a discount is real or inflated",
-      "average": "Compared with the average price in other chains"
+      "average": "Compared with the average price in other stores"
     },
     "cta": "Check your product",
     "chartCaption": "Price over time"
   },
   "stores": {
     "title": "All the big chains in one place",
-    "subtitle": "From Konzum and Lidl to neighbourhood shops: prices from 25+ retail chains across Croatia.",
+    "subtitle": "From Konzum and Lidl to neighborhood stores: prices from 25+ retail chains across Croatia.",
     "viewPrices": "See prices: {chain}"
   },
   "pwa": {
@@ -133,7 +133,7 @@
     "perks": {
       "offline": {
         "title": "Lists available offline",
-        "description": "Your shopping lists and the products you've viewed work without signal, right in the shop."
+        "description": "Your shopping lists and the products you've viewed work without signal, right in the store."
       },
       "sync": {
         "title": "Syncs when you're back online",
@@ -143,7 +143,7 @@
   },
   "pricing": {
     "title": "How much does it cost? Nothing.",
-    "subtitle": "Disscount is free and stays that way. This time the receipt works in your favour.",
+    "subtitle": "Disscount is free and stays that way. This time the receipt works in your favor.",
     "freeSubtitle": "Receipt · free plan",
     "premiumSubtitle": "Receipt · premium plan",
     "freePrice": "0.00",
@@ -153,7 +153,7 @@
     "freeRows": {
       "compare": "Price comparison and price history",
       "lists": "Unlimited shopping lists",
-      "watchlist": "Price alerts",
+      "watchlist": "Watchlist",
       "alerts": "Price drop notifications",
       "scan": "Barcode scanning",
       "install": "Install as an app"
@@ -165,11 +165,11 @@
   },
   "faq": {
     "title": "Frequently asked questions",
-    "subtitle": "Everything you might want to know before your first shop with Disscount.",
+    "subtitle": "Everything you might want to know before your first shopping trip with Disscount.",
     "items": {
       "source": {
         "question": "Where does Disscount get its prices?",
-        "answer": "Since 15 May 2025, retail chains in Croatia have been legally required to publish their prices. Disscount gets them through the open Cijene API project, which collects the stores' official price lists every day."
+        "answer": "Since May 15, 2025, retail chains in Croatia have been legally required to publish their prices. Disscount gets them through the open Cijene API project, which collects the stores' official price lists every day."
       },
       "free": {
         "question": "Is Disscount really free?",
@@ -181,7 +181,7 @@
       },
       "account": {
         "question": "Do I need an account?",
-        "answer": "Not for searching and comparing prices: that works straight away. You only need an account to save shopping lists and set price alerts."
+        "answer": "Not for searching and comparing prices: that works straight away. You only need an account to save shopping lists and use your watchlist."
       },
       "barcode": {
         "question": "How do I scan a product barcode?",
@@ -195,7 +195,7 @@
   },
   "finalCta": {
     "title": "Want to save?",
-    "description": "Search works straight away, no sign-up needed. You only need an account when you want to save lists and set price alerts.",
+    "description": "Search works straight away, no sign-up needed. You only need an account when you want to save lists and use your watchlist.",
     "search": "Start searching",
     "signup": "Create a free account"
   }

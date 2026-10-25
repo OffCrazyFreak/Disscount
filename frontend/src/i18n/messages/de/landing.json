@@ -13,15 +13,15 @@
     "scanBarcode": "Barcode scannen"
   },
   "taglines": {
-    "compare": "Vergleiche Märkte und Preise!",
+    "compare": "Vergleiche Händler und Preise!",
     "saveEveryTime": "Spare bei jedem Einkauf!",
-    "neverMissDeal": "Verpasse nie wieder ein Angebot!",
+    "neverMissDeal": "Verpasse nie wieder einen Rabatt!",
     "forgetCards": "Weniger Karten, leichterer Geldbeutel!",
     "shareList": "Erstelle und teile deine Einkaufsliste!",
     "priceHistory": "Behalte den Preisverlauf im Blick!",
     "scan": "Barcode scannen, Preise vergleichen!",
     "smartShopping": "Smart einkaufen ohne Stress!",
-    "bestOffers": "Finde die besten Angebote in Kroatien!",
+    "bestOffers": "Finde die besten Preise in Kroatien!",
     "cheapQuality": "Kaufe gut und günstig ein!",
     "saveMore": "Klug einkaufen, mehr sparen!",
     "partner": "Deine Hilfe für kluges Einkaufen!",
@@ -41,7 +41,7 @@
       },
       "save": {
         "title": "Beim Einkauf sparen",
-        "description": "Wähle den günstigsten Markt und kaufe ein, ohne Prospekte zu wälzen."
+        "description": "Wähle den günstigsten Händler und kaufe ein, ohne Prospekte zu wälzen."
       }
     }
   },
@@ -74,7 +74,7 @@
       },
       "history": {
         "title": "Preisverlauf",
-        "description": "Die Preiskurve zeigt, ob ein Angebot wirklich eins ist."
+        "description": "Die Preiskurve zeigt, ob ein Rabatt wirklich einer ist."
       },
       "lists": {
         "title": "Einkaufslisten",
@@ -97,7 +97,7 @@
         "description": "Lege deinen Wunschpreis fest, wir sagen dir Bescheid, wenn das Produkt günstiger wird."
       },
       "cards": {
-        "title": "Digitale Kundenkarten",
+        "title": "Kundenkarten",
         "description": "Alle Kundenkarten auf dem Handy. Dein Geldbeutel macht endlich Diät."
       },
       "offline": {
@@ -111,8 +111,8 @@
     }
   },
   "priceHistory": {
-    "title": "Ist ein Angebot wirklich eins?",
-    "description": "Manche „Angebote“ setzen den Preis nur auf den alten Stand zurück. Disscount merkt sich den Preisverlauf: Du siehst genau, was ein Produkt letzte Woche oder letzten Monat gekostet hat, und ob sich das Warten lohnt.",
+    "title": "Ist ein Rabatt wirklich einer?",
+    "description": "Manche „Rabatte“ setzen den Preis nur auf den alten Stand zurück. Disscount merkt sich den Preisverlauf: Du siehst genau, was ein Produkt letzte Woche oder letzten Monat gekostet hat, und ob sich das Warten lohnt.",
     "checks": {
       "chart": "Preiskurve für jedes Produkt, nach Händler",
       "realDiscount": "Du siehst sofort, ob der Rabatt echt oder aufgeblasen ist",

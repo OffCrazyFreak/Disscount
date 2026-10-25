@@ -30,7 +30,7 @@
     "pricesUnavailableTitle": "Prezzi non disponibili",
     "pricesUnavailableText": "Puoi comunque usare le azioni del prodotto. Riprova per avere l'intervallo di prezzi aggiornato.",
     "partialPricesTitle": "Alcuni prezzi non sono disponibili",
-    "partialPricesText": "L'intervallo comprende i punti vendita di cui siamo riusciti a ottenere i prezzi."
+    "partialPricesText": "L'intervallo comprende le località di cui siamo riusciti a ottenere i prezzi."
   },
   "quantity": { "label": "Quantità" },
   "listSelector": {
@@ -51,7 +51,7 @@
   "storeChainField": { "label": "Negozio" },
   "watchlistModal": {
     "title": "Segui questo prodotto",
-    "description": "Imposta la soglia di sconto e ti avvisiamo quando viene raggiunta.",
+    "description": "Scegli lo sconto minimo e ti avvisiamo quando viene raggiunto.",
     "save": "Salva",
     "track": "Segui",
     "cancel": "Annulla",
@@ -59,33 +59,33 @@
     "productNotFound": "Prodotto non trovato.",
     "removeFromWatchlist": "Smetti di seguire",
     "existingTitle": "Prodotto già tra quelli seguiti",
-    "existingBoth": "Questo prodotto è già tra quelli seguiti con una soglia minima del {percentage}% e uno sconto di {amount, number, ::currency/EUR}.",
-    "existingPercentage": "Questo prodotto è già tra quelli seguiti con una soglia minima del {percentage}%.",
-    "existingAbsolute": "Questo prodotto è già tra quelli seguiti con una soglia minima di sconto di {amount, number, ::currency/EUR}.",
+    "existingBoth": "Questo prodotto è già tra quelli seguiti con uno sconto minimo del {percentage}% e di {amount, number, ::currency/EUR}.",
+    "existingPercentage": "Questo prodotto è già tra quelli seguiti con uno sconto minimo del {percentage}%.",
+    "existingAbsolute": "Questo prodotto è già tra quelli seguiti con uno sconto minimo di {amount, number, ::currency/EUR}.",
     "toast": {
-      "updated": "Soglia aggiornata da {from} a {to}",
+      "updated": "Sconto minimo aggiornato da {from} a {to}",
       "added": "Prodotto aggiunto ai seguiti",
-      "removedPercentage": "Non segui più la percentuale per questo prodotto",
-      "removedAbsolute": "Non segui più il prezzo di questo prodotto",
+      "removedPercentage": "Avviso in percentuale rimosso per questo prodotto",
+      "removedAbsolute": "Avviso di prezzo rimosso per questo prodotto",
       "removeFailed": "Non siamo riusciti a rimuoverlo"
     }
   },
   "threshold": {
     "labelAbsolute": "Sconto minimo (€):",
     "labelPercentage": "Sconto minimo (%):",
-    "loading": "Caricamento della soglia di sconto",
+    "loading": "Caricamento dello sconto minimo",
     "placeholderAbsolute": "Es. 12",
     "placeholderPercentage": "Es. 15",
-    "willUpdate": "La soglia minima passa da {from} a {to}."
+    "willUpdate": "Lo sconto minimo passa da {from} a {to}."
   },
   "typePicker": {
-    "label": "Tipo di avviso",
+    "label": "Avvisami quando",
     "absolute": {
-      "label": "Prezzo",
+      "label": "Il prezzo scende di €",
       "description": "Ti avvisiamo quando il prezzo scende di un certo importo"
     },
     "percentage": {
-      "label": "Percentuale",
+      "label": "Lo sconto è almeno del %",
       "description": "Ti avvisiamo quando lo sconto supera una certa percentuale"
     }
   },
@@ -93,7 +93,7 @@
     "addToList": "Aggiungi alla lista della spesa",
     "editListEntry": "Modifica l'articolo nella lista della spesa",
     "watch": "Segui prodotto",
-    "editWatch": "Modifica avviso",
+    "editWatch": "Modifica avviso di prezzo",
     "share": "Condividi prodotto",
     "searchImage": "Cerca l'immagine del prodotto",
     "group": "Azioni del prodotto"
@@ -106,10 +106,10 @@
       "empty": "Nessun negozio"
     },
     "locations": {
-      "label": "Punti vendita",
-      "placeholder": "Scegli i punti vendita...",
-      "search": "Cerca punti vendita...",
-      "empty": "Nessun punto vendita"
+      "label": "Località",
+      "placeholder": "Scegli le località...",
+      "search": "Cerca località...",
+      "empty": "Nessuna località"
     },
     "categories": {
       "label": "Categorie",
@@ -129,7 +129,7 @@
   "productInfo": {
     "back": "Indietro",
     "unknown": "Sconosciuto",
-    "brand": "Produttore:",
+    "brand": "Marca:",
     "barcode": "Codice a barre:",
     "quantity": "Quantità:",
     "prices": "Prezzi:",
@@ -158,7 +158,7 @@
     "resultsTitle": "Risultati per «{query}»",
     "resultsTitleWithCount": "Risultati per «{query}» ({count}{suffix})",
     "partialPricesTitle": "Alcuni prezzi non sono disponibili",
-    "partialPricesText": "Mostriamo i prezzi disponibili, ma per ora non siamo riusciti a ottenere quelli di uno o più punti vendita scelti.",
+    "partialPricesText": "Mostriamo i prezzi disponibili, ma per ora non siamo riusciti a ottenere quelli di una o più località scelte.",
     "errorTitle": "Errore di ricerca",
     "errorText": "Non siamo riusciti a caricare i dati. Riprova.",
     "noResultsForFilters": "Nessun risultato per i filtri scelti",

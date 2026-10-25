@@ -5,7 +5,7 @@
   },
   "heading": "Karta trgovina",
   "search": {
-    "placeholder": "Lanac, grad ili adresa..."
+    "placeholder": "Trgovina, grad ili adresa..."
   },
   "layout": {
     "skipMap": "Preskoči kartu",
@@ -27,7 +27,7 @@
     "noGpu": "Tvoj preglednik je isključio grafičko ubrzanje pa ne može prikazati kartu. Obično pomaže da ponovno pokreneš preglednik. Sve trgovine i dalje su na popisu."
   },
   "chains": {
-    "all": "Svi lanci"
+    "all": "Sve trgovine"
   },
   "nearMe": {
     "locate": "Trgovine blizu mene",

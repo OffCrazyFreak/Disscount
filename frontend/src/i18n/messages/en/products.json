@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Products",
-    "description": "Browse the products available."
+    "description": "Browse all products."
   },
   "clearFilters": {
     "label": "Clear filters"
@@ -61,49 +61,49 @@
     "label": "Store"
   },
   "watchlistModal": {
-    "title": "Set price alert",
-    "description": "Set an alert threshold and we'll let you know when it's reached.",
+    "title": "Add to Watchlist",
+    "description": "Choose the minimum discount and we'll let you know when it's reached.",
     "save": "Save",
-    "track": "Watch",
+    "track": "Add",
     "cancel": "Cancel",
     "reset": "Reset",
     "productNotFound": "Product not found.",
-    "removeFromWatchlist": "Stop watching",
-    "existingTitle": "Price alert already set",
-    "existingBoth": "This product already has price alerts for a minimum discount of {percentage}% and of {amount, number, ::currency/EUR}.",
-    "existingPercentage": "This product already has a price alert for a minimum discount of {percentage}%.",
-    "existingAbsolute": "This product already has a price alert for a minimum discount of {amount, number, ::currency/EUR}.",
+    "removeFromWatchlist": "Remove from Watchlist",
+    "existingTitle": "Already on your watchlist",
+    "existingBoth": "This product is already on your watchlist with a minimum discount of {percentage}% and of {amount, number, ::currency/EUR}.",
+    "existingPercentage": "This product is already on your watchlist with a minimum discount of {percentage}%.",
+    "existingAbsolute": "This product is already on your watchlist with a minimum discount of {amount, number, ::currency/EUR}.",
     "toast": {
-      "updated": "Threshold updated from {from} to {to}",
-      "added": "Price alert set",
-      "removedPercentage": "Percentage alert removed for this product",
-      "removedAbsolute": "Price alert removed for this product",
-      "removeFailed": "Couldn't remove the alert. Try again."
+      "updated": "Minimum discount updated from {from} to {to}",
+      "added": "Added to your watchlist",
+      "removedPercentage": "Percentage price alert removed",
+      "removedAbsolute": "Price alert removed",
+      "removeFailed": "Couldn't remove the price alert. Try again."
     }
   },
   "threshold": {
     "labelAbsolute": "Minimum discount (€):",
     "labelPercentage": "Minimum discount (%):",
-    "loading": "Loading alert threshold",
+    "loading": "Loading minimum discount",
     "placeholderAbsolute": "E.g. 12",
     "placeholderPercentage": "E.g. 15",
-    "willUpdate": "The minimum threshold will change from {from} to {to}."
+    "willUpdate": "The minimum discount will change from {from} to {to}."
   },
   "typePicker": {
-    "label": "Alert type",
+    "label": "Alert me when",
     "absolute": {
-      "label": "Price",
+      "label": "Price drops by €",
       "description": "Get notified when the price drops by a set amount"
     },
     "percentage": {
-      "label": "Percentage",
-      "description": "Get notified when the discount is bigger than a set percentage"
+      "label": "Discount is at least %",
+      "description": "Get notified when the discount reaches at least a set percentage"
     }
   },
   "actions": {
     "addToList": "Add to shopping list",
     "editListEntry": "Edit shopping list entry",
-    "watch": "Watch price",
+    "watch": "Add to Watchlist",
     "editWatch": "Edit price alert",
     "share": "Share product",
     "searchImage": "Search product image",
@@ -214,6 +214,6 @@
     "all": "All"
   },
   "storeChainSelect": {
-    "multiPlaceholder": "Choose chains..."
+    "multiPlaceholder": "Choose stores..."
   }
 }

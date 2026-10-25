@@ -44,7 +44,7 @@
   },
   "confirm": {
     "title": "Check the code",
-    "chooseLegend": "Choose the code the till scans",
+    "chooseLegend": "Choose the code the checkout scanner reads",
     "use": "Use code",
     "rescan": "Scan again",
     "manual": "Enter manually",

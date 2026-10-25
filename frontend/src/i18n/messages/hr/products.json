@@ -61,43 +61,43 @@
     "label": "Trgovina"
   },
   "watchlistModal": {
-    "title": "Dodaj na popis za praćenje",
-    "description": "Postavi prag sniženja i javit ćemo ti kad se dosegne.",
+    "title": "Dodaj u praćene proizvode",
+    "description": "Postavi minimalni popust i javit ćemo ti kad se dosegne.",
     "save": "Spremi",
     "track": "Prati",
     "cancel": "Odustani",
     "reset": "Resetiraj",
     "productNotFound": "Proizvod nije pronađen.",
-    "removeFromWatchlist": "Ukloni s popisa za praćenje",
-    "existingTitle": "Proizvod već na popisu za praćenje",
-    "existingBoth": "Ovaj proizvod je već na popisu za praćenje s minimalnim pragom postotka od {percentage}% te popusta od {amount, number, ::currency/EUR}.",
-    "existingPercentage": "Ovaj proizvod je već na popisu za praćenje s minimalnim pragom postotka od {percentage}%.",
-    "existingAbsolute": "Ovaj proizvod je već na popisu za praćenje s minimalnim pragom popusta od {amount, number, ::currency/EUR}.",
+    "removeFromWatchlist": "Ukloni iz praćenih proizvoda",
+    "existingTitle": "Proizvod je već među praćenim proizvodima",
+    "existingBoth": "Ovaj proizvod je već među praćenim proizvodima s minimalnim popustom od {percentage}% te {amount, number, ::currency/EUR}.",
+    "existingPercentage": "Ovaj proizvod je već među praćenim proizvodima s minimalnim popustom od {percentage}%.",
+    "existingAbsolute": "Ovaj proizvod je već među praćenim proizvodima s minimalnim popustom od {amount, number, ::currency/EUR}.",
     "toast": {
-      "updated": "Prag ažuriran s {from} na {to}",
-      "added": "Proizvod dodan na popis za praćenje",
+      "updated": "Minimalni popust ažuriran s {from} na {to}",
+      "added": "Proizvod dodan u praćene proizvode",
       "removedPercentage": "Za proizvod se više ne prati postotak",
       "removedAbsolute": "Za proizvod se više ne prati cijena",
       "removeFailed": "Greška pri uklanjanju"
     }
   },
   "threshold": {
-    "labelAbsolute": "Minimalno sniženje (€):",
-    "labelPercentage": "Minimalno sniženje (%):",
-    "loading": "Učitavanje praga sniženja",
+    "labelAbsolute": "Minimalni popust (€):",
+    "labelPercentage": "Minimalni popust (%):",
+    "loading": "Učitavanje minimalnog popusta",
     "placeholderAbsolute": "Npr. 12",
     "placeholderPercentage": "Npr. 15",
-    "willUpdate": "Minimalan prag će biti ažuriran s {from} na {to}."
+    "willUpdate": "Minimalni popust bit će ažuriran s {from} na {to}."
   },
   "typePicker": {
-    "label": "Način praćenja",
+    "label": "Obavijesti me kad",
     "absolute": {
-      "label": "Cijena",
+      "label": "Cijena padne za €",
       "description": "Obavijesti kad cijena padne za određeni iznos"
     },
     "percentage": {
-      "label": "Postotak",
-      "description": "Obavijesti kad popust bude veći od određenog postotka"
+      "label": "Popust je najmanje %",
+      "description": "Obavijesti kad popust dosegne najmanje određeni postotak"
     }
   },
   "actions": {
@@ -142,7 +142,7 @@
   "productInfo": {
     "back": "Natrag",
     "unknown": "Nepoznato",
-    "brand": "Proizvođač:",
+    "brand": "Marka:",
     "barcode": "Barkod:",
     "quantity": "Količina:",
     "prices": "Cijene:",
@@ -187,7 +187,7 @@
     "list": "Prikaz u popisu"
   },
   "storePrice": {
-    "empty": "Nema sniženja",
+    "empty": "Nema popusta",
     "line": "<chainName>{chain}</chainName> ~ {price} (-{discount}, {percentage}%)"
   },
   "quickActions": {

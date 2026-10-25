@@ -26,7 +26,7 @@
   },
   "actionButton": {
     "watch": "Segui prodotto",
-    "remove": "Rimuovi prodotto"
+    "remove": "Smetti di seguire"
   },
   "discountRow": {
     "srSuffix": ", {infoLabel}, apri le preferenze dei negozi"
@@ -36,8 +36,8 @@
     "noData": "Nessun dato",
     "unavailable": "Non disponibile",
     "setPreferences": "Imposta preferenze",
-    "preferredStoresInfo": "Mostra i negozi per il prezzo nei negozi preferiti",
-    "allStoresInfo": "Mostra i negozi per il prezzo in tutti i negozi"
+    "preferredStoresInfo": "Negozi in sconto tra i tuoi negozi preferiti",
+    "allStoresInfo": "Tutti i negozi in sconto"
   },
   "item": {
     "loading": "Caricamento...",
@@ -62,6 +62,6 @@
   "validation": {
     "productRequired": "Il prodotto è obbligatorio",
     "watchTypeRequired": "Il tipo di avviso è obbligatorio",
-    "thresholdPositive": "La soglia deve essere un numero positivo"
+    "thresholdPositive": "Lo sconto minimo deve essere un numero positivo"
   }
 }
