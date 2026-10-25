@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import StoreListItem from "@/app/[locale]/map/components/store-list-item";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { toListEntries } from "@/app/[locale]/map/utils/list-entries";
+import { revealOffset } from "@/app/[locale]/map/utils/reveal-offset";
 
 interface IStoreListProps {
   rows: IListedStore[];
@@ -21,6 +22,10 @@ interface IStoreListProps {
 }
 
 // A closed row; open rows are measured.
+
+// Long enough for the virtualizer to measure an opened row and the one that
+// closed above it, short enough not to fight the user's own scrolling.
+const REVEAL_WINDOW_MS = 500;
 const ROW_HEIGHT = 64;
 
 /**
@@ -67,11 +72,14 @@ export default function StoreList({
 
   // Set while a row is clicked; a pick made elsewhere (map, Back) moves focus.
   const pickedInList = useRef(false);
+  // The row just opened from the list, and until when to keep revealing it.
+  const reveal = useRef<{ key: string; until: number } | null>(null);
   const focusedKey = useRef<string | null>(null);
 
-  // Opening a row collapses the one above it, and a filter can move the open
-  // store, so the list brings the open row to the top whenever its position
-  // changes. Focus moves only for a new pick, never while someone filters.
+  // A row opened in the list is revealed with the least scrolling (below), so
+  // one already in view does not jump. Any other change, such as a pick from
+  // the map or a filter that moves the open store, brings it to the top.
+  // Focus moves only for a new pick, never while someone filters.
   useEffect(() => {
     const fromList = pickedInList.current;
     pickedInList.current = false;
@@ -81,7 +89,13 @@ export default function StoreList({
       return;
     }
 
-    virtualizer.scrollToIndex(selectedIndex, { align: "start" });
+    reveal.current =
+      fromList && selectedKey
+        ? { key: selectedKey, until: performance.now() + REVEAL_WINDOW_MS }
+        : null;
+    if (!fromList) {
+      virtualizer.scrollToIndex(selectedIndex, { align: "start" });
+    }
 
     const isNewPick = focusedKey.current !== selectedKey;
     focusedKey.current = selectedKey;
@@ -97,8 +111,31 @@ export default function StoreList({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedKey, selectedIndex]);
 
+  // Opening a row collapses the one above it, and the virtualizer measures
+  // both a moment after the click, so the reveal reruns while they settle.
+  // Only briefly: later shifts must not pull back someone who scrolled away.
+  const openRow = virtualizer
+    .getVirtualItems()
+    .find((item) => item.index === selectedIndex);
+  const viewHeight = virtualizer.scrollRect?.height ?? 0;
+
+  useEffect(() => {
+    const pending = reveal.current;
+    if (!openRow || !viewHeight || pending?.key !== selectedKey) return;
+    if (performance.now() > pending.until) return;
+
+    const top = virtualizer.scrollOffset ?? 0;
+    const offset = revealOffset(openRow, {
+      start: top,
+      end: top + viewHeight,
+    });
+
+    if (offset != null) virtualizer.scrollToOffset(offset);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openRow?.start, openRow?.end, viewHeight]);
+
   // A new view puts its stores on top, so show the top, unless a store is open
-  // and the effect above already brought that row into view.
+  // and the effects above already keep that row in view.
   useEffect(() => {
     if (selectedIndex < 0) virtualizer.scrollToOffset(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
