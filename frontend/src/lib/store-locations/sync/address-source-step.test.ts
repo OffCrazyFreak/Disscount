@@ -105,6 +105,34 @@ describe("withChainAddresses", () => {
     expect(elsewhere.lookup).toBeUndefined();
   });
 
+  it("never swaps a numbered address for a numberless one", async () => {
+    server.use(http.get(PAGE_URL, () => HttpResponse.html(PAGE)));
+
+    const [numbered] = await withChainAddresses(
+      [
+        {
+          ...target("stridon", "Prod.26"),
+          address: "143.Domobranske pukovnije 4",
+          city: "Plaški",
+        },
+      ],
+      new AbortController().signal,
+    );
+
+    expect(numbered.lookup).toBeUndefined();
+  });
+
+  it("reads a town word as short only when written with a dot", async () => {
+    server.use(http.get(PAGE_URL, () => HttpResponse.html(PAGE)));
+
+    const [undotted] = await withChainAddresses(
+      [{ ...target("stridon", "Prod.10"), city: "Vel Gorica" }],
+      new AbortController().signal,
+    );
+
+    expect(undotted.lookup).toBeUndefined();
+  });
+
   it("accepts the chain's number at either end of upstream's range", async () => {
     server.use(http.get(PAGE_URL, () => HttpResponse.html(PAGE)));
 

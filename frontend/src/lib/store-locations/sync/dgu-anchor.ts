@@ -1,12 +1,14 @@
 import "server-only";
 
 import type { StoreResponse } from "@/lib/cijene-api/schemas";
-import { geocodeWithGeoapify } from "@/lib/store-locations/geocoders/geoapify-geocoder";
 import { delay } from "@/lib/store-locations/http";
 import { numberedRecord } from "@/lib/store-locations/sync/match-locator-store";
 import { withoutSharedPoints } from "@/lib/store-locations/sync/shared-points";
 import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
-import type { ILocatorStore } from "@/lib/store-locations/types";
+import type {
+  ILocatorStore,
+  IResolvedLocation,
+} from "@/lib/store-locations/types";
 
 type Point = { lat: number; lon: number };
 
@@ -21,6 +23,11 @@ const GEOAPIFY_INTERVAL_MS = 250;
 export function createDguAnchor(
   records: Map<string, ILocatorStore[]>,
   upstream: StoreResponse[],
+  geocode: (
+    address: string,
+    city: string | null,
+    signal: AbortSignal,
+  ) => Promise<IResolvedLocation | null>,
   signal: AbortSignal,
 ): (target: ISyncTarget) => Promise<Point | null> {
   let geocoded = 0;
@@ -44,7 +51,7 @@ export function createDguAnchor(
     if (geocoded++ > 0) await delay(GEOAPIFY_INTERVAL_MS, signal);
 
     try {
-      return await geocodeWithGeoapify(target.address, target.city, signal);
+      return await geocode(target.address, target.city, signal);
     } catch (error) {
       if (signal.aborted) throw error;
 

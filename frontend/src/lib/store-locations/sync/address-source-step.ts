@@ -73,7 +73,7 @@ function sameStore(target: ISyncTarget, lookup: ILookupAddress): boolean {
   const sameNumber =
     ours.number === null ||
     ours.number === theirs.number ||
-    ours.rangeEnd === theirs.number;
+    (ours.rangeEnd !== null && ours.rangeEnd === theirs.number);
 
   return (
     sameNumber &&
@@ -82,15 +82,30 @@ function sameStore(target: ISyncTarget, lookup: ILookupAddress): boolean {
   );
 }
 
-// "V.gorica" is Velika Gorica: an initial counts as the word it starts.
+// "V.gorica" is Velika Gorica: a word written with a dot counts as the word
+// it starts, but "Split" never stands for "Splitska".
 function sameTown(ours: string | null, theirs: string): boolean {
-  const a = normalizeCity(ours).split(" ").filter(Boolean);
-  const b = normalizeCity(theirs).split(" ").filter(Boolean);
+  const a = townWords(ours ?? "");
+  const b = townWords(theirs);
 
   return (
     a.length === b.length &&
     a.every(
-      (word, index) => b[index].startsWith(word) || word.startsWith(b[index]),
+      (word, index) =>
+        word.text === b[index].text ||
+        (word.short && b[index].text.startsWith(word.text)) ||
+        (b[index].short && word.text.startsWith(b[index].text)),
     )
   );
+}
+
+function townWords(city: string): { text: string; short: boolean }[] {
+  return [...city.matchAll(/([^\s.]+)(\.?)/g)].flatMap(([, word, dot]) => {
+    const parts = normalizeCity(word).split(" ").filter(Boolean);
+
+    return parts.map((text, index) => ({
+      text,
+      short: dot === "." && index === parts.length - 1,
+    }));
+  });
 }

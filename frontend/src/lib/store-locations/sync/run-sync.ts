@@ -1,6 +1,6 @@
 import "server-only";
 
-import { geocodeWithGeoapify } from "@/lib/store-locations/geocoders/geoapify-geocoder";
+import { createGeoapifyBudget } from "@/lib/store-locations/geocoders/geoapify-budget";
 import {
   geocodeWithNominatim,
   NOMINATIM_MIN_INTERVAL_MS,
@@ -47,12 +47,13 @@ export async function runStoreLocationSync(signal: AbortSignal): Promise<void> {
       readStoreLocations(),
     ]);
 
+    const geoapify = createGeoapifyBudget(GEOAPIFY.limit);
     let targets = findSyncTargets(upstream, locations);
     const located = await resolveWithLocators(targets, upstream, signal);
     targets = await resolveWithDgu(
       located.remaining,
       signal,
-      createDguAnchor(located.records, upstream, signal),
+      createDguAnchor(located.records, upstream, geoapify, signal),
     );
     targets = await withChainAddresses(targets, signal);
 
@@ -60,13 +61,13 @@ export async function runStoreLocationSync(signal: AbortSignal): Promise<void> {
     const forGeoapify = process.env.GEOAPIFY_API_KEY
       ? targets.filter((target) => !target.skipGeoapify)
       : [];
-    const geoapify = await resolveWithGeocoder(
+    const geocoded = await resolveWithGeocoder(
       forGeoapify,
-      { geocode: geocodeWithGeoapify, ...GEOAPIFY },
+      { geocode: geoapify, ...GEOAPIFY },
       signal,
     );
 
-    for (const target of geoapify.failed) {
+    for (const target of geocoded.failed) {
       await recordGeoapifyMiss(target.chain, target.code);
     }
 
@@ -75,7 +76,7 @@ export async function runStoreLocationSync(signal: AbortSignal): Promise<void> {
     );
 
     const nominatim = await resolveWithGeocoder(
-      [...geoapify.remaining, ...notForGeoapify],
+      [...geocoded.remaining, ...notForGeoapify],
       {
         geocode: geocodeWithNominatim,
         limit: NOMINATIM_LIMIT,

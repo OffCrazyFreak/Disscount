@@ -22,6 +22,8 @@ function record(extra: Partial<ILocatorStore>, lat = 45.49): ILocatorStore {
   return { address: "Kralja Tomislava 12", lat, lon: 18.09, ...extra };
 }
 
+const geocode = vi.fn(async () => null);
+
 function upstreamStore(code: string): StoreResponse {
   return { chain_code: "ntl", code } as StoreResponse;
 }
@@ -34,6 +36,7 @@ function anchorWith(
   return createDguAnchor(
     new Map([["ntl", records]]),
     codes.map(upstreamStore),
+    geocode,
     new AbortController().signal,
   )(store);
 }
@@ -69,8 +72,6 @@ describe("createDguAnchor", () => {
   });
 
   it("asks Geoapify nothing without a key or after a recent miss", async () => {
-    const fetchSpy = vi.spyOn(globalThis, "fetch");
-
     vi.stubEnv("GEOAPIFY_API_KEY", "");
     expect(await anchorWith([])).toBeNull();
 
@@ -78,6 +79,6 @@ describe("createDguAnchor", () => {
     expect(
       await anchorWith([], ["20350"], { ...target, skipGeoapify: true }),
     ).toBeNull();
-    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(geocode).not.toHaveBeenCalled();
   });
 });
