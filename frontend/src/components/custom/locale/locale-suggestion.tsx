@@ -49,34 +49,38 @@ export default function LocaleSuggestion() {
   }
 
   // The live region stays mounted so the offer is announced when it appears.
+  // It takes no height and the pill floats over the page top, so a full-height
+  // page like the map is never pushed down; it stays under the fixed header.
   return (
-    <div role="status">
+    <div role="status" className="relative z-[calc(var(--z-header)-1)] h-0">
       {preferred && (
-        <div className="mb-4 flex items-center gap-2 rounded-xl border bg-card p-2 pl-3 shadow-sm">
-          <Languages
-            aria-hidden="true"
-            className="size-4 text-muted-foreground"
-          />
+        <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center">
+          <div className="pointer-events-auto flex max-w-full items-center gap-2 rounded-full border bg-card py-1 pr-1 pl-3 shadow-md">
+            <Languages
+              aria-hidden="true"
+              className="size-4 shrink-0 text-muted-foreground"
+            />
 
-          <Button
-            variant="link"
-            lang={preferred}
-            disabled={isPending}
-            onClick={() => changeLocale(preferred)}
-            className="h-auto flex-1 justify-start p-0"
-          >
-            {SHOW_IN_LOCALE[preferred]}
-          </Button>
+            <Button
+              variant="link"
+              lang={preferred}
+              disabled={isPending}
+              onClick={() => changeLocale(preferred)}
+              className="h-auto min-w-0 p-0 whitespace-normal"
+            >
+              {SHOW_IN_LOCALE[preferred]}
+            </Button>
 
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={dismiss}
-            aria-label={t("dismissSuggestion")}
-            className="size-8"
-          >
-            <X aria-hidden="true" />
-          </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={dismiss}
+              aria-label={t("dismissSuggestion")}
+              className="size-8 shrink-0 rounded-full"
+            >
+              <X aria-hidden="true" />
+            </Button>
+          </div>
         </div>
       )}
     </div>
