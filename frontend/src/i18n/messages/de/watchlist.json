@@ -36,8 +36,8 @@
     "noData": "Keine Daten",
     "unavailable": "Nicht verfügbar",
     "setPreferences": "Händler auswählen",
-    "preferredStoresInfo": "Händler mit diesem Preis unter deinen bevorzugten Händlern",
-    "allStoresInfo": "Händler mit diesem Preis unter allen Händlern"
+    "preferredStoresInfo": "Händler mit Rabatt unter deinen bevorzugten Händlern",
+    "allStoresInfo": "Alle Händler mit Rabatt"
   },
   "item": {
     "loading": "Wird geladen...",

@@ -36,8 +36,8 @@
     "noData": "No data",
     "unavailable": "Unavailable",
     "setPreferences": "Set preferences",
-    "preferredStoresInfo": "Stores with this price among your preferred stores",
-    "allStoresInfo": "Stores with this price among all stores"
+    "preferredStoresInfo": "Discounted stores among your preferred stores",
+    "allStoresInfo": "All discounted stores"
   },
   "item": {
     "loading": "Loading...",

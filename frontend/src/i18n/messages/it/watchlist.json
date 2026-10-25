@@ -36,8 +36,8 @@
     "noData": "Nessun dato",
     "unavailable": "Non disponibile",
     "setPreferences": "Imposta preferenze",
-    "preferredStoresInfo": "Negozi con questo prezzo tra i tuoi negozi preferiti",
-    "allStoresInfo": "Negozi con questo prezzo tra tutti i negozi"
+    "preferredStoresInfo": "Negozi in sconto tra i tuoi negozi preferiti",
+    "allStoresInfo": "Tutti i negozi in sconto"
   },
   "item": {
     "loading": "Caricamento...",

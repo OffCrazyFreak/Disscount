@@ -36,8 +36,8 @@
     "noData": "Ni podatkov",
     "unavailable": "Ni na voljo",
     "setPreferences": "Nastavi trgovine",
-    "preferredStoresInfo": "Trgovine s to ceno med tvojimi priljubljenimi trgovinami",
-    "allStoresInfo": "Trgovine s to ceno med vsemi trgovinami"
+    "preferredStoresInfo": "Trgovine s popustom med tvojimi priljubljenimi trgovinami",
+    "allStoresInfo": "Vse trgovine s popustom"
   },
   "item": {
     "loading": "Nalaganje...",
