@@ -51,8 +51,8 @@ export default function MapPanControls({ mapRef }: IMapPanControlsProps) {
     <div
       role="group"
       aria-label={t("group")}
-      // Level with the zoom buttons and just left of them (globals.css).
-      className="absolute right-14 top-23 z-[1] hidden grid-cols-3 grid-rows-3 gap-1 md:grid"
+      // On the top line, just left of the zoom buttons (globals.css).
+      className="absolute right-14 top-3 z-[1] hidden grid-cols-3 grid-rows-3 gap-1 md:grid"
     >
       {DIRECTIONS.map(({ labelKey, icon: Icon, offset, area }) => (
         <button

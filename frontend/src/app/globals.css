@@ -750,21 +750,16 @@ body:has([data-sheet-non-modal]) {
   }
 }
 
-/* The map credits run along the top. On desktop the zoom buttons drop below
-   them, beside the pan arrows (map-pan-controls.tsx matches this offset); on
-   phones the credits wrap to more lines, so there they stop short of the zoom
-   buttons instead. The text cannot shrink: the Open Licence requires DGU's
-   sentence verbatim. */
+/* The map credits share the top line with the controls on the right: the zoom
+   buttons, and on desktop the pan arrows beside them (map-pan-controls.tsx).
+   The credits wrap before reaching them. Their text cannot shrink: the Open
+   Licence requires DGU's sentence verbatim. */
 .maplibregl-ctrl-top-left {
   right: 3rem;
 }
 
 @media (width >= 48rem) {
   .maplibregl-ctrl-top-left {
-    right: 0;
-  }
-
-  .maplibregl-ctrl-top-right {
-    top: 4rem;
+    right: 10rem;
   }
 }
