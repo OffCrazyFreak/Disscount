@@ -5,7 +5,7 @@
   },
   "client": {
     "loginTitle": "Einkaufslisten",
-    "loginDescription": "Mit Einkaufslisten planst du deinen Einkauf und vergleichst die Preise der Märkte an einem Ort.",
+    "loginDescription": "Mit Einkaufslisten planst du deinen Einkauf und vergleichst die Preise der Händler an einem Ort.",
     "searchPlaceholder": "Einkaufslisten suchen...",
     "searchResults": "Suchergebnisse für „{query}“ ({count})",
     "myLists": "Meine Einkaufslisten",
@@ -52,7 +52,7 @@
     "hint": {
       "NONE": "Teilen ist aus, nur du kannst diese Liste öffnen.",
       "VIEW": "Sieht die ganze Liste, kann sie aber nicht bearbeiten.",
-      "SHOP": "Sieht die ganze Liste, kann aber auch den Markt wählen und Gekauftes abhaken.",
+      "SHOP": "Sieht die ganze Liste, kann aber auch den Händler wählen und Gekauftes abhaken.",
       "EDIT": "Kann die ganze Liste bearbeiten, aber keine neuen Produkte hinzufügen."
     }
   },
@@ -67,7 +67,7 @@
   "listModal": {
     "titleEdit": "Einkaufsliste bearbeiten",
     "titleNew": "Neue Einkaufsliste",
-    "description": "Du kannst die Liste teilen und die Preise der Märkte vergleichen.",
+    "description": "Du kannst die Liste teilen und die Preise der Händler vergleichen.",
     "save": "Speichern",
     "create": "Erstellen",
     "reset": "Zurücksetzen",
@@ -89,8 +89,8 @@
         "description": "Alle Produkte kopieren"
       },
       "progress": {
-        "label": "Abgehakte Artikel und Märkte",
-        "description": "Behalte, was gekauft wurde, in welchem Markt und zu welchem Preis."
+        "label": "Abgehakte Artikel und Händler",
+        "description": "Behalte, was gekauft wurde, bei welchem Händler und zu welchem Preis."
       },
       "sharing": {
         "label": "Freigabe-Einstellungen",

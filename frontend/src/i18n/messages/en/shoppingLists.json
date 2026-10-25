@@ -5,7 +5,7 @@
   },
   "client": {
     "loginTitle": "Shopping lists",
-    "loginDescription": "Shopping lists help you organise your shopping and compare prices across stores in one place.",
+    "loginDescription": "Shopping lists help you organize your shopping and compare prices across stores in one place.",
     "searchPlaceholder": "Search shopping lists...",
     "searchResults": "Search results for “{query}” ({count})",
     "myLists": "My shopping lists",
@@ -35,15 +35,15 @@
   "visibility": {
     "NONE": "This list is private",
     "VIEW": "Anyone with the link can view the list",
-    "SHOP": "Anyone with the link can tick off items",
+    "SHOP": "Anyone with the link can check off items",
     "EDIT": "Anyone with the link can edit the list"
   },
   "linkAccess": {
     "label": {
       "NONE": "Private",
-      "VIEW": "View",
-      "SHOP": "Shop",
-      "EDIT": "Edit"
+      "VIEW": "Can view",
+      "SHOP": "Can check off",
+      "EDIT": "Can edit"
     },
     "rowTitle": {
       "private": "Private list",
@@ -52,7 +52,7 @@
     "hint": {
       "NONE": "Sharing is off, so only you can open this list.",
       "VIEW": "Can see the whole list but can't edit it.",
-      "SHOP": "Can see the whole list, choose a store and tick off what's bought.",
+      "SHOP": "Can see the whole list, choose a store and check off what's bought.",
       "EDIT": "Can edit the whole list but can't add new products."
     }
   },
@@ -62,7 +62,7 @@
   },
   "titleField": {
     "label": "List name",
-    "placeholder": "Barbecue, 1 May 2026"
+    "placeholder": "Barbecue, May 1, 2026"
   },
   "listModal": {
     "titleEdit": "Edit shopping list",
@@ -89,7 +89,7 @@
         "description": "Copy all products"
       },
       "progress": {
-        "label": "Ticked items and saved stores",
+        "label": "Checked items and saved stores",
         "description": "Keep what's bought, in which store and at what price."
       },
       "sharing": {

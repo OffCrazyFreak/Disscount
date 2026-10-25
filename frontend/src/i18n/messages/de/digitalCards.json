@@ -197,7 +197,7 @@
   },
   "list": {
     "loginTitle": "Kundenkarten",
-    "loginDescription": "Mit digitalen Kundenkarten hast du alle deine Karten an einem Ort, immer griffbereit.",
+    "loginDescription": "Mit Kundenkarten hast du alle deine Karten an einem Ort, immer griffbereit.",
     "searchPlaceholder": "Kundenkarten suchen...",
     "searchResults": "Suchergebnisse für „{query}“ ({count})",
     "myCards": "Meine Kundenkarten",
@@ -267,7 +267,7 @@
       "loadError": "Die Karten konnten nicht geladen werden. Prüfe deine Verbindung.",
       "notFound": "Diese Karte gibt es nicht mehr oder sie gehört nicht zu deinem Konto.",
       "fallbackTitle": "Karte",
-      "fallbackDescription": "Digitale Kundenkarte"
+      "fallbackDescription": "Kundenkarte"
     },
     "code": {
       "panel": "Kartencode",
@@ -305,7 +305,7 @@
     "actions": {
       "edit": "Bearbeiten",
       "pin": "Anheften",
-      "unpin": "Lösen",
+      "unpin": "Nicht mehr anheften",
       "archive": "Archivieren",
       "unarchive": "Aus Archiv holen",
       "delete": "Löschen",

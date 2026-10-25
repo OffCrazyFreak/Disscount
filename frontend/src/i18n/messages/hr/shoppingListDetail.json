@@ -74,7 +74,7 @@
     "noData": "Nema dostupnih povijesnih podataka."
   },
   "stores": {
-    "title": "Cijene po trgovačkim lancima",
+    "title": "Cijene po trgovinama",
     "noItems": "Ovaj popis još ne sadrži proizvode. Probaj pretražiti proizvode pa ih dodaj na ovaj popis.",
     "allChecked": "Svi proizvodi su označeni kao kupljeni.",
     "loadError": "Greška pri učitavanju cijena. Pokušaj ponovno.",
@@ -95,8 +95,8 @@
     "avg": "Prosjek",
     "max": "Najviša",
     "stat": "{label}: {price}",
-    "lowestAmongChains": "(najniža među lancima)",
-    "highestAmongChains": "(najviša među lancima)",
+    "lowestAmongChains": "(najniža među trgovinama)",
+    "highestAmongChains": "(najviša među trgovinama)",
     "table": {
       "empty": "Nema stavki na popisu za kupnju",
       "product": "Proizvod",

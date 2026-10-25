@@ -9,9 +9,9 @@
     "watchlist": "Praćeni proizvodi",
     "watchlistShort": "Praćenje",
     "watchlistShortcut": "Pogledaj proizvode koje pratiš",
-    "digitalCards": "Digitalne kartice",
+    "digitalCards": "Kartice vjernosti",
     "digitalCardsShort": "Kartice",
-    "digitalCardsShortcut": "Otvori svoje digitalne kartice",
+    "digitalCardsShortcut": "Otvori svoje kartice vjernosti",
     "spending": "Potrošnja",
     "spendingShortcut": "Pregledaj svoju potrošnju",
     "discounted": "Popusti",
@@ -59,9 +59,9 @@
   "modalRouter": {
     "gate": {
       "addToList": "Prijavi se za dodavanje proizvoda na popis za kupnju.",
-      "watchlist": "Prijavi se za praćenje sniženja ovog proizvoda.",
+      "watchlist": "Prijavi se za praćenje popusta ovog proizvoda.",
       "manageLists": "Prijavi se za upravljanje popisima za kupnju.",
-      "manageCards": "Prijavi se za upravljanje digitalnim karticama.",
+      "manageCards": "Prijavi se za upravljanje karticama vjernosti.",
       "settings": "Prijavi se za otvaranje postavki.",
       "onboarding": "Prijavi se za početak."
     },

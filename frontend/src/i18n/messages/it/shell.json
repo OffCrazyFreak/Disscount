@@ -9,9 +9,9 @@
     "watchlist": "Prodotti seguiti",
     "watchlistShort": "Seguiti",
     "watchlistShortcut": "Guarda i prodotti che segui",
-    "digitalCards": "Carte digitali",
+    "digitalCards": "Carte fedeltà",
     "digitalCardsShort": "Carte",
-    "digitalCardsShortcut": "Apri le tue carte digitali",
+    "digitalCardsShortcut": "Apri le tue carte fedeltà",
     "spending": "Spese",
     "spendingShortcut": "Controlla quanto spendi",
     "discounted": "Offerte",
@@ -59,9 +59,9 @@
   "modalRouter": {
     "gate": {
       "addToList": "Accedi per aggiungere prodotti alla lista della spesa.",
-      "watchlist": "Accedi per seguire i ribassi di questo prodotto.",
+      "watchlist": "Accedi per seguire questo prodotto e ricevere un avviso quando il prezzo scende.",
       "manageLists": "Accedi per gestire le liste della spesa.",
-      "manageCards": "Accedi per gestire le carte digitali.",
+      "manageCards": "Accedi per gestire le carte fedeltà.",
       "settings": "Accedi per aprire le impostazioni.",
       "onboarding": "Accedi per iniziare."
     },

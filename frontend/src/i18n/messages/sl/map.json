@@ -1,11 +1,11 @@
 {
   "meta": {
     "title": "Zemljevid trgovin",
-    "description": "Poišči trgovine na zemljevidu: Konzum, Lidl, Kaufland, Spar, Plodine, Tommy, Studenac in še 20 verig po vsej Hrvaški. Išči po kraju ali naslovu in najdi najbližjo."
+    "description": "Poišči trgovine na zemljevidu: Konzum, Lidl, Kaufland, Spar, Plodine, Tommy, Studenac in še 20 trgovcev po vsej Hrvaški. Išči po kraju ali naslovu in najdi najbližjo."
   },
   "heading": "Zemljevid trgovin",
   "search": {
-    "placeholder": "Veriga, kraj ali naslov..."
+    "placeholder": "Trgovec, kraj ali naslov..."
   },
   "layout": {
     "skipMap": "Preskoči zemljevid",
@@ -27,7 +27,7 @@
     "noGpu": "Tvoj brskalnik je izklopil grafično pospeševanje, zato ne more prikazati zemljevida. Običajno pomaga, da brskalnik znova zaženeš. Vse trgovine so še vedno na seznamu."
   },
   "chains": {
-    "all": "Vse verige"
+    "all": "Vsi trgovci"
   },
   "nearMe": {
     "locate": "Trgovine v moji bližini",

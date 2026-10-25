@@ -14,7 +14,7 @@
     "distance": "Distance"
   },
   "chains": {
-    "title": "Prices by chain",
+    "title": "Prices by store",
     "refreshed": "Prices refreshed {time}",
     "loadError": "Couldn't load prices. Try again.",
     "empty": "No prices available for this product.",
@@ -41,7 +41,7 @@
     "pricesByLocation": "Prices by location"
   },
   "pricesTable": {
-    "empty": "No prices available for this chain",
+    "empty": "No prices available for this store",
     "location": "Location",
     "address": "Address",
     "price": "Price",

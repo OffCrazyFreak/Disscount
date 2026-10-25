@@ -42,7 +42,7 @@
   },
   "pricesTable": {
     "empty": "Nessun prezzo disponibile per questa catena",
-    "location": "Città",
+    "location": "Punto vendita",
     "address": "Indirizzo",
     "price": "Prezzo",
     "unknown": "Sconosciuto",

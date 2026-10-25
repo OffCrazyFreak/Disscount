@@ -125,7 +125,7 @@
     "labelWithCount": "Obavijesti ({count})",
     "loading": "Učitavanje...",
     "emptyWatching": "Danas nema popusta na praćenim proizvodima.",
-    "emptyNotWatching": "Dodaj proizvode na popis za praćenje kako bi te obavijestili kada proizvodi koje želiš budu na popustu u tvojim trgovinama!",
+    "emptyNotWatching": "Prati proizvode i obavijestit ćemo te kad proizvodi koje želiš budu na popustu u tvojim trgovinama!",
     "addProducts": "Dodaj proizvode",
     "totalSavings": "Ukupna ušteda danas:",
     "savingsDetail": "(≥ {amount} na {count, plural, one {# proizvod} few {# proizvoda} other {# proizvoda}})"

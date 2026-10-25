@@ -47,14 +47,14 @@
     }
   },
   "notifications": {
-    "hint": "Odaberi kako, o čemu i kada želiš primati obavijesti o akcijama i novostima.",
+    "hint": "Odaberi kako, o čemu i kada želiš primati obavijesti o popustima i novostima.",
     "push": {
       "label": "Dopusti obavijesti aplikacije",
-      "description": "Na mobilnu aplikaciju ćeš dobiti obavijesti za akcije isključivo o proizvodima koje odabereš, bez spama."
+      "description": "Na mobilnu aplikaciju ćeš dobiti obavijesti o popustima isključivo za proizvode koje odabereš, bez spama."
     },
     "email": {
       "label": "Dopusti email obavijesti",
-      "description": "Na email ćeš dobiti obavijesti za akcije isključivo o proizvodima koje odabereš, bez spama."
+      "description": "Na email ćeš dobiti obavijesti o popustima isključivo za proizvode koje odabereš, bez spama."
     },
     "newsletter": {
       "label": "Novosti i ažuriranja",
@@ -117,7 +117,7 @@
       },
       "notifications": {
         "title": "Obavijesti",
-        "description": "Odaberi kako, o čemu i kada želiš primati obavijesti o akcijama i novostima."
+        "description": "Odaberi kako, o čemu i kada želiš primati obavijesti o popustima i novostima."
       },
       "preferences": {
         "title": "Tvoje trgovine i lokacije",
@@ -139,7 +139,7 @@
       },
       "notifications": {
         "title": "Obavijesti bez spama",
-        "text": "Odaberi kako, o čemu, i kada želiš dobiti obavijesti o akcijama i novostima."
+        "text": "Odaberi kako, o čemu, i kada želiš dobiti obavijesti o popustima i novostima."
       }
     },
     "done": {

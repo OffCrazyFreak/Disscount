@@ -135,16 +135,16 @@
     }
   },
   "meta": {
-    "title": "Carte digitali",
+    "title": "Carte fedeltà",
     "description": "Tutte le carte dei tuoi negozi in un unico posto."
   },
   "list": {
-    "loginTitle": "Carte digitali",
-    "loginDescription": "Le carte digitali ti permettono di tenere tutte le carte fedeltà in un unico posto, sempre a portata di mano.",
-    "searchPlaceholder": "Cerca carte digitali...",
+    "loginTitle": "Carte fedeltà",
+    "loginDescription": "Tieni tutte le tue carte fedeltà in un unico posto, sempre a portata di mano.",
+    "searchPlaceholder": "Cerca carte fedeltà...",
     "searchResults": "Risultati per «{query}» ({count})",
-    "myCards": "Le mie carte digitali",
-    "myCardsWithCount": "Le mie carte digitali ({count})",
+    "myCards": "Le mie carte fedeltà",
+    "myCardsWithCount": "Le mie carte fedeltà ({count})",
     "add": {
       "full": "Aggiungi carta",
       "short": "Aggiungi"
@@ -210,7 +210,7 @@
       "loadError": "Impossibile caricare le carte. Controlla la connessione.",
       "notFound": "Questa carta non esiste più o non è nel tuo account.",
       "fallbackTitle": "Carta",
-      "fallbackDescription": "Carta digitale"
+      "fallbackDescription": "Carta fedeltà"
     },
     "code": {
       "panel": "Codice della carta",

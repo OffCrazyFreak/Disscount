@@ -1,11 +1,11 @@
 {
   "meta": {
     "title": "Karte der Märkte",
-    "description": "Finde Märkte auf der Karte: Konzum, Lidl, Kaufland, Spar, Plodine, Tommy, Studenac und 20 weitere Ketten in ganz Kroatien. Suche nach Ort oder Adresse und finde den nächsten."
+    "description": "Finde Märkte auf der Karte: Konzum, Lidl, Kaufland, Spar, Plodine, Tommy, Studenac und 20 weitere Händler in ganz Kroatien. Suche nach Ort oder Adresse und finde den nächsten."
   },
   "heading": "Karte der Märkte",
   "search": {
-    "placeholder": "Kette, Ort oder Adresse..."
+    "placeholder": "Händler, Ort oder Adresse..."
   },
   "layout": {
     "skipMap": "Karte überspringen",
@@ -27,7 +27,7 @@
     "noGpu": "Dein Browser hat die Grafikbeschleunigung abgeschaltet und kann die Karte deshalb nicht anzeigen. Meist hilft es, den Browser neu zu starten. Alle Märkte stehen weiterhin in der Liste."
   },
   "chains": {
-    "all": "Alle Ketten"
+    "all": "Alle Händler"
   },
   "nearMe": {
     "locate": "Märkte in meiner Nähe",

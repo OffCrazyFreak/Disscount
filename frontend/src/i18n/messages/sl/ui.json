@@ -14,8 +14,8 @@
     "failed": "Deljenje ni uspelo"
   },
   "offline": {
-    "writeFailed": "Sprememba ni shranjena. Poskusi znova.",
-    "writeFailedLostAccess": "Sprememba ni shranjena. Morda nimaš več dostopa do tega seznama.",
-    "retiredWriteDropped": "Sprememba iz prejšnje različice ni shranjena. Odpri seznam in preveri."
+    "writeFailed": "Spremembe ni bilo mogoče shraniti. Poskusi znova.",
+    "writeFailedLostAccess": "Spremembe ni bilo mogoče shraniti. Morda nimaš več dostopa do tega seznama.",
+    "retiredWriteDropped": "Spremembe iz prejšnje različice ni bilo mogoče shraniti. Odpri seznam in preveri."
   }
 }

@@ -125,7 +125,7 @@
     "labelWithCount": "Benachrichtigungen ({count})",
     "loading": "Wird geladen...",
     "emptyWatching": "Heute ist nichts auf deiner Merkliste reduziert.",
-    "emptyNotWatching": "Füge Produkte deiner Merkliste hinzu. Wir sagen dir Bescheid, sobald sie in deinen Märkten reduziert sind!",
+    "emptyNotWatching": "Füge Produkte deiner Merkliste hinzu. Wir sagen dir Bescheid, sobald sie bei deinen Händlern reduziert sind!",
     "addProducts": "Produkte hinzufügen",
     "totalSavings": "Heute gespart:",
     "savingsDetail": "(≥ {amount} bei {count, plural, one {# Produkt} other {# Produkten}})"

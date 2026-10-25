@@ -11,7 +11,7 @@
     "watchlistShortcut": "Sieh dir die Produkte auf deiner Merkliste an",
     "digitalCards": "Kundenkarten",
     "digitalCardsShort": "Karten",
-    "digitalCardsShortcut": "Öffne deine digitalen Kundenkarten",
+    "digitalCardsShortcut": "Öffne deine Kundenkarten",
     "spending": "Ausgaben",
     "spendingShortcut": "Sieh dir deine Ausgaben an",
     "discounted": "Angebote",
@@ -59,9 +59,9 @@
   "modalRouter": {
     "gate": {
       "addToList": "Melde dich an, um Produkte zu deiner Einkaufsliste hinzuzufügen.",
-      "watchlist": "Melde dich an, um Preissenkungen bei diesem Produkt zu verfolgen.",
+      "watchlist": "Melde dich an, um einen Preisalarm für dieses Produkt zu setzen.",
       "manageLists": "Melde dich an, um deine Einkaufslisten zu verwalten.",
-      "manageCards": "Melde dich an, um deine digitalen Kundenkarten zu verwalten.",
+      "manageCards": "Melde dich an, um deine Kundenkarten zu verwalten.",
       "settings": "Melde dich an, um die Einstellungen zu öffnen.",
       "onboarding": "Melde dich an, um loszulegen."
     },

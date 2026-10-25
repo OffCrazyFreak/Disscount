@@ -15,11 +15,11 @@
       "description": "You're offline right now."
     },
     "title": "No internet connection 📡",
-    "description": "You're offline right now. Your saved lists, price alerts and recently viewed products are still available.",
+    "description": "You're offline right now. Your saved lists, watchlist and recently viewed products are still available.",
     "hint": "Check your connection and try again.",
     "retry": "Try again",
     "indicator": "Offline: showing saved data.",
-    "indicatorPending": "Offline: saved changes ({count}) will sync later."
+    "indicatorPending": "Offline: {count, plural, one {# saved change} other {# saved changes}} will sync later."
   },
   "lastSynced": {
     "refreshed": "Refreshed {time}"
@@ -98,7 +98,7 @@
   },
   "donation": {
     "title": "Support Disscount",
-    "intro": "Disscount is free and will stay that way. If it helps you plan your shopping, or in any other way, any support you choose to give means a lot to us.",
+    "intro": "Disscount is free and will stay that way. If it helps you plan your shopping, or helps you in any other way, any support you choose to give means a lot to us.",
     "usage": "Everything goes straight back into Disscount to cover running costs and further development.",
     "kofi": "Support on Ko-fi"
   },
@@ -124,8 +124,8 @@
     "label": "Notifications",
     "labelWithCount": "Notifications ({count})",
     "loading": "Loading...",
-    "emptyWatching": "None of your watched products are on offer today.",
-    "emptyNotWatching": "Set price alerts on products and we'll let you know when the ones you want are on offer in your stores!",
+    "emptyWatching": "None of the products you watch are discounted today.",
+    "emptyNotWatching": "Add products to your watchlist and we'll let you know when they're discounted in your stores!",
     "addProducts": "Add products",
     "totalSavings": "Total saved today:",
     "savingsDetail": "(≥ {amount} on {count, plural, one {# product} other {# products}})"

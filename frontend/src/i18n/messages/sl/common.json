@@ -109,7 +109,7 @@
   "multiSelect": {
     "optionsList": "Seznam možnosti",
     "selectAll": "Izberi vse",
-    "clearAll": "Odstrani vse",
+    "clearAll": "Počisti izbiro",
     "selected": "Izbrano: {count}"
   },
   "passwordInput": {
@@ -125,7 +125,7 @@
     "labelWithCount": "Obvestila ({count})",
     "loading": "Nalaganje...",
     "emptyWatching": "Danes ni popustov na spremljanih izdelkih.",
-    "emptyNotWatching": "Dodaj izdelke na seznam spremljanja, pa ti javimo, ko bodo izdelki, ki jih želiš, na popustu v tvojih trgovinah!",
+    "emptyNotWatching": "Spremljaj izdelke in obvestili te bomo, ko bodo izdelki, ki jih želiš, na popustu v tvojih trgovinah!",
     "addProducts": "Dodaj izdelke",
     "totalSavings": "Skupni prihranek danes:",
     "savingsDetail": "(≥ {amount} pri {count, plural, one {# izdelku} two {# izdelkih} few {# izdelkih} other {# izdelkih}})"

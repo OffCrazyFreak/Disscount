@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Nakupovalni seznami",
-    "description": "Upravljanje z nakupovalnimi seznami."
+    "description": "Upravljanje nakupovalnih seznamov."
   },
   "client": {
     "loginTitle": "Nakupovalni seznami",
@@ -108,7 +108,7 @@
     "shareText": "Deli besedilo",
     "accessLabel": "Kdo ima dostop do seznama",
     "settingsUpdatedToast": "Nastavitve deljenja seznama so posodobljene.",
-    "settingsFailedToast": "Sprememba deljenja ni shranjena. Poskusi znova.",
+    "settingsFailedToast": "Spremembe deljenja ni bilo mogoče shraniti. Poskusi znova.",
     "linkCopiedToast": "Povezava je kopirana",
     "textCopiedToast": "Besedilo seznama je kopirano",
     "failedToast": "Deljenje ni uspelo"

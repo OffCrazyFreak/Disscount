@@ -15,13 +15,13 @@
   "taglines": {
     "compare": "Usporedi trgovine i cijene!",
     "saveEveryTime": "Uštedi pri svakoj kupnji!",
-    "neverMissDeal": "Nikad ne propusti akciju!",
+    "neverMissDeal": "Nikad ne propusti popust!",
     "forgetCards": "Zaboravi kartice, olakšaj novčanik!",
     "shareList": "Izradi i podijeli popis za kupnju!",
     "priceHistory": "Prati povijest cijena!",
     "scan": "Skeniraj barkod i usporedi cijene!",
     "smartShopping": "Pametna kupnja bez stresa!",
-    "bestOffers": "Pronađi najbolje ponude u Hrvatskoj!",
+    "bestOffers": "Pronađi najbolje cijene u Hrvatskoj!",
     "cheapQuality": "Kupuj kvalitetno i jeftino!",
     "saveMore": "Kupuj pametno, uštedi više!",
     "partner": "Tvoj pomoćnik za pametnu kupnju!",
@@ -74,7 +74,7 @@
       },
       "history": {
         "title": "Povijest cijena",
-        "description": "Graf cijene kroz vrijeme otkriva je li akcija stvarno akcija."
+        "description": "Graf cijene kroz vrijeme otkriva je li popust stvarno popust."
       },
       "lists": {
         "title": "Popisi za kupnju",
@@ -89,7 +89,7 @@
         "description": "Pregled koliko trošiš i koliko štediš iz mjeseca u mjesec."
       },
       "watchlist": {
-        "title": "Praćenje proizvoda",
+        "title": "Praćeni proizvodi",
         "description": "Dodaj proizvode koje kupuješ i drži njihove cijene na oku."
       },
       "notifications": {
@@ -97,7 +97,7 @@
         "description": "Postavi željenu cijenu i javit ćemo ti kad proizvod pojeftini."
       },
       "cards": {
-        "title": "Digitalne kartice",
+        "title": "Kartice vjernosti",
         "description": "Sve kartice trgovina u mobitelu. Novčanik konačno na dijeti."
       },
       "offline": {
@@ -111,12 +111,12 @@
     }
   },
   "priceHistory": {
-    "title": "Je li akcija stvarno akcija?",
-    "description": "Neke \"akcije\" samo vrate cijenu na staru. Disscount pamti povijest cijena pa točno vidiš koliko je proizvod koštao prošli tjedan, prošli mjesec, pa i isplati li se čekati.",
+    "title": "Je li popust stvarno popust?",
+    "description": "Neki \"popusti\" samo vrate cijenu na staru. Disscount pamti povijest cijena pa točno vidiš koliko je proizvod koštao prošli tjedan, prošli mjesec, pa i isplati li se čekati.",
     "checks": {
       "chart": "Graf cijene za svaki proizvod, po trgovini",
       "realDiscount": "Odmah vidiš je li popust stvaran ili napuhan",
-      "average": "Usporedba s prosječnom cijenom u drugim lancima"
+      "average": "Usporedba s prosječnom cijenom u drugim trgovinama"
     },
     "cta": "Provjeri svoj proizvod",
     "chartCaption": "Cijena kroz vrijeme"
@@ -153,7 +153,7 @@
     "freeRows": {
       "compare": "Usporedba cijena i povijest cijena",
       "lists": "Neograničeni popisi za kupnju",
-      "watchlist": "Praćenje proizvoda",
+      "watchlist": "Praćeni proizvodi",
       "alerts": "Obavijesti o padu cijena",
       "scan": "Skeniranje barkoda",
       "install": "Instalacija kao aplikacija"

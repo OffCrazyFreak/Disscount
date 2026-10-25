@@ -37,7 +37,7 @@
     "pricesUnavailableTitle": "Cene niso na voljo",
     "pricesUnavailableText": "Dejanja za izdelek lahko še vedno uporabljaš. Poskusi znova za trenutni cenovni razpon.",
     "partialPricesTitle": "Nekatere cene niso na voljo",
-    "partialPricesText": "Razpon vključuje lokacije, katerih cene smo uspeli pridobiti."
+    "partialPricesText": "Razpon vključuje poslovalnice, katerih cene smo uspeli pridobiti."
   },
   "quantity": {
     "label": "Količina"
@@ -61,43 +61,43 @@
     "label": "Trgovina"
   },
   "watchlistModal": {
-    "title": "Dodaj na seznam spremljanja",
-    "description": "Nastavi prag znižanja in obvestili te bomo, ko bo dosežen.",
+    "title": "Spremljaj izdelek",
+    "description": "Nastavi najmanjši popust in obvestili te bomo, ko bo dosežen.",
     "save": "Shrani",
     "track": "Spremljaj",
     "cancel": "Prekliči",
     "reset": "Ponastavi",
     "productNotFound": "Izdelka ni mogoče najti.",
-    "removeFromWatchlist": "Odstrani s seznama spremljanja",
-    "existingTitle": "Izdelek je že na seznamu spremljanja",
-    "existingBoth": "Ta izdelek je že na seznamu spremljanja z najmanjšim odstotnim pragom {percentage} % in popustom {amount, number, ::currency/EUR}.",
-    "existingPercentage": "Ta izdelek je že na seznamu spremljanja z najmanjšim odstotnim pragom {percentage} %.",
-    "existingAbsolute": "Ta izdelek je že na seznamu spremljanja z najmanjšim pragom popusta {amount, number, ::currency/EUR}.",
+    "removeFromWatchlist": "Prenehaj spremljati",
+    "existingTitle": "Izdelek že spremljaš",
+    "existingBoth": "Ta izdelek že spremljaš z najmanjšim popustom {percentage} % in {amount, number, ::currency/EUR}.",
+    "existingPercentage": "Ta izdelek že spremljaš z najmanjšim popustom {percentage} %.",
+    "existingAbsolute": "Ta izdelek že spremljaš z najmanjšim popustom {amount, number, ::currency/EUR}.",
     "toast": {
-      "updated": "Prag je spremenjen iz {from} v {to}",
-      "added": "Izdelek je dodan na seznam spremljanja",
+      "updated": "Najmanjši popust je spremenjen iz {from} v {to}",
+      "added": "Izdelek zdaj spremljaš",
       "removedPercentage": "Odstotek za izdelek se ne spremlja več",
       "removedAbsolute": "Cena izdelka se ne spremlja več",
       "removeFailed": "Napaka pri odstranjevanju"
     }
   },
   "threshold": {
-    "labelAbsolute": "Najmanjše znižanje (€):",
-    "labelPercentage": "Najmanjše znižanje (%):",
-    "loading": "Nalaganje praga znižanja",
+    "labelAbsolute": "Najmanjši popust (€):",
+    "labelPercentage": "Najmanjši popust (%):",
+    "loading": "Nalaganje najmanjšega popusta",
     "placeholderAbsolute": "Npr. 12",
     "placeholderPercentage": "Npr. 15",
-    "willUpdate": "Najmanjši prag bo spremenjen iz {from} v {to}."
+    "willUpdate": "Najmanjši popust bo spremenjen iz {from} v {to}."
   },
   "typePicker": {
-    "label": "Način spremljanja",
+    "label": "Obvesti me, ko",
     "absolute": {
-      "label": "Cena",
+      "label": "Cena pade za €",
       "description": "Obvestili te bomo, ko cena pade za določen znesek"
     },
     "percentage": {
-      "label": "Odstotek",
-      "description": "Obvestili te bomo, ko bo popust večji od določenega odstotka"
+      "label": "Popust je vsaj %",
+      "description": "Obvestili te bomo, ko popust doseže določen odstotek"
     }
   },
   "actions": {
@@ -117,10 +117,10 @@
       "empty": "Ni trgovin"
     },
     "locations": {
-      "label": "Lokacije",
-      "placeholder": "Izberi lokacije...",
-      "search": "Išči lokacije...",
-      "empty": "Ni lokacij"
+      "label": "Poslovalnice",
+      "placeholder": "Izberi poslovalnice...",
+      "search": "Išči poslovalnice...",
+      "empty": "Ni poslovalnic"
     },
     "categories": {
       "label": "Kategorije",
@@ -142,7 +142,7 @@
   "productInfo": {
     "back": "Nazaj",
     "unknown": "Neznano",
-    "brand": "Proizvajalec:",
+    "brand": "Znamka:",
     "barcode": "Črtna koda:",
     "quantity": "Količina:",
     "prices": "Cene:",
@@ -171,7 +171,7 @@
     "resultsTitle": "Rezultati iskanja za »{query}«",
     "resultsTitleWithCount": "Rezultati iskanja za »{query}« ({count}{suffix})",
     "partialPricesTitle": "Nekatere cene niso na voljo",
-    "partialPricesText": "Prikazujemo razpoložljive cene, vendar ene ali več izbranih lokacij trenutno nismo mogli pridobiti.",
+    "partialPricesText": "Prikazujemo razpoložljive cene, vendar ene ali več izbranih poslovalnic trenutno nismo mogli pridobiti.",
     "errorTitle": "Napaka pri iskanju",
     "errorText": "Pri pridobivanju podatkov je prišlo do napake. Poskusi znova.",
     "noResultsForFilters": "Ni rezultatov za izbrane filtre",
@@ -187,7 +187,7 @@
     "list": "Prikaz v seznamu"
   },
   "storePrice": {
-    "empty": "Ni znižanj",
+    "empty": "Ni popustov",
     "line": "<chainName>{chain}</chainName> ~ {price} (-{discount}, {percentage} %)"
   },
   "quickActions": {
@@ -214,6 +214,6 @@
     "all": "Vse"
   },
   "storeChainSelect": {
-    "multiPlaceholder": "Izberi trgovske verige..."
+    "multiPlaceholder": "Izberi trgovce..."
   }
 }

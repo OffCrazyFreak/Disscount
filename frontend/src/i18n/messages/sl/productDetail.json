@@ -14,7 +14,7 @@
     "distance": "Razdalji"
   },
   "chains": {
-    "title": "Cene po trgovskih verigah",
+    "title": "Cene po trgovcih",
     "refreshed": "Cene posodobljene {time}",
     "loadError": "Napaka pri nalaganju cen. Poskusi znova.",
     "empty": "Za ta izdelek ni cen.",
@@ -38,11 +38,11 @@
     "min": "Najnižja: {price}",
     "average": "Povprečje: {price}",
     "max": "Najvišja: {price}",
-    "pricesByLocation": "Cene po lokacijah"
+    "pricesByLocation": "Cene po poslovalnicah"
   },
   "pricesTable": {
-    "empty": "Za to verigo ni cen",
-    "location": "Lokacija",
+    "empty": "Za tega trgovca ni cen",
+    "location": "Poslovalnica",
     "address": "Naslov",
     "price": "Cena",
     "unknown": "Neznano",

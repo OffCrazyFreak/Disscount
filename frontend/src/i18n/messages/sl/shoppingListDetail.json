@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Nakupovalni seznam: podrobnosti",
-    "description": "Pregled in upravljanje z izdelki na nakupovalnem seznamu."
+    "description": "Pregled in upravljanje izdelkov na nakupovalnem seznamu."
   },
   "toggle": {
     "show": "Pokaži",
@@ -74,7 +74,7 @@
     "noData": "Zgodovinski podatki niso na voljo."
   },
   "stores": {
-    "title": "Cene po trgovskih verigah",
+    "title": "Cene po trgovcih",
     "noItems": "Na tem seznamu še ni izdelkov. Poišči izdelke in jih dodaj na ta seznam.",
     "allChecked": "Vsi izdelki so označeni kot kupljeni.",
     "loadError": "Napaka pri nalaganju cen. Poskusi znova.",
@@ -95,8 +95,8 @@
     "avg": "Povprečje",
     "max": "Najvišja",
     "stat": "{label}: {price}",
-    "lowestAmongChains": "(najnižja med verigami)",
-    "highestAmongChains": "(najvišja med verigami)",
+    "lowestAmongChains": "(najnižja med trgovci)",
+    "highestAmongChains": "(najvišja med trgovci)",
     "table": {
       "empty": "Na nakupovalnem seznamu ni izdelkov",
       "product": "Izdelek",

@@ -67,8 +67,8 @@
   },
   "preferences": {
     "stores": {
-      "label": "Märkte",
-      "hint": "Wähle Märkte in deiner Nähe."
+      "label": "Händler",
+      "hint": "Wähle Händler in deiner Nähe."
     },
     "places": {
       "label": "Standorte",
@@ -88,7 +88,7 @@
     "settingsSaved": "Einstellungen gespeichert!",
     "errors": {
       "user": "Das Profil konnte nicht gespeichert werden.",
-      "stores": "Die Märkte konnten nicht gespeichert werden.",
+      "stores": "Die Händler konnten nicht gespeichert werden.",
       "places": "Die Standorte konnten nicht gespeichert werden."
     }
   },
@@ -120,8 +120,8 @@
         "description": "Wähle, wie, worüber und wann du Benachrichtigungen zu Angeboten und Neuigkeiten bekommst."
       },
       "preferences": {
-        "title": "Deine Märkte und Standorte",
-        "description": "Wähle Märkte und Orte in deiner Nähe, damit der Preisvergleich besser passt."
+        "title": "Deine Händler und Standorte",
+        "description": "Wähle Händler und Orte in deiner Nähe, damit der Preisvergleich besser passt."
       },
       "done": {
         "title": "Alles bereit!"
@@ -134,8 +134,8 @@
         "text": "Lege Namen und Bild fest, damit die App zu dir passt."
       },
       "stores": {
-        "title": "Deine Märkte",
-        "text": "Wähle Märkte und Standorte, damit der Preisvergleich zu deinem Geldbeutel passt."
+        "title": "Deine Händler",
+        "text": "Wähle Händler und Standorte, damit der Preisvergleich zu deinem Geldbeutel passt."
       },
       "notifications": {
         "title": "Benachrichtigungen ohne Spam",

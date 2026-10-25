@@ -29,7 +29,7 @@
     "acquisition": {
       "label": "Come hai conosciuto Disscount?",
       "placeholder": "Scegli una fonte",
-      "description": "Ci aiuta a capire dove farci trovare meglio."
+      "description": "Ci aiuta a raggiungere altre persone come te."
     },
     "channels": {
       "GOOGLE_SEARCH": "Ricerca su Google",
@@ -191,10 +191,10 @@
     },
     "actions": {
       "revokeLabel": "Esci dagli altri dispositivi",
-      "revokeDescription": "Chiudi tutte le sessioni attive tranne questa.",
+      "revokeDescription": "Chiude tutte le sessioni attive tranne questa.",
       "revokeButton": "Esci",
       "deleteLabel": "Elimina account",
-      "deleteDescription": "Elimina per sempre l'account e tutti i dati collegati.",
+      "deleteDescription": "Elimina definitivamente l'account e tutti i dati collegati.",
       "deleteButton": "Elimina",
       "revokeDialogTitle": "Uscire dagli altri dispositivi?",
       "revokeDialogDescription": "Tutte le sessioni attive tranne questa verranno chiuse.",

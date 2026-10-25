@@ -39,7 +39,7 @@
     "subject": "Tvoje geslo se je pojavilo v uhajanju podatkov",
     "preview": "Tvoje geslo smo našli v uhajanju podatkov, nastavi novo",
     "heading": "Tvoje geslo se je pojavilo v uhajanju podatkov",
-    "intro": "Pravkar je prišel poskus prijave v tvoj račun Disscount s pravilnim geslom. To geslo smo našli v znanem uhajanju podatkov z neke druge strani, zato prijave nismo dovolili. Z gumbom spodaj nastavi novo geslo. Ko ga nastaviš, te bomo odjavili z vseh naprav. Povezava velja {minutes, plural, one {# minuto} two {# minuti} few {# minute} other {# minut}}.",
+    "intro": "Pravkar smo zaznali poskus prijave v tvoj račun Disscount s pravilnim geslom. To geslo smo našli v znanem uhajanju podatkov z neke druge strani, zato prijave nismo dovolili. Z gumbom spodaj nastavi novo geslo. Ko ga nastaviš, te bomo odjavili z vseh naprav. Povezava velja {minutes, plural, one {# minuto} two {# minuti} few {# minute} other {# minut}}.",
     "button": "Nastavi novo geslo",
     "footnote": "Če to nisi ti, vseeno nastavi novo geslo. Če to geslo uporabljaš tudi drugje, ga zamenjaj tudi tam."
   }

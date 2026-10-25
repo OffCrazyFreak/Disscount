@@ -14,7 +14,7 @@
     "unavailable": "❌ API za cijene nije dostupan"
   },
   "chains": {
-    "title": "Statistike po lancima",
+    "title": "Statistike po trgovinama",
     "loading": "Učitavanje...",
     "empty": "Nema podataka"
   },

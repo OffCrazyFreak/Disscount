@@ -24,7 +24,7 @@
     },
     "username": {
       "label": "Uporabniško ime",
-      "description": "Kako naj te kličemo? Mora biti edinstveno."
+      "description": "Kako naj te kličemo? Ne sme biti že zasedeno."
     },
     "acquisition": {
       "label": "Od kod poznaš Disscount?",
@@ -47,14 +47,14 @@
     }
   },
   "notifications": {
-    "hint": "Izberi, kako, o čem in kdaj želiš prejemati obvestila o akcijah in novicah.",
+    "hint": "Izberi, kako, o čem in kdaj želiš prejemati obvestila o popustih in novicah.",
     "push": {
       "label": "Dovoli obvestila aplikacije",
-      "description": "Obvestila o akcijah v mobilni aplikaciji bodo samo za izdelke, ki jih izbereš, brez spama."
+      "description": "Obvestila o popustih v mobilni aplikaciji bodo samo za izdelke, ki jih izbereš, brez spama."
     },
     "email": {
       "label": "Dovoli obvestila po e-pošti",
-      "description": "Obvestila o akcijah na tvoj e-naslov bodo samo za izdelke, ki jih izbereš, brez spama."
+      "description": "Obvestila o popustih na tvoj e-naslov bodo samo za izdelke, ki jih izbereš, brez spama."
     },
     "newsletter": {
       "label": "Novice in posodobitve",
@@ -71,9 +71,9 @@
       "hint": "Izberi trgovine v svoji bližini."
     },
     "places": {
-      "label": "Lokacije",
-      "hint": "Izberi lokacije v svoji bližini.",
-      "placeholder": "Izberi lokacije..."
+      "label": "Poslovalnice",
+      "hint": "Izberi poslovalnice v svoji bližini.",
+      "placeholder": "Izberi poslovalnice..."
     },
     "selectedMark": "✓",
     "language": {
@@ -89,7 +89,7 @@
     "errors": {
       "user": "Napaka pri shranjevanju profila.",
       "stores": "Napaka pri shranjevanju trgovin.",
-      "places": "Napaka pri shranjevanju lokacij."
+      "places": "Napaka pri shranjevanju poslovalnic."
     }
   },
   "validation": {
@@ -117,10 +117,10 @@
       },
       "notifications": {
         "title": "Obvestila",
-        "description": "Izberi, kako, o čem in kdaj želiš prejemati obvestila o akcijah in novicah."
+        "description": "Izberi, kako, o čem in kdaj želiš prejemati obvestila o popustih in novicah."
       },
       "preferences": {
-        "title": "Tvoje trgovine in lokacije",
+        "title": "Tvoje trgovine in poslovalnice",
         "description": "Označi trgovine in kraje v svoji bližini za natančnejše primerjave cen."
       },
       "done": {
@@ -135,11 +135,11 @@
       },
       "stores": {
         "title": "Tvoje trgovine",
-        "text": "Izberi trgovine in lokacije za primerjave cen po tvojem žepu."
+        "text": "Izberi trgovine in poslovalnice za primerjave cen po tvojem žepu."
       },
       "notifications": {
         "title": "Obvestila brez spama",
-        "text": "Izberi, kako, o čem in kdaj želiš dobivati obvestila o akcijah in novicah."
+        "text": "Izberi, kako, o čem in kdaj želiš dobivati obvestila o popustih in novicah."
       }
     },
     "done": {
