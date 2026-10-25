@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 import StoreList from "@/app/[locale]/map/components/store-list";
@@ -27,7 +27,7 @@ export default function ViewSortedList({
 }: IViewSortedListProps) {
   const t = useTranslations("map.list");
   const view = useHeldView(viewArea);
-  const listRef = useRef<HTMLDivElement>(null);
+  const [focusRequest, setFocusRequest] = useState(0);
 
   const { onMap, elsewhere } = splitByView(listed, view.applied);
 
@@ -43,21 +43,15 @@ export default function ViewSortedList({
       ])
     : undefined;
 
-  // The chip unmounts once pressed, so focus goes to the top of the new order
-  // instead of dropping to the page.
+  // The chip unmounts once pressed, so the list takes focus instead of it
+  // dropping to the page.
   function applyView() {
     view.apply();
-    requestAnimationFrame(() =>
-      listRef.current?.querySelector<HTMLElement>("[data-store-key]")?.focus(),
-    );
+    setFocusRequest((count) => count + 1);
   }
 
   return (
-    <div
-      ref={listRef}
-      className="relative flex min-h-0 flex-1 flex-col"
-      {...view.holdProps}
-    >
+    <div className="relative flex min-h-0 flex-1 flex-col" {...view.holdProps}>
       {view.pending && (
         <button
           type="button"
@@ -76,6 +70,7 @@ export default function ViewSortedList({
         rows={[...pinned, ...onMap, ...elsewhere]}
         headings={headings}
         orderKey={onMap.map((row) => row.key).join()}
+        focusRequest={focusRequest}
         selectedKey={selectedKey}
         onSelect={onSelect}
       />

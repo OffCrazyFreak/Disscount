@@ -14,6 +14,8 @@ interface IStoreListProps {
   headings?: Map<number, string>;
   /** Changes when the map view changes which stores lead the list. */
   orderKey: string;
+  /** Changes when the list should take focus: the open store, else the top. */
+  focusRequest: number;
   selectedKey: string | null;
   onSelect: (key: string | null) => void;
 }
@@ -30,6 +32,7 @@ export default function StoreList({
   rows,
   headings,
   orderKey,
+  focusRequest,
   selectedKey,
   onSelect,
 }: IStoreListProps) {
@@ -100,6 +103,33 @@ export default function StoreList({
     if (selectedIndex < 0) virtualizer.scrollToOffset(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderKey]);
+
+  useEffect(() => {
+    if (focusRequest === 0) return;
+
+    const target =
+      selectedIndex >= 0
+        ? entries[selectedIndex]
+        : entries.find((entry) => entry.kind === "store");
+    if (!target) return;
+
+    const selector = `[data-store-key="${CSS.escape(target.key)}"]`;
+
+    if (selectedIndex < 0) virtualizer.scrollToIndex(0);
+
+    // The row mounts once the virtualizer reacts to the scroll, which can take
+    // a frame or two; the list is already in place, so focusing must not scroll.
+    let frames = 0;
+    function focusTarget() {
+      const row = scrollRef.current?.querySelector<HTMLElement>(selector);
+
+      if (row) row.focus({ preventScroll: true });
+      else if (++frames < 4) requestAnimationFrame(focusTarget);
+    }
+
+    requestAnimationFrame(focusTarget);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusRequest]);
 
   function selectInList(key: string | null) {
     pickedInList.current = true;
