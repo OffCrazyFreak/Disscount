@@ -1,6 +1,6 @@
 import "server-only";
 
-import { streetsMatch } from "@/lib/store-locations/address-key";
+import { normalizeCity, streetsMatch } from "@/lib/store-locations/address-key";
 import { fetchStridonAddresses } from "@/lib/store-locations/sources/stridon-addresses";
 import { readPlacedAddress } from "@/lib/store-locations/sync/address-place";
 import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
@@ -61,20 +61,36 @@ function attachLookups(
     const lookup =
       target.chain === chain ? addresses.get(target.code) : undefined;
 
-    return lookup && sameStore(target.address, lookup.address)
-      ? { ...target, lookup }
-      : target;
+    return lookup && sameStore(target, lookup) ? { ...target, lookup } : target;
   });
 }
 
 // A code the chain renumbered or reused would send the geocoder to another
-// shop, so the chain's address must name upstream's street and number.
-function sameStore(upstream: string | null, chain: string): boolean {
-  const ours = readPlacedAddress(upstream);
-  const theirs = readPlacedAddress(chain);
+// shop, so the chain's address must name upstream's town, street and number.
+function sameStore(target: ISyncTarget, lookup: ILookupAddress): boolean {
+  const ours = readPlacedAddress(target.address);
+  const theirs = readPlacedAddress(lookup.address);
+  const sameNumber =
+    ours.number === null ||
+    ours.number === theirs.number ||
+    ours.rangeEnd === theirs.number;
 
   return (
+    sameNumber &&
     streetsMatch(ours.tokens, theirs.tokens, true) &&
-    (ours.number === null || ours.number === theirs.number)
+    sameTown(target.city, lookup.city)
+  );
+}
+
+// "V.gorica" is Velika Gorica: an initial counts as the word it starts.
+function sameTown(ours: string | null, theirs: string): boolean {
+  const a = normalizeCity(ours).split(" ").filter(Boolean);
+  const b = normalizeCity(theirs).split(" ").filter(Boolean);
+
+  return (
+    a.length === b.length &&
+    a.every(
+      (word, index) => b[index].startsWith(word) || word.startsWith(b[index]),
+    )
   );
 }

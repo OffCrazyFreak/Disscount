@@ -42,8 +42,13 @@ describe("withChainAddresses", () => {
         {
           ...target("stridon", "Prod.26"),
           address: "143.Domobranske pukovnije bb",
+          city: "Plaški",
         },
-        { ...target("stridon", "Prod.47"), address: "Trg L.I.Oriovčanina" },
+        {
+          ...target("stridon", "Prod.47"),
+          address: "Trg L.I.Oriovčanina",
+          city: "Novska",
+        },
         target("konzum", "Prod.10"),
       ],
       new AbortController().signal,
@@ -87,5 +92,27 @@ describe("withChainAddresses", () => {
     );
 
     expect(renumbered.lookup).toBeUndefined();
+  });
+
+  it("ignores the chain's address when it names another town", async () => {
+    server.use(http.get(PAGE_URL, () => HttpResponse.html(PAGE)));
+
+    const [elsewhere] = await withChainAddresses(
+      [{ ...target("stridon", "Prod.10"), city: "Novska" }],
+      new AbortController().signal,
+    );
+
+    expect(elsewhere.lookup).toBeUndefined();
+  });
+
+  it("accepts the chain's number at either end of upstream's range", async () => {
+    server.use(http.get(PAGE_URL, () => HttpResponse.html(PAGE)));
+
+    const [range] = await withChainAddresses(
+      [{ ...target("stridon", "Prod.10"), address: "Lj.Posavskog 21-23" }],
+      new AbortController().signal,
+    );
+
+    expect(range.lookup?.city).toBe("Velika Gorica");
   });
 });
