@@ -15,6 +15,9 @@ export function chainIconId(chain: string): string {
 
 export const COUNT_BADGE_ID = "cluster-count-badge";
 
+export const SELECTED_FRAME_ID = "selected-frame";
+export const SELECTED_STACK_FRAME_ID = "selected-stack-frame";
+
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image();
@@ -24,10 +27,10 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-function createCanvas(size: number) {
+function createCanvas(width: number, height = width) {
   const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
+  canvas.width = width;
+  canvas.height = height;
 
   const context = canvas.getContext("2d");
   if (!context) throw new Error("Canvas 2D is unavailable");
@@ -40,22 +43,32 @@ function circle(context: CanvasRenderingContext2D, size: number) {
   context.arc(size / 2, size / 2, size / 2 - BORDER / 2, 0, Math.PI * 2);
 }
 
+// Drawn with arcTo rather than roundRect, which Firefox only shipped in 112.
+function roundedRect(
+  context: CanvasRenderingContext2D,
+  inset: number,
+  width: number,
+  height: number,
+  radius: number,
+) {
+  const right = width - inset;
+  const bottom = height - inset;
+
+  context.beginPath();
+  context.moveTo(inset + radius, inset);
+  context.arcTo(right, inset, right, bottom, radius);
+  context.arcTo(right, bottom, inset, bottom, radius);
+  context.arcTo(inset, bottom, inset, inset, radius);
+  context.arcTo(inset, inset, right, inset, radius);
+  context.closePath();
+}
+
 function tile(
   context: CanvasRenderingContext2D,
   inset: number,
   radius: number,
 ) {
-  const start = inset;
-  const end = ICON_SIZE - inset;
-
-  // Drawn with arcTo rather than roundRect, which Firefox only shipped in 112.
-  context.beginPath();
-  context.moveTo(start + radius, start);
-  context.arcTo(end, start, end, end, radius);
-  context.arcTo(end, end, start, end, radius);
-  context.arcTo(start, end, start, start, radius);
-  context.arcTo(start, start, end, start, radius);
-  context.closePath();
+  roundedRect(context, inset, ICON_SIZE, ICON_SIZE, radius);
 }
 
 /**
@@ -115,4 +128,23 @@ export function renderCountBadge(): ImageData {
   context.stroke();
 
   return context.getImageData(0, 0, size, size);
+}
+
+const FRAME_STROKE = 4 * ICON_PIXEL_RATIO;
+
+/**
+ * The green rounded square around the selected store, the same shape as the
+ * logo tiles. A stack gets a wider one that fits its fanned tiles.
+ */
+export function renderSelectedFrame(stack: boolean): ImageData {
+  const width = (stack ? 68 : 48) * ICON_PIXEL_RATIO;
+  const height = (stack ? 52 : 48) * ICON_PIXEL_RATIO;
+  const context = createCanvas(width, height);
+
+  roundedRect(context, FRAME_STROKE / 2, width, height, 12 * ICON_PIXEL_RATIO);
+  context.lineWidth = FRAME_STROKE;
+  context.strokeStyle = "#16a34a";
+  context.stroke();
+
+  return context.getImageData(0, 0, width, height);
 }

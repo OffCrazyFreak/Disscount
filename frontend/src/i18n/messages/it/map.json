@@ -23,7 +23,8 @@
     "browser": "Il tuo browser non può mostrare la mappa. Tutti i negozi restano nell'elenco.",
     "style": "Al momento non è possibile caricare la mappa. Tutti i negozi restano nell'elenco.",
     "contextLost": "La mappa si è interrotta.",
-    "reload": "Ricarica"
+    "reload": "Ricarica",
+    "noGpu": "Il tuo browser ha disattivato l'accelerazione grafica e non può mostrare la mappa. Di solito basta riavviare il browser. Tutti i negozi sono ancora nell'elenco."
   },
   "chains": {
     "group": "Catene",

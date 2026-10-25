@@ -23,7 +23,8 @@
     "browser": "Tvoj brskalnik ne more prikazati zemljevida. Vse trgovine so še vedno na seznamu.",
     "style": "Zemljevida trenutno ni mogoče naložiti. Vse trgovine so še vedno na seznamu.",
     "contextLost": "Zemljevid se je prekinil.",
-    "reload": "Naloži znova"
+    "reload": "Naloži znova",
+    "noGpu": "Tvoj brskalnik je izklopil grafično pospeševanje, zato ne more prikazati zemljevida. Običajno pomaga, da brskalnik znova zaženeš. Vse trgovine so še vedno na seznamu."
   },
   "chains": {
     "group": "Verige",

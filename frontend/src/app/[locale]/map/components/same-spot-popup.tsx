@@ -1,9 +1,15 @@
 "use client";
 
-import { KeyboardEvent, useEffect, useId, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { Popup, useMap } from "react-map-gl/maplibre";
+import { Marker, useMap } from "react-map-gl/maplibre";
 
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+} from "@/components/ui/popover";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { ISameSpot } from "@/app/[locale]/map/utils/map-feature-click";
@@ -23,15 +29,10 @@ export default function SameSpotPopup({
   onClose,
 }: ISameSpotPopupProps) {
   const t = useTranslations("map.list");
-  const titleId = useId();
-  const listRef = useRef<HTMLUListElement>(null);
   const { current: map } = useMap();
+  const closedByEscape = useRef(false);
 
   const rows = spot ? stores.filter((row) => spot.keys.includes(row.key)) : [];
-
-  useEffect(() => {
-    listRef.current?.querySelector("button")?.focus();
-  }, [spot]);
 
   // A filter that hides every store here closes the list for good, rather
   // than leaving it to reappear over an old spot when the filter clears.
@@ -40,39 +41,50 @@ export default function SameSpotPopup({
     if (isEmpty) onClose();
   }, [isEmpty, onClose]);
 
-  function handleKeyDown(event: KeyboardEvent) {
-    if (event.key !== "Escape") return;
+  // The popover sits outside the map and would not follow a pan or zoom.
+  useEffect(() => {
+    if (!spot || !map) return;
 
-    // Focus would otherwise drop to the page body with the popup gone.
-    map?.getCanvas().focus();
-    onClose();
-  }
+    map.on("movestart", onClose);
+    return () => {
+      map.off("movestart", onClose);
+    };
+  }, [spot, map, onClose]);
 
   if (!spot || rows.length === 0) return null;
 
   return (
-    <Popup
-      longitude={spot.lon}
-      latitude={spot.lat}
-      anchor="bottom"
-      offset={28}
-      closeButton={false}
-      onClose={onClose}
-      maxWidth="16rem"
-      className="[&_.maplibregl-popup-content]:bg-popover [&_.maplibregl-popup-content]:p-2 [&_.maplibregl-popup-content]:text-popover-foreground [&_.maplibregl-popup-tip]:border-t-popover!"
-    >
-      <div role="group" aria-labelledby={titleId} onKeyDown={handleKeyDown}>
-        <p id={titleId} className="px-2 pb-1 text-xs text-muted-foreground">
-          {t("sameSpot", { count: rows.length })}
-        </p>
+    <Popover open onOpenChange={(open) => !open && onClose()}>
+      <Marker longitude={spot.lon} latitude={spot.lat}>
+        <PopoverAnchor asChild>
+          <span className="block size-0" />
+        </PopoverAnchor>
+      </Marker>
 
-        <ul ref={listRef}>
+      <PopoverContent
+        side="top"
+        sideOffset={28}
+        aria-label={t("sameSpot", { count: rows.length })}
+        onEscapeKeyDown={() => {
+          closedByEscape.current = true;
+        }}
+        // There is no trigger to return to. After Escape, focus goes back to
+        // the map; after a click elsewhere it stays where the user put it.
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          if (closedByEscape.current) map?.getCanvas().focus();
+          closedByEscape.current = false;
+        }}
+        className="w-64 p-1"
+      >
+        <ul>
           {rows.map((row) => (
             <li key={row.key}>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => onSelect(row.key)}
-                className="flex w-full items-center gap-2 rounded-md p-2 text-left text-sm hover:bg-accent focus-visible:outline-2 focus-visible:outline-primary"
+                className="h-auto w-full justify-start gap-2 p-2 text-left font-normal"
               >
                 <span
                   className="relative size-7 shrink-0 overflow-hidden rounded-sm border bg-white"
@@ -97,11 +109,11 @@ export default function SameSpotPopup({
                     </span>
                   )}
                 </span>
-              </button>
+              </Button>
             </li>
           ))}
         </ul>
-      </div>
-    </Popup>
+      </PopoverContent>
+    </Popover>
   );
 }

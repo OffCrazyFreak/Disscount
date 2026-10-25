@@ -10,11 +10,11 @@ import { MAP_FONT_BOLD } from "@/app/[locale]/map/utils/map-style";
 
 export const STORE_SOURCE_ID = "stores";
 
-const POINT_LAYER_ID = "store-point";
+export const POINT_LAYER_ID = "store-point";
 
 // The badge is the most obvious thing to tap, and a cluster of chains with no
 // logo yet still shows it.
-const COUNT_LAYER_ID = "store-cluster-count";
+export const COUNT_LAYER_ID = "store-cluster-count";
 
 function stackLayerId(rank: number): string {
   return `store-cluster-${rank}`;

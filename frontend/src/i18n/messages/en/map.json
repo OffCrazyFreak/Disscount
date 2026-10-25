@@ -23,7 +23,8 @@
     "browser": "Your browser can't show the map. Every store is still in the list.",
     "style": "The map can't be loaded right now. Every store is still in the list.",
     "contextLost": "The map stopped working.",
-    "reload": "Reload"
+    "reload": "Reload",
+    "noGpu": "Your browser has turned off graphics acceleration, so it can't show the map. Restarting the browser usually fixes it. Every store is still in the list."
   },
   "chains": {
     "group": "Chains",

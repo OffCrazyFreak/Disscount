@@ -11,6 +11,10 @@ import StoreMapView, {
   IStoreMapViewProps,
 } from "@/app/[locale]/map/components/store-map-view";
 import { loadMapStyle } from "@/app/[locale]/map/utils/map-style";
+import {
+  canUseWebGL2,
+  isGpuError,
+} from "@/app/[locale]/map/utils/webgl-support";
 
 // Under webpack, import.meta.url is the only way to hand MapLibre its worker
 // file; without it the map mounts but never loads a tile.
@@ -21,12 +25,19 @@ maplibregl.setWorkerUrl(
   ).toString(),
 );
 
-type IStoreMapProps = Omit<IStoreMapViewProps, "mapStyle" | "onContextLost">;
+type IStoreMapProps = Omit<
+  IStoreMapViewProps,
+  "mapStyle" | "onContextLost" | "onMapError"
+>;
 
 /** The map once its style loads, or a placeholder or an error instead. */
 export default function StoreMap(props: IStoreMapProps) {
   const t = useTranslations("map.unavailable");
-  const [contextLost, setContextLost] = useState(false);
+  // Checked before mounting: react-map-gl catches MapLibre's constructor
+  // error itself, so an error boundary never sees it.
+  const [failure, setFailure] = useState<"noGpu" | "contextLost" | null>(() =>
+    canUseWebGL2() ? null : "noGpu",
+  );
 
   const style = useQuery({
     queryKey: ["map-style"],
@@ -34,20 +45,20 @@ export default function StoreMap(props: IStoreMapProps) {
     staleTime: Infinity,
   });
 
-  if (style.isError) {
-    return <MapUnavailable message={t("style")} />;
-  }
-
-  if (contextLost) {
+  if (failure) {
     return (
       <MapUnavailable
-        message={t("contextLost")}
+        message={t(failure)}
         action={{
           label: t("reload"),
           onClick: () => window.location.reload(),
         }}
       />
     );
+  }
+
+  if (style.isError) {
+    return <MapUnavailable message={t("style")} />;
   }
 
   if (!style.data)
@@ -62,7 +73,13 @@ export default function StoreMap(props: IStoreMapProps) {
     <StoreMapView
       {...props}
       mapStyle={style.data}
-      onContextLost={() => setContextLost(true)}
+      onContextLost={() => setFailure("contextLost")}
+      onMapError={(event) => {
+        if (isGpuError(event.error)) setFailure("noGpu");
+        // Passing onError replaces react-map-gl's own logging of tile, style
+        // and image errors, so they are logged here instead.
+        else console.error(event.error);
+      }}
     />
   );
 }
