@@ -9,6 +9,8 @@ const { buildDirectory } =
   await import("@/lib/store-locations/build-directory");
 const { findSyncTargets } =
   await import("@/lib/store-locations/sync/sync-target");
+const { PIN_OVERRIDES } = await import("@/lib/store-locations/pin-overrides");
+const { PIN_HOLDS } = await import("@/lib/store-locations/pin-holds");
 
 const store = {
   chain_code: "stanic",
@@ -87,5 +89,27 @@ describe("pin overrides", () => {
 
     expect(entry).toMatchObject({ ...OVERRIDE, locationSource: "manual" });
     expect(findSyncTargets([store], [])).toEqual([]);
+  });
+
+  // A held key hides the store, so an override left on hold would never show.
+  it("pin every shipped store, none of them also held", () => {
+    const pinned = [...PIN_OVERRIDES].map(([key, point]) => {
+      const [chain, code] = key.split(":");
+
+      return { store: { ...store, chain_code: chain, code }, point };
+    });
+    const entries = buildDirectory(
+      pinned.map((one) => one.store),
+      [],
+    );
+
+    expect(entries).toEqual(
+      pinned.map(({ point }) =>
+        expect.objectContaining({ ...point, locationSource: "manual" }),
+      ),
+    );
+    expect(
+      [...PIN_OVERRIDES.keys()].filter((key) => PIN_HOLDS.has(key)),
+    ).toEqual([]);
   });
 });

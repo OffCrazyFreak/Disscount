@@ -29,6 +29,20 @@ export const PIN_OVERRIDES = new Map<string, { lat: number; lon: number }>([
   // Gavranović Gažanski trg, Karlovac: centre of OSM way 83376926 "Gavranović", which Google agrees with.
   // Its fixme asks whether the shop is at 14 or at 8 as upstream says.
   [storeKey("gavranovic", "457"), { lat: 45.4966094, lon: 15.5575964 }],
+  // NTL Bužanova 36, Zagreb: ntl.hr's point is 157 m off; OSM node 5576855520 "NTL".
+  [storeKey("ntl", "10108"), { lat: 45.8122334, lon: 16.00583 }],
+  // NTL Dunav, Dalj: ntl.hr's point is 2.2 km off; centre of OSM way 295744308 (NTL, B. J. Jelačića 19).
+  [storeKey("ntl", "20212"), { lat: 45.4862915, lon: 18.9832299 }],
+  // NTL Horvatova 38, Slavonski Brod: a unit in the city market; centre of OSM way 69231960 "Gradska tržnica".
+  [storeKey("ntl", "20350"), { lat: 45.1543054, lon: 18.0224794 }],
+  // NTL Požega: ntl.hr's point is 320 m off; OSM entrance node 9992673674 (Ulica Vanje Radauša 10).
+  [storeKey("ntl", "20374"), { lat: 45.331753, lon: 17.6631576 }],
+  // NTL Vesna, Dopsin: ntl.hr's point is in Koritna; OSM node 534798152 "NTL".
+  [storeKey("ntl", "20538"), { lat: 45.4514638, lon: 18.5591966 }],
+  // NTL Sesvete Ludbreške: centre of OSM way 1112299597, still named Kitro, whose stores NTL took over in 2024.
+  [storeKey("ntl", "33061"), { lat: 46.286143, lon: 16.6490272 }],
+  // Tommy Jezera: centre of OSM way 837951774 (Tommy, Donji Put 2A). Upstream's code has a leading space.
+  [storeKey("tommy", " 10316"), { lat: 43.7895493, lon: 15.6304195 }],
 ]);
 
 /** The override's point, when it passes the same checks as every source. */
