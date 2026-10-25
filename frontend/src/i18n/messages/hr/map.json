@@ -35,10 +35,7 @@
     "clear": "Ukloni moju lokaciju",
     "denied": "Pristup lokaciji je odbijen. Dopusti ga u postavkama preglednika ili pretraži po gradu.",
     "unavailable": "Lokacija trenutačno nije dostupna. Pretraži po gradu ili adresi.",
-    "timeout": "Traženje lokacije traje predugo. Pokušaj ponovno ili pretraži po gradu.",
-    "approximate": "Poredano od približne lokacije ({city}). Za točan redoslijed dodirni „Trgovine blizu mene”.",
-    "approximateNoCity": "Poredano od približne lokacije. Za točan redoslijed dodirni „Trgovine blizu mene”.",
-    "coarse": "Lokacija je približna, pa udaljenosti nisu prikazane."
+    "timeout": "Traženje lokacije traje predugo. Pokušaj ponovno ili pretraži po gradu."
   },
   "recent": {
     "label": "Nedavne pretrage:",
@@ -82,10 +79,5 @@
   "report": {
     "subject": "Pogrešna lokacija trgovine",
     "message": "Trgovina: {store} ({id})\n\nŠto nije u redu: "
-  },
-  "summary": {
-    "title": "Trgovine po lancima",
-    "stores": "{count, plural, one {# trgovina} few {# trgovine} other {# trgovina}}",
-    "where": "{kind, select, one {, u mjestu {cities}} some {, u mjestima {cities}} many {, među ostalim u mjestima {cities}} other {}}"
   }
 }

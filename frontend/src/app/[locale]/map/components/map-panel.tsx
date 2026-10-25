@@ -1,12 +1,12 @@
 "use client";
 
-import { ReactNode, Suspense } from "react";
+import { Suspense } from "react";
 import { useTranslations } from "next-intl";
 
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import ChainFilterChips from "@/app/[locale]/map/components/chain-filter-chips";
-import MissingStoresNote from "@/app/[locale]/map/components/missing-stores-note";
+import ResultCountStatus from "@/app/[locale]/map/components/result-count-status";
 import NearMeButton from "@/app/[locale]/map/components/near-me-button";
 import RecentSearches from "@/app/[locale]/map/components/recent-searches";
 import ViewSortedList from "@/app/[locale]/map/components/view-sorted-list";
@@ -17,26 +17,11 @@ interface IMapPanelProps {
   model: IMapViewModel;
   /** What the map shows right now; stores inside it lead the list. */
   viewArea: IViewArea | null;
-  /** Server-rendered chain overview, so the page has crawlable text. */
-  chainSummary: ReactNode;
 }
 
 /** Search, filters and the list, with the selected store open. Same on every screen. */
-export default function MapPanel({
-  model,
-  viewArea,
-  chainSummary,
-}: IMapPanelProps) {
+export default function MapPanel({ model, viewArea }: IMapPanelProps) {
   const t = useTranslations("map");
-  const { kind, showDistances, ipCity } = model.origin;
-  const originNote =
-    kind === "ip"
-      ? ipCity
-        ? t("nearMe.approximate", { city: ipCity })
-        : t("nearMe.approximateNoCity")
-      : kind === "gps" && !showDistances
-        ? t("nearMe.coarse")
-        : null;
 
   const { selected, listed } = model;
   // A shared link can name a store the filters hide; it still opens, on top.
@@ -75,10 +60,9 @@ export default function MapPanel({
         status={model.geolocation.status}
         onLocate={model.geolocation.locate}
         onClear={model.geolocation.clear}
-        note={originNote}
       />
 
-      <MissingStoresNote
+      <ResultCountStatus
         shown={pinned.length + listed.length}
         unplaced={model.unplacedCount}
       />
@@ -90,8 +74,6 @@ export default function MapPanel({
         selectedKey={selected?.key ?? null}
         onSelect={model.selectStore}
       />
-
-      {chainSummary}
     </div>
   );
 }

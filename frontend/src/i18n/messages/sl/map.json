@@ -35,10 +35,7 @@
     "clear": "Odstrani mojo lokacijo",
     "denied": "Dostop do lokacije je zavrnjen. Dovoli ga v nastavitvah brskalnika ali išči po kraju.",
     "unavailable": "Lokacija trenutno ni na voljo. Išči po kraju ali naslovu.",
-    "timeout": "Iskanje lokacije traja predolgo. Poskusi znova ali išči po kraju.",
-    "approximate": "Razvrščeno od približne lokacije ({city}). Za natančen vrstni red tapni »Trgovine v moji bližini«.",
-    "approximateNoCity": "Razvrščeno od približne lokacije. Za natančen vrstni red tapni »Trgovine v moji bližini«.",
-    "coarse": "Lokacija je približna, zato razdalje niso prikazane."
+    "timeout": "Iskanje lokacije traja predolgo. Poskusi znova ali išči po kraju."
   },
   "recent": {
     "label": "Nedavna iskanja:",
@@ -82,10 +79,5 @@
   "report": {
     "subject": "Napačna lokacija trgovine",
     "message": "Trgovina: {store} ({id})\n\nKaj ni v redu: "
-  },
-  "summary": {
-    "title": "Trgovine po verigah",
-    "stores": "{count, plural, one {# trgovina} two {# trgovini} few {# trgovine} other {# trgovin}}",
-    "where": "{kind, select, one {, v kraju {cities}} some {, v krajih {cities}} many {, med drugim v krajih {cities}} other {}}"
   }
 }

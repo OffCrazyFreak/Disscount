@@ -35,10 +35,7 @@
     "clear": "Meinen Standort entfernen",
     "denied": "Der Zugriff auf den Standort ist blockiert. Erlaube ihn in den Browsereinstellungen oder suche nach Ort.",
     "unavailable": "Dein Standort ist gerade nicht verfügbar. Suche nach Ort oder Adresse.",
-    "timeout": "Die Standortsuche dauert zu lange. Versuche es erneut oder suche nach Ort.",
-    "approximate": "Sortiert ab einem ungefähren Standort ({city}). Für eine genaue Reihenfolge tippe auf „Märkte in meiner Nähe“.",
-    "approximateNoCity": "Sortiert ab einem ungefähren Standort. Für eine genaue Reihenfolge tippe auf „Märkte in meiner Nähe“.",
-    "coarse": "Dein Standort ist ungefähr, deshalb werden keine Entfernungen angezeigt."
+    "timeout": "Die Standortsuche dauert zu lange. Versuche es erneut oder suche nach Ort."
   },
   "recent": {
     "label": "Letzte Suchen:",
@@ -82,10 +79,5 @@
   "report": {
     "subject": "Falscher Standort eines Marktes",
     "message": "Markt: {store} ({id})\n\nWas stimmt nicht: "
-  },
-  "summary": {
-    "title": "Märkte nach Kette",
-    "stores": "{count, plural, one {# Markt} other {# Märkte}}",
-    "where": "{kind, select, one {, in {cities}} some {, in {cities}} many {, unter anderem in {cities}} other {}}"
   }
 }
