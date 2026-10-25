@@ -8,6 +8,7 @@ import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { StoreLocationRow } from "@/lib/store-locations/location-repository";
 import { storeKey } from "@/lib/store-locations/upstream-stores";
 import { isStalePin } from "@/lib/store-locations/sync/sync-target";
+import { PIN_CORRECTIONS } from "@/lib/store-locations/pin-corrections";
 import { PIN_HOLDS } from "@/lib/store-locations/pin-holds";
 import {
   PIN_OVERRIDES,
@@ -26,6 +27,7 @@ export function buildDirectory(
   locations: StoreLocationRow[],
   overrides = PIN_OVERRIDES,
   holds = PIN_HOLDS,
+  corrections = PIN_CORRECTIONS,
 ): DirectoryStoreDto[] {
   const byKey = new Map(
     locations.map((row) => [storeKey(row.chainCode, row.storeCode), row]),
@@ -34,7 +36,11 @@ export function buildDirectory(
   return upstream.map((store) => {
     const key = storeKey(store.chain_code, store.code);
     const chosen = choosePin(
-      savedPin(byKey.get(key), store.address),
+      correctedPin(
+        savedPin(byKey.get(key), store.address),
+        corrections.get(key),
+        cleanUpstreamAddress(store.address),
+      ),
       sanitizeCoordinates(store.lat, store.lon),
       usableOverride(overrides, key),
       holds.has(key),
@@ -80,6 +86,17 @@ function savedPin(
   const source = locationSourceSchema.safeParse(row.source);
 
   return point && source.success ? { point, source: source.data } : null;
+}
+
+// Only the register pin verified wrong for this very address is replaced.
+function correctedPin(
+  saved: Pin | null,
+  correction: { address: string; lat: number; lon: number } | undefined,
+  address: string | null,
+): Pin | null {
+  if (saved?.source !== "dgu" || correction?.address !== address) return saved;
+
+  return { point: { lat: correction.lat, lon: correction.lon }, source: "dgu" };
 }
 
 // A held store shows no pin until a person confirms it, unless one already
