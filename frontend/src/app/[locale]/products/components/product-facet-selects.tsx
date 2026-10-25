@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import FacetMultiSelect from "@/app/[locale]/products/components/facet-multi-select";
 import { getChainLabel } from "@/utils/labels";
+import { selectsEveryOption } from "@/app/[locale]/products/utils/facets/selects-every-option";
 import type { IProductFacetSelects } from "@/app/[locale]/products/hooks/use-product-facets";
 import type {
   IUseProductFiltersResult,
@@ -13,11 +14,19 @@ interface IFacetConfig {
   key: keyof IProductFacetSelects;
   filterKey: ProductFilterKey;
   messageKey: "stores" | "locations" | "categories" | "brands";
+  /** Picking every option stores no filter, which gives the same results */
+  allMeansNone?: boolean;
 }
 
 const FACETS: IFacetConfig[] = [
   { key: "chains", filterKey: "chain", messageKey: "stores" },
-  { key: "locations", filterKey: "location", messageKey: "locations" },
+  // Every city written out made a 7.7 KB address.
+  {
+    key: "locations",
+    filterKey: "location",
+    messageKey: "locations",
+    allMeansNone: true,
+  },
   { key: "categories", filterKey: "category", messageKey: "categories" },
   { key: "brands", filterKey: "brand", messageKey: "brands" },
 ];
@@ -58,7 +67,13 @@ export default function ProductFacetSelects({
             searchPlaceholder={t(`facets.${facet.messageKey}.search`)}
             emptyMessage={t(`facets.${facet.messageKey}.empty`)}
             onValuesChange={(values) =>
-              filters.setFilter(facet.filterKey, values)
+              filters.setFilter(
+                facet.filterKey,
+                facet.allMeansNone &&
+                  selectsEveryOption(facets[facet.key], values)
+                  ? []
+                  : values,
+              )
             }
             getLabel={facet.key === "chains" ? getChainLabel : undefined}
             className={isStack ? "max-w-none" : undefined}
