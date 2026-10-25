@@ -5,13 +5,13 @@ import { useTranslations } from "next-intl";
 import StoreList from "@/app/[locale]/map/components/store-list";
 import { useHeldView } from "@/app/[locale]/map/hooks/use-held-view";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
-import { IViewBounds, splitByView } from "@/app/[locale]/map/utils/view-bounds";
+import { IViewArea, splitByView } from "@/app/[locale]/map/utils/view-area";
 
 interface IViewSortedListProps {
   /** Rows shown first whatever the map shows (a store a shared link opened). */
   pinned: IListedStore[];
   listed: IListedStore[];
-  viewBounds: IViewBounds | null;
+  viewArea: IViewArea | null;
   selectedKey: string | null;
   onSelect: (key: string | null) => void;
 }
@@ -20,12 +20,12 @@ interface IViewSortedListProps {
 export default function ViewSortedList({
   pinned,
   listed,
-  viewBounds,
+  viewArea,
   selectedKey,
   onSelect,
 }: IViewSortedListProps) {
   const t = useTranslations("map.list");
-  const view = useHeldView(viewBounds);
+  const view = useHeldView(viewArea);
 
   const { onMap, elsewhere } = splitByView(listed, view.applied);
 
@@ -54,7 +54,7 @@ export default function ViewSortedList({
       )}
 
       <p role="status" className="sr-only">
-        {grouped && t("onMapStatus", { count: onMap.length })}
+        {view.applied && t("onMapStatus", { count: onMap.length })}
       </p>
 
       <StoreList

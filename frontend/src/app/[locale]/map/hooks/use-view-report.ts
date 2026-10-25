@@ -3,17 +3,14 @@
 import { RefObject, useEffect } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 
-import {
-  IViewBounds,
-  readVisibleBounds,
-} from "@/app/[locale]/map/utils/view-bounds";
+import { IViewArea, readVisibleArea } from "@/app/[locale]/map/utils/view-area";
 
 interface IUseViewReportOptions {
   mapRef: RefObject<MapRef | null>;
   mapReady: boolean;
   /** Share of the map's height under the phone sheet, 0 on desktop. */
   coveredShare: number;
-  onViewChange: (bounds: IViewBounds | null) => void;
+  onViewChange: (area: IViewArea | null) => void;
 }
 
 /** Tells the list which part of the map is actually in sight. */
@@ -30,7 +27,7 @@ export function useViewReport({
 
   function reportView() {
     const map = mapRef.current?.getMap();
-    if (map) onViewChange(readVisibleBounds(map, coveredBottom()));
+    if (map) onViewChange(readVisibleArea(map, coveredBottom()));
   }
 
   // The sheet moving changes how much of the map is in sight.

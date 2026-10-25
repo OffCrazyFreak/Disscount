@@ -69,12 +69,17 @@ export async function renderChainIcon(chain: string): Promise<ImageData> {
     context.save();
     tile(context, BORDER, TILE_RADIUS - BORDER / 2);
     context.clip();
+    const inner = ICON_SIZE - BORDER * 2;
+    const scale = Math.min(inner / logo.width, inner / logo.height);
+    const width = logo.width * scale;
+    const height = logo.height * scale;
+
     context.drawImage(
       logo,
-      BORDER,
-      BORDER,
-      ICON_SIZE - BORDER * 2,
-      ICON_SIZE - BORDER * 2,
+      (ICON_SIZE - width) / 2,
+      (ICON_SIZE - height) / 2,
+      width,
+      height,
     );
     context.restore();
   } catch {

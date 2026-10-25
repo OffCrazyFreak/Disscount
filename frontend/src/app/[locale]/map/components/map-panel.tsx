@@ -11,12 +11,12 @@ import NearMeButton from "@/app/[locale]/map/components/near-me-button";
 import RecentSearches from "@/app/[locale]/map/components/recent-searches";
 import ViewSortedList from "@/app/[locale]/map/components/view-sorted-list";
 import { IMapViewModel } from "@/app/[locale]/map/hooks/use-map-view-model";
-import { IViewBounds } from "@/app/[locale]/map/utils/view-bounds";
+import { IViewArea } from "@/app/[locale]/map/utils/view-area";
 
 interface IMapPanelProps {
   model: IMapViewModel;
   /** What the map shows right now; stores inside it lead the list. */
-  viewBounds: IViewBounds | null;
+  viewArea: IViewArea | null;
   /** Server-rendered chain overview, so the page has crawlable text. */
   chainSummary: ReactNode;
 }
@@ -24,7 +24,7 @@ interface IMapPanelProps {
 /** Search, filters and the list, with the selected store open. Same on every screen. */
 export default function MapPanel({
   model,
-  viewBounds,
+  viewArea,
   chainSummary,
 }: IMapPanelProps) {
   const t = useTranslations("map");
@@ -86,7 +86,7 @@ export default function MapPanel({
       <ViewSortedList
         pinned={pinned}
         listed={listed}
-        viewBounds={viewBounds}
+        viewArea={viewArea}
         selectedKey={selected?.key ?? null}
         onSelect={model.selectStore}
       />

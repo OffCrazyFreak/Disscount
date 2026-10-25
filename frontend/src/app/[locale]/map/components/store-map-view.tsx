@@ -30,7 +30,7 @@ import {
 import { registerChainIcons } from "@/app/[locale]/map/utils/register-chain-icons";
 import { toStoreCollection } from "@/app/[locale]/map/utils/store-geojson";
 import { INTERACTIVE_LAYER_IDS } from "@/app/[locale]/map/utils/store-layers";
-import { IViewBounds } from "@/app/[locale]/map/utils/view-bounds";
+import { IViewArea } from "@/app/[locale]/map/utils/view-area";
 import { storeNamesMap } from "@/constants/name-mappings";
 
 const ALL_CHAINS = Object.keys(storeNamesMap);
@@ -44,7 +44,7 @@ export interface IStoreMapViewProps {
   initialView: (ILatLon & { zoom: number }) | null;
   /** Share of the map's height under the phone sheet, 0 on desktop. */
   coveredShare: number;
-  onViewChange: (bounds: IViewBounds | null) => void;
+  onViewChange: (area: IViewArea | null) => void;
   mapStyle: StyleSpecification;
   onContextLost: () => void;
 }

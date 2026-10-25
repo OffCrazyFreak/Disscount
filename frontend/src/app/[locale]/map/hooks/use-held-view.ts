@@ -2,20 +2,20 @@
 
 import { FocusEvent, useState } from "react";
 
-import { IViewBounds, sameBounds } from "@/app/[locale]/map/utils/view-bounds";
+import { IViewArea, sameView } from "@/app/[locale]/map/utils/view-area";
 
 /**
  * The map view the list is ordered by. While the pointer or keyboard focus is
  * in the list, a new view waits, so rows never jump under someone reading or
  * about to tap; it applies once they leave, or when they ask for it.
  */
-export function useHeldView(live: IViewBounds | null) {
+export function useHeldView(live: IViewArea | null) {
   const [applied, setApplied] = useState(live);
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
 
   const held = hovered || focused;
-  const changed = !sameBounds(applied, live);
+  const changed = !sameView(applied, live);
 
   // Adjusting state while rendering, as React documents for derived state:
   // no effect, so the list never paints once in the stale order.
@@ -24,7 +24,12 @@ export function useHeldView(live: IViewBounds | null) {
   return {
     applied,
     pending: changed && held,
-    apply: () => setApplied(live),
+    apply: () => {
+      // The chip that calls this unmounts, and a removed element fires no
+      // blur, so the keyboard hold would otherwise never end.
+      setFocused(false);
+      setApplied(live);
+    },
     holdProps: {
       onPointerEnter: () => setHovered(true),
       onPointerLeave: () => setHovered(false),

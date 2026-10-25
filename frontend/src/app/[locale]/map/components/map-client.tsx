@@ -14,7 +14,7 @@ import StoreMapLoader from "@/app/[locale]/map/components/store-map-loader";
 import { useMapViewModel } from "@/app/[locale]/map/hooks/use-map-view-model";
 
 import type { IIpLocation } from "@/app/[locale]/map/utils/ip-location";
-import { IViewBounds } from "@/app/[locale]/map/utils/view-bounds";
+import { IViewArea } from "@/app/[locale]/map/utils/view-area";
 
 interface IMapClientProps {
   chainSummary: ReactNode;
@@ -37,7 +37,7 @@ export default function MapClient({
   const model = useMapViewModel(ipLocation);
   const isMobile = useIsMobile();
   const [snap, setSnap] = useState<SheetSnap>("half");
-  const [viewBounds, setViewBounds] = useState<IViewBounds | null>(null);
+  const [viewArea, setViewArea] = useState<IViewArea | null>(null);
 
   function selectStore(key: string | null) {
     model.selectStore(key);
@@ -48,7 +48,7 @@ export default function MapClient({
     model.status === "success" ? (
       <MapPanel
         model={{ ...model, selectStore }}
-        viewBounds={viewBounds}
+        viewArea={viewArea}
         chainSummary={chainSummary}
       />
     ) : (
@@ -69,7 +69,7 @@ export default function MapClient({
       centerRequest={model.geolocation.centerRequest}
       initialView={model.initialView}
       coveredShare={isMobile ? sheetCoverShare(snap) : 0}
-      onViewChange={setViewBounds}
+      onViewChange={setViewArea}
     />
   );
 
