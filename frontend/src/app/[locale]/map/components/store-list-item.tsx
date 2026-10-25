@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown, MapPinOff } from "lucide-react";
+import { useId } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
@@ -9,6 +10,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import ShareStoreButton from "@/app/[locale]/map/components/share-store-button";
 import StoreDetails from "@/app/[locale]/map/components/store-details";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { formatDistance } from "@/app/[locale]/map/utils/distance";
@@ -34,6 +36,10 @@ export default function StoreListItem({
   const place = [store.zipcode, cityLabel].filter(Boolean).join(" ");
   const address = [store.address, place].filter(Boolean).join(", ");
   const fit = isSelected ? "break-words" : "truncate";
+  const id = useId();
+  const labelIds = ["name", "address", "noLocation", "distance"]
+    .map((part) => `${id}-${part}`)
+    .join(" ");
 
   return (
     <Collapsible
@@ -41,10 +47,15 @@ export default function StoreListItem({
       onOpenChange={(open) => onSelect(open ? row.key : null)}
       className={cn("rounded-lg", isSelected && "bg-primary/10")}
     >
-      <CollapsibleTrigger
-        data-store-key={row.key}
-        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-accent/70 focus-visible:outline-2 focus-visible:outline-primary"
-      >
+      {/* The trigger covers the row instead of wrapping it, so the share pill
+          can sit in the address line without nesting a button in a button. */}
+      <div className="relative flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-accent/70">
+        <CollapsibleTrigger
+          data-store-key={row.key}
+          aria-labelledby={labelIds}
+          className="absolute inset-0 z-1 rounded-lg focus-visible:outline-2 focus-visible:outline-primary"
+        />
+
         <span
           className="relative size-10 shrink-0 overflow-hidden rounded-sm border bg-white"
           aria-hidden="true"
@@ -58,10 +69,15 @@ export default function StoreListItem({
         </span>
 
         <span className="min-w-0 flex-1">
-          <span className={cn("block font-medium", fit)}>{chainLabel}</span>
+          <span id={`${id}-name`} className={cn("block font-medium", fit)}>
+            {chainLabel}
+          </span>
 
           <span className={cn("block text-sm text-muted-foreground", fit)}>
-            {address ? <span lang="hr">{address}</span> : t("unknownAddress")}
+            <span id={`${id}-address`} lang={address ? "hr" : undefined}>
+              {address || t("unknownAddress")}
+            </span>
+            {isSelected && <ShareStoreButton store={store} />}
           </span>
         </span>
 
@@ -69,14 +85,16 @@ export default function StoreListItem({
         {!isPlaced && (
           <span className="shrink-0 text-amber-700" title={t("noLocation")}>
             <MapPinOff className="size-4" aria-hidden="true" />
-            <span className="sr-only">{t("noLocation")}</span>
+            <span id={`${id}-noLocation`} className="sr-only">
+              {t("noLocation")}
+            </span>
           </span>
         )}
 
         {distanceKm != null && (
           <span className="shrink-0 text-sm tabular-nums text-muted-foreground">
             <span aria-hidden="true">{formatDistance(distanceKm, locale)}</span>
-            <span className="sr-only">
+            <span id={`${id}-distance`} className="sr-only">
               {t("distance", { distance: formatDistance(distanceKm, locale) })}
             </span>
           </span>
@@ -89,7 +107,7 @@ export default function StoreListItem({
           )}
           aria-hidden="true"
         />
-      </CollapsibleTrigger>
+      </div>
 
       <CollapsibleContent className="my-0">
         <StoreDetails row={row} />
