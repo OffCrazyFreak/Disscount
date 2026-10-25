@@ -22,63 +22,50 @@ export function chainCountProperties(
   );
 }
 
-function countOf(
-  chain: string,
-  ranked: ExpressionSpecification[],
-): ExpressionSpecification {
-  const count: ExpressionSpecification = ["get", chainCountProperty(chain)];
-  if (ranked.length === 0) return count;
-
-  return expression([
-    "case",
-    ["any", ...ranked.map((name) => ["==", name, chain])],
-    0,
-    count,
-  ]);
+function countOf(chain: string): ExpressionSpecification {
+  return ["get", chainCountProperty(chain)];
 }
 
-function mostCommonChain(
-  chains: string[],
-  ranked: ExpressionSpecification[],
-): ExpressionSpecification {
-  const branches = chains.flatMap((chain) => [
-    [
-      "all",
-      [">", ["var", "best"], 0],
-      ["==", countOf(chain, ranked), ["var", "best"]],
-    ],
-    chain,
-  ]);
+// How many chains rank above this one: more stores, or as many and listed
+// earlier, so every rank goes to exactly one chain.
+function chainsAbove(chains: string[], index: number): ExpressionSpecification {
+  const count = countOf(chains[index]);
 
   return expression([
-    "let",
-    "best",
-    ["max", ...chains.map((chain) => countOf(chain, ranked))],
-    ["case", ...branches, ""],
+    "+",
+    0,
+    ...chains.flatMap((other, otherIndex) =>
+      otherIndex === index
+        ? []
+        : [
+            [
+              "case",
+              [otherIndex < index ? ">=" : ">", countOf(other), count],
+              1,
+              0,
+            ],
+          ],
+    ),
   ]);
 }
 
 /**
- * The chain at a given rank (0 is the most common) inside a cluster.
- * Expressions cannot sort, so each rank is the highest count once the chains
- * ranked above it are left out. Ties go to the chain listed first.
+ * The chain at a given rank (0 is the most common) inside a cluster, or an
+ * empty string past the last chain present. Expressions cannot sort, so a
+ * chain's rank is the number of chains above it. No `let` bindings: MapLibre
+ * re-evaluates a bound expression at every `var`, which made a nested ranking
+ * explode on clusters mixing many chains and stalled the map worker.
  */
 export function rankedChain(
   chains: string[],
   rank: number,
-  ranked: ExpressionSpecification[] = [],
 ): ExpressionSpecification {
-  const depth = ranked.length;
-  if (depth === rank) return mostCommonChain(chains, ranked);
-
-  const name = `rank${depth}`;
-
-  return expression([
-    "let",
-    name,
-    mostCommonChain(chains, ranked),
-    rankedChain(chains, rank, [...ranked, ["var", name]]),
+  const branches = chains.flatMap((chain, index) => [
+    ["all", [">", countOf(chain), 0], ["==", chainsAbove(chains, index), rank]],
+    chain,
   ]);
+
+  return expression(["case", ...branches, ""]);
 }
 
 /** True for a cluster holding stores of at least this many chains. */
