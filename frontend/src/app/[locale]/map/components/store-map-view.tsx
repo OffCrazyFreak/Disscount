@@ -6,6 +6,7 @@ import {
   AttributionControl,
   Map,
   NavigationControl,
+  type ErrorEvent as MapErrorEvent,
   type MapRef,
 } from "react-map-gl/maplibre";
 import type { StyleSpecification } from "maplibre-gl";
@@ -19,6 +20,7 @@ import SameSpotPopup from "@/app/[locale]/map/components/same-spot-popup";
 import { ICenterRequest } from "@/app/[locale]/map/hooks/use-geolocation";
 import { useMapCamera } from "@/app/[locale]/map/hooks/use-map-camera";
 import { useMapClicks } from "@/app/[locale]/map/hooks/use-map-clicks";
+import { useMapLoad } from "@/app/[locale]/map/hooks/use-map-load";
 import { useViewReport } from "@/app/[locale]/map/hooks/use-view-report";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { ILatLon } from "@/app/[locale]/map/utils/distance";
@@ -27,7 +29,6 @@ import {
   toInitialViewState,
   toSelectedPoint,
 } from "@/app/[locale]/map/utils/map-view";
-import { registerChainIcons } from "@/app/[locale]/map/utils/register-chain-icons";
 import { toStoreCollection } from "@/app/[locale]/map/utils/store-geojson";
 import { INTERACTIVE_LAYER_IDS } from "@/app/[locale]/map/utils/store-layers";
 import { IViewArea } from "@/app/[locale]/map/utils/view-area";
@@ -47,9 +48,11 @@ export interface IStoreMapViewProps {
   onViewChange: (area: IViewArea | null) => void;
   mapStyle: StyleSpecification;
   onContextLost: () => void;
+  /** Map errors, including WebGL2 refused after the probe passed. */
+  onMapError: (event: MapErrorEvent) => void;
 }
 
-/** The live map: store stacks, the selection ring and the user's position. */
+/** The live map: store stacks, the selection frame and the user's position. */
 export default function StoreMapView({
   stores,
   selected,
@@ -61,10 +64,14 @@ export default function StoreMapView({
   onViewChange,
   mapStyle,
   onContextLost,
+  onMapError,
 }: IStoreMapViewProps) {
   const mapRef = useRef<MapRef>(null);
-  const [mapReady, setMapReady] = useState(false);
-  const [iconsReady, setIconsReady] = useState(false);
+  const { mapReady, iconsReady, handleLoad } = useMapLoad({
+    mapRef,
+    chains: ALL_CHAINS,
+    onContextLost,
+  });
   const [cursor, setCursor] = useState<string>("");
 
   const data = toStoreCollection(stores.map((row) => row.store));
@@ -88,21 +95,6 @@ export default function StoreMapView({
 
   const clicks = useMapClicks({ mapRef, onSelect, coveredBottom });
 
-  async function handleLoad() {
-    const map = mapRef.current?.getMap();
-    if (!map) return;
-
-    // A store picked before the map loaded (a shared link) still gets centred.
-    setMapReady(true);
-
-    // Known MapLibre bug (#8690): a context lost early leaves a blank map, so
-    // offer a reload rather than a grey rectangle.
-    map.getCanvas().addEventListener("webglcontextlost", onContextLost);
-
-    await registerChainIcons(map, ALL_CHAINS);
-    setIconsReady(true);
-  }
-
   return (
     <Map
       ref={mapRef}
@@ -121,6 +113,7 @@ export default function StoreMapView({
       onMoveStart={handleMoveStart}
       onMoveEnd={reportView}
       onClick={clicks.handleClick}
+      onError={onMapError}
     >
       <NavigationControl position="top-right" />
       {/* Top left, because the phone sheet covers the bottom of the map and
@@ -134,7 +127,12 @@ export default function StoreMapView({
 
       {iconsReady && <MapStoreSource chains={ALL_CHAINS} data={data} />}
 
-      <MapOverlays selected={selectedPoint} userLocation={userLocation} />
+      <MapOverlays
+        ready={iconsReady}
+        selected={selected}
+        selectedPoint={selectedPoint}
+        userLocation={userLocation}
+      />
 
       <SameSpotPopup
         spot={clicks.sameSpot}

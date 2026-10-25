@@ -23,7 +23,8 @@
     "browser": "Tvoj preglednik ne može prikazati kartu. Sve trgovine i dalje su na popisu.",
     "style": "Karta se trenutačno ne može učitati. Sve trgovine i dalje su na popisu.",
     "contextLost": "Karta se prekinula.",
-    "reload": "Učitaj ponovno"
+    "reload": "Učitaj ponovno",
+    "noGpu": "Tvoj preglednik je isključio grafičko ubrzanje pa ne može prikazati kartu. Obično pomaže da ponovno pokreneš preglednik. Sve trgovine i dalje su na popisu."
   },
   "chains": {
     "group": "Lanci",

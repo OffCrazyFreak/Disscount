@@ -23,7 +23,8 @@
     "browser": "Dein Browser kann die Karte nicht anzeigen. Alle Märkte stehen weiterhin in der Liste.",
     "style": "Die Karte kann gerade nicht geladen werden. Alle Märkte stehen weiterhin in der Liste.",
     "contextLost": "Die Karte wurde unterbrochen.",
-    "reload": "Neu laden"
+    "reload": "Neu laden",
+    "noGpu": "Dein Browser hat die Grafikbeschleunigung abgeschaltet und kann die Karte deshalb nicht anzeigen. Meist hilft es, den Browser neu zu starten. Alle Märkte stehen weiterhin in der Liste."
   },
   "chains": {
     "group": "Ketten",
