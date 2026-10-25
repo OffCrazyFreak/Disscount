@@ -36,8 +36,8 @@
     "noData": "Nema podataka",
     "unavailable": "Nedostupno",
     "setPreferences": "Postavi preference",
-    "preferredStoresInfo": "Cijena u tvojim preferiranim trgovinama",
-    "allStoresInfo": "Cijena u svim trgovinama"
+    "preferredStoresInfo": "Trgovine s tom cijenom među tvojim preferiranim trgovinama",
+    "allStoresInfo": "Trgovine s tom cijenom među svim trgovinama"
   },
   "item": {
     "loading": "Učitavanje...",

@@ -652,6 +652,8 @@ html {
   --z-bottom-nav-covered: 39;
   --z-doodle: 30;
   --z-header: 20;
+  /* The language offer floats over page content but stays under the header menus */
+  --z-locale-suggestion: 15;
   --z-sidebar: 10;
 }
 

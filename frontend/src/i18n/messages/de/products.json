@@ -64,7 +64,7 @@
     "title": "Preisalarm setzen",
     "description": "Lege einen Mindestrabatt fest, wir sagen dir Bescheid, sobald er erreicht ist.",
     "save": "Speichern",
-    "track": "Setzen",
+    "track": "Preisalarm setzen",
     "cancel": "Abbrechen",
     "reset": "Zurücksetzen",
     "productNotFound": "Produkt nicht gefunden.",

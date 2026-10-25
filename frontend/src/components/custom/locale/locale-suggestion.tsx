@@ -52,7 +52,7 @@ export default function LocaleSuggestion() {
   // It takes no height and the pill floats over the page top, so a full-height
   // page like the map is never pushed down; it stays under the fixed header.
   return (
-    <div role="status" className="relative z-[calc(var(--z-header)-1)] h-0">
+    <div role="status" className="relative z-[var(--z-locale-suggestion)] h-0">
       {preferred && (
         <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center">
           <div className="pointer-events-auto flex max-w-full items-center gap-2 rounded-full border bg-card py-1 pr-1 pl-3 shadow-md">
