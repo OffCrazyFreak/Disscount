@@ -267,7 +267,7 @@ The exact chain count is never hardcoded. The number of covered retail chains gr
 
 ## Future improvements and TODOs
 
-- Wire the remaining coming-soon feature cards (Analiza potrošnje, Digitalne kartice, Karta trgovina) once their pages ship, by uncommenting the `href` in `features.ts` and dropping `comingSoon`.
+- Wire the remaining coming-soon feature cards (Analiza potrošnje, Kartice vjernosti, Karta trgovina) once their pages ship, by uncommenting the `href` in `features.ts` and dropping `comingSoon`.
 - Consider an FAQ-driven long-tail SEO expansion and a real testimonials/social-proof section once there is content for it.
 - Revisit the notifications-from-guest flow: today it opens the login modal, but a dedicated "sign in to get price alerts" nudge could convert better.
 - If the filled-vs-outline button box-model fix is wanted app-wide, bake a transparent border into the filled button variants in `components/ui/button.tsx` instead of per-usage.
