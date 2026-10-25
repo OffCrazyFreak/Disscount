@@ -62,7 +62,10 @@ export default function MultiSelectValue({
         // nowrap. Without it the row cannot shrink, so it never scrolls, the
         // overflow measurement always reads zero and the badges just spill.
         "flex w-full min-w-0 gap-1.5 overflow-hidden",
-        shouldWrap && "h-full flex-wrap",
+        // About three and a half rows, so the cut-off row shows it scrolls;
+        // unbounded, a long selection pushed the option list off a phone.
+        shouldWrap &&
+          "h-full max-h-26 flex-wrap overflow-y-auto overscroll-contain",
         className,
       )}
     >
