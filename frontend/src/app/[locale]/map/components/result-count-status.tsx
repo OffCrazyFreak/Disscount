@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 
-interface IMissingStoresNoteProps {
+interface IResultCountStatusProps {
   shown: number;
   unplaced: number;
 }
@@ -9,10 +9,10 @@ interface IMissingStoresNoteProps {
  * Announces the result count, and how many the map cannot pin, to screen
  * readers only: the count still changes with every search or filter.
  */
-export default function MissingStoresNote({
+export default function ResultCountStatus({
   shown,
   unplaced,
-}: IMissingStoresNoteProps) {
+}: IResultCountStatusProps) {
   const t = useTranslations("map.count");
   const count = t("shown", { count: shown });
 

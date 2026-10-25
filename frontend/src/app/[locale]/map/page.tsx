@@ -7,7 +7,7 @@ import MapClient from "@/app/[locale]/map/components/map-client";
 import { readIpLocation } from "@/app/[locale]/map/utils/ip-location";
 import { pageAlternates } from "@/i18n/alternates";
 
-// Reads the database and upstream on request, never at build time.
+// Reads the visitor's location headers on every request.
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {

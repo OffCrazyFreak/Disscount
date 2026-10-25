@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import ChainFilterChips from "@/app/[locale]/map/components/chain-filter-chips";
-import MissingStoresNote from "@/app/[locale]/map/components/missing-stores-note";
+import ResultCountStatus from "@/app/[locale]/map/components/result-count-status";
 import NearMeButton from "@/app/[locale]/map/components/near-me-button";
 import RecentSearches from "@/app/[locale]/map/components/recent-searches";
 import ViewSortedList from "@/app/[locale]/map/components/view-sorted-list";
@@ -62,7 +62,7 @@ export default function MapPanel({ model, viewArea }: IMapPanelProps) {
         onClear={model.geolocation.clear}
       />
 
-      <MissingStoresNote
+      <ResultCountStatus
         shown={pinned.length + listed.length}
         unplaced={model.unplacedCount}
       />

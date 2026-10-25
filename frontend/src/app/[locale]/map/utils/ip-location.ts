@@ -5,18 +5,6 @@ import { isInCroatia } from "@/lib/store-locations/croatia-bounds";
 export interface IIpLocation {
   lat: number;
   lon: number;
-  city: string | null;
-}
-
-// Cloudflare sends UTF-8, but Node reads header bytes as latin1, so "Čakovec"
-// arrives garbled. A value that is already proper text is left alone.
-function decodeHeader(value: string | null): string | null {
-  if (!value) return null;
-  if (/[^\x00-\xff]/.test(value)) return value;
-
-  const decoded = Buffer.from(value, "latin1").toString("utf8");
-
-  return decoded.includes("\uFFFD") ? value : decoded;
 }
 
 // About a kilometre: enough to centre and sort, no finer than the guess is.
@@ -41,9 +29,5 @@ export function readIpLocation(headers: Headers): IIpLocation | null {
 
   if (!isInCroatia(lat, lon)) return null;
 
-  return {
-    lat: round(lat),
-    lon: round(lon),
-    city: decodeHeader(headers.get("cf-ipcity")),
-  };
+  return { lat: round(lat), lon: round(lon) };
 }

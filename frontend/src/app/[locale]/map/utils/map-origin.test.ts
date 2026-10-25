@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { resolveMapOrigin } from "@/app/[locale]/map/utils/map-origin";
 
-const ZAGREB = { lat: 45.81, lon: 15.98, city: "Zagreb" };
+const ZAGREB = { lat: 45.81, lon: 15.98 };
 const SPLIT_GPS = { lat: 43.51, lon: 16.44, accuracy: 30 };
 
 describe("resolveMapOrigin", () => {
