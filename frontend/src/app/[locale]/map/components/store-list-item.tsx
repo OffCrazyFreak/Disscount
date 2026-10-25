@@ -43,7 +43,7 @@ export default function StoreListItem({
         className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-accent/70 focus-visible:outline-2 focus-visible:outline-primary"
       >
         <span
-          className="relative size-10 shrink-0 overflow-hidden rounded-lg border bg-white"
+          className="relative size-10 shrink-0 overflow-hidden rounded-sm border bg-white"
           aria-hidden="true"
         >
           <StoreChainLogo

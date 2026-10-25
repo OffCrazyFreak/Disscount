@@ -68,7 +68,7 @@ export default function SameSpotPopup({
                 className="flex w-full items-center gap-2 rounded-md p-2 text-left text-sm hover:bg-accent focus-visible:outline-2 focus-visible:outline-primary"
               >
                 <span
-                  className="relative size-7 shrink-0 overflow-hidden rounded-md border bg-white"
+                  className="relative size-7 shrink-0 overflow-hidden rounded-sm border bg-white"
                   aria-hidden="true"
                 >
                   <StoreChainLogo
