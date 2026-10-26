@@ -115,11 +115,9 @@ export default function StoreMapView({
       onClick={clicks.handleClick}
       onError={onMapError}
     >
-      <NavigationControl position="top-right" />
-      {/* Top left, because the phone sheet covers the bottom of the map and
-          the tile and data credits must stay visible. */}
+      <NavigationControl position="bottom-right" />
       <AttributionControl
-        position="top-left"
+        position="bottom-left"
         compact
         customAttribution={MAP_CUSTOM_ATTRIBUTION}
       />
