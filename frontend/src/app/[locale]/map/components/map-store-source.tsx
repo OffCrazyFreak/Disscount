@@ -3,6 +3,7 @@
 import { Layer, Source } from "react-map-gl/maplibre";
 
 import ClusterCountBadges from "@/app/[locale]/map/components/cluster-count-badges";
+import type { IMapFeatureRef } from "@/app/[locale]/map/utils/map-feature-click";
 import { chainCountProperties } from "@/app/[locale]/map/utils/cluster-stack";
 import { IStoreFeatureCollection } from "@/app/[locale]/map/utils/store-geojson";
 import {
@@ -17,6 +18,7 @@ export const MAP_MAX_ZOOM = 20;
 interface IMapStoreSourceProps {
   chains: string[];
   data: IStoreFeatureCollection;
+  onStackClick: (stack: IMapFeatureRef) => void;
 }
 
 /**
@@ -24,7 +26,11 @@ interface IMapStoreSourceProps {
  * stack. Clustering runs to the deepest zoom: stores sharing an address (a
  * mall) never split apart, so they stay one stack that opens as a list.
  */
-export default function MapStoreSource({ chains, data }: IMapStoreSourceProps) {
+export default function MapStoreSource({
+  chains,
+  data,
+  onStackClick,
+}: IMapStoreSourceProps) {
   return (
     <>
       <Source
@@ -43,7 +49,7 @@ export default function MapStoreSource({ chains, data }: IMapStoreSourceProps) {
         <Layer {...pointLayer()} />
       </Source>
 
-      <ClusterCountBadges />
+      <ClusterCountBadges onStackClick={onStackClick} />
     </>
   );
 }

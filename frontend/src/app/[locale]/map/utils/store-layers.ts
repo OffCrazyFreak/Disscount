@@ -8,9 +8,6 @@ export const STORE_SOURCE_ID = "stores";
 
 export const POINT_LAYER_ID = "store-point";
 
-// The badge is the most obvious thing to tap, and a cluster of chains with no
-// logo yet still shows it.
-
 function stackLayerId(rank: number): string {
   return `store-cluster-${rank}`;
 }
@@ -70,5 +67,3 @@ export function stackLayers(chains: string[]): LayerProps[] {
     },
   }));
 }
-
-/** The number of stores, on a badge at the stack's top right. */

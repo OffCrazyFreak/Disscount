@@ -125,7 +125,13 @@ export default function StoreMapView({
       />
       <MapPanControls mapRef={mapRef} />
 
-      {iconsReady && <MapStoreSource chains={ALL_CHAINS} data={data} />}
+      {iconsReady && (
+        <MapStoreSource
+          chains={ALL_CHAINS}
+          data={data}
+          onStackClick={clicks.handleStack}
+        />
+      )}
 
       <MapOverlays
         ready={iconsReady}
