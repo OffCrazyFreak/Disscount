@@ -4,7 +4,9 @@ import { RefObject, useState } from "react";
 import type { MapLayerMouseEvent, MapRef } from "react-map-gl/maplibre";
 
 import {
+  handleMapFeature,
   handleMapFeatureClick,
+  IMapFeatureRef,
   ISameSpot,
 } from "@/app/[locale]/map/utils/map-feature-click";
 
@@ -22,12 +24,20 @@ export function useMapClicks({
 }: IUseMapClicksOptions) {
   const [sameSpot, setSameSpot] = useState<ISameSpot | null>(null);
 
-  function handleClick(event: MapLayerMouseEvent) {
-    return handleMapFeatureClick(event, mapRef.current, {
+  function actions() {
+    return {
       onSelect,
       onSameSpot: setSameSpot,
       coveredBottom: coveredBottom(),
-    });
+    };
+  }
+
+  function handleClick(event: MapLayerMouseEvent) {
+    return handleMapFeatureClick(event, mapRef.current, actions());
+  }
+
+  function handleStack(feature: IMapFeatureRef) {
+    return handleMapFeature(feature, mapRef.current, actions());
   }
 
   function selectFromSpot(key: string) {
@@ -40,5 +50,6 @@ export function useMapClicks({
     closeSpot: () => setSameSpot(null),
     selectFromSpot,
     handleClick,
+    handleStack,
   };
 }

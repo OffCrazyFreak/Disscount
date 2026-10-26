@@ -2,9 +2,6 @@ import type { ExpressionSpecification, StyleSpecification } from "maplibre-gl";
 
 const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 
-// Fonts the OpenFreeMap style ships glyphs for; any other name renders no text.
-export const MAP_FONT_BOLD = ["Noto Sans Bold"];
-
 // OpenFreeMap prefers English names ("Zagreb" is fine, "Split" too, but
 // islands and regions come out in English), so prefer the Croatian tag.
 const CROATIAN_NAME: ExpressionSpecification = [

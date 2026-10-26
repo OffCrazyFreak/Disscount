@@ -2,7 +2,7 @@ import type { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
 
 import { ILatLon } from "@/app/[locale]/map/utils/distance";
 import {
-  COUNT_LAYER_ID,
+  TOP_STACK_LAYER_ID,
   POINT_LAYER_ID,
   STORE_SOURCE_ID,
 } from "@/app/[locale]/map/utils/store-layers";
@@ -36,11 +36,11 @@ export async function findSelectedFrame(
   const source = map.getSource<GeoJSONSource>(STORE_SOURCE_ID);
   if (!source) return null;
 
-  // A cluster's badge and its tiles are separate features, so keep one each.
+  // A stack can be reported once per tile it spans, so keep one each.
   const stacks = [
     ...new Map(
       map
-        .queryRenderedFeatures({ layers: [COUNT_LAYER_ID] })
+        .queryRenderedFeatures({ layers: [TOP_STACK_LAYER_ID] })
         .filter((stack) => stack.geometry.type === "Point")
         .map((stack) => [Number(stack.properties.cluster_id), stack]),
     ),

@@ -40,11 +40,26 @@ function toLeaf(feature: ILeafFeature): IClusterLeaf | null {
 export async function handleMapFeatureClick(
   event: MapLayerMouseEvent,
   mapRef: MapRef | null,
-  { onSelect, onSameSpot, coveredBottom }: IMapClickActions,
+  actions: IMapClickActions,
 ) {
   const feature = event.features?.[0];
-  if (!feature) return;
+  if (feature) await handleMapFeature(feature, mapRef, actions);
+}
 
+/** What a stack or store tap reads off the feature it hit. */
+export type IMapFeatureRef = Pick<
+  maplibregl.MapGeoJSONFeature,
+  "properties"
+> & {
+  source?: string;
+};
+
+/** The same as a tap, for a stack reached another way, such as its badge. */
+export async function handleMapFeature(
+  feature: IMapFeatureRef,
+  mapRef: MapRef | null,
+  { onSelect, onSameSpot, coveredBottom }: IMapClickActions,
+) {
   const properties = feature.properties ?? {};
 
   if (properties.cluster_id == null || !feature.source) {
