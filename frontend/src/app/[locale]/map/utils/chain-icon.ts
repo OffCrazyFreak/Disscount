@@ -13,8 +13,6 @@ export function chainIconId(chain: string): string {
   return `chain-${chain}`;
 }
 
-export const COUNT_BADGE_ID = "cluster-count-badge";
-
 export const SELECTED_FRAME_ID = "selected-frame";
 export const SELECTED_STACK_FRAME_ID = "selected-stack-frame";
 
@@ -108,43 +106,6 @@ export async function renderChainIcon(chain: string): Promise<ImageData> {
   context.stroke();
 
   return context.getImageData(0, 0, ICON_SIZE, ICON_SIZE);
-}
-
-const BADGE_HEIGHT = 22 * ICON_PIXEL_RATIO;
-const BADGE_WIDTH = BADGE_HEIGHT + 4 * ICON_PIXEL_RATIO;
-
-/**
- * The cluster count's pill, in the app's primary green with a white ring that
- * keeps it apart from red logos. Only its flat middle stretches, so the map can
- * widen it around "1534" while the round ends keep their shape.
- */
-export function renderCountBadge(): {
-  image: ImageData;
-  stretchX: [number, number][];
-  stretchY: [number, number][];
-} {
-  const context = createCanvas(BADGE_WIDTH, BADGE_HEIGHT);
-
-  roundedRect(
-    context,
-    BORDER / 2,
-    BADGE_WIDTH,
-    BADGE_HEIGHT,
-    (BADGE_HEIGHT - BORDER) / 2,
-  );
-  context.fillStyle = "#2ec50d";
-  context.fill();
-  context.lineWidth = BORDER;
-  context.strokeStyle = "#ffffff";
-  context.stroke();
-
-  const half = BADGE_HEIGHT / 2;
-
-  return {
-    image: context.getImageData(0, 0, BADGE_WIDTH, BADGE_HEIGHT),
-    stretchX: [[half, BADGE_WIDTH - half]],
-    stretchY: [[half - 1, half + 1]],
-  };
 }
 
 const FRAME_STROKE = 4 * ICON_PIXEL_RATIO;

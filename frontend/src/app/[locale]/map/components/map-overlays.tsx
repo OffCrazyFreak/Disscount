@@ -9,7 +9,6 @@ import {
 import { useSelectedFrame } from "@/app/[locale]/map/hooks/use-selected-frame";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { ILatLon } from "@/app/[locale]/map/utils/distance";
-import { COUNT_LAYER_ID } from "@/app/[locale]/map/utils/store-layers";
 
 interface IMapOverlaysProps {
   /** True once the store layers exist, so the frame can find its stack. */
@@ -61,11 +60,9 @@ export default function MapOverlays({
 
       {frame && (
         <Source id="selected-store" type="geojson" data={point(frame)}>
-          {/* Under the count badge, so the frame never covers the number. */}
           <Layer
             id="selected-store-frame"
             type="symbol"
-            beforeId={COUNT_LAYER_ID}
             layout={{
               "icon-image": frame.wide
                 ? SELECTED_STACK_FRAME_ID

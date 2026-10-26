@@ -1,12 +1,8 @@
 import type { ExpressionSpecification } from "maplibre-gl";
 import type { LayerProps } from "react-map-gl/maplibre";
 
-import {
-  chainIconId,
-  COUNT_BADGE_ID,
-} from "@/app/[locale]/map/utils/chain-icon";
+import { chainIconId } from "@/app/[locale]/map/utils/chain-icon";
 import { hasChains, rankedChain } from "@/app/[locale]/map/utils/cluster-stack";
-import { MAP_FONT_BOLD } from "@/app/[locale]/map/utils/map-style";
 
 export const STORE_SOURCE_ID = "stores";
 
@@ -14,11 +10,13 @@ export const POINT_LAYER_ID = "store-point";
 
 // The badge is the most obvious thing to tap, and a cluster of chains with no
 // logo yet still shows it.
-export const COUNT_LAYER_ID = "store-cluster-count";
 
 function stackLayerId(rank: number): string {
   return `store-cluster-${rank}`;
 }
+
+/** Every stack draws a tile at rank 0, so this layer holds one feature per stack. */
+export const TOP_STACK_LAYER_ID = stackLayerId(0);
 
 // Back to front: the third chain peeks out on the right, the second on the
 // left, and the most common sits in front.
@@ -31,7 +29,6 @@ const STACK: { rank: number; offset: [number, number]; rotate: number }[] = [
 /** Layers a click can land on, so the map reports features only for these. */
 export const INTERACTIVE_LAYER_IDS = [
   POINT_LAYER_ID,
-  COUNT_LAYER_ID,
   ...STACK.map(({ rank }) => stackLayerId(rank)),
 ];
 
@@ -75,26 +72,3 @@ export function stackLayers(chains: string[]): LayerProps[] {
 }
 
 /** The number of stores, on a badge at the stack's top right. */
-export function clusterCountLayer(): LayerProps {
-  return {
-    id: COUNT_LAYER_ID,
-    type: "symbol",
-    filter: IS_CLUSTER,
-    layout: {
-      "icon-image": COUNT_BADGE_ID,
-      // The pill wraps the text, and anchoring its left end makes a longer
-      // count grow away from the logos instead of over them.
-      "icon-text-fit": "both",
-      "icon-text-fit-padding": [6, 6, 5, 6],
-      "text-field": ["to-string", ["get", "point_count"]],
-      "text-font": MAP_FONT_BOLD,
-      "text-size": 11,
-      "text-anchor": "left",
-      "text-offset": [1.5, -1.45],
-      "text-allow-overlap": true,
-      "text-ignore-placement": true,
-      ...ALWAYS_VISIBLE,
-    },
-    paint: { "text-color": "#ffffff" },
-  };
-}

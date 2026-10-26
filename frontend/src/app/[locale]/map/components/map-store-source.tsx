@@ -2,10 +2,10 @@
 
 import { Layer, Source } from "react-map-gl/maplibre";
 
+import ClusterCountBadges from "@/app/[locale]/map/components/cluster-count-badges";
 import { chainCountProperties } from "@/app/[locale]/map/utils/cluster-stack";
 import { IStoreFeatureCollection } from "@/app/[locale]/map/utils/store-geojson";
 import {
-  clusterCountLayer,
   pointLayer,
   stackLayers,
   STORE_SOURCE_ID,
@@ -26,21 +26,24 @@ interface IMapStoreSourceProps {
  */
 export default function MapStoreSource({ chains, data }: IMapStoreSourceProps) {
   return (
-    <Source
-      id={STORE_SOURCE_ID}
-      type="geojson"
-      data={data}
-      cluster
-      clusterRadius={50}
-      clusterMaxZoom={MAP_MAX_ZOOM}
-      maxzoom={MAP_MAX_ZOOM + 1}
-      clusterProperties={chainCountProperties(chains)}
-    >
-      {stackLayers(chains).map((layer) => (
-        <Layer key={layer.id} {...layer} />
-      ))}
-      <Layer {...clusterCountLayer()} />
-      <Layer {...pointLayer()} />
-    </Source>
+    <>
+      <Source
+        id={STORE_SOURCE_ID}
+        type="geojson"
+        data={data}
+        cluster
+        clusterRadius={50}
+        clusterMaxZoom={MAP_MAX_ZOOM}
+        maxzoom={MAP_MAX_ZOOM + 1}
+        clusterProperties={chainCountProperties(chains)}
+      >
+        {stackLayers(chains).map((layer) => (
+          <Layer key={layer.id} {...layer} />
+        ))}
+        <Layer {...pointLayer()} />
+      </Source>
+
+      <ClusterCountBadges />
+    </>
   );
 }
