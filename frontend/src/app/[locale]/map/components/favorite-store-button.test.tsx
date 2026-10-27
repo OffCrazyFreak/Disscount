@@ -77,8 +77,6 @@ describe("FavoriteStoreButton", () => {
     );
     await user.click(screen.getByRole("button", { name: "Dodaj u omiljene" }));
 
-    expect(toast.error).toHaveBeenCalledWith(
-      "Možeš spremiti najviše 10 omiljenih trgovina.",
-    );
+    expect(toast.error).toHaveBeenCalledWith("Najviše 10 omiljenih trgovina.");
   });
 });

@@ -68,8 +68,8 @@
   "favorites": {
     "add": "Zu Favoriten hinzufügen",
     "remove": "Aus Favoriten entfernen",
-    "limit": "Du kannst höchstens {max, number} Lieblingsgeschäfte speichern.",
-    "saveFailed": "Lieblingsgeschäfte können gerade nicht gespeichert werden. Versuch es noch einmal."
+    "limit": "Höchstens {max, number} Lieblingsgeschäfte.",
+    "saveFailed": "Speichern fehlgeschlagen. Versuch es noch einmal."
   },
   "actions": {
     "googleDirections": "Route (Google Maps)",

@@ -68,8 +68,8 @@
   "favorites": {
     "add": "Aggiungi ai preferiti",
     "remove": "Rimuovi dai preferiti",
-    "limit": "Puoi salvare al massimo {max, number} negozi preferiti.",
-    "saveFailed": "Al momento non è possibile salvare i negozi preferiti. Riprova."
+    "limit": "Al massimo {max, number} negozi preferiti.",
+    "saveFailed": "Salvataggio non riuscito. Riprova."
   },
   "actions": {
     "googleDirections": "Indicazioni (Google Maps)",

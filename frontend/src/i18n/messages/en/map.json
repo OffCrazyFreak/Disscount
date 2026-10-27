@@ -68,8 +68,8 @@
   "favorites": {
     "add": "Add to favourites",
     "remove": "Remove from favourites",
-    "limit": "You can save up to {max, number} favourite stores.",
-    "saveFailed": "Favourite stores can't be saved right now. Try again."
+    "limit": "Up to {max, number} favourite stores.",
+    "saveFailed": "Saving failed. Try again."
   },
   "actions": {
     "googleDirections": "Directions (Google Maps)",
