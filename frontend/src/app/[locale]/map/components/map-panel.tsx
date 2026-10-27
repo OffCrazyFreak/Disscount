@@ -1,10 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
-import { useTranslations } from "next-intl";
-
-import SearchBar from "@/components/custom/search/search-bar";
-import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
+import MapSearch from "@/app/[locale]/map/components/map-search";
 import MapChainSelect from "@/app/[locale]/map/components/map-chain-select";
 import ResultCountStatus from "@/app/[locale]/map/components/result-count-status";
 import NearMeButton from "@/app/[locale]/map/components/near-me-button";
@@ -17,12 +13,16 @@ interface IMapPanelProps {
   model: IMapViewModel;
   /** What the map shows right now; stores inside it lead the list. */
   viewArea: IViewArea | null;
+  /** Off on phones, where the search sits in the map's floating bar. */
+  withSearch?: boolean;
 }
 
 /** Search, filters and the list, with the selected store open. Same on every screen. */
-export default function MapPanel({ model, viewArea }: IMapPanelProps) {
-  const t = useTranslations("map");
-
+export default function MapPanel({
+  model,
+  viewArea,
+  withSearch = true,
+}: IMapPanelProps) {
   const { selected, listed } = model;
   // A shared link can name a store the filters hide; it still opens, on top.
   const pinned =
@@ -31,16 +31,7 @@ export default function MapPanel({ model, viewArea }: IMapPanelProps) {
       : [];
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3 p-3">
-      <Suspense fallback={<SearchBarSkeleton submitButtonLocation="none" />}>
-        <SearchBar
-          placeholder={t("search.placeholder")}
-          searchRoute="/map"
-          clearable
-          autoSearch
-          shallow
-          submitButtonLocation="none"
-        />
-      </Suspense>
+      {withSearch && <MapSearch />}
 
       {!model.query && (
         <RecentSearches

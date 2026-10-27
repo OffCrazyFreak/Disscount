@@ -8,11 +8,9 @@
     "placeholder": "Händler, Ort oder Adresse..."
   },
   "layout": {
-    "skipMap": "Karte überspringen",
     "storeList": "Liste der Märkte",
     "stores": "Märkte",
-    "collapse": "Liste verkleinern",
-    "expand": "Liste vergrößern"
+    "backToMap": "Zurück zur Karte"
   },
   "load": {
     "error": "Die Märkte können gerade nicht geladen werden.",

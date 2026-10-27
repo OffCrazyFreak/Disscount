@@ -8,11 +8,9 @@
     "placeholder": "Trgovina, grad ili adresa..."
   },
   "layout": {
-    "skipMap": "Preskoči kartu",
     "storeList": "Popis trgovina",
     "stores": "Trgovine",
-    "collapse": "Smanji popis",
-    "expand": "Proširi popis"
+    "backToMap": "Natrag na kartu"
   },
   "load": {
     "error": "Trgovine se trenutačno ne mogu učitati.",

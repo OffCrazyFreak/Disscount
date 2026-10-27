@@ -8,11 +8,9 @@
     "placeholder": "Trgovec, kraj ali naslov..."
   },
   "layout": {
-    "skipMap": "Preskoči zemljevid",
     "storeList": "Seznam trgovin",
     "stores": "Trgovine",
-    "collapse": "Skrči seznam",
-    "expand": "Razširi seznam"
+    "backToMap": "Nazaj na zemljevid"
   },
   "load": {
     "error": "Trgovin trenutno ni mogoče naložiti.",

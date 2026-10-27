@@ -8,11 +8,9 @@
     "placeholder": "Catena, città o indirizzo..."
   },
   "layout": {
-    "skipMap": "Salta la mappa",
     "storeList": "Elenco dei negozi",
     "stores": "Negozi",
-    "collapse": "Riduci l'elenco",
-    "expand": "Espandi l'elenco"
+    "backToMap": "Torna alla mappa"
   },
   "load": {
     "error": "Al momento non è possibile caricare i negozi.",

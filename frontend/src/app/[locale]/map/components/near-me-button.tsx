@@ -5,18 +5,13 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { GeolocationStatus } from "@/app/[locale]/map/hooks/use-geolocation";
+import { geolocationMessageKey } from "@/app/[locale]/map/utils/geolocation-message";
 
 interface INearMeButtonProps {
   status: GeolocationStatus;
   onLocate: () => void;
   onClear: () => void;
 }
-
-const MESSAGE_KEYS = {
-  denied: "denied",
-  unavailable: "unavailable",
-  timeout: "timeout",
-} as const;
 
 /** Asks for the position on a tap; the page itself never prompts. */
 export default function NearMeButton({
@@ -25,10 +20,7 @@ export default function NearMeButton({
   onClear,
 }: INearMeButtonProps) {
   const t = useTranslations("map.nearMe");
-  const messageKey =
-    status in MESSAGE_KEYS
-      ? MESSAGE_KEYS[status as keyof typeof MESSAGE_KEYS]
-      : null;
+  const messageKey = geolocationMessageKey(status);
 
   return (
     <div className="flex flex-col gap-1.5">

@@ -74,7 +74,9 @@ export default function StoreList({
   const pickedInList = useRef(false);
   // The row just opened from the list, and until when to keep revealing it.
   const reveal = useRef<{ key: string; until: number } | null>(null);
-  const focusedKey = useRef<string | null>(null);
+  // The store open when the list mounts is no pick: on phones the list mounts
+  // as the search opens, and focus belongs in the field then.
+  const focusedKey = useRef<string | null>(selectedKey);
 
   // A row opened in the list is revealed with the least scrolling (below), so
   // one already in view does not jump. Any other change, such as a pick from
