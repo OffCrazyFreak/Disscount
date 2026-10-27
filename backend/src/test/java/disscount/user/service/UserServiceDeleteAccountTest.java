@@ -33,7 +33,13 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
+
+import disscount.favoriteStore.dao.FavoriteStoreRepository;
+import disscount.favoriteStore.dto.BulkFavoriteStoreRequest;
+import disscount.favoriteStore.dto.FavoriteStoreRequest;
+import disscount.favoriteStore.service.FavoriteStoreService;
 
 import static disscount.digitalCard.service.CardServiceTestSupport.request;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @Import({UserService.class, DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
         StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, PhotoUploadRateLimiter.class,
-        CardPhotoWriter.class, CardUserLock.class, PhotoCleanupService.class,
+        CardPhotoWriter.class, CardUserLock.class, PhotoCleanupService.class, FavoriteStoreService.class,
         UserServiceDeleteAccountTest.StoreConfig.class})
 class UserServiceDeleteAccountTest {
 
@@ -68,6 +74,8 @@ class UserServiceDeleteAccountTest {
     @Autowired StoreNameSuggestionRepository storeNames;
     @Autowired StoreNameUsageRepository storeNameUsages;
     @Autowired PhotoStore store;
+    @Autowired FavoriteStoreService favoriteStoreService;
+    @Autowired FavoriteStoreRepository favoriteStores;
 
     @BeforeEach
     void setUp() {
@@ -76,6 +84,7 @@ class UserServiceDeleteAccountTest {
         cards.deleteAll();
         storeNameUsages.deleteAll();
         storeNames.deleteAll();
+        favoriteStores.deleteAll();
         users.deleteAll();
         ((FakePhotoStore) store).objects.clear();
     }
@@ -116,5 +125,28 @@ class UserServiceDeleteAccountTest {
 
         assertThat(storeNameUsages.findAll()).singleElement().satisfies(u -> assertThat(u.getUserId()).isEqualTo(staying.getId()));
         assertThat(storeNames.findAll()).singleElement().satisfies(s -> assertThat(s.getUseCount()).isEqualTo(1));
+    }
+
+    @Test
+    void deleteAccountRemovesOnlyThatUsersFavoriteStores() {
+        User leaving = users.save(User.builder().id(UUID.randomUUID()).username("ana").build());
+        User staying = users.save(User.builder().id(UUID.randomUUID()).username("ivo").build());
+        favoriteStoreService.updateFavoriteStores(leaving.getId(), favorites("konzum:1", "lidl:2"));
+        favoriteStoreService.updateFavoriteStores(staying.getId(), favorites("konzum:1"));
+
+        userService.deleteAccount(leaving.getId());
+
+        assertThat(favoriteStores.findAll()).singleElement()
+                .satisfies(f -> assertThat(f.getUser().getId()).isEqualTo(staying.getId()));
+    }
+
+    private static BulkFavoriteStoreRequest favorites(String... keys) {
+        BulkFavoriteStoreRequest request = new BulkFavoriteStoreRequest();
+        request.setStores(List.of(keys).stream().map(key -> {
+            FavoriteStoreRequest store = new FavoriteStoreRequest();
+            store.setStoreKey(key);
+            return store;
+        }).toList());
+        return request;
     }
 }

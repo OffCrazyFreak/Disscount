@@ -58,10 +58,18 @@
     "update": "Karte verschoben · Liste aktualisieren",
     "sameSpot": "{count, plural, one {# Markt} other {# Märkte}} an dieser Stelle",
     "unknownAddress": "Adresse unbekannt",
+    "favorites": "Lieblingsgeschäfte · {count, number}",
+    "others": "Weitere Geschäfte · {count, number}",
     "distance": "{distance} von dir"
   },
   "details": {
     "notPlaced": "Für diesen Markt haben wir noch keinen genauen Standort, deshalb ist er nicht auf der Karte."
+  },
+  "favorites": {
+    "add": "Zu Favoriten hinzufügen",
+    "remove": "Aus Favoriten entfernen",
+    "limit": "Du kannst höchstens {max, number} Lieblingsgeschäfte speichern.",
+    "saveFailed": "Lieblingsgeschäfte können gerade nicht gespeichert werden. Versuch es noch einmal."
   },
   "actions": {
     "googleDirections": "Route (Google Maps)",

@@ -6,5 +6,6 @@ export * from "@/lib/api/schemas/shopping-list";
 export * from "@/lib/api/schemas/store-name";
 export * from "@/lib/api/schemas/shopping-list-item";
 export * from "@/lib/api/schemas/preferences";
+export * from "@/lib/api/schemas/favorite-store";
 export * from "@/lib/api/schemas/watchlist";
 export * from "@/lib/api/schemas/store-directory";

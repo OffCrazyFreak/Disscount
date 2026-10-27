@@ -58,10 +58,18 @@
     "update": "Mappa spostata · aggiorna l'elenco",
     "sameSpot": "{count, plural, one {# negozio} other {# negozi}} in questo punto",
     "unknownAddress": "Indirizzo sconosciuto",
+    "favorites": "Negozi preferiti · {count, number}",
+    "others": "Altri negozi · {count, number}",
     "distance": "a {distance} da te"
   },
   "details": {
     "notPlaced": "Non abbiamo ancora una posizione esatta per questo negozio, quindi non è sulla mappa."
+  },
+  "favorites": {
+    "add": "Aggiungi ai preferiti",
+    "remove": "Rimuovi dai preferiti",
+    "limit": "Puoi salvare al massimo {max, number} negozi preferiti.",
+    "saveFailed": "Al momento non è possibile salvare i negozi preferiti. Riprova."
   },
   "actions": {
     "googleDirections": "Indicazioni (Google Maps)",

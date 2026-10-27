@@ -58,10 +58,18 @@
     "update": "Zemljevid se je premaknil · osveži seznam",
     "sameSpot": "{count, plural, one {# trgovina} two {# trgovini} few {# trgovine} other {# trgovin}} na tem mestu",
     "unknownAddress": "Naslov ni znan",
+    "favorites": "Priljubljene trgovine · {count, number}",
+    "others": "Druge trgovine · {count, number}",
     "distance": "{distance} od tebe"
   },
   "details": {
     "notPlaced": "Za to trgovino še nimamo natančne lokacije, zato je ni na zemljevidu."
+  },
+  "favorites": {
+    "add": "Dodaj med priljubljene",
+    "remove": "Odstrani iz priljubljenih",
+    "limit": "Shraniš lahko največ {max, number} priljubljenih trgovin.",
+    "saveFailed": "Priljubljenih trgovin trenutno ni mogoče shraniti. Poskusi znova."
   },
   "actions": {
     "googleDirections": "Navodila (Google Zemljevidi)",

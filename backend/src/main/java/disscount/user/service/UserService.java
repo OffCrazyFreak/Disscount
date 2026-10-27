@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.digitalCard.service.DigitalCardService;
+import disscount.favoriteStore.service.FavoriteStoreService;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.ConflictException;
 import disscount.user.dao.AuthIdentityDao;
@@ -43,6 +44,7 @@ public class UserService {
     private final AuthIdentityDao authIdentityDao;
     private final UserProfileCreator profileCreator;
     private final DigitalCardService digitalCardService;
+    private final FavoriteStoreService favoriteStoreService;
 
     // Compared against better-auth's UTC session timestamps, so the JVM zone must not leak in.
     private static LocalDateTime nowUtc() {
@@ -243,6 +245,8 @@ public class UserService {
 
         // Cards hold card numbers and photos, which must not outlive the account.
         digitalCardService.deleteAllForUser(userId);
+        // Favourite stores show where the person shops.
+        favoriteStoreService.deleteAllForUser(userId);
     }
 
     /**
