@@ -109,5 +109,11 @@
       "highestPrice": "highest price"
     }
   },
-  "emptyValue": "-"
+  "emptyValue": "-",
+  "groups": {
+    "toggle": "By store",
+    "other": "Other",
+    "onMap": "On the map",
+    "summary": "{count, plural, one {# product} other {# products}} · {partial, select, yes {at least {subtotal}} other {{subtotal}}}"
+  }
 }

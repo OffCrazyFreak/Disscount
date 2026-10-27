@@ -6,7 +6,6 @@ import { useTranslations } from "next-intl";
 
 import { ChevronDown, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import {
   Collapsible,
   CollapsibleContent,
@@ -14,7 +13,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import ShoppingListItem from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-item";
+import ShoppingListItemViews from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-item-views";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import { useShoppingListItemMutations } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-shopping-list-item-mutations";
 import { resolveShoppingListAccess } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-access";
@@ -22,11 +21,12 @@ import {
   getShoppingListItemsOpen,
   setShoppingListItemsOpen,
 } from "@/utils/browser/local-storage";
-import { compareHr } from "@/utils/strings";
 
 interface IShoppingListItemsProps {
   shoppingList: ShoppingList;
   cheapestStores: Record<string, string>;
+  /** Until prices arrive no item knows its cheapest chain, so nothing groups yet. */
+  isPricesLoading: boolean;
   averagePrices: Record<string, number>;
   storePrices: Record<string, Record<string, number>>;
 }
@@ -34,6 +34,7 @@ interface IShoppingListItemsProps {
 export default function ShoppingListItems({
   shoppingList,
   cheapestStores,
+  isPricesLoading,
   averagePrices,
   storePrices,
 }: IShoppingListItemsProps) {
@@ -55,9 +56,16 @@ export default function ShoppingListItems({
     setShoppingListItemsOpen(shoppingList.id, open);
   };
 
-  const sortedItems = [...shoppingList.items].sort((a, b) =>
-    compareHr(a.name, b.name),
-  );
+  const rowProps = {
+    cheapestStores,
+    averagePrices,
+    storePrices,
+    onUpdate: handleUpdateItem,
+    onDelete: handleDeleteItem,
+    deletingItemId,
+    canCheck,
+    canEditItems,
+  };
 
   const checkedCount =
     shoppingList.items?.filter((item) => item.isChecked)?.length || 0;
@@ -112,29 +120,12 @@ export default function ShoppingListItems({
             )}
           </div>
         ) : (
-          <Card className="p-4">
-            <div className="space-y-1">
-              {sortedItems.map((item, index) => (
-                <ShoppingListItem
-                  key={item.id}
-                  item={item}
-                  onUpdate={(updatedItem) =>
-                    handleUpdateItem(item.id, updatedItem)
-                  }
-                  onDelete={() => handleDeleteItem(item.id)}
-                  isDeleting={deletingItemId === item.id}
-                  cheapestStore={cheapestStores[item.id]}
-                  averagePrice={averagePrices[item.id]}
-                  storePrices={storePrices[item.id] || {}}
-                  isFirst={index === 0}
-                  isLast={index === sortedItems.length - 1}
-                  showSeparator={index < sortedItems.length - 1}
-                  canCheck={canCheck}
-                  canEditItems={canEditItems}
-                />
-              ))}
-            </div>
-          </Card>
+          <ShoppingListItemViews
+            listId={shoppingList.id}
+            items={shoppingList.items}
+            isPricesLoading={isPricesLoading}
+            rowProps={rowProps}
+          />
         )}
       </CollapsibleContent>
     </Collapsible>

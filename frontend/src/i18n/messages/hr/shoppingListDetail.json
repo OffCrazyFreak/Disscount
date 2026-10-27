@@ -109,5 +109,11 @@
       "highestPrice": "najviša cijena"
     }
   },
-  "emptyValue": "-"
+  "emptyValue": "-",
+  "groups": {
+    "toggle": "Po trgovinama",
+    "other": "Ostalo",
+    "onMap": "Na karti",
+    "summary": "{count, plural, one {# proizvod} few {# proizvoda} other {# proizvoda}} · {partial, select, yes {najmanje {subtotal}} other {{subtotal}}}"
+  }
 }

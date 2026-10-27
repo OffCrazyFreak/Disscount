@@ -95,6 +95,7 @@ export default function ShoppingListDetailClient({
         <ShoppingListItems
           shoppingList={shoppingList}
           cheapestStores={cheapestStores}
+          isPricesLoading={isPricesLoading}
           averagePrices={averagePrices}
           storePrices={storePrices}
         />
