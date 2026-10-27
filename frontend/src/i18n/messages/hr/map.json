@@ -68,8 +68,8 @@
   "favorites": {
     "add": "Dodaj u omiljene",
     "remove": "Ukloni iz omiljenih",
-    "limit": "Možeš spremiti najviše {max, number} omiljenih trgovina.",
-    "saveFailed": "Omiljene trgovine se trenutačno ne mogu spremiti. Pokušaj ponovno."
+    "limit": "Najviše {max, number} omiljenih trgovina.",
+    "saveFailed": "Spremanje nije uspjelo. Pokušaj ponovno."
   },
   "actions": {
     "googleDirections": "Upute (Google karte)",

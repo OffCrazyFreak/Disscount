@@ -68,8 +68,8 @@
   "favorites": {
     "add": "Dodaj med priljubljene",
     "remove": "Odstrani iz priljubljenih",
-    "limit": "Shraniš lahko največ {max, number} priljubljenih trgovin.",
-    "saveFailed": "Priljubljenih trgovin trenutno ni mogoče shraniti. Poskusi znova."
+    "limit": "Največ {max, number} priljubljenih trgovin.",
+    "saveFailed": "Shranjevanje ni uspelo. Poskusi znova."
   },
   "actions": {
     "googleDirections": "Navodila (Google Zemljevidi)",
