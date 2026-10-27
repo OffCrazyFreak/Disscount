@@ -28,6 +28,13 @@ export function useFavoriteStores() {
       return;
     }
 
+    // Every save replaces the whole list, so one built before the saved list
+    // arrived would erase it.
+    if (!query.isSuccess) {
+      toast.error(t("saveFailed"));
+      return;
+    }
+
     if (keys.includes(storeKey)) {
       save.mutate(
         keys.filter((key) => key !== storeKey),

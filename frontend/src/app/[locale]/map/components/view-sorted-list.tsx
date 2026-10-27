@@ -35,6 +35,7 @@ export default function ViewSortedList({
   const favorite = listed.filter((row) => favorites.isFavorite(row.key));
   const rest = listed.filter((row) => !favorites.isFavorite(row.key));
   const { onMap, elsewhere } = splitByView(rest, view.applied);
+  const favoritesOnMap = splitByView(favorite, view.applied).onMap.length;
 
   const headings = listHeadings({
     pinned: pinned.length,
@@ -69,7 +70,8 @@ export default function ViewSortedList({
       )}
 
       <p role="status" className="sr-only">
-        {view.applied && t("onMapStatus", { count: onMap.length })}
+        {view.applied &&
+          t("onMapStatus", { count: onMap.length + favoritesOnMap })}
       </p>
 
       <StoreList

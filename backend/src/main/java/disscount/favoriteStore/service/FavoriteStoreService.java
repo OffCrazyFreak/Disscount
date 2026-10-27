@@ -26,7 +26,8 @@ public class FavoriteStoreService {
 
     /** Replaces the user's whole list, the way pinned places are saved. */
     public List<FavoriteStoreDto> updateFavoriteStores(UUID userId, BulkFavoriteStoreRequest request) {
-        User user = userRepository.findById(userId)
+        // Same row lock as account deletion, so a save cannot land after it or interleave with another save.
+        User user = userRepository.findByIdForUpdate(userId)
                 .filter(u -> u.getDeletedAt() == null)
                 .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
