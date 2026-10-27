@@ -18,6 +18,8 @@ export function useFavoriteStoresQuery({ enabled = true } = {}) {
   });
 }
 
+const SAVE_MUTATION_KEY = [...FAVORITE_STORE_QUERY_KEYS.all, "save"];
+
 /** Saves the full list of keys, showing it at once and rolling back on failure. */
 export function useSaveFavoriteStores() {
   const queryClient = useQueryClient();
@@ -28,6 +30,11 @@ export function useSaveFavoriteStores() {
     string[],
     { previous: FavoriteStoreDto[] | undefined }
   >({
+    mutationKey: SAVE_MUTATION_KEY,
+    // Each save replaces the whole list, so they must reach the server in click order.
+    scope: { id: "favoriteStores" },
+    // Not on the offline allowlist: fail and roll back instead of pausing.
+    networkMode: "always",
     mutationFn: (keys) =>
       updateFavoriteStores({
         stores: keys.map((storeKey) => ({ storeKey })),
@@ -51,9 +58,12 @@ export function useSaveFavoriteStores() {
         context?.previous,
       );
     },
+    // A refetch between queued saves would show an older list for a moment.
     onSettled: () =>
-      queryClient.invalidateQueries({
-        queryKey: FAVORITE_STORE_QUERY_KEYS.all,
-      }),
+      queryClient.isMutating({ mutationKey: SAVE_MUTATION_KEY }) === 1
+        ? queryClient.invalidateQueries({
+            queryKey: FAVORITE_STORE_QUERY_KEYS.all,
+          })
+        : undefined,
   });
 }

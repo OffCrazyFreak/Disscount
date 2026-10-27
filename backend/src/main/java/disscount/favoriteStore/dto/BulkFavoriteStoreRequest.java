@@ -12,6 +12,5 @@ public class BulkFavoriteStoreRequest {
 
     @NotNull(message = "{validation.favoriteStores.required}")
     @Size(max = 10, message = "{validation.favoriteStores.tooMany}")
-    @Valid
-    private List<FavoriteStoreRequest> stores;
+    private List<@NotNull(message = "{validation.storeKey.required}") @Valid FavoriteStoreRequest> stores;
 }

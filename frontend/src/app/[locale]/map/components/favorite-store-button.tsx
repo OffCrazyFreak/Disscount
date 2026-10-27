@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -18,16 +19,24 @@ export default function FavoriteStoreButton({
   const t = useTranslations("map.favorites");
   const { isFavorite, toggle } = useFavoriteStores();
   const isOn = isFavorite(storeKey);
+  const ref = useRef<HTMLButtonElement>(null);
+
+  // Unstarring moves the row to a lower group, and moving the focused button
+  // in the page drops focus to the body.
+  function onClick() {
+    toggle(storeKey);
+    requestAnimationFrame(() => ref.current?.focus({ preventScroll: true }));
+  }
 
   return (
     <Button
       type="button"
       variant="outline"
       size="sm"
-      aria-pressed={isOn}
+      ref={ref}
       aria-label={isOn ? t("remove") : t("add")}
       title={isOn ? t("remove") : t("add")}
-      onClick={() => toggle(storeKey)}
+      onClick={onClick}
       className="relative z-10 ml-1.5 size-6 rounded-full p-0 align-middle after:absolute after:-inset-2 [&_svg:not([class*='size-'])]:size-3.5"
     >
       <Star
