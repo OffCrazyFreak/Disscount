@@ -76,9 +76,6 @@ frontend/yarn.lock
 desktop.ini
 
 docs/disscount_*
-# Playwright MCP session artifacts
-.playwright-mcp/
-
 # Screenshots dropped at the repo root; real ones belong under docs/
 /*.png
 /*.jpg
