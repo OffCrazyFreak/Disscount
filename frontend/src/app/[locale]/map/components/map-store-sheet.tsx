@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { RefObject, useEffect, useId, useState } from "react";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -16,6 +16,11 @@ interface IMapStoreSheetProps {
   onClose: () => void;
   /** The sheet's height in pixels, 0 once it closes. */
   onHeightChange: (height: number) => void;
+  /**
+   * Takes focus when the sheet closes. A map control, not the search field,
+   * whose focus would raise the phone keyboard after an X tap.
+   */
+  returnFocusRef: RefObject<HTMLElement | null>;
 }
 
 /** The phone's selected store: swiping it away or the X deselects it. */
@@ -23,16 +28,18 @@ export default function MapStoreSheet({
   row,
   onClose,
   onHeightChange,
+  returnFocusRef,
 }: IMapStoreSheetProps) {
   const id = useId();
-  const bodyRef = useRef<HTMLDivElement>(null);
-  const isOpen = row != null;
+  // State, not a ref: the drawer's portal mounts a render after the sheet
+  // opens, and the measuring has to start once the body actually exists.
+  const [body, setBody] = useState<HTMLDivElement | null>(null);
 
-  // The drawer itself is out of reach inside SheetShell, so its height is read
-  // off the body's container, which the drawer wraps edge to edge.
+  // The drawer itself is out of reach inside SheetShell, so it is found from
+  // the body, which it wraps edge to edge.
   useEffect(() => {
-    const drawer = bodyRef.current?.closest<HTMLElement>("[data-vaul-drawer]");
-    if (!isOpen || !drawer) {
+    const drawer = body?.closest<HTMLElement>("[data-vaul-drawer]");
+    if (!drawer) {
       onHeightChange(0);
       return;
     }
@@ -44,7 +51,7 @@ export default function MapStoreSheet({
 
     return () => observer.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
+  }, [body]);
   const t = useTranslations("shell");
 
   return (
@@ -56,12 +63,13 @@ export default function MapStoreSheet({
       // The map stays in use behind it: panning or tapping another store must
       // neither be blocked nor close the sheet.
       modal={false}
+      returnFocusRef={returnFocusRef}
       bodyClassName="gap-0 px-1"
       className="md:hidden"
     >
       {row && (
         <>
-          <div ref={bodyRef} className="flex items-center gap-3 px-3 py-1">
+          <div ref={setBody} className="flex items-center gap-3 px-3 py-1">
             <StoreSummary row={row} isOpen id={id} />
 
             {/* In the store's row rather than the sheet's header band, which

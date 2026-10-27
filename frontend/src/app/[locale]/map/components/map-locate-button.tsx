@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Ref, useEffect, useRef, useState } from "react";
 import { Loader2, LocateFixed } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -13,36 +13,42 @@ import { cn } from "@/lib/utils";
 interface IMapLocateButtonProps {
   status: GeolocationStatus;
   onLocate: () => void;
+  ref?: Ref<HTMLButtonElement>;
 }
 
 /** The phone map's own near-me control, above the zoom buttons. */
 export default function MapLocateButton({
   status,
   onLocate,
+  ref,
 }: IMapLocateButtonProps) {
   const t = useTranslations("map.nearMe");
   const isLocating = status === "locating";
-  const tapped = useRef(false);
+  // Counted rather than flagged: a browser without geolocation answers every
+  // tap with the same status, which alone would not rerun the effect.
+  const [taps, setTaps] = useState(0);
+  const answered = useRef(0);
 
   // The list shows these under its own button; over the map a toast says it.
-  // Only for this button's own tap, which any settled status answers.
+  // Only for this button's own taps, which any settled status answers.
   useEffect(() => {
-    if (!tapped.current || status === "locating") return;
-    tapped.current = false;
+    if (taps === answered.current || status === "locating") return;
+    answered.current = taps;
 
     const messageKey = geolocationMessageKey(status);
     if (messageKey) toast.error(t(messageKey));
-  }, [status, t]);
+  }, [taps, status, t]);
 
   return (
     <Button
+      ref={ref}
       type="button"
       variant="outline"
       size="icon"
       aria-label={t("locate")}
       disabled={isLocating}
       onClick={() => {
-        tapped.current = true;
+        setTaps((count) => count + 1);
         onLocate();
       }}
       className={cn(

@@ -31,6 +31,7 @@ export default function MapMobileLayout({
 }: IMapMobileLayoutProps) {
   const t = useTranslations("map.layout");
   const containerRef = useRef<HTMLDivElement>(null);
+  const locateRef = useRef<HTMLButtonElement>(null);
   const [isSearchOpen, setSearchOpen] = useState(false);
   const sheetRow = isSearchOpen ? null : model.selected;
 
@@ -79,6 +80,7 @@ export default function MapMobileLayout({
         {map}
 
         <MapLocateButton
+          ref={locateRef}
           status={model.geolocation.status}
           onLocate={model.geolocation.locate}
         />
@@ -88,6 +90,7 @@ export default function MapMobileLayout({
         row={sheetRow}
         onClose={() => model.selectStore(null)}
         onHeightChange={reportSheetHeight}
+        returnFocusRef={locateRef}
       />
     </div>
   );

@@ -1,22 +1,26 @@
 import { useState } from "react";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { http, HttpResponse } from "msw";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { CameraScannerProvider } from "@/context/scanner-context";
 import MapSearchBar from "@/app/[locale]/map/components/map-search-bar";
+import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 
-// The bar's own behaviour is under test, not the session, sidebar or URL search.
-vi.mock("@/components/custom/header/components/header-actions", () => ({
-  default: () => <button type="button">avatar</button>,
+// Boundaries the suite cannot run: the session, the App Router and the camera.
+vi.mock("@/context/user-context", () => ({
+  useUser: () => ({ isAuthenticated: false, isInitializing: false }),
 }));
-vi.mock("@/components/ui/sidebar", () => ({
-  SidebarTrigger: () => <button type="button">menu</button>,
+vi.mock("@/components/scanner/camera-scanner", () => ({ default: () => null }));
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(),
 }));
-vi.mock("@/app/[locale]/map/components/map-search", () => ({
-  default: ({ inputRef }: { inputRef: React.Ref<HTMLInputElement> }) => (
-    <input aria-label="search" ref={inputRef} />
-  ),
+vi.mock("@/i18n/navigation", () => ({
+  usePathname: () => "/map",
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
 }));
 
 function Harness({ onOuterEscape }: { onOuterEscape: () => void }) {
@@ -28,30 +32,53 @@ function Harness({ onOuterEscape }: { onOuterEscape: () => void }) {
         if (event.key === "Escape") onOuterEscape();
       }}
     >
-      <MapSearchBar isOpen={isOpen} onOpenChange={setOpen}>
-        <p>store list</p>
-      </MapSearchBar>
+      <SidebarProvider>
+        <CameraScannerProvider>
+          <MapSearchBar isOpen={isOpen} onOpenChange={setOpen}>
+            <p>store list</p>
+          </MapSearchBar>
+        </CameraScannerProvider>
+      </SidebarProvider>
     </div>
   );
 }
 
 describe("MapSearchBar", () => {
+  // jsdom has no matchMedia, which the sidebar asks for the phone breakpoint.
+  beforeEach(() => {
+    // The language switcher reads the session itself: a signed-out answer.
+    server.use(
+      http.get("*/api/auth/get-session", () => HttpResponse.json(null)),
+    );
+    vi.stubGlobal("matchMedia", () => ({
+      matches: true,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
+  });
+
   it("opens on a press of the field, and the back arrow closes it", async () => {
     const user = userEvent.setup();
     renderWithProviders(<Harness onOuterEscape={vi.fn()} />);
 
     expect(screen.queryByText("store list")).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("textbox", { name: "search" }));
+    await user.click(
+      screen.getByRole("searchbox", { name: "Trgovina, grad ili adresa..." }),
+    );
     expect(await screen.findByText("store list")).toBeInTheDocument();
     await waitFor(() =>
-      expect(screen.queryByRole("button", { name: "menu" })).toBeNull(),
+      expect(
+        screen.queryByRole("button", { name: "Prebaci bočnu traku" }),
+      ).toBeNull(),
     );
 
     await user.click(screen.getByRole("button", { name: "Natrag na kartu" }));
-    expect(screen.getByRole("textbox", { name: "search" })).not.toHaveFocus();
     expect(
-      await screen.findByRole("button", { name: "menu" }),
+      screen.getByRole("searchbox", { name: "Trgovina, grad ili adresa..." }),
+    ).not.toHaveFocus();
+    expect(
+      await screen.findByRole("button", { name: "Prebaci bočnu traku" }),
     ).toBeInTheDocument();
   });
 
@@ -60,13 +87,15 @@ describe("MapSearchBar", () => {
     const user = userEvent.setup();
     renderWithProviders(<Harness onOuterEscape={onOuterEscape} />);
 
-    const field = screen.getByRole("textbox", { name: "search" });
+    const field = screen.getByRole("searchbox", {
+      name: "Trgovina, grad ili adresa...",
+    });
     await user.click(field);
     fireEvent.keyDown(field, { key: "Escape" });
 
     expect(onOuterEscape).not.toHaveBeenCalled();
     expect(
-      await screen.findByRole("button", { name: "menu" }),
+      await screen.findByRole("button", { name: "Prebaci bočnu traku" }),
     ).toBeInTheDocument();
   });
 
@@ -74,7 +103,9 @@ describe("MapSearchBar", () => {
     const user = userEvent.setup();
     renderWithProviders(<Harness onOuterEscape={vi.fn()} />);
 
-    const field = screen.getByRole("textbox", { name: "search" });
+    const field = screen.getByRole("searchbox", {
+      name: "Trgovina, grad ili adresa...",
+    });
     await user.click(field);
     await screen.findByText("store list");
 

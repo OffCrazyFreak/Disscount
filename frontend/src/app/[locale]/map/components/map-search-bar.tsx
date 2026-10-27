@@ -88,9 +88,14 @@ export default function MapSearchBar({
             onOpenChange(true);
           }}
           onFocus={(event) => {
-            // Focus handed back on close, or by the clear button, stays put.
+            // Focus handed back on close, or on or from the clear button, stays put.
             if (keepFocus.current) return;
             if (event.currentTarget.contains(event.relatedTarget)) return;
+            if (
+              event.target instanceof Element &&
+              event.target.closest("button")
+            )
+              return;
             onOpenChange(true);
           }}
         >
