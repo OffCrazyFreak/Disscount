@@ -26,6 +26,7 @@ export interface IShoppingListsPreferences {
   priceHistoryPeriod?: PeriodOption;
   priceHistoryChains?: string[];
   storesOpen?: boolean;
+  groupByStore?: boolean;
   [key: string]: unknown;
 }
 
