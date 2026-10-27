@@ -10,7 +10,14 @@ import NotificationsDropdown from "@/components/custom/notifications/notificatio
 import { useIsMobile } from "@/hooks/use-mobile";
 import LanguageSwitcher from "@/components/custom/locale/language-switcher";
 
-export default function HeaderActions() {
+interface IHeaderActionsProps {
+  /** The phone map's bar: icon-only login, so the store search keeps its width. */
+  compact?: boolean;
+}
+
+export default function HeaderActions({
+  compact = false,
+}: IHeaderActionsProps) {
   // isInitializing, not isLoading: a background session refresh must not
   // unmount the bell, or it tears down an open notifications menu mid-use.
   const { isAuthenticated, isInitializing } = useUser();
@@ -29,9 +36,21 @@ export default function HeaderActions() {
         />
       ) : isAuthenticated ? (
         <div className="flex items-center gap-4">
-          <NotificationsDropdown openViaContext />
+          {/* The page header stays mounted, hidden, behind the compact bar, and
+              only one bell may answer open requests. */}
+          <NotificationsDropdown openViaContext={!compact} />
           <UserMenu />
         </div>
+      ) : compact ? (
+        <Button
+          variant="primary"
+          size="icon-sm"
+          aria-label={t("header.login")}
+          className="rounded-full"
+          onClick={() => openModalUrl({ name: "login" })}
+        >
+          <LogIn aria-hidden="true" />
+        </Button>
       ) : (
         <Button
           variant="primary"

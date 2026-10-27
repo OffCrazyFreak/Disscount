@@ -8,11 +8,9 @@
     "placeholder": "Store, town or address..."
   },
   "layout": {
-    "skipMap": "Skip the map",
     "storeList": "Store list",
     "stores": "Stores",
-    "collapse": "Collapse the list",
-    "expand": "Expand the list"
+    "backToMap": "Back to the map"
   },
   "load": {
     "error": "Stores can't be loaded right now.",
