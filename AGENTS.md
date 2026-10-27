@@ -86,6 +86,7 @@ Tests run on H2 and touch nothing outside the module, so none needs a nod.
 - `baseline-browser-mapping` is a direct dependency only so `frontend/pnpm-workspace.yaml` can exempt it from pnpm's release-age gate.
 - `@vitejs/plugin-react` and `@rolldown/plugin-babel` exist only so Vitest compiles `.tsx` tests through the React Compiler. Next.js builds with its own compiler integration and never loads them. `@vitest/coverage-v8` stays on the exact `vitest` version, because its peer dependency is exact.
 - Import `server-only` in any module that must never reach the client.
+- `react-scan` stays exact-pinned at 0.5.3: 0.4 depends on `playwright`, and 0.5.4 onwards adds dependencies at `latest` (`react-grab`, then `react-doctor`, which pulls in `playwright-core`). The project keeps Playwright out entirely.
 - `next`, `react`, `react-dom`, `better-auth`, `drizzle-orm`, `kysely` and `pg` stay exact-pinned, so auth and data-layer bumps have to go through a reviewed PR. Everything else takes a range. Do not add a pin to a dependency with no security or data blast radius.
 - After changing a dependency or a pnpm override, delete `node_modules`, `pnpm-lock.yaml` and `.next` before reinstalling. A plain `pnpm install` leaves the old resolution in place.
 - Resetting the database means dropping both the `public` and the `drizzle` schemas. Dropping only `public` leaves the migration journal behind and `drizzle-kit migrate` silently no-ops.
