@@ -58,10 +58,18 @@
     "update": "Karta se pomaknula · osvježi popis",
     "sameSpot": "{count, plural, one {# trgovina} few {# trgovine} other {# trgovina}} na ovom mjestu",
     "unknownAddress": "Adresa nije poznata",
+    "favorites": "Omiljene trgovine · {count, number}",
+    "others": "Ostale trgovine · {count, number}",
     "distance": "{distance} od tebe"
   },
   "details": {
     "notPlaced": "Za ovu trgovinu još nemamo točnu lokaciju, pa nije na karti."
+  },
+  "favorites": {
+    "add": "Dodaj u omiljene",
+    "remove": "Ukloni iz omiljenih",
+    "limit": "Najviše {max, number} omiljenih trgovina.",
+    "saveFailed": "Spremanje nije uspjelo. Pokušaj ponovno."
   },
   "actions": {
     "googleDirections": "Upute (Google karte)",

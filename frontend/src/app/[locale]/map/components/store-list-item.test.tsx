@@ -9,6 +9,11 @@ import { DirectoryStoreDto } from "@/lib/api/schemas";
 import { renderWithProviders } from "@/test/render";
 import { shareOrCopy } from "@/utils/browser/share";
 
+// The star beside the share pill reads the session; signed out is enough here.
+vi.mock("@/context/user-context", () => ({
+  useUser: () => ({ isAuthenticated: false }),
+}));
+
 vi.mock("@/utils/browser/share", () => ({
   shareOrCopy: vi.fn(async () => "shared"),
 }));

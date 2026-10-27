@@ -4,6 +4,7 @@ import { MapPinOff } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
+import FavoriteStoreButton from "@/app/[locale]/map/components/favorite-store-button";
 import ShareStoreButton from "@/app/[locale]/map/components/share-store-button";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { formatDistance } from "@/app/[locale]/map/utils/distance";
@@ -65,7 +66,12 @@ export default function StoreSummary({ row, isOpen, id }: IStoreSummaryProps) {
           <span id={`${id}-address`} lang={address ? "hr" : undefined}>
             {address || t("unknownAddress")}
           </span>
-          {isOpen && <ShareStoreButton store={store} />}
+          {isOpen && (
+            <>
+              <ShareStoreButton store={store} />
+              <FavoriteStoreButton storeKey={row.key} />
+            </>
+          )}
         </span>
       </span>
 

@@ -58,10 +58,18 @@
     "update": "Map moved · Update the list",
     "sameSpot": "{count, plural, one {# store} other {# stores}} at this spot",
     "unknownAddress": "Address unknown",
+    "favorites": "Favourite stores · {count, number}",
+    "others": "Other stores · {count, number}",
     "distance": "{distance} from you"
   },
   "details": {
     "notPlaced": "We don't have an exact location for this store yet, so it isn't on the map."
+  },
+  "favorites": {
+    "add": "Add to favourites",
+    "remove": "Remove from favourites",
+    "limit": "Up to {max, number} favourite stores.",
+    "saveFailed": "Saving failed. Try again."
   },
   "actions": {
     "googleDirections": "Directions (Google Maps)",

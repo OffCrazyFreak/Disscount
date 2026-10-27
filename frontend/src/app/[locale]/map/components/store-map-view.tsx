@@ -11,6 +11,7 @@ import {
 } from "react-map-gl/maplibre";
 import type { StyleSpecification } from "maplibre-gl";
 
+import FavoriteStoreMarkers from "@/app/[locale]/map/components/favorite-store-markers";
 import MapOverlays from "@/app/[locale]/map/components/map-overlays";
 import MapPanControls from "@/app/[locale]/map/components/map-pan-controls";
 import MapStoreSource, {
@@ -137,6 +138,8 @@ export default function StoreMapView({
         selectedPoint={selectedPoint}
         userLocation={userLocation}
       />
+
+      <FavoriteStoreMarkers stores={stores} />
 
       <SameSpotPopup
         spot={clicks.sameSpot}

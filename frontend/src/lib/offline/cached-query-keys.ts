@@ -13,6 +13,7 @@ const PERSISTED_QUERY_KEY_PREFIXES = [
   "digitalCards", // metadata only; photo bytes live in card-photo-store.ts
   "pinnedStores",
   "pinnedPlaces",
+  "favoriteStores",
   "users", // current user profile (["users", "me"])
 ] as const;
 
