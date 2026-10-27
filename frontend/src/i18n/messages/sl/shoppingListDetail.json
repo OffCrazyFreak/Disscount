@@ -114,6 +114,6 @@
     "toggle": "Po trgovinah",
     "other": "Drugo",
     "onMap": "Na zemljevidu",
-    "summary": "{count, plural, one {# izdelek} two {# izdelka} few {# izdelki} other {# izdelkov}} · {partial, select, yes {vsaj {subtotal}} other {{subtotal}}}"
+    "summary": "{count, plural, one {# izdelek} two {# izdelka} few {# izdelki} other {# izdelkov}}{partial, select, yes { · vsaj {subtotal}} none {} other { · {subtotal}}}"
   }
 }

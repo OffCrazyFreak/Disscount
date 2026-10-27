@@ -58,4 +58,14 @@ describe("groupItemsByStore", () => {
     expect(group.subtotal).toBe(6);
     expect(group.isPartial).toBe(true);
   });
+
+  it("prices an item ticked without a chosen chain at today's price", () => {
+    const [group] = groupItemsByStore({
+      items: [item("1", "Kruh", { isChecked: true, storePrice: null })],
+      cheapestStores: { "1": "konzum" },
+      storePrices: { "1": { konzum: 1.5 } },
+    });
+
+    expect(group).toMatchObject({ subtotal: 1.5, isPartial: false });
+  });
 });

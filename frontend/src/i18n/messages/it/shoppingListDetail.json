@@ -114,6 +114,6 @@
     "toggle": "Per negozio",
     "other": "Altro",
     "onMap": "Sulla mappa",
-    "summary": "{count, plural, one {# prodotto} other {# prodotti}} · {partial, select, yes {almeno {subtotal}} other {{subtotal}}}"
+    "summary": "{count, plural, one {# prodotto} other {# prodotti}}{partial, select, yes { · almeno {subtotal}} none {} other { · {subtotal}}}"
   }
 }

@@ -32,7 +32,8 @@ export default function StoreGroupHeader({ group }: IStoreGroupHeaderProps) {
   const query = favoriteKey ? { store: favoriteKey } : { chain: chain ?? "" };
 
   return (
-    <div className="flex items-center gap-3 px-1 pb-2">
+    // Above the first row's stretched link, which reaches up over this header.
+    <div className="relative z-10 flex items-center gap-3 px-1 pb-2">
       {chain && (
         <span
           className="relative size-8 shrink-0 overflow-hidden rounded-sm border bg-white"
@@ -55,7 +56,8 @@ export default function StoreGroupHeader({ group }: IStoreGroupHeaderProps) {
           {t("summary", {
             count: group.items.length,
             subtotal: formatPrice(group.subtotal, locale),
-            partial: group.isPartial ? "yes" : "no",
+            // Prices are positive, so a zero partial total means none is known.
+            partial: !group.isPartial ? "no" : group.subtotal ? "yes" : "none",
           })}
         </p>
       </div>
