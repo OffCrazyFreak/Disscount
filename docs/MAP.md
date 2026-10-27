@@ -12,7 +12,8 @@ How `/map` finds, places and shows every store, where the coordinates come from,
 6. [Key files](#6-key-files)
 7. [Config and env](#7-config-and-env)
 8. [Gotchas](#8-gotchas)
-9. [Future work](#9-future-work)
+9. [Decisions and why](#9-decisions-and-why)
+10. [Future work](#10-future-work)
 
 ## 1. Quick reference
 
@@ -23,7 +24,7 @@ How `/map` finds, places and shows every store, where the coordinates come from,
 | Where do stores come from?        | cijene-api `/v1/stores/`, merged with our own coordinates                                                                                                             |
 | How many have coordinates?        | Upstream alone: 798 of 1,668 (48%). After the sync: 1,523 (91%), measured 2026-10-13                                                                                  |
 | Does it need a cron?              | No. The first request after the data is a day old starts the sync in the background                                                                                   |
-| Opening hours, prices on the map? | Not yet, see [§9](#9-future-work)                                                                                                                                     |
+| Opening hours, prices on the map? | Not yet, see [§10](#10-future-work)                                                                                                                                   |
 | Per-store pages for SEO?          | No. Without hours they would be thin pages. `/map` renders no store text on the server either, so search engines see only its title, description and a hidden heading |
 
 ## 2. Architecture
@@ -90,7 +91,7 @@ A store every source misses is recorded as a failed attempt and retried after 7 
 - **Near me:** the button asks for the position at low accuracy with our own 15 s timer; when the browser already reports the permission as `granted`, the page locates by itself without a prompt. A fix vaguer than 100 m is then sharpened by one high-accuracy request. The position never leaves the device.
 - **Location order:** GPS first. Without it, Cloudflare's guess from the IP (below) centres the map at city zoom and sorts the list, unless the user pinned a place, which wins over a guess. An IP guess, or a GPS fix coarser than 2 km (Android and iOS "approximate" grants), sorts without showing kilometres. The panel shows no note that the order is approximate. An automatic fix never moves the map once the user has panned it or a shared store link opened (`resolveMapOrigin` in `utils/map-origin.ts`).
 - **IP guess:** Cloudflare's "Add visitor location headers" managed transform adds `cf-iplatitude`, `cf-iplongitude` and `cf-ipcity` to requests that reach the origin. The page reads them per request (`utils/ip-location.ts`), keeps only a guess inside Croatia and rounds it to about a kilometre. `cf-ipcity` is not read. Nothing is stored. The data comes from IPinfo; for Croatia expect roughly half of visitors to get the right town, fewer on mobile networks, which often resolve to Zagreb. Without the transform the headers are absent and the map opens on all of Croatia, as before. The privacy policy describes both GPS and the IP guess.
-- **Links in:** product price rows open `/map?store=...`; the product chains section has "Gdje kupiti", which opens `/map?chain=...`.
+- **Links in:** product price rows open `/map?store=...`; the product chains section has "Gdje kupiti", which opens `/map?chain=...`. A shopping list grouped "Po trgovinama" gives each chain's section a "Na karti" link: to the user's favourite store of that chain when there is one (`?store=...&chain=...`), else to the whole chain (`?chain=...`). The section groups each item under its chosen chain, else its cheapest one, else "Ostalo" last, with a subtotal that reads "najmanje" when some price is unknown (`shopping-lists/[id]/utils/group-items-by-store.ts`). The switch is remembered per list in local storage.
 
 ## 5. Accessibility
 
@@ -126,11 +127,73 @@ The migration runs through the existing `migrate` service. The map needs no CSP 
 - **Blank map after context loss** (maplibre-gl-js#8690, open in 6.14): the map listens for `webglcontextlost` and offers a reload.
 - **Worker under webpack:** `setWorkerUrl(new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url))` at module scope. The 6.14 worker is one self-contained file.
 - **`after()` and the memo are per process.** A redeploy clears the memo; the lease lives in the database.
+- **A favourites save replaces the whole list.** A save built before the saved list loads, or two saves arriving out of order, erases favourites; the hook refuses clicks until the list has loaded and runs saves in one TanStack Query mutation scope, so they reach the server in click order.
+- **A ticked shopping list item may have no stored price.** An item added without choosing a chain saves no price when ticked, so the store groups fall back to today's price at the group's chain.
+- **A `?store=` link alone can hide its store.** With no `chain` in the URL, a signed-in user's pinned chains become the filter; links from shopping list sections therefore send the chain too.
 - **Attribution must stay visible.** OpenFreeMap and OSM credits come from MapLibre; DGU and Geoapify credits are added as custom attribution. The credits sit bottom left and share the bottom line with the controls on the right, the zoom buttons and, on desktop, the pan arrows just left of them, wrapping before reaching them (`globals.css`). On phones the store sheet covers that line only while a store is selected. DGU's sentence cannot be shortened: the Open Licence requires it verbatim, with a link. OpenStreetMap's guidelines let credits fold away after five seconds or on the first pan or zoom, but not start hidden, so `utils/attribution.ts` folds them into the (i) button 5 seconds after the map first settles, or on the user's first move.
 
-## 9. Future work
+## 9. Decisions and why
 
-- Opening hours and working Sundays (board task "Store opening hours"): per-chain hours from the same locators, with an explicit "nije potvrđeno" state.
+The owner's choices for this page and the reasons given for them, so nobody "fixes" a deliberate behaviour. Quotes are the owner's words; where there was no reason beyond the choice itself, only the choice is listed.
+
+### Layout and list
+
+| Decision                                                                                                                                                                                     | Why                                                                                                                      |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Each store is an accordion row in the list, not a separate details page that replaces the list                                                                                               | "instead of opening a whole new thing, simply make each list item an accordion"; opening hours will go into the same row |
+| Desktop map fills the space between header and footer with no page scroll; the page is as wide as the footer                                                                                 | "Make sure that the map has no scroll"; footer width picked from three screenshots                                       |
+| Opening a row scrolls only when the row is not fully visible                                                                                                                                 | Scrolling to the row's top "adds unnecessary content shift"                                                              |
+| Closed rows show name and full address on two ellipsised lines; the open row shows both whole                                                                                                | The old row cut the address off and repeated it once opened                                                              |
+| No visible notes about approximate order, store counts or "Trgovine po lancima" above the list                                                                                               | Removed on request; the counts are still announced to screen readers                                                     |
+| Chain filter is the shared multiselect, not badge buttons; an empty selection means all chains; "Odaberi sve" after typing selects only the matches; the open field caps at about three rows | Same control as everywhere else in the app; 27 chain badges pushed the list off a phone screen                           |
+| Share is a small labelled "Podijeli" pill inside the address line; directions are one shadcn button group; phone numbers use national grouping (0800 400 000)                                | Picked from screenshots; numbers are "usually separated" by convention                                                   |
+
+### Pins and stacks
+
+| Decision                                                                                                                                | Why                                                                                           |
+| --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Logos are square tiles with rounded corners                                                                                             | "Most if not all logos are square, look at landing"                                           |
+| Nearby stores of all chains merge into one logo stack, at every zoom, with no town bubbles                                              | "The map does seem too crowded"; stacks were preferred to named town bubbles                  |
+| Stores at the same spot (malls) open a small list popover                                                                               | Zooming can never split them                                                                  |
+| The list reorders, it does not filter: stores in view go to the top, nearest first, and the reorder waits while the user is in the list | "if you zoom in all the way into the mall, the list would sort those stores first"            |
+| The selection frame is rounded square, never covers the count, and follows the store into a stack when zooming out                      | It used to keep circling the old spot after a merge                                           |
+| Store counts use the one shared `Badge` with a `ring` prop, in the primary colour, with full numbers (1550, not 1.5k)                   | "there should be only one badge in my whole code base"; it should match "the rest of the app" |
+| Credits, controls and the near-me button sit at the bottom, on one line with a short credits text                                       | Credits must stay visible for the OSM, DGU and Geoapify licences, and they were being covered |
+| Credits fold into the (i) button after 5 s                                                                                              | OpenStreetMap allows folding but not starting hidden                                          |
+| No WebGL2: a clear message with Reload, and the list keeps working                                                                      | The owner's Opera on Linux loses WebGL after GPU crashes                                      |
+| Cloudflare visitor location headers are on for dev and prod                                                                             | So the map can open near the visitor without asking for GPS                                   |
+
+### Phones
+
+The phone layout follows the owner's own spec: a floating bar (menu, store search, bell, avatar) "like Google maps"; tapping the search grows the bar into a full-screen list with history and filters, and back or close shrinks it again, animated ("morph into full page, and morph back into floating header"); a store picked on the map or in the list opens a bottom sheet with only that store's details; "Swiping the sheet down out of screen deselect the store". Use "shadcn components wherever possible".
+
+| Decision                                                                                   | Why                                                                  |
+| ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| The floating bar is on the map page on phones only                                         | Other pages keep the normal header                                   |
+| A round near-me button on the map, not only inside the search screen                       | Locating should not need opening the search first                    |
+| Logged out, the bar shows an icon-only login                                               | The wide "Prijava" pill left the search too narrow on a 360 px phone |
+| The store sheet fits its content and has a close X                                         | Closing must not depend on a drag                                    |
+| The back arrow is named "Natrag na kartu" for screen readers                               | Chosen wording                                                       |
+| Long text in inputs ends in "…" (`text-ellipsis` on the shared `Input` and `CommandInput`) | The search placeholder was being cut mid-word ("Trgovina, gra")      |
+
+### Favourite stores and store groups
+
+These came out of research the owner chose to act on at once ("in progress, do it now"). The strongest signals: the most-upvoted Play review of a competitor asks to list "samo one u mojoj blizini" instead of every store in Croatia, and an HGK survey found people pick a nearby store first, then price. Trolley users ask for "the ability to Group Lists By Store".
+
+| Decision                                                                                             | Why                                                                 |
+| ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Favourites live on the backend beside pinned places, not in local storage                            | They follow the account across devices                              |
+| Favourites also get a star on their pin                                                              | Chosen with the list group                                          |
+| Wording: "Omiljene trgovine", "Ostale trgovine · N", short toasts ("Najviše 10 omiljenih trgovina.") | Chosen wording                                                      |
+| The list grouping is a switch, "Po trgovinama", remembered per list                                  | Chosen with the wording                                             |
+| Each section links "Na karti"                                                                        | "section link should be short as well"                              |
+| An incomplete subtotal reads "najmanje 4,50 €"                                                       | Chosen wording; it is the step before routing between stores (#270) |
+
+## 10. Future work
+
+- Opening hours and working Sundays (board task "Store opening hours", issue #280 for Sundays): per-chain hours from the same locators, OpenStreetMap as a fallback, with an explicit "nije potvrđeno" state. The owner's rule: "always link if there's a page where users can recheck by themselves". Kaufland, Spar, Plodine, Lidl, Eurospin, Stanić, Trgovina Krk, dm and Studenac have per-store pages to link to. Shoppers distrust wrong "open" badges, and the law (NN 33/2023) does not oblige chains to publish their 16 working Sundays.
+- Favourites whose store left the directory still take one of the 10 slots and cannot be removed from the map; drop unknown keys before counting.
+- In the grouped shopping list, changing an item's chain moves it to another section and loses keyboard focus.
 - Prices on the map and cheapest basket near me.
 - Store photos, a store type filter, an offline map.
 - An admin way to set manual pins (the table already honours them); until then, verified corrections go in the pin override list.
