@@ -27,6 +27,8 @@ export default function Header() {
                 "bg-background/70 max-w-5xl rounded-2xl border backdrop-blur-xs px-4",
               isMap &&
                 "max-md:bg-background/70 max-md:rounded-2xl max-md:border max-md:backdrop-blur-xs max-md:px-4",
+              // Animating a blur over the live WebGL map stutters mid-range phones.
+              isMap && "max-md:transition-[background-color,border-color]",
               // Until the map fills the slot after hydration, an empty pill would flash.
               isMap && "max-md:has-[#header-slot:empty]:invisible",
               // The open search covers the screen, so the frame steps back.

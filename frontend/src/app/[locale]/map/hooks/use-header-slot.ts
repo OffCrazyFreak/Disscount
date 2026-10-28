@@ -37,7 +37,7 @@ export function useHeaderSlot(): IHeaderSlot {
         frame: {
           top: box.top,
           left: box.left,
-          right: window.innerWidth - box.right,
+          right: document.documentElement.clientWidth - box.right,
           bottom: box.bottom,
         },
       });
