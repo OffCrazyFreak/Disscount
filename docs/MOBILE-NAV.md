@@ -202,16 +202,16 @@ Presses starting within **16px of a screen edge** are ignored entirely, so the b
 A floating pill, taking the scrolled header's treatment verbatim so the app's two floating bars match:
 
 ```text
-mx-[0.5rem] px-[0.4rem] rounded-full border backdrop-blur-sm
+mx-[0.5rem] px-[0.4rem] rounded-full border backdrop-blur-xs
 ```
 
 The horizontal inset and inner padding are explicit rem values rather than spacing utilities, because of the `--spacing` trap in [§10](#10-layout-safe-areas-and-css-tokens). Each cell is fixed at the active disc's 57.6px width, and `justify-between` puts all remaining horizontal room between cells. The 0.4rem inner padding therefore keeps the first and last disc clear of the pill's border at every supported width.
 
-One trade-off, flagged and then accepted deliberately: this is a second blurred fixed layer over the header's own `backdrop-blur-sm`. Stacked blurs are Apple's "glass sandwich" and the main scroll-jank source on mid-range Android, so it is worth watching on real hardware.
+One trade-off, flagged and then accepted deliberately: this is a second blurred fixed layer over the header's own `backdrop-blur-xs`. Stacked blurs are Apple's "glass sandwich" and the main scroll-jank source on mid-range Android, so it is worth watching on real hardware. Every frosted surface uses the 4px blur rather than 8px with a 70% tint, because a smaller radius costs phones less graphics work and the owner preferred its look.
 
 ### Surface change on scroll
 
-Once the page is scrolled, the surface's alpha eases from 50% to 45% of the background colour while every icon and label stays fully visible. It is driven by a **scroll timeline**, so there is no scroll listener, no jank and no hydration behaviour. Note this is a progressive range rather than a threshold: `animation-range: 40px 180px` interpolates the whole way, so it is not the same trigger as the header's `useScrolledPast(50)`, which flips once at 50px.
+Once the page is scrolled, the surface's alpha eases from 70% to 65% of the background colour while every icon and label stays fully visible. It is driven by a **scroll timeline**, so there is no scroll listener, no jank and no hydration behaviour. Note this is a progressive range rather than a threshold: `animation-range: 40px 180px` interpolates the whole way, so it is not the same trigger as the header's `useScrolledPast(50)`, which flips once at 50px.
 
 ```css
 @supports (animation-timeline: scroll()) {
@@ -340,7 +340,7 @@ The threshold is 40px, far enough that a scroll, a wobble or a tap cannot trigge
 | Fixed by the shell | Value                                | Why it cannot be per call site                                                                                                 |
 | ------------------ | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
 | Content layer      | `z-[var(--z-bottom-sheet)]`          | Under the bar, so the pill is never covered                                                                                    |
-| Surface            | `bg-background/85 backdrop-blur-sm`  | The bar's blur, muted, see below                                                                                               |
+| Surface            | `bg-background/85 backdrop-blur-xs`  | The bar's blur, muted, see below                                                                                               |
 | Height cap         | `max-h-[85dvh]`                      | One cap, so a growing sheet always yields to the viewport                                                                      |
 | Bottom inset       | `pb-[var(--sheet-bottom-clearance)]` | 92px at 360x740, so no content hides under the bar                                                                             |
 | Handle gap         | the header's own `pt-[1rem] pb-2`    | 16px, whether or not the header draws anything, see below                                                                      |
@@ -370,7 +370,7 @@ Current users, identical apart from their content and their modality:
 
 ### Why the surface is muted
 
-The sheet wears the bar's `backdrop-blur-sm` so the two read as one family of floating chrome, but at `bg-background/85` rather than the bar's `/50`. At the bar's own opacity the page ghosts through hard enough that a sheet full of white inputs looks like the fields are floating in front of it rather than sitting in it. 85% keeps a visible frost at the leading edge, where the "this is floating" cue actually reads, and calms it behind the controls.
+The sheet wears the bar's `backdrop-blur-xs` so the two read as one family of floating chrome, but at `bg-background/85` rather than the bar's `/70`. At the bar's own opacity the page ghosts through hard enough that a sheet full of white inputs looks like the fields are floating in front of it rather than sitting in it. 85% keeps a visible frost at the leading edge, where the "this is floating" cue actually reads, and calms it behind the controls.
 
 ### Why the header is its own file
 

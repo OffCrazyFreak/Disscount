@@ -713,12 +713,12 @@ body:has([data-sheet-non-modal]) {
 @property --bottom-nav-surface-alpha {
   syntax: "<percentage>";
   inherits: true;
-  initial-value: 50%;
+  initial-value: 70%;
 }
 
 @keyframes bottom-nav-compact {
   to {
-    --bottom-nav-surface-alpha: 45%;
+    --bottom-nav-surface-alpha: 65%;
   }
 }
 

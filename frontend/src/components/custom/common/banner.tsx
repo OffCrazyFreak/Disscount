@@ -16,16 +16,16 @@ const bannerVariants = cva(
         // both themes, which is why they no longer carry dark: background overrides; only
         // the text keeps one, since contrast has to be chosen per theme.
         primarySoft:
-          "border-primary/40 bg-primary/10 text-primary backdrop-blur-sm",
+          "border-primary/40 bg-primary/10 text-primary backdrop-blur-xs",
         destructive: "border-transparent bg-destructive text-white",
         destructiveSoft:
-          "border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-300 backdrop-blur-sm",
+          "border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-300 backdrop-blur-xs",
         warning: "border-transparent bg-amber-200 text-amber-700",
         warningSoft:
-          "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 backdrop-blur-sm",
+          "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 backdrop-blur-xs",
         info: "border-transparent bg-blue-500 text-white",
         infoSoft:
-          "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300 backdrop-blur-sm",
+          "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300 backdrop-blur-xs",
         outline: "text-foreground",
       },
       size: {
