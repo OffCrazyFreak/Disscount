@@ -44,7 +44,7 @@ export default function ShoppingListItem({
 }: IShoppingListItemProps) {
   return (
     <>
-      <div className="relative flex flex-wrap items-center justify-between gap-6 py-1 sm:flex-nowrap">
+      <div className="relative isolate flex flex-wrap items-center justify-between gap-6 py-1 sm:flex-nowrap">
         {/* Left side: Checkbox, item name, and delete button (mobile) */}
         <div className="flex items-center gap-4 w-full sm:w-auto">
           <ItemCheckBox item={item} onUpdate={onUpdate} canCheck={canCheck} />

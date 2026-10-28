@@ -37,7 +37,7 @@ export default function ShoppingListListItem({
     <Card
       {...pressProps}
       // Suppresses the iOS selection callout a long press would raise on touch.
-      className="relative p-4 transition-shadow hover:shadow-md [@media(hover:none)]:select-none [-webkit-touch-callout:none]"
+      className="relative isolate p-4 transition-shadow hover:shadow-md [@media(hover:none)]:select-none [-webkit-touch-callout:none]"
     >
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-3 sm:flex sm:gap-4">
         <h3 className="min-w-0 break-words text-pretty text-lg font-bold sm:flex-1">
