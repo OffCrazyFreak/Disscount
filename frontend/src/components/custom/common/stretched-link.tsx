@@ -24,7 +24,8 @@ interface IStretchedLinkProps {
  * and interactive controls need `relative z-20` to sit above both.
  *
  * The nearest positioned ancestor owns the stretch, so the card root must be
- * `relative`.
+ * `relative`, and `isolate` too: without its own stacking context, those z-10
+ * and z-20 layers compete with fixed page chrome and paint over the header.
  */
 export default function StretchedLink({
   href,
