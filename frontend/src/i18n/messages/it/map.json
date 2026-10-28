@@ -30,9 +30,10 @@
   "nearMe": {
     "locate": "Negozi vicino a me",
     "clear": "Rimuovi la mia posizione",
+    "approximate": "Mostriamo i negozi in base alla tua posizione approssimativa. Attiva la posizione sul dispositivo per un ordine più preciso.",
     "denied": "L'accesso alla posizione è bloccato. Consentilo nelle impostazioni del browser o cerca per città.",
     "unavailable": "La posizione non è disponibile al momento. Cerca per città o indirizzo.",
-    "timeout": "La ricerca della posizione richiede troppo tempo. Riprova o cerca per città."
+    "timeout": "Non è possibile determinare la posizione. Controlla che la posizione sia attiva sul dispositivo o cerca per città."
   },
   "recent": {
     "label": "Ricerche recenti:",

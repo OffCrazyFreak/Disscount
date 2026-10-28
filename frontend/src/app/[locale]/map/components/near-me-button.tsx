@@ -24,7 +24,7 @@ export default function NearMeButton({
 
   return (
     <div className="flex flex-col gap-1.5">
-      {status === "located" ? (
+      {status === "located" || status === "approximate" ? (
         <Button type="button" variant="primarySoft" onClick={onClear}>
           <X aria-hidden="true" />
           {t("clear")}

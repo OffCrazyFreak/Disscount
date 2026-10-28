@@ -62,7 +62,7 @@ export function useMapCamera({
     gpsCentered.current = true;
     mapRef.current?.easeTo({
       center: [centerRequest.lon, centerRequest.lat],
-      zoom: 13,
+      zoom: centerRequest.zoom ?? 13,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapReady, centerRequest]);

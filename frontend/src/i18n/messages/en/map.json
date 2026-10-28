@@ -30,9 +30,10 @@
   "nearMe": {
     "locate": "Stores near me",
     "clear": "Remove my location",
+    "approximate": "Showing stores by your approximate location. Turn on location on your device for a more exact order.",
     "denied": "Location access is blocked. Allow it in your browser settings or search by town.",
     "unavailable": "Your location isn't available right now. Search by town or address.",
-    "timeout": "Finding your location is taking too long. Try again or search by town."
+    "timeout": "Your location can't be determined. Check that location is turned on on your device, or search by town."
   },
   "recent": {
     "label": "Recent searches:",

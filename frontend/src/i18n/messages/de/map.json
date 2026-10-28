@@ -30,9 +30,10 @@
   "nearMe": {
     "locate": "Märkte in meiner Nähe",
     "clear": "Meinen Standort entfernen",
+    "approximate": "Wir zeigen Märkte nach deinem ungefähren Standort. Schalte den Standort auf deinem Gerät ein, um eine genauere Reihenfolge zu sehen.",
     "denied": "Der Zugriff auf den Standort ist blockiert. Erlaube ihn in den Browsereinstellungen oder suche nach Ort.",
     "unavailable": "Dein Standort ist gerade nicht verfügbar. Suche nach Ort oder Adresse.",
-    "timeout": "Die Standortsuche dauert zu lange. Versuche es erneut oder suche nach Ort."
+    "timeout": "Dein Standort kann nicht ermittelt werden. Prüfe, ob der Standort auf deinem Gerät eingeschaltet ist, oder suche nach Ort."
   },
   "recent": {
     "label": "Letzte Suchen:",
