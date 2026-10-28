@@ -24,9 +24,9 @@ export default function Header() {
             className={cn(
               "mx-auto max-w-6xl transition-all duration-300 px-2",
               isScrolled &&
-                "bg-background/50 max-w-5xl rounded-2xl border backdrop-blur-sm px-4",
+                "bg-background/70 max-w-5xl rounded-2xl border backdrop-blur-xs px-4",
               isMap &&
-                "max-md:bg-background/50 max-md:rounded-2xl max-md:border max-md:backdrop-blur-sm max-md:px-4",
+                "max-md:bg-background/70 max-md:rounded-2xl max-md:border max-md:backdrop-blur-xs max-md:px-4",
               // The open search covers the screen, so the frame steps back.
               "has-[[data-slot-open]]:border-transparent has-[[data-slot-open]]:bg-transparent has-[[data-slot-open]]:backdrop-blur-none",
             )}

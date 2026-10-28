@@ -26,7 +26,7 @@ import { BOTTOM_NAV_SEARCH_INDEX } from "@/components/custom/bottom-nav/bottom-n
  * globals.css, since it is what the scroll animates.
  */
 const SURFACE_CLASS =
-  "flex items-stretch justify-between h-[var(--bottom-nav-h)] touch-none mx-[0.5rem] px-[0.4rem] mb-[max(var(--bottom-nav-gap),var(--bottom-nav-safe))] rounded-full border backdrop-blur-sm";
+  "flex items-stretch justify-between h-[var(--bottom-nav-h)] touch-none mx-[0.5rem] px-[0.4rem] mb-[max(var(--bottom-nav-gap),var(--bottom-nav-safe))] rounded-full border backdrop-blur-xs";
 
 /**
  * The mobile primary navigation. Hidden from `md` up through CSS rather than a
