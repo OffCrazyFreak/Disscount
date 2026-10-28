@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { HEADER_SLOT_ID } from "@/components/custom/header/header-slot";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { CameraScannerProvider } from "@/context/scanner-context";
 import MapSearchBar from "@/app/[locale]/map/components/map-search-bar";
@@ -46,9 +47,19 @@ function Harness({ onOuterEscape }: { onOuterEscape: () => void }) {
 describe("MapSearchBar", () => {
   // jsdom has no matchMedia, which the sidebar asks for the phone breakpoint.
   beforeEach(() => {
+    // The shared header's slot, already on the page from the app layout.
+    document.body.innerHTML = `<div data-header-frame><div id="${HEADER_SLOT_ID}"></div></div>`;
     // The language switcher reads the session itself: a signed-out answer.
     server.use(
       http.get("*/api/auth/get-session", () => HttpResponse.json(null)),
+    );
+    // jsdom has no ResizeObserver; the frame's box only drives the animation.
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        disconnect() {}
+      },
     );
     vi.stubGlobal("matchMedia", () => ({
       matches: true,
