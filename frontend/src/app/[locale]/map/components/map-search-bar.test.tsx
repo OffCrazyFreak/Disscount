@@ -57,7 +57,10 @@ describe("MapSearchBar", () => {
     vi.stubGlobal(
       "ResizeObserver",
       class {
-        observe() {}
+        constructor(private callback: () => void) {}
+        observe() {
+          this.callback();
+        }
         disconnect() {}
       },
     );
@@ -127,5 +130,24 @@ describe("MapSearchBar", () => {
       expect(screen.queryByText("store list")).not.toBeInTheDocument(),
     );
     expect(field).toHaveFocus();
+  });
+
+  // A language switch remounts the layout, header and map in one render.
+  it("finds a header slot that mounts in the same render", async () => {
+    document.body.innerHTML = "";
+    renderWithProviders(
+      <>
+        <div data-header-frame>
+          <div id={HEADER_SLOT_ID} />
+        </div>
+        <Harness onOuterEscape={vi.fn()} />
+      </>,
+    );
+
+    expect(
+      await screen.findByRole("searchbox", {
+        name: "Trgovina, grad ili adresa...",
+      }),
+    ).toBeInTheDocument();
   });
 });
