@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { DEFAULT_LOCALE, LOCALES } from "./src/i18n/locales";
+import { isIndexableOrigin } from "./src/utils/indexing";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
@@ -102,6 +103,15 @@ const nextConfig: NextConfig = {
           { key: "Referrer-Policy", value: "no-referrer" },
         ],
       },
+      // Read at build time, which is fine: NEXT_PUBLIC_APP_URL is a build arg per deploy.
+      ...(isIndexableOrigin(process.env.NEXT_PUBLIC_APP_URL)
+        ? []
+        : [
+            {
+              source: "/:path*",
+              headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+            },
+          ]),
     ];
   },
 };
