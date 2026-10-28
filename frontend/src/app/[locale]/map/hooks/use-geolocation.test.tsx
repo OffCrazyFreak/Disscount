@@ -34,7 +34,10 @@ function tapNearMe(fallback: typeof ZAGREB | null) {
 }
 
 describe("useGeolocation", () => {
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
 
   it("falls back to the IP guess when the phone gives no position", () => {
     failWith(ERROR_CODES.TIMEOUT);
@@ -90,6 +93,6 @@ describe("useGeolocation", () => {
 
     expect(hook.result.current.status).toBe("denied");
     expect(hook.result.current.guess).toBeNull();
-    vi.useRealTimers();
+    expect(hook.result.current.centerRequest).toBeNull();
   });
 });

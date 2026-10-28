@@ -73,6 +73,8 @@ export function useGeolocation(fallback: ILatLon | null) {
     if (guessedFor.current === id) return;
     guessedFor.current = id;
 
+    // This tap's answer replaces an earlier fix, so the list and the note agree.
+    setPosition(null);
     setGuess(fallback);
     setCenterRequest({ ...fallback, id, auto: false, zoom: GUESS_ZOOM });
     settle("approximate");
@@ -136,6 +138,7 @@ export function useGeolocation(fallback: ILatLon | null) {
         else if (error.code === error.PERMISSION_DENIED) {
           // A refusal after the give-up timer guessed takes the guess back.
           setGuess(null);
+          setCenterRequest(null);
           settle("denied");
         } else if (error.code === error.TIMEOUT) fail("timeout", id);
         else fail("unavailable", id);
