@@ -1,6 +1,7 @@
 import { GeolocationStatus } from "@/app/[locale]/map/hooks/use-geolocation";
 
 const MESSAGE_KEYS = {
+  approximate: "approximate",
   denied: "denied",
   unavailable: "unavailable",
   timeout: "timeout",

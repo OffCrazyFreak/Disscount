@@ -30,9 +30,10 @@
   "nearMe": {
     "locate": "Trgovine blizu mene",
     "clear": "Ukloni moju lokaciju",
+    "approximate": "Prikazujemo trgovine prema približnoj lokaciji. Uključi lokaciju na uređaju za točniji redoslijed.",
     "denied": "Pristup lokaciji je odbijen. Dopusti ga u postavkama preglednika ili pretraži po gradu.",
     "unavailable": "Lokacija trenutačno nije dostupna. Pretraži po gradu ili adresi.",
-    "timeout": "Traženje lokacije traje predugo. Pokušaj ponovno ili pretraži po gradu."
+    "timeout": "Lokacija se ne može odrediti. Provjeri je li lokacija uključena na uređaju ili pretraži po gradu."
   },
   "recent": {
     "label": "Nedavne pretrage:",

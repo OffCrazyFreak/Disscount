@@ -36,7 +36,9 @@ export default function MapLocateButton({
     answered.current = taps;
 
     const messageKey = geolocationMessageKey(status);
-    if (messageKey) toast.error(t(messageKey));
+    if (!messageKey) return;
+    if (status === "approximate") toast.info(t(messageKey));
+    else toast.error(t(messageKey));
   }, [taps, status, t]);
 
   return (
@@ -53,7 +55,7 @@ export default function MapLocateButton({
       }}
       className={cn(
         "absolute right-2.5 bottom-32 z-[1] rounded-full bg-background shadow-md",
-        status === "located" && "text-primary",
+        (status === "located" || status === "approximate") && "text-primary",
       )}
     >
       {isLocating ? (

@@ -22,7 +22,7 @@ import { isVisitableStore } from "@/app/[locale]/map/utils/visitable-store";
 export function useMapViewModel(ipLocation: IIpLocation | null) {
   const directory = useStoreDirectory();
   const url = useMapUrlState();
-  const geolocation = useGeolocation();
+  const geolocation = useGeolocation(ipLocation);
   const { search } = useSearchNavigation("/map", { shallow: true });
 
   const stores = (directory.data?.stores ?? []).filter(isVisitableStore);
@@ -30,10 +30,11 @@ export function useMapViewModel(ipLocation: IIpLocation | null) {
   const defaults = useMapDefaults(stores);
   const chains = url.chainFilter ?? defaults.defaultChains ?? ALL_CHAINS;
 
+  // A guess the user asked for by tapping near-me beats their pinned place.
   const origin = resolveMapOrigin(
     geolocation.position,
-    ipLocation,
-    defaults.placeCenter != null,
+    geolocation.guess ?? ipLocation,
+    defaults.placeCenter != null && !geolocation.guess,
   );
 
   const { listed, mappable, unplacedCount } = useVisibleStores({
