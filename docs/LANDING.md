@@ -168,6 +168,8 @@ Two fonts are loaded through `next/font/local` in `app/fonts/index.ts`.
 
 The latin-ext subset is what makes Croatian diacritics (č, ć, đ, š, ž) render; a plain latin subset would show tofu.
 
+Huninn carries a `descent-override: 26%` declaration. The file, Google's original included, declares an 18% descent while its descenders reach 23%, so at fractional display scaling (125% is the common case) Chromium cut the bottom pixel row off `g`, `j`, `p` and `y` inside inputs. Keep the override if the subset is ever regenerated.
+
 ## Styling and animation
 
 Landing animation is split between the `motion` library (scroll reveals, doodle path-draws) and pure CSS keyframes in `globals.css`.
