@@ -18,6 +18,7 @@ import LocaleSync from "@/components/custom/locale/locale-sync";
 import ZodLocale from "@/components/custom/locale/zod-locale";
 import LocaleSuggestion from "@/components/custom/locale/locale-suggestion";
 import { ReactNode, Suspense } from "react";
+import { isIndexableOrigin } from "@/utils/indexing";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { LOCALES, OPEN_GRAPH_LOCALES } from "@/i18n/locales";
@@ -32,6 +33,7 @@ export function generateStaticParams() {
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
   const t = await getTranslations("metadata");
+  const indexable = isIndexableOrigin(process.env.NEXT_PUBLIC_APP_URL);
 
   return {
     metadataBase: new URL(appUrl()),
@@ -119,8 +121,8 @@ export async function generateMetadata(): Promise<Metadata> {
       "discount",
     ],
     robots: {
-      index: true,
-      follow: true,
+      index: indexable,
+      follow: indexable,
     },
   };
 }
