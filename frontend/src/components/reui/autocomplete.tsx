@@ -106,6 +106,7 @@ function AutocompletePositioner({
 function AutocompleteList({
   className,
   scrollAreaClassName,
+  scrollFade = true,
   ...props
 }: AutocompletePrimitive.List.Props & {
   scrollAreaClassName?: string;
@@ -116,8 +117,11 @@ function AutocompleteList({
     <ScrollArea
       className={cn(
         "size-full min-h-0 **:data-[slot=scroll-area-viewport]:h-full **:data-[slot=scroll-area-viewport]:overscroll-contain",
+        // Keeps the highlighted option out from under the fades.
+        scrollFade && "**:data-[slot=scroll-area-viewport]:scroll-py-10",
         scrollAreaClassName,
       )}
+      fadeClassName={scrollFade ? "from-popover h-10 rounded-lg" : undefined}
     >
       <AutocompletePrimitive.List
         data-slot="autocomplete-list"

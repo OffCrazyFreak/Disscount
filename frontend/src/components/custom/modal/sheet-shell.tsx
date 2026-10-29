@@ -7,6 +7,7 @@ import SheetShellHeader, {
   type ISheetShellHeaderProps,
 } from "@/components/custom/modal/sheet-shell-header";
 import useSheetDragUp from "@/components/custom/modal/use-sheet-drag-up";
+import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
 import { cn } from "@/lib/utils";
 
 /**
@@ -27,7 +28,7 @@ const HANDLE_CLASS =
 const CONTENT_CLASS =
   "z-[var(--z-bottom-sheet)] data-[vaul-drawer-direction=bottom]:max-h-[85dvh] bg-background/85 backdrop-blur-xs pb-[var(--sheet-bottom-clearance)]";
 const OVERLAY_CLASS = "z-[var(--z-bottom-sheet-scrim)]";
-const BODY_CLASS = "flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4";
+const BODY_CLASS = "flex flex-1 flex-col gap-3 px-4";
 
 export interface ISheetShellProps extends ISheetShellHeaderProps {
   open: boolean;
@@ -115,8 +116,16 @@ export default function SheetShell({
       >
         <SheetShellHeader {...header} />
 
+        {/* The fades end at the body's own bottom, so they stop above the footer
+            and the nav clearance. */}
         {children && (
-          <div className={cn(BODY_CLASS, bodyClassName)}>{children}</div>
+          <ScrollFadeArea
+            className={cn(BODY_CLASS, bodyClassName)}
+            wrapperClassName="flex-1"
+            fadeClassName="from-background/85 h-12"
+          >
+            {children}
+          </ScrollFadeArea>
         )}
 
         {footer && (
