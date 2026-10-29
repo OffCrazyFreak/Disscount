@@ -23,6 +23,10 @@ function fakeGeolocation(permission: PermissionState = "prompt") {
     },
   );
   const clearWatch = vi.fn();
+  let refined: PositionCallback = () => {};
+  const getCurrentPosition = vi.fn((onSuccess: PositionCallback) => {
+    refined = onSuccess;
+  });
 
   const permissionStatus = {
     state: permission,
@@ -30,7 +34,7 @@ function fakeGeolocation(permission: PermissionState = "prompt") {
   };
 
   vi.stubGlobal("navigator", {
-    geolocation: { watchPosition, clearWatch, getCurrentPosition: vi.fn() },
+    geolocation: { watchPosition, clearWatch, getCurrentPosition },
     permissions: { query: () => Promise.resolve(permissionStatus) },
   });
 
@@ -45,6 +49,12 @@ function fakeGeolocation(permission: PermissionState = "prompt") {
     fix: (lat: number, lon: number, accuracy = 20) =>
       act(() =>
         success({
+          coords: { latitude: lat, longitude: lon, accuracy },
+        } as GeolocationPosition),
+      ),
+    refine: (lat: number, lon: number, accuracy: number) =>
+      act(() =>
+        refined({
           coords: { latitude: lat, longitude: lon, accuracy },
         } as GeolocationPosition),
       ),
@@ -248,5 +258,17 @@ describe("useGeolocation", () => {
 
     expect(hook.result.current.position).toBeNull();
     expect(geo.clearWatch).toHaveBeenCalled();
+  });
+
+  it("keeps a sharper watch fix over a late GPS reading", async () => {
+    const geo = fakeGeolocation();
+    const hook = await mount(ZAGREB);
+
+    act(() => hook.result.current.locate());
+    geo.fix(45.4, 14.8, 500);
+    geo.fix(45.401, 14.8, 30);
+    geo.refine(45.402, 14.8, 80);
+
+    expect(hook.result.current.position).toMatchObject({ accuracy: 30 });
   });
 });

@@ -108,11 +108,17 @@ export function useGeolocation(fallback: ILatLon | null) {
     settle("approximate");
   }
 
-  function refine(first: IGpsPosition, id: number) {
+  function refine(id: number) {
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
-        // A newer request or a clear wins over a late refinement.
-        if (requests.current !== id || coords.accuracy >= first.accuracy) {
+        // A newer request, a clear, or a sharper watch fix since wins over a
+        // late refinement.
+        const best = latest.current;
+        if (
+          requests.current !== id ||
+          !best ||
+          coords.accuracy >= best.accuracy
+        ) {
           return;
         }
 
@@ -154,7 +160,7 @@ export function useGeolocation(fallback: ILatLon | null) {
     const id = tap || ++requests.current;
     setCenterRequest({ lat: fix.lat, lon: fix.lon, id, auto: tap === 0 });
 
-    if (tap && fix.accuracy > REFINE_ABOVE_M) refine(fix, tap);
+    if (tap && fix.accuracy > REFINE_ABOVE_M) refine(tap);
   }
 
   function onError(error: GeolocationPositionError) {
@@ -174,7 +180,7 @@ export function useGeolocation(fallback: ILatLon | null) {
   // Created once; its callbacks read only refs, setters and the fixed fallback.
   const watch = useRef<ReturnType<typeof createPositionWatch> | null>(null);
   function getWatch() {
-    watch.current ??= createPositionWatch(onFix, onError);
+    if (!watch.current) watch.current = createPositionWatch(onFix, onError);
     return watch.current;
   }
 
@@ -202,7 +208,7 @@ export function useGeolocation(fallback: ILatLon | null) {
       setCenterRequest({ lat: known.lat, lon: known.lon, id, auto: false });
       settle("located");
       getWatch().start();
-      if (known.accuracy > REFINE_ABOVE_M) refine(known, id);
+      if (known.accuracy > REFINE_ABOVE_M) refine(id);
       if (fresh.current) return;
 
       // Back from a hidden tab the fix may be hours old, so the next one
@@ -237,12 +243,14 @@ export function useGeolocation(fallback: ILatLon | null) {
   // report "prompt" for a granted permission; that just means waiting for a tap.
   useEffect(() => {
     let cancelled = false;
+    let status: PermissionStatus | null = null;
 
     navigator.permissions
       ?.query({ name: "geolocation" })
       .then((permission) => {
         if (cancelled) return;
 
+        status = permission;
         granted.current = permission.state === "granted";
         permission.onchange = () => {
           granted.current = permission.state === "granted";
@@ -271,6 +279,7 @@ export function useGeolocation(fallback: ILatLon | null) {
 
     return () => {
       cancelled = true;
+      if (status) status.onchange = null;
       document.removeEventListener("visibilitychange", handleVisibility);
       watch.current?.stop();
       clearTimers();
