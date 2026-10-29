@@ -65,9 +65,11 @@ export function useMapCamera({
     if (!map) return;
 
     if (centerRequest.radius) {
-      // The guess area fills about 60% of the width, edge to edge.
+      // The guess area fills about 60% of the narrower side, so a landscape
+      // phone's padding never outgrows its height.
+      const { clientWidth, clientHeight } = map.getContainer();
       map.fitBounds(circleBounds(centerRequest, centerRequest.radius), {
-        padding: Math.round(map.getContainer().clientWidth * 0.2),
+        padding: Math.round(Math.min(clientWidth, clientHeight) * 0.2),
       });
       return;
     }

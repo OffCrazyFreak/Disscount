@@ -24,16 +24,24 @@ function fakeGeolocation(permission: PermissionState = "prompt") {
   );
   const clearWatch = vi.fn();
 
+  const permissionStatus = {
+    state: permission,
+    onchange: null as (() => void) | null,
+  };
+
   vi.stubGlobal("navigator", {
     geolocation: { watchPosition, clearWatch, getCurrentPosition: vi.fn() },
-    permissions: {
-      query: () => Promise.resolve({ state: permission, onchange: null }),
-    },
+    permissions: { query: () => Promise.resolve(permissionStatus) },
   });
 
   return {
     watchPosition,
     clearWatch,
+    revoke: () =>
+      act(() => {
+        permissionStatus.state = "denied";
+        permissionStatus.onchange?.();
+      }),
     fix: (lat: number, lon: number, accuracy = 20) =>
       act(() =>
         success({
@@ -182,5 +190,63 @@ describe("useGeolocation", () => {
     hidden.mockReturnValue(false);
     act(() => document.dispatchEvent(new Event("visibilitychange")));
     expect(geo.watchPosition).toHaveBeenCalledTimes(2);
+  });
+
+  it("centres on a fix that comes after the give-up timer", async () => {
+    const geo = fakeGeolocation();
+    const hook = await mount(ZAGREB);
+
+    act(() => hook.result.current.locate());
+    act(() => vi.advanceTimersByTime(15_000));
+    geo.fix(45.4, 14.8);
+
+    expect(hook.result.current.status).toBe("located");
+    expect(hook.result.current.centerRequest).toMatchObject({
+      lat: 45.4,
+      auto: true,
+    });
+  });
+
+  it("centres again on the first fix after the tab comes back", async () => {
+    const geo = fakeGeolocation("granted");
+    const hook = await mount(ZAGREB);
+    geo.fix(45.4, 14.8);
+    const hidden = vi.spyOn(document, "hidden", "get");
+
+    hidden.mockReturnValue(true);
+    act(() => document.dispatchEvent(new Event("visibilitychange")));
+    hidden.mockReturnValue(false);
+    act(() => document.dispatchEvent(new Event("visibilitychange")));
+
+    act(() => hook.result.current.locate());
+    expect(hook.result.current.centerRequest).toMatchObject({ lat: 45.4 });
+
+    geo.fix(45.8, 15.9);
+    expect(hook.result.current.centerRequest).toMatchObject({
+      lat: 45.8,
+      auto: false,
+    });
+  });
+
+  it("restarts a watch that went silent when tapped again", async () => {
+    const geo = fakeGeolocation("granted");
+    const hook = await mount(null);
+
+    geo.fail(ERROR_CODES.POSITION_UNAVAILABLE);
+    act(() => hook.result.current.locate());
+
+    expect(geo.clearWatch).toHaveBeenCalledTimes(1);
+    expect(geo.watchPosition).toHaveBeenCalledTimes(2);
+  });
+
+  it("drops the dot when the permission is revoked", async () => {
+    const geo = fakeGeolocation("granted");
+    const hook = await mount(ZAGREB);
+    geo.fix(45.4, 14.8);
+
+    geo.revoke();
+
+    expect(hook.result.current.position).toBeNull();
+    expect(geo.clearWatch).toHaveBeenCalled();
   });
 });

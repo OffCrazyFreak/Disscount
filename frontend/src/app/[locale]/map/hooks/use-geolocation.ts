@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { ILatLon } from "@/app/[locale]/map/utils/distance";
 import { isNewFix } from "@/app/[locale]/map/utils/position-fix";
+import { createPositionWatch } from "@/app/[locale]/map/utils/position-watch";
 
 export type GeolocationStatus =
   | "idle"
@@ -44,13 +45,6 @@ export const GUESS_RADIUS_M = 10_000;
 // that fix is vaguer than a street.
 const REFINE_ABOVE_M = 100;
 
-// Wi-Fi and cell accuracy is light on the battery and keeps the provider
-// warm, so a tap finds a fix already waiting instead of a cold start.
-const WATCH_OPTIONS: PositionOptions = {
-  enableHighAccuracy: false,
-  maximumAge: 60_000,
-};
-
 /**
  * Watches the position while the map is visible, from the start when the
  * browser already allows it and otherwise from the first tap, and never
@@ -67,10 +61,9 @@ export function useGeolocation(fallback: ILatLon | null) {
   );
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const requests = useRef(0);
-  const watchId = useRef<number | null>(null);
-  // Whether the page wants a watch; a hidden tab pauses it without forgetting.
-  const watching = useRef(false);
   const latest = useRef<IGpsPosition | null>(null);
+  // False while the watch is paused: the user may have moved since.
+  const fresh = useRef(false);
   // The tap still waiting for its first fix, 0 when none is.
   const pendingTap = useRef(0);
   // The first fix of a watch the page started by itself centres the map.
@@ -103,6 +96,8 @@ export function useGeolocation(fallback: ILatLon | null) {
   function fail(next: GeolocationStatus, id: number) {
     if (pendingTap.current !== id) return;
     pendingTap.current = 0;
+    // A prompt accepted after this still centres, unless the user panned since.
+    autoCenter.current = true;
 
     if (!fallback) {
       settle(next);
@@ -127,6 +122,7 @@ export function useGeolocation(fallback: ILatLon | null) {
           accuracy: coords.accuracy,
         };
         latest.current = fix;
+        fresh.current = true;
         setPosition(fix);
       },
       () => {},
@@ -142,6 +138,7 @@ export function useGeolocation(fallback: ILatLon | null) {
     };
     const tap = pendingTap.current;
     const centre = tap !== 0 || autoCenter.current;
+    fresh.current = true;
 
     if (!centre && !isNewFix(latest.current, fix)) return;
 
@@ -163,13 +160,7 @@ export function useGeolocation(fallback: ILatLon | null) {
   function onError(error: GeolocationPositionError) {
     if (error.code === error.PERMISSION_DENIED) {
       // A refusal after the give-up timer guessed takes the guess back.
-      stopWatch();
-      latest.current = null;
-      pendingTap.current = 0;
-      autoCenter.current = false;
-      setPosition(null);
-      setGuess(null);
-      setCenterRequest(null);
+      forget();
       settle("denied");
       return;
     }
@@ -180,27 +171,21 @@ export function useGeolocation(fallback: ILatLon | null) {
       fail(error.code === error.TIMEOUT ? "timeout" : "unavailable", tap);
   }
 
-  function startWatch() {
-    watching.current = true;
-    if (watchId.current != null || document.hidden) return;
-
-    watchId.current = navigator.geolocation.watchPosition(
-      onFix,
-      onError,
-      WATCH_OPTIONS,
-    );
+  // Created once; its callbacks read only refs, setters and the fixed fallback.
+  const watch = useRef<ReturnType<typeof createPositionWatch> | null>(null);
+  function getWatch() {
+    watch.current ??= createPositionWatch(onFix, onError);
+    return watch.current;
   }
 
-  function pauseWatch() {
-    if (watchId.current != null) {
-      navigator.geolocation.clearWatch(watchId.current);
-    }
-    watchId.current = null;
-  }
-
-  function stopWatch() {
-    watching.current = false;
-    pauseWatch();
+  function forget() {
+    getWatch().stop();
+    latest.current = null;
+    pendingTap.current = 0;
+    autoCenter.current = false;
+    setPosition(null);
+    setGuess(null);
+    setCenterRequest(null);
   }
 
   function locate() {
@@ -216,8 +201,18 @@ export function useGeolocation(fallback: ILatLon | null) {
       setGuess(null);
       setCenterRequest({ lat: known.lat, lon: known.lon, id, auto: false });
       settle("located");
-      startWatch();
+      getWatch().start();
       if (known.accuracy > REFINE_ABOVE_M) refine(known, id);
+      if (fresh.current) return;
+
+      // Back from a hidden tab the fix may be hours old, so the next one
+      // centres again, as long as it comes soon.
+      pendingTap.current = id;
+      timers.current.push(
+        setTimeout(() => {
+          if (pendingTap.current === id) pendingTap.current = 0;
+        }, GIVE_UP_MS),
+      );
       return;
     }
 
@@ -235,7 +230,7 @@ export function useGeolocation(fallback: ILatLon | null) {
     }
     timers.current.push(setTimeout(() => fail("timeout", id), GIVE_UP_MS));
 
-    startWatch();
+    getWatch().restart();
   }
 
   // Watching without a tap is fine only when no prompt can appear. Safari may
@@ -251,26 +246,33 @@ export function useGeolocation(fallback: ILatLon | null) {
         granted.current = permission.state === "granted";
         permission.onchange = () => {
           granted.current = permission.state === "granted";
+          // Revoked in the site settings: the dot must not outlive the permission.
+          if (permission.state === "denied") forget();
         };
 
         if (granted.current && "geolocation" in navigator) {
           autoCenter.current = true;
-          startWatch();
+          getWatch().start();
         }
       })
       .catch(() => {});
 
     // The browser sends a hidden tab nothing anyway; stopping spares the battery.
     function handleVisibility() {
-      if (document.hidden) pauseWatch();
-      else if (watching.current) startWatch();
+      if (!document.hidden) {
+        getWatch().resume();
+        return;
+      }
+
+      fresh.current = false;
+      getWatch().pause();
     }
     document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
       cancelled = true;
       document.removeEventListener("visibilitychange", handleVisibility);
-      stopWatch();
+      watch.current?.stop();
       clearTimers();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -278,13 +280,7 @@ export function useGeolocation(fallback: ILatLon | null) {
 
   function clear() {
     requests.current++;
-    pendingTap.current = 0;
-    autoCenter.current = false;
-    latest.current = null;
-    stopWatch();
-    setPosition(null);
-    setGuess(null);
-    setCenterRequest(null);
+    forget();
     settle("idle");
   }
 
