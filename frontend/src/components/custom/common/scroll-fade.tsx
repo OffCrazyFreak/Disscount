@@ -48,6 +48,8 @@ export default function ScrollFade({
       if (!element) return;
 
       observer.disconnect();
+      // The scroller itself too: a modal growing with the window can stop overflowing.
+      observer.observe(element);
       for (const child of element.children) observer.observe(child);
     }
 

@@ -116,8 +116,8 @@ export default function SheetShell({
       >
         <SheetShellHeader {...header} />
 
-        {/* The fades end at the body's own bottom, so they sit above the footer
-            and the nav clearance rather than over the last row. */}
+        {/* The fades end at the body's own bottom, so they stop above the footer
+            and the nav clearance. */}
         {children && (
           <ScrollFadeArea
             className={cn(BODY_CLASS, bodyClassName)}

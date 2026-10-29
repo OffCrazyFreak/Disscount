@@ -28,7 +28,11 @@ export default function ScrollFadeArea({
 
   return (
     <div className={cn("relative flex min-h-0 flex-col", wrapperClassName)}>
-      <div ref={scrollRef} className={cn("min-h-0 overflow-y-auto", className)}>
+      {/* Scroll padding keeps a focused row out from under the fades. */}
+      <div
+        ref={scrollRef}
+        className={cn("min-h-0 scroll-py-12 overflow-y-auto", className)}
+      >
         {children}
       </div>
 

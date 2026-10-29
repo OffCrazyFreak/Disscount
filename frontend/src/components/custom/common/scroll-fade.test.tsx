@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import ScrollFade from "@/components/custom/common/scroll-fade";
@@ -31,12 +31,21 @@ function getFade(container: HTMLElement) {
   return fade;
 }
 
+let observed: Element[] = [];
+let resize = () => {};
+
 beforeEach(() => {
-  // jsdom has no layout, so nothing resizes on its own.
+  observed = [];
+  // jsdom has no layout, so a test resizes by hand.
   vi.stubGlobal(
     "ResizeObserver",
     class {
-      observe() {}
+      constructor(callback: () => void) {
+        resize = callback;
+      }
+      observe(element: Element) {
+        observed.push(element);
+      }
       unobserve() {}
       disconnect() {}
     },
@@ -62,5 +71,22 @@ describe("ScrollFade", () => {
     rerender(<Harness rows={["a", "b", "c"]} />);
 
     await waitFor(() => expect(getFade(container)).toHaveClass("opacity-100"));
+  });
+
+  it("clears when the list grows tall enough to fit its rows", () => {
+    let height = 100;
+    const { container } = render(<Harness rows={["a", "b", "c"]} />);
+    const list = screen.getByTestId("list");
+    Object.defineProperty(list, "clientHeight", { get: () => height });
+    Object.defineProperty(list, "scrollHeight", { value: 180 });
+
+    act(() => resize());
+    expect(getFade(container)).toHaveClass("opacity-100");
+
+    height = 200;
+    act(() => resize());
+
+    expect(observed).toContain(list);
+    expect(getFade(container)).toHaveClass("opacity-0");
   });
 });

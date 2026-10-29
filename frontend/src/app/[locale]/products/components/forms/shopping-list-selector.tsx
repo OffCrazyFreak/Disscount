@@ -89,7 +89,7 @@ export default function ShoppingListSelector({
                 />
                 {/* List only, so the top fade stays below the search box */}
                 <div className="relative flex min-h-0 flex-col">
-                  <CommandList ref={listRef}>
+                  <CommandList ref={listRef} className="scroll-py-10">
                     <CommandEmpty>
                       <p>{t("listSelector.empty")}</p>
                     </CommandEmpty>
