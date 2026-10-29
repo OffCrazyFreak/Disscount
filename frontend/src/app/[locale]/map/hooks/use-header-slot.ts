@@ -34,19 +34,24 @@ export function useHeaderSlot(): IHeaderSlot {
     if (!slot || !frameElement) return;
 
     function measure() {
-      // Open, the frame widens to the screen edges, but closing shrinks back into the closed box.
-      if (slot!.querySelector(`[${HEADER_SLOT_OPEN_ATTR}]`)) return;
-
       const box = frameElement!.getBoundingClientRect();
-      setState({
+      // Open, the frame widens to the screen edges, but closing shrinks back
+      // into the closed box; its height still follows a rotation.
+      const isOpen = slot!.querySelector(`[${HEADER_SLOT_OPEN_ATTR}]`) != null;
+
+      setState((previous) => ({
         slot,
         frame: {
           top: box.top,
-          left: box.left,
-          right: document.documentElement.clientWidth - box.right,
           bottom: box.bottom,
+          ...(isOpen && previous.frame
+            ? { left: previous.frame.left, right: previous.frame.right }
+            : {
+                left: box.left,
+                right: document.documentElement.clientWidth - box.right,
+              }),
         },
-      });
+      }));
     }
 
     // Observing reports the first size too.

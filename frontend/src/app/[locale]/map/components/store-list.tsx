@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 
 import ScrollFade from "@/components/custom/common/scroll-fade";
 import StoreListItem from "@/app/[locale]/map/components/store-list-item";
+import { useNavClearance } from "@/app/[locale]/map/hooks/use-nav-clearance";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { toListEntries } from "@/app/[locale]/map/utils/list-entries";
 import { revealOffset } from "@/app/[locale]/map/utils/reveal-offset";
@@ -48,6 +49,8 @@ export default function StoreList({
 
   const t = useTranslations("map.layout");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const probeRef = useRef<HTMLDivElement>(null);
+  const navClearance = useNavClearance(probeRef);
 
   const entries = toListEntries(rows, headings);
   const selectedIndex = entries.findIndex(
@@ -69,6 +72,10 @@ export default function StoreList({
         : [...indexes, selectedIndex].sort((a, b) => a - b);
     },
     overscan: 8,
+    // On phones the list runs under the bottom nav; this lets the last row,
+    // and any row scrolled to, clear it.
+    paddingEnd: navClearance,
+    scrollPaddingEnd: navClearance,
   });
 
   // Set while a row is clicked; a pick made elsewhere (map, Back) moves focus.
@@ -179,11 +186,16 @@ export default function StoreList({
   // Isolated, so the fades stay under the view chip laid over the list.
   return (
     <div className="relative isolate flex min-h-0 flex-1 flex-col">
-      {/* On phones the list runs under the bottom nav; the padding lets the
-          last row, and any row focused by keyboard, scroll clear of it. */}
+      <div
+        ref={probeRef}
+        aria-hidden="true"
+        className="pointer-events-none invisible absolute h-[var(--bottom-nav-total)] w-0"
+      />
+
+      {/* Scroll padding keeps a keyboard-focused row clear of the nav too. */}
       <div
         ref={scrollRef}
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[var(--bottom-nav-total)] scroll-pb-[var(--bottom-nav-total)]"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain scroll-pb-[var(--bottom-nav-total)]"
       >
         <ul
           aria-label={t("stores")}
