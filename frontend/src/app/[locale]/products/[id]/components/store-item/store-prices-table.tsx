@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
 import { ProductResponse, StorePrice } from "@/lib/cijene-api/schemas";
 import {
   getMinPrice,
@@ -39,7 +40,7 @@ const StorePricesTable = memo(
     }
 
     return (
-      <div className="max-h-96 overflow-y-auto">
+      <ScrollFadeArea className="max-h-96" fadeClassName="from-card h-12">
         <Table>
           <TableHeader>
             <TableRow>
@@ -81,7 +82,7 @@ const StorePricesTable = memo(
               ))}
           </TableBody>
         </Table>
-      </div>
+      </ScrollFadeArea>
     );
   },
 );

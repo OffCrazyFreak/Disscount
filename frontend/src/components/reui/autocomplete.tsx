@@ -118,6 +118,7 @@ function AutocompleteList({
         "size-full min-h-0 **:data-[slot=scroll-area-viewport]:h-full **:data-[slot=scroll-area-viewport]:overscroll-contain",
         scrollAreaClassName,
       )}
+      fadeClassName="from-popover h-10 rounded-lg"
     >
       <AutocompletePrimitive.List
         data-slot="autocomplete-list"

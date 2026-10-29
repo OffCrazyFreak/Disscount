@@ -4,6 +4,7 @@ import { memo } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDown, MapPin, Tag } from "lucide-react";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import {
   Collapsible,
@@ -101,7 +102,10 @@ const StoreItem = memo(
                   {t("storeItem.loadingStores")}
                 </div>
               ) : storesData?.stores && storesData.stores.length > 0 ? (
-                <div className="max-h-128 overflow-y-auto">
+                <ScrollFadeArea
+                  className="max-h-128"
+                  fadeClassName="from-card h-12"
+                >
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -143,7 +147,7 @@ const StoreItem = memo(
                         ))}
                     </TableBody>
                   </Table>
-                </div>
+                </ScrollFadeArea>
               ) : (
                 <div className="text-center py-8 text-gray-500">
                   {t("storeItem.noStores")}

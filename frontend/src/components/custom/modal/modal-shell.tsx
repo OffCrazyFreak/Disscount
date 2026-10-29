@@ -15,6 +15,7 @@ import ModalShellHeader, {
   splitHeaderProps,
 } from "@/components/custom/modal/modal-shell-header";
 import { StaggerChildren } from "@/components/custom/animation/stagger-children";
+import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
 import { cn } from "@/lib/utils";
 
 // TODO(responsive-drawer): a `presentation` prop rendering a vaul Drawer below md.
@@ -102,16 +103,15 @@ export function ModalShell({
         <ModalShellHeader {...header} hasBody={Boolean(children)} />
 
         {children && (
-          <div
-            className={cn(
-              "min-h-0 flex-1 overflow-y-auto px-6 py-4",
-              bodyClassName,
-            )}
+          <ScrollFadeArea
+            className={cn("flex-1 px-6 py-4", bodyClassName)}
+            wrapperClassName="flex-1"
+            fadeClassName="h-12"
           >
             {/* Centralized reveal: the body cascades in on every open (Radix
                 remounts the content), so modals don't animate themselves. */}
             <StaggerChildren>{children}</StaggerChildren>
-          </div>
+          </ScrollFadeArea>
         )}
 
         {/* Wraps the slot rather than the composed footer, so a caller passing

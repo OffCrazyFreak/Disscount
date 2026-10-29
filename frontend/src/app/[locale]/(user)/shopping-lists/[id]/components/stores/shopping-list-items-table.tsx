@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
 import { ShoppingListDto } from "@/lib/api/types";
 import {
   ProductResponse,
@@ -38,7 +39,7 @@ const ShoppingListItemsTable = memo(
     }
 
     return (
-      <div className="max-h-96 overflow-y-auto">
+      <ScrollFadeArea className="max-h-96" fadeClassName="from-card h-12">
         <Table>
           <TableHeader>
             <TableRow>
@@ -77,7 +78,7 @@ const ShoppingListItemsTable = memo(
               ))}
           </TableBody>
         </Table>
-      </div>
+      </ScrollFadeArea>
     );
   },
 );

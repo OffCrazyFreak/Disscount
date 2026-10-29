@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   FormControl,
@@ -19,6 +19,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import ScrollFade from "@/components/custom/common/scroll-fade";
 import { ShoppingListDto } from "@/lib/api/types";
 import { commandFilter } from "@/utils/search/command-filter";
 import { UseFormReturn, useWatch } from "react-hook-form";
@@ -46,6 +47,7 @@ export default function ShoppingListSelector({
 }: IShoppingListSelectorProps) {
   const t = useTranslations("products");
   const [open, setOpen] = useState(false);
+  const listRef = useRef<HTMLDivElement>(null);
   const customListTitle = useWatch({
     control: formField.control,
     name: "customListTitle",
@@ -85,39 +87,53 @@ export default function ShoppingListSelector({
                     })
                   }
                 />
-                <CommandList>
-                  <CommandEmpty>
-                    <p>{t("listSelector.empty")}</p>
-                  </CommandEmpty>
+                {/* List only, so the top fade stays below the search box */}
+                <div className="relative flex min-h-0 flex-col">
+                  <CommandList ref={listRef}>
+                    <CommandEmpty>
+                      <p>{t("listSelector.empty")}</p>
+                    </CommandEmpty>
 
-                  {sortedShoppingLists.length > 0 && (
-                    <CommandGroup heading={t("listSelector.existingLists")}>
-                      {sortedShoppingLists.map((list) => (
-                        <ShoppingListOption
-                          key={list.id}
-                          list={list}
-                          isSelected={selectedList?.id === list.id}
+                    {sortedShoppingLists.length > 0 && (
+                      <CommandGroup heading={t("listSelector.existingLists")}>
+                        {sortedShoppingLists.map((list) => (
+                          <ShoppingListOption
+                            key={list.id}
+                            list={list}
+                            isSelected={selectedList?.id === list.id}
+                            onSelect={() => {
+                              onSelectList(list.id);
+                              setOpen(false);
+                            }}
+                          />
+                        ))}
+                      </CommandGroup>
+                    )}
+
+                    {customListTitle.trim() && (
+                      <CommandGroup heading={t("listSelector.newList")}>
+                        <CreateListOption
+                          customListTitle={customListTitle}
                           onSelect={() => {
-                            onSelectList(list.id);
+                            onSelectList("new");
                             setOpen(false);
                           }}
                         />
-                      ))}
-                    </CommandGroup>
-                  )}
+                      </CommandGroup>
+                    )}
+                  </CommandList>
 
-                  {customListTitle.trim() && (
-                    <CommandGroup heading={t("listSelector.newList")}>
-                      <CreateListOption
-                        customListTitle={customListTitle}
-                        onSelect={() => {
-                          onSelectList("new");
-                          setOpen(false);
-                        }}
-                      />
-                    </CommandGroup>
-                  )}
-                </CommandList>
+                  <ScrollFade
+                    targetRef={listRef}
+                    side="top"
+                    className="from-popover h-10"
+                  />
+
+                  <ScrollFade
+                    targetRef={listRef}
+                    className="from-popover h-10"
+                  />
+                </div>
               </Command>
             </PopoverContent>
           </Popover>
