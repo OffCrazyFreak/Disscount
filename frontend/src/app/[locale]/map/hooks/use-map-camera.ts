@@ -4,6 +4,7 @@ import { RefObject, useEffect, useRef, useState } from "react";
 import type { MapRef, ViewStateChangeEvent } from "react-map-gl/maplibre";
 
 import { ICenterRequest } from "@/app/[locale]/map/hooks/use-geolocation";
+import { circleBounds } from "@/app/[locale]/map/utils/circle";
 import { ILatLon } from "@/app/[locale]/map/utils/distance";
 
 interface IUseMapCameraOptions {
@@ -60,10 +61,18 @@ export function useMapCamera({
     }
 
     gpsCentered.current = true;
-    mapRef.current?.easeTo({
-      center: [centerRequest.lon, centerRequest.lat],
-      zoom: centerRequest.zoom ?? 13,
-    });
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (centerRequest.radius) {
+      // The guess area fills about 60% of the width, edge to edge.
+      map.fitBounds(circleBounds(centerRequest, centerRequest.radius), {
+        padding: Math.round(map.getContainer().clientWidth * 0.2),
+      });
+      return;
+    }
+
+    map.easeTo({ center: [centerRequest.lon, centerRequest.lat], zoom: 13 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapReady, centerRequest]);
 
