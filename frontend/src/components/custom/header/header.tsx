@@ -18,7 +18,7 @@ export default function Header() {
   return (
     <>
       <header>
-        <nav className="fixed z-[var(--z-header)] inset-x-4 my-4">
+        <nav className="fixed z-[var(--z-header)] inset-x-4 my-4 max-md:has-[[data-slot-open]]:inset-x-0">
           <div
             data-header-frame
             className={cn(
@@ -33,6 +33,8 @@ export default function Header() {
               isMap && "max-md:has-[#header-slot:empty]:invisible",
               // The open search covers the screen, so the frame steps back.
               "has-[[data-slot-open]]:border-transparent has-[[data-slot-open]]:bg-transparent has-[[data-slot-open]]:backdrop-blur-none",
+              // Lined up with the open panel's inset; the transparent border still takes 1px.
+              "max-md:has-[[data-slot-open]]:px-[calc(--spacing(3)-1px)]",
             )}
           >
             <div className="flex items-center justify-between gap-2 sm:gap-6 flex-wrap py-2 sm:py-4">

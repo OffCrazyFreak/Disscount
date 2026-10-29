@@ -51,8 +51,9 @@ export default function MapSearchBar({
   }
 
   return (
+    // Fixed, so the open list escapes the layout's clip and runs under the bottom nav.
     <div
-      className="pointer-events-none absolute inset-0 z-[3]"
+      className="pointer-events-none fixed inset-0 z-[3]"
       onKeyDown={(event) => {
         if (event.key !== "Escape" || !isOpen) return;
 
@@ -107,10 +108,11 @@ export default function MapSearchBar({
             </div>
 
             {/* Its width shrinks rather than it unmounting, so the field widens
-                with it instead of jumping. */}
+                with it instead of jumping. The gap rides inside it, so the
+                field reaches the row's end once it has shrunk. */}
             <motion.div
               inert={isOpen}
-              className="flex shrink-0 justify-end overflow-hidden"
+              className="-ml-2 flex shrink-0 justify-end overflow-hidden"
               initial={false}
               animate={{
                 width: isOpen ? 0 : "auto",
@@ -119,7 +121,9 @@ export default function MapSearchBar({
               }}
               transition={transition}
             >
-              <HeaderActions compact />
+              <div className="pl-2">
+                <HeaderActions compact />
+              </div>
             </motion.div>
           </div>,
           slot,
