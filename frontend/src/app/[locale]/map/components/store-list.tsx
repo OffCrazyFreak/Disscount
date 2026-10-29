@@ -4,7 +4,9 @@ import { useEffect, useRef } from "react";
 import { defaultRangeExtractor, useVirtualizer } from "@tanstack/react-virtual";
 import { useTranslations } from "next-intl";
 
+import ScrollFade from "@/components/custom/common/scroll-fade";
 import StoreListItem from "@/app/[locale]/map/components/store-list-item";
+import { useNavClearance } from "@/app/[locale]/map/hooks/use-nav-clearance";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { toListEntries } from "@/app/[locale]/map/utils/list-entries";
 import { revealOffset } from "@/app/[locale]/map/utils/reveal-offset";
@@ -47,6 +49,8 @@ export default function StoreList({
 
   const t = useTranslations("map.layout");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const probeRef = useRef<HTMLDivElement>(null);
+  const navClearance = useNavClearance(probeRef);
 
   const entries = toListEntries(rows, headings);
   const selectedIndex = entries.findIndex(
@@ -68,6 +72,10 @@ export default function StoreList({
         : [...indexes, selectedIndex].sort((a, b) => a - b);
     },
     overscan: 8,
+    // On phones the list runs under the bottom nav; this lets the last row,
+    // and any row scrolled to, clear it.
+    paddingEnd: navClearance,
+    scrollPaddingEnd: navClearance,
   });
 
   // Set while a row is clicked; a pick made elsewhere (map, Back) moves focus.
@@ -175,44 +183,62 @@ export default function StoreList({
     onSelect(key);
   }
 
+  // Isolated, so the fades stay under the view chip laid over the list.
   return (
-    <div
-      ref={scrollRef}
-      className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
-    >
-      <ul
-        aria-label={t("stores")}
-        className="relative w-full"
-        style={{ height: virtualizer.getTotalSize() }}
-      >
-        {virtualizer.getVirtualItems().map((item) => {
-          const entry = entries[item.index];
+    <div className="relative isolate flex min-h-0 flex-1 flex-col">
+      <div
+        ref={probeRef}
+        aria-hidden="true"
+        className="pointer-events-none invisible absolute h-[var(--bottom-nav-total)] w-0"
+      />
 
-          return (
-            <li
-              key={entry.key}
-              ref={virtualizer.measureElement}
-              data-index={item.index}
-              aria-setsize={entries.length}
-              aria-posinset={item.index + 1}
-              className="absolute inset-x-0"
-              style={{ transform: `translateY(${item.start}px)` }}
-            >
-              {entry.kind === "heading" ? (
-                <h2 className="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  {entry.label}
-                </h2>
-              ) : (
-                <StoreListItem
-                  row={entry.row}
-                  isSelected={entry.key === selectedKey}
-                  onSelect={selectInList}
-                />
-              )}
-            </li>
-          );
-        })}
-      </ul>
+      {/* Scroll padding keeps a keyboard-focused row clear of the nav too. */}
+      <div
+        ref={scrollRef}
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain scroll-pb-[var(--bottom-nav-total)]"
+      >
+        <ul
+          aria-label={t("stores")}
+          className="relative w-full"
+          style={{ height: virtualizer.getTotalSize() }}
+        >
+          {virtualizer.getVirtualItems().map((item) => {
+            const entry = entries[item.index];
+
+            return (
+              <li
+                key={entry.key}
+                ref={virtualizer.measureElement}
+                data-index={item.index}
+                aria-setsize={entries.length}
+                aria-posinset={item.index + 1}
+                className="absolute inset-x-0"
+                style={{ transform: `translateY(${item.start}px)` }}
+              >
+                {entry.kind === "heading" ? (
+                  <h2 className="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {entry.label}
+                  </h2>
+                ) : (
+                  <StoreListItem
+                    row={entry.row}
+                    isSelected={entry.key === selectedKey}
+                    onSelect={selectInList}
+                  />
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      <ScrollFade targetRef={scrollRef} side="top" />
+
+      {/* Under the bottom nav it matches the page fade there. */}
+      <ScrollFade
+        targetRef={scrollRef}
+        className="max-md:h-28 max-md:via-background/70"
+      />
     </div>
   );
 }

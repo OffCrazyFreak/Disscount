@@ -12,7 +12,9 @@ import {
 import type { StyleSpecification } from "maplibre-gl";
 
 import FavoriteStoreMarkers from "@/app/[locale]/map/components/favorite-store-markers";
-import MapOverlays from "@/app/[locale]/map/components/map-overlays";
+import MapOverlays, {
+  IUserLocation,
+} from "@/app/[locale]/map/components/map-overlays";
 import MapPanControls from "@/app/[locale]/map/components/map-pan-controls";
 import MapStoreSource, {
   MAP_MAX_ZOOM,
@@ -41,7 +43,7 @@ export interface IStoreMapViewProps {
   stores: IListedStore[];
   selected: IListedStore | null;
   onSelect: (key: string) => void;
-  userLocation: ILatLon | null;
+  userLocation: IUserLocation | null;
   centerRequest: ICenterRequest | null;
   initialView: (ILatLon & { zoom: number }) | null;
   /** Share of the map's height under the phone sheet, 0 on desktop. */

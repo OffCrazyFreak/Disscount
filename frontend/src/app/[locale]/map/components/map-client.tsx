@@ -36,7 +36,13 @@ export default function MapClient({ ipLocation }: IMapClientProps) {
       stores={model.mappable}
       selected={model.selected}
       onSelect={model.selectStore}
-      userLocation={model.geolocation.position}
+      userLocation={
+        model.geolocation.position ??
+        (model.geolocation.guess && {
+          ...model.geolocation.guess,
+          approximate: true,
+        })
+      }
       centerRequest={model.geolocation.centerRequest}
       initialView={model.initialView}
       coveredShare={isMobile ? coveredShare : 0}

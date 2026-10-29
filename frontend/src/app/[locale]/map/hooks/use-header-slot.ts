@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 
-import { HEADER_SLOT_ID } from "@/components/custom/header/header-slot";
+import {
+  HEADER_SLOT_ID,
+  HEADER_SLOT_OPEN_ATTR,
+} from "@/components/custom/header/header-slot";
 
 export interface IFrameBox {
   top: number;
@@ -32,15 +35,23 @@ export function useHeaderSlot(): IHeaderSlot {
 
     function measure() {
       const box = frameElement!.getBoundingClientRect();
-      setState({
+      // Open, the frame widens to the screen edges, but closing shrinks back
+      // into the closed box; its height still follows a rotation.
+      const isOpen = slot!.querySelector(`[${HEADER_SLOT_OPEN_ATTR}]`) != null;
+
+      setState((previous) => ({
         slot,
         frame: {
           top: box.top,
-          left: box.left,
-          right: document.documentElement.clientWidth - box.right,
           bottom: box.bottom,
+          ...(isOpen && previous.frame
+            ? { left: previous.frame.left, right: previous.frame.right }
+            : {
+                left: box.left,
+                right: document.documentElement.clientWidth - box.right,
+              }),
         },
-      });
+      }));
     }
 
     // Observing reports the first size too.
