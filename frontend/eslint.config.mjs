@@ -15,6 +15,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Serwist writes the bundled service worker into public/ on every build.
     "public/sw*",
+    // Vendored agent skills are third-party code, replaced wholesale on update.
+    ".agents/**",
   ]),
   // The React Compiler "set-state-in-effect" heuristic fires on our intentional
   // SSR-safe deferred reads and external-state syncs; keep it visible as a
