@@ -235,10 +235,29 @@ It began in monitor mode (`p=none`) and moved to `p=quarantine` once the aggrega
 | **UFW** (on the VM)                          | Same 22/80/443 allow-list as a second layer (note: Docker can punch through UFW, hence the Hetzner firewall above).                                               |
 | **fail2ban**                                 | Bans IPs after repeated failed SSH logins.                                                                                                                        |
 | **SSH hardening**                            | Key-only auth; **root login + password login disabled**. Login as your non-root **sudo user**.                                                                    |
-| **unattended-upgrades**                      | Automatic OS security updates.                                                                                                                                    |
+| **unattended-upgrades**                      | Automatic OS security updates every night at 01:30 UTC, with a reboot when an update needs one. See [Nightly updates and reboots](#nightly-updates-and-reboots).  |
 | **Cloudflare proxy**                         | Hides the origin IP + DDoS protection for proxied records.                                                                                                        |
 
 Other: **4 GB swap** for build headroom; the Dokploy admin panel is reachable only via its HTTPS domain (login-protected), not the raw `:3000` port.
+
+### Nightly updates and reboots
+
+Every night at **01:30 UTC** (plus a random delay of up to 10 minutes) unattended-upgrades installs security updates. If any update needs a reboot, a new kernel for example, it writes `/var/run/reboot-required` and the server reboots straight after the run. The sites drop for about a minute; the Dokploy panel takes a minute longer. The slot sits before the 02:00 to 04:00 backups in [§8](#8-backups--restore), so a reboot never cuts one off.
+
+After a reboot, **`traefik-boot-check`** makes sure Traefik came back. Dokploy has had reboot bugs that left the `dokploy-traefik` container stopped, taking every site down ([#4057](https://github.com/Dokploy/dokploy/issues/4057), [#5131](https://github.com/Dokploy/dokploy/issues/5131), both closed upstream), so the check stays as a cheap guard. It waits up to 120 seconds for the container to run, then starts it itself, retrying three times.
+
+| File on the VPS                                               | What it sets                                                                                                                            |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `/etc/apt/apt.conf.d/52auto-reboot`                           | `Automatic-Reboot "true"` with `Automatic-Reboot-Time "now"`. A clock time is unsafe here: `shutdown` reboots at once if it has passed. |
+| `/etc/systemd/system/apt-daily-upgrade.timer.d/override.conf` | Moves the upgrade run to 01:30 UTC. `Persistent=false`, so a run missed while the server was off never fires as a daytime reboot.       |
+| `/usr/local/sbin/traefik-boot-check`                          | The check script itself.                                                                                                                |
+| `/etc/systemd/system/traefik-boot-check.service`              | Runs the script once per boot, after Docker starts.                                                                                     |
+
+Worth knowing:
+
+- **Only security updates install on their own.** The default config leaves the `-updates` channel off, so bug-fix releases (systemd, a non-security kernel) wait for a manual `sudo apt update && sudo apt full-upgrade`. Those set the reboot flag too, and the next night's run reboots even though it installs nothing.
+- **Reboot now instead of tonight:** run `sudo unattended-upgrade -v`. It goes through the same steps as the nightly run and reboots at the end if the flag is set. Starting `apt-daily-upgrade.service` by hand does nothing on a day the timer already ran, because its stamp check counts whole days.
+- **Check that it worked:** after a reboot, `uname -r` shows the new kernel, `/var/run/reboot-required` is gone, and `sudo journalctl -u traefik-boot-check -b` prints `dokploy-traefik is running`, or a line saying it had to start it.
 
 ---
 
@@ -337,8 +356,11 @@ Set in **Dokploy → service → Environment**, per environment. Both DSNs live 
 | HTTP to HTTPS redirect                                                               | ✅ auto    | Cloudflare                                                                                                                                  |
 | DB migrations (auth tables + app tables)                                             | ✅ auto    | `migrate` service (drizzle) + Hibernate `ddl-auto=update` on each deploy. **Additive only**: see the dropped-column row below               |
 | Nightly DB backups (R2 + local) + rotation                                           | ✅ auto    | Dokploy Backups + Schedule                                                                                                                  |
-| OS security updates                                                                  | ✅ auto    | unattended-upgrades                                                                                                                         |
+| OS security updates                                                                  | ✅ auto    | unattended-upgrades, nightly at 01:30 UTC (see [Nightly updates and reboots](#nightly-updates-and-reboots))                                 |
+| Reboot when an update needs one                                                      | ✅ auto    | right after the nightly update run                                                                                                          |
+| Starting Traefik if a reboot leaves it stopped                                       | ✅ auto    | `traefik-boot-check.service`                                                                                                                |
 | Uptime checks                                                                        | ✅ auto    | UptimeRobot, published as a [public status page](https://stats.uptimerobot.com/ej4ROz2eMo)                                                  |
+| **Non-security OS updates (`-updates` channel)**                                     | ❌ manual  | `sudo apt update && sudo apt full-upgrade`; the next nightly run reboots if needed                                                          |
 | **Creating the EU photo bucket + token, setting `R2_*`**                             | ❌ manual  | Cloudflare once, then Dokploy env per environment; photos stay off until all four are set (see [Card photo env vars](#card-photo-env-vars)) |
 | **Dropping the old `digital_card` table**                                            | ❌ manual  | after the cards rebuild deploys and nothing reads it; `ddl-auto=update` never drops it (see [§10.1](#101-dropping-a-column))                |
 | **Adding/Changing a `NEXT_PUBLIC_*` var**                                            | ❌ manual  | edit in Dokploy env **+ redeploy**                                                                                                          |
