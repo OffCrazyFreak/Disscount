@@ -110,3 +110,6 @@ marketing/emails/dist/
 
 # Python bytecode from the agent hooks
 __pycache__/
+
+# Brainstorming skill scratch: mockups, logs and its server session token.
+.superpowers/
