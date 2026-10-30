@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "title": "Mappa dei negozi",
+    "description": "Trova i negozi sulla mappa: Konzum, Lidl, Kaufland, Spar, Plodine, Tommy, Studenac e altre 20 catene in tutta la Croazia. Cerca per città o indirizzo e trova il più vicino."
+  },
+  "heading": "Mappa dei negozi",
+  "search": {
+    "placeholder": "Catena, città o indirizzo..."
+  },
+  "layout": {
+    "storeList": "Elenco dei negozi",
+    "stores": "Negozi",
+    "backToMap": "Torna alla mappa"
+  },
+  "load": {
+    "error": "Al momento non è possibile caricare i negozi.",
+    "retry": "Riprova",
+    "loading": "Caricamento dei negozi..."
+  },
+  "unavailable": {
+    "browser": "Il tuo browser non può mostrare la mappa. Tutti i negozi restano nell'elenco.",
+    "style": "Al momento non è possibile caricare la mappa. Tutti i negozi restano nell'elenco.",
+    "contextLost": "La mappa si è interrotta.",
+    "reload": "Ricarica",
+    "noGpu": "Il tuo browser ha disattivato l'accelerazione grafica e non può mostrare la mappa. Di solito basta riavviare il browser. Tutti i negozi sono ancora nell'elenco."
+  },
+  "chains": {
+    "all": "Tutte le catene"
+  },
+  "nearMe": {
+    "locate": "Negozi vicino a me",
+    "clear": "Rimuovi la mia posizione",
+    "approximate": "Mostriamo i negozi in base alla tua posizione approssimativa. Attiva la posizione sul dispositivo per un ordine più preciso.",
+    "denied": "L'accesso alla posizione è bloccato. Consentilo nelle impostazioni del browser o cerca per città.",
+    "unavailable": "La posizione non è disponibile al momento. Cerca per città o indirizzo.",
+    "timeout": "Non è possibile determinare la posizione. Controlla che la posizione sia attiva sul dispositivo o cerca per città."
+  },
+  "recent": {
+    "label": "Ricerche recenti:",
+    "clear": "Cancella",
+    "clearLabel": "Cancella le ricerche recenti"
+  },
+  "count": {
+    "shown": "{count, plural, one {# negozio} other {# negozi}}",
+    "unplaced": "{shown}, di cui {unplaced} senza posizione sulla mappa. Restano comunque nell'elenco."
+  },
+  "pan": {
+    "group": "Spostamento della mappa",
+    "up": "Sposta la mappa in alto",
+    "left": "Sposta la mappa a sinistra",
+    "right": "Sposta la mappa a destra",
+    "down": "Sposta la mappa in basso"
+  },
+  "list": {
+    "noLocation": "senza posizione",
+    "onMap": "Sulla mappa · {count, number}",
+    "elsewhere": "Altrove · {count, number}",
+    "onMapStatus": "{count, plural, one {# negozio} other {# negozi}} sulla mappa",
+    "update": "Mappa spostata · aggiorna l'elenco",
+    "sameSpot": "{count, plural, one {# negozio} other {# negozi}} in questo punto",
+    "unknownAddress": "Indirizzo sconosciuto",
+    "favorites": "Negozi preferiti · {count, number}",
+    "others": "Altri negozi · {count, number}",
+    "distance": "a {distance} da te"
+  },
+  "details": {
+    "notPlaced": "Non abbiamo ancora una posizione esatta per questo negozio, quindi non è sulla mappa."
+  },
+  "favorites": {
+    "add": "Aggiungi ai preferiti",
+    "remove": "Rimuovi dai preferiti",
+    "limit": "Al massimo {max, number} negozi preferiti.",
+    "saveFailed": "Salvataggio non riuscito. Riprova."
+  },
+  "actions": {
+    "googleDirections": "Indicazioni (Google Maps)",
+    "appleMaps": "Mappe di Apple",
+    "call": "Chiama {phone}",
+    "share": "Condividi",
+    "copied": "Link copiato.",
+    "shareFailed": "Condivisione non riuscita.",
+    "report": "Segnala un errore"
+  },
+  "report": {
+    "subject": "Posizione del negozio sbagliata",
+    "message": "Negozio: {store} ({id})\n\nCosa non va: "
+  }
+}

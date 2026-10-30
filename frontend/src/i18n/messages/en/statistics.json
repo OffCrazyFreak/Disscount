@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "title": "Statistics",
+    "description": "An overview of statistics for retail chains."
+  },
+  "page": {
+    "title": "Statistics",
+    "subtitle": "An overview of statistics for retail chains."
+  },
+  "health": {
+    "checking": "Checking status...",
+    "error": "❌ Couldn't check if the API is available",
+    "available": "✅ The price API is available",
+    "unavailable": "❌ The price API isn't available"
+  },
+  "chains": {
+    "title": "Statistics by store",
+    "loading": "Loading...",
+    "empty": "No data"
+  },
+  "storeItem": {
+    "storeCount": "{count, plural, one {# store} other {# stores}}",
+    "priceCount": "{count, plural, one {# price} other {# prices}}",
+    "loadingStores": "Loading stores...",
+    "city": "City",
+    "address": "Address",
+    "unknown": "Unknown",
+    "noStores": "No store data"
+  }
+}

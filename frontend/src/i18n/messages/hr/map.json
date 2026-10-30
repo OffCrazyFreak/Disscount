@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "title": "Karta trgovina",
+    "description": "Pronađi trgovine na karti: Konzum, Lidl, Kaufland, Spar, Plodine, Tommy, Studenac i još 20 lanaca diljem Hrvatske. Pretraži po gradu ili adresi i pronađi najbližu."
+  },
+  "heading": "Karta trgovina",
+  "search": {
+    "placeholder": "Trgovina, grad ili adresa..."
+  },
+  "layout": {
+    "storeList": "Popis trgovina",
+    "stores": "Trgovine",
+    "backToMap": "Natrag na kartu"
+  },
+  "load": {
+    "error": "Trgovine se trenutačno ne mogu učitati.",
+    "retry": "Pokušaj ponovno",
+    "loading": "Učitavam trgovine..."
+  },
+  "unavailable": {
+    "browser": "Tvoj preglednik ne može prikazati kartu. Sve trgovine i dalje su na popisu.",
+    "style": "Karta se trenutačno ne može učitati. Sve trgovine i dalje su na popisu.",
+    "contextLost": "Karta se prekinula.",
+    "reload": "Učitaj ponovno",
+    "noGpu": "Tvoj preglednik je isključio grafičko ubrzanje pa ne može prikazati kartu. Obično pomaže da ponovno pokreneš preglednik. Sve trgovine i dalje su na popisu."
+  },
+  "chains": {
+    "all": "Sve trgovine"
+  },
+  "nearMe": {
+    "locate": "Trgovine blizu mene",
+    "clear": "Ukloni moju lokaciju",
+    "approximate": "Prikazujemo trgovine prema približnoj lokaciji. Uključi lokaciju na uređaju za točniji redoslijed.",
+    "denied": "Pristup lokaciji je odbijen. Dopusti ga u postavkama preglednika ili pretraži po gradu.",
+    "unavailable": "Lokacija trenutačno nije dostupna. Pretraži po gradu ili adresi.",
+    "timeout": "Lokacija se ne može odrediti. Provjeri je li lokacija uključena na uređaju ili pretraži po gradu."
+  },
+  "recent": {
+    "label": "Nedavne pretrage:",
+    "clear": "Obriši",
+    "clearLabel": "Obriši nedavne pretrage"
+  },
+  "count": {
+    "shown": "{count, plural, one {# trgovina} few {# trgovine} other {# trgovina}}",
+    "unplaced": "{shown}, od toga {unplaced} bez lokacije na karti. One su i dalje na popisu."
+  },
+  "pan": {
+    "group": "Pomicanje karte",
+    "up": "Pomakni kartu gore",
+    "left": "Pomakni kartu lijevo",
+    "right": "Pomakni kartu desno",
+    "down": "Pomakni kartu dolje"
+  },
+  "list": {
+    "noLocation": "bez lokacije",
+    "onMap": "Na karti · {count, number}",
+    "elsewhere": "Drugdje · {count, number}",
+    "onMapStatus": "{count, plural, one {# trgovina} few {# trgovine} other {# trgovina}} na karti",
+    "update": "Karta se pomaknula · osvježi popis",
+    "sameSpot": "{count, plural, one {# trgovina} few {# trgovine} other {# trgovina}} na ovom mjestu",
+    "unknownAddress": "Adresa nije poznata",
+    "favorites": "Omiljene trgovine · {count, number}",
+    "others": "Ostale trgovine · {count, number}",
+    "distance": "{distance} od tebe"
+  },
+  "details": {
+    "notPlaced": "Za ovu trgovinu još nemamo točnu lokaciju, pa nije na karti."
+  },
+  "favorites": {
+    "add": "Dodaj u omiljene",
+    "remove": "Ukloni iz omiljenih",
+    "limit": "Najviše {max, number} omiljenih trgovina.",
+    "saveFailed": "Spremanje nije uspjelo. Pokušaj ponovno."
+  },
+  "actions": {
+    "googleDirections": "Upute (Google karte)",
+    "appleMaps": "Apple karte",
+    "call": "Nazovi {phone}",
+    "share": "Podijeli",
+    "copied": "Poveznica je kopirana.",
+    "shareFailed": "Dijeljenje nije uspjelo.",
+    "report": "Prijavi grešku"
+  },
+  "report": {
+    "subject": "Pogrešna lokacija trgovine",
+    "message": "Trgovina: {store} ({id})\n\nŠto nije u redu: "
+  }
+}

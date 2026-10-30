@@ -1,73 +1,69 @@
 "use client";
 
+import { useFormState } from "react-hook-form";
 import { UserPlus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
-import EmailField from "@/components/custom/auth/components/fields/email-field";
+import AuthFormShell from "@/components/custom/auth/components/forms/auth-form-shell";
 import PasswordField from "@/components/custom/auth/components/fields/password-field";
-import FormRootError from "@/components/custom/common/form-root-error";
 import InboxNotice from "@/components/custom/common/inbox-notice";
 import { useSignupForm } from "@/components/custom/auth/hooks/use-signup-form";
+import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
 
 interface ISignUpFormProps {
   externalDisabled?: boolean;
 }
 
 export default function SignUpForm({ externalDisabled }: ISignUpFormProps) {
+  const t = useTranslations("auth");
+  const { hint } = usePasswordPolicy();
   const { form, onSubmit, submittedEmail } = useSignupForm();
+  const formState = useFormState({ control: form.control });
 
   if (submittedEmail) {
     return (
       <InboxNotice
-        title="Provjeri svoj inbox"
-        description="Poslali smo ti email s poveznicom za dovršetak registracije na:"
+        title={t("inbox.title")}
+        description={t("signup.inboxDescription")}
         email={submittedEmail}
       />
     );
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
-        <FormRootError message={form.formState.errors.root?.message} />
+    <AuthFormShell form={form} onSubmit={onSubmit}>
+      <PasswordField
+        control={form.control}
+        name="password"
+        label={t("fields.password")}
+        autoComplete="new-password"
+        hasError={!!formState.errors.password}
+        description={hint}
+      />
 
-        <EmailField
-          registration={form.register("email")}
-          error={form.formState.errors.email?.message}
-        />
+      <PasswordField
+        control={form.control}
+        name="confirmPassword"
+        label={t("fields.confirmPassword")}
+        autoComplete="new-password"
+        hasError={!!formState.errors.confirmPassword}
+      />
 
-        <PasswordField
-          control={form.control}
-          name="password"
-          label="Lozinka"
-          autoComplete="new-password"
-          hasError={!!form.formState.errors.password}
-        />
-
-        <PasswordField
-          control={form.control}
-          name="confirmPassword"
-          label="Potvrdi lozinku"
-          autoComplete="new-password"
-          hasError={!!form.formState.errors.confirmPassword}
-        />
-
-        <Button
-          type="submit"
-          size="lg"
-          effect="gradientSlideShow"
-          className="w-full"
-          icon={UserPlus}
-          iconPlacement="left"
-          loading={form.formState.isSubmitting}
-          loadingText="Registracija..."
-          loadingIconPlacement="left"
-          disabled={form.formState.isSubmitting || externalDisabled}
-        >
-          Registriraj se
-        </Button>
-      </form>
-    </Form>
+      <Button
+        type="submit"
+        size="lg"
+        effect="gradientSlideShow"
+        className="w-full"
+        icon={UserPlus}
+        iconPlacement="left"
+        loading={formState.isSubmitting}
+        loadingText={t("signup.submitting")}
+        loadingIconPlacement="left"
+        disabled={formState.isSubmitting || externalDisabled}
+      >
+        {t("actions.signUp")}
+      </Button>
+    </AuthFormShell>
   );
 }

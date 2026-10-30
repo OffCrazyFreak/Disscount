@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+
 import CartLogo from "@/components/icons/cart-logo";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 

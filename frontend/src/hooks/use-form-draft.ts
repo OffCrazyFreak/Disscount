@@ -1,7 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { FieldValues, Path, UseFormReturn } from "react-hook-form";
+import {
+  useFormState,
+  type FieldValues,
+  type Path,
+  type UseFormReturn,
+} from "react-hook-form";
 
 import {
   getFormDraft,
@@ -52,8 +57,9 @@ export function useFormDraft<T extends FieldValues>({
   const [dismissed, setDismissed] = useState(false);
   const restoredKeyRef = useRef<string | null>(null);
 
-  // Read during render, or RHF's formState proxy stops computing them.
-  const defaultValues = form.formState.defaultValues;
+  // A subscription, not form.formState: the React Compiler would cache a read off the
+  // stable form object and keep serving the first defaults.
+  const { defaultValues } = useFormState({ control: form.control });
   const stateRef = useRef({ exclude, defaultValues });
 
   useEffect(() => {

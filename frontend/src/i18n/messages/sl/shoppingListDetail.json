@@ -1,0 +1,119 @@
+{
+  "meta": {
+    "title": "Nakupovalni seznam: podrobnosti",
+    "description": "Pregled in upravljanje izdelkov na nakupovalnem seznamu."
+  },
+  "toggle": {
+    "show": "Pokaži",
+    "hide": "Skrij"
+  },
+  "backToLists": "Nazaj na nakupovalne sezname",
+  "lastSynced": "Seznam osvežen {time}",
+  "access": {
+    "view": "Ta seznam lahko samo pregleduješ.",
+    "shop": "Lahko označiš, kaj je kupljeno, in izbereš trgovino, seznama pa ne moreš spreminjati.",
+    "edit": "Lahko spreminjaš količine in brišeš izdelke, novih pa ne moreš dodajati.",
+    "withNextStep": "{text} {nextStep}",
+    "signIn": "Prijavi se za urejanje.",
+    "askOwner": "Za več pravic se obrni na lastnika seznama.",
+    "checking": "Pravice za ta seznam se še preverjajo."
+  },
+  "actions": {
+    "deleteTitle": "Izbriši nakupovalni seznam",
+    "deleteDescription": "Želiš res izbrisati seznam »{title}«? Tega ni mogoče razveljaviti.",
+    "deleteConfirm": "Izbriši",
+    "edit": "Uredi seznam",
+    "copy": "Kopiraj seznam",
+    "share": "Deli seznam",
+    "editShare": "Uredi deljenje seznama",
+    "delete": "Izbriši seznam"
+  },
+  "toasts": {
+    "linkCopied": "Povezava je kopirana",
+    "shareFailed": "Deljenje ni uspelo",
+    "itemDeleted": "Izdelek je izbrisan",
+    "listDeleted": "Nakupovalni seznam je izbrisan",
+    "listDeleteFailed": "Napaka pri brisanju nakupovalnega seznama. Poskusi znova."
+  },
+  "unavailable": {
+    "deadLinkTitle": "Povezava ne velja več",
+    "deadLinkDescription": "Lastnik je prenehal deliti ta seznam ali pa je povezava napačna.",
+    "exploreProducts": "Razišči izdelke",
+    "loadFailedTitle": "Seznama ni mogoče naložiti",
+    "loadFailedDescription": "Preveri internetno povezavo in poskusi znova.",
+    "retry": "Poskusi znova"
+  },
+  "info": {
+    "created": "Ustvarjeno:",
+    "updated": "Posodobljeno:",
+    "total": "Skupaj:",
+    "remaining": "Preostalo:",
+    "spent": "Porabljeno:",
+    "saved": "Prihranjeno:",
+    "overpaid": "Preplačano:",
+    "priceRange": "<low>{min}</low><mid> | {avg} | </mid><high>{max}</high>",
+    "savings": "{amount} ({percent} %)"
+  },
+  "items": {
+    "titleWithChecked": "Izdelki ({checked}/{total} kupljeno)",
+    "title": "Izdelki ({total})",
+    "emptyOwner": "Na tem seznamu še ni izdelkov. Poišči izdelke in jih dodaj na ta seznam.",
+    "empty": "Na tem seznamu še ni izdelkov.",
+    "searchProducts": "Išči izdelke",
+    "markUnbought": "Označi {name} kot nekupljeno",
+    "markBought": "Označi {name} kot kupljeno",
+    "remove": "Odstrani izdelek",
+    "amountLabel": "Količina:",
+    "decreaseAmount": "Zmanjšaj količino za 1",
+    "increaseAmount": "Povečaj količino za 1",
+    "approxPrice": "~ {price}",
+    "pricePerUnit": "{price}/{unit}"
+  },
+  "priceHistory": {
+    "title": "Zgodovina cen",
+    "noData": "Zgodovinski podatki niso na voljo."
+  },
+  "stores": {
+    "title": "Cene po trgovcih",
+    "noItems": "Na tem seznamu še ni izdelkov. Poišči izdelke in jih dodaj na ta seznam.",
+    "allChecked": "Vsi izdelki so označeni kot kupljeni.",
+    "loadError": "Napaka pri nalaganju cen. Poskusi znova.",
+    "noPrices": "Za izdelke na seznamu ni na voljo nobene cene.",
+    "optimizeBy": "Optimiziraj glede na:",
+    "optimize": {
+      "products": "Število izdelkov",
+      "basket": "Najcenejšo košarico",
+      "total": "Posamezne izdelke",
+      "distance": "Razdaljo"
+    },
+    "availableItems": "Na voljo izdelkov: {count}/{total}",
+    "dataFrom": "Podatki z dne {date}",
+    "hasLowest": "ima izdelek z najnižjo ceno",
+    "hasHighest": "ima izdelek z najvišjo ceno",
+    "availability": "Razpoložljivost izdelkov",
+    "min": "Najnižja",
+    "avg": "Povprečje",
+    "max": "Najvišja",
+    "stat": "{label}: {price}",
+    "lowestAmongChains": "(najnižja med trgovci)",
+    "highestAmongChains": "(najvišja med trgovci)",
+    "table": {
+      "empty": "Na nakupovalnem seznamu ni izdelkov",
+      "product": "Izdelek",
+      "quantity": "Količina",
+      "price": "Cena",
+      "total": "Skupaj",
+      "unavailable": "Izdelek ni na voljo",
+      "unavailableTooltip": "Izdelek v tej trgovini ni na voljo",
+      "lowestPrice": "najnižja cena",
+      "highestPrice": "najvišja cena"
+    }
+  },
+  "emptyValue": "-",
+  "groups": {
+    "toggle": "Po trgovinah",
+    "other": "Drugo",
+    "onMap": "Na zemljevidu",
+    "summary": "{count, plural, one {# izdelek} two {# izdelka} few {# izdelki} other {# izdelkov}}{partial, select, yes { · vsaj {subtotal}} none {} other { · {subtotal}}}"
+  }
+}

@@ -1,0 +1,120 @@
+import { useTranslations } from "next-intl";
+import { ChevronDown, ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
+import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
+import { CardHeader } from "@/components/ui/card";
+import { getChainLabel } from "@/utils/labels";
+import { cn } from "@/lib/utils";
+import { ChainSummary } from "@/app/[locale]/(user)/shopping-lists/[id]/typings/store-chain-types";
+import { IStoreCardMetrics } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/store-card-utils";
+import StoreCardBadges from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/store-card-badges";
+import StoreCardPriceRow from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/store-card-price-row";
+
+interface IStoreCardHeaderProps {
+  chain: ChainSummary;
+  metrics: IStoreCardMetrics;
+  pinnedStoresCount: number;
+  hasLowestPriceItem: boolean;
+  hasHighestPriceItem: boolean;
+  isExpanded: boolean;
+}
+
+export default function StoreCardHeader({
+  chain,
+  metrics,
+  pinnedStoresCount,
+  hasLowestPriceItem,
+  hasHighestPriceItem,
+  isExpanded,
+}: IStoreCardHeaderProps) {
+  const t = useTranslations("shoppingListDetail");
+
+  const {
+    isPreferred,
+    isDataFromToday,
+    storeMinPrice,
+    storeAvgPrice,
+    storeMaxPrice,
+    totalItemsInList,
+    hasAllItems,
+    minExtreme,
+    avgExtreme,
+    maxExtreme,
+  } = metrics;
+
+  return (
+    <CardHeader className="flex items-center justify-between gap-4">
+      <div className="flex items-center gap-4">
+        <div className="flex-shrink-0 size-12 sm:size-16 rounded-sm overflow-hidden shadow-sm">
+          <StoreChainLogo
+            chain={chain.chain}
+            className={cn(
+              "object-contain w-full h-full",
+              !isPreferred && pinnedStoresCount > 0 && "opacity-40",
+            )}
+          />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-col items-start gap-1 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="flex items-center gap-1">
+              {hasLowestPriceItem && (
+                <>
+                  <ArrowBigDownDash
+                    className="size-5 text-green-600 flex-shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span className="sr-only">{t("stores.hasLowest")}</span>
+                </>
+              )}
+              {hasHighestPriceItem && (
+                <>
+                  <ArrowBigUpDash
+                    className="size-5 text-red-700 flex-shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span className="sr-only">{t("stores.hasHighest")}</span>
+                </>
+              )}
+
+              <h3 lang="hr" className="font-semibold text-foreground">
+                {getChainLabel(chain.chain)}
+              </h3>
+            </div>
+
+            <StoreCardBadges
+              hasAllItems={hasAllItems}
+              itemCount={chain.itemCount}
+              totalItemsInList={totalItemsInList}
+              isDataFromToday={isDataFromToday}
+              priceDate={chain.price_date}
+            />
+          </div>
+
+          <div className="mt-2">
+            <StoreCardPriceRow
+              minPrice={storeMinPrice}
+              avgPrice={storeAvgPrice}
+              maxPrice={storeMaxPrice}
+              minExtreme={minExtreme}
+              avgExtreme={avgExtreme}
+              maxExtreme={maxExtreme}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 flex items-center justify-end gap-4">
+        <p className="hidden sm:inline text-gray-700 text-sm text-pretty text-right">
+          {t("stores.availability")}
+        </p>
+
+        <ChevronDown
+          className={cn(
+            "size-8 text-gray-500 transition-transform flex-shrink-0",
+            isExpanded && "rotate-180",
+          )}
+        />
+      </div>
+    </CardHeader>
+  );
+}

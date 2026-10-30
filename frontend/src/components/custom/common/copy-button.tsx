@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -23,9 +24,10 @@ export default function CopyButton({
   value,
   label,
   successMessage,
-  errorMessage = "Greška pri kopiranju",
+  errorMessage,
   className,
 }: ICopyButtonProps) {
+  const t = useTranslations("common");
   const [copied, setCopied] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -45,7 +47,7 @@ export default function CopyButton({
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => setCopied(false), CONFIRMED_MS);
     } catch {
-      toast.error(errorMessage);
+      toast.error(errorMessage ?? t("copyButton.error"));
     }
   }
 

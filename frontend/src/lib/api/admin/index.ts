@@ -8,12 +8,12 @@ const ADMIN_QUERY_KEYS = {
   users: ["admin", "users"] as const,
 };
 
-export async function getAllUsers(): Promise<UserDto[]> {
+async function getAllUsers(): Promise<UserDto[]> {
   const response = await apiClient.get<UserDto[]>(`${ADMIN_BASE_PATH}/users`);
   return response.data;
 }
 
-export async function updateUserAccountType(
+async function updateUserAccountType(
   userId: string,
   accountType: AccountType,
 ): Promise<UserDto> {
@@ -24,11 +24,11 @@ export async function updateUserAccountType(
   return response.data;
 }
 
-export async function deleteUser(userId: string): Promise<void> {
+async function deleteUser(userId: string): Promise<void> {
   await apiClient.delete(`${ADMIN_BASE_PATH}/users/${userId}`);
 }
 
-export function useGetAllUsers({ enabled = true } = {}) {
+function useGetAllUsers({ enabled = true } = {}) {
   return useQuery<UserDto[], Error>({
     queryKey: ADMIN_QUERY_KEYS.users,
     queryFn: getAllUsers,
@@ -36,7 +36,7 @@ export function useGetAllUsers({ enabled = true } = {}) {
   });
 }
 
-export function useUpdateUserAccountType() {
+function useUpdateUserAccountType() {
   const queryClient = useQueryClient();
 
   return useMutation<
@@ -52,7 +52,7 @@ export function useUpdateUserAccountType() {
   });
 }
 
-export function useDeleteUser() {
+function useDeleteUser() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, string>({

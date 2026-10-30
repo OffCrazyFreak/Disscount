@@ -16,6 +16,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          # The Fallow audit diffs against the base branch, which a shallow
+          # checkout does not have.
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
         with:
@@ -35,14 +38,39 @@ jobs:
       - name: Typecheck
         run: pnpm exec tsc --noEmit
 
+      - name: Unit tests
+        run: pnpm test
+
       - name: Lint
         run: pnpm exec eslint src
+
+      # Dead code, duplication, complexity, import cycles and folder boundaries,
+      # configured in frontend/.fallowrc.json. It fails only on findings this
+      # change introduces, so the older backlog does not block anyone.
+      - name: Fallow audit
+        env:
+          # A checkout has no upstream, so the base is named: the target branch
+          # on a pull request, the previous tip on a push, or the parent when a
+          # push creates the branch and `before` is all zeros.
+          FALLOW_AUDIT_BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || (github.event.before != '0000000000000000000000000000000000000000' && github.event.before) || 'HEAD~1' }}
+        run: |
+          pnpm exec fallow audit --quiet
+          # Fallow exits 1 only on a "fail" verdict; new duplication alone is a
+          # "warn", so the verdict itself is the gate.
+          verdict=$(pnpm exec fallow audit --quiet --format json | jq -r .verdict)
+          if [ "$verdict" != "pass" ]; then
+            echo "::error::Fallow audit verdict is $verdict; see the report above."
+            exit 1
+          fi
+
+      - name: Translation catalogs
+        run: pnpm i18n:check
 
       - name: Format check
         run: pnpm exec prettier --check src
 
       - name: Format check (docs & root markdown)
-        run: pnpm exec prettier --check --ignore-path ../.prettierignore "../README.md" "../AGENTS.md" "../CLAUDE.md" "../docs/**/*.md" "../.github/**/*.md" "../.claude/**/*.md"
+        run: pnpm exec prettier --check --ignore-path ../.prettierignore "../README.md" "../AGENTS.md" "../CLAUDE.md" "../docs/**/*.md" "../.github/**/*.md" "../.agents/**/*.md"
 
       - name: Production build
         run: pnpm build

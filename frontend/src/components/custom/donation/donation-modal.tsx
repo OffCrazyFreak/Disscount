@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { Coffee, HeartHandshake } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { ModalShell } from "@/components/custom/modal/modal-shell";
@@ -14,6 +15,7 @@ interface IDonationModalProps {
 
 /** Public support prompt, reachable from the sidebar and footer. */
 export default function DonationModal({ open }: IDonationModalProps) {
+  const t = useTranslations("common");
   const triggerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -58,18 +60,11 @@ export default function DonationModal({ open }: IDonationModalProps) {
     <ModalShell
       open={open}
       onOpenChange={(isOpen) => !isOpen && handleClose()}
-      title="Podrži Disscount"
+      title={t("donation.title")}
       description={
         <>
-          <span className="block">
-            Disscount je besplatan i takav ostaje. Ako ti pomaže pri
-            organizaciji kupovine, ili na bilo koji drugi način, puno nam znači
-            bilo kakva dobrovoljna podrška.
-          </span>
-          <span className="mt-3 block">
-            Sve ide direktno nazad u Disscount kako bi se pokrilo održavanje i
-            daljnji razvoj!
-          </span>
+          <span className="block">{t("donation.intro")}</span>
+          <span className="mt-3 block">{t("donation.usage")}</span>
         </>
       }
       size="sm"
@@ -84,7 +79,7 @@ export default function DonationModal({ open }: IDonationModalProps) {
           {/* TODO: Add a GitHub Sponsors button beside Ko-fi after the profile is live. */}
           <Button asChild icon={Coffee} iconPlacement="left" className="w-full">
             <a href={KO_FI_URL} target="_blank" rel="noopener noreferrer">
-              Podrži na Ko-fi
+              {t("donation.kofi")}
             </a>
           </Button>
         </div>

@@ -1,0 +1,112 @@
+import { MouseEvent } from "react";
+import { useTranslations } from "next-intl";
+
+import { WatchType } from "@/lib/api";
+import {
+  extractPinnedStoreChainCodes,
+  getScopedDiscountedStores,
+  isWatchThresholdReached,
+  IWatchlistItemWithProduct,
+} from "@/app/[locale]/(user)/watchlist/utils/watchlist-utils";
+import { getMostFrequentCategory } from "@/app/[locale]/products/utils/product-utils";
+import { toStoreLines } from "@/app/[locale]/(user)/watchlist/utils/discount-display-utils";
+import useWatchlistRemoval from "@/app/[locale]/(user)/watchlist/hooks/use-watchlist-removal";
+import { useUser } from "@/context/user-context";
+import { openModalUrl } from "@/lib/modal/modal-navigation";
+import { formatQuantity } from "@/utils/strings";
+
+export function useWatchlistItem(item: IWatchlistItemWithProduct) {
+  const { watchlistItems, productApiId, product, discountInfo, isLoading } =
+    item;
+  const t = useTranslations("watchlist");
+  const { user } = useUser();
+
+  const { isRemoving, handleRemove } = useWatchlistRemoval(watchlistItems);
+
+  const productName =
+    product?.name || (isLoading ? t("item.loading") : t("item.unavailable"));
+  const productBrand = product?.brand || null;
+  const formattedQuantity = formatQuantity(product?.quantity);
+  const quantityWithUnit =
+    formattedQuantity && product?.unit
+      ? `${formattedQuantity}${product.unit}`
+      : null;
+
+  const pinnedStoreChainCodes = extractPinnedStoreChainCodes(
+    user?.pinnedStores,
+  );
+  const hasPinnedStores = pinnedStoreChainCodes.length > 0;
+
+  const category = product ? getMostFrequentCategory(product) : null;
+
+  const preferredStores = product
+    ? toStoreLines(
+        getScopedDiscountedStores(product, pinnedStoreChainCodes, true),
+      )
+    : [];
+
+  const totalStores = product
+    ? toStoreLines(getScopedDiscountedStores(product, [], false))
+    : [];
+
+  function isWatchRequirementAchieved(
+    thresholdValue: number,
+    watchType: WatchType,
+  ): boolean {
+    if (!discountInfo) {
+      return false;
+    }
+
+    return isWatchThresholdReached(
+      discountInfo,
+      watchType,
+      thresholdValue,
+      hasPinnedStores,
+    );
+  }
+
+  function openWatchlistModal(watchType: WatchType) {
+    openModalUrl({
+      name: "watchlist",
+      ean: productApiId,
+      watchType: watchType === WatchType.absolute ? "absolute" : "percentage",
+    });
+  }
+
+  function handleBadgeClick(
+    event: MouseEvent<HTMLButtonElement>,
+    watchType: WatchType,
+  ) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!product) {
+      return;
+    }
+
+    openWatchlistModal(watchType);
+  }
+
+  function handleOpenWatchlistModal() {
+    if (!product) {
+      return;
+    }
+
+    openWatchlistModal(WatchType.percentage);
+  }
+
+  return {
+    isRemoving,
+    handleRemove,
+    productName,
+    productBrand,
+    quantityWithUnit,
+    category,
+    hasPinnedStores,
+    preferredStores,
+    totalStores,
+    isWatchRequirementAchieved,
+    handleBadgeClick,
+    handleOpenWatchlistModal,
+  };
+}

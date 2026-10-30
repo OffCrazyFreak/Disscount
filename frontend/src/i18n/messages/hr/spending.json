@@ -1,0 +1,13 @@
+{
+  "meta": {
+    "title": "Potrošnja",
+    "description": "Pregled i analiza tvoje potrošnje."
+  },
+  "title": "Potrošnja",
+  "loginRequired": {
+    "description": "Prijava ti omogućuje pregled potrošnje po trgovinama i kategorijama te praćenje ušteda kroz mjesece."
+  },
+  "comingSoon": {
+    "description": "Vidjet ćeš koliko trošiš po trgovini i kategoriji, na kojim proizvodima najviše štediš i kako ti se potrošnja mijenja kroz mjesece."
+  }
+}

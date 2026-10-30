@@ -1,6 +1,7 @@
 "use client";
 
 import { ScanBarcode, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -22,6 +23,8 @@ export default function SearchBarActions({
   allowScanning,
   onScan,
 }: ISearchBarActionsProps) {
+  const t = useTranslations("shell");
+
   return (
     <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
       {showClear && (
@@ -33,14 +36,14 @@ export default function SearchBarActions({
               size="icon"
               className="size-8 [&_svg]:size-5"
               onClick={onClear}
-              aria-label="Očisti pretragu"
+              aria-label={t("search.clear")}
             >
               <X aria-hidden="true" />
             </Button>
           </TooltipTrigger>
 
           <TooltipContent className="px-2 py-1 text-xs">
-            Očisti pretragu
+            {t("search.clear")}
           </TooltipContent>
         </Tooltip>
       )}
@@ -54,14 +57,14 @@ export default function SearchBarActions({
               size="icon"
               className="size-8 [&_svg]:size-5"
               onClick={onScan}
-              aria-label="Skeniraj barkod"
+              aria-label={t("search.scanBarcode")}
             >
               <ScanBarcode aria-hidden="true" />
             </Button>
           </TooltipTrigger>
 
           <TooltipContent className="px-2 py-1 text-xs">
-            Skeniraj barkod
+            {t("search.scanBarcode")}
           </TooltipContent>
         </Tooltip>
       )}

@@ -28,7 +28,7 @@ public class WatchlistItemService {
 
     public WatchlistItemDto addOrUpdateWatchlist(UUID userId, WatchlistItemRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         // Check if product with the same watch type exists
         Optional<WatchlistItem> existing = watchlistItemRepository
@@ -64,7 +64,7 @@ public class WatchlistItemService {
 
     public void removeFromWatchlist(UUID id, UUID userId) {
         WatchlistItem watchlistItem = watchlistItemRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException("Watchlist item not found"));
+                .orElseThrow(() -> new BadRequestException("error.watchlistItem.notFound"));
 
         watchlistItem.setDeletedAt(Timestamps.nowUtc());
         watchlistItemRepository.save(watchlistItem);

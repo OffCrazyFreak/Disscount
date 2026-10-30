@@ -61,12 +61,12 @@ flowchart LR
     BE -.->|fetch JWKS, internal| FE
 ```
 
-| Service    | Tech                      | Internal address | Public?               | Role                                                                |
-| ---------- | ------------------------- | ---------------- | --------------------- | ------------------------------------------------------------------- |
-| `frontend` | Next.js 16 (standalone)   | `frontend:3000`  | **yes** (via Traefik) | UI + **better-auth** identity provider; proxies `/api/*` to backend |
-| `backend`  | Spring Boot 3.1 / Java 21 | `backend:8080`   | no                    | REST API; validates better-auth JWTs (resource server)              |
-| `db`       | Postgres 17               | `db:5432`        | no                    | one shared database, used by both                                   |
-| `migrate`  | (frontend build image)    | n/a              | no                    | one-shot: runs drizzle auth-table migrations on deploy, then exits  |
+| Service    | Tech                      | Internal address | Public?               | Role                                                                                   |
+| ---------- | ------------------------- | ---------------- | --------------------- | -------------------------------------------------------------------------------------- |
+| `frontend` | Next.js 16 (standalone)   | `frontend:3000`  | **yes** (via Traefik) | UI + **better-auth** identity provider; proxies `/api/*` to backend                    |
+| `backend`  | Spring Boot 3.1 / Java 21 | `backend:8080`   | no                    | REST API; validates better-auth JWTs (resource server)                                 |
+| `db`       | Postgres 17               | `db:5432`        | no                    | one shared database, used by both                                                      |
+| `migrate`  | (frontend build image)    | n/a              | no                    | one-shot: runs drizzle migrations (auth tables, store locations) on deploy, then exits |
 
 **Why the backend isn't public:** the browser only ever calls `https://disscount.me/api/...` (relative URLs). Next.js `rewrites()` forwards those to `backend:8080` _server-side_, inside the Docker network. This means no CORS config is needed and the backend/DB have no internet-facing attack surface.
 
@@ -81,18 +81,19 @@ flowchart LR
 
 ## 3. Accounts & services
 
-| Service           | What it's for                              | Where / notes                                                                                          |
-| ----------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| **Hetzner**       | The VPS (server)                           | Cloud console, plus it hosts the **Cloud Firewall** `disscount-web`                                    |
-| **Dokploy**       | Deployment platform (on the VPS)           | `https://dokploy.disscount.me`; admin login = your email                                               |
-| **Cloudflare**    | DNS, CDN, DDoS, redirects, SSL mode        | zone `disscount.me` (free plan)                                                                        |
-| **GitHub**        | Source code + auto-deploy trigger          | `OffCrazyFreak/Disscount`; connected to Dokploy via a **GitHub App**                                   |
-| **Sentry**        | Error tracking                             | projects `disscount-frontend` + `disscount-backend` (EU region)                                        |
-| **Cloudflare R2** | Off-site backup storage                    | bucket `disscount-backups` (S3-compatible)                                                             |
-| **Resend**        | Transactional email + Dokploy alert emails | domain `disscount.me` verified                                                                         |
-| **UptimeRobot**   | Uptime monitoring                          | monitors `https://disscount.me/health`; public [status page](https://stats.uptimerobot.com/ej4ROz2eMo) |
-| **Umami Cloud**   | Privacy-friendly web analytics             | `cloud.umami.is`; wired only when `NEXT_PUBLIC_UMAMI_WEBSITE_ID` is set                                |
-| **Google / Meta** | OAuth login providers                      | redirect URIs must include each live domain                                                            |
+| Service                | What it's for                              | Where / notes                                                                                          |
+| ---------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| **Hetzner**            | The VPS (server)                           | Cloud console, plus it hosts the **Cloud Firewall** `disscount-web`                                    |
+| **Dokploy**            | Deployment platform (on the VPS)           | `https://dokploy.disscount.me`; admin login = your email                                               |
+| **Cloudflare**         | DNS, CDN, DDoS, redirects, SSL, geo header | zone `disscount.me` (free plan)                                                                        |
+| **GitHub**             | Source code + auto-deploy trigger          | `OffCrazyFreak/Disscount`; connected to Dokploy via a **GitHub App**                                   |
+| **Sentry**             | Error tracking                             | projects `disscount-frontend` + `disscount-backend` (EU region)                                        |
+| **Cloudflare R2**      | Off-site backup storage                    | bucket `disscount-backups` (S3-compatible)                                                             |
+| **Cloudflare R2 (EU)** | Digital card photos                        | a separate bucket created with **jurisdiction EU**; see [Card photo env vars](#card-photo-env-vars)    |
+| **Resend**             | Transactional email + Dokploy alert emails | domain `disscount.me` verified                                                                         |
+| **UptimeRobot**        | Uptime monitoring                          | monitors `https://disscount.me/health`; public [status page](https://stats.uptimerobot.com/ej4ROz2eMo) |
+| **Umami Cloud**        | Privacy-friendly web analytics             | `cloud.umami.is`; wired only when `NEXT_PUBLIC_UMAMI_WEBSITE_ID` is set                                |
+| **Google / Meta**      | OAuth login providers                      | redirect URIs must include each live domain                                                            |
 
 ---
 
@@ -111,7 +112,7 @@ flowchart LR
 - **Autodeploy** is ON: pushing to a branch triggers Dokploy (via GitHub webhook) to **rebuild that environment on the VPS** (`pnpm install` + `next build --webpack` for the frontend, Maven for the backend). The frontend is pinned to **webpack on purpose** (see the [webpack gotcha](#13-gotchas--lessons-learned)); the Dockerfile runs `pnpm build`, so that flag flows into the production image.
 - Builds run **on the server** (~2-4 min, uses CPU + the 4 GB swap). This is fine for now; see [TODOs](#14-future-improvements--todos) for moving builds to CI later.
 - Each environment is **fully isolated:** its own containers **and its own database/volume**. Dev data never touches prod data.
-- **CI gate before merge:** every push and PR runs `.github/workflows/ci.yml` (frontend typecheck + lint + format + a real `next build`, plus a backend `mvn -B verify`, which currently compiles and packages since there are no backend tests yet). `main` is branch-protected, so a PR into `main` cannot merge until **Frontend checks** and **Backend checks** pass. This is a separate quality gate from the Dokploy build above, which is what actually ships the image.
+- **CI gate before merge:** every push and PR runs `.github/workflows/ci.yml` (frontend typecheck + unit tests + lint + Fallow audit + translation catalog check + format + a real `next build`, plus a backend `mvn -B verify`, which compiles, packages and runs the backend tests). `main` is branch-protected, so a PR into `main` cannot merge until **Frontend checks** and **Backend checks** pass. This is a separate quality gate from the Dokploy build above, which is what actually ships the image.
 
 > ⚠️ **After any deploy, hard-refresh the browser** (Ctrl/Cmd+Shift+R). Otherwise you may see Next.js `Failed to find Server Action ...`, which is just your old cached page hitting the new build.
 
@@ -148,16 +149,32 @@ Skipped production and branch deploys still appear in Netlify's deploy list, mar
 
 There are **two kinds** of env vars, and mixing them up causes the most confusing bugs:
 
-| Kind                                    | Examples                                                                                           | When it's read                                         | If you change it                                                      |
-| --------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------- |
-| **Build-time, baked** (`NEXT_PUBLIC_*`) | `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `NEXT_PUBLIC_SENTRY_DSN`                    | compiled **into the JS bundle** during `next build`    | you **must REDEPLOY** (rebuild): editing the value alone does nothing |
-| **Runtime, secret**                     | `DATABASE_URL`, `BETTER_AUTH_SECRET`, `GOOGLE_CLIENT_SECRET`, `RESEND_API_KEY`, `SENTRY_DSN`, etc. | read by the server **when it starts/handles requests** | takes effect on the next container restart                            |
+| Kind                                    | Examples                                                                                                                                                                | When it's read                                         | If you change it                                                      |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------- |
+| **Build-time, baked** (`NEXT_PUBLIC_*`) | `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `NEXT_PUBLIC_SENTRY_DSN`                                                                                         | compiled **into the JS bundle** during `next build`    | you **must REDEPLOY** (rebuild): editing the value alone does nothing |
+| **Runtime, secret**                     | `DATABASE_URL`, `BETTER_AUTH_SECRET`, `GOOGLE_CLIENT_SECRET`, `RESEND_API_KEY`, `SENTRY_DSN`, optional `GEOAPIFY_API_KEY` (store geocoding, see [MAP.md](MAP.md)), etc. | read by the server **when it starts/handles requests** | takes effect on the next container restart                            |
 
 - **Where they're set:** in **Dokploy, your service, Environment** (one set per environment). The local `.env` files, seeded from the tracked `.env.example` / `frontend/.env.local.example` / `backend/.env.example`, are only for local dev.
 - **Production vs dev difference:** prod uses `https://disscount.me`, dev uses `https://dev.disscount.me` for `BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL` / `BETTER_AUTH_ISSUER`; each has its **own** strong `POSTGRES_PASSWORD` + `BETTER_AUTH_SECRET`.
+- **Indexing follows `NEXT_PUBLIC_APP_URL`:** only a build with exactly `https://disscount.me` is indexable; any other value (dev, a typo, `www.`) sends `noindex, nofollow` on every page, header and meta tag alike.
 - **Internal URLs stay the same** in every environment (they're Docker service names): `NEXT_PUBLIC_API_URL=http://backend:8080`, `BETTER_AUTH_JWKS_URI=http://frontend:3000/api/auth/jwks`, `...@db:5432/disscount`.
 
 > 🔑 **Real bug we hit:** `auth.ts` reads `NEXT_PUBLIC_GOOGLE_CLIENT_ID` via `requireEnv(...)` (a _dynamic_ lookup), so Next.js can't inline it, so it must also be present at **runtime**, not just as a build arg. All `NEXT_PUBLIC_*` are passed both as build args **and** runtime env in compose.
+
+### Card photo env vars
+
+Digital card photos live in their own Cloudflare R2 bucket, separate from the backup bucket and with its own API token, so a leaked photo token cannot read or delete database backups. Create the bucket with **jurisdiction EU**: it is chosen at creation and cannot be changed later, and it puts the endpoint at `https://<ACCOUNT_ID>.eu.r2.cloudflarestorage.com`. Details are in [DIGITAL-CARDS.md](DIGITAL-CARDS.md#5-photos-and-r2).
+
+| Var                    | Service | Kind            | Notes                                                  |
+| ---------------------- | ------- | --------------- | ------------------------------------------------------ |
+| `R2_ENDPOINT`          | backend | runtime, secret | The EU endpoint above                                  |
+| `R2_BUCKET`            | backend | runtime         | Name of the photo bucket                               |
+| `R2_ACCESS_KEY_ID`     | backend | runtime, secret | Token scoped to that one bucket, object read and write |
+| `R2_SECRET_ACCESS_KEY` | backend | runtime, secret | Secret of the same token                               |
+
+All four are **optional**. If any one is blank the backend runs without photos (uploads answer 503 and the form hides the photo fields); the rest of the wallet is unaffected. They are backend-only and read at startup, so a change needs a backend restart, not a rebuild. Locally they live in `backend/.env.example`.
+
+> Both compose files forward the four `R2_*` variables to the backend, blank by default, and the root `.env.example` lists them. Photos stay off until all four are set.
 
 ---
 
@@ -185,6 +202,8 @@ There are **two kinds** of env vars, and mixing them up causes the most confusin
 **Adding a domain to a service:** done in **Dokploy, service, Domains** (Host + Service + Container Port + HTTPS/Let's Encrypt). ⚠️ For **Compose** services you must **redeploy once** afterward so the Traefik routing labels actually attach to the container.
 
 **HTTP to HTTPS** redirect is automatic (Cloudflare). No config needed.
+
+**Visitor location headers** (Rules, Settings, Managed Transforms, "Add visitor location headers") must be on for the stores map to open near the visitor without GPS. Cloudflare then adds `cf-iplatitude`, `cf-iplongitude` and `cf-ipcity` to requests that reach the origin. It is available on the free plan; with it off, the map simply opens on all of Croatia. Details in [MAP.md](MAP.md).
 
 **Retired waitlist subdomains:** `get` / `waitlist` / `zelim` / `želim` (the last is an IDN stored as an `xn--…` name) were CNAMEs to a Netlify waitlist site. They now **301-redirect to `https://disscount.me/`** via a Cloudflare **Redirect Rule** (Rules, Redirect Rules) whose expression is:
 
@@ -216,10 +235,29 @@ It began in monitor mode (`p=none`) and moved to `p=quarantine` once the aggrega
 | **UFW** (on the VM)                          | Same 22/80/443 allow-list as a second layer (note: Docker can punch through UFW, hence the Hetzner firewall above).                                               |
 | **fail2ban**                                 | Bans IPs after repeated failed SSH logins.                                                                                                                        |
 | **SSH hardening**                            | Key-only auth; **root login + password login disabled**. Login as your non-root **sudo user**.                                                                    |
-| **unattended-upgrades**                      | Automatic OS security updates.                                                                                                                                    |
+| **unattended-upgrades**                      | Automatic OS security updates every night at 01:30 UTC, with a reboot when an update needs one. See [Nightly updates and reboots](#nightly-updates-and-reboots).  |
 | **Cloudflare proxy**                         | Hides the origin IP + DDoS protection for proxied records.                                                                                                        |
 
 Other: **4 GB swap** for build headroom; the Dokploy admin panel is reachable only via its HTTPS domain (login-protected), not the raw `:3000` port.
+
+### Nightly updates and reboots
+
+Every night at **01:30 UTC** (plus a random delay of up to 10 minutes) unattended-upgrades installs security updates. If any update needs a reboot, a new kernel for example, it writes `/var/run/reboot-required` and the server reboots straight after the run. The sites drop for about a minute; the Dokploy panel takes a minute longer. The slot sits before the 02:00 to 04:00 backups in [§8](#8-backups--restore), so a reboot never cuts one off.
+
+After a reboot, **`traefik-boot-check`** makes sure Traefik came back. Dokploy has had reboot bugs that left the `dokploy-traefik` container stopped, taking every site down ([#4057](https://github.com/Dokploy/dokploy/issues/4057), [#5131](https://github.com/Dokploy/dokploy/issues/5131), both closed upstream), so the check stays as a cheap guard. It waits up to 120 seconds for the container to run, then starts it itself, retrying three times.
+
+| File on the VPS                                               | What it sets                                                                                                                            |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `/etc/apt/apt.conf.d/52auto-reboot`                           | `Automatic-Reboot "true"` with `Automatic-Reboot-Time "now"`. A clock time is unsafe here: `shutdown` reboots at once if it has passed. |
+| `/etc/systemd/system/apt-daily-upgrade.timer.d/override.conf` | Moves the upgrade run to 01:30 UTC. `Persistent=false`, so a run missed while the server was off never fires as a daytime reboot.       |
+| `/usr/local/sbin/traefik-boot-check`                          | The check script itself.                                                                                                                |
+| `/etc/systemd/system/traefik-boot-check.service`              | Runs the script once per boot, after Docker starts.                                                                                     |
+
+Worth knowing:
+
+- **Only security updates install on their own.** The default config leaves the `-updates` channel off, so bug-fix releases (systemd, a non-security kernel) wait for a manual `sudo apt update && sudo apt full-upgrade`. Those set the reboot flag too, and the next night's run reboots even though it installs nothing.
+- **Reboot now instead of tonight:** run `sudo unattended-upgrade -v`. It goes through the same steps as the nightly run and reboots at the end if the flag is set. Starting `apt-daily-upgrade.service` by hand does nothing on a day the timer already ran, because its stamp check counts whole days.
+- **Check that it worked:** after a reboot, `uname -r` shows the new kernel, `/var/run/reboot-required` is gone, and `sudo journalctl -u traefik-boot-check -b` prints `dokploy-traefik is running`, or a line saying it had to start it.
 
 ---
 
@@ -309,24 +347,29 @@ Set in **Dokploy → service → Environment**, per environment. Both DSNs live 
 
 ## 10. What's automatic vs manual
 
-| Task                                                       | Automatic? | Notes                                                                                                                         |
-| ---------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Build & deploy on `git push`                               | ✅ auto    | Dokploy autodeploy (per branch)                                                                                               |
-| CI checks (typecheck, lint, format, build, backend verify) | ✅ auto    | `.github/workflows/ci.yml` on every push + PR; required to merge to `main`                                                    |
-| PR previews (head branch is not `main` or `dev`)           | ✅ auto    | Netlify, gated by `frontend/netlify.toml` (see [§4](#netlify-pr-previews))                                                    |
-| HTTPS certificate issuance + renewal                       | ✅ auto    | Traefik + Let's Encrypt                                                                                                       |
-| HTTP to HTTPS redirect                                     | ✅ auto    | Cloudflare                                                                                                                    |
-| DB migrations (auth tables + app tables)                   | ✅ auto    | `migrate` service (drizzle) + Hibernate `ddl-auto=update` on each deploy. **Additive only**: see the dropped-column row below |
-| Nightly DB backups (R2 + local) + rotation                 | ✅ auto    | Dokploy Backups + Schedule                                                                                                    |
-| OS security updates                                        | ✅ auto    | unattended-upgrades                                                                                                           |
-| Uptime checks                                              | ✅ auto    | UptimeRobot, published as a [public status page](https://stats.uptimerobot.com/ej4ROz2eMo)                                    |
-| **Adding/Changing a `NEXT_PUBLIC_*` var**                  | ❌ manual  | edit in Dokploy env **+ redeploy**                                                                                            |
-| **Adding a new domain/subdomain**                          | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                                                                     |
-| **New OAuth provider redirect URIs**                       | ❌ manual  | add in Google/Meta consoles                                                                                                   |
-| **Hard-refresh after deploy**                              | ❌ manual  | avoids stale-bundle errors                                                                                                    |
-| **Restoring a backup**                                     | ❌ manual  | see [§8](#8-backups--restore)                                                                                                 |
-| **Rotating secrets / tokens**                              | ❌ manual  | as needed                                                                                                                     |
-| **Dropping or narrowing a column**                         | ❌ manual  | `ddl-auto=update` never drops, so the column outlives the code. See [§10.1](#101-dropping-a-column)                           |
+| Task                                                                                 | Automatic? | Notes                                                                                                                                       |
+| ------------------------------------------------------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Build & deploy on `git push`                                                         | ✅ auto    | Dokploy autodeploy (per branch)                                                                                                             |
+| CI checks (typecheck, unit tests, lint, Fallow audit, format, build, backend verify) | ✅ auto    | `.github/workflows/ci.yml` on every push + PR; required to merge to `main`                                                                  |
+| PR previews (head branch is not `main` or `dev`)                                     | ✅ auto    | Netlify, gated by `frontend/netlify.toml` (see [§4](#netlify-pr-previews))                                                                  |
+| HTTPS certificate issuance + renewal                                                 | ✅ auto    | Traefik + Let's Encrypt                                                                                                                     |
+| HTTP to HTTPS redirect                                                               | ✅ auto    | Cloudflare                                                                                                                                  |
+| DB migrations (auth tables + app tables)                                             | ✅ auto    | `migrate` service (drizzle) + Hibernate `ddl-auto=update` on each deploy. **Additive only**: see the dropped-column row below               |
+| Nightly DB backups (R2 + local) + rotation                                           | ✅ auto    | Dokploy Backups + Schedule                                                                                                                  |
+| OS security updates                                                                  | ✅ auto    | unattended-upgrades, nightly at 01:30 UTC (see [Nightly updates and reboots](#nightly-updates-and-reboots))                                 |
+| Reboot when an update needs one                                                      | ✅ auto    | right after the nightly update run                                                                                                          |
+| Starting Traefik if a reboot leaves it stopped                                       | ✅ auto    | `traefik-boot-check.service`                                                                                                                |
+| Uptime checks                                                                        | ✅ auto    | UptimeRobot, published as a [public status page](https://stats.uptimerobot.com/ej4ROz2eMo)                                                  |
+| **Non-security OS updates (`-updates` channel)**                                     | ❌ manual  | `sudo apt update && sudo apt full-upgrade`; the next nightly run reboots if needed                                                          |
+| **Creating the EU photo bucket + token, setting `R2_*`**                             | ❌ manual  | Cloudflare once, then Dokploy env per environment; photos stay off until all four are set (see [Card photo env vars](#card-photo-env-vars)) |
+| **Dropping the old `digital_card` table**                                            | ❌ manual  | after the cards rebuild deploys and nothing reads it; `ddl-auto=update` never drops it (see [§10.1](#101-dropping-a-column))                |
+| **Adding/Changing a `NEXT_PUBLIC_*` var**                                            | ❌ manual  | edit in Dokploy env **+ redeploy**                                                                                                          |
+| **Adding a new domain/subdomain**                                                    | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                                                                                   |
+| **New OAuth provider redirect URIs**                                                 | ❌ manual  | add in Google/Meta consoles                                                                                                                 |
+| **Hard-refresh after deploy**                                                        | ❌ manual  | avoids stale-bundle errors                                                                                                                  |
+| **Restoring a backup**                                                               | ❌ manual  | see [§8](#8-backups--restore)                                                                                                               |
+| **Rotating secrets / tokens**                                                        | ❌ manual  | as needed                                                                                                                                   |
+| **Dropping or narrowing a column**                                                   | ❌ manual  | `ddl-auto=update` never drops, so the column outlives the code. See [§10.1](#101-dropping-a-column)                                         |
 
 ---
 

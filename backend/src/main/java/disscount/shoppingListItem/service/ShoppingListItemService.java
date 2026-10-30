@@ -55,7 +55,7 @@ public class ShoppingListItemService {
         User actor = shoppingListService.requireWriteUser(userId);
 
         if (!accessService.resolve(shoppingList, userId).isOwner()) {
-            throw new ForbiddenException("Only the owner can add items to this shopping list");
+            throw new ForbiddenException("error.shoppingList.ownerOnlyAddItems");
         }
 
         Optional<ShoppingListItem> existingItem = shoppingListItemRepository
@@ -135,7 +135,7 @@ public class ShoppingListItemService {
 
     public List<ShoppingListItemDto> getUserShoppingListItems(UUID ownerId) {
         User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+                .orElseThrow(() -> new UnauthorizedException("error.user.notFound"));
 
         return shoppingListItemRepository.findAllActiveItemsByUser(owner)
                 .stream()
@@ -145,14 +145,14 @@ public class ShoppingListItemService {
 
     private ShoppingListItem findItem(ShoppingList list, UUID itemId) {
         return shoppingListItemRepository.findActiveByIdAndShoppingList(itemId, list)
-                .orElseThrow(() -> new NotFoundException("Shopping list item not found"));
+                .orElseThrow(() -> new NotFoundException("error.shoppingListItem.notFound"));
     }
 
     private ListAccess requireAccess(
             ShoppingList list, UUID userId, java.util.function.Predicate<ListAccess> allowed) {
         ListAccess access = accessService.resolve(list, userId);
         if (!allowed.test(access)) {
-            throw new ForbiddenException("Insufficient access to this shopping list");
+            throw new ForbiddenException("error.shoppingList.insufficientAccess");
         }
         return access;
     }

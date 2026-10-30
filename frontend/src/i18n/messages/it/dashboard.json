@@ -1,0 +1,86 @@
+{
+  "meta": {
+    "title": "Dashboard",
+    "description": "Dashboard per partner, settore pubblico e amministratori."
+  },
+  "content": {
+    "title": "Dashboard",
+    "tabUsers": "Utenti",
+    "tabContact": "Contatti",
+    "comingSoon": "Qui arriveranno presto dati e strumenti."
+  },
+  "activity": {
+    "title": "Utenti attivi",
+    "error": "Impossibile caricare gli utenti.",
+    "windowLabel": "Periodo:",
+    "window": {
+      "d1": "Ultimo giorno",
+      "d7": "Ultimi 7 giorni",
+      "d14": "Ultimi 14 giorni",
+      "d30": "Ultimi 30 giorni",
+      "d90": "Ultimi 90 giorni"
+    },
+    "abbreviation": "({abbreviation})"
+  },
+  "stats": {
+    "weekly": "Utenti attivi a settimana",
+    "monthly": "Utenti attivi al mese"
+  },
+  "users": {
+    "accountTypeUpdated": "Tipo di account aggiornato!",
+    "accountTypeError": "Non siamo riusciti a cambiare il tipo di account.",
+    "deleted": "Account eliminato!",
+    "deleteError": "Non siamo riusciti a eliminare l'account.",
+    "loadError": "Impossibile caricare gli utenti.",
+    "colUsername": "Nome utente",
+    "colEmail": "Email",
+    "colLastLogin": "Ultimo accesso",
+    "colAccountType": "Tipo di account",
+    "deleteTitle": "Elimina account",
+    "deleteDescription": "Vuoi davvero eliminare l'account {name}? L'azione non si può annullare.",
+    "deleteConfirm": "Elimina account"
+  },
+  "userRow": {
+    "you": "Tu",
+    "deleteAccount": "Elimina account"
+  },
+  "contact": {
+    "viewAll": "Tutti",
+    "viewUnread": "Non letti",
+    "loadError": "Impossibile caricare i messaggi.",
+    "searchPlaceholder": "Cerca messaggi...",
+    "showDeleted": "Mostra eliminati",
+    "colMessage": "Messaggio",
+    "colSender": "Mittente",
+    "colSent": "Inviato",
+    "colStatus": "Stato",
+    "colActions": "Azioni",
+    "empty": "Nessun messaggio."
+  },
+  "contactRow": {
+    "unreadMarker": "Non letto",
+    "deletedBadge": "Eliminato",
+    "markRead": "Segna come letto",
+    "markUnread": "Segna come non letto",
+    "copyEmail": "Copia email",
+    "copySuccess": "Indirizzo email copiato!",
+    "copyError": "Non siamo riusciti a copiare l'email",
+    "restore": "Ripristina messaggio",
+    "delete": "Elimina messaggio"
+  },
+  "contactDetail": {
+    "reply": "Rispondi",
+    "close": "Chiudi",
+    "from": "Da: {name}",
+    "unknownSender": "Sconosciuto",
+    "sent": "Inviato: {date}",
+    "page": "Pagina: {path}"
+  },
+  "inbox": {
+    "error": "Qualcosa è andato storto.",
+    "markedUnread": "Segnato come non letto.",
+    "markedRead": "Segnato come letto.",
+    "deleted": "Messaggio eliminato.",
+    "restored": "Messaggio ripristinato."
+  }
+}

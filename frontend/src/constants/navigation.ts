@@ -18,7 +18,11 @@ import {
   House,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import type shell from "@/i18n/messages/hr/shell.json";
 import { isAdmin, type AccountType } from "@/lib/api/schemas/auth-user";
+
+/** Keys into the `shell` namespace, translated where the item is rendered. */
+export type NavKey = `nav.${keyof typeof shell.nav}`;
 
 /** Destination for items whose page does not exist yet. */
 export const PLACEHOLDER_HREF = "#";
@@ -26,12 +30,12 @@ export const PLACEHOLDER_HREF = "#";
 export interface INavigationItem {
   id: string;
   href: string;
-  label: string; // Full name, shown in the sidebar
-  shortLabel?: string; // Shorter name shown in the cramped desktop header navbar
+  labelKey: NavKey; // Full name, shown in the sidebar
+  shortLabelKey?: NavKey; // Shorter name shown in the cramped desktop header navbar
   icon: LucideIcon;
   badge?: boolean; // For items that can show badge counts
   comingSoon?: boolean; // Show an "USKORO" badge for not-yet-available features
-  shortcutDescription?: string; // Read out by assistive tech; its presence opts the item into a PWA shortcut
+  shortcutDescriptionKey?: NavKey; // Read out by assistive tech; its presence opts the item into a PWA shortcut
   showInHeader: boolean; // Show in desktop header navigation
   isCollapsible?: boolean; // Has sub-menu (Kategorije, Trgovine, Lokacije)
   children?: INavigationItem[]; // Nested items shown indented under this one
@@ -40,7 +44,7 @@ export interface INavigationItem {
 export const homeNavItem: INavigationItem = {
   id: "home",
   href: "/",
-  label: "Početna",
+  labelKey: "nav.home",
   icon: House,
 
   showInHeader: false,
@@ -50,7 +54,7 @@ export const homeNavItem: INavigationItem = {
 export const dashboardNavItem: INavigationItem = {
   id: "dashboard",
   href: "/dashboard",
-  label: "Nadzorna ploča",
+  labelKey: "nav.dashboard",
   icon: LayoutDashboard,
 
   showInHeader: false,
@@ -60,7 +64,7 @@ export const dashboardNavItem: INavigationItem = {
 export const productsNavItem: INavigationItem = {
   id: "products",
   href: "/products",
-  label: "Proizvodi",
+  labelKey: "nav.products",
   icon: Package,
 
   showInHeader: false,
@@ -71,42 +75,40 @@ export const userNavItems: INavigationItem[] = [
   {
     id: "shopping-lists",
     href: "/shopping-lists",
-    label: "Popisi za kupnju",
-    shortLabel: "Popisi",
+    labelKey: "nav.shoppingLists",
+    shortLabelKey: "nav.shoppingListsShort",
     icon: ListChecks,
-    shortcutDescription: "Otvori svoje popise za kupnju",
+    shortcutDescriptionKey: "nav.shoppingListsShortcut",
 
     showInHeader: true,
   },
   {
     id: "watchlist",
     href: "/watchlist",
-    label: "Praćeni proizvodi",
-    shortLabel: "Praćenje",
+    labelKey: "nav.watchlist",
+    shortLabelKey: "nav.watchlistShort",
     icon: Eye,
     badge: true,
-    shortcutDescription: "Pogledaj proizvode koje pratiš",
+    shortcutDescriptionKey: "nav.watchlistShortcut",
 
     showInHeader: true,
   },
   {
     id: "digital-cards",
     href: "/digital-cards",
-    label: "Digitalne kartice",
-    shortLabel: "Kartice",
+    labelKey: "nav.digitalCards",
+    shortLabelKey: "nav.digitalCardsShort",
     icon: CreditCard,
-    shortcutDescription: "Otvori svoje digitalne kartice",
-    // TODO(#127): generate its PWA shortcut icon before dropping this flag.
-    comingSoon: true,
+    shortcutDescriptionKey: "nav.digitalCardsShortcut",
 
     showInHeader: true,
   },
   {
     id: "spending",
     href: "/spending",
-    label: "Potrošnja",
+    labelKey: "nav.spending",
     icon: PiggyBank,
-    shortcutDescription: "Pregledaj svoju potrošnju",
+    shortcutDescriptionKey: "nav.spendingShortcut",
     // TODO(#127): generate its PWA shortcut icon before dropping this flag.
     comingSoon: true,
 
@@ -118,7 +120,7 @@ export const productNavItems: INavigationItem[] = [
   {
     id: "discounted",
     href: "/products?discounted=true",
-    label: "Popusti",
+    labelKey: "nav.discounted",
     icon: Percent,
     // TODO(#83): the price API cannot filter by discount yet.
     comingSoon: true,
@@ -129,7 +131,7 @@ export const productNavItems: INavigationItem[] = [
   // {
   //   id: "categories",
   //   href: "#",
-  //   label: "Kategorije",
+  //   labelKey: "nav.categories",
   //   icon: List,
 
   //   showInHeader: false,
@@ -139,7 +141,7 @@ export const productNavItems: INavigationItem[] = [
   // {
   //   id: "brands",
   //   href: "#",
-  //   label: "Marke",
+  //   labelKey: "nav.brands",
   //   icon: Tag,
 
   //   showInHeader: false,
@@ -148,11 +150,10 @@ export const productNavItems: INavigationItem[] = [
   {
     id: "map",
     href: "/map",
-    label: "Karta",
+    labelKey: "nav.map",
     icon: MapIcon,
     // TODO(#127): manifest.ts only reads userNavItems, so a PWA shortcut for
     // this one needs adding by hand.
-    comingSoon: true,
 
     showInHeader: false,
 
@@ -160,7 +161,7 @@ export const productNavItems: INavigationItem[] = [
       {
         id: "stores",
         href: PLACEHOLDER_HREF,
-        label: "Trgovine",
+        labelKey: "nav.stores",
         icon: Store,
 
         showInHeader: false,
@@ -170,7 +171,7 @@ export const productNavItems: INavigationItem[] = [
       {
         id: "locations",
         href: PLACEHOLDER_HREF,
-        label: "Lokacije",
+        labelKey: "nav.locations",
         icon: MapPin,
 
         showInHeader: false,
@@ -182,7 +183,7 @@ export const productNavItems: INavigationItem[] = [
   {
     id: "statistics",
     href: "/statistics",
-    label: "Statistika",
+    labelKey: "nav.statistics",
     icon: ChartNoAxesCombined,
     comingSoon: true,
 
@@ -191,7 +192,7 @@ export const productNavItems: INavigationItem[] = [
   {
     id: "updates",
     href: "/updates",
-    label: "Novosti",
+    labelKey: "nav.updates",
     icon: Megaphone,
     comingSoon: true,
 
@@ -204,7 +205,7 @@ export const supportNavItems: INavigationItem[] = [
   {
     id: "suggestions",
     href: "/suggestions",
-    label: "Ideje i prijedlozi",
+    labelKey: "nav.suggestions",
     icon: Lightbulb,
     comingSoon: true,
 
@@ -213,7 +214,7 @@ export const supportNavItems: INavigationItem[] = [
   {
     id: "bug-report",
     href: PLACEHOLDER_HREF,
-    label: "Prijavi grešku",
+    labelKey: "nav.bugReport",
     icon: Bug,
     comingSoon: true,
 
@@ -222,7 +223,7 @@ export const supportNavItems: INavigationItem[] = [
   {
     id: "contact",
     href: "?modal=contact",
-    label: "Kontakt",
+    labelKey: "nav.contact",
     icon: Mail,
 
     showInHeader: false,
@@ -230,7 +231,7 @@ export const supportNavItems: INavigationItem[] = [
   {
     id: "donate",
     href: "?modal=donate",
-    label: "Podrži Disscount",
+    labelKey: "nav.donate",
     icon: HeartHandshake,
 
     showInHeader: false,

@@ -1,0 +1,167 @@
+{
+  "notFound": {
+    "meta": {
+      "title": "404: Seite nicht gefunden",
+      "description": "Die Seite, die du suchst, gibt es nicht."
+    },
+    "heading": "Hmm… das ist peinlich. 😅",
+    "description": "Die Seite <path></path> scheint es nicht zu geben.",
+    "hint": "Geh zurück zur Startseite oder melde einen Fehler!",
+    "backHome": "Zur Startseite"
+  },
+  "offline": {
+    "meta": {
+      "title": "Keine Internetverbindung",
+      "description": "Du bist gerade offline."
+    },
+    "title": "Keine Internetverbindung 📡",
+    "description": "Du bist gerade offline. Gespeicherte Listen, deine Merkliste und zuletzt angesehene Produkte sind weiterhin da.",
+    "hint": "Prüfe deine Verbindung und versuche es noch einmal.",
+    "retry": "Erneut versuchen",
+    "indicator": "Offline: Wir zeigen gespeicherte Daten.",
+    "indicatorPending": "Offline: Gespeicherte Änderungen ({count}) werden später synchronisiert."
+  },
+  "lastSynced": {
+    "refreshed": "{time} aktualisiert"
+  },
+  "collapsibleSection": {
+    "hide": "Ausblenden",
+    "show": "Anzeigen"
+  },
+  "comingSoon": {
+    "badge": "BALD",
+    "description": "Diese Funktion ist in Arbeit und kommt bald.",
+    "notifyMe": "Benachrichtige mich"
+  },
+  "copyButton": {
+    "error": "Kopieren hat nicht geklappt"
+  },
+  "footer": {
+    "copyright": "© {year} Jakov Jakovac",
+    "comingSoonLabel": "{label} (bald verfügbar)",
+    "comingSoonTitle": "Kommt bald"
+  },
+  "inboxNotice": {
+    "spamHint": "Schau auch im Spam-Ordner nach."
+  },
+  "loginRequired": {
+    "description": "Für diese Funktion musst du angemeldet sein.",
+    "action": "Anmelden"
+  },
+  "noResults": {
+    "title": "Keine Ergebnisse",
+    "description": "Versuche es mit einem anderen Suchbegriff"
+  },
+  "oauthError": {
+    "emailNotFound": "Dein Facebook-Konto hat keine E-Mail-Adresse geteilt. Melde dich mit deiner E-Mail-Adresse an oder nutze ein Facebook-Konto mit E-Mail-Adresse.",
+    "emailMismatch": "Das Verknüpfen hat nicht geklappt, weil dieses Konto eine andere E-Mail-Adresse nutzt. Du kannst nur Konten mit derselben E-Mail-Adresse verknüpfen.",
+    "alreadyLinked": "Dieses Konto ist schon mit einem anderen Disscount-Konto verknüpft. Du kannst es nicht mit diesem verknüpfen.",
+    "notLinked": "Diese Anmeldung lässt sich nicht automatisch mit einem bestehenden Konto verknüpfen. Melde dich auf dem bisherigen Weg an und verknüpfe das Konto in den Sicherheitseinstellungen.",
+    "restart": "Die Anmeldung ist abgelaufen oder wurde abgebrochen. Versuche es erneut.",
+    "default": "Bei der Anmeldung ist etwas schiefgelaufen. Versuche es erneut."
+  },
+  "userAvatar": {
+    "alt": "Profilbild"
+  },
+  "contact": {
+    "channels": {
+      "intro": "Schreib uns über das Formular unten, direkt an <email></email> oder per <linkedin>LinkedIn</linkedin>.",
+      "copyEmailLabel": "E-Mail-Adresse kopieren",
+      "copyEmailSuccess": "E-Mail-Adresse kopiert!",
+      "copyEmailError": "E-Mail-Adresse konnte nicht kopiert werden",
+      "suggestIdea": "Idee vorschlagen",
+      "openSuggestions": "Ideen und Vorschläge öffnen",
+      "reportBug": "Fehler melden",
+      "openBugReport": "Fehlermeldung öffnen"
+    },
+    "form": {
+      "email": "E-Mail",
+      "emailPlaceholder": "du@beispiel.de",
+      "fullName": "Name",
+      "fullNamePlaceholder": "Dein Name",
+      "subject": "Betreff",
+      "subjectPlaceholder": "z. B. Frage zu Disscount",
+      "message": "Nachricht",
+      "messagePlaceholder": "Schreib uns, wie wir dir helfen können...",
+      "charactersLeft": "{count, plural, one {# Zeichen übrig} other {# Zeichen übrig}}"
+    },
+    "modal": {
+      "title": "Schreib uns",
+      "description": "Schreib uns über das Formular unten oder melde dich direkt bei uns.",
+      "submit": "Nachricht senden",
+      "cancel": "Abbrechen",
+      "reset": "Zurücksetzen",
+      "sent": "Nachricht gesendet. Danke, dass du dich gemeldet hast!",
+      "sentWithEmail": "Nachricht gesendet. Danke, dass du dich gemeldet hast! Falls nötig, antworten wir dir an die angegebene E-Mail-Adresse.",
+      "sourceAvailable": "Disscount ist source-available. <link>Projekt auf GitHub ansehen</link>."
+    }
+  },
+  "donation": {
+    "title": "Disscount unterstützen",
+    "intro": "Disscount ist kostenlos und bleibt es auch. Wenn dir die App beim Einkaufen oder sonst irgendwie hilft, freuen wir uns sehr über jede freiwillige Unterstützung.",
+    "usage": "Alles fließt direkt zurück in Disscount, für Betrieb und Weiterentwicklung!",
+    "kofi": "Auf Ko-fi unterstützen"
+  },
+  "forgotPassword": {
+    "link": "Passwort vergessen?",
+    "sending": "Senden..."
+  },
+  "multiSelect": {
+    "optionsList": "Optionen",
+    "selectAll": "Alle auswählen",
+    "clearAll": "Alle entfernen",
+    "selected": "{count} ausgewählt"
+  },
+  "passwordInput": {
+    "show": "Passwort anzeigen",
+    "hide": "Passwort ausblenden"
+  },
+  "stepper": {
+    "increase": "Um {amount, number} erhöhen",
+    "decrease": "Um {amount, number} verringern"
+  },
+  "notifications": {
+    "label": "Benachrichtigungen",
+    "labelWithCount": "Benachrichtigungen ({count})",
+    "loading": "Wird geladen...",
+    "emptyWatching": "Heute ist nichts auf deiner Merkliste reduziert.",
+    "emptyNotWatching": "Füge Produkte deiner Merkliste hinzu. Wir sagen dir Bescheid, sobald sie bei deinen Händlern reduziert sind!",
+    "addProducts": "Produkte hinzufügen",
+    "totalSavings": "Heute gespart:",
+    "savingsDetail": "(≥ {amount} bei {count, plural, one {# Produkt} other {# Produkten}})"
+  },
+  "install": {
+    "actionDesktop": "App installieren",
+    "actionMobile": "Zum Startbildschirm hinzufügen",
+    "pitchDesktop": "Installiere Disscount für schnelleren Zugriff.",
+    "pitchMobile": "Füge Disscount zum Startbildschirm hinzu für schnelleren Zugriff.",
+    "close": "Schließen",
+    "unsupportedTitle": "Dieser Browser unterstützt keine Installation",
+    "unsupportedText": "Öffne Disscount in einem anderen Browser, z. B. Google Chrome, um die App auf deinem Gerät zu installieren.",
+    "perkTitle": "Als App installieren",
+    "perkDesktop": "Kein App Store nötig: Installiere Disscount direkt aus dem Browser.",
+    "perkMobile": "Kein App Store nötig: Füge Disscount direkt aus dem Browser zum Startbildschirm hinzu.",
+    "sheetDescriptionDesktop": "Installiere Disscount in wenigen Schritten auf deinem Computer.",
+    "sheetDescriptionMobile": "Füge Disscount in wenigen Schritten zum Startbildschirm hinzu.",
+    "steps": {
+      "iosMenu": "Tippe neben der Adressleiste auf <ellipsis></ellipsis>, dann auf <share></share> <b>Teilen</b>. Bei älteren iPhones ist <b>Teilen</b> direkt in der Symbolleiste.",
+      "iosAdd": "Scrolle im Menü nach unten und wähle <plus></plus> <b>Zum Home-Bildschirm</b>.",
+      "confirmAdd": "Bestätige mit <b>Hinzufügen</b>.",
+      "macFile": "Öffne in der Menüleiste oben am Bildschirm das Menü <b>Ablage</b>.",
+      "macDock": "Wähle <dock></dock> <b>Zum Dock hinzufügen</b>.",
+      "androidMenu": "Tippe auf <vdots></vdots>, um das Browsermenü zu öffnen.",
+      "androidChoose": "Wähle <download></download> <b>App installieren</b> oder <b>Zum Startbildschirm hinzufügen</b>, je nach Browser.",
+      "confirmInstall": "Bestätige mit <b>Installieren</b>.",
+      "desktopIcon": "Klicke rechts in der Adressleiste auf <monitor></monitor>.",
+      "desktopMenu": "Falls das Symbol fehlt, öffne das Menü <vdots></vdots> und wähle <b>Speichern und teilen</b> › <b>Seite als App installieren</b>."
+    }
+  },
+  "validation": {
+    "emailInvalid": "Ungültige E-Mail-Adresse",
+    "fullNameMax": "Der Name darf höchstens 255 Zeichen lang sein",
+    "subjectRequired": "Gib einen Betreff ein",
+    "subjectMax": "Der Betreff darf höchstens 255 Zeichen lang sein",
+    "messageRequired": "Schreib eine Nachricht",
+    "messageMax": "Die Nachricht darf höchstens 5000 Zeichen lang sein"
+  }
+}

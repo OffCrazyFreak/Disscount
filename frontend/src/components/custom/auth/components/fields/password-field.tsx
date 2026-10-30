@@ -3,6 +3,7 @@ import type { Control, FieldPath, FieldValues } from "react-hook-form";
 
 import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,6 +20,7 @@ interface IPasswordFieldProps<T extends FieldValues> {
   hasError?: boolean;
   // Sits on the label row, so a recovery link never pushes the input down.
   action?: ReactNode;
+  description?: string;
 }
 
 export default function PasswordField<T extends FieldValues>({
@@ -28,6 +30,7 @@ export default function PasswordField<T extends FieldValues>({
   autoComplete,
   hasError,
   action,
+  description,
 }: IPasswordFieldProps<T>) {
   return (
     <FormField
@@ -47,6 +50,7 @@ export default function PasswordField<T extends FieldValues>({
               className={cn(hasError && "border-red-700")}
             />
           </FormControl>
+          {description && <FormDescription>{description}</FormDescription>}
           <FormMessage />
         </FormItem>
       )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, type ComponentPropsWithoutRef, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   Command,
@@ -9,6 +10,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import ScrollFade from "@/components/custom/common/scroll-fade";
+import MultiSelectBulkActions from "@/components/custom/form/multi-select-bulk-actions";
 import { useMultiSelectContext } from "@/components/custom/form/multi-select-context";
 import { commandFilter } from "@/utils/search/command-filter";
 import { cn } from "@/lib/utils";
@@ -34,6 +36,7 @@ export default function MultiSelectPanel({
   children,
   ...props
 }: IMultiSelectPanelProps) {
+  const t = useTranslations("common");
   const listRef = useRef<HTMLDivElement>(null);
   const { searchValue, setSearchValue, presentation } = useMultiSelectContext();
 
@@ -65,10 +68,12 @@ export default function MultiSelectPanel({
         <button
           type="button"
           autoFocus
-          aria-label="Popis opcija"
+          aria-label={t("multiSelect.optionsList")}
           className="sr-only"
         />
       )}
+
+      <MultiSelectBulkActions />
 
       {/* Wraps only the list, so the top fade sits under the search box
           rather than over it */}

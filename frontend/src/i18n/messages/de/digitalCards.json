@@ -1,0 +1,332 @@
+{
+  "form": {
+    "newTitle": "Neue Karte",
+    "editTitle": "Karte bearbeiten",
+    "description": "Speichere deine Kundenkarte, dann hast du sie immer griffbereit.",
+    "save": "Karte speichern",
+    "cancel": "Abbrechen",
+    "reset": "Zurücksetzen",
+    "loadErrorOffline": "Du bist offline und diese Karte ist noch nicht auf dem Gerät gespeichert. Verbinde dich mit dem Internet und versuche es erneut.",
+    "loadError": "Die Karte konnte nicht geladen werden. Versuche es erneut.",
+    "notFound": "Karte nicht gefunden. Vielleicht wurde sie gelöscht.",
+    "saveFailed": "Die Karte wurde nicht gespeichert. Prüfe deine Eingaben.",
+    "savedOffline": "Du bist offline. Die Änderung wird synchronisiert, sobald du wieder online bist.",
+    "saved": "Karte gespeichert.",
+    "storeLabel": "Händler",
+    "storePlaceholder": "Händler wählen oder eingeben",
+    "storeShowSuggestions": "Vorschläge für Händler anzeigen",
+    "storeClear": "Händler entfernen",
+    "storeEmpty": "Beginne, den Namen des Händlers einzugeben.",
+    "storeGroupOfficial": "Offizielle Händler",
+    "storeGroupOther": "Sonstige",
+    "storeAdd": "„{name}“ hinzufügen",
+    "cardNameLabel": "Kartenname",
+    "cardTypeLabel": "Kartenart",
+    "cardTypePlaceholder": "Art wählen",
+    "codeNumberLabel": "Kartennummer",
+    "codeScan": "Kartencode mit der Kamera scannen",
+    "codeTypeLabel": "Codetyp",
+    "codeTypePlaceholder": "Codetyp wählen",
+    "previewLabel": "Vorschau des Kartencodes",
+    "previewEmpty": "Gib die Kartennummer ein, um die Codevorschau zu sehen.",
+    "previewCannotEncode": "Dieser Codetyp kann die eingegebene Nummer nicht darstellen. Wähle einen anderen Typ oder „{fallbackType}“.",
+    "barcodeDiffers": "Der Code auf der Karte weicht von der Nummer ab",
+    "barcodeValueLabel": "Codewert",
+    "colorLabel": "Kartenfarbe: {color}",
+    "colorCustom": "eigene Farbe",
+    "colorOption": "{name}, {hue}",
+    "noteLabel": "Notiz",
+    "notePlaceholder": "Z. B. Karte läuft auf den Namen der Partnerperson",
+    "noteRemaining": "Noch {count, number} Zeichen",
+    "moreDetails": "Mehr Details",
+    "validFrom": "Gültig ab",
+    "validUntil": "Gültig bis",
+    "balanceLabel": "Guthaben",
+    "unitLabel": "Einheit",
+    "unitPoints": "Punkte"
+  },
+  "validation": {
+    "dateFormat": "Gib das Datum im Format JJJJ-MM-TT ein",
+    "nameMin": "Der Name braucht mindestens 2 Zeichen",
+    "nameMax": "Der Name darf höchstens 60 Zeichen haben",
+    "storeMin": "Der Händler braucht mindestens 2 Zeichen",
+    "storeMax": "Der Händler darf höchstens 60 Zeichen haben",
+    "codeRequired": "Gib die Nummer oder den Code der Karte ein",
+    "codeTooLong": "Der Kartencode ist zu lang",
+    "barcodeTooLong": "Der Code ist zu lang",
+    "colorRequired": "Wähle eine Farbe",
+    "noteTooLong": "Die Notiz darf höchstens 500 Zeichen haben",
+    "balanceNegative": "Der Betrag darf nicht negativ sein",
+    "balanceTooLarge": "Der Betrag ist zu groß",
+    "expiresBeforeStart": "Die Karte kann nicht vor dem Beginn ablaufen"
+  },
+  "cardTypes": {
+    "loyalty": "Kundenkarte",
+    "gift": "Geschenkkarte",
+    "membership": "Mitgliedskarte",
+    "other": "Sonstiges"
+  },
+  "codeTypes": {
+    "ean_13": "EAN-13",
+    "ean_8": "EAN-8",
+    "upc_a": "UPC-A",
+    "upc_e": "UPC-E",
+    "code_128": "Code 128",
+    "code_39": "Code 39",
+    "code_93": "Code 93",
+    "codabar": "Codabar",
+    "itf": "ITF",
+    "qr_code": "QR-Code",
+    "aztec": "Aztec",
+    "data_matrix": "Data Matrix",
+    "pdf417": "PDF417",
+    "unknown": "Nur Nummer/Text"
+  },
+  "colors": {
+    "graphite": {
+      "name": "Graphit",
+      "hue": "grau"
+    },
+    "cherryBlossom": {
+      "name": "Kirschblüte",
+      "hue": "rosa"
+    },
+    "flamingo": {
+      "name": "Flamingo",
+      "hue": "hellrot"
+    },
+    "mango": {
+      "name": "Mango",
+      "hue": "orange"
+    },
+    "avocado": {
+      "name": "Avocado",
+      "hue": "gelbgrün"
+    },
+    "peacock": {
+      "name": "Pfau",
+      "hue": "hellblau"
+    },
+    "lavender": {
+      "name": "Lavendel",
+      "hue": "blauviolett"
+    },
+    "radicchio": {
+      "name": "Radicchio",
+      "hue": "dunkelrosa"
+    },
+    "tomato": {
+      "name": "Tomate",
+      "hue": "rot"
+    },
+    "tangerine": {
+      "name": "Mandarine",
+      "hue": "rotorange"
+    },
+    "banana": {
+      "name": "Banane",
+      "hue": "gelb"
+    },
+    "pistachio": {
+      "name": "Pistazie",
+      "hue": "hellgrün"
+    },
+    "basil": {
+      "name": "Basilikum",
+      "hue": "dunkelgrün"
+    },
+    "sage": {
+      "name": "Salbei",
+      "hue": "grün"
+    },
+    "eucalyptus": {
+      "name": "Eukalyptus",
+      "hue": "türkis"
+    },
+    "blueberry": {
+      "name": "Heidelbeere",
+      "hue": "dunkelblau"
+    },
+    "wisteria": {
+      "name": "Glyzinie",
+      "hue": "helllila"
+    },
+    "amethyst": {
+      "name": "Amethyst",
+      "hue": "lila"
+    },
+    "grape": {
+      "name": "Traube",
+      "hue": "dunkellila"
+    }
+  },
+  "photos": {
+    "legend": "Bilder",
+    "hint": "Decke Unterschrift und PIN vor dem Fotografieren ab.",
+    "slots": {
+      "front": "Vorderseite",
+      "back": "Rückseite",
+      "icon": "Symbol"
+    },
+    "preview": "Bildvorschau: {label}",
+    "status": {
+      "removed": "Das Bild wird beim Speichern entfernt",
+      "added": "Das neue Bild wird mit der Karte gespeichert",
+      "uploading": "Wird hochgeladen",
+      "queued": "Wartet auf Upload",
+      "error": "Upload fehlgeschlagen",
+      "saved": "Gespeichert",
+      "empty": "Kein Bild"
+    },
+    "add": "Hinzufügen",
+    "replace": "Ersetzen",
+    "addAria": "Bild hinzufügen: {label}",
+    "replaceAria": "Bild ersetzen: {label}",
+    "restoreAria": "Bild wiederherstellen: {label}",
+    "discardAria": "Neues Bild verwerfen: {label}",
+    "removeAria": "Bild entfernen: {label}",
+    "errors": {
+      "processFailed": "Das Bild konnte nicht verarbeitet werden.",
+      "saveFailed": "Das Bild wurde nicht gespeichert. Versuche es erneut.",
+      "removeFailed": "Das Bild wurde nicht gelöscht. Versuche es erneut."
+    }
+  },
+  "meta": {
+    "title": "Kundenkarten",
+    "description": "Alle deine Kundenkarten an einem Ort."
+  },
+  "list": {
+    "loginTitle": "Kundenkarten",
+    "loginDescription": "Mit Kundenkarten hast du alle deine Karten an einem Ort, immer griffbereit.",
+    "searchPlaceholder": "Kundenkarten suchen...",
+    "searchResults": "Suchergebnisse für „{query}“ ({count})",
+    "myCards": "Meine Kundenkarten",
+    "myCardsWithCount": "Meine Kundenkarten ({count})",
+    "add": {
+      "full": "Karte hinzufügen",
+      "short": "Hinzufügen"
+    },
+    "pinnedLabel": "Angeheftete Karten",
+    "cardsLabel": "Karten"
+  },
+  "announce": {
+    "results": "{count, plural, =0 {Keine Ergebnisse} one {# Ergebnis} other {# Ergebnisse}}",
+    "pinned": "Karte angeheftet.",
+    "unpinned": "Karte nicht mehr angeheftet.",
+    "archived": "Karte archiviert.",
+    "unarchived": "Karte aus dem Archiv geholt."
+  },
+  "sort": {
+    "label": "Sortierung",
+    "mode": {
+      "recent-use": "Zuletzt verwendet",
+      "name": "Name",
+      "store": "Händler",
+      "type": "Art",
+      "edited": "Zuletzt bearbeitet",
+      "added": "Zuletzt hinzugefügt",
+      "color": "Farbe"
+    }
+  },
+  "chainNotes": {
+    "lidl": {
+      "text": "Coupons und Bezahlen funktionieren nur in der Lidl-Plus-App. Prüfe an der Kasse, ob die Karte auf dem Bon erfasst wurde.",
+      "link": "Über Lidl Plus"
+    },
+    "kaufland": {
+      "text": "Coupons aktivierst du in der Kaufland-App. Prüfe an der Kasse, ob die Karte auf dem Bon erfasst wurde.",
+      "link": "Über Kaufland Card"
+    },
+    "dm": {
+      "text": "Für Coupons nutze die App Moj dm. Prüfe an der Kasse, ob die Karte auf dem Bon erfasst wurde.",
+      "link": "Über die App Moj dm"
+    },
+    "konzum": {
+      "text": "Die Regeln der MultiPlus-Karte verbieten das Kopieren der Karte. Nutze die gespeicherte Nummer nur für deine eigene Karte.",
+      "link": "Regeln der MultiPlus-Karte"
+    }
+  },
+  "empty": {
+    "title": "Noch keine Karten",
+    "description": "Füge deine erste Händlerkarte hinzu und zeige an der Kasse dein Handy statt Plastik.",
+    "add": "Karte hinzufügen"
+  },
+  "archived": {
+    "label": "Archiviert ({count})"
+  },
+  "tile": {
+    "archivedBadge": "Archiviert",
+    "open": "{store}, {name}",
+    "openArchived": "{store}, {name} (archiviert)",
+    "pin": "Karte {name} anheften"
+  },
+  "view": {
+    "newTab": "(öffnet in neuem Tab)",
+    "modal": {
+      "loading": "Karte wird geladen...",
+      "loadError": "Die Karten konnten nicht geladen werden. Prüfe deine Verbindung.",
+      "notFound": "Diese Karte gibt es nicht mehr oder sie gehört nicht zu deinem Konto.",
+      "fallbackTitle": "Karte",
+      "fallbackDescription": "Kundenkarte"
+    },
+    "code": {
+      "panel": "Kartencode",
+      "rotate": "Code drehen",
+      "qr": "QR-Code",
+      "twoDimensional": "2D-Code",
+      "linear": "Strichcode",
+      "withValue": "{kind}: {value}",
+      "cannotDraw": "Dieser Code kann nicht dargestellt werden. Lies die Nummer darunter ab oder probiere einen anderen Typ."
+    },
+    "switcher": {
+      "shownAs": "Angezeigt als: {type}",
+      "tryOther": "Lässt sich nicht scannen? Probiere einen anderen Typ",
+      "saveDefault": "Als Standard speichern"
+    },
+    "brightness": {
+      "hint": "Erhöhe die Bildschirmhelligkeit, damit sich der Code leichter lesen lässt.",
+      "hintMayDim": "Erhöhe die Bildschirmhelligkeit, damit sich der Code leichter lesen lässt. Der Bildschirm kann sich von selbst ausschalten, tippe ihn deshalb vor der Kasse an.",
+      "dismiss": "Helligkeitstipp nicht mehr anzeigen"
+    },
+    "photos": {
+      "label": "Kartenbilder",
+      "enlarge": "Bild vergrößern: {label}"
+    },
+    "details": {
+      "type": "Art",
+      "store": "Händler",
+      "note": "Notiz",
+      "validFrom": "Gültig ab",
+      "validTo": "Gültig bis",
+      "balance": "Guthaben",
+      "points": "{count, plural, one {# Punkt} other {# Punkte}}",
+      "pointsFraction": "{count, number} Punkte"
+    },
+    "actions": {
+      "edit": "Bearbeiten",
+      "pin": "Anheften",
+      "unpin": "Nicht mehr anheften",
+      "archive": "Archivieren",
+      "unarchive": "Aus Archiv holen",
+      "delete": "Löschen",
+      "cancel": "Abbrechen",
+      "deleteTitle": "Karte löschen",
+      "deleteDescription": "Möchtest du die Karte „{name}“ wirklich löschen? Das lässt sich nicht rückgängig machen."
+    }
+  },
+  "errors": {
+    "image": {
+      "cannotSave": "Das Bild kann in diesem Browser nicht gespeichert werden.",
+      "cannotProcess": "Das Bild kann in diesem Browser nicht verarbeitet werden.",
+      "cannotOpen": "Dieses Bild lässt sich nicht öffnen. Wähle ein anderes.",
+      "tooLarge": "Das Bild ist zu groß. Wähle ein anderes."
+    }
+  },
+  "offline": {
+    "cardLimit": "Die maximale Anzahl an Karten ist erreicht.",
+    "cardSaveFailed": "Die Karte wurde nicht gespeichert. Versuche es erneut.",
+    "cardDeleteFailed": "Die Karte wurde nicht gelöscht. Versuche es erneut.",
+    "photoDeleteFailed": "Das Bild wurde nicht gelöscht.",
+    "photoSendFailed": "Das Kartenbild wurde nicht gesendet."
+  }
+}

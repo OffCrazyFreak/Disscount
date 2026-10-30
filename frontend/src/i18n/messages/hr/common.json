@@ -1,0 +1,167 @@
+{
+  "notFound": {
+    "meta": {
+      "title": "Stranica nije pronađena - 404",
+      "description": "Stranica koju tražiš ne postoji."
+    },
+    "heading": "Hmm… ovo je neugodno. 😅",
+    "description": "Čini se da stranica <path></path> ne postoji.",
+    "hint": "Vratimo se skupa na početnu stranicu, ili prijavi grešku!",
+    "backHome": "Povratak na početnu"
+  },
+  "offline": {
+    "meta": {
+      "title": "Nema veze s internetom",
+      "description": "Trenutno si izvan mreže."
+    },
+    "title": "Nema veze s internetom 📡",
+    "description": "Trenutno si izvan mreže. Spremljeni popisi, praćeni proizvodi i nedavno pregledani proizvodi i dalje su dostupni.",
+    "hint": "Provjeri vezu pa pokušaj ponovno.",
+    "retry": "Pokušaj ponovno",
+    "indicator": "Izvan mreže: prikazujemo spremljene podatke.",
+    "indicatorPending": "Izvan mreže: spremljene promjene ({count}) sinkronizirat će se kasnije."
+  },
+  "lastSynced": {
+    "refreshed": "Osvježeno {time}"
+  },
+  "collapsibleSection": {
+    "hide": "Sakrij",
+    "show": "Prikaži"
+  },
+  "comingSoon": {
+    "badge": "USKORO",
+    "description": "Ova značajka je u izradi i bit će uskoro dostupna.",
+    "notifyMe": "Obavijesti me"
+  },
+  "copyButton": {
+    "error": "Greška pri kopiranju"
+  },
+  "footer": {
+    "copyright": "© {year} Jakov Jakovac",
+    "comingSoonLabel": "{label} (uskoro)",
+    "comingSoonTitle": "Uskoro"
+  },
+  "inboxNotice": {
+    "spamHint": "Ne zaboravi provjeriti i neželjenu poštu (spam)."
+  },
+  "loginRequired": {
+    "description": "Za korištenje ove značajke potrebna je prijava.",
+    "action": "Prijavi se"
+  },
+  "noResults": {
+    "title": "Nema rezultata",
+    "description": "Probaj s drugim pojmom za pretraživanje"
+  },
+  "oauthError": {
+    "emailNotFound": "Tvoj Facebook račun nije podijelio email adresu. Prijavi se emailom ili Facebook računom koji ima email.",
+    "emailMismatch": "Povezivanje nije uspjelo jer taj račun koristi drugu email adresu. Možeš povezati samo račune koji imaju istu email adresu kao tvoj.",
+    "alreadyLinked": "Taj račun je već povezan s drugim Disscount računom. Ne možeš ga povezati s ovim.",
+    "notLinked": "Ovu prijavu nije moguće automatski povezati s postojećim računom. Prijavi se postojećom metodom pa poveži račun u postavkama sigurnosti.",
+    "restart": "Postupak prijave je istekao ili je prekinut. Pokušaj ponovo.",
+    "default": "Došlo je do greške pri prijavi. Pokušaj ponovo."
+  },
+  "userAvatar": {
+    "alt": "Avatar"
+  },
+  "contact": {
+    "channels": {
+      "intro": "Pošalji nam poruku kroz obrazac ispod, direktno na <email></email> ili putem <linkedin>LinkedIna</linkedin>.",
+      "copyEmailLabel": "Kopiraj email adresu",
+      "copyEmailSuccess": "Email adresa je kopirana!",
+      "copyEmailError": "Greška pri kopiranju emaila",
+      "suggestIdea": "Predloži ideju",
+      "openSuggestions": "Otvori Ideje i prijedloge",
+      "reportBug": "Prijavi grešku",
+      "openBugReport": "Otvori prijavu greške"
+    },
+    "form": {
+      "email": "Email",
+      "emailPlaceholder": "tvoj@email.com",
+      "fullName": "Ime i prezime",
+      "fullNamePlaceholder": "Tvoje ime",
+      "subject": "Naslov",
+      "subjectPlaceholder": "Npr. Pitanje o Disscountu",
+      "message": "Poruka",
+      "messagePlaceholder": "Napiši nam kako ti možemo pomoći...",
+      "charactersLeft": "{count, plural, one {# znak preostao} few {# znaka preostala} other {# znakova preostalo}}"
+    },
+    "modal": {
+      "title": "Javi nam se",
+      "description": "Javi nam se porukom kroz obrazac ispod ili nam se obrati direktno.",
+      "submit": "Pošalji poruku",
+      "cancel": "Odustani",
+      "reset": "Resetiraj",
+      "sent": "Poruka je poslana. Hvala na javljanju!",
+      "sentWithEmail": "Poruka je poslana. Hvala na javljanju! Po potrebi ćemo ti se javiti na uneseni email.",
+      "sourceAvailable": "Disscount je source-available. <link>Pogledaj projekt na GitHubu</link>."
+    }
+  },
+  "donation": {
+    "title": "Podrži Disscount",
+    "intro": "Disscount je besplatan i takav ostaje. Ako ti pomaže pri organizaciji kupovine, ili na bilo koji drugi način, puno nam znači bilo kakva dobrovoljna podrška.",
+    "usage": "Sve ide direktno nazad u Disscount kako bi se pokrilo održavanje i daljnji razvoj!",
+    "kofi": "Podrži na Ko-fi"
+  },
+  "forgotPassword": {
+    "link": "Zaboravljena lozinka?",
+    "sending": "Slanje..."
+  },
+  "multiSelect": {
+    "optionsList": "Popis opcija",
+    "selectAll": "Odaberi sve",
+    "clearAll": "Ukloni sve",
+    "selected": "Odabrano: {count}"
+  },
+  "passwordInput": {
+    "show": "Prikaži lozinku",
+    "hide": "Sakrij lozinku"
+  },
+  "stepper": {
+    "increase": "Povećaj za {amount, number}",
+    "decrease": "Smanji za {amount, number}"
+  },
+  "notifications": {
+    "label": "Obavijesti",
+    "labelWithCount": "Obavijesti ({count})",
+    "loading": "Učitavanje...",
+    "emptyWatching": "Danas nema popusta na praćenim proizvodima.",
+    "emptyNotWatching": "Prati proizvode i obavijestit ćemo te kad proizvodi koje želiš budu na popustu u tvojim trgovinama!",
+    "addProducts": "Dodaj proizvode",
+    "totalSavings": "Ukupna ušteda danas:",
+    "savingsDetail": "(≥ {amount} na {count, plural, one {# proizvod} few {# proizvoda} other {# proizvoda}})"
+  },
+  "install": {
+    "actionDesktop": "Instaliraj aplikaciju",
+    "actionMobile": "Dodaj na početni zaslon",
+    "pitchDesktop": "Instaliraj Disscount za brži pristup.",
+    "pitchMobile": "Dodaj Disscount na početni zaslon za brži pristup.",
+    "close": "Zatvori",
+    "unsupportedTitle": "Ovaj preglednik ne podržava instalaciju",
+    "unsupportedText": "Otvori Disscount u drugom pregledniku, npr. Google Chromeu, da ga dodaš na uređaj.",
+    "perkTitle": "Instaliraj kao aplikaciju",
+    "perkDesktop": "Bez preuzimanja iz trgovine aplikacija: instaliraj Disscount izravno iz preglednika.",
+    "perkMobile": "Bez preuzimanja iz trgovine aplikacija: dodaj Disscount na početni zaslon izravno iz preglednika.",
+    "sheetDescriptionDesktop": "Instaliraj Disscount na računalo u nekoliko koraka.",
+    "sheetDescriptionMobile": "Dodaj Disscount na početni zaslon u nekoliko koraka.",
+    "steps": {
+      "iosMenu": "Dodirni <ellipsis></ellipsis> pored adresne trake, pa <share></share> <b>Podijeli</b>. Na starijim iPhoneima <b>Podijeli</b> je odmah u alatnoj traci.",
+      "iosAdd": "Klizi prema dolje kroz izbornik i odaberi <plus></plus> <b>Dodaj na početni zaslon</b>.",
+      "confirmAdd": "Potvrdi s <b>Dodaj</b>.",
+      "macFile": "Otvori izbornik <b>Datoteka</b> u traci izbornika na vrhu zaslona.",
+      "macDock": "Odaberi <dock></dock> <b>Dodaj u Dock</b>.",
+      "androidMenu": "Dodirni <vdots></vdots> za izbornik preglednika.",
+      "androidChoose": "Odaberi <download></download> <b>Instaliraj aplikaciju</b> ili <b>Dodaj na početni zaslon</b>, ovisno o pregledniku.",
+      "confirmInstall": "Potvrdi s <b>Instaliraj</b>.",
+      "desktopIcon": "Klikni <monitor></monitor> na desnoj strani adresne trake.",
+      "desktopMenu": "Ako te ikone nema, otvori <vdots></vdots> izbornik pa <b>Spremi i podijeli</b> › <b>Instaliraj stranicu kao aplikaciju</b>."
+    }
+  },
+  "validation": {
+    "emailInvalid": "Neispravan email",
+    "fullNameMax": "Ime može imati najviše 255 znakova",
+    "subjectRequired": "Naslov je obavezan",
+    "subjectMax": "Naslov može imati najviše 255 znakova",
+    "messageRequired": "Poruka je obavezna",
+    "messageMax": "Poruka može imati najviše 5000 znakova"
+  }
+}

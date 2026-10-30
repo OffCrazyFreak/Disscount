@@ -1,14 +1,13 @@
 "use client";
 
-import { Children, ReactNode } from "react";
-import { motion } from "motion/react";
+import { ReactNode } from "react";
 import type { Variants } from "motion/react";
-import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
-import {
-  itemTagFor,
-  type RevealContainerTag,
-  type RevealItemTag,
+import type {
+  RevealContainerTag,
+  RevealItemTag,
 } from "@/components/custom/animation/reveal-elements";
+import { useRevealItems } from "@/components/custom/animation/use-reveal-items";
+import RevealFallback from "@/components/custom/animation/reveal-fallback";
 
 type RevealPreset = "rise" | "pop" | "swing";
 
@@ -49,25 +48,22 @@ export function ScrollReveal({
   as = "div",
   itemAs,
 }: IScrollRevealProps) {
-  const reduceMotion = useReducedMotionSafe();
-  const items = Children.toArray(children);
-  const itemTag = itemTagFor(as, itemAs);
+  const { reduceMotion, items, itemTag, Container, Item } = useRevealItems(
+    children,
+    as,
+    itemAs,
+  );
 
   if (reduceMotion) {
-    const Fallback = as;
-    const FallbackItem = itemTag;
-
     return (
-      <Fallback className={className}>
-        {items.map((child, index) => (
-          <FallbackItem key={index}>{child}</FallbackItem>
-        ))}
-      </Fallback>
+      <RevealFallback
+        as={as}
+        itemAs={itemTag}
+        className={className}
+        items={items}
+      />
     );
   }
-
-  const Container = motion[as] as typeof motion.div;
-  const Item = motion[itemTag] as typeof motion.div;
 
   return (
     <Container

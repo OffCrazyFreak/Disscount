@@ -1,0 +1,96 @@
+{
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "shoppingLists": "Shopping lists",
+    "shoppingListsShort": "Lists",
+    "shoppingListsShortcut": "Open your shopping lists",
+    "watchlist": "Watchlist",
+    "watchlistShort": "Watchlist",
+    "watchlistShortcut": "Open your watchlist",
+    "digitalCards": "Loyalty cards",
+    "digitalCardsShort": "Cards",
+    "digitalCardsShortcut": "Open your loyalty cards",
+    "spending": "Spending",
+    "spendingShortcut": "See your spending",
+    "discounted": "Deals",
+    "map": "Map",
+    "stores": "Stores",
+    "locations": "Locations",
+    "statistics": "Statistics",
+    "updates": "News",
+    "suggestions": "Ideas and suggestions",
+    "bugReport": "Report a bug",
+    "contact": "Contact",
+    "donate": "Support Disscount"
+  },
+  "sidebar": {
+    "explore": "Explore",
+    "myAccount": "My account",
+    "support": "Help and support",
+    "comingSoon": "SOON",
+    "toggle": "Toggle"
+  },
+  "search": {
+    "productsPlaceholder": "Search products...",
+    "placeholder": "Search...",
+    "submit": "Search",
+    "clear": "Clear search",
+    "scanBarcode": "Scan barcode",
+    "backToTop": "Back to top"
+  },
+  "header": {
+    "login": "Sign in"
+  },
+  "bottomNav": {
+    "label": "Main navigation",
+    "searchClose": "{label}, close",
+    "searchOpen": "{label}, search"
+  },
+  "userMenu": {
+    "trigger": "User menu",
+    "profile": "Profile",
+    "notifications": "Notifications",
+    "preferences": "Preferences",
+    "security": "Security",
+    "logout": "Sign out"
+  },
+  "modalRouter": {
+    "gate": {
+      "addToList": "Sign in to add products to a shopping list.",
+      "watchlist": "Sign in to watch this product for price drops.",
+      "manageLists": "Sign in to manage your shopping lists.",
+      "manageCards": "Sign in to manage your loyalty cards.",
+      "settings": "Sign in to open settings.",
+      "onboarding": "Sign in to get started."
+    },
+    "deleteList": {
+      "title": "Delete shopping list",
+      "description": "Delete the list “{title}”? This can't be undone.",
+      "confirm": "Delete"
+    }
+  },
+  "modal": {
+    "close": "Close",
+    "unsavedLabel": "Unsaved changes",
+    "unsavedHint": "You have unsaved changes. Save to keep them, or Reset to discard them."
+  },
+  "loading": {
+    "saving": "Saving...",
+    "creating": "Creating...",
+    "adding": "Adding...",
+    "updating": "Updating...",
+    "deleting": "Deleting...",
+    "restoring": "Restoring...",
+    "sending": "Sending...",
+    "copying": "Copying...",
+    "sharing": "Sharing...",
+    "settingUp": "Setting up...",
+    "signingIn": "Signing in...",
+    "signingOut": "Signing out...",
+    "registering": "Signing up...",
+    "linking": "Linking...",
+    "unlinking": "Unlinking..."
+  }
+}

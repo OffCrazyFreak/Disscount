@@ -1,0 +1,46 @@
+{
+  "layout": {
+    "footer": "You're getting this email because this address is linked to your Disscount account. You can change your email settings any time after <link>signing in to Disscount</link>.",
+    "fallback": "If the button doesn't work, copy and paste this link into your browser: <link>{url}</link>"
+  },
+  "verification": {
+    "subject": "Confirm your email address",
+    "preview": "One more click and your Disscount account is ready.",
+    "heading": "We're glad you're here!",
+    "intro": "Confirm your email address and your Disscount account is ready. After that, you can save shopping lists and add your favorite products to your watchlist.",
+    "button": "Confirm email address",
+    "footnote": "If you didn't create this account, you can ignore this email. Nothing will change."
+  },
+  "passwordReset": {
+    "subject": "Reset your password",
+    "preview": "The link to set a new password expires in {minutes, plural, one {# minute} other {# minutes}}.",
+    "heading": "Forgot your password? No problem.",
+    "intro": "Someone asked to reset the password for your Disscount account. Use the button below to set a new one. This link expires in {minutes, plural, one {# minute} other {# minutes}}.",
+    "button": "Reset password",
+    "footnote": "If you didn't ask for this, you can ignore this email. Your password stays the same."
+  },
+  "setPassword": {
+    "subject": "Set a password for your Disscount account",
+    "preview": "Add a password to sign in with email too.",
+    "heading": "Add a password to your account",
+    "intro": "You already have a Disscount account for this email address, linked to Google or Facebook. Once you add a password, you can sign in with email too. This link expires in {minutes, plural, one {# minute} other {# minutes}}.",
+    "button": "Set password",
+    "footnote": "If you didn't ask for this, you can ignore this email. Your account stays the same."
+  },
+  "changeEmail": {
+    "subject": "Confirm your new email address",
+    "preview": "One quick step: confirm your new email address.",
+    "heading": "Changing your email address?",
+    "intro": "Someone asked to change the email address on your Disscount account to <email>{newEmail}</email>. The change only takes effect once you confirm it.",
+    "button": "Confirm new email address",
+    "footnote": "If you didn't ask for this, change your password right away and get in touch. Your address stays the same until you confirm the change."
+  },
+  "breachedPassword": {
+    "subject": "Your password turned up in a data breach",
+    "preview": "We found your password in a data breach, set a new one",
+    "heading": "Your password turned up in a data breach",
+    "intro": "Someone just tried to sign in to your Disscount account with the correct password. We found that password in a known data breach from another site, so we didn't let the sign-in through. Set a new password with the button below. Once you do, we'll sign you out on every device. The link works for {minutes, plural, one {# minute} other {# minutes}}.",
+    "button": "Set a new password",
+    "footnote": "If this wasn't you, set a new password anyway. If you use this password anywhere else, change it there too."
+  }
+}

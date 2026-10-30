@@ -1,4 +1,6 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
@@ -21,9 +23,10 @@ export default function HeaderNavItem({
   notificationCount,
   isLocked = false,
 }: IHeaderNavItemProps) {
+  const t = useTranslations("shell");
   const Icon = item.icon;
   const isActive = isRouteActive(pathname, item.href);
-  const label = item.shortLabel ?? item.label;
+  const label = t(item.shortLabelKey ?? item.labelKey);
 
   const comingSoonBadge = item.comingSoon && (
     <ComingSoonBadge className="absolute -top-4.5 -right-7 rotate-6" />

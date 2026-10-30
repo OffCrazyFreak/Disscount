@@ -16,7 +16,8 @@ export default function LegalPage({
   children,
 }: ILegalPageProps) {
   return (
-    <article className="mx-auto max-w-2xl py-10">
+    // Croatian on every locale until the legal rewrite is translated.
+    <article lang="hr" className="mx-auto max-w-2xl py-10">
       <header className="space-y-3 border-b pb-6">
         <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
           Pravni dokumenti

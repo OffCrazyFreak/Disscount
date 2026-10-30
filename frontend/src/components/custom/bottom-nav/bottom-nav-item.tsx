@@ -2,34 +2,25 @@
 
 import { cn } from "@/lib/utils";
 import { isKeyboardClick } from "@/utils/events";
-import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
-import BottomNavIndicator from "@/components/custom/bottom-nav/bottom-nav-indicator";
 import BottomNavItemGlyph from "@/components/custom/bottom-nav/bottom-nav-item-glyph";
-import HoldProgressRing from "@/components/custom/common/hold-progress-ring";
+import BottomNavItemLabel from "@/components/custom/bottom-nav/bottom-nav-item-label";
+import BottomNavItemRings, {
+  type IBottomNavItemRingsProps,
+} from "@/components/custom/bottom-nav/bottom-nav-item-rings";
 import {
   CELL_BUTTON_CLASS,
-  CELL_DISC_CLASS,
   CELL_ITEM_CLASS,
-  CELL_LABEL_CLASS,
 } from "@/components/custom/bottom-nav/bottom-nav-classes";
 import type { IBottomNavItem } from "@/components/custom/bottom-nav/bottom-nav-items";
-import type { IndicatorOpacity } from "@/components/custom/bottom-nav/use-indicator-opacity";
 
-interface IBottomNavItemProps {
+interface IBottomNavItemProps extends IBottomNavItemRingsProps {
   entry: IBottomNavItem;
   isActive: boolean;
   /** Lit while a thumb is dragging over this cell */
   isScrubbed: boolean;
   /** A coming-soon cell nobody but an admin may open */
   isLocked: boolean;
-  /** Holds the one active disc, which a thumb borrows while it scrubs */
-  showsDisc: boolean;
-  /** Resolved by the bar, so the ring cannot disagree with what a hold does */
-  hasHold: boolean;
-  indicatorOpacity: IndicatorOpacity;
   badgeCount?: number;
-  /** How much of the active shopping list is ticked off, 0 to 1 */
-  listProgress?: number;
   /** A re-tap would return to the saved scroll position */
   canReturn?: boolean;
   onKeyboardActivate: () => void;
@@ -46,13 +37,10 @@ export default function BottomNavItem({
   isActive,
   isScrubbed,
   isLocked,
-  showsDisc,
-  hasHold,
-  indicatorOpacity,
   badgeCount,
-  listProgress,
   canReturn,
   onKeyboardActivate,
+  ...rings
 }: IBottomNavItemProps) {
   const { item } = entry;
 
@@ -83,21 +71,7 @@ export default function BottomNavItem({
       >
         {/* The disc and both rings enclose icon and label together, so they come
             before them in paint order */}
-        {showsDisc && <BottomNavIndicator opacity={indicatorOpacity} />}
-
-        {listProgress !== undefined && (
-          <HoldProgressRing
-            progress={listProgress}
-            className={cn(CELL_DISC_CLASS, "stroke-primary/50")}
-          />
-        )}
-
-        {hasHold && (
-          <HoldProgressRing
-            progress="var(--press-progress, 0)"
-            className={cn(CELL_DISC_CLASS, "stroke-primary")}
-          />
-        )}
+        <BottomNavItemRings {...rings} />
 
         <BottomNavItemGlyph
           icon={item.icon}
@@ -106,15 +80,7 @@ export default function BottomNavItem({
           showsReturn={showsActive && canReturn}
         />
 
-        <span className={cn(CELL_LABEL_CLASS, showsActive && "font-bold")}>
-          {item.shortLabel ?? item.label}
-        </span>
-
-        {item.comingSoon && (
-          // Rotated off the right edge, the convention the header nav and the
-          // landing page already use.
-          <ComingSoonBadge className="pointer-events-none absolute top-[0.1rem] right-0 rotate-6 px-1 py-0 text-[0.5rem] shadow-none" />
-        )}
+        <BottomNavItemLabel item={item} isBold={showsActive} />
       </button>
     </li>
   );

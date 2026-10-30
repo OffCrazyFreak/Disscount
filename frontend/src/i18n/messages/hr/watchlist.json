@@ -1,0 +1,67 @@
+{
+  "meta": {
+    "title": "Praćeni proizvodi",
+    "description": "Prati cijene proizvoda i primi obavijesti o popustima."
+  },
+  "client": {
+    "loginTitle": "Praćeni proizvodi",
+    "loginDescription": "Praćenje ti omogućuje da pratiš proizvode tako da dobiješ obavijest čim im cijena padne.",
+    "searchPlaceholder": "Pretraži praćene proizvode..."
+  },
+  "header": {
+    "searchResultsTitle": "Rezultati pretrage za \"{query}\" ({count})",
+    "title": "Praćeni proizvodi",
+    "titleWithCount": "Praćeni proizvodi ({count})",
+    "pricesUpdated": "Cijene osvježene {time}"
+  },
+  "list": {
+    "emptyTitle": "Nema praćenih proizvoda",
+    "emptyDescription": "Pretraži proizvode, odaberi “Prati proizvod” i primaj obavijesti o popustima.",
+    "searchProducts": "Pretraži proizvode"
+  },
+  "suggestions": {
+    "title": "Prijedlozi proizvoda za praćenje ({count})",
+    "hide": "Sakrij",
+    "show": "Prikaži"
+  },
+  "actionButton": {
+    "watch": "Prati proizvod",
+    "remove": "Ukloni proizvod"
+  },
+  "discountRow": {
+    "srSuffix": ", {infoLabel}, otvori preference trgovina"
+  },
+  "discountInfo": {
+    "loadError": "Greška pri učitavanju",
+    "noData": "Nema podataka",
+    "unavailable": "Nedostupno",
+    "setPreferences": "Postavi preference",
+    "preferredStoresInfo": "Trgovine s popustom među tvojim preferiranim trgovinama",
+    "allStoresInfo": "Sve trgovine s popustom"
+  },
+  "item": {
+    "loading": "Učitavanje...",
+    "unavailable": "Proizvod nije dostupan"
+  },
+  "removal": {
+    "success": "Proizvod uklonjen iz praćenih proizvoda",
+    "error": "Greška pri uklanjanju proizvoda",
+    "partial": "{count, plural, one {Djelomično uklanjanje: # stavku nije moguće ukloniti.} few {Djelomično uklanjanje: # stavke nije moguće ukloniti.} other {Djelomično uklanjanje: # stavki nije moguće ukloniti.}}"
+  },
+  "createList": {
+    "label": "Stvori popis proizvoda na popustu",
+    "short": "Stvori popis",
+    "loading": "Stvaranje popisa...",
+    "listTitle": "Popusti {date}",
+    "productCount": "Proizvoda za novi popis: {count}.",
+    "success": "Popis proizvoda na popustu uspješno je stvoren",
+    "createError": "Greška pri stvaranju popisa proizvoda na popustu",
+    "addFailedRemoved": "Neke stavke nije bilo moguće dodati. Popis je automatski uklonjen.",
+    "addFailedKept": "Neke stavke nije bilo moguće dodati, a popis nije moguće automatski ukloniti."
+  },
+  "validation": {
+    "productRequired": "Proizvod je obavezan",
+    "watchTypeRequired": "Vrsta praćenja je obavezna",
+    "thresholdPositive": "Minimalni popust mora biti pozitivan broj"
+  }
+}

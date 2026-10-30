@@ -65,7 +65,7 @@ export default function ProductCard({
     <Card
       {...pressProps}
       className={cn(
-        "relative shadow-sm hover:shadow-lg transition-shadow",
+        "relative isolate shadow-sm hover:shadow-lg transition-shadow",
         // Suppresses the iOS selection callout a long press would raise on touch.
         pressProps &&
           "[@media(hover:none)]:select-none [-webkit-touch-callout:none]",

@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "title": "Statistik",
+    "description": "Statistik zu den Händlern im Überblick."
+  },
+  "page": {
+    "title": "Statistik",
+    "subtitle": "Statistik zu den Händlern im Überblick."
+  },
+  "health": {
+    "checking": "Status wird geprüft...",
+    "error": "❌ Erreichbarkeit der API konnte nicht geprüft werden",
+    "available": "✅ Preis-API ist erreichbar",
+    "unavailable": "❌ Preis-API ist nicht erreichbar"
+  },
+  "chains": {
+    "title": "Statistik nach Händlern",
+    "loading": "Wird geladen...",
+    "empty": "Keine Daten"
+  },
+  "storeItem": {
+    "storeCount": "{count, plural, one {# Markt} other {# Märkte}}",
+    "priceCount": "{count, plural, one {# Preis} other {# Preise}}",
+    "loadingStores": "Märkte werden geladen...",
+    "city": "Stadt",
+    "address": "Adresse",
+    "unknown": "Unbekannt",
+    "noStores": "Keine Daten zu Märkten"
+  }
+}

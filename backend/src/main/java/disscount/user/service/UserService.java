@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import disscount.digitalCard.service.DigitalCardService;
+import disscount.favoriteStore.service.FavoriteStoreService;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.ConflictException;
 import disscount.user.dao.AuthIdentityDao;
@@ -41,6 +43,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final AuthIdentityDao authIdentityDao;
     private final UserProfileCreator profileCreator;
+    private final DigitalCardService digitalCardService;
+    private final FavoriteStoreService favoriteStoreService;
 
     // Compared against better-auth's UTC session timestamps, so the JVM zone must not leak in.
     private static LocalDateTime nowUtc() {
@@ -154,14 +158,14 @@ public class UserService {
     public UserDto updateProfile(UUID userId, UserRequest request) {
         User user = userRepository.findById(userId)
                 .filter(u -> u.getDeletedAt() == null)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         String username = request.getUsername();
         if (username != null && !username.equals(user.getUsername())) {
             // Checked here so the answer carries fieldErrors; the unique index catches the
             // race and renders the same 409.
             if (userRepository.existsByUsername(username)) {
-                throw new ConflictException("Korisničko ime je već zauzeto.");
+                throw new ConflictException("error.user.usernameTaken");
             }
             user.setUsername(username);
         }
@@ -224,17 +228,25 @@ public class UserService {
 
     /**
      * Anonymizes the profile: nulls PII fields and soft-deletes.
-     * The row is kept so business data (watchlists, shopping lists, etc.) remains intact.
+     * The row is kept so business data (watchlists, shopping lists, etc.) remains intact,
+     * except digital cards, which are hard deleted together with their photos.
      * better-auth identity must be deleted separately via authClient.deleteUser() on the frontend.
      */
     public void deleteAccount(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+        // Locked so a card write racing the deletion waits and then finds a deleted user.
+        User user = userRepository.findByIdForUpdate(userId)
+                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         user.setUsername(null);
         user.setImage(null);
         user.setDeletedAt(nowUtc());
-        userRepository.save(user);
+        // Flushed now because the card purge below clears the persistence context, dropping any unsaved change.
+        userRepository.saveAndFlush(user);
+
+        // Cards hold card numbers and photos, which must not outlive the account.
+        digitalCardService.deleteAllForUser(userId);
+        // Favourite stores show where the person shops.
+        favoriteStoreService.deleteAllForUser(userId);
     }
 
     /**
@@ -247,7 +259,7 @@ public class UserService {
                 .orElse(false);
 
         if (!isAdmin) {
-            throw new ForbiddenException("Admin access required");
+            throw new ForbiddenException("error.user.adminRequired");
         }
     }
 
@@ -291,7 +303,7 @@ public class UserService {
      */
     public void deleteUserAsAdmin(UUID targetUserId, UUID adminUserId) {
         if (targetUserId.equals(adminUserId)) {
-            throw new BadRequestException("You cannot delete your own account from the admin panel");
+            throw new BadRequestException("error.user.cannotDeleteSelf");
         }
 
         authIdentityDao.deleteById(targetUserId);
@@ -301,12 +313,12 @@ public class UserService {
 
     public UserDto updateAccountType(UUID userId, AccountType accountType) {
         if (accountType == null) {
-            throw new BadRequestException("Account type is required");
+            throw new BadRequestException("error.user.accountTypeRequired");
         }
 
         User user = userRepository.findById(userId)
                 .filter(u -> u.getDeletedAt() == null)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         user.setAccountType(accountType);
         user = userRepository.save(user);

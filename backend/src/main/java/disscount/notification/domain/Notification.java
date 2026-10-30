@@ -27,7 +27,7 @@ public class Notification {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @NotBlank(message = "Message is required")
+    @NotBlank(message = "{validation.message.required}")
     @Column(name = "message", nullable = false, columnDefinition = "TEXT")
     private String message;
 

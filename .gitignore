@@ -76,9 +76,6 @@ frontend/yarn.lock
 desktop.ini
 
 docs/disscount_*
-# Playwright MCP session artifacts
-.playwright-mcp/
-
 # Screenshots dropped at the repo root; real ones belong under docs/
 /*.png
 /*.jpg
@@ -110,6 +107,9 @@ marketing/emails/dist/
 
 # agent worktrees
 .t3-worktrees/
+
+# Python bytecode from the agent hooks
+__pycache__/
 
 # Brainstorming skill scratch: mockups, logs and its server session token.
 .superpowers/

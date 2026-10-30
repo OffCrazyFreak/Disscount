@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { LogOut, MonitorSmartphone, Trash2, TriangleAlert } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
@@ -9,6 +10,7 @@ import SettingRow from "@/components/custom/settings/ui/setting-row";
 import { useSecurityActions } from "@/components/custom/settings/security/security-actions";
 
 export default function AccountActions() {
+  const t = useTranslations("settings");
   const { revokeOtherSessions, deleteAccount, revoking, deleting } =
     useSecurityActions();
   const [revokeOpen, setRevokeOpen] = useState(false);
@@ -26,10 +28,10 @@ export default function AccountActions() {
           label={
             <span className="flex items-center gap-2">
               <MonitorSmartphone className="size-5" />
-              Odjava s ostalih uređaja
+              {t("security.actions.revokeLabel")}
             </span>
           }
-          description="Zatvori sve aktivne prijave osim ove trenutne."
+          description={t("security.actions.revokeDescription")}
           control={
             <Button
               type="button"
@@ -39,7 +41,7 @@ export default function AccountActions() {
               disabled={revoking}
               onClick={() => setRevokeOpen(true)}
             >
-              Odjavi
+              {t("security.actions.revokeButton")}
             </Button>
           }
         />
@@ -50,10 +52,10 @@ export default function AccountActions() {
           label={
             <span className="flex items-center gap-2">
               <TriangleAlert className="size-5" />
-              Obriši račun
+              {t("security.actions.deleteLabel")}
             </span>
           }
-          description="Trajno briše tvoj račun i sve povezane podatke."
+          description={t("security.actions.deleteDescription")}
           control={
             <Button
               type="button"
@@ -63,7 +65,7 @@ export default function AccountActions() {
               disabled={deleting}
               onClick={() => setDeleteOpen(true)}
             >
-              Obriši
+              {t("security.actions.deleteButton")}
             </Button>
           }
         />
@@ -74,9 +76,9 @@ export default function AccountActions() {
         onOpenChange={setRevokeOpen}
         icon={MonitorSmartphone}
         confirmIcon={LogOut}
-        title="Odjaviti ostale uređaje?"
-        description="Sve aktivne prijave osim ove trenutne bit će zatvorene."
-        confirmLabel="Odjavi"
+        title={t("security.actions.revokeDialogTitle")}
+        description={t("security.actions.revokeDialogDescription")}
+        confirmLabel={t("security.actions.revokeButton")}
         onConfirm={confirmRevoke}
         isLoading={revoking}
       />
@@ -85,9 +87,9 @@ export default function AccountActions() {
         isOpen={deleteOpen}
         onOpenChange={setDeleteOpen}
         variant="destructive"
-        title="Obrisati račun?"
-        description="Tvoj račun i svi povezani podaci bit će nepovratno obrisani."
-        confirmLabel="Obriši"
+        title={t("security.actions.deleteDialogTitle")}
+        description={t("security.actions.deleteDialogDescription")}
+        confirmLabel={t("security.actions.deleteButton")}
         onConfirm={deleteAccount}
         isLoading={deleting}
       />

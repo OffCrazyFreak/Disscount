@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { parseModalParam } from "@/lib/modal/modal-registry";
+import { parseModalParam } from "@/lib/modal/modal-param-parser";
 import {
   closeModalUrl,
   openModalUrl,

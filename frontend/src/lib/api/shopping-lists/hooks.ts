@@ -36,6 +36,7 @@ import {
   deleteShoppingListItem,
   getAllUserShoppingListItems,
 } from "@/lib/api/shopping-lists/queries";
+import { useTranslations } from "next-intl";
 
 export function useCreateShoppingList() {
   const queryClient = useQueryClient();
@@ -149,6 +150,7 @@ export function useAddItemToShoppingList() {
 }
 
 export function useUpdateShoppingListItem() {
+  const tUi = useTranslations("ui");
   const queryClient = useQueryClient();
   const invalidate = useInvalidateListsAndItems();
 
@@ -179,7 +181,7 @@ export function useUpdateShoppingListItem() {
     // ever explained itself.
     onError: (error, { listId }, rollback) => {
       restoreItem(queryClient, SHOPPING_LIST_QUERY_KEYS.byId(listId), rollback);
-      listWriteFailed(error);
+      listWriteFailed(error, tUi);
     },
     // onSettled, not onSuccess: a rolled-back cache has to reconcile with the server too.
     onSettled: invalidate,
@@ -187,6 +189,7 @@ export function useUpdateShoppingListItem() {
 }
 
 export function useDeleteShoppingListItem() {
+  const tUi = useTranslations("ui");
   const queryClient = useQueryClient();
   const invalidate = useInvalidateListsAndItems();
 
@@ -206,7 +209,7 @@ export function useDeleteShoppingListItem() {
       ),
     onError: (error, { listId }, rollback) => {
       restoreItem(queryClient, SHOPPING_LIST_QUERY_KEYS.byId(listId), rollback);
-      deleteWriteFailed(error);
+      deleteWriteFailed(error, tUi);
     },
     onSettled: invalidate,
   });

@@ -1,4 +1,7 @@
+import { useTranslations } from "next-intl";
+
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
 import type { IWatchlistNotification } from "@/context/notifications-types";
 import NotificationItem from "@/components/custom/notifications/components/notification-item";
 import NotificationsEmptyState from "@/components/custom/notifications/components/notifications-empty-state";
@@ -18,6 +21,8 @@ export default function NotificationsList({
   onSelect,
   onAddProducts,
 }: INotificationsListProps) {
+  const t = useTranslations("common");
+
   const sortedNotifications = [...notifications].sort((a, b) => {
     const maxDiscountA = Math.max(
       ...a.discountedStores.map((store) => store.discountPercentage),
@@ -29,11 +34,11 @@ export default function NotificationsList({
   });
 
   return (
-    <div className="max-h-128 overflow-y-auto">
+    <ScrollFadeArea className="max-h-128" fadeClassName="from-popover h-10">
       {isLoading ? (
         <div className="p-6 flex items-center justify-center gap-2 text-muted-foreground">
           <BlockLoadingSpinner size={16} />
-          <span className="text-sm">Učitavanje...</span>
+          <span className="text-sm">{t("notifications.loading")}</span>
         </div>
       ) : notifications.length === 0 ? (
         <NotificationsEmptyState
@@ -49,6 +54,6 @@ export default function NotificationsList({
           />
         ))
       )}
-    </div>
+    </ScrollFadeArea>
   );
 }

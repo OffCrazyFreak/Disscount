@@ -1,4 +1,6 @@
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { formatPrice } from "@/utils/price";
 import type { INotificationStore } from "@/context/notifications-types";
 
 interface IStorePriceListProps {
@@ -6,9 +8,21 @@ interface IStorePriceListProps {
 }
 
 export default function StorePriceList({ stores }: IStorePriceListProps) {
+  const t = useTranslations("products");
+  const locale = useLocale();
   const bestPercentage = stores.length
     ? Math.max(...stores.map((store) => Math.round(store.discountPercentage)))
     : 0;
+
+  function storeLine(store: INotificationStore) {
+    return t.rich("storePrice.line", {
+      chain: store.chainName,
+      price: formatPrice(store.currentPrice, locale),
+      discount: formatPrice(store.discountAmount, locale),
+      percentage: Math.round(store.discountPercentage),
+      chainName: (chunks) => <span lang="hr">{chunks}</span>,
+    });
+  }
 
   return (
     <div className="space-y-0">
@@ -21,8 +35,7 @@ export default function StorePriceList({ stores }: IStorePriceListProps) {
               "text-primary",
           )}
         >
-          {store.chainName} ~ {store.currentPrice.toFixed(2)}€
-          {` (-${store.discountAmount.toFixed(2)}€, ${Math.round(store.discountPercentage)}%)`}
+          {storeLine(store)}
         </p>
       ))}
     </div>

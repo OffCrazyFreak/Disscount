@@ -18,7 +18,7 @@ import { normalizeForSearch } from "@/utils/strings";
  */
 const MIN_CONTAINMENT_LENGTH = 3;
 
-export function chainMatchesPinnedStore(
+function chainMatchesPinnedStore(
   chain: string,
   pinnedStoreName: string,
 ): boolean {

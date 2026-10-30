@@ -7,12 +7,12 @@ export enum WatchType {
 }
 
 // Watchlist schemas
-export const watchlistItemRequestSchema = z.object({
-  productApiId: z.string().min(1, "Product API ID je obavezan"),
+const watchlistItemRequestSchema = z.object({
+  productApiId: z.string().min(1, "watchlist.validation.productRequired"),
   watchType: z.enum(WatchType, {
-    message: "Tip praćenja je obavezan",
+    message: "watchlist.validation.watchTypeRequired",
   }),
-  thresholdValue: z.number().positive("Granica mora biti pozitivan broj"),
+  thresholdValue: z.number().positive("watchlist.validation.thresholdPositive"),
 });
 
 export const watchlistItemDtoSchema = watchlistItemRequestSchema.extend({

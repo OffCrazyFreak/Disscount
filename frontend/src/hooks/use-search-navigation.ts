@@ -1,7 +1,8 @@
 "use client";
 
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { useCallback } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 export interface IUseSearchNavigationResult {
   /** The `q` param, empty unless the search route is the current page */
@@ -17,6 +18,14 @@ export interface IUseSearchNavigationResult {
   openResult: (value: string) => void;
 }
 
+export interface IUseSearchNavigationOptions {
+  /**
+   * Rewrites `q` through the History API on the route itself: no server
+   * render, and the hash (the map's view) survives.
+   */
+  shallow?: boolean;
+}
+
 function normalizePath(path: string): string {
   return path.replace(/\/$/, "");
 }
@@ -24,6 +33,7 @@ function normalizePath(path: string): string {
 /** Reads and writes the `q` param of a search route, leaving other params be. */
 export function useSearchNavigation(
   searchRoute: string,
+  { shallow = false }: IUseSearchNavigationOptions = {},
 ): IUseSearchNavigationResult {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -51,9 +61,27 @@ export function useSearchNavigation(
     [isOnRoute, searchParams, searchRoute],
   );
 
+  const navigate = useCallback(
+    (url: string, mode: "push" | "replace") => {
+      if (!shallow || !isOnRoute) {
+        router[mode](url);
+        return;
+      }
+
+      // searchRoute has no language prefix, so the browser's own path is used
+      // to keep /en/map on /en/map.
+      const search = url.includes("?") ? url.slice(url.indexOf("?")) : "";
+      const withHash = `${window.location.pathname}${search}${window.location.hash}`;
+
+      if (mode === "push") window.history.pushState(null, "", withHash);
+      else window.history.replaceState(null, "", withHash);
+    },
+    [shallow, isOnRoute, router],
+  );
+
   const search = useCallback(
-    (query: string) => router.push(buildSearchUrl(query)),
-    [router, buildSearchUrl],
+    (query: string) => navigate(buildSearchUrl(query), "push"),
+    [navigate, buildSearchUrl],
   );
 
   const syncQuery = useCallback(
@@ -61,13 +89,9 @@ export function useSearchNavigation(
       // Navigating re-runs the caller's effect, so bail once the URL already matches.
       if (isOnRoute && routeQuery === query) return;
 
-      if (query) {
-        router.replace(buildSearchUrl(query));
-      } else {
-        router.push(buildSearchUrl(""));
-      }
+      navigate(buildSearchUrl(query), query ? "replace" : "push");
     },
-    [isOnRoute, routeQuery, buildSearchUrl, router],
+    [isOnRoute, routeQuery, buildSearchUrl, navigate],
   );
 
   // Off the route every query is a change, since submitting navigates there. The

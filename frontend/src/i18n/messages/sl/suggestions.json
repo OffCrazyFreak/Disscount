@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "title": "Ideje in predlogi",
+    "description": "Predlagaj nove funkcije in glasuj za tiste, ki jih želiš imeti.",
+    "detailTitle": "Ideje in predlogi: podrobnosti",
+    "detailDescription": "Podrobnosti predloga in komentarji skupnosti."
+  },
+  "searchPlaceholder": "Išči ideje in predloge...",
+  "heading": "Ideje in predlogi ({count})",
+  "searchHeading": "Rezultati iskanja za »{query}« ({count})",
+  "separator": "·",
+  "backToList": "Nazaj na ideje in predloge",
+  "comments": "Komentarji ({count})",
+  "noComments": "Komentarjev še ni. Prvega lahko zapišeš, ko bo funkcija na voljo."
+}

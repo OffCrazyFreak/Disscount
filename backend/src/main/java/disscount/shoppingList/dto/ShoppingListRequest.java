@@ -8,7 +8,7 @@ import disscount.shoppingList.domain.LinkAccess;
 @Data
 public class ShoppingListRequest {
 
-    @NotBlank(message = "Title is required")
+    @NotBlank(message = "{validation.title.required}")
     private String title;
 
     // Owner-only. Honoured on create, so a copy can be born shared, and the caller of a

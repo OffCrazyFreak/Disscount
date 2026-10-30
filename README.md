@@ -222,7 +222,6 @@ The repo ships pre-configured MCP servers so an AI editor picks them up on clone
 
 | Server            | Purpose                    |
 | ----------------- | -------------------------- |
-| `playwright`      | Browser automation / E2E   |
 | `context7`        | Up-to-date library docs    |
 | `supabase`        | Supabase project access    |
 | `chrome-devtools` | Chrome DevTools debugging  |
@@ -231,8 +230,6 @@ The repo ships pre-configured MCP servers so an AI editor picks them up on clone
 `sentry` is scoped to the `disscount` org rather than one project, so it reaches both `disscount-frontend` and `disscount-backend`.
 
 No secrets are committed: `supabase` and `sentry` authenticate via browser OAuth on first use, and `context7` reads `CONTEXT7_API_KEY` from your environment (it still runs keyless if that is unset, at the lower anonymous rate limit). Export that key from your shell profile rather than writing it into a config, and a clone works anywhere with no per-machine edit. Note that the VS Code file spells the reference `${env:CONTEXT7_API_KEY}`, which is that editor's own syntax, while the other two take a bare `${CONTEXT7_API_KEY}`. Never put keys in these files - use env vars or your editor's secret store.
-
-`playwright` needs a browser at runtime: run `npx playwright install chromium` once per machine, or point it at an existing browser via `PLAYWRIGHT_MCP_EXECUTABLE_PATH` (e.g. `/opt/helium/chrome`). Both are machine-local, so keep the browser path out of the committed config.
 
 ## Deployment
 

@@ -1,32 +1,21 @@
 "use client";
 
-import { type ComponentProps, type ReactNode } from "react";
 import Image from "next/image";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductInfo from "@/components/custom/product/product-info";
+import ProductSummaryAside, {
+  type IProductSummaryAsideProps,
+} from "@/components/custom/product/product-summary-aside";
 import { cn } from "@/lib/utils";
 
-interface IProductSummaryProps {
+interface IProductSummaryProps extends IProductSummaryAsideProps {
   name: string | null;
   brand?: string | null;
   category: string | null;
   quantity?: string | null;
   imageUrl?: string | null;
   isLoading?: boolean;
-  /** Passive details, such as prices, shown opposite the product identity */
-  trailing?: ReactNode;
-  actions?: ReactNode;
-  /**
-   * Applied to the actions wrapper, so a surface that hides its actions hides
-   * the element the row's gap is measured against too.
-   */
-  actionsClassName?: string;
-  /** Keeps a press on actions from reaching a card-level gesture */
-  actionProps?: Pick<
-    ComponentProps<"div">,
-    "onClick" | "onPointerDown" | "onPointerUp"
-  >;
   /** When set, the product name carries the card's link. */
   href?: string;
   onNavigate?: (viaKeyboard: boolean) => boolean | void;
@@ -45,13 +34,10 @@ export default function ProductSummary({
   quantity,
   imageUrl,
   isLoading = false,
-  trailing,
-  actions,
-  actionsClassName,
-  actionProps,
   href,
   onNavigate,
   className,
+  ...aside
 }: IProductSummaryProps) {
   const displayName = name && quantity ? `${name} (${quantity})` : name;
 
@@ -91,23 +77,7 @@ export default function ProductSummary({
           )}
         </div>
 
-        {(trailing || actions) && (
-          <div className="flex shrink-0 items-center justify-between gap-4">
-            {/* Raised above the name link's stretched pseudo-element so prices
-                stay selectable; actions go a layer higher again so they keep
-                receiving pointer events without opting in class by class. */}
-            {trailing && <div className="relative z-10">{trailing}</div>}
-
-            {actions && (
-              <div
-                className={cn("relative z-20", actionsClassName)}
-                {...actionProps}
-              >
-                {actions}
-              </div>
-            )}
-          </div>
-        )}
+        <ProductSummaryAside {...aside} />
       </div>
     </div>
   );

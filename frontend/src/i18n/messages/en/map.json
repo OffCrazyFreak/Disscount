@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "title": "Store map",
+    "description": "Find stores on the map: Konzum, Lidl, Kaufland, Spar, Plodine, Tommy, Studenac and 20 more chains across Croatia. Search by town or address and find the nearest one."
+  },
+  "heading": "Store map",
+  "search": {
+    "placeholder": "Store, town or address..."
+  },
+  "layout": {
+    "storeList": "Store list",
+    "stores": "Stores",
+    "backToMap": "Back to the map"
+  },
+  "load": {
+    "error": "Stores can't be loaded right now.",
+    "retry": "Try again",
+    "loading": "Loading stores..."
+  },
+  "unavailable": {
+    "browser": "Your browser can't show the map. Every store is still in the list.",
+    "style": "The map can't be loaded right now. Every store is still in the list.",
+    "contextLost": "The map stopped working.",
+    "reload": "Reload",
+    "noGpu": "Your browser has turned off graphics acceleration, so it can't show the map. Restarting the browser usually fixes it. Every store is still in the list."
+  },
+  "chains": {
+    "all": "All stores"
+  },
+  "nearMe": {
+    "locate": "Stores near me",
+    "clear": "Remove my location",
+    "approximate": "Showing stores by your approximate location. Turn on location on your device for a more exact order.",
+    "denied": "Location access is blocked. Allow it in your browser settings or search by town.",
+    "unavailable": "Your location isn't available right now. Search by town or address.",
+    "timeout": "Your location can't be determined. Check that location is turned on on your device, or search by town."
+  },
+  "recent": {
+    "label": "Recent searches:",
+    "clear": "Clear",
+    "clearLabel": "Clear recent searches"
+  },
+  "count": {
+    "shown": "{count, plural, one {# store} other {# stores}}",
+    "unplaced": "{shown}, {unplaced} of them without a location on the map. They're still in the list."
+  },
+  "pan": {
+    "group": "Move the map",
+    "up": "Move the map up",
+    "left": "Move the map left",
+    "right": "Move the map right",
+    "down": "Move the map down"
+  },
+  "list": {
+    "noLocation": "no location",
+    "onMap": "On the map · {count, number}",
+    "elsewhere": "Elsewhere · {count, number}",
+    "onMapStatus": "{count, plural, one {# store} other {# stores}} on the map",
+    "update": "Map moved · Update the list",
+    "sameSpot": "{count, plural, one {# store} other {# stores}} at this spot",
+    "unknownAddress": "Address unknown",
+    "favorites": "Favourite stores · {count, number}",
+    "others": "Other stores · {count, number}",
+    "distance": "{distance} from you"
+  },
+  "details": {
+    "notPlaced": "We don't have an exact location for this store yet, so it isn't on the map."
+  },
+  "favorites": {
+    "add": "Add to favourites",
+    "remove": "Remove from favourites",
+    "limit": "Up to {max, number} favourite stores.",
+    "saveFailed": "Saving failed. Try again."
+  },
+  "actions": {
+    "googleDirections": "Directions (Google Maps)",
+    "appleMaps": "Apple Maps",
+    "call": "Call {phone}",
+    "share": "Share",
+    "copied": "Link copied.",
+    "shareFailed": "Couldn't share.",
+    "report": "Report a mistake"
+  },
+  "report": {
+    "subject": "Wrong store location",
+    "message": "Store: {store} ({id})\n\nWhat's wrong: "
+  }
+}

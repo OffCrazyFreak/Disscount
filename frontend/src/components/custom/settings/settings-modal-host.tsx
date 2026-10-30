@@ -5,7 +5,6 @@ import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useModalUrl } from "@/lib/modal/use-modal-url";
-import type { SettingsTab } from "@/lib/modal/modal-registry";
 import { useUser } from "@/context/user-context";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import {
@@ -14,6 +13,7 @@ import {
   settingsFormSchema,
 } from "@/components/custom/settings/settings-schema";
 import { useSettingsDefaults } from "@/components/custom/settings/hooks/use-settings-defaults";
+import { useLastSettingsTarget } from "@/components/custom/settings/hooks/use-last-settings-target";
 import { useSettingsSave } from "@/components/custom/settings/hooks/use-settings-save";
 import SettingsUiProvider from "@/components/custom/settings/settings-context";
 import SettingsModal from "@/components/custom/settings/settings-modal";
@@ -90,21 +90,7 @@ export default function SettingsModalHost() {
 
   const open = target?.name === "settings";
 
-  // Keeps the exit animation from flashing a different tab's content.
-  const [lastTab, setLastTab] = useState<SettingsTab>("profil");
-  if (target?.name === "settings" && target.tab !== lastTab) {
-    setLastTab(target.tab);
-  }
-
-  // Same reason: falling back to "required" the moment the param is stripped
-  // made the close button pop out of the header a frame before a replay wizard
-  // finished fading, since ModalShell drives showCloseButton off preventClose.
-  const [lastOnboardingMode, setLastOnboardingMode] = useState<
-    "required" | "replay"
-  >("required");
-  if (target?.name === "onboarding" && target.mode !== lastOnboardingMode) {
-    setLastOnboardingMode(target.mode);
-  }
+  const { lastTab, lastOnboardingMode } = useLastSettingsTarget(target);
 
   // The security tab's form/data lives here so the shared footer can drive it.
   const security = useSecuritySettings(open && lastTab === "sigurnost");

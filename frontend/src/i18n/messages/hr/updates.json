@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "title": "Novosti",
+    "description": "Najnovije objave i novosti o Disscountu.",
+    "detailFallbackDescription": "Detalji objave."
+  },
+  "author": "Disscount tim",
+  "separator": "·",
+  "searchPlaceholder": "Pretraži novosti...",
+  "heading": "Novosti ({count})",
+  "searchHeading": "Rezultati pretrage za \"{query}\" ({count})",
+  "newPost": "Nova objava",
+  "newPostSoon": "Stvaranje objava bit će uskoro dostupno.",
+  "backToList": "Natrag na novosti",
+  "posts": {
+    "disscount-launch": {
+      "title": "Disscount kreće! Hvala našim beta testerima",
+      "excerpt": "Pozivamo prvih dvjestotinjak korisnika s popisa čekanja da prvi isprobaju Disscount.",
+      "body": {
+        "p1": "Veliki dan je stigao: Disscount službeno kreće! Najprije pozivamo prvih dvjestotinjak korisnika s našeg popisa čekanja da prvi isprobaju aplikaciju i pomognu nam je učiniti još boljom.",
+        "p2": "Hvala ti na strpljenju i vjernosti. Tvoje povjerenje i podrška od prvog dana znače nam jako puno. Ovo je tek početak, a najbolje tek dolazi. Radujemo se što ovaj put krećemo zajedno s tobom."
+      }
+    },
+    "whats-next": {
+      "title": "Što slijedi nakon lansiranja",
+      "excerpt": "Pripremamo nove značajke: od karte trgovina do praćenja potrošnje. Tvoji prijedlozi oblikuju što gradimo sljedeće.",
+      "body": {
+        "p1": "U sljedećim tjednima radimo na nizu novih značajki: interaktivnoj karti trgovina s radnim vremenom, pregledu vlastite potrošnje te karticama vjernosti.",
+        "p2": "Tvoje mišljenje nam je najvažnije: na stranici Ideje i prijedlozi možeš predložiti nove značajke i glasati za one koje želiš vidjeti prve."
+      }
+    }
+  }
+}
