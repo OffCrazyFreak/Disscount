@@ -7,6 +7,8 @@ import { isServiceWorkerRegistrationNoise } from "@/lib/sentry/ignore-service-wo
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
+  environment: process.env.SENTRY_ENVIRONMENT || undefined,
+
   // List ids reach Sentry unscrubbed by decision, recorded in docs/SHARING.md. Replay is
   // not covered by that: it records the DOM, so a shared list's contents would go with it.
   integrations: [
