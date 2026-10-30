@@ -1,0 +1,81 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(chore)"
+  ],
+  "baseBranchPatterns": ["dev"],
+  "timezone": "Europe/Zagreb",
+  "schedule": ["* * 1 * *"],
+  "packageRules": [
+    {
+      "description": "Bump package.json ranges like Dependabot did, not only the lockfile",
+      "matchManagers": ["npm"],
+      "rangeStrategy": "bump"
+    },
+    {
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "frontend minor and patch"
+    },
+    {
+      "matchManagers": ["maven"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "backend minor and patch"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "github actions minor and patch"
+    },
+    {
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "docker images minor and patch"
+    },
+    {
+      "description": "One pnpm version across packageManager, CI and the frontend Dockerfile",
+      "matchDepNames": ["pnpm"],
+      "groupName": "pnpm"
+    },
+    {
+      "description": "springdoc tracks the Spring Boot line; Boot 3.1.x pairs with 2.2.x. Drop once the Boot 4 migration lands",
+      "matchPackageNames": [
+        "org.springdoc:springdoc-openapi-starter-webmvc-ui"
+      ],
+      "allowedVersions": "<2.3.0"
+    },
+    {
+      "description": "A Postgres major needs a dump and restore of the pgdata volume",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["postgres"],
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "A Java major also needs the maven build image tag and pom java.version, which Renovate cannot bump",
+      "matchPackageNames": ["eclipse-temurin", "java-jdk"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "java major",
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Matches pnpm 11's default minimumReleaseAge of 1440 minutes, so pnpm never refuses a proposed version",
+      "matchDatasources": ["npm"],
+      "minimumReleaseAge": "1 day"
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "pnpm installed globally in the frontend image",
+      "managerFilePatterns": ["/(^|/)Dockerfile$/"],
+      "matchStrings": [
+        "npm install -g pnpm@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "pnpm",
+      "datasourceTemplate": "npm"
+    }
+  ]
+}
