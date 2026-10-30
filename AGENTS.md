@@ -137,7 +137,7 @@ Before wiring an API call, confirm the endpoint exists in `backend/` or upstream
 
 ## Branches and releases
 
-- Work lands on `dev`; a release is a `dev` into `main` PR. Before one, dev-vs-main goes through a multi-tool review whose findings land as their own `fix:` PR, artifacts in `reviews/`.
+- Work lands on `dev`; a release is a `dev` into `main` PR. Before one, dev-vs-main gets a code review (a few Claude subagents plus the CodeRabbit CLI and Greptile) whose findings land as their own `fix:` PR, artifacts in `reviews/`.
 - Move one change to another branch by cherry-picking it, not merging, because `dev` usually carries unrelated work.
 - Open or merge a PR only when I ask.
 - Attach PR screenshots with `gh pr create`, `gh pr edit` or `gh pr comment` and `--attach '<file>#<alt text>'`. Never host them on a branch: once it is deleted, GitHub can garbage collect the commits the image links point to. `--attach` rewrites Markdown image references but not HTML `<img>` tags.
