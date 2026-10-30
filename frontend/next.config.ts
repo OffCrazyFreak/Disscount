@@ -31,6 +31,10 @@ const nextConfig: NextConfig = {
   // The dev indicator sits bottom-left, on top of the mobile bottom nav.
   devIndicators: false,
 
+  // The Sentry SDK falls back to SENTRY_ENVIRONMENT on its own, but the browser only sees
+  // it once inlined here; empty falls through to NODE_ENV, so `pnpm dev` stays "development".
+  env: { SENTRY_ENVIRONMENT: process.env.SENTRY_ENVIRONMENT ?? "" },
+
   // Set explicitly because Next warns the default can differ between compiler versions,
   // and the effects keyed on existing useMemo/useCallback results rely on them staying.
   reactCompiler: {
