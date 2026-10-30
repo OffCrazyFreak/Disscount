@@ -1,0 +1,96 @@
+{
+  "nav": {
+    "home": "Domov",
+    "dashboard": "Nadzorna plošča",
+    "products": "Izdelki",
+    "shoppingLists": "Nakupovalni seznami",
+    "shoppingListsShort": "Seznami",
+    "shoppingListsShortcut": "Odpri svoje nakupovalne sezname",
+    "watchlist": "Spremljani izdelki",
+    "watchlistShort": "Spremljanje",
+    "watchlistShortcut": "Poglej izdelke, ki jih spremljaš",
+    "digitalCards": "Kartice zvestobe",
+    "digitalCardsShort": "Kartice",
+    "digitalCardsShortcut": "Odpri svoje kartice zvestobe",
+    "spending": "Poraba",
+    "spendingShortcut": "Poglej svojo porabo",
+    "discounted": "Popusti",
+    "map": "Zemljevid",
+    "stores": "Trgovine",
+    "locations": "Lokacije",
+    "statistics": "Statistika",
+    "updates": "Novice",
+    "suggestions": "Ideje in predlogi",
+    "bugReport": "Prijavi napako",
+    "contact": "Stik",
+    "donate": "Podpri Disscount"
+  },
+  "sidebar": {
+    "explore": "Razišči",
+    "myAccount": "Moj račun",
+    "support": "Pomoč in podpora",
+    "comingSoon": "KMALU",
+    "toggle": "Preklopi"
+  },
+  "search": {
+    "productsPlaceholder": "Išči izdelke...",
+    "placeholder": "Išči...",
+    "submit": "Išči",
+    "clear": "Počisti iskanje",
+    "scanBarcode": "Skeniraj črtno kodo",
+    "backToTop": "Nazaj na vrh"
+  },
+  "header": {
+    "login": "Prijava"
+  },
+  "bottomNav": {
+    "label": "Glavna navigacija",
+    "searchClose": "{label}, zapri",
+    "searchOpen": "{label}, išči"
+  },
+  "userMenu": {
+    "trigger": "Uporabniški meni",
+    "profile": "Profil",
+    "notifications": "Obvestila",
+    "preferences": "Prilagoditve",
+    "security": "Varnost",
+    "logout": "Odjava"
+  },
+  "modalRouter": {
+    "gate": {
+      "addToList": "Prijavi se, da dodaš izdelke na nakupovalni seznam.",
+      "watchlist": "Prijavi se, da spremljaš popuste za ta izdelek.",
+      "manageLists": "Prijavi se za upravljanje nakupovalnih seznamov.",
+      "manageCards": "Prijavi se za upravljanje kartic zvestobe.",
+      "settings": "Prijavi se, da odpreš nastavitve.",
+      "onboarding": "Prijavi se, da začneš."
+    },
+    "deleteList": {
+      "title": "Izbriši nakupovalni seznam",
+      "description": "Želiš res izbrisati seznam »{title}«? Tega ni mogoče razveljaviti.",
+      "confirm": "Izbriši"
+    }
+  },
+  "modal": {
+    "close": "Zapri",
+    "unsavedLabel": "Neshranjene spremembe",
+    "unsavedHint": "Imaš neshranjene spremembe. Klikni Shrani, da jih obdržiš, ali Ponastavi, da jih zavržeš."
+  },
+  "loading": {
+    "saving": "Shranjevanje...",
+    "creating": "Ustvarjanje...",
+    "adding": "Dodajanje...",
+    "updating": "Posodabljanje...",
+    "deleting": "Brisanje...",
+    "restoring": "Obnavljanje...",
+    "sending": "Pošiljanje...",
+    "copying": "Kopiranje...",
+    "sharing": "Deljenje...",
+    "settingUp": "Nastavljanje...",
+    "signingIn": "Prijava...",
+    "signingOut": "Odjava...",
+    "registering": "Registracija...",
+    "linking": "Povezovanje...",
+    "unlinking": "Prekinjanje..."
+  }
+}

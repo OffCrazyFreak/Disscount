@@ -26,11 +26,11 @@ public class PinnedPlace {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @NotBlank(message = "Place API ID is required")
+    @NotBlank(message = "{validation.placeApiId.required}")
     @Column(name = "place_api_id", nullable = false)
     private String placeApiId;
 
-    @NotBlank(message = "Place name is required")
+    @NotBlank(message = "{validation.placeName.required}")
     @Column(name = "place_name", nullable = false)
     private String placeName;
 }

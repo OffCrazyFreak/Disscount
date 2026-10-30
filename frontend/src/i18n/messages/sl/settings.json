@@ -1,0 +1,209 @@
+{
+  "modal": {
+    "title": "Nastavitve",
+    "description": "Upravljaj profil, obvestila, prilagoditve in varnost.",
+    "cancel": "Prekliči",
+    "save": "Shrani",
+    "reset": "Ponastavi",
+    "replayGuide": "Znova zaženi vodič",
+    "unsavedChanges": "Neshranjene spremembe"
+  },
+  "tabs": {
+    "profile": "Profil",
+    "notifications": "Obvestila",
+    "preferences": "Prilagoditve",
+    "security": "Varnost"
+  },
+  "profile": {
+    "avatar": {
+      "change": "Spremeni sliko",
+      "remove": "Odstrani sliko",
+      "formats": "PNG, JPG, WebP ali GIF (shrani se kot WebP).",
+      "tooLarge": "Slika je prevelika. Največja velikost je 15 MB.",
+      "loadFailed": "Slike ni mogoče naložiti, poskusi z JPG ali PNG."
+    },
+    "username": {
+      "label": "Uporabniško ime",
+      "description": "Kako naj te kličemo? Ne sme biti že zasedeno."
+    },
+    "acquisition": {
+      "label": "Od kod poznaš Disscount?",
+      "placeholder": "Izberi vir",
+      "description": "Pomaga nam vedeti, kje te lahko bolje najdemo."
+    },
+    "channels": {
+      "GOOGLE_SEARCH": "Iskanje v Googlu",
+      "INSTAGRAM": "Instagram",
+      "FACEBOOK": "Facebook",
+      "TIKTOK": "TikTok",
+      "YOUTUBE": "YouTube",
+      "FRIEND_OR_FAMILY": "Priporočilo prijatelja ali družine",
+      "ONLINE_AD": "Spletni oglas",
+      "BLOG_OR_NEWS": "Blog, članek ali mediji",
+      "APP_STORE": "App Store / Google Play",
+      "POSTER_OR_FLYER": "Plakat ali letak",
+      "EVENT": "Sejem ali dogodek",
+      "OTHER": "Drugo"
+    }
+  },
+  "notifications": {
+    "hint": "Izberi, kako, o čem in kdaj želiš prejemati obvestila o popustih in novicah.",
+    "push": {
+      "label": "Dovoli obvestila aplikacije",
+      "description": "Obvestila o popustih v mobilni aplikaciji bodo samo za izdelke, ki jih izbereš, brez spama."
+    },
+    "email": {
+      "label": "Dovoli obvestila po e-pošti",
+      "description": "Obvestila o popustih na tvoj e-naslov bodo samo za izdelke, ki jih izbereš, brez spama."
+    },
+    "newsletter": {
+      "label": "Novice in posodobitve",
+      "description": "Občasne novice o Disscountu na tvoj e-naslov, brez spama."
+    },
+    "feedback": {
+      "label": "Stik za povratne informacije",
+      "description": "Dovoli, da se ti oglasimo zaradi povratnih informacij o aplikaciji."
+    }
+  },
+  "preferences": {
+    "stores": {
+      "label": "Trgovine",
+      "hint": "Izberi trgovine v svoji bližini."
+    },
+    "places": {
+      "label": "Lokacije",
+      "hint": "Izberi lokacije v svoji bližini.",
+      "placeholder": "Izberi lokacije..."
+    },
+    "selectedMark": "✓",
+    "language": {
+      "label": "Jezik",
+      "hint": "Jezik aplikacije in e-poštnih sporočil, ki ti jih pošiljamo.",
+      "locked": "Najprej shrani ali ponastavi spremembe, nato zamenjaj jezik."
+    }
+  },
+  "save": {
+    "offline": "Brez povezave si. Spremembe bodo sinhronizirane, ko se vrneš na splet.",
+    "onboardingDone": "Vse je pripravljeno!",
+    "settingsSaved": "Nastavitve so shranjene!",
+    "errors": {
+      "user": "Napaka pri shranjevanju profila.",
+      "stores": "Napaka pri shranjevanju trgovin.",
+      "places": "Napaka pri shranjevanju lokacij."
+    }
+  },
+  "validation": {
+    "usernameMin": "Uporabniško ime mora imeti vsaj 2 znaka",
+    "usernameMax": "Uporabniško ime sme imeti največ 40 znakov",
+    "emailInvalid": "Vnesi veljaven e-naslov",
+    "currentPasswordRequired": "Vnesi trenutno geslo"
+  },
+  "onboarding": {
+    "fallbackDescription": "Kratka nastavitev računa, vse lahko pozneje spremeniš.",
+    "progress": "Korak {current} od {total}",
+    "logout": "Odjava",
+    "logoutFailed": "Odjava ni uspela. Poskusi znova.",
+    "back": "Nazaj",
+    "next": "Naprej",
+    "finish": "Končaj",
+    "steps": {
+      "welcome": {
+        "title": "Lepo, da si tu!",
+        "titleNamed": "{username}, lepo, da si tu!"
+      },
+      "profile": {
+        "title": "Tvoj profil",
+        "description": "Predstavi se. Vse lahko pozneje spremeniš v nastavitvah."
+      },
+      "notifications": {
+        "title": "Obvestila",
+        "description": "Izberi, kako, o čem in kdaj želiš prejemati obvestila o popustih in novicah."
+      },
+      "preferences": {
+        "title": "Tvoje trgovine in lokacije",
+        "description": "Označi trgovine in kraje v svoji bližini za natančnejše primerjave cen."
+      },
+      "done": {
+        "title": "Vse je pripravljeno!"
+      }
+    },
+    "welcome": {
+      "intro": "Skozi nekaj kratkih korakov bomo Disscount prilagodili tebi. Vse lahko pozneje urediš v nastavitvah.",
+      "profile": {
+        "title": "Prilagodi profil",
+        "text": "Nastavi svoje ime in avatar, da bo aplikacija tvoja."
+      },
+      "stores": {
+        "title": "Tvoje trgovine",
+        "text": "Izberi trgovine in lokacije za primerjave cen po tvojem žepu."
+      },
+      "notifications": {
+        "title": "Obvestila brez spama",
+        "text": "Izberi, kako, o čem in kdaj želiš dobivati obvestila o popustih in novicah."
+      }
+    },
+    "done": {
+      "title": "Disscount je pripravljen zate.",
+      "text": "Ko izbereš Končaj, shranimo tvoje izbire. Vse lahko pozneje spremeniš v nastavitvah računa."
+    }
+  },
+  "security": {
+    "credentials": {
+      "label": "Prijava in geslo",
+      "hintWithPassword": "Za spremembo e-naslova ali gesla potrdi svoje trenutno geslo.",
+      "hintWithoutPassword": "Nastavi geslo, da bo prijava mogoča tudi z e-naslovom, ne samo prek Googla ali Facebooka.",
+      "email": "E-naslov",
+      "emailLockedSocial": "Za spremembo e-naslova najprej prekini povezavo s povezanimi računi.",
+      "emailLockedNoPassword": "E-naslov bo mogoče spremeniti, ko nastaviš geslo.",
+      "newPassword": "Novo geslo",
+      "password": "Geslo",
+      "newPasswordPlaceholder": "Pusti prazno, če ne spreminjaš",
+      "currentPassword": "Trenutno geslo",
+      "currentPasswordDescription": "Potrebno za potrditev spremembe e-naslova ali gesla."
+    },
+    "submit": {
+      "setPasswordFailed": "Napaka pri nastavljanju gesla.",
+      "passwordSet": "Geslo je nastavljeno! Zdaj se lahko prijaviš tudi z e-naslovom.",
+      "noChanges": "Ni sprememb za shranjevanje.",
+      "currentPasswordWrong": "Trenutno geslo ni pravilno.",
+      "changePasswordFailed": "Napaka pri spremembi gesla.",
+      "socialLinked": "Za spremembo e-naslova najprej prekini povezavo s povezanimi računi (Google, Facebook).",
+      "changeEmailFailed": "Napaka pri spremembi e-naslova.",
+      "passwordChanged": "Geslo je spremenjeno.",
+      "passwordChangedConfirmEmail": "Geslo je spremenjeno. Spremembo e-naslova potrdi s povezavo, poslano na tvoj trenutni naslov.",
+      "emailConfirmationSent": "Povezavo za potrditev smo poslali na tvoj trenutni e-naslov. Sprememba bo veljala po potrditvi.",
+      "generic": "Nekaj je šlo narobe. Poskusi znova.",
+      "tooManyAttempts": "Preveč napačnih poskusov. Poskusi znova čez 15 minut."
+    },
+    "recovery": {
+      "title": "Preveri svojo e-pošto",
+      "description": "Poslali smo ti povezavo za spremembo gesla. Po spremembi te bomo odjavili z vseh naprav.",
+      "sendFailed": "Napaka pri pošiljanju povezave. Poskusi znova."
+    },
+    "linked": {
+      "label": "Povezani računi",
+      "hint": "Poveži račun Google ali Facebook za hitrejšo prijavo.",
+      "link": "Poveži",
+      "unlink": "Prekini povezavo",
+      "linkFailed": "Napaka pri povezovanju računa.",
+      "unlinkFailed": "Napaka pri prekinitvi povezave z računom.",
+      "unlinked": "Povezava z računom je prekinjena."
+    },
+    "actions": {
+      "revokeLabel": "Odjava z drugih naprav",
+      "revokeDescription": "Zapri vse aktivne prijave razen trenutne.",
+      "revokeButton": "Odjavi",
+      "deleteLabel": "Izbriši račun",
+      "deleteDescription": "Trajno izbriše tvoj račun in vse povezane podatke.",
+      "deleteButton": "Izbriši",
+      "revokeDialogTitle": "Odjaviti z drugih naprav?",
+      "revokeDialogDescription": "Vse aktivne prijave razen trenutne bodo zaprte.",
+      "deleteDialogTitle": "Izbrisati račun?",
+      "deleteDialogDescription": "Tvoj račun in vsi povezani podatki bodo nepovratno izbrisani.",
+      "revokeFailed": "Napaka pri odjavi z drugih naprav.",
+      "revoked": "Vse druge naprave so odjavljene.",
+      "deleted": "Tvoj račun je izbrisan.",
+      "deleteFailed": "Napaka pri brisanju računa. Poskusi znova."
+    }
+  }
+}

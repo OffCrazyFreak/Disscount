@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "title": "Statistika",
+    "description": "Pregled statistike trgovačkih lanaca."
+  },
+  "page": {
+    "title": "Statistika",
+    "subtitle": "Pregled statistike trgovačkih lanaca."
+  },
+  "health": {
+    "checking": "Provjera stanja...",
+    "error": "❌ Greška pri provjeri dostupnosti API-ja",
+    "available": "✅ API za cijene je dostupan",
+    "unavailable": "❌ API za cijene nije dostupan"
+  },
+  "chains": {
+    "title": "Statistike po trgovinama",
+    "loading": "Učitavanje...",
+    "empty": "Nema podataka"
+  },
+  "storeItem": {
+    "storeCount": "{count, plural, one {# trgovina} few {# trgovine} other {# trgovina}}",
+    "priceCount": "{count, plural, one {# cijena} few {# cijene} other {# cijena}}",
+    "loadingStores": "Učitavanje trgovina...",
+    "city": "Grad",
+    "address": "Adresa",
+    "unknown": "Nepoznato",
+    "noStores": "Nema podataka o trgovinama"
+  }
+}

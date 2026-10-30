@@ -1,0 +1,27 @@
+{
+  "kind": "health",
+  "runtime_coverage_findings": [],
+  "target_keys": [
+    "src/lib/api/store-directory/index.ts:dead code",
+    "src/lib/modal/modal-registry.ts:high impact",
+    "src/lib/api/contact/index.ts:dead code",
+    "src/components/ui/field.tsx:dead code",
+    "src/lib/api/admin/index.ts:dead code",
+    "src/lib/api/preferences/index.ts:dead code",
+    "src/lib/api/watchlist/index.ts:dead code",
+    "src/lib/api/problem-details.ts:high impact",
+    "src/lib/api/users/index.ts:dead code",
+    "src/app/[locale]/(user)/digital-cards/components/forms/digital-card-modal.tsx:complexity",
+    "src/utils/search/match.ts:dead code",
+    "src/app/[locale]/(user)/shopping-lists/components/forms/shopping-list-modal.tsx:complexity",
+    "src/app/[locale]/(user)/digital-cards/components/digital-cards-client.tsx:complexity",
+    "src/lib/store-locations/croatia-bounds.ts:high impact",
+    "src/components/ui/button.tsx:complexity",
+    "src/app/[locale]/(user)/digital-cards/components/card-code.tsx:complexity",
+    "src/components/custom/settings/security/hooks/use-credentials-submit.ts:complexity",
+    "src/i18n/locale-path.ts:high impact",
+    "src/app/[locale]/products/components/products-client.tsx:complexity",
+    "src/app/[locale]/products/typings/watchlist-form.ts:circular dependency",
+    "src/app/[locale]/products/utils/watchlist-thresholds.ts:circular dependency"
+  ]
+}

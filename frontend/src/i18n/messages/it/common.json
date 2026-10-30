@@ -1,0 +1,167 @@
+{
+  "notFound": {
+    "meta": {
+      "title": "404: pagina non trovata",
+      "description": "La pagina che cerchi non esiste."
+    },
+    "heading": "Hmm… che imbarazzo. 😅",
+    "description": "Sembra che la pagina <path></path> non esista.",
+    "hint": "Torniamo insieme alla home, oppure segnala un errore!",
+    "backHome": "Torna alla home"
+  },
+  "offline": {
+    "meta": {
+      "title": "Nessuna connessione a internet",
+      "description": "Al momento sei offline."
+    },
+    "title": "Nessuna connessione a internet 📡",
+    "description": "Al momento sei offline. Le liste salvate, i prodotti seguiti e quelli visti di recente restano disponibili.",
+    "hint": "Controlla la connessione e riprova.",
+    "retry": "Riprova",
+    "indicator": "Offline: stai vedendo i dati salvati.",
+    "indicatorPending": "Offline: le modifiche salvate ({count}) verranno sincronizzate più tardi."
+  },
+  "lastSynced": {
+    "refreshed": "Aggiornato {time}"
+  },
+  "collapsibleSection": {
+    "hide": "Nascondi",
+    "show": "Mostra"
+  },
+  "comingSoon": {
+    "badge": "PRESTO",
+    "description": "Questa funzione è in lavorazione e arriverà presto.",
+    "notifyMe": "Avvisami"
+  },
+  "copyButton": {
+    "error": "Non siamo riusciti a copiare"
+  },
+  "footer": {
+    "copyright": "© {year} Jakov Jakovac",
+    "comingSoonLabel": "{label} (presto)",
+    "comingSoonTitle": "Presto"
+  },
+  "inboxNotice": {
+    "spamHint": "Controlla anche la cartella spam."
+  },
+  "loginRequired": {
+    "description": "Per usare questa funzione devi accedere.",
+    "action": "Accedi"
+  },
+  "noResults": {
+    "title": "Nessun risultato",
+    "description": "Prova con un altro termine di ricerca"
+  },
+  "oauthError": {
+    "emailNotFound": "Il tuo account Facebook non ha condiviso l'indirizzo email. Accedi con l'email o con un account Facebook che ne ha uno.",
+    "emailMismatch": "Non è stato possibile collegare l'account perché usa un altro indirizzo email. Puoi collegare solo account con lo stesso indirizzo email del tuo.",
+    "alreadyLinked": "Questo account è già collegato a un altro account Disscount. Non puoi collegarlo a questo.",
+    "notLinked": "Questo accesso non può essere collegato automaticamente a un account esistente. Accedi con il metodo che usi di solito, poi collega l'account nelle impostazioni di sicurezza.",
+    "restart": "La procedura di accesso è scaduta o è stata interrotta. Riprova.",
+    "default": "Qualcosa è andato storto durante l'accesso. Riprova."
+  },
+  "userAvatar": {
+    "alt": "Foto profilo"
+  },
+  "contact": {
+    "channels": {
+      "intro": "Scrivici con il modulo qui sotto, direttamente a <email></email> o su <linkedin>LinkedIn</linkedin>.",
+      "copyEmailLabel": "Copia indirizzo email",
+      "copyEmailSuccess": "Indirizzo email copiato!",
+      "copyEmailError": "Non siamo riusciti a copiare l'email",
+      "suggestIdea": "Proponi un'idea",
+      "openSuggestions": "Apri Idee e suggerimenti",
+      "reportBug": "Segnala un errore",
+      "openBugReport": "Apri la segnalazione di un errore"
+    },
+    "form": {
+      "email": "Email",
+      "emailPlaceholder": "tua@email.com",
+      "fullName": "Nome e cognome",
+      "fullNamePlaceholder": "Il tuo nome",
+      "subject": "Oggetto",
+      "subjectPlaceholder": "Es. Una domanda su Disscount",
+      "message": "Messaggio",
+      "messagePlaceholder": "Scrivici come possiamo aiutarti...",
+      "charactersLeft": "{count, plural, one {# carattere rimasto} other {# caratteri rimasti}}"
+    },
+    "modal": {
+      "title": "Scrivici",
+      "description": "Scrivici con il modulo qui sotto o contattaci direttamente.",
+      "submit": "Invia messaggio",
+      "cancel": "Annulla",
+      "reset": "Reimposta",
+      "sent": "Messaggio inviato. Grazie per averci scritto!",
+      "sentWithEmail": "Messaggio inviato. Grazie per averci scritto! Se serve, ti rispondiamo all'indirizzo email che hai inserito.",
+      "sourceAvailable": "Disscount è source-available. <link>Guarda il progetto su GitHub</link>."
+    }
+  },
+  "donation": {
+    "title": "Sostieni Disscount",
+    "intro": "Disscount è gratuito e resterà così. Se ti aiuta a organizzare la spesa, o in qualsiasi altro modo, ogni sostegno volontario conta molto per noi.",
+    "usage": "Tutto torna direttamente in Disscount, per coprire la manutenzione e lo sviluppo futuro!",
+    "kofi": "Sostieni su Ko-fi"
+  },
+  "forgotPassword": {
+    "link": "Password dimenticata?",
+    "sending": "Invio..."
+  },
+  "multiSelect": {
+    "optionsList": "Elenco delle opzioni",
+    "selectAll": "Seleziona tutto",
+    "clearAll": "Rimuovi tutto",
+    "selected": "Selezionati: {count}"
+  },
+  "passwordInput": {
+    "show": "Mostra password",
+    "hide": "Nascondi password"
+  },
+  "stepper": {
+    "increase": "Aumenta di {amount, number}",
+    "decrease": "Diminuisci di {amount, number}"
+  },
+  "notifications": {
+    "label": "Notifiche",
+    "labelWithCount": "Notifiche ({count})",
+    "loading": "Caricamento...",
+    "emptyWatching": "Oggi nessuno sconto sui prodotti che segui.",
+    "emptyNotWatching": "Segui dei prodotti: ti avvisiamo quando vanno in offerta nei tuoi negozi!",
+    "addProducts": "Aggiungi prodotti",
+    "totalSavings": "Risparmio totale oggi:",
+    "savingsDetail": "(≥ {amount} su {count, plural, one {# prodotto} other {# prodotti}})"
+  },
+  "install": {
+    "actionDesktop": "Installa l'app",
+    "actionMobile": "Aggiungi alla schermata Home",
+    "pitchDesktop": "Installa Disscount per aprirlo più in fretta.",
+    "pitchMobile": "Aggiungi Disscount alla schermata Home per aprirlo più in fretta.",
+    "close": "Chiudi",
+    "unsupportedTitle": "Questo browser non supporta l'installazione",
+    "unsupportedText": "Apri Disscount in un altro browser, ad esempio Google Chrome, per aggiungerlo al dispositivo.",
+    "perkTitle": "Installa come app",
+    "perkDesktop": "Niente download da uno store: installa Disscount direttamente dal browser.",
+    "perkMobile": "Niente download da uno store: aggiungi Disscount alla schermata Home direttamente dal browser.",
+    "sheetDescriptionDesktop": "Installa Disscount sul computer in pochi passaggi.",
+    "sheetDescriptionMobile": "Aggiungi Disscount alla schermata Home in pochi passaggi.",
+    "steps": {
+      "iosMenu": "Tocca <ellipsis></ellipsis> accanto alla barra degli indirizzi, poi <share></share> <b>Condividi</b>. Sugli iPhone meno recenti <b>Condividi</b> è direttamente nella barra degli strumenti.",
+      "iosAdd": "Scorri il menu verso il basso e scegli <plus></plus> <b>Aggiungi alla schermata Home</b>.",
+      "confirmAdd": "Conferma con <b>Aggiungi</b>.",
+      "macFile": "Apri il menu <b>File</b> nella barra dei menu in alto.",
+      "macDock": "Scegli <dock></dock> <b>Aggiungi al Dock</b>.",
+      "androidMenu": "Tocca <vdots></vdots> per aprire il menu del browser.",
+      "androidChoose": "Scegli <download></download> <b>Installa app</b> o <b>Aggiungi alla schermata Home</b>, a seconda del browser.",
+      "confirmInstall": "Conferma con <b>Installa</b>.",
+      "desktopIcon": "Fai clic sull'icona <monitor></monitor> a destra della barra degli indirizzi.",
+      "desktopMenu": "Se non vedi l'icona, apri il menu <vdots></vdots> e scegli <b>Trasmetti, salva e condividi</b> › <b>Installa pagina come app</b>."
+    }
+  },
+  "validation": {
+    "emailInvalid": "Email non valida",
+    "fullNameMax": "Il nome può avere al massimo 255 caratteri",
+    "subjectRequired": "L'oggetto è obbligatorio",
+    "subjectMax": "L'oggetto può avere al massimo 255 caratteri",
+    "messageRequired": "Il messaggio è obbligatorio",
+    "messageMax": "Il messaggio può avere al massimo 5000 caratteri"
+  }
+}

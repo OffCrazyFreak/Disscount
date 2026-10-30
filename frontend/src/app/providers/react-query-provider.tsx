@@ -3,12 +3,15 @@
 import { QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   persistOptions,
   OFFLINE_CACHE_MAX_AGE_MS,
 } from "@/lib/offline/persister";
+import { bindLastUsedQueryClient } from "@/lib/api/digital-cards/last-used";
+import { replayCardPhotoOutbox } from "@/lib/offline/card-photo-outbox";
 import { registerOfflineMutationDefaults } from "@/lib/offline/offline-mutations";
 
 interface IReactQueryProviderWrapperProps {
@@ -18,6 +21,9 @@ interface IReactQueryProviderWrapperProps {
 export default function ReactQueryProviderWrapper({
   children,
 }: IReactQueryProviderWrapperProps) {
+  const t = useTranslations("ui");
+  const tCards = useTranslations("digitalCards");
+
   // keep QueryClient stable across re-renders
   const [queryClient] = useState(() => {
     const client = new QueryClient({
@@ -32,10 +38,31 @@ export default function ReactQueryProviderWrapper({
     });
 
     // Register replay functions so offline writes restored from disk can resume.
-    registerOfflineMutationDefaults(client);
+    registerOfflineMutationDefaults(client, t, tCards);
 
     return client;
   });
+
+  // A language switch keeps this provider mounted, so re-register the defaults to
+  // give replay toasts the new language.
+  useEffect(() => {
+    registerOfflineMutationDefaults(queryClient, t, tCards);
+  }, [queryClient, t, tCards]);
+
+  useEffect(() => {
+    bindLastUsedQueryClient(queryClient);
+
+    // Photos go after paused card saves, or an upload for a card the server has not
+    // seen yet answers 404 and is dropped.
+    function replayWrites() {
+      void queryClient
+        .resumePausedMutations()
+        .then(() => replayCardPhotoOutbox(queryClient, tCards));
+    }
+
+    window.addEventListener("online", replayWrites);
+    return () => window.removeEventListener("online", replayWrites);
+  }, [queryClient, tCards]);
 
   return (
     <PersistQueryClientProvider
@@ -43,7 +70,9 @@ export default function ReactQueryProviderWrapper({
       persistOptions={persistOptions}
       // Once the cache is restored, replay any writes that were queued offline.
       onSuccess={() => {
-        queryClient.resumePausedMutations();
+        void queryClient
+          .resumePausedMutations()
+          .then(() => replayCardPhotoOutbox(queryClient, tCards));
       }}
     >
       {children}

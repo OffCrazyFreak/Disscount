@@ -1,4 +1,5 @@
 import { CircleCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,8 @@ const variantStyles: Record<LastLoginVariant, string> = {
 export default function LastLoginBadge({
   variant = "solid",
 }: ILastLoginBadgeProps) {
+  const t = useTranslations("auth");
+
   return (
     <Badge
       className={cn(
@@ -25,7 +28,7 @@ export default function LastLoginBadge({
       )}
     >
       <CircleCheck size={12} />
-      Zadnja prijava
+      {t("lastLogin")}
     </Badge>
   );
 }

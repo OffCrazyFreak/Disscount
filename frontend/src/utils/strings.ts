@@ -1,6 +1,7 @@
 // Utility helpers used across the app
 
 import { parseServerDate } from "@/utils/date";
+import { formatLocale, TIME_ZONE } from "@/i18n/formatting";
 
 /**
  * Normalize strings for search: remove diacritics and apply language-specific replacements.
@@ -36,47 +37,59 @@ export function normalizeForSearch(s: string) {
   }
 }
 
-/**
- * Format an ISO date string (or any parsable date) to DD.MM.YYYY.
- * Falls back to the original input when the date is invalid.
- */
-export function formatDate(dateString?: string | null) {
-  if (!dateString) return "";
-  try {
-    const d = parseServerDate(dateString);
-    if (Number.isNaN(d.getTime())) return dateString;
+const dateFormatters = new Map<string, Intl.DateTimeFormat>();
 
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const year = d.getFullYear();
+function dateFormatter(locale: string, withTime: boolean) {
+  const key = `${locale}:${withTime}`;
+  let formatter = dateFormatters.get(key);
 
-    return `${day}.${month}.${year}.`;
-  } catch {
-    return String(dateString);
+  if (!formatter) {
+    // 12/10/2026 means two different days to British and American readers, so
+    // English spells the month out (12 Oct 2026); the others read numerals one way.
+    const spelledMonth = locale === "en";
+    formatter = new Intl.DateTimeFormat(formatLocale(locale), {
+      day: spelledMonth ? "numeric" : "2-digit",
+      month: spelledMonth ? "short" : "2-digit",
+      year: "numeric",
+      ...(withTime && { hour: "2-digit", minute: "2-digit" }),
+      timeZone: TIME_ZONE,
+    });
+    dateFormatters.set(key, formatter);
   }
+
+  return formatter;
 }
 
-/**
- * Format an ISO date string to DD.MM.YYYY. HH:MM.
- * Falls back to the original input when the date is invalid.
- */
-export function formatDateTime(dateString?: string | null) {
+function formatServerDate(
+  dateString: string | null | undefined,
+  locale: string,
+  withTime: boolean,
+) {
   if (!dateString) return "";
 
   const d = parseServerDate(dateString);
   if (Number.isNaN(d.getTime())) return dateString;
 
-  const hours = String(d.getHours()).padStart(2, "0");
-  const minutes = String(d.getMinutes()).padStart(2, "0");
-
-  return `${formatDate(dateString)} ${hours}:${minutes}`;
+  return dateFormatter(locale, withTime).format(d);
 }
 
 /**
- * Convert a string to PascalCase.
+ * Format an ISO date string (or any parsable date) as a date in the locale's style,
+ * in Croatian time. Falls back to the original input when the date is invalid.
  */
-export function toPascalCase(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+export function formatDate(
+  dateString: string | null | undefined,
+  locale: string,
+) {
+  return formatServerDate(dateString, locale, false);
+}
+
+/** Same as formatDate, with hours and minutes. */
+export function formatDateTime(
+  dateString: string | null | undefined,
+  locale: string,
+) {
+  return formatServerDate(dateString, locale, true);
 }
 
 /**
@@ -90,37 +103,6 @@ export function formatQuantity(q?: string | null): string | null {
     return trimmed;
   }
   return q;
-}
-
-/**
- * Pluralize a Croatian noun. The language has three forms, not two: 1 stavka,
- * 2 to 4 stavke, 5 and up stavki, with 11 to 14 taking the last form despite
- * ending in 1 to 4.
- *
- * `many` defaults to `one` because for many feminine nouns the genitive plural
- * happens to match the nominative singular (1 cijena, 5 cijena). That is a
- * coincidence of those words, not a rule, so pass the third form explicitly for
- * anything where it differs.
- *
- * @param n the count
- * @param one form for 1, 21, 31 (e.g. "stavka")
- * @param few form for 2 to 4, 22 to 24 (e.g. "stavke")
- * @param many form for 0 and 5 and up (e.g. "stavki")
- */
-export function pluralizeCroatian(
-  n: number,
-  one: string,
-  few: string,
-  many: string = one,
-): string {
-  const last = n % 10;
-  const lastTwo = n % 100;
-
-  if (lastTwo >= 11 && lastTwo <= 14) return many;
-  if (last === 1) return one;
-  if (last >= 2 && last <= 4) return few;
-
-  return many;
 }
 
 /**

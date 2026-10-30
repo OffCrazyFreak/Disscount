@@ -71,7 +71,7 @@ The important idea, and the one that took two wrong attempts to get right: **fol
 1. **Fold both sides.** `normalizeForSearch` lowercases, strips combining marks, and maps the letters that are not decompositions (`đ` to `d`, `ß` to `ss`, the German umlauts).
 2. **Require every token.** Each whitespace-separated word of the query must appear in at least one field, so `bas put` still finds `Baška Krivi Put`.
 3. **Score by where the whole query sits.** The tier ladder, best first: exact, prefix, word-prefix, contains.
-4. **Fall back to sub-sequence matching** when nothing literal hit, so the letters of `vgorica` can be found in order across `Velika Gorica`.
+4. **Fall back to sub-sequence matching** when nothing literal hit, so the letters of `vgorica` can be found in order across `Velika Gorica`, but only above a density floor: the query must account for at least `MIN_DENSITY` (0.15) of the haystack. Without it the fallback is a coincidence detector rather than a search, since the letters of any query appear in order somewhere inside any paragraph of Croatian prose. An abbreviation is dense (`vgorica` is more than half of `velika gorica`); eight letters scattered through 600 characters are not.
 
 The score bands are kept disjoint on purpose, so a weaker kind of match can never outrank a stronger one:
 
@@ -89,7 +89,7 @@ Inside a tier, an earlier match position wins, but never by enough to reach the 
 
 Ranking is a **priority list, not one arithmetic score**. `chainComparators` runs comparators in order and takes the first non-zero verdict.
 
-Product search is the worked example (`app/products/utils/product-relevance.ts`):
+Product search is the worked example (`app/[locale]/products/utils/product-relevance.ts`):
 
 ```ts
 chainComparators(
@@ -113,37 +113,40 @@ Calling `localeCompare` with no locale collates them as plain `c`, `s`, `z`, whi
 
 ## 7. Every surface that consumes it
 
-| Surface                                                | Where                                                            | Fields searched                     |
-| ------------------------------------------------------ | ---------------------------------------------------------------- | ----------------------------------- |
-| Products facets: Trgovine, Lokacije, Kategorije, Marka | `app/products/components/facet-multi-select.tsx`                 | option label via `keywords`         |
-| Pinned places (settings)                               | `components/custom/settings/components/pinned-places-select.tsx` | place name                          |
-| Store-chain picker (price history)                     | `components/custom/store-chain/store-chain-multi-select.tsx`     | chain label via `keywords`          |
-| Add to shopping list                                   | `app/products/components/forms/shopping-list-selector.tsx`       | list title via `keywords`           |
-| Updates / blog                                         | `app/updates/page.tsx`                                           | title, excerpt, content             |
-| Suggestions                                            | `app/suggestions/components/suggestions-client.tsx`              | suggestion fields                   |
-| Digital cards                                          | `app/(user)/digital-cards/components/digital-cards-client.tsx`   | title, type, note                   |
-| Shopping lists index                                   | `app/(user)/shopping-lists/components/shopping-lists-client.tsx` | title                               |
-| Watchlist                                              | `app/(user)/watchlist/hooks/use-watchlist-data.ts`               | product name, brand                 |
-| Watchlist suggestions                                  | `app/(user)/watchlist/hooks/use-watchlist-suggestions.ts`        | product name, brand                 |
-| Admin contact inbox                                    | `app/dashboard/components/admin-contact-table.tsx`               | name, email, subject, message       |
-| Products text search                                   | `app/products/hooks/use-infinite-products.ts`                    | server-side, then re-ranked locally |
+| Surface                                                | Where                                                                     | Fields searched                                                                                          |
+| ------------------------------------------------------ | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Products facets: Trgovine, Lokacije, Kategorije, Marka | `app/[locale]/products/components/facet-multi-select.tsx`                 | option label via `keywords`                                                                              |
+| Pinned places (settings)                               | `components/custom/settings/components/pinned-places-select.tsx`          | place name                                                                                               |
+| Store-chain picker (price history, map chain filter)   | `components/custom/store-chain/store-chain-multi-select.tsx`              | chain label via `keywords`                                                                               |
+| Add to shopping list                                   | `app/[locale]/products/components/forms/shopping-list-selector.tsx`       | list title via `keywords`                                                                                |
+| Updates / blog                                         | `app/[locale]/updates/page.tsx`                                           | title, excerpt, content                                                                                  |
+| Suggestions                                            | `app/[locale]/suggestions/components/suggestions-client.tsx`              | suggestion fields                                                                                        |
+| Digital cards                                          | `app/[locale]/(user)/digital-cards/utils/card-sorting.ts` (`filterCards`) | card name, store name, note (never the card number)                                                      |
+| Digital card store field                               | `app/[locale]/(user)/digital-cards/hooks/use-store-options.ts`            | chain label and community names, folded with `normalizeForSearch` (the Autocomplete's own filter is off) |
+| Shopping lists index                                   | `app/[locale]/(user)/shopping-lists/components/shopping-lists-client.tsx` | title                                                                                                    |
+| Watchlist                                              | `app/[locale]/(user)/watchlist/hooks/use-watchlist-data.ts`               | product name, brand                                                                                      |
+| Watchlist suggestions                                  | `app/[locale]/(user)/watchlist/hooks/use-watchlist-suggestions.ts`        | product name, brand                                                                                      |
+| Admin contact inbox                                    | `app/[locale]/dashboard/components/admin-contact-table.tsx`               | name, email, subject, message                                                                            |
+| Products text search                                   | `app/[locale]/products/hooks/use-infinite-products.ts`                    | server-side, then re-ranked locally                                                                      |
+
+Every multiselect also offers "Odaberi sve" and "Ukloni sve" above its list (`components/custom/form/multi-select-bulk-actions.tsx`). With a search typed, "Odaberi sve" takes only the options this same matcher keeps, skipping disabled ones; "Ukloni sve" always clears everything.
 
 The seven `filterByFields` callers gained tokenized, ranked, abbreviation-tolerant search **without any call-site change**, because its signature did not move.
 
 ## 8. Key files
 
-| Path                                      | Role                                                                  |
-| ----------------------------------------- | --------------------------------------------------------------------- |
-| `utils/search/normalize.ts`               | `normalizeCached` (memoized fold) and `prepareQuery` (one-entry memo) |
-| `utils/search/fuzzy.ts`                   | `subsequenceScore`, the abbreviation matcher                          |
-| `utils/search/match.ts`                   | `MATCH_TIER`, `findWholeQuery`, `scoreFields`                         |
-| `utils/search/rank.ts`                    | `chainComparators`, `byAsc`, `byDesc`                                 |
-| `utils/search/command-filter.ts`          | `commandFilter`, the cmdk adapter                                     |
-| `utils/strings.ts`                        | `normalizeForSearch` (the fold) and `compareHr` (the sort)            |
-| `utils/generic.ts`                        | `filterByFields`, now a thin wrapper over `scoreFields`               |
-| `utils/pinned-stores.ts`                  | `chainMatchesPinnedStore`, `isPinnedChain`                            |
-| `app/products/utils/product-relevance.ts` | product ranking, composed from `rank.ts`                              |
-| `app/products/utils/product-filters.ts`   | `normalizeChainCode`, the code-only normalizer                        |
+| Path                                               | Role                                                                  |
+| -------------------------------------------------- | --------------------------------------------------------------------- |
+| `utils/search/normalize.ts`                        | `normalizeCached` (memoized fold) and `prepareQuery` (one-entry memo) |
+| `utils/search/fuzzy.ts`                            | `subsequenceScore`, the abbreviation matcher                          |
+| `utils/search/match.ts`                            | `MATCH_TIER`, `findWholeQuery`, `scoreFields`                         |
+| `utils/search/rank.ts`                             | `chainComparators`, `byAsc`, `byDesc`                                 |
+| `utils/search/command-filter.ts`                   | `commandFilter`, the cmdk adapter                                     |
+| `utils/strings.ts`                                 | `normalizeForSearch` (the fold) and `compareHr` (the sort)            |
+| `utils/generic.ts`                                 | `filterByFields`, now a thin wrapper over `scoreFields`               |
+| `utils/pinned-stores.ts`                           | `chainMatchesPinnedStore`, `isPinnedChain`                            |
+| `app/[locale]/products/utils/product-relevance.ts` | product ranking, composed from `rank.ts`                              |
+| `app/[locale]/products/utils/product-filters.ts`   | `normalizeChainCode`, the code-only normalizer                        |
 
 **Libraries: none.** Matching is entirely in-repo. cmdk `^1.1.1` supplies the combobox, but its own `command-score` filter is replaced by `commandFilter`.
 
@@ -151,7 +154,7 @@ The seven `filterByFields` callers gained tokenized, ranked, abbreviation-tolera
 
 Worth stating plainly, because it is easy to assume otherwise.
 
-Across all ten Spring controllers the only query parameters are `includeDeleted` on the admin contact list and a `Pageable` on notifications. There is **no** `LIKE`, no `ILIKE`, no `tsvector`, no `pg_trgm`, no derived `Containing` method, and no pagination anywhere else.
+Across all eleven Spring controllers the only query parameters are `includeDeleted` on the admin contact list and a `Pageable` on notifications. There is **no** `LIKE`, no `ILIKE`, no `tsvector`, no `pg_trgm`, no derived `Containing` method, and no pagination anywhere else.
 
 So every "search" outside products is the browser filtering an array it already downloaded. That is fine at the current sizes and would not be at ten thousand rows.
 
@@ -168,13 +171,19 @@ Also note **email is not on the JPA `User` entity**; it lives in better-auth's o
 
 **cmdk scores the item's `value`, not just what you see.** Where the value is a code or a UUID, that produces hits with nothing visible to explain them. Pass the label as `keywords` and `commandFilter` will search those instead of the value.
 
+**A containment test on a short string means nothing.** `chainMatchesPinnedStore` requires `MIN_CONTAINMENT_LENGTH` (3) on both sides before falling back to `includes`, because a store pinned as "K plus" normalizes to `k`, which sits inside konzum, kaufland and ktc alike. Exact equality is still checked first, so a genuinely short code is unaffected.
+
+**The prepared query is shared, so it is frozen.** `prepareQuery` memoizes one entry, and that object is handed to every caller in the process, module state included on the server. It is `Object.freeze`d rather than copied, so a caller that sorted or pushed to `tokens` cannot corrupt the query for whoever holds it next.
+
+**The normalize cache evicts, it does not clear.** `normalizeCached` is bounded at 8192 entries and drops the oldest half when it fills, because products are scored through it too and a loaded list holds thousands of distinct names. A wholesale clear mid-pass would leave the rest of that same pass missing every lookup.
+
 **Normalize both sides of every comparison, or neither.** `resolveAllowedChains` filtered raw selections against a set built with `normalizeChainCode`, so a chain whose casing came from a hand-edited URL silently vanished from the filter with no sign anything had been dropped.
 
 **Chain codes are normalized differently from prose, on purpose.** `normalizeChainCode` trims and lowercases but does **not** fold diacritics, because codes are identifiers and folding could collide two distinct ones. `normalizeForSearch` folds. Do not "unify" them.
 
 **`normalizeForSearch` is an identity key, not only a search helper.** Twelve files use its output to key maps for facet counting and dedupe. Changing what it returns would silently change facet counts, which is why the memoized wrapper returns exactly the same string.
 
-**Do not put a React library in the shared matcher.** `filterByFields` is imported by `app/updates/page.tsx`, which is a server component. That is why `subsequenceScore` is hand-written instead of borrowing cmdk's `command-score`.
+**Do not put a React library in the shared matcher.** `filterByFields` is imported by `app/[locale]/updates/page.tsx`, which is a server component. That is why `subsequenceScore` is hand-written instead of borrowing cmdk's `command-score`.
 
 **Ranking gets discarded in two places.** `use-watchlist-suggestions.ts` re-sorts by occurrence and discount after filtering, so relevance order is thrown away there. That is intentional, but worth knowing before debugging why an obvious match is not first.
 
@@ -185,7 +194,7 @@ Also note **email is not on the JPA `User` entity**; it lives in better-auth's o
 - **Sorting rework** (in sprint on the roadmap). The comparator layer in `rank.ts` exists for this. The item asks for sort-by controls on products, the watchlist and shopping lists, with the default product order being match ranking, then popularity, then chain count, then location count. The first three terms are already expressible; **popularity does not exist yet** and needs a backend counter over watchlists and shopping lists, deduplicated per user so one person cannot inflate it.
 - **Server-side search and pagination.** Nothing exists. See [§9](#9-the-backend-has-no-search) for the portability notes. This becomes urgent the moment the admin panel grows past its two current tabs.
 - **`GET /api/admin/users` is unbounded** and WAU/MAU is counted client-side over every user row, which structurally prevents ever paginating that endpoint. Recorded here rather than fixed.
-- **The admin contact inbox silently truncates at 500.** Rows past it are unreachable and unsearchable, with no indication in the UI.
-- **`components/ui/chart.tsx` sorts labels with a locale-less `localeCompare`**, so Croatian diacritics collate wrongly in chart tooltips. Not fixed because it is shadcn output, which `AGENTS.md` forbids hand-editing.
+- **The admin contact inbox silently truncates at 500.** The cap is server-side, `MAX_ADMIN_MESSAGES` in `ContactMessageService`, so rows past it never reach the browser and are unreachable and unsearchable, with no indication in the UI.
+- **`components/ui/chart.tsx` sorts labels with a locale-less `localeCompare`**, so Croatian diacritics collate wrongly in chart tooltips. It is shadcn output, but `AGENTS.md` allows editing that folder where the primitive is the natural home for the change, and a comparator the whole app needs in Croatian qualifies. Swapping it for `compareHr` is a one-line fix nobody has taken.
 - **Two surfaces have a search box that matches nothing.** The map page renders one as a stub, and `sidebar-filter-menu.tsx` lists several hundred options with no filter box at all. Both are obvious consumers for this system.
 - **Consider a library only if a surface really holds 10k+ rows client-side.** None does today. If one ever does, `MiniSearch` (7kB, zero dependencies, a `processTerm` hook that takes `normalizeForSearch` directly) is the closest fit; `uFuzzy` is faster and smaller but has a much smaller user base.

@@ -19,25 +19,27 @@ FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Public build args — REAL values, inlined into the client bundle at build time.
+# Public build args: REAL values, inlined into the client bundle at build time.
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_APP_URL
 ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID
 ARG NEXT_PUBLIC_UMAMI_WEBSITE_ID
 ARG NEXT_PUBLIC_ENABLE_REACT_SCAN
 ARG NEXT_PUBLIC_SENTRY_DSN
+ARG SENTRY_ENVIRONMENT
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
     NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL \
     NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID \
     NEXT_PUBLIC_UMAMI_WEBSITE_ID=$NEXT_PUBLIC_UMAMI_WEBSITE_ID \
     NEXT_PUBLIC_ENABLE_REACT_SCAN=$NEXT_PUBLIC_ENABLE_REACT_SCAN \
-    NEXT_PUBLIC_SENTRY_DSN=$NEXT_PUBLIC_SENTRY_DSN
+    NEXT_PUBLIC_SENTRY_DSN=$NEXT_PUBLIC_SENTRY_DSN \
+    SENTRY_ENVIRONMENT=$SENTRY_ENVIRONMENT
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Placeholder SERVER env, scoped to the build command only (not persisted as image
 # metadata). They satisfy modules that requireEnv() at import time; none are NEXT_PUBLIC,
-# so nothing is baked into the output — real values come from the container at runtime.
+# so nothing is baked into the output, and real values come from the container at runtime.
 # (No SENTRY_AUTH_TOKEN is set, so source maps are not uploaded during the image build.)
 RUN BETTER_AUTH_URL=http://localhost:3000 \
     BETTER_AUTH_SECRET=build-time-placeholder \

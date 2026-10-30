@@ -27,7 +27,7 @@ public class WatchlistItem {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @NotBlank(message = "Product API ID is required")
+    @NotBlank(message = "{validation.productApiId.required}")
     @Column(name = "product_api_id", nullable = false)
     private String productApiId;
 

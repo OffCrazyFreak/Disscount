@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "title": "Karte der Märkte",
+    "description": "Finde Märkte auf der Karte: Konzum, Lidl, Kaufland, Spar, Plodine, Tommy, Studenac und 20 weitere Händler in ganz Kroatien. Suche nach Ort oder Adresse und finde den nächsten."
+  },
+  "heading": "Karte der Märkte",
+  "search": {
+    "placeholder": "Händler, Ort oder Adresse..."
+  },
+  "layout": {
+    "storeList": "Liste der Märkte",
+    "stores": "Märkte",
+    "backToMap": "Zurück zur Karte"
+  },
+  "load": {
+    "error": "Die Märkte können gerade nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "loading": "Märkte werden geladen..."
+  },
+  "unavailable": {
+    "browser": "Dein Browser kann die Karte nicht anzeigen. Alle Märkte stehen weiterhin in der Liste.",
+    "style": "Die Karte kann gerade nicht geladen werden. Alle Märkte stehen weiterhin in der Liste.",
+    "contextLost": "Die Karte wurde unterbrochen.",
+    "reload": "Neu laden",
+    "noGpu": "Dein Browser hat die Grafikbeschleunigung abgeschaltet und kann die Karte deshalb nicht anzeigen. Meist hilft es, den Browser neu zu starten. Alle Märkte stehen weiterhin in der Liste."
+  },
+  "chains": {
+    "all": "Alle Händler"
+  },
+  "nearMe": {
+    "locate": "Märkte in meiner Nähe",
+    "clear": "Meinen Standort entfernen",
+    "approximate": "Wir zeigen Märkte nach deinem ungefähren Standort. Schalte den Standort auf deinem Gerät ein, um eine genauere Reihenfolge zu sehen.",
+    "denied": "Der Zugriff auf den Standort ist blockiert. Erlaube ihn in den Browsereinstellungen oder suche nach Ort.",
+    "unavailable": "Dein Standort ist gerade nicht verfügbar. Suche nach Ort oder Adresse.",
+    "timeout": "Dein Standort kann nicht ermittelt werden. Prüfe, ob der Standort auf deinem Gerät eingeschaltet ist, oder suche nach Ort."
+  },
+  "recent": {
+    "label": "Letzte Suchen:",
+    "clear": "Löschen",
+    "clearLabel": "Letzte Suchen löschen"
+  },
+  "count": {
+    "shown": "{count, plural, one {# Markt} other {# Märkte}}",
+    "unplaced": "{shown}, davon {unplaced} ohne Standort auf der Karte. Sie stehen weiterhin in der Liste."
+  },
+  "pan": {
+    "group": "Karte verschieben",
+    "up": "Karte nach oben verschieben",
+    "left": "Karte nach links verschieben",
+    "right": "Karte nach rechts verschieben",
+    "down": "Karte nach unten verschieben"
+  },
+  "list": {
+    "noLocation": "ohne Standort",
+    "onMap": "Auf der Karte · {count, number}",
+    "elsewhere": "Anderswo · {count, number}",
+    "onMapStatus": "{count, plural, one {# Markt} other {# Märkte}} auf der Karte",
+    "update": "Karte verschoben · Liste aktualisieren",
+    "sameSpot": "{count, plural, one {# Markt} other {# Märkte}} an dieser Stelle",
+    "unknownAddress": "Adresse unbekannt",
+    "favorites": "Lieblingsgeschäfte · {count, number}",
+    "others": "Weitere Geschäfte · {count, number}",
+    "distance": "{distance} von dir"
+  },
+  "details": {
+    "notPlaced": "Für diesen Markt haben wir noch keinen genauen Standort, deshalb ist er nicht auf der Karte."
+  },
+  "favorites": {
+    "add": "Zu Favoriten hinzufügen",
+    "remove": "Aus Favoriten entfernen",
+    "limit": "Höchstens {max, number} Lieblingsgeschäfte.",
+    "saveFailed": "Speichern fehlgeschlagen. Versuch es noch einmal."
+  },
+  "actions": {
+    "googleDirections": "Route (Google Maps)",
+    "appleMaps": "Apple Karten",
+    "call": "{phone} anrufen",
+    "share": "Teilen",
+    "copied": "Link kopiert.",
+    "shareFailed": "Teilen hat nicht funktioniert.",
+    "report": "Fehler melden"
+  },
+  "report": {
+    "subject": "Falscher Standort eines Marktes",
+    "message": "Markt: {store} ({id})\n\nWas stimmt nicht: "
+  }
+}

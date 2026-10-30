@@ -1,25 +1,11 @@
-import ActionEmail from "@/emails/components/action-email";
+import SetPasswordEmail from "@/emails/_templates/set-password-email";
+import type { IActionEmailProps } from "@/emails/components/action-email";
+import { previewProps } from "@/emails/_preview/preview-props";
 
-interface ISetPasswordEmailProps {
-  setPasswordUrl: string;
+// Preview-only entry: the send path imports the template from _templates, so the
+// catalogs loaded here never reach production.
+export default function SetPasswordEmailPreview(props: IActionEmailProps) {
+  return <SetPasswordEmail {...props} />;
 }
 
-// For an OAuth-only account adding a password, so it reads "set", not "reset".
-export default function SetPasswordEmail({
-  setPasswordUrl,
-}: ISetPasswordEmailProps) {
-  return (
-    <ActionEmail
-      preview="Postavi lozinku za svoj Disscount račun"
-      heading="Postavi lozinku za svoj račun"
-      intro="Za ovu email adresu već postoji Disscount račun (prijava putem Googlea ili Facebooka). Klikni na gumb ispod za postavljanje lozinke i prijavu emailom ubuduće. Poveznica vrijedi ograničeno vrijeme."
-      buttonLabel="Postavi lozinku"
-      buttonUrl={setPasswordUrl}
-      footnote="Ako ovaj zahtjev ne dolazi od tebe, zanemari ovaj email - tvoj račun ostaje nepromijenjen."
-    />
-  );
-}
-
-SetPasswordEmail.PreviewProps = {
-  setPasswordUrl: "https://disscount.me/reset-password?token=preview",
-} satisfies ISetPasswordEmailProps;
+SetPasswordEmailPreview.PreviewProps = previewProps("setPassword");

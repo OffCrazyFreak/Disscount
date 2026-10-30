@@ -1,0 +1,96 @@
+{
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "products": "Prodotti",
+    "shoppingLists": "Liste della spesa",
+    "shoppingListsShort": "Liste",
+    "shoppingListsShortcut": "Apri le tue liste della spesa",
+    "watchlist": "Prodotti seguiti",
+    "watchlistShort": "Seguiti",
+    "watchlistShortcut": "Guarda i prodotti che segui",
+    "digitalCards": "Carte fedeltà",
+    "digitalCardsShort": "Carte",
+    "digitalCardsShortcut": "Apri le tue carte fedeltà",
+    "spending": "Spese",
+    "spendingShortcut": "Controlla quanto spendi",
+    "discounted": "Offerte",
+    "map": "Mappa",
+    "stores": "Negozi",
+    "locations": "Località",
+    "statistics": "Statistiche",
+    "updates": "Novità",
+    "suggestions": "Idee e suggerimenti",
+    "bugReport": "Segnala un errore",
+    "contact": "Contatti",
+    "donate": "Sostieni Disscount"
+  },
+  "sidebar": {
+    "explore": "Esplora",
+    "myAccount": "Il mio account",
+    "support": "Aiuto e assistenza",
+    "comingSoon": "PRESTO",
+    "toggle": "Apri o chiudi"
+  },
+  "search": {
+    "productsPlaceholder": "Cerca prodotti...",
+    "placeholder": "Cerca...",
+    "submit": "Cerca",
+    "clear": "Cancella ricerca",
+    "scanBarcode": "Scansiona codice a barre",
+    "backToTop": "Torna su"
+  },
+  "header": {
+    "login": "Accedi"
+  },
+  "bottomNav": {
+    "label": "Navigazione principale",
+    "searchClose": "{label}, chiudi",
+    "searchOpen": "{label}, cerca"
+  },
+  "userMenu": {
+    "trigger": "Menu account",
+    "profile": "Profilo",
+    "notifications": "Notifiche",
+    "preferences": "Preferenze",
+    "security": "Sicurezza",
+    "logout": "Esci"
+  },
+  "modalRouter": {
+    "gate": {
+      "addToList": "Accedi per aggiungere prodotti alla lista della spesa.",
+      "watchlist": "Accedi per seguire questo prodotto e ricevere un avviso quando il prezzo scende.",
+      "manageLists": "Accedi per gestire le liste della spesa.",
+      "manageCards": "Accedi per gestire le carte fedeltà.",
+      "settings": "Accedi per aprire le impostazioni.",
+      "onboarding": "Accedi per iniziare."
+    },
+    "deleteList": {
+      "title": "Elimina lista della spesa",
+      "description": "Vuoi davvero eliminare la lista «{title}»? L'azione non si può annullare.",
+      "confirm": "Elimina"
+    }
+  },
+  "modal": {
+    "close": "Chiudi",
+    "unsavedLabel": "Modifiche non salvate",
+    "unsavedHint": "Hai modifiche non salvate. Tocca Salva per tenerle o Reimposta per annullarle."
+  },
+  "loading": {
+    "saving": "Salvataggio...",
+    "creating": "Creazione...",
+    "adding": "Aggiunta...",
+    "updating": "Aggiornamento...",
+    "deleting": "Eliminazione...",
+    "restoring": "Ripristino...",
+    "sending": "Invio...",
+    "copying": "Copia...",
+    "sharing": "Condivisione...",
+    "settingUp": "Configurazione...",
+    "signingIn": "Accesso...",
+    "signingOut": "Uscita...",
+    "registering": "Registrazione...",
+    "linking": "Collegamento...",
+    "unlinking": "Scollegamento..."
+  }
+}

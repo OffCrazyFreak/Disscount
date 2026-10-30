@@ -1,0 +1,219 @@
+{
+  "meta": {
+    "title": "Products",
+    "description": "Browse all products."
+  },
+  "clearFilters": {
+    "label": "Clear filters"
+  },
+  "addToList": {
+    "title": "Add to shopping list",
+    "description": "Choose a list, a quantity and a store.",
+    "submit": "Add",
+    "cancel": "Cancel",
+    "reset": "Reset",
+    "productNotFound": "Product not found.",
+    "removeFromList": "Remove from this list",
+    "duplicateTitle": "Already on your shopping list",
+    "duplicateText": "This product is already on the selected shopping list. Adding it again will raise its quantity from {current} to {next}.",
+    "toast": {
+      "pickList": "Choose or create a shopping list.",
+      "quantityIncreased": "Quantity increased in “{name}”",
+      "added": "Product added to “{name}”",
+      "open": "Open",
+      "fallbackListName": "list",
+      "removed": "Product removed from the list.",
+      "removeFailed": "Couldn't remove the product. Try again."
+    }
+  },
+  "createListOption": {
+    "label": "Create “<name>{title}</name>”"
+  },
+  "markAsChecked": {
+    "label": "Mark product as bought",
+    "description": "You can change this later on the shopping list"
+  },
+  "actionsSheet": {
+    "pricesUnavailableTitle": "Prices unavailable",
+    "pricesUnavailableText": "You can still use the product actions. Try again to see the current price range.",
+    "partialPricesTitle": "Some prices unavailable",
+    "partialPricesText": "The range includes the locations whose prices we could fetch."
+  },
+  "quantity": {
+    "label": "Quantity"
+  },
+  "listSelector": {
+    "label": "Shopping list",
+    "searchPlaceholder": "Search your lists or create a new one...",
+    "empty": "Type a name to create your first shopping list right here.",
+    "existingLists": "Your lists",
+    "newList": "New shopping list",
+    "updatedAt": "({date})",
+    "progress": "{checked}/{total}"
+  },
+  "listTrigger": {
+    "loading": "Loading...",
+    "createNamed": "Create new list “{title}”",
+    "choose": "Choose a list...",
+    "createFirst": "Create your first list here..."
+  },
+  "storeChainField": {
+    "label": "Store"
+  },
+  "watchlistModal": {
+    "title": "Add to Watchlist",
+    "description": "Choose the minimum discount and we'll let you know when it's reached.",
+    "save": "Save",
+    "track": "Add",
+    "cancel": "Cancel",
+    "reset": "Reset",
+    "productNotFound": "Product not found.",
+    "removeFromWatchlist": "Remove from Watchlist",
+    "existingTitle": "Already on your watchlist",
+    "existingBoth": "This product is already on your watchlist with a minimum discount of {percentage}% and of {amount, number, ::currency/EUR}.",
+    "existingPercentage": "This product is already on your watchlist with a minimum discount of {percentage}%.",
+    "existingAbsolute": "This product is already on your watchlist with a minimum discount of {amount, number, ::currency/EUR}.",
+    "toast": {
+      "updated": "Minimum discount updated from {from} to {to}",
+      "added": "Added to your watchlist",
+      "removedPercentage": "Percentage price alert removed",
+      "removedAbsolute": "Price alert removed",
+      "removeFailed": "Couldn't remove the price alert. Try again."
+    }
+  },
+  "threshold": {
+    "labelAbsolute": "Minimum discount (€):",
+    "labelPercentage": "Minimum discount (%):",
+    "loading": "Loading minimum discount",
+    "placeholderAbsolute": "E.g. 12",
+    "placeholderPercentage": "E.g. 15",
+    "willUpdate": "The minimum discount will change from {from} to {to}."
+  },
+  "typePicker": {
+    "label": "Alert me when",
+    "absolute": {
+      "label": "Price drops by €",
+      "description": "Get notified when the price drops by a set amount"
+    },
+    "percentage": {
+      "label": "Discount is at least %",
+      "description": "Get notified when the discount reaches at least a set percentage"
+    }
+  },
+  "actions": {
+    "addToList": "Add to shopping list",
+    "editListEntry": "Edit shopping list entry",
+    "watch": "Add to Watchlist",
+    "editWatch": "Edit price alert",
+    "share": "Share product",
+    "searchImage": "Search product image",
+    "group": "Product actions"
+  },
+  "facets": {
+    "stores": {
+      "label": "Stores",
+      "placeholder": "Choose stores...",
+      "search": "Search stores...",
+      "empty": "No stores"
+    },
+    "locations": {
+      "label": "Locations",
+      "placeholder": "Choose locations...",
+      "search": "Search locations...",
+      "empty": "No locations"
+    },
+    "categories": {
+      "label": "Categories",
+      "placeholder": "Choose categories...",
+      "search": "Search categories...",
+      "empty": "No categories"
+    },
+    "brands": {
+      "label": "Brand",
+      "placeholder": "Choose brands...",
+      "search": "Search brands...",
+      "empty": "No brands"
+    },
+    "count": "({count})"
+  },
+  "filtersTrigger": {
+    "label": "Filters"
+  },
+  "productInfo": {
+    "back": "Back",
+    "unknown": "Unknown",
+    "brand": "Brand:",
+    "barcode": "Barcode:",
+    "quantity": "Quantity:",
+    "prices": "Prices:",
+    "unitPrices": "Unit prices:",
+    "priceRange": "<low>{lowPrice}</low><mid> | {averagePrice} | </mid><high>{highPrice}</high>",
+    "perUnit": "{price}/{unit}",
+    "unknownProduct": "Unknown product"
+  },
+  "priceScope": {
+    "label": "About the price range",
+    "all": "Range of published prices across all stores.",
+    "chains": "Range of published prices in the filtered stores.",
+    "locations": "Range of published prices matching the selected filters."
+  },
+  "validation": {
+    "listRequired": "Choose a shopping list",
+    "amountRange": "Quantity must be between 1 and 999",
+    "listTitleMin": "Enter a name with at least 3 characters",
+    "listTitleMax": "Enter a name of up to 100 characters",
+    "thresholdInvalid": "Enter a valid value",
+    "percentageRange": "Percentage must be between 1% and 99%",
+    "absoluteRange": "Amount must be between €0.10 and €999"
+  },
+  "list": {
+    "searchPlaceholder": "Search products...",
+    "resultsTitle": "Search results for “{query}”",
+    "resultsTitleWithCount": "Search results for “{query}” ({count}{suffix})",
+    "partialPricesTitle": "Some prices unavailable",
+    "partialPricesText": "We're showing the prices we have, but couldn't fetch one or more of the selected locations right now.",
+    "errorTitle": "Search failed",
+    "errorText": "Couldn't load the data. Try again.",
+    "noResultsForFilters": "No results for the selected filters",
+    "clearFilters": "Clear filters",
+    "enterQueryTitle": "Enter a search term",
+    "enterQueryText": "Your filters are set. Results will show after you search.",
+    "startTitle": "Search products",
+    "startText": "Type the name of the product you're looking for"
+  },
+  "viewSwitcher": {
+    "label": "View",
+    "grid": "Grid view",
+    "list": "List view"
+  },
+  "storePrice": {
+    "empty": "No price drops",
+    "line": "<chainName>{chain}</chainName> ~ {price} (-{discount}, {percentage}%)"
+  },
+  "quickActions": {
+    "titleFallback": "Product actions",
+    "description": "Actions for the selected product.",
+    "notFound": "We couldn't find that product. It may no longer be stocked."
+  },
+  "productsSheet": {
+    "submit": "Search",
+    "title": "Find products",
+    "description": "Type a product name or scan a barcode."
+  },
+  "price": {
+    "increase": "+{amount}",
+    "percentage": "({percentage}%)"
+  },
+  "productPrice": {
+    "unknown": "Price unknown"
+  },
+  "historyPeriod": {
+    "week": "1W",
+    "month": "1M",
+    "year": "1Y",
+    "all": "All"
+  },
+  "storeChainSelect": {
+    "multiPlaceholder": "Choose stores..."
+  }
+}

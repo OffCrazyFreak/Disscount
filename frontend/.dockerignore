@@ -3,7 +3,7 @@ node_modules
 .next
 out
 
-# Secrets / local env — supplied at runtime, never baked into the image
+# Secrets / local env, supplied at runtime and never baked into the image
 .env.local
 .env*.local
 .env.sentry-build-plugin

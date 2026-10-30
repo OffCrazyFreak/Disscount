@@ -3,14 +3,8 @@ import { shoppingListItemDtoSchema } from "@/lib/api/schemas/shopping-list-item"
 
 // What a share link grants. OWNER is only ever a resolved answer, never a level the
 // owner can pick, so it is absent here and present in listAccessSchema below.
-export const linkAccessSchema = z.enum(["NONE", "VIEW", "SHOP", "EDIT"]);
-export const listAccessSchema = z.enum([
-  "NONE",
-  "VIEW",
-  "SHOP",
-  "EDIT",
-  "OWNER",
-]);
+const linkAccessSchema = z.enum(["NONE", "VIEW", "SHOP", "EDIT"]);
+const listAccessSchema = z.enum(["NONE", "VIEW", "SHOP", "EDIT", "OWNER"]);
 
 // Shopping List schemas
 export const shoppingListRequestSchema = z.object({
@@ -20,8 +14,8 @@ export const shoppingListRequestSchema = z.object({
   title: z
     .string()
     .trim()
-    .min(3, "Upiši naziv s najmanje 3 znaka")
-    .max(100, "Upiši naziv s najviše 100 znakova"),
+    .min(3, "shoppingLists.validation.titleMin")
+    .max(100, "shoppingLists.validation.titleMax"),
   linkAccess: linkAccessSchema.optional(),
 });
 
@@ -52,8 +46,8 @@ export const shoppingListCopyRequestSchema = z.object({
   title: z
     .string()
     .trim()
-    .min(3, "Upiši naziv s najmanje 3 znaka")
-    .max(100, "Upiši naziv s najviše 100 znakova"),
+    .min(3, "shoppingLists.validation.titleMin")
+    .max(100, "shoppingLists.validation.titleMax"),
   includeItems: z.boolean(),
   includeProgress: z.boolean(),
   includeSharing: z.boolean(),

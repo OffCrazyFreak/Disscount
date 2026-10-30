@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MonitorSmartphone } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { useInstallPrompt } from "@/components/custom/pwa/use-install-prompt";
@@ -14,6 +15,7 @@ import { isDesktopPlatform } from "@/components/custom/pwa/install-copy";
  * plain copy for the frame before client detection has run.
  */
 export default function InstallPerk() {
+  const t = useTranslations("common");
   const { ready, platform, canPromoteInstall, promptInstall, canInstall } =
     useInstallPrompt();
   const [instructionsOpen, setInstructionsOpen] = useState(false);
@@ -30,14 +32,12 @@ export default function InstallPerk() {
 
       <span className="block min-w-0 flex-1 space-y-1">
         <span className="block font-semibold text-pretty">
-          Instaliraj kao aplikaciju
+          {t("install.perkTitle")}
         </span>
         <span className="block text-sm font-normal text-muted-foreground text-pretty">
-          Bez trgovine aplikacija -{" "}
           {isDesktopPlatform(platform)
-            ? "instaliraj Disscount izravno iz preglednika"
-            : "dodaj Disscount na početni zaslon izravno iz preglednika"}
-          .
+            ? t("install.perkDesktop")
+            : t("install.perkMobile")}
         </span>
       </span>
     </>

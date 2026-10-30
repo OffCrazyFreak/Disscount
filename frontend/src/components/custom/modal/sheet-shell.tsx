@@ -3,8 +3,11 @@
 import { ReactNode, type RefObject } from "react";
 
 import { Drawer, DrawerContent, DrawerFooter } from "@/components/ui/drawer";
-import SheetShellHeader from "@/components/custom/modal/sheet-shell-header";
+import SheetShellHeader, {
+  type ISheetShellHeaderProps,
+} from "@/components/custom/modal/sheet-shell-header";
 import useSheetDragUp from "@/components/custom/modal/use-sheet-drag-up";
+import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
 import { cn } from "@/lib/utils";
 
 /**
@@ -23,22 +26,17 @@ const HANDLE_CLASS =
 // The cap carries vaul's own direction variant, or drawer.tsx's 80vh outranks a
 // plain max-h and the sheet silently keeps a static cap that ignores the keyboard.
 const CONTENT_CLASS =
-  "z-[var(--z-bottom-sheet)] data-[vaul-drawer-direction=bottom]:max-h-[85dvh] bg-background/85 backdrop-blur-sm pb-[var(--sheet-bottom-clearance)]";
+  "z-[var(--z-bottom-sheet)] data-[vaul-drawer-direction=bottom]:max-h-[85dvh] bg-background/85 backdrop-blur-xs pb-[var(--sheet-bottom-clearance)]";
 const OVERLAY_CLASS = "z-[var(--z-bottom-sheet-scrim)]";
-const BODY_CLASS = "flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4";
+const BODY_CLASS = "flex flex-1 flex-col gap-3 px-4";
 
-export interface ISheetShellProps {
+export interface ISheetShellProps extends ISheetShellHeaderProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  title: ReactNode;
-  description?: string;
   /** Hides the visible title, for sheets whose content already names itself */
   srOnlyTitle?: boolean;
-  srOnlyDescription?: boolean;
   /** Pinned below the body, so it survives the body scrolling */
   footer?: ReactNode;
-  /** An explicit way out, for a sheet whose own content offers none */
-  showCloseButton?: boolean;
   /** Dragging the sheet upward, which vaul otherwise clamps to nothing */
   onDragUp?: () => void;
   /** Focused on open, so the user can start typing straight away */
@@ -72,12 +70,7 @@ export interface ISheetShellProps {
 export default function SheetShell({
   open,
   onOpenChange,
-  title,
-  description,
-  srOnlyTitle = false,
-  srOnlyDescription = true,
   footer,
-  showCloseButton = false,
   onDragUp,
   initialFocusRef,
   returnFocusRef,
@@ -85,6 +78,7 @@ export default function SheetShell({
   bodyClassName,
   className,
   children,
+  ...header
 }: ISheetShellProps) {
   const dragUpProps = useSheetDragUp(onDragUp);
 
@@ -102,7 +96,7 @@ export default function SheetShell({
         // page back off this marker. Absent when modal, which wants the lock.
         {...(modal ? {} : { "data-sheet-non-modal": "" })}
         // Radix's documented opt-out for a sheet with no description.
-        {...(description ? {} : { "aria-describedby": undefined })}
+        {...(header.description ? {} : { "aria-describedby": undefined })}
         // Focus the named field, or the container: focusing the first control
         // instead would pop its tooltip.
         onOpenAutoFocus={(event) => {
@@ -120,16 +114,18 @@ export default function SheetShell({
         }}
         {...dragUpProps}
       >
-        <SheetShellHeader
-          title={title}
-          description={description}
-          srOnlyTitle={srOnlyTitle}
-          srOnlyDescription={srOnlyDescription}
-          showCloseButton={showCloseButton}
-        />
+        <SheetShellHeader {...header} />
 
+        {/* The fades end at the body's own bottom, so they stop above the footer
+            and the nav clearance. */}
         {children && (
-          <div className={cn(BODY_CLASS, bodyClassName)}>{children}</div>
+          <ScrollFadeArea
+            className={cn(BODY_CLASS, bodyClassName)}
+            wrapperClassName="flex-1"
+            fadeClassName="from-background/85 h-12"
+          >
+            {children}
+          </ScrollFadeArea>
         )}
 
         {footer && (

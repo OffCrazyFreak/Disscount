@@ -1,4 +1,4 @@
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { useUser } from "@/context/user-context";
 import { useNotifications } from "@/context/notifications-context";
 import { canAccessDashboard } from "@/lib/api/schemas/auth-user";

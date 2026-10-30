@@ -1,0 +1,67 @@
+{
+  "meta": {
+    "title": "Spremljani izdelki",
+    "description": "Spremljaj cene izdelkov in prejemaj obvestila o popustih."
+  },
+  "client": {
+    "loginTitle": "Spremljani izdelki",
+    "loginDescription": "Spremljanje ti javi takoj, ko cena izdelka pade.",
+    "searchPlaceholder": "Išči med spremljanimi izdelki..."
+  },
+  "header": {
+    "searchResultsTitle": "Rezultati iskanja za »{query}« ({count})",
+    "title": "Spremljani izdelki",
+    "titleWithCount": "Spremljani izdelki ({count})",
+    "pricesUpdated": "Cene posodobljene {time}"
+  },
+  "list": {
+    "emptyTitle": "Ni spremljanih izdelkov",
+    "emptyDescription": "Poišči izdelke, izberi »Spremljaj izdelek« in prejemaj obvestila o popustih.",
+    "searchProducts": "Išči izdelke"
+  },
+  "suggestions": {
+    "title": "Predlogi izdelkov za spremljanje ({count})",
+    "hide": "Skrij",
+    "show": "Pokaži"
+  },
+  "actionButton": {
+    "watch": "Spremljaj izdelek",
+    "remove": "Odstrani izdelek"
+  },
+  "discountRow": {
+    "srSuffix": ", {infoLabel}, odpri nastavitve trgovin"
+  },
+  "discountInfo": {
+    "loadError": "Napaka pri nalaganju",
+    "noData": "Ni podatkov",
+    "unavailable": "Ni na voljo",
+    "setPreferences": "Nastavi trgovine",
+    "preferredStoresInfo": "Trgovine s popustom med tvojimi priljubljenimi trgovinami",
+    "allStoresInfo": "Vse trgovine s popustom"
+  },
+  "item": {
+    "loading": "Nalaganje...",
+    "unavailable": "Izdelek ni na voljo"
+  },
+  "removal": {
+    "success": "Izdelka ne spremljaš več",
+    "error": "Napaka pri odstranjevanju izdelka",
+    "partial": "Delno odstranjeno. Odstranitev ni uspela pri {count, plural, one {# izdelku} two {# izdelkih} few {# izdelkih} other {# izdelkih}}."
+  },
+  "createList": {
+    "label": "Ustvari seznam izdelkov na popustu",
+    "short": "Ustvari seznam",
+    "loading": "Ustvarjanje seznama...",
+    "listTitle": "Popusti {date}",
+    "productCount": "Izdelkov za nov seznam: {count}.",
+    "success": "Seznam izdelkov na popustu je ustvarjen",
+    "createError": "Napaka pri ustvarjanju seznama izdelkov na popustu",
+    "addFailedRemoved": "Nekaterih izdelkov ni bilo mogoče dodati. Seznam je samodejno odstranjen.",
+    "addFailedKept": "Nekaterih izdelkov ni bilo mogoče dodati, seznama pa ni mogoče samodejno odstraniti."
+  },
+  "validation": {
+    "productRequired": "Izdelek je obvezen",
+    "watchTypeRequired": "Izberi, kdaj te obvestimo",
+    "thresholdPositive": "Najmanjši popust mora biti pozitivno število"
+  }
+}

@@ -11,27 +11,27 @@ import lombok.Data;
 @Data
 public class ShoppingListItemRequest {
 
-    @NotBlank(message = "EAN is required")
+    @NotBlank(message = "{validation.ean.required}")
     private String ean;
 
     private String brand;
 
-    @NotBlank(message = "Product name is required")
+    @NotBlank(message = "{validation.productName.required}")
     private String name;
 
     private String quantity;
 
     private String unit;
 
-    @Min(value = 1, message = "Amount must be at least 1")
-    @Max(value = 999, message = "Amount must not exceed 999")
+    @Min(value = 1, message = "{validation.amount.min}")
+    @Max(value = 999, message = "{validation.amount.max}")
     private Integer amount = 1;
 
     private Boolean isChecked = false;
 
     // Free-form cijene chain slug (e.g. "konzum", "trgovina-krk"); validate only
     // the format, never against a fixed list, so new upstream chains never break.
-    @Pattern(regexp = "^[a-z0-9_-]+$", message = "Invalid chain code")
+    @Pattern(regexp = "^[a-z0-9_-]+$", message = "{validation.chainCode.invalid}")
     private String chainCode;
     private BigDecimal avgPrice;
     private BigDecimal storePrice;

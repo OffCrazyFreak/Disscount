@@ -1,11 +1,15 @@
 import { IEmailMessage, IEmailProvider } from "@/lib/email/provider";
-import VerificationEmail from "@/emails/verification-email";
-import PasswordResetEmail from "@/emails/password-reset-email";
-import SetPasswordEmail from "@/emails/set-password-email";
-import ChangeEmailConfirmation from "@/emails/change-email-confirmation";
+import { buildActionEmail } from "@/lib/email/email-copy";
+import type { AppLocale } from "@/i18n/locales";
+import VerificationEmail from "@/emails/_templates/verification-email";
+import PasswordResetEmail from "@/emails/_templates/password-reset-email";
+import SetPasswordEmail from "@/emails/_templates/set-password-email";
+import ChangeEmailConfirmation from "@/emails/_templates/change-email-confirmation";
+import BreachedPasswordEmail from "@/emails/_templates/breached-password-email";
 
 interface ITokenEmailArgs {
   to: string;
+  locale: AppLocale;
   url: string;
   // Used to build an idempotency key so a retried hook doesn't send a duplicate.
   token: string;
@@ -25,39 +29,88 @@ export class EmailService {
     if (error) throw new Error(error);
   }
 
-  sendVerificationEmail({ to, url, token }: ITokenEmailArgs) {
+  async sendVerificationEmail({ to, locale, url, token }: ITokenEmailArgs) {
+    const { subject, props } = await buildActionEmail(
+      locale,
+      "verification",
+      url,
+    );
+
     return this.send({
       to,
-      subject: "Potvrdi svoju email adresu",
-      react: VerificationEmail({ verificationUrl: url }),
+      subject,
+      react: VerificationEmail(props),
       idempotencyKey: `verify-email/${token}`,
     });
   }
 
-  sendPasswordReset({ to, url, token }: ITokenEmailArgs) {
+  async sendPasswordReset({ to, locale, url, token }: ITokenEmailArgs) {
+    const { subject, props } = await buildActionEmail(
+      locale,
+      "passwordReset",
+      url,
+    );
+
     return this.send({
       to,
-      subject: "Ponovno postavljanje lozinke",
-      react: PasswordResetEmail({ resetUrl: url }),
+      subject,
+      react: PasswordResetEmail(props),
       idempotencyKey: `reset-password/${token}`,
     });
   }
 
   // Same underlying reset token, different wording: for OAuth-only accounts adding a password.
-  sendSetPassword({ to, url, token }: ITokenEmailArgs) {
+  async sendSetPassword({ to, locale, url, token }: ITokenEmailArgs) {
+    const { subject, props } = await buildActionEmail(
+      locale,
+      "setPassword",
+      url,
+    );
+
     return this.send({
       to,
-      subject: "Postavi lozinku za svoj račun",
-      react: SetPasswordEmail({ setPasswordUrl: url }),
+      subject,
+      react: SetPasswordEmail(props),
       idempotencyKey: `set-password/${token}`,
     });
   }
 
-  sendChangeEmailConfirmation({ to, url, token, newEmail }: IChangeEmailArgs) {
+  // Sent when a correct sign-in is refused because the password is in a known breach.
+  async sendBreachedPassword({ to, locale, url, token }: ITokenEmailArgs) {
+    const { subject, props } = await buildActionEmail(
+      locale,
+      "breachedPassword",
+      url,
+    );
+
     return this.send({
       to,
-      subject: "Potvrdi promjenu email adrese",
-      react: ChangeEmailConfirmation({ confirmUrl: url, newEmail }),
+      subject,
+      react: BreachedPasswordEmail(props),
+      idempotencyKey: `breached-password/${token}`,
+    });
+  }
+
+  async sendChangeEmailConfirmation({
+    to,
+    locale,
+    url,
+    token,
+    newEmail,
+  }: IChangeEmailArgs) {
+    const { subject, props } = await buildActionEmail(
+      locale,
+      "changeEmail",
+      url,
+      {
+        newEmail,
+      },
+    );
+
+    return this.send({
+      to,
+      subject,
+      react: ChangeEmailConfirmation(props),
       idempotencyKey: `change-email/${token}`,
     });
   }

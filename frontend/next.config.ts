@@ -1,7 +1,15 @@
-import { withSentryConfig } from "@sentry/nextjs";
+import { withSentryConfig } from "@sentry/nextjs/config";
 import withSerwistInit from "@serwist/next";
 import { randomUUID } from "node:crypto";
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+import { DEFAULT_LOCALE, LOCALES } from "./src/i18n/locales";
+import { isIndexableOrigin } from "./src/utils/indexing";
+
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
+// Croatian is unprefixed; every other locale lives under its own path segment.
+const LOCALE_PREFIXES = LOCALES.filter((locale) => locale !== DEFAULT_LOCALE);
 
 const withSerwist = withSerwistInit({
   swSrc: "src/app/sw.ts",
@@ -9,8 +17,10 @@ const withSerwist = withSerwistInit({
   // Service worker only runs in production builds; in dev it would fight
   // Turbopack/HMR. The React Query persistence layer still works in dev.
   disable: process.env.NODE_ENV === "development",
-  // Precache the offline fallback page so it's available with no connection.
-  additionalPrecacheEntries: [{ url: "/offline", revision: randomUUID() }],
+  // Precache the offline fallback in every language so it's available with no connection.
+  additionalPrecacheEntries: ["", ...LOCALE_PREFIXES.map((l) => `/${l}`)].map(
+    (prefix) => ({ url: `${prefix}/offline`, revision: randomUUID() }),
+  ),
   reloadOnOnline: true,
 });
 
@@ -20,6 +30,16 @@ const nextConfig: NextConfig = {
 
   // The dev indicator sits bottom-left, on top of the mobile bottom nav.
   devIndicators: false,
+
+  // Inlined so the browser Sentry init can read it too; empty leaves the SDK on NODE_ENV,
+  // so `pnpm dev` stays "development".
+  env: { SENTRY_ENVIRONMENT: process.env.SENTRY_ENVIRONMENT ?? "" },
+
+  // Set explicitly because Next warns the default can differ between compiler versions,
+  // and the effects keyed on existing useMemo/useCallback results rely on them staying.
+  reactCompiler: {
+    environment: { enablePreserveExistingMemoizationGuarantees: true },
+  },
 
   async rewrites() {
     const backendOrigin =
@@ -77,7 +97,7 @@ const nextConfig: NextConfig = {
         // rule: a disallow stops the crawler fetching the page at all, so it would never
         // see the directive. A shared link only leaks by being pasted somewhere
         // crawlable, which is exactly the case this covers.
-        source: "/shopping-lists/:path*",
+        source: `/:locale(${LOCALE_PREFIXES.join("|")})?/shopping-lists/:path*`,
         headers: [
           { key: "X-Robots-Tag", value: "noindex, nofollow" },
           // The list id is in the path and, while the list is shared, that id is what
@@ -87,12 +107,21 @@ const nextConfig: NextConfig = {
           { key: "Referrer-Policy", value: "no-referrer" },
         ],
       },
+      // Read at build time, which is fine: NEXT_PUBLIC_APP_URL is a build arg per deploy.
+      ...(isIndexableOrigin(process.env.NEXT_PUBLIC_APP_URL)
+        ? []
+        : [
+            {
+              source: "/:path*",
+              headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+            },
+          ]),
     ];
   },
 };
 
 export default withSerwist(
-  withSentryConfig(nextConfig, {
+  withSentryConfig(withNextIntl(nextConfig), {
     // For all available options, see:
     // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 

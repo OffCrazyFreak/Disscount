@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -33,20 +34,21 @@ export default function CameraSelect({
   onSelect,
   onReset,
 }: ICameraSelectProps) {
+  const t = useTranslations("scanner");
   const namedCameras = useMemo(() => formatCameraLabels(devices), [devices]);
   const selectId = useId();
 
   return (
     <div className="flex items-end gap-2">
       <div className="min-w-0 flex-1 space-y-1.5">
-        <Label htmlFor={selectId}>Kamera</Label>
+        <Label htmlFor={selectId}>{t("camera.label")}</Label>
         <Select
           value={value ?? ""}
           onValueChange={onSelect}
           disabled={devices.length === 0}
         >
           <SelectTrigger id={selectId} className="w-full">
-            <SelectValue placeholder="Automatski (stražnja kamera)" />
+            <SelectValue placeholder={t("camera.autoPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
             {namedCameras.map((camera) => (
@@ -55,7 +57,11 @@ export default function CameraSelect({
                 value={camera.deviceId}
                 title={camera.rawLabel}
               >
-                {camera.label}
+                {t("camera.name", {
+                  facing: camera.facing,
+                  lens: camera.lens,
+                  ordinal: camera.ordinal,
+                })}
               </SelectItem>
             ))}
           </SelectContent>
@@ -81,12 +87,12 @@ export default function CameraSelect({
               onReset();
             }}
             className="aria-disabled:pointer-events-auto aria-disabled:opacity-50"
-            aria-label="Resetiraj kameru na automatski odabir"
+            aria-label={t("camera.reset")}
           />
         </TooltipTrigger>
 
         <TooltipContent className="px-2 py-1 text-xs">
-          Resetiraj kameru na automatski odabir
+          {t("camera.reset")}
         </TooltipContent>
       </Tooltip>
     </div>

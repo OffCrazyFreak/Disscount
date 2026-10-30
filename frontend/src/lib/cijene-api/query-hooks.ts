@@ -100,7 +100,7 @@ function canonicalizeCsv(value: string | undefined): string | undefined {
     .join(",");
 }
 
-export function canonicalizeStorePricesParams(
+function canonicalizeStorePricesParams(
   params: GetPricesParams,
 ): GetPricesParams {
   return {
@@ -110,10 +110,6 @@ export function canonicalizeStorePricesParams(
     city: params.city?.trim(),
     address: params.address?.trim(),
   };
-}
-
-export function storePricesQueryKey(params: GetPricesParams) {
-  return ["cijene", "prices", "search", canonicalizeStorePricesParams(params)];
 }
 
 function productStorePricesQueryKey(params: GetPricesParams) {

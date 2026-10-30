@@ -1,9 +1,10 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import { useRef } from "react";
 import { ChevronDown } from "lucide-react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   Collapsible,
   CollapsibleContent,
@@ -44,6 +45,7 @@ export default function SidebarFilterMenu({
   isOpen,
   onOpenChange,
 }: ISidebarFilterMenuProps) {
+  const t = useTranslations("shell");
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const listRef = useRef<HTMLUListElement>(null);
@@ -73,9 +75,9 @@ export default function SidebarFilterMenu({
             className={cn("cursor-pointer", SIDEBAR_ICON_CLASS)}
           >
             <Icon />
-            <span>{item.label}</span>
+            <span>{t(item.labelKey)}</span>
             <ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
-            <span className="sr-only">Toggle</span>
+            <span className="sr-only">{t("sidebar.toggle")}</span>
           </SidebarMenuButton>
         </CollapsibleTrigger>
 
@@ -94,12 +96,16 @@ export default function SidebarFilterMenu({
                     asChild
                     isActive={selected.includes(option.value)}
                   >
+                    {/* The primitive's fixed h-7 clips a name that wraps, and
+                        its truncate rule squeezes the count to "(…". */}
                     <Link
                       href={buildHref(option.value)}
-                      className="flex justify-between"
+                      className="h-auto min-h-7 justify-between py-1"
                     >
-                      <span>{option.label}</span>
-                      <span>{`(${option.count})`}</span>
+                      <span className="min-w-0 break-words">
+                        {option.label}
+                      </span>
+                      <span className="shrink-0 tabular-nums">{`(${option.count})`}</span>
                     </Link>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>

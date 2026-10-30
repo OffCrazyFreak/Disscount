@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research"
+  short_description: "Research options before implementation"
+  default_prompt: "Use $research to investigate this decision, compare current options, and recommend an approach before implementation."

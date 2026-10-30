@@ -1,0 +1,13 @@
+{
+  "meta": {
+    "title": "Ausgaben",
+    "description": "Übersicht und Auswertung deiner Ausgaben."
+  },
+  "title": "Ausgaben",
+  "loginRequired": {
+    "description": "Nach der Anmeldung siehst du deine Ausgaben nach Händler und Kategorie und verfolgst deine Ersparnis über die Monate."
+  },
+  "comingSoon": {
+    "description": "Du siehst, wie viel du pro Händler und Kategorie ausgibst, bei welchen Produkten du am meisten sparst und wie sich deine Ausgaben über die Monate verändern."
+  }
+}

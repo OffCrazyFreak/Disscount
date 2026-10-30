@@ -96,7 +96,7 @@ A list the caller may not see is a **404, never a 403**, so the response cannot 
 
 It is therefore reachable signed out, and nothing on it may assume ownership. `shopping-list-detail-client.tsx` reads the session rather than hardcoding it, and the access banner renders unconditionally: it falls silent for an owner on its own, and the disabled item controls point at its id with `aria-describedby`, so gating it would leave that IDREF dangling for exactly the people who need the explanation. It emits an empty element carrying the id when it has nothing to say, because a DTO persisted before `myAccess` existed replays with it undefined.
 
-`next.config.ts` sends `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer` on `/shopping-lists/:path*`. The header is deliberate rather than a `robots.txt` disallow: a disallowed URL is never fetched, so a crawler would never read the directive, and a shared link only leaks by being pasted somewhere crawlable. `app/robots.ts` therefore stops deriving its disallow list from `PROTECTED_ROUTE_PREFIXES`, which still carries `/shopping-lists` for the logout redirect.
+`next.config.ts` sends `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer` on `/shopping-lists/:path*`. The header is deliberate rather than a `robots.txt` disallow: a disallowed URL is never fetched, so a crawler would never read the directive, and a shared link only leaks by being pasted somewhere crawlable. `app/robots.ts` therefore still derives its disallow list from `PROTECTED_ROUTE_PREFIXES` but filters `/shopping-lists` back out, since that constant also drives the logout redirect and the two questions stopped having the same answer.
 
 ## 6. Offline
 
@@ -110,8 +110,11 @@ mechanism was a destructive purge. See `docs/PWA.md` §5b for `cache-identity.ts
 The `/shopping-lists/` service worker rule is `NetworkFirst`, not `NetworkOnly`, so an offline reload
 boots the app instead of the `/offline` fallback. That is only acceptable because the
 purge now deletes the `shopping-list-pages`, `cijene-api` and `others` buckets on a change of
-identity. Those names are matched by exact equality, not by substring: a substring match on
-`pages` would also take out `pages-rsc` and `pages-rsc-prefetch`, every RSC payload in the app.
+identity (`SCOPED_CACHE_NAMES` in `lib/offline/purge.ts`). Those names are matched by exact
+equality, not by substring: a substring match on `pages` would also take out `pages-rsc` and
+`pages-rsc-prefetch`, every RSC payload in the app. `others` is on the list because that is
+where serwist actually files navigations, its `pages` rule keying off a Content-Type header
+browsers omit on one.
 
 ## 7. Privacy decisions
 
@@ -129,27 +132,28 @@ Worth knowing before changing any of this:
 
 ## 8. Key files
 
-| Area          | Path                                                                                     |
-| ------------- | ---------------------------------------------------------------------------------------- |
-| Access rule   | `backend/.../shoppingList/service/ShoppingListAccessService.java`                        |
-| Levels        | `backend/.../shoppingList/domain/ListAccess.java`, `LinkAccess.java`                     |
-| List API      | `backend/.../shoppingList/rest/ShoppingListController.java`                              |
-| List logic    | `backend/.../shoppingList/service/ShoppingListService.java`                              |
-| Redaction     | `backend/.../shoppingList/service/ShoppingListMapper.java`                               |
-| Optional auth | `backend/.../config/OptionalBearerAuthenticationFilter.java`                             |
-| Route matcher | `backend/.../config/UuidScopedRequestMatcher.java`                                       |
-| List page     | `frontend/src/app/(user)/shopping-lists/[id]/`                                           |
-| Access banner | `frontend/src/app/(user)/shopping-lists/[id]/components/shopping-list-access-banner.tsx` |
-| Share modal   | `frontend/src/app/(user)/shopping-lists/components/forms/share-list-modal.tsx`           |
-| Access row    | `frontend/src/app/(user)/shopping-lists/components/forms/share-access-row.tsx`           |
-| Modal state   | `frontend/src/app/(user)/shopping-lists/hooks/use-share-list-modal.ts`                   |
-| Level copy    | `frontend/src/app/(user)/shopping-lists/utils/link-access-copy.ts`                       |
-| Level icons   | `frontend/src/app/(user)/shopping-lists/utils/link-access-icons.ts`                      |
-| Copy modal    | `frontend/src/app/(user)/shopping-lists/components/forms/copy-list-modal.tsx`            |
-| Copy state    | `frontend/src/app/(user)/shopping-lists/hooks/use-copy-list-modal.ts`                    |
-| Title field   | `frontend/src/app/(user)/shopping-lists/components/forms/shopping-list-title-field.tsx`  |
-| Optimism      | `frontend/src/lib/api/shopping-lists/optimistic-list.ts`                                 |
-| Client access | `frontend/src/app/(user)/shopping-lists/utils/shopping-list-access.ts`                   |
+| Area          | Path                                                                                              |
+| ------------- | ------------------------------------------------------------------------------------------------- |
+| Access rule   | `backend/.../shoppingList/service/ShoppingListAccessService.java`                                 |
+| Levels        | `backend/.../shoppingList/domain/ListAccess.java`, `LinkAccess.java`                              |
+| List API      | `backend/.../shoppingList/rest/ShoppingListController.java`                                       |
+| List logic    | `backend/.../shoppingList/service/ShoppingListService.java`                                       |
+| Redaction     | `backend/.../shoppingList/service/ShoppingListMapper.java`                                        |
+| Optional auth | `backend/.../config/OptionalBearerAuthenticationFilter.java`                                      |
+| Route matcher | `backend/.../config/UuidScopedRequestMatcher.java`                                                |
+| List page     | `frontend/src/app/[locale]/(user)/shopping-lists/[id]/`                                           |
+| Access banner | `frontend/src/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-access-banner.tsx` |
+| Share modal   | `frontend/src/app/[locale]/(user)/shopping-lists/components/forms/share-list-modal.tsx`           |
+| Access row    | `frontend/src/app/[locale]/(user)/shopping-lists/components/forms/share-access-row.tsx`           |
+| Modal state   | `frontend/src/app/[locale]/(user)/shopping-lists/hooks/use-share-list-modal.ts`                   |
+| Level copy    | `frontend/src/app/[locale]/(user)/shopping-lists/utils/link-access-copy.ts`                       |
+| Level icons   | `frontend/src/app/[locale]/(user)/shopping-lists/utils/link-access-icons.ts`                      |
+| Copy modal    | `frontend/src/app/[locale]/(user)/shopping-lists/components/forms/copy-list-modal.tsx`            |
+| Copy state    | `frontend/src/app/[locale]/(user)/shopping-lists/hooks/use-copy-list-modal.ts`                    |
+| Title field   | `frontend/src/app/[locale]/(user)/shopping-lists/components/forms/shopping-list-title-field.tsx`  |
+| Optimism      | `frontend/src/lib/api/shopping-lists/optimistic-list.ts`                                          |
+| Cache purge   | `frontend/src/lib/offline/purge.ts`                                                               |
+| Client access | `frontend/src/app/[locale]/(user)/shopping-lists/utils/shopping-list-access.ts`                   |
 
 ## 9. Gotchas
 
@@ -167,7 +171,11 @@ Worth knowing before changing any of this:
   the original so the suffix always fits inside the schema's 100-character ceiling, which
   it reads off the schema rather than restating. It takes whole code points so the cut
   cannot split an emoji, but budgets in UTF-16 units, because that is what zod's `max()`
-  counts. One endpoint rather than a
+  counts. Kopiraj is gated on `schema.safeParse(values).success`, not on
+  `formState.isValid`, because the prefilled name is valid the moment the modal opens and
+  `isValid` does not refresh until the resolver runs again, which would leave the button
+  dead until the user typed something (see
+  [STATE-PERSISTENCE.md](STATE-PERSISTENCE.md#11-gotchas--lessons-learned)). One endpoint rather than a
   create followed by an add per item, because
   those were separate transactions: a failure partway left a half-populated copy behind
   that no retry could tidy up, and pressing the button again made another one.

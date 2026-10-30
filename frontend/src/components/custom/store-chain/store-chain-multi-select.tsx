@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import {
   MultiSelect,
   MultiSelectContent,
@@ -22,12 +23,16 @@ export default function StoreChainMultiSelect({
   selectedChains,
   onChainsChange,
   className,
-  placeholder = "Odaberi trgovinske lance...",
+  placeholder,
 }: IStoreChainMultiSelectProps) {
+  const t = useTranslations("products");
+
   return (
     <MultiSelect values={selectedChains} onValuesChange={onChainsChange}>
       <MultiSelectTrigger className={className || "w-full sm:w-sm"}>
-        <MultiSelectValue placeholder={placeholder} />
+        <MultiSelectValue
+          placeholder={placeholder ?? t("storeChainSelect.multiPlaceholder")}
+        />
       </MultiSelectTrigger>
       <MultiSelectContent>
         <MultiSelectGroup>

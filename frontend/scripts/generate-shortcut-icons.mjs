@@ -8,7 +8,7 @@ import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { Eye, ListChecks, ScanBarcode } from "lucide-react";
+import { CreditCard, Eye, ListChecks, ScanBarcode } from "lucide-react";
 import { GREEN } from "./lib/brand.mjs";
 import { ROOT } from "./lib/cart-source.mjs";
 import { SRGB } from "./lib/srgb.mjs";
@@ -30,6 +30,7 @@ const SHORTCUTS = {
   scan: ScanBarcode,
   "shopping-lists": ListChecks,
   watchlist: Eye,
+  "digital-cards": CreditCard,
 };
 
 const ROUNDED = Buffer.from(

@@ -1,6 +1,8 @@
 "use client";
 
+import { useFormState } from "react-hook-form";
 import { Send } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import EmailField from "@/components/custom/auth/components/fields/email-field";
@@ -14,13 +16,15 @@ interface IForgotPasswordFormProps {
 export default function ForgotPasswordForm({
   onBackToLogin,
 }: IForgotPasswordFormProps) {
+  const t = useTranslations("auth");
   const { form, onSubmit, submittedEmail } = useForgotPasswordForm();
+  const formState = useFormState({ control: form.control });
 
   if (submittedEmail) {
     return (
       <InboxNotice
-        title="Provjeri svoj inbox"
-        description="Ako račun s tom adresom postoji, poslali smo poveznicu za postavljanje nove lozinke na:"
+        title={t("inbox.title")}
+        description={t("forgot.inboxDescription")}
         email={submittedEmail}
       />
     );
@@ -28,15 +32,12 @@ export default function ForgotPasswordForm({
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
-      <p className="text-sm text-muted-foreground">
-        Unesi svoju email adresu i poslat ćemo ti poveznicu za postavljanje nove
-        lozinke.
-      </p>
+      <p className="text-sm text-muted-foreground">{t("forgot.intro")}</p>
 
       <EmailField
         id="forgot-email"
         registration={form.register("email")}
-        error={form.formState.errors.email?.message}
+        error={formState.errors.email?.message}
       />
 
       <Button
@@ -45,11 +46,11 @@ export default function ForgotPasswordForm({
         className="w-full"
         icon={Send}
         iconPlacement="left"
-        loading={form.formState.isSubmitting}
-        loadingText="Slanje..."
+        loading={formState.isSubmitting}
+        loadingText={t("forgot.sending")}
         loadingIconPlacement="left"
       >
-        Pošalji poveznicu
+        {t("forgot.submit")}
       </Button>
 
       <button
@@ -57,7 +58,7 @@ export default function ForgotPasswordForm({
         onClick={onBackToLogin}
         className="cursor-pointer text-sm text-primary underline hover:text-primary/80"
       >
-        Natrag na prijavu
+        {t("forgot.backToLogin")}
       </button>
     </form>
   );

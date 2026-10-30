@@ -75,6 +75,15 @@ export function setShoppingListStoresOpen(listId: string, isOpen: boolean) {
   setListPrefs(listId, { storesOpen: isOpen });
 }
 
+/** Items grouped by store instead of A to Z; defaults to A to Z. */
+export function getShoppingListGroupByStore(listId: string): boolean {
+  return getListPrefs(listId).groupByStore ?? false;
+}
+
+export function setShoppingListGroupByStore(listId: string, grouped: boolean) {
+  setListPrefs(listId, { groupByStore: grouped });
+}
+
 /**
  * Preferred store-list optimisation mode, shared across all shopping lists.
  * Returns undefined when nothing is stored; the caller validates the value.

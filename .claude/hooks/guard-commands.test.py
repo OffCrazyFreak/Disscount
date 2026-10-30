@@ -29,46 +29,43 @@ def build_real_worktree(root):
         "GIT_COMMITTER_EMAIL": "t@t",
     }
     run = lambda *a: subprocess.run(a, cwd=repo, env=env, capture_output=True, check=True)
-    run("git", "init", "-q")
+    run("git", "init", "-q", "-b", "dev")
     open(os.path.join(repo, "f"), "w").close()
     run("git", "add", "f")
     run("git", "commit", "-qm", "init")
     linked = os.path.join(root, "linked")
     run("git", "worktree", "add", "-q", "-b", "wt", linked)
+    on_main = os.path.join(root, "on-main")
+    run("git", "worktree", "add", "-q", "-b", "main", on_main)
 
-    return repo, linked
+    return repo, linked, on_main
 
 
-def cases(real_repo, real_worktree):
+def cases(real_repo, real_worktree, on_main):
     return [
-        # BLOCK: dev servers, including the spellings prefix matching misses
-        ("pnpm dev", MAIN, True),
-        ("pnpm run dev", MAIN, True),
-        ("pnpm --filter frontend dev", MAIN, True),
-        ("cd frontend && pnpm dev", MAIN, True),
-        ("mvn spring-boot:run", MAIN, True),
-        ("mvn -B spring-boot:run", MAIN, True),
-        ("mvn -f backend/pom.xml spring-boot:run", MAIN, True),
-        ("./mvnw -B spring-boot:run", MAIN, True),
-        ("next dev", MAIN, True),
-        ("pnpm email", MAIN, True),
-        ("CI=true pnpm dev", MAIN, True),
-        ("sudo pnpm dev", MAIN, True),
-        ("timeout 30 pnpm dev", MAIN, True),
+        # ALLOW: dev servers and Docker run in the main tree
+        ("pnpm dev", MAIN, False),
+        ("pnpm --filter frontend dev", MAIN, False),
+        ("cd frontend && pnpm dev", MAIN, False),
+        ("mvn -B spring-boot:run", MAIN, False),
+        ("next dev", MAIN, False),
+        ("docker compose up -d --build", MAIN, False),
         # BLOCK: wrapper flags that take a value used to hide the command
-        ("sudo -u root pnpm dev", MAIN, True),
-        ("env -i pnpm dev", MAIN, True),
-        ("nice -n 10 pnpm dev", MAIN, True),
-        ("env FOO=bar pnpm dev", MAIN, True),
-        ("nohup pnpm dev", MAIN, True),
+        ("sudo -u root pnpm install", WT, True),
+        ("env -i pnpm install", WT, True),
+        ("nice -n 10 pnpm install", WT, True),
+        ("env FOO=bar pnpm install", WT, True),
+        ("nohup pnpm install", WT, True),
+        ("CI=true pnpm install", WT, True),
+        ("timeout 30 pnpm install", WT, True),
         # BLOCK: re-entering a shell used to hide the command in a string
-        ('bash -c "pnpm dev"', MAIN, True),
-        ("sh -c 'pnpm dev'", MAIN, True),
-        ('bash -lc "pnpm dev"', MAIN, True),
-        ('sh -c "cd frontend && pnpm dev"', MAIN, True),
+        ('bash -c "pnpm install"', WT, True),
+        ("sh -c 'pnpm install'", WT, True),
+        ('bash -lc "pnpm install"', WT, True),
+        ('sh -c "cd frontend && pnpm install"', WT, True),
         # BLOCK: command substitution used to hide the command
-        ("echo $(pnpm dev)", MAIN, True),
-        ("echo `pnpm dev`", MAIN, True),
+        ("echo $(pnpm install)", WT, True),
+        ("echo `pnpm install`", WT, True),
         # BLOCK: pnpm inside a worktree, by convention and by git metadata
         ("pnpm lint", WT, True),
         ("pnpm exec tsc --noEmit", WT, True),
@@ -95,18 +92,59 @@ def cases(real_repo, real_worktree):
         # ALLOW: a real repo that is not a linked worktree
         ("pnpm install", real_repo, False),
         # ALLOW: a quoted heredoc body is data, so prose may quote a blocked command
-        ("git commit -F - <<'EOF'\nfix: stop `pnpm dev`\n\nWas `sh -c \"cd f && pnpm dev\"`.\nEOF", MAIN, False),
-        ("cat <<'SQL' > q.sql\nselect 'pnpm dev';\nSQL", MAIN, False),
+        ("git commit -F - <<'EOF'\nfix: stop `pnpm install`\n\nWas `sh -c \"cd f && pnpm install\"`.\nEOF", WT, False),
+        ("cat <<'SQL' > q.sql\nselect 'pnpm install';\nSQL", WT, False),
         # BLOCK: an UNQUOTED heredoc still expands, so its body is live
-        ("cat <<EOF\n$(pnpm dev)\nEOF", MAIN, True),
+        ("cat <<EOF\n$(pnpm install)\nEOF", WT, True),
         # ALLOW: the word appears but nothing is executed
-        ('grep -rn "pnpm dev" docs/', MAIN, False),
-        ('echo "run pnpm dev yourself"', MAIN, False),
+        ('grep -rn "pnpm install" docs/', WT, False),
+        ('echo "run pnpm install yourself"', WT, False),
         ("git push origin dev", MAIN, False),
         ("git checkout dev", MAIN, False),
         ("git log --oneline dev", MAIN, False),
         ("gh pr create --base dev", MAIN, False),
         ("pnpm --filter dev-tools lint", MAIN, False),
+        # BLOCK: skipping the git hooks, however it is spelled
+        ('git commit --no-verify -m "x"', real_repo, True),
+        ('git commit -n -m "x"', real_repo, True),
+        ('git commit -anm "x"', real_repo, True),
+        ("git push --no-verify origin dev", real_repo, True),
+        ("git -C frontend merge --no-verify dev", real_repo, True),
+        ('env CI=1 git commit --no-verify -m "x"', real_repo, True),
+        ("bash -c 'git commit --no-verify -m x'", real_repo, True),
+        ('git commit --no-verif -m "x"', real_repo, True),
+        ('git commit --no-veri -m "x"', real_repo, True),
+        ('git commit --no-verb -m "x"', real_repo, False),
+        ('HUSKY=0 git commit -m "x"', real_repo, True),
+        ('env HUSKY=0 git commit -m "x"', real_repo, True),
+        ('git -c core.hooksPath=/dev/null commit -m "x"', real_repo, True),
+        ('git -c core.hookspath=/tmp push origin dev', real_repo, True),
+        ('git -c user.name=x commit -m "x"', real_repo, False),
+        ('HUSKY=1 git commit -m "x"', real_repo, False),
+        ("git commit -m x -- --no-verify", real_repo, False),
+        # ALLOW: an `n` inside a message or a value is not the flag
+        ('git commit -m "no verify needed"', real_repo, False),
+        ('git commit -am "nothing"', real_repo, False),
+        ("git commit -mnew", real_repo, False),
+        ('grep -rn "--no-verify" docs/', real_repo, False),
+        # BLOCK: any refspec that lands on main
+        ("git push origin main", real_repo, True),
+        ("git push origin HEAD:main", real_repo, True),
+        ("git push -f origin +main", real_repo, True),
+        ("git push origin feature:refs/heads/main", real_repo, True),
+        ("git -C . push -u origin main", real_repo, True),
+        ("git push --all origin", real_repo, True),
+        ("git push --mirror origin", real_repo, True),
+        # BLOCK: a bare push, or HEAD, while main is checked out
+        ("git push", on_main, True),
+        ("git push origin HEAD", on_main, True),
+        (f"git -C {on_main} push", real_repo, True),
+        # ALLOW: other branches, including names that only contain "main"
+        ("git push", real_repo, False),
+        ("git push origin HEAD", real_repo, False),
+        ("git push origin main-docs", real_repo, False),
+        ("git push origin chore/main-menu", real_repo, False),
+        ("git push origin --delete feat/x", real_repo, False),
     ]
 
 
@@ -117,10 +155,10 @@ def main():
 
     root = tempfile.mkdtemp(prefix="guard-commands-")
     try:
-        real_repo, real_worktree = build_real_worktree(root)
+        real_repo, real_worktree, on_main = build_real_worktree(root)
         fails = 0
 
-        for command, cwd, expect_block in cases(real_repo, real_worktree):
+        for command, cwd, expect_block in cases(real_repo, real_worktree, on_main):
             payload = json.dumps(
                 {"tool_name": "Bash", "tool_input": {"command": command}, "cwd": cwd}
             )
@@ -130,7 +168,7 @@ def main():
             blocked = result.returncode == 2
             ok = blocked == expect_block
             fails += 0 if ok else 1
-            where = {MAIN: "main", WT: "wt-path", real_worktree: "wt-git"}.get(
+            where = {MAIN: "main", WT: "wt-path", real_worktree: "wt-git", on_main: "on-main"}.get(
                 cwd, "repo"
             )
             print(

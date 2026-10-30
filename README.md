@@ -18,7 +18,7 @@ Under the hood it is a full production stack: a Next.js frontend that also acts 
 
 **Live:**
 
-- Product search across 29 Croatian retail chains (with barcode scanning)
+- Product search across 25+ Croatian retail chains (with barcode scanning)
 - Price comparison per store and price history charts ("is the discount real?")
 - Smart shopping lists with per-store basket totals
 - Shared shopping lists via a private link, with view, shop or edit access and a revocable token
@@ -42,7 +42,7 @@ Under the hood it is a full production stack: a Next.js frontend that also acts 
 - **Email:** Resend + React Email
 - **Infra:** Docker Compose, Dokploy on a Hetzner VPS, Traefik, Cloudflare, Sentry, [UptimeRobot](https://stats.uptimerobot.com/ej4ROz2eMo), Umami
 
-Deeper references live in [docs/](docs/): [authentication](docs/AUTH.md), [PWA & offline](docs/PWA.md), [mobile navigation](docs/MOBILE-NAV.md), [state persistence](docs/STATE-PERSISTENCE.md), [the landing page](docs/LANDING.md), [brand assets](docs/BRAND.md), and [deployment](docs/DEPLOYMENT.md).
+Deeper references live in [docs/](docs/): [authentication](docs/AUTH.md), [PWA & offline](docs/PWA.md), [mobile navigation](docs/MOBILE-NAV.md), [state persistence](docs/STATE-PERSISTENCE.md), [list sharing](docs/SHARING.md), [search](docs/SEARCH.md), [the landing page](docs/LANDING.md), [brand assets](docs/BRAND.md), [the support flow](docs/SUPPORT.md), and [deployment](docs/DEPLOYMENT.md).
 
 ## Link
 
@@ -77,7 +77,7 @@ Landing page ([full-page screenshot](docs/screenshots/desktop/pages/landing.webp
 ### Features
 
 <p align="center">
-  <img width="45%" src="docs/screenshots/desktop/pages/search.webp" alt="Disscount - Product search across 29 chains"/>
+  <img width="45%" src="docs/screenshots/desktop/pages/search.webp" alt="Disscount - Product search across 25+ chains"/>
   <img width="45%" src="docs/screenshots/desktop/pages/product-detail.webp" alt="Disscount - Product details with price history"/>
 </p>
 
@@ -142,7 +142,7 @@ Commercial use is restricted unless covered by an Additional Use Grant or separa
 The quickest way to run the full stack (frontend + backend + PostgreSQL) locally is with Docker Compose:
 
 ```bash
-cp example.env .env   # then fill in the values
+cp .env.example .env   # then fill in the values
 docker compose up -d --build
 # frontend: http://localhost:3000
 ```
@@ -222,15 +222,14 @@ The repo ships pre-configured MCP servers so an AI editor picks them up on clone
 
 | Server            | Purpose                    |
 | ----------------- | -------------------------- |
-| `playwright`      | Browser automation / E2E   |
 | `context7`        | Up-to-date library docs    |
 | `supabase`        | Supabase project access    |
 | `chrome-devtools` | Chrome DevTools debugging  |
-| `sentry`          | Error tracking (Disscount) |
+| `sentry`          | Error tracking (org scope) |
 
-No secrets are committed: `supabase` and `sentry` authenticate via browser OAuth on first use, and `context7` runs keyless (set `CONTEXT7_API_KEY` in your environment to raise rate limits). Never put keys in these files - use env vars or your editor's secret store.
+`sentry` is scoped to the `disscount` org rather than one project, so it reaches both `disscount-frontend` and `disscount-backend`.
 
-`playwright` needs a browser at runtime: run `npx playwright install chromium` once per machine, or point it at an existing browser via `PLAYWRIGHT_MCP_EXECUTABLE_PATH` (e.g. `/opt/helium/chrome`). Both are machine-local, so keep the browser path out of the committed config.
+No secrets are committed: `supabase` and `sentry` authenticate via browser OAuth on first use, and `context7` reads `CONTEXT7_API_KEY` from your environment (it still runs keyless if that is unset, at the lower anonymous rate limit). Export that key from your shell profile rather than writing it into a config, and a clone works anywhere with no per-machine edit. Note that the VS Code file spells the reference `${env:CONTEXT7_API_KEY}`, which is that editor's own syntax, while the other two take a bare `${CONTEXT7_API_KEY}`. Never put keys in these files - use env vars or your editor's secret store.
 
 ## Deployment
 

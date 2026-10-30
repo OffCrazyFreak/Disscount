@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "title": "Zemljevid trgovin",
+    "description": "Poišči trgovine na zemljevidu: Konzum, Lidl, Kaufland, Spar, Plodine, Tommy, Studenac in še 20 trgovcev po vsej Hrvaški. Išči po kraju ali naslovu in najdi najbližjo."
+  },
+  "heading": "Zemljevid trgovin",
+  "search": {
+    "placeholder": "Trgovec, kraj ali naslov..."
+  },
+  "layout": {
+    "storeList": "Seznam trgovin",
+    "stores": "Trgovine",
+    "backToMap": "Nazaj na zemljevid"
+  },
+  "load": {
+    "error": "Trgovin trenutno ni mogoče naložiti.",
+    "retry": "Poskusi znova",
+    "loading": "Nalagam trgovine..."
+  },
+  "unavailable": {
+    "browser": "Tvoj brskalnik ne more prikazati zemljevida. Vse trgovine so še vedno na seznamu.",
+    "style": "Zemljevida trenutno ni mogoče naložiti. Vse trgovine so še vedno na seznamu.",
+    "contextLost": "Zemljevid se je prekinil.",
+    "reload": "Naloži znova",
+    "noGpu": "Tvoj brskalnik je izklopil grafično pospeševanje, zato ne more prikazati zemljevida. Običajno pomaga, da brskalnik znova zaženeš. Vse trgovine so še vedno na seznamu."
+  },
+  "chains": {
+    "all": "Vsi trgovci"
+  },
+  "nearMe": {
+    "locate": "Trgovine v moji bližini",
+    "clear": "Odstrani mojo lokacijo",
+    "approximate": "Trgovine prikazujemo glede na tvojo približno lokacijo. Za natančnejši vrstni red vklopi lokacijo v napravi.",
+    "denied": "Dostop do lokacije je zavrnjen. Dovoli ga v nastavitvah brskalnika ali išči po kraju.",
+    "unavailable": "Lokacija trenutno ni na voljo. Išči po kraju ali naslovu.",
+    "timeout": "Lokacije ni mogoče določiti. Preveri, ali je lokacija v napravi vklopljena, ali išči po kraju."
+  },
+  "recent": {
+    "label": "Nedavna iskanja:",
+    "clear": "Počisti",
+    "clearLabel": "Počisti nedavna iskanja"
+  },
+  "count": {
+    "shown": "{count, plural, one {# trgovina} two {# trgovini} few {# trgovine} other {# trgovin}}",
+    "unplaced": "{shown}, od tega {unplaced} brez lokacije na zemljevidu. Še vedno so na seznamu."
+  },
+  "pan": {
+    "group": "Premikanje zemljevida",
+    "up": "Premakni zemljevid gor",
+    "left": "Premakni zemljevid levo",
+    "right": "Premakni zemljevid desno",
+    "down": "Premakni zemljevid dol"
+  },
+  "list": {
+    "noLocation": "brez lokacije",
+    "onMap": "Na zemljevidu · {count, number}",
+    "elsewhere": "Drugje · {count, number}",
+    "onMapStatus": "{count, plural, one {# trgovina} two {# trgovini} few {# trgovine} other {# trgovin}} na zemljevidu",
+    "update": "Zemljevid se je premaknil · osveži seznam",
+    "sameSpot": "{count, plural, one {# trgovina} two {# trgovini} few {# trgovine} other {# trgovin}} na tem mestu",
+    "unknownAddress": "Naslov ni znan",
+    "favorites": "Priljubljene trgovine · {count, number}",
+    "others": "Druge trgovine · {count, number}",
+    "distance": "{distance} od tebe"
+  },
+  "details": {
+    "notPlaced": "Za to trgovino še nimamo natančne lokacije, zato je ni na zemljevidu."
+  },
+  "favorites": {
+    "add": "Dodaj med priljubljene",
+    "remove": "Odstrani iz priljubljenih",
+    "limit": "Največ {max, number} priljubljenih trgovin.",
+    "saveFailed": "Shranjevanje ni uspelo. Poskusi znova."
+  },
+  "actions": {
+    "googleDirections": "Navodila (Google Zemljevidi)",
+    "appleMaps": "Apple Zemljevidi",
+    "call": "Pokliči {phone}",
+    "share": "Deli",
+    "copied": "Povezava je kopirana.",
+    "shareFailed": "Deljenje ni uspelo.",
+    "report": "Prijavi napako"
+  },
+  "report": {
+    "subject": "Napačna lokacija trgovine",
+    "message": "Trgovina: {store} ({id})\n\nKaj ni v redu: "
+  }
+}

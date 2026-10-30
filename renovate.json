@@ -1,0 +1,84 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(chore)"
+  ],
+  "baseBranchPatterns": ["dev"],
+  "timezone": "Europe/Zagreb",
+  "schedule": ["* * 1 * *"],
+  "addLabels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "Bump package.json ranges like Dependabot did, not only the lockfile",
+      "matchManagers": ["npm"],
+      "rangeStrategy": "bump"
+    },
+    {
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "frontend minor and patch"
+    },
+    {
+      "matchManagers": ["maven"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "backend minor and patch"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "github actions minor and patch"
+    },
+    {
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "docker images minor and patch"
+    },
+    {
+      "description": "Majors wait for approval on the Dependency Dashboard; a Postgres major also needs a dump and restore of the pgdata volume",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "One pnpm version across packageManager, CI and the frontend Dockerfile",
+      "matchDepNames": ["pnpm"],
+      "groupName": "pnpm"
+    },
+    {
+      "description": "react-scan stays at 0.5.3: every later release depends on react-grab at latest, and 0.5.7 adds react-doctor, which pulls in playwright-core",
+      "matchPackageNames": ["react-scan"],
+      "enabled": false
+    },
+    {
+      "description": "springdoc tracks the Spring Boot line; Boot 3.1.x pairs with 2.2.x. Drop once the Boot 4 migration lands",
+      "matchPackageNames": [
+        "org.springdoc:springdoc-openapi-starter-webmvc-ui"
+      ],
+      "allowedVersions": "<2.3.0"
+    },
+    {
+      "description": "A Java major also needs the maven build image tag and pom java.version, which Renovate cannot bump",
+      "matchPackageNames": ["eclipse-temurin", "java-jdk"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "java major"
+    },
+    {
+      "description": "Longer than pnpm 11's one day release-age gate, so pnpm never refuses a proposed version and bad releases have time to be pulled",
+      "matchDatasources": ["npm"],
+      "minimumReleaseAge": "3 days"
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "pnpm installed globally in the frontend image",
+      "managerFilePatterns": ["/(^|/)Dockerfile$/"],
+      "matchStrings": [
+        "npm install -g pnpm@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "pnpm",
+      "datasourceTemplate": "npm"
+    }
+  ]
+}

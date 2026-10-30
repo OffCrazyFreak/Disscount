@@ -33,6 +33,11 @@ const badgeVariants = cva(
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
       },
+      // A white rim that keeps the badge apart from a busy background, such as
+      // the chain logos on the map.
+      ring: {
+        true: "ring-2 ring-white",
+      },
     },
     defaultVariants: {
       variant: "primary",
@@ -45,6 +50,7 @@ function Badge({
   className,
   variant,
   size,
+  ring,
   asChild = false,
   ...props
 }: React.ComponentProps<"span"> &
@@ -54,7 +60,7 @@ function Badge({
   return (
     <Comp
       data-slot="badge"
-      className={cn(badgeVariants({ variant, size }), className)}
+      className={cn(badgeVariants({ variant, size, ring }), className)}
       {...props}
     />
   );

@@ -8,7 +8,7 @@ import disscount.user.domain.enums.AcquisitionChannel;
 
 @Data
 public class UserRequest {
-    @Size(min = 2, max = 40, message = "Korisničko ime mora imati između 2 i 40 znakova")
+    @Size(min = 2, max = 40, message = "{validation.username.size}")
     private String username;
     // Each toggle: null = leave unchanged, true = enable, false = disable.
     private Boolean notificationsPush;
@@ -19,12 +19,12 @@ public class UserRequest {
 
     // Base64 data URI; the client downscales avatars to a 256px WebP (~15-30 KB
     // encoded), so this is a generous abuse backstop rather than the real limit.
-    @Size(max = 400_000, message = "Slika je prevelika")
+    @Size(max = 400_000, message = "{validation.image.tooLarge}")
     private String image;
 
     // Bounded: the column is a plain varchar(255), and skipped:\\d+ accepted any
     // number of digits, so an oversized value passed validation and then died as a
     // constraint violation, turning a 400 into a 500. The wizard has five steps.
-    @Pattern(regexp = "completed|skipped:\\d{1,3}", message = "Neispravan ishod vodiča")
+    @Pattern(regexp = "completed|skipped:\\d{1,3}", message = "{validation.onboardingOutcome.invalid}")
     private String onboardingOutcome;
 }

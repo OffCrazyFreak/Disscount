@@ -1,0 +1,219 @@
+{
+  "meta": {
+    "title": "Produkte",
+    "description": "Alle verfügbaren Produkte im Überblick."
+  },
+  "clearFilters": {
+    "label": "Filter zurücksetzen"
+  },
+  "addToList": {
+    "title": "Produkt zur Einkaufsliste hinzufügen",
+    "description": "Wähle Liste, Menge und Händler.",
+    "submit": "Hinzufügen",
+    "cancel": "Abbrechen",
+    "reset": "Zurücksetzen",
+    "productNotFound": "Produkt nicht gefunden.",
+    "removeFromList": "Von dieser Liste entfernen",
+    "duplicateTitle": "Produkt steht schon auf der Liste",
+    "duplicateText": "Dieses Produkt ist schon auf der gewählten Einkaufsliste. Wenn du es erneut hinzufügst, steigt nur die Menge von {current} auf {next}.",
+    "toast": {
+      "pickList": "Wähle eine Einkaufsliste aus oder erstelle eine neue.",
+      "quantityIncreased": "Menge erhöht in „{name}“",
+      "added": "Produkt zu „{name}“ hinzugefügt",
+      "open": "Öffnen",
+      "fallbackListName": "Liste",
+      "removed": "Produkt von der Liste entfernt.",
+      "removeFailed": "Entfernen hat nicht geklappt."
+    }
+  },
+  "createListOption": {
+    "label": "„<name>{title}</name>“ erstellen"
+  },
+  "markAsChecked": {
+    "label": "Produkt gleich als gekauft markieren",
+    "description": "Das kannst du später in der Einkaufsliste ändern"
+  },
+  "actionsSheet": {
+    "pricesUnavailableTitle": "Preise nicht verfügbar",
+    "pricesUnavailableText": "Die Optionen für das Produkt kannst du trotzdem nutzen. Versuche es erneut, um die aktuelle Preisspanne zu sehen.",
+    "partialPricesTitle": "Einige Preise fehlen",
+    "partialPricesText": "Die Spanne enthält nur Standorte, deren Preise wir abrufen konnten."
+  },
+  "quantity": {
+    "label": "Menge"
+  },
+  "listSelector": {
+    "label": "Einkaufsliste",
+    "searchPlaceholder": "Deine Listen durchsuchen oder neue erstellen...",
+    "empty": "Gib hier einen Namen ein, um deine erste Einkaufsliste zu erstellen.",
+    "existingLists": "Vorhandene Listen",
+    "newList": "Neue Einkaufsliste",
+    "updatedAt": "({date})",
+    "progress": "{checked}/{total}"
+  },
+  "listTrigger": {
+    "loading": "Wird geladen...",
+    "createNamed": "Neue Liste „{title}“ erstellen",
+    "choose": "Liste auswählen...",
+    "createFirst": "Erste Liste direkt erstellen..."
+  },
+  "storeChainField": {
+    "label": "Händler"
+  },
+  "watchlistModal": {
+    "title": "Preisalarm setzen",
+    "description": "Lege einen Mindestrabatt fest, wir sagen dir Bescheid, sobald er erreicht ist.",
+    "save": "Speichern",
+    "track": "Preisalarm setzen",
+    "cancel": "Abbrechen",
+    "reset": "Zurücksetzen",
+    "productNotFound": "Produkt nicht gefunden.",
+    "removeFromWatchlist": "Preisalarm entfernen",
+    "existingTitle": "Preisalarm schon gesetzt",
+    "existingBoth": "Für dieses Produkt gibt es schon einen Preisalarm, mit einem Mindestrabatt von {percentage} % und {amount, number, ::currency/EUR}.",
+    "existingPercentage": "Für dieses Produkt gibt es schon einen Preisalarm, mit einem Mindestrabatt von {percentage} %.",
+    "existingAbsolute": "Für dieses Produkt gibt es schon einen Preisalarm, mit einem Mindestrabatt von {amount, number, ::currency/EUR}.",
+    "toast": {
+      "updated": "Mindestrabatt von {from} auf {to} geändert",
+      "added": "Preisalarm gesetzt",
+      "removedPercentage": "Preisalarm nach Prozent entfernt",
+      "removedAbsolute": "Preisalarm nach Preis entfernt",
+      "removeFailed": "Entfernen hat nicht geklappt"
+    }
+  },
+  "threshold": {
+    "labelAbsolute": "Mindestrabatt (€):",
+    "labelPercentage": "Mindestrabatt (%):",
+    "loading": "Mindestrabatt wird geladen",
+    "placeholderAbsolute": "z. B. 12",
+    "placeholderPercentage": "z. B. 15",
+    "willUpdate": "Der Mindestrabatt wird von {from} auf {to} geändert."
+  },
+  "typePicker": {
+    "label": "Alarm, wenn",
+    "absolute": {
+      "label": "Preis sinkt um €",
+      "description": "Du wirst benachrichtigt, wenn der Preis um einen bestimmten Betrag fällt"
+    },
+    "percentage": {
+      "label": "Rabatt mindestens %",
+      "description": "Du wirst benachrichtigt, wenn der Rabatt mindestens einen bestimmten Prozentsatz erreicht"
+    }
+  },
+  "actions": {
+    "addToList": "Zur Einkaufsliste hinzufügen",
+    "editListEntry": "Eintrag in der Einkaufsliste bearbeiten",
+    "watch": "Preisalarm setzen",
+    "editWatch": "Preisalarm bearbeiten",
+    "share": "Produkt teilen",
+    "searchImage": "Produktbild suchen",
+    "group": "Optionen für das Produkt"
+  },
+  "facets": {
+    "stores": {
+      "label": "Händler",
+      "placeholder": "Händler auswählen...",
+      "search": "Händler suchen...",
+      "empty": "Keine Händler"
+    },
+    "locations": {
+      "label": "Standorte",
+      "placeholder": "Standorte auswählen...",
+      "search": "Standorte suchen...",
+      "empty": "Keine Standorte"
+    },
+    "categories": {
+      "label": "Kategorien",
+      "placeholder": "Kategorien auswählen...",
+      "search": "Kategorien suchen...",
+      "empty": "Keine Kategorien"
+    },
+    "brands": {
+      "label": "Marke",
+      "placeholder": "Marke auswählen...",
+      "search": "Marken suchen...",
+      "empty": "Keine Marken"
+    },
+    "count": "({count})"
+  },
+  "filtersTrigger": {
+    "label": "Filter"
+  },
+  "productInfo": {
+    "back": "Zurück",
+    "unknown": "Unbekannt",
+    "brand": "Marke:",
+    "barcode": "Barcode:",
+    "quantity": "Menge:",
+    "prices": "Preise:",
+    "unitPrices": "Grundpreise:",
+    "priceRange": "<low>{lowPrice}</low><mid> | {averagePrice} | </mid><high>{highPrice}</high>",
+    "perUnit": "{price}/{unit}",
+    "unknownProduct": "Unbekanntes Produkt"
+  },
+  "priceScope": {
+    "label": "Infos zur Preisspanne",
+    "all": "Spanne der veröffentlichten Preise bei allen Händlern.",
+    "chains": "Spanne der veröffentlichten Preise bei den gefilterten Händlern.",
+    "locations": "Spanne der veröffentlichten Preise, die zu den gewählten Filtern passen."
+  },
+  "validation": {
+    "listRequired": "Wähle eine Einkaufsliste aus",
+    "amountRange": "Die Menge muss zwischen 1 und 999 liegen",
+    "listTitleMin": "Gib einen Namen mit mindestens 3 Zeichen ein",
+    "listTitleMax": "Gib einen Namen mit höchstens 100 Zeichen ein",
+    "thresholdInvalid": "Gib einen gültigen Wert ein",
+    "percentageRange": "Der Prozentsatz muss zwischen 1 % und 99 % liegen",
+    "absoluteRange": "Der Betrag muss zwischen 0,10 € und 999 € liegen"
+  },
+  "list": {
+    "searchPlaceholder": "Produkte suchen...",
+    "resultsTitle": "Suchergebnisse für „{query}“",
+    "resultsTitleWithCount": "Suchergebnisse für „{query}“ ({count}{suffix})",
+    "partialPricesTitle": "Einige Preise fehlen",
+    "partialPricesText": "Wir zeigen die verfügbaren Preise, aber mindestens ein gewählter Standort konnte gerade nicht abgerufen werden.",
+    "errorTitle": "Suche fehlgeschlagen",
+    "errorText": "Beim Laden der Daten ist etwas schiefgelaufen. Versuche es erneut.",
+    "noResultsForFilters": "Keine Ergebnisse für die gewählten Filter",
+    "clearFilters": "Filter zurücksetzen",
+    "enterQueryTitle": "Gib einen Suchbegriff ein",
+    "enterQueryText": "Die Filter sind gesetzt, die Ergebnisse erscheinen nach der Suche",
+    "startTitle": "Produkte suchen",
+    "startText": "Gib den Namen des Produkts ein, das du suchst"
+  },
+  "viewSwitcher": {
+    "label": "Ansicht",
+    "grid": "Rasteransicht",
+    "list": "Listenansicht"
+  },
+  "storePrice": {
+    "empty": "Keine Reduzierung",
+    "line": "<chainName>{chain}</chainName> ~ {price} (-{discount}, {percentage} %)"
+  },
+  "quickActions": {
+    "titleFallback": "Optionen für das Produkt",
+    "description": "Optionen für das gewählte Produkt.",
+    "notFound": "Wir haben dieses Produkt nicht gefunden. Vielleicht ist es nicht mehr im Sortiment."
+  },
+  "productsSheet": {
+    "submit": "Suchen",
+    "title": "Produkte suchen",
+    "description": "Gib den Produktnamen ein oder scanne den Barcode."
+  },
+  "price": {
+    "increase": "+{amount}",
+    "percentage": "({percentage} %)"
+  },
+  "productPrice": {
+    "unknown": "Unbekannter Preis"
+  },
+  "historyPeriod": {
+    "week": "1W",
+    "month": "1M",
+    "year": "1J",
+    "all": "Alle"
+  },
+  "storeChainSelect": {
+    "multiPlaceholder": "Händler auswählen..."
+  }
+}

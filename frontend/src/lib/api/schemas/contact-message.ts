@@ -2,19 +2,16 @@ import { z } from "zod";
 
 // What the public form submits. Email/name are optional; honeypot must stay empty.
 export const contactMessageRequestSchema = z.object({
-  email: z.email("Neispravan e-mail").or(z.literal("")).optional(),
-  fullName: z
-    .string()
-    .max(255, "Ime može imati najviše 255 znakova")
-    .optional(),
+  email: z.email("common.validation.emailInvalid").or(z.literal("")).optional(),
+  fullName: z.string().max(255, "common.validation.fullNameMax").optional(),
   subject: z
     .string()
-    .min(1, "Naslov je obavezan")
-    .max(255, "Naslov može imati najviše 255 znakova"),
+    .min(1, "common.validation.subjectRequired")
+    .max(255, "common.validation.subjectMax"),
   message: z
     .string()
-    .min(1, "Poruka je obavezna")
-    .max(5000, "Poruka može imati najviše 5000 znakova"),
+    .min(1, "common.validation.messageRequired")
+    .max(5000, "common.validation.messageMax"),
   sourcePath: z.string().optional(),
   // Honeypot must stay empty; reject a filled value (backend also drops it server-side).
   honeypot: z.string().max(0).optional(),

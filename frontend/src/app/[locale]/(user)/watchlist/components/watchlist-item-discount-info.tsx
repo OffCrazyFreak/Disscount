@@ -1,0 +1,106 @@
+import { Star, Store } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+
+import { Skeleton } from "@/components/ui/skeleton";
+import PriceStack from "@/components/custom/price/price-stack";
+import { openModalUrl } from "@/lib/modal/modal-navigation";
+import WatchlistDiscountRow from "@/app/[locale]/(user)/watchlist/components/watchlist-discount-row";
+import { formatDifference } from "@/app/[locale]/(user)/watchlist/utils/discount-display-utils";
+import { IDiscountInfo } from "@/app/[locale]/(user)/watchlist/utils/watchlist-utils";
+import type { INotificationStore } from "@/context/notifications-types";
+
+interface IWatchlistItemDiscountInfoProps {
+  discountInfo: IDiscountInfo | null;
+  hasPinnedStores: boolean;
+  preferredStores: INotificationStore[];
+  totalStores: INotificationStore[];
+  isLoading: boolean;
+  error: Error | null;
+}
+
+export default function WatchlistItemDiscountInfo({
+  discountInfo,
+  hasPinnedStores,
+  preferredStores,
+  totalStores,
+  isLoading,
+  error,
+}: IWatchlistItemDiscountInfoProps) {
+  const t = useTranslations("watchlist");
+  const locale = useLocale();
+
+  function openPreferences() {
+    openModalUrl({ name: "settings", tab: "preference" });
+  }
+
+  if (isLoading) {
+    return (
+      <PriceStack
+        primary={<Skeleton className="h-4 w-24" />}
+        secondary={<Skeleton className="h-4 w-20" />}
+      />
+    );
+  }
+
+  if (error) {
+    return (
+      <p className="text-sm text-destructive">{t("discountInfo.loadError")}</p>
+    );
+  }
+
+  if (!discountInfo) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        {t("discountInfo.noData")}
+      </p>
+    );
+  }
+
+  return (
+    <PriceStack
+      primary={
+        hasPinnedStores ? (
+          <WatchlistDiscountRow
+            icon={Star}
+            difference={discountInfo.preferredDifference}
+            text={formatDifference(
+              discountInfo.preferredDifference,
+              discountInfo.preferredPercentage,
+              t("discountInfo.unavailable"),
+              locale,
+            )}
+            stores={preferredStores}
+            bold
+            infoLabel={t("discountInfo.preferredStoresInfo")}
+            onOpenPreferences={openPreferences}
+          />
+        ) : (
+          <button
+            type="button"
+            className="relative z-20 flex cursor-pointer items-center gap-2 rounded-sm text-muted-foreground italic transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            onClick={openPreferences}
+          >
+            <Star className="size-6 text-gray-700" aria-hidden="true" />
+            <span>{t("discountInfo.setPreferences")}</span>
+          </button>
+        )
+      }
+      secondary={
+        <WatchlistDiscountRow
+          icon={Store}
+          difference={discountInfo.totalDifference}
+          text={formatDifference(
+            discountInfo.totalDifference,
+            discountInfo.totalPercentage,
+            t("discountInfo.noData"),
+            locale,
+          )}
+          stores={totalStores}
+          tooltipSide="bottom"
+          infoLabel={t("discountInfo.allStoresInfo")}
+          onOpenPreferences={openPreferences}
+        />
+      }
+    />
+  );
+}

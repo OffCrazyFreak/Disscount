@@ -3,11 +3,13 @@ import type { FieldValues, Path, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
 // RFC 9457 Problem Details as emitted by the backend GlobalExceptionHandler.
-export const problemDetailsSchema = z.object({
+const problemDetailsSchema = z.object({
   type: z.string().optional(),
   title: z.string().optional(),
   status: z.number().optional(),
   detail: z.string().optional(),
+  // The server's message code, set on conflicts; the detail is translated text.
+  code: z.string().optional(),
   fieldErrors: z.record(z.string(), z.string()).optional(),
 });
 
@@ -34,8 +36,9 @@ export function problemMessage(error: unknown, fallback: string): string {
 export function applyProblemToForm<T extends FieldValues>(
   error: unknown,
   form: UseFormReturn<T>,
-  fieldMap?: Partial<Record<string, Path<T>>>,
-  fallbackMessage = "Provjeri unesene podatke.",
+  fieldMap: Partial<Record<string, Path<T>>> | undefined,
+  // Translated by the caller: this runs outside React, with no locale of its own.
+  fallbackMessage: string,
 ): boolean {
   const problem = parseProblem(error);
   const knownFields = new Set(Object.keys(form.getValues()));

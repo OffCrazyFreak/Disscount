@@ -101,6 +101,11 @@ async function getToken(forceRefresh = false): Promise<string | null> {
   return inflightTokenPromise;
 }
 
+/** The cached bearer token if it is still fresh, with no network call. */
+export function peekFreshAuthToken(): string | null {
+  return isCachedTokenFresh() ? cachedToken : null;
+}
+
 export function clearAuthToken() {
   clearTokenCache();
   lastFailedAttemptAt = Date.now();
@@ -117,6 +122,12 @@ apiClient.interceptors.request.use(
       const token = await getToken();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+      }
+
+      // The backend localises its error messages from this; <html lang> always
+      // matches the page, and server-side calls fall back to the backend's Croatian.
+      if (typeof document !== "undefined" && document.documentElement.lang) {
+        config.headers["Accept-Language"] = document.documentElement.lang;
       }
     }
     return config;

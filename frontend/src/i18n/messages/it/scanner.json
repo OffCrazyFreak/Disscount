@@ -1,0 +1,64 @@
+{
+  "title": "Scansiona il codice",
+  "camera": {
+    "label": "Fotocamera",
+    "autoPlaceholder": "Automatica (fotocamera posteriore)",
+    "reset": "Torna alla scelta automatica della fotocamera",
+    "name": "{facing, select, front {Fotocamera anteriore} back {Fotocamera posteriore} other {Fotocamera}}{lens, select, ultrawide { (ultragrandangolare)} telephoto { (teleobiettivo)} macro { (macro)} other {}}{ordinal, plural, =0 {} other { #}}",
+    "hint": "Il codice non si legge bene. Avvicina la fotocamera, elimina i riflessi o prova un'altra immagine.",
+    "manual": "Scrivi a mano"
+  },
+  "image": {
+    "upload": "Carica un'immagine con il codice",
+    "loading": "Caricamento...",
+    "notFound": "Nessun codice trovato nell'immagine.",
+    "notProductBarcode": "Il codice nell'immagine non è un codice a barre di prodotto (EAN).",
+    "loadFailed": "Non riusciamo a caricare l'immagine.",
+    "unsupportedFormat": "Il formato del codice nell'immagine non è supportato.",
+    "unreadable": "Il codice nell'immagine non si legge bene. Prova con un'immagine più nitida."
+  },
+  "errors": {
+    "permissionDenied": "Accesso alla fotocamera negato. Attivala nelle impostazioni del browser e riprova.",
+    "noCamera": "Nessuna fotocamera trovata su questo dispositivo.",
+    "inUse": "La fotocamera è in uso in un'altra app. Chiudila e riprova.",
+    "overconstrained": "La fotocamera scelta non è disponibile. Torna alla scelta automatica.",
+    "insecureContext": "La scansione funziona solo con una connessione sicura (HTTPS).",
+    "generic": "Non siamo riusciti ad avviare la fotocamera. Riprova."
+  },
+  "codes": {
+    "ean_13": "EAN-13",
+    "ean_8": "EAN-8",
+    "upc_a": "UPC-A",
+    "upc_e": "UPC-E",
+    "code_128": "Code 128",
+    "code_39": "Code 39",
+    "code_93": "Code 93",
+    "codabar": "Codabar",
+    "itf": "ITF",
+    "qr_code": "Codice QR",
+    "aztec": "Aztec",
+    "data_matrix": "Data Matrix",
+    "pdf417": "PDF417",
+    "unknown": "Solo numero/testo",
+    "fallback": "Codice"
+  },
+  "confirm": {
+    "title": "Controlla il codice",
+    "chooseLegend": "Scegli il codice che la cassa scansiona",
+    "use": "Usa il codice",
+    "rescan": "Scansiona di nuovo",
+    "manual": "Scrivi a mano",
+    "announceTyped": "Codice inserito: {label}",
+    "announceFound": "Codice trovato: {label}",
+    "announceMany": "{count, plural, one {Trovato # codice} other {Trovati # codici}}"
+  },
+  "manual": {
+    "title": "Scrivi il codice a mano",
+    "numberLabel": "Numero della carta",
+    "typeLabel": "Tipo di codice",
+    "submit": "Continua",
+    "back": "Torna alla scansione",
+    "numberRequired": "Scrivi il numero del codice.",
+    "checkDigitMismatch": "Il numero non corrisponde al tipo di codice scelto. Controlla le cifre o scegli un altro tipo."
+  }
+}

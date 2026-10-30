@@ -17,7 +17,7 @@ const CONTACT_QUERY_KEYS = {
 };
 
 // Public: submit a contact message (no auth header sent when logged out).
-export async function createContactMessage(
+async function createContactMessage(
   data: ContactMessageRequest,
 ): Promise<ContactMessageDto> {
   const validated = contactMessageRequestSchema.parse(data);
@@ -29,7 +29,7 @@ export async function createContactMessage(
 }
 
 // Admin reads
-export async function getContactMessages(
+async function getContactMessages(
   includeDeleted = false,
 ): Promise<ContactMessageDto[]> {
   const response = await apiClient.get<ContactMessageDto[]>(ADMIN_BASE_PATH, {
@@ -38,9 +38,7 @@ export async function getContactMessages(
   return response.data.map((item) => contactMessageDtoSchema.parse(item));
 }
 
-export async function getContactMessage(
-  id: string,
-): Promise<ContactMessageDto> {
+async function getContactMessage(id: string): Promise<ContactMessageDto> {
   const response = await apiClient.get<ContactMessageDto>(
     `${ADMIN_BASE_PATH}/${id}`,
   );
@@ -58,7 +56,7 @@ async function patchContactAction(
   return contactMessageDtoSchema.parse(response.data);
 }
 
-export async function softDeleteContactMessage(
+async function softDeleteContactMessage(
   id: string,
 ): Promise<ContactMessageDto> {
   const response = await apiClient.delete<ContactMessageDto>(
@@ -68,13 +66,13 @@ export async function softDeleteContactMessage(
 }
 
 // React Query hooks
-export function useCreateContactMessage() {
+function useCreateContactMessage() {
   return useMutation<ContactMessageDto, Error, ContactMessageRequest>({
     mutationFn: createContactMessage,
   });
 }
 
-export function useGetContactMessages(
+function useGetContactMessages(
   includeDeleted = false,
   { enabled = true } = {},
 ) {
@@ -85,7 +83,7 @@ export function useGetContactMessages(
   });
 }
 
-export function useGetContactMessage(id: string, { enabled = true } = {}) {
+function useGetContactMessage(id: string, { enabled = true } = {}) {
   return useQuery<ContactMessageDto, Error>({
     queryKey: CONTACT_QUERY_KEYS.detail(id),
     queryFn: () => getContactMessage(id),
@@ -103,19 +101,19 @@ function useContactAction(action: (id: string) => Promise<ContactMessageDto>) {
   });
 }
 
-export function useMarkRead() {
+function useMarkRead() {
   return useContactAction((id) => patchContactAction(id, "read"));
 }
 
-export function useMarkUnread() {
+function useMarkUnread() {
   return useContactAction((id) => patchContactAction(id, "unread"));
 }
 
-export function useSoftDelete() {
+function useSoftDelete() {
   return useContactAction(softDeleteContactMessage);
 }
 
-export function useRestore() {
+function useRestore() {
   return useContactAction((id) => patchContactAction(id, "restore"));
 }
 

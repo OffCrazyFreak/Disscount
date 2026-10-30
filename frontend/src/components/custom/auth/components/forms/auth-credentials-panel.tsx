@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 
+import { Link } from "@/i18n/navigation";
 import { Separator } from "@/components/ui/separator";
 import LoginForm from "@/components/custom/auth/components/forms/login-form";
 import SignUpForm from "@/components/custom/auth/components/forms/signup-form";
@@ -25,6 +26,31 @@ export default function AuthCredentialsPanel({
   onSuccess,
   onForgotPassword,
 }: IAuthCredentialsPanelProps) {
+  const t = useTranslations("auth");
+
+  const legal = t.rich("credentials.legal", {
+    terms: (chunks) => (
+      <Link
+        href="/terms-of-service"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline hover:text-primary"
+      >
+        {chunks}
+      </Link>
+    ),
+    privacy: (chunks) => (
+      <Link
+        href="/privacy-policy"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline hover:text-primary"
+      >
+        {chunks}
+      </Link>
+    ),
+  });
+
   return (
     <div className="grid gap-8">
       {isLogin ? (
@@ -42,7 +68,9 @@ export default function AuthCredentialsPanel({
         <Separator />
 
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="bg-background px-4 text-muted-foreground">ili</span>
+          <span className="bg-background px-4 text-muted-foreground">
+            {t("credentials.or")}
+          </span>
         </div>
       </div>
 
@@ -53,25 +81,7 @@ export default function AuthCredentialsPanel({
       />
 
       <p className="text-center text-xs text-muted-foreground text-balance">
-        Nastavkom prihvaćaš naše{" "}
-        <Link
-          href="/terms-of-service"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline hover:text-primary"
-        >
-          Uvjete korištenja
-        </Link>{" "}
-        i{" "}
-        <Link
-          href="/privacy-policy"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline hover:text-primary"
-        >
-          Pravila privatnosti
-        </Link>
-        .
+        {legal}
       </p>
     </div>
   );

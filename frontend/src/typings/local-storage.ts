@@ -26,6 +26,7 @@ export interface IShoppingListsPreferences {
   priceHistoryPeriod?: PeriodOption;
   priceHistoryChains?: string[];
   storesOpen?: boolean;
+  groupByStore?: boolean;
   [key: string]: unknown;
 }
 
@@ -45,5 +46,6 @@ export interface IAppData {
   storeOptimizeMode?: string; // Preferred store-list sort, shared across all shopping lists
   preferredCameraId?: string; // Manually chosen scanner camera; absent means auto-pick
   formDrafts?: Record<string, IFormDraft>; // Unsaved modal-form drafts keyed per modal
+  mapRecentSearches?: string[]; // Last few store-map searches, newest first
   [key: string]: unknown;
 }

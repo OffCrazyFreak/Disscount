@@ -5,7 +5,7 @@ import {
 } from "@/components/custom/settings/settings-schema";
 
 export function fieldChanged(
-  values: SettingsFormValues,
+  values: Partial<SettingsFormValues>,
   defaults: Partial<SettingsFormValues>,
   field: keyof SettingsFormValues,
 ): boolean {
@@ -14,7 +14,7 @@ export function fieldChanged(
 
 // RHF's dirtyFields reports per-index flags for arrays, so value-compare instead.
 export function dirtySections(
-  values: SettingsFormValues,
+  values: Partial<SettingsFormValues>,
   defaults: Partial<SettingsFormValues>,
   avatarTouched: boolean,
 ): Set<SettingsSection> {

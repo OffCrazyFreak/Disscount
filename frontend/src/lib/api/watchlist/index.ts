@@ -4,7 +4,7 @@ import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 import { WatchlistItemRequest, WatchlistItemDto } from "@/lib/api/types";
 
 // Query key constants
-export const WATCHLIST_QUERY_KEYS = {
+const WATCHLIST_QUERY_KEYS = {
   all: ["watchlist"] as const,
   me: ["watchlist", "me"] as const,
   byProduct: (productApiId: string) =>
@@ -27,7 +27,7 @@ export async function addToWatchlist(
 /**
  * Get current user's watchlist
  */
-export async function getCurrentUserWatchlist(): Promise<WatchlistItemDto[]> {
+async function getCurrentUserWatchlist(): Promise<WatchlistItemDto[]> {
   const response = await apiClient.get<WatchlistItemDto[]>("/api/watchlist/me");
   return response.data;
 }
@@ -36,7 +36,7 @@ export async function getCurrentUserWatchlist(): Promise<WatchlistItemDto[]> {
  * Get watchlist items by product API ID (EAN)
  * Returns all watchlist items for this product (can have multiple with different watch types)
  */
-export async function getWatchlistItemsByProductApiId(
+async function getWatchlistItemsByProductApiId(
   productApiId: string,
 ): Promise<WatchlistItemDto[]> {
   const response = await apiClient.get<WatchlistItemDto[]>(
@@ -54,7 +54,7 @@ export async function removeFromWatchlist(id: string): Promise<void> {
 
 // React Query hooks
 
-export function useAddToWatchlist() {
+function useAddToWatchlist() {
   const queryClient = useQueryClient();
 
   return useMutation<WatchlistItemDto, Error, WatchlistItemRequest>({
@@ -66,7 +66,7 @@ export function useAddToWatchlist() {
   });
 }
 
-export function useGetCurrentUserWatchlist({ enabled = true } = {}) {
+function useGetCurrentUserWatchlist({ enabled = true } = {}) {
   return useQuery<WatchlistItemDto[], Error>({
     queryKey: WATCHLIST_QUERY_KEYS.me,
     queryFn: getCurrentUserWatchlist,
@@ -74,7 +74,7 @@ export function useGetCurrentUserWatchlist({ enabled = true } = {}) {
   });
 }
 
-export function useGetWatchlistItemsByProductApiId(productApiId: string) {
+function useGetWatchlistItemsByProductApiId(productApiId: string) {
   return useQuery<WatchlistItemDto[], Error>({
     queryKey: WATCHLIST_QUERY_KEYS.byProduct(productApiId),
     queryFn: () => getWatchlistItemsByProductApiId(productApiId),
@@ -82,7 +82,7 @@ export function useGetWatchlistItemsByProductApiId(productApiId: string) {
   });
 }
 
-export function useRemoveFromWatchlist() {
+function useRemoveFromWatchlist() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, string>({

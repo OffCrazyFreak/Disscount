@@ -1,0 +1,167 @@
+{
+  "notFound": {
+    "meta": {
+      "title": "Page not found (404)",
+      "description": "The page you're looking for doesn't exist."
+    },
+    "heading": "Hmm… this is awkward. 😅",
+    "description": "It looks like the page <path></path> doesn't exist.",
+    "hint": "Let's head back to the home page together, or report a bug!",
+    "backHome": "Back to home"
+  },
+  "offline": {
+    "meta": {
+      "title": "No internet connection",
+      "description": "You're offline right now."
+    },
+    "title": "No internet connection 📡",
+    "description": "You're offline right now. Your saved lists, watchlist and recently viewed products are still available.",
+    "hint": "Check your connection and try again.",
+    "retry": "Try again",
+    "indicator": "Offline: showing saved data.",
+    "indicatorPending": "Offline: {count, plural, one {# saved change} other {# saved changes}} will sync later."
+  },
+  "lastSynced": {
+    "refreshed": "Refreshed {time}"
+  },
+  "collapsibleSection": {
+    "hide": "Hide",
+    "show": "Show"
+  },
+  "comingSoon": {
+    "badge": "SOON",
+    "description": "We're still working on this feature. It will be available soon.",
+    "notifyMe": "Notify me"
+  },
+  "copyButton": {
+    "error": "Couldn't copy"
+  },
+  "footer": {
+    "copyright": "© {year} Jakov Jakovac",
+    "comingSoonLabel": "{label} (soon)",
+    "comingSoonTitle": "Soon"
+  },
+  "inboxNotice": {
+    "spamHint": "Check your spam folder too."
+  },
+  "loginRequired": {
+    "description": "Sign in to use this feature.",
+    "action": "Sign in"
+  },
+  "noResults": {
+    "title": "No results",
+    "description": "Try a different search term"
+  },
+  "oauthError": {
+    "emailNotFound": "Your Facebook account didn't share an email address. Sign in with email, or with a Facebook account that has one.",
+    "emailMismatch": "Couldn't link that account because it uses a different email address. You can only link accounts with the same email address as yours.",
+    "alreadyLinked": "That account is already linked to another Disscount account. You can't link it to this one.",
+    "notLinked": "This sign-in can't be linked to an existing account automatically. Sign in with your usual method, then link the account in your security settings.",
+    "restart": "The sign-in expired or was interrupted. Try again.",
+    "default": "Something went wrong while signing in. Try again."
+  },
+  "userAvatar": {
+    "alt": "Avatar"
+  },
+  "contact": {
+    "channels": {
+      "intro": "Send us a message with the form below, email us directly at <email></email> or message us on <linkedin>LinkedIn</linkedin>.",
+      "copyEmailLabel": "Copy email address",
+      "copyEmailSuccess": "Email address copied!",
+      "copyEmailError": "Couldn't copy the email address",
+      "suggestIdea": "Suggest an idea",
+      "openSuggestions": "Open Ideas and suggestions",
+      "reportBug": "Report a bug",
+      "openBugReport": "Open bug report"
+    },
+    "form": {
+      "email": "Email",
+      "emailPlaceholder": "you@email.com",
+      "fullName": "Full name",
+      "fullNamePlaceholder": "Your name",
+      "subject": "Subject",
+      "subjectPlaceholder": "E.g. A question about Disscount",
+      "message": "Message",
+      "messagePlaceholder": "Tell us how we can help...",
+      "charactersLeft": "{count, plural, one {# character left} other {# characters left}}"
+    },
+    "modal": {
+      "title": "Get in touch",
+      "description": "Send us a message with the form below, or reach out directly.",
+      "submit": "Send message",
+      "cancel": "Cancel",
+      "reset": "Reset",
+      "sent": "Message sent. Thanks for getting in touch!",
+      "sentWithEmail": "Message sent. Thanks for getting in touch! If needed, we'll reply to the email you entered.",
+      "sourceAvailable": "Disscount is source-available. <link>See the project on GitHub</link>."
+    }
+  },
+  "donation": {
+    "title": "Support Disscount",
+    "intro": "Disscount is free and will stay that way. If it helps you plan your shopping, or helps you in any other way, any support you choose to give means a lot to us.",
+    "usage": "Everything goes straight back into Disscount to cover running costs and further development.",
+    "kofi": "Support on Ko-fi"
+  },
+  "forgotPassword": {
+    "link": "Forgot your password?",
+    "sending": "Sending..."
+  },
+  "multiSelect": {
+    "optionsList": "List of options",
+    "selectAll": "Select all",
+    "clearAll": "Clear all",
+    "selected": "{count} selected"
+  },
+  "passwordInput": {
+    "show": "Show password",
+    "hide": "Hide password"
+  },
+  "stepper": {
+    "increase": "Increase by {amount, number}",
+    "decrease": "Decrease by {amount, number}"
+  },
+  "notifications": {
+    "label": "Notifications",
+    "labelWithCount": "Notifications ({count})",
+    "loading": "Loading...",
+    "emptyWatching": "None of the products you watch are discounted today.",
+    "emptyNotWatching": "Add products to your watchlist and we'll let you know when they're discounted in your stores!",
+    "addProducts": "Add products",
+    "totalSavings": "Total saved today:",
+    "savingsDetail": "(≥ {amount} on {count, plural, one {# product} other {# products}})"
+  },
+  "install": {
+    "actionDesktop": "Install app",
+    "actionMobile": "Add to Home Screen",
+    "pitchDesktop": "Install Disscount for quicker access.",
+    "pitchMobile": "Add Disscount to your Home Screen for quicker access.",
+    "close": "Close",
+    "unsupportedTitle": "This browser can't install apps",
+    "unsupportedText": "Open Disscount in another browser, such as Google Chrome, to add it to your device.",
+    "perkTitle": "Install as an app",
+    "perkDesktop": "No app store download needed: install Disscount straight from your browser.",
+    "perkMobile": "No app store download needed: add Disscount to your Home Screen straight from your browser.",
+    "sheetDescriptionDesktop": "Install Disscount on your computer in a few steps.",
+    "sheetDescriptionMobile": "Add Disscount to your Home Screen in a few steps.",
+    "steps": {
+      "iosMenu": "Tap <ellipsis></ellipsis> next to the address bar, then <share></share> <b>Share</b>. On older iPhones, <b>Share</b> is right there in the toolbar.",
+      "iosAdd": "Scroll down the menu and choose <plus></plus> <b>Add to Home Screen</b>.",
+      "confirmAdd": "Confirm with <b>Add</b>.",
+      "macFile": "Open the <b>File</b> menu in the menu bar at the top of your screen.",
+      "macDock": "Choose <dock></dock> <b>Add to Dock</b>.",
+      "androidMenu": "Tap <vdots></vdots> to open the browser menu.",
+      "androidChoose": "Choose <download></download> <b>Install app</b> or <b>Add to Home Screen</b>, depending on your browser.",
+      "confirmInstall": "Confirm with <b>Install</b>.",
+      "desktopIcon": "Click <monitor></monitor> on the right side of the address bar.",
+      "desktopMenu": "If you don't see that icon, open the <vdots></vdots> menu, then <b>Save and share</b> › <b>Install page as app</b>."
+    }
+  },
+  "validation": {
+    "emailInvalid": "Invalid email address",
+    "fullNameMax": "Your name can be up to 255 characters",
+    "subjectRequired": "Subject is required",
+    "subjectMax": "Subject can be up to 255 characters",
+    "messageRequired": "Message is required",
+    "messageMax": "Message can be up to 5000 characters"
+  }
+}

@@ -11,6 +11,11 @@
 # and fails locally on files that are not in the repo, so local and CI disagree.
 .claude/worktrees/
 
+# Skills vendored verbatim from upstream; reformatting them would turn every re-vendor
+# into a whitespace diff. The .claude/skills entries are symlinks Prettier does not follow.
+.agents/skills/brag*/
+.agents/skills/hyperframes*/
+
 # Lockfiles
 **/pnpm-lock.yaml
 

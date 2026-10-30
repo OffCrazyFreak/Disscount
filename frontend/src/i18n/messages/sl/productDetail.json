@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "title": "Podrobnosti izdelka",
+    "description": "Primerjava cen izdelka."
+  },
+  "notFound": {
+    "title": "Izdelek ni najden",
+    "description": "Podatkov za ta izdelek ni mogoče naložiti."
+  },
+  "sort": {
+    "label": "Razvrsti po:",
+    "stores": "Trgovinah",
+    "price": "Ceni",
+    "distance": "Razdalji"
+  },
+  "chains": {
+    "title": "Cene po trgovcih",
+    "refreshed": "Cene posodobljene {time}",
+    "loadError": "Napaka pri nalaganju cen. Poskusi znova.",
+    "empty": "Za ta izdelek ni cen.",
+    "whereToBuy": "Kje kupiti"
+  },
+  "priceHistory": {
+    "title": "Zgodovina cen",
+    "hide": "Skrij",
+    "show": "Pokaži",
+    "empty": "Ni zgodovinskih podatkov.",
+    "average": "Povprečje",
+    "period": {
+      "week": "(zadnjih 7 dni)",
+      "month": "(zadnjih 30 dni)",
+      "year": "(zadnjih 365 dni)",
+      "all": "(od začetka)"
+    }
+  },
+  "storeItem": {
+    "dataFrom": "Podatki od {date}",
+    "min": "Najnižja: {price}",
+    "average": "Povprečje: {price}",
+    "max": "Najvišja: {price}",
+    "pricesByLocation": "Cene po lokacijah"
+  },
+  "pricesTable": {
+    "empty": "Za tega trgovca ni cen",
+    "location": "Lokacija",
+    "address": "Naslov",
+    "price": "Cena",
+    "unknown": "Neznano",
+    "notAvailable": "Ni",
+    "showOnMap": ", prikaži na zemljevidu"
+  }
+}

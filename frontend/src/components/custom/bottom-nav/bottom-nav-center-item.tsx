@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronsDown, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { isKeyboardClick } from "@/utils/events";
 import { useProductsSheet } from "@/context/products-sheet-context";
@@ -48,6 +49,7 @@ export default function BottomNavCenterItem({
   indicatorOpacity,
   onKeyboardActivate,
 }: IBottomNavCenterItemProps) {
+  const t = useTranslations("shell");
   const { triggerRef } = useProductsSheet();
 
   return (
@@ -57,7 +59,11 @@ export default function BottomNavCenterItem({
         type="button"
         // The visible word stays in the name in both states, so speech control
         // can still address the cell while the sheet is open (WCAG 2.5.3).
-        aria-label={isSearchOpen ? `${label}, zatvori` : `${label}, traži`}
+        aria-label={
+          isSearchOpen
+            ? t("bottomNav.searchClose", { label })
+            : t("bottomNav.searchOpen", { label })
+        }
         aria-current={isActive ? "page" : undefined}
         aria-expanded={isSearchOpen}
         onClick={(event) => {

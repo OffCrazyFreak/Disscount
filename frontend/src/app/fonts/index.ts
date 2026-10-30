@@ -8,6 +8,9 @@ export const huninn = localFont({
   style: "normal",
   variable: "--font-huninn",
   display: "swap",
+  // The file declares an 18% descent but descenders reach 23%, and Chromium
+  // clips input text there at 125% scaling; 26% leaves room for pixel rounding.
+  declarations: [{ prop: "descent-override", value: "26%" }],
 });
 
 export const sairaStencil = localFont({
