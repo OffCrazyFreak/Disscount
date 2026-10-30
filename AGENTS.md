@@ -90,6 +90,7 @@ Tests run on H2 and touch nothing outside the module, so none needs a nod.
 - `react-scan` stays exact-pinned at 0.5.3: 0.4 depends on `playwright`, and 0.5.4 onwards adds dependencies at `latest` (`react-grab`, then `react-doctor`, which pulls in `playwright-core`). The project keeps Playwright out entirely.
 - `next`, `react`, `react-dom`, `better-auth`, `drizzle-orm`, `kysely` and `pg` stay exact-pinned, so auth and data-layer bumps have to go through a reviewed PR. Everything else takes a range. Do not add a pin to a dependency with no security or data blast radius.
 - After changing a dependency or a pnpm override, delete `node_modules`, `pnpm-lock.yaml` and `.next` before reinstalling. A plain `pnpm install` leaves the old resolution in place.
+- Dependency updates come from Renovate (`renovate.json`), not Dependabot. It reads its config from `main` only, so a change to `renovate.json` takes effect at the next release. Majors wait for approval on the Dependency Dashboard issue, and its security PRs may add entries to `minimumReleaseAgeExclude` in `frontend/pnpm-workspace.yaml`.
 - Resetting the database means dropping both the `public` and the `drizzle` schemas. Dropping only `public` leaves the migration journal behind and `drizzle-kit migrate` silently no-ops.
 
 Conventions:
@@ -139,6 +140,7 @@ Before wiring an API call, confirm the endpoint exists in `backend/` or upstream
 - Work lands on `dev`; a release is a `dev` into `main` PR. Before one, dev-vs-main goes through a multi-tool review whose findings land as their own `fix:` PR, artifacts in `reviews/`.
 - Move one change to another branch by cherry-picking it, not merging, because `dev` usually carries unrelated work.
 - Open or merge a PR only when I ask.
+- Attach PR screenshots with `gh pr create`, `gh pr edit` or `gh pr comment` and `--attach '<file>#<alt text>'`. Never host them on a branch: once it is deleted, GitHub can garbage collect the commits the image links point to. `--attach` rewrites Markdown image references but not HTML `<img>` tags.
 - Before adding to the project board, ask me which column. Never leave Status empty.
 
 ## Deployment
