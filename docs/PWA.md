@@ -275,6 +275,7 @@ flowchart LR
 - `use-online-status.ts`: reads connectivity from React Query's `onlineManager` via `useSyncExternalStore`, so the whole app shares one source of truth.
 - `offline-indicator.tsx`: a thin top banner shown while offline, which also reports how many writes are queued to sync.
 - `last-synced-label.tsx` + `utils/date.ts` (`formatRelativeTime`): a small "last synced" label (for example "Cijene osvježene prije 2 h"), placed on the product detail prices, the watchlist header, and the shopping-list detail, reading each query's `dataUpdatedAt`.
+- Shopping-list item price states (`shopping-lists/[id]/utils/item-price-state.ts`): each unchecked item reads its own product lookup. A lookup React Query paused offline with nothing saved shows "Cijene nisu spremljene za izvanmrežni rad", a failed one "Cijene nisu dostupne" plus one list-level status banner whose button refetches only the failed EANs, and an upstream 404 or a product with no chain prices "Nema cijena u trgovinama" (a 404 is never retried). The store select stays focusable with `aria-disabled` and never opens. Bought items keep the prices saved with them, so they never show these states.
 
 ---
 
@@ -425,6 +426,7 @@ Read from `frontend/package.json`.
 **Data layer (works in `pnpm dev`):**
 
 - Load a shopping list / product while online, then toggle **Offline** in DevTools (Network) and navigate back: the data should still render from IndexedDB, with a "last synced" label and the offline banner.
+- Block `/api/cijene/products/*` in DevTools (Network request blocking) and reload a shopping list: unchecked items read "Cijene nisu dostupne" and one banner counts them; unblock and press Pokušaj ponovno to refetch only those.
 - Check off an item offline: the UI updates optimistically and the banner shows a queued-writes count. Go back online: it syncs (a network request fires).
 - Log out: DevTools, Application, IndexedDB, the `disscount-react-query-cache` store should be cleared.
 
