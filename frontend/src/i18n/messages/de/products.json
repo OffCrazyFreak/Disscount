@@ -179,7 +179,9 @@
     "enterQueryTitle": "Gib einen Suchbegriff ein",
     "enterQueryText": "Die Filter sind gesetzt, die Ergebnisse erscheinen nach der Suche",
     "startTitle": "Produkte suchen",
-    "startText": "Gib den Namen des Produkts ein, das du suchst"
+    "startText": "Gib den Namen des Produkts ein, das du suchst",
+    "noResultsAddPlain": "Wir haben kein Produkt mit diesem Namen gefunden. Du kannst es trotzdem zu einer Liste hinzufügen.",
+    "addPlainItem": "„{query}“ zu einer Liste hinzufügen"
   },
   "viewSwitcher": {
     "label": "Ansicht",
@@ -215,5 +217,14 @@
   },
   "storeChainSelect": {
     "multiPlaceholder": "Händler auswählen..."
+  },
+  "addPlainItem": {
+    "title": "Artikel zu einer Liste hinzufügen",
+    "description": "Er hat keinen Preis, bleibt aber auf der Liste, damit du ihn nicht vergisst.",
+    "nameLabel": "Name",
+    "toast": {
+      "added": "Artikel zu „{name}“ hinzugefügt",
+      "quantityIncreased": "Menge erhöht in „{name}“"
+    }
   }
 }

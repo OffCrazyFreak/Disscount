@@ -52,7 +52,8 @@
     "saved": "Prihranjeno:",
     "overpaid": "Preplačano:",
     "priceRange": "<low>{min}</low><mid> | {avg} | </mid><high>{max}</high>",
-    "savings": "{amount} ({percent} %)"
+    "savings": "{amount} ({percent} %)",
+    "unpricedItems": "{count, plural, one {# postavka brez cene} two {# postavki brez cene} few {# postavke brez cene} other {# postavk brez cene}}"
   },
   "items": {
     "titleWithChecked": "Izdelki ({checked}/{total} kupljeno)",
@@ -67,7 +68,8 @@
     "decreaseAmount": "Zmanjšaj količino za 1",
     "increaseAmount": "Povečaj količino za 1",
     "approxPrice": "~ {price}",
-    "pricePerUnit": "{price}/{unit}"
+    "pricePerUnit": "{price}/{unit}",
+    "noPrice": "Brez cene"
   },
   "priceHistory": {
     "title": "Zgodovina cen",
@@ -115,5 +117,11 @@
     "other": "Drugo",
     "onMap": "Na zemljevidu",
     "summary": "{count, plural, one {# izdelek} two {# izdelka} few {# izdelki} other {# izdelkov}}{partial, select, yes { · vsaj {subtotal}} none {} other { · {subtotal}}}"
+  },
+  "quickAdd": {
+    "label": "Dodaj postavko",
+    "add": "Dodaj",
+    "searching": "Iščem izdelke",
+    "suggestions": "{count, plural, =0 {Ni izdelkov s tem imenom. Pritisni Enter, da ga dodaš kot postavko.} one {# izdelek} two {# izdelka} few {# izdelki} other {# izdelkov}}"
   }
 }

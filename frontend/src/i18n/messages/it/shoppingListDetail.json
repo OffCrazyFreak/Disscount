@@ -52,7 +52,8 @@
     "saved": "Risparmiato:",
     "overpaid": "Pagato in più:",
     "priceRange": "<low>{min}</low><mid> | {avg} | </mid><high>{max}</high>",
-    "savings": "{amount} ({percent}%)"
+    "savings": "{amount} ({percent}%)",
+    "unpricedItems": "{count, plural, one {# articolo senza prezzo} other {# articoli senza prezzo}}"
   },
   "items": {
     "titleWithChecked": "Prodotti ({checked}/{total} acquistati)",
@@ -67,7 +68,8 @@
     "decreaseAmount": "Riduci la quantità di 1",
     "increaseAmount": "Aumenta la quantità di 1",
     "approxPrice": "~ {price}",
-    "pricePerUnit": "{price}/{unit}"
+    "pricePerUnit": "{price}/{unit}",
+    "noPrice": "Senza prezzo"
   },
   "priceHistory": {
     "title": "Storico prezzi",
@@ -115,5 +117,11 @@
     "other": "Altro",
     "onMap": "Sulla mappa",
     "summary": "{count, plural, one {# prodotto} other {# prodotti}}{partial, select, yes { · almeno {subtotal}} none {} other { · {subtotal}}}"
+  },
+  "quickAdd": {
+    "label": "Aggiungi un articolo",
+    "add": "Aggiungi",
+    "searching": "Cerco prodotti",
+    "suggestions": "{count, plural, =0 {Nessun prodotto con questo nome. Premi Invio per aggiungerlo come articolo.} one {# prodotto} other {# prodotti}}"
   }
 }

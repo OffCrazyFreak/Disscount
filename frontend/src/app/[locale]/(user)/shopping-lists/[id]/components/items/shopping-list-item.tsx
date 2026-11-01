@@ -73,25 +73,27 @@ export default function ShoppingListItem({
               />
             </div>
 
-            {/* Store Chain Select */}
-            <StoreChainSelect
-              value={item.chainCode}
-              onChange={(chainCode) =>
-                onUpdate({
-                  isChecked: item.isChecked,
-                  amount: item.amount || 1,
-                  chainCode,
-                })
-              }
-              disabled={item.isChecked || !canCheck}
-              describedById={canCheck ? undefined : SHARED_ACCESS_BANNER_ID}
-              defaultValue={cheapestStore}
-              storePrices={storePrices}
-              averagePrice={averagePrice}
-              isChecked={item.isChecked}
-              storePriceFromDb={item.storePrice || undefined}
-              className="relative z-20 w-full sm:w-72 sm:flex-none"
-            />
+            {/* A plain item has no prices, so there is no store to pick by price. */}
+            {item.ean && (
+              <StoreChainSelect
+                value={item.chainCode}
+                onChange={(chainCode) =>
+                  onUpdate({
+                    isChecked: item.isChecked,
+                    amount: item.amount || 1,
+                    chainCode,
+                  })
+                }
+                disabled={item.isChecked || !canCheck}
+                describedById={canCheck ? undefined : SHARED_ACCESS_BANNER_ID}
+                defaultValue={cheapestStore}
+                storePrices={storePrices}
+                averagePrice={averagePrice}
+                isChecked={item.isChecked}
+                storePriceFromDb={item.storePrice || undefined}
+                className="relative z-20 w-full sm:w-72 sm:flex-none"
+              />
+            )}
           </div>
 
           {/* Remove button - hidden on mobile, shown on larger screens */}

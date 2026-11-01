@@ -179,7 +179,9 @@
     "enterQueryTitle": "Enter a search term",
     "enterQueryText": "Your filters are set. Results will show after you search.",
     "startTitle": "Search products",
-    "startText": "Type the name of the product you're looking for"
+    "startText": "Type the name of the product you're looking for",
+    "noResultsAddPlain": "We found no product by that name. You can still add it to a list.",
+    "addPlainItem": "Add “{query}” to a list"
   },
   "viewSwitcher": {
     "label": "View",
@@ -215,5 +217,14 @@
   },
   "storeChainSelect": {
     "multiPlaceholder": "Choose stores..."
+  },
+  "addPlainItem": {
+    "title": "Add an item to a list",
+    "description": "It has no price, but stays on the list so you don't forget it.",
+    "nameLabel": "Name",
+    "toast": {
+      "added": "Item added to “{name}”",
+      "quantityIncreased": "Item amount increased in “{name}”"
+    }
   }
 }

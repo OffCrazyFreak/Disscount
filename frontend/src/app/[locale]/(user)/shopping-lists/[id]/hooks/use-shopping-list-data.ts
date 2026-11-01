@@ -9,6 +9,7 @@ import {
   getStorePricesFromProduct,
 } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
 import { getAveragePrice } from "@/app/[locale]/products/utils/product-utils";
+import { catalogEans } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
 
 /**
  * One read for owners and link visitors alike. The endpoint resolves the caller's access
@@ -26,11 +27,7 @@ export function useShoppingListData(listId: string) {
   } = shoppingListService.useGetShoppingListById(listId);
 
   const eans = useMemo(
-    () => [
-      ...new Set(
-        shoppingList?.items.map((item) => item.ean).filter(Boolean) ?? [],
-      ),
-    ],
+    () => catalogEans(shoppingList?.items),
     [shoppingList?.items],
   );
 
@@ -60,7 +57,7 @@ export function useShoppingListData(listId: string) {
     const nextStorePrices: Record<string, Record<string, number>> = {};
 
     for (const item of shoppingList?.items ?? []) {
-      const product = productsByEan.get(item.ean);
+      const product = item.ean ? productsByEan.get(item.ean) : undefined;
       if (!product) continue;
 
       const averagePrice = getAveragePrice(product);

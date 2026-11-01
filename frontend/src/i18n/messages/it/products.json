@@ -1,6 +1,11 @@
 {
-  "meta": { "title": "Prodotti", "description": "I prodotti disponibili." },
-  "clearFilters": { "label": "Cancella i filtri" },
+  "meta": {
+    "title": "Prodotti",
+    "description": "I prodotti disponibili."
+  },
+  "clearFilters": {
+    "label": "Cancella i filtri"
+  },
   "addToList": {
     "title": "Aggiungi il prodotto alla lista della spesa",
     "description": "Scegli la lista, la quantità e il negozio.",
@@ -21,7 +26,9 @@
       "removeFailed": "Non siamo riusciti a rimuovere il prodotto."
     }
   },
-  "createListOption": { "label": "Crea «<name>{title}</name>»" },
+  "createListOption": {
+    "label": "Crea «<name>{title}</name>»"
+  },
   "markAsChecked": {
     "label": "Segna subito il prodotto come acquistato",
     "description": "Potrai cambiarlo più tardi nella lista della spesa"
@@ -32,7 +39,9 @@
     "partialPricesTitle": "Alcuni prezzi non sono disponibili",
     "partialPricesText": "L'intervallo comprende le località di cui siamo riusciti a ottenere i prezzi."
   },
-  "quantity": { "label": "Quantità" },
+  "quantity": {
+    "label": "Quantità"
+  },
   "listSelector": {
     "label": "Lista della spesa",
     "searchPlaceholder": "Cerca tra le tue liste o creane una nuova...",
@@ -48,7 +57,9 @@
     "choose": "Scegli una lista...",
     "createFirst": "Crea subito la prima lista..."
   },
-  "storeChainField": { "label": "Negozio" },
+  "storeChainField": {
+    "label": "Negozio"
+  },
   "watchlistModal": {
     "title": "Segui questo prodotto",
     "description": "Scegli lo sconto minimo e ti avvisiamo quando viene raggiunto.",
@@ -125,7 +136,9 @@
     },
     "count": "({count})"
   },
-  "filtersTrigger": { "label": "Filtri" },
+  "filtersTrigger": {
+    "label": "Filtri"
+  },
   "productInfo": {
     "back": "Indietro",
     "unknown": "Sconosciuto",
@@ -166,7 +179,9 @@
     "enterQueryTitle": "Scrivi cosa cercare",
     "enterQueryText": "I filtri sono impostati, i risultati appaiono dopo la ricerca",
     "startTitle": "Cerca prodotti",
-    "startText": "Scrivi il nome del prodotto che cerchi"
+    "startText": "Scrivi il nome del prodotto che cerchi",
+    "noResultsAddPlain": "Non abbiamo trovato prodotti con questo nome. Puoi comunque aggiungerlo a una lista.",
+    "addPlainItem": "Aggiungi «{query}» a una lista"
   },
   "viewSwitcher": {
     "label": "Modalità di visualizzazione",
@@ -187,13 +202,29 @@
     "title": "Cerca prodotti",
     "description": "Scrivi il nome del prodotto o scansiona il codice a barre."
   },
-  "price": { "increase": "+{amount}", "percentage": "({percentage}%)" },
-  "productPrice": { "unknown": "Prezzo sconosciuto" },
+  "price": {
+    "increase": "+{amount}",
+    "percentage": "({percentage}%)"
+  },
+  "productPrice": {
+    "unknown": "Prezzo sconosciuto"
+  },
   "historyPeriod": {
     "week": "1S",
     "month": "1M",
     "year": "1A",
     "all": "Tutto"
   },
-  "storeChainSelect": { "multiPlaceholder": "Scegli le catene..." }
+  "storeChainSelect": {
+    "multiPlaceholder": "Scegli le catene..."
+  },
+  "addPlainItem": {
+    "title": "Aggiungi un articolo a una lista",
+    "description": "Non ha un prezzo, ma resta nella lista così non lo dimentichi.",
+    "nameLabel": "Nome",
+    "toast": {
+      "added": "Articolo aggiunto a «{name}»",
+      "quantityIncreased": "Quantità dell'articolo aumentata in «{name}»"
+    }
+  }
 }

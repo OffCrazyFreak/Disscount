@@ -21,6 +21,7 @@ import {
   getShoppingListItemsOpen,
   setShoppingListItemsOpen,
 } from "@/utils/browser/local-storage";
+import ShoppingListQuickAdd from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-quick-add";
 
 interface IShoppingListItemsProps {
   shoppingList: ShoppingList;
@@ -103,6 +104,13 @@ export default function ShoppingListItems({
       </CollapsibleTrigger>
 
       <CollapsibleContent>
+        {/* Only the owner can add items, matching the backend's rule. */}
+        {isOwner && (
+          <div className="mb-3">
+            <ShoppingListQuickAdd listId={shoppingList.id} />
+          </div>
+        )}
+
         {shoppingList.items.length === 0 ? (
           <div className="p-4 text-center">
             <p className="mb-4 text-gray-600">

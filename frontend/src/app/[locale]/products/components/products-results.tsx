@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { ListPlus, Search, SlidersHorizontal } from "lucide-react";
 import NoResults from "@/components/custom/common/no-results";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import ProductsGrid from "@/app/[locale]/products/components/products-grid";
 import ProductsStatusMessage from "@/app/[locale]/products/components/products-status-message";
 import type { IProductListItem } from "@/app/[locale]/products/typings/product-list-price-types";
 import type { ViewMode } from "@/typings/view-mode";
+import { openModalUrl } from "@/lib/modal/modal-navigation";
 
 interface IProductsResultsProps {
   query: string;
@@ -69,9 +70,24 @@ export default function ProductsResults({
 
   if (query && total === 0) {
     return (
-      <NoResults
-        icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
-      />
+      <div>
+        <NoResults
+          icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
+          description={t("list.noResultsAddPlain")}
+        />
+        <div className="text-center">
+          <Button
+            type="button"
+            effect="shineHover"
+            onClick={() =>
+              openModalUrl({ name: "add-plain-item", itemName: query.trim() })
+            }
+          >
+            <ListPlus aria-hidden="true" className="size-5" />
+            {t("list.addPlainItem", { query: query.trim() })}
+          </Button>
+        </div>
+      </div>
     );
   }
 

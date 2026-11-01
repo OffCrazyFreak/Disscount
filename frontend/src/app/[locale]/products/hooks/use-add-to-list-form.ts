@@ -25,7 +25,11 @@ const EMPTY_FORM_VALUES: AddToListFormData = {
   chainCode: null,
 };
 
-export function useAddToListForm(open: boolean, ean: string) {
+export function useAddToListForm(
+  open: boolean,
+  ean: string,
+  preferredListId?: string,
+) {
   const { user } = useUser();
   const draftKey = `add-to-list.${ean}`;
 
@@ -53,6 +57,7 @@ export function useAddToListForm(open: boolean, ean: string) {
     product?.ean,
     !!user,
     restoredListId,
+    preferredListId,
   );
   // useWatch, not form.watch: watch() signals changes outside React state, so the
   // React Compiler skips memoizing every component that reads it.

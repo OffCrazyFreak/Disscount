@@ -18,6 +18,7 @@ import {
 import { sortShoppingListItemsByPurchaseAndSaving } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ShoppingListItemRow from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/shopping-list-item-row";
+import { isCatalogItem } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
 
 interface IShoppingListItemsTableProps {
   chain: ChainProductResponse;
@@ -30,7 +31,10 @@ const ShoppingListItemsTable = memo(
     const t = useTranslations("shoppingListDetail");
     const isMobile = useIsMobile();
 
-    if (!shoppingList.items || shoppingList.items.length === 0) {
+    // Plain items have no prices at any store, so a store's table leaves them out.
+    const catalogItems = (shoppingList.items ?? []).filter(isCatalogItem);
+
+    if (catalogItems.length === 0) {
       return (
         <div className="text-center py-8 text-gray-500">
           {t("stores.table.empty")}
@@ -58,7 +62,7 @@ const ShoppingListItemsTable = memo(
             </TableRow>
           </TableHeader>
           <TableBody>
-            {[...shoppingList.items]
+            {catalogItems
               .sort((a, b) =>
                 sortShoppingListItemsByPurchaseAndSaving(
                   a,

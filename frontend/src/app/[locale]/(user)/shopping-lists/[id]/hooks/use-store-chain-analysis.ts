@@ -1,5 +1,6 @@
 "use client";
 
+import { catalogEans } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
 import { useMemo } from "react";
 import { useQueries } from "@tanstack/react-query";
 import cijeneService, { productByEanQueryKey } from "@/lib/cijene-api";
@@ -35,12 +36,10 @@ export function useStoreChainAnalysis({
     [shoppingList.items],
   );
 
-  const eans = useMemo(() => {
-    return (
-      shoppingList.items?.filter((item) => item.ean).map((item) => item.ean) ||
-      []
-    );
-  }, [shoppingList.items]);
+  const eans = useMemo(
+    () => catalogEans(shoppingList.items),
+    [shoppingList.items],
+  );
 
   // combine is memoised by TanStack, so productsData keeps a stable identity between renders.
   const { productsData, productsLoading, productsError } = useQueries({
