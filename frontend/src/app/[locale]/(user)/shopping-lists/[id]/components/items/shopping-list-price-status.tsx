@@ -10,7 +10,8 @@ import { PRICE_STATUS_BANNER_ID } from "@/app/[locale]/(user)/shopping-lists/[id
 interface IShoppingListPriceStatusProps {
   failedCount: number;
   isRetrying: boolean;
-  onRetry: () => void;
+  /** Resolves true when every retried price loaded. */
+  onRetry: () => Promise<boolean>;
 }
 
 /**
@@ -23,9 +24,9 @@ export default function ShoppingListPriceStatus({
   onRetry,
 }: IShoppingListPriceStatusProps) {
   const t = useTranslations("shoppingListDetail");
-  const [hasRetried, setHasRetried] = useState(false);
+  const [hasRetryLoadedAll, setHasRetryLoadedAll] = useState(false);
   const successRef = useRef<HTMLParagraphElement>(null);
-  const isRecovered = hasRetried && failedCount === 0;
+  const isRecovered = hasRetryLoadedAll && failedCount === 0;
 
   // The retry button unmounts once every price loads; when it took focus with it, hand focus
   // to the outcome instead of the page top, but never pull focus away from anything else.
@@ -35,10 +36,10 @@ export default function ShoppingListPriceStatus({
     }
   }, [isRecovered]);
 
-  function retry() {
+  async function retry() {
     if (isRetrying) return;
-    setHasRetried(true);
-    onRetry();
+    setHasRetryLoadedAll(false);
+    setHasRetryLoadedAll(await onRetry());
   }
 
   return (

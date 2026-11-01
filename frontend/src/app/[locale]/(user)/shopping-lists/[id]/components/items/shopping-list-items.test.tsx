@@ -42,7 +42,7 @@ function item(id: string, extra: Partial<ShoppingListItemDto> = {}) {
 function renderItems(
   items: ShoppingListItemDto[],
   priceStates: Record<string, ItemPriceState>,
-  onRetryPrices = vi.fn(),
+  onRetryPrices = vi.fn(async () => true),
 ) {
   const view = renderWithProviders(
     listItems(items, priceStates, onRetryPrices),
@@ -54,7 +54,7 @@ function renderItems(
 function listItems(
   items: ShoppingListItemDto[],
   priceStates: Record<string, ItemPriceState>,
-  onRetryPrices = vi.fn(),
+  onRetryPrices = vi.fn(async () => true),
 ) {
   const list: ShoppingListDto = {
     id: "list-1",
@@ -157,6 +157,20 @@ describe("ShoppingListItems price states", () => {
     rerender(listItems(items, { a: "ready" }));
 
     expect(screen.getByText("Cijene su učitane.")).toHaveFocus();
+  });
+
+  it("claims nothing when a retry fails and the failed item is removed", async () => {
+    const user = userEvent.setup();
+    const { rerender } = renderItems(
+      [item("a"), item("b")],
+      { a: "failed", b: "ready" },
+      vi.fn(async () => false),
+    );
+
+    await user.click(screen.getByRole("button", { name: "Pokušaj ponovno" }));
+    rerender(listItems([item("b")], { b: "ready" }));
+
+    expect(screen.queryByText("Cijene su učitane.")).not.toBeInTheDocument();
   });
 
   it("shows a skeleton instead of a store select while prices load", () => {

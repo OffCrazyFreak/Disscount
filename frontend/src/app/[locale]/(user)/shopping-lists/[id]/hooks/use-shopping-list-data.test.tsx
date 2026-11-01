@@ -150,7 +150,10 @@ describe("useShoppingListData price states", () => {
       }),
     );
 
-    act(() => result.current.retryFailedPrices());
+    let retryLoadedAll: Promise<boolean> | undefined;
+    act(() => {
+      retryLoadedAll = result.current.retryFailedPrices();
+    });
 
     await waitFor(() => expect(result.current.isRetryingPrices).toBe(true));
     expect(result.current.priceStates.broken).toBe("failed");
@@ -164,6 +167,7 @@ describe("useShoppingListData price states", () => {
     );
     expect(result.current.isRetryingPrices).toBe(false);
     expect(retried).toEqual(["222"]);
+    await expect(retryLoadedAll).resolves.toBe(true);
   });
 
   it("keeps a failed item failed while a window focus refetch runs", async () => {
@@ -178,11 +182,13 @@ describe("useShoppingListData price states", () => {
     await waitFor(() =>
       expect(result.current.priceStates.broken).toBe("failed"),
     );
+    requests.length = 0;
 
     let refetching = false;
     server.use(
-      http.get("*/api/cijene/products/:ean", async () => {
-        refetching = true;
+      http.get("*/api/cijene/products/:ean", async ({ params }) => {
+        requests.push(String(params.ean));
+        if (params.ean === "222") refetching = true;
         await new Promise(() => {});
         return HttpResponse.json(null);
       }),
@@ -194,6 +200,8 @@ describe("useShoppingListData price states", () => {
     });
 
     await waitFor(() => expect(refetching).toBe(true));
+    // The 404 is known and stays out of every refetch.
+    expect(requests).toEqual(["222"]);
     await waitFor(() => expect(result.current.isRetryingPrices).toBe(true));
     expect(result.current.priceStates.broken).toBe("failed");
     expect(result.current.isPricesLoading).toBe(false);

@@ -7,8 +7,10 @@ interface IUnavailableStoreSelectProps {
   /** What the trigger shows: the reason, with the saved store in front when there is one. */
   label: string;
   reason: string;
-  /** Points at a fuller explanation elsewhere; without one the reason itself describes the select. */
+  /** Ids of fuller explanations elsewhere, read before the reason. */
   describedById?: string;
+  /** False when a banner it points at already says the same thing. */
+  isReasonDescribed: boolean;
   className?: string;
 }
 
@@ -21,6 +23,7 @@ export default function UnavailableStoreSelect({
   label,
   reason,
   describedById,
+  isReasonDescribed,
   className,
 }: IUnavailableStoreSelectProps) {
   const reasonId = useId();
@@ -29,7 +32,11 @@ export default function UnavailableStoreSelect({
     <Select open={false}>
       <SelectTrigger
         aria-disabled="true"
-        aria-describedby={describedById ?? reasonId}
+        aria-describedby={
+          [describedById, isReasonDescribed && reasonId]
+            .filter(Boolean)
+            .join(" ") || undefined
+        }
         className={cn(
           "min-w-0 text-xs text-placeholder sm:text-sm aria-disabled:cursor-not-allowed",
           className,
@@ -38,7 +45,7 @@ export default function UnavailableStoreSelect({
         <span className="line-clamp-1 text-left">{label}</span>
       </SelectTrigger>
 
-      {!describedById && (
+      {isReasonDescribed && (
         <span id={reasonId} className="sr-only">
           {reason}
         </span>

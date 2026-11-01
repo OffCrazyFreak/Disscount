@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, type Query } from "@tanstack/react-query";
 import { shoppingListService } from "@/lib/api";
 import cijeneService, { productByEanQueryKey } from "@/lib/cijene-api";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
@@ -55,6 +55,13 @@ export function useShoppingListData(listId: string) {
       // The app default of one retry, minus a 404, which asking again cannot change.
       retry: (failureCount: number, error: Error) =>
         !isProductNotFound(error) && failureCount < 1,
+      // A refetch clears the error until it answers, which would show a known 404 as failed,
+      // so a 404 is never asked again here, and a failure waits for the retry button.
+      retryOnMount: false,
+      refetchOnWindowFocus: (query: Query) =>
+        !isProductNotFound(query.state.error),
+      refetchOnReconnect: (query: Query) =>
+        !isProductNotFound(query.state.error),
     })),
     combine: (results) => {
       const lookups = results.map(
@@ -76,8 +83,12 @@ export function useShoppingListData(listId: string) {
             return entry[1] !== undefined;
           }),
         lookupStates: lookups,
-        retryFailedPrices: () => {
-          for (const index of failedIndexes) void results[index].refetch();
+        /** Resolves true when every retried EAN loaded. */
+        retryFailedPrices: async () => {
+          const outcomes = await Promise.all(
+            failedIndexes.map((index) => results[index].refetch()),
+          );
+          return outcomes.every((outcome) => outcome.isSuccess);
         },
         isRetryingPrices: failedIndexes.some(
           (index) => results[index].fetchStatus === "fetching",

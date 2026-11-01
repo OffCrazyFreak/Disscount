@@ -33,7 +33,7 @@ interface IShoppingListItemsProps {
   storePrices: Record<string, Record<string, number>>;
   priceStates: Record<string, ItemPriceState>;
   isRetryingPrices: boolean;
-  onRetryPrices: () => void;
+  onRetryPrices: () => Promise<boolean>;
 }
 
 export default function ShoppingListItems({
