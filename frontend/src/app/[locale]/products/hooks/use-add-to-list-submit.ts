@@ -18,6 +18,8 @@ import { stashModalError } from "@/lib/modal/modal-error-bus";
 
 interface IUseAddToListSubmitProps {
   ean: string;
+  /** The list the modal was opened from, kept when a failure reopens it. */
+  preferredListId?: string;
   draftKey: string;
   product: ProductResponse | undefined;
   lists: ShoppingListDto[];
@@ -30,6 +32,7 @@ interface IUseAddToListSubmitProps {
 
 export function useAddToListSubmit({
   ean,
+  preferredListId,
   draftKey,
   product,
   lists,
@@ -96,7 +99,7 @@ export function useAddToListSubmit({
 
       if (!target) {
         toast.error(t("addToList.toast.pickList"));
-        openModalUrl({ name: "add-to-list", ean });
+        openModalUrl({ name: "add-to-list", ean, listId: preferredListId });
         return;
       }
 
@@ -125,7 +128,7 @@ export function useAddToListSubmit({
       );
     } catch (error) {
       stashModalError(draftKey, error);
-      openModalUrl({ name: "add-to-list", ean });
+      openModalUrl({ name: "add-to-list", ean, listId: preferredListId });
     }
   }
 

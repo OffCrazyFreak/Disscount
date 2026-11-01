@@ -33,6 +33,7 @@ export default function ShoppingListQuickAdd({
     text,
     setText,
     suggestions,
+    lastAdded,
     isSearching,
     hasSearched,
     addTypedText,
@@ -69,6 +70,8 @@ export default function ShoppingListQuickAdd({
             if (details.reason !== "item-press") setText(value);
           }}
           onItemHighlighted={(product) => setHighlighted(product)}
+          // A pointer resting on a suggestion must not turn Enter into opening it.
+          highlightItemOnHover={false}
         >
           <AutocompleteInput
             id={inputId}
@@ -108,6 +111,11 @@ export default function ShoppingListQuickAdd({
           </AutocompleteContent>
         </Autocomplete>
       </div>
+
+      {/* The new row only appears after a refetch, so the add is announced here. */}
+      <p role="status" className="sr-only">
+        {lastAdded && t("added", { name: lastAdded })}
+      </p>
 
       <Button
         type="button"

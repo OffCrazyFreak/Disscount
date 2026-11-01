@@ -16,6 +16,7 @@ import {
   addToListFormSchema,
 } from "@/app/[locale]/products/typings/add-to-list";
 import { useSelectedShoppingList } from "@/app/[locale]/products/hooks/use-selected-shopping-list";
+import { MAX_SHOPPING_LIST_ITEM_NAME_LENGTH } from "@/constants/shopping-list";
 import { mergesIntoExisting } from "@/app/[locale]/(user)/shopping-lists/utils/item-merge";
 
 const EMPTY_FORM_VALUES: AddToListFormData = {
@@ -32,7 +33,10 @@ export function useAddPlainItemForm(initialName: string) {
   const tAuth = useTranslations("auth");
   const router = useRouter();
   const { user } = useUser();
-  const [name, setName] = useState(initialName);
+  // The name can arrive from the URL, which no input maxLength guards.
+  const [name, setName] = useState(() =>
+    initialName.slice(0, MAX_SHOPPING_LIST_ITEM_NAME_LENGTH),
+  );
 
   const form = useForm<AddToListFormData>({
     resolver: zodResolver(addToListFormSchema),

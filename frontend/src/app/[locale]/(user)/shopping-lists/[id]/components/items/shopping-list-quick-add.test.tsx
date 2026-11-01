@@ -49,6 +49,7 @@ function captureAdds() {
 
 describe("ShoppingListQuickAdd", () => {
   beforeEach(() => {
+    openModalUrl.mockClear();
     // jsdom has no ResizeObserver; the suggestion list's scroll fade only reads sizes.
     vi.stubGlobal(
       "ResizeObserver",
@@ -78,6 +79,22 @@ describe("ShoppingListQuickAdd", () => {
     expect(input).toHaveValue("");
     expect(input).toHaveFocus();
     expect(openModalUrl).not.toHaveBeenCalled();
+  });
+
+  it("adds the text on Enter while suggestions show but none is highlighted", async () => {
+    const user = userEvent.setup();
+    const adds = captureAdds();
+    server.use(signedOut, serveSearch([milk]), adds.handler);
+    renderWithProviders(<ShoppingListQuickAdd listId="list-1" />);
+
+    await user.type(screen.getByRole("combobox"), "mlijeko");
+    await screen.findByRole("option", { name: /Mlijeko 2,8% 1L/ });
+    await user.keyboard("{Enter}");
+
+    await waitFor(() => expect(adds.bodies).toHaveLength(1));
+    expect(adds.bodies[0]).toMatchObject({ name: "mlijeko" });
+    expect(openModalUrl).not.toHaveBeenCalled();
+    expect(await screen.findByText("Dodano: mlijeko")).toBeInTheDocument();
   });
 
   it("opens the add-to-list modal for a chosen suggestion instead of adding text", async () => {

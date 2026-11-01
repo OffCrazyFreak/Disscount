@@ -26,6 +26,7 @@ type GateKey =
 
 const GATE_MESSAGES: Record<string, GateKey> = {
   "add-to-list": "modalRouter.gate.addToList",
+  "add-plain-item": "modalRouter.gate.addToList",
   watchlist: "modalRouter.gate.watchlist",
   "shopping-list": "modalRouter.gate.manageLists",
   "shopping-list-actions": "modalRouter.gate.manageLists",

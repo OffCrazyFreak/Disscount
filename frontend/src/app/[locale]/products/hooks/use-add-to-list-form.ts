@@ -31,7 +31,10 @@ export function useAddToListForm(
   preferredListId?: string,
 ) {
   const { user } = useUser();
-  const draftKey = `add-to-list.${ean}`;
+  // Opened from a list, its own draft, so a draft naming another list cannot win.
+  const draftKey = preferredListId
+    ? `add-to-list.${ean}.${preferredListId}`
+    : `add-to-list.${ean}`;
 
   // Same query key as the product page, so this is a cache hit unless deep-linked.
   const productQuery = cijeneService.useGetProductByEan({ ean });
@@ -87,6 +90,7 @@ export function useAddToListForm(
 
   const { onSubmit, isSubmitting } = useAddToListSubmit({
     ean,
+    preferredListId,
     draftKey,
     product,
     lists: selection.sortedShoppingLists,

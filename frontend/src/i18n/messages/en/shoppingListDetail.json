@@ -119,9 +119,10 @@
     "summary": "{count, plural, one {# product} other {# products}}{partial, select, yes { · at least {subtotal}} none {} other { · {subtotal}}}"
   },
   "quickAdd": {
+    "added": "Added: {name}",
     "label": "Add an item",
     "add": "Add",
-    "searching": "Searching products",
+    "searching": "Searching products…",
     "suggestions": "{count, plural, =0 {No products by that name. Press Enter to add it as an item.} one {# product} other {# products}}"
   }
 }
