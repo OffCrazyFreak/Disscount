@@ -140,6 +140,19 @@ describe("useGeolocation", () => {
     expect(hook.result.current.status).toBe("unavailable");
   });
 
+  it("guesses soon after a slow Allow when the phone stays silent", async () => {
+    const geo = fakeGeolocation();
+    const hook = await mount(ZAGREB);
+
+    act(() => hook.result.current.locate());
+    act(() => vi.advanceTimersByTime(20_000));
+    geo.allow();
+    act(() => vi.advanceTimersByTime(1_500));
+
+    expect(hook.result.current.status).toBe("approximate");
+    expect(hook.result.current.guess).toEqual(ZAGREB);
+  });
+
   it("counts the timeout from when the prompt is allowed", async () => {
     const geo = fakeGeolocation();
     const hook = await mount(null);

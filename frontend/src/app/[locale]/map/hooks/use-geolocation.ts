@@ -270,7 +270,8 @@ export function useGeolocation(fallback: ILatLon | null) {
         permission.onchange = () => {
           const allowedNow = !granted.current && permission.state === "granted";
           granted.current = permission.state === "granted";
-          if (allowedNow && pendingTap.current) {
+          // A tap that already shows a fix is only waiting for a fresher one.
+          if (allowedNow && pendingTap.current && !latest.current) {
             clearTimers();
             armTap(pendingTap.current);
           }
