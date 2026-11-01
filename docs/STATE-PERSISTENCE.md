@@ -138,16 +138,16 @@ Forms wired to drafts:
 
 Written by the small domain helpers in `utils/browser/storage/*`, each of which reads, merges its own field, and writes back through the core wrapper.
 
-| Field                      | Meaning                                                                                                          | Helper              |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------- |
-| `viewModes`                | grid/list toggle, per list key (parked, see below)                                                               | `view-mode.ts`      |
-| `productsPreferences`      | price-history period + chains + open state, per product EAN                                                      | `products.ts`       |
-| `shoppingListsPreferences` | section open states, group-by-store switch + price-history prefs, per list                                       | `shopping-lists.ts` |
-| `storeOptimizeMode`        | preferred store-list sort, all lists; `distance` only if location granted                                        | `shopping-lists.ts` |
-| `preferredCameraId`        | manually chosen scanner camera (absent means auto-pick)                                                          | `scanner.ts`        |
-| `installBannerDismissedAt` | "install app" banner snooze (7 days)                                                                             | `pwa.ts`            |
-| `lastLoginMethod`          | drives the "last used" sign-in badge                                                                             | `auth.ts`           |
-| `watchlistPriceSnapshots`  | best price per watched EAN in cents, per account id, at the last `/watchlist` visit; the Praćenje badge baseline | `watchlist.ts`      |
+| Field                      | Meaning                                                                                                                                                        | Helper              |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| `viewModes`                | grid/list toggle, per list key (parked, see below)                                                                                                             | `view-mode.ts`      |
+| `productsPreferences`      | price-history period + chains + open state, per product EAN                                                                                                    | `products.ts`       |
+| `shoppingListsPreferences` | section open states, group-by-store switch + price-history prefs, per list                                                                                     | `shopping-lists.ts` |
+| `storeOptimizeMode`        | preferred store-list sort, all lists; `distance` only if location granted                                                                                      | `shopping-lists.ts` |
+| `preferredCameraId`        | manually chosen scanner camera (absent means auto-pick)                                                                                                        | `scanner.ts`        |
+| `installBannerDismissedAt` | "install app" banner snooze (7 days)                                                                                                                           | `pwa.ts`            |
+| `lastLoginMethod`          | drives the "last used" sign-in badge                                                                                                                           | `auth.ts`           |
+| `watchlistPriceSnapshots`  | store scope plus best price per watched EAN in cents, per account id, at the last `/watchlist` visit; the Praćenje badge baseline, deleted by the logout purge | `watchlist.ts`      |
 
 The shape of the whole object is declared in `typings/local-storage.ts` as `IAppData`.
 
@@ -281,7 +281,7 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
 
   The cost is easy to miss: during a static prerender the boundary emits its **fallback**, not the component, so anything inside disappears from the served HTML. That is fine for a filter panel and wrong for navigation, which is how the sidebar's product links briefly stopped being crawlable. When a subtree only needs the query string for cosmetic state such as an active highlight, use `useClientSearchParams` (`frontend/src/hooks/use-client-search-params.ts`) instead: it reads the query string after mount, so the caller stays in the prerender, and it returns `null` until then. Keep `useSearchParams` wherever the URL genuinely drives what renders.
 
-- **localStorage preferences are per-device and are NOT purged on logout.** The IndexedDB data cache and the scoped service worker buckets are wiped when the identity changes. Preferences like view mode or the install-banner snooze are intentionally device-level and survive a logout.
+- **localStorage preferences are per-device and are NOT purged on logout.** The IndexedDB data cache and the scoped service worker buckets are wiped when the identity changes. Preferences like view mode or the install-banner snooze are intentionally device-level and survive a logout. The one exception is `watchlistPriceSnapshots`, which the purge deletes for the departing account because it lists every watched EAN.
 
 - **`viewModes` is wired but never written yet.** `useViewMode` returns `[mode, setMode]`, and both consumers (`products-client.tsx`, `digital-cards-client.tsx`) destructure the mode alone, because `ViewSwitcher` is parked behind [issue #61](https://github.com/OffCrazyFreak/Disscount/issues/61). So the key exists in the storage shape and in the hook, but nothing writes it and every list renders its default. Unparking the switcher means taking the setter at both call sites. Read the hook's own comment before changing it: the storage read is deliberately deferred to an effect, because `getViewMode` returns the default when there is no `window`, so seeding state from it directly would be a hydration mismatch.
 
