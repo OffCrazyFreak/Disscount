@@ -95,7 +95,8 @@ export function UserProvider({ children }: IUserProviderProps) {
     const identity = session?.user?.id ?? null;
 
     syncCacheIdentity(queryClient, cacheIdentityRef, identity, sessionError);
-    setAuthTokenUser(identity);
+    // A failed lookup leaves the account unknown, as it does for the cache purge.
+    if (!sessionError || identity) setAuthTokenUser(identity);
 
     // The directive covers this whole effect, not just the line under it: the else
     // branch clears user state synchronously too. Both sides react to an auth result
@@ -139,6 +140,9 @@ export function UserProvider({ children }: IUserProviderProps) {
   // Called by login/signup forms after signIn/signUp succeeds to eagerly load the profile
   const handleUserLogin = useCallback(async () => {
     resetAuthToken();
+    // The new account's session can land after this load starts, and its token must not
+    // be refused for not matching the signed-out state.
+    setAuthTokenUser(undefined);
     await refreshUser();
   }, [refreshUser]);
 

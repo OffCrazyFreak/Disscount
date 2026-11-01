@@ -1,13 +1,17 @@
-import { waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw/http";
 import { describe, expect, it, vi } from "vitest";
 
-import { UserProvider } from "@/context/user-context";
+import { UserProvider, useUser } from "@/context/user-context";
+import apiClient from "@/lib/api/api-base";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 
 const { session } = vi.hoisted(() => ({
-  session: { userId: "user-a" },
+  session: {
+    userId: "user-a" as string | null,
+    error: null as Error | null,
+  },
 }));
 
 // Only useSession is faked; the token request stays real so MSW answers it.
@@ -16,9 +20,9 @@ vi.mock("@/lib/auth/client", async (importOriginal) => {
   return {
     authClient: actual.authClient,
     useSession: () => ({
-      data: { user: { id: session.userId } },
+      data: session.userId ? { user: { id: session.userId } } : null,
       isPending: false,
-      error: null,
+      error: session.error,
     }),
   };
 });
@@ -39,6 +43,11 @@ function unsignedJwt(sub: string): string {
 
 const tokenA = unsignedJwt("user-a");
 const tokenB = unsignedJwt("user-b");
+
+function SignInButton() {
+  const { handleUserLogin } = useUser();
+  return <button onClick={() => handleUserLogin()}>sign in</button>;
+}
 
 function recordProfileRequests(issueToken: () => Promise<string>) {
   const authorizations: (string | null)[] = [];
@@ -63,6 +72,7 @@ function recordProfileRequests(issueToken: () => Promise<string>) {
 describe("UserProvider backend token", () => {
   it("stops sending the previous account's token after the session switches account", async () => {
     session.userId = "user-a";
+    session.error = null;
     let currentToken = tokenA;
     const authorizations = recordProfileRequests(async () => currentToken);
 
@@ -87,6 +97,7 @@ describe("UserProvider backend token", () => {
 
   it("never attaches a token minted for the previous account that arrives after the switch", async () => {
     session.userId = "user-a";
+    session.error = null;
     const pendingTokenA: { release?: (token: string) => void } = {};
     let issueToken = () =>
       new Promise<string>((resolve) => {
@@ -112,5 +123,40 @@ describe("UserProvider backend token", () => {
 
     await waitFor(() => expect(authorizations).toContain(`Bearer ${tokenB}`));
     expect(authorizations).not.toContain(`Bearer ${tokenA}`);
+  });
+
+  it("attaches the new account's token when sign-in reloads the profile before the session lands", async () => {
+    session.userId = null;
+    session.error = null;
+    const authorizations = recordProfileRequests(async () => tokenB);
+
+    renderWithProviders(
+      <UserProvider>
+        <SignInButton />
+      </UserProvider>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "sign in" }));
+
+    await waitFor(() => expect(authorizations).toHaveLength(1));
+    expect(authorizations[0]).toBe(`Bearer ${tokenB}`);
+  });
+
+  it("keeps attaching the token when the session lookup failed rather than signed out", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    session.userId = null;
+    session.error = new Error("offline");
+    const authorizations = recordProfileRequests(async () => tokenA);
+
+    renderWithProviders(
+      <UserProvider>
+        <></>
+      </UserProvider>,
+    );
+    // Past the cooldown the signed-out branch starts, which a failed lookup also takes.
+    vi.setSystemTime(Date.now() + 3_000);
+    await apiClient.get("/api/users/me");
+    vi.useRealTimers();
+
+    expect(authorizations).toEqual([`Bearer ${tokenA}`]);
   });
 });
