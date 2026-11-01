@@ -73,31 +73,34 @@ export default function BottomNavCenterItem({
       >
         {showsDisc && <BottomNavIndicator opacity={indicatorOpacity} />}
 
-        {/* Always present, since holding this cell always opens the scanner */}
-        <HoldProgressRing
-          progress="var(--press-progress, 0)"
-          className={cn(CELL_DISC_CLASS, "stroke-primary")}
-        />
-
-        <span
-          className={cn(
-            "bg-primary text-primary-foreground relative flex size-[2.8rem] -translate-y-[0.2rem] items-center justify-center rounded-full transition-transform duration-150 motion-reduce:transition-none",
-            isScrubbed && "scale-105",
-          )}
-        >
-          <Search
-            className={cn(
-              ICON_CLASS,
-              isSearchOpen && "rotate-90 scale-50 opacity-0",
-            )}
+        {/* The raise lives here so the ring, centred on this box, rises with the circle */}
+        <span className="relative -translate-y-[0.2rem]">
+          {/* Always present, since holding this cell always opens the scanner */}
+          <HoldProgressRing
+            progress="var(--press-progress, 0)"
+            className={cn(CELL_DISC_CLASS, "stroke-primary")}
           />
 
-          <ChevronsDown
+          <span
             className={cn(
-              ICON_CLASS,
-              !isSearchOpen && "-rotate-90 scale-50 opacity-0",
+              "bg-primary text-primary-foreground relative flex size-[2.8rem] items-center justify-center rounded-full transition-transform duration-150 motion-reduce:transition-none",
+              isScrubbed && "scale-105",
             )}
-          />
+          >
+            <Search
+              className={cn(
+                ICON_CLASS,
+                isSearchOpen && "rotate-90 scale-50 opacity-0",
+              )}
+            />
+
+            <ChevronsDown
+              className={cn(
+                ICON_CLASS,
+                !isSearchOpen && "-rotate-90 scale-50 opacity-0",
+              )}
+            />
+          </span>
         </span>
 
         <span
