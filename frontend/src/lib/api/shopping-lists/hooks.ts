@@ -1,6 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useIsMutating,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
+import { sharedListRefetchInterval } from "@/lib/api/shopping-lists/shared-list-polling";
 import {
   deleteWriteFailed,
   listWriteFailed,
@@ -63,18 +69,24 @@ export function useGetCurrentUserShoppingLists({
 // enabled is explicit so a caller that does not want this query can say so, rather than
 // passing an empty id and minting a ["shoppingLists", ""] entry shaped like a real one.
 export function useGetShoppingListById(id: string, { enabled = true } = {}) {
+  // Subscribed rather than read with queryClient.isMutating inside refetchInterval:
+  // TanStack only re-asks the interval when the query updates, so a false returned there
+  // would stop polling for good after a write that fails without invalidating the list.
+  const isWritingLists =
+    useIsMutating({ mutationKey: SHOPPING_LIST_QUERY_KEYS.all }) > 0;
+
   return useQuery<ShoppingListDto, Error>({
     queryKey: SHOPPING_LIST_QUERY_KEYS.byId(id),
     queryFn: () => getShoppingListById(id),
     enabled: enabled && !!id && id !== "new",
     // Shorter than the rest of the app wants, because this route serves link visitors as
-    // well as the owner and two people can be shopping off one list. It is not live: with
-    // both tabs focused and untouched nothing refetches, since staleTime only marks the
-    // data stale and the refetch needs focus, a remount or an invalidation. Making it live
-    // needs refetchInterval or a push channel, and neither is worth the battery until
-    // somebody asks.
+    // well as the owner and two people can be shopping off one list. A shared list also
+    // polls so their ticks show up live; a private one only refetches on focus, a remount
+    // or an invalidation. Ticks skip a hidden tab, since refetchIntervalInBackground is off.
     staleTime: 30_000,
     refetchOnWindowFocus: true,
+    refetchInterval: (query) =>
+      sharedListRefetchInterval(query, isWritingLists),
   });
 }
 
