@@ -1,5 +1,8 @@
 package disscount.watchlistItem.rest;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import disscount.config.SecurityConfig;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
@@ -19,6 +22,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class WatchlistItemOwnershipTest {
 
     @Autowired MockMvc mvc;
+    @Autowired ObjectMapper json;
     @Autowired UserRepository users;
     @Autowired WatchlistItemRepository watchlist;
     @MockBean UserService userService;
@@ -70,8 +75,16 @@ class WatchlistItemOwnershipTest {
 
     @Test
     void anUnknownIdAnswersLikeAForeignOne() throws Exception {
-        mvc.perform(delete("/api/watchlist/{id}", UUID.randomUUID()).with(as(alice)))
-                .andExpect(status().isNotFound());
+        assertThat(notFoundBody(UUID.randomUUID())).isEqualTo(notFoundBody(itemOf(bob).getId()));
+    }
+
+    // Timestamp and the echoed request path differ per call by design and reveal nothing about the row.
+    private JsonNode notFoundBody(UUID id) throws Exception {
+        String body = mvc.perform(delete("/api/watchlist/{id}", id).with(as(alice))).andExpect(status().isNotFound())
+                .andReturn().getResponse().getContentAsString();
+        ObjectNode problem = (ObjectNode) json.readTree(body);
+        problem.remove(List.of("timestamp", "instance"));
+        return problem;
     }
 
     @Test

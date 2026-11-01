@@ -1,5 +1,8 @@
 package disscount.notification.rest;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import disscount.config.SecurityConfig;
 import disscount.notification.dao.NotificationRepository;
 import disscount.notification.domain.Notification;
@@ -16,8 +19,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,6 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class NotificationOwnershipTest {
 
     @Autowired MockMvc mvc;
+    @Autowired ObjectMapper json;
     @Autowired UserRepository users;
     @Autowired NotificationRepository notifications;
     @MockBean UserService userService;
@@ -72,10 +78,19 @@ class NotificationOwnershipTest {
 
     @Test
     void anUnknownIdAnswersLikeAForeignOne() throws Exception {
-        mvc.perform(patch("/api/notifications/{id}/read", UUID.randomUUID()).with(as(alice)))
-                .andExpect(status().isNotFound());
-        mvc.perform(delete("/api/notifications/{id}", UUID.randomUUID()).with(as(alice)))
-                .andExpect(status().isNotFound());
+        assertThat(notFoundBody(patch("/api/notifications/{id}/read", UUID.randomUUID())))
+                .isEqualTo(notFoundBody(patch("/api/notifications/{id}/read", bobsNotification.getId())));
+        assertThat(notFoundBody(delete("/api/notifications/{id}", UUID.randomUUID())))
+                .isEqualTo(notFoundBody(delete("/api/notifications/{id}", bobsNotification.getId())));
+    }
+
+    // Timestamp and the echoed request path differ per call by design and reveal nothing about the row.
+    private JsonNode notFoundBody(MockHttpServletRequestBuilder request) throws Exception {
+        String body = mvc.perform(request.with(as(alice))).andExpect(status().isNotFound())
+                .andReturn().getResponse().getContentAsString();
+        ObjectNode problem = (ObjectNode) json.readTree(body);
+        problem.remove(List.of("timestamp", "instance"));
+        return problem;
     }
 
     @Test
