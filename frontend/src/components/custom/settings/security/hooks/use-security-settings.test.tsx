@@ -51,5 +51,6 @@ describe("useSecuritySettings", () => {
     rerender();
 
     expect(result.current.form.getValues("email")).toBe("typed@example.com");
+    expect(result.current.form.getFieldState("email").isDirty).toBe(true);
   });
 });
