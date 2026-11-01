@@ -99,7 +99,7 @@ Each non-centre cell stacks, from back to front:
 
 1. the **active disc**, a `motion.span` with a shared `layoutId` so it slides between cells rather than reappearing,
 2. the **completion ring** and the **long-press ring**, both circles sharing the disc's geometry so they stay concentric,
-3. the **icon** at 24px, with the notification **badge** and the re-tap **chevron** hung off it,
+3. the **icon** at 24px, with the price-drop **badge** and the re-tap **chevron** hung off it,
 4. the **label**, bold when the cell is active,
 5. the **USKORO chip** for teaser cells, rotated off the right edge.
 
@@ -522,7 +522,7 @@ The timer lives outside React because the bar and the product cards own very dif
 
 | Indicator                     | Source                                                                            | Behaviour                                                             |
 | ----------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Badge on **Praćenje**         | `useNotifications()`, the same count the desktop header shows                     | only when the count is above zero                                     |
+| Badge on **Praćenje**         | `useWatchlistPriceDropCount()`, the same count the sidebar and header show        | only above zero, shown as `9+` from ten, cleared on `/watchlist`      |
 | Completion ring on **Popisi** | `useGetShoppingListById`, keyed off the pathname                                  | only on `/shopping-lists/[id]`, and only for a list that has items    |
 | Active disc                   | `isRouteActive(pathname, item.href)`, the scrubbed cell, or a settling navigation | slides between cells via `layoutId`, and fades out on the search cell |
 | Chevron on the active icon    | `useTabReentry`                                                                   | only while a return position is held                                  |
@@ -557,7 +557,13 @@ return { from: wasSearchActive ? 0 : 1, to: isSearchActive ? 0 : 1 };
 
 The completion ring is scoped to a list's own page on purpose: it tracks the list you are actually shopping, so you can glance at the bar in a store and see how far through you are without opening anything.
 
-The badge is a placeholder. It reuses the notification count so the bar and the desktop header can never disagree, and so the bar needs no new endpoint. Making it a real price-drop count is tracked on the project board.
+The badge counts watched products whose best price fell since you last opened `/watchlist` on this device. "Best price" is the cheapest chain inside your scope: your pinned stores' chains if you have any, otherwise every chain. It is computed in the browser from the product prices the app already fetches for the watchlist, so it adds no requests and needs no endpoint:
+
+- `lib/watchlist/use-watchlist-price-drop-count.ts` compares today's prices with a per-account snapshot in localStorage (`watchlistPriceSnapshots`, see [STATE-PERSISTENCE.md](STATE-PERSISTENCE.md#4b-device-preferences)).
+- Opening `/watchlist` resets the snapshot to today's prices, which clears the badge. Elsewhere, a product seen for the first time only gets its baseline, so it never counts on the day you add it. A product whose price failed to load keeps its old baseline.
+- The visual badge stops at `9+` (`utils/badge-count.ts`) and is `aria-hidden`. The cell's accessible name carries the exact count instead (`Praćenje, 12 novih sniženja`), and one polite `role="status"` region in the layout (`components/custom/watchlist/price-drop-status.tsx`) announces a change, since a changed `aria-label` is never read out.
+- The header bell still shows threshold alerts from `useNotifications()`. The two numbers answer different questions: "what is on sale for me now" and "what got cheaper since I last looked".
+- It is per device: a visit on the phone does not clear the laptop. The server-side inbox (#222) is meant to replace the hook's body with an unseen count shared across devices, and the app icon badge (#133) should read that same source.
 
 ---
 
@@ -678,7 +684,7 @@ Recorded so the next person does not re-litigate them. Each of these was an expl
 | Karta holds the store preferences                | Nothing map-specific, since the map will load pinned stores and centre on the user by itself. A "nearby stores" hold was considered and dropped as redundant for the same reason                                                                                                        |
 | Compaction on scroll, never hiding               | iOS 26's full minimize behaviour, which trades away the discoverability this feature exists to buy                                                                                                                                                                                      |
 | Completion ring on Popisi                        | A full "active list" accessory strip above the bar (iOS 26's `tabViewBottomAccessory`), which is higher value but needs a product answer for what "active" means                                                                                                                        |
-| Reuse the notification count for the badge       | A real price-drop count, which needs backend work; or a dot; or no badge                                                                                                                                                                                                                |
+| A client-side price-drop count for the badge     | A last-seen timestamp on the user (a backend column, plus one extra historical price fetch per watched product to know what the price was), or a snapshot column on each watchlist row (half of the server-side inbox, in a shape it would not keep)                                    |
 | No haptics                                       | Android-only `navigator.vibrate`, which is inconsistent across platforms for no gain                                                                                                                                                                                                    |
 | Sheet runs behind the bar                        | Ending the sheet at the bar's top edge (a visible gap), or covering the bar like a normal modal sheet                                                                                                                                                                                   |
 | Only the products sheet is non-modal             | All four non-modal, which was shipped first and made three sheets pay for a property only one needed; or all modal, which contradicts what the products sheet is for. Cost paid: two modes to remember, keyed on one question, does the page behind change                              |
@@ -713,6 +719,7 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 | `components/custom/bottom-nav/bottom-nav-item.tsx`          | One plain cell: icon, label, badge, rings, USKORO chip              |
 | `components/custom/bottom-nav/bottom-nav-center-item.tsx`   | The raised filled search cell with its `Proizvodi` label            |
 | `components/custom/bottom-nav/bottom-nav-item-glyph.tsx`    | The icon with its badge and return chevron                          |
+| `lib/watchlist/use-watchlist-price-drop-count.ts`           | The Praćenje badge count, shared with the sidebar and header        |
 | `components/custom/bottom-nav/bottom-nav-indicator.tsx`     | The `layoutId` active disc                                          |
 | `components/custom/common/hold-progress-ring.tsx`           | One ring, shared by long-press feedback and list completion         |
 | `components/custom/bottom-nav/bottom-nav-classes.ts`        | The class strings both cell components share                        |
@@ -866,7 +873,7 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 | Unlocking Karta's hold when the map ships     | ✅ auto    | Its target already works; dropping `comingSoon` is all that gates it                        |
 | **Adding or reordering a cell**               | ❌ manual  | Edit `bottom-nav-items.ts`, and remember a shipped tab set should not change                |
 | **Enabling a long press on a new cell**       | ❌ manual  | Flip `longPressEnabled` in `bottom-nav-items.ts`, and drop `comingSoon` so the cell unlocks |
-| **A real price-drop badge count**             | ❌ manual  | Needs an endpoint or a per-user last-seen timestamp                                         |
+| Clearing the price-drop badge on a visit      | ✅ auto    | `useWatchlistPriceDropCount` resets the snapshot while `/watchlist` is open                 |
 | **Turning the React Query devtools back on**  | ❌ manual  | `NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS=true`, then restart the dev server                 |
 | **Verifying the iOS keyboard and safe areas** | ❌ manual  | Needs a real iPhone; DevTools emulation cannot show either                                  |
 
@@ -993,11 +1000,10 @@ Together those are the general rule: a measured-overflow container can only meas
 
 ### On the Disscount Roadmap board, in Backlog
 
-| Item                                                    | Domain         | Notes                                                                                                                                                    |
-| ------------------------------------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Price-drop count badge on Praćenje                      | Watchlist      | Swap the notification count for "watched products cheaper since your last visit", cleared on visit, capped at 9+, with the number in the accessible name |
-| Price-drop pulse on the Praćenje icon                   | Watchlist      | One 300ms scale pulse when a watched price drops while the app is open, at most once a minute, off under reduced motion. Blocked by the badge above      |
-| Selection mode: the bar becomes a contextual action bar | Shopping Lists | On `/shopping-lists/[id]`, long-press an item to get "N odabrano" plus move, delete, mark bought, and "nađi najjeftiniji lanac za ovih N"                |
+| Item                                                    | Domain         | Notes                                                                                                                                                      |
+| ------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Price-drop pulse on the Praćenje icon                   | Watchlist      | One 300ms scale pulse when a watched price drops while the app is open, at most once a minute, off under reduced motion. Uses `useWatchlistPriceDropCount` |
+| Selection mode: the bar becomes a contextual action bar | Shopping Lists | On `/shopping-lists/[id]`, long-press an item to get "N odabrano" plus move, delete, mark bought, and "nađi najjeftiniji lanac za ovih N"                  |
 
 Selection mode is the one with real product upside: costing a subset of a list across chains is something no competing Croatian price app does. It is also its own feature, needing selection state and back-button semantics, so it is a separate PR rather than a line item.
 

@@ -138,15 +138,16 @@ Forms wired to drafts:
 
 Written by the small domain helpers in `utils/browser/storage/*`, each of which reads, merges its own field, and writes back through the core wrapper.
 
-| Field                      | Meaning                                                                    | Helper              |
-| -------------------------- | -------------------------------------------------------------------------- | ------------------- |
-| `viewModes`                | grid/list toggle, per list key (parked, see below)                         | `view-mode.ts`      |
-| `productsPreferences`      | price-history period + chains + open state, per product EAN                | `products.ts`       |
-| `shoppingListsPreferences` | section open states, group-by-store switch + price-history prefs, per list | `shopping-lists.ts` |
-| `storeOptimizeMode`        | preferred store-list sort, all lists; `distance` only if location granted  | `shopping-lists.ts` |
-| `preferredCameraId`        | manually chosen scanner camera (absent means auto-pick)                    | `scanner.ts`        |
-| `installBannerDismissedAt` | "install app" banner snooze (7 days)                                       | `pwa.ts`            |
-| `lastLoginMethod`          | drives the "last used" sign-in badge                                       | `auth.ts`           |
+| Field                      | Meaning                                                                                                          | Helper              |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------- |
+| `viewModes`                | grid/list toggle, per list key (parked, see below)                                                               | `view-mode.ts`      |
+| `productsPreferences`      | price-history period + chains + open state, per product EAN                                                      | `products.ts`       |
+| `shoppingListsPreferences` | section open states, group-by-store switch + price-history prefs, per list                                       | `shopping-lists.ts` |
+| `storeOptimizeMode`        | preferred store-list sort, all lists; `distance` only if location granted                                        | `shopping-lists.ts` |
+| `preferredCameraId`        | manually chosen scanner camera (absent means auto-pick)                                                          | `scanner.ts`        |
+| `installBannerDismissedAt` | "install app" banner snooze (7 days)                                                                             | `pwa.ts`            |
+| `lastLoginMethod`          | drives the "last used" sign-in badge                                                                             | `auth.ts`           |
+| `watchlistPriceSnapshots`  | best price per watched EAN in cents, per account id, at the last `/watchlist` visit; the Praćenje badge baseline | `watchlist.ts`      |
 
 The shape of the whole object is declared in `typings/local-storage.ts` as `IAppData`.
 
