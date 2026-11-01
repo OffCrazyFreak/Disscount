@@ -29,6 +29,29 @@ function renderStatus(list: ShoppingListDto, locale?: "en") {
   return { ...view, queryClient };
 }
 
+// A list write in the cache, as the mutation hooks leave behind.
+function addWrite(
+  queryClient: QueryClient,
+  status: "pending" | "success",
+  submittedAt: number,
+) {
+  return queryClient.getMutationCache().build(
+    queryClient,
+    { mutationKey: OFFLINE_MUTATION_KEYS.shoppingListItemUpdate },
+    {
+      context: undefined,
+      data: undefined,
+      error: null,
+      failureCount: 0,
+      failureReason: null,
+      isPaused: false,
+      status,
+      variables: undefined,
+      submittedAt,
+    },
+  );
+}
+
 describe("ShoppingListUpdateStatus", () => {
   it("announces a change someone else made to a shared list", () => {
     const { rerender } = renderStatus(makeList());
@@ -58,21 +81,7 @@ describe("ShoppingListUpdateStatus", () => {
   it("stays quiet when the change came from your own write", () => {
     const { rerender, queryClient } = renderStatus(makeList());
 
-    queryClient.getMutationCache().build(
-      queryClient,
-      { mutationKey: OFFLINE_MUTATION_KEYS.shoppingListItemUpdate },
-      {
-        context: undefined,
-        data: undefined,
-        error: null,
-        failureCount: 0,
-        failureReason: null,
-        isPaused: false,
-        status: "success",
-        variables: undefined,
-        submittedAt: Date.now(),
-      },
-    );
+    addWrite(queryClient, "success", Date.now() + 1);
     rerender(
       <ShoppingListUpdateStatus
         shoppingList={makeList({ updatedAt: "2026-11-01T10:00:05" })}
@@ -80,6 +89,41 @@ describe("ShoppingListUpdateStatus", () => {
     );
 
     expect(screen.getByRole("status")).toBeEmptyDOMElement();
+  });
+
+  it("stays quiet when your write was still in flight as the last version landed", () => {
+    const queryClient = new QueryClient();
+    const write = addWrite(queryClient, "pending", Date.now() - 1_000);
+    const { rerender } = renderWithProviders(
+      <ShoppingListUpdateStatus shoppingList={makeList()} />,
+      { queryClient },
+    );
+
+    write.state.status = "success";
+    rerender(
+      <ShoppingListUpdateStatus
+        shoppingList={makeList({ updatedAt: "2026-11-01T10:00:05" })}
+      />,
+    );
+
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
+  });
+
+  it("still announces when your only write finished before the last version", () => {
+    const queryClient = new QueryClient();
+    addWrite(queryClient, "success", Date.now() - 1_000);
+    const { rerender } = renderWithProviders(
+      <ShoppingListUpdateStatus shoppingList={makeList()} />,
+      { queryClient },
+    );
+
+    rerender(
+      <ShoppingListUpdateStatus
+        shoppingList={makeList({ updatedAt: "2026-11-01T10:00:05" })}
+      />,
+    );
+
+    expect(screen.getByRole("status")).toHaveTextContent("Popis je ažuriran");
   });
 
   it("stays quiet on a private list", () => {

@@ -25,6 +25,7 @@ export default function ShoppingListUpdateStatus({
     id: string;
     updatedAt: string;
     seenAt: number;
+    hadPendingWrites: boolean;
   }>(null);
 
   const { id, updatedAt } = shoppingList;
@@ -35,15 +36,22 @@ export default function ShoppingListUpdateStatus({
     const lastVersion = lastVersionRef.current;
     if (lastVersion?.id === id && lastVersion.updatedAt === updatedAt) return;
 
-    lastVersionRef.current = { id, updatedAt, seenAt: Date.now() };
+    const writes = { mutationKey: SHOPPING_LIST_QUERY_KEYS.all };
+    lastVersionRef.current = {
+      id,
+      updatedAt,
+      seenAt: Date.now(),
+      hadPendingWrites: queryClient.isMutating(writes) > 0,
+    };
     if (lastVersion?.id !== id || !isShared) return;
 
     // Our own writes bump updatedAt too, and announcing those would echo every tick back.
+    // One still in flight when the last version landed may be what this version carries.
     const wroteSinceLastVersion = queryClient
       .getMutationCache()
-      .findAll({ mutationKey: SHOPPING_LIST_QUERY_KEYS.all })
+      .findAll(writes)
       .some((mutation) => mutation.state.submittedAt >= lastVersion.seenAt);
-    if (wroteSinceLastVersion) return;
+    if (lastVersion.hadPendingWrites || wroteSinceLastVersion) return;
 
     // Replacing the text node, rather than setting the same string again, is what makes a
     // second identical announcement count as a change to the live region.

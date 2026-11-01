@@ -13,6 +13,7 @@ import ShoppingListUpdateStatus from "@/app/[locale]/(user)/shopping-lists/[id]/
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
 import { useUser } from "@/context/user-context";
 import { useShoppingListData } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-shopping-list-data";
+import { isDeadListLink } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/is-dead-list-link";
 
 interface IShoppingListDetailClientProps {
   listId: string;
@@ -49,7 +50,7 @@ export default function ShoppingListDetailClient({
     );
   }
 
-  if (error || !shoppingList) {
+  if (!shoppingList || isDeadListLink(error)) {
     return (
       <ShoppingListUnavailable
         error={error}
