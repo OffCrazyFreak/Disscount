@@ -38,7 +38,7 @@ export function useSecurityActions() {
       if (!token) throw new Error("no backend token");
 
       // Identity first: better-auth refuses a stale session before deleting anything, and ends
-      // every session, so none is left minting tokens that would revive the profile.
+      // every session, so no new token can be minted to revive the profile afterwards.
       const { error } = await authClient.deleteUser();
       if (error) throw new Error(error.message ?? "delete failed");
 
