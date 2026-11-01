@@ -6,6 +6,7 @@ import SearchBarField, {
   type ISearchBarFieldOptions,
 } from "@/components/custom/search/search-bar-field";
 import SearchActionButton from "@/components/custom/search/search-action-button";
+import { dismissTouchKeyboard } from "@/components/custom/search/dismiss-touch-keyboard";
 import { useSearchBarQuery } from "@/components/custom/search/use-search-bar-query";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -57,6 +58,7 @@ export default function SearchBar({
 
     const query = data.query?.trim() ?? "";
 
+    dismissTouchKeyboard();
     setOpen(false);
     search(query);
     onSubmitted?.(query);
@@ -69,6 +71,7 @@ export default function SearchBar({
 
   const handleScan = useCallback(
     (code: IScannedCode) => {
+      dismissTouchKeyboard();
       setOpen(false);
       openResult(code.rawValue);
       onSubmitted?.(code.rawValue);
