@@ -18,7 +18,9 @@ export type DistanceSortState =
 
 type DistanceSortFailure = "denied" | "unavailable" | "timeout" | "noStores";
 
-function isFailure(state: DistanceSortState): state is DistanceSortFailure {
+export function isFailure(
+  state: DistanceSortState,
+): state is DistanceSortFailure {
   return (
     state === "denied" ||
     state === "unavailable" ||

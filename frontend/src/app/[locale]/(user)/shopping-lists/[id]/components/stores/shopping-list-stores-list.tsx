@@ -5,22 +5,16 @@ import { useTranslations } from "next-intl";
 import { ShoppingListDto } from "@/lib/api/types";
 import ShoppingListStoreItem from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/shopping-list-store-card";
 import { useUser } from "@/context/user-context";
-import {
-  isStoreOptimizeMode,
-  type StoreOptimizeMode,
-} from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
 import CollapsibleSection from "@/components/custom/common/collapsible-section";
 import {
   getShoppingListStoresOpen,
   setShoppingListStoresOpen,
-  getStoreOptimizeMode,
-  setStoreOptimizeMode,
 } from "@/utils/browser/local-storage";
 import { useStoreChainAnalysis } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-store-chain-analysis";
 import ShoppingListStoresBody from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/shopping-list-stores-body";
 import StoreOptimizeSelect from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/store-optimize-select";
 import DistanceSortNote from "@/app/[locale]/products/components/distance-sort-note";
-import { useDistanceSort } from "@/app/[locale]/products/hooks/use-distance-sort";
+import { useStoreOptimizeMode } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-store-optimize-mode";
 import { nearestDistanceByChain } from "@/app/[locale]/products/utils/nearest-chain-distance";
 
 interface IShoppingListStoreSummaryProps {
@@ -38,20 +32,7 @@ export default function ShoppingListStoreSummary({
   );
 
   const sortNoteId = useId();
-  const [storedMode] = useState<StoreOptimizeMode>(() => {
-    const stored = getStoreOptimizeMode();
-
-    // Restoring "distance" would ask for the location before any tap.
-    return isStoreOptimizeMode(stored) && stored !== "distance"
-      ? stored
-      : "products";
-  });
-  const distance = useDistanceSort(storedMode, "products");
-
-  function handleOptimizeChange(mode: StoreOptimizeMode) {
-    distance.choose(mode);
-    if (mode !== "distance") setStoreOptimizeMode(mode);
-  }
+  const distance = useStoreOptimizeMode();
 
   // No per-store prices here, so each chain's nearest store of any kind.
   const { origin, stores } = distance;
@@ -99,7 +80,7 @@ export default function ShoppingListStoreSummary({
         <div className="space-y-4">
           <StoreOptimizeSelect
             value={distance.chosen}
-            onValueChange={handleOptimizeChange}
+            onValueChange={distance.choose}
             describedById={sortNoteId}
           />
 
