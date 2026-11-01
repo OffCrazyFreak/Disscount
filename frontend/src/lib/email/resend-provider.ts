@@ -6,6 +6,9 @@ import {
   IEmailResult,
 } from "@/lib/email/provider";
 
+// The breached-password sign-in awaits this inside the request, so a stalled Resend call must not hold it open.
+const SEND_TIMEOUT_MS = 10_000;
+
 // `from` must exactly match a verified Resend domain or the API returns 403.
 export class ResendProvider implements IEmailProvider {
   private readonly client: Resend;
@@ -32,7 +35,7 @@ export class ResendProvider implements IEmailProvider {
           subject,
           react,
         },
-        idempotencyKey ? { idempotencyKey } : undefined,
+        { idempotencyKey, signal: AbortSignal.timeout(SEND_TIMEOUT_MS) },
       );
 
       if (error) {
