@@ -13,7 +13,11 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 
 import { authClient, useSession } from "@/lib/auth/client";
-import { clearAuthToken, resetAuthToken } from "@/lib/api/api-base";
+import {
+  clearAuthToken,
+  resetAuthToken,
+  setAuthTokenUser,
+} from "@/lib/api/api-base";
 import { purgeOfflineCache } from "@/lib/offline/purge";
 import { getCacheIdentity } from "@/lib/offline/cache-identity";
 import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
@@ -91,6 +95,7 @@ export function UserProvider({ children }: IUserProviderProps) {
     const identity = session?.user?.id ?? null;
 
     syncCacheIdentity(queryClient, cacheIdentityRef, identity, sessionError);
+    setAuthTokenUser(identity);
 
     // The directive covers this whole effect, not just the line under it: the else
     // branch clears user state synchronously too. Both sides react to an auth result
