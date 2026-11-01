@@ -70,11 +70,14 @@ export default function ItemStoreSelect({
     );
   }
 
-  const describedById = !canCheck
-    ? SHARED_ACCESS_BANNER_ID
-    : priceState === "failed"
-      ? PRICE_STATUS_BANNER_ID
-      : undefined;
+  // Viewers get the access banner too, but the price reason still applies to them.
+  const describedById =
+    [
+      !canCheck && SHARED_ACCESS_BANNER_ID,
+      priceState === "failed" && PRICE_STATUS_BANNER_ID,
+    ]
+      .filter(Boolean)
+      .join(" ") || undefined;
 
   const reason = t(reasonKey);
 
@@ -90,7 +93,6 @@ export default function ItemStoreSelect({
       }
       reason={reason}
       describedById={describedById}
-      disabled={!canCheck}
       className={STORE_SELECT_CLASS_NAME}
     />
   );

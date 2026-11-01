@@ -9,7 +9,6 @@ interface IUnavailableStoreSelectProps {
   reason: string;
   /** Points at a fuller explanation elsewhere; without one the reason itself describes the select. */
   describedById?: string;
-  disabled: boolean;
   className?: string;
 }
 
@@ -22,13 +21,12 @@ export default function UnavailableStoreSelect({
   label,
   reason,
   describedById,
-  disabled,
   className,
 }: IUnavailableStoreSelectProps) {
   const reasonId = useId();
 
   return (
-    <Select open={false} disabled={disabled}>
+    <Select open={false}>
       <SelectTrigger
         aria-disabled="true"
         aria-describedby={describedById ?? reasonId}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { shoppingListService } from "@/lib/api";
 import cijeneService, { productByEanQueryKey } from "@/lib/cijene-api";
@@ -40,8 +40,11 @@ export function useShoppingListData(listId: string) {
     [shoppingList?.items],
   );
 
-  const [retriedEans, setRetriedEans] = useState<ReadonlySet<string>>(
-    () => new Set(),
+  // Bought items show the prices saved with them, so only these EANs are worth a retry.
+  const unboughtEans = new Set(
+    shoppingList?.items
+      .filter((item) => !item.isChecked)
+      .map((item) => item.ean),
   );
 
   const productLookups = useQueries({
@@ -55,14 +58,12 @@ export function useShoppingListData(listId: string) {
     })),
     combine: (results) => {
       const lookups = results.map(
-        (result, index) =>
-          [
-            eans[index],
-            lookupPriceState(result, retriedEans.has(eans[index])),
-          ] as const,
+        (result, index) => [eans[index], lookupPriceState(result)] as const,
       );
       const failedIndexes = results.flatMap((_, index) =>
-        lookups[index][1] === "failed" ? [index] : [],
+        lookups[index][1] === "failed" && unboughtEans.has(eans[index])
+          ? [index]
+          : [],
       );
 
       return {
@@ -76,15 +77,14 @@ export function useShoppingListData(listId: string) {
           }),
         lookupStates: lookups,
         retryFailedPrices: () => {
-          setRetriedEans(new Set(failedIndexes.map((index) => eans[index])));
           for (const index of failedIndexes) void results[index].refetch();
         },
         isRetryingPrices: failedIndexes.some(
           (index) => results[index].fetchStatus === "fetching",
         ),
-        // A retry resets its query to pending; the list must not ungroup or blank its totals for it.
+        // A refetch resets a failed query to pending; the list must not ungroup or blank its totals for it.
         isPricesLoading: results.some(
-          (result, index) => result.isLoading && !retriedEans.has(eans[index]),
+          (result) => result.isLoading && result.errorUpdatedAt === 0,
         ),
       };
     },

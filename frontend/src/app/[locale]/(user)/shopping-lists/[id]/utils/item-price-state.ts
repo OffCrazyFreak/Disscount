@@ -8,7 +8,7 @@ export type ItemPriceState =
 
 type ProductLookup = Pick<
   QueryObserverResult<unknown, unknown>,
-  "status" | "fetchStatus" | "error"
+  "status" | "fetchStatus" | "error" | "errorUpdatedAt"
 >;
 
 /** Upstream answers 404 for an EAN it does not carry, which no retry can change. */
@@ -28,14 +28,14 @@ export const UNAVAILABLE_PRICE_KEYS = {
 } as const satisfies Record<ItemPriceState, string | undefined>;
 
 /** The state of a product lookup that has no data to show yet. */
-export function lookupPriceState(
-  lookup: ProductLookup,
-  isRetried: boolean,
-): ItemPriceState {
+export function lookupPriceState(lookup: ProductLookup): ItemPriceState {
   // React Query pauses a fetch it cannot send offline, and nothing was saved to show instead.
   if (lookup.fetchStatus === "paused") return "offline";
-  // A refetch resets a never-loaded query to pending, but the banner and its button must stay put.
-  if (isRetried && lookup.fetchStatus === "fetching") return "failed";
+  // A refetch (retry button or window focus) resets a failed query to pending, but the row,
+  // the banner and its button must stay put until it actually answers.
+  if (lookup.errorUpdatedAt > 0 && lookup.fetchStatus === "fetching") {
+    return "failed";
+  }
   if (lookup.status === "error") {
     return isProductNotFound(lookup.error) ? "noPrices" : "failed";
   }

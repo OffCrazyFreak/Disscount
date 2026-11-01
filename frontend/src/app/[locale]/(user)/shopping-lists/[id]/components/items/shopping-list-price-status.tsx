@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { TriangleAlert } from "lucide-react";
 
 import { Banner } from "@/components/custom/common/banner";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import { Button } from "@/components/ui/button";
 import { PRICE_STATUS_BANNER_ID } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
 
@@ -26,12 +27,16 @@ export default function ShoppingListPriceStatus({
   const successRef = useRef<HTMLParagraphElement>(null);
   const isRecovered = hasRetried && failedCount === 0;
 
-  // The retry button unmounts once every price loads, so focus moves to the outcome instead of the page top.
+  // The retry button unmounts once every price loads; when it took focus with it, hand focus
+  // to the outcome instead of the page top, but never pull focus away from anything else.
   useEffect(() => {
-    if (isRecovered) successRef.current?.focus();
+    if (isRecovered && document.activeElement === document.body) {
+      successRef.current?.focus();
+    }
   }, [isRecovered]);
 
   function retry() {
+    if (isRetrying) return;
     setHasRetried(true);
     onRetry();
   }
@@ -60,15 +65,15 @@ export default function ShoppingListPriceStatus({
               {t("prices.failedCount", { count: failedCount })}
             </p>
 
+            {/* aria-disabled, not the loading prop: that sets disabled, which drops keyboard focus. */}
             <Button
               type="button"
               variant="outline"
               size="sm"
-              loading={isRetrying}
-              loadingText={t("prices.retry")}
-              loadingIconPlacement="left"
+              aria-disabled={isRetrying || undefined}
               onClick={retry}
             >
+              {isRetrying && <BlockLoadingSpinner size={18} />}
               {t("prices.retry")}
             </Button>
           </div>

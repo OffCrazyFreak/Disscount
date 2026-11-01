@@ -1,5 +1,9 @@
 import { act, waitFor } from "@testing-library/react";
-import { onlineManager, QueryClient } from "@tanstack/react-query";
+import {
+  focusManager,
+  onlineManager,
+  QueryClient,
+} from "@tanstack/react-query";
 import { http, HttpResponse } from "msw/http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -93,6 +97,7 @@ function answerProducts(requests: string[], brokenStatus = 502) {
 
 afterEach(() => {
   onlineManager.setOnline(true);
+  focusManager.setFocused(undefined);
 });
 
 describe("useShoppingListData price states", () => {
@@ -159,6 +164,39 @@ describe("useShoppingListData price states", () => {
     );
     expect(result.current.isRetryingPrices).toBe(false);
     expect(retried).toEqual(["222"]);
+  });
+
+  it("keeps a failed item failed while a window focus refetch runs", async () => {
+    const requests: string[] = [];
+    answerProducts(requests);
+
+    const { result } = renderHookWithProviders(
+      () => useShoppingListData(LIST_ID),
+      { queryClient: appLikeQueryClient() },
+    );
+
+    await waitFor(() =>
+      expect(result.current.priceStates.broken).toBe("failed"),
+    );
+
+    let refetching = false;
+    server.use(
+      http.get("*/api/cijene/products/:ean", async () => {
+        refetching = true;
+        await new Promise(() => {});
+        return HttpResponse.json(null);
+      }),
+    );
+
+    act(() => {
+      focusManager.setFocused(false);
+      focusManager.setFocused(true);
+    });
+
+    await waitFor(() => expect(refetching).toBe(true));
+    await waitFor(() => expect(result.current.isRetryingPrices).toBe(true));
+    expect(result.current.priceStates.broken).toBe("failed");
+    expect(result.current.isPricesLoading).toBe(false);
   });
 
   it("reports prices that were never saved while offline", () => {
