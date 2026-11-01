@@ -5,6 +5,8 @@ import org.springframework.stereotype.Component;
 
 import disscount.exceptions.TooManyRequestsException;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.Clock;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -39,7 +41,7 @@ public class ContactRateLimiter {
         long now = clock.millis();
         long[] retryAfterMillis = {0};
 
-        sends.compute(clientIp, (ip, times) -> {
+        sends.compute(bucketKey(clientIp), (key, times) -> {
             Deque<Long> recent = times == null ? new ArrayDeque<>() : times;
             dropOlderThanADay(recent, now);
             retryAfterMillis[0] = retryAfterMillis(recent, now);
@@ -52,6 +54,30 @@ public class ContactRateLimiter {
         if (retryAfterMillis[0] > 0) {
             long seconds = Math.max(1, (retryAfterMillis[0] + 999) / 1000);
             throw new TooManyRequestsException("error.contactMessage.rateLimited", seconds);
+        }
+    }
+
+    /**
+     * IPv6 visitors usually hold a whole /64 (Hetzner hands one to every server), so one
+     * bucket per /64, as better-auth does; otherwise each message could use a fresh address.
+     */
+    static String bucketKey(String clientIp) {
+        if (!clientIp.contains(":")) {
+            return clientIp;
+        }
+        try {
+            // ClientIp only returns literals, so this parses without a DNS lookup.
+            byte[] bytes = InetAddress.getByName(clientIp).getAddress();
+            if (bytes.length != 16) {
+                return clientIp;
+            }
+            StringBuilder prefix = new StringBuilder();
+            for (int i = 0; i < 8; i += 2) {
+                prefix.append(String.format("%02x%02x:", bytes[i], bytes[i + 1]));
+            }
+            return prefix.append(":/64").toString();
+        } catch (UnknownHostException malformed) {
+            return clientIp;
         }
     }
 

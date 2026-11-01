@@ -67,6 +67,15 @@ class ContactRateLimiterTest {
     }
 
     @Test
+    void groupsIpv6ClientsByTheirSlash64() {
+        for (int i = 1; i <= 5; i++) limiter.check("2a01:4f9:c010:abcd::" + i);
+
+        assertThatThrownBy(() -> limiter.check("2A01:4F9:C010:ABCD:FFFF::9"))
+                .isInstanceOf(TooManyRequestsException.class);
+        assertThatCode(() -> limiter.check("2a01:4f9:c010:abce::1")).doesNotThrowAnyException();
+    }
+
+    @Test
     void sweepForgetsClientsQuietForADay() {
         sendTimes(5);
         now = now.plus(Duration.ofDays(1));
