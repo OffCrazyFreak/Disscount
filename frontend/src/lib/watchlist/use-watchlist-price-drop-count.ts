@@ -12,6 +12,7 @@ import {
 import type { WatchlistPriceSnapshot } from "@/typings/local-storage";
 import {
   getWatchlistPriceSnapshot,
+  readStoredWatchlistPriceSnapshot,
   setWatchlistPriceSnapshot,
   subscribeToWatchlistPriceSnapshots,
 } from "@/utils/browser/storage/watchlist";
@@ -21,7 +22,7 @@ const WATCHLIST_HREF = "/watchlist";
 
 interface IWatchlistPriceDrops {
   count: number;
-  /** Signed in with the watchlist and every price loaded, so the count is final */
+  /** Signed in, with the watchlist and every price fetched and no refetch in flight */
   isSettled: boolean;
 }
 
@@ -35,6 +36,7 @@ export function useWatchlistPriceDropCount(): IWatchlistPriceDrops {
   const pathname = usePathname();
   const {
     isWatchlistLoaded,
+    isWatchlistFetching,
     groupedWatchlistItems,
     pinnedStoreChainCodes,
     productQueries,
@@ -44,13 +46,16 @@ export function useWatchlistPriceDropCount(): IWatchlistPriceDrops {
   const scope = getPriceScope(pinnedStoreChainCodes);
   const isVisit = isRouteActive(pathname, WATCHLIST_HREF);
 
+  // A failed preferences fetch leaves pinnedStores unset, which would read as "every
+  // chain" and rebase away drops the user has not seen yet.
+  const isScopeKnown = Array.isArray(user?.pinnedStores);
+
   const snapshot = useSyncExternalStore(
     subscribeToWatchlistPriceSnapshots,
     () => getWatchlistPriceSnapshot(userId),
-    () => getWatchlistPriceSnapshot(undefined),
+    () => null,
   );
 
-  const watchedEans = groupedWatchlistItems.map((item) => item.productApiId);
   const currentPrices: WatchlistPriceSnapshot = {};
 
   groupedWatchlistItems.forEach((item, index) => {
@@ -61,27 +66,36 @@ export function useWatchlistPriceDropCount(): IWatchlistPriceDrops {
     if (price !== null) currentPrices[item.productApiId] = price;
   });
 
-  const next = nextPriceSnapshot(
-    currentPrices,
-    snapshot,
-    scope,
-    watchedEans,
-    isVisit,
-  );
-  const hasChanged = !isSameSnapshot(next, snapshot);
+  // Primitive keys, so the write runs only when this tab's own data changes. Re-running
+  // on another tab's write would let two tabs that disagree overwrite each other forever.
+  const pricesKey = JSON.stringify(currentPrices);
+  const eansKey = groupedWatchlistItems
+    .map((item) => item.productApiId)
+    .join(",");
+  const canWrite = Boolean(userId) && isWatchlistLoaded && isScopeKnown;
 
-  // Several nav surfaces mount this hook, and each computes the same next snapshot,
-  // so only the first write changes anything.
   useEffect(() => {
-    if (userId && isWatchlistLoaded && hasChanged) {
-      setWatchlistPriceSnapshot(userId, next);
-    }
-  }, [userId, isWatchlistLoaded, hasChanged, next]);
+    if (!userId || !canWrite) return;
+
+    // Merged against a fresh read, not the cached one, so another tab's visit survives.
+    const latest = readStoredWatchlistPriceSnapshot(userId);
+    const next = nextPriceSnapshot(
+      JSON.parse(pricesKey) as WatchlistPriceSnapshot,
+      latest,
+      scope,
+      eansKey ? eansKey.split(",") : [],
+      isVisit,
+    );
+
+    if (!isSameSnapshot(next, latest)) setWatchlistPriceSnapshot(userId, next);
+  }, [userId, canWrite, pricesKey, eansKey, scope, isVisit]);
 
   const isSettled =
-    Boolean(userId) &&
-    isWatchlistLoaded &&
-    productQueries.every((query) => !query.isLoading);
+    canWrite &&
+    !isWatchlistFetching &&
+    productQueries.every(
+      (query) => query.status !== "pending" && !query.isFetching,
+    );
 
   if (!userId || isVisit) return { count: 0, isSettled };
 

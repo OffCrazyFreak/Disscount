@@ -29,6 +29,13 @@ export function subscribeToWatchlistPriceSnapshots(onChange: () => void) {
   };
 }
 
+/** Straight from localStorage, for a write that must merge with what other tabs saved. */
+export function readStoredWatchlistPriceSnapshot(
+  userId: string,
+): IWatchlistPriceSnapshot | null {
+  return getAppStorage().watchlistPriceSnapshots?.[userId] ?? null;
+}
+
 /** The best price per watched EAN as this account last saw it on this device. */
 export function getWatchlistPriceSnapshot(
   userId: string | undefined,

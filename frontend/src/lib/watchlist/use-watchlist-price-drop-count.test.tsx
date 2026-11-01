@@ -16,7 +16,7 @@ const session = vi.hoisted(() => ({
   userId: "",
   isAuthenticated: true,
   pathname: "/",
-  pinnedStores: [] as { storeName: string }[],
+  pinnedStores: [] as { storeName: string }[] | undefined,
 }));
 
 // The session and the router are boundaries the suite cannot run.
@@ -143,6 +143,46 @@ describe("useWatchlistPriceDropCount", () => {
       ),
     );
     expect(result.current.count).toBe(0);
+  });
+
+  it("leaves another tab's disagreeing snapshot alone", async () => {
+    signIn("tabs");
+    watching("0.99");
+
+    const { result } = renderHookWithProviders(useCountAndProduct);
+    await waitFor(() => expect(result.current.isSettled).toBe(true));
+
+    const otherTab = saved({ [EAN]: 129 }, "konzum");
+    localStorage.setItem(
+      "Disscount_app",
+      JSON.stringify({ watchlistPriceSnapshots: { tabs: otherTab } }),
+    );
+    window.dispatchEvent(
+      new StorageEvent("storage", { storageArea: localStorage }),
+    );
+
+    await waitFor(() =>
+      expect(getWatchlistPriceSnapshot("tabs")).toEqual(otherTab),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(JSON.parse(localStorage.getItem("Disscount_app")!)).toEqual({
+      watchlistPriceSnapshots: { tabs: otherTab },
+    });
+  });
+
+  it("keeps the baseline while the pinned stores failed to load", async () => {
+    signIn("unknown");
+    session.pinnedStores = undefined;
+    setWatchlistPriceSnapshot("unknown", saved({ [EAN]: 249 }, "konzum"));
+    watching("0.99");
+
+    const { result } = renderHookWithProviders(useCountAndProduct);
+
+    await waitFor(() => expect(result.current.product).toBeDefined());
+    expect(result.current.isSettled).toBe(false);
+    expect(getWatchlistPriceSnapshot("unknown")).toEqual(
+      saved({ [EAN]: 249 }, "konzum"),
+    );
   });
 
   it("is zero and never settles while signed out", () => {

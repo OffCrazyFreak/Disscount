@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useUser } from "@/context/user-context";
 import { useWatchlistPriceDropCount } from "@/lib/watchlist/use-watchlist-price-drop-count";
+
+interface ISettledCount {
+  userId: string | undefined;
+  count: number;
+}
 
 /**
  * Announces the Praćenje count when it changes without a navigation. Mounted once in the
@@ -11,15 +17,19 @@ import { useWatchlistPriceDropCount } from "@/lib/watchlist/use-watchlist-price-
  */
 export default function PriceDropStatus() {
   const t = useTranslations("shell");
+  const { user } = useUser();
   const { count, isSettled } = useWatchlistPriceDropCount();
-  const [settledCount, setSettledCount] = useState<number | null>(null);
+  const [settled, setSettled] = useState<ISettledCount | null>(null);
   const [isAnnouncing, setIsAnnouncing] = useState(false);
 
-  // The first settled count is what loading the app produced, not a change, so only
-  // later ones speak; a cold start would otherwise talk over the page's own announcement.
-  if (isSettled && count !== settledCount) {
-    setIsAnnouncing(settledCount !== null);
-    setSettledCount(count);
+  // The first settled count per account is what loading produced, not a change, so only
+  // later ones speak; a cold start or a sign-in would otherwise talk over the page.
+  if (settled && settled.userId !== user?.id) {
+    setSettled(null);
+    setIsAnnouncing(false);
+  } else if (isSettled && settled?.count !== count) {
+    setIsAnnouncing(settled !== null);
+    setSettled({ userId: user?.id, count });
   }
 
   return (

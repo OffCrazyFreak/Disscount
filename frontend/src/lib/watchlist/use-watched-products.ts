@@ -19,6 +19,7 @@ export function useWatchedProducts(
     data: watchlistItems = [],
     isLoading: watchlistLoading,
     isSuccess: isWatchlistLoaded,
+    isFetching: isWatchlistFetching,
   } = watchlistService.useGetCurrentUserWatchlist({ enabled: isAuthenticated });
 
   const groupedWatchlistItems = useMemo(
@@ -47,6 +48,7 @@ export function useWatchedProducts(
     watchlistItems,
     watchlistLoading,
     isWatchlistLoaded,
+    isWatchlistFetching,
     groupedWatchlistItems,
     pinnedStoreChainCodes,
     hasPinnedStores,

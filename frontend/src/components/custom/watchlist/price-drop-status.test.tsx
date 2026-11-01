@@ -5,6 +5,11 @@ import PriceDropStatus from "@/components/custom/watchlist/price-drop-status";
 import { renderWithProviders } from "@/test/render";
 
 const drops = vi.hoisted(() => ({ count: 0, isSettled: false }));
+const session = vi.hoisted(() => ({ userId: "a" }));
+
+vi.mock("@/context/user-context", () => ({
+  useUser: () => ({ user: { id: session.userId } }),
+}));
 
 // The count has its own tests; this one covers when and how it is announced.
 vi.mock("@/lib/watchlist/use-watchlist-price-drop-count", () => ({
@@ -13,6 +18,7 @@ vi.mock("@/lib/watchlist/use-watchlist-price-drop-count", () => ({
 
 function renderSettledAt(count: number, locale?: "sl") {
   Object.assign(drops, { count, isSettled: true });
+  session.userId = "a";
   return renderWithProviders(<PriceDropStatus />, { locale });
 }
 
@@ -43,6 +49,26 @@ describe("PriceDropStatus", () => {
     expect(screen.getByRole("status")).toHaveTextContent(
       "Spremljanje, 2 novi znižanji",
     );
+  });
+
+  it("waits for the count to settle before taking its baseline", () => {
+    Object.assign(drops, { count: 0, isSettled: false });
+    const { rerender } = renderWithProviders(<PriceDropStatus />);
+
+    Object.assign(drops, { count: 2, isSettled: true });
+    rerender(<PriceDropStatus />);
+
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
+  });
+
+  it("takes a new baseline when another account signs in", () => {
+    const { rerender } = renderSettledAt(2);
+
+    session.userId = "b";
+    drops.count = 3;
+    rerender(<PriceDropStatus />);
+
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
   });
 
   it("empties at zero so nothing is announced", () => {
