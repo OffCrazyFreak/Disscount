@@ -24,6 +24,7 @@ import {
 } from "@/constants/auth";
 import { assertPasswordAcceptable } from "@/lib/auth/breached-password";
 import { refuseBreachedSignIn } from "@/lib/auth/refuse-breached-sign-in";
+import { recordLastLogin } from "@/lib/auth/record-last-login";
 import { PASSWORD_MIN_LENGTH } from "@/lib/auth/password-policy";
 
 const BETTER_AUTH_URL = requireEnv("BETTER_AUTH_URL");
@@ -148,6 +149,7 @@ export const auth = betterAuth({
             RESET_TOKEN_TTL_SECONDS,
           );
         },
+        after: recordLastLogin,
       },
     },
     account: {
