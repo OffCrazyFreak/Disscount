@@ -8,6 +8,11 @@ out
 .env*.local
 .env.sentry-build-plugin
 
+# Images are published publicly, so any env file stays out, examples aside
+.env
+.env.*
+!.env*.example
+
 # VCS / tooling / OS noise
 .git
 .gitignore
