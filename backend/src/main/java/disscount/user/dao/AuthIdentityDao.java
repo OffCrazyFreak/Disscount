@@ -29,13 +29,12 @@ public class AuthIdentityDao {
     @PersistenceContext
     private EntityManager entityManager;
 
-    // last_login_at survives sign-out and session expiry; the session fallback covers users
-    // who have not signed in since the column was added.
+    // last_login_at outlives deleted sessions; GREATEST skips NULLs, covering unstamped users and a failed stamp.
     @SuppressWarnings("unchecked")
     public Map<UUID, AuthIdentity> findByUserIds(List<UUID> ids) {
         List<Object[]> rows = entityManager
                 .createNativeQuery("""
-                        SELECT u.id, u.email, COALESCE(u.last_login_at, MAX(s.created_at)), MAX(s.updated_at)
+                        SELECT u.id, u.email, GREATEST(u.last_login_at, MAX(s.created_at)), MAX(s.updated_at)
                         FROM "user" u
                         LEFT JOIN "session" s ON s.user_id = u.id
                         WHERE u.id IN (:ids)
