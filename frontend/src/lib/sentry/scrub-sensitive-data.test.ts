@@ -1,52 +1,51 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  scrubRecordingEvent,
   scrubSensitiveData,
-  scrubUrl,
+  scrubString,
 } from "@/lib/sentry/scrub-sensitive-data";
 
-describe("scrubUrl", () => {
+describe("scrubString", () => {
   it("filters the reset token in a page URL and keeps the other params", () => {
-    expect(scrubUrl("https://disscount.me/reset-password?token=abc")).toBe(
+    expect(scrubString("https://disscount.me/reset-password?token=abc")).toBe(
       "https://disscount.me/reset-password?token=[Filtered]",
     );
-    expect(scrubUrl("/?modal=reset-password&token=abc&x=1")).toBe(
+    expect(scrubString("/?modal=reset-password&token=abc&x=1")).toBe(
       "/?modal=reset-password&token=[Filtered]&x=1",
     );
   });
 
   it("filters the token in the better-auth reset link path", () => {
-    expect(scrubUrl("/api/auth/reset-password/abc?callbackURL=%2F")).toBe(
+    expect(scrubString("/api/auth/reset-password/abc?callbackURL=%2F")).toBe(
       "/api/auth/reset-password/[Filtered]?callbackURL=%2F",
     );
   });
 
   it("filters OAuth and verification params, in any case", () => {
     expect(
-      scrubUrl("/api/auth/callback/google?code=c1&state=s1&Token=t1"),
+      scrubString("/api/auth/callback/google?code=c1&state=s1&Token=t1"),
     ).toBe(
       "/api/auth/callback/google?code=[Filtered]&state=[Filtered]&Token=[Filtered]",
     );
-    expect(scrubUrl("/verify-email#access_token=a&id_token=b")).toBe(
+    expect(scrubString("/verify-email#access_token=a&id_token=b")).toBe(
       "/verify-email#access_token=[Filtered]&id_token=[Filtered]",
     );
   });
 
   it("filters a bare query string and a URL inside a span description", () => {
-    expect(scrubUrl("token=abc&callbackURL=%2F")).toBe(
+    expect(scrubString("token=abc&callbackURL=%2F")).toBe(
       "token=[Filtered]&callbackURL=%2F",
     );
-    expect(scrubUrl("GET /api/auth/verify-email?token=abc")).toBe(
+    expect(scrubString("GET /api/auth/verify-email?token=abc")).toBe(
       "GET /api/auth/verify-email?token=[Filtered]",
     );
   });
 
   it("leaves lookalike keys and plain text alone", () => {
-    expect(scrubUrl("/products?barcode=123&tokens=2")).toBe(
+    expect(scrubString("/products?barcode=123&tokens=2")).toBe(
       "/products?barcode=123&tokens=2",
     );
-    expect(scrubUrl("not a url %E0%A4%A")).toBe("not a url %E0%A4%A");
+    expect(scrubString("not a url %E0%A4%A")).toBe("not a url %E0%A4%A");
   });
 });
 
@@ -109,8 +108,22 @@ describe("scrubSensitiveData", () => {
   });
 });
 
-describe("scrubRecordingEvent", () => {
-  it("scrubs URLs in replay network and navigation events", () => {
+describe("scrubSensitiveData on server request bodies", () => {
+  it("filters the reset body the server SDK attaches as a JSON string", () => {
+    const event = {
+      request: {
+        data: '{"newPassword":"hunter22","token":"abc","note":"a \\"q\\" b"}',
+      },
+    };
+
+    expect(scrubSensitiveData(event).request.data).toBe(
+      '{"newPassword":"[Filtered]","token":"[Filtered]","note":"a \\"q\\" b"}',
+    );
+  });
+});
+
+describe("scrubSensitiveData on Replay network events", () => {
+  it("filters the URL in a recorded fetch", () => {
     const networkEvent = {
       type: 5,
       timestamp: 1,
@@ -120,21 +133,8 @@ describe("scrubRecordingEvent", () => {
       },
     };
 
-    expect(scrubRecordingEvent(networkEvent).data.payload.description).toBe(
+    expect(scrubSensitiveData(networkEvent).data.payload.description).toBe(
       "/api/x?token=[Filtered]",
     );
-    expect(
-      scrubRecordingEvent({
-        type: 4,
-        timestamp: 1,
-        data: { href: "https://x/?token=abc" },
-      }).data.href,
-    ).toBe("https://x/?token=[Filtered]");
-  });
-
-  it("passes DOM snapshots through untouched", () => {
-    const snapshot = { type: 2, timestamp: 1, data: { node: { id: 1 } } };
-
-    expect(scrubRecordingEvent(snapshot)).toBe(snapshot);
   });
 });

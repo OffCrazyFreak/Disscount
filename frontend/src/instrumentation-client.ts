@@ -4,7 +4,6 @@ import * as Sentry from "@sentry/nextjs";
 
 import { isServiceWorkerRegistrationNoise } from "@/lib/sentry/ignore-service-worker-noise";
 import {
-  scrubRecordingEvent,
   scrubSensitiveData,
   sentryScrubbingOptions,
 } from "@/lib/sentry/scrub-sensitive-data";
@@ -21,7 +20,7 @@ Sentry.init({
       beforeAddRecordingEvent: (event) =>
         /^(\/[a-z]{2})?\/shopping-lists\//.test(window.location.pathname)
           ? null
-          : scrubRecordingEvent(event),
+          : scrubSensitiveData(event),
     }),
   ],
 

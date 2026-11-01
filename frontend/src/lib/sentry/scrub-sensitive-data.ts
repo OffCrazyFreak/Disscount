@@ -2,7 +2,8 @@
  * Keeps one-time auth secrets out of everything the Sentry SDK sends. The password reset
  * link lands on a page as `?token=`, and verify-email and OAuth callbacks carry `token`,
  * `code` and `state` in request URLs, so URLs are scrubbed by their structure (query key,
- * reset path segment), never by matching message text.
+ * reset path segment), never by matching message text. The server SDK attaches request
+ * bodies as raw JSON strings, so sensitive fields are filtered there as well as as keys.
  */
 const FILTERED = "[Filtered]";
 
@@ -12,16 +13,22 @@ const SENSITIVE_QUERY_PARAM =
 // better-auth's reset email links to this route with the token as a path segment.
 const RESET_PASSWORD_PATH_TOKEN = /(\/api\/auth\/reset-password\/)[^/?#\s]+/gi;
 
-const SENSITIVE_FIELDS = new Set(["token", "newpassword"]);
+const SENSITIVE_FIELD_NAMES = ["token", "newPassword"];
 
-// rrweb event types 2 and 3 are DOM snapshots and mutations: large, already masked by
-// Replay, and not where URLs are recorded.
-const DOM_SNAPSHOT_EVENT_TYPES = new Set([2, 3]);
+const SENSITIVE_FIELDS = new Set(
+  SENSITIVE_FIELD_NAMES.map((name) => name.toLowerCase()),
+);
 
-export function scrubUrl(text: string): string {
+const SENSITIVE_JSON_FIELD = new RegExp(
+  `("(?:${SENSITIVE_FIELD_NAMES.join("|")})"\\s*:\\s*)"(?:[^"\\\\]|\\\\.)*"`,
+  "gi",
+);
+
+export function scrubString(text: string): string {
   return text
     .replace(SENSITIVE_QUERY_PARAM, `$1$2=${FILTERED}`)
-    .replace(RESET_PASSWORD_PATH_TOKEN, `$1${FILTERED}`);
+    .replace(RESET_PASSWORD_PATH_TOKEN, `$1${FILTERED}`)
+    .replace(SENSITIVE_JSON_FIELD, `$1"${FILTERED}"`);
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -33,7 +40,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 function scrubValue(value: unknown, copies: WeakMap<object, unknown>): unknown {
-  if (typeof value === "string") return scrubUrl(value);
+  if (typeof value === "string") return scrubString(value);
 
   if (!Array.isArray(value) && !isPlainObject(value)) return value;
 
@@ -62,12 +69,6 @@ function scrubValue(value: unknown, copies: WeakMap<object, unknown>): unknown {
 
 export function scrubSensitiveData<T>(data: T): T {
   return scrubValue(data, new WeakMap()) as T;
-}
-
-export function scrubRecordingEvent<T extends { type: number }>(event: T): T {
-  return DOM_SNAPSHOT_EVENT_TYPES.has(event.type)
-    ? event
-    : scrubSensitiveData(event);
 }
 
 // Spread into every Sentry.init (client, server, edge) so they scrub the same hooks.
