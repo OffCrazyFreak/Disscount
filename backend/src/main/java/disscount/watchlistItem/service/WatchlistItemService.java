@@ -83,14 +83,6 @@ public class WatchlistItemService {
                 .collect(Collectors.toList());
     }
 
-    public void updateLastNotifiedAt(UUID watchlistItemId) {
-        Optional<WatchlistItem> watchlistItem = watchlistItemRepository.findById(watchlistItemId);
-        if (watchlistItem.isPresent()) {
-            watchlistItem.get().setLastNotifiedAt(Timestamps.nowUtc());
-            watchlistItemRepository.save(watchlistItem.get());
-        }
-    }
-
     private WatchlistItemDto mapToDto(WatchlistItem watchlistItem) {
         return WatchlistItemDto.builder()
                 .id(watchlistItem.getId())
