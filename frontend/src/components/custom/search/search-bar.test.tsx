@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import SearchBar from "@/components/custom/search/search-bar";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -38,10 +38,6 @@ function renderSearchBar() {
 }
 
 describe("SearchBar", () => {
-  beforeEach(() => {
-    vi.unstubAllGlobals();
-  });
-
   it("closes the touch keyboard when Enter submits the search", async () => {
     stubPointer(true);
     const user = userEvent.setup();
