@@ -28,6 +28,14 @@ describe("ProductsResultsStatus", () => {
     );
   });
 
+  it("never says an empty, capped search may have more", () => {
+    renderWithProviders(
+      <ProductsResultsStatus {...SETTLED} total={0} isTruncated />,
+    );
+
+    expect(screen.getByRole("status")).toHaveTextContent(/^Nema rezultata$/);
+  });
+
   it("stays mounted but silent while the search loads", () => {
     renderWithProviders(
       <ProductsResultsStatus {...SETTLED} total={0} isPending />,

@@ -27,7 +27,8 @@ export default function ProductsResultsStatus({
       {hasSettledResults &&
         t("resultsStatus", {
           count: total,
-          truncated: isTruncated ? "yes" : "no",
+          // The cap applies before filters, so a filtered-out search can be capped yet empty
+          truncated: isTruncated && total > 0 ? "yes" : "no",
         })}
     </p>
   );
