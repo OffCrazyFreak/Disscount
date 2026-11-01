@@ -1,6 +1,8 @@
 // Sentry edge init (middleware, edge routes). Reuses the public DSN env var; no-ops when unset.
 import * as Sentry from "@sentry/nextjs";
 
+import { sentryScrubbingOptions } from "@/lib/sentry/scrub-sensitive-data";
+
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
@@ -11,4 +13,6 @@ Sentry.init({
   enableLogs: true,
 
   sendDefaultPii: false,
+
+  ...sentryScrubbingOptions,
 });
