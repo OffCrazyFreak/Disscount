@@ -36,7 +36,6 @@ export default function FooterSection() {
 
             <CopyrightIcon size={14} />
 
-            {/* eslint-disable-next-line i18next/no-literal-string -- the author's name */}
             <span className="whitespace-nowrap">
               Jakov Jakovac {currentYear}
             </span>
@@ -57,7 +56,6 @@ export default function FooterSection() {
                 href={GITHUB_REPO_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                // eslint-disable-next-line i18next/no-literal-string -- brand name
                 aria-label="GitHub"
                 className="text-muted-foreground hover:text-primary block hover:scale-110 transition-all"
               >
@@ -68,7 +66,6 @@ export default function FooterSection() {
                 href={LINKEDIN_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                // eslint-disable-next-line i18next/no-literal-string -- brand name
                 aria-label="LinkedIn"
                 className="text-muted-foreground hover:text-primary block hover:scale-110 transition-all"
               >
