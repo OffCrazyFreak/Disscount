@@ -45,7 +45,7 @@ flowchart LR
 
 - `getStoreDirectory` fetches every upstream store and our `store_location` rows, merges them (`buildDirectory`) and keeps the result in memory per process for 10 minutes.
 - The route answers with `Cache-Control: public, max-age=3600, stale-while-revalidate=86400`. The service worker already caches `/api/cijene/*`, and the React Query key `["cijene", "store-directory"]` persists, so the list works offline after one visit.
-- The distance sort on the product page and the shopping list store optimizer reads the same query, enabled only once the shopper picks "distance" (`products/hooks/use-distance-sort.ts`).
+- The distance sort on the product page and the shopping list store optimizer reads the same query, enabled only once the shopper picks "distance", or a shopping list restores a saved "distance" sort with location already granted (`products/hooks/use-distance-sort.ts`).
 - Merge rule: a `manual` table row wins, then a pin override from code; otherwise upstream coordinates win when they are usable; otherwise ours. Coordinates outside a box around Croatia are dropped, and swapped latitude and longitude are repaired.
 
 ## 3. Store locations: the sync

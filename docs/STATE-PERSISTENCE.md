@@ -143,7 +143,7 @@ Written by the small domain helpers in `utils/browser/storage/*`, each of which 
 | `viewModes`                | grid/list toggle, per list key (parked, see below)                         | `view-mode.ts`      |
 | `productsPreferences`      | price-history period + chains + open state, per product EAN                | `products.ts`       |
 | `shoppingListsPreferences` | section open states, group-by-store switch + price-history prefs, per list | `shopping-lists.ts` |
-| `storeOptimizeMode`        | preferred store-list sort, shared across all lists; never `distance`       | `shopping-lists.ts` |
+| `storeOptimizeMode`        | preferred store-list sort, all lists; `distance` only if location granted  | `shopping-lists.ts` |
 | `preferredCameraId`        | manually chosen scanner camera (absent means auto-pick)                    | `scanner.ts`        |
 | `installBannerDismissedAt` | "install app" banner snooze (7 days)                                       | `pwa.ts`            |
 | `lastLoginMethod`          | drives the "last used" sign-in badge                                       | `auth.ts`           |
