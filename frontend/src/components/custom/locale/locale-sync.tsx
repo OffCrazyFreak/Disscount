@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useEffectEvent } from "react";
 import { useLocale } from "next-intl";
 
 import { readLocaleCookie, writeLocaleCookie } from "@/i18n/locale-cookie";
@@ -23,6 +23,22 @@ export default function LocaleSync() {
   const userId = session?.user?.id;
   const accountLocale = session?.user?.locale;
 
+  // Runs once per sign-in, not on every page: the current page language is only
+  // the seed for an account that has none.
+  const syncAccount = useEffectEvent((signedInId: string) => {
+    if (!isLocale(accountLocale)) {
+      // A failed seed needs no toast: the account stays empty and seeds again next sign-in.
+      queueAccountLocaleSave(
+        signedInId,
+        readLocaleCookie() ?? locale,
+        () => {},
+      );
+      return;
+    }
+
+    if (readLocaleCookie() !== accountLocale) writeLocaleCookie(accountLocale);
+  });
+
   useEffect(() => {
     if (!userId) {
       syncedUserId = null;
@@ -31,16 +47,7 @@ export default function LocaleSync() {
     if (userId === syncedUserId) return;
     syncedUserId = userId;
 
-    if (!isLocale(accountLocale)) {
-      // A failed seed needs no toast: the account stays empty and seeds again next sign-in.
-      queueAccountLocaleSave(userId, readLocaleCookie() ?? locale, () => {});
-      return;
-    }
-
-    if (readLocaleCookie() !== accountLocale) writeLocaleCookie(accountLocale);
-    // Runs once per sign-in, not on every page: the current page language is only
-    // the seed for an account that has none.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    syncAccount(userId);
   }, [userId]);
 
   return null;
