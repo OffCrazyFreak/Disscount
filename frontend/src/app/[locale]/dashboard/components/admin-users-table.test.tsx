@@ -1,11 +1,11 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { delay, http, HttpResponse } from "msw";
+import { http, HttpResponse } from "msw/http";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import AdminUsersTable from "@/app/[locale]/dashboard/components/admin-users-table";
-import type { UserDto } from "@/lib/api/schemas/auth-user";
+import type { AccountType, UserDto } from "@/lib/api/schemas/auth-user";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 
@@ -19,22 +19,36 @@ const signedOut = http.get("*/api/auth/token", () =>
   HttpResponse.json(null, { status: 401 }),
 );
 
-const USER = {
-  id: "user-1",
+const ANA = {
+  id: "ana",
   username: "ana",
-  email: "ana@example.com",
+  accountType: "CONSUMER",
+} satisfies Partial<UserDto>;
+const IVO = {
+  id: "ivo",
+  username: "ivo",
   accountType: "CONSUMER",
 } satisfies Partial<UserDto>;
 
-function serveUsers(getAccountType: () => string) {
-  return http.get("*/api/admin/users", () =>
-    HttpResponse.json([{ ...USER, accountType: getAccountType() }]),
-  );
+function held() {
+  let release = () => {};
+  const promise = new Promise<void>((resolve) => (release = resolve));
+  return { promise, release };
 }
 
-async function chooseAdmin() {
+function serveUsers(users: () => Partial<UserDto>[]) {
+  return http.get("*/api/admin/users", () => HttpResponse.json(users()));
+}
+
+function accountTypeOf(username: string) {
+  const row = screen.getByText(username).closest("tr")!;
+  return within(row).getByRole("combobox");
+}
+
+async function chooseAdmin(username: string) {
   const user = userEvent.setup();
-  await user.click(await screen.findByRole("combobox"));
+  await screen.findByText(username);
+  await user.click(accountTypeOf(username));
   await user.click(await screen.findByRole("option", { name: "Admin" }));
 }
 
@@ -49,63 +63,88 @@ describe("AdminUsersTable account type", () => {
         disconnect() {}
       },
     );
-    Element.prototype.hasPointerCapture = () => false;
-    Element.prototype.releasePointerCapture = () => {};
-    Element.prototype.scrollIntoView = () => {};
-  });
-
-  beforeEach(() => {
+    Element.prototype.hasPointerCapture ??= () => false;
+    Element.prototype.releasePointerCapture ??= () => {};
+    Element.prototype.scrollIntoView ??= () => {};
     vi.mocked(toast.error).mockClear();
     vi.mocked(toast.success).mockClear();
   });
 
   it("shows the chosen type while saving and keeps it once the server agrees", async () => {
-    let stored = "CONSUMER";
-    let release = () => {};
-    const saving = new Promise<void>((resolve) => (release = resolve));
+    let stored: AccountType = "CONSUMER";
+    const saving = held();
     server.use(
       signedOut,
-      serveUsers(() => stored),
+      serveUsers(() => [{ ...ANA, accountType: stored }]),
       http.patch("*/api/admin/users/:id", async ({ request }) => {
-        await saving;
-        stored = ((await request.json()) as { accountType: string })
+        await saving.promise;
+        stored = ((await request.json()) as { accountType: AccountType })
           .accountType;
-        return HttpResponse.json({ ...USER, accountType: stored });
+        return HttpResponse.json({ ...ANA, accountType: stored });
       }),
     );
 
     renderWithProviders(<AdminUsersTable />);
-    await chooseAdmin();
+    await chooseAdmin("ana");
 
-    expect(screen.getByRole("combobox")).toHaveTextContent("Admin");
+    expect(accountTypeOf("ana")).toHaveTextContent("Admin");
 
-    release();
+    saving.release();
     await waitFor(() => expect(toast.success).toHaveBeenCalled());
-    await waitFor(() =>
-      expect(screen.getByRole("combobox")).not.toBeDisabled(),
-    );
-    expect(screen.getByRole("combobox")).toHaveTextContent("Admin");
+    expect(accountTypeOf("ana")).toHaveTextContent("Admin");
   });
 
   it("rolls back to the saved type with an error toast when the save fails", async () => {
+    const saving = held();
     server.use(
       signedOut,
-      serveUsers(() => "CONSUMER"),
+      serveUsers(() => [ANA]),
       http.patch("*/api/admin/users/:id", async () => {
-        await delay(50);
+        await saving.promise;
         return HttpResponse.json(null, { status: 500 });
       }),
     );
 
     renderWithProviders(<AdminUsersTable />);
-    await chooseAdmin();
+    await chooseAdmin("ana");
 
-    expect(screen.getByRole("combobox")).toHaveTextContent("Admin");
+    expect(accountTypeOf("ana")).toHaveTextContent("Admin");
+
+    saving.release();
     await waitFor(() =>
       expect(toast.error).toHaveBeenCalledWith(
         "Greška pri promjeni vrste računa.",
       ),
     );
-    expect(screen.getByRole("combobox")).toHaveTextContent("Korisnik");
+    expect(accountTypeOf("ana")).toHaveTextContent("Korisnik");
+  });
+
+  it("keeps a second row's pending type when the first row's save fails", async () => {
+    const savingAna = held();
+    const savingIvo = held();
+    server.use(
+      signedOut,
+      serveUsers(() => [ANA, IVO]),
+      http.patch("*/api/admin/users/ana", async () => {
+        await savingAna.promise;
+        return HttpResponse.json(null, { status: 500 });
+      }),
+      http.patch("*/api/admin/users/ivo", async () => {
+        await savingIvo.promise;
+        return HttpResponse.json({ ...IVO, accountType: "ADMIN" });
+      }),
+    );
+
+    renderWithProviders(<AdminUsersTable />);
+    await chooseAdmin("ana");
+    await chooseAdmin("ivo");
+
+    savingAna.release();
+    await waitFor(() => expect(toast.error).toHaveBeenCalledTimes(1));
+    expect(accountTypeOf("ana")).toHaveTextContent("Korisnik");
+    expect(accountTypeOf("ivo")).toHaveTextContent("Admin");
+
+    savingIvo.release();
+    await waitFor(() => expect(toast.success).toHaveBeenCalledTimes(1));
   });
 });

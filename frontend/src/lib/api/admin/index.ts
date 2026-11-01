@@ -8,6 +8,8 @@ const ADMIN_QUERY_KEYS = {
   users: ["admin", "users"] as const,
 };
 
+const UPDATE_ACCOUNT_TYPE_MUTATION_KEY = ["admin", "updateAccountType"];
+
 async function getAllUsers(): Promise<UserDto[]> {
   const response = await apiClient.get<UserDto[]>(`${ADMIN_BASE_PATH}/users`);
   return response.data;
@@ -53,6 +55,7 @@ function useUpdateUserAccountType() {
     { userId: string; accountType: AccountType },
     AccountType | undefined
   >({
+    mutationKey: UPDATE_ACCOUNT_TYPE_MUTATION_KEY,
     mutationFn: ({ userId, accountType }) =>
       updateUserAccountType(userId, accountType),
     // The select is controlled by this cache entry, so without the write it shows the old type until the refetch lands.
@@ -70,8 +73,13 @@ function useUpdateUserAccountType() {
     onError: (_error, { userId }, previous) => {
       if (previous) setAccountType(userId, previous);
     },
+    // A refetch while another row is still saving would show that row's old type again.
     onSettled: () =>
-      queryClient.invalidateQueries({ queryKey: ADMIN_QUERY_KEYS.users }),
+      queryClient.isMutating({
+        mutationKey: UPDATE_ACCOUNT_TYPE_MUTATION_KEY,
+      }) === 1
+        ? queryClient.invalidateQueries({ queryKey: ADMIN_QUERY_KEYS.users })
+        : undefined,
   });
 }
 
