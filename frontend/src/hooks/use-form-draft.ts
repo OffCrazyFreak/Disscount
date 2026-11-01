@@ -33,13 +33,6 @@ function typeChanged(current: unknown, draftValue: unknown): boolean {
   );
 }
 
-// isSubmitting covers optimistic close, where the modal unmounts before clearDraft runs.
-function isClosingWithoutSubmit<T extends FieldValues>(
-  form: UseFormReturn<T>,
-): boolean {
-  return !form.formState.isSubmitted && !form.formState.isSubmitting;
-}
-
 /**
  * Persists a modal form's changed values to localStorage (24h TTL) so users can
  * close a modal and resume later. "Changed" is computed by comparing current
@@ -65,6 +58,20 @@ export function useFormDraft<T extends FieldValues>({
   useEffect(() => {
     stateRef.current = { exclude, defaultValues };
   });
+
+  // Live through subscribe, since form.formState outside render is the last render's
+  // snapshot: an optimistic close can commit before any render sees isSubmitting.
+  const submitStartedRef = useRef(false);
+  useEffect(
+    () =>
+      form.subscribe({
+        formState: { isSubmitting: true, isSubmitted: true },
+        callback: ({ isSubmitting, isSubmitted }) => {
+          submitStartedRef.current = !!isSubmitting || !!isSubmitted;
+        },
+      }),
+    [form],
+  );
 
   useEffect(() => {
     if (!enabled || !restore || restoredKeyRef.current === draftKey) return;
@@ -120,7 +127,7 @@ export function useFormDraft<T extends FieldValues>({
     return () => {
       clearTimeout(timer);
       subscription.unsubscribe();
-      if (isClosingWithoutSubmit(form)) flushDraft();
+      if (!submitStartedRef.current) flushDraft();
     };
   }, [enabled, draftKey, form, flushDraft]);
 
