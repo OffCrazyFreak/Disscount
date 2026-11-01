@@ -4,7 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { toStoreKey } from "@/app/[locale]/map/utils/store-key";
+import { toStoreKey } from "@/utils/store-key";
 import { StorePrice } from "@/lib/cijene-api/schemas";
 import { getLocationLabel } from "@/utils/labels";
 import StorePriceCell from "@/app/[locale]/products/[id]/components/store-item/store-price-cell";

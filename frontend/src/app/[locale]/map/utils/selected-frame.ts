@@ -1,6 +1,6 @@
 import type { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
 
-import { ILatLon } from "@/app/[locale]/map/utils/distance";
+import { ILatLon } from "@/utils/distance";
 import {
   TOP_STACK_LAYER_ID,
   POINT_LAYER_ID,

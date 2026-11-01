@@ -23,6 +23,8 @@ interface IShoppingListStoreItemProps {
   productsData: ProductResponse[];
   hasLowestPriceItem: boolean;
   hasHighestPriceItem: boolean;
+  /** Kilometres to the chain's nearest store, while sorting by distance. */
+  distanceKm?: number;
 }
 
 function ShoppingListStoreItemComponent({
@@ -33,6 +35,7 @@ function ShoppingListStoreItemComponent({
   productsData,
   hasLowestPriceItem,
   hasHighestPriceItem,
+  distanceKm,
 }: IShoppingListStoreItemProps) {
   const { user } = useUser();
   const [expandedStore, setExpandedStore] = useState<string | null>(null);
@@ -66,6 +69,7 @@ function ShoppingListStoreItemComponent({
               hasLowestPriceItem={hasLowestPriceItem}
               hasHighestPriceItem={hasHighestPriceItem}
               isExpanded={expandedStore === chain.chain}
+              distanceKm={distanceKm}
             />
           </button>
         </CollapsibleTrigger>

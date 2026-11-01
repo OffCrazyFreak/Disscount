@@ -1,24 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ShoppingListDto } from "@/lib/api/types";
 import ShoppingListStoreItem from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/shopping-list-store-card";
 import { useUser } from "@/context/user-context";
-import {
-  isStoreOptimizeMode,
-  type StoreOptimizeMode,
-} from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
 import CollapsibleSection from "@/components/custom/common/collapsible-section";
 import {
   getShoppingListStoresOpen,
   setShoppingListStoresOpen,
-  getStoreOptimizeMode,
-  setStoreOptimizeMode,
 } from "@/utils/browser/local-storage";
 import { useStoreChainAnalysis } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-store-chain-analysis";
 import ShoppingListStoresBody from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/shopping-list-stores-body";
 import StoreOptimizeSelect from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/store-optimize-select";
+import DistanceSortNote from "@/components/custom/distance-sort/distance-sort-note";
+import { useStoreOptimizeMode } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-store-optimize-mode";
 
 interface IShoppingListStoreSummaryProps {
   shoppingList: ShoppingListDto;
@@ -34,16 +30,8 @@ export default function ShoppingListStoreSummary({
     getShoppingListStoresOpen(shoppingList.id),
   );
 
-  const [optimizeBy, setOptimizeBy] = useState<StoreOptimizeMode>(() => {
-    const stored = getStoreOptimizeMode();
-
-    return isStoreOptimizeMode(stored) ? stored : "products";
-  });
-
-  function handleOptimizeChange(mode: StoreOptimizeMode) {
-    setOptimizeBy(mode);
-    setStoreOptimizeMode(mode);
-  }
+  const sortNoteId = useId();
+  const distance = useStoreOptimizeMode();
 
   function handleToggleStores(open: boolean) {
     setIsStoresOpen(open);
@@ -63,7 +51,8 @@ export default function ShoppingListStoreSummary({
   } = useStoreChainAnalysis({
     shoppingList,
     pinnedStores: user?.pinnedStores,
-    optimizeBy,
+    optimizeBy: distance.sortMode,
+    distanceByChain: distance.distanceByChain,
   });
 
   return (
@@ -81,9 +70,12 @@ export default function ShoppingListStoreSummary({
       >
         <div className="space-y-4">
           <StoreOptimizeSelect
-            value={optimizeBy}
-            onValueChange={handleOptimizeChange}
+            value={distance.chosen}
+            onValueChange={distance.choose}
+            describedById={sortNoteId}
           />
+
+          <DistanceSortNote id={sortNoteId} state={distance.state} />
 
           {sortedChains.map((chain) => (
             <ShoppingListStoreItem
@@ -95,6 +87,7 @@ export default function ShoppingListStoreSummary({
               productsData={productsData}
               hasLowestPriceItem={storesWithLowestPriceItems.has(chain.chain)}
               hasHighestPriceItem={storesWithHighestPriceItems.has(chain.chain)}
+              distanceKm={distance.distanceByChain?.get(chain.chain)}
             />
           ))}
         </div>

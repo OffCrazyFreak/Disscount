@@ -2,8 +2,8 @@
 
 import { DirectoryStoreDto } from "@/lib/api/schemas";
 import { ALL_CHAINS } from "@/app/[locale]/map/hooks/use-map-url-state";
-import { distanceKm, ILatLon } from "@/app/[locale]/map/utils/distance";
-import { toStoreKey } from "@/app/[locale]/map/utils/store-key";
+import { distanceKm, ILatLon } from "@/utils/distance";
+import { toStoreKey } from "@/utils/store-key";
 import { filterByFields } from "@/utils/generic";
 import { getChainLabel, getLocationLabel } from "@/utils/labels";
 import { compareHr } from "@/utils/strings";

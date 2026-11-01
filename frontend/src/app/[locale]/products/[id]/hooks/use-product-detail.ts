@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import cijeneService from "@/lib/cijene-api";
 import { useUser } from "@/context/user-context";
 import type { StorePrice } from "@/lib/cijene-api/schemas";
@@ -8,12 +8,14 @@ import {
   compareProductChains,
   type ProductChainSortMode,
 } from "@/app/[locale]/products/utils/product-chain-sort";
+import { useDistanceSort } from "@/hooks/use-distance-sort";
+
+// One array for every render, so the distance memo is not rebuilt each time.
+const NO_PRICES: StorePrice[] = [];
 
 /** One product, its prices grouped by chain, and the chain order to show them in */
 export function useProductDetail(ean: string) {
   const { user } = useUser();
-  const [sortBy, setSortBy] = useState<ProductChainSortMode>("stores");
-
   const {
     data: product,
     isLoading: productLoading,
@@ -37,6 +39,12 @@ export function useProductDetail(ean: string) {
     return grouped;
   }, [pricesData]);
 
+  // Prices still loading count as locating; failed prices locate nothing.
+  const distance = useDistanceSort<ProductChainSortMode>("stores", "stores", {
+    pricedStores: pricesData?.store_prices ?? (pricesError ? NO_PRICES : null),
+  });
+  const { sortMode, distanceByChain } = distance;
+
   const pinnedStoreIds = useMemo(
     () => user?.pinnedStores?.map((store) => store.storeApiId) ?? [],
     [user?.pinnedStores],
@@ -46,9 +54,9 @@ export function useProductDetail(ean: string) {
   const sortedChains = useMemo(
     () =>
       [...(product?.chains ?? [])].sort((a, b) =>
-        compareProductChains(a, b, pinnedStoreIds, sortBy),
+        compareProductChains(a, b, pinnedStoreIds, sortMode, distanceByChain),
       ),
-    [product?.chains, pinnedStoreIds, sortBy],
+    [product?.chains, pinnedStoreIds, sortMode, distanceByChain],
   );
 
   return {
@@ -60,7 +68,9 @@ export function useProductDetail(ean: string) {
     pricesError,
     pricesUpdatedAt,
     sortedChains,
-    sortBy,
-    setSortBy,
+    sortBy: distance.chosen,
+    setSortBy: distance.choose,
+    distanceState: distance.state,
+    distanceByChain,
   };
 }

@@ -5,7 +5,7 @@ import type { MapRef, ViewStateChangeEvent } from "react-map-gl/maplibre";
 
 import { ICenterRequest } from "@/app/[locale]/map/hooks/use-geolocation";
 import { circleBounds } from "@/app/[locale]/map/utils/circle";
-import { ILatLon } from "@/app/[locale]/map/utils/distance";
+import { ILatLon } from "@/utils/distance";
 
 interface IUseMapCameraOptions {
   mapRef: RefObject<MapRef | null>;

@@ -1,5 +1,5 @@
 import { DirectoryStoreDto } from "@/lib/api/schemas";
-import { toStoreKey } from "@/app/[locale]/map/utils/store-key";
+import { toStoreKey } from "@/utils/store-key";
 
 export interface IStoreFeatureProperties {
   key: string;

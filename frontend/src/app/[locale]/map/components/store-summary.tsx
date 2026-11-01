@@ -7,7 +7,7 @@ import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import FavoriteStoreButton from "@/app/[locale]/map/components/favorite-store-button";
 import ShareStoreButton from "@/app/[locale]/map/components/share-store-button";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
-import { formatDistance } from "@/app/[locale]/map/utils/distance";
+import { formatDistance } from "@/utils/distance";
 import { cn } from "@/lib/utils";
 
 interface IStoreSummaryProps {

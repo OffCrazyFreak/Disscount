@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { ILatLon } from "@/app/[locale]/map/utils/distance";
+import { ILatLon } from "@/utils/distance";
 import { isNewFix } from "@/app/[locale]/map/utils/position-fix";
 import { createPositionWatch } from "@/app/[locale]/map/utils/position-watch";
 

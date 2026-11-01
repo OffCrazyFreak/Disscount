@@ -1,4 +1,4 @@
-import { ILatLon } from "@/app/[locale]/map/utils/distance";
+import { ILatLon } from "@/utils/distance";
 
 // Both URL schemes are documented and open the native app when installed.
 // Apple's unified /directions path needs iOS 18.4, so the older ?daddr= form

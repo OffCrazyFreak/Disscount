@@ -16,10 +16,11 @@ async function getStoreDirectory(): Promise<StoreDirectoryResponse> {
   return storeDirectoryResponse.parse(response.data);
 }
 
-export function useStoreDirectory() {
+export function useStoreDirectory({ enabled = true } = {}) {
   return useQuery<StoreDirectoryResponse, Error>({
     queryKey: STORE_DIRECTORY_QUERY_KEY,
     queryFn: getStoreDirectory,
     staleTime: 60 * 60 * 1000,
+    enabled,
   });
 }

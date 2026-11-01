@@ -8,7 +8,6 @@ import { compareHr } from "@/utils/strings";
 
 /**
  * Modes for optimising the store list on a shopping list.
- * "distance" is not selectable yet (coming soon) and falls back to "products".
  * Kept as a const tuple so the type and localStorage validation share one source.
  */
 export const STORE_OPTIMIZE_MODES = [
@@ -32,45 +31,65 @@ function avgPrice(chain: RankedChain): number {
   return parseFloat(chain.avg_price);
 }
 
+// A few hundred metres rarely decide a trip with a whole list, so stores in
+// the same band compete on how much of the list they carry.
+const DISTANCE_BAND_KM = 0.5;
+
+interface IRankContext {
+  cheapestCountByChain?: Map<string, number>;
+  distanceByChain?: Map<string, number>;
+}
+
 /** Sort keys per mode, compared in order, smaller first. */
 const MODE_KEYS: Record<
   StoreOptimizeMode,
-  (chain: RankedChain, cheapestCountByChain?: Map<string, number>) => number[]
+  (chain: RankedChain, context: IRankContext) => number[]
 > = {
   products: (chain) => [-chain.itemCount],
   // Completeness first, then price within each tier.
   basket: (chain) => [-chain.itemCount, avgPrice(chain)],
   // Most rock-bottom prices first, for a shopper willing to hit several stores.
-  total: (chain, cheapestCountByChain) => [
+  total: (chain, { cheapestCountByChain }) => [
     -(cheapestCountByChain?.get(chain.chain) ?? 0),
     avgPrice(chain),
   ],
-  // Not selectable yet, so it falls back to "products".
-  distance: (chain) => [-chain.itemCount],
+  // Nearest band first, chains without a located store last, then
+  // completeness and price within a band.
+  distance: (chain, { distanceByChain }) => [
+    Math.floor(
+      (distanceByChain?.get(chain.chain) ?? Infinity) / DISTANCE_BAND_KM,
+    ),
+    -chain.itemCount,
+    avgPrice(chain),
+  ],
 };
 
 function rankKeys(
   chain: RankedChain,
   pinnedStoreIds: string[],
   mode: StoreOptimizeMode,
-  cheapestCountByChain?: Map<string, number>,
+  context: IRankContext,
 ): number[] {
   const modeKeys = MODE_KEYS[mode] ?? MODE_KEYS.products;
-  const pinnedKey = pinnedStoreIds.includes(chain.chain) ? 0 : 1;
+  // Distance is about where the shopper stands, so a pin does not outrank it.
+  const pinnedKey =
+    mode !== "distance" && pinnedStoreIds.includes(chain.chain) ? 0 : 1;
 
-  return [pinnedKey, ...modeKeys(chain, cheapestCountByChain)];
+  return [pinnedKey, ...modeKeys(chain, context)];
 }
 
 /**
  * Comparator function for sorting store chains by the selected optimisation mode.
- * Pinned stores always come first (user preference), then the chosen metric, then
- * the chain name (Croatian locale).
+ * Pinned stores come first (user preference) in every mode but "distance", then the
+ * chosen metric, then the chain name (Croatian locale).
  * @param a First chain to compare
  * @param b Second chain to compare
  * @param pinnedStoreIds Array of pinned store IDs
  * @param mode The optimisation metric to rank by (defaults to product count)
  * @param cheapestCountByChain How many list products are cheapest at each chain
  *        (only used by the "total" mode)
+ * @param distanceByChain Kilometres to each chain's nearest store (only used by the
+ *        "distance" mode)
  * @returns Negative if a < b, positive if a > b, 0 if equal
  */
 export function compareStoreChains(
@@ -79,9 +98,11 @@ export function compareStoreChains(
   pinnedStoreIds: string[],
   mode: StoreOptimizeMode = "products",
   cheapestCountByChain?: Map<string, number>,
+  distanceByChain?: Map<string, number>,
 ): number {
-  const aKeys = rankKeys(a, pinnedStoreIds, mode, cheapestCountByChain);
-  const bKeys = rankKeys(b, pinnedStoreIds, mode, cheapestCountByChain);
+  const context = { cheapestCountByChain, distanceByChain };
+  const aKeys = rankKeys(a, pinnedStoreIds, mode, context);
+  const bKeys = rankKeys(b, pinnedStoreIds, mode, context);
   const index = aKeys.findIndex((key, i) => key !== bKeys[i]);
 
   if (index !== -1) return aKeys[index] - bKeys[index];
