@@ -35,10 +35,11 @@ export default function PriceDropStatus() {
   return (
     <div role="status" className="sr-only">
       {isAnnouncing &&
-        count > 0 &&
+        settled !== null &&
+        settled.count > 0 &&
         t("nav.watchlistPriceDrops", {
           label: t("nav.watchlistShort"),
-          count,
+          count: settled.count,
         })}
     </div>
   );

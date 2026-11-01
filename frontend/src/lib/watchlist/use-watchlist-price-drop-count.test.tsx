@@ -4,6 +4,7 @@ import { http, HttpResponse } from "msw/http";
 import { describe, expect, it, vi } from "vitest";
 
 import { productByEanQueryKey } from "@/lib/cijene-api";
+import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { useWatchlistPriceDropCount } from "@/lib/watchlist/use-watchlist-price-drop-count";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
@@ -94,6 +95,7 @@ function useCountAndProduct() {
 function signIn(userId: string, pathname = "/") {
   session.userId = userId;
   session.isAuthenticated = true;
+  setCacheIdentity(userId);
   session.pathname = pathname;
   session.pinnedStores = [];
 }
@@ -183,6 +185,30 @@ describe("useWatchlistPriceDropCount", () => {
     expect(getWatchlistPriceSnapshot("unknown")).toEqual(
       saved({ [EAN]: 249 }, "konzum"),
     );
+  });
+
+  it("does not rebuild a snapshot for an account that is signing out", async () => {
+    signIn("leaving");
+    setCacheIdentity("someone-else");
+    watching("0.99");
+
+    const { result } = renderHookWithProviders(useCountAndProduct);
+
+    await waitFor(() => expect(result.current.product).toBeDefined());
+    expect(getWatchlistPriceSnapshot("leaving")).toBeNull();
+  });
+
+  it("is not a visit while the watchlist tab is in the background", async () => {
+    signIn("hidden", "/watchlist");
+    vi.spyOn(document, "visibilityState", "get").mockReturnValue("hidden");
+    setWatchlistPriceSnapshot("hidden", saved({ [EAN]: 129 }));
+    watching("0.99");
+
+    const { result } = renderHookWithProviders(useCountAndProduct);
+
+    await waitFor(() => expect(result.current.product).toBeDefined());
+    expect(result.current.count).toBe(0);
+    expect(getWatchlistPriceSnapshot("hidden")).toEqual(saved({ [EAN]: 129 }));
   });
 
   it("is zero and never settles while signed out", () => {

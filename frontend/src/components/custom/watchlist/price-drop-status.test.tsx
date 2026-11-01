@@ -71,6 +71,19 @@ describe("PriceDropStatus", () => {
     expect(screen.getByRole("status")).toBeEmptyDOMElement();
   });
 
+  it("speaks only settled counts, not each price as it arrives", () => {
+    const { rerender } = renderSettledAt(1);
+
+    Object.assign(drops, { count: 2, isSettled: true });
+    rerender(<PriceDropStatus />);
+    Object.assign(drops, { count: 3, isSettled: false });
+    rerender(<PriceDropStatus />);
+
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Praćenje, 2 nova sniženja",
+    );
+  });
+
   it("empties at zero so nothing is announced", () => {
     const { rerender } = renderSettledAt(2);
 
