@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   hasRecipientBudget,
+  inboxKey,
   RECIPIENT_SENDS_PER_DAY,
   RECIPIENT_SENDS_PER_HOUR,
   RecipientCapReachedError,
@@ -23,6 +24,22 @@ describe("hasRecipientBudget", () => {
   it("refuses the eleventh send within a day even when the hour is quiet", () => {
     expect(hasRecipientBudget({ lastHour: 0, lastDay: 9 })).toBe(true);
     expect(hasRecipientBudget({ lastHour: 0, lastDay: 10 })).toBe(false);
+  });
+});
+
+describe("inboxKey", () => {
+  it("shares one budget across plus tags and letter case", () => {
+    expect(inboxKey(" Victim+1@Example.com ")).toBe("victim@example.com");
+    expect(inboxKey("victim+2@example.com")).toBe("victim@example.com");
+  });
+
+  it("ignores dots in Gmail local parts, where they reach the same inbox", () => {
+    expect(inboxKey("v.i.c.t.i.m@gmail.com")).toBe("victim@gmail.com");
+    expect(inboxKey("v.ictim+x@googlemail.com")).toBe("victim@googlemail.com");
+  });
+
+  it("keeps dots for other providers", () => {
+    expect(inboxKey("first.last@example.com")).toBe("first.last@example.com");
   });
 });
 

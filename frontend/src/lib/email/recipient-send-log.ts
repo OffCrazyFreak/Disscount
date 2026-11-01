@@ -7,13 +7,12 @@ import { db } from "@/db";
 import { emailSend } from "@/db/email-send-schema";
 import {
   hasRecipientBudget,
+  inboxKey,
   IRecipientSendGate,
 } from "@/lib/email/recipient-send-cap";
 
 function hashRecipient(recipient: string) {
-  return createHash("sha256")
-    .update(recipient.trim().toLowerCase())
-    .digest("hex");
+  return createHash("sha256").update(inboxKey(recipient)).digest("hex");
 }
 
 // Postgres-backed so the cap holds across deploys and every route bundle.
@@ -22,14 +21,12 @@ export const recipientSendLog: IRecipientSendGate = {
     const recipientHash = hashRecipient(recipient);
     const dayAgo = sql`now() - interval '1 day'`;
 
-    return db.transaction(async (tx) => {
+    const reserved = await db.transaction(async (tx) => {
       // Serialises concurrent sends to one address, so two requests cannot both
       // read the last free slot.
       await tx.execute(
         sql`select pg_advisory_xact_lock(hashtext(${recipientHash}))`,
       );
-
-      await tx.delete(emailSend).where(lt(emailSend.sentAt, dayAgo));
 
       const [counts] = await tx
         .select({
@@ -51,5 +48,14 @@ export const recipientSendLog: IRecipientSendGate = {
       await tx.insert(emailSend).values({ recipientHash });
       return true;
     });
+
+    // Outside the per-recipient lock, so sends to different addresses never queue on
+    // each other's stale rows; a failed prune only leaves rows the counts already skip.
+    await db
+      .delete(emailSend)
+      .where(lt(emailSend.sentAt, dayAgo))
+      .catch(() => {});
+
+    return reserved;
   },
 };
