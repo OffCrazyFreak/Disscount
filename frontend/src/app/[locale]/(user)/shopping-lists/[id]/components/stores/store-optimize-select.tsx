@@ -7,21 +7,22 @@ const OPTIMIZE_OPTIONS = [
   { value: "products", labelKey: "stores.optimize.products" },
   { value: "basket", labelKey: "stores.optimize.basket" },
   { value: "total", labelKey: "stores.optimize.total" },
-  { value: "distance", labelKey: "stores.optimize.distance", comingSoon: true },
+  { value: "distance", labelKey: "stores.optimize.distance" },
 ] as const satisfies readonly {
   value: StoreOptimizeMode;
   labelKey: string;
-  comingSoon?: boolean;
 }[];
 
 interface IStoreOptimizeSelectProps {
   value: StoreOptimizeMode;
   onValueChange: (mode: StoreOptimizeMode) => void;
+  describedById?: string;
 }
 
 export default function StoreOptimizeSelect({
   value,
   onValueChange,
+  describedById,
 }: IStoreOptimizeSelectProps) {
   const t = useTranslations("shoppingListDetail");
 
@@ -29,7 +30,6 @@ export default function StoreOptimizeSelect({
     OPTIMIZE_OPTIONS.map((option) => ({
       value: option.value,
       label: t(option.labelKey),
-      ...("comingSoon" in option ? { comingSoon: option.comingSoon } : {}),
     }));
 
   return (
@@ -38,6 +38,7 @@ export default function StoreOptimizeSelect({
       value={value}
       onValueChange={onValueChange}
       options={options}
+      describedById={describedById}
     />
   );
 }

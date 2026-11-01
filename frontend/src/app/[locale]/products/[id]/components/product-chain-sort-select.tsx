@@ -8,18 +8,20 @@ import type { ProductChainSortMode } from "@/app/[locale]/products/utils/product
 const SORT_OPTIONS = [
   { value: "stores", labelKey: "stores" },
   { value: "price", labelKey: "price" },
-  { value: "distance", labelKey: "distance", comingSoon: true },
+  { value: "distance", labelKey: "distance" },
 ] as const;
 
 interface IProductChainSortSelectProps {
   value: ProductChainSortMode;
   onValueChange: (mode: ProductChainSortMode) => void;
+  describedById?: string;
 }
 
 /** Picks how the chains carrying one product are ordered. */
 export default function ProductChainSortSelect({
   value,
   onValueChange,
+  describedById,
 }: IProductChainSortSelectProps) {
   const t = useTranslations("productDetail.sort");
 
@@ -27,7 +29,6 @@ export default function ProductChainSortSelect({
     SORT_OPTIONS.map((option) => ({
       value: option.value,
       label: t(option.labelKey),
-      ...("comingSoon" in option ? { comingSoon: option.comingSoon } : {}),
     }));
 
   return (
@@ -36,6 +37,7 @@ export default function ProductChainSortSelect({
       value={value}
       onValueChange={onValueChange}
       options={options}
+      describedById={describedById}
     />
   );
 }

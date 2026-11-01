@@ -40,13 +40,21 @@ const cheapest = new Map([
   ["lidl", 1],
 ]);
 
+const distances = new Map([
+  ["dm", 0.4],
+  ["spar", 2.5],
+  ["lidl", 2.5],
+  ["Čakovec", 9],
+]);
+
 function order(
   pinned: string[],
   mode?: StoreOptimizeMode,
   counts?: Map<string, number>,
+  byChain?: Map<string, number>,
 ) {
   return [...chains]
-    .sort((a, b) => compareStoreChains(a, b, pinned, mode, counts))
+    .sort((a, b) => compareStoreChains(a, b, pinned, mode, counts, byChain))
     .map((c) => c.chain);
 }
 
@@ -55,8 +63,18 @@ describe("compareStoreChains", () => {
     expect(order([])).toEqual(["konzum", "lidl", "Čakovec", "spar", "dm"]);
   });
 
-  it("treats distance like products", () => {
-    expect(order([], "distance")).toEqual(order([], "products"));
+  it("ranks by nearest store, then item count, in distance mode", () => {
+    expect(order([], "distance", undefined, distances)).toEqual([
+      "dm",
+      "lidl",
+      "spar",
+      "Čakovec",
+      "konzum",
+    ]);
+  });
+
+  it("ignores pinned chains in distance mode", () => {
+    expect(order(["konzum"], "distance", undefined, distances)[0]).toBe("dm");
   });
 
   it("ranks by item count, then price, in basket mode", () => {
@@ -89,7 +107,7 @@ describe("compareStoreChains", () => {
     ]);
   });
 
-  it("puts pinned chains first in every mode", () => {
+  it("puts pinned chains first in every other mode", () => {
     expect(order(["dm", "spar"])).toEqual([
       "spar",
       "dm",

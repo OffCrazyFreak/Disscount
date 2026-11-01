@@ -21,12 +21,14 @@ interface IUseStoreChainAnalysisParams {
   shoppingList: ShoppingListDto;
   pinnedStores: PinnedStoreDto[] | null | undefined;
   optimizeBy: StoreOptimizeMode;
+  distanceByChain?: Map<string, number>;
 }
 
 export function useStoreChainAnalysis({
   shoppingList,
   pinnedStores,
   optimizeBy,
+  distanceByChain,
 }: IUseStoreChainAnalysisParams) {
   const activeItems = useMemo(
     () => (shoppingList.items ?? []).filter((item) => !item.isChecked),
@@ -82,8 +84,7 @@ export function useStoreChainAnalysis({
     [allChains, activeItems],
   );
 
-  // Sort a copy, since Array.sort mutates and allChains is memoized; pinned stores
-  // always stay on top inside compareStoreChains.
+  // Sort a copy, since Array.sort mutates and allChains is memoized.
   const sortedChains = useMemo(() => {
     const pinnedStoreIds = pinnedStores?.map((store) => store.storeApiId) || [];
 
@@ -94,9 +95,16 @@ export function useStoreChainAnalysis({
         pinnedStoreIds,
         optimizeBy,
         cheapestCountByChain,
+        distanceByChain,
       ),
     );
-  }, [allChains, optimizeBy, pinnedStores, cheapestCountByChain]);
+  }, [
+    allChains,
+    optimizeBy,
+    pinnedStores,
+    cheapestCountByChain,
+    distanceByChain,
+  ]);
 
   return {
     activeItems,

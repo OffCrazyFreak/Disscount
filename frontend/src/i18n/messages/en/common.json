@@ -163,5 +163,14 @@
     "subjectMax": "Subject can be up to 255 characters",
     "messageRequired": "Message is required",
     "messageMax": "Message can be up to 5000 characters"
+  },
+  "distanceSort": {
+    "locating": "Finding your location to sort by distance…",
+    "ready": "Sorted by distance from your location. We don't store or send it.",
+    "denied": "Location access is blocked, so the default order stays. Allow it in your browser settings and choose distance again.",
+    "unavailable": "Your location isn't available right now, so the default order stays. Choose distance again to retry.",
+    "timeout": "Your location can't be determined, so the default order stays. Check that location is turned on on your device and choose distance again.",
+    "noStores": "Store locations aren't available right now, so the default order stays.",
+    "nearest": "Nearest store: {distance}"
   }
 }
