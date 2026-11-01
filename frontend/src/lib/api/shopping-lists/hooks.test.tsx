@@ -39,7 +39,11 @@ function serveList(list: ShoppingListDto) {
       served.requests += 1;
       return served.status === 200
         ? HttpResponse.json(served.list)
-        : HttpResponse.json(null, { status: served.status });
+        : // The backend answers errors with RFC 9457 Problem Details.
+          HttpResponse.json(
+            { status: served.status },
+            { status: served.status },
+          );
     }),
   );
   return served;
@@ -142,7 +146,7 @@ describe("useGetShoppingListById polling", () => {
     expect(served.requests).toBe(2);
   });
 
-  it("stops polling after an error, such as the list being unshared", async () => {
+  it("stops polling once the list is deleted or unshared", async () => {
     const served = serveList(makeList());
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
@@ -163,5 +167,39 @@ describe("useGetShoppingListById polling", () => {
 
     await advance(60_000);
     expect(served.requests).toBe(2);
+  });
+
+  it("keeps polling every 30 seconds after any other error", async () => {
+    const served = serveList(makeList());
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const view = renderHookWithProviders(
+      () => useGetShoppingListById(LIST_ID),
+      { queryClient },
+    );
+    await flushUntil(() => view.result.current.isSuccess);
+
+    served.status = 503;
+    await advance(5_000);
+    await flushUntil(
+      () =>
+        queryClient.getQueryState(SHOPPING_LIST_QUERY_KEYS.byId(LIST_ID))
+          ?.status === "error",
+    );
+    expect(served.requests).toBe(2);
+
+    served.status = 200;
+    await advance(29_000);
+    expect(served.requests).toBe(2);
+    await advance(1_000);
+    expect(served.requests).toBe(3);
+    await flushUntil(
+      () =>
+        queryClient.getQueryState(SHOPPING_LIST_QUERY_KEYS.byId(LIST_ID))
+          ?.status === "success",
+    );
+    await advance(5_000);
+    expect(served.requests).toBe(4);
   });
 });

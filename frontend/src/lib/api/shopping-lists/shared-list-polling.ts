@@ -1,4 +1,5 @@
 import type { QueryState } from "@tanstack/react-query";
+import { isDeadListLink } from "@/lib/api/shopping-lists/is-dead-list-link";
 import type { ShoppingListDto } from "@/lib/api/types";
 
 const ACTIVE_POLL_MS = 5_000;
@@ -35,13 +36,16 @@ export function sharedListRefetchInterval(
 ): number | false {
   const list = query.state.data;
 
-  // An error is usually a 404: the list was deleted or stopped being shared.
-  if (query.state.status === "error" || !list || !isSharedList(list)) {
+  if (!list || !isSharedList(list) || isDeadListLink(query.state.error)) {
     return false;
   }
 
   // A poll landing mid-write would replace the optimistic cache with the pre-write list.
   if (isWritingLists) return false;
+
+  // Anything but a 404 is likely a dropped request on shop wifi, and a phone left on the
+  // list may never fire the focus refetch that would otherwise restart polling.
+  if (query.state.status === "error") return IDLE_POLL_MS;
 
   const now = Date.now();
   const lastChange = lastChanges.get(query);
