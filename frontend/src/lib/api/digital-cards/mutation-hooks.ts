@@ -36,7 +36,7 @@ function useInvalidateCards() {
     queryClient.invalidateQueries({ queryKey: DIGITAL_CARD_QUERY_KEYS.me });
 }
 
-/** Queueing, retry, rollback and refetch every optimistic card write shares. */
+/** Queueing, retry, rollback, error toast and refetch shared by card save, pin and archive. */
 function useCardWriteOptions() {
   const tCards = useTranslations("digitalCards");
   const queryClient = useQueryClient();
