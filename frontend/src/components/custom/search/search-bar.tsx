@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, type KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 import SearchBarField, {
   type ISearchBarFieldOptions,
@@ -26,6 +26,16 @@ interface ISearchBarProps extends ISearchBarFieldOptions {
   shallow?: boolean;
   /** Fires once a search or a scan has navigated away */
   onSubmitted?: (query: string) => void;
+}
+
+// Enter only submits through the form's default button, so a disabled one blocks it.
+function isImplicitSubmitBlocked(form: HTMLFormElement): boolean {
+  const defaultButton = Array.from(form.elements).find(
+    (element): element is HTMLButtonElement =>
+      element instanceof HTMLButtonElement && element.type === "submit",
+  );
+
+  return defaultButton?.disabled ?? false;
 }
 
 export default function SearchBar({
@@ -64,6 +74,13 @@ export default function SearchBar({
     onSubmitted?.(query);
   }
 
+  // A blocked Enter never reaches submit(), which would otherwise close the keyboard.
+  function handleKeyDown(event: KeyboardEvent<HTMLFormElement>) {
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
+
+    if (isImplicitSubmitBlocked(event.currentTarget)) dismissTouchKeyboard();
+  }
+
   function handleClear() {
     reset({ query: "" });
     search("");
@@ -84,6 +101,7 @@ export default function SearchBar({
       <form
         id={formId}
         onSubmit={handleSubmit(submit)}
+        onKeyDown={handleKeyDown}
         className="relative flex items-center gap-4 flex-wrap"
       >
         <SearchBarField

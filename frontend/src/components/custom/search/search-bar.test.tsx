@@ -1,20 +1,26 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import SearchBar from "@/components/custom/search/search-bar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { CameraScannerProvider } from "@/context/scanner-context";
 import { renderWithProviders } from "@/test/render";
 
+const router = vi.hoisted(() => ({
+  search: "",
+  push: vi.fn(),
+  replace: vi.fn(),
+}));
+
 // Boundaries the suite cannot run: the App Router and the camera.
 vi.mock("@/components/scanner/camera-scanner", () => ({ default: () => null }));
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => new URLSearchParams(router.search),
 }));
 vi.mock("@/i18n/navigation", () => ({
   usePathname: () => "/products",
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useRouter: () => ({ push: router.push, replace: router.replace }),
 }));
 
 function stubPointer(isCoarse: boolean) {
@@ -38,6 +44,11 @@ function renderSearchBar() {
 }
 
 describe("SearchBar", () => {
+  beforeEach(() => {
+    router.search = "";
+    router.push.mockClear();
+  });
+
   it("closes the touch keyboard when Enter submits the search", async () => {
     stubPointer(true);
     const user = userEvent.setup();
@@ -56,5 +67,18 @@ describe("SearchBar", () => {
     await user.type(field, "mlijeko{Enter}");
 
     expect(field).toHaveFocus();
+  });
+
+  it("closes the touch keyboard on Enter over the query already searched", async () => {
+    router.search = "q=mlijeko";
+    stubPointer(true);
+    const user = userEvent.setup();
+    const field = renderSearchBar();
+
+    await user.click(field);
+    await user.keyboard("{Enter}");
+
+    expect(field).not.toHaveFocus();
+    expect(router.push).not.toHaveBeenCalled();
   });
 });
