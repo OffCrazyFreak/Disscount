@@ -37,7 +37,10 @@ export class EmailService {
       throw new RecipientCapReachedError();
 
     const { error } = await this.provider.send(message);
-    if (error) throw new Error(error);
+    if (error) {
+      await this.recipientGate.release(message.to);
+      throw new Error(error);
+    }
   }
 
   async sendVerificationEmail({ to, locale, url, token }: ITokenEmailArgs) {

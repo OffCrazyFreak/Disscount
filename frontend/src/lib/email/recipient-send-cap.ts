@@ -11,6 +11,8 @@ export interface IRecipientSendCounts {
 export interface IRecipientSendGate {
   // Records the send and returns true, or returns false without recording.
   tryReserve(recipient: string): Promise<boolean>;
+  // Gives back the latest reserved slot when the provider did not send.
+  release(recipient: string): Promise<void>;
 }
 
 export class RecipientCapReachedError extends Error {
@@ -26,7 +28,7 @@ export function hasRecipientBudget({
   );
 }
 
-const DOTLESS_DOMAINS = new Set(["gmail.com", "googlemail.com"]);
+const GMAIL_DOMAINS = new Set(["gmail.com", "googlemail.com"]);
 
 // Plus tags (and Gmail's ignored dots) reach one inbox, so they share one budget.
 export function inboxKey(recipient: string) {
@@ -34,9 +36,12 @@ export function inboxKey(recipient: string) {
   const at = address.lastIndexOf("@");
   if (at === -1) return address;
 
-  const domain = address.slice(at + 1);
-  let local = address.slice(0, at).split("+")[0];
-  if (DOTLESS_DOMAINS.has(domain)) local = local.replaceAll(".", "");
+  let domain = address.slice(at + 1);
+  let local = address.slice(0, at).split("+")[0] || address.slice(0, at);
+  if (GMAIL_DOMAINS.has(domain)) {
+    domain = "gmail.com";
+    local = local.replaceAll(".", "");
+  }
 
   return `${local}@${domain}`;
 }

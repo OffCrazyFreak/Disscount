@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createHash } from "node:crypto";
-import { and, count, eq, gt, lt, sql } from "drizzle-orm";
+import { and, count, desc, eq, gt, lt, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import { emailSend } from "@/db/email-send-schema";
@@ -57,5 +57,16 @@ export const recipientSendLog: IRecipientSendGate = {
       .catch(() => {});
 
     return reserved;
+  },
+
+  async release(recipient) {
+    const latest = db
+      .select({ id: emailSend.id })
+      .from(emailSend)
+      .where(eq(emailSend.recipientHash, hashRecipient(recipient)))
+      .orderBy(desc(emailSend.sentAt))
+      .limit(1);
+
+    await db.delete(emailSend).where(eq(emailSend.id, sql`(${latest})`));
   },
 };
