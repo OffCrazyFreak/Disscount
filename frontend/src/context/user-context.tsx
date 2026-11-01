@@ -17,6 +17,7 @@ import {
   clearAuthToken,
   resetAuthToken,
   setAuthTokenUser,
+  expectNewAuthTokenUser,
 } from "@/lib/api/api-base";
 import { purgeOfflineCache } from "@/lib/offline/purge";
 import { getCacheIdentity } from "@/lib/offline/cache-identity";
@@ -142,7 +143,7 @@ export function UserProvider({ children }: IUserProviderProps) {
     resetAuthToken();
     // The new account's session can land after this load starts, and its token must not
     // be refused for not matching the signed-out state.
-    setAuthTokenUser(undefined);
+    expectNewAuthTokenUser();
     await refreshUser();
   }, [refreshUser]);
 

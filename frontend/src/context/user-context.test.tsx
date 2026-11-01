@@ -121,7 +121,12 @@ describe("UserProvider backend token", () => {
     issueToken = async () => tokenB;
     pendingTokenA.release?.(tokenA);
 
-    await waitFor(() => expect(authorizations).toContain(`Bearer ${tokenB}`));
+    // Both loads that waited on A's token go out bare, then retry with B's after the 401.
+    await waitFor(() =>
+      expect(
+        authorizations.filter((header) => header === `Bearer ${tokenB}`),
+      ).toHaveLength(2),
+    );
     expect(authorizations).not.toContain(`Bearer ${tokenA}`);
   });
 
@@ -141,7 +146,7 @@ describe("UserProvider backend token", () => {
     expect(authorizations[0]).toBe(`Bearer ${tokenB}`);
   });
 
-  it("keeps attaching the token when the session lookup failed rather than signed out", async () => {
+  it("attaches the token on a load whose session lookup failed rather than signed out", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     session.userId = null;
     session.error = new Error("offline");
@@ -153,10 +158,33 @@ describe("UserProvider backend token", () => {
       </UserProvider>,
     );
     // Past the cooldown the signed-out branch starts, which a failed lookup also takes.
-    vi.setSystemTime(Date.now() + 3_000);
-    await apiClient.get("/api/users/me");
-    vi.useRealTimers();
+    try {
+      vi.setSystemTime(Date.now() + 3_000);
+      await apiClient.get("/api/users/me");
+    } finally {
+      vi.useRealTimers();
+    }
 
     expect(authorizations).toEqual([`Bearer ${tokenA}`]);
+  });
+
+  it("keeps refusing another account's token when sign-in finishes after the session landed", async () => {
+    session.userId = "user-b";
+    session.error = null;
+    let currentToken = tokenB;
+    const authorizations = recordProfileRequests(async () => currentToken);
+
+    renderWithProviders(
+      <UserProvider>
+        <SignInButton />
+      </UserProvider>,
+    );
+    await waitFor(() => expect(authorizations).toEqual([`Bearer ${tokenB}`]));
+
+    currentToken = tokenA;
+    fireEvent.click(screen.getByRole("button", { name: "sign in" }));
+
+    await waitFor(() => expect(authorizations.length).toBeGreaterThan(1));
+    expect(authorizations).not.toContain(`Bearer ${tokenA}`);
   });
 });

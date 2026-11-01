@@ -145,6 +145,11 @@ export function setAuthTokenUser(userId: string | null | undefined) {
   if (userId && cachedSubject !== userId) resetAuthToken();
 }
 
+/** After a sign-in, accepts the new account's token until its session names the user. */
+export function expectNewAuthTokenUser() {
+  if (sessionUserId === null) sessionUserId = undefined;
+}
+
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     if (config.headers) {
