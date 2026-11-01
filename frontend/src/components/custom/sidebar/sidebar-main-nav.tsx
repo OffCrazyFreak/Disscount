@@ -16,16 +16,16 @@ import {
   userNavItems,
   isNavItemLocked,
 } from "@/constants/navigation";
-import { useNotifications } from "@/context/notifications-context";
 import { useUser } from "@/context/user-context";
 import { canAccessDashboard } from "@/lib/api/schemas/auth-user";
+import { useWatchlistPriceDropCount } from "@/lib/watchlist/use-watchlist-price-drop-count";
 import { isRouteActive } from "@/utils/routes";
 
 /** The homepage, mobile dashboard link and signed-in user's own pages. */
 export default function SidebarMainNav() {
   const t = useTranslations("shell");
   const pathname = usePathname();
-  const { notifications, hasNotifications } = useNotifications();
+  const priceDropCount = useWatchlistPriceDropCount();
   const { user } = useUser();
 
   return (
@@ -64,10 +64,14 @@ export default function SidebarMainNav() {
                   isActive={isRouteActive(pathname, item.href)}
                   isLocked={isNavItemLocked(item, user?.accountType)}
                   badgeCount={
-                    item.badge && hasNotifications
-                      ? notifications.length
+                    item.badge && priceDropCount > 0
+                      ? priceDropCount
                       : undefined
                   }
+                  badgeLabel={t("nav.watchlistPriceDrops", {
+                    label: t(item.labelKey),
+                    count: priceDropCount,
+                  })}
                 />
               </SidebarMenuItem>
             ))}

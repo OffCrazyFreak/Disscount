@@ -15,8 +15,11 @@ export function useWatchedProducts(
   pinnedStores: PinnedStoreDto[] | null | undefined,
 ) {
   // Gated so a logged-out visit never hits /api/watchlist/me (and /api/auth/token).
-  const { data: watchlistItems = [], isLoading: watchlistLoading } =
-    watchlistService.useGetCurrentUserWatchlist({ enabled: isAuthenticated });
+  const {
+    data: watchlistItems = [],
+    isLoading: watchlistLoading,
+    isSuccess: isWatchlistLoaded,
+  } = watchlistService.useGetCurrentUserWatchlist({ enabled: isAuthenticated });
 
   const groupedWatchlistItems = useMemo(
     () => groupWatchlistItemsByProduct(watchlistItems),
@@ -43,6 +46,7 @@ export function useWatchedProducts(
   return {
     watchlistItems,
     watchlistLoading,
+    isWatchlistLoaded,
     groupedWatchlistItems,
     pinnedStoreChainCodes,
     hasPinnedStores,

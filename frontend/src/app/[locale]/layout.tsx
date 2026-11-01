@@ -4,6 +4,7 @@ import "@/app/globals.css";
 
 import AppSidebar from "@/components/custom/sidebar/app-sidebar";
 import BottomNav from "@/components/custom/bottom-nav/bottom-nav";
+import PriceDropStatus from "@/components/custom/watchlist/price-drop-status";
 import ProductsSheet from "@/app/[locale]/products/components/products-sheet/products-sheet";
 import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/common/footer";
@@ -233,6 +234,8 @@ export default async function RootLayout({
               <BackToTopButton />
 
               <BottomNav />
+
+              <PriceDropStatus />
             </div>
 
             <Suspense fallback={null}>

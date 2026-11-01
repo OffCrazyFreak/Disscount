@@ -36,6 +36,9 @@ export interface IFormDraft {
   values: Record<string, unknown>;
 }
 
+// Watched product EAN -> best price in the user's store scope, in cents
+export type WatchlistPriceSnapshot = Record<string, number>;
+
 // Main app data structure based on real localStorage example
 export interface IAppData {
   viewModes?: Record<string, ViewMode>;
@@ -47,5 +50,6 @@ export interface IAppData {
   preferredCameraId?: string; // Manually chosen scanner camera; absent means auto-pick
   formDrafts?: Record<string, IFormDraft>; // Unsaved modal-form drafts keyed per modal
   mapRecentSearches?: string[]; // Last few store-map searches, newest first
+  watchlistPriceSnapshots?: Record<string, WatchlistPriceSnapshot>; // User id -> prices at the last watchlist visit, the price-drop badge baseline
   [key: string]: unknown;
 }

@@ -2,9 +2,9 @@
 
 import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
-import { useNotifications } from "@/context/notifications-context";
 import { useCameraScanner } from "@/context/scanner-context";
 import useProductNavigation from "@/hooks/use-product-navigation";
+import { useWatchlistPriceDropCount } from "@/lib/watchlist/use-watchlist-price-drop-count";
 import { productEanFromPath } from "@/utils/routes";
 import BottomNavCenterItem from "@/components/custom/bottom-nav/bottom-nav-center-item";
 import BottomNavItem from "@/components/custom/bottom-nav/bottom-nav-item";
@@ -36,7 +36,7 @@ const SURFACE_CLASS =
 export default function BottomNav() {
   const t = useTranslations("shell");
   const pathname = usePathname();
-  const { notifications, hasNotifications } = useNotifications();
+  const priceDropCount = useWatchlistPriceDropCount();
   const { openScanner } = useCameraScanner();
   const navigateToProduct = useProductNavigation();
   const listProgress = useActiveListProgress();
@@ -107,13 +107,15 @@ export default function BottomNav() {
               showsDisc={discIndex === index}
               hasHold={holdFor(index) !== null}
               indicatorOpacity={indicatorOpacity}
-              // TODO: swap for a count of watched products whose price dropped
-              // since the last visit, cleared on visit and capped at 9+.
               badgeCount={
-                entry.item.badge && hasNotifications
-                  ? notifications.length
+                entry.item.badge && priceDropCount > 0
+                  ? priceDropCount
                   : undefined
               }
+              badgeLabel={t("nav.watchlistPriceDrops", {
+                label: t(entry.item.shortLabelKey ?? entry.item.labelKey),
+                count: priceDropCount,
+              })}
               listProgress={
                 entry.item.id === "shopping-lists" ? listProgress : undefined
               }
