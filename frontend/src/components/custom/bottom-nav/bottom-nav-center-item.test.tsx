@@ -25,7 +25,7 @@ describe("BottomNavCenterItem", () => {
       </ProductsSheetProvider>,
     );
 
-    const button = screen.getByRole("button");
+    const button = screen.getByRole("button", { name: "Proizvodi, traži" });
     const ring = button.querySelector("svg[viewBox='0 0 36 36']");
     const circle = ring?.parentElement;
 
