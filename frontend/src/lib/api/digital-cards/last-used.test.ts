@@ -18,8 +18,11 @@ vi.mock("@/lib/offline/purge-gate", () => ({
   whenPurgesSettled: () =>
     new Promise<void>((resolve) => (releasePurge = resolve)),
 }));
+// Offline, so a flush keeps the use queued and the tests can read it back.
 vi.mock("@/lib/api/digital-cards/queries", () => ({
-  postCardsUsed: async () => undefined,
+  postCardsUsed: async () => {
+    throw new Error("offline");
+  },
 }));
 
 const { recordCardUsed } = await import("@/lib/api/digital-cards/last-used");
