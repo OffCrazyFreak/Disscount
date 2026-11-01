@@ -67,9 +67,11 @@ public class ContactRateLimiter {
         }
         try {
             // ClientIp only returns literals, so this parses without a DNS lookup.
-            byte[] bytes = InetAddress.getByName(clientIp).getAddress();
+            InetAddress address = InetAddress.getByName(clientIp);
+            byte[] bytes = address.getAddress();
             if (bytes.length != 16) {
-                return clientIp;
+                // Java parses ::ffff:a.b.c.d as plain IPv4.
+                return address.getHostAddress();
             }
             StringBuilder prefix = new StringBuilder();
             for (int i = 0; i < 8; i += 2) {

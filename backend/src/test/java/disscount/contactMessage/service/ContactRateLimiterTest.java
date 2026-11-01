@@ -76,6 +76,13 @@ class ContactRateLimiterTest {
     }
 
     @Test
+    void sharesABucketBetweenAnIpv4AddressAndItsMappedIpv6Form() {
+        sendTimes(5);
+
+        assertThatThrownBy(() -> limiter.check("::ffff:" + IP)).isInstanceOf(TooManyRequestsException.class);
+    }
+
+    @Test
     void sweepForgetsClientsQuietForADay() {
         sendTimes(5);
         now = now.plus(Duration.ofDays(1));
