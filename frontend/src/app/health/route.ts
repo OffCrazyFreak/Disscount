@@ -7,6 +7,8 @@ export const dynamic = "force-dynamic";
 export function GET() {
   return NextResponse.json({
     status: "ok",
+    // Commit SHA (releaseId per the IETF health check draft); CI waits for it after a deploy.
+    releaseId: process.env.GIT_SHA || null,
     timestamp: new Date().toISOString(),
   });
 }

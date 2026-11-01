@@ -27,6 +27,8 @@ ARG NEXT_PUBLIC_UMAMI_WEBSITE_ID
 ARG NEXT_PUBLIC_ENABLE_REACT_SCAN
 ARG NEXT_PUBLIC_SENTRY_DSN
 ARG SENTRY_ENVIRONMENT
+# Commit SHA from CI; doubles as the Sentry release name the source maps attach to.
+ARG GIT_SHA
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
     NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL \
     NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID \
@@ -40,8 +42,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Placeholder SERVER env, scoped to the build command only (not persisted as image
 # metadata). They satisfy modules that requireEnv() at import time; none are NEXT_PUBLIC,
 # so nothing is baked into the output, and real values come from the container at runtime.
-# (No SENTRY_AUTH_TOKEN is set, so source maps are not uploaded during the image build.)
-RUN BETTER_AUTH_URL=http://localhost:3000 \
+# SENTRY_AUTH_TOKEN arrives as a BuildKit secret so it never lands in a layer of this public
+# image; when CI passes no secret, the build skips the source map upload.
+RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
+    BETTER_AUTH_URL=http://localhost:3000 \
     BETTER_AUTH_SECRET=build-time-placeholder \
     GOOGLE_CLIENT_SECRET=build-time-placeholder \
     FACEBOOK_CLIENT_ID=build-time-placeholder \
@@ -71,6 +75,8 @@ CMD ["node", "migrate.mjs"]
 
 # ---- runner: minimal runtime image with the standalone server ----
 FROM base AS runner
+ARG GIT_SHA
+ENV GIT_SHA=$GIT_SHA
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
