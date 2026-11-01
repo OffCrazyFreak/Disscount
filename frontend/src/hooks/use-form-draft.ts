@@ -120,9 +120,9 @@ export function useFormDraft<T extends FieldValues>({
     return () => {
       clearTimeout(timer);
       subscription.unsubscribe();
-      // isSubmitting covers optimistic close, where the modal closes before clearDraft runs.
+      // A finished submit already cleared the draft, but a failed optimistic submit reopens from it.
       const latest = stateRef.current;
-      if (!latest.isSubmitted && !latest.isSubmitting) flushDraft();
+      if (!latest.isSubmitted || latest.isSubmitting) flushDraft();
     };
   }, [enabled, draftKey, form, flushDraft]);
 

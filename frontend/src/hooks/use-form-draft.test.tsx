@@ -44,7 +44,7 @@ describe("useFormDraft", () => {
     expect(getFormDraft(DRAFT_KEY)).toBeNull();
   });
 
-  it("skips the close flush while an optimistic submit is still in flight", async () => {
+  it("keeps the draft when an optimistic submit closes the modal mid-request", async () => {
     const { result, rerender } = renderDraftHook();
     let finishRequest!: () => void;
     const request = new Promise<void>((resolve) => (finishRequest = resolve));
@@ -56,7 +56,7 @@ describe("useFormDraft", () => {
     });
     rerender({ enabled: false });
 
-    expect(getFormDraft(DRAFT_KEY)).toBeNull();
+    expect(getFormDraft(DRAFT_KEY)?.values).toEqual({ name: "Mlijeko" });
 
     await act(async () => {
       finishRequest();
