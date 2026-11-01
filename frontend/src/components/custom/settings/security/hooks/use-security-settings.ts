@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
@@ -49,19 +49,14 @@ export function useSecuritySettings(active: boolean) {
   const form = useForm<CredentialsFormValues>({
     resolver: zodResolver(schema),
     mode: "onChange",
-    defaultValues: {
+    // values, not resetField in an effect: resetField skips a field the closed tab has not registered.
+    values: {
       email: currentEmail,
       newPassword: "",
       currentPassword: "",
     },
+    resetOptions: { keepDirtyValues: true },
   });
-
-  // Keep the email field in sync with the loaded account unless mid-edit.
-  useEffect(() => {
-    if (!form.formState.dirtyFields.email) {
-      form.resetField("email", { defaultValue: currentEmail });
-    }
-  }, [currentEmail, form]);
 
   const { submit } = useCredentialsSubmit({
     hasPassword,
