@@ -55,8 +55,8 @@ runs:
             "ghcr.io/offcrazyfreak/disscount-$image:sha-$RELEASE_ID"
         done
 
-    # Only the status code is printed: Dokploy responses and curl errors would put service
-    # settings or the panel host into a public log.
+    # Only the status code is printed, because Dokploy's response bodies can echo service
+    # settings into a public log.
     - name: Trigger the deploy
       shell: bash
       env:
@@ -64,7 +64,7 @@ runs:
         DOKPLOY_API_KEY: ${{ inputs.api-key }}
         COMPOSE_ID: ${{ inputs.compose-id }}
       run: |
-        status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+        status=$(curl --silent --max-time 30 --output /dev/null --write-out '%{http_code}' \
           --request POST "$DOKPLOY_URL/api/compose.deploy" \
           --header "x-api-key: $DOKPLOY_API_KEY" \
           --header "Content-Type: application/json" \

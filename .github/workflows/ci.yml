@@ -130,6 +130,7 @@ jobs:
       cancel-in-progress: true
     strategy:
       matrix:
+        # The dokploy-deploy action moves the dev tag for exactly these images.
         include:
           - image: frontend
             context: frontend
