@@ -253,14 +253,16 @@ public class UserService {
      * Throws unless the given user is an active ADMIN. Used to gate admin-only endpoints.
      */
     public void requireAdmin(UUID userId) {
-        boolean isAdmin = userRepository.findById(userId)
+        if (!isActiveAdmin(userId)) {
+            throw new ForbiddenException("error.user.adminRequired");
+        }
+    }
+
+    public boolean isActiveAdmin(UUID userId) {
+        return userRepository.findById(userId)
                 .filter(u -> u.getDeletedAt() == null)
                 .map(u -> u.getAccountType() == AccountType.ADMIN)
                 .orElse(false);
-
-        if (!isAdmin) {
-            throw new ForbiddenException("error.user.adminRequired");
-        }
     }
 
     @Transactional(readOnly = true)
