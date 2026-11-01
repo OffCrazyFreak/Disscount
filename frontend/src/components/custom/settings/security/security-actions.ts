@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 import { authClient } from "@/lib/auth/client";
+import fetchAuthToken from "@/lib/auth/token";
 import { userService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 
@@ -32,11 +33,16 @@ export function useSecurityActions() {
   async function deleteAccount() {
     setDeleting(true);
     try {
-      // Backend profile first: deleting auth first would orphan the row and lock the user out.
-      await userService.deleteCurrentUser();
+      // Taken first because deleting the identity ends the session that mints backend tokens.
+      const token = await fetchAuthToken();
+      if (!token) throw new Error("no backend token");
 
+      // Identity first: better-auth refuses a stale session before deleting anything, and ends
+      // every session, so none is left minting tokens that would revive the profile.
       const { error } = await authClient.deleteUser();
       if (error) throw new Error(error.message ?? "delete failed");
+
+      await userService.deleteCurrentUser(token);
 
       await logout();
       router.replace("/");

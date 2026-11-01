@@ -19,8 +19,10 @@ async function updateCurrentUser(data: UserRequest): Promise<UserDto> {
   return response.data;
 }
 
-async function deleteCurrentUser(): Promise<void> {
-  await apiClient.delete(`${USERS_BASE_PATH}/me`);
+async function deleteCurrentUser(bearerToken: string): Promise<void> {
+  await apiClient.delete(`${USERS_BASE_PATH}/me`, {
+    headers: { Authorization: `Bearer ${bearerToken}` },
+  });
 }
 
 function useUpdateCurrentUser() {
