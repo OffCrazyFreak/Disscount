@@ -119,3 +119,37 @@ export function productMatchesFilters(
 
   return true;
 }
+
+interface ISelectedFilters {
+  selectedChains: string[];
+  selectedLocations: string[];
+  selectedCategories: string[];
+  selectedBrands: string[];
+}
+
+/**
+ * Whether a location filter is set and dropping it alone would show products,
+ * so an empty page means those places price none of them.
+ */
+export function hasMatchOutsideLocations(
+  products: ProductResponse[],
+  {
+    selectedChains,
+    selectedLocations,
+    selectedCategories,
+    selectedBrands,
+  }: ISelectedFilters,
+): boolean {
+  if (selectedLocations.length === 0) return false;
+
+  const allowedChains = selectedChains.length > 0 ? selectedChains : null;
+
+  return products.some((product) =>
+    productMatchesFilters(
+      product,
+      allowedChains,
+      selectedCategories,
+      selectedBrands,
+    ),
+  );
+}

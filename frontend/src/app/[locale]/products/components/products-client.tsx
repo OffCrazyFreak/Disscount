@@ -26,6 +26,7 @@ export default function ProductsClient({ query }: IProductsClientProps) {
 
   const filters = useProductFilters();
   const {
+    selectedChains,
     selectedCategories,
     selectedBrands,
     selectedLocations,
@@ -35,6 +36,7 @@ export default function ProductsClient({ query }: IProductsClientProps) {
     locationsError,
     activeFilterCount,
     clearFilters,
+    setFilter,
   } = filters;
 
   const {
@@ -44,8 +46,10 @@ export default function ProductsClient({ query }: IProductsClientProps) {
     isLoading,
     error,
     hasPartialPriceData,
+    hasMatchesOutsideLocations,
   } = useInfiniteProducts(query, {
     allowedChains,
+    selectedChains,
     selectedCategories,
     selectedBrands,
     selectedLocations,
@@ -106,6 +110,9 @@ export default function ProductsClient({ query }: IProductsClientProps) {
         total={total}
         activeFilterCount={activeFilterCount}
         clearFilters={clearFilters}
+        selectedLocations={selectedLocations}
+        hasMatchesOutsideLocations={hasMatchesOutsideLocations}
+        showAllLocations={() => setFilter("location", [])}
         visibleItems={visibleItems}
         viewMode={viewMode}
       />
