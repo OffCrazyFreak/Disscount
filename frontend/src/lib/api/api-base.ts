@@ -121,7 +121,7 @@ apiClient.interceptors.request.use(
     if (config.headers) {
       const token = await getToken();
       // A caller's token wins: account deletion pins one taken before its session ends.
-      if (token && !config.headers.Authorization) {
+      if (token && !config.headers.has("Authorization")) {
         config.headers.Authorization = `Bearer ${token}`;
       }
 

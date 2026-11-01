@@ -53,4 +53,15 @@ describe("apiClient bearer token", () => {
       "Bearer pinned-token",
     ]);
   });
+
+  it("keeps a caller's token whatever the header's casing", async () => {
+    const authorizations = recordAuthorizations();
+    await apiClient.get("/api/probe");
+
+    await apiClient.get("/api/probe", {
+      headers: { authorization: "Bearer pinned-token" },
+    });
+
+    expect(authorizations.at(-1)).toBe("Bearer pinned-token");
+  });
 });
