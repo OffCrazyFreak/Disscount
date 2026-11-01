@@ -5,7 +5,7 @@ import type { ChainProductResponse } from "@/lib/cijene-api/schemas";
 import {
   compareProductChains,
   type ProductChainSortMode,
-} from "./product-chain-sort";
+} from "@/app/[locale]/products/utils/product-chain-sort";
 
 function chain(name: string, minPrice: string, avgPrice: string) {
   return {

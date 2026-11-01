@@ -5,7 +5,7 @@ import type { ChainProductResponse } from "@/lib/cijene-api/schemas";
 import {
   compareStoreChains,
   type StoreOptimizeMode,
-} from "./store-sorting-utils";
+} from "@/app/[locale]/(user)/shopping-lists/utils/store-sorting-utils";
 
 type Chain = ChainProductResponse & { itemCount: number };
 

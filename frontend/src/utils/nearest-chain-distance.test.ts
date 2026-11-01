@@ -6,7 +6,7 @@ import type { StorePrice } from "@/lib/cijene-api/schemas";
 import {
   locatePricedStores,
   nearestDistanceByChain,
-} from "./nearest-chain-distance";
+} from "@/utils/nearest-chain-distance";
 
 const ZAGREB = { lat: 45.813, lon: 15.977 };
 
