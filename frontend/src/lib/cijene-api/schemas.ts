@@ -8,8 +8,7 @@ export const listChainsResponseSchema = z.object({
 export type ListChainsResponse = z.infer<typeof listChainsResponseSchema>;
 
 // Store schemas
-const storeSchema = z.object({
-  chain_id: z.number(),
+const storeFields = {
   code: z.string(),
   type: z.string().nullable(),
   address: z.string().nullable(),
@@ -18,18 +17,13 @@ const storeSchema = z.object({
   lat: z.number().nullable(),
   lon: z.number().nullable(),
   phone: z.string().nullable(),
-});
+};
 
-const storeResponseSchema = z.object({
+const storeSchema = z.object({ chain_id: z.number(), ...storeFields });
+
+export const storeResponseSchema = z.object({
   chain_code: z.string(),
-  code: z.string(),
-  type: z.string().nullable(),
-  address: z.string().nullable(),
-  city: z.string().nullable(),
-  zipcode: z.string().nullable(),
-  lat: z.number().nullable(),
-  lon: z.number().nullable(),
-  phone: z.string().nullable(),
+  ...storeFields,
 });
 
 export const listStoresResponseSchema = z.object({

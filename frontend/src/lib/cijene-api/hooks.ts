@@ -78,6 +78,7 @@ import { HistoryDataPoint } from "@/lib/cijene-api/history-data-point";
 import type { IUsePriceHistoryArgs } from "@/lib/cijene-api/hooks-types";
 import { buildDateWindow } from "@/utils/date";
 import { PRICE_ARCHIVE_START } from "@/constants/price-history";
+import { priceHistoryQueries } from "@/lib/cijene-api/price-history-queries";
 
 /**
  * Fetch product price snapshots for the last N days in parallel
@@ -95,15 +96,7 @@ export function usePriceHistory({ ean, days = 7 }: IUsePriceHistoryArgs) {
   );
 
   const queries = useQueries({
-    queries: dates.map((date, index) => ({
-      queryKey: ["cijene", "product", "history", ean, date],
-      queryFn: () => cijeneService.getProductByEan({ ean, date }),
-      enabled: !!ean,
-      staleTime:
-        index === 0 || index === dates.length - 1
-          ? 60 * 1000
-          : 6 * 60 * 60 * 1000,
-    })),
+    queries: priceHistoryQueries(ean, dates),
   });
 
   const isLoading = queries.some((q) => q.isLoading);

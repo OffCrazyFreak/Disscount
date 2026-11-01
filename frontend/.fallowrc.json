@@ -42,6 +42,10 @@
     {
       "file": "src/components/reui/**",
       "exports": ["*"]
+    },
+    {
+      "file": "src/lib/store-locations/dgu/dgu-{attribution,address-lookup}.ts",
+      "exports": ["DGU_ATTRIBUTION"]
     }
   ],
   "ignoreDependencies": [
