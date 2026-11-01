@@ -99,13 +99,15 @@ The rule is length only, following NIST SP 800-63B-4: 12 to 128 characters, coun
 
 If someone signs in with Google, then later with Facebook (or registers a password) using the same email, they must land on the **same** account rather than a duplicate.
 
-Better Auth links automatically when the provider is in `trustedProviders` **and** the existing local account's email is already verified. Whether an OAuth user counts as verified is the provider's call, not ours:
+Better Auth links automatically when the existing local account's email is already verified **and** either the provider is in `trustedProviders` or the provider reports the incoming email as verified. For a trusted provider the incoming claim is not checked at all, so being in `trustedProviders` means "we accept this provider's email as proof of ownership". Whether a newly created OAuth user counts as verified is the provider's call, not ours:
 
 ```mermaid
 flowchart TD
-    Callback["OAuth callback"] --> Exists{"User with this email exists?"}
+    Callback["OAuth callback"] --> Linked{"This provider account<br/>already linked?"}
+    Linked -->|"Yes"| SignIn["Sign in to the linked user"]
+    Linked -->|"No"| Exists{"User with this email exists?"}
     Exists -->|"No"| Create["Create the user with<br/>emailVerified = provider's email_verified claim"]
-    Exists -->|"Yes"| Gate{"Trusted provider<br/>and local email verified?"}
+    Exists -->|"Yes"| Gate{"Local email verified, and<br/>trusted provider or verified claim?"}
     Gate -->|"Yes"| Link["Auto-link to the existing account"]
     Gate -->|"No"| Refuse["account_not_linked"]
 ```
@@ -114,7 +116,7 @@ Why this shape:
 
 - Better Auth stores the provider's `email_verified` claim on the new user, and marks the user verified on a later sign-in through an already linked provider that now reports the email as verified. We add no hook on top.
 - An earlier `databaseHooks.account.create.after` hook marked every OAuth email verified. It was removed because it overrode the provider: a Google account with an unverified email would have been stored as verified, and the real owner of that address could then be auto-linked into it.
-- Facebook sends no `email_verified` claim, so a Facebook user is stored unverified and cannot be auto-linked into. Facebook stays disabled until #43 settles how its users are handled.
+- Facebook sends no `email_verified` claim, so a new Facebook user is stored unverified and an existing account cannot auto-link to it. The other direction is the risk: while `facebook` is in `trustedProviders`, any Facebook login whose email matches a verified account links into that account. Facebook stays disabled until #43 settles this.
 - Email/password sign-ups still have to verify via the emailed link.
 
 Linking failures are surfaced to the user by a global toast (see [Section 6](#6-the-oauth-error-toast)).
@@ -321,7 +323,7 @@ Backend: Spring Boot `3.1.0` on Java `21`, using `spring-boot-starter-oauth2-res
 
 ## 14. Future improvements and TODOs
 
-- **Enable Facebook (re-audit the linking hook first):** complete Meta Business Verification (needs a registered entity, for example a Croatian obrt), then set `FACEBOOK_COMING_SOON = false`. Before flipping it, decide how Facebook users get verified: Facebook sends no verified-email claim, so they are now stored unverified and an existing account cannot auto-link to them. Facebook does not guarantee a verified email and phone-only users have none; the better-auth core auto-link CVE was patched in `1.6.14` and the pin has moved on since, and the flow stays gated behind `FACEBOOK_COMING_SOON`, on the server as well as in the UI, until then. Issue #43 tracks the audit.
+- **Enable Facebook (re-audit account linking first):** complete Meta Business Verification (needs a registered entity, for example a Croatian obrt), then set `FACEBOOK_COMING_SOON = false`. Before flipping it, decide whether `facebook` belongs in `trustedProviders`: as a trusted provider its logins auto-link into any verified account with the same email, even though Facebook sends no verified-email claim (new Facebook users are stored unverified). Facebook does not guarantee a verified email and phone-only users have none; the better-auth core auto-link CVE was patched in `1.6.14` and the pin has moved on since, and the flow stays gated behind `FACEBOOK_COMING_SOON`, on the server as well as in the UI, until then. Issue #43 tracks the audit.
 - **Dedicated register/set-password email copy:** the "set your password" case currently reuses reset wording, which reads slightly oddly for a first-time set.
 - **Deliverability hardening before any marketing mail:** SPF, DKIM and DMARC are in place, with DMARC now at `p=quarantine; np=reject` (see [DEPLOYMENT.md](DEPLOYMENT.md#6-domains-dns--https)). Still open: a dedicated sending subdomain, one-click unsubscribe, and moving DMARC to `p=reject`. Templates go out in the language stored on the account (see [I18N.md](I18N.md#emails)).
 - **Known gaps in the breached-password check:** a session that is already live is only checked at the next password entry; a Spring JWT keeps working for up to its 15 minutes; an HIBP outage lets passwords through; the current-password limit is in memory, so it resets on restart and would need shared storage with more than one container; `/api/account/register` and `/api/account/set-password` are not throttled yet (#206).
