@@ -15,6 +15,7 @@ import { authClient } from "@/lib/auth/client";
 import { localePath } from "@/i18n/locale-path";
 import { FACEBOOK_COMING_SOON } from "@/constants/auth";
 import { useSecurity } from "@/components/custom/settings/security/security-context";
+import { countSignInMethods } from "@/components/custom/settings/security/sign-in-methods";
 
 type SocialProvider = "google" | "facebook";
 
@@ -33,8 +34,7 @@ export default function LinkedAccounts() {
   const { accounts, hasPassword, reload } = useSecurity();
   const [pending, setPending] = useState<SocialProvider | null>(null);
 
-  const linkedSocials = accounts.filter((a) => a.providerId !== "credential");
-  const signInMethods = (hasPassword ? 1 : 0) + linkedSocials.length;
+  const signInMethods = countSignInMethods(accounts, hasPassword);
 
   function reportLinkFailure() {
     setPending(null);

@@ -18,7 +18,10 @@ import {
   hasLinkedSocialAccount,
   logEmailFailure,
 } from "@/lib/auth/callbacks";
-import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth";
+import {
+  FACEBOOK_COMING_SOON,
+  RESET_TOKEN_TTL_SECONDS,
+} from "@/constants/auth";
 import { assertPasswordAcceptable } from "@/lib/auth/breached-password";
 import { refuseBreachedSignIn } from "@/lib/auth/refuse-breached-sign-in";
 import { PASSWORD_MIN_LENGTH } from "@/lib/auth/password-policy";
@@ -101,6 +104,9 @@ export const auth = betterAuth({
       clientSecret: GOOGLE_CLIENT_SECRET,
     },
     facebook: {
+      // Hiding the button is not enough, the server must refuse it too: email-match
+      // linking is unsafe for Facebook until #43 is resolved.
+      enabled: !FACEBOOK_COMING_SOON,
       clientId: FACEBOOK_CLIENT_ID,
       clientSecret: FACEBOOK_CLIENT_SECRET,
       // Defaults to scopes ["email", "public_profile"] plus the "picture" field.
@@ -114,7 +120,9 @@ export const auth = betterAuth({
       // Auto-links by shared email; the gate requires the EXISTING account verified,
       // satisfied by marking OAuth emails verified below rather than the deprecated
       // requireLocalEmailVerified flag.
-      trustedProviders: ["google", "facebook"],
+      trustedProviders: FACEBOOK_COMING_SOON
+        ? ["google"]
+        : ["google", "facebook"],
     },
   },
 

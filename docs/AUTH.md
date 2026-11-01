@@ -205,7 +205,7 @@ Replay is deliberately non-destructive. Closing it does not change the existing 
 export const FACEBOOK_COMING_SOON = true;
 ```
 
-While `true`, Facebook is shown as "uskoro" and disabled in the login modal and the linked-accounts list. Flip it to `false` (one place) once Meta Business Verification is complete and the Meta app is Live to enable Facebook everywhere at once. Google and email cover login until then.
+While `true`, Facebook is shown as "uskoro" and disabled in the login modal and the linked-accounts list, and the server refuses it too: the provider is registered with `enabled: false` and left out of `trustedProviders`, so a direct `POST /api/auth/sign-in/social` or `/link-social` with `provider: "facebook"` gets `PROVIDER_NOT_FOUND`. `lib/auth/index.test.ts` checks this. Flip it to `false` (one place) once Meta Business Verification is complete and the Meta app is Live to enable Facebook everywhere at once. Google and email cover login until then.
 
 ### Environment variables
 
@@ -319,7 +319,7 @@ Backend: Spring Boot `3.1.0` on Java `21`, using `spring-boot-starter-oauth2-res
 
 ## 14. Future improvements and TODOs
 
-- **Enable Facebook (re-audit the linking hook first):** complete Meta Business Verification (needs a registered entity, for example a Croatian obrt), then set `FACEBOOK_COMING_SOON = false`. Before flipping it, revisit `databaseHooks.account.create.after`: it marks OAuth emails verified, which is how Facebook (no verified-email claim) links without the deprecated `requireLocalEmailVerified` flag. Facebook does not guarantee a verified email and phone-only users have none, so a verified-provider-email gate is not viable; the better-auth core auto-link CVE was patched in `1.6.14` and the pin has moved on since, and the flow stays gated behind `FACEBOOK_COMING_SOON` until then.
+- **Enable Facebook (re-audit the linking hook first):** complete Meta Business Verification (needs a registered entity, for example a Croatian obrt), then set `FACEBOOK_COMING_SOON = false`. Before flipping it, revisit `databaseHooks.account.create.after`: it marks OAuth emails verified, which is how Facebook (no verified-email claim) links without the deprecated `requireLocalEmailVerified` flag. Facebook does not guarantee a verified email and phone-only users have none, so a verified-provider-email gate is not viable; the better-auth core auto-link CVE was patched in `1.6.14` and the pin has moved on since, and the flow stays gated behind `FACEBOOK_COMING_SOON`, on the server as well as in the UI, until then. Issue #43 tracks the audit.
 - **Dedicated register/set-password email copy:** the "set your password" case currently reuses reset wording, which reads slightly oddly for a first-time set.
 - **Deliverability hardening before any marketing mail:** SPF, DKIM and DMARC are in place, with DMARC now at `p=quarantine; np=reject` (see [DEPLOYMENT.md](DEPLOYMENT.md#6-domains-dns--https)). Still open: a dedicated sending subdomain, one-click unsubscribe, and moving DMARC to `p=reject`. Templates go out in the language stored on the account (see [I18N.md](I18N.md#emails)).
 - **Known gaps in the breached-password check:** a session that is already live is only checked at the next password entry; a Spring JWT keeps working for up to its 15 minutes; an HIBP outage lets passwords through; the current-password limit is in memory, so it resets on restart and would need shared storage with more than one container; `/api/account/register` and `/api/account/set-password` are not throttled yet (#206).
