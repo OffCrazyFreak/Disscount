@@ -51,6 +51,7 @@
   "ignoreDependencies": [
     "@react-email/ui",
     "baseline-browser-mapping",
+    "esbuild",
     "kysely",
     "serwist"
   ],

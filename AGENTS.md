@@ -84,6 +84,7 @@ Tests run on H2 and touch nothing outside the module, so none needs a nod.
 
 - `kysely` is a direct dependency only to pin better-auth's required peer. Nothing imports it.
 - `dotenv` is read only by `drizzle.config.ts`, to load `.env.local` outside Next.
+- `esbuild` is a direct devDependency only so `frontend/Dockerfile` can bundle `scripts/migrate.mjs` into the migrator image; drizzle-kit's own copy is not linked into `node_modules/.bin`.
 - `baseline-browser-mapping` is a direct dependency only so `frontend/pnpm-workspace.yaml` can exempt it from pnpm's release-age gate.
 - `@vitejs/plugin-react` and `@rolldown/plugin-babel` exist only so Vitest compiles `.tsx` tests through the React Compiler. Next.js builds with its own compiler integration and never loads them. `@vitest/coverage-v8` stays on the exact `vitest` version, because its peer dependency is exact.
 - Import `server-only` in any module that must never reach the client.
