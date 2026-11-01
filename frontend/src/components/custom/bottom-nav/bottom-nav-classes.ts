@@ -20,8 +20,8 @@ export const CELL_LABEL_CLASS =
   "relative h-[0.85rem] overflow-hidden text-[0.65rem] leading-none tracking-tight";
 
 /**
- * 3.6rem is 57.6px: enough to pad the widest label once bold (Potrošnja, about
- * 48px). A flanking cell's disc and both rings share it, which is what keeps them
+ * 3.6rem is 57.6px: enough to pad the widest label once bold (Proizvodi, about
+ * 44.7px). A flanking cell's disc and both rings share it, which is what keeps them
  * concentric. The centre cell draws its hold ring on the raised circle instead,
  * so its disc, faded out there, is the only user left on that cell.
  */

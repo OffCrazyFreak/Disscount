@@ -82,7 +82,7 @@ export default function BottomNavCenterItem({
               Always present, since holding this cell always opens the scanner. */}
           <HoldProgressRing
             progress="var(--press-progress, 0)"
-            className="stroke-primary-foreground absolute inset-[0.2rem]"
+            className="stroke-primary-foreground absolute top-[0.2rem] left-[0.2rem] size-[2.4rem]"
           />
 
           <Search

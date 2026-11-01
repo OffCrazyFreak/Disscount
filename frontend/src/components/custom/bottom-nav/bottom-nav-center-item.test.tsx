@@ -30,5 +30,7 @@ describe("BottomNavCenterItem", () => {
     const circle = ring?.parentElement;
 
     expect(circle).toHaveClass("bg-primary", "-translate-y-[0.2rem]");
+    // Smaller than the 2.8rem circle, so the ring stays on its face.
+    expect(ring).toHaveClass("stroke-primary-foreground", "size-[2.4rem]");
   });
 });
