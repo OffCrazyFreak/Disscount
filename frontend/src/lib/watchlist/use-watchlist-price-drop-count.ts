@@ -4,6 +4,7 @@ import { usePathname } from "@/i18n/navigation";
 import { useWatchedProducts } from "@/lib/watchlist/use-watched-products";
 import {
   countPriceDrops,
+  getPriceScope,
   getScopedBestPriceCents,
   isSameSnapshot,
   nextPriceSnapshot,
@@ -18,12 +19,18 @@ import { isRouteActive } from "@/utils/routes";
 
 const WATCHLIST_HREF = "/watchlist";
 
+interface IWatchlistPriceDrops {
+  count: number;
+  /** Signed in with the watchlist and every price loaded, so the count is final */
+  isSettled: boolean;
+}
+
 /**
  * Watched products whose best price fell since the user last opened /watchlist on this
  * device. Opening the page clears it. A stand-in until the server-side inbox (#222) can
  * answer with an unseen count shared across devices.
  */
-export function useWatchlistPriceDropCount(): number {
+export function useWatchlistPriceDropCount(): IWatchlistPriceDrops {
   const { user, isAuthenticated } = useUser();
   const pathname = usePathname();
   const {
@@ -34,6 +41,7 @@ export function useWatchlistPriceDropCount(): number {
   } = useWatchedProducts(isAuthenticated, user?.pinnedStores);
 
   const userId = isAuthenticated ? user?.id : undefined;
+  const scope = getPriceScope(pinnedStoreChainCodes);
   const isVisit = isRouteActive(pathname, WATCHLIST_HREF);
 
   const snapshot = useSyncExternalStore(
@@ -53,7 +61,13 @@ export function useWatchlistPriceDropCount(): number {
     if (price !== null) currentPrices[item.productApiId] = price;
   });
 
-  const next = nextPriceSnapshot(currentPrices, snapshot, watchedEans, isVisit);
+  const next = nextPriceSnapshot(
+    currentPrices,
+    snapshot,
+    scope,
+    watchedEans,
+    isVisit,
+  );
   const hasChanged = !isSameSnapshot(next, snapshot);
 
   // Several nav surfaces mount this hook, and each computes the same next snapshot,
@@ -64,7 +78,12 @@ export function useWatchlistPriceDropCount(): number {
     }
   }, [userId, isWatchlistLoaded, hasChanged, next]);
 
-  if (!userId || isVisit) return 0;
+  const isSettled =
+    Boolean(userId) &&
+    isWatchlistLoaded &&
+    productQueries.every((query) => !query.isLoading);
 
-  return countPriceDrops(currentPrices, snapshot);
+  if (!userId || isVisit) return { count: 0, isSettled };
+
+  return { count: countPriceDrops(currentPrices, snapshot, scope), isSettled };
 }

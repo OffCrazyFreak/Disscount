@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useWatchlistPriceDropCount } from "@/lib/watchlist/use-watchlist-price-drop-count";
 
@@ -10,14 +11,24 @@ import { useWatchlistPriceDropCount } from "@/lib/watchlist/use-watchlist-price-
  */
 export default function PriceDropStatus() {
   const t = useTranslations("shell");
-  const priceDropCount = useWatchlistPriceDropCount();
+  const { count, isSettled } = useWatchlistPriceDropCount();
+  const [settledCount, setSettledCount] = useState<number | null>(null);
+  const [isAnnouncing, setIsAnnouncing] = useState(false);
+
+  // The first settled count is what loading the app produced, not a change, so only
+  // later ones speak; a cold start would otherwise talk over the page's own announcement.
+  if (isSettled && count !== settledCount) {
+    setIsAnnouncing(settledCount !== null);
+    setSettledCount(count);
+  }
 
   return (
     <div role="status" className="sr-only">
-      {priceDropCount > 0 &&
+      {isAnnouncing &&
+        count > 0 &&
         t("nav.watchlistPriceDrops", {
           label: t("nav.watchlistShort"),
-          count: priceDropCount,
+          count,
         })}
     </div>
   );

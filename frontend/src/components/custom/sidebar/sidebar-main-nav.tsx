@@ -25,7 +25,7 @@ import { isRouteActive } from "@/utils/routes";
 export default function SidebarMainNav() {
   const t = useTranslations("shell");
   const pathname = usePathname();
-  const priceDropCount = useWatchlistPriceDropCount();
+  const { count: priceDropCount } = useWatchlistPriceDropCount();
   const { user } = useUser();
 
   return (

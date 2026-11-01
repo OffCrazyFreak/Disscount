@@ -1,5 +1,8 @@
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
-import type { WatchlistPriceSnapshot } from "@/typings/local-storage";
+import type {
+  IWatchlistPriceSnapshot,
+  WatchlistPriceSnapshot,
+} from "@/typings/local-storage";
 import { calculateDiscountInfo } from "@/lib/watchlist/watchlist-discount-utils";
 
 /**
@@ -19,47 +22,64 @@ export function getScopedBestPriceCents(
   return bestPrice === null ? null : Math.round(bestPrice * 100);
 }
 
-/** Watched EANs whose price is now below the one saved for them. */
+export function getPriceScope(pinnedStoreChainCodes: string[]): string {
+  return [...new Set(pinnedStoreChainCodes)].sort().join(",");
+}
+
+/** Watched EANs whose price is now below the one saved for them in the same scope. */
 export function countPriceDrops(
   currentPrices: WatchlistPriceSnapshot,
-  snapshot: WatchlistPriceSnapshot,
+  snapshot: IWatchlistPriceSnapshot | null,
+  scope: string,
 ): number {
+  if (!snapshot || snapshot.scope !== scope) return 0;
+
+  const saved = snapshot.prices;
+
   return Object.entries(currentPrices).filter(
-    ([ean, price]) => snapshot[ean] !== undefined && price < snapshot[ean],
+    ([ean, price]) => saved[ean] !== undefined && price < saved[ean],
   ).length;
 }
 
 /**
- * A visit resets every baseline to today's price and forgets products no longer watched.
+ * A visit, or a change of store scope, resets every baseline to today's price.
  * Otherwise only products seen for the first time get a baseline, so a later drop counts.
  * A product whose price did not load keeps its old baseline: no data is not a new price.
+ * Unwatched products are dropped, so re-watching one starts fresh.
  */
 export function nextPriceSnapshot(
   currentPrices: WatchlistPriceSnapshot,
-  snapshot: WatchlistPriceSnapshot,
+  snapshot: IWatchlistPriceSnapshot | null,
+  scope: string,
   watchedEans: string[],
   isVisit: boolean,
-): WatchlistPriceSnapshot {
-  if (!isVisit) return { ...currentPrices, ...snapshot };
-
-  const next: WatchlistPriceSnapshot = {};
+): IWatchlistPriceSnapshot {
+  const isSameScope = snapshot?.scope === scope;
+  const saved = isSameScope ? snapshot.prices : {};
+  const isRebase = isVisit || !isSameScope;
+  const prices: WatchlistPriceSnapshot = {};
 
   for (const ean of watchedEans) {
-    const price = currentPrices[ean] ?? snapshot[ean];
-    if (price !== undefined) next[ean] = price;
+    const price = isRebase
+      ? (currentPrices[ean] ?? saved[ean])
+      : (saved[ean] ?? currentPrices[ean]);
+
+    if (price !== undefined) prices[ean] = price;
   }
 
-  return next;
+  return { scope, prices };
 }
 
 export function isSameSnapshot(
-  left: WatchlistPriceSnapshot,
-  right: WatchlistPriceSnapshot,
+  left: IWatchlistPriceSnapshot,
+  right: IWatchlistPriceSnapshot | null,
 ): boolean {
-  const leftKeys = Object.keys(left);
+  if (!right || left.scope !== right.scope) return false;
+
+  const eans = Object.keys(left.prices);
 
   return (
-    leftKeys.length === Object.keys(right).length &&
-    leftKeys.every((ean) => left[ean] === right[ean])
+    eans.length === Object.keys(right.prices).length &&
+    eans.every((ean) => left.prices[ean] === right.prices[ean])
   );
 }

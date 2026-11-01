@@ -6,6 +6,7 @@ import type {
 } from "@/lib/cijene-api/schemas";
 import {
   countPriceDrops,
+  getPriceScope,
   getScopedBestPriceCents,
   isSameSnapshot,
   nextPriceSnapshot,
@@ -63,40 +64,87 @@ describe("getScopedBestPriceCents", () => {
 describe("countPriceDrops", () => {
   it("counts only products now cheaper than their saved price", () => {
     const current = { fell: 99, same: 150, rose: 300, unseen: 10 };
-    const saved = { fell: 129, same: 150, rose: 250 };
+    const saved = { scope: "", prices: { fell: 129, same: 150, rose: 250 } };
 
-    expect(countPriceDrops(current, saved)).toBe(1);
+    expect(countPriceDrops(current, saved, "")).toBe(1);
+  });
+
+  it("never reads a change of store scope as a drop", () => {
+    const saved = { scope: "konzum", prices: { milk: 249 } };
+
+    expect(countPriceDrops({ milk: 199 }, saved, "")).toBe(0);
+  });
+});
+
+describe("getPriceScope", () => {
+  it("ignores the order and repeats of pinned chains", () => {
+    expect(getPriceScope(["lidl", "konzum", "lidl"])).toBe(
+      getPriceScope(["konzum", "lidl"]),
+    );
   });
 });
 
 describe("nextPriceSnapshot", () => {
-  it("only adds first sightings outside the watchlist page", () => {
+  it("keeps baselines and adds first sightings outside the watchlist page", () => {
     const next = nextPriceSnapshot(
       { kept: 99, added: 200 },
-      { kept: 129, unwatched: 50 },
+      { scope: "", prices: { kept: 129 } },
+      "",
       ["kept", "added"],
       false,
     );
 
-    expect(next).toEqual({ kept: 129, added: 200, unwatched: 50 });
+    expect(next).toEqual({ scope: "", prices: { kept: 129, added: 200 } });
   });
 
-  it("resets to today's prices on a visit and forgets unwatched products", () => {
+  it("forgets unwatched products, so re-watching one starts fresh", () => {
+    const next = nextPriceSnapshot(
+      {},
+      { scope: "", prices: { kept: 129, unwatched: 50 } },
+      "",
+      ["kept"],
+      false,
+    );
+
+    expect(next).toEqual({ scope: "", prices: { kept: 129 } });
+  });
+
+  it("resets to today's prices on a visit, keeping a price that did not load", () => {
     const next = nextPriceSnapshot(
       { kept: 99 },
-      { kept: 129, notLoaded: 300, unwatched: 50 },
+      { scope: "", prices: { kept: 129, notLoaded: 300 } },
+      "",
       ["kept", "notLoaded"],
       true,
     );
 
-    expect(next).toEqual({ kept: 99, notLoaded: 300 });
+    expect(next).toEqual({ scope: "", prices: { kept: 99, notLoaded: 300 } });
+  });
+
+  it("rebases on a change of store scope", () => {
+    const next = nextPriceSnapshot(
+      { milk: 199 },
+      { scope: "konzum", prices: { milk: 249, bread: 120 } },
+      "",
+      ["milk", "bread"],
+      false,
+    );
+
+    expect(next).toEqual({ scope: "", prices: { milk: 199 } });
   });
 });
 
 describe("isSameSnapshot", () => {
-  it("compares prices per product, not object identity", () => {
-    expect(isSameSnapshot({ a: 1, b: 2 }, { b: 2, a: 1 })).toBe(true);
-    expect(isSameSnapshot({ a: 1 }, { a: 1, b: 2 })).toBe(false);
-    expect(isSameSnapshot({ a: 1 }, { a: 2 })).toBe(false);
+  it("compares scope and prices, not object identity", () => {
+    const base = { scope: "", prices: { a: 1, b: 2 } };
+
+    expect(isSameSnapshot(base, { scope: "", prices: { b: 2, a: 1 } })).toBe(
+      true,
+    );
+    expect(isSameSnapshot(base, { scope: "lidl", prices: base.prices })).toBe(
+      false,
+    );
+    expect(isSameSnapshot(base, { scope: "", prices: { a: 1 } })).toBe(false);
+    expect(isSameSnapshot(base, null)).toBe(false);
   });
 });

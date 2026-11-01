@@ -36,7 +36,7 @@ const SURFACE_CLASS =
 export default function BottomNav() {
   const t = useTranslations("shell");
   const pathname = usePathname();
-  const priceDropCount = useWatchlistPriceDropCount();
+  const { count: priceDropCount } = useWatchlistPriceDropCount();
   const { openScanner } = useCameraScanner();
   const navigateToProduct = useProductNavigation();
   const listProgress = useActiveListProgress();

@@ -12,13 +12,20 @@ import {
   setWatchlistPriceSnapshot,
 } from "@/utils/browser/storage/watchlist";
 
-const session = vi.hoisted(() => ({ userId: "", pathname: "/" }));
+const session = vi.hoisted(() => ({
+  userId: "",
+  isAuthenticated: true,
+  pathname: "/",
+  pinnedStores: [] as { storeName: string }[],
+}));
 
 // The session and the router are boundaries the suite cannot run.
 vi.mock("@/context/user-context", () => ({
   useUser: () => ({
-    isAuthenticated: true,
-    user: { id: session.userId, pinnedStores: [] },
+    isAuthenticated: session.isAuthenticated,
+    user: session.isAuthenticated
+      ? { id: session.userId, pinnedStores: session.pinnedStores }
+      : null,
   }),
 }));
 vi.mock("@/i18n/navigation", () => ({
@@ -75,7 +82,7 @@ function watching(minPrice: string) {
 // hook has seen the price rather than before it arrived.
 function useCountAndProduct() {
   return {
-    count: useWatchlistPriceDropCount(),
+    ...useWatchlistPriceDropCount(),
     product: useQuery({
       queryKey: productByEanQueryKey(EAN),
       queryFn: skipToken,
@@ -86,30 +93,77 @@ function useCountAndProduct() {
 // Each test signs in as its own account, so no snapshot leaks between them.
 function signIn(userId: string, pathname = "/") {
   session.userId = userId;
+  session.isAuthenticated = true;
   session.pathname = pathname;
+  session.pinnedStores = [];
+}
+
+function saved(prices: Record<string, number>, scope = "") {
+  return { scope, prices };
 }
 
 describe("useWatchlistPriceDropCount", () => {
   it("counts a watched product that got cheaper since the last visit", async () => {
     signIn("fell");
-    setWatchlistPriceSnapshot("fell", { [EAN]: 129 });
+    setWatchlistPriceSnapshot("fell", saved({ [EAN]: 129 }));
     watching("0.99");
+
+    const { result } = renderHookWithProviders(useCountAndProduct);
+
+    await waitFor(() => expect(result.current.count).toBe(1));
+  });
+
+  it("agrees across several mounted surfaces", async () => {
+    signIn("surfaces");
+    setWatchlistPriceSnapshot("surfaces", saved({ [EAN]: 129 }));
+    watching("0.99");
+
+    const { result } = renderHookWithProviders(() => ({
+      bar: useWatchlistPriceDropCount(),
+      sidebar: useWatchlistPriceDropCount(),
+    }));
+
+    await waitFor(() => expect(result.current.bar.count).toBe(1));
+    expect(result.current.sidebar.count).toBe(1);
+    expect(getWatchlistPriceSnapshot("surfaces")).toEqual(
+      saved({ [EAN]: 129 }),
+    );
+  });
+
+  it("rebases instead of counting when the pinned stores change", async () => {
+    signIn("rescoped");
+    setWatchlistPriceSnapshot("rescoped", saved({ [EAN]: 249 }, "konzum"));
+    watching("0.99");
+
+    const { result } = renderHookWithProviders(useCountAndProduct);
+
+    await waitFor(() =>
+      expect(getWatchlistPriceSnapshot("rescoped")).toEqual(
+        saved({ [EAN]: 99 }),
+      ),
+    );
+    expect(result.current.count).toBe(0);
+  });
+
+  it("is zero and never settles while signed out", () => {
+    session.isAuthenticated = false;
+    session.pathname = "/";
 
     const { result } = renderHookWithProviders(useWatchlistPriceDropCount);
 
-    await waitFor(() => expect(result.current).toBe(1));
+    expect(result.current).toEqual({ count: 0, isSettled: false });
   });
 
   it("ignores a price that stayed the same or rose", async () => {
     signIn("rose");
-    setWatchlistPriceSnapshot("rose", { [EAN]: 99 });
+    setWatchlistPriceSnapshot("rose", saved({ [EAN]: 99 }));
     watching("1.29");
 
     const { result } = renderHookWithProviders(useCountAndProduct);
 
     await waitFor(() => expect(result.current.product).toBeDefined());
     expect(result.current.count).toBe(0);
-    expect(getWatchlistPriceSnapshot("rose")).toEqual({ [EAN]: 99 });
+    expect(getWatchlistPriceSnapshot("rose")).toEqual(saved({ [EAN]: 99 }));
   });
 
   it("starts a new product's baseline at the first price it sees", async () => {
@@ -119,20 +173,20 @@ describe("useWatchlistPriceDropCount", () => {
     const { result } = renderHookWithProviders(useCountAndProduct);
 
     await waitFor(() =>
-      expect(getWatchlistPriceSnapshot("new")).toEqual({ [EAN]: 99 }),
+      expect(getWatchlistPriceSnapshot("new")).toEqual(saved({ [EAN]: 99 })),
     );
     expect(result.current.count).toBe(0);
   });
 
   it("clears on the watchlist page and saves today's price as the baseline", async () => {
     signIn("visit", "/watchlist");
-    setWatchlistPriceSnapshot("visit", { [EAN]: 129 });
+    setWatchlistPriceSnapshot("visit", saved({ [EAN]: 129 }));
     watching("0.99");
 
     const { result } = renderHookWithProviders(useCountAndProduct);
 
     await waitFor(() =>
-      expect(getWatchlistPriceSnapshot("visit")).toEqual({ [EAN]: 99 }),
+      expect(getWatchlistPriceSnapshot("visit")).toEqual(saved({ [EAN]: 99 })),
     );
     expect(result.current.count).toBe(0);
   });

@@ -14,7 +14,7 @@ export default function HeaderNav() {
   const t = useTranslations("shell");
   const { user } = useUser();
   const pathname = usePathname();
-  const priceDropCount = useWatchlistPriceDropCount();
+  const { count: priceDropCount } = useWatchlistPriceDropCount();
 
   // Admins take the dashboard branch, so the user items below only ever render
   // for a non-admin. The lock still has to be asked for, but it can come from the
