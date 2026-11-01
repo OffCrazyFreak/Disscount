@@ -122,16 +122,22 @@ describe("AdminUsersTable account type", () => {
   it("keeps a second row's pending type when the first row's save fails", async () => {
     const savingAna = held();
     const savingIvo = held();
+    let ivoType: AccountType = "CONSUMER";
+    let reads = 0;
     server.use(
       signedOut,
-      serveUsers(() => [ANA, IVO]),
+      serveUsers(() => {
+        reads += 1;
+        return [ANA, { ...IVO, accountType: ivoType }];
+      }),
       http.patch("*/api/admin/users/ana", async () => {
         await savingAna.promise;
         return HttpResponse.json(null, { status: 500 });
       }),
       http.patch("*/api/admin/users/ivo", async () => {
         await savingIvo.promise;
-        return HttpResponse.json({ ...IVO, accountType: "ADMIN" });
+        ivoType = "ADMIN";
+        return HttpResponse.json({ ...IVO, accountType: ivoType });
       }),
     );
 
@@ -143,8 +149,13 @@ describe("AdminUsersTable account type", () => {
     await waitFor(() => expect(toast.error).toHaveBeenCalledTimes(1));
     expect(accountTypeOf("ana")).toHaveTextContent("Korisnik");
     expect(accountTypeOf("ivo")).toHaveTextContent("Admin");
+    expect(reads).toBe(1);
 
     savingIvo.release();
     await waitFor(() => expect(toast.success).toHaveBeenCalledTimes(1));
+    // One refetch once the last save settles brings both rows back in line with the server.
+    expect(reads).toBe(2);
+    expect(accountTypeOf("ana")).toHaveTextContent("Korisnik");
+    expect(accountTypeOf("ivo")).toHaveTextContent("Admin");
   });
 });
