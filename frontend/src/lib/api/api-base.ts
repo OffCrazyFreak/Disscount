@@ -120,7 +120,8 @@ apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     if (config.headers) {
       const token = await getToken();
-      if (token) {
+      // A caller's token wins: account deletion pins one taken before its session ends.
+      if (token && !config.headers.Authorization) {
         config.headers.Authorization = `Bearer ${token}`;
       }
 
