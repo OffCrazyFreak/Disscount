@@ -74,7 +74,9 @@
     "offline": "Prices not saved for offline use",
     "noPrices": "No store prices",
     "failedCount": "{count, plural, one {Prices for # item are unavailable.} other {Prices for # items are unavailable.}}",
-    "retry": "Try again"
+    "retry": "Try again",
+    "retrySucceeded": "Prices loaded.",
+    "withStore": "{store}: {reason}"
   },
   "priceHistory": {
     "title": "Price history",

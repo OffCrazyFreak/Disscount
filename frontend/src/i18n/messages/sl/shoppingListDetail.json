@@ -74,7 +74,9 @@
     "offline": "Cene niso shranjene za uporabo brez povezave",
     "noPrices": "Ni cen v trgovinah",
     "failedCount": "{count, plural, one {Cene za # izdelek niso na voljo.} two {Cene za # izdelka niso na voljo.} few {Cene za # izdelke niso na voljo.} other {Cene za # izdelkov niso na voljo.}}",
-    "retry": "Poskusi znova"
+    "retry": "Poskusi znova",
+    "retrySucceeded": "Cene so naložene.",
+    "withStore": "{store}: {reason}"
   },
   "priceHistory": {
     "title": "Zgodovina cen",

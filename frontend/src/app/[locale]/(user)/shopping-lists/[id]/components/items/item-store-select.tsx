@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
 import StoreChainSelect from "@/components/custom/store-chain/store-chain-select";
 import type { ShoppingListItemDto } from "@/lib/api/types";
+import { getChainLabel } from "@/utils/labels";
 import UnavailableStoreSelect from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/unavailable-store-select";
 import {
   PRICE_STATUS_BANNER_ID,
@@ -75,10 +76,19 @@ export default function ItemStoreSelect({
       ? PRICE_STATUS_BANNER_ID
       : undefined;
 
+  const reason = t(reasonKey);
+
   return (
     <UnavailableStoreSelect
-      value={item.chainCode}
-      reason={t(reasonKey)}
+      label={
+        item.chainCode
+          ? t("prices.withStore", {
+              store: getChainLabel(item.chainCode),
+              reason,
+            })
+          : reason
+      }
+      reason={reason}
       describedById={describedById}
       disabled={!canCheck}
       className={STORE_SELECT_CLASS_NAME}

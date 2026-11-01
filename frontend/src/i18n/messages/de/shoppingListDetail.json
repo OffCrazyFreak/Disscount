@@ -74,7 +74,9 @@
     "offline": "Preise nicht offline gespeichert",
     "noPrices": "Keine Preise in Geschäften",
     "failedCount": "{count, plural, one {Preise für # Artikel sind nicht verfügbar.} other {Preise für # Artikel sind nicht verfügbar.}}",
-    "retry": "Erneut versuchen"
+    "retry": "Erneut versuchen",
+    "retrySucceeded": "Preise geladen.",
+    "withStore": "{store}: {reason}"
   },
   "priceHistory": {
     "title": "Preisverlauf",

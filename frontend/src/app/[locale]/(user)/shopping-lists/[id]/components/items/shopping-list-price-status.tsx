@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { TriangleAlert } from "lucide-react";
 
@@ -21,9 +22,32 @@ export default function ShoppingListPriceStatus({
   onRetry,
 }: IShoppingListPriceStatusProps) {
   const t = useTranslations("shoppingListDetail");
+  const [hasRetried, setHasRetried] = useState(false);
+  const successRef = useRef<HTMLParagraphElement>(null);
+  const isRecovered = hasRetried && failedCount === 0;
+
+  // The retry button unmounts once every price loads, so focus moves to the outcome instead of the page top.
+  useEffect(() => {
+    if (isRecovered) successRef.current?.focus();
+  }, [isRecovered]);
+
+  function retry() {
+    setHasRetried(true);
+    onRetry();
+  }
 
   return (
     <div role="status">
+      {isRecovered && (
+        <p
+          ref={successRef}
+          tabIndex={-1}
+          className="text-sm text-muted-foreground outline-none"
+        >
+          {t("prices.retrySucceeded")}
+        </p>
+      )}
+
       {failedCount > 0 && (
         <Banner
           variant="warningSoft"
@@ -43,7 +67,7 @@ export default function ShoppingListPriceStatus({
               loading={isRetrying}
               loadingText={t("prices.retry")}
               loadingIconPlacement="left"
-              onClick={onRetry}
+              onClick={retry}
             >
               {t("prices.retry")}
             </Button>

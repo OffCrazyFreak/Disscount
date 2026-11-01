@@ -82,7 +82,10 @@ export function useShoppingListData(listId: string) {
         isRetryingPrices: failedIndexes.some(
           (index) => results[index].fetchStatus === "fetching",
         ),
-        isPricesLoading: results.some((result) => result.isLoading),
+        // A retry resets its query to pending; the list must not ungroup or blank its totals for it.
+        isPricesLoading: results.some(
+          (result, index) => result.isLoading && !retriedEans.has(eans[index]),
+        ),
       };
     },
   });

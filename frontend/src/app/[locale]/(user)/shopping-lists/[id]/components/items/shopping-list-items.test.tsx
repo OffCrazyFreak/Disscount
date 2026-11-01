@@ -44,6 +44,18 @@ function renderItems(
   priceStates: Record<string, ItemPriceState>,
   onRetryPrices = vi.fn(),
 ) {
+  const view = renderWithProviders(
+    listItems(items, priceStates, onRetryPrices),
+  );
+
+  return { onRetryPrices, rerender: view.rerender };
+}
+
+function listItems(
+  items: ShoppingListItemDto[],
+  priceStates: Record<string, ItemPriceState>,
+  onRetryPrices = vi.fn(),
+) {
   const list: ShoppingListDto = {
     id: "list-1",
     title: "Tjedni",
@@ -53,7 +65,7 @@ function renderItems(
     items,
   };
 
-  renderWithProviders(
+  return (
     <ShoppingListItems
       shoppingList={list}
       cheapestStores={{}}
@@ -63,10 +75,8 @@ function renderItems(
       priceStates={priceStates}
       isRetryingPrices={false}
       onRetryPrices={onRetryPrices}
-    />,
+    />
   );
-
-  return onRetryPrices;
 }
 
 describe("ShoppingListItems price states", () => {
@@ -113,11 +123,14 @@ describe("ShoppingListItems price states", () => {
 
   it("counts failed items in one status with one retry", async () => {
     const user = userEvent.setup();
-    const onRetry = renderItems([item("a"), item("b"), item("c")], {
-      a: "failed",
-      b: "failed",
-      c: "ready",
-    });
+    const { onRetryPrices: onRetry } = renderItems(
+      [item("a"), item("b"), item("c")],
+      {
+        a: "failed",
+        b: "failed",
+        c: "ready",
+      },
+    );
 
     expect(screen.getByRole("status")).toHaveTextContent(
       "Cijene za 2 stavke nisu dostupne.",
@@ -125,6 +138,25 @@ describe("ShoppingListItems price states", () => {
 
     await user.click(screen.getByRole("button", { name: "Pokušaj ponovno" }));
     expect(onRetry).toHaveBeenCalledOnce();
+  });
+
+  it("keeps the reason visible next to a store the item already has", () => {
+    renderItems([item("a", { chainCode: "konzum" })], { a: "offline" });
+
+    expect(screen.getByRole("combobox")).toHaveTextContent(
+      "Konzum: Cijene nisu spremljene za izvanmrežni rad",
+    );
+  });
+
+  it("moves focus to the outcome when a retry loads every price", async () => {
+    const user = userEvent.setup();
+    const items = [item("a")];
+    const { rerender } = renderItems(items, { a: "failed" });
+
+    await user.click(screen.getByRole("button", { name: "Pokušaj ponovno" }));
+    rerender(listItems(items, { a: "ready" }));
+
+    expect(screen.getByText("Cijene su učitane.")).toHaveFocus();
   });
 
   it("shows a skeleton instead of a store select while prices load", () => {

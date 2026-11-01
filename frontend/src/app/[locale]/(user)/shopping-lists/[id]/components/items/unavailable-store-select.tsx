@@ -1,17 +1,11 @@
 import { useId } from "react";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectTrigger } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { getChainLabel } from "@/utils/labels";
 
 interface IUnavailableStoreSelectProps {
-  value: string | null | undefined;
+  /** What the trigger shows: the reason, with the saved store in front when there is one. */
+  label: string;
   reason: string;
   /** Points at a fuller explanation elsewhere; without one the reason itself describes the select. */
   describedById?: string;
@@ -22,10 +16,10 @@ interface IUnavailableStoreSelectProps {
 /**
  * The store select of an item with no prices to compare. It stays focusable, so a
  * keyboard or screen reader user still reaches the reason, but it never opens and has
- * no change handler, since typeahead on a closed Radix trigger still selects.
+ * no options or change handler, since typeahead on a closed Radix trigger still selects.
  */
 export default function UnavailableStoreSelect({
-  value,
+  label,
   reason,
   describedById,
   disabled,
@@ -34,16 +28,16 @@ export default function UnavailableStoreSelect({
   const reasonId = useId();
 
   return (
-    <Select value={value ?? ""} open={false} disabled={disabled}>
+    <Select open={false} disabled={disabled}>
       <SelectTrigger
         aria-disabled="true"
         aria-describedby={describedById ?? reasonId}
         className={cn(
-          "min-w-0 text-xs sm:text-sm aria-disabled:cursor-not-allowed",
+          "min-w-0 text-xs text-placeholder sm:text-sm aria-disabled:cursor-not-allowed",
           className,
         )}
       >
-        <SelectValue placeholder={reason} />
+        <span className="line-clamp-1 text-left">{label}</span>
       </SelectTrigger>
 
       {!describedById && (
@@ -51,14 +45,6 @@ export default function UnavailableStoreSelect({
           {reason}
         </span>
       )}
-
-      <SelectContent>
-        {value && (
-          <SelectItem value={value}>
-            <span lang="hr">{getChainLabel(value)}</span>
-          </SelectItem>
-        )}
-      </SelectContent>
     </Select>
   );
 }
