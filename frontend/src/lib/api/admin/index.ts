@@ -64,9 +64,6 @@ function useDeleteUser() {
 }
 
 const adminService = {
-  getAllUsers,
-  updateUserAccountType,
-  deleteUser,
   useGetAllUsers,
   useUpdateUserAccountType,
   useDeleteUser,

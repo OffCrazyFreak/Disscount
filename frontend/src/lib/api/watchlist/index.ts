@@ -94,21 +94,12 @@ function useRemoveFromWatchlist() {
   });
 }
 
-// Service object with all functions and hooks
 const watchlistService = {
-  // API functions
-  addToWatchlist,
-  getCurrentUserWatchlist,
-  getWatchlistItemsByProductApiId,
   removeFromWatchlist,
-
-  // React Query hooks
   useAddToWatchlist,
   useGetCurrentUserWatchlist,
   useGetWatchlistItemsByProductApiId,
   useRemoveFromWatchlist,
-
-  // Query keys
   QUERY_KEYS: WATCHLIST_QUERY_KEYS,
 };
 

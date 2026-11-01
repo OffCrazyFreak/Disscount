@@ -13,7 +13,6 @@ const CONTACT_QUERY_KEYS = {
   all: ["admin", "contact"] as const,
   list: (includeDeleted: boolean) =>
     ["admin", "contact", { includeDeleted }] as const,
-  detail: (id: string) => ["admin", "contact", "detail", id] as const,
 };
 
 // Public: submit a contact message (no auth header sent when logged out).
@@ -36,13 +35,6 @@ async function getContactMessages(
     params: { includeDeleted },
   });
   return response.data.map((item) => contactMessageDtoSchema.parse(item));
-}
-
-async function getContactMessage(id: string): Promise<ContactMessageDto> {
-  const response = await apiClient.get<ContactMessageDto>(
-    `${ADMIN_BASE_PATH}/${id}`,
-  );
-  return contactMessageDtoSchema.parse(response.data);
 }
 
 // Admin state changes: read/unread, archive/unarchive, restore share the patch shape.
@@ -83,14 +75,6 @@ function useGetContactMessages(
   });
 }
 
-function useGetContactMessage(id: string, { enabled = true } = {}) {
-  return useQuery<ContactMessageDto, Error>({
-    queryKey: CONTACT_QUERY_KEYS.detail(id),
-    queryFn: () => getContactMessage(id),
-    enabled,
-  });
-}
-
 function useContactAction(action: (id: string) => Promise<ContactMessageDto>) {
   const queryClient = useQueryClient();
 
@@ -118,12 +102,8 @@ function useRestore() {
 }
 
 const contactService = {
-  createContactMessage,
-  getContactMessages,
-  getContactMessage,
   useCreateContactMessage,
   useGetContactMessages,
-  useGetContactMessage,
   useMarkRead,
   useMarkUnread,
   useSoftDelete,

@@ -94,10 +94,7 @@ function useUpdatePinnedPlaces() {
 
 const preferencesService = {
   getPinnedStores,
-  updatePinnedStores,
   getPinnedPlaces,
-  updatePinnedPlaces,
-  // React Query hooks
   useGetPinnedStores,
   useUpdatePinnedStores,
   useGetPinnedPlaces,
