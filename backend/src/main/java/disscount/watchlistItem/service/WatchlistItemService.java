@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.exceptions.BadRequestException;
+import disscount.exceptions.NotFoundException;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.watchlistItem.dao.WatchlistItemRepository;
@@ -63,11 +64,13 @@ public class WatchlistItemService {
     }
 
     public void removeFromWatchlist(UUID id, UUID userId) {
-        WatchlistItem watchlistItem = watchlistItemRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException("error.watchlistItem.notFound"));
+        WatchlistItem watchlistItem = watchlistItemRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new NotFoundException("error.watchlistItem.notFound"));
 
-        watchlistItem.setDeletedAt(Timestamps.nowUtc());
-        watchlistItemRepository.save(watchlistItem);
+        if (watchlistItem.getDeletedAt() == null) {
+            watchlistItem.setDeletedAt(Timestamps.nowUtc());
+            watchlistItemRepository.save(watchlistItem);
+        }
     }
 
     @Transactional(readOnly = true)

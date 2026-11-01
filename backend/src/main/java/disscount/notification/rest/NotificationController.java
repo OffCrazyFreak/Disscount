@@ -47,7 +47,7 @@ public class NotificationController {
     @Operation(summary = "Mark notification as read")
     @PatchMapping("/{id}/read")
     public ResponseEntity<Void> markAsRead(@PathVariable UUID id) {
-        notificationService.markAsRead(id);
+        notificationService.markAsRead(id, SecurityUtils.getCurrentUserId());
         return ResponseEntity.noContent().build();
     }
 
@@ -62,7 +62,7 @@ public class NotificationController {
     @Operation(summary = "Delete notification")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotification(@PathVariable UUID id) {
-        notificationService.deleteNotification(id);
+        notificationService.deleteNotification(id, SecurityUtils.getCurrentUserId());
         return ResponseEntity.noContent().build();
     }
 }

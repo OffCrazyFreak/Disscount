@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.exceptions.BadRequestException;
+import disscount.exceptions.NotFoundException;
 import disscount.notification.dao.NotificationRepository;
 import disscount.notification.domain.Notification;
 import disscount.notification.dto.NotificationDto;
@@ -46,9 +47,9 @@ public class NotificationService {
         return notifications.map(this::mapToDto);
     }
 
-    public void markAsRead(UUID id) {
-        Notification notification = notificationRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException("error.notification.notFound"));
+    public void markAsRead(UUID id, UUID userId) {
+        Notification notification = notificationRepository.findActiveByIdAndUserId(id, userId)
+                .orElseThrow(() -> new NotFoundException("error.notification.notFound"));
 
         notification.setIsRead(true);
         notificationRepository.save(notification);
@@ -58,9 +59,9 @@ public class NotificationService {
         return notificationRepository.markAllAsReadByUserId(userId);
     }
 
-    public void deleteNotification(UUID id) {
-        Notification notification = notificationRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException("error.notification.notFound"));
+    public void deleteNotification(UUID id, UUID userId) {
+        Notification notification = notificationRepository.findActiveByIdAndUserId(id, userId)
+                .orElseThrow(() -> new NotFoundException("error.notification.notFound"));
 
         notification.setDeletedAt(Timestamps.nowUtc());
         notificationRepository.save(notification);

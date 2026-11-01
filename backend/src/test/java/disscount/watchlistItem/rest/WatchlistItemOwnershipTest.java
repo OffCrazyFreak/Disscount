@@ -1,0 +1,93 @@
+package disscount.watchlistItem.rest;
+
+import disscount.config.SecurityConfig;
+import disscount.user.dao.UserRepository;
+import disscount.user.domain.User;
+import disscount.user.service.UserService;
+import disscount.watchlistItem.dao.WatchlistItemRepository;
+import disscount.watchlistItem.domain.WatchType;
+import disscount.watchlistItem.domain.WatchlistItem;
+import disscount.watchlistItem.service.WatchlistItemService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
+
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+// Real service and H2 repository behind the controller, because the bug lives in the query.
+@WebMvcTest(WatchlistItemController.class)
+@AutoConfigureDataJpa
+@AutoConfigureTestDatabase
+@Import({SecurityConfig.class, WatchlistItemService.class})
+class WatchlistItemOwnershipTest {
+
+    @Autowired MockMvc mvc;
+    @Autowired UserRepository users;
+    @Autowired WatchlistItemRepository watchlist;
+    @MockBean UserService userService;
+
+    private User alice;
+    private User bob;
+
+    @BeforeEach
+    void setUp() {
+        watchlist.deleteAll();
+        users.deleteAll();
+        alice = users.save(User.builder().id(UUID.randomUUID()).username("alice").build());
+        bob = users.save(User.builder().id(UUID.randomUUID()).username("bob").build());
+    }
+
+    private WatchlistItem itemOf(User user) {
+        return watchlist.save(WatchlistItem.builder()
+                .user(user).productApiId("3850123456789").watchType(WatchType.PERCENTAGE).thresholdValue(10.0).build());
+    }
+
+    private RequestPostProcessor as(User user) {
+        return jwt().jwt(j -> j.subject(user.getId().toString()));
+    }
+
+    @Test
+    void anotherUsersItemCannotBeRemoved() throws Exception {
+        WatchlistItem bobsItem = itemOf(bob);
+
+        mvc.perform(delete("/api/watchlist/{id}", bobsItem.getId()).with(as(alice)))
+                .andExpect(status().isNotFound());
+
+        assertThat(watchlist.findById(bobsItem.getId()).orElseThrow().getDeletedAt()).isNull();
+    }
+
+    @Test
+    void anUnknownIdAnswersLikeAForeignOne() throws Exception {
+        mvc.perform(delete("/api/watchlist/{id}", UUID.randomUUID()).with(as(alice)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void theOwnerCanRemoveTheirItemAndARepeatStaysA204() throws Exception {
+        WatchlistItem own = itemOf(alice);
+
+        mvc.perform(delete("/api/watchlist/{id}", own.getId()).with(as(alice))).andExpect(status().isNoContent());
+        var deletedAt = watchlist.findById(own.getId()).orElseThrow().getDeletedAt();
+        assertThat(deletedAt).isNotNull();
+
+        mvc.perform(delete("/api/watchlist/{id}", own.getId()).with(as(alice))).andExpect(status().isNoContent());
+        assertThat(watchlist.findById(own.getId()).orElseThrow().getDeletedAt()).isEqualTo(deletedAt);
+    }
+
+    @Test
+    void requestsWithoutATokenAre401() throws Exception {
+        mvc.perform(delete("/api/watchlist/{id}", itemOf(bob).getId())).andExpect(status().isUnauthorized());
+    }
+}
