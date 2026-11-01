@@ -43,4 +43,24 @@ describe("useFormDraft", () => {
 
     expect(getFormDraft(DRAFT_KEY)).toBeNull();
   });
+
+  it("skips the close flush while an optimistic submit is still in flight", async () => {
+    const { result, rerender } = renderDraftHook();
+    let finishRequest!: () => void;
+    const request = new Promise<void>((resolve) => (finishRequest = resolve));
+    let submit!: Promise<void>;
+
+    act(() => result.current.form.setValue("name", "Mlijeko"));
+    act(() => {
+      submit = result.current.form.handleSubmit(() => request)();
+    });
+    rerender({ enabled: false });
+
+    expect(getFormDraft(DRAFT_KEY)).toBeNull();
+
+    await act(async () => {
+      finishRequest();
+      await submit;
+    });
+  });
 });

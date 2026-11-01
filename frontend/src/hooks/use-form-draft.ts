@@ -50,28 +50,21 @@ export function useFormDraft<T extends FieldValues>({
   const [dismissed, setDismissed] = useState(false);
   const restoredKeyRef = useRef<string | null>(null);
 
-  // A subscription, not form.formState: the React Compiler would cache a read off the
-  // stable form object and keep serving the first defaults.
-  const { defaultValues } = useFormState({ control: form.control });
-  const stateRef = useRef({ exclude, defaultValues });
-
-  useEffect(() => {
-    stateRef.current = { exclude, defaultValues };
+  // A subscription, not form.formState: the React Compiler caches reads off the stable
+  // form object, and RHF never refreshes a flag that no render has read.
+  const { defaultValues, isSubmitted, isSubmitting } = useFormState({
+    control: form.control,
+  });
+  const stateRef = useRef({
+    exclude,
+    defaultValues,
+    isSubmitted,
+    isSubmitting,
   });
 
-  // Live through subscribe, since form.formState outside render is the last render's
-  // snapshot: an optimistic close can commit before any render sees isSubmitting.
-  const submitStartedRef = useRef(false);
-  useEffect(
-    () =>
-      form.subscribe({
-        formState: { isSubmitting: true, isSubmitted: true },
-        callback: ({ isSubmitting, isSubmitted }) => {
-          submitStartedRef.current = !!isSubmitting || !!isSubmitted;
-        },
-      }),
-    [form],
-  );
+  useEffect(() => {
+    stateRef.current = { exclude, defaultValues, isSubmitted, isSubmitting };
+  });
 
   useEffect(() => {
     if (!enabled || !restore || restoredKeyRef.current === draftKey) return;
@@ -127,7 +120,9 @@ export function useFormDraft<T extends FieldValues>({
     return () => {
       clearTimeout(timer);
       subscription.unsubscribe();
-      if (!submitStartedRef.current) flushDraft();
+      // isSubmitting covers optimistic close, where the modal closes before clearDraft runs.
+      const latest = stateRef.current;
+      if (!latest.isSubmitted && !latest.isSubmitting) flushDraft();
     };
   }, [enabled, draftKey, form, flushDraft]);
 
