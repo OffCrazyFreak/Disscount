@@ -1,7 +1,7 @@
 import { AxiosError, AxiosHeaders } from "axios";
 import { describe, expect, it } from "vitest";
 
-import { isDeadListLink } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/is-dead-list-link";
+import { isDeadListLink } from "@/lib/api/shopping-lists/is-dead-list-link";
 
 function httpError(status: number) {
   return new AxiosError("Request failed", undefined, undefined, undefined, {

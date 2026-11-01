@@ -6,7 +6,7 @@ import { ArrowLeft, Lock, WifiOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import NoResults from "@/components/custom/common/no-results";
-import { isDeadListLink } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/is-dead-list-link";
+import { isDeadListLink } from "@/lib/api/shopping-lists/is-dead-list-link";
 
 interface IShoppingListUnavailableProps {
   error: Error | null;
