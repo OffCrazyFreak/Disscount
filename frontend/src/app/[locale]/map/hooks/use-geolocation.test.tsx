@@ -46,6 +46,11 @@ function fakeGeolocation(permission: PermissionState = "prompt") {
         permissionStatus.state = "denied";
         permissionStatus.onchange?.();
       }),
+    allow: () =>
+      act(() => {
+        permissionStatus.state = "granted";
+        permissionStatus.onchange?.();
+      }),
     fix: (lat: number, lon: number, accuracy = 20) =>
       act(() =>
         success({
@@ -103,11 +108,49 @@ describe("useGeolocation", () => {
   });
 
   it("reports the timeout when there is no IP guess either", async () => {
-    fakeGeolocation();
+    fakeGeolocation("granted");
     const hook = await mount(null);
 
     act(() => hook.result.current.locate());
     act(() => vi.advanceTimersByTime(15_000));
+
+    expect(hook.result.current.status).toBe("timeout");
+  });
+
+  it("waits for a slow answer to the permission prompt", async () => {
+    const geo = fakeGeolocation();
+    const hook = await mount(null);
+
+    act(() => hook.result.current.locate());
+    act(() => vi.advanceTimersByTime(20_000));
+    expect(hook.result.current.status).toBe("locating");
+
+    geo.fix(45.4, 14.8);
+
+    expect(hook.result.current.status).toBe("located");
+  });
+
+  it("gives up on an unanswered prompt without blaming the device", async () => {
+    fakeGeolocation();
+    const hook = await mount(null);
+
+    act(() => hook.result.current.locate());
+    act(() => vi.advanceTimersByTime(60_000));
+
+    expect(hook.result.current.status).toBe("unavailable");
+  });
+
+  it("counts the timeout from when the prompt is allowed", async () => {
+    const geo = fakeGeolocation();
+    const hook = await mount(null);
+
+    act(() => hook.result.current.locate());
+    act(() => vi.advanceTimersByTime(20_000));
+    geo.allow();
+    act(() => vi.advanceTimersByTime(14_000));
+    expect(hook.result.current.status).toBe("locating");
+
+    act(() => vi.advanceTimersByTime(1_000));
 
     expect(hook.result.current.status).toBe("timeout");
   });
@@ -128,7 +171,7 @@ describe("useGeolocation", () => {
     const hook = await mount(ZAGREB);
 
     act(() => hook.result.current.locate());
-    act(() => vi.advanceTimersByTime(15_000));
+    act(() => vi.advanceTimersByTime(60_000));
     expect(hook.result.current.status).toBe("approximate");
 
     geo.fail(ERROR_CODES.PERMISSION_DENIED);
@@ -207,7 +250,7 @@ describe("useGeolocation", () => {
     const hook = await mount(ZAGREB);
 
     act(() => hook.result.current.locate());
-    act(() => vi.advanceTimersByTime(15_000));
+    act(() => vi.advanceTimersByTime(60_000));
     geo.fix(45.4, 14.8);
 
     expect(hook.result.current.status).toBe("located");

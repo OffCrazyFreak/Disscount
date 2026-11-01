@@ -29,9 +29,14 @@ export interface ICenterRequest extends ILatLon {
   radius?: number;
 }
 
-// The spec does not count time spent on the permission prompt against
-// `timeout`, so an ignored prompt would spin forever without our own timer.
+// Counted from when location is allowed, so running out means the device
+// itself could not find a position.
 const GIVE_UP_MS = 15_000;
+
+// The spec does not count time spent on the permission prompt against
+// `timeout`, so an ignored prompt would spin forever without our own timer. It
+// is long enough for a slow Allow and ends without blaming device settings.
+const PROMPT_GIVE_UP_MS = 60_000;
 
 // Chrome on Android with the device's location off never answers at all, so a
 // tap that already has permission shows the IP guess this soon and keeps
@@ -106,6 +111,19 @@ export function useGeolocation(fallback: ILatLon | null) {
 
     showGuess(id);
     settle("approximate");
+  }
+
+  // Once location is allowed only finding a fix is left, and no prompt can be
+  // open for a guess to flash under.
+  function armTap(id: number) {
+    if (fallback) {
+      timers.current.push(
+        setTimeout(() => {
+          if (pendingTap.current === id) showGuess(id);
+        }, GUESS_AFTER_MS),
+      );
+    }
+    timers.current.push(setTimeout(() => fail("timeout", id), GIVE_UP_MS));
   }
 
   function refine(id: number) {
@@ -225,16 +243,13 @@ export function useGeolocation(fallback: ILatLon | null) {
     pendingTap.current = id;
     settle("locating");
 
-    // Without permission the prompt may be open, and a guess under it would
-    // flash before the answer.
-    if (granted.current && fallback) {
+    if (granted.current) {
+      armTap(id);
+    } else {
       timers.current.push(
-        setTimeout(() => {
-          if (pendingTap.current === id) showGuess(id);
-        }, GUESS_AFTER_MS),
+        setTimeout(() => fail("unavailable", id), PROMPT_GIVE_UP_MS),
       );
     }
-    timers.current.push(setTimeout(() => fail("timeout", id), GIVE_UP_MS));
 
     getWatch().restart();
   }
@@ -253,7 +268,12 @@ export function useGeolocation(fallback: ILatLon | null) {
         status = permission;
         granted.current = permission.state === "granted";
         permission.onchange = () => {
+          const allowedNow = !granted.current && permission.state === "granted";
           granted.current = permission.state === "granted";
+          if (allowedNow && pendingTap.current) {
+            clearTimers();
+            armTap(pendingTap.current);
+          }
           // Revoked in the site settings: the dot must not outlive the permission.
           if (permission.state === "denied") forget();
         };
