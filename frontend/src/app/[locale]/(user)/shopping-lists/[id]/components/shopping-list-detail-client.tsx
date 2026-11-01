@@ -70,7 +70,10 @@ export default function ShoppingListDetailClient({
         isSignedIn={isAuthenticated}
       />
 
-      <ShoppingListUpdateStatus shoppingList={shoppingList} />
+      <ShoppingListUpdateStatus
+        shoppingList={shoppingList}
+        fetchedAt={listUpdatedAt}
+      />
 
       <section>
         <ShoppingListHeader

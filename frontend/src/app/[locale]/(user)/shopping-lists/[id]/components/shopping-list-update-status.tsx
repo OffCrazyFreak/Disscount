@@ -9,6 +9,7 @@ import type { ShoppingListDto } from "@/lib/api/types";
 
 interface IShoppingListUpdateStatusProps {
   shoppingList: ShoppingListDto;
+  fetchedAt: number;
 }
 
 /**
@@ -17,6 +18,7 @@ interface IShoppingListUpdateStatusProps {
  */
 export default function ShoppingListUpdateStatus({
   shoppingList,
+  fetchedAt,
 }: IShoppingListUpdateStatusProps) {
   const t = useTranslations("shoppingListDetail");
   const queryClient = useQueryClient();
@@ -34,21 +36,20 @@ export default function ShoppingListUpdateStatus({
 
   useEffect(() => {
     const lastVersion = lastVersionRef.current;
-    if (lastVersion?.id === id && lastVersion.updatedAt === updatedAt) return;
-
     const writes = { mutationKey: SHOPPING_LIST_QUERY_KEYS.all };
-    // When it was fetched, not when it was shown: a cached list opened later may be followed
-    // by a refetch carrying a write you made elsewhere in between.
-    const fetchedAt =
-      queryClient.getQueryState(SHOPPING_LIST_QUERY_KEYS.byId(id))
-        ?.dataUpdatedAt ?? Date.now();
+
+    // Every fetch is recorded, even one bringing the same version, so a write that has
+    // settled since stops counting as in flight. The fetch time rather than the mount time,
+    // so a cached list opened later does not take a write you made elsewhere for someone else's.
     lastVersionRef.current = {
       id,
       updatedAt,
       fetchedAt,
       hadPendingWrites: queryClient.isMutating(writes) > 0,
     };
-    if (lastVersion?.id !== id || !isShared) return;
+    const isNewVersion =
+      lastVersion?.id === id && lastVersion.updatedAt !== updatedAt;
+    if (!isNewVersion || !isShared) return;
 
     // Our own writes bump updatedAt too, and announcing those would echo every tick back.
     // One still in flight when the last version landed may be what this version carries.
@@ -61,7 +62,7 @@ export default function ShoppingListUpdateStatus({
     // Replacing the text node, rather than setting the same string again, is what makes a
     // second identical announcement count as a change to the live region.
     regionRef.current?.replaceChildren(message);
-  }, [id, updatedAt, isShared, message, queryClient]);
+  }, [id, updatedAt, fetchedAt, isShared, message, queryClient]);
 
   return (
     <p ref={regionRef} role="status" aria-live="polite" className="sr-only" />
