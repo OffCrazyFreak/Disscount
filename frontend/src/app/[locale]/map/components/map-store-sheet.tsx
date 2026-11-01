@@ -1,6 +1,6 @@
 "use client";
 
-import { RefObject, useEffect, useId, useState } from "react";
+import { RefObject, useEffect, useEffectEvent, useId, useState } from "react";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -35,22 +35,23 @@ export default function MapStoreSheet({
   // opens, and the measuring has to start once the body actually exists.
   const [body, setBody] = useState<HTMLDivElement | null>(null);
 
+  const reportHeight = useEffectEvent(onHeightChange);
+
   // The drawer itself is out of reach inside SheetShell, so it is found from
   // the body, which it wraps edge to edge.
   useEffect(() => {
     const drawer = body?.closest<HTMLElement>("[data-vaul-drawer]");
     if (!drawer) {
-      onHeightChange(0);
+      reportHeight(0);
       return;
     }
 
     const observer = new ResizeObserver(() =>
-      onHeightChange(drawer.offsetHeight),
+      reportHeight(drawer.offsetHeight),
     );
     observer.observe(drawer);
 
     return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [body]);
   const t = useTranslations("shell");
 

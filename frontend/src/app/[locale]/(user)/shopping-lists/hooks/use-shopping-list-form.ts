@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useEffectEvent } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -40,23 +40,25 @@ export function useShoppingListForm({
   const { isDirty, isValid, errors } = form.formState;
 
   // Draft wins over the loaded list, so an in-progress edit is never clobbered.
-  useEffect(() => {
-    if (!shoppingList || isDirty) return;
+  // An Effect Event, so the first keystroke flipping isDirty never reruns the seed.
+  const seedForm = useEffectEvent((loaded: ShoppingListDto, key: string) => {
+    if (isDirty) return;
 
     const base = {
-      title: shoppingList.title,
+      title: loaded.title,
     };
     form.reset(base);
 
-    const draft = getFormDraft(draftKey)?.values as
+    const draft = getFormDraft(key)?.values as
       Partial<ShoppingListRequest> | undefined;
     if (draft && Object.keys(draft).length > 0) {
       form.reset({ ...base, ...draft }, { keepDefaultValues: true });
     }
-    // isDirty is read on purpose but must not retrigger the seed: adding it would
-    // reset the form the moment the user's first keystroke flips it.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shoppingList, draftKey, form]);
+  });
+
+  useEffect(() => {
+    if (shoppingList) seedForm(shoppingList, draftKey);
+  }, [shoppingList, draftKey]);
 
   const { restored, clearDraft, flushDraft } = useFormDraft({
     draftKey,

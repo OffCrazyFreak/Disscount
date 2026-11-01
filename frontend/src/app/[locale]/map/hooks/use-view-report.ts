@@ -1,6 +1,6 @@
 "use client";
 
-import { RefObject, useEffect } from "react";
+import { RefObject, useEffect, useEffectEvent } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 
 import { IViewArea, readVisibleArea } from "@/app/[locale]/map/utils/view-area";
@@ -30,10 +30,11 @@ export function useViewReport({
     if (map) onViewChange(readVisibleArea(map, coveredBottom()));
   }
 
+  const reportChangedView = useEffectEvent(reportView);
+
   // The sheet moving changes how much of the map is in sight.
   useEffect(() => {
-    if (mapReady) reportView();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (mapReady) reportChangedView();
   }, [mapReady, coveredShare]);
 
   return { coveredBottom, reportView };

@@ -42,6 +42,10 @@
     {
       "file": "src/components/reui/**",
       "exports": ["*"]
+    },
+    {
+      "file": "src/lib/store-locations/dgu/dgu-{attribution,address-lookup}.ts",
+      "exports": ["DGU_ATTRIBUTION"]
     }
   ],
   "ignoreDependencies": [
@@ -58,6 +62,10 @@
     "gate": "new-only",
     "healthBaseline": ".fallow-baselines/health.json",
     "dupesBaseline": ".fallow-baselines/dupes.json"
+  },
+  "rules": {
+    // Every remaining eslint-disable is deliberate and reviewed; as of Fallow 3.37 there is no baseline or reason exemption for them.
+    "added-suppression": "off"
   },
   "ignoreExportsUsedInFile": true,
   "ignoreFindings": ["**/products/components/view-switcher.tsx"],

@@ -77,12 +77,15 @@ const eslintConfig = defineConfig([
             ],
           },
           words: {
-            // Punctuation, numbers, units and the brand never need translating.
+            // Punctuation, numbers, units and proper nouns never need translating.
             exclude: [
               // The plugin compiles these without the u flag, so Unicode property classes fail.
               "^[\\s\\d.,:;!?()\\[\\]{}%+\\-/|*=<>&#'\"\\u00b7\\u2022\\u00d7\\u2013\\u2014\\u201e\\u201c\\u201d\\u2018\\u2019\\u2026\\u20ac$]*$",
               "^Disscount$",
               "^disscount$",
+              "^GitHub$",
+              "^LinkedIn$",
+              "^Jakov Jakovac$",
               "^€$",
             ],
           },

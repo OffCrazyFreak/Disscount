@@ -4,7 +4,7 @@ import { useLocale } from "next-intl";
 import { ShoppingListDto } from "@/lib/api/types";
 import { PeriodOption } from "@/typings/history-period-options";
 import { periodOptions } from "@/constants/price-history";
-import cijeneService from "@/lib/cijene-api";
+import { priceHistoryQueries } from "@/lib/cijene-api/price-history-queries";
 import { useUser } from "@/context/user-context";
 import { usePriceHistoryChains } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-price-history-chains";
 import {
@@ -37,17 +37,7 @@ export function useShoppingListPriceHistory(
   const dates = useMemo(() => getPriceHistoryDates(daysToShow), [daysToShow]);
 
   const queries = useQueries({
-    queries: eans.flatMap((ean) =>
-      dates.map((date, index) => ({
-        queryKey: ["cijene", "product", "history", ean, date],
-        queryFn: () => cijeneService.getProductByEan({ ean, date }),
-        enabled: !!ean,
-        staleTime:
-          index === 0 || index === dates.length - 1
-            ? 60 * 1000
-            : 6 * 60 * 60 * 1000,
-      })),
-    ),
+    queries: eans.flatMap((ean) => priceHistoryQueries(ean, dates)),
   });
 
   const isLoading = queries.some((q) => q.isLoading);

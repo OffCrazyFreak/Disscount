@@ -1,6 +1,6 @@
 "use client";
 
-import { RefObject, useEffect, useRef, useState } from "react";
+import { RefObject, useEffect, useEffectEvent, useRef, useState } from "react";
 import type { MapRef, ViewStateChangeEvent } from "react-map-gl/maplibre";
 
 import { ICenterRequest } from "@/app/[locale]/map/hooks/use-geolocation";
@@ -48,15 +48,10 @@ export function useMapCamera({
 
   const hasSelection = selectedLat != null;
 
-  useEffect(() => {
-    if (!mapReady || !centerRequest) return;
-
+  const centerOn = useEffectEvent((request: ICenterRequest) => {
     // A fix nobody tapped for must not yank the map from where the user moved
     // it, or from the store a shared link opened.
-    if (
-      centerRequest.auto &&
-      (userMoved.current || hasSelection || openedWithView)
-    ) {
+    if (request.auto && (userMoved.current || hasSelection || openedWithView)) {
       return;
     }
 
@@ -64,24 +59,25 @@ export function useMapCamera({
     const map = mapRef.current;
     if (!map) return;
 
-    if (centerRequest.radius) {
+    if (request.radius) {
       // The guess area fills about 60% of the narrower side, so a landscape
       // phone's padding never outgrows its height.
       const { clientWidth, clientHeight } = map.getContainer();
-      map.fitBounds(circleBounds(centerRequest, centerRequest.radius), {
+      map.fitBounds(circleBounds(request, request.radius), {
         padding: Math.round(Math.min(clientWidth, clientHeight) * 0.2),
       });
       return;
     }
 
-    map.easeTo({ center: [centerRequest.lon, centerRequest.lat], zoom: 13 });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    map.easeTo({ center: [request.lon, request.lat], zoom: 13 });
+  });
+
+  useEffect(() => {
+    if (mapReady && centerRequest) centerOn(centerRequest);
   }, [mapReady, centerRequest]);
 
-  // The pinned place needs the profile and the store list, which can arrive
-  // after the map has already opened on the IP guess or all of Croatia.
-  useEffect(() => {
-    if (!mapReady || !initialView) return;
+  const jumpToInitialView = useEffectEvent(() => {
+    if (!initialView) return;
     if (userMoved.current || gpsCentered.current) return;
     if (hasSelection || openedWithView) return;
 
@@ -89,7 +85,12 @@ export function useMapCamera({
       center: [initialView.lon, initialView.lat],
       zoom: initialView.zoom,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  });
+
+  // The pinned place needs the profile and the store list, which can arrive
+  // after the map has already opened on the IP guess or all of Croatia.
+  useEffect(() => {
+    if (mapReady) jumpToInitialView();
   }, [mapReady, initialView?.lat, initialView?.lon, initialView?.zoom]);
 
   function handleMoveStart(event: ViewStateChangeEvent) {

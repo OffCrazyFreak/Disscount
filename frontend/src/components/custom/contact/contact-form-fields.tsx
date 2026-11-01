@@ -20,6 +20,7 @@ const MESSAGE_MAX = 5000;
 export default function ContactFormFields() {
   const t = useTranslations("common");
   const form = useFormContext<ContactMessageRequest>();
+  const honeypot = form.register("honeypot");
 
   return (
     <>
@@ -116,8 +117,7 @@ export default function ContactFormFields() {
         autoComplete="off"
         aria-hidden="true"
         className="sr-only"
-        // eslint-disable-next-line i18next/no-literal-string -- field name, not copy
-        {...form.register("honeypot")}
+        {...honeypot}
       />
     </>
   );
