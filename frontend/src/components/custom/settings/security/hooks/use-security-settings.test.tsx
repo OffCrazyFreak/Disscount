@@ -1,4 +1,5 @@
 import { act } from "@testing-library/react";
+import { useFormState } from "react-hook-form";
 import { describe, expect, it, vi } from "vitest";
 
 import { useSecuritySettings } from "@/components/custom/settings/security/hooks/use-security-settings";
@@ -14,6 +15,16 @@ vi.mock("@/context/user-context", () => ({
 function renderClosedTab() {
   session.email = "old@example.com";
   return renderHookWithProviders(() => useSecuritySettings(false));
+}
+
+// Reads isDirty through useFormState, the way the settings footer gates Save and Reset.
+function renderClosedTabWithFooterState() {
+  session.email = "old@example.com";
+  return renderHookWithProviders(() => {
+    const settings = useSecuritySettings(false);
+    const { isDirty } = useFormState({ control: settings.form.control });
+    return { form: settings.form, isDirty };
+  });
 }
 
 describe("useSecuritySettings", () => {
@@ -59,6 +70,22 @@ describe("useSecuritySettings", () => {
       newPassword: "",
       currentPassword: "",
     });
+  });
+
+  it("stays dirty for the footer when the account email changes mid-edit", () => {
+    const { result, rerender } = renderClosedTabWithFooterState();
+
+    act(() =>
+      result.current.form.setValue("newPassword", "secret123", {
+        shouldDirty: true,
+      }),
+    );
+    expect(result.current.isDirty).toBe(true);
+
+    session.email = "new@example.com";
+    rerender();
+
+    expect(result.current.isDirty).toBe(true);
   });
 
   it("keeps a typed email when the account email changes underneath", () => {

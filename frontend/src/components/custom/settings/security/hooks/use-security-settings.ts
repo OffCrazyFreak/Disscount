@@ -60,7 +60,7 @@ export function useSecuritySettings(active: boolean) {
   useEffect(() => {
     form.reset(
       { email: currentEmail, newPassword: "", currentPassword: "" },
-      { keepDirtyValues: true },
+      { keepDirtyValues: true, keepDirty: true },
     );
   }, [currentEmail, form]);
 
