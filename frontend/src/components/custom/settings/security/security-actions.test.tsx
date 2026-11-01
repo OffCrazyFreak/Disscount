@@ -2,6 +2,7 @@ import { http, HttpResponse } from "msw/http";
 import { describe, expect, it, vi } from "vitest";
 
 import { useSecurityActions } from "@/components/custom/settings/security/security-actions";
+import apiClient from "@/lib/api/api-base";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
 
@@ -85,6 +86,33 @@ describe("useSecurityActions deleteAccount", () => {
     expect(profileDeletes).toEqual(["Bearer session-jwt"]);
     expect(logout).toHaveBeenCalledOnce();
     expect(toastError).not.toHaveBeenCalled();
+  });
+
+  it("drops this tab's cached token once the identity is gone", async () => {
+    const encode = (value: object) =>
+      btoa(JSON.stringify(value)).replace(/=+$/, "");
+    const cachedJwt = `${encode({ alg: "none" })}.${encode({ exp: Math.floor(Date.now() / 1000) + 600 })}.signature`;
+    auth.sessionToken = cachedJwt;
+    const profileDeletes = recordProfileDeletes();
+    const laterAuthorizations: (string | null)[] = [];
+    server.use(
+      http.get("*/api/probe", ({ request }) => {
+        laterAuthorizations.push(request.headers.get("Authorization"));
+        return HttpResponse.json({});
+      }),
+    );
+    await apiClient.get("/api/probe");
+    auth.deleteUser.mockImplementation(async () => {
+      auth.sessionToken = null;
+      return { error: null };
+    });
+
+    const { result } = renderHookWithProviders(() => useSecurityActions());
+    await result.current.deleteAccount();
+    await apiClient.get("/api/probe");
+
+    expect(profileDeletes).toEqual([`Bearer ${cachedJwt}`]);
+    expect(laterAuthorizations).toEqual([`Bearer ${cachedJwt}`, null]);
   });
 
   it("deletes nothing when no backend token can be had", async () => {

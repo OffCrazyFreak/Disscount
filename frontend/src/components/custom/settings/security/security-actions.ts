@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { authClient } from "@/lib/auth/client";
 import fetchAuthToken from "@/lib/auth/token";
 import { userService } from "@/lib/api";
+import { clearAuthToken } from "@/lib/api/api-base";
 import { useUser } from "@/context/user-context";
 
 // The Sigurnost actions that sit outside the credentials form.
@@ -41,6 +42,8 @@ export function useSecurityActions() {
       // every session, so no new token can be minted to revive the profile afterwards.
       const { error } = await authClient.deleteUser();
       if (error) throw new Error(error.message ?? "delete failed");
+      // This tab's cached token outlives the identity; a request using it would revive the profile.
+      clearAuthToken();
 
       await userService.deleteCurrentUser(token);
 
