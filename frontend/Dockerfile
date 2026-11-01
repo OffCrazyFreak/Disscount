@@ -52,6 +52,23 @@ RUN BETTER_AUTH_URL=http://localhost:3000 \
     DATABASE_URL=postgresql://placeholder:placeholder@localhost:5432/placeholder \
     pnpm build
 
+# ---- migrator-bundle: the migrate script and its two dependencies as one file ----
+FROM base AS migrator-bundle
+COPY --from=deps /app/node_modules ./node_modules
+COPY scripts/migrate.mjs ./scripts/
+# pg still calls require(), which an ESM bundle only has through createRequire.
+RUN ./node_modules/.bin/esbuild scripts/migrate.mjs --bundle --platform=node --format=esm \
+    --minify --outfile=dist/migrate.mjs \
+    --banner:js="import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);"
+
+# ---- migrator: one-shot job that applies drizzle/ and exits, no app source ----
+FROM node:24-slim AS migrator
+WORKDIR /app
+COPY --from=migrator-bundle /app/dist/migrate.mjs ./
+COPY drizzle ./drizzle
+USER node
+CMD ["node", "migrate.mjs"]
+
 # ---- runner: minimal runtime image with the standalone server ----
 FROM base AS runner
 ENV NODE_ENV=production \
