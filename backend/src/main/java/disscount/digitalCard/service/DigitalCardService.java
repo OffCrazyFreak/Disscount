@@ -99,7 +99,8 @@ public class DigitalCardService {
         }
 
         apply(card, request);
-        card = cardRepository.save(card);
+        // Flushed so @PreUpdate stamps updatedAt once, before the reply is built from it.
+        card = cardRepository.saveAndFlush(card);
 
         // Only a new custom name counts as a use, so edits and replays cannot inflate a suggestion.
         if (card.getChainCode() == null
@@ -115,14 +116,14 @@ public class DigitalCardService {
         userLock.acquire(userId);
         DigitalCard card = requireActive(userId, id);
         card.setPinnedAt(pinned ? Timestamps.nowUtc() : null);
-        return toDto(cardRepository.save(card));
+        return toDto(cardRepository.saveAndFlush(card));
     }
 
     public DigitalCardDto setArchived(UUID userId, UUID id, boolean archived) {
         userLock.acquire(userId);
         DigitalCard card = requireActive(userId, id);
         card.setArchivedAt(archived ? Timestamps.nowUtc() : null);
-        return toDto(cardRepository.save(card));
+        return toDto(cardRepository.saveAndFlush(card));
     }
 
     public void delete(UUID userId, UUID id) {
