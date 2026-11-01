@@ -1,0 +1,136 @@
+import type { ComponentProps } from "react";
+import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import ShoppingListItems from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-items";
+import type { ItemPriceState } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
+import type { ShoppingListDto, ShoppingListItemDto } from "@/lib/api/types";
+import { renderWithProviders } from "@/test/render";
+
+vi.mock("@/i18n/navigation", () => ({
+  Link: ({ href, ...props }: ComponentProps<"a"> & { href: string }) => (
+    <a href={href} {...props} />
+  ),
+}));
+
+// Radix measures the select trigger, and jsdom has no ResizeObserver.
+beforeEach(() => {
+  vi.stubGlobal(
+    "ResizeObserver",
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  );
+});
+
+function item(id: string, extra: Partial<ShoppingListItemDto> = {}) {
+  return {
+    id,
+    ean: id,
+    name: id,
+    amount: 1,
+    isChecked: false,
+    shoppingListId: "list-1",
+    createdAt: "2026-10-27T00:00:00",
+    ...extra,
+  } satisfies ShoppingListItemDto;
+}
+
+function renderItems(
+  items: ShoppingListItemDto[],
+  priceStates: Record<string, ItemPriceState>,
+  onRetryPrices = vi.fn(),
+) {
+  const list: ShoppingListDto = {
+    id: "list-1",
+    title: "Tjedni",
+    myAccess: "OWNER",
+    createdAt: "2026-10-27T00:00:00",
+    updatedAt: "2026-10-27T00:00:00",
+    items,
+  };
+
+  renderWithProviders(
+    <ShoppingListItems
+      shoppingList={list}
+      cheapestStores={{}}
+      isPricesLoading={false}
+      averagePrices={{}}
+      storePrices={{}}
+      priceStates={priceStates}
+      isRetryingPrices={false}
+      onRetryPrices={onRetryPrices}
+    />,
+  );
+
+  return onRetryPrices;
+}
+
+describe("ShoppingListItems price states", () => {
+  it("says why each store select is unavailable, and keeps it focusable", () => {
+    renderItems([item("a"), item("b"), item("c")], {
+      a: "failed",
+      b: "offline",
+      c: "noPrices",
+    });
+
+    // Rows sort by name, so the selects come back as a, b, c.
+    const [failed, offline, noPrices] = screen.getAllByRole("combobox");
+
+    expect(failed).toHaveTextContent("Cijene nisu dostupne");
+    expect(failed).toHaveAccessibleDescription(
+      "Cijene za 1 stavku nisu dostupne.",
+    );
+
+    expect(offline).toHaveTextContent(
+      "Cijene nisu spremljene za izvanmrežni rad",
+    );
+    expect(offline).toHaveAccessibleDescription(
+      "Cijene nisu spremljene za izvanmrežni rad",
+    );
+
+    expect(noPrices).toHaveTextContent("Nema cijena u trgovinama");
+
+    for (const select of [failed, offline, noPrices]) {
+      expect(select).toHaveAttribute("aria-disabled", "true");
+      expect(select).not.toBeDisabled();
+    }
+  });
+
+  it("does not open an unavailable select from the keyboard", async () => {
+    const user = userEvent.setup();
+    renderItems([item("a")], { a: "noPrices" });
+
+    screen.getByRole("combobox").focus();
+    await user.keyboard("{Enter}{ArrowDown} ");
+
+    expect(screen.getByRole("combobox")).toHaveFocus();
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+  });
+
+  it("counts failed items in one status with one retry", async () => {
+    const user = userEvent.setup();
+    const onRetry = renderItems([item("a"), item("b"), item("c")], {
+      a: "failed",
+      b: "failed",
+      c: "ready",
+    });
+
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Cijene za 2 stavke nisu dostupne.",
+    );
+
+    await user.click(screen.getByRole("button", { name: "Pokušaj ponovno" }));
+    expect(onRetry).toHaveBeenCalledOnce();
+  });
+
+  it("shows a skeleton instead of a store select while prices load", () => {
+    renderItems([item("a")], { a: "loading" });
+
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
+  });
+});

@@ -69,6 +69,13 @@
     "approxPrice": "~ {price}",
     "pricePerUnit": "{price}/{unit}"
   },
+  "prices": {
+    "failed": "Prices unavailable",
+    "offline": "Prices not saved for offline use",
+    "noPrices": "No store prices",
+    "failedCount": "{count, plural, one {Prices for # item are unavailable.} other {Prices for # items are unavailable.}}",
+    "retry": "Try again"
+  },
   "priceHistory": {
     "title": "Price history",
     "noData": "No price history available."

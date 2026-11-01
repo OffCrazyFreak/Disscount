@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { shoppingListService } from "@/lib/api";
 import cijeneService, { productByEanQueryKey } from "@/lib/cijene-api";
@@ -9,6 +9,12 @@ import {
   getStorePricesFromProduct,
 } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
 import { getAveragePrice } from "@/app/[locale]/products/utils/product-utils";
+import {
+  isProductNotFound,
+  itemPriceState,
+  lookupPriceState,
+  type ItemPriceState,
+} from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
 
 /**
  * One read for owners and link visitors alike. The endpoint resolves the caller's access
@@ -34,37 +40,79 @@ export function useShoppingListData(listId: string) {
     [shoppingList?.items],
   );
 
-  const { productsData, isPricesLoading } = useQueries({
+  const [retriedEans, setRetriedEans] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+
+  const productLookups = useQueries({
     queries: eans.map((ean) => ({
       queryKey: productByEanQueryKey(ean),
       queryFn: () => cijeneService.getProductByEan({ ean }),
       staleTime: 6 * 60 * 60 * 1000,
+      // The app default of one retry, minus a 404, which asking again cannot change.
+      retry: (failureCount: number, error: Error) =>
+        !isProductNotFound(error) && failureCount < 1,
     })),
-    combine: (results) => ({
-      // Paired with the requested EAN, not the one echoed back. useQueries keeps
-      // results index-aligned with `eans`, and upstream is free to normalise the
-      // value it returns, which would silently miss the lookup below.
-      productsData: results
-        .map((result, index) => [eans[index], result.data] as const)
-        .filter((entry): entry is readonly [string, ProductResponse] => {
-          return entry[1] !== undefined;
-        }),
-      isPricesLoading: results.some((result) => result.isLoading),
-    }),
-  });
+    combine: (results) => {
+      const lookups = results.map(
+        (result, index) =>
+          [
+            eans[index],
+            lookupPriceState(result, retriedEans.has(eans[index])),
+          ] as const,
+      );
+      const failedIndexes = results.flatMap((_, index) =>
+        lookups[index][1] === "failed" ? [index] : [],
+      );
 
-  const { cheapestStores, averagePrices, storePrices } = useMemo(() => {
+      return {
+        // Paired with the requested EAN, not the one echoed back. useQueries keeps
+        // results index-aligned with `eans`, and upstream is free to normalise the
+        // value it returns, which would silently miss the lookup below.
+        productsData: results
+          .map((result, index) => [eans[index], result.data] as const)
+          .filter((entry): entry is readonly [string, ProductResponse] => {
+            return entry[1] !== undefined;
+          }),
+        lookupStates: lookups,
+        retryFailedPrices: () => {
+          setRetriedEans(new Set(failedIndexes.map((index) => eans[index])));
+          for (const index of failedIndexes) void results[index].refetch();
+        },
+        isRetryingPrices: failedIndexes.some(
+          (index) => results[index].fetchStatus === "fetching",
+        ),
+        isPricesLoading: results.some((result) => result.isLoading),
+      };
+    },
+  });
+  const {
+    productsData,
+    lookupStates,
+    retryFailedPrices,
+    isRetryingPrices,
+    isPricesLoading,
+  } = productLookups;
+
+  const itemPrices = useMemo(() => {
     const productsByEan = new Map(productsData);
+    const lookupStatesByEan = new Map(lookupStates);
     const nextCheapestStores: Record<string, string> = {};
     const nextAveragePrices: Record<string, number> = {};
     const nextStorePrices: Record<string, Record<string, number>> = {};
+    const nextPriceStates: Record<string, ItemPriceState> = {};
 
     for (const item of shoppingList?.items ?? []) {
       const product = productsByEan.get(item.ean);
-      if (!product) continue;
+      const itemStorePrices = product && getStorePricesFromProduct(product);
+      nextPriceStates[item.id] = itemPriceState(
+        item.isChecked,
+        lookupStatesByEan.get(item.ean),
+        itemStorePrices,
+      );
+      if (!product || !itemStorePrices) continue;
 
       const averagePrice = getAveragePrice(product);
-      const itemStorePrices = getStorePricesFromProduct(product);
       const cheapestStore = findCheapestStoreFromProduct(
         product,
         user?.pinnedStores,
@@ -87,8 +135,11 @@ export function useShoppingListData(listId: string) {
       cheapestStores: nextCheapestStores,
       averagePrices: nextAveragePrices,
       storePrices: nextStorePrices,
+      priceStates: nextPriceStates,
     };
-  }, [productsData, shoppingList?.items, user?.pinnedStores]);
+  }, [productsData, lookupStates, shoppingList?.items, user?.pinnedStores]);
+  const { cheapestStores, averagePrices, storePrices, priceStates } =
+    itemPrices;
 
   // Calculate total savings from checked items
   const { totalSavings, totalPotentialCost } = shoppingList?.items
@@ -119,6 +170,9 @@ export function useShoppingListData(listId: string) {
     cheapestStores,
     averagePrices,
     storePrices,
+    priceStates,
+    retryFailedPrices,
+    isRetryingPrices,
     totalSavings,
     totalPotentialCost,
     savingsPercentage,

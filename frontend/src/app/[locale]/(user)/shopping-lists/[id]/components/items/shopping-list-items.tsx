@@ -14,6 +14,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import ShoppingListItemViews from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-item-views";
+import ShoppingListPriceStatus from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-price-status";
+import type { ItemPriceState } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import { useShoppingListItemMutations } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-shopping-list-item-mutations";
 import { resolveShoppingListAccess } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-access";
@@ -29,6 +31,9 @@ interface IShoppingListItemsProps {
   isPricesLoading: boolean;
   averagePrices: Record<string, number>;
   storePrices: Record<string, Record<string, number>>;
+  priceStates: Record<string, ItemPriceState>;
+  isRetryingPrices: boolean;
+  onRetryPrices: () => void;
 }
 
 export default function ShoppingListItems({
@@ -37,6 +42,9 @@ export default function ShoppingListItems({
   isPricesLoading,
   averagePrices,
   storePrices,
+  priceStates,
+  isRetryingPrices,
+  onRetryPrices,
 }: IShoppingListItemsProps) {
   const t = useTranslations("shoppingListDetail");
 
@@ -60,6 +68,7 @@ export default function ShoppingListItems({
     cheapestStores,
     averagePrices,
     storePrices,
+    priceStates,
     onUpdate: handleUpdateItem,
     onDelete: handleDeleteItem,
     deletingItemId,
@@ -69,6 +78,10 @@ export default function ShoppingListItems({
 
   const checkedCount =
     shoppingList.items?.filter((item) => item.isChecked)?.length || 0;
+
+  const failedPriceCount = shoppingList.items.filter(
+    (item) => priceStates[item.id] === "failed",
+  ).length;
 
   return (
     <Collapsible open={isItemsOpen} onOpenChange={handleToggleItems}>
@@ -120,12 +133,20 @@ export default function ShoppingListItems({
             )}
           </div>
         ) : (
-          <ShoppingListItemViews
-            listId={shoppingList.id}
-            items={shoppingList.items}
-            isPricesLoading={isPricesLoading}
-            rowProps={rowProps}
-          />
+          <div className="space-y-3">
+            <ShoppingListPriceStatus
+              failedCount={failedPriceCount}
+              isRetrying={isRetryingPrices}
+              onRetry={onRetryPrices}
+            />
+
+            <ShoppingListItemViews
+              listId={shoppingList.id}
+              items={shoppingList.items}
+              isPricesLoading={isPricesLoading}
+              rowProps={rowProps}
+            />
+          </div>
         )}
       </CollapsibleContent>
     </Collapsible>

@@ -69,6 +69,13 @@
     "approxPrice": "~ {price}",
     "pricePerUnit": "{price}/{unit}"
   },
+  "prices": {
+    "failed": "Prezzi non disponibili",
+    "offline": "Prezzi non salvati per l'uso offline",
+    "noPrices": "Nessun prezzo nei negozi",
+    "failedCount": "{count, plural, one {I prezzi di # articolo non sono disponibili.} other {I prezzi di # articoli non sono disponibili.}}",
+    "retry": "Riprova"
+  },
   "priceHistory": {
     "title": "Storico prezzi",
     "noData": "Nessun dato storico disponibile."
