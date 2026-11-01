@@ -69,9 +69,9 @@ export function useGetCurrentUserShoppingLists({
 // enabled is explicit so a caller that does not want this query can say so, rather than
 // passing an empty id and minting a ["shoppingLists", ""] entry shaped like a real one.
 export function useGetShoppingListById(id: string, { enabled = true } = {}) {
-  // Subscribed rather than read with queryClient.isMutating inside refetchInterval:
-  // TanStack only re-asks the interval when the query updates, so a false returned there
-  // would stop polling for good after a write that fails without invalidating the list.
+  // Subscribed rather than read with queryClient.isMutating inside refetchInterval: the
+  // interval is only recomputed on a render or a query update, and a write that fails
+  // without invalidating the list triggers neither once it settles, so polling would stay off.
   const isWritingLists =
     useIsMutating({ mutationKey: SHOPPING_LIST_QUERY_KEYS.all }) > 0;
 

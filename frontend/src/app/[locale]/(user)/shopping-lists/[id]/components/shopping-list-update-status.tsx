@@ -24,7 +24,7 @@ export default function ShoppingListUpdateStatus({
   const lastVersionRef = useRef<{
     id: string;
     updatedAt: string;
-    seenAt: number;
+    fetchedAt: number;
     hadPendingWrites: boolean;
   }>(null);
 
@@ -37,10 +37,15 @@ export default function ShoppingListUpdateStatus({
     if (lastVersion?.id === id && lastVersion.updatedAt === updatedAt) return;
 
     const writes = { mutationKey: SHOPPING_LIST_QUERY_KEYS.all };
+    // When it was fetched, not when it was shown: a cached list opened later may be followed
+    // by a refetch carrying a write you made elsewhere in between.
+    const fetchedAt =
+      queryClient.getQueryState(SHOPPING_LIST_QUERY_KEYS.byId(id))
+        ?.dataUpdatedAt ?? Date.now();
     lastVersionRef.current = {
       id,
       updatedAt,
-      seenAt: Date.now(),
+      fetchedAt,
       hadPendingWrites: queryClient.isMutating(writes) > 0,
     };
     if (lastVersion?.id !== id || !isShared) return;
@@ -50,7 +55,7 @@ export default function ShoppingListUpdateStatus({
     const wroteSinceLastVersion = queryClient
       .getMutationCache()
       .findAll(writes)
-      .some((mutation) => mutation.state.submittedAt >= lastVersion.seenAt);
+      .some((mutation) => mutation.state.submittedAt >= lastVersion.fetchedAt);
     if (lastVersion.hadPendingWrites || wroteSinceLastVersion) return;
 
     // Replacing the text node, rather than setting the same string again, is what makes a

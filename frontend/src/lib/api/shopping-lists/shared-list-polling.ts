@@ -25,9 +25,9 @@ const lastChanges = new WeakMap<
 >();
 
 /**
- * The refetchInterval for a list, recomputed by TanStack Query on every update to it.
- * The first sighting counts as a change, since opening a shared list usually means
- * someone is about to shop it.
+ * The refetchInterval for a list, recomputed by TanStack Query on every render and update.
+ * The first version this cache entry sees counts as a change, since opening a shared list
+ * usually means someone is about to shop it; a reopened list keeps the clock it had.
  */
 export function sharedListRefetchInterval(
   query: { state: QueryState<ShoppingListDto, Error> },

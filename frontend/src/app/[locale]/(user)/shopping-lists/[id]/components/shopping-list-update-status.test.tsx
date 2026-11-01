@@ -3,6 +3,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { describe, expect, it } from "vitest";
 
 import ShoppingListUpdateStatus from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-update-status";
+import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import type { ShoppingListDto } from "@/lib/api/types";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 import { renderWithProviders } from "@/test/render";
@@ -124,6 +125,27 @@ describe("ShoppingListUpdateStatus", () => {
     );
 
     expect(screen.getByRole("status")).toHaveTextContent("Popis je ažuriran");
+  });
+
+  it("stays quiet when a cached list opened later refetches your own write", () => {
+    const queryClient = new QueryClient();
+    const list = makeList();
+    queryClient.setQueryData(SHOPPING_LIST_QUERY_KEYS.byId(list.id), list, {
+      updatedAt: Date.now() - 60_000,
+    });
+    addWrite(queryClient, "success", Date.now() - 30_000);
+    const { rerender } = renderWithProviders(
+      <ShoppingListUpdateStatus shoppingList={list} />,
+      { queryClient },
+    );
+
+    rerender(
+      <ShoppingListUpdateStatus
+        shoppingList={makeList({ updatedAt: "2026-11-01T10:00:05" })}
+      />,
+    );
+
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
   });
 
   it("stays quiet on a private list", () => {
