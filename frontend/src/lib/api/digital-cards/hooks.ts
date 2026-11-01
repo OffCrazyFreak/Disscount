@@ -25,6 +25,7 @@ import type {
 } from "@/lib/api/types";
 import { getCacheIdentity } from "@/lib/offline/cache-identity";
 import { deleteForCard, pruneToCards } from "@/lib/offline/card-photo-store";
+import { LIVE_CARD_RETRY } from "@/lib/offline/card-retry";
 import {
   cardDeleteFailed,
   cardWriteFailed,
@@ -84,6 +85,7 @@ export function useSaveDigitalCard() {
   >({
     mutationKey: OFFLINE_MUTATION_KEYS.digitalCardSave,
     scope: DIGITAL_CARD_MUTATION_SCOPE,
+    ...LIVE_CARD_RETRY,
     mutationFn: ({ id, data }) => saveDigitalCard(id, data),
     onMutate: ({ id, data }) =>
       patchCards(queryClient, id, (cards) => upsertCard(cards, id, data)),
@@ -104,6 +106,7 @@ export function useDeleteDigitalCard() {
   return useMutation<void, Error, string, ICardsRollback | undefined>({
     mutationKey: OFFLINE_MUTATION_KEYS.digitalCardDelete,
     scope: DIGITAL_CARD_MUTATION_SCOPE,
+    ...LIVE_CARD_RETRY,
     mutationFn: deleteDigitalCard,
     onMutate: (id) =>
       patchCards(queryClient, id, (cards) => cards.filter((c) => c.id !== id)),
@@ -130,6 +133,7 @@ export function usePinDigitalCard() {
   >({
     mutationKey: OFFLINE_MUTATION_KEYS.digitalCardPin,
     scope: DIGITAL_CARD_MUTATION_SCOPE,
+    ...LIVE_CARD_RETRY,
     mutationFn: ({ id, pinned }) => setDigitalCardPinned(id, pinned),
     onMutate: ({ id, pinned }) =>
       patchCards(queryClient, id, (cards) =>
@@ -156,6 +160,7 @@ export function useArchiveDigitalCard() {
   >({
     mutationKey: OFFLINE_MUTATION_KEYS.digitalCardArchive,
     scope: DIGITAL_CARD_MUTATION_SCOPE,
+    ...LIVE_CARD_RETRY,
     mutationFn: ({ id, archived }) => setDigitalCardArchived(id, archived),
     onMutate: ({ id, archived }) =>
       patchCards(queryClient, id, (cards) =>
