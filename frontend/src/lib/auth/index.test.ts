@@ -15,6 +15,7 @@ vi.stubEnv("EMAIL_FROM", "test@example.com");
 
 const { FACEBOOK_COMING_SOON } = await import("@/constants/auth");
 const { auth } = await import("@/lib/auth");
+const { CLIENT_IP_HEADER } = await import("@/lib/client-ip/client-ip");
 
 const expectedProviders = FACEBOOK_COMING_SOON
   ? ["google"]
@@ -46,4 +47,19 @@ describe("Facebook behind FACEBOOK_COMING_SOON", () => {
       ).rejects.toMatchObject({ body: { code: "PROVIDER_NOT_FOUND" } });
     },
   );
+});
+
+describe("rate limiting", () => {
+  it("is on in every environment and survives restarts", () => {
+    expect(auth.options.rateLimit).toMatchObject({
+      enabled: true,
+      storage: "database",
+    });
+  });
+
+  it("keys on the client address the auth route resolved", () => {
+    expect(auth.options.advanced?.ipAddress?.ipAddressHeaders).toEqual([
+      CLIENT_IP_HEADER,
+    ]);
+  });
 });
