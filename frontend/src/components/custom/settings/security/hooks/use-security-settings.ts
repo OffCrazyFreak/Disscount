@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
@@ -49,14 +49,20 @@ export function useSecuritySettings(active: boolean) {
   const form = useForm<CredentialsFormValues>({
     resolver: zodResolver(schema),
     mode: "onChange",
-    // values, not resetField in an effect: resetField skips a field the closed tab has not registered.
-    values: {
+    defaultValues: {
       email: currentEmail,
       newPassword: "",
       currentPassword: "",
     },
-    resetOptions: { keepDirtyValues: true },
   });
+
+  // reset, since resetField skips a field the closed tab has not registered; keepDirtyValues here, not in resetOptions, so the footer's Reset still discards edits.
+  useEffect(() => {
+    form.reset(
+      { email: currentEmail, newPassword: "", currentPassword: "" },
+      { keepDirtyValues: true },
+    );
+  }, [currentEmail, form]);
 
   const { submit } = useCredentialsSubmit({
     hasPassword,

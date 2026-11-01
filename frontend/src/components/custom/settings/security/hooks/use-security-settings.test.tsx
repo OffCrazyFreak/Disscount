@@ -39,6 +39,28 @@ describe("useSecuritySettings", () => {
     expect(result.current.form.getValues("email")).toBe("new@example.com");
   });
 
+  it("discards typed edits on reset", () => {
+    const { result, rerender } = renderClosedTab();
+
+    act(() => {
+      result.current.form.setValue("email", "typed@example.com", {
+        shouldDirty: true,
+      });
+      result.current.form.setValue("newPassword", "secret123", {
+        shouldDirty: true,
+      });
+    });
+    session.email = "new@example.com";
+    rerender();
+    act(() => result.current.form.reset());
+
+    expect(result.current.form.getValues()).toEqual({
+      email: "new@example.com",
+      newPassword: "",
+      currentPassword: "",
+    });
+  });
+
   it("keeps a typed email when the account email changes underneath", () => {
     const { result, rerender } = renderClosedTab();
 
