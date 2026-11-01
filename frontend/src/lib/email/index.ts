@@ -4,6 +4,7 @@ import "server-only";
 import { requireEnv } from "@/lib/env";
 import { EmailService } from "@/lib/email/email-service";
 import { ResendProvider } from "@/lib/email/resend-provider";
+import { recipientSendLog } from "@/lib/email/recipient-send-log";
 
 // The only place Resend is wired in; swapping providers is this line alone.
 const provider = new ResendProvider(
@@ -11,4 +12,4 @@ const provider = new ResendProvider(
   requireEnv("EMAIL_FROM"),
 );
 
-export const emailService = new EmailService(provider);
+export const emailService = new EmailService(provider, recipientSendLog);
