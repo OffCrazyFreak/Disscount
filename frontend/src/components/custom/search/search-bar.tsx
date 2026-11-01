@@ -6,7 +6,10 @@ import SearchBarField, {
   type ISearchBarFieldOptions,
 } from "@/components/custom/search/search-bar-field";
 import SearchActionButton from "@/components/custom/search/search-action-button";
-import { dismissTouchKeyboard } from "@/components/custom/search/dismiss-touch-keyboard";
+import {
+  dismissTouchKeyboard,
+  isTouchPointer,
+} from "@/components/custom/search/dismiss-touch-keyboard";
 import { useSearchBarQuery } from "@/components/custom/search/use-search-bar-query";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -26,16 +29,6 @@ interface ISearchBarProps extends ISearchBarFieldOptions {
   shallow?: boolean;
   /** Fires once a search or a scan has navigated away */
   onSubmitted?: (query: string) => void;
-}
-
-// Enter only submits through the form's default button, so a disabled one blocks it.
-function isImplicitSubmitBlocked(form: HTMLFormElement): boolean {
-  const defaultButton = Array.from(form.elements).find(
-    (element): element is HTMLButtonElement =>
-      element instanceof HTMLButtonElement && element.type === "submit",
-  );
-
-  return defaultButton?.disabled ?? false;
 }
 
 export default function SearchBar({
@@ -74,11 +67,19 @@ export default function SearchBar({
     onSubmitted?.(query);
   }
 
-  // A blocked Enter never reaches submit(), which would otherwise close the keyboard.
+  // formId means the owner renders the search button outside the form.
+  const hasSearchButton = submitButtonLocation !== "none" || Boolean(formId);
+
+  // The button never searches an unchanged query (it is disabled, or back to top
+  // once scrolled), so Enter on a touch keyboard only closes it rather than
+  // doing nothing or, with no submit button left in the form, searching again.
   function handleKeyDown(event: KeyboardEvent<HTMLFormElement>) {
     if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
+    if (!hasSearchButton || !isUnchanged(queryValue ?? "")) return;
+    if (!isTouchPointer()) return;
 
-    if (isImplicitSubmitBlocked(event.currentTarget)) dismissTouchKeyboard();
+    event.preventDefault();
+    dismissTouchKeyboard();
   }
 
   function handleClear() {

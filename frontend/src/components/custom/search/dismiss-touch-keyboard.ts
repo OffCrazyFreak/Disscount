@@ -4,8 +4,12 @@
  * Fine pointers keep focus, so a keyboard user does not lose their place.
  */
 export function dismissTouchKeyboard(): void {
-  if (!window.matchMedia("(pointer: coarse)").matches) return;
+  if (!isTouchPointer()) return;
 
   const focused = document.activeElement;
   if (focused instanceof HTMLInputElement) focused.blur();
+}
+
+export function isTouchPointer(): boolean {
+  return window.matchMedia("(pointer: coarse)").matches;
 }

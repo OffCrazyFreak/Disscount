@@ -81,4 +81,19 @@ describe("SearchBar", () => {
     expect(field).not.toHaveFocus();
     expect(router.push).not.toHaveBeenCalled();
   });
+
+  it("does not search again on Enter over the same query once scrolled", async () => {
+    router.search = "q=mlijeko";
+    stubPointer(true);
+    // Past the back to top threshold the disabled button becomes a plain button.
+    vi.stubGlobal("scrollY", 700);
+    const user = userEvent.setup();
+    const field = renderSearchBar();
+
+    await user.click(field);
+    await user.keyboard("{Enter}");
+
+    expect(field).not.toHaveFocus();
+    expect(router.push).not.toHaveBeenCalled();
+  });
 });
