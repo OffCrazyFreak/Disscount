@@ -27,7 +27,6 @@ async function createContactMessage(
   return contactMessageDtoSchema.parse(response.data);
 }
 
-// Admin reads
 async function getContactMessages(
   includeDeleted = false,
 ): Promise<ContactMessageDto[]> {
@@ -57,7 +56,6 @@ async function softDeleteContactMessage(
   return contactMessageDtoSchema.parse(response.data);
 }
 
-// React Query hooks
 function useCreateContactMessage() {
   return useMutation<ContactMessageDto, Error, ContactMessageRequest>({
     mutationFn: createContactMessage,

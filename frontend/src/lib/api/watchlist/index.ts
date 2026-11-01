@@ -52,8 +52,6 @@ export async function removeFromWatchlist(id: string): Promise<void> {
   await apiClient.delete(`/api/watchlist/${id}`);
 }
 
-// React Query hooks
-
 function useAddToWatchlist() {
   const queryClient = useQueryClient();
 

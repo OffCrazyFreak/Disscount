@@ -1,5 +1,3 @@
-// Utility helpers used across the app
-
 import { parseServerDate } from "@/utils/date";
 import { formatLocale, TIME_ZONE } from "@/i18n/formatting";
 

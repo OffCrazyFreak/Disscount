@@ -48,11 +48,9 @@ const StoreItem = memo(
     const locale = useLocale();
     const { user } = useUser();
 
-    // Check if this store chain is preferred by the user
     const isPreferred =
       user?.pinnedStores?.some((s) => s.storeApiId === store.chain) || false;
 
-    // Check if data is from today
     // price_date is a Croatian calendar date; en-CA formats as YYYY-MM-DD.
     const today = new Intl.DateTimeFormat("en-CA", {
       timeZone: TIME_ZONE,

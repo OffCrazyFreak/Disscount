@@ -53,7 +53,6 @@ async function updatePinnedPlaces(
   return response.data;
 }
 
-// React Query hooks
 function useGetPinnedStores({ enabled = true } = {}) {
   return useQuery<PinnedStoreDto[], Error>({
     queryKey: ["pinnedStores"],
