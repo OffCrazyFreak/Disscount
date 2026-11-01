@@ -47,7 +47,7 @@ sequenceDiagram
 Key facts:
 
 - The token payload is deliberately small: `definePayload` returns only `{ email, name, image }`, and Better Auth adds the standard `sub` (the user UUID) and `iss` (issuer) claims. `sub` is what the backend uses everywhere via `SecurityUtils.getCurrentUserId()`.
-- `fetchAuthToken` (`lib/auth/token.ts`) requests the JWT with `authClient.$fetch("/token")` and reports 5xx failures to Sentry. There is no `jwtClient` plugin on the browser client, so the endpoint is called directly rather than through `authClient.token()`. `api-base.ts` (an Axios client) caches the token in memory and refreshes it shortly before it expires.
+- `fetchAuthToken` (`lib/auth/token.ts`) requests the JWT with `authClient.$fetch("/token")` and reports 5xx failures to Sentry. There is no `jwtClient` plugin on the browser client, so the endpoint is called directly rather than through `authClient.token()`. `api-base.ts` (an Axios client) caches the token in memory and refreshes it shortly before it expires. A request that already carries an `Authorization` header keeps it, so account deletion can send a token taken before `deleteUser` ends the session.
 - The backend only exposes Next.js to the public internet. Browsers talk to Next.js, which reverse-proxies data calls inward to Spring (see `next.config.ts` rewrites). This is why cross-origin auth is a non-issue.
 
 ## 3. Sign-in methods
