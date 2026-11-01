@@ -96,6 +96,8 @@ A list the caller may not see is a **404, never a 403**, so the response cannot 
 
 It is therefore reachable signed out, and nothing on it may assume ownership. `shopping-list-detail-client.tsx` reads the session rather than hardcoding it, and the access banner renders unconditionally: it falls silent for an owner on its own, and the disabled item controls point at its id with `aria-describedby`, so gating it would leave that IDREF dangling for exactly the people who need the explanation. It emits an empty element carrying the id when it has nothing to say, because a DTO persisted before `myAccess` existed replays with it undefined.
 
+**Shared lists update live.** `useGetShoppingListById` polls through the function form of `refetchInterval` (`lib/api/shopping-lists/shared-list-polling.ts`), but only for a list someone else can change: the owner's list with `linkAccess` other than `NONE`, or any list where `myAccess` is not `OWNER`. It polls every 5 seconds while the list's `updatedAt` changed in the last 2 minutes and every 30 seconds after that, and any new `updatedAt` (the backend bumps it on every item write through `touchList`) brings back the 5 second pace. The first time a list is seen counts as a change, since opening a shared list usually means someone is about to shop it. A private owner list does not poll and refetches only on focus, a remount or an invalidation. Polling pauses while the tab is hidden (`refetchIntervalInBackground` is off), while any shopping list write is pending, and stops after an error, which is usually a 404 because the list was deleted or unshared; a later successful fetch, such as the focus refetch, starts it again. When a fetch brings a change that came from someone else, a visually hidden polite live region (`shopping-list-update-status.tsx`) announces "Popis je ažuriran". A change counts as yours, and stays silent, when you submitted any shopping list write since the previous version arrived.
+
 `next.config.ts` sends `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer` on `/shopping-lists/:path*`. The header is deliberate rather than a `robots.txt` disallow: a disallowed URL is never fetched, so a crawler would never read the directive, and a shared link only leaks by being pasted somewhere crawlable. `app/robots.ts` therefore still derives its disallow list from `PROTECTED_ROUTE_PREFIXES` but filters `/shopping-lists` back out, since that constant also drives the logout redirect and the two questions stopped having the same answer.
 
 ## 6. Offline
@@ -152,6 +154,8 @@ Worth knowing before changing any of this:
 | Copy state    | `frontend/src/app/[locale]/(user)/shopping-lists/hooks/use-copy-list-modal.ts`                    |
 | Title field   | `frontend/src/app/[locale]/(user)/shopping-lists/components/forms/shopping-list-title-field.tsx`  |
 | Optimism      | `frontend/src/lib/api/shopping-lists/optimistic-list.ts`                                          |
+| Live polling  | `frontend/src/lib/api/shopping-lists/shared-list-polling.ts`                                      |
+| Live notice   | `frontend/src/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-update-status.tsx` |
 | Cache purge   | `frontend/src/lib/offline/purge.ts`                                                               |
 | Client access | `frontend/src/app/[locale]/(user)/shopping-lists/utils/shopping-list-access.ts`                   |
 
@@ -188,6 +192,7 @@ Worth knowing before changing any of this:
   region: there is no submit button whose disappearance would signal success, and why it
   renders no footer at all (omitting `cancelLabel` is what drops it, since
   `hasFooterContent` keys off labels rather than handlers).
+- **The write guard is a subscription, not a check inside `refetchInterval`.** TanStack Query only asks the interval function again when the query updates, and a tick fetches without asking it. Returning `false` there while a write was pending would stop polling until the next query update, which never comes after an add that fails, since only its success invalidates the list. `useIsMutating({ mutationKey: ["shoppingLists"] })` re-renders when the writes finish, which reschedules the interval. Every list write key in `offline-mutation-keys.ts` starts with `shoppingLists`; a new one has to as well.
 - **Private is a level, not an off switch.** One select carries all four values, so turning
   sharing off is picking `Privatno` rather than flipping a control that then reveals a
   second one. The row beside it restates the current level in words, following the shape

@@ -47,7 +47,7 @@ The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Cr
 - **Wait for async results** with `findBy*` or `waitFor`. Never wrap `render` in `act` yourself.
 - **Mock the network with MSW,** not axios or the service module, so the real interceptors, headers and zod parsing run. A signed-out token handler for `*/api/auth/token` (see `store-names/hooks.test.tsx`) lets the API client proceed without a session.
 - **Mock modules only at a boundary** you cannot run: the better-auth session hook, the router, a hook that writes cookies and navigates. `vi.mock` must sit at the top of the file, and any variable its factory uses comes from `vi.hoisted`.
-- **Control time** with `vi.useFakeTimers({ now })` and switch back in `afterEach`. If user-event clicks under fake timers, pass `advanceTimers: vi.advanceTimersByTime` to `userEvent.setup`, or the click waits for a timer that never fires.
+- **Control time** with `vi.useFakeTimers({ now })` and switch back in `afterEach`. Testing Library's `waitFor` only detects Jest's fake timers and hangs under Vitest's, so flush with `act(() => vi.advanceTimersByTimeAsync(0))` instead (see `shopping-lists/hooks.test.tsx`). If user-event clicks under fake timers, pass `advanceTimers: vi.advanceTimersByTime` to `userEvent.setup`, or the click waits for a timer that never fires.
 - **Fake IndexedDB per module.** The offline tests replace `idb-keyval` with a `Map` (see `card-photo-outbox.test.ts`). That keeps unit tests fast and needs no extra dependency.
 - jsdom has no `matchMedia`, `ResizeObserver`, `IntersectionObserver`, canvas or camera. Stub what a test needs with `vi.stubGlobal`; the config restores stubs after each test.
 
