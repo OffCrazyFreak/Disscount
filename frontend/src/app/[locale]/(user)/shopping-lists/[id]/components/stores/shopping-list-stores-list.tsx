@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ShoppingListDto } from "@/lib/api/types";
 import ShoppingListStoreItem from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/shopping-list-store-card";
@@ -13,9 +13,8 @@ import {
 import { useStoreChainAnalysis } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-store-chain-analysis";
 import ShoppingListStoresBody from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/shopping-list-stores-body";
 import StoreOptimizeSelect from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/store-optimize-select";
-import DistanceSortNote from "@/app/[locale]/products/components/distance-sort-note";
+import DistanceSortNote from "@/components/custom/distance-sort/distance-sort-note";
 import { useStoreOptimizeMode } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-store-optimize-mode";
-import { nearestDistanceByChain } from "@/app/[locale]/products/utils/nearest-chain-distance";
 
 interface IShoppingListStoreSummaryProps {
   shoppingList: ShoppingListDto;
@@ -33,14 +32,6 @@ export default function ShoppingListStoreSummary({
 
   const sortNoteId = useId();
   const distance = useStoreOptimizeMode();
-
-  // No per-store prices here, so each chain's nearest store of any kind.
-  const { origin, stores } = distance;
-  const distanceByChain = useMemo(
-    () =>
-      origin && stores ? nearestDistanceByChain(origin, stores) : undefined,
-    [origin, stores],
-  );
 
   function handleToggleStores(open: boolean) {
     setIsStoresOpen(open);
@@ -61,7 +52,7 @@ export default function ShoppingListStoreSummary({
     shoppingList,
     pinnedStores: user?.pinnedStores,
     optimizeBy: distance.sortMode,
-    distanceByChain,
+    distanceByChain: distance.distanceByChain,
   });
 
   return (
@@ -96,7 +87,7 @@ export default function ShoppingListStoreSummary({
               productsData={productsData}
               hasLowestPriceItem={storesWithLowestPriceItems.has(chain.chain)}
               hasHighestPriceItem={storesWithHighestPriceItems.has(chain.chain)}
-              distanceKm={distanceByChain?.get(chain.chain)}
+              distanceKm={distance.distanceByChain?.get(chain.chain)}
             />
           ))}
         </div>

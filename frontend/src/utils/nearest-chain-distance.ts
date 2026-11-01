@@ -1,7 +1,7 @@
 import type { DirectoryStoreDto } from "@/lib/api/schemas";
 import type { StorePrice } from "@/lib/cijene-api/schemas";
-import { distanceKm, type ILatLon } from "@/app/[locale]/map/utils/distance";
-import { toStoreKey } from "@/app/[locale]/map/utils/store-key";
+import { distanceKm, type ILatLon } from "@/utils/distance";
+import { toStoreKey } from "@/utils/store-key";
 
 interface ILocatedStore {
   chain: string;

@@ -1,5 +1,5 @@
 import type { IGpsPosition } from "@/app/[locale]/map/hooks/use-geolocation";
-import { ILatLon } from "@/app/[locale]/map/utils/distance";
+import { ILatLon } from "@/utils/distance";
 
 // Android and iOS "approximate" grants are 2 km or coarser: that pins a town,
 // not a street, so a kilometre figure would claim more than it knows.

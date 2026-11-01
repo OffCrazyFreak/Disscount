@@ -22,7 +22,7 @@ import { formatDate } from "@/utils/strings";
 import { useUser } from "@/context/user-context";
 import StorePriceSummary from "@/app/[locale]/products/[id]/components/store-item/store-price-summary";
 import StorePricesTable from "@/app/[locale]/products/[id]/components/store-item/store-prices-table";
-import NearestStoreDistance from "@/app/[locale]/products/components/nearest-store-distance";
+import NearestStoreDistance from "@/components/custom/distance-sort/nearest-store-distance";
 import { TIME_ZONE } from "@/i18n/formatting";
 
 interface IStoreItemProps {

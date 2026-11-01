@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 
-import { ILatLon } from "@/app/[locale]/map/utils/distance";
+import { ILatLon } from "@/utils/distance";
 import {
   findSelectedFrame,
   ISelectedFrame,

@@ -10,6 +10,19 @@ import {
   setStoreOptimizeMode,
 } from "@/utils/browser/local-storage";
 
+const konzum = {
+  chain: "konzum",
+  code: "1",
+  type: null,
+  address: null,
+  city: null,
+  zipcode: null,
+  phone: null,
+  lat: 45.8,
+  lon: 15.97,
+  locationSource: "upstream",
+};
+
 // The browser APIs are a boundary the suite cannot run: each test decides
 // what the permission query answers, and the position request never answers.
 function fakeBrowser(permissions?: Permissions) {
@@ -39,7 +52,10 @@ describe("useStoreOptimizeMode", () => {
   beforeEach(() => {
     server.use(
       http.get("*/api/cijene/store-directory", () =>
-        HttpResponse.json({ stores: [], generatedAt: "2026-01-01T00:00:00Z" }),
+        HttpResponse.json({
+          stores: [konzum],
+          generatedAt: "2026-01-01T00:00:00Z",
+        }),
       ),
     );
   });

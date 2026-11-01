@@ -8,7 +8,7 @@ import { ChainSummary } from "@/app/[locale]/(user)/shopping-lists/[id]/typings/
 import { IStoreCardMetrics } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/store-card-utils";
 import StoreCardBadges from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/store-card-badges";
 import StoreCardPriceRow from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/store-card-price-row";
-import NearestStoreDistance from "@/app/[locale]/products/components/nearest-store-distance";
+import NearestStoreDistance from "@/components/custom/distance-sort/nearest-store-distance";
 
 interface IStoreCardHeaderProps {
   chain: ChainSummary;

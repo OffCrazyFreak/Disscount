@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type { DistanceSortState } from "@/app/[locale]/products/hooks/use-distance-sort";
+import type { DistanceSortState } from "@/hooks/use-distance-sort";
 
 interface IDistanceSortNoteProps {
   id: string;

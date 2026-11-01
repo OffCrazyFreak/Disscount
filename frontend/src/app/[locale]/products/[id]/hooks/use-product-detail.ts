@@ -8,17 +8,14 @@ import {
   compareProductChains,
   type ProductChainSortMode,
 } from "@/app/[locale]/products/utils/product-chain-sort";
-import {
-  locatePricedStores,
-  nearestDistanceByChain,
-} from "@/app/[locale]/products/utils/nearest-chain-distance";
-import { useDistanceSort } from "@/app/[locale]/products/hooks/use-distance-sort";
+import { useDistanceSort } from "@/hooks/use-distance-sort";
+
+// One array for every render, so the distance memo is not rebuilt each time.
+const NO_PRICES: StorePrice[] = [];
 
 /** One product, its prices grouped by chain, and the chain order to show them in */
 export function useProductDetail(ean: string) {
   const { user } = useUser();
-  const distance = useDistanceSort<ProductChainSortMode>("stores", "stores");
-
   const {
     data: product,
     isLoading: productLoading,
@@ -42,21 +39,15 @@ export function useProductDetail(ean: string) {
     return grouped;
   }, [pricesData]);
 
+  // Prices still loading count as locating; failed prices locate nothing.
+  const distance = useDistanceSort<ProductChainSortMode>("stores", "stores", {
+    pricedStores: pricesData?.store_prices ?? (pricesError ? NO_PRICES : null),
+  });
+  const { sortMode, distanceByChain } = distance;
+
   const pinnedStoreIds = useMemo(
     () => user?.pinnedStores?.map((store) => store.storeApiId) ?? [],
     [user?.pinnedStores],
-  );
-
-  const { origin, stores, sortMode } = distance;
-  const distanceByChain = useMemo(
-    () =>
-      origin && stores
-        ? nearestDistanceByChain(
-            origin,
-            locatePricedStores(pricesData?.store_prices ?? [], stores),
-          )
-        : undefined,
-    [origin, stores, pricesData],
   );
 
   // Copy first: product.chains is the cached array, and sort mutates.

@@ -10,7 +10,7 @@ import CollapsibleSection from "@/components/custom/common/collapsible-section";
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
 import StoreItem from "@/app/[locale]/products/[id]/components/store-item/store-item";
 import ProductChainSortSelect from "@/app/[locale]/products/[id]/components/product-chain-sort-select";
-import DistanceSortNote from "@/app/[locale]/products/components/distance-sort-note";
+import DistanceSortNote from "@/components/custom/distance-sort/distance-sort-note";
 import type { useProductDetail } from "@/app/[locale]/products/[id]/hooks/use-product-detail";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import {

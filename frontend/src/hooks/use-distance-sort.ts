@@ -1,7 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useStoreDirectory } from "@/lib/api/store-directory";
+import type { StorePrice } from "@/lib/cijene-api/schemas";
+import {
+  locatePricedStores,
+  nearestDistanceByChain,
+} from "@/utils/nearest-chain-distance";
 import {
   useCurrentPosition,
   type CurrentPositionStatus,
@@ -38,23 +43,36 @@ interface IDirectoryQuery {
 function readState(
   locationStatus: CurrentPositionStatus,
   directory: IDirectoryQuery,
+  distanceByChain: Map<string, number> | null,
 ): DistanceSortState {
   if (locationStatus !== "located") return locationStatus;
-  if (directory.data) return "ready";
+  if (!directory.data) {
+    return directory.isError && !directory.isFetching ? "noStores" : "locating";
+  }
+  if (!distanceByChain) return "locating";
 
-  return directory.isError && !directory.isFetching ? "noStores" : "locating";
+  return distanceByChain.size > 0 ? "ready" : "noStores";
+}
+
+interface IDistanceSortOptions {
+  /**
+   * Measure only the stores that priced a product. Null while the prices
+   * load; left out, every store in the directory counts.
+   */
+  pricedStores?: StorePrice[] | null;
 }
 
 /**
  * The chosen sort, and the location and store pins a "distance" sort needs,
- * fetched only once the shopper picks it. Until both are in, the list keeps
- * the fallback order; when either fails, the choice returns to the fallback
- * and the reason stays until the next pick, so picking "distance" again
- * retries.
+ * fetched only once the shopper picks it. Until the location, the pins and
+ * any priced stores are in, the list keeps the fallback order. When one fails
+ * or no store is located, the choice returns to the fallback and the reason
+ * stays until the next pick, so picking "distance" again retries.
  */
 export function useDistanceSort<TMode extends string>(
   initial: TMode,
   fallback: TMode,
+  { pricedStores }: IDistanceSortOptions = {},
 ) {
   const [chosen, setChosen] = useState(initial);
   const [failure, setFailure] = useState<DistanceSortFailure | null>(null);
@@ -62,8 +80,19 @@ export function useDistanceSort<TMode extends string>(
   const location = useCurrentPosition();
   const directory = useStoreDirectory({ enabled: selected });
 
+  const origin = location.position;
+  const stores = directory.data?.stores;
+  const distanceByChain = useMemo(() => {
+    if (!origin || !stores || pricedStores === null) return null;
+
+    return nearestDistanceByChain(
+      origin,
+      pricedStores ? locatePricedStores(pricedStores, stores) : stores,
+    );
+  }, [origin, stores, pricedStores]);
+
   const state = selected
-    ? readState(location.status, directory)
+    ? readState(location.status, directory, distanceByChain)
     : (failure ?? "idle");
 
   // Adjusting state while rendering, as React documents for derived resets,
@@ -88,7 +117,7 @@ export function useDistanceSort<TMode extends string>(
     choose,
     state,
     sortMode: selected && state !== "ready" ? fallback : chosen,
-    origin: state === "ready" ? location.position : null,
-    stores: directory.data?.stores,
+    distanceByChain:
+      state === "ready" && distanceByChain ? distanceByChain : undefined,
   };
 }

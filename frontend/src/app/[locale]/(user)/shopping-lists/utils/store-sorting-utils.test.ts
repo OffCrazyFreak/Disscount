@@ -73,6 +73,24 @@ describe("compareStoreChains", () => {
     ]);
   });
 
+  it("orders chains in the same half-kilometre band by items, then price", () => {
+    const close = new Map([
+      ["dm", 0.1],
+      ["spar", 0.4],
+      ["lidl", 0.45],
+      ["konzum", 0.3],
+      ["Čakovec", 0.6],
+    ]);
+
+    expect(order([], "distance", undefined, close)).toEqual([
+      "konzum",
+      "lidl",
+      "spar",
+      "dm",
+      "Čakovec",
+    ]);
+  });
+
   it("ignores pinned chains in distance mode", () => {
     expect(order(["konzum"], "distance", undefined, distances)[0]).toBe("dm");
   });

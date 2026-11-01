@@ -10,7 +10,7 @@ import { useSelectedFrame } from "@/app/[locale]/map/hooks/use-selected-frame";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { GUESS_RADIUS_M } from "@/app/[locale]/map/hooks/use-geolocation";
 import { circlePolygon } from "@/app/[locale]/map/utils/circle";
-import { ILatLon } from "@/app/[locale]/map/utils/distance";
+import { ILatLon } from "@/utils/distance";
 
 export interface IUserLocation extends ILatLon {
   /** The IP guess, drawn as an area with no centre so it claims no street. */

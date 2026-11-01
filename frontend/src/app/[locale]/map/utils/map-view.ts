@@ -3,10 +3,10 @@ import {
   IListedStore,
   toListedStore,
 } from "@/app/[locale]/map/hooks/use-visible-stores";
-import { ILatLon } from "@/app/[locale]/map/utils/distance";
+import { ILatLon } from "@/utils/distance";
 import type { IIpLocation } from "@/app/[locale]/map/utils/ip-location";
 import { IMapOrigin } from "@/app/[locale]/map/utils/map-origin";
-import { toStoreKey } from "@/app/[locale]/map/utils/store-key";
+import { toStoreKey } from "@/utils/store-key";
 
 export function resolveInitialView(
   placeCenter: ILatLon | null,

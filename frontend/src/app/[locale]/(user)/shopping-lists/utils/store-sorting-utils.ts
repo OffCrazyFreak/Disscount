@@ -31,6 +31,10 @@ function avgPrice(chain: RankedChain): number {
   return parseFloat(chain.avg_price);
 }
 
+// A few hundred metres rarely decide a trip with a whole list, so stores in
+// the same band compete on how much of the list they carry.
+const DISTANCE_BAND_KM = 0.5;
+
 interface IRankContext {
   cheapestCountByChain?: Map<string, number>;
   distanceByChain?: Map<string, number>;
@@ -49,9 +53,12 @@ const MODE_KEYS: Record<
     -(cheapestCountByChain?.get(chain.chain) ?? 0),
     avgPrice(chain),
   ],
-  // Nearest first, chains without a located store last, then completeness.
+  // Nearest band first, chains without a located store last, then
+  // completeness and price within a band.
   distance: (chain, { distanceByChain }) => [
-    distanceByChain?.get(chain.chain) ?? Infinity,
+    Math.floor(
+      (distanceByChain?.get(chain.chain) ?? Infinity) / DISTANCE_BAND_KM,
+    ),
     -chain.itemCount,
     avgPrice(chain),
   ],

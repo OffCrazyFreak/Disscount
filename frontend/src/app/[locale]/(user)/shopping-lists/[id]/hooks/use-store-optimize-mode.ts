@@ -5,10 +5,7 @@ import {
   isStoreOptimizeMode,
   type StoreOptimizeMode,
 } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
-import {
-  isFailure,
-  useDistanceSort,
-} from "@/app/[locale]/products/hooks/use-distance-sort";
+import { isFailure, useDistanceSort } from "@/hooks/use-distance-sort";
 import {
   getStoreOptimizeMode,
   setStoreOptimizeMode,
@@ -26,6 +23,7 @@ export function useStoreOptimizeMode() {
 
     return isStoreOptimizeMode(stored) ? stored : "products";
   });
+  // No per-store prices here, so each chain's nearest store of any kind.
   const distance = useDistanceSort<StoreOptimizeMode>(
     saved === "distance" ? "products" : saved,
     "products",

@@ -2,7 +2,7 @@
 
 import { useUser } from "@/context/user-context";
 import { DirectoryStoreDto } from "@/lib/api/schemas";
-import { ILatLon } from "@/app/[locale]/map/utils/distance";
+import { ILatLon } from "@/utils/distance";
 import { getLocationLabel } from "@/utils/labels";
 import { isPinnedChain } from "@/utils/pinned-stores";
 

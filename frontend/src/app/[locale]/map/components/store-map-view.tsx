@@ -26,7 +26,7 @@ import { useMapClicks } from "@/app/[locale]/map/hooks/use-map-clicks";
 import { useMapLoad } from "@/app/[locale]/map/hooks/use-map-load";
 import { useViewReport } from "@/app/[locale]/map/hooks/use-view-report";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
-import { ILatLon } from "@/app/[locale]/map/utils/distance";
+import { ILatLon } from "@/utils/distance";
 import { MAP_CUSTOM_ATTRIBUTION } from "@/app/[locale]/map/utils/map-attribution";
 import {
   toInitialViewState,

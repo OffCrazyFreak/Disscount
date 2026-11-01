@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { DirectoryStoreDto } from "@/lib/api/schemas";
-import { toStoreKey } from "@/app/[locale]/map/utils/store-key";
+import { toStoreKey } from "@/utils/store-key";
 import { shareOrCopy } from "@/utils/browser/share";
 import { getChainLabel, getLocationLabel } from "@/utils/labels";
 

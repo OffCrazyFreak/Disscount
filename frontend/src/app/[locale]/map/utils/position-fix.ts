@@ -1,4 +1,4 @@
-import { distanceKm, ILatLon } from "@/app/[locale]/map/utils/distance";
+import { distanceKm, ILatLon } from "@/utils/distance";
 
 interface IFix extends ILatLon {
   accuracy: number;

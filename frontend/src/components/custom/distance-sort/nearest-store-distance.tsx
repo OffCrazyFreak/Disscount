@@ -1,6 +1,6 @@
 import { useLocale, useTranslations } from "next-intl";
 import { MapPin } from "lucide-react";
-import { formatDistance } from "@/app/[locale]/map/utils/distance";
+import { formatDistance } from "@/utils/distance";
 
 interface INearestStoreDistanceProps {
   km: number;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type CurrentPositionStatus =
   "idle" | "locating" | "located" | "denied" | "unavailable" | "timeout";
@@ -10,25 +10,39 @@ interface IPosition {
   lon: number;
 }
 
-// The spec does not count time spent on the permission prompt against
-// `timeout`, so an ignored prompt would spin forever without our own timer.
-const GIVE_UP_MS = 15_000;
+// Counted by the browser only once permission is granted, so a TIMEOUT error
+// means the device itself could not find a position.
+const FIX_TIMEOUT_MS = 15_000;
 
-// A fix a few minutes old still picks the same nearest store.
+// Our own limit also covers time on the permission prompt, which the browser
+// does not count, so it is long enough for a slow Allow and ends as
+// "unavailable" rather than blaming device settings.
+const GIVE_UP_MS = 60_000;
+
 const POSITION_OPTIONS: PositionOptions = {
   enableHighAccuracy: false,
+  // A fix a few minutes old still picks the same nearest store.
   maximumAge: 5 * 60_000,
-  timeout: GIVE_UP_MS,
+  timeout: FIX_TIMEOUT_MS,
 };
 
 /**
  * One position, asked for only when `request` runs, kept in memory and never
- * stored or sent. A newer request makes any earlier answer stale.
+ * stored or sent. A newer request, giving up or unmounting drops any answer
+ * still on its way.
  */
 export function useCurrentPosition() {
   const [status, setStatus] = useState<CurrentPositionStatus>("idle");
   const [position, setPosition] = useState<IPosition | null>(null);
   const requests = useRef(0);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function stopTimer() {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = null;
+  }
+
+  useEffect(() => stopTimer, []);
 
   function request() {
     if (typeof navigator === "undefined" || !("geolocation" in navigator)) {
@@ -37,23 +51,28 @@ export function useCurrentPosition() {
     }
 
     const id = ++requests.current;
+    stopTimer();
     setStatus("locating");
 
-    const timer = setTimeout(() => {
-      if (requests.current === id) setStatus("timeout");
+    timer.current = setTimeout(() => {
+      if (requests.current !== id) return;
+
+      requests.current++;
+      timer.current = null;
+      setStatus("unavailable");
     }, GIVE_UP_MS);
 
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
-        clearTimeout(timer);
         if (requests.current !== id) return;
+        stopTimer();
 
         setPosition({ lat: coords.latitude, lon: coords.longitude });
         setStatus("located");
       },
       (error) => {
-        clearTimeout(timer);
         if (requests.current !== id) return;
+        stopTimer();
 
         setPosition(null);
         setStatus(
