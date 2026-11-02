@@ -203,6 +203,25 @@ class DigitalCardServiceTest {
     }
 
     @Test
+    void pinAndArchiveDoNotTouchUpdatedAt() {
+        UUID id = UUID.randomUUID();
+        service.upsert(owner.getId(), id, request("Kartica"));
+        LocalDateTime edited = Timestamps.nowUtc().minusHours(1);
+        jdbc.update("UPDATE wallet_card SET updated_at = ? WHERE id = ?", edited, id);
+
+        List<DigitalCardDto> replies = List.of(
+                service.setPinned(owner.getId(), id, true),
+                service.setArchived(owner.getId(), id, true),
+                service.setPinned(owner.getId(), id, false),
+                service.setArchived(owner.getId(), id, false));
+
+        for (DigitalCardDto reply : replies) {
+            assertThat(reply.getUpdatedAt()).isCloseTo(edited, within(1, ChronoUnit.MILLIS));
+        }
+        assertThat(service.get(owner.getId(), id).getUpdatedAt()).isCloseTo(edited, within(1, ChronoUnit.MILLIS));
+    }
+
+    @Test
     void capsActiveCardsAtThreeHundred() {
         cards.saveAll(IntStream.range(0, 300).mapToObj(i -> DigitalCard.builder()
                 .id(UUID.randomUUID()).user(owner).cardName("Kartica " + i).cardType("other")
