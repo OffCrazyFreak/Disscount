@@ -95,7 +95,7 @@ export default function ShoppingListStoreSummary({
               productsData={productsData}
               hasLowestPriceItem={storesWithLowestPriceItems.has(chain.chain)}
               hasHighestPriceItem={storesWithHighestPriceItems.has(chain.chain)}
-              distanceKm={distance.distanceByChain?.get(chain.chain)}
+              distanceKm={distance.shownDistances?.get(chain.chain)}
             />
           ))}
         </div>

@@ -116,6 +116,16 @@ function fakeGeolocation() {
           coords: { ...ZAGREB, accuracy: 20 },
         } as GeolocationPosition),
       ),
+    timeOut: () =>
+      act(() =>
+        failure({
+          code: 3,
+          PERMISSION_DENIED: DENIED,
+          POSITION_UNAVAILABLE: 2,
+          TIMEOUT: 3,
+          message: "",
+        } as GeolocationPositionError),
+      ),
     deny: () =>
       act(() =>
         failure({
@@ -175,6 +185,7 @@ describe("useDistanceSort", () => {
     await waitFor(() => expect(result.current.state).toBe("ready"));
     expect(result.current.sortMode).toBe("distance");
     expect(result.current.distanceByChain?.get("konzum")).toBeCloseTo(1.4, 0);
+    expect(result.current.shownDistances?.get("konzum")).toBeCloseTo(1.4, 0);
   });
 
   it("returns to the fallback with a reason when the location is denied", async () => {
@@ -287,6 +298,7 @@ describe("useDistanceSort", () => {
       town: "Split",
     });
     expect(result.current.distanceByChain?.get("studenac")).toBeCloseTo(0, 1);
+    expect(result.current.shownDistances).toBeUndefined();
   });
 
   it("sorts from a town picked after the location was denied", async () => {
@@ -322,5 +334,21 @@ describe("useDistanceSort", () => {
 
     act(() => result.current.choose("price"));
     expect(vi.mocked(navigator.geolocation.clearWatch)).toHaveBeenCalled();
+  });
+
+  it("keeps a picked town when a fix lands after the location gave up", async () => {
+    const geo = fakeGeolocation();
+    const { result } = mount();
+
+    act(() => result.current.choose("distance"));
+    geo.timeOut();
+    await waitFor(() => expect(result.current.state).toBe("timeout"));
+    expect(vi.mocked(navigator.geolocation.clearWatch)).toHaveBeenCalled();
+
+    act(() => result.current.chooseTown("Split"));
+    geo.fix();
+
+    await waitFor(() => expect(result.current.state).toBe("ready"));
+    expect(result.current.origin).toMatchObject({ source: "picked" });
   });
 });

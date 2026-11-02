@@ -36,22 +36,27 @@ export default function DistanceSortNote({
   onPickTown,
 }: IDistanceSortNoteProps) {
   const t = useTranslations("common.distanceSort");
-  const isFromTown = state === "ready" && origin?.town != null;
+  const hasTownOrigin = origin?.town != null;
+  // Still shown while a picked town's sort finishes loading, so focus stays.
+  const isFromTown =
+    hasTownOrigin && (state === "ready" || state === "locating");
   const isLocationFailure =
     state === "denied" || state === "unavailable" || state === "timeout";
 
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+    <div
+      // sr-only rather than hidden: a region that leaves the accessibility
+      // tree is often not announced when it comes back.
+      className={
+        state === "idle"
+          ? "sr-only"
+          : "flex flex-wrap items-center gap-x-3 gap-y-2"
+      }
+    >
       <p
         id={id}
         role="status"
-        // sr-only rather than hidden: a region that leaves the accessibility
-        // tree is often not announced when it comes back.
-        className={
-          state === "idle"
-            ? "sr-only"
-            : "text-sm text-muted-foreground text-pretty"
-        }
+        className="text-sm text-muted-foreground text-pretty"
       >
         {state === "idle"
           ? null

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useState } from "react";
 import { useStoreDirectory } from "@/lib/api/store-directory";
 import type { DirectoryStoreDto } from "@/lib/api/schemas";
 import type { StorePrice } from "@/lib/cijene-api/schemas";
@@ -12,7 +12,10 @@ import {
   useGeolocation,
   type GeolocationStatus,
 } from "@/hooks/use-geolocation";
-import { useDistanceOrigin } from "@/hooks/use-distance-origin";
+import {
+  useDistanceOrigin,
+  type IDistanceOrigin,
+} from "@/hooks/use-distance-origin";
 
 export type DistanceSortState =
   | "idle"
@@ -87,6 +90,36 @@ function measureChains(
   );
 }
 
+interface ISortResultInput<TMode> {
+  state: DistanceSortState;
+  chosen: TMode;
+  fallback: TMode;
+  isFromTown: boolean;
+  origin: IDistanceOrigin | null;
+  distanceByChain: Map<string, number> | null;
+}
+
+function readSortResult<TMode extends string>({
+  state,
+  chosen,
+  fallback,
+  isFromTown,
+  origin,
+  distanceByChain,
+}: ISortResultInput<TMode>) {
+  const isReady = state === "ready";
+  const selected = chosen === "distance";
+
+  return {
+    sortMode: selected && !isReady ? fallback : chosen,
+    origin: isReady || (selected && isFromTown) ? origin : null,
+    distanceByChain: (isReady && distanceByChain) || undefined,
+    // A town centre is no place to measure from, so only a fix shows kilometres.
+    shownDistances:
+      (isReady && origin?.source === "gps" && distanceByChain) || undefined,
+  };
+}
+
 interface IDistanceSortOptions {
   /**
    * Measure only the stores that priced a product. Null while the prices
@@ -110,15 +143,17 @@ export function useDistanceSort<TMode extends string>(
 ) {
   const [chosen, setChosen] = useState(initial);
   const [failure, setFailure] = useState<DistanceSortFailure | null>(null);
+  // A picked town replaces the location outright, so a late fix cannot override it.
+  const [isFromTown, setIsFromTown] = useState(false);
   const selected = chosen === "distance";
   const location = useGeolocation(null);
   const directory = useStoreDirectory({ enabled: selected });
   const stores = directory.data?.stores;
   // Null whenever the status is a failure: only a tap with no fix can fail.
-  const { origin, towns, pickTown } = useDistanceOrigin(
-    stores,
-    location.position,
-  );
+  const gps = isFromTown
+    ? { status: "unavailable" as const, position: null }
+    : location;
+  const { origin, towns, pickTown } = useDistanceOrigin(stores, gps.position);
 
   const lat = origin?.lat;
   const lon = origin?.lon;
@@ -128,7 +163,7 @@ export function useDistanceSort<TMode extends string>(
   );
 
   const state = selected
-    ? readState(location.status, origin != null, directory, distanceByChain)
+    ? readState(gps.status, origin != null, directory, distanceByChain)
     : (failure ?? "idle");
 
   // Adjusting state while rendering, as React documents for derived resets,
@@ -138,8 +173,16 @@ export function useDistanceSort<TMode extends string>(
     setFailure(state);
   }
 
+  // A tap that failed keeps its watch open, and a fix after the note gave up
+  // would quietly disagree with it.
+  const stopLocating = useEffectEvent(() => location.clear());
+  useEffect(() => {
+    if (failure) stopLocating();
+  }, [failure]);
+
   function choose(mode: TMode) {
     setFailure(null);
+    setIsFromTown(false);
     setChosen(mode);
     // The position is read only while it orders the list.
     if (mode !== "distance") {
@@ -154,21 +197,26 @@ export function useDistanceSort<TMode extends string>(
 
   // A town is picked instead of the location, so it sorts without asking again.
   function chooseTown(town: string) {
+    location.clear();
     pickTown(town);
+    setIsFromTown(true);
     setFailure(null);
     setChosen("distance" as TMode);
   }
-
-  const isReady = state === "ready";
 
   return {
     chosen,
     choose,
     chooseTown,
     towns,
-    origin: isReady ? origin : null,
     state,
-    sortMode: selected && !isReady ? fallback : chosen,
-    distanceByChain: (isReady && distanceByChain) || undefined,
+    ...readSortResult({
+      state,
+      chosen,
+      fallback,
+      isFromTown,
+      origin,
+      distanceByChain,
+    }),
   };
 }

@@ -78,4 +78,34 @@ describe("DistanceSortNote", () => {
 
     expect(screen.queryByRole("button")).toBeNull();
   });
+
+  it("takes no room while idle but keeps the live region", () => {
+    renderWithProviders(
+      <DistanceSortNote
+        id="note"
+        state="idle"
+        origin={null}
+        towns={TOWNS}
+        onPickTown={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("status").parentElement).toHaveClass("sr-only");
+  });
+
+  it("keeps the change link while a picked town's sort finishes loading", () => {
+    renderWithProviders(
+      <DistanceSortNote
+        id="note"
+        state="locating"
+        origin={{ lat: 43.5, lon: 16.4, source: "picked", town: "Split" }}
+        towns={TOWNS}
+        onPickTown={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Promijeni mjesto" }),
+    ).toBeVisible();
+  });
 });

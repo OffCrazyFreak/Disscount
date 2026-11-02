@@ -100,7 +100,7 @@ export default function ProductChainsSection({
               store={chain}
               storePrices={detail.pricesByChain[chain.chain] || []}
               product={product}
-              distanceKm={detail.distanceByChain?.get(chain.chain)}
+              distanceKm={detail.shownDistances?.get(chain.chain)}
             />
           ))}
         </div>
